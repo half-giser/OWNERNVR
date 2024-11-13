@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-26 10:56:10
  * @Description: 日期切换按钮
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-05 17:51:29
 -->
 <template>
     <div class="date-tab">

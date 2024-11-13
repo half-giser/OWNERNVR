@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-19 18:41:31
  * @Description: 现场预览-云台视图-巡航线
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-21 18:07:28
 -->
 <template>
     <div class="ptz-cruise">
@@ -94,6 +92,7 @@
         margin: 0 5%;
         padding-top: 5px;
         border-top: 1px solid var(--btn-border);
+
         span {
             margin-left: 5px;
         }

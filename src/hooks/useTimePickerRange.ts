@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-05 11:30:08
  * @Description: 起止时间范围选择的时间选择器的选项禁用规则
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 11:38:06
  */
 import dayjs from 'dayjs'
 

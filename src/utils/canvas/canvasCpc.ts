@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-31 14:43:14
  * @Description: 人数统计画线：可拖动单箭头 + 可拖动矩形框
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-05-31 15:40:14
  */
 
 import CanvasBase, { type CanvasBaseLineStyleOption } from './canvasBase'

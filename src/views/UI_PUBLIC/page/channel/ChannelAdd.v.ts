@@ -2,10 +2,8 @@
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-07-09 18:39:25
  * @Description: 新增通道
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 14:53:34
  */
-import { ChannelManualAddDto, DefaultPwdDto } from '@/types/apiType/channel'
+import { ChannelManualAddDto, ChannelDefaultPwdDto } from '@/types/apiType/channel'
 import { ChannelAddRecorderDto, ChannelQuickAddDto } from '@/types/apiType/channel'
 import ChannelAddActivateIPCPop from './ChannelAddActivateIPCPop.vue'
 import ChannelAddSetDefaultPwdPop from './ChannelAddSetDefaultPwdPop.vue'
@@ -52,8 +50,8 @@ export default defineComponent({
         const quickAddTableData = ref([] as Array<ChannelQuickAddDto>)
         const manualAddFormData = ref([] as Array<ChannelManualAddDto>)
         const addRecorderTableData = ref([] as Array<ChannelAddRecorderDto>)
-        const defaultPwdList = ref([] as Array<DefaultPwdDto>)
-        const mapping = ref({} as Record<string, DefaultPwdDto>)
+        const defaultPwdList = ref([] as Array<ChannelDefaultPwdDto>)
+        const mapping = ref({} as Record<string, ChannelDefaultPwdDto>)
         const selNum = ref(0)
         const total = ref(0)
         const txtBandwidth = ref('')
@@ -108,7 +106,7 @@ export default defineComponent({
                     mapping.value = {}
                     $('//content/item').forEach((ele) => {
                         const eleXml = queryXml(ele.element)
-                        const defaultPwdData = new DefaultPwdDto()
+                        const defaultPwdData = new ChannelDefaultPwdDto()
                         defaultPwdData.id = ele.attr('id') as string
                         defaultPwdData.userName = eleXml('userName').text()
                         defaultPwdData.password = eleXml('password').text()
@@ -437,10 +435,10 @@ export default defineComponent({
             router.push('list')
         }
 
-        const handleUpdateMapping = (rows: Array<DefaultPwdDto>) => {
+        const handleUpdateMapping = (rows: Array<ChannelDefaultPwdDto>) => {
             defaultPwdList.value = rows
             mapping.value = {}
-            rows.forEach((ele: DefaultPwdDto) => {
+            rows.forEach((ele: ChannelDefaultPwdDto) => {
                 mapping.value[ele.id] = ele
             })
         }

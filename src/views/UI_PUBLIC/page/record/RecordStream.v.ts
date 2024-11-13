@@ -1,9 +1,7 @@
 /*
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-07-31 11:03:29
- * @Description:事件录像码流
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-09-26 12:13:52
+ * @Description: 事件录像码流
  */
 
 import RecordStreamTable from '@/views/UI_PUBLIC/page/record/RecordStreamTable.vue'
@@ -23,12 +21,15 @@ export default defineComponent({
             pageData.value.mode = pageData.value.mode.substring(pageData.value.mode.lastIndexOf('/') + 1)
             pageData.value.init = true
         }
+
         onMounted(() => {
             updateMode()
         })
+
         watch(route, () => {
             updateMode()
         })
+
         return {
             pageData,
             RecordStreamTable,

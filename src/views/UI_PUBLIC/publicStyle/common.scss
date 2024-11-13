@@ -4,6 +4,12 @@
  * @Description: 各主题公用的公共样式
  */
 
+@use './aiAndEvent';
+@use './businessApplication';
+@use './channel';
+@use './intelligentAnalysis';
+@use './userAndSecurity';
+
 html {
     min-width: 1024px;
     color: var(--main-text);
@@ -46,28 +52,19 @@ li {
 ::-webkit-scrollbar {
     width: 10px;
     height: 10px;
-    overflow: visible;
+    overflow: auto;
 }
 
 ::-webkit-scrollbar-thumb {
     min-height: 25px;
     min-width: 25px;
-}
-
-::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-    overflow: auto;
+    background-color: var(--scrollbar-thumb-bg);
+    border: 1px solid var(--scrollbar-thumb-border);
 }
 
 ::-webkit-scrollbar-track {
     background-color: var(--scrollbar-track-bg);
     border: 1px solid var(--scrollbar-track-border);
-}
-
-::-webkit-scrollbar-thumb {
-    background-color: var(--scrollbar-thumb-bg);
-    border: 1px solid var(--scrollbar-thumb-border);
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -81,13 +78,13 @@ li {
 // 在谷歌下移除input[number]的上下箭头
 input[type='number']::-webkit-outer-spin-button,
 input[type='number']::-webkit-inner-spin-button {
-    -webkit-appearance: none !important;
+    appearance: none !important;
     margin: 0;
 }
 
 // 在firefox下移除input[number]的上下箭头
 input[type='number'] {
-    -moz-appearance: textfield;
+    appearance: textfield;
 }
 
 #app {
@@ -103,7 +100,7 @@ input[type='number'] {
 
         & > .el-icon {
             cursor: pointer;
-            margin: auto 0px;
+            margin: auto 0;
         }
     }
 
@@ -130,7 +127,7 @@ input[type='number'] {
     // }
 
     .config-row {
-        padding: 5px 0px;
+        padding: 5px 0;
         width: 100%;
     }
 
@@ -141,39 +138,48 @@ input[type='number'] {
         width: auto;
         border: 1px solid var(--main-border);
         box-shadow: unset;
+
         .el-message-box__header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 20px 10px 20px;
+            padding: 12px 20px 10px;
             border-bottom: 1px solid var(--main-border);
+
             .el-message-box__title {
                 font-size: 15px;
                 font-weight: bold;
                 color: var(--dialog-title);
             }
+
             .el-message-box__headerbtn {
                 position: unset;
                 width: 22px;
                 height: 22px;
             }
         }
+
         .el-message-box__content {
             width: 100%;
             padding: 20px;
             box-sizing: border-box;
+
             .el-message-box__container {
                 width: 100%;
+
                 .el-message-box__message {
                     width: 100%;
+
                     .Mgs_box {
                         width: 100%;
                         display: flex;
                         align-items: center;
+
                         .Msg_Icon {
                             width: 50px;
                             height: 50px;
                         }
+
                         .Msg_Content {
                             width: calc(100% - 70px);
                             margin-left: 20px;
@@ -182,10 +188,12 @@ input[type='number'] {
                 }
             }
         }
+
         .el-message-box__btns {
-            padding: 0px 20px 20px 20px;
+            padding: 0 20px 20px;
             flex-direction: row-reverse;
             justify-content: flex-start;
+
             .el-button {
                 margin-left: 10px;
             }
@@ -197,31 +205,36 @@ input[type='number'] {
         padding: 0;
         border: 1px solid var(--main-border);
         box-shadow: unset;
+
         .el-dialog__header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 20px 10px 20px;
+            padding: 12px 20px 10px;
             border-bottom: 1px solid var(--main-border);
+
             .el-dialog__title {
                 font-size: 15px;
                 font-weight: bold;
                 color: var(--dialog-title);
             }
+
             .el-dialog__headerbtn {
                 position: unset;
                 width: 22px;
                 height: 22px;
             }
         }
+
         .el-dialog__body {
             width: 100%;
             padding: 20px;
             box-sizing: border-box;
         }
+
         .el-dialog__footer {
             margin: 0;
-            padding: 0px 20px 20px 20px;
+            padding: 0 20px 20px;
         }
     }
 
@@ -234,52 +247,53 @@ input[type='number'] {
                     justify-content: center;
                     align-items: center;
                 }
+
                 .el-text.label {
                     color: var(--el-table-header-text-color);
                     font-weight: 600;
                     font-size: 14px;
                 }
+
                 .el-dropdown {
                     width: 100%;
                     height: 100%;
                     display: flex;
                     justify-content: center;
-                    .el-dropdown-link {
-                        width: 100%;
-                        height: 100%;
-                        display: flex;
-                        justify-content: center;
-                        align-items: center;
-                        color: var(--el-table-header-text-color);
-                        .el-icon {
-                            margin-right: 5px;
-                            cursor: pointer;
-                        }
-                    }
                 }
             }
         }
-        & .el-table__cell{
+
+        & .el-table__cell {
             text-align: center;
         }
+
         .el-table__row {
             &:has(> td.el-table-column--selection > .cell .el-checkbox.is-checked) {
                 color: var(--color-white);
                 background: var(--primary);
+
                 td.el-table__cell {
                     color: var(--color-white);
                     background: var(--primary);
                 }
             }
-            .el-table-column--selection {
-                .el-checkbox {
-                    &.is-checked {
-                        .el-checkbox__inner {
-                            border: var(--el-border-width) var(--el-border-style) var(--table-checkbox-border-checked);
-                        }
+
+            .el-checkbox {
+                &.is-checked {
+                    .el-checkbox__inner {
+                        border: var(--el-border-width) var(--el-border-style) var(--table-checkbox-border-checked);
                     }
                 }
             }
+            // .el-table-column--selection {
+            //     .el-checkbox {
+            //         &.is-checked {
+            //             .el-checkbox__inner {
+            //                 border: var(--el-border-width) var(--el-border-style) var(--table-checkbox-border-checked);
+            //             }
+            //         }
+            //     }
+            // }
         }
 
         .el-input,
@@ -311,26 +325,33 @@ input[type='number'] {
 
         .el-dropdown-menu {
             padding: 0;
+
             .el-dropdown-menu__item--divided {
                 margin: 0;
             }
         }
+
         .el-select-dropdown {
             overflow: hidden;
+
             .el-select-dropdown__list {
                 padding: 0;
+
                 .el-select-dropdown__item {
                     padding: 0 10px;
+
                     &.is-hovering {
                         color: var(--color-white);
                         background-color: var(--primary);
                     }
                 }
             }
+
             .el-select-dropdown__footer {
                 cursor: pointer;
                 font-size: 14px;
                 padding: 7px 10px;
+
                 &:hover {
                     color: var(--primary);
                 }
@@ -347,6 +368,7 @@ input[type='number'] {
         .el-slider__input {
             &.is-without-controls {
                 width: 40px;
+
                 .el-input__wrapper {
                     padding: 1px 4px;
                 }
@@ -378,7 +400,7 @@ input[type='number'] {
             }
         }
 
-        &>.el-form-item {
+        & > .el-form-item {
             padding: 5px 15px;
             margin-bottom: 0;
 
@@ -387,7 +409,7 @@ input[type='number'] {
                 justify-content: space-between;
             }
 
-            &>.el-form-item__content>.el-form-item {
+            & > .el-form-item__content > .el-form-item {
                 width: 49%;
                 padding: 0;
             }
@@ -402,6 +424,7 @@ input[type='number'] {
         .MacInput,
         .IpInput {
             width: var(--form-input-width);
+
             & + * {
                 margin-left: 10px;
             }
@@ -432,6 +455,7 @@ input[type='number'] {
                 .el-input__inner {
                     text-align: left;
                 }
+
                 .el-input__wrapper {
                     padding-left: 11px;
                     padding-right: 11px;
@@ -445,6 +469,7 @@ input[type='number'] {
                     .el-input__inner {
                         text-align: center;
                     }
+
                     .el-input__wrapper {
                         padding-left: 5px;
                         padding-right: 5px;
@@ -470,7 +495,7 @@ input[type='number'] {
                 flex-wrap: nowrap;
             }
 
-            &>.el-form-item {
+            & > .el-form-item {
                 margin-bottom: 0;
 
                 &:nth-child(even) {
@@ -478,7 +503,7 @@ input[type='number'] {
                 }
             }
 
-            &.odd>.el-form-item {
+            &.odd > .el-form-item {
                 &:nth-child(odd) {
                     background-color: var(--form-stripe);
                 }
@@ -521,6 +546,11 @@ input[type='number'] {
                     width: 100%;
                     padding-block: 10px;
                 }
+            }
+
+            .el-radio {
+                margin: 0;
+                padding-inline: 5px;
             }
         }
 
@@ -594,13 +624,6 @@ input[type='number'] {
             }
         }
 
-        &.inline {
-            .el-radio {
-                margin: 0;
-                padding-inline: 5px;
-            }
-        }
-
         &.stripe {
             width: 100%;
 
@@ -622,11 +645,11 @@ input[type='number'] {
                 padding-inline: 5px;
             }
         }
-    
+
         // 每个el-checkbox换行
         &.line-break {
             display: block;
-            
+
             .el-checkbox {
                 display: flex;
                 padding-block: 5px;
@@ -667,19 +690,11 @@ input[type='number'] {
 // 将el-pagination放置在此容器下，以便el-pagination能和el-table贴合在一起
 .row_pagination {
     padding: 5px;
-    border-style: none solid solid solid;
+    border-style: none solid solid;
     border-width: 1px;
     border-color: var(--table-border);
     display: flex;
     justify-content: flex-end;
-}
-
-.table_status_col_loading {
-    width: 20px;
-    height: 20px;
-    background-image: var(--img-loading);
-    background-repeat: no-repeat;
-    background-size: cover;
 }
 
 // 将页面容器转换为flexbox
@@ -695,7 +710,7 @@ input[type='number'] {
     position: relative;
     height: 100%;
 
-    &>.el-table {
+    & > .el-table {
         position: absolute;
         // width: 100%;
         height: 100%;
@@ -704,7 +719,6 @@ input[type='number'] {
 
 // 子标题
 .base-subheading-box {
-    font-size: 35px;
     line-height: 35px;
     width: 100%;
     box-sizing: border-box;

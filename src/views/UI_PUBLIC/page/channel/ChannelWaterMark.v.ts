@@ -2,8 +2,6 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-29 11:48:59
  * @Description: 水印设置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-28 14:25:36
  */
 import { type ChannelWaterMarkDto } from '@/types/apiType/channel'
 import { type TableInstance } from 'element-plus'

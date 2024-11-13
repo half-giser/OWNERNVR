@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-01 19:23:38
  * @Description: 查看日志详情
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 15:30:53
  */
 import { SystemLogList } from '@/types/apiType/system'
 

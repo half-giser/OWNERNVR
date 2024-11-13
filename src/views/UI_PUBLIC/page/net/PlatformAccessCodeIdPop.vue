@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-16 14:02:17
  * @Description: 平台接入 设置Code ID弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-16 17:45:59
 -->
 <template>
     <el-dialog

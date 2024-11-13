@@ -2,21 +2,28 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-04 12:00:49
  * @Description: 录像与回放
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-15 19:48:52
  */
 
+/**
+ * @description 回放 通道列表项
+ */
 export class PlaybackChlList {
     id = ''
     value = ''
 }
 
+/**
+ * @description 回放 通道组列表项
+ */
 export class PlaybackChannelGroupList {
     id = ''
     value = ''
     dwellTime = 0
 }
 
+/**
+ * @description 回放 事件列表项
+ */
 export class PlaybackEventList {
     value = ''
     name = ''
@@ -24,6 +31,9 @@ export class PlaybackEventList {
     color = ''
 }
 
+/**
+ * @description 回放 备份任务列表项
+ */
 export class PlaybackBackUpTaskList {
     taskId = ''
     startEndTime = ''
@@ -48,6 +58,9 @@ export class PlaybackBackUpTaskList {
     groupby = 'chlId'
 }
 
+/**
+ * @description 回放 录像日志列表项
+ */
 export class PlaybackRecLogList {
     chlId = ''
     chlName = ''
@@ -60,6 +73,9 @@ export class PlaybackRecLogList {
     timeZone = ''
 }
 
+/**
+ * @description 回放 录像列表项
+ */
 export class PlaybackRecList {
     chlId = ''
     chlName = ''
@@ -74,6 +90,9 @@ export class PlaybackRecList {
     timeZone = ''
 }
 
+/**
+ * @description 备份 录像列表项
+ */
 export class PlaybackBackUpRecList {
     chlId = ''
     chlName = ''
@@ -94,6 +113,9 @@ export class PlaybackSearchImgList {
     captureTime = ''
 }
 
+/**
+ * @description 按图像备份 搜索表单
+ */
 export class PlaybackSearchImgForm {
     startTime = ''
     endTime = ''
@@ -103,12 +125,18 @@ export class PlaybackSearchImgForm {
     sortField = ''
 }
 
+/**
+ * @description 按时间切片 列表项
+ */
 export class PlaybackTimeSliceList {
     startTime = 0
     endTime = 0
     chlList = [] as PlaybackTimeSliceChlList[]
 }
 
+/**
+ * @description 按时间切片 通道列表项
+ */
 export class PlaybackTimeSliceChlList {
     chlId = ''
     chlName = ''

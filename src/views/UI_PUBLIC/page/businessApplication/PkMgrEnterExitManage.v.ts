@@ -2,8 +2,6 @@
  * @Author: zhangdongming zhangdongming@tvt.net.cn
  * @Date: 2024-05-29 21:21:34
  * @Description: 业务应用-停车场管理-出入口
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 18:27:53
  */
 import { type PkMgrEnterExitManageList } from '@/types/apiType/business'
 

@@ -2,10 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-23 10:59:14
  * @Description: 系统撤防
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 16:40:16
  */
-import { SystemDisarm } from '@/types/apiType/aiAndEvent'
+import { AlarmSystemDisarmDto } from '@/types/apiType/aiAndEvent'
 import { cloneDeep } from 'lodash-es'
 export default defineComponent({
     setup() {
@@ -33,6 +31,7 @@ export default defineComponent({
             sensorSwitch: false,
             inputSource: '',
         })
+
         const pageData = ref({
             // 通道map
             chlsMap: {} as Record<string, { id: string; name: string; chlType: string; supportManualAudio: boolean; supportManualWhiteLight: boolean }>,
@@ -71,9 +70,9 @@ export default defineComponent({
             addDialogTitle: Translate('IDCS_CHANNEL') + '/' + Translate('IDCS_SENSOR'),
             popoverVisible: false,
         })
-        const tableData = ref([] as SystemDisarm[])
+
+        const tableData = ref([] as AlarmSystemDisarmDto[])
         const cfgTableData = ref([] as { id: string; value: string; selected: boolean }[])
-        // const dropDownRef = ref<InstanceType<typeof ElDropdown>>()
         // 获取在线的通道列表
         const getOnlineChlList = async () => {
             const onlineChls = await queryOnlineChlList()
@@ -215,7 +214,7 @@ export default defineComponent({
                     pageData.value.totalDefenseParamList = getTotalDefenseParamList(pageData.value.hasSupportManualAudioChl, pageData.value.hasSupportManualWhiteLightChl)
                     res('//content/defenseSwitchParam/item').forEach((item) => {
                         const $item = queryXml(item.element)
-                        const row = new SystemDisarm()
+                        const row = new AlarmSystemDisarmDto()
                         const chlId = item.attr('id')!
                         const nodeType = $item('nodeType').text()
                         // 撤防联动项
@@ -272,9 +271,9 @@ export default defineComponent({
                     </nodeType>
                 </types>
                 <content>
-                    <defenseSwitch>${pageData.value.defenseSwitch.toString()}</defenseSwitch>
-                    <remoteSwitch>${pageData.value.remoteSwitch.toString()}</remoteSwitch>
-                    <sensorSwitch>${formData.value.sensorSwitch.toString()}</sensorSwitch>
+                    <defenseSwitch>${pageData.value.defenseSwitch}</defenseSwitch>
+                    <remoteSwitch>${pageData.value.remoteSwitch}</remoteSwitch>
+                    <sensorSwitch>${formData.value.sensorSwitch}</sensorSwitch>
                     <inputSourceSensor>${formData.value.inputSource}</inputSourceSensor>
                     <defenseSwitchParam type="list">
                         ${tableData.value
@@ -437,7 +436,7 @@ export default defineComponent({
         const addItem = () => {
             if (pageData.value.selectedChlsSourceList.length > 0) {
                 pageData.value.selectedChlsSourceList.forEach((item: { id: string; value: string; nodeType: string; supportManualAudio: boolean; supportManualWhiteLight: boolean }) => {
-                    const row = new SystemDisarm()
+                    const row = new AlarmSystemDisarmDto()
                     const ipcDefenseParamList = getIpcDefenseParamList(item.supportManualAudio, item.supportManualWhiteLight)
                     let disarmItemsStr = ''
                     if (ipcDefenseParamList.length == pageData.value.defenseParamList.length) {
@@ -513,7 +512,7 @@ export default defineComponent({
 
         // 点击按钮，保存所有撤防联动项配置
         const disarmCfgAll = () => {
-            tableData.value.forEach((item: SystemDisarm) => {
+            tableData.value.forEach((item: AlarmSystemDisarmDto) => {
                 item.disarmItemsList = pageData.value.selectedCfgList.filter((ele: { id: string; value: string }) => {
                     return item.disarmItems.some((ele2: { id: string; value: string }) => {
                         return ele.id == ele2.id
@@ -537,12 +536,12 @@ export default defineComponent({
         }
 
         // 删除单个撤防项
-        const deleteItem = (row: SystemDisarm) => {
+        const deleteItem = (row: AlarmSystemDisarmDto) => {
             openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_S'),
             }).then(() => {
-                tableData.value.forEach((item: SystemDisarm) => {
+                tableData.value.forEach((item: AlarmSystemDisarmDto) => {
                     if (item.id == row.id) {
                         tableData.value.splice(tableData.value.indexOf(item), 1)
                     }

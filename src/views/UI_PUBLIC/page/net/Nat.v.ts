@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-12 09:40:19
  * @Description: Nat配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 19:11:34
  */
 import QRCode from 'qrcode'
 import { type QRCodeToDataURLOptions } from 'qrcode'
@@ -123,7 +121,7 @@ export default defineComponent({
 
             const sendXml = rawXml`
                 <content>
-                    <switch index="${formData.value.index}">${formData.value.natSwitch.toString()}</switch>
+                    <switch index="${formData.value.index}">${formData.value.natSwitch}</switch>
                 </content>
             `
             const result = await editP2PCfg(sendXml)

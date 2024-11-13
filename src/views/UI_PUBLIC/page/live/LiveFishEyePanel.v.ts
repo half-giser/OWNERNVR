@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-29 15:38:29
  * @Description: 现场预览-鱼眼视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:09:14
  */
 import { type LiveSharedWinData } from '@/types/apiType/live'
 

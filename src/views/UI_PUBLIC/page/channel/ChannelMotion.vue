@@ -196,7 +196,6 @@
                                         <el-dropdown-item
                                             v-for="item in holdTimeList"
                                             :key="item"
-                                            :value="item"
                                             @click="handleChangeAll('holdTime', item)"
                                             >{{ getTranslateForSecond(Number(item)) }}</el-dropdown-item
                                         >
@@ -244,10 +243,6 @@
 </template>
 
 <script lang="ts" src="./ChannelMotion.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/channel.scss';
-</style>
 
 <style scoped lang="scss">
 .motionCtrl {

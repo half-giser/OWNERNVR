@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-12 16:13:26
  * @Description: POS信息弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 17:59:58
  */
 import { type PlaybackRecLogList } from '@/types/apiType/playback'
 

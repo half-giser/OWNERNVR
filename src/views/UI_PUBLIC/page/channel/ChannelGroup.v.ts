@@ -3,7 +3,7 @@
  * @Date: 2024-06-17 21:17:45
  * @Description: 通道组
  */
-import { ChlGroup } from '@/types/apiType/channel'
+import { ChannelGroupDto } from '@/types/apiType/channel'
 import ChannelGroupEditPop from './ChannelGroupEditPop.vue'
 import ChannelGroupAddChlPop from './ChannelGroupAddChlPop.vue'
 import ChannelPtzTableExpandPanel from './ChannelPtzTableExpandPanel.vue'
@@ -16,21 +16,21 @@ export default defineComponent({
         ChannelPtzTableExpandPanel,
         ChannelPtzTableExpandItem,
     },
-    setup() {
+    setup(_prop, ctx) {
         const router = useRouter()
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
         const { openMessageBox } = useMessageBox()
 
-        const tableData = ref<ChlGroup[]>()
+        const tableData = ref<ChannelGroupDto[]>()
         const pageIndex = ref(1)
         const pageSize = ref(10)
         const pageTotal = ref(0)
-        const editItem = ref(new ChlGroup())
-        const editItemForAddChl = ref(new ChlGroup())
+        const editItem = ref(new ChannelGroupDto())
+        const editItemForAddChl = ref(new ChannelGroupDto())
         const isEditPop = ref(false)
         const isAddChlPop = ref(false)
-        let tmpExpendedRows: ChlGroup[] = []
+        let tmpExpendedRows: ChannelGroupDto[] = []
 
         const closeChlGroupEditPop = () => {
             isEditPop.value = false
@@ -43,7 +43,7 @@ export default defineComponent({
             }
         }
 
-        const setDataCallBack = (rowData: ChlGroup) => {
+        const setDataCallBack = (rowData: ChannelGroupDto) => {
             editItem.value!.name = rowData.name
             editItem.value!.dwellTime = rowData.dwellTime
         }
@@ -60,12 +60,12 @@ export default defineComponent({
             return Translate('IDCS_STAY_TIME_D').formatForLang(value + ' ', getTranslateForSecond(value))
         }
 
-        const handleEditChlGroup = (rowData: ChlGroup) => {
+        const handleEditChlGroup = (rowData: ChannelGroupDto) => {
             editItem.value = rowData
             isEditPop.value = true
         }
 
-        const handleDelChlGroup = (rowData: ChlGroup) => {
+        const handleDelChlGroup = (rowData: ChannelGroupDto) => {
             openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_GROUP_S').formatForLang(getShortString(rowData.name, 10)),
@@ -109,7 +109,7 @@ export default defineComponent({
             getData()
         }
 
-        const handleExpandChange = (row: ChlGroup, expandedRows: ChlGroup[]) => {
+        const handleExpandChange = (row: ChannelGroupDto, expandedRows: ChannelGroupDto[]) => {
             if (expandedRows.includes(row)) {
                 const data = rawXml`
                     <condition>
@@ -139,8 +139,8 @@ export default defineComponent({
 
         const getData = () => {
             const data = rawXml`
-                <pageIndex>${pageIndex.value.toString()}</pageIndex>
-                <pageSize>${pageSize.value.toString()}</pageSize>
+                <pageIndex>${pageIndex.value}</pageIndex>
+                <pageSize>${pageSize.value}</pageSize>
                 <requireField>
                     <name/>
                     <dwellTime/>
@@ -155,7 +155,7 @@ export default defineComponent({
                     tableData.value = []
                     $('//content/item').forEach((ele) => {
                         const eleXml = queryXml(ele.element)
-                        const newData = new ChlGroup()
+                        const newData = new ChannelGroupDto()
                         newData.id = ele.attr('id')!
                         newData.name = eleXml('name').text()
                         newData.dwellTime = Number(eleXml('dwellTime').text())
@@ -167,12 +167,12 @@ export default defineComponent({
             })
         }
 
-        const handleAddChl = (rowData: ChlGroup) => {
+        const handleAddChl = (rowData: ChannelGroupDto) => {
             editItemForAddChl.value = rowData
             isAddChlPop.value = true
         }
 
-        const handleDelChl = (rowData: ChlGroup, chlId: string) => {
+        const handleDelChl = (rowData: ChannelGroupDto, chlId: string) => {
             if (rowData.chlCount <= 1) {
                 openMessageBox({
                     type: 'info',
@@ -222,6 +222,10 @@ export default defineComponent({
             getData()
         })
 
+        ctx.expose({
+            handleToolBarEvent,
+        })
+
         return {
             tableData,
             pageIndex,
@@ -234,7 +238,6 @@ export default defineComponent({
             closeChlGroupEditPop,
             closeChlGroupAddChlPop,
             setDataCallBack,
-            handleToolBarEvent,
             formatDwellTime,
             handleEditChlGroup,
             handleDelChlGroup,

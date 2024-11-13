@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-19 14:43:09
  * @Description: 本地配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-19 16:26:10
  */
 import type { FormInstance, FormRules } from 'element-plus'
 import { SystemLocalConfig } from '@/types/apiType/system'
@@ -34,7 +32,7 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             liveSnapSavePath: [
                 {
-                    validator(_rule, value, callback) {
+                    validator: (_rule, value: string, callback) => {
                         if (!value) {
                             callback(new Error(Translate('IDCS_FTP_SAVE_PATH_ISEMPTY')))
                             return
@@ -45,7 +43,7 @@ export default defineComponent({
             ],
             recSavePath: [
                 {
-                    validator(_rule, value, callback) {
+                    validator: (_rule, value: string, callback) => {
                         if (!value) {
                             callback(new Error(Translate('IDCS_FTP_SAVE_PATH_ISEMPTY')))
                             return

@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-31 10:35:00
  * @Description: 基于webAssembly + canvas的视频播放器
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-05 11:09:33
  */
 import WebGLPlayer from './webglPlayer'
 import PCMPlayer, { type PCMPlayerOptionEncoding } from './pcmPlayer'

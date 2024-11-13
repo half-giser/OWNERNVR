@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-21 10:40:04
  * @Description: 新增轨迹弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:39:39
  */
 import { type ChannelPtzTraceDto } from '@/types/apiType/channel'
 import type { FormInstance, FormRules } from 'element-plus'
@@ -52,7 +50,7 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             name: [
                 {
-                    validator(_rule, value: string, callback) {
+                    validator: (_rule, value: string, callback) => {
                         if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
                             return
@@ -62,6 +60,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_CUSTOME_VIEW_NAME_EXIST')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',

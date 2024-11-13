@@ -2,32 +2,30 @@
  * @Description: 普通事件——组合报警弹窗
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-23 15:03:09
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-29 15:09:17
  */
-import { type CombinedAlarmItem, type faceMatchObj } from '@/types/apiType/aiAndEvent'
-import FaceMatchPop from './FaceMatchPop.vue'
+import { type AlarmCombinedItemDto, type AlarmCombinedFaceMatchDto } from '@/types/apiType/aiAndEvent'
+import CombinationAlarmFaceMatchPop from './CombinationAlarmFaceMatchPop.vue'
 
 export default defineComponent({
     components: {
-        FaceMatchPop,
+        CombinationAlarmFaceMatchPop,
     },
     props: {
         linkedId: {
             type: String,
-            require: true,
+            required: true,
         },
         linkedList: {
-            type: Array as PropType<CombinedAlarmItem[]>,
-            require: true,
+            type: Array as PropType<AlarmCombinedItemDto[]>,
+            required: true,
         },
         currRowFaceObj: {
-            type: Object as PropType<Record<string, Record<string, faceMatchObj>>>,
-            require: true,
+            type: Object as PropType<Record<string, Record<string, AlarmCombinedFaceMatchDto>>>,
+            required: true,
         },
     },
     emits: {
-        confirm(currId: string, combinedAlarmItems: CombinedAlarmItem[], entity: string, obj: faceMatchObj) {
+        confirm(currId: string, combinedAlarmItems: AlarmCombinedItemDto[], entity: string, obj: AlarmCombinedFaceMatchDto) {
             return typeof currId === 'string' && Array.isArray(combinedAlarmItems) && typeof entity === 'string' && typeof obj === 'object'
         },
         close(id: string) {
@@ -101,11 +99,11 @@ export default defineComponent({
             detectBtn: { value: '', label: '' },
             isFaceMatchPopShow: false,
             linkedEntity: '',
-            linkedObj: {} as Record<string, faceMatchObj>,
-            faceMatchObj: {} as Record<string, Record<string, faceMatchObj>>,
+            linkedObj: {} as Record<string, AlarmCombinedFaceMatchDto>,
+            faceMatchObj: {} as Record<string, Record<string, AlarmCombinedFaceMatchDto>>,
         })
 
-        const tableData = ref<CombinedAlarmItem[]>([])
+        const tableData = ref<AlarmCombinedItemDto[]>([])
 
         const getChls = () => {
             getChlList({ requireField: ['protocolType'] }).then((result) => {
@@ -318,12 +316,12 @@ export default defineComponent({
             return mapList
         }
 
-        const rowChange = (row: CombinedAlarmItem) => {
+        const rowChange = (row: AlarmCombinedItemDto) => {
             changeDescription()
             CheckDetect(row)
         }
 
-        const typeChange = (row: CombinedAlarmItem, index: number) => {
+        const typeChange = (row: AlarmCombinedItemDto, index: number) => {
             let optionMap = supportFaceMatch ? COMBINED_ALARM_TYPES_MAPPING : IntelAndFaceConfigHide ? COMMON_ALARM_TYPES_MAPPING : NO_FACE_ALARM_TYPES_MAPPING
             const type = row.alarmSourceType
 
@@ -351,7 +349,7 @@ export default defineComponent({
             CheckDetect(row)
         }
 
-        const entityChange = (row: CombinedAlarmItem) => {
+        const entityChange = (row: AlarmCombinedItemDto) => {
             const entityList = getEntityMap(row.alarmSourceType)
             entityList.some((item) => {
                 if (item.value == row.alarmSourceEntity.value) {
@@ -407,7 +405,7 @@ export default defineComponent({
             })
         }
 
-        const CheckDetect = async (row: CombinedAlarmItem) => {
+        const CheckDetect = async (row: AlarmCombinedItemDto) => {
             const id = row?.alarmSourceEntity.value
             // 在没有报警源时不进行后续处理
             if (!id) return false
@@ -553,7 +551,7 @@ export default defineComponent({
             pageData.value.isFaceMatchPopShow = true
         }
 
-        const handleFaceMatchLinkedObj = (entity: string, obj: faceMatchObj) => {
+        const handleFaceMatchLinkedObj = (entity: string, obj: AlarmCombinedFaceMatchDto) => {
             pageData.value.faceMatchObj[entity] = {}
             pageData.value.faceMatchObj[entity].obj = obj
             changeDescription()
@@ -594,7 +592,7 @@ export default defineComponent({
             if (isSameId) return false
 
             let entity = ''
-            let obj = {} as faceMatchObj
+            let obj = {} as AlarmCombinedFaceMatchDto
             tableData.value.forEach((item) => {
                 if (item.alarmSourceType == 'FaceMatch' && pageData.value.faceMatchObj[item.alarmSourceEntity.value]) {
                     if (pageData.value.faceMatchObj[item.alarmSourceEntity.value]) {
@@ -620,7 +618,7 @@ export default defineComponent({
         })
 
         return {
-            FaceMatchPop,
+            CombinationAlarmFaceMatchPop,
             tableData,
             pageData,
             open,

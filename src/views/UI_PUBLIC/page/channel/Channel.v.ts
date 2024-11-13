@@ -3,7 +3,7 @@
  * @Date: 2024-05-07 17:12:45
  * @Description: 通道列表
  */
-import { ChannelInfoDto } from '@/types/apiType/channel'
+import { ChannelInfoDto, type ChannelIPCUpgradeExpose } from '@/types/apiType/channel'
 import ChannelEditPop from './ChannelEditPop.vue'
 import ChannelEditIPCPwdPop from './ChannelEditIPCPwdPop.vue'
 import ChannelIPCUpgradePop from './ChannelIPCUpgradePop.vue'
@@ -14,7 +14,7 @@ export default defineComponent({
         ChannelEditIPCPwdPop,
         ChannelIPCUpgradePop,
     },
-    setup() {
+    setup(_prop, ctx) {
         const volumn = ref(0)
         const mute = ref(false)
         const { Translate } = useLangStore()
@@ -38,7 +38,7 @@ export default defineComponent({
         const editNameMapping = ref({} as Record<string, string>)
         const baseLivePopRef = ref<LivePopInstance>()
         const notifications = ref([] as string[])
-        const channelIPCUpgradePopRef = ref()
+        const channelIPCUpgradePopRef = ref<ChannelIPCUpgradeExpose>()
 
         let ipChlMaxCount = 0
         let ipChlMaxCountOriginal = 0
@@ -189,7 +189,7 @@ export default defineComponent({
             openUpgradePop('multiple', tableData.value)
         }
 
-        const openUpgradePop = (type: string, data: ChannelInfoDto[]) => {
+        const openUpgradePop = (type: 'single' | 'multiple', data: ChannelInfoDto[]) => {
             if (isSupportH5 && isHttpsLogin()) {
                 notifications.value.push(formatHttpsTips(Translate('IDCS_IPC_UPGRADE')))
                 return
@@ -198,7 +198,7 @@ export default defineComponent({
                 type: 'question',
                 message: Translate('IDCS_IPC_UPGRADE_FINISH_RESTART'),
             }).then(() => {
-                channelIPCUpgradePopRef.value.init(type, data)
+                channelIPCUpgradePopRef.value!.init(type, data)
             })
         }
 
@@ -282,7 +282,7 @@ export default defineComponent({
                             }
                         })
 
-                        channelIPCUpgradePopRef.value.initWsState(tableData.value)
+                        channelIPCUpgradePopRef.value!.initWsState(tableData.value)
 
                         //获取在线通道列表
                         getOnlineChlList()
@@ -447,8 +447,11 @@ export default defineComponent({
             getDataList()
         })
 
-        return {
+        ctx.expose({
             handleToolBarEvent,
+        })
+
+        return {
             tableData,
             channelEditPopVisable,
             editRowData,

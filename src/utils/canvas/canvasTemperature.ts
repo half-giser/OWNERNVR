@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-31 17:18:13
  * @Description: 打点绘制闭合多边形、点、线，支持业务：温度检测
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-03 09:49:18
  */
 import CanvasBase, { type CanvasBaseLineStyleOption, type CanvasBasePoint } from './canvasBase'
 

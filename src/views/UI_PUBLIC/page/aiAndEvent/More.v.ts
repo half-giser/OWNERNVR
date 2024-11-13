@@ -2,10 +2,8 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-10 17:50:35
  * @Description: 更多功能页面的框架
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-28 15:23:39
  */
-import { type chlCaps } from '@/types/apiType/aiAndEvent'
+import { type AlarmChlDto } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
 import FireDetection from './FireDetections.vue'
 import TemperatureDetection from './TemperatureDetection.vue'
@@ -35,9 +33,9 @@ export default defineComponent({
             // 在线通道列表
             onlineChannelList: [] as { id: string; ip: string; name: string; accessType: string }[],
             // 当前选择通道数据
-            chlData: {} as chlCaps,
+            chlData: {} as AlarmChlDto,
             // 通道能力集
-            chlCaps: {} as Record<string, chlCaps>,
+            chlCaps: {} as Record<string, AlarmChlDto>,
             // 当前选择的功能
             chosenFunction: 'tripwire',
             // 声音列表
@@ -79,10 +77,10 @@ export default defineComponent({
             boundaryChlCapsObj: [],
             // 保存所有支持更多分类的通道
             moreChlCapsObj: [],
-
             // tabkey
             tabKey: 0,
         })
+
         // 切换通道
         const handleChangeChannel = async () => {
             pageData.value.chlData = pageData.value.chlCaps[pageData.value.currChlId]
@@ -341,20 +339,14 @@ export default defineComponent({
             isTabDisabled()
             pageData.value.tabKey += 1
         }
-        watchEffect(() => {
-            if (pageData.value.chosenFunction !== '') {
-                const popper = document.querySelector('.base-ai-chl-option')
-                if (popper) {
-                    ;(popper as HTMLElement).style.height = pageData.value.chosenFunction == 'avd' ? '105px' : '140px'
-                }
-            }
-        })
+
         onMounted(async () => {
             await getOnlineChannel()
             await getChannelData()
             await getVoiceList()
             initPage()
         })
+
         return {
             FireDetection,
             PassLine,

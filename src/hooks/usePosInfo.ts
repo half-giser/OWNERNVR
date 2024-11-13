@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-12 14:52:28
  * @Description: POS信息
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:19:54
  */
 import { type TVTPlayerPosInfoItem } from '@/utils/wasmPlayer/tvtPlayer'
 

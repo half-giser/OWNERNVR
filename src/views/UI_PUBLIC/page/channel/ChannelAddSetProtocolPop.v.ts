@@ -3,9 +3,8 @@
  * @Date: 2024-06-05 17:19:32
  * @Description: 添加通道 - 设置协议弹窗
  */
-import { type RuleItem } from 'async-validator'
-import { ProtocolManageDto, ResourcesPathDto } from '@/types/apiType/channel'
-import type { FormInstance, TableInstance } from 'element-plus'
+import { ChannelProtocolManageDto, ChannelResourcesPathDto } from '@/types/apiType/channel'
+import type { FormInstance, TableInstance, FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -24,8 +23,8 @@ export default defineComponent({
         const { openLoading, closeLoading } = useLoading()
         const { openMessageBox } = useMessageBox()
         const formRef = ref<FormInstance>()
-        const formData = ref(new ProtocolManageDto())
-        const protocolManageList = ref<ProtocolManageDto[]>([])
+        const formData = ref(new ChannelProtocolManageDto())
+        const protocolManageList = ref<ChannelProtocolManageDto[]>([])
         const currentProtocolLogo = ref('')
         const tableRef = ref<TableInstance>()
 
@@ -37,7 +36,7 @@ export default defineComponent({
             if (formData.value.enabled) {
                 if (!(await verification())) return
             }
-            formData.value = protocolManageList.value.find((ele: ProtocolManageDto) => ele.id == val) as ProtocolManageDto
+            formData.value = protocolManageList.value.find((ele: ChannelProtocolManageDto) => ele.id == val) as ChannelProtocolManageDto
             tempProtocolLogo = val
         }
 
@@ -50,13 +49,13 @@ export default defineComponent({
                     protocolManageList.value = []
                     $('//content/item').forEach((ele) => {
                         let eleXml = queryXml(ele.element)
-                        const newData = new ProtocolManageDto()
+                        const newData = new ChannelProtocolManageDto()
                         newData.id = ele.attr('id')!
                         newData.enabled = eleXml('enabled').text() == 'true'
                         newData.displayName = eleXml('displayName').text()
                         eleXml('resourcesPath/item').forEach((ele) => {
                             eleXml = queryXml(ele.element)
-                            const resourcesPath = new ResourcesPathDto()
+                            const resourcesPath = new ChannelResourcesPathDto()
                             resourcesPath.streamType = eleXml('streamType').text()
                             resourcesPath.protocol = eleXml('protocol').text()
                             resourcesPath.transportProtocol = eleXml('transportProtocol').text()
@@ -72,44 +71,45 @@ export default defineComponent({
             })
         }
 
-        const validate: Record<string, RuleItem['validator']> = {
-            validateDisplayName: (_rule, value, callback) => {
-                // if (formData.value.chkDomain) {
-                //     let domain = trim(formData.value.domain)
-                //     if (!domain.length) {
-                //         callback(new Error(Translate('IDCS_DOMAIN_NAME_EMPTY')))
-                //         return
-                //     }
-                // } else {
-                //     let ip = trim(formData.value.ip)
-                //     if (!ip || ip == '0.0.0.0') {
-                //         callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_INVALID')))
-                //         return
-                //     }
-                // }
-                value = value.trim()
-                if (!value) {
-                    callback(new Error(Translate('IDCS_SHOW_NAME_EMPTY')))
-                    currentProtocolLogo.value = tempProtocolLogo
-                    return
-                }
+        const rules = ref<FormRules>({
+            displayName: [
+                {
+                    validator: (_rule, value: string, callback) => {
+                        // if (formData.value.chkDomain) {
+                        //     let domain = trim(formData.value.domain)
+                        //     if (!domain.length) {
+                        //         callback(new Error(Translate('IDCS_DOMAIN_NAME_EMPTY')))
+                        //         return
+                        //     }
+                        // } else {
+                        //     let ip = trim(formData.value.ip)
+                        //     if (!ip || ip == '0.0.0.0') {
+                        //         callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_INVALID')))
+                        //         return
+                        //     }
+                        // }
+                        value = value.trim()
+                        if (!value) {
+                            callback(new Error(Translate('IDCS_SHOW_NAME_EMPTY')))
+                            currentProtocolLogo.value = tempProtocolLogo
+                            return
+                        }
 
-                if (displayNameList.concat(manufacturerArray).includes(value)) {
-                    callback(new Error(Translate('IDCS_SHOW_NAME_SAME')))
-                    currentProtocolLogo.value = tempProtocolLogo
-                    return
-                }
-                callback()
-            },
-        }
-
-        const rules = ref({
-            displayName: [{ validator: validate.validateDisplayName, trigger: 'manual' }],
+                        if (displayNameList.concat(manufacturerArray).includes(value)) {
+                            callback(new Error(Translate('IDCS_SHOW_NAME_SAME')))
+                            currentProtocolLogo.value = tempProtocolLogo
+                            return
+                        }
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
         })
 
         const verification = async () => {
             displayNameList = []
-            protocolManageList.value.forEach((ele: ProtocolManageDto) => {
+            protocolManageList.value.forEach((ele: ChannelProtocolManageDto) => {
                 if (ele.enabled && ele.id != tempProtocolLogo) displayNameList.push(ele.displayName)
             })
             if (!formRef) return false
@@ -191,7 +191,7 @@ export default defineComponent({
                         .map((ele) => {
                             return rawXml`
                                 <item id='${ele.id}'>
-                                    <enabled>${ele.enabled.toString()}</enabled>
+                                    <enabled>${ele.enabled}</enabled>
                                     <displayName>${wrapCDATA(ele.displayName)}</displayName>
                                     <resourcesPath>
                                         ${ele.resourcesPath
@@ -201,7 +201,7 @@ export default defineComponent({
                                                         <streamType>${ele.streamType}</streamType>
                                                         <protocol>${ele.protocol}</protocol>
                                                         <transportProtocol>${ele.transportProtocol}</transportProtocol>
-                                                        <port>${ele.port.toString()}</port>
+                                                        <port>${ele.port}</port>
                                                         <path>${wrapCDATA(ele.path)}</path>
                                                     </item>
                                                 `

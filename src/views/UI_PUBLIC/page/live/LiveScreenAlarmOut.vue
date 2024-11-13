@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-18 13:37:21
  * @Description: 现场预览-底部视图-手动报警
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-01 18:00:56
 -->
 <template>
     <div>

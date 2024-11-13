@@ -2,8 +2,6 @@
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-07-09 18:39:25
  * @Description: 通道 - OSD配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-31 19:33:46
 -->
 <template>
     <div class="base-chl-box">
@@ -337,7 +335,3 @@
 </template>
 
 <script lang="ts" src="./ChannelOsd.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/channel.scss';
-</style>

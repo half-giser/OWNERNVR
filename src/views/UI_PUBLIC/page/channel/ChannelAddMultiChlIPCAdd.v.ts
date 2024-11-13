@@ -2,15 +2,13 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-09 18:39:25
  * @Description: 添加通道 - 手动添加IPC通道(普通通道+热成像通道)
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 16:55:03
  */
-import { ChannelInfoDto, type DefaultPwdDto, MultiChlCheckedInfoDto, type MultiChlIPCAddDto } from '@/types/apiType/channel'
+import { ChannelInfoDto, type ChannelDefaultPwdDto, ChannelMultiChlCheckedInfoDto, type ChannelMultiChlIPCAddDto } from '@/types/apiType/channel'
 
 export interface channelAddMultiChlIPCAddPop {
     init: (
         rowDatas: Record<string, any>[],
-        _mapping: Record<string, DefaultPwdDto>,
+        _mapping: Record<string, ChannelDefaultPwdDto>,
         _manufacturerMap: Record<string, string>,
         _protocolList: Array<Record<string, string>>,
         _callback: (sendXml: string) => void,
@@ -24,7 +22,7 @@ export default defineComponent({
         const userSessionStore = useUserSessionStore()
         const router = useRouter()
         const multiChlIPCCfgDialogVisiable = ref(false)
-        const tableData = ref<MultiChlIPCAddDto[]>([])
+        const tableData = ref<ChannelMultiChlIPCAddDto[]>([])
 
         const defaultParam =
             '<rec per="5" post="10"/>' +
@@ -33,16 +31,16 @@ export default defineComponent({
             '<popVideoSwitch>false</popVideoSwitch>' +
             '<frontEndOffline_popMsgSwitch>false</frontEndOffline_popMsgSwitch>'
 
-        let chlMapping: Record<string, DefaultPwdDto> = {}
+        let chlMapping: Record<string, ChannelDefaultPwdDto> = {}
         let manufacturerMap: Record<string, string> = {}
         let protocolList: Array<Record<string, string>> = []
         let callback: (sendXml: string) => void
         let numName = 1
-        let RTSPData: MultiChlIPCAddDto[] = [] // RTSP通道类型数据
-        let nonRTSPData: MultiChlIPCAddDto[] = [] //非RTSP通道类型数据（包含：热成像通道，鱼眼通道，...）
-        let normalChlData: MultiChlIPCAddDto[] = [] // 普通通道数据（可见光通道也属于普通单目通道）
-        let thermalChlData: MultiChlIPCAddDto[] = [] // 热成像通道数据（热成像IPC为双通道，包括：可见光通道，热成像通道）
-        let multichannelIpcData: MultiChlIPCAddDto[] = [] // 多通道IPC数据（热成像，鱼眼等多通道IPC）
+        let RTSPData: ChannelMultiChlIPCAddDto[] = [] // RTSP通道类型数据
+        let nonRTSPData: ChannelMultiChlIPCAddDto[] = [] //非RTSP通道类型数据（包含：热成像通道，鱼眼通道，...）
+        let normalChlData: ChannelMultiChlIPCAddDto[] = [] // 普通通道数据（可见光通道也属于普通单目通道）
+        let thermalChlData: ChannelMultiChlIPCAddDto[] = [] // 热成像通道数据（热成像IPC为双通道，包括：可见光通道，热成像通道）
+        let multichannelIpcData: ChannelMultiChlIPCAddDto[] = [] // 多通道IPC数据（热成像，鱼眼等多通道IPC）
 
         const opened = () => {
             closeLoading()
@@ -50,7 +48,7 @@ export default defineComponent({
 
         const init = (
             rowDatas: Record<string, any>[],
-            _mapping: Record<string, DefaultPwdDto>,
+            _mapping: Record<string, ChannelDefaultPwdDto>,
             _manufacturerMap: Record<string, string>,
             _protocolList: Array<Record<string, string>>,
             _callback: (sendXml: string) => void,
@@ -68,7 +66,7 @@ export default defineComponent({
 
             rowDatas.forEach((item: Record<string, object>) => {
                 const isArray = Boolean(item.isArray)
-                const element = item.element as MultiChlIPCAddDto
+                const element = item.element as ChannelMultiChlIPCAddDto
                 if (isArray && ((element.addrType == 'ip' && element.ip != '0.0.0.0') || (element.addrType != 'ip' && element.domain))) {
                     RTSPData.push(element)
                 }
@@ -85,7 +83,7 @@ export default defineComponent({
             const chlTypeMap: Record<string, string> = {}
             let curRequestNum = 0
             openLoading()
-            nonRTSPData.forEach((item: MultiChlIPCAddDto) => {
+            nonRTSPData.forEach((item: ChannelMultiChlIPCAddDto) => {
                 createLanDeviceRequest(item).then((res) => {
                     const $ = queryXml(res)
                     curRequestNum++
@@ -102,7 +100,7 @@ export default defineComponent({
                             normalChlData = []
                             thermalChlData = []
                             multichannelIpcData = []
-                            nonRTSPData.forEach((item: MultiChlIPCAddDto, index: number) => {
+                            nonRTSPData.forEach((item: ChannelMultiChlIPCAddDto, index: number) => {
                                 const resArr: ChannelInfoDto[] = []
                                 allExistChlData.forEach((ele: ChannelInfoDto) => {
                                     if (ele.ip == item.ip) resArr.push(ele)
@@ -111,11 +109,11 @@ export default defineComponent({
                                     item.multichannelCheckedInfoList = []
                                     if (chlTypeMap[item.ip] == 'THERMAL_DOUBLE') {
                                         // 热成像通道
-                                        const visibleLight = new MultiChlCheckedInfoDto()
+                                        const visibleLight = new ChannelMultiChlCheckedInfoDto()
                                         visibleLight.operateIndex = 0
                                         visibleLight.chlType = 'visibleLight'
                                         visibleLight.chlLabel = Translate('IDCS_VISIBLE_LIGHT')
-                                        const thermal = new MultiChlCheckedInfoDto()
+                                        const thermal = new ChannelMultiChlCheckedInfoDto()
                                         thermal.operateIndex = 1
                                         thermal.chlType = 'thermal'
                                         thermal.chlLabel = Translate('IDCS_THERMAL_LIGHT')
@@ -162,7 +160,7 @@ export default defineComponent({
          * @param element
          * @returns
          */
-        const createLanDeviceRequest = (element: MultiChlIPCAddDto) => {
+        const createLanDeviceRequest = (element: ChannelMultiChlIPCAddDto) => {
             let ipXmlStr = ''
             let domainXmlStr = ''
             if (element.addrType == 'ip') {
@@ -181,7 +179,7 @@ export default defineComponent({
                     <manufacturer>${element.manufacturer}</manufacturer>
                     ${ipXmlStr}
                     ${domainXmlStr}
-                    <port>${element.port.toString()}</port>
+                    <port>${element.port}</port>
                     <userName maxByteLen="63"><![CDATA[${cutStringByByte(element.userName, nameByteMaxLen)}]]></userName>
                     ${element.password == '******' ? '' : '<password' + getSecurityVer() + '><![CDATA[' + AES_encrypt(element.password, userSessionStore.sesionKey) + ']]></password>'}
                 </content>`
@@ -290,7 +288,7 @@ export default defineComponent({
             callback(sendXml)
         }
 
-        const getSaveData = (element: MultiChlIPCAddDto, chlType: string, accessType: string) => {
+        const getSaveData = (element: ChannelMultiChlIPCAddDto, chlType: string, accessType: string) => {
             const name = calChlName()
             let ipXmlStr = ''
             let domainXmlStr = ''
@@ -336,7 +334,7 @@ export default defineComponent({
                         <name><![CDATA[${name}]]></name>
                         ${ipXmlStr}
                         ${domainXmlStr}
-                        <port>${element.port.toString()}</port>
+                        <port>${element.port}</port>
                         <userName><![CDATA[${cutStringByByte(element.userName, nameByteMaxLen)}]]></userName>
                         ${element.password == '******' ? '' : `<password ${getSecurityVer()}>${wrapCDATA(AES_encrypt(element.password, userSessionStore.sesionKey))}</password>`}
                         <index>0</index>

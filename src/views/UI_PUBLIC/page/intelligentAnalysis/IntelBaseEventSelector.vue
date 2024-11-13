@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-03 15:07:31
  * @Description: 智能分析 事件选择器
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-01 18:21:41
 -->
 <template>
     <div>
@@ -63,7 +61,3 @@
 </template>
 
 <script lang="ts" src="./IntelBaseEventSelector.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/intelligentAnalysis.scss';
-</style>

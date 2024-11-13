@@ -2,12 +2,9 @@
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-06-19 09:52:27
  * @Description: 新增通道组
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-22 15:38:30
  */
-import { ChannelInfoDto, ChlGroup } from '@/types/apiType/channel'
-import { type RuleItem } from 'async-validator'
-import type { FormInstance, TableInstance } from 'element-plus'
+import { ChannelInfoDto, ChannelGroupDto } from '@/types/apiType/channel'
+import type { FormInstance, TableInstance, FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -34,7 +31,7 @@ export default defineComponent({
         const router = useRouter()
 
         const formRef = ref<FormInstance>()
-        const formData = ref(new ChlGroup())
+        const formData = ref(new ChannelGroupDto())
         const tableRef = ref<TableInstance>()
         const baseLivePopRef = ref<LivePopInstance>()
         const tableData = ref<ChannelInfoDto[]>([])
@@ -55,26 +52,25 @@ export default defineComponent({
             baseLivePopRef.value?.openLiveWin(rowData.id, rowData.name)
         }
 
-        const validate: Record<string, RuleItem['validator']> = {
-            validateName: (_rule, value, callback) => {
-                value = value.trim()
-                if (value.length === 0) {
-                    callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
-                    return
-                } else {
-                    formData.value.name = value = cutStringByByte(value, nameByteMaxLen)
-                    // 应该不可能发生此情况
-                    if (value == 0) {
-                        callback(new Error(Translate('IDCS_INVALID_CHAR')))
-                        return
-                    }
-                }
-                callback()
-            },
-        }
+        const rules = ref<FormRules>({
+            name: [
+                {
+                    validator: (_rule, value, callback) => {
+                        if (!value.trim()) {
+                            callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
+                            return
+                        }
 
-        const rules = ref({
-            name: [{ validator: validate.validateName, trigger: 'manual' }],
+                        if (!cutStringByByte(value, nameByteMaxLen)) {
+                            callback(new Error(Translate('IDCS_INVALID_CHAR')))
+                            return
+                        }
+
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
         })
 
         const verification = async () => {
@@ -106,7 +102,7 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <name><![CDATA[${formData.value.name}]]></name>
-                    <dwellTime unit='s'>${formData.value.dwellTime.toString()}</dwellTime>
+                    <dwellTime unit='s'>${formData.value.dwellTime}</dwellTime>
                     <chlIdList type='list'>
                         ${selection.map((ele) => `<item>${ele.id}</item>`).join('')}
                     </chlIdList>
@@ -179,7 +175,7 @@ export default defineComponent({
         }
 
         onMounted(() => {
-            formData.value = new ChlGroup()
+            formData.value = new ChannelGroupDto()
             formData.value.dwellTime = 60
             getData()
         })
@@ -200,6 +196,7 @@ export default defineComponent({
             handleCancel,
             getTranslateForSecond,
             chlGroupCountLimit,
+            formatInputMaxLength,
         }
     },
 })

@@ -4,13 +4,17 @@
  * @Description: 排程
  */
 
-// 排程-排程信息
+/**
+ * @description 排程-排程信息
+ */
 export class NameValueItem {
     id = '' // id
     name = '' // 名称
 }
 
-// 排程-排程信息
+/**
+ * @description 排程-排程信息
+ */
 export class ScheduleInfo {
     id = '' // id
     name = '' // 名称

@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-22 10:15:51
  * @Description: 巡航线组 新增巡航线弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 13:53:27
  */
 import type { FormInstance, FormRules } from 'element-plus'
 import { type ChannelPtzCruiseDto } from '@/types/apiType/channel'
@@ -57,8 +55,8 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             name: [
                 {
-                    validator(_rule, value: string, callback) {
-                        if (!value) {
+                    validator: (_rule, value: string, callback) => {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
                             return
                         }
@@ -118,7 +116,7 @@ export default defineComponent({
         const setData = async () => {
             openLoading()
 
-            let cruiseXml = prop.cruise.map((item) => `<item index="${item.index.toString()}"><name>${wrapCDATA(item.name)}</name></item>`).join('')
+            let cruiseXml = prop.cruise.map((item) => `<item index="${item.index}"><name>${wrapCDATA(item.name)}</name></item>`).join('')
             const find = pageData.value.cruiseOptions.find((item) => item.value === formData.value.name)
             if (find) {
                 cruiseXml += `<item index="${formData.value.name}"><name>${wrapCDATA(find.label)}</name></item>`

@@ -3,15 +3,14 @@
  * @Date: 2024-06-18 18:07:21
  * @Description: 通道组 - 新增通道弹窗
  */
-
-import { ChannelInfoDto, type ChlGroup } from '@/types/apiType/channel'
+import { ChannelInfoDto, type ChannelGroupDto } from '@/types/apiType/channel'
 import { type TableInstance } from 'element-plus'
 import { cloneDeep } from 'lodash-es'
 
 export default defineComponent({
     props: {
         editItem: {
-            type: Object as PropType<ChlGroup>,
+            type: Object as PropType<ChannelGroupDto>,
             required: true,
         },
     },
@@ -25,7 +24,7 @@ export default defineComponent({
         const { openLoading, closeLoading } = useLoading()
         const { openMessageBox } = useMessageBox()
 
-        let tmpEditItem: ChlGroup
+        let tmpEditItem: ChannelGroupDto
         const tableRef = ref<TableInstance>()
         const tableData = ref<ChannelInfoDto[]>([])
         const baseLivePopRef = ref<LivePopInstance>()

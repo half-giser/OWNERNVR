@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-18 14:45:58
  * @Description: 现场预览-右侧视图 Layout
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-26 15:22:15
 -->
 <template>
     <div class="right">
@@ -105,7 +103,7 @@
             margin-left: 10px;
             position: relative;
 
-            &:after {
+            &::after {
                 content: '';
                 border-left: 4px solid var(--panel-header-bg);
                 border-top: 4px solid transparent;

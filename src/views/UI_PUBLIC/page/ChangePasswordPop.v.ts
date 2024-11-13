@@ -43,10 +43,11 @@ export default defineComponent({
             currentPassword: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if (value.length === 0) {
+                        if (!value.length) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -55,7 +56,7 @@ export default defineComponent({
             newPassword: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if (value.length === 0) {
+                        if (!value.length) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
                         }
@@ -69,6 +70,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PWD_SAME_ERROR')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -77,7 +79,7 @@ export default defineComponent({
             confirmNewPassword: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if (value.length === 0) {
+                        if (!value.length) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
                         }
@@ -86,6 +88,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PWD_MISMATCH_TIPS')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -104,7 +107,7 @@ export default defineComponent({
          * @description 验证表单
          */
         const verify = () => {
-            formRef.value!.validate(async (valid: boolean) => {
+            formRef.value!.validate(async (valid) => {
                 if (valid) {
                     doUpdateUserPassword()
                 }

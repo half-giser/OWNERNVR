@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-12 13:47:57
  * @Description: 搜索与备份-图片管理
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 18:09:47
  */
 import dayjs from 'dayjs'
 import { type PlaybackChlList, type PlaybackRecLogList, PlaybackSearchImgForm, PlaybackSearchImgList } from '@/types/apiType/playback'
@@ -109,8 +107,8 @@ export default defineComponent({
             tableData.value = []
 
             const sendXml = rawXml`
-                <pageIndex>${formData.value.pageIndex.toString()}</pageIndex>
-                <pageSize>${formData.value.pageSize.toString()}</pageSize>
+                <pageIndex>${formData.value.pageIndex}</pageIndex>
+                <pageSize>${formData.value.pageSize}</pageSize>
                 <condition>
                     <startTime>${formatDate(startTime, 'YYYY-MM-DD HH:mm:ss')}</startTime>
                     <endTime>${formatDate(endTime, 'YYYY-MM-DD HH:mm:ss')}</endTime>
@@ -227,7 +225,7 @@ export default defineComponent({
                         <pictures type='list'>
                             <item>
                                 <chl id="${row.chlId}">${row.chlName}</chl>
-                                <captureMode>${row.captureMode.toString()}</captureMode>
+                                <captureMode>${row.captureMode}</captureMode>
                                 <captureTime>${row.captureTime}</captureTime>
                             </item>
                         </pictures>
@@ -272,7 +270,7 @@ export default defineComponent({
                                     return rawXml`
                                         <item>
                                             <chl id="${row.chlId}">${row.chlName}</chl>
-                                            <captureMode>${row.captureMode.toString()}</captureMode>
+                                            <captureMode>${row.captureMode}</captureMode>
                                             <captureTime>${row.captureTime}</captureTime>
                                         </item>
                                     `

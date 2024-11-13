@@ -1,20 +1,25 @@
 /*
- * @Description: 事件通知——声音——ipc/local添加语音文件弹窗
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-14 15:48:05
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-21 14:54:12
+ * @Description: 事件通知——声音——ipc/local添加语音文件弹窗
  */
-import { type AudioAlarmOut } from '@/types/apiType/aiAndEvent'
+import { AlarmAudioAlarmOutDto } from '@/types/apiType/aiAndEvent'
 import { type UploadFile } from 'element-plus'
 
 export default defineComponent({
     props: {
-        type: String,
-        ipcAudioChl: String,
+        type: {
+            type: String,
+            required: true,
+        },
+        ipcAudioChl: {
+            type: String,
+            required: true,
+        },
         ipcRowData: {
-            type: Object as PropType<AudioAlarmOut>,
-            require: true,
+            type: Object as PropType<AlarmAudioAlarmOutDto>,
+            required: true,
+            default: () => new AlarmAudioAlarmOutDto(),
         },
     },
     emits: {
@@ -41,6 +46,7 @@ export default defineComponent({
             btnApplyDisabled: true,
             uploadFile: {} as UploadFile,
         })
+
         const open = () => {
             pageData.value.title = prop.type == 'ipcAudio' ? Translate('IDCS_LOAD_WAV') : Translate('IDCS_LOAD_MP3')
             pageData.value.uploadAccept = prop.type == 'ipcAudio' ? '.wav' : '.mp3'
@@ -49,7 +55,7 @@ export default defineComponent({
             pageData.value.uploadFileName = ''
             pageData.value.btnApplyDisabled = true
 
-            const data = prop.ipcRowData as AudioAlarmOut
+            const data = prop.ipcRowData
             if (prop.type == 'ipcAudio') {
                 pageData.value.isIpcTipsShow = true
                 pageData.value.isLocalTipsShow = false

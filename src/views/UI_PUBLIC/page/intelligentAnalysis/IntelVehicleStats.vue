@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-04 14:57:44
  * @Description: 智能分析-车辆统计
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 17:30:28
 -->
 <template>
     <div class="base-intel-box">
@@ -74,7 +72,3 @@
 </template>
 
 <script lang="ts" src="./IntelVehicleStats.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/intelligentAnalysis.scss';
-</style>

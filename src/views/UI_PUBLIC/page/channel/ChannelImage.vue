@@ -2,8 +2,6 @@
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-06-27 11:55:36
  * @Description: 通道 - 图像参数配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-31 19:33:56
 -->
 <template>
     <div class="base-chl-box">
@@ -1372,15 +1370,15 @@
                 />
             </div>
         </div>
-        <BaseFloatError ref="baseFloatErrorRef" />
+        <BaseFloatError
+            v-model:message="floatErrorMessage"
+            :to="floatErrorTo"
+            :type="floatErrorType"
+        />
     </div>
 </template>
 
 <script lang="ts" src="./ChannelImage.v.ts"></script>
-
-<style>
-@import '@/views/UI_PUBLIC/publicStyle/channel.scss';
-</style>
 
 <style scoped lang="scss">
 .slider_wrap {
@@ -1426,6 +1424,7 @@
 
     :deep(.el-input) {
         --form-input-width: 46px;
+
         padding: 0;
         flex-shrink: 0;
     }

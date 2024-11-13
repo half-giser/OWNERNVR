@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-12 18:20:34
  * @Description: FTP配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 11:55:58
  */
 import { NetFTPForm, type NetFTPList } from '@/types/apiType/net'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -51,7 +49,7 @@ export default defineComponent({
             serverAddr: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if (!value.length) {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_DDNS_SERVER_ADDR_EMPTY')))
                             return
                         }
@@ -62,7 +60,7 @@ export default defineComponent({
             ],
             port: [
                 {
-                    validator: (_rule, value, callback) => {
+                    validator: (_rule, value: number, callback) => {
                         if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_RTSP_PORT_EMPTY')))
                             return
@@ -75,7 +73,7 @@ export default defineComponent({
             userName: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if (!formData.value.anonymousSwitch && !value.trim().length) {
+                        if (!formData.value.anonymousSwitch && !value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
                             return
                         }
@@ -245,15 +243,15 @@ export default defineComponent({
                 .join('')
             const sendXml = rawXml`
                 <content>
-                    <switch>${formData.value.switch.toString()}</switch>
+                    <switch>${formData.value.switch}</switch>
                     <serverAddr>${wrapCDATA(formData.value.serverAddr)}</serverAddr>
-                    <port>${formData.value.port.toString()}</port>
+                    <port>${formData.value.port}</port>
                     <userName>${wrapCDATA(formData.value.userName)}</userName>
                     ${pageData.value.passwordSwitch ? `<password ${getSecurityVer()}>${wrapCDATA(AES_encrypt(formData.value.password, userSession.sesionKey))}</password>` : ''}
-                    <anonymousSwitch>${formData.value.anonymousSwitch.toString()}</anonymousSwitch>
-                    <maxSize min="${pageData.value.minFileSize.toString()}" max="${pageData.value.maxFileSize.toString()}">${formData.value.maxSize.toString()}</maxSize>
+                    <anonymousSwitch>${formData.value.anonymousSwitch}</anonymousSwitch>
+                    <maxSize min="${pageData.value.minFileSize}" max="${pageData.value.maxFileSize}">${formData.value.maxSize}</maxSize>
                     <path>${formData.value.path}</path>
-                    <disNetUpLoad>${formData.value.disNetUpLoad.toString()}</disNetUpLoad>
+                    <disNetUpLoad>${formData.value.disNetUpLoad}</disNetUpLoad>
                     ${isTest ? '' : `<chls type='list'>${chlXml}</chls>`}
                 </content>
             `

@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-05 09:27:20
  * @Description: 雪碧图组件
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-23 18:27:04
 -->
 <template>
     <span
@@ -103,14 +101,7 @@ const isHoverClass = computed(() => {
 
 // 当前图标文件
 const item = computed(() => {
-    return (
-        sprites.coordinates[currentFile.value] || {
-            x: 0,
-            y: 0,
-            width: 0,
-            height: 0,
-        }
-    )
+    return sprites.coordinates[currentFile.value] || [0, 0, 0, 0]
 })
 
 // 非标准的图标
@@ -125,33 +116,33 @@ const custom = computed(() => {
 // css backgroundPositionX
 const backgroundPositionX = computed(() => {
     if (custom.value) {
-        return `-${item.value.x + custom.value.x}px`
+        return `-${item.value[0] + custom.value[0]}px`
     }
-    return `-${item.value.x + (currentIndex.value / prop.chunk) * item.value.width}px`
+    return `-${item.value[0] + (currentIndex.value / prop.chunk) * item.value[2]}px`
 })
 
 // css backgroundPositionY
 const backgroundPositionY = computed(() => {
     if (custom.value) {
-        return `-${item.value.y + custom.value.y}px`
+        return `-${item.value[1] + custom.value[1]}px`
     }
-    return `-${item.value.y}px`
+    return `-${item.value[1]}px`
 })
 
 // css width
 const width = computed(() => {
     if (custom.value) {
-        return `${custom.value.width}px`
+        return `${custom.value[2]}px`
     }
-    return `${item.value.width / prop.chunk}px`
+    return `${item.value[2] / prop.chunk}px`
 })
 
 // css height
 const height = computed(() => {
     if (custom.value) {
-        return `${custom.value.height}px`
+        return `${custom.value[3]}px`
     }
-    return `${item.value.height}px`
+    return `${item.value[3]}px`
 })
 </script>
 

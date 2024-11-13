@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-24 14:37:52
  * @Description: UI2-A客制化 登录
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-26 19:25:37
 -->
 <template>
     <div class="authCodeLogin">
@@ -143,7 +141,8 @@
     flex-direction: column;
     border-bottom: 3px solid var(--primary);
     position: relative;
-    &:after {
+
+    &::after {
         content: '';
         width: 62%;
         position: absolute;
@@ -235,7 +234,7 @@
         }
 
         :deep(.el-form-item__error) {
-            margin: 2px 0px 0px 55px;
+            margin: 2px 0 0 55px;
         }
 
         .authCodeLogin-submit {
@@ -270,6 +269,7 @@
         margin-left: 10px;
         font-size: 18px;
         color: var(--primary);
+
         &:hover {
             color: var(--primary);
             opacity: 0.8;

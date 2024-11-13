@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-29 09:41:34
  * @Description: 智能分析-引擎配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-23 14:40:17
  */
 import { EngineConfigForm, type EngineConfigList } from '@/types/apiType/intelligentAnalysis'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
@@ -114,7 +112,7 @@ export default defineComponent({
             openLoading()
             const sendXml = rawXml`
                 <content>
-                    <supportAI>${formData.value.supportAI.toString()}</supportAI>
+                    <supportAI>${formData.value.supportAI}</supportAI>
                     ${ternary(!pageData.value.is3536Amode, `<openSubOutput>false</openSubOutput>`)}
                 </content>
                 <auth>

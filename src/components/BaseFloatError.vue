@@ -1,12 +1,15 @@
 <!--
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-07-12 16:58:29
- * @Description:
+ * @Description: 成功/错误浮动提示框
 -->
 <template>
-    <teleport :to="container || 'body'">
+    <teleport
+        :disabled="!teleported"
+        :to
+    >
         <div
-            v-if="visiable"
+            v-if="!!message"
             class="tip_wrap"
             :style="{ 'border-color': index === 1 ? 'var(--float-ok)' : 'var(--float-error)' }"
             @click="handleClick"
@@ -20,55 +23,58 @@
                 class="tip_msg"
                 :style="{ color: index === 1 ? 'var(--float-ok)' : 'var(--float-error)' }"
             >
-                {{ msg }}
+                {{ message }}
             </span>
         </div>
     </teleport>
 </template>
 
-<script lang="ts">
-export default defineComponent({
-    setup() {
-        const container = ref('')
-        const visiable = ref(false)
-        const index = ref(0)
-        const msg = ref('')
-        const typeIndexMap = {
-            ok: 1,
-            error: 2,
-        }
-        let timer: NodeJS.Timeout | number = 0
+<script lang="ts" setup>
+const props = withDefaults(
+    defineProps<{
+        teleported?: boolean
+        type?: string
+        to?: string
+        message: string
+    }>(),
+    {
+        teleported: true,
+        type: 'error',
+        to: 'body',
+        message: '',
+    },
+)
 
-        const show = ($container: string, message: string, type?: 'ok' | 'error') => {
-            clearTimer()
-            container.value = $container
-            msg.value = message
-            index.value = typeIndexMap[type || 'error']
-            visiable.value = true
+const emits = defineEmits<{
+    (e: 'update:message', str: string): void
+}>()
+
+let timer: NodeJS.Timeout | number = 0
+
+watch(
+    () => props.message,
+    (message) => {
+        clearTimer()
+        if (message) {
             timer = setTimeout(() => {
-                visiable.value = false
+                emits('update:message', '')
             }, 5000)
         }
-
-        const clearTimer = () => {
-            if (timer) clearTimeout(timer)
-        }
-
-        const handleClick = () => {
-            clearTimer()
-            visiable.value = false
-        }
-
-        return {
-            container,
-            visiable,
-            index,
-            msg,
-            show,
-            handleClick,
-        }
     },
+)
+
+const index = computed(() => {
+    return props.type === 'ok' ? 1 : 2
 })
+
+const clearTimer = () => {
+    if (timer) clearTimeout(timer)
+}
+
+const handleClick = () => {
+    clearTimer()
+    emits('update:message', '')
+}
 </script>
 
 <style lang="scss" scoped>

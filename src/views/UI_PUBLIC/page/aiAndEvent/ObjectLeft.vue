@@ -1,9 +1,7 @@
 <!--
- * @Description: AI 事件——更多——物品遗留与看护
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-18 09:43:32
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 16:00:30
+ * @Description: AI 事件——更多——物品遗留与看护
 -->
 <template>
     <div>
@@ -157,88 +155,13 @@
                     </el-form>
                     <div class="base-ai-linkage-content">
                         <!-- 常规联动 -->
-                        <div class="base-ai-linkage-box">
-                            <el-checkbox
-                                v-model="normalParamCheckAll"
-                                class="base-ai-linkage-title base-ai-linkage-title-checkbox-input"
-                                :label="Translate('IDCS_TRIGGER_NOMAL')"
-                                @change="handleNormalParamCheckAll"
-                            />
-                            <el-checkbox-group
-                                v-model="normalParamCheckList"
-                                @change="handleNormalParamCheck"
-                            >
-                                <el-checkbox
-                                    v-for="item in normalParamList"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value"
-                                />
-                            </el-checkbox-group>
-                        </div>
+                        <AlarmBaseTriggerSelector v-model="objectLeftData.trigger" />
                         <!-- 录像 -->
-                        <div class="base-ai-linkage-box">
-                            <div class="base-ai-linkage-title">
-                                <span>{{ Translate('IDCS_RECORD') }}</span>
-                                <el-button @click="pageData.recordIsShow = true">{{ Translate('IDCS_CONFIG') }}</el-button>
-                            </div>
-                            <el-table
-                                :data="objectLeftData.record"
-                                :show-header="false"
-                            >
-                                <el-table-column prop="label" />
-                            </el-table>
-                        </div>
+                        <AlarmBaseRecordSelector v-model="objectLeftData.record" />
                         <!-- 报警输出 -->
-                        <div class="base-ai-linkage-box">
-                            <div class="base-ai-linkage-title">
-                                <span>{{ Translate('IDCS_ALARM_OUT') }}</span>
-                                <el-button @click="pageData.alarmOutIsShow = true">{{ Translate('IDCS_CONFIG') }}</el-button>
-                            </div>
-                            <el-table
-                                :data="objectLeftData.alarmOut"
-                                :show-header="false"
-                            >
-                                <el-table-column prop="label" />
-                            </el-table>
-                        </div>
+                        <AlarmBaseAlarmOutSelector v-model="objectLeftData.alarmOut" />
                         <!-- 联动预置点 -->
-                        <div class="base-ai-linkage-box preset-box">
-                            <div class="base-ai-linkage-title">
-                                <span>{{ Translate('IDCS_TRIGGER_ALARM_PRESET') }}</span>
-                            </div>
-                            <el-table
-                                stripe
-                                border
-                                :data="PresetTableData"
-                            >
-                                <el-table-column
-                                    prop="name"
-                                    width="180"
-                                    :label="Translate('IDCS_CHANNEL_NAME')"
-                                />
-                                <el-table-column
-                                    width="170"
-                                    :label="Translate('IDCS_PRESET_NAME')"
-                                >
-                                    <template #default="scope">
-                                        <el-select
-                                            v-model="scope.row.preset.value"
-                                            :empty-values="[undefined, null]"
-                                            @visible-change="getPresetById(scope.row)"
-                                            @change="presetChange(scope.row)"
-                                        >
-                                            <el-option
-                                                v-for="item in scope.row.presetList"
-                                                :key="item.value"
-                                                :label="item.label"
-                                                :value="item.value"
-                                            />
-                                        </el-select>
-                                    </template>
-                                </el-table-column>
-                            </el-table>
-                        </div>
+                        <AlarmBasePresetSelector v-model="objectLeftData.preset" />
                     </div>
                 </el-tab-pane>
             </el-tabs>
@@ -257,32 +180,6 @@
         v-model="pageData.scheduleManagPopOpen"
         @close="pageData.scheduleManagPopOpen = false"
     />
-    <BaseTransferDialog
-        v-model="pageData.recordIsShow"
-        header-title="IDCS_TRIGGER_CHANNEL_RECORD"
-        source-title="IDCS_CHANNEL"
-        target-title="IDCS_CHANNEL_TRGGER"
-        :source-data="pageData.recordList"
-        :linked-list="objectLeftData.record?.map((item) => item.value) || []"
-        limit-tip="IDCS_RECORD_CHANNEL_LIMIT"
-        @confirm="recordConfirm"
-        @close="recordClose"
-    />
-    <BaseTransferDialog
-        v-model="pageData.alarmOutIsShow"
-        header-title="IDCS_TRIGGER_ALARM_OUT"
-        source-title="IDCS_ALARM_OUT"
-        target-title="IDCS_TRIGGER_ALARM_OUT"
-        :source-data="pageData.alarmOutList"
-        :linked-list="objectLeftData.alarmOut?.map((item) => item.value) || []"
-        limit-tip="IDCS_ALARMOUT_LIMIT"
-        @confirm="alarmOutConfirm"
-        @close="alarmOutClose"
-    />
 </template>
 
 <script lang="ts" src="./ObjectLeft.v.ts"></script>
-
-<style>
-@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
-</style>

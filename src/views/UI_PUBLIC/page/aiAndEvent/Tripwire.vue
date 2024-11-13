@@ -1,110 +1,23 @@
 <!--
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-19 11:11:35
- * @Description:  越界
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 16:04:54
+ * @Description: 越界
 -->
-
 <template>
     <div class="tripwire_setting_pane">
-        <ScheduleManagPop
-            v-model="tripwireData.scheduleManagePopOpen"
-            @close="handleSchedulePopClose"
-        />
-        <!-- tripwirerecord弹窗 -->
-        <BaseTransferDialog
-            v-model="tripwireData.recordIsShow"
-            header-title="IDCS_TRIGGER_CHANNEL_RECORD"
-            source-title="IDCS_CHANNEL"
-            target-title="IDCS_CHANNEL_TRGGER"
-            :source-data="tripwireData.recordSource"
-            :linked-list="tripwireData.recordList || []"
-            limit-tip="IDCS_RECORD_CHANNEL_LIMIT"
-            @confirm="recordConfirm"
-            @close="recordClose"
-        />
-        <!-- tripwirealarmOut弹窗 -->
-        <BaseTransferDialog
-            v-model="tripwireData.alarmOutIsShow"
-            header-title="IDCS_TRIGGER_ALARM_OUT"
-            source-title="IDCS_ALARM_OUT"
-            target-title="IDCS_TRIGGER_ALARM_OUT"
-            :source-data="tripwireData.alarmOutSource"
-            :linked-list="tripwireData.alarmOutList || []"
-            limit-tip="IDCS_ALARMOUT_LIMIT"
-            @confirm="alarmOutConfirm"
-            @close="alarmOutClose"
-        />
-        <!-- ai -->
-        <el-dialog
-            v-model="tripwireData.aiResourcePopOpen"
-            :title="Translate('IDCS_DETAIL')"
-            width="600"
-        >
-            <el-table
-                :data="aiResourceTableData"
-                stripe
-                border
-                show-overflow-tooltip
-                height="290"
-            >
-                <el-table-column
-                    prop="name"
-                    :label="Translate('IDCS_CHANNEL')"
-                    width="138"
-                />
-                <el-table-column
-                    prop="eventTypeText"
-                    :label="Translate('IDCS_EVENT_TYPE')"
-                    width="150"
-                />
-                <el-table-column
-                    prop="percent"
-                    :label="Translate('IDCS_USAGE_RATE')"
-                    width="100"
-                />
-                <el-table-column
-                    prop="decodeResource"
-                    :label="Translate('IDCS_DECODE_RESOURCE')"
-                    width="100"
-                />
-                <el-table-column
-                    :label="Translate('IDCS_FREE_AI_RESOURCE')"
-                    width="70"
-                >
-                    <template #default="scope">
-                        <BaseImgSprite
-                            file="del"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
-                            @click="handleAIResourceDel(scope.row)"
-                        />
-                    </template>
-                </el-table-column>
-            </el-table>
-            <template #footer>
-                <el-row class="base-btn-box collapse">
-                    <el-button @click="tripwireData.aiResourcePopOpen = false">
-                        {{ Translate('IDCS_CLOSE') }}
-                    </el-button>
-                </el-row>
-            </template>
-        </el-dialog>
         <div
-            v-if="tripwireData.notSupportTipShow"
+            v-if="pageData.notSupportTipShow"
             class="base-ai-not-support-box"
         >
             {{ Translate('IDCS_CURRENT_INTEL_EVENT_UNSUPORT') }}
         </div>
         <div
-            v-if="tripwireData.requireDataFail"
+            v-if="pageData.requireDataFail"
             class="base-ai-not-support-box"
         >
             {{ Translate('IDCS_QUERY_DATA_FAIL') }}
         </div>
-        <div v-if="!tripwireData.notSupportTipShow && !tripwireData.requireDataFail">
+        <div v-if="!pageData.notSupportTipShow && !pageData.requireDataFail">
             <!-- nvr/ipc检测开启及ai按钮 -->
             <div
                 class="base-btn-box padding collapse"
@@ -112,32 +25,26 @@
             >
                 <div>
                     <el-checkbox
-                        v-model="tripwireData.detectionEnable"
-                        :label="tripwireData.detectionTypeText"
-                        @change="handleDectionChange"
+                        v-model="formData.detectionEnable"
+                        :label="Translate('IDCS_DETECTION_BY_DEVICE').formatForLang(chlData.supportTripwire ? 'IPC' : 'NVR')"
                     />
                 </div>
-                <div class="aiResource">
-                    <span>{{ Translate('IDCS_USAGE_RATE') }} :</span>
-                    <span>{{ tripwireData.totalResourceOccupancy }}%</span>
-                    <BaseImgSprite
-                        file="detail"
-                        :index="0"
-                        :hover-index="1"
-                        :chunk="4"
-                        @click="tripwireData.aiResourcePopOpen = true"
-                    />
-                </div>
+                <AlarmBaseResourceData
+                    event="tripwire"
+                    :enable="formData.detectionEnable && !chlData.supportTripwire"
+                    :chl-id="currChlId"
+                    @error="formData.detectionEnable = false"
+                />
             </div>
             <!-- 更多按钮 -->
             <el-popover
-                v-model:visible="tripwireData.moreDropDown"
+                v-model:visible="pageData.moreDropDown"
                 width="300"
-                popper-class="no-padding"
+                popper-class="no-padding popper"
             >
                 <template #reference>
                     <div
-                        v-show="tripwireData.pictureAvailable"
+                        v-show="formData.pictureAvailable"
                         class="more_wrap"
                     >
                         <span>{{ Translate('IDCS_ADVANCED') }}</span>
@@ -153,42 +60,39 @@
                         {{ Translate('IDCS_VIDEO_SAVE_PIC') }}
                     </div>
                     <el-checkbox
-                        v-model="tripwireData.saveTargetPicture"
+                        v-model="formData.saveTargetPicture"
                         :label="Translate('IDCS_SMART_SAVE_SOURCE_PIC')"
-                        @change="tripwireData.applyDisable = false"
                     />
                     <el-checkbox
-                        v-model="tripwireData.saveSourcePicture"
+                        v-model="formData.saveSourcePicture"
                         :label="Translate('IDCS_SMART_SAVE_TARGET_PIC')"
-                        @change="tripwireData.applyDisable = false"
                     />
                     <div class="base-btn-box">
-                        <el-button @click="tripwireData.moreDropDown = false">{{ Translate('IDCS_CLOSE') }}</el-button>
+                        <el-button @click="pageData.moreDropDown = false">{{ Translate('IDCS_CLOSE') }}</el-button>
                     </div>
                 </div>
             </el-popover>
             <!-- 只存在一个播放器，因此放于tab区域外 -->
             <div
-                v-show="tripwireData.tripwireFunction !== 'tripwire_trigger'"
+                v-show="pageData.tripwireFunction !== 'tripwire_trigger'"
                 class="base-ai-param-box-left fixed"
             >
                 <div class="player">
                     <BaseVideoPlayer
-                        id="tripwireplayer"
                         ref="tripwireplayerRef"
                         type="live"
                         @onready="tripWirehandlePlayerReady"
                     />
                 </div>
-                <div v-if="tripwireData.tripwireFunction === 'tripwire_param'">
+                <div v-if="pageData.tripwireFunction === 'tripwire_param'">
                     <div
                         class="base-btn-box"
                         :span="2"
                     >
                         <div>
                             <el-checkbox
-                                v-if="tripwireData.showAllAreaVisible"
-                                v-model="tripwireData.isShowAllArea"
+                                v-if="pageData.showAllAreaVisible"
+                                v-model="pageData.isShowAllArea"
                                 :label="Translate('IDCS_DISPLAY_ALL_AREA')"
                                 @change="handleTripwireShowAllAreaChange"
                             />
@@ -196,7 +100,7 @@
                         <div>
                             <el-button @click="clearTripwireArea">{{ Translate('IDCS_CLEAR') }}</el-button>
                             <el-button
-                                v-if="tripwireData.clearAllVisible"
+                                v-if="pageData.clearAllVisible"
                                 @click="clearAllTripwireArea"
                                 >{{ Translate('IDCS_FACE_CLEAR_ALL') }}</el-button
                             >
@@ -207,7 +111,7 @@
             </div>
             <!-- 三种功能 -->
             <el-tabs
-                v-model="tripwireData.tripwireFunction"
+                v-model="pageData.tripwireFunction"
                 class="base-ai-tabs"
                 @tab-click="handleTripwireFunctionTabClick"
             >
@@ -220,7 +124,6 @@
                     <div class="base-ai-param-box-left"></div>
                     <div class="base-ai-param-box-right">
                         <el-form
-                            :model="tripwireData"
                             :style="{
                                 '--form-input-width': '215px',
                             }"
@@ -229,18 +132,17 @@
                             <!-- 排程 -->
                             <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
                                 <el-select
-                                    v-model="tripwireData.tripwire_schedule"
+                                    v-model="formData.tripwire_schedule"
                                     value-key="value"
-                                    @change="tripwireData.applyDisable = false"
                                 >
                                     <el-option
-                                        v-for="item in tripwireData.scheduleList"
+                                        v-for="item in pageData.scheduleList"
                                         :key="item.value"
                                         :label="item.label"
                                         :value="item.value"
                                     />
                                 </el-select>
-                                <el-button @click="tripwireData.scheduleManagePopOpen = true">
+                                <el-button @click="pageData.scheduleManagePopOpen = true">
                                     {{ Translate('IDCS_MANAGE') }}
                                 </el-button>
                             </el-form-item>
@@ -250,12 +152,11 @@
                             <!-- 持续时间 -->
                             <el-form-item :label="Translate('IDCS_DURATION')">
                                 <el-select
-                                    v-model="tripwireData.holdTime"
+                                    v-model="formData.holdTime"
                                     value-key="value"
-                                    @change="tripwireData.applyDisable = false"
                                 >
                                     <el-option
-                                        v-for="item in tripwireData.holdTimeList"
+                                        v-for="item in formData.holdTimeList"
                                         :key="item.value"
                                         :label="item.label"
                                         :value="item.value"
@@ -265,12 +166,12 @@
                             <!-- 警戒面 -->
                             <el-form-item :label="Translate('IDCS_ALERT_SURFACE')">
                                 <el-radio-group
-                                    v-model="tripwireData.chosenSurfaceIndex"
+                                    v-model="pageData.chosenSurfaceIndex"
                                     class="small-btn"
                                     @change="handleSurfaceChange()"
                                 >
                                     <el-radio-button
-                                        v-for="(_item, index) in tripwireData.lineInfo"
+                                        v-for="(_item, index) in formData.lineInfo"
                                         :key="index"
                                         :value="index"
                                         :label="index + 1"
@@ -280,11 +181,11 @@
                             <!-- 方向 -->
                             <el-form-item :label="Translate('IDCS_DIRECTION')">
                                 <el-select
-                                    v-model="tripwireData.direction"
+                                    v-model="formData.direction"
                                     @change="handleTripwireDirectionChange"
                                 >
                                     <el-option
-                                        v-for="item in tripwireData.directionList"
+                                        v-for="item in formData.directionList"
                                         :key="item.value"
                                         :label="item.label"
                                         :value="item.value"
@@ -293,26 +194,25 @@
                             </el-form-item>
                             <!-- 只支持人的灵敏度 -->
                             <el-form-item
-                                v-if="tripwireData.tripwire_onlyPreson"
+                                v-if="formData.tripwire_onlyPreson"
                                 :label="Translate('IDCS_SENSITIVITY')"
                             >
                                 <el-slider
-                                    v-model="tripwireData.onlyPersonSensitivity"
+                                    v-model="formData.onlyPersonSensitivity"
                                     show-input
-                                    @change="tripwireData.applyDisable = false"
                                 />
                             </el-form-item>
                             <el-form-item
-                                v-if="tripwireData.tripwire_onlyPreson"
+                                v-if="formData.tripwire_onlyPreson"
                                 :label="Translate('IDCS_DETECTION_ONLY_ONE_OBJECT').formatForLang(Translate('IDCS_BEYOND_DETECTION'), Translate('IDCS_DETECTION_PERSON'))"
                             />
                             <!-- 云台 -->
-                            <div v-if="tripwireData.chlData.supportAutoTrack">
+                            <div v-if="chlData.supportAutoTrack">
                                 <div class="base-ai-subheading">
                                     {{ Translate('IDCS_PTZ') }}
                                 </div>
                                 <ChannelPtzCtrlPanel
-                                    :chl-id="tripwireData.currChlId || ''"
+                                    :chl-id="currChlId || ''"
                                     @speed="setTripWireSpeed"
                                 />
                                 <div
@@ -320,7 +220,7 @@
                                     span="start"
                                 >
                                     <el-button @click="editLockStatus">
-                                        {{ tripwireData.lockStatus ? Translate('IDCS_UNLOCK') : Translate('IDCS_LOCKED') }}
+                                        {{ pageData.lockStatus ? Translate('IDCS_UNLOCK') : Translate('IDCS_LOCKED') }}
                                     </el-button>
                                     <span>{{ Translate('IDCS_LOCK_PTZ_TIP') }}</span>
                                 </div>
@@ -329,9 +229,8 @@
                                     span="start"
                                 >
                                     <el-checkbox
-                                        v-model="tripwireData.autoTrack"
+                                        v-model="formData.autoTrack"
                                         :label="Translate('IDCS_TRIGGER_TRACK')"
-                                        @change="tripwireData.applyDisable = false"
                                     />
                                 </div>
                             </div>
@@ -339,7 +238,7 @@
                     </div>
                     <div class="base-btn-box fixed">
                         <el-button
-                            :disabled="tripwireData.applyDisable"
+                            :disabled="pageData.applyDisable"
                             @click="handleTripwireApply"
                         >
                             {{ Translate('IDCS_APPLY') }}
@@ -348,7 +247,7 @@
                 </el-tab-pane>
                 <!-- 检测目标 -->
                 <el-tab-pane
-                    v-if="!tripwireData.tripwire_onlyPreson"
+                    v-if="!formData.tripwire_onlyPreson"
                     :label="Translate('IDCS_DETECTION_TARGET')"
                     name="tripwire_target"
                     class="base-ai-param-box"
@@ -356,8 +255,6 @@
                     <div class="base-ai-param-box-left"></div>
                     <div class="base-ai-param-box-right">
                         <el-form
-                            :model="tripwireData"
-                            label-width="auto"
                             class="form"
                             :style="{
                                 '--form-input-width': '300px',
@@ -370,17 +267,15 @@
                             <el-form-item>
                                 <template #label>
                                     <el-checkbox
-                                        v-model="tripwireData.objectFilter.person"
+                                        v-model="formData.objectFilter.person"
                                         :label="Translate('IDCS_DETECTION_PERSON')"
-                                        @change="tripwireData.applyDisable = false"
                                     />
                                 </template>
                                 <template #default>
                                     <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                     <el-slider
-                                        v-model="tripwireData.objectFilter.personSensitivity"
+                                        v-model="formData.objectFilter.personSensitivity"
                                         show-input
-                                        @change="tripwireData.applyDisable = false"
                                     />
                                 </template>
                             </el-form-item>
@@ -389,18 +284,16 @@
                                 <template #label>
                                     <div>
                                         <el-checkbox
-                                            v-model="tripwireData.objectFilter.car"
+                                            v-model="formData.objectFilter.car"
                                             :label="Translate('IDCS_DETECTION_VEHICLE')"
-                                            @change="tripwireData.applyDisable = false"
                                         />
                                     </div>
                                 </template>
                                 <template #default>
                                     <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                     <el-slider
-                                        v-model="tripwireData.objectFilter.carSensitivity"
+                                        v-model="formData.objectFilter.carSensitivity"
                                         show-input
-                                        @change="tripwireData.applyDisable = false"
                                     />
                                 </template>
                             </el-form-item>
@@ -409,18 +302,16 @@
                                 <template #label>
                                     <div>
                                         <el-checkbox
-                                            v-model="tripwireData.objectFilter.motorcycle"
+                                            v-model="formData.objectFilter.motorcycle"
                                             :label="Translate('IDCS_NON_VEHICLE')"
-                                            @change="tripwireData.applyDisable = false"
                                         />
                                     </div>
                                 </template>
                                 <template #default>
                                     <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                     <el-slider
-                                        v-model="tripwireData.objectFilter.motorSensitivity"
+                                        v-model="formData.objectFilter.motorSensitivity"
                                         show-input
-                                        @change="tripwireData.applyDisable = false"
                                     />
                                 </template>
                             </el-form-item>
@@ -428,7 +319,7 @@
                     </div>
                     <div class="base-btn-box fixed">
                         <el-button
-                            :disabled="tripwireData.applyDisable"
+                            :disabled="pageData.applyDisable"
                             @click="handleTripwireApply"
                         >
                             {{ Translate('IDCS_APPLY') }}
@@ -442,20 +333,19 @@
                 >
                     <div class="trigger_box">
                         <el-form
-                            v-if="tripwireData.supportAlarmAudioConfig"
+                            v-if="pageData.supportAlarmAudioConfig"
                             :style="{
                                 '--form-label-width': 'auto',
                             }"
                         >
                             <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">
                                 <el-select
-                                    v-model="tripwireData.sysAudio"
+                                    v-model="formData.sysAudio"
                                     value-key="value"
                                     class="audio_select"
-                                    @change="tripwireData.applyDisable = false"
                                 >
                                     <el-option
-                                        v-for="item in tripwireData.voiceList"
+                                        v-for="item in voiceList"
                                         :key="item.value"
                                         :label="item.label"
                                         :value="item.value"
@@ -465,100 +355,20 @@
                         </el-form>
                         <div class="base-ai-linkage-content">
                             <!-- 常规联动 -->
-                            <div class="base-ai-linkage-box">
-                                <el-checkbox
-                                    v-model="tripwireData.triggerSwitch"
-                                    class="base-ai-linkage-title base-ai-linkage-title-checkbox"
-                                    :label="Translate('IDCS_TRIGGER_NOMAL')"
-                                    @change="handleTripwireTriggerSwitch"
-                                />
-                                <el-table
-                                    height="367"
-                                    :data="tripwireTriggerData"
-                                    :show-header="false"
-                                    :header-cell-style="{ 'text-align': 'left' }"
-                                >
-                                    <el-table-column>
-                                        <template #default="scope">
-                                            <el-checkbox
-                                                v-model="scope.row.value"
-                                                class="table_item"
-                                                :label="Translate(scope.row.label)"
-                                                @change="handleTripwireTrigger(scope.row)"
-                                            />
-                                        </template>
-                                    </el-table-column>
-                                </el-table>
-                            </div>
-
+                            <AlarmBaseTriggerSelector
+                                v-model="formData.trigger"
+                                :include="formData.triggerList"
+                            />
                             <!-- record -->
-                            <div class="base-ai-linkage-box">
-                                <div class="base-ai-linkage-title">
-                                    <span>{{ Translate('IDCS_RECORD') }}</span>
-                                    <el-button @click="tripwireData.recordIsShow = true">{{ Translate('IDCS_CONFIG') }} </el-button>
-                                </div>
-                                <el-table
-                                    :show-header="false"
-                                    height="367"
-                                    :data="tripwireData.record.chls"
-                                >
-                                    <el-table-column prop="label" />
-                                </el-table>
-                            </div>
-
+                            <AlarmBaseRecordSelector v-model="formData.record" />
                             <!-- alarm -->
-                            <div class="base-ai-linkage-box">
-                                <div class="base-ai-linkage-title">
-                                    <span>{{ Translate('IDCS_ALARM_OUT') }}</span>
-                                    <el-button @click="tripwireData.alarmOutIsShow = true">{{ Translate('IDCS_CONFIG') }} </el-button>
-                                </div>
-                                <el-table
-                                    :show-header="false"
-                                    height="367"
-                                    :data="tripwireData.alarmOut.chls"
-                                >
-                                    <el-table-column prop="label" />
-                                </el-table>
-                            </div>
-
+                            <AlarmBaseAlarmOutSelector v-model="formData.alarmOut" />
                             <!-- preset -->
-                            <div class="base-ai-linkage-box preset-box">
-                                <div class="base-ai-linkage-title">
-                                    {{ Translate('IDCS_TRIGGER_ALARM_PRESET') }}
-                                </div>
-                                <el-table
-                                    border
-                                    stripe
-                                    height="367"
-                                    :data="tripwireData.presetSource"
-                                >
-                                    <el-table-column
-                                        prop="name"
-                                        :label="Translate('IDCS_CHANNEL_NAME')"
-                                    />
-                                    <el-table-column :label="Translate('IDCS_PRESET_NAME')">
-                                        <template #default="scope">
-                                            <el-select
-                                                v-model="scope.row.preset.value"
-                                                :empty-values="[undefined, null]"
-                                                @visible-change="getPresetById(scope.row)"
-                                                @change="tripwireData.applyDisable = false"
-                                            >
-                                                <el-option
-                                                    v-for="item in scope.row.presetList"
-                                                    :key="item.value"
-                                                    :label="item.label"
-                                                    :value="item.value"
-                                                />
-                                            </el-select>
-                                        </template>
-                                    </el-table-column>
-                                </el-table>
-                            </div>
+                            <AlarmBasePresetSelector v-model="formData.preset" />
                         </div>
                         <div class="base-btn-box fixed">
                             <el-button
-                                :disabled="tripwireData.applyDisable"
+                                :disabled="pageData.applyDisable"
                                 @click="handleTripwireApply"
                             >
                                 {{ Translate('IDCS_APPLY') }}
@@ -568,14 +378,14 @@
                 </el-tab-pane>
             </el-tabs>
         </div>
+        <ScheduleManagPop
+            v-model="pageData.scheduleManagePopOpen"
+            @close="handleSchedulePopClose"
+        />
     </div>
 </template>
 
 <script lang="ts" src="./Tripwire.v.ts"></script>
-
-<style>
-@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
-</style>
 
 <style lang="scss" scoped>
 // 高级设置
@@ -598,10 +408,5 @@
 
 .slider-text {
     margin-right: 15px;
-}
-
-.table_item {
-    display: flex;
-    justify-content: flex-start;
 }
 </style>

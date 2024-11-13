@@ -2,8 +2,6 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-13 15:58:40
  * @Description: 闪灯
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-23 20:42:56
 -->
 <template>
     <div class="base-flex-box">
@@ -45,8 +43,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.enableList"
                                         :key="item.value"
-                                        :value="item.value"
-                                        :label="item.label"
                                         @click="handleEnabelChangeAll(item.value)"
                                     >
                                         {{ item.label }}
@@ -96,8 +92,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.lightFrequencyList"
                                         :key="item.value"
-                                        :value="item.value"
-                                        :label="item.label"
                                         @click="handleFrequencyTypeChangeAll(item.value)"
                                     >
                                         {{ item.label }}

@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-04 09:40:06
  * @Description: 日期模块
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 16:49:37
  */
 import dayjs from 'dayjs'
 

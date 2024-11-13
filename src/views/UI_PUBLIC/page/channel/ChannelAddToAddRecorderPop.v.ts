@@ -3,7 +3,7 @@
  * @Date: 2024-05-29 20:39:11
  * @Description: 添加通道 - 添加录像机通道弹窗
  */
-import { type ChannelAddRecorderDto, type DefaultPwdDto, QueryNodeListDto, RecorderAddDto, RecorderDto } from '@/types/apiType/channel'
+import { type ChannelAddRecorderDto, type ChannelDefaultPwdDto, ChannelRecorderAddDto, ChannelRecorderDto } from '@/types/apiType/channel'
 import { type TableInstance, type FormInstance, type FormRules } from 'element-plus'
 
 export default defineComponent({
@@ -13,7 +13,7 @@ export default defineComponent({
             required: true,
         },
         mapping: {
-            type: Object as PropType<Record<string, DefaultPwdDto>>,
+            type: Object as PropType<Record<string, ChannelDefaultPwdDto>>,
             required: true,
         },
         chlCountLimit: {
@@ -40,7 +40,7 @@ export default defineComponent({
         const { openMessageBox } = useMessageBox()
         const router = useRouter()
         const formRef = ref<FormInstance>()
-        const formData = ref(new RecorderAddDto())
+        const formData = ref(new ChannelRecorderAddDto())
         const tableRef = ref<TableInstance>()
         const selNum = ref(0)
         const disabled = ref(true)
@@ -61,7 +61,7 @@ export default defineComponent({
             [ErrorCode.USER_ERROR_CHECK_FILE_ERROR]: Translate('IDCS_RECORDER_HTTPPORT_ERR'),
         }
 
-        const handleRowClick = (rowData: RecorderDto) => {
+        const handleRowClick = (rowData: ChannelRecorderDto) => {
             tableRef.value!.clearSelection()
             tableRef.value!.toggleRowSelection(rowData, true)
         }
@@ -72,13 +72,13 @@ export default defineComponent({
 
         const getData = (showSuccessTip?: boolean) => {
             openLoading()
-            if ((props.mapping as Record<string, DefaultPwdDto>).RECORDER) {
+            if ((props.mapping as Record<string, ChannelDefaultPwdDto>).RECORDER) {
                 const data = rawXml`
                     <condition>
                         ${formData.value.chkDomain ? `<domain>${formData.value.domain}</domain>` : `<ip>${formData.value.ip}</ip>`}
-                        <port>${formData.value.servePort.toString()}</port>
+                        <port>${formData.value.servePort}</port>
                         <version>${props.editItem.version || ''}</version>
-                        <httpPort>${formData.value.httpPort.toString()}</httpPort>
+                        <httpPort>${formData.value.httpPort}</httpPort>
                         <userName>${formData.value.userName}</userName>
                         ${formData.value.useDefaultPwd ? '' : '<password' + getSecurityVer() + '><![CDATA[' + AES_encrypt(formData.value.password, userSessionStore.sesionKey) + ']]></password>'}
                     </condition>
@@ -112,7 +112,7 @@ export default defineComponent({
                         formData.value.recorderList = []
                         $('//content/chlList/item').forEach((ele) => {
                             const eleXml = queryXml(ele.element)
-                            const newData = new RecorderDto()
+                            const newData = new ChannelRecorderDto()
                             newData.index = ele.attr('index')!
                             newData.name = eleXml('name').text()
                             newData.isAdded = eleXml('isAdded').text() == 'true'
@@ -120,7 +120,7 @@ export default defineComponent({
                             newData.productModel = productModel
                             formData.value.recorderList.push(newData)
                         })
-                        formData.value.recorderList.sort((a: RecorderDto, b: RecorderDto) => {
+                        formData.value.recorderList.sort((a, b) => {
                             return Number(a.index) - Number(b.index)
                         })
                     } else {
@@ -132,7 +132,7 @@ export default defineComponent({
                             formData.value.recorderList = []
                             const chlCount = formData.value.channelCount
                             for (let i = 0; i < Number(chlCount); i++) {
-                                const newData = new RecorderDto()
+                                const newData = new ChannelRecorderDto()
                                 newData.index = String(i + 1)
                                 newData.productModel = props.editItem.productModel
                                 formData.value.recorderList.push(newData)
@@ -149,7 +149,7 @@ export default defineComponent({
         const rules = ref<FormRules>({
             ip: [
                 {
-                    validator: (_rule, value, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (formData.value.chkDomain) {
                             const domain = formData.value.domain.trim()
                             if (!domain.length) {
@@ -173,7 +173,7 @@ export default defineComponent({
         const loadNoRecoderData = (chlCount: number) => {
             formData.value.recorderList = []
             for (let i = 0; i < chlCount; i++) {
-                const newData = new RecorderDto()
+                const newData = new ChannelRecorderDto()
                 newData.index = String(i + 1)
                 formData.value.recorderList.push(newData)
             }
@@ -183,7 +183,7 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     ${ternary(formData.value.chkDomain, `<domain>${wrapCDATA(formData.value.domain)}</domain>`, `<ip>${formData.value.ip}</ip>`)}
-                    <port>${formData.value.servePort ? formData.value.servePort.toString() : ''}</port>
+                    <port>${formData.value.servePort ? formData.value.servePort : ''}</port>
                     <userName>${formData.value.userName}</userName>
                     ${ternary(!props.editItem.ip || (props.editItem.ip && !formData.value.useDefaultPwd), `<password${getSecurityVer()}><![CDATA[${AES_encrypt(formData.value.password, userSessionStore.sesionKey)}]]></password>`)}
                 </content>
@@ -222,7 +222,7 @@ export default defineComponent({
         const setData = () => {
             formRef.value?.validate((valid) => {
                 if (valid) {
-                    getChlList(new QueryNodeListDto()).then((res) => {
+                    getChlList({}).then((res) => {
                         closeLoading()
                         commLoadResponseHandler(res, () => {
                             const $ = queryXml(res)
@@ -306,7 +306,7 @@ export default defineComponent({
 
         const getSaveData = () => {
             const defalutNamePrefix = 'Recorder_'
-            const selection = tableRef.value!.getSelectionRows() as RecorderDto[]
+            const selection = tableRef.value!.getSelectionRows() as ChannelRecorderDto[]
 
             const sendXml = rawXml`
                 <types>
@@ -335,10 +335,10 @@ export default defineComponent({
                                 <item>
                                     <name maxByteLen="63">${wrapCDATA(ele.name || defalutNamePrefix + ele.index)}</name>
                                     ${ternary(formData.value.chkDomain, `<domain>${wrapCDATA(formData.value.domain)}</domain>`, `<ip>${formData.value.ip}</ip>`)}
-                                    <port>${formData.value.servePort.toString()}</port>
+                                    <port>${formData.value.servePort}</port>
                                     <userName>${formData.value.userName}</userName>
                                     ${ternary(!props.editItem.ip || (props.editItem.ip && !formData.value.useDefaultPwd), `<password${getSecurityVer()}><![CDATA[${AES_encrypt(formData.value.password, userSessionStore.sesionKey)}]]></password>`)}
-                                    <index>${(Number(ele.index) - 1).toString()}</index>
+                                    <index>${Number(ele.index) - 1}</index>
                                     <manufacturer>RECORDER</manufacturer>
                                     <protocolType>RECORDER</protocolType>
                                     <productModel factoryName='Customer'>${ele.productModel}</productModel>
@@ -364,8 +364,8 @@ export default defineComponent({
             eleChlCountDisabled.value = true
             eleUserNameDisabled.value = true
             eleBtnTestDisabled.value = true
-            formData.value = new RecorderAddDto()
-            formData.value.userName = (props.mapping as Record<string, DefaultPwdDto>).RECORDER.userName
+            formData.value = new ChannelRecorderAddDto()
+            formData.value.userName = (props.mapping as Record<string, ChannelDefaultPwdDto>).RECORDER.userName
             if (props.editItem.ip) {
                 formData.value.ip = props.editItem.ip
                 formData.value.servePort = props.editItem.port

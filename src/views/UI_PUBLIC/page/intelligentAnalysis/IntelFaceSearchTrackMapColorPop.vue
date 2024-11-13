@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-13 11:45:40
  * @Description: 智能分析 - 人脸搜索 - 轨迹 - 修改颜色
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-13 17:55:39
 -->
 <template>
     <el-dialog

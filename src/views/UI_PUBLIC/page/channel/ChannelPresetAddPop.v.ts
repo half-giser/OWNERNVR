@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-20 18:26:39
  * @Description: 新增预置点弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 14:08:45
  */
 import { type ChannelPtzPresetDto } from '@/types/apiType/channel'
 import type { FormInstance, FormRules } from 'element-plus'
@@ -58,7 +56,7 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             name: [
                 {
-                    validator(_rule, value: string, callback) {
+                    validator: (_rule, value: string, callback) => {
                         if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
                             return
@@ -68,6 +66,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_PRESET_NAME_OR_INDEX_EXIST')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -108,7 +107,7 @@ export default defineComponent({
 
             const sendXml = rawXml`
                 <content>
-                    <index>${formData.value.index.toString()}</index>
+                    <index>${formData.value.index}</index>
                     <name maxByteLen="63">${wrapCDATA(formData.value.name)}</name>
                     <chlId>${prop.chlId}</chlId>
                 </content>

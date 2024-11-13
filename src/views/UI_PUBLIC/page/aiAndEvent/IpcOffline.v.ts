@@ -2,26 +2,26 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-21 15:34:24
  * @Description: 前端掉线
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 15:49:50
  */
 import { cloneDeep } from 'lodash-es'
-import { MotionEventConfig, type PresetItem } from '@/types/apiType/aiAndEvent'
-import SetPresetPop from './SetPresetPop.vue'
+import { AlarmEventDto, type AlarmPresetItem } from '@/types/apiType/aiAndEvent'
+import AlarmBasePresetPop from './AlarmBasePresetPop.vue'
+import AlarmBaseAlarmOutPop from './AlarmBaseAlarmOutPop.vue'
+import AlarmBaseSnapPop from './AlarmBaseSnapPop.vue'
+
 export default defineComponent({
     components: {
-        SetPresetPop,
+        AlarmBasePresetPop,
+        AlarmBaseAlarmOutPop,
+        AlarmBaseSnapPop,
     },
     setup() {
         const chosedList = ref<any[]>([])
         const { Translate } = useLangStore()
-        const tableData = ref<MotionEventConfig[]>([])
+        const tableData = ref<AlarmEventDto[]>([])
 
-        // ;(snapRef.value as InstanceType<typeof ElDropdown>).handleOpen()
-        // ;(alarmOutRef.value as InstanceType<typeof ElDropdown>).handleOpen()
         const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
-        const openMessageBox = useMessageBox().openMessageBox
         const pageData = ref({
             pageIndex: 1,
             pageSize: 10,
@@ -33,65 +33,23 @@ export default defineComponent({
             audioList: [] as SelectOption<string, string>[],
             // 打开穿梭框时选择行的索引
             triggerDialogIndex: 0,
-
-            // snap穿梭框数据源
-            snapList: [] as SelectOption<string, string>[],
-            // 表头选中id
-            snapChosedIdsAll: [] as string[],
-            // 表头选中的数据
-            snapChosedListAll: [] as SelectOption<string, string>[],
             snapIsShow: false,
-
-            // alarmOut穿梭框数据源
-            alarmOutList: [] as { value: string; label: string; device: { value: string; label: string } }[],
-            // 表头选中id
-            alarmOutChosedIdsAll: [] as string[],
-            // 表头选中的数据
-            alarmOutChosedListAll: [] as SelectOption<string, string>[],
             alarmOutIsShow: false,
-
-            presetList: [] as any[],
-            filterChlIds: [] as string[],
             isPresetPopOpen: false,
-            presetChlId: '',
-            presetLinkedList: [] as PresetItem[],
 
             videoPopupList: [] as SelectOption<string, string>[],
 
             // disable
             applyDisable: true,
-            editRows: [] as MotionEventConfig[],
-
-            snapPopoverVisible: false,
-            alarmOutPopoverVisible: false,
+            editRows: [] as AlarmEventDto[],
         })
+
         const getAudioList = async () => {
             pageData.value.supportAudio = systemCaps.supportAlarmAudioConfig
             // pageData.value.supportAudio = true
             if (pageData.value.supportAudio == true) {
                 pageData.value.audioList = await buildAudioList()
             }
-        }
-
-        const getSnapList = async () => {
-            pageData.value.snapList = await buildSnapChlList()
-        }
-
-        const getAlarmOutList = async () => {
-            pageData.value.alarmOutList = await buildAlarmOutChlList()
-        }
-
-        const getSnapListSingle = (row: MotionEventConfig) => {
-            return pageData.value.snapList.filter((item) => {
-                return item.value != row.id
-            })
-        }
-
-        const getAlarmOutListSingle = (row: MotionEventConfig) => {
-            const alarmOutlist = pageData.value.alarmOutList.filter((item) => {
-                return item.device.value != row.id
-            })
-            return alarmOutlist
         }
 
         const getVideoPopupList = async () => {
@@ -123,7 +81,7 @@ export default defineComponent({
                 pageData.value.totalCount = Number($chl('//content').attr('total'))
                 $chl('//content/item').forEach((item) => {
                     const $ele = queryXml(item.element)
-                    const row = new MotionEventConfig()
+                    const row = new AlarmEventDto()
                     row.id = item.attr('id')!
                     row.name = $ele('name').text()
                     row.status = 'loading'
@@ -153,17 +111,15 @@ export default defineComponent({
                             }),
                         }
                         // 获取snap中chls的value列表
-                        row.snapList = row.snap.chls.map((item) => item.value)
                         row.alarmOut = {
                             switch: res('//content/alarmOut/switch').text() == 'true' ? true : false,
-                            chls: res('//content/alarmOut/alarmOuts/item').map((item) => {
+                            alarmOuts: res('//content/alarmOut/alarmOuts/item').map((item) => {
                                 return {
                                     value: item.attr('id')!,
                                     label: item.text(),
                                 }
                             }),
                         }
-                        row.alarmOutList = row.alarmOut.chls.map((item) => item.value)
                         row.beeper = res('//content/buzzerSwitch').text()
                         row.email = res('//content/emailSwitch').text()
                         row.msgPush = res('//content/msgPushSwitch').text()
@@ -217,196 +173,84 @@ export default defineComponent({
             buildTableData()
         }
 
-        // 下列为snap穿梭框相关
-        const snapConfirmAll = (e: any[]) => {
-            if (e.length !== 0) {
-                pageData.value.snapChosedListAll = cloneDeep(e)
-                pageData.value.snapChosedIdsAll = e.map((item) => item.value)
-                tableData.value.forEach((item) => {
-                    if (!item.rowDisable) {
-                        item.snap.chls = []
-                        addEditRow(item)
-                        item.snap.switch = true
-                        pageData.value.snapChosedListAll.forEach((snap) => {
-                            if (getSnapListSingle(item).some((snapItem) => snapItem.value === snap.value)) {
-                                item.snap.chls.push(snap)
-                            }
-                        })
-                        item.snapList = item.snap.chls.map((item) => item.value)
-                    }
-                })
+        const switchSnap = (index: number) => {
+            addEditRow(tableData.value[index])
+            const row = tableData.value[index].snap
+            if (row.switch) {
+                openSnap(index)
             } else {
-                tableData.value.forEach((item) => {
-                    if (!item.rowDisable) {
-                        addEditRow(item)
-                        item.snap.switch = false
-                        item.snap.chls = []
-                        item.snapList = []
-                    }
-                })
+                row.chls = []
             }
-            pageData.value.snapChosedListAll = []
-            pageData.value.snapChosedIdsAll = []
-            pageData.value.snapPopoverVisible = false
         }
 
-        const snapCloseAll = () => {
-            pageData.value.snapChosedListAll = []
-            pageData.value.snapChosedIdsAll = []
-            pageData.value.snapPopoverVisible = false
-        }
-
-        const setSnap = (index: number) => {
+        const openSnap = (index: number) => {
+            tableData.value[index].snap.switch = true
             pageData.value.triggerDialogIndex = index
             pageData.value.snapIsShow = true
         }
 
-        const snapConfirm = (e: SelectOption<string, string>[]) => {
-            addEditRow(tableData.value[pageData.value.triggerDialogIndex])
-            if (e.length !== 0) {
-                tableData.value[pageData.value.triggerDialogIndex].snap.chls = cloneDeep(e)
-                const chls = tableData.value[pageData.value.triggerDialogIndex].snap.chls
-                tableData.value[pageData.value.triggerDialogIndex].snapList = chls.map((item) => item.value)
-            } else {
-                tableData.value[pageData.value.triggerDialogIndex].snap.chls = []
-                tableData.value[pageData.value.triggerDialogIndex].snapList = []
-                tableData.value[pageData.value.triggerDialogIndex].snap.switch = false
+        const changeSnap = (index: number, data: SelectOption<string, string>[]) => {
+            if (tableData.value[index].rowDisable) {
+                return
             }
+            addEditRow(tableData.value[index])
             pageData.value.snapIsShow = false
-        }
-
-        const snapClose = () => {
-            if (!tableData.value[pageData.value.triggerDialogIndex].snap.chls.length) {
-                tableData.value[pageData.value.triggerDialogIndex].snap.switch = false
-                tableData.value[pageData.value.triggerDialogIndex].snapList = []
-                tableData.value[pageData.value.triggerDialogIndex].snap.chls = []
+            tableData.value[index].snap = {
+                switch: !!data.length,
+                chls: cloneDeep(data),
             }
-            pageData.value.snapIsShow = false
         }
 
-        // 下列为alarmOut穿梭框相关
-        const alarmOutConfirmAll = (e: any[]) => {
-            if (e.length !== 0) {
-                pageData.value.alarmOutChosedListAll = cloneDeep(e)
-                pageData.value.alarmOutChosedIdsAll = e.map((item) => item.value)
-                tableData.value.forEach((item) => {
-                    if (!item.rowDisable) {
-                        item.alarmOut.chls = []
-                        addEditRow(item)
-                        item.alarmOut.switch = true
-                        const availableids = getAlarmOutListSingle(item).map((ele) => ele.value)
-                        pageData.value.alarmOutChosedListAll.forEach((alarmOut) => {
-                            if (availableids.includes(alarmOut.value)) {
-                                item.alarmOut.chls.push(alarmOut)
-                            }
-                        })
-                        item.alarmOutList = item.alarmOut.chls.map((item) => item.value)
-                    }
-                })
+        const switchAlarmOut = (index: number) => {
+            addEditRow(tableData.value[index])
+            const row = tableData.value[index].alarmOut
+            if (row.switch) {
+                openAlarmOut(index)
             } else {
-                tableData.value.forEach((item) => {
-                    if (!item.rowDisable) {
-                        addEditRow(item)
-                        item.alarmOut.switch = false
-                        item.alarmOut.chls = []
-                        item.alarmOutList = []
-                    }
-                })
+                row.alarmOuts = []
             }
-            pageData.value.alarmOutChosedListAll = []
-            pageData.value.alarmOutChosedIdsAll = []
-            pageData.value.alarmOutPopoverVisible = false
         }
 
-        const alarmOutCloseAll = () => {
-            pageData.value.alarmOutChosedListAll = []
-            pageData.value.alarmOutChosedIdsAll = []
-            pageData.value.alarmOutPopoverVisible = false
-        }
-
-        const setAlarmOut = (index: number) => {
+        const openAlarmOut = (index: number) => {
+            tableData.value[index].alarmOut.switch = true
             pageData.value.triggerDialogIndex = index
             pageData.value.alarmOutIsShow = true
         }
 
-        const alarmOutConfirm = (e: SelectOption<string, string>[]) => {
-            addEditRow(tableData.value[pageData.value.triggerDialogIndex])
-            if (e.length !== 0) {
-                tableData.value[pageData.value.triggerDialogIndex].alarmOut.chls = cloneDeep(e)
-                const chls = tableData.value[pageData.value.triggerDialogIndex].alarmOut.chls
-                tableData.value[pageData.value.triggerDialogIndex].alarmOutList = chls.map((item) => item.value)
+        const changeAlarmOut = (index: number, data: SelectOption<string, string>[]) => {
+            if (tableData.value[index].rowDisable) {
+                return
+            }
+            addEditRow(tableData.value[index])
+            pageData.value.alarmOutIsShow = false
+            tableData.value[index].alarmOut = {
+                switch: !!data.length,
+                alarmOuts: cloneDeep(data),
+            }
+        }
+
+        const switchPreset = (index: number) => {
+            addEditRow(tableData.value[index])
+            const row = tableData.value[index].preset
+            if (row.switch) {
+                openPreset(index)
             } else {
-                tableData.value[pageData.value.triggerDialogIndex].alarmOut.chls = []
-                tableData.value[pageData.value.triggerDialogIndex].alarmOutList = []
-                tableData.value[pageData.value.triggerDialogIndex].alarmOut.switch = false
+                row.presets = []
             }
-            pageData.value.alarmOutIsShow = false
         }
 
-        const alarmOutClose = () => {
-            if (!tableData.value[pageData.value.triggerDialogIndex].alarmOut.chls.length) {
-                tableData.value[pageData.value.triggerDialogIndex].alarmOut.switch = false
-                tableData.value[pageData.value.triggerDialogIndex].alarmOutList = []
-                tableData.value[pageData.value.triggerDialogIndex].alarmOut.chls = []
-            }
-            pageData.value.alarmOutIsShow = false
-        }
-
-        // presetPop相关
-        const openPresetPop = (row: MotionEventConfig) => {
-            pageData.value.presetChlId = row.id
-            pageData.value.presetLinkedList = row.preset.presets
+        const openPreset = (index: number) => {
+            tableData.value[index].alarmOut.switch = true
+            pageData.value.triggerDialogIndex = index
             pageData.value.isPresetPopOpen = true
         }
 
-        const handlePresetLinkedList = (id: string, linkedList: PresetItem[]) => {
-            tableData.value.forEach((item) => {
-                if (item.id == id) {
-                    item.preset.presets = linkedList
-                    addEditRow(item)
-                }
-            })
-        }
-
-        const presetClose = (id: string) => {
-            pageData.value.isPresetPopOpen = false
-            tableData.value.forEach((item) => {
-                if (item.id == id && item.preset.presets.length == 0) {
-                    item.preset.switch = false
-                }
-            })
-        }
-
-        const presetSwitchChange = (row: MotionEventConfig) => {
-            addEditRow(row)
-            if (row.preset.switch === false) {
-                row.preset.presets = []
-            } else {
-                openPresetPop(row)
-            }
-        }
-
-        const checkChange = (index: number, type: string) => {
+        const changePreset = (index: number, data: AlarmPresetItem[]) => {
             addEditRow(tableData.value[index])
-            switch (type) {
-                case 'snap':
-                    if (tableData.value[index].snap.switch) {
-                        setSnap(index)
-                    } else {
-                        tableData.value[index].snap.chls = []
-                        tableData.value[index].snapList = []
-                    }
-                    break
-                case 'alarmOut':
-                    if (tableData.value[index].alarmOut.switch) {
-                        setAlarmOut(index)
-                    } else {
-                        tableData.value[index].alarmOut.chls = []
-                        tableData.value[index].alarmOutList = []
-                    }
-                    break
-                default:
-                    break
+            pageData.value.isPresetPopOpen = false
+            tableData.value[index].preset = {
+                switch: !!data.length,
+                presets: cloneDeep(data),
             }
         }
 
@@ -429,6 +273,7 @@ export default defineComponent({
                 }
             })
         }
+
         // ftpSnap 未传值
         // const handleFtpSnapChangeAll = (ftpSnap: string) => {
         //     tableData.value.forEach((item) => {
@@ -486,7 +331,7 @@ export default defineComponent({
             })
         }
 
-        const addEditRow = (row: MotionEventConfig) => {
+        const addEditRow = (row: AlarmEventDto) => {
             // 若该行不存在于编辑行中，则添加
             const isExist = pageData.value.editRows.some((item) => item.id === row.id)
             if (!isExist) {
@@ -495,49 +340,25 @@ export default defineComponent({
             pageData.value.applyDisable = false
         }
 
-        const getSavaData = (rowData: MotionEventConfig) => {
-            const snapSwitch = rowData.snap.switch
-            const alarmOutSwitch = rowData.alarmOut.switch
-            const presetSwitch = rowData.preset.switch
-            if (!snapSwitch) {
-                rowData.snap = { switch: false, chls: [] }
-            }
-
-            if (!alarmOutSwitch) {
-                rowData.alarmOut = { switch: false, chls: [] }
-            }
-
-            if (!presetSwitch) {
-                rowData.preset = { switch: false, presets: [] }
-            }
-
-            let presets = rowData.preset.presets
-            if (!presets) {
-                presets = []
-            }
-
-            if (!(presets instanceof Array)) {
-                presets = [presets]
-            }
-
+        const getSavaData = (rowData: AlarmEventDto) => {
             const sendXml = rawXml`
                 <content id="${rowData.id}">
                     <sysSnap>
-                        <switch>${snapSwitch.toString()}</switch>
+                        <switch>${rowData.snap.switch}</switch>
                         <chls type="list">
                             ${rowData.snap.chls.map((item) => `<item id="${item.value}"><![CDATA[${item.label}]]></item>`).join('')}
                         </chls>
                     </sysSnap>
                     <alarmOut>
-                        <switch>${alarmOutSwitch.toString()}</switch>
+                        <switch>${rowData.alarmOut.switch}</switch>
                         <alarmOuts type="list">
-                            ${rowData.alarmOut.chls.map((item) => `<item id="${item.value}"><![CDATA[${item.label}]]></item>`).join('')}
+                            ${rowData.alarmOut.alarmOuts.map((item) => `<item id="${item.value}"><![CDATA[${item.label}]]></item>`).join('')}
                         </alarmOuts>
                     </alarmOut>
                     <preset>
-                        <switch>${presetSwitch.toString()}</switch>
+                        <switch>${rowData.preset.switch}</switch>
                         <presets type="list">
-                            ${presets
+                            ${rowData.preset.presets
                                 .map((item) => {
                                     if (item.index) {
                                         return rawXml`
@@ -582,7 +403,7 @@ export default defineComponent({
 
         const setData = () => {
             openLoading()
-            pageData.value.editRows.forEach((item: MotionEventConfig) => {
+            pageData.value.editRows.forEach((item: AlarmEventDto) => {
                 const sendXml = getSavaData(item)
                 editFrontEndOfflineTrigger(sendXml).then((resb) => {
                     const res = queryXml(resb)
@@ -607,34 +428,15 @@ export default defineComponent({
         onMounted(async () => {
             await getVideoPopupList()
             await getAudioList()
-            await getSnapList()
-            await getAlarmOutList()
             buildTableData()
         })
+
         return {
             changePagination,
             changePaginationSize,
             chosedList,
             pageData,
             tableData,
-            openMessageBox,
-            getAlarmOutListSingle,
-            getSnapListSingle,
-            snapConfirmAll,
-            snapCloseAll,
-            setSnap,
-            snapConfirm,
-            snapClose,
-            alarmOutConfirmAll,
-            alarmOutCloseAll,
-            setAlarmOut,
-            alarmOutConfirm,
-            alarmOutClose,
-            openPresetPop,
-            handlePresetLinkedList,
-            presetClose,
-            checkChange,
-            presetSwitchChange,
             handleSysAudioChangeAll,
             handleMsgPushChangeAll,
             handleBeeperChangeAll,
@@ -643,6 +445,18 @@ export default defineComponent({
             handleEmailChangeAll,
             setData,
             addEditRow,
+            switchAlarmOut,
+            openAlarmOut,
+            changeAlarmOut,
+            switchSnap,
+            openSnap,
+            changeSnap,
+            switchPreset,
+            openPreset,
+            changePreset,
+            AlarmBasePresetPop,
+            AlarmBaseAlarmOutPop,
+            AlarmBaseSnapPop,
         }
     },
 })

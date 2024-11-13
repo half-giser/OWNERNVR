@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-22 09:23:51
  * @Description: 云台 表格展开通用列表项
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-22 15:31:29
 -->
 <template>
     <div class="expand-item">

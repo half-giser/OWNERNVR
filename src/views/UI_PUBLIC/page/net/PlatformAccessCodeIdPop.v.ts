@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-16 14:52:59
  * @Description: 平台接入 设置Code ID弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:02:31
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 
@@ -61,6 +59,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_SIP_ID_INVALID')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'blur',

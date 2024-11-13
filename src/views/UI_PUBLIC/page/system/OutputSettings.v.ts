@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-25 09:59:23
  * @Description: 输出配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-28 15:07:02
  */
 import { type XmlResult } from '@/utils/xmlParse'
 import OutputSplitTemplate from './OutputSplitTemplate.vue'
@@ -11,7 +9,7 @@ import OutputAddViewPop, { type ChlsDto, type ChlGroupData } from './OutputAddVi
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import ChannelGroupEditPop from '../channel/ChannelGroupEditPop.vue'
 import ChannelGroupAddPop from '../channel/ChannelGroupAddPop.vue'
-import { ChlGroup } from '@/types/apiType/channel'
+import { ChannelGroupDto } from '@/types/apiType/channel'
 import type { UserCheckAuthForm } from '@/types/apiType/user'
 
 type ChlItem = {
@@ -143,7 +141,7 @@ export default defineComponent({
             isCheckAuth: false,
             // 是否打开收藏弹窗
             isAddView: false,
-            editChlGroup: new ChlGroup(),
+            editChlGroup: new ChannelGroupDto(),
         })
 
         // 当前左侧缩略图的数据
@@ -959,9 +957,9 @@ export default defineComponent({
                 .map((item) => {
                     return rawXml`
                         <item>
-                            <segNum>${String(item.segNum)}</segNum>
+                            <segNum>${item.segNum}</segNum>
                             <chls>
-                                ${item.chls.map((chl) => `<item id="${chl.id}">${String(chl.winindex)}</item>`).join('')}
+                                ${item.chls.map((chl) => `<item id="${chl.id}">${chl.winindex}</item>`).join('')}
                             </chls>
                         </item>
                     `
@@ -983,18 +981,18 @@ export default defineComponent({
                     const validItem = subOutputDwellData.value[idx].isCheckDwell ? '0' : '1'
                     const timeInterval = subOutputDwellData.value[idx].timeInterval
                     const xml = rawXml`
-                        <item outIndex="${String(idx)}" validItem="${validItem}" outType="${outType}">
+                        <item outIndex="${idx}" validItem="${validItem}" outType="${outType}">
                             <item1 id="0">
                                 <displayMode>dwell</displayMode>
-                                <timeInterval>${String(timeInterval)}</timeInterval>
+                                <timeInterval>${timeInterval}</timeInterval>
                                 <chlGroups>
                                     ${getChlGroupXml(subOutputDwellData.value[idx].chlGroups)}
                                 </chlGroups>
                             </item1>
                             <item1 id="1">
                                 <displayMode>preview</displayMode>
-                                <segNum>${String(subOutputPreviewData.value[idx].chlGroups[0].segNum)}</segNum>
-                                <chls>${subOutputPreviewData.value[idx].chlGroups[0].chls.map((chl) => `<item id="${chl.id}">${String(chl.winindex)}</item>`).join('')}</chls>
+                                <segNum>${subOutputPreviewData.value[idx].chlGroups[0].segNum}</segNum>
+                                <chls>${subOutputPreviewData.value[idx].chlGroups[0].chls.map((chl) => `<item id="${chl.id}">${chl.winindex}</item>`).join('')}</chls>
                             </item1>
                         </item>
                     `
@@ -1018,8 +1016,8 @@ export default defineComponent({
                             previewXml = rawXml`
                                 <item1 id="1">
                                     <displayMode>preview</displayMode>
-                                    <segNum>${String(item.decoderPreviewData[outputIndex].chlGroups[0].segNum)}</segNum>
-                                    <chls>${item.decoderPreviewData[outputIndex].chlGroups[0].chls.map((chl) => `<item id="${chl.id}">${String(chl.winindex)}</item>`).join('')}</chls>
+                                    <segNum>${item.decoderPreviewData[outputIndex].chlGroups[0].segNum}</segNum>
+                                    <chls>${item.decoderPreviewData[outputIndex].chlGroups[0].chls.map((chl) => `<item id="${chl.id}">${chl.winindex}</item>`).join('')}</chls>
                                 </item1>
                             `
                         }
@@ -1027,7 +1025,7 @@ export default defineComponent({
                             <item outIndex="${key2}" ${item.ShowHdmiIn ? 'ShowHdmiIn="true"' : ''} validItem="${dwellItem.isCheckDwell ? '0' : '1'}">
                                 <item1 id="0">
                                     <displayMode>dwell</displayMode>
-                                    <timeInterval>${String(dwellItem.timeInterval)}</timeInterval>
+                                    <timeInterval>${dwellItem.timeInterval}</timeInterval>
                                     <chlGroups>
                                         ${getChlGroupXml(dwellItem.chlGroups)}
                                     </chlGroups>

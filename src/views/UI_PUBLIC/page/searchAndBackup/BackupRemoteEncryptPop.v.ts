@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-06 20:36:48
  * @Description: 回放-远程备份任务 加密弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-08 11:04:10
  */
 import type { FormInstance, FormRules } from 'element-plus'
 
@@ -44,10 +42,11 @@ export default defineComponent({
                             return
                         }
 
-                        if (!value.length) {
+                        if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'blur',
@@ -61,7 +60,7 @@ export default defineComponent({
                             return
                         }
 
-                        if (!value.length) {
+                        if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
                         }
@@ -70,6 +69,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PWD_MISMATCH_TIPS')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'blur',

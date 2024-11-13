@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-19 18:40:58
  * @Description: 现场预览-云台视图-预置点
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-20 19:42:25
 -->
 <template>
     <div class="ptz-preset">
@@ -96,6 +94,7 @@
         margin: 0 5%;
         padding-top: 5px;
         border-top: 1px solid var(--btn-border);
+
         span {
             margin-left: 5px;
         }

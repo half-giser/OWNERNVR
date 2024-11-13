@@ -2,8 +2,6 @@
  * @Author: zhangdongming zhangdongming@tvt.net.cn
  * @Date: 2024-06-03 10:00:35
  * @Description: 业务应用-门禁管理-门禁配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-31 19:32:49
 -->
 <template>
     <div class="act">
@@ -146,10 +144,6 @@
 </template>
 
 <script lang="ts" src="./ActConfigs.v.ts"></script>
-
-<style>
-@import '@/views/UI_PUBLIC/publicStyle/businessApplication.scss';
-</style>
 
 <style lang="scss" scoped>
 .act {

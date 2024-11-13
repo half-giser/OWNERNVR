@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-29 15:58:44
  * @Description: 现场预览-云台视图-巡航线组
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 18:34:05
  */
 import ChannelCruiseGroupAddPop from '../channel/ChannelCruiseGroupAddPop.vue'
 import { type ChannelPtzCruiseDto } from '@/types/apiType/channel'
@@ -117,7 +115,7 @@ export default defineComponent({
                         <index>1</index>
                         <name>group1</name>
                         <cruises type="list">
-                            <item index="${index.toString()}">
+                            <item index="${index}">
                                 <name>${wrapCDATA(name)}</name>
                             </item>
                         </cruises>
@@ -169,7 +167,7 @@ export default defineComponent({
                 const sendXml = rawXml`
                     <content>
                         <chlId>${prop.chlId}</chlId>
-                        <index>${item.index.toString()}</index>
+                        <index>${item.index}</index>
                     </content>
                 `
                 runChlPtzGroup(sendXml)

@@ -2,10 +2,7 @@
  * @Author: zhangdongming zhangdongming@tvt.net.cn
  * @Date: 2024-05-27 09:38:30
  * @Description: 业务应用-停车场管理-车位管理
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 11:51:23
  */
-
 import { type PkMgrSpaceManageList } from '@/types/apiType/business'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 
@@ -234,8 +231,8 @@ export default defineComponent({
                                     <item id="${item.id}">
                                         <groupName>${item.groupName}</groupName>
                                         <parkingType>${item.parkingType}</parkingType>
-                                        <groupTotalNum>${item.groupTotalNum.toString()}</groupTotalNum>
-                                        <groupRemainNum>${item.groupRemainNum.toString()}</groupRemainNum>
+                                        <groupTotalNum>${item.groupTotalNum}</groupTotalNum>
+                                        <groupRemainNum>${item.groupRemainNum}</groupRemainNum>
                                         <groupSchedule>${item.groupSchedule}</groupSchedule>
                                         <linkEmail>${wrapCDATA(item.linkEmail)}</linkEmail>
                                     </item>`

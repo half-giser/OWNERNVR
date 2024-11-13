@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-30 18:00:36
  * @Description: websocket 请求通道关键帧
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-14 17:31:52
  */
 import WebsocketBase from './websocketBase'
 import ImgRender from '../wasmPlayer/imageRender'

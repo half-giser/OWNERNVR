@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-17 17:21:22
  * @Description: 查看或更改用户
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 18:11:34
  */
 import UserEditPop from './UserEditPop.vue'
 import UserEditPasswordPop from './UserEditPasswordPop.vue'
@@ -16,7 +14,7 @@ export default defineComponent({
         UserEditPop,
         UserEditPasswordPop,
     },
-    setup() {
+    setup(_prop, ctx) {
         const { Translate } = useLangStore()
         const userSession = useUserSessionStore()
         const { openMessageBox } = useMessageBox()
@@ -335,9 +333,12 @@ export default defineComponent({
             getUserList('')
         })
 
+        ctx.expose({
+            handleToolBarEvent,
+        })
+
         return {
             tableRef,
-            handleToolBarEvent,
             systemAuthList,
             pageData,
             channelAuthList,

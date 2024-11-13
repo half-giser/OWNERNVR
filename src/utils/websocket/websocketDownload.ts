@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-30 11:18:21
  * @Description: websocket下载类
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-05-31 09:07:35
  */
 import WebsocketBase from './websocketBase'
 import { type CmdDownloadFileOpenOption } from './websocketCmd'

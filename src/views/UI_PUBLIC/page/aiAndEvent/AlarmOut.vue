@@ -2,8 +2,6 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 11:05:51
  * @Description: 报警输出
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-31 19:07:17
 -->
 <template>
     <div class="base-flex-box">
@@ -26,10 +24,13 @@
                 <!-- 序号 -->
                 <el-table-column
                     :label="Translate('IDCS_SERIAL_NUMBER')"
-                    prop="serialNum"
                     width="268"
                     show-overflow-tooltip
-                />
+                >
+                    <template #default="scope">
+                        {{ displaySerialNum(scope.row) }}
+                    </template>
+                </el-table-column>
 
                 <!-- 名称 -->
                 <el-table-column :label="Translate('IDCS_NAME')">

@@ -2,10 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-07-31 11:11:05
  * @Description: 自动模式通道码流参数配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 10:07:24
  */
-import { type RecMode } from '@/types/apiType/record'
+import { type RecMode, type RecordStreamTableExpose } from '@/types/apiType/record'
 import { defineComponent } from 'vue'
 import RecordStreamTable from './RecordStreamTable.vue'
 import { cloneDeep } from 'lodash-es'
@@ -33,7 +31,7 @@ export default defineComponent({
     },
     setup(props, ctx) {
         const { Translate } = useLangStore()
-        const recordStreamTableRef = ref()
+        const recordStreamTableRef = ref<RecordStreamTableExpose>()
         const pageData = ref({
             mainTitle: '',
             tabs: [] as SelectOption<string, string>[],

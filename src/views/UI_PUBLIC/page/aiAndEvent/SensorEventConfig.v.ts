@@ -2,17 +2,21 @@
  * @Description: 普通事件——传感器
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-23 10:58:27
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-30 16:15:26
  */
-import { type PresetItem, SensorEvent, type ChlList } from '@/types/apiType/aiAndEvent'
+import { type AlarmPresetItem, AlarmSensorEventDto } from '@/types/apiType/aiAndEvent'
 import { cloneDeep, isEqual } from 'lodash-es'
-import SetPresetPop from './SetPresetPop.vue'
+import AlarmBasePresetPop from './AlarmBasePresetPop.vue'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
+import AlarmBaseSnapPop from './AlarmBaseSnapPop.vue'
+import AlarmBaseRecordPop from './AlarmBaseRecordPop.vue'
+import AlarmBaseAlarmOutPop from './AlarmBaseAlarmOutPop.vue'
 
 export default defineComponent({
     components: {
-        SetPresetPop,
+        AlarmBasePresetPop,
+        AlarmBaseSnapPop,
+        AlarmBaseRecordPop,
+        AlarmBaseAlarmOutPop,
         ScheduleManagPop,
     },
     setup() {
@@ -51,33 +55,8 @@ export default defineComponent({
             initData: false,
             initComplated: false,
 
-            chls: [] as ChlList[],
-
-            // record穿梭框数据源
-            recordList: [] as SelectOption<string, string>[],
-            // 表头选中id
-            recordChosedIdsAll: [] as string[],
-            // 表头选中的数据
-            recordChosedListAll: [] as SelectOption<string, string>[],
-            recordIsShowAll: false,
             recordIsShow: false,
-
-            // snap穿梭框数据源
-            snapList: [] as SelectOption<string, string>[],
-            // 表头选中id
-            snapChosedIdsAll: [] as string[],
-            // 表头选中的数据
-            snapChosedListAll: [] as SelectOption<string, string>[],
-            snapIsShowAll: false,
             snapIsShow: false,
-
-            // alarmOut穿梭框数据源
-            alarmOutList: [] as SelectOption<string, string>[],
-            // 表头选中id
-            alarmOutChosedIdsAll: [] as string[],
-            // 表头选中的数据
-            alarmOutChosedListAll: [] as SelectOption<string, string>[],
-            alarmOutIsShowAll: false,
             alarmOutIsShow: false,
 
             // 当前打开dialog行的index
@@ -85,14 +64,12 @@ export default defineComponent({
 
             // 预置点名称配置
             isPresetPopOpen: false,
-            presetChlId: '',
-            presetLinkedList: [] as PresetItem[],
         })
 
         // 表格数据
-        const tableData = ref<SensorEvent[]>([])
+        const tableData = ref<AlarmSensorEventDto[]>([])
         // 缓存表格初始数据，保存时对比变化了的行
-        let tableDataInit = [] as SensorEvent[]
+        let tableDataInit = [] as AlarmSensorEventDto[]
 
         // 改变页码，刷新数据
         const changePagination = () => {
@@ -114,53 +91,23 @@ export default defineComponent({
         }
 
         // 获取chl通道数据
-        const getChlData = async (type: string) => {
-            getChlList({
-                isSupportSnap: type === 'snap',
-            }).then((result) => {
+        const getVideoPopupChlList = async () => {
+            getChlList({}).then((result) => {
                 commLoadResponseHandler(result, ($) => {
+                    pageData.value.videoPopupChlList.push({
+                        value: '',
+                        label: Translate('IDCS_OFF'),
+                    })
                     $('//content/item').forEach((item) => {
                         const $item = queryXml(item.element)
-                        pageData.value.chls.push({
-                            id: item.attr('id')!,
-                            name: $item('name').text(),
+
+                        pageData.value.videoPopupChlList.push({
+                            value: item.attr('id')!,
+                            label: $item('name').text(),
                         })
                     })
-                    if (type == 'snap') {
-                        // 在获取到通道数据后处理有关页面数据列表
-                        pageData.value.snapList = pageData.value.chls.map((item) => {
-                            return {
-                                value: item.id,
-                                label: item.name,
-                            }
-                        })
-                    } else {
-                        // 在获取到通道数据后处理有关页面数据列表
-                        pageData.value.recordList = pageData.value.chls.map((item) => {
-                            return {
-                                value: item.id,
-                                label: item.name,
-                            }
-                        })
-                        // 视频弹出数据
-                        pageData.value.videoPopupChlList.push({
-                            value: '',
-                            label: Translate('IDCS_OFF'),
-                        })
-                        pageData.value.chls.forEach((item) => {
-                            pageData.value.videoPopupChlList.push({
-                                value: item.id,
-                                label: item.name,
-                            })
-                        })
-                    }
-                    pageData.value.chls = []
                 })
             })
-        }
-
-        const getAlarmOutData = async () => {
-            pageData.value.alarmOutList = await buildAlarmOutChlList()
         }
 
         const getData = async () => {
@@ -184,7 +131,7 @@ export default defineComponent({
                 commLoadResponseHandler(result, ($) => {
                     pageData.value.totalCount = Number($('//content').attr('total'))
                     $('//content/item').forEach(async (item) => {
-                        const row = new SensorEvent()
+                        const row = new AlarmSensorEventDto()
                         row.id = item.attr('id')!
                         row.alarmInType = item.attr('alarmInType')!
                         row.nodeIndex = item.attr('index')!
@@ -202,7 +149,7 @@ export default defineComponent({
             })
         }
 
-        const getDataById = async (rowData: SensorEvent) => {
+        const getDataById = async (rowData: AlarmSensorEventDto) => {
             const sendXml = rawXml`
                 <condition>
                     <alarmInId>${rowData.id}</alarmInId>
@@ -254,18 +201,33 @@ export default defineComponent({
                     label: $content('trigger/triggerSchedule/schedule').text(),
                 }
                 rowData.oldSchedule = $content('trigger/triggerSchedule/schedule').attr('id')
-                rowData.sysRec = {
-                    switch: $content('trigger/sysRec/switch').text() == 'true',
-                    chls: [],
+                rowData.record = {
+                    switch: $content('trigger/sysRec/switch').text().toBoolean(),
+                    chls: $content('trigger/sysRec/chls/item').map((item) => {
+                        return {
+                            value: item.attr('id')!,
+                            label: item.text(),
+                        }
+                    }),
                 }
                 rowData.sysAudio = $content('trigger/sysAudio').attr('id') || DEFAULT_EMPTY_ID
-                rowData.sysSnap = {
-                    switch: $content('trigger/sysSnap/switch').text() == 'true',
-                    chls: [],
+                rowData.snap = {
+                    switch: $content('trigger/sysSnap/switch').text().toBoolean(),
+                    chls: $content('trigger/sysSnap/chls/item').map((item) => {
+                        return {
+                            value: item.attr('id')!,
+                            label: item.text(),
+                        }
+                    }),
                 }
                 rowData.alarmOut = {
-                    switch: $content('trigger/alarmOut/switch').text() == 'true',
-                    alarmOuts: [],
+                    switch: $content('trigger/alarmOut/switch').text().toBoolean(),
+                    alarmOuts: $content('trigger/alarmOut/alarmOuts/item').map((item) => {
+                        return {
+                            value: item.attr('id')!,
+                            label: item.text(),
+                        }
+                    }),
                 }
                 rowData.popVideo = {
                     switch: $content('trigger/popVideo/switch').text(),
@@ -290,30 +252,6 @@ export default defineComponent({
                     rowData.sysAudio = DEFAULT_EMPTY_ID
                 }
 
-                $content('trigger/sysRec/chls/item').forEach((item) => {
-                    rowData.sysRec.chls.push({
-                        value: item.attr('id')!,
-                        label: item.text(),
-                    })
-                })
-                rowData.recordList = rowData.sysRec.chls.map((item) => item.value)
-
-                $content('trigger/sysSnap/chls/item').forEach((item) => {
-                    rowData.sysSnap.chls.push({
-                        value: item.attr('id')!,
-                        label: item.text(),
-                    })
-                })
-                rowData.snapList = rowData.sysSnap.chls.map((item) => item.value)
-
-                $content('trigger/alarmOut/alarmOuts/item').forEach((item) => {
-                    rowData.alarmOut.alarmOuts.push({
-                        value: item.attr('id')!,
-                        label: item.text(),
-                    })
-                })
-                rowData.alarmOutList = rowData.alarmOut.alarmOuts.map((item) => item.value)
-
                 $content('trigger/preset/presets/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     rowData.preset.presets.push({
@@ -334,7 +272,7 @@ export default defineComponent({
             originalName.value = name
         }
 
-        const nameBlur = (row: SensorEvent) => {
+        const nameBlur = (row: AlarmSensorEventDto) => {
             const name = row.name
             if (!checkChlName(name)) {
                 openMessageBox({
@@ -369,222 +307,104 @@ export default defineComponent({
             event.target.blur()
         }
 
-        // 录像配置相关处理
-        const recordConfirmAll = (e: any[]) => {
-            if (e.length !== 0) {
-                pageData.value.recordChosedListAll = cloneDeep(e)
-                pageData.value.recordChosedIdsAll = e.map((item) => item.value)
-                tableData.value.forEach((item) => {
-                    if (!item.disabled) {
-                        item.sysRec.switch = true
-                        item.sysRec.chls = pageData.value.recordChosedListAll
-                        item.recordList = pageData.value.recordChosedListAll.map((item) => item.value)
-                    }
-                })
+        const switchRecord = (index: number) => {
+            const row = tableData.value[index].record
+            if (row.switch) {
+                openRecord(index)
+            } else {
+                row.chls = []
             }
-            pageData.value.recordChosedListAll = []
-            pageData.value.recordChosedIdsAll = []
-            pageData.value.recordIsShowAll = false
         }
 
-        const recordCloseAll = () => {
-            pageData.value.recordChosedListAll = []
-            pageData.value.recordChosedIdsAll = []
-            pageData.value.recordIsShowAll = false
-        }
-
-        // 打开录像dialog
-        const setRecord = (index: number) => {
+        const openRecord = (index: number) => {
+            tableData.value[index].record.switch = true
             pageData.value.triggerDialogIndex = index
             pageData.value.recordIsShow = true
         }
 
-        const recordConfirm = (e: SelectOption<string, string>[]) => {
-            const index = pageData.value.triggerDialogIndex
-            if (e.length !== 0) {
-                tableData.value[index].sysRec.chls = cloneDeep(e)
-                tableData.value[index].recordList = e.map((item) => item.value)
+        const changeRecord = (index: number, data: SelectOption<string, string>[]) => {
+            if (tableData.value[index].disabled) {
+                return
+            }
+            pageData.value.recordIsShow = false
+            tableData.value[index].record = {
+                switch: !!data.length,
+                chls: cloneDeep(data),
+            }
+        }
+
+        const switchSnap = (index: number) => {
+            const row = tableData.value[index].snap
+            if (row.switch) {
+                openSnap(index)
             } else {
-                tableData.value[index].sysRec.chls = []
-                tableData.value[index].recordList = []
-                tableData.value[index].sysRec.switch = false
+                row.chls = []
             }
-            pageData.value.recordIsShow = false
         }
 
-        const recordClose = () => {
-            if (!tableData.value[pageData.value.triggerDialogIndex].sysRec.chls.length) {
-                tableData.value[pageData.value.triggerDialogIndex].sysRec.switch = false
-                tableData.value[pageData.value.triggerDialogIndex].recordList = []
-                tableData.value[pageData.value.triggerDialogIndex].sysRec.chls = []
-            }
-            pageData.value.recordIsShow = false
-        }
-
-        // 抓图配置相关处理
-        const snapConfirmAll = (e: any[]) => {
-            if (e.length !== 0) {
-                pageData.value.snapChosedListAll = cloneDeep(e)
-                pageData.value.snapChosedIdsAll = e.map((item) => item.value)
-                tableData.value.forEach((item) => {
-                    if (!item.disabled) {
-                        item.sysSnap.switch = true
-                        item.sysSnap.chls = pageData.value.snapChosedListAll
-                        item.snapList = e.map((item) => item.value)
-                    }
-                })
-            }
-            pageData.value.snapChosedListAll = []
-            pageData.value.snapChosedIdsAll = []
-            pageData.value.snapIsShowAll = false
-        }
-
-        const snapCloseAll = () => {
-            pageData.value.snapChosedListAll = []
-            pageData.value.snapChosedIdsAll = []
-            pageData.value.snapIsShowAll = false
-        }
-
-        // 打开抓图dialog
-        const setSnap = (index: number) => {
+        const openSnap = (index: number) => {
+            tableData.value[index].snap.switch = true
             pageData.value.triggerDialogIndex = index
             pageData.value.snapIsShow = true
         }
 
-        const snapConfirm = (e: SelectOption<string, string>[]) => {
-            const index = pageData.value.triggerDialogIndex
-            if (e.length !== 0) {
-                tableData.value[index].sysSnap.chls = cloneDeep(e)
-                tableData.value[index].snapList = e.map((item) => item.value)
+        const changeSnap = (index: number, data: SelectOption<string, string>[]) => {
+            if (tableData.value[index].disabled) {
+                return
+            }
+            pageData.value.snapIsShow = false
+            tableData.value[index].snap = {
+                switch: !!data.length,
+                chls: cloneDeep(data),
+            }
+        }
+
+        const switchAlarmOut = (index: number) => {
+            const row = tableData.value[index].alarmOut
+            if (row.switch) {
+                openAlarmOut(index)
             } else {
-                tableData.value[index].sysSnap.chls = []
-                tableData.value[index].snapList = []
-                tableData.value[index].sysSnap.switch = false
+                row.alarmOuts = []
             }
-            pageData.value.snapIsShow = false
         }
 
-        const snapClose = () => {
-            if (!tableData.value[pageData.value.triggerDialogIndex].sysSnap.chls.length) {
-                tableData.value[pageData.value.triggerDialogIndex].sysSnap.switch = false
-                tableData.value[pageData.value.triggerDialogIndex].snapList = []
-                tableData.value[pageData.value.triggerDialogIndex].sysSnap.chls = []
-            }
-            pageData.value.snapIsShow = false
-        }
-
-        // 报警输出相关处理
-        const alarmOutConfirmAll = (e: any[]) => {
-            if (e.length !== 0) {
-                pageData.value.alarmOutChosedListAll = cloneDeep(e)
-                pageData.value.alarmOutChosedIdsAll = e.map((item) => item.value)
-                tableData.value.forEach((item) => {
-                    if (!item.disabled) {
-                        item.alarmOut.switch = true
-                        item.alarmOut.alarmOuts = pageData.value.alarmOutChosedListAll
-                        item.alarmOutList = e.map((item) => item.value)
-                    }
-                })
-            }
-            pageData.value.alarmOutChosedListAll = []
-            pageData.value.alarmOutChosedIdsAll = []
-            pageData.value.alarmOutIsShowAll = false
-        }
-
-        const alarmOutCloseAll = () => {
-            pageData.value.alarmOutChosedListAll = []
-            pageData.value.alarmOutChosedIdsAll = []
-            pageData.value.alarmOutIsShowAll = false
-        }
-
-        // 打开报警输出dialog
-        const setAlarmOut = (index: number) => {
+        const openAlarmOut = (index: number) => {
+            tableData.value[index].alarmOut.switch = true
             pageData.value.triggerDialogIndex = index
             pageData.value.alarmOutIsShow = true
         }
 
-        const alarmOutConfirm = (e: SelectOption<string, string>[]) => {
-            const index = pageData.value.triggerDialogIndex
-            if (e.length !== 0) {
-                tableData.value[index].alarmOut.alarmOuts = cloneDeep(e)
-                tableData.value[index].alarmOutList = e.map((item) => item.value)
+        const changeAlarmOut = (index: number, data: SelectOption<string, string>[]) => {
+            if (tableData.value[index].disabled) {
+                return
+            }
+            pageData.value.alarmOutIsShow = false
+            tableData.value[index].alarmOut = {
+                switch: !!data.length,
+                alarmOuts: cloneDeep(data),
+            }
+        }
+
+        const switchPreset = (index: number) => {
+            const row = tableData.value[index].preset
+            if (row.switch) {
+                openPreset(index)
             } else {
-                tableData.value[index].alarmOut.alarmOuts = []
-                tableData.value[index].alarmOutList = []
-                tableData.value[index].alarmOut.switch = false
+                row.presets = []
             }
-            pageData.value.alarmOutIsShow = false
         }
 
-        const alarmOutClose = () => {
-            if (!tableData.value[pageData.value.triggerDialogIndex].alarmOut.alarmOuts.length) {
-                tableData.value[pageData.value.triggerDialogIndex].alarmOut.switch = false
-                tableData.value[pageData.value.triggerDialogIndex].alarmOutList = []
-                tableData.value[pageData.value.triggerDialogIndex].alarmOut.alarmOuts = []
-            }
-            pageData.value.alarmOutIsShow = false
-        }
-
-        // 预置点名称配置处理
-        const openPresetPop = (row: SensorEvent) => {
-            pageData.value.presetChlId = row.id
-            pageData.value.presetLinkedList = row.preset.presets
+        const openPreset = (index: number) => {
+            tableData.value[index].alarmOut.switch = true
+            pageData.value.triggerDialogIndex = index
             pageData.value.isPresetPopOpen = true
         }
 
-        const handlePresetLinkedList = (id: string, linkedList: PresetItem[]) => {
-            tableData.value.forEach((item) => {
-                if (item.id == id) {
-                    item.preset.presets = linkedList
-                }
-            })
-        }
-
-        const presetClose = (id: string) => {
+        const changePreset = (index: number, data: AlarmPresetItem[]) => {
             pageData.value.isPresetPopOpen = false
-            tableData.value.forEach((item) => {
-                if (item.id == id && item.preset.presets.length == 0) {
-                    item.preset.switch = false
-                }
-            })
-        }
-
-        const presetCheckChange = (row: SensorEvent) => {
-            if (row.preset.switch) {
-                openPresetPop(row)
-            } else {
-                row.preset.presets = []
-            }
-        }
-
-        const checkChange = (index: number, type: string) => {
-            switch (type) {
-                case 'record':
-                    if (tableData.value[index].sysRec.switch) {
-                        setRecord(index)
-                    } else {
-                        tableData.value[index].sysRec.chls = []
-                        tableData.value[index].recordList = []
-                    }
-                    break
-                case 'snap':
-                    if (tableData.value[index].sysSnap.switch) {
-                        setSnap(index)
-                    } else {
-                        tableData.value[index].sysSnap.chls = []
-                        tableData.value[index].snapList = []
-                    }
-                    break
-                case 'alarmOut':
-                    if (tableData.value[index].alarmOut.switch) {
-                        setAlarmOut(index)
-                    } else {
-                        tableData.value[index].alarmOut.alarmOuts = []
-                        tableData.value[index].alarmOutList = []
-                    }
-                    break
-                default:
-                    break
+            tableData.value[index].preset = {
+                switch: !!data.length,
+                presets: cloneDeep(data),
             }
         }
 
@@ -599,7 +419,7 @@ export default defineComponent({
             }
         }
 
-        const changeSchedule = (row: SensorEvent) => {
+        const changeSchedule = (row: AlarmSensorEventDto) => {
             if (row.schedule.value == 'scheduleMgr') {
                 pageData.value.scheduleManagePopOpen = true
                 row.schedule.value = row.oldSchedule
@@ -629,8 +449,8 @@ export default defineComponent({
             })
         }
 
-        const getEditedRows = (table: SensorEvent[], tableInit: SensorEvent[]) => {
-            const editedRows = [] as SensorEvent[]
+        const getEditedRows = (table: AlarmSensorEventDto[], tableInit: AlarmSensorEventDto[]) => {
+            const editedRows = [] as AlarmSensorEventDto[]
             table.forEach((item, index) => {
                 if (!isEqual(item, tableInit[index])) {
                     editedRows.push(item)
@@ -639,7 +459,7 @@ export default defineComponent({
             return editedRows
         }
 
-        const getSavaData = (row: SensorEvent) => {
+        const getSavaData = (row: AlarmSensorEventDto) => {
             const sendXml = rawXml`
                 <types>
                     <alarmInVoltage>
@@ -656,25 +476,25 @@ export default defineComponent({
                     </param>
                     <trigger>
                         <sysRec>
-                            <switch>${String(row.sysRec.switch)}</switch>
+                            <switch>${row.record.switch}</switch>
                             <chls type='list'>
-                                ${row.sysRec.chls.map((item) => `<item id='${item.value}'><![CDATA[${item.label}]]></item>`).join('')}
+                                ${row.record.chls.map((item) => `<item id='${item.value}'><![CDATA[${item.label}]]></item>`).join('')}
                             </chls>
                         </sysRec>
                         <sysSnap>
-                            <switch>${String(row.sysSnap.switch)}</switch>
+                            <switch>${row.snap.switch}</switch>
                             <chls type='list'>
-                                ${row.sysSnap.chls.map((item) => `<item id='${item.value}'><![CDATA[${item.label}]]></item>`).join('')}
+                                ${row.snap.chls.map((item) => `<item id='${item.value}'><![CDATA[${item.label}]]></item>`).join('')}
                             </chls>
                         </sysSnap>
                         <alarmOut>
-                            <switch>${String(row.alarmOut.switch)}</switch>
+                            <switch>${row.alarmOut.switch}</switch>
                             <alarmOuts type='list'>
                                 ${row.alarmOut.alarmOuts.map((item) => `<item id='${item.value}'><![CDATA[${item.label}]]></item>`).join('')}
                             </alarmOuts>
                         </alarmOut>
                         <preset>
-                            <switch>${String(row.preset.switch)}</switch>
+                            <switch>${row.preset.switch}</switch>
                             <presets type='list'>
                                 ${row.preset.presets
                                     .map((item) => {
@@ -733,11 +553,7 @@ export default defineComponent({
         onMounted(async () => {
             // 相关请求，获取前置数据
             await getAudioData() // 声音数据
-            await getChlData('initCtrl') // 通道数据
-            // await getChlData('record')  在类型上只判断是否为snap，record请求数据合并在initCtrl中处理
-            await getChlData('snap')
-            await getAlarmOutData() // 报警输出
-
+            await getVideoPopupChlList() // 通道数据
             await getData()
         })
 
@@ -754,7 +570,10 @@ export default defineComponent({
         )
 
         return {
-            SetPresetPop,
+            AlarmBasePresetPop,
+            AlarmBaseSnapPop,
+            AlarmBaseRecordPop,
+            AlarmBaseAlarmOutPop,
             ScheduleManagPop,
             pageData,
             tableData,
@@ -764,33 +583,21 @@ export default defineComponent({
             nameFocus,
             nameBlur,
             enterBlur,
-            checkChange,
             // 排程
             changeScheduleAll,
             changeSchedule,
-            // 录像
-            recordConfirmAll,
-            recordCloseAll,
-            setRecord,
-            recordConfirm,
-            recordClose,
-            // 抓图
-            snapConfirmAll,
-            snapCloseAll,
-            setSnap,
-            snapConfirm,
-            snapClose,
-            // 报警输出
-            alarmOutConfirmAll,
-            alarmOutCloseAll,
-            setAlarmOut,
-            alarmOutConfirm,
-            alarmOutClose,
-            // 预置点名称
-            openPresetPop,
-            handlePresetLinkedList,
-            presetClose,
-            presetCheckChange,
+            switchRecord,
+            openRecord,
+            changeRecord,
+            switchAlarmOut,
+            openAlarmOut,
+            changeAlarmOut,
+            switchSnap,
+            openSnap,
+            changeSnap,
+            switchPreset,
+            openPreset,
+            changePreset,
             // 表头改变属性
             changeAllValue,
             setData,

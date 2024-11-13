@@ -1,9 +1,7 @@
 <!--
- * @Description: 事件通知——声音——ipc/local添加语音文件弹窗
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-14 15:48:05
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-01 15:04:28
+ * @Description: 事件通知——声音——ipc/local添加语音文件弹窗
 -->
 <template>
     <el-dialog
@@ -15,7 +13,7 @@
         <el-form
             :style="{
                 '--form-label-width': '100px',
-                '--form-input-width': '240px',
+                '--form-input-width': '230px',
             }"
         >
             <el-form-item :label="Translate('IDCS_PATH')">
@@ -48,7 +46,6 @@
             >
                 <el-button
                     :disabled="pageData.btnApplyDisabled"
-                    :style="{ marginRight: '20px' }"
                     @click="apply"
                     >{{ Translate('IDCS_APPLY') }}</el-button
                 >
@@ -57,7 +54,7 @@
     </el-dialog>
 </template>
 
-<script lang="ts" src="./UploadAudioPop.v.ts"></script>
+<script lang="ts" src="./AudioUploadPop.v.ts"></script>
 
 <style lang="scss" scoped>
 .audioUpload {
@@ -69,6 +66,6 @@
 
 .tips {
     color: var(--color-error);
-    padding: 20px 0px;
+    padding: 20px 0;
 }
 </style>

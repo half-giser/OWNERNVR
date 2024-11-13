@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-23 10:36:05
  * @Description: 云台-协议
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 18:28:41
 -->
 <template>
     <div class="base-chl-box">
@@ -252,10 +250,6 @@
 </template>
 
 <script lang="ts" src="./ChannelPtzProtocol.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/channel.scss';
-</style>
 
 <style lang="scss" scoped>
 .time {

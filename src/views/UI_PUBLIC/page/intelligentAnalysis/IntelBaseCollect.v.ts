@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-06 16:38:42
  * @Description: 智能分析 - 添加收藏
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-12 20:37:31
  */
 import { IntelSearchCollectList } from '@/types/apiType/intelligentAnalysis'
 import type { FormInstance, FormRules } from 'element-plus'
@@ -53,8 +51,8 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             name: [
                 {
-                    validator(_rule, value, callback) {
-                        if (!value) {
+                    validator: (_rule, value: string, callback) => {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
                             return
                         }
@@ -63,6 +61,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_CHANNEL_NAME_EXIST')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',

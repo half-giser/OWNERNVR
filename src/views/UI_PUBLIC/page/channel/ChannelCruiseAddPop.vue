@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-21 13:47:47
  * @Description: 云台-巡航线-新增弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-21 17:52:16
 -->
 <template>
     <el-dialog

@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-26 17:04:12
  * @Description: 现场预览-操作视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-21 14:00:55
  */
 import { type LiveChannelList, type LiveResolutionOptions, type LiveQualityOptions, LiveStreamForm, type LiveSharedWinData } from '@/types/apiType/live'
 
@@ -331,7 +329,7 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <chlId>${chlID.value}</chlId>
-                    <switch>${bool.toString()}</switch>
+                    <switch>${bool}</switch>
                 </content>
             `
             await editManualRecord(sendXml)
@@ -555,9 +553,9 @@ export default defineComponent({
                 return
             }
             const res = streamFormData.value.resolution
-            const fps = streamFormData.value.frameRate.toString()
+            const fps = streamFormData.value.frameRate
             const qoi = streamFormData.value.quality
-            const gop = pageData.value.GOP || Number(streamFormData.value.frameRate * 4).toString()
+            const gop = pageData.value.GOP || Number(streamFormData.value.frameRate * 4)
             const sendXml = rawXml`
                 <content type="list" total="1">
                     <item id="${chlID.value}">

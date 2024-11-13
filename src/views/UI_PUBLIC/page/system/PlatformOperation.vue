@@ -1,5 +1,5 @@
 <template>
-    <div class="platformOperation_Type">
+    <div class="type">
         <el-form
             :style="{
                 '--form-label-width': '150px',
@@ -34,7 +34,7 @@
             </el-form-item>
         </el-form>
     </div>
-    <div class="platformOperation_Wrap">
+    <div class="wrap">
         <!-- 测试抓图/维护抓图/验收抓图 -->
         <div
             v-show="pageData.operationType === 'testScreenshot' || pageData.operationType === 'maintenanceScreenshot' || pageData.operationType === 'acceptScreenshot'"
@@ -215,7 +215,7 @@
             </el-form>
         </div>
     </div>
-    <div class="base-btn-box platformOperation_Bottom">
+    <div class="base-btn-box bottom">
         <el-button
             :disabled="pageData.uploadDisabled"
             @click="uploadData"
@@ -228,20 +228,23 @@
 <script lang="ts" src="./PlatformOperation.v.ts"></script>
 
 <style lang="scss" scoped>
-.platformOperation_Type {
+.type {
     margin: 10px 40px;
 }
-.platformOperation_Wrap {
+
+.wrap {
     width: 800px;
     height: 470px;
     margin-left: 20px;
     padding: 20px;
     border: 1px solid var(--content-border);
+
     :deep(.el-textarea__inner) {
         width: 780px;
         height: 230px;
         max-height: 275px;
     }
+
     .screenshot {
         :deep(.el-textarea__inner) {
             max-height: 350px;
@@ -249,7 +252,7 @@
     }
 }
 
-.platformOperation_Bottom {
+.bottom {
     width: 860px;
 }
 </style>

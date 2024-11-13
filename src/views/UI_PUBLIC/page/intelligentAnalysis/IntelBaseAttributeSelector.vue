@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-04 14:36:21
  * @Description: 智能分析 属性选择器
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-01 18:20:43
 -->
 <template>
     <div>
@@ -78,7 +76,3 @@
 </template>
 
 <script lang="ts" src="./IntelBaseAttributeSelector.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/intelligentAnalysis.scss';
-</style>

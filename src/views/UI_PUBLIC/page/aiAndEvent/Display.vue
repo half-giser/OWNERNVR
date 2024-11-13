@@ -2,8 +2,6 @@
  * @Description: AI/事件——事件通知——显示
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-07-30 09:23:16
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-23 20:40:24
 -->
 <template>
     <el-form

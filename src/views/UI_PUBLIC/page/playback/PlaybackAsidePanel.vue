@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-30 10:36:00
  * @Description: 回放-右侧视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-26 15:22:53
 -->
 <template>
     <div class="right">
@@ -108,7 +106,7 @@
             margin-left: 10px;
             position: relative;
 
-            &:after {
+            &::after {
                 content: '';
                 border-left: 4px solid var(--panel-header-bg);
                 border-top: 4px solid transparent;

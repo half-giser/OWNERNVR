@@ -1,11 +1,9 @@
 /*
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-13 11:32:17
- * @Description:过线检测邮件设置弹窗
- * @LastEditors: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @LastEditTime: 2024-10-22 09:59:20
+ * @Description: 过线检测邮件设置弹窗
  */
-import { type emailData } from '@/types/apiType/aiAndEvent'
+import { type AlarmPassLinesEmailDto } from '@/types/apiType/aiAndEvent'
 import { type FormInstance, type FormRules } from 'element-plus'
 export default defineComponent({
     props: {
@@ -14,12 +12,12 @@ export default defineComponent({
             required: true,
         },
         emailData: {
-            type: Object as PropType<emailData>,
+            type: Object as PropType<AlarmPassLinesEmailDto>,
             required: true,
         },
     },
     emits: {
-        close(e: emailData) {
+        close(e: AlarmPassLinesEmailDto) {
             return e
         },
     },
@@ -38,29 +36,37 @@ export default defineComponent({
             address: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if (value == '') {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_EMAIL_ADDRESS_EMPTY')))
                             error.value = Translate('IDCS_PROMPT_EMAIL_ADDRESS_EMPTY')
                             return
-                        } else if (!checkEmail(value)) {
+                        }
+
+                        if (!checkEmail(value)) {
                             callback(new Error(Translate('IDCS_PROMPT_INVALID_EMAIL')))
                             error.value = Translate('IDCS_PROMPT_INVALID_EMAIL')
                             return
-                        } else if (checkExist(value)) {
+                        }
+
+                        if (checkExist(value)) {
                             callback(new Error(Translate('IDCS_PROMPT_EMAIL_EXIST')))
                             error.value = Translate('IDCS_PROMPT_EMAIL_EXIST')
                             return
-                        } else if (pageData.value.data.receiverData.length >= maxEmailCount.value) {
+                        }
+
+                        if (pageData.value.data.receiverData.length >= maxEmailCount.value) {
                             callback(new Error(Translate('IDCS_PROMPT_EMAIL_NUM_LIMIT').formatForLang(maxEmailCount.value)))
                             error.value = Translate('IDCS_PROMPT_EMAIL_NUM_LIMIT').formatForLang(maxEmailCount.value)
                             return
                         }
+
                         callback()
                     },
-                    trigger: 'blur',
+                    trigger: 'manual',
                 },
             ],
         })
+
         const pageData = ref({
             data: {
                 saveTargetPicture: false,
@@ -77,16 +83,37 @@ export default defineComponent({
                     reportMin: 0,
                 },
                 receiverData: [] as { address: string; schedule: string; rowClicked: boolean }[],
-            } as emailData,
+            } as AlarmPassLinesEmailDto,
             time: '00:00',
             weekOption: [
-                { value: '1', label: Translate('IDCS_WEEK_DAY_ONE') },
-                { value: '2', label: Translate('IDCS_WEEK_DAY_TWO') },
-                { value: '3', label: Translate('IDCS_WEEK_DAY_THREE') },
-                { value: '4', label: Translate('IDCS_WEEK_DAY_FOUR') },
-                { value: '5', label: Translate('IDCS_WEEK_DAY_FIVE') },
-                { value: '6', label: Translate('IDCS_WEEK_DAY_SIX') },
-                { value: '7', label: Translate('IDCS_WEEK_DAY_SEVEN') },
+                {
+                    value: '1',
+                    label: Translate('IDCS_WEEK_DAY_ONE'),
+                },
+                {
+                    value: '2',
+                    label: Translate('IDCS_WEEK_DAY_TWO'),
+                },
+                {
+                    value: '3',
+                    label: Translate('IDCS_WEEK_DAY_THREE'),
+                },
+                {
+                    value: '4',
+                    label: Translate('IDCS_WEEK_DAY_FOUR'),
+                },
+                {
+                    value: '5',
+                    label: Translate('IDCS_WEEK_DAY_FIVE'),
+                },
+                {
+                    value: '6',
+                    label: Translate('IDCS_WEEK_DAY_SIX'),
+                },
+                {
+                    value: '7',
+                    label: Translate('IDCS_WEEK_DAY_SEVEN'),
+                },
             ] as SelectOption<string, string>[],
             monthOption: [] as SelectOption<string, string>[],
             scheduleList: [] as SelectOption<string, string>[],
@@ -154,6 +181,10 @@ export default defineComponent({
             return result
         }
 
+        const openEditReceiverPop = () => {
+            formRef.value?.clearValidate()
+        }
+
         const open = () => {
             pageData.value.data.saveTargetPicture = props.emailData.saveTargetPicture
             pageData.value.data.saveSourcePicture = props.emailData.saveSourcePicture
@@ -173,12 +204,14 @@ export default defineComponent({
         const close = () => {
             ctx.emit('close', pageData.value.data)
         }
+
         onMounted(() => {
             for (let i = 1; i <= 31; i++) {
                 // TODO 只能翻译成中文
                 pageData.value.monthOption.push({ value: i.toString(), label: i.toString() + Translate('IDCS_TIMING_SEND_EMAIL_DAY') })
             }
         })
+
         return {
             formRef,
             formData,
@@ -192,6 +225,7 @@ export default defineComponent({
             formatAddress,
             handleDelReceiver,
             handleAddReceiver,
+            openEditReceiverPop,
         }
     },
 })

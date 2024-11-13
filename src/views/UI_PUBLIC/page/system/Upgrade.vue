@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-27 11:48:58
  * @Description: 系统升级
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-16 11:22:30
 -->
 <template>
     <div>
@@ -109,11 +107,12 @@
     & > div {
         display: flex;
         align-items: center;
+
         &:not(:first-child) {
             margin-left: 30px;
             position: relative;
 
-            &:before {
+            &::before {
                 content: '';
                 position: relative;
                 height: 17px;

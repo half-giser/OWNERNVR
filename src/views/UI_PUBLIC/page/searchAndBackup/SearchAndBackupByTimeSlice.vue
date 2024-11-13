@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-12 16:25:05
  * @Description: 按时间切片搜索
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-05 14:27:35
 -->
 <template>
     <div class="time-slice">
@@ -87,7 +85,7 @@
             content: '>';
             padding-left: 10px;
             padding-right: 10px;
-            font-family: consolas;
+            font-family: consolas, monospace;
         }
     }
 }

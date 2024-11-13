@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-31 14:08:32
  * @Description: Canvas基础类
- * @LastEditors: Please set LastEditors
- * @LastEditTime: 2024-07-19 11:35:52
  */
 export interface CanvasBasePoint {
     X: number

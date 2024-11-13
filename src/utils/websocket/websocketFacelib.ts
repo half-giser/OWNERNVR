@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-30 11:53:45
  * @Description: websocket 导出人脸库
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-05-31 09:09:38
  */
 import WebsocketBase from './websocketBase'
 

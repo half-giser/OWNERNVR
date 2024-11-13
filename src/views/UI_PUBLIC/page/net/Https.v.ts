@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-12 18:19:55
  * @Description: HTTPS
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-29 18:07:09
  */
 import WebsocketUpload from '@/utils/websocket/websocketUpload'
 import WebsocketDownload from '@/utils/websocket/websocketDownload'
@@ -123,7 +121,7 @@ export default defineComponent({
 
             const sendXml = rawXml`
                 <content>
-                    <httpsSwitch>${formData.value.httpsSwitch.toString()}</httpsSwitch>
+                    <httpsSwitch>${formData.value.httpsSwitch}</httpsSwitch>
                 </content>
             `
             const result = await editNetPortCfg(sendXml)

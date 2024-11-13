@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-21 17:50:00
  * @Description: 云台-巡航线
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 14:00:23
  */
 import { type TableInstance } from 'element-plus'
 import { type ChannelPtzCruiseChlDto, ChannelPtzCruiseDto, type ChannelPtzCruisePresetDto } from '@/types/apiType/channel'
@@ -163,7 +161,7 @@ export default defineComponent({
             const sendXml = rawXml`
                 <condition>
                     <chlId>${tableData.value[pageData.value.tableIndex].chlId}</chlId>
-                    <cruiseIndex>${currentCruise.value.index.toString()}</cruiseIndex>
+                    <cruiseIndex>${currentCruise.value.index}</cruiseIndex>
                 </condition>
             `
             const result = await queryChlCruise(sendXml)
@@ -307,7 +305,7 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <chl id="${tableData.value[pageData.value.tableIndex].chlId}"></chl>
-                    <index>${currentCruise.value.index.toString()}</index>
+                    <index>${currentCruise.value.index}</index>
                     <name maxByteLen="63">${wrapCDATA(formData.value.name)}</name>
                 </content>
             `
@@ -489,16 +487,16 @@ export default defineComponent({
 
             const sendXml = rawXml`
                 <content>
-                    <index>${currentCruise.value.index.toString()}</index>
+                    <index>${currentCruise.value.index}</index>
                     <chl id="${tableData.value[pageData.value.tableIndex].chlId}"></chl>
                     <presets type="list">
                         ${presetTableData.value
                             .map((item) => {
                                 return rawXml`
-                                    <item index="${item.index.toString()}">
-                                        <name>${wrapCDATA(item.name.toString())}</name>
-                                        <speed>${item.speed.toString()}</speed>
-                                        <holdTime>${item.holdTime.toString()}</holdTime>
+                                    <item index="${item.index}">
+                                        <name>${wrapCDATA(item.name)}</name>
+                                        <speed>${item.speed}</speed>
+                                        <holdTime>${item.holdTime}</holdTime>
                                     </item>
                                 `
                             })
@@ -536,7 +534,7 @@ export default defineComponent({
                     <condition>
                         <chlId>${chlId}</chlId>
                         <cruiseIndexes type="list">
-                            <item index="${cruise.index.toString()}">${wrapCDATA(cruise.name)}</item> 
+                            <item index="${cruise.index}">${wrapCDATA(cruise.name)}</item> 
                         </cruiseIndexes>
                     </condition>
                 `
@@ -560,7 +558,7 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <chlId>${tableData.value[pageData.value.tableIndex].chlId}</chlId>
-                    <index>${currentCruise.value.index.toString()}</index>
+                    <index>${currentCruise.value.index}</index>
                     <speed>4</speed>
                 </content>
             `

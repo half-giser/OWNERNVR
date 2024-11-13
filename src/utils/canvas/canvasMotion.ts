@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-31 16:04:34
  * @Description: canvas移动侦测配置（网格线）
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-05-31 16:35:09
  */
 
 import CanvasBase, { type CanvasBaseLineStyleOption } from './canvasBase'

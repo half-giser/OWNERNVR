@@ -2,8 +2,6 @@
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2023-05-10 09:30:08
  * @Description: 登录页
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-22 13:53:51
 -->
 <template>
     <div class="login">
@@ -122,9 +120,9 @@
         }
 
         :deep(.el-form-item) {
-            margin: 0 0px 0px 428px;
+            margin: 0 0 0 428px;
             font-size: 16px;
-            padding: 0 0 28px 0;
+            padding: 0 0 28px;
 
             &:last-child {
                 padding-bottom: 0;

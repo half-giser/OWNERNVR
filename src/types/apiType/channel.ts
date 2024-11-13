@@ -4,6 +4,9 @@
  * @Description: 通道
  */
 
+/**
+ * @description 通道列表项
+ */
 export class ChannelInfoDto {
     id = ''
     chlNum = ''
@@ -36,7 +39,15 @@ export class ChannelInfoDto {
     upgradeProgressText = '' // 升级进度
 }
 
-export class DefaultPwdDto {
+export interface ChannelIPCUpgradeExpose {
+    init: (type: 'single' | 'multiple', data: ChannelInfoDto[]) => void
+    initWsState: (list: ChannelInfoDto[]) => void
+}
+
+/**
+ * @description 通道 默认密码表单
+ */
+export class ChannelDefaultPwdDto {
     id = ''
     userName = ''
     password = ''
@@ -45,6 +56,9 @@ export class DefaultPwdDto {
     showInput = false
 }
 
+/**
+ * @description 快速添加通道 列表项
+ */
 export class ChannelQuickAddDto {
     ip = ''
     port = ''
@@ -66,6 +80,9 @@ export class ChannelQuickAddDto {
     activateStatus = ''
 }
 
+/**
+ * @description 手动添加 通道列表项
+ */
 export class ChannelManualAddDto {
     name = ''
     ip = ''
@@ -80,6 +97,9 @@ export class ChannelManualAddDto {
     portDisabled = false
 }
 
+/**
+ * @description 添加录像通道
+ */
 export class ChannelAddRecorderDto {
     ip = ''
     port = 0
@@ -93,6 +113,9 @@ export class ChannelAddRecorderDto {
     displayName = ''
 }
 
+/**
+ * @description 编辑IPC IP表单
+ */
 export class ChannelAddEditIPCIpDto {
     mac = ''
     ip = ''
@@ -102,7 +125,10 @@ export class ChannelAddEditIPCIpDto {
     password = ''
 }
 
-export class RecorderDto {
+/**
+ * @description 录像通道列表项
+ */
+export class ChannelRecorderDto {
     index = ''
     name = ''
     isAdded = false
@@ -110,7 +136,10 @@ export class RecorderDto {
     productModel = ''
 }
 
-export class RecorderAddDto {
+/**
+ * @description 添加录像通道列表项
+ */
+export class ChannelRecorderAddDto {
     ip = ''
     domain = ''
     chkDomain = false
@@ -120,9 +149,12 @@ export class RecorderAddDto {
     userName = ''
     password = ''
     useDefaultPwd = true
-    recorderList: Array<RecorderDto> = []
+    recorderList: Array<ChannelRecorderDto> = []
 }
 
+/**
+ * @description 查询IPC列表
+ */
 export class QueryNodeListDto {
     pageIndex = 0
     pageSize = 0
@@ -164,7 +196,10 @@ export class QueryNodeListDto {
     requireField: string[] = []
 }
 
-export class ResourcesPathDto {
+/**
+ * @description 设置协议
+ */
+export class ChannelResourcesPathDto {
     streamType = ''
     protocol = ''
     transportProtocol = ''
@@ -172,14 +207,20 @@ export class ResourcesPathDto {
     path = ''
 }
 
-export class ProtocolManageDto {
+/**
+ * @description 协议管理列表项
+ */
+export class ChannelProtocolManageDto {
     id = ''
     enabled = false
     displayName = ''
-    resourcesPath: ResourcesPathDto[] = []
+    resourcesPath: ChannelResourcesPathDto[] = []
 }
 
-export class MultiChlCheckedInfoDto {
+/**
+ * @description
+ */
+export class ChannelMultiChlCheckedInfoDto {
     operateIndex = 0
     chlType = ''
     chlLabel = ''
@@ -187,12 +228,18 @@ export class MultiChlCheckedInfoDto {
     disabled = false
 }
 
-export class MultiChlIPCAddDto extends ChannelManualAddDto {
-    multichannelCheckedInfoList: MultiChlCheckedInfoDto[] = []
+/**
+ * @description
+ */
+export class ChannelMultiChlIPCAddDto extends ChannelManualAddDto {
+    multichannelCheckedInfoList: ChannelMultiChlCheckedInfoDto[] = []
     type = ''
 }
 
-export class ChlGroup {
+/**
+ * @description 通道组 列表项
+ */
+export class ChannelGroupDto {
     id = ''
     name = ''
     dwellTime = 0
@@ -200,7 +247,10 @@ export class ChlGroup {
     chls: Record<string, string | boolean>[] = []
 }
 
-export class ChlSignal {
+/**
+ * @description 通道信号配置 列表项
+ */
+export class ChannelSignalDto {
     id = 0
     name = ''
     lite = false
@@ -213,13 +263,19 @@ export class ChlSignal {
     showSignal = true
 }
 
+/**
+ * @description 通道行状态 基类
+ */
 class ChannelRowStatus {
     status = ''
     statusTip = ''
     disabled = true
 }
 
-export class ChannelOsd extends ChannelRowStatus {
+/**
+ * @description OSD配置 列表项
+ */
+export class ChannelOsdDto extends ChannelRowStatus {
     id = ''
     name = ''
     ip = ''
@@ -257,7 +313,10 @@ export class ChannelOsd extends ChannelRowStatus {
     nameYMaxValue = 0
 }
 
-export class ChannelImage extends ChannelRowStatus {
+/**
+ * @description 图像设置 列表项
+ */
+export class ChannelImageDto extends ChannelRowStatus {
     id = ''
     name = ''
     chlType = ''
@@ -386,7 +445,7 @@ export class ChannelImage extends ChannelRowStatus {
     shutterUpLimitDefault: string | undefined = undefined
 
     supportSchedule = false
-    scheduleInfo = new ChannelScheduleInfo()
+    scheduleInfo = new ChannelScheduleInfoDto()
     // 白光灯
     whitelightMode: string | undefined = undefined
     whitelightModeDefault: string | undefined = undefined
@@ -417,7 +476,10 @@ export class ChannelImage extends ChannelRowStatus {
     activeTab = 'imageAdjust'
 }
 
-export class ChannelScheduleInfo {
+/**
+ * @description
+ */
+export class ChannelScheduleInfoDto {
     scheduleType = 'full'
     scheduleInfoEnum: string[] = []
     program = ''
@@ -425,7 +487,10 @@ export class ChannelScheduleInfo {
     nightTime = ''
 }
 
-export class ChannelLensCtrl {
+/**
+ * @description 镜头控制
+ */
+export class ChannelLensCtrlDto {
     id = ''
     supportAz = false
     focusType = ''
@@ -436,7 +501,10 @@ export class ChannelLensCtrl {
     IrchangeFocusDisabled = false
 }
 
-export class ChannelMask extends ChannelRowStatus {
+/**
+ * @description 视频遮罩 列表项
+ */
+export class ChannelMaskDto extends ChannelRowStatus {
     id = ''
     name = ''
     chlIndex = ''
@@ -444,10 +512,13 @@ export class ChannelMask extends ChannelRowStatus {
     switch = 'false'
     color = 'black'
     isSpeco = false
-    mask: PrivacyMask[] = []
+    mask: ChannelPrivacyMaskDto[] = []
 }
 
-export class PrivacyMask {
+/**
+ * @description
+ */
+export class ChannelPrivacyMaskDto {
     switch = false
     X = 0
     Y = 0
@@ -455,7 +526,10 @@ export class PrivacyMask {
     height = 0
 }
 
-export class ChannelFisheye extends ChannelRowStatus {
+/**
+ * @description 鱼眼
+ */
+export class ChannelFisheyeDto extends ChannelRowStatus {
     id = ''
     name = ''
     chlIndex = ''
@@ -469,7 +543,10 @@ export class ChannelFisheye extends ChannelRowStatus {
     reqCfgFail = false
 }
 
-export class ChannelMotion extends ChannelRowStatus {
+/**
+ * @description 移动侦测
+ */
+export class ChannelMotionDto extends ChannelRowStatus {
     id = ''
     name = ''
     chlIndex = ''
@@ -489,6 +566,9 @@ export class ChannelMotion extends ChannelRowStatus {
     areaInfo: string[] = []
 }
 
+/**
+ * @description 预置点 通道列表项
+ */
 export class ChannelPtzPresetChlDto {
     chlId = ''
     chlName = ''
@@ -497,11 +577,17 @@ export class ChannelPtzPresetChlDto {
     presets = [] as ChannelPtzPresetDto[]
 }
 
+/**
+ * @description 预置点 列表项
+ */
 export class ChannelPtzPresetDto {
     index = 0
     name = ''
 }
 
+/**
+ * @description 轨迹 通道列表项
+ */
 export class ChannelPtzTraceChlDto {
     chlId = ''
     chlName = ''
@@ -510,8 +596,14 @@ export class ChannelPtzTraceChlDto {
     trace = [] as ChannelPtzTraceDto[]
 }
 
+/**
+ * @description 轨迹
+ */
 export class ChannelPtzTraceDto extends ChannelPtzPresetDto {}
 
+/**
+ * @description 巡航线 通道列表项
+ */
 export class ChannelPtzCruiseChlDto {
     chlId = ''
     chlName = ''
@@ -520,20 +612,32 @@ export class ChannelPtzCruiseChlDto {
     cruise = [] as ChannelPtzCruiseDto[]
 }
 
+/**
+ * @description 巡航线 列表项
+ */
 export class ChannelPtzCruiseDto extends ChannelPtzPresetDto {}
 
+/**
+ * @description 巡航线-预置点
+ */
 export class ChannelPtzCruisePresetDto extends ChannelPtzPresetDto {
     id = 0
     speed = 5
     holdTime = 5
 }
 
+/**
+ * @description 巡航线-新增预置点表单
+ */
 export class ChannelPtzCruisePresetForm {
     name = ''
     speed = 5
     holdTime = 5
 }
 
+/**
+ * @description 巡航线组 列表项
+ */
 export class ChannelPtzCruiseGroupChlDto {
     chlId = ''
     chlName = ''
@@ -542,6 +646,9 @@ export class ChannelPtzCruiseGroupChlDto {
     cruise = [] as ChannelPtzCruiseGroupCruiseDto[]
 }
 
+/**
+ * @description 巡航线组 新增轨迹 列表项
+ */
 export class ChannelPtzCruiseGroupCruiseDto extends ChannelPtzPresetDto {
     id = 0
 }

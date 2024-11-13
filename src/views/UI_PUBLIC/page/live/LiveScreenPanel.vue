@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-17 16:16:59
  * @Description: 现场预览-底部菜单栏视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 16:22:28
 -->
 <template>
     <div class="ctrl">

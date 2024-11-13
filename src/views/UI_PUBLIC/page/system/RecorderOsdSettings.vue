@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-27 09:02:59
  * @Description: 录像机OSD配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-07-12 14:01:54
 -->
 <template>
     <div class="OSDSetting">

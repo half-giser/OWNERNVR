@@ -2,8 +2,6 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-10-23 15:30:55
  * @Description: 报警图像上传
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 15:51:53
  */
 import { SystemImageUploadAlarmItem } from '@/types/apiType/system'
 import { cloneDeep } from 'lodash-es'
@@ -150,7 +148,6 @@ export default defineComponent({
             if (!pageData.value.hasAuth) {
                 openMessageBox({
                     type: 'info',
-                    title: Translate('IDCS_INFO_TIP'),
                     message: Translate('IDCS_NO_AUTH'),
                 })
                 return
@@ -166,7 +163,7 @@ export default defineComponent({
         // 通道排序
         const orderChl = () => {
             if (tableData.value.length > 1) {
-                tableData.value.sort(function (a, b) {
+                tableData.value.sort((a, b) => {
                     const aChlNum = getChlNumById(a.id)
                     const bChlNum = getChlNumById(b.id)
                     return aChlNum > bChlNum ? 1 : -1

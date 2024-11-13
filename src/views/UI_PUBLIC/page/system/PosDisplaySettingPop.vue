@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-02 18:02:44
  * @Description: POS显示设置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 16:31:07
 -->
 <template>
     <el-dialog
@@ -270,7 +268,7 @@
 
         li {
             list-style: none;
-            padding: 5px 15px 5px 15px;
+            padding: 5px 15px;
             line-height: 20px;
             font-size: 14px;
             margin-right: 10px;
@@ -278,7 +276,7 @@
             user-select: none;
 
             &.active {
-                color: #fff;
+                color: var(--main-text-active);
                 background-color: var(--primary);
             }
         }
@@ -300,7 +298,7 @@
     }
 
     .canvas {
-        background-color: #eeeeee;
+        background-color: #eee;
         position: relative;
         width: 704px;
         height: 480px;
@@ -316,6 +314,7 @@
         &-position {
             margin-top: 5px;
             user-select: none;
+
             span {
                 margin-right: 10px;
             }

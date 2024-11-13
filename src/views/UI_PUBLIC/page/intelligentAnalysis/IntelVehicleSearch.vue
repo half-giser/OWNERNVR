@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-10 09:15:11
  * @Description: 智能分析 - 车辆搜索
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 15:00:41
 -->
 <template>
     <div class="base-intel-box">
@@ -313,10 +311,6 @@
 </template>
 
 <script lang="ts" src="./IntelVehicleSearch.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/intelligentAnalysis.scss';
-</style>
 
 <style lang="scss" scoped>
 .base-intel-left {

@@ -2,13 +2,11 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-21 15:12:48
  * @Description: 录像状态
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-16 13:54:23
  */
 import { type SystemRecordStatusList } from '@/types/apiType/system'
 
 export default defineComponent({
-    setup() {
+    setup(_prop, ctx) {
         const { Translate } = useLangStore()
 
         // 录像状态与显示文案的映射
@@ -160,8 +158,11 @@ export default defineComponent({
             getData()
         })
 
-        return {
+        ctx.expose({
             handleToolBarEvent,
+        })
+
+        return {
             tableData,
             formatRecordType,
             displayRecStatus,

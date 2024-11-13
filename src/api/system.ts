@@ -2,16 +2,11 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2023-06-02 11:57:11
  * @Description: 系统API
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-24 14:29:41
  */
-// import type { AxiosRequestConfig } from 'axios'
 import http from './api'
 
 /**
  * @description 获取服务端能力集
- * @param {string} data
- * @param config
  * @returns
  */
 export const querySystemCaps = () => http.fetch('querySystemCaps', getXmlWrapData(''))
@@ -31,7 +26,6 @@ export const editBasicCfg = (data: string) => http.fetch('editBasicCfg', getXmlW
 
 /**
  * @description 查询活跃状态
- * @param config
  * @returns
  */
 export const queryActivationStatus = () => http.fetch('queryActivationStatus', getXmlWrapData(''))
@@ -44,7 +38,7 @@ export const queryTimeCfg = (state = true) => http.fetch('queryTimeCfg', getXmlW
 
 /**
  * @description 编辑时间
- * @param data
+ * @param {string} data
  * @returns
  */
 export const editTimeCfg = (data: string) => http.fetch('editTimeCfg', getXmlWrapData(data))

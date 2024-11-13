@@ -3,7 +3,7 @@
  * @Date: 2024-10-10 16:03:56
  * @Description: 通道 - 移动侦测配置
  */
-import { ChannelMotion } from '@/types/apiType/channel'
+import { ChannelMotionDto } from '@/types/apiType/channel'
 import CanvasMotion from '@/utils/canvas/canvasMotion'
 import { type XMLQuery } from '@/utils/xmlParse'
 import { type TableInstance } from 'element-plus'
@@ -18,15 +18,15 @@ export default defineComponent({
         const osType = getSystemInfo().platform
 
         const playerRef = ref<PlayerInstance>()
-        const formData = ref(new ChannelMotion())
+        const formData = ref(new ChannelMotionDto())
         const tableRef = ref<TableInstance>()
-        const tableData = ref([] as ChannelMotion[])
+        const tableData = ref([] as ChannelMotionDto[])
         const btnOKDisabled = ref(true)
         const pageIndex = ref(1)
         const pageSize = ref(10)
         const pageTotal = ref(0)
         const selectedChlId = ref('')
-        const editRows = new Set<ChannelMotion>()
+        const editRows = new Set<ChannelMotionDto>()
         const switchOptions = getBoolSwitchOptions()
         let motionDrawer: CanvasMotion
         let motionAlarmList: string[] = []
@@ -44,7 +44,7 @@ export default defineComponent({
             tableRef.value!.setCurrentRow(rowData)
         }
 
-        const handleRowClick = (rowData: ChannelMotion) => {
+        const handleRowClick = (rowData: ChannelMotionDto) => {
             if (!rowData.disabled) {
                 selectedChlId.value = rowData.id
                 formData.value = rowData
@@ -176,7 +176,7 @@ export default defineComponent({
                 holdTimeList.value = []
                 tableData.value = $('content/item').map((ele) => {
                     const eleXml = queryXml(ele.element)
-                    const newData = new ChannelMotion()
+                    const newData = new ChannelMotionDto()
                     newData.id = ele.attr('id')!
                     newData.name = eleXml('name').text()
                     newData.chlIndex = eleXml('chlIndex').text()
@@ -230,13 +230,13 @@ export default defineComponent({
             return motionAlarmList.includes(selectedChlId.value)
         })
 
-        const getSaveData = (rowData: ChannelMotion) => {
+        const getSaveData = (rowData: ChannelMotionDto) => {
             return rawXml`
                 <content>
                     <chl id='${rowData.id}'>
                         <param>
-                            <switch>${rowData.switch.toString()}</switch>
-                            <sensitivity min='${rowData.sensitivityMinValue.toString()}' max='${rowData.sensitivityMaxValue.toString()}'>${rowData.sensitivity.toString()}</sensitivity>
+                            <switch>${rowData.switch}</switch>
+                            <sensitivity min='${rowData.sensitivityMinValue}' max='${rowData.sensitivityMaxValue}'>${rowData.sensitivity}</sensitivity>
                             <holdTime unit='s'>${rowData.holdTime}</holdTime>
                             ${ternary(
                                 rowData.supportSMD,
@@ -247,8 +247,8 @@ export default defineComponent({
                                     </objectFilter>
                                 `,
                             )}
-                            <area type='list' count='${rowData.row.toString()}'>
-                                <itemType minLen='${rowData.column.toString()}' maxLen='${rowData.column.toString()}'/>
+                            <area type='list' count='${rowData.row}'>
+                                <itemType minLen='${rowData.column}' maxLen='${rowData.column}'/>
                                 ${rowData.areaInfo.map((ele) => `<item>${ele}</item>`).join('')}
                             </area>
                         </param>

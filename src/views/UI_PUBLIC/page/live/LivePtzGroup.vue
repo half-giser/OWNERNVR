@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-19 18:41:50
  * @Description: 现场预览-云台视图-巡航线组
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-22 10:54:16
 -->
 <template>
     <div class="ptz-group">
@@ -92,6 +90,7 @@
         margin: 0 5%;
         padding-top: 5px;
         border-top: 1px solid var(--btn-border);
+
         span {
             margin-left: 5px;
         }

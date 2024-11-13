@@ -2,8 +2,6 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-05-04 12:58:39
  * @Description: 查看或更改用户
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 15:28:06
 -->
 <template>
     <div class="base-user-box">
@@ -184,7 +182,3 @@
 </template>
 
 <script lang="ts" src="./User.v.ts"></script>
-
-<style>
-@import '@/views/UI_PUBLIC/publicStyle/userAndSecurity.scss';
-</style>

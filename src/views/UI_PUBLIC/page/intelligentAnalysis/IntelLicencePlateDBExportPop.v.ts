@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-02 16:42:46
  * @Description: 车牌导出弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-12 20:46:19
  */
 import WebsocketPlateLib, { type WebsocketPlateLibOnSuccessParam } from '@/utils/websocket/websocketPlatelib'
 

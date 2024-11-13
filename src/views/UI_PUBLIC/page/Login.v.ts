@@ -2,8 +2,6 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-04-23 11:52:48
  * @Description: 登录界面
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-29 20:39:34
  */
 import { type FormRules, type FormInstance } from 'element-plus'
 import { LoginForm, LoginReqData } from '@/types/apiType/user'
@@ -57,7 +55,7 @@ export default defineComponent({
         const rules = reactive<FormRules>({
             userName: [
                 {
-                    validator(_rule, value, callback) {
+                    validator: (_rule, value: string, callback) => {
                         if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
                             return
@@ -69,7 +67,7 @@ export default defineComponent({
             ],
             password: [
                 {
-                    validator(_rule, value, callback) {
+                    validator: (_rule, value: string, callback) => {
                         if (value.length > 16) {
                             callback(new Error(Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR')))
                             return

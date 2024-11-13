@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-12 10:52:55
  * @Description: UPnP上报
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 13:35:42
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 import { NetUPnPReportForm } from '@/types/apiType/net'
@@ -24,15 +22,16 @@ export default defineComponent({
                         return
                     }
 
-                    if (!value.length) {
+                    if (!value.trim()) {
                         callback(new Error(Translate('IDCS_DDNS_SERVER_ADDR_EMPTY')))
                         return
                     }
 
-                    // if (!cutStringByByte(value, nameByteMaxLen)) {
-                    //     callback(new Error(Translate('IDCS_INVALID_CHAR')))
-                    //     return
-                    // }
+                    if (!cutStringByByte(value, nameByteMaxLen)) {
+                        callback(new Error(Translate('IDCS_INVALID_CHAR')))
+                        return
+                    }
+
                     callback()
                 },
             },
@@ -73,8 +72,8 @@ export default defineComponent({
                         <reportPorts>
                             <serverAddr maxByteLen="63">${wrapCDATA(formData.value.serverAddr)}</serverAddr>
                             <manId>${formData.value.manId}</manId>
-                            <port>${formData.value.port.toString()}</port>
-                            <switch>${formData.value.switch.toString()}</switch>
+                            <port>${formData.value.port}</port>
+                            <switch>${formData.value.switch}</switch>
                         </reportPorts>
                     </content>
                 `

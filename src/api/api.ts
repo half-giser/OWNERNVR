@@ -2,12 +2,9 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2023-05-04 22:08:40
  * @Description: HTTP请求工具类
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-05 16:22:14
  */
 
 /* axios配置入口文件 */
-// import axios from 'axios'
 import axios, { type AxiosRequestConfig } from 'axios'
 import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'

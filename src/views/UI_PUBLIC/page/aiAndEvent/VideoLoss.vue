@@ -2,40 +2,9 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-21 15:34:24
  * @Description: 视频丢失配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 16:05:37
 -->
 <template>
     <div class="base-flex-box">
-        <BaseTransferDialog
-            v-model="pageData.snapIsShow"
-            header-title="IDCS_TRIGGER_CHANNEL_SNAP"
-            source-title="IDCS_CHANNEL"
-            target-title="IDCS_CHANNEL_TRGGER"
-            :source-data="getSnapListSingle(tableData[pageData.triggerDialogIndex] || [])"
-            :linked-list="tableData[pageData.triggerDialogIndex]?.snapList || []"
-            limit-tip="IDCS_SNAP_CHANNEL_LIMIT"
-            @confirm="snapConfirm"
-            @close="snapClose"
-        />
-        <BaseTransferDialog
-            v-model="pageData.alarmOutIsShow"
-            header-title="IDCS_TRIGGER_ALARM_OUT"
-            source-title="IDCS_ALARM_OUT"
-            target-title="pageData.alarmOutTargetTitle"
-            :source-data="getAlarmOutListSingle(tableData[pageData.triggerDialogIndex] || [])"
-            :linked-list="tableData[pageData.triggerDialogIndex]?.alarmOutList || []"
-            limit-tip="IDCS_ALARMOUT_LIMIT"
-            @confirm="alarmOutConfirm"
-            @close="alarmOutClose"
-        />
-        <SetPresetPop
-            v-model="pageData.isPresetPopOpen"
-            :filter-chl-id="pageData.presetChlId"
-            :linked-list="pageData.presetLinkedList"
-            @confirm="handlePresetLinkedList"
-            @close="presetClose"
-        />
         <div class="base-table-box">
             <el-table
                 :data="tableData"
@@ -62,39 +31,25 @@
                 <!-- 抓图   -->
                 <el-table-column width="195">
                     <template #header>
-                        <el-popover
-                            v-model:visible="pageData.snapPopoverVisible"
-                            width="fit-content"
-                            popper-class="no-padding"
-                        >
-                            <template #reference>
-                                <BaseTableDropdownLink>
-                                    {{ Translate('IDCS_SNAP') }}
-                                </BaseTableDropdownLink>
-                            </template>
-                            <BaseTransferPop
-                                v-if="pageData.snapPopoverVisible"
-                                source-title="IDCS_TRIGGER_CHANNEL_SNAP"
-                                target-title="IDCS_CHANNEL"
-                                :source-data="pageData.snapList"
-                                :linked-list="pageData.snapChosedIdsAll"
-                                limit-tip="IDCS_SNAP_CHANNEL_LIMIT"
-                                @confirm="snapConfirmAll"
-                                @close="snapCloseAll"
-                            />
-                        </el-popover>
+                        <AlarmBaseSnapPop
+                            :visible="pageData.snapIsShow"
+                            :data="tableData"
+                            :index="pageData.triggerDialogIndex"
+                            exclude
+                            @confirm="changeSnap"
+                        />
                     </template>
                     <template #default="scope">
                         <el-row class="row-together">
                             <el-checkbox
                                 v-model="scope.row.snap.switch"
                                 :disabled="scope.row.rowDisable"
-                                @change="checkChange(scope.$index, 'snap')"
+                                @change="switchSnap(scope.$index)"
                             />
                             <el-button
                                 :disabled="!scope.row.snap.switch || scope.row.rowDisable"
                                 class="table_btn"
-                                @click="setSnap(scope.$index)"
+                                @click="openSnap(scope.$index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
@@ -113,8 +68,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.enableList"
                                         :key="item.value"
-                                        :value="item.value"
-                                        :label="item.label"
                                         @click="handleMsgPushChangeAll(item.value)"
                                     >
                                         {{ item.label }}
@@ -141,39 +94,24 @@
                 <!-- 报警输出   -->
                 <el-table-column width="195">
                     <template #header>
-                        <el-popover
-                            v-model:visible="pageData.alarmOutPopoverVisible"
-                            width="fit-content"
-                            popper-class="no-padding"
-                        >
-                            <template #reference>
-                                <BaseTableDropdownLink>
-                                    {{ Translate('IDCS_ALARM_OUT') }}
-                                </BaseTableDropdownLink>
-                            </template>
-                            <BaseTransferPop
-                                v-if="pageData.alarmOutPopoverVisible"
-                                source-title="IDCS_TRIGGER_CHANNEL_SNAP"
-                                target-title="IDCS_CHANNEL"
-                                :source-data="pageData.alarmOutList"
-                                :linked-list="pageData.alarmOutChosedIdsAll"
-                                limit-tip="IDCS_ALARMOUT_LIMIT"
-                                @confirm="alarmOutConfirmAll"
-                                @close="alarmOutCloseAll"
-                            />
-                        </el-popover>
+                        <AlarmBaseAlarmOutPop
+                            :visible="pageData.alarmOutIsShow"
+                            :data="tableData"
+                            :index="pageData.triggerDialogIndex"
+                            @confirm="changeAlarmOut"
+                        />
                     </template>
                     <template #default="scope">
                         <el-row class="row-together">
                             <el-checkbox
                                 v-model="scope.row.alarmOut.switch"
                                 :disabled="scope.row.rowDisable"
-                                @change="checkChange(scope.$index, 'alarmOut')"
+                                @change="switchAlarmOut(scope.$index)"
                             />
                             <el-button
                                 :disabled="!scope.row.alarmOut.switch || scope.row.rowDisable"
                                 class="table_btn"
-                                @click="setAlarmOut(scope.$index)"
+                                @click="openAlarmOut(scope.$index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
@@ -191,12 +129,12 @@
                             <el-checkbox
                                 v-model="scope.row.preset.switch"
                                 :disabled="scope.row.rowDisable"
-                                @change="presetSwitchChange(scope.row)"
+                                @change="switchPreset(scope.$index)"
                             />
                             <el-button
                                 :disabled="!scope.row.preset.switch || scope.row.rowDisable"
                                 class="table_btn"
-                                @click="openPresetPop(scope.row)"
+                                @click="openPreset(scope.$index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
@@ -218,8 +156,6 @@
                                 <el-dropdown-item
                                     v-for="item in pageData.enableList"
                                     :key="item.value"
-                                    :value="item.value"
-                                    :label="item.label"
                                     @click="handleFtpSnapChangeAll(item.value)"
                                 >
                                     {{ item.label }}
@@ -256,8 +192,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.enableList"
                                         :key="item.value"
-                                        :value="item.value"
-                                        :label="item.label"
                                         @click="handleBeeperChangeAll(item.value)"
                                     >
                                         {{ item.label }}
@@ -293,8 +227,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.videoPopupList"
                                         :key="item.value"
-                                        :value="item.value"
-                                        :label="item.label"
                                         @click="handleVideoPopupChangeAll(item.value)"
                                     >
                                         {{ item.label }}
@@ -330,8 +262,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.enableList"
                                         :key="item.value"
-                                        :value="item.value"
-                                        :label="item.label"
                                         @click="handleMsgBoxPopupChangeAll(item.value)"
                                     >
                                         {{ item.label }}
@@ -365,8 +295,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.enableList"
                                         :key="item.value"
-                                        :value="item.value"
-                                        :label="item.label"
                                         @click="handleEmailChangeAll(item.value)"
                                     >
                                         {{ item.label }}
@@ -409,14 +337,16 @@
                 {{ Translate('IDCS_APPLY') }}
             </el-button>
         </div>
+        <AlarmBasePresetPop
+            v-model="pageData.isPresetPopOpen"
+            :data="tableData"
+            :index="pageData.triggerDialogIndex"
+            @confirm="changePreset"
+        />
     </div>
 </template>
 
 <script lang="ts" src="./VideoLoss.v.ts"></script>
-
-<style>
-@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
-</style>
 
 <style lang="scss" scoped>
 :deep(.el-table .cell) {

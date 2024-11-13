@@ -2,8 +2,6 @@
  * @Description: 系统——上海地标平台——定时图像上传
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-10-23 11:43:06
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-31 20:06:36
 -->
 <template>
     <div class="base-flex-box">

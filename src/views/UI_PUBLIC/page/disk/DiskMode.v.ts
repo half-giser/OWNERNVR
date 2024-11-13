@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-04 16:41:45
  * @Description: 磁盘模式
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 10:58:42
  */
 import { DiskModeForm } from '@/types/apiType/disk'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
@@ -49,7 +47,7 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <diskMode>
-                        <isUseRaid>${String(formData.value.enable)}</isUseRaid>
+                        <isUseRaid>${formData.value.enable}</isUseRaid>
                     </diskMode>
                 </content>
                 <auth>

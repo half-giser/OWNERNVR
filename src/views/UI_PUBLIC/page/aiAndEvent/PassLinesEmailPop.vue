@@ -2,8 +2,6 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-13 11:31:56
  * @Description: 过线检测邮件设置弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-31 19:33:35
 -->
 <template>
     <el-dialog
@@ -18,6 +16,7 @@
             center
             append-to-body
             width="450"
+            @opened="openEditReceiverPop"
         >
             <el-form
                 ref="formRef"
@@ -32,18 +31,8 @@
                     prop="address"
                 >
                     <el-input v-model="formData.address" />
-                    <template #error>
-                        <div class="custom-error">
-                            {{ error }}
-                        </div>
-                    </template>
                 </el-form-item>
-                <el-form-item
-                    :label="Translate('IDCS_SCHEDULE')"
-                    :style="{
-                        '--form-input-width': '210px',
-                    }"
-                >
+                <el-form-item :label="Translate('IDCS_SCHEDULE')">
                     <el-select v-model="formData.schedule">
                         <el-option
                             v-for="item in pageData.scheduleList"
@@ -242,29 +231,30 @@
 
 <script lang="ts" src="./PassLinesEmailPop.v.ts"></script>
 
-<style>
-@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
-</style>
-
 <style lang="scss" scoped>
 .custom-error {
     color: var(--color-error);
+
     /* 自定义错误提示的位置 */
     position: absolute;
     top: -20px; /* 调整错误提示的垂直位置 */
     left: 0;
     font-size: 13px;
 }
+
 .main {
     width: 100%;
     height: 100%;
+
     .row_container {
         padding: 10px;
     }
+
     .endRow_container {
         padding: 10px;
         margin-bottom: 32px;
     }
+
     .borderWrap {
         position: relative;
         width: 100%;
@@ -274,21 +264,26 @@
         box-sizing: border-box;
         border: 1px solid var(--content-border);
     }
+
     .contentWrap {
         margin-top: 15px;
         height: 23px;
         display: flex;
         align-items: center;
+
         .inBoxCheckBox:first-child {
             margin-left: 4px;
         }
+
         .inBoxCheckBox:nth-child(4) {
             margin-left: 9px;
         }
     }
+
     .inBoxCheckBox {
         margin-right: 20px;
     }
+
     .borderTitle {
         position: absolute;
         left: 20px;
@@ -296,9 +291,11 @@
         padding: 0 5px;
         background-color: var(--dialog-bg);
     }
+
     .disabled {
         background-color: transparent;
     }
+
     .addReceiver {
         width: 80px;
         height: 25px;
@@ -310,6 +307,7 @@
     .inputWidth {
         width: 100px;
     }
+
     .table {
         width: 420px;
     }

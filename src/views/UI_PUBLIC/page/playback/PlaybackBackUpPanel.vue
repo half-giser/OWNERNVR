@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-30 18:30:11
  * @Description: 回放-备份任务列表
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-01 17:56:54
 -->
 <template>
     <div class="backup">
@@ -133,20 +131,25 @@
         margin: 5px;
         display: flex;
         align-items: center;
+
         span:last-child {
             padding-left: 5px;
         }
     }
 }
+
 :deep(.el-table__header-wrapper) {
     overflow: unset !important;
 }
+
 :deep(.cell) {
     overflow: unset !important;
 }
+
 :deep(.el-dropdown-menu__item) {
     font-weight: normal;
 }
+
 :deep(.el-dropdown__popper) .el-popper__arrow::before {
     background-color: var(--color-white) !important;
 }

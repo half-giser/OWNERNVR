@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-27 09:03:07
  * @Description: 录像机OSD配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-01 09:23:37
  */
 import { SystemRecorderOSDSettingsForm } from '@/types/apiType/system'
 

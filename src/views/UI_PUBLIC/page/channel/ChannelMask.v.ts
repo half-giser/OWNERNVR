@@ -3,7 +3,7 @@
  * @Date: 2024-07-16 17:39:53
  * @Description: 通道 - 视频遮挡配置
  */
-import { ChannelMask, PrivacyMask } from '@/types/apiType/channel'
+import { ChannelMaskDto, ChannelPrivacyMaskDto } from '@/types/apiType/channel'
 import CanvasMask, { type CanvasMaskMaskItem } from '@/utils/canvas/canvasMask'
 import { type XmlResult } from '@/utils/xmlParse'
 import { type TableInstance } from 'element-plus'
@@ -15,15 +15,15 @@ export default defineComponent({
         const osType = getSystemInfo().platform
 
         const playerRef = ref<PlayerInstance>()
-        const formData = ref(new ChannelMask())
+        const formData = ref(new ChannelMaskDto())
         const tableRef = ref<TableInstance>()
-        const tableData = ref<ChannelMask[]>([])
+        const tableData = ref<ChannelMaskDto[]>([])
         const pageIndex = ref(1)
         const pageSize = ref(10)
         const pageTotal = ref(0)
         const selectedChlId = ref('')
         const btnOKDisabled = ref(true)
-        const editRows = new Set<ChannelMask>()
+        const editRows = new Set<ChannelMaskDto>()
         const editStatus = ref(false)
         const switchOptions = getSwitchOptions()
         let maskDrawer: CanvasMask | undefined = undefined
@@ -40,7 +40,7 @@ export default defineComponent({
             tableRef.value!.setCurrentRow(rowData)
         }
 
-        const handleRowClick = (rowData: ChannelMask) => {
+        const handleRowClick = (rowData: ChannelMaskDto) => {
             if (!rowData.disabled) {
                 selectedChlId.value = rowData.id
                 formData.value = rowData
@@ -172,7 +172,7 @@ export default defineComponent({
             if ($('status').text() === 'success') {
                 tableData.value = $('content/item').map((ele) => {
                     const eleXml = queryXml(ele.element)
-                    const newData = new ChannelMask()
+                    const newData = new ChannelMaskDto()
                     newData.id = ele.attr('id')!
                     newData.name = eleXml('name').text()
                     newData.chlIndex = eleXml('chlIndex').text()
@@ -207,8 +207,8 @@ export default defineComponent({
             }
         }
 
-        const getSaveData = (rowData: ChannelMask) => {
-            const mask = rowData.mask.length ? rowData.mask : [new PrivacyMask()]
+        const getSaveData = (rowData: ChannelMaskDto) => {
+            const mask = rowData.mask.length ? rowData.mask : [new ChannelPrivacyMaskDto()]
             const sendXml = rawXml`
                 <types>
                     <color>
@@ -229,10 +229,10 @@ export default defineComponent({
                                         <item>
                                             <switch>${rowData.switch}</switch>
                                             <rectangle>
-                                                <X>${ele.switch ? ele.X.toString() : '0'}</X>
-                                                <Y>${ele.switch ? ele.Y.toString() : '0'}</Y>
-                                                <width>${ele.switch ? ele.width.toString() : '0'}</width>
-                                                <height>${ele.switch ? ele.height.toString() : '0'}</height>
+                                                <X>${ele.switch ? ele.X : 0}</X>
+                                                <Y>${ele.switch ? ele.Y : 0}</Y>
+                                                <width>${ele.switch ? ele.width : 0}</width>
+                                                <height>${ele.switch ? ele.height : 0}</height>
                                             </rectangle>
                                             <color>${!rowData.mask.length ? 'black' : rowData.color}</color>
                                         </item>
@@ -287,7 +287,7 @@ export default defineComponent({
                 } else {
                     if (!preRowData.mask.length) {
                         for (let i = 0; i < 4; i++) {
-                            preRowData.mask.push(new PrivacyMask())
+                            preRowData.mask.push(new ChannelPrivacyMaskDto())
                         }
                     }
                     const rectangles = $('statenotify/item/rectangle')
@@ -315,7 +315,7 @@ export default defineComponent({
             const rowData = getRowById(selectedChlId.value)!
             if (!rowData.mask.length) {
                 for (let i = 0; i < 4; i++) {
-                    rowData.mask.push(new PrivacyMask())
+                    rowData.mask.push(new ChannelPrivacyMaskDto())
                 }
             }
             rowData.mask.forEach((ele, index) => {
@@ -331,11 +331,11 @@ export default defineComponent({
             btnOKDisabled.value = false
         }
 
-        const setOcxData = (rowData: ChannelMask) => {
+        const setOcxData = (rowData: ChannelMaskDto) => {
             const masks: CanvasMaskMaskItem[] = []
             if (!rowData.mask.length) {
                 for (let i = 0; i < 4; i++) {
-                    rowData.mask.push(new PrivacyMask())
+                    rowData.mask.push(new ChannelPrivacyMaskDto())
                 }
             }
             rowData.mask.forEach((ele) => {

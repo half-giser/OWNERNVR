@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-04 16:08:10
  * @Description: 条形图组件
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-27 13:53:45
 -->
 <template>
     <div
@@ -372,6 +370,7 @@ watch(
             line-height: 20px;
         }
     }
+
     & > .pagination {
         display: flex;
         justify-content: center;

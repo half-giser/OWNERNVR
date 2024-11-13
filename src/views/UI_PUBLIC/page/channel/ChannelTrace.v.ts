@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-20 19:43:51
  * @Description: 云台-轨迹
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-31 09:46:26
  */
 import { type TableInstance } from 'element-plus'
 import ChannelPtzCtrlPanel from './ChannelPtzCtrlPanel.vue'
@@ -335,7 +333,7 @@ export default defineComponent({
                     <condition>
                         <chlId>${chlId}</chlId>
                         <traceIndexes>
-                            <item index="${trace.index.toString()}">${trace.index.toString()}</item>
+                            <item index="${trace.index}">${trace.index}</item>
                         </traceIndexes>
                     </condition>
                 `
@@ -346,7 +344,7 @@ export default defineComponent({
                     const sendXml = rawXml`
                        <content>
                             <chlId>${chlId}</chlId>
-                            <index>${trace.index.toString()}</index>
+                            <index>${trace.index}</index>
                        </content> 
                     `
                     const result = await deleteChlPtzTrace(sendXml)
@@ -379,7 +377,7 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <chlId>${tableData.value[pageData.value.tableIndex].chlId}</chlId>
-                    <index>${currentTrace.value.index.toString()}</index>
+                    <index>${currentTrace.value.index}</index>
                     <name maxByteLen="63">${wrapCDATA(formData.value.name)}</name>
                 </content>
             `
@@ -442,7 +440,7 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <chlId>${pageData.value.recordChlId}</chlId>
-                    <index>${pageData.value.recordTraceIndex.toString()}</index>
+                    <index>${pageData.value.recordTraceIndex}</index>
                 </content>
             `
             await startChlPtzTrace(sendXml)
@@ -460,7 +458,7 @@ export default defineComponent({
                 const sendXml = rawXml`
                     <content>
                         <chlId>${pageData.value.recordChlId}</chlId>
-                        <index>${pageData.value.recordTraceIndex.toString()}</index>
+                        <index>${pageData.value.recordTraceIndex}</index>
                     </content>
                 `
                 await saveChlPtzTrace(sendXml)
@@ -476,7 +474,7 @@ export default defineComponent({
                 const sendXml = rawXml`
                     <content>
                         <chlId>${pageData.value.recordChlId}</chlId>
-                        <index>${pageData.value.recordTraceIndex.toString()}</index>
+                        <index>${pageData.value.recordTraceIndex}</index>
                     </content>
                 `
                 await cancelChlPtzTrace(sendXml)
@@ -493,7 +491,7 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <chlId>${tableData.value[pageData.value.tableIndex].chlId}</chlId>
-                    <index>${currentTrace.value.index.toString()}</index>
+                    <index>${currentTrace.value.index}</index>
                 </content>
             `
             await runChlPtzTrace(sendXml)

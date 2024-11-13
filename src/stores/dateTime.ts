@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-04 16:37:01
  * @Description: 时间日期格式化
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-01 18:34:06
  */
 export const useDateTimeStore = defineStore('dateTime', () => {
     const YMD_MAPPING: Record<string, string> = {

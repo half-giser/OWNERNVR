@@ -2,8 +2,6 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-23 10:54:01
  * @Description: 系统撤防
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 16:41:18
 -->
 <template>
     <!-- 添加弹窗 -->
@@ -251,10 +249,6 @@
 
 <script lang="ts" src="./SystemDisarm.v.ts"></script>
 
-<style>
-@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
-</style>
-
 <style lang="scss" scoped>
 .guard_text {
     font-size: 15px;
@@ -276,15 +270,4 @@
     color: var(--main-text-light);
     margin-bottom: 5px;
 }
-// :deep {
-//     .el-checkbox {
-//         --el-checkbox-font-size: 15px;
-//     }
-//     .el-form-item {
-//         --font-size: 15px;
-//     }
-//     .el-form-item__label {
-//         font-size: 15px;
-//     }
-// }
 </style>

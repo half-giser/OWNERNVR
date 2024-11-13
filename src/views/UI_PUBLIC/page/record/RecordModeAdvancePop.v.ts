@@ -2,8 +2,6 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-07-29 14:15:46
  * @Description: 新建录像模式
- * @LastEditors: tengxiang tengxiang@tvt.net.cn
- * @LastEditTime: 2024-08-02 14:39:57
  */
 import { type RecMode } from '@/types/apiType/record'
 

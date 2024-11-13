@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-30 10:36:16
  * @Description: 回放-底部控制视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-08-07 10:02:55
 -->
 <template>
     <div class="ctrl">
@@ -416,9 +414,11 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+
         span:first-child {
             margin-left: 2px;
         }
+
         span:last-child {
             margin-right: 2px;
         }

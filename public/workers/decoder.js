@@ -15,7 +15,6 @@
  *    _destroyWebPlayer: 销毁解码器实例
  * ---------------------------------------------------------------------------------------------------------------------
  */
-/* eslint-disable */
 self.Module = {
     onRuntimeInitialized: function () {
         handleWasmLoaded()

@@ -2,8 +2,6 @@
  * @Author: zhangdongming zhangdongming@tvt.net.cn
  * @Date: 2024-05-10 16:49:52
  * @Description: 业务应用-停车场管理-基础配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-10 11:32:20
  */
 
 import { type FormRules, type FormInstance } from 'element-plus'
@@ -21,14 +19,19 @@ export default defineComponent({
         const rules = reactive<FormRules>({
             parkName: [
                 {
-                    required: true,
-                    message: Translate('IDCS_PARKING_LOT_NAME_EMPTY_TIPS'),
-                    trigger: 'blur',
+                    validator: (_rule, value: string, callback) => {
+                        if (!value.trim()) {
+                            callback(new Error(Translate('IDCS_PARKING_LOT_NAME_EMPTY_TIPS')))
+                            return
+                        }
+                        callback()
+                    },
+                    trigger: 'manual',
                 },
             ],
             totalNum: [
                 {
-                    validator: (_rule, value, callback) => {
+                    validator: (_rule, value: number, callback) => {
                         if (!value) {
                             callback(new Error(Translate('IDCS_TOTAL_VEHICLE_NOT_CONFIG')))
                             return
@@ -38,6 +41,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_TOTAL_VEHICLE_SPACE_LESS_TIPS')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -45,7 +49,7 @@ export default defineComponent({
             ],
             remainTotalNum: [
                 {
-                    validator: (_rule, value, callback) => {
+                    validator: (_rule, value: number, callback) => {
                         if (formData.value.remainTotalNum > value) {
                             callback(new Error(Translate('IDCS_REMAIN_VEHICLE_NUM_OVER_TIPS')))
                             return
@@ -55,6 +59,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_REMAIN_VEHICLE_SPACE_LESS_TIPS')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -95,8 +100,8 @@ export default defineComponent({
                         <content>
                             <basicInfo>
                                 <name>${wrapCDATA(formData.value.parkName)}</name>
-                                <totalVehicleNum>${formData.value.totalNum.toString()}</totalVehicleNum>
-                                <remainSpaceNum>${formData.value.remainTotalNum.toString()}</remainSpaceNum>
+                                <totalVehicleNum>${formData.value.totalNum}</totalVehicleNum>
+                                <remainSpaceNum>${formData.value.remainTotalNum}</remainSpaceNum>
                             </basicInfo>
                         </content>
                     `

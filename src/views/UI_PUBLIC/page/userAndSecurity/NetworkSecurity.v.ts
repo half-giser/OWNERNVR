@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-18 18:41:51
  * @Description: 网络安全
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 13:57:40
  */
 import { type UserNetworkSecurityForm } from '@/types/apiType/userAndSecurity'
 
@@ -65,12 +63,12 @@ export default defineComponent({
                             .map((item) => {
                                 return rawXml`
                                     <item id="${item.id}">
-                                        <arpSwitch>${String(item.arpSwitch)}</arpSwitch>
+                                        <arpSwitch>${item.arpSwitch}</arpSwitch>
                                         <gateway>${item.gateway}</gateway>
-                                        <autoGetGatewayMac>${String(item.autoGetGatewayMac)}</autoGetGatewayMac>
+                                        <autoGetGatewayMac>${item.autoGetGatewayMac}</autoGetGatewayMac>
                                         <getGatewayMac>${item.getGatewayMac}</getGatewayMac>
                                         <manualInputGatewayMac>${item.manualInputGatewayMac}</manualInputGatewayMac>
-                                        <preventDetection>${String(item.preventDetection)}</preventDetection>
+                                        <preventDetection>${item.preventDetection}</preventDetection>
                                     </item>
                                 `
                             })

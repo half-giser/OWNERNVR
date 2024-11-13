@@ -2,8 +2,6 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-10-15 10:04:36
  * @Description: 录像码流通用组件
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 10:26:51
  */
 import { RecordStreamInfoDto } from '@/types/apiType/record'
 import type { TableInstance } from 'element-plus'
@@ -20,7 +18,7 @@ export default defineComponent({
         initkey: {
             type: String,
             default: '',
-            require: false,
+            required: false,
         },
     },
     emits: {
@@ -34,14 +32,7 @@ export default defineComponent({
     setup(props, ctx) {
         // 用于控制下拉菜单的打开关闭
         const resolutionTableRef = ref<TableInstance>()
-        // const prop = withDefaults(
-        //     defineProps<{
-        //         mode: string
-        //     }>(),
-        //     {
-        //         mode: 'event',
-        //     },
-        // )
+
         type ChlItem = {
             '@id': string
             addType: string
@@ -112,7 +103,7 @@ export default defineComponent({
                 { value: 'OFF', label: Translate('IDCS_OFF') },
             ],
             smartEncodeFlag: false,
-            gopSetAll: '',
+            gopSetAll: undefined as number | undefined,
             count: 0,
             chlName: '',
             maxQoI: 0, // 最大QoI
@@ -349,7 +340,7 @@ export default defineComponent({
                     })
                     if (props.mode == 'event') {
                         if (RecStreamModule.value.recType === 'ae') {
-                            item.GOP = item.main['@aGOP'] ? item.main['@aGOP'] : ''
+                            item.GOP = item.main['@aGOP'] ? Number(item.main['@aGOP']) : undefined
                             item.resolution = item.ae['@res']
                             item.frameRate = item.ae['@fps']
                             item.bitType = item.ae['@bitType']
@@ -358,7 +349,7 @@ export default defineComponent({
                             item.audio = item.ae['@audio']
                             item.recordStream = item.ae['@type']
                         } else if (RecStreamModule.value.recType === 'me') {
-                            item.GOP = item.main['@mGOP'] ? item.main['@mGOP'] : ''
+                            item.GOP = item.main['@mGOP'] ? Number(item.main['@mGOP']) : undefined
                             item.resolution = item.me['@res']
                             item.frameRate = item.me['@fps']
                             item.frameRate = item.me['@fps']
@@ -370,7 +361,7 @@ export default defineComponent({
                         }
                     } else if (props.mode == 'timing') {
                         if (RecStreamModule.value.recType === 'an') {
-                            item.GOP = item.main['@aGOP'] ? item.main['@aGOP'] : ''
+                            item.GOP = item.main['@aGOP'] ? Number(item.main['@aGOP']) : undefined
                             item.resolution = item.an['@res']
                             item.frameRate = item.an['@fps']
                             item.bitType = item.an['@bitType']
@@ -379,7 +370,7 @@ export default defineComponent({
                             item.audio = item.an['@audio']
                             item.recordStream = item.an['@type']
                         } else if (RecStreamModule.value.recType === 'mn') {
-                            item.GOP = item.main['@mGOP'] ? item.main['@mGOP'] : ''
+                            item.GOP = item.main['@mGOP'] ? Number(item.main['@mGOP']) : undefined
                             item.resolution = item.mn['@res']
                             item.frameRate = item.mn['@fps']
                             item.frameRate = item.mn['@fps']
@@ -849,30 +840,30 @@ export default defineComponent({
         }
 
         // 限制GOP
-        const GOPhandleFocus = (value: string | RecordStreamInfoDto) => {
-            const maxValue = 480
-            if (typeof value == 'object') {
-                // 使用正则表达式去掉非数字字符
-                value.GOP = value.GOP.replace(/[^\d]/g, '')
-                if (parseInt(value.GOP) > maxValue) {
-                    value.GOP = maxValue.toString()
-                } else if (parseInt(value.GOP) < 1) {
-                    value.GOP = '1'
-                }
-            } else {
-                // 使用正则表达式去掉非数字字符
-                pageData.value.gopSetAll = value.replace(/[^\d]/g, '')
-                if (isNaN(parseInt(value))) {
-                    pageData.value.gopSetAll = '1'
-                }
+        // const GOPhandleFocus = (value: string | RecordStreamInfoDto) => {
+        //     const maxValue = 480
+        //     if (typeof value == 'object') {
+        //         // 使用正则表达式去掉非数字字符
+        //         value.GOP = value.GOP.replace(/[^\d]/g, '')
+        //         if (parseInt(value.GOP) > maxValue) {
+        //             value.GOP = maxValue.toString()
+        //         } else if (parseInt(value.GOP) < 1) {
+        //             value.GOP = '1'
+        //         }
+        //     } else {
+        //         // 使用正则表达式去掉非数字字符
+        //         pageData.value.gopSetAll = value.replace(/[^\d]/g, '')
+        //         if (isNaN(parseInt(value))) {
+        //             pageData.value.gopSetAll = '1'
+        //         }
 
-                if (parseInt(value) > maxValue) {
-                    pageData.value.gopSetAll = maxValue.toString()
-                } else if (parseInt(value) < 1) {
-                    pageData.value.gopSetAll = '1'
-                }
-            }
-        }
+        //         if (parseInt(value) > maxValue) {
+        //             pageData.value.gopSetAll = maxValue.toString()
+        //         } else if (parseInt(value) < 1) {
+        //             pageData.value.gopSetAll = '1'
+        //         }
+        //     }
+        // }
 
         // 回车设置GOP
         const GOPhandleKeydown = (rowData: RecordStreamInfoDto) => {
@@ -880,9 +871,9 @@ export default defineComponent({
         }
 
         // 设置整列的GOP
-        const handleSetGopAll = (gop: string) => {
+        const handleSetGopAll = (gop: number | undefined) => {
             tableData.value.forEach((rowData) => {
-                if (!rowData.rowDisable && rowData.GOP != '' && !rowData.GOPDisable) {
+                if (!rowData.rowDisable && typeof rowData.GOP === 'number' && !rowData.GOPDisable) {
                     rowData.GOP = gop
                     addEditeRows(rowData)
                 }
@@ -892,7 +883,7 @@ export default defineComponent({
 
         // 取消设置整列的GOP
         const handleGopCancel = () => {
-            pageData.value.gopSetAll = ''
+            pageData.value.gopSetAll = 0
             pageData.value.gopHeaderVisble = false
         }
 
@@ -947,7 +938,7 @@ export default defineComponent({
                     rowData.imageLevelDisable = true
                 }
 
-                if (rowData.GOP == '') {
+                if (typeof rowData.GOP !== 'number') {
                     rowData.GOPDisable = true
                 }
                 pageData.value.isAllCBR = pageData.value.isAllCBR && rowData.bitType == 'CBR'
@@ -1245,7 +1236,7 @@ export default defineComponent({
                 return ''
             }
             let sendXml = rawXml`
-                <content type='list' total='${editRowDatas.length.toString()}'>
+                <content type='list' total='${editRowDatas.length}'>
                     ${editRowDatas
                         .map((element) => {
                             let gop = ''
@@ -1257,22 +1248,22 @@ export default defineComponent({
                             const bitType = element.bitType || 'CBR'
 
                             let mainXml = ''
-                            if (element.GOP == '') {
+                            if (typeof element.GOP !== 'number') {
                                 if (props.mode === 'event') {
                                     if (RecStreamModule.value.recType1 == 'an') {
                                         const min = parseInt(element.frameRate) * 4 > parseInt(element.an['@fps']) * 4 ? parseInt(element.frameRate) * 4 : parseInt(element.an['@fps']) * 4
-                                        mainXml = `<main enct="${element.videoEncodeType}" ${gop}="${min.toString()}"></main>`
+                                        mainXml = `<main enct="${element.videoEncodeType}" ${gop}="${min}"></main>`
                                     } else if (RecStreamModule.value.recType1 == 'mn') {
                                         const min = parseInt(element.frameRate) * 4 > parseInt(element.mn['@fps']) * 4 ? parseInt(element.frameRate) * 4 : parseInt(element.mn['@fps']) * 4
-                                        mainXml = `<main enct="${element.videoEncodeType}" ${gop}="${min.toString()}"></main>`
+                                        mainXml = `<main enct="${element.videoEncodeType}" ${gop}="${min}"></main>`
                                     }
                                 } else if (props.mode === 'timing') {
                                     if (RecStreamModule.value.recType1 == 'ae') {
                                         const min = parseInt(element.frameRate) * 4 > parseInt(element.ae['@fps']) * 4 ? parseInt(element.frameRate) * 4 : parseInt(element.ae['@fps']) * 4
-                                        mainXml = `<main enct="${element.videoEncodeType}" ${gop}="${min.toString()}"></main>`
+                                        mainXml = `<main enct="${element.videoEncodeType}" ${gop}="${min}"></main>`
                                     } else if (RecStreamModule.value.recType1 == 'me') {
                                         const min = parseInt(element.frameRate) * 4 > parseInt(element.me['@fps']) * 4 ? parseInt(element.frameRate) * 4 : parseInt(element.me['@fps']) * 4
-                                        mainXml = `<main enct="${element.videoEncodeType}" ${gop}="${min.toString()}"></main>`
+                                        mainXml = `<main enct="${element.videoEncodeType}" ${gop}="${min}"></main>`
                                     }
                                 }
                             } else {
@@ -1372,7 +1363,6 @@ export default defineComponent({
             handleVideoQualityChangeAll,
             handleAudioOptionsChange,
             handleAudioOptionsChangeAll,
-            GOPhandleFocus,
             GOPhandleKeydown,
             handleSetGopAll,
             handleGopCancel,

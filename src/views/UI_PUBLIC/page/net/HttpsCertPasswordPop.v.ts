@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-15 17:12:04
  * @Description: 证书加密密码弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 15:57:09
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 import { NetHTTPSCertPasswordForm } from '@/types/apiType/net'
@@ -45,7 +43,6 @@ export default defineComponent({
                             return
                         }
                         callback()
-                        return
                     },
                     trigger: 'manual',
                 },

@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-01 10:23:43
  * @Description: 备份录像弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 17:41:16
 -->
 <template>
     <el-dialog
@@ -122,9 +120,11 @@
     :deep(.el-form-item__content) {
         flex-wrap: nowrap !important;
     }
+
     :deep(.el-input) {
         flex-shrink: 1 !important;
     }
+
     :deep(.el-button) {
         margin-right: 0 !important;
     }

@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-06 20:37:25
  * @Description: 回放-事件类型视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-21 11:37:38
  */
 import { type PlaybackEventList } from '@/types/apiType/playback'
 

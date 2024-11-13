@@ -2,14 +2,12 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-16 17:19:02
  * @Description: 穿梭下拉框内容
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 15:55:46
 -->
 <template>
     <div class="Transfer">
         <el-transfer
             v-model="chosedList"
-            :data="data"
+            :data="sourceData"
             :props="{
                 key: 'value',
                 label: 'label',
@@ -28,16 +26,37 @@
 <script lang="ts" setup>
 const props = withDefaults(
     defineProps<{
-        headerTitle?: string
+        /**
+         * @property {boolean} 是否显示
+         */
+        visible?: boolean
+        /**
+         * @property {string} ELTransfer 的 props.tities[0]
+         */
         sourceTitle?: string
+        /**
+         * @property {string} ELTransfer 的 props.tities[1]
+         */
         targetTitle?: string
+        /**
+         * @property {string} ELTransfer 的 props.data
+         */
         sourceData: { label: string; value: string; disabled?: boolean }[]
+        /**
+         * @property {string[]} ELTransfer 的 props.modelValue
+         */
         linkedList: string[]
+        /**
+         * @property {number} 数量限制
+         */
         limit?: number
+        /**
+         * @property {string} 超出数量限制时的文本提示
+         */
         limitTip?: string
     }>(),
     {
-        headerTitle: '',
+        visible: false,
         sourceTitle: '',
         targetTitle: '',
         limit: 16,
@@ -50,24 +69,15 @@ const emits = defineEmits<{
     (e: 'close'): void
 }>()
 
-const data = ref<SelectOption<string, string>[]>([])
 const chosedList = ref<string[]>([])
 
 const { openMessageBox } = useMessageBox()
 const { Translate } = useLangStore()
-// const typeMapping: Record<string, string> = {
-//     record: 'IDCS_RECORD_CHANNEL_LIMIT',
-//     ftpRec: 'IDCS_FTP_RECORD_CHANNEL_LIMIT',
-//     snap: 'IDCS_SNAP_CHANNEL_LIMIT',
-//     ftpSnap: 'IDCS_FTP_SNAP_CHANNEL_LIMIT',
-//     alarmOut: 'IDCS_ALARMOUT_LIMIT',
-// }
 
 /**
  * @description 打开弹窗回调
  */
 const open = () => {
-    data.value = props.sourceData
     chosedList.value = props.linkedList
 }
 
@@ -88,7 +98,7 @@ const change = () => {
  * @description 保存数据
  */
 const verify = () => {
-    const filterList = data.value.filter((item) => chosedList.value.includes(item.value))
+    const filterList = props.sourceData.filter((item) => chosedList.value.includes(item.value))
     emits('confirm', filterList)
 }
 
@@ -102,6 +112,15 @@ const close = () => {
 onMounted(() => {
     open()
 })
+
+watch(
+    () => props.visible,
+    (visible) => {
+        if (visible) {
+            open()
+        }
+    },
+)
 </script>
 
 <style lang="scss" scoped>

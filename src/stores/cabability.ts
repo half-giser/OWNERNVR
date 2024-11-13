@@ -2,8 +2,6 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2023-05-09 16:45:59
  * @Description: 服务端能力集全局存储
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-05 09:46:57
  */
 export const useCababilityStore = defineStore(
     'cabability',

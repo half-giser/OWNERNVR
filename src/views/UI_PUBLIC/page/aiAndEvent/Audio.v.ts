@@ -2,17 +2,15 @@
  * @Description: AI/事件——事件通知——声音
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-13 09:23:25
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-01 10:08:34
  */
-import { ipcAudioForm, type AudioAlarmOut, type AudioDevice, type LocalTableRow } from '@/types/apiType/aiAndEvent'
-import UploadAudioPop from './UploadAudioPop.vue'
+import { AlarmIpcAudioForm, type AlarmAudioAlarmOutDto, type AlarmAudioDevice, type AlarmLocalAudioDto } from '@/types/apiType/aiAndEvent'
+import AudioUploadPop from './AudioUploadPop.vue'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
     components: {
-        UploadAudioPop,
+        AudioUploadPop,
         ScheduleManagPop,
     },
     setup() {
@@ -26,9 +24,9 @@ export default defineComponent({
 
         const localTableRef = ref<TableInstance>()
 
-        const ipcAudioFormData = ref(new ipcAudioForm())
-        const audioAlarmOutData: Record<string, AudioAlarmOut> = {}
-        const audioDeviceData: Record<string, AudioDevice> = {}
+        const ipcAudioFormData = ref(new AlarmIpcAudioForm())
+        const audioAlarmOutData: Record<string, AlarmAudioAlarmOutDto> = {}
+        const audioDeviceData: Record<string, AlarmAudioDevice> = {}
 
         const AUDIO_INPUT_MAPPING: Record<string, string> = {
             MIC: Translate('IDCS_DEVICE_MIC_BUILT_IN'),
@@ -101,7 +99,7 @@ export default defineComponent({
             audioSchedule: '',
             originAudioSchedule: '',
             audioScheduleList: [] as SelectOption<string, string>[],
-            localTableData: [] as LocalTableRow[],
+            localTableData: [] as AlarmLocalAudioDto[],
         })
 
         // 获取语音播报信息
@@ -196,7 +194,7 @@ export default defineComponent({
         }
 
         // 处理语音播报的数据，在初始化和通道改变时调用
-        const handleAudioAlarmOutData = (data: AudioAlarmOut) => {
+        const handleAudioAlarmOutData = (data: AlarmAudioAlarmOutDto) => {
             pageData.value.btnApplyDisabled = true
             if (data && data.successFlag) {
                 const audioFormat = '*.' + data.audioFormat + ',' + data.audioDepth + ',' + data.sampleRate + ',' + data.audioChannel
@@ -291,7 +289,7 @@ export default defineComponent({
         }
 
         // 声音按钮若可勾选时，取消启用需要置灰语音、次数、音量、语言
-        const setEnableList = (data: AudioAlarmOut) => {
+        const setEnableList = (data: AlarmAudioAlarmOutDto) => {
             const audioCheckEnable = data.audioSwitch && data.audioSwitch == 'false' ? true : false
 
             if (data.audioType) audioAlarmPageData.value.voiceDisabled = audioCheckEnable
@@ -391,7 +389,7 @@ export default defineComponent({
                     <chl id='${ipcAudioFormData.value.audioChl}'>
                     <param>
                         <deleteAudioAlarm>
-                        <id>${String(ipcAudioFormData.value.voice)}</id>
+                        <id>${ipcAudioFormData.value.voice}</id>
                         </deleteAudioAlarm>
                     </param>
                     </chl>
@@ -427,7 +425,7 @@ export default defineComponent({
                     <chl id='${ipcAudioFormData.value.audioChl}'>
                     <param>
                         <auditionAudioAlarm>
-                        <audioType>${String(ipcAudioFormData.value.voice)}</audioType>
+                        <audioType>${ipcAudioFormData.value.voice}</audioType>
                         </auditionAudioAlarm>
                     </param>
                     </chl>
@@ -462,10 +460,10 @@ export default defineComponent({
                         <chl id='${ipcAudioFormData.value.audioChl}'>
                         <param>
                             <name><![CDATA[${audioAlarmOutData[ipcAudioFormData.value.audioChl].name}]]></name>
-                            <switch>${String(ipcAudioFormData.value.audioChecked)}</switch>
+                            <switch>${ipcAudioFormData.value.audioChecked}</switch>
                             <audioType>${ipcAudioFormData.value.voice}</audioType>
-                            <alarmTimes>${String(ipcAudioFormData.value.number)}</alarmTimes>
-                            <audioVolume>${String(ipcAudioFormData.value.volume)}</audioVolume>
+                            <alarmTimes>${ipcAudioFormData.value.number || 0}</alarmTimes>
+                            <audioVolume>${ipcAudioFormData.value.volume || 0}</audioVolume>
                             <languageType>${Number(ipcAudioFormData.value.voice) >= 100 ? 'customize' : ipcAudioFormData.value.language}</languageType>
                         </param>
                         </chl>
@@ -515,38 +513,29 @@ export default defineComponent({
 
             const success = $('//status').text() == 'success'
 
-            const encodeType = [] as SelectOption<string, string>[]
-            $('//types/audioEncode/enum').forEach((item) => {
-                encodeType.push({
-                    value: item.text(),
-                    label: item.text(),
-                })
-            })
-
-            const inputType = [] as SelectOption<string, string>[]
-            $('//types/audioInput/enum').forEach((item) => {
-                inputType.push({
-                    value: item.text(),
-                    label: AUDIO_INPUT_MAPPING[item.text()],
-                })
-            })
-
-            const outputType = [] as SelectOption<string, string>[]
-            $('//types/audioOutput/enum').forEach((item) => {
-                outputType.push({
-                    value: item.text(),
-                    label: AUDIO_OUTPUT_MAPPING[item.text()],
-                })
-            })
-
             audioDeviceData[id] = {
                 successFlag: success,
                 editFlag: false,
                 id,
                 name,
-                audioEncodeType: encodeType,
-                audioInputType: inputType,
-                audioOutputType: outputType,
+                audioEncodeType: $('//types/audioEncode/enum').map((item) => {
+                    return {
+                        value: item.text(),
+                        label: item.text(),
+                    }
+                }),
+                audioInputType: $('//types/audioInput/enum').map((item) => {
+                    return {
+                        value: item.text(),
+                        label: AUDIO_INPUT_MAPPING[item.text()],
+                    }
+                }),
+                audioOutputType: $('//types/audioOutput/enum').map((item) => {
+                    return {
+                        value: item.text(),
+                        label: AUDIO_OUTPUT_MAPPING[item.text()],
+                    }
+                }),
                 audioInSwitch: success ? $('//content/chl/param/audioInSwitch').text() : '',
                 audioEncode: success ? $('//content/chl/param/audioEncode').text() : '',
                 audioInput: success ? $('//content/chl/param/audioInput').text() : '',
@@ -568,7 +557,7 @@ export default defineComponent({
             }
         }
 
-        const handleAudioDeviceData = (data: AudioDevice) => {
+        const handleAudioDeviceData = (data: AlarmAudioDevice) => {
             pageData.value.btnApplyDisabled = true
             ipcAudioFormData.value.deviceEnable = data.audioInSwitch ? data.audioInSwitch == 'true' : true
 
@@ -605,7 +594,7 @@ export default defineComponent({
             }
         }
 
-        const deviceDataEnable = (data: AudioDevice) => {
+        const deviceDataEnable = (data: AlarmAudioDevice) => {
             if (!data.successFlag || !data.audioInSwitch) {
                 audioDevicePageData.value.deviceEnableDisabled = true
             } else {
@@ -690,15 +679,15 @@ export default defineComponent({
                     <content>
                         <chl id='${ipcAudioFormData.value.deviceChl}'>
                             <param>
-                                ${ternary(ipcAudioFormData.value.deviceEnable, `<audioInSwitch>${String(ipcAudioFormData.value.deviceEnable)}</audioInSwitch>`)}
-                                ${ternary(ipcAudioFormData.value.deviceAudioInput, `<audioInput>${String(ipcAudioFormData.value.deviceAudioInput)}</audioInput>`)}
-                                ${ternary(ipcAudioFormData.value.deviceAudioOutput, `<audioOutput>${String(ipcAudioFormData.value.deviceAudioOutput)}</audioOutput>`)}
-                                ${ternary(ipcAudioFormData.value.loudSpeaker, `<loudSpeaker>${String(ipcAudioFormData.value.loudSpeaker)}</loudSpeaker>`)}
-                                ${ternary(ipcAudioFormData.value.audioEncode, `<audioEncode>${String(ipcAudioFormData.value.audioEncode)}</audioEncode>`)}
+                                ${ternary(ipcAudioFormData.value.deviceEnable, `<audioInSwitch>${ipcAudioFormData.value.deviceEnable}</audioInSwitch>`)}
+                                ${ternary(ipcAudioFormData.value.deviceAudioInput, `<audioInput>${ipcAudioFormData.value.deviceAudioInput}</audioInput>`)}
+                                ${ternary(ipcAudioFormData.value.deviceAudioOutput, `<audioOutput>${ipcAudioFormData.value.deviceAudioOutput}</audioOutput>`)}
+                                ${ternary(ipcAudioFormData.value.loudSpeaker, `<loudSpeaker>${ipcAudioFormData.value.loudSpeaker}</loudSpeaker>`)}
+                                ${ternary(ipcAudioFormData.value.audioEncode, `<audioEncode>${ipcAudioFormData.value.audioEncode}</audioEncode>`)}
                                 <volume>
-                                    ${ternary(audioDeviceData[ipcAudioFormData.value.deviceChl].micInVolume >= 0, `<micInVolume>${String(audioDeviceData[ipcAudioFormData.value.deviceChl].micInVolume)}</micInVolume>`)}
-                                    ${ternary(audioDeviceData[ipcAudioFormData.value.deviceChl].linInVolume >= 0, `<linInVolume>${String(audioDeviceData[ipcAudioFormData.value.deviceChl].linInVolume)}</linInVolume>`)}
-                                    ${ternary(ipcAudioFormData.value.outputVolume >= 0, `<audioOutVolume>${String(ipcAudioFormData.value.outputVolume)}</audioOutVolume>`)}
+                                    ${ternary(audioDeviceData[ipcAudioFormData.value.deviceChl].micInVolume >= 0, `<micInVolume>${audioDeviceData[ipcAudioFormData.value.deviceChl].micInVolume}</micInVolume>`)}
+                                    ${ternary(audioDeviceData[ipcAudioFormData.value.deviceChl].linInVolume >= 0, `<linInVolume>${audioDeviceData[ipcAudioFormData.value.deviceChl].linInVolume}</linInVolume>`)}
+                                    ${ternary(ipcAudioFormData.value.outputVolume >= 0, `<audioOutVolume>${ipcAudioFormData.value.outputVolume}</audioOutVolume>`)}
                                 </volume>
                             </param>
                         </chl>
@@ -715,8 +704,19 @@ export default defineComponent({
 
             const result = await queryEventNotifyParam()
             commLoadResponseHandler(result, ($) => {
-                pageData.value.audioSchedule = $('//content/triggerChannelAudioSchedule').attr('id')
-                pageData.value.originAudioSchedule = pageData.value.audioSchedule
+                const scheduleId = $('//content/triggerChannelAudioSchedule').attr('id')
+                // 判断返回的排程是否存在，若不存在设为空ID
+                if (scheduleId) {
+                    pageData.value.audioSchedule = scheduleId
+                    pageData.value.originAudioSchedule = scheduleId
+                } else {
+                    const scheduleName = $('//content/triggerChannelAudioSchedule').text()
+                    const find = pageData.value.audioScheduleList.find((item) => item.label === scheduleName)
+                    if (find) {
+                        pageData.value.audioSchedule = find.value
+                        pageData.value.originAudioSchedule = find.value
+                    }
+                }
             })
         }
 
@@ -753,7 +753,7 @@ export default defineComponent({
             })
         }
 
-        const handleRowClick = (rowData: LocalTableRow) => {
+        const handleRowClick = (rowData: AlarmLocalAudioDto) => {
             localTableRef.value!.clearSelection()
             localTableRef.value!.toggleRowSelection(rowData, true)
         }
@@ -764,7 +764,7 @@ export default defineComponent({
         }
 
         const deleteLocalAudio = async () => {
-            const selectedId = (localTableRef.value!.getSelectionRows() as LocalTableRow[]).map((item) => item.id)
+            const selectedId = (localTableRef.value!.getSelectionRows() as AlarmLocalAudioDto[]).map((item) => item.id)
 
             if (selectedId.length) {
                 const sendXml = rawXml`
@@ -808,7 +808,7 @@ export default defineComponent({
         })
 
         return {
-            UploadAudioPop,
+            AudioUploadPop,
             ScheduleManagPop,
             localTableRef,
             pageTabs,

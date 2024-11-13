@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-31 17:16:10
  * @Description: 绘制pos信息
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-05-31 17:16:17
  */
 
 import CanvasBase from './canvasBase'

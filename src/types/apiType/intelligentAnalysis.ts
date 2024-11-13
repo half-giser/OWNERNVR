@@ -2,31 +2,44 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-29 09:13:28
  * @Description: 智能分析
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-29 14:37:37
  */
 
+/**
+ * @description 引擎配置 表单
+ */
 export class EngineConfigForm {
     supportAI = false
 }
 
+/**
+ * @description 引擎配置 列表项
+ */
 export class EngineConfigList {
     name = ''
     eventType = ''
 }
 
+/**
+ * @description 人脸组选项
+ */
 export class IntelFaceDBGroupDto {
     id = ''
     name = ''
     groupId = ''
 }
 
+/**
+ * @description 样本库 - 人脸组列表
+ */
 export class IntelFaceDBGroupList extends IntelFaceDBGroupDto {
     property = ''
     enableAlarmSwitch = false
     count = 0
 }
 
+/**
+ * @description 样本库 - 人脸详情
+ */
 export class IntelFaceDBFaceInfo {
     id = ''
     number = ''
@@ -44,6 +57,9 @@ export class IntelFaceDBFaceInfo {
     groupId = ''
 }
 
+/**
+ * @description 人脸注册表单
+ */
 export class IntelFaceDBSnapRegisterForm {
     name = ''
     sex = ''
@@ -57,6 +73,9 @@ export class IntelFaceDBSnapRegisterForm {
     groupId = ''
 }
 
+/**
+ * @description 人脸信息表单
+ */
 export class IntelFaceDBFaceForm {
     number = ''
     name = ''
@@ -73,6 +92,9 @@ export class IntelFaceDBFaceForm {
     error = false
 }
 
+/**
+ * @description 人脸抓拍列表
+ */
 export class IntelFaceDBSnapFaceList {
     faceFeatureId = ''
     timestamp = 0
@@ -84,6 +106,9 @@ export class IntelFaceDBSnapFaceList {
     featureStatus = false
 }
 
+/**
+ * @description 导入人脸图片信息
+ */
 export class IntelFaceDBImportImgDto {
     imgName = ''
     pic = ''
@@ -91,6 +116,9 @@ export class IntelFaceDBImportImgDto {
     height = 0
 }
 
+/**
+ * @description 导入人脸信息
+ */
 export class IntelFaceDBImportFaceDto extends IntelFaceDBImportImgDto {
     number = ''
     name = ''
@@ -104,12 +132,18 @@ export class IntelFaceDBImportFaceDto extends IntelFaceDBImportImgDto {
     // groupId = ''
 }
 
+/**
+ * @description 车牌组选项
+ */
 export class IntelPlateDBGroupList {
     id = ''
     name = ''
     plateNum = 0
 }
 
+/**
+ * @description 车牌信息
+ */
 export class IntelPlateDBPlateInfo {
     id = ''
     groupId = ''
@@ -120,6 +154,9 @@ export class IntelPlateDBPlateInfo {
     ownerFaceId = ''
 }
 
+/**
+ * @description 新增车牌表单
+ */
 export class IntelPlateDBAddPlateForm {
     plateNumber = ''
     groupId = ''
@@ -128,6 +165,9 @@ export class IntelPlateDBAddPlateForm {
     vehicleType = ''
 }
 
+/**
+ * @description 人员统计 - 通道项
+ */
 export class IntelPersonStatsChlList {
     chlId = ''
     imageNum = 0
@@ -141,6 +181,9 @@ export class IntelPersonStatsChlList {
 //     imageNum = 0
 // }
 
+/**
+ * @description 人员统计 列表项
+ */
 export class IntelPersonStatsList {
     imageTotalNum = 0
     imageTotalInNum = 0
@@ -149,12 +192,18 @@ export class IntelPersonStatsList {
     // groups = [] as IntelPersonStatsGroupList[]
 }
 
+/**
+ * @description 人员统计 搜索表单
+ */
 export class IntelPersonStatsForm {
     chl = [] as string[]
     event = [] as string[]
     dateRange = [0, 0] as [number, number]
 }
 
+/**
+ * @description 车辆统计 通道项
+ */
 export class IntelVehicleStatsChlList {
     chlId = ''
     imageNum = 0
@@ -164,6 +213,9 @@ export class IntelVehicleStatsChlList {
     nonVehicleOut = 0
 }
 
+/**
+ * @description 车辆统计 列表项
+ */
 export class IntelVehicleStatsList {
     imageTotalNum = 0
     imageTotalInNum = 0
@@ -171,6 +223,9 @@ export class IntelVehicleStatsList {
     chl = [] as IntelVehicleStatsChlList[]
 }
 
+/**
+ * @description 车辆统计 搜索表单
+ */
 export class IntelVehicleStatsForm {
     chl = [] as string[]
     event = [] as string[]
@@ -179,6 +234,9 @@ export class IntelVehicleStatsForm {
     deduplicate = false
 }
 
+/**
+ * @description 组合统计 通道项
+ */
 export class IntelCombineStatsChlList {
     chlId = ''
     imageNum = 0
@@ -190,6 +248,9 @@ export class IntelCombineStatsChlList {
     nonVehicleOut = 0
 }
 
+/**
+ * @description 组合统计 列表
+ */
 export class IntelCombineStatsList {
     imageTotalNum = 0
     imageTotalInNum = 0
@@ -197,6 +258,9 @@ export class IntelCombineStatsList {
     chl = [] as IntelCombineStatsChlList[]
 }
 
+/**
+ * @description 组合统计 搜索表单
+ */
 export class IntelCombineStatsForm {
     chl = [] as string[]
     event = [] as string[]
@@ -206,6 +270,9 @@ export class IntelCombineStatsForm {
     deduplicate = false
 }
 
+/**
+ * @description 智能搜索 收藏 列表项
+ */
 export class IntelSearchCollectList {
     name = '' as string
     dateRange = [0, 0] as [number, number]
@@ -217,6 +284,9 @@ export class IntelSearchCollectList {
     plateNumber = '' as string
 }
 
+/**
+ * @description 抓拍图像
+ */
 export class IntelSnapImgDto {
     pic = ''
     panorama = ''
@@ -234,6 +304,9 @@ export class IntelSnapImgDto {
     attribute = {} as Record<string, string | number>
 }
 
+/**
+ * @description 人脸搜索列表项
+ */
 export class IntelSearchList extends IntelSnapImgDto {
     imgId = ''
     timestamp = 0
@@ -251,6 +324,9 @@ export class IntelSearchList extends IntelSnapImgDto {
     eventTypeID = 0
 }
 
+/**
+ * @description 人体搜索 表单
+ */
 export class IntelSearchBodyForm {
     dateRange = [0, 0] as [number, number]
     chl = [] as string[]
@@ -260,6 +336,9 @@ export class IntelSearchBodyForm {
     pageIndex = 0
 }
 
+/**
+ * @description 车辆搜索 表单
+ */
 export class IntelSearchVehicleForm {
     dateRange = [0, 0] as [number, number]
     chl = [] as string[]
@@ -273,6 +352,9 @@ export class IntelSearchVehicleForm {
     searchType = 'event'
 }
 
+/**
+ * @description 组合搜索 表单
+ */
 export class IntelSearchCombineForm {
     dateRange = [0, 0] as [number, number]
     chl = [] as string[]
@@ -284,6 +366,9 @@ export class IntelSearchCombineForm {
     plateNumber = ''
 }
 
+/**
+ * @description 人脸数据
+ */
 export class IntelFaceImgDto {
     pic = ''
     panorama = ''
@@ -300,6 +385,9 @@ export class IntelFaceImgDto {
     attribute = {} as Record<string, string | number>
 }
 
+/**
+ * @description 人脸搜索表单
+ */
 export class IntelSearchFaceList extends IntelFaceImgDto {
     faceFeatureId = 0
     imgId = ''
@@ -317,6 +405,9 @@ export class IntelSearchFaceList extends IntelFaceImgDto {
     info = new IntelFaceDBFaceInfo()
 }
 
+/**
+ * @description 抓拍弹窗
+ */
 export class IntelSnapPopList {
     imgId = ''
     // [key: string]: string | number | boolean
@@ -340,6 +431,9 @@ export class IntelSnapPopList {
     attribute = {} as Record<string, string | number>
 }
 
+/**
+ * @description 原图弹窗
+ */
 export class IntelPanoramaPopList {
     panorama = ''
     width = 1
@@ -350,6 +444,9 @@ export class IntelPanoramaPopList {
     Y2 = 0
 }
 
+/**
+ * @description 人脸比对结果弹窗
+ */
 export class IntelFaceMatchPopList extends IntelPanoramaPopList {
     imgId = ''
     pic = ''
@@ -377,6 +474,9 @@ export class IntelFaceMatchPopList extends IntelPanoramaPopList {
     groupName = ''
 }
 
+/**
+ * @description 人脸搜索 - 轨迹
+ */
 export class IntelFaceTrackMapList {
     chlId = ''
     chlName = ''

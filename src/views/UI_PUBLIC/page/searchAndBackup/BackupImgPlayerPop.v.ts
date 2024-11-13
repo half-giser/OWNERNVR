@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-12 13:46:14
  * @Description: 图片浏览器
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 19:23:06
  */
 import { type PlaybackSearchImgList } from '@/types/apiType/playback'
 

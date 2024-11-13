@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-17 17:21:49
  * @Description: 编辑用户信息弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 17:09:57
  */
 import { UserEditForm, type UserAuthGroupOption } from '@/types/apiType/userAndSecurity'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -52,7 +50,7 @@ export default defineComponent({
             email: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if (value.length && !checkEmail(value)) {
+                        if (!!value && !checkEmail(value)) {
                             callback(new Error(Translate('IDCS_PROMPT_INVALID_EMAIL')))
                             return
                         }
@@ -180,11 +178,11 @@ export default defineComponent({
                     <userName maxByteLen="63">${wrapCDATA(formData.value.userName)}</userName>
                     <authGroup id="${formData.value.authGroup}"></authGroup>
                     <bindMacSwitch>false</bindMacSwitch>
-                    <modifyPassword>${formData.value.allowModifyPassword.toString()}</modifyPassword>
+                    <modifyPassword>${formData.value.allowModifyPassword}</modifyPassword>
                     <mac>${wrapCDATA('00:00:00:00:00:00')}</mac>
                     <email>${wrapCDATA(formData.value.email)}</email>
-                    <enabled>${formData.value.enabled.toString()}</enabled>
-                    <authEffective>${formData.value.authEffective.toString()}</authEffective>
+                    <enabled>${formData.value.enabled}</enabled>
+                    <authEffective>${formData.value.authEffective}</authEffective>
                 </content>
             `
             const result = await editUser(sendXml)

@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-12 15:40:03
  * @Description: 插件占位DIV
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-10 17:37:35
 -->
 <template>
     <div
@@ -43,15 +41,7 @@ const handleReady = () => {
             Plugin.AddPluginMoveEvent($player.value!)
         }
         Plugin.SetPluginSize($player.value!)
-        // setTimeout(() => {
         emits('onready')
-        // }, 200)
-        // bug：插件的宽高可能无法正确Resize，此处强制刷新宽高
-        // nextTick(() => {
-        //     console.log('ocx execute')
-        //     Plugin.SetPluginSize($player.value!, undefined, true)
-        //     Plugin.DisplayOCX(true)
-        // })
     }
 }
 

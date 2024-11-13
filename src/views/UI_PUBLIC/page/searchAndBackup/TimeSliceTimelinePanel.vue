@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-13 09:09:24
  * @Description: 时间切片-时间线界面
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-05 14:22:08
 -->
 <template>
     <div class="content">
@@ -231,7 +229,7 @@
 
 .start-time,
 .end-time {
-    padding: 5px 5px;
+    padding: 5px;
     font-size: 12px;
     width: 80px;
     flex-shrink: 0;

@@ -2,10 +2,8 @@
  * @Description: AI 事件——更多——视频结构化
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-20 10:15:52
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 16:25:45
  */
-import { VideoStructureData, type chlCaps } from '@/types/apiType/aiAndEvent'
+import { AlarmVideoStructureDto, type AlarmChlDto } from '@/types/apiType/aiAndEvent'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import CanvasPolygon from '@/utils/canvas/canvasPolygon'
 import { type CheckboxValueType, type TabPaneName } from 'element-plus'
@@ -22,10 +20,16 @@ export default defineComponent({
             type: String,
             required: true,
         },
+        /**
+         * @property {AlarmChlDto} 通道数据
+         */
         chlData: {
-            type: Object as PropType<chlCaps>,
+            type: Object as PropType<AlarmChlDto>,
             required: true,
         },
+        /**
+         * @property {Array} 声音选项
+         */
         voiceList: {
             type: Array as PropType<SelectOption<string, string>[]>,
             required: true,
@@ -38,29 +42,35 @@ export default defineComponent({
         const pluginStore = usePluginStore()
         const osType = getSystemInfo().platform
         const Plugin = inject('Plugin') as PluginType
+
         type CanvasAreaType = 'detectionArea' | 'maskArea'
         // 高级设置
         const advancedVisible = ref(false)
         // 视频结构化数据
-        const vsdData = ref(new VideoStructureData())
+        const vsdData = ref(new AlarmVideoStructureDto())
         // 播放器
         const playerRef = ref<PlayerInstance>()
+
         let currAreaType = 'detectionArea' as CanvasAreaType // detectionArea侦测区域 maskArea屏蔽区域 regionArea矩形区域
+
         const algoChkType: Record<string, string> = {
             instant_model: Translate('IDCS_INSTANT_MODEL'),
             inter_model: Translate('IDCS_INTERVAL_MODEL'),
         }
+
         const countCycleTypeTip: Record<string, string> = {
             day: Translate('IDCS_TIME_DAY'),
             week: Translate('IDCS_TIME_WEEK'),
             month: Translate('IDCS_TIME_MOUNTH'),
             off: Translate('IDCS_OFF'),
         }
+
         const imgOsdTypeTip: Record<string, string> = {
             person: Translate('IDCS_DETECTION_PERSON'),
             vehicle: Translate('IDCS_DETECTION_VEHICLE'),
             bike: Translate('IDCS_NON_VEHICLE'),
         }
+
         const osdListTagNameMap: Record<string, string> = {
             sexSwitch: Translate('IDCS_SEX'),
             ageSwitch: Translate('IDCS_AGE'),
@@ -79,7 +89,9 @@ export default defineComponent({
             brandSwitch: Translate('IDCS_BRAND'),
             bikeTypeSwitch: Translate('IDCS_TYPE'),
         }
+
         const closeTip = getAlarmEventList()
+
         const noneOSD = {
             switch: false,
             X: 0,
@@ -89,7 +101,9 @@ export default defineComponent({
             osdBikeName: '',
             osdFormat: '',
         }
+
         const osdCfgCheckedList = ref([] as string[])
+
         // 页面数据
         const pageData = ref({
             tab: 'param',
@@ -140,6 +154,7 @@ export default defineComponent({
             applyDisabled: true,
             notification: [] as string[],
         })
+
         // 播放模式
         const mode = computed(() => {
             if (!playerRef.value) {
@@ -147,13 +162,18 @@ export default defineComponent({
             }
             return playerRef.value.mode
         })
+
         const ready = computed(() => {
             return playerRef.value?.ready || false
         })
+
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
         // 车牌侦测绘制的Canvas
-        let vsdDrawer: CanvasPolygon
+        let vsdDrawer = new CanvasPolygon({
+            el: document.createElement('canvas'),
+        })
+
         /**
          * @description 播放器就绪时回调
          */
@@ -369,6 +389,7 @@ export default defineComponent({
                     (countOSD.osdPersonName ? countOSD.osdPersonName + '-# ' : '') +
                     (countOSD.osdCarName ? countOSD.osdCarName + '-# ' : '') +
                     (countOSD.osdBikeName ? countOSD.osdBikeName + '-# ' : '')
+
                 // 图片叠加(OSD)
                 pageData.value.imgOsdTypeList = $('//types/osdEumType/enum').map((item) => {
                     return {
@@ -376,64 +397,43 @@ export default defineComponent({
                         label: imgOsdTypeTip[item.text()],
                     }
                 })
-                /* todo 未测试（$("[index]", carCfg)， tagName）
-                var osdCarCfgList = [];
-                        var carCfg = $("response>content>chl>param>osdConfig>carcfg", result);
-                        $.each($("[index]", carCfg), function(index, element){
-                            var index = $(this).attr("index");
-                            var value = $(this).text();
-                            var tagName = $(this)[0].tagName;
-                            if (tagName != "shoulderbagSwitch" && tagName != "modelyearSwitch" && tagName != "modelSwitch") {
-                                osdCarCfgList.push({
-                                    "index": index,
-                                    "value": value,
-                                    "tagName": tagName
-                                })
-                            }
-                        }) 
-                */
+
                 const osdPersonCfgList = [] as { index: string; value: string; tagName: string }[]
-                $param('osdConfig/personcfg').forEach((item) => {
-                    const index = item.attr('index')
-                    if (index) {
-                        const tagName = item.element.tagName
-                        if (tagName != 'shoulderbagSwitch' && tagName != 'modelyearSwitch' && tagName != 'modelSwitch') {
-                            osdPersonCfgList.push({
-                                index: index,
-                                value: item.text(),
-                                tagName: tagName,
-                            })
-                        }
+                $param('osdConfig/personcfg/*[@index]').forEach((item) => {
+                    const tagName = item.element.tagName
+                    if (tagName != 'shoulderbagSwitch' && tagName != 'modelyearSwitch' && tagName != 'modelSwitch') {
+                        osdPersonCfgList.push({
+                            index: item.attr('index')!,
+                            value: item.text(),
+                            tagName,
+                        })
                     }
                 })
+
                 const osdCarCfgList = [] as { index: string; value: string; tagName: string }[]
-                $param('osdConfig/carcfg').forEach((item) => {
-                    const index = item.attr('index')
-                    if (index) {
-                        const tagName = item.element.tagName
-                        if (tagName != 'shoulderbagSwitch' && tagName != 'modelyearSwitch' && tagName != 'modelSwitch') {
-                            osdCarCfgList.push({
-                                index: item.attr('index')!,
-                                value: item.text(),
-                                tagName: tagName,
-                            })
-                        }
+                $param('osdConfig/carcfg/*[@index]').forEach((item) => {
+                    const tagName = item.element.tagName
+                    if (tagName != 'shoulderbagSwitch' && tagName != 'modelyearSwitch' && tagName != 'modelSwitch') {
+                        osdCarCfgList.push({
+                            index: item.attr('index')!,
+                            value: item.text(),
+                            tagName,
+                        })
                     }
                 })
+
                 const osdBikeCfgList = [] as { index: string; value: string; tagName: string }[]
-                $param('osdConfig/bikecfg').forEach((item) => {
-                    const index = item.attr('index')
-                    if (index) {
-                        const tagName = item.element.tagName
-                        if (tagName != 'shoulderbagSwitch' && tagName != 'modelyearSwitch' && tagName != 'modelSwitch') {
-                            osdBikeCfgList.push({
-                                index: item.attr('index')!,
-                                value: item.text(),
-                                tagName: tagName,
-                            })
-                        }
+                $param('osdConfig/bikecfg/*[@index]').forEach((item) => {
+                    const tagName = item.element.tagName
+                    if (tagName != 'shoulderbagSwitch' && tagName != 'modelyearSwitch' && tagName != 'modelSwitch') {
+                        osdBikeCfgList.push({
+                            index: item.attr('index')!,
+                            value: item.text(),
+                            tagName,
+                        })
                     }
                 })
+
                 vsdData.value = {
                     enabledSwitch,
                     originalSwitch: enabledSwitch,
@@ -471,7 +471,7 @@ export default defineComponent({
                         personSensitivity: Number($param('objectFilter/person/sensitivity').text()),
                         motorSensitivity: Number($param('objectFilter/motor/sensitivity').text()),
                     },
-                    osdType: $('osdConfig/osdType').text(),
+                    osdType: $param('osdConfig/osdType').text(),
                     osdPersonCfgList,
                     osdCarCfgList,
                     osdBikeCfgList,
@@ -506,6 +506,7 @@ export default defineComponent({
             } else {
                 pageData.value.algoModelDisabled = true
             }
+
             // 重置信息
             pageData.value.autoReset = vsdData.value.countPeriod.countTimeType !== 'off'
             // 图片叠加(OSD)
@@ -729,8 +730,8 @@ export default defineComponent({
         // 设置区域图形
         const setAreaView = (type: string) => {
             if (type == 'detectionArea') {
-                if (vsdData.value.detectAreaInfo) {
-                    const index = pageData.value.detectArea
+                const index = pageData.value.detectArea
+                if (vsdData.value.detectAreaInfo[index]) {
                     if (mode.value === 'h5') {
                         vsdDrawer.setCurrAreaIndex(index, type)
                         vsdDrawer.setPointList(vsdData.value.detectAreaInfo[index], true)
@@ -744,8 +745,8 @@ export default defineComponent({
                     }
                 }
             } else if (type == 'maskArea') {
-                if (vsdData.value.maskAreaInfo) {
-                    const index = pageData.value.maskArea
+                const index = pageData.value.maskArea
+                if (vsdData.value.maskAreaInfo[index]) {
                     if (mode.value === 'h5') {
                         vsdDrawer.setCurrAreaIndex(index, type)
                         vsdDrawer.setPointList(vsdData.value.maskAreaInfo[index], true)
@@ -800,7 +801,7 @@ export default defineComponent({
 
                 if (boundaryInfoList && boundaryInfoList.length > 0) {
                     boundaryInfoList.forEach((boundaryInfo) => {
-                        if (boundaryInfo.length >= 3 && judgeAreaCanBeClosed(boundaryInfo)) {
+                        if (boundaryInfo.length >= 3 && vsdDrawer.judgeAreaCanBeClosed(boundaryInfo)) {
                             setClosed(boundaryInfo)
                         }
                     })
@@ -1014,7 +1015,7 @@ export default defineComponent({
                         message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_INPUT_LIMIT_FOUR_POIONT'),
                     })
                     return false
-                } else if (count > 0 && !judgeAreaCanBeClosed(allRegionList[i])) {
+                } else if (count > 0 && !vsdDrawer.judgeAreaCanBeClosed(allRegionList[i])) {
                     openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_INTERSECT'),
@@ -1041,12 +1042,12 @@ export default defineComponent({
                 <content>
                     <chl id='${prop.currChlId}' scheduleGuid='${vsdData.value.schedule}'>
                         <param>
-                            <switch>${String(vsdData.value.enabledSwitch)}</switch>
+                            <switch>${vsdData.value.enabledSwitch}</switch>
                             <saveTargetPicture>${vsdData.value.saveTargetPicture}</saveTargetPicture>
                             <saveSourcePicture>${vsdData.value.saveSourcePicture}</saveSourcePicture>
                             <algoModel>
                                 <algoChkModel type=algoChkType>${vsdData.value.algoChkModel}</algoChkModel>
-                                <intervalCheck type='int' min='${String(vsdData.value.intervalCheckMin)}' max='${String(vsdData.value.intervalCheckMax)}'>${String(vsdData.value.intervalCheck)}</intervalCheck>
+                                <intervalCheck type='int' min='${vsdData.value.intervalCheckMin}' max='${vsdData.value.intervalCheckMax}'>${vsdData.value.intervalCheck}</intervalCheck>
                             </algoModel>
                             <boundary type='list' count='4'>
                                 ${Object.keys(vsdData.value.detectAreaInfo)
@@ -1054,13 +1055,13 @@ export default defineComponent({
                                         const count = vsdData.value.detectAreaInfo[Number(key)].length
                                         return rawXml`
                                             <item>
-                                                <point type='list' maxCount='8' count='${String(count)}'>
+                                                <point type='list' maxCount='8' count='${count}'>
                                                     ${vsdData.value.detectAreaInfo[Number(key)]
                                                         .map((item) => {
                                                             return rawXml`
                                                                 <item>
-                                                                    <X>${String(item.X)}</X>
-                                                                    <Y>${String(item.Y)}</Y>
+                                                                    <X>${item.X}</X>
+                                                                    <Y>${item.Y}</Y>
                                                                 </item>
                                                             `
                                                         })
@@ -1077,13 +1078,13 @@ export default defineComponent({
                                         const count = vsdData.value.maskAreaInfo[Number(key)].length
                                         return rawXml`
                                         <item>
-                                            <point type='list' maxCount='8' count='${String(count)}'>
+                                            <point type='list' maxCount='8' count='${count}'>
                                                 ${vsdData.value.maskAreaInfo[Number(key)]
                                                     .map((item) => {
                                                         return rawXml`
                                                             <item>
-                                                                <X>${String(item.X)}</X>
-                                                                <Y>${String(item.Y)}</Y>
+                                                                <X>${item.X}</X>
+                                                                <Y>${item.Y}</Y>
                                                             </item>
                                                         `
                                                     })
@@ -1096,19 +1097,19 @@ export default defineComponent({
                             </maskArea>
                             <objectFilter>
                                 <car>
-                                    <switch>${String(vsdData.value.objectFilter.car)}</switch>
-                                    <sensitivity>${String(vsdData.value.objectFilter.carSensitivity)}</sensitivity>
+                                    <switch>${vsdData.value.objectFilter.car}</switch>
+                                    <sensitivity>${vsdData.value.objectFilter.carSensitivity}</sensitivity>
                                 </car>
                                 <person>
-                                    <switch>${String(vsdData.value.objectFilter.person)}</switch>
-                                    <sensitivity>${String(vsdData.value.objectFilter.personSensitivity)}</sensitivity>
+                                    <switch>${vsdData.value.objectFilter.person}</switch>
+                                    <sensitivity>${vsdData.value.objectFilter.personSensitivity}</sensitivity>
                                 </person>
                                 ${
                                     prop.chlData.accessType == '0'
                                         ? rawXml`
                                             <motor>
-                                                <switch>${String(vsdData.value.objectFilter.motorcycle)}</switch>
-                                                <sensitivity>${String(vsdData.value.objectFilter.motorSensitivity)}</sensitivity>
+                                                <switch>${vsdData.value.objectFilter.motorcycle}</switch>
+                                                <sensitivity>${vsdData.value.objectFilter.motorSensitivity}</sensitivity>
                                             </motor>
                                         `
                                         : ''
@@ -1132,15 +1133,15 @@ export default defineComponent({
                             ${
                                 vsdData.value.countOSD.supportCountOSD
                                     ? rawXml`
-                                    <countOSD>
-                                        <switch>${String(vsdData.value.countOSD.switch)}</switch>
-                                        ${vsdData.value.countOSD.supportPoint ? `<X>${vsdData.value.countOSD.X}</X>` : ``}
-                                        ${vsdData.value.countOSD.supportPoint ? `<Y>${vsdData.value.countOSD.Y}</Y>` : ``}
-                                        ${vsdData.value.countOSD.supportOsdPersonName ? `<osdPersonName>${vsdData.value.countOSD.osdPersonName}</osdPersonName>` : ``}
-                                        ${vsdData.value.countOSD.supportOsdCarName ? `<osdCarName>${vsdData.value.countOSD.osdCarName}</osdCarName>` : ``}
-                                        ${vsdData.value.countOSD.supportBikeName ? `<osdBikeName>${vsdData.value.countOSD.osdBikeName}</osdBikeName>` : ``}
-                                    </countOSD>
-                                `
+                                        <countOSD>
+                                            <switch>${vsdData.value.countOSD.switch}</switch>
+                                            ${vsdData.value.countOSD.supportPoint ? `<X>${vsdData.value.countOSD.X}</X>` : ``}
+                                            ${vsdData.value.countOSD.supportPoint ? `<Y>${vsdData.value.countOSD.Y}</Y>` : ``}
+                                            ${vsdData.value.countOSD.supportOsdPersonName ? `<osdPersonName>${vsdData.value.countOSD.osdPersonName}</osdPersonName>` : ``}
+                                            ${vsdData.value.countOSD.supportOsdCarName ? `<osdCarName>${vsdData.value.countOSD.osdCarName}</osdCarName>` : ``}
+                                            ${vsdData.value.countOSD.supportBikeName ? `<osdBikeName>${vsdData.value.countOSD.osdBikeName}</osdBikeName>` : ``}
+                                        </countOSD>
+                                    `
                                     : ''
                             }
                             <osdConfig>

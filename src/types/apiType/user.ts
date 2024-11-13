@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-24 17:12:55
  * @Description: 用户登录
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-24 14:34:34
  */
 
 /**
@@ -50,12 +48,18 @@ export class ChangePasswordReqData {
     password = ''
 }
 
+/**
+ * @description 用户鉴权弹窗表单
+ */
 export class UserCheckAuthForm {
     userName = ''
     password = '' // 明文密码用于与插件的鉴权交互
     hexHash = '' // 密文密码
 }
 
+/**
+ * @description 用户输入加密密码弹窗表单
+ */
 export class UserInputEncryptPwdForm {
     password = ''
 }

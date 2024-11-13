@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-06 14:22:29
  * @Description: 智能分析 - 添加收藏
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-06 15:53:58
 -->
 <template>
     <div class="collect">

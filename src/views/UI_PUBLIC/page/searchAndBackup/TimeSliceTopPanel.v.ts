@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-14 16:59:30
  * @Description: 时间切片-概览界面(按通道/按时间)
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-30 17:53:33
  */
 import dayjs from 'dayjs'
 import { type PlaybackTimeSliceChlList, type PlaybackTimeSliceList } from '@/types/apiType/playback'
@@ -130,8 +128,8 @@ export default defineComponent({
             const sendXml = rawXml`
                 <condition>
                     <startTime>${localToUtc(startTime)}</startTime>
-                    <spaceTime>${spaceTime.toString()}</spaceTime>
-                    <spaceNum>${spaceNum.toString()}</spaceNum>
+                    <spaceTime>${spaceTime}</spaceTime>
+                    <spaceNum>${spaceNum}</spaceNum>
                     <chlId type="list">
                         ${pageData.value.chlList.map((item) => `<item>${item.chlId}</item>`).join('')}
                     </chlId>

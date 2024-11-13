@@ -2,23 +2,21 @@
  * @Description: 普通事件——组合报警——人脸识别edit弹窗
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-26 16:19:02
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-09-26 15:34:06
  */
-import { type faceMatchObj } from '@/types/apiType/aiAndEvent'
+import { type AlarmCombinedFaceMatchDto } from '@/types/apiType/aiAndEvent'
 export default defineComponent({
     props: {
         linkedEntity: {
             type: String,
-            require: true,
+            required: true,
         },
         linkedObj: {
-            type: Object as PropType<Record<string, faceMatchObj>>,
-            require: true,
+            type: Object as PropType<Record<string, AlarmCombinedFaceMatchDto>>,
+            required: true,
         },
     },
     emits: {
-        confirm(entity: string, obj: faceMatchObj) {
+        confirm(entity: string, obj: AlarmCombinedFaceMatchDto) {
             return typeof entity === 'string' && typeof obj === 'object'
         },
         close() {
@@ -110,6 +108,7 @@ export default defineComponent({
             pageData.value.faceDataIds = []
             ctx.emit('close')
         }
+
         return {
             pageData,
             open,

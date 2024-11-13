@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-30 09:32:36
  * @Description: 回放-通道视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-26 15:23:03
 -->
 <template>
     <div class="left">
@@ -240,7 +238,7 @@
             margin-right: 10px;
             position: relative;
 
-            &:after {
+            &::after {
                 content: '';
                 border-right: 4px solid var(--panel-header-bg);
                 border-top: 4px solid transparent;
@@ -300,7 +298,7 @@
         width: 100%;
 
         &-form {
-            margin: 10px 10px;
+            margin: 10px;
             display: flex;
             flex-shrink: 0;
             align-items: center;
@@ -334,7 +332,6 @@
         flex-direction: column;
 
         &-btns {
-            display: flex;
             width: 100%;
             display: flex;
             align-items: center;
@@ -364,7 +361,7 @@
             margin: 0 auto;
             cursor: n-resize;
 
-            &:before {
+            &::before {
                 content: '';
                 position: absolute;
                 top: -10px;
@@ -374,7 +371,7 @@
                 border-top: 1px solid var(--content-border);
             }
 
-            &:after {
+            &::after {
                 content: '';
                 position: absolute;
                 bottom: 10px;
@@ -404,7 +401,8 @@
 
             span {
                 position: relative;
-                &:after {
+
+                &::after {
                     content: '';
                     width: 100px;
                     height: 25px;
@@ -414,11 +412,14 @@
                     top: -3px;
                     border-radius: 3px;
                 }
-                &:hover:after {
+
+                &:hover::after {
                     border-color: var(--primary);
                 }
-                &.disabled:after {
+
+                &.disabled::after {
                     border-color: var(--panel-btn-bg-disabled);
+
                     &:hover {
                         border-color: var(--panel-btn-bg-disabled);
                     }

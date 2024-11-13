@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-30 18:48:06
  * @Description: 人脸库 - 编辑人脸弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 17:30:29
  */
 import { IntelFaceDBFaceForm, type IntelFaceDBGroupDto, type IntelFaceDBSnapFaceList, type IntelFaceDBFaceInfo } from '@/types/apiType/intelligentAnalysis'
 import { type FormInstance } from 'element-plus'
@@ -244,7 +242,7 @@ export default defineComponent({
                     <item>
                         <item>
                             <frameTime>${snapData[0].frameTime}</frameTime>
-                            <img id="${snapData[0].imgId.toString()}" />
+                            <img id="${snapData[0].imgId}" />
                             <chl id="${snapData[0].chlId}" />
                         </item>
                     </item>
@@ -265,8 +263,8 @@ export default defineComponent({
                     <nativePlace>${item.nativePlace}</nativePlace>
                     <certificateType type="certificateType">${item.certificateType}</certificateType>
                     <certificateNum>${item.certificateNum}</certificateNum>
-                    <mobile>${item.mobile?.toString() || ''}</mobile>
-                    <number>${item.number?.toString() || ''}</number>
+                    <mobile>${item.mobile}</mobile>
+                    <number>${item.number}</number>
                     <note>${item.note}</note>
                     <groups>
                         <item id="${group.id}">

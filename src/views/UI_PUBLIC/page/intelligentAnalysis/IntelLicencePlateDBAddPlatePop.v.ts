@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-03 09:09:06
  * @Description: 新增车牌弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-05 16:29:30
  */
 import { IntelPlateDBAddPlateForm, IntelPlateDBPlateInfo } from '@/types/apiType/intelligentAnalysis'
 import IntelLicenceDBEditPop from './IntelLicencePlateDBEditPop.vue'
@@ -86,8 +84,8 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             plateNumber: [
                 {
-                    validator(_rule, value, callback) {
-                        if (!value) {
+                    validator: (_rule, value: string, callback) => {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_VEHICLE_NUMBER_EMPTY')))
                             return
                         }
@@ -98,7 +96,7 @@ export default defineComponent({
             ],
             groupId: [
                 {
-                    validator(_rule, value, callback) {
+                    validator: (_rule, value: string, callback) => {
                         if (!value) {
                             callback(new Error(Translate('IDCS_PLATE_LIBRARY_GROUP_NOT_EXIST')))
                             return

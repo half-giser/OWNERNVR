@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-12 14:16:44
  * @Description: 自定义事件
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-06-12 14:24:17
  */
 export class EventEmitter {
     eventName: string

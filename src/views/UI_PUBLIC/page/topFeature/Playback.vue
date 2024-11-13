@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-09 18:39:25
  * @Description: 回放
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 09:27:04
 -->
 <template>
     <div class="playback">
@@ -227,7 +225,7 @@
     align-items: center;
     color: var(--calendar-header-text);
     font-weight: bolder;
-    background-color: var(---bg-table);
+    background-color: var(--bg-table);
 
     span:first-child,
     span:last-child {

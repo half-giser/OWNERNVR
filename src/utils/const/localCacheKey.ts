@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-20 09:44:20
  * @Description: 维护本地缓存Key（localStorage， sessionStorage）, 确保key值唯一
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-05 15:56:02
  */
 
 export const KEY_LANG_TYPE = 'langType'

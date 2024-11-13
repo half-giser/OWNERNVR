@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-30 17:19:08
  * @Description: websocket 订阅通道在线状态、报警推送、录像事件
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-05-31 09:32:02
  */
 import WebsocketBase from './websocketBase'
 import { CMD_STATE_INFO_SUBSCRIBE, CMD_STATE_INFO_UNSUBSCRIBE, type CmdStateInfoSubscribeOption } from './websocketCmd'

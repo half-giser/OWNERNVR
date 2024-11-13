@@ -2,8 +2,6 @@
  * @Description: 系统——上海地标平台——定时图像上传
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-10-23 11:43:19
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 18:38:48
  */
 import dayjs from 'dayjs'
 import { type ImageUploadDto } from '@/types/apiType/system'
@@ -14,7 +12,7 @@ export default defineComponent({
     components: {
         AddUploadTimePop,
     },
-    setup() {
+    setup(_prop, ctx) {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
         const { openMessageBox } = useMessageBox()
@@ -237,7 +235,7 @@ export default defineComponent({
                             return rawXml`
                                 <item>
                                     <chl id='${item.chlId}'>${item.name}</chl>
-                                    <timeList total='${String(item.timeCount)}'>
+                                    <timeList total='${item.timeCount}'>
                                         ${item.timelist.map((time) => `<item>${time.value}</item>`).join('')}
                                     </timeList>
                                 </item>
@@ -263,10 +261,13 @@ export default defineComponent({
             getTimeCfg()
             await getData()
         })
+
+        ctx.expose({
+            handleToolBarEvent,
+        })
+
         return {
             AddUploadTimePop,
-            // 工具栏事件
-            handleToolBarEvent,
             pageData,
             tableRef,
             tableData,

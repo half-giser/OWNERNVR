@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-20 13:58:09
  * @Description: 云台-任务
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 11:58:42
 -->
 <template>
     <div class="base-chl-box">
@@ -208,10 +206,6 @@
 </template>
 
 <script lang="ts" src="./ChannelPtzTask.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/channel.scss';
-</style>
 
 <style lang="scss" scoped>
 .el-table :deep(.cell) {

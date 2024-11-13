@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-05 10:22:52
  * @Description: 智能分析 事件选择器
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-10 10:13:26
  */
 export default defineComponent({
     props: {

@@ -2,15 +2,12 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-29 11:48:53
  * @Description: 水印设置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 18:06:05
 -->
 <template>
     <div class="base-chl-box">
         <div class="base-chl-box-left">
             <div class="base-chl-box-player">
                 <BaseVideoPlayer
-                    id="player"
                     ref="playerRef"
                     type="live"
                     @onready="handlePlayerReady"
@@ -98,8 +95,6 @@
                                         <el-dropdown-item
                                             v-for="item in pageData.options"
                                             :key="item.value"
-                                            :value="item.value"
-                                            :label="item.label"
                                             @click="handleSwitchChangeAll(item.value)"
                                         >
                                             {{ item.label }}
@@ -179,7 +174,3 @@
 </template>
 
 <script lang="ts" src="./ChannelWaterMark.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/channel.scss';
-</style>

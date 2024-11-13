@@ -3,14 +3,12 @@
  * @Date: 2024-04-16 13:47:54
  * @Description:
  */
-// @ts-check
-import { defineFlatConfig, prettier, unocss, vue, typescript } from '@bassist/eslint'
+import { defineFlatConfig, prettier, vue, typescript } from '@bassist/eslint'
 
 // https://github.com/chengpeiquan/bassist/tree/main/packages/eslint
 export default defineFlatConfig([
     ...vue,
     ...typescript,
-    // ...unocss
     {
         rules: {
             'vue/html-indent': ['error', 4],
@@ -52,7 +50,6 @@ export default defineFlatConfig([
             ],
             'dot-notation': 'error',
         },
-        ignores: ['dist', 'public'],
     },
     ...prettier,
     {
@@ -69,5 +66,8 @@ export default defineFlatConfig([
                 },
             ],
         },
+    },
+    {
+        ignores: ['dist/*', 'public/*', 'src/components/sprite/sprites.ts'],
     },
 ])

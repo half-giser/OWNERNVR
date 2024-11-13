@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-06 10:35:28
  * @Description: 通道版块的一些公共样式，仅在需要用到的通道版块下引入
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 11:56:18
  */
 .base-chl-box {
     width: 100%;
@@ -57,6 +55,7 @@
 
 .base-chl-select {
     max-height: 180px;
+
     .el-select-dropdown__wrap {
         max-height: 180px;
     }

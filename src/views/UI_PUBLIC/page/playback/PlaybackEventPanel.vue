@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-30 14:08:41
  * @Description: 回放-事件类型视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-27 17:20:54
 -->
 <template>
     <fieldset>
@@ -97,7 +95,7 @@
 fieldset {
     flex-shrink: 0;
     border: 1px solid var(--input-border);
-    margin: 15px 15px;
+    margin: 15px;
 }
 
 .list {
@@ -133,7 +131,7 @@ fieldset {
     &-list {
         & > div {
             display: flex;
-            padding: 10px 10px;
+            padding: 10px;
             cursor: pointer;
 
             &:hover {

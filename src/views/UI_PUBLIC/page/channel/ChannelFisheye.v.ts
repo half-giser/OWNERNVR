@@ -3,7 +3,7 @@
  * @Date: 2024-07-18 13:54:46
  * @Description: 通道 - 鱼眼设置
  */
-import { ChannelFisheye } from '@/types/apiType/channel'
+import { ChannelFisheyeDto } from '@/types/apiType/channel'
 import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
@@ -14,9 +14,9 @@ export default defineComponent({
         const osType = getSystemInfo().platform
 
         const playerRef = ref<PlayerInstance>()
-        const formData = ref(new ChannelFisheye())
+        const formData = ref(new ChannelFisheyeDto())
         const tableRef = ref<TableInstance>()
-        const tableData = ref([] as ChannelFisheye[])
+        const tableData = ref([] as ChannelFisheyeDto[])
         const btnOKDisabled = ref(true)
         const pageIndex = ref(1)
         const pageSize = ref(10)
@@ -26,7 +26,7 @@ export default defineComponent({
         const fishEyeModelList = ref(new Set<string>())
         // 当前列表中存在的安装模式枚举
         const installTypeList = ref(new Set<string>())
-        const editRows = new Set<ChannelFisheye>()
+        const editRows = new Set<ChannelFisheyeDto>()
         const deviceDatacache: Record<string, Record<string, string>> = {}
         const hikvisionIds: string[] = []
         const privateProtocolIds: string[] = []
@@ -51,7 +51,7 @@ export default defineComponent({
             tableRef.value!.setCurrentRow(rowData)
         }
 
-        const handleRowClick = (rowData: ChannelFisheye) => {
+        const handleRowClick = (rowData: ChannelFisheyeDto) => {
             if (!rowData.disabled) {
                 selectedChlId.value = rowData.id
                 formData.value = rowData
@@ -141,7 +141,7 @@ export default defineComponent({
                 pageTotal.value = Number($('content').attr('total'))
                 tableData.value = $('content/item').map((ele) => {
                     const eleXml = queryXml(ele.element)
-                    const newData = new ChannelFisheye()
+                    const newData = new ChannelFisheyeDto()
                     newData.id = ele.attr('id')!
                     newData.name = eleXml('name').text()
                     newData.chlIndex = eleXml('chlIndex').text()
@@ -276,7 +276,7 @@ export default defineComponent({
             })
         }
 
-        const getSaveData = (rowData: ChannelFisheye) => {
+        const getSaveData = (rowData: ChannelFisheyeDto) => {
             return rawXml`
                 <types>
                     <fishEyeMode>
@@ -297,7 +297,7 @@ export default defineComponent({
                 </content>`
         }
 
-        const getFishEyeEnableSaveData = (rowDatas: ChannelFisheye[]) => {
+        const getFishEyeEnableSaveData = (rowDatas: ChannelFisheyeDto[]) => {
             return rawXml`
                 <content>
                     ${rowDatas
@@ -305,7 +305,7 @@ export default defineComponent({
                         .map((ele) => {
                             return rawXml`
                                 <chl id='${ele.id}'>
-                                    <fishEyeEnable>${ele.fishEyeEnable.toString()}</fishEyeEnable>
+                                    <fishEyeEnable>${ele.fishEyeEnable}</fishEyeEnable>
                                 </chl>
                             `
                         })
@@ -317,7 +317,7 @@ export default defineComponent({
             tableData.value.forEach((ele) => (ele.status = ''))
 
             // 支持开关配置的鱼眼才下发editFishEyeEnable协议
-            const editEnableRows: ChannelFisheye[] = []
+            const editEnableRows: ChannelFisheyeDto[] = []
 
             openLoading()
 

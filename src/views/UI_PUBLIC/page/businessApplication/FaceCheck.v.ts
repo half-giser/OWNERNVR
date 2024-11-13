@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-27 14:27:13
  * @Description: 业务应用-人脸签到
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-05 10:59:16
  */
 import { cloneDeep } from 'lodash-es'
 import dayjs from 'dayjs'

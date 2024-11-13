@@ -2,13 +2,11 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-21 14:31:40
  * @Description: 通道状态
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 17:12:31
  */
 import { type SystemChannelStatusList } from '@/types/apiType/system'
 
 export default defineComponent({
-    setup() {
+    setup(_prop, ctx) {
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
 
@@ -107,8 +105,11 @@ export default defineComponent({
             getData()
         })
 
-        return {
+        ctx.expose({
             handleToolBarEvent,
+        })
+
+        return {
             systemCaps,
             tableData,
             formatMotionStatus,

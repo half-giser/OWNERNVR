@@ -2,8 +2,6 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-05-07 20:42:33
  * @Description: 功能面板
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 09:43:31
  */
 
 import { getMenuItems } from '@/router'

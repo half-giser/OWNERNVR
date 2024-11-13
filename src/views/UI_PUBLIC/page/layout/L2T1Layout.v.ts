@@ -2,17 +2,14 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-04-20 16:04:39
  * @Description: 二级类型1布局页--适用于所有配置页
- * @LastEditors: tengxiang tengxiang@tvt.net.cn
- * @LastEditTime: 2024-11-01 15:25:46
  */
-
 import { getMenuItem } from '@/router'
 
 export default defineComponent({
     setup() {
         const route = useRoute()
         const router = useRouter()
-        const chilComponent = ref()
+        const chilComponent = ref<ConfigComponentInstance>()
         const layoutStore = useLayoutStore()
         const userSession = useUserSessionStore()
 
@@ -113,7 +110,9 @@ export default defineComponent({
          * @param {ConfigToolBarEvent} toolBarEvent
          */
         const handleToolBarEvent = (toolBarEvent: ConfigToolBarEvent<any>) => {
-            chilComponent.value?.handleToolBarEvent(toolBarEvent)
+            if (chilComponent.value && chilComponent.value.handleToolBarEvent) {
+                chilComponent.value.handleToolBarEvent(toolBarEvent)
+            }
         }
 
         /**

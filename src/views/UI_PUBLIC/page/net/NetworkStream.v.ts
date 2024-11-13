@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-15 18:17:14
  * @Description: 网络码流设置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-17 10:17:56
  */
 import { type NetSubStreamList, type NetSubStreamResolutionList } from '@/types/apiType/net'
 import { cloneDeep } from 'lodash-es'
@@ -593,12 +591,12 @@ export default defineComponent({
                     ${edits
                         .map((item) => {
                             const res = item.resolution
-                            const fps = item.frameRate.toString()
-                            const qoi = item.videoQuality ? item.videoQuality.toString() : ''
+                            const fps = item.frameRate
+                            const qoi = item.videoQuality ? item.videoQuality : ''
                             const bittype = item.bitType || 'CBR'
                             const level = item.level
                             const enct = item.videoEncodeType
-                            const gop = item.GOP ? item.GOP.toString() : (item.frameRate * 4).toString()
+                            const gop = item.GOP ? item.GOP : item.frameRate * 4
                             return rawXml`
                                 <item id="${item.id}">
                                     <sub res="${res}" fps="${fps}" QoI="${qoi}" bitType="${bittype}" level="${level}" enct="${enct}" GOP="${gop}" />

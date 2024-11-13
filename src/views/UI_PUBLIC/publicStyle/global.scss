@@ -4,10 +4,11 @@
  * @Description: 定义主题样式全局变量
  */
 
-/**
- * 客户定制图标/图片素材
- */
 #n9web {
+    /***********
+    * 客户定制图标/图片素材
+    ***********/
+
     // --img-logo: url('@/views/UI_PUBLIC/publicStyle/img/appName.png');
     // --img-login-content: url('@/views/UI_PUBLIC/publicStyle/img/LoginContent.png');
     --img-initview: url('@/views/UI_PUBLIC/publicStyle/img/initview.gif');
@@ -20,28 +21,27 @@
     --img-authcodelogin-bg: url('/public/css/pictures/mainBg.png');
     --img-authcodelogin-mask: url('/public/css/pictures/mainBgMask.png');
     --img-authcodelogin-icon: url('/public/css/pictures/loginIcon.png');
+
     --img-authcodelogin-content: url('/public/css/pictures/LoginContent.png');
     --img-authcodelogin-question: url('/public/css/pictures/question.png');
     --img-authcodelogin-btn: url('/public/css/pictures/loginBtn.png');
     --img-authcodelogin-logo: url('/public/css/pictures/appName.png');
-}
 
-/**
- * 变量
- */
-#n9web {
+    /***********
+     * 变量
+     ***********/
+
     --content-height: calc(100vh - 230px); /* 正文内容高度 */
     --live-content-height: calc(var(--content-height) + 55px); /* 现场预览、回放的正文内容高度 */
 
     --form-label-width: 150px; /* 表单label宽度变量 */
     --form-input-width: 100%; /* 表单所有输入框宽度变量 */
     --form-radio-button-width: unset; /* el-radio-button的宽度 */
-}
 
-/**
- * 主题色
- */
-#n9web {
+    /***********
+     * 主题色
+     ***********/
+
     --primary-light: #e1fbff;
     --primary: #00bbdb;
 
@@ -53,9 +53,7 @@
     --main-text-active: #fff; // dropdown、options等被高亮选中时的文本颜色
     --main-bg: #fff; // 界面默认背景色
     --main-border: #666; // 界面, 以及Dialog、MessageBox、Notification等弹出框的Border颜色
-
     --content-border: #999; // 页面上主要线框的颜色
-
     --subheading-text: var(--main-text); // 子标题文本颜色
     --subheading-bg: #ccc; // 子标题背景色
 
@@ -89,22 +87,18 @@
     --input-bg-disabled: #f0f0f0; // 输入框背景色 (disabled)
     --input-border: #888; // 输入框、选择器等边框颜色
     --input-border-disabled: #aeabab;
-
     --form-stripe: #eee; // 表单斑马线颜色
-
     --radio-btn-text: var(--main-text); // radio button 文本颜色
     --radio-btn-text-hover: var(--main-text); // radio button 文本颜色 (hover)
     --radio-btn-text-active: var(--main-text-active); // radio button 文本颜色 (active)
     --radio-btn-bg: transparent; // radio button 背景色
     --radio-btn-bg-hover: var(--primary-light); // radio button 背景色 (hover)
     --radio-btn-bg-active: var(--primary); // radio button 背景色 (active)
-
     --upload-bg-text: #000; // 上传框文本
     --upload-bg: #eee; // 上传框背景
     --upload-bg-hover: #ddd; // 上传框背景 (hover)
-
     --slider-btn-border: #808080; // Slider左右切换按钮颜色
-    --slider-btn-border-disabled: #DCDCDC; // Slider左右切换按钮颜色 (disabled)
+    --slider-btn-border-disabled: #dcdcdc; // Slider左右切换按钮颜色 (disabled)
 
     /**
      * 按钮
@@ -125,13 +119,11 @@
     --table-text-disabled: #888; // 表格文本颜色 (disabled)
     --table-border: #ccc; // 表格/网格边框颜色
     --table-bg: #fff; // 表格行背景色
-    --table-bg-hover: #F7F7F7; // 表格行背景色 (hover)
+    --table-bg-hover: #f7f7f7; // 表格行背景色 (hover)
     --table-stripe: #eee; // 表格背景色 (斑马线)
-
     --table-thead-text: #000; // 表格头文本色
     --table-thead-bg: #e5e5e5; // 表格头背景色
     --table-thead-border: var(--table-border); // 表格头边框色
-
     --table-checkbox-border-checked: #e9efff; // 表格checkbox选中边框色
 
     /**
@@ -139,9 +131,7 @@
      */
     --dialog-title: #666; // Dialog、MessageBox、Notification等弹出框的标题颜色
     --dialog-bg: var(--main-bg); // 对话框背景色
-
     --popover-bg: #f2f2f2; // popover背景色
-
     --dropdown-bg: #f2f2f2; // dropdown背景色
 
     /**
@@ -159,18 +149,17 @@
     --config-menu-text: #3c3c3c; // 功能面板页-主菜单-文本
     --config-menu-text-hover: var(--primary); // 功能面板页-主菜单-文本 (hover)
     --config-menu-text-active: var(--primary); // 功能面板页-主菜单-文本 (active)
-    --config-menu-text-disabled: #D9D9D9; // 功能面板页-主菜单-文本 (disabled)
+    --config-menu-text-disabled: #d9d9d9; // 功能面板页-主菜单-文本 (disabled)
     --config-menu-bg: unset; // 功能面板页-主菜单-背景
     --config-menu-bg-hover: unset; // 功能面板页-主菜单-背景 （hover）
     --config-menu-bg-active: unset; // 功能面板页-主菜单-背景 （active）
     --config-menu-bg-disabled: unset; // 功能面板页-主菜单-背景 (disabled)
     --config-menu-border: #aeaeae; // 功能面板页-主菜单-border
     --config-menu-border-hover: var(--primary); // 功能面板页-主菜单-border (hover)
-    --config-menu-border-disabled: #D9D9D9; // 功能面板页-主菜单-border (disabled)
-
+    --config-menu-border-disabled: #d9d9d9; // 功能面板页-主菜单-border (disabled)
     --config-submenu-text: #8f8f8f; // 功能面板-子菜单-文本
     --config-submenu-text-hover: var(--primary); // 功能面板-子菜单-文本 (hover)
-    --config-submenu-text-disabled: #D9D9D9; // 功能面板-子菜单-文本 (disabled)
+    --config-submenu-text-disabled: #d9d9d9; // 功能面板-子菜单-文本 (disabled)
     --config-submenu-bg: unset; // 功能面板-子菜单-背景
 
     /**
@@ -179,7 +168,6 @@
     --login-bg: var(--main-bg); // 登录-背景
     --login-content-bg: transparent; // 登录-容器-背景
     --login-btn-text: #fff; // 登录-登录按钮-文本
-
     --login-plugin-text: #9b9b9b; // 登录-下载按钮-文本
 
     /**
@@ -197,28 +185,22 @@
     --config-aside-text: #8d8d8d; // 配置页-左侧菜单栏-文本
     --config-aside-text-hover: var(--primary); // 配置页-左侧菜单栏-文本 (hover)
     --config-aside-text-active: #8d8d8d; // 配置页-左侧菜单栏-文本 (active)
-    --config-aside-text-disabled: #D9D9D9; // 配置页-左侧菜单栏-文本 (disabled)
+    --config-aside-text-disabled: #d9d9d9; // 配置页-左侧菜单栏-文本 (disabled)
     --config-aside-bg: unset; // 配置页-左侧菜单栏-背景
     --config-aside-item-bg: unset; // 配置页-左侧菜单栏菜单项-背景
     --config-aside-item-bg-active: #eee; // 配置页-左侧菜单栏菜单项-背景 (active)
-
     --breadcrumb-text: #454545; // 面包屑-文本
     --breadcrumb-bg: transparent; // 面包屑-背景
-
     --ptz-btn: #f0f0f0; // 云台-ICON按钮-背景色
     --ptz-btn-disabled: #fff; // 云台-ICON按钮-背景色 （disabled）
-
     --ai-linkbox-bg: #d0d0d0; // AI与事件-联动窗标题背景色
     --ai-linkbox-border: #888; // AI与事件-联动窗边框色
     --ai-advance-bg: #e5e5e5; // AI与事件-高级配置背景
-
     --output-eth-bg: #e5e5e5; // 输出配置-头部-背景色
     --output-tab-bg: var(--main-bg); // 输出配置-输出按钮栏-背景色
     --output-tab-btn-bg: #e5e5e5; // 输出配置-按钮-背景色
-
     --disk-group-text-active: var(--main-text); // 存储模式磁盘-文本色（active）
-    --disk-group-bg-active: #AFE8FF; // 存储模式磁盘-背景色（active）
-
+    --disk-group-bg-active: #afe8ff; // 存储模式磁盘-背景色（active）
     --upgrade-text-active: #23de1a; // 系统升级-文本色 (active)
 
     /**
@@ -232,16 +214,14 @@
     --panel-menu-bg-active: #fff; // 侧边栏-切换按钮-背景 （active）
     --panel-btn-bg: #b7b7b7; // 侧边栏-icon按钮-背景
     --panel-btn-bg-disabled: #d9d9d9; // 侧边栏-icon按钮-背景 (disabled)
-
     --panel-snap-border: black; // 侧边栏-抓拍-item-border
-    --panel-snap-history-border: #FFCC66; // 侧边栏-抓拍-历史item-border
-    --panel-snap-btn-bg: rgba(0,0,0,.5); // 侧边栏-抓拍-按钮-背景
-
-    --panel-event-text: #D5D4D4;
+    --panel-snap-history-border: #fc6; // 侧边栏-抓拍-历史item-border
+    --panel-snap-btn-bg: rgb(0 0 0 / 50%); // 侧边栏-抓拍-按钮-背景
+    --panel-event-text: #d5d4d4;
     --panel-event-bg: #454545;
-    --panel-event-bg-hover: #63B1BE;
+    --panel-event-bg-hover: #63b1be;
     --panel-event-bg-active: var(--primary);
-    --panel-event-title-text: #D5D4D4;
+    --panel-event-title-text: #d5d4d4;
     --panel-event-title-bg: #999;
 
     /**
@@ -253,17 +233,14 @@
     --tabbar-bg: transparent; // tab菜单-背景
     --tabbar-bg-hover: var(--primary-light); // tab菜单-背景 （hover）
     --tabbar-bg-active: var(--primary); // tab菜单-背景 （active）
-
     --sidebar-text: var(--header-menu-text); // 侧边菜单-文本
     --sidebar-text-hover: var(--header-menu-text); // 侧边菜单-文本（hover）
     --sidebar-text-active: var(--main-text-active); // 侧边菜单-文本（active）
     --sidebar-bg: transparent; // 侧边菜单-背景
     --sidebar-bg-hover: var(--primary-light); // 侧边菜单-背景（hover）
     --sidebar-bg-active: var(--primary); // 侧边菜单-背景（active）
-
     --backup-snap-bg: #555; // 按时间切片缩略图背景色
     --backup-snap-border: #ccc; // 按时间切片缩略图border颜色
-
     --intel-snap-border: #000; // 智能搜索-抓拍卡片border颜色
 
     /**
@@ -280,7 +257,9 @@
     --player-bg: #4c4c4b; // 播放器背景色
     --player-split-border: #343434; // 播放器分屏分割线颜色
 
-    // 日历
+    /**
+     * 日历
+     */
     --calendar-bg: var(--main-bg);
     --calendar-header-text: #3c3c3c;
     --calendar-header-bg: #f5f5f5; // 日历头背景色
@@ -294,7 +273,7 @@
     /**
      * Loading
      */
-    --loading-bg: rgba(255, 255, 255, 0.3); // Loading背景色
+    --loading-bg: rgb(255 255 255 / 30%); // Loading背景色
 
     /**
      * 状态
@@ -333,9 +312,9 @@
     --timeline-pointer-01: #409eff; // 指针颜色
     --timeline-pointer-time-01: #59f957; // 指针显示的时间颜色
     --timeline-moving-pointer-01: #888; // 鼠标跟随指针颜色
-    --timeline-moving-time-bg-01: rgba(0,0,0,.5); // 鼠标跟随时间背景色
+    --timeline-moving-time-bg-01: rgb(0 0 0 / 50%); // 鼠标跟随时间背景色
     --timeline-moving-time-text-01: #eee; // 鼠标跟随时间文本颜色
-    --timeline-range-mask-01: rgba(0, 187, 219, .5); // 时间范围遮罩颜色
+    --timeline-range-mask-01: rgb(0 187 219 / 50%); // 时间范围遮罩颜色
 
     /**
      * 时间轴组件颜色集2 （搜索与备份页面的时间轴颜色）
@@ -347,9 +326,9 @@
     --timeline-pointer-02: #409eff;
     --timeline-pointer-time-02: #333;
     --timeline-moving-pointer-02: #ddd;
-    --timeline-moving-time-bg-02: rgba(0,0,0,.5);
+    --timeline-moving-time-bg-02: rgb(0 0 0 / 50%);
     --timeline-moving-time-text-02: #fff;
-    --timeline-range-mask-02: rgba(0, 187, 219, .5);
+    --timeline-range-mask-02: rgb(0 187 219 / 50%);
 
     /**
      * 条形图组件
@@ -367,21 +346,27 @@
     --schedule-form-btn: #6e83b3; // 排程表单按钮色
     --schedule-btn: var(--schedule-form-btn); // 排程按钮颜色
     --schedule-scale: #000; // 排程刻度尺颜色
-    --schedule-time-span-bg: #F2F2F3; // 排程时间背景色
-    --schedule-time-span-bg-active: #18C0DD; // 排程时间选中背景色
-    --schedule-time-span-bg-selection: #89E9F9; // 排程时间选择背景色
+    --schedule-time-span-bg: #f2f2f3; // 排程时间背景色
+    --schedule-time-span-bg-active: #18c0dd; // 排程时间选中背景色
+    --schedule-time-span-bg-selection: #89e9f9; // 排程时间选择背景色
 
     /**
      * 浮动错误提示框
      */
     --float-ok: #006400; // 浮动提示 成功 文本和边框色
-    --float-error: #ff0000; // 浮动提示 错误 文本和边框色
+    --float-error: #f00; // 浮动提示 错误 文本和边框色
 
     /**
      * 二维码
      */
     --qrcode-bg: #fff; // 二维码背景色
     --qrcode-label-bg: #8f8d8d; // 二维码标签背景色
+
+    /**
+     * 插件提示
+     */
+    --plugin-link-text: #327eee; // 插件链接 文本颜色
+    --plugin-link-text-hover: #00bbdb; // 插件链接 文本颜色(hover)
 
     // Success
     // --success--01: #edf9eb;

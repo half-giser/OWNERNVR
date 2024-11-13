@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-06 20:36:26
  * @Description: 备份录像弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:50:04
  */
 import BackupRemoteEncryptPop from './BackupRemoteEncryptPop.vue'
 import type { PlaybackBackUpRecList } from '@/types/apiType/playback'
@@ -95,7 +93,7 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             localPath: [
                 {
-                    validator(_rule, value, callback) {
+                    validator(_rule, value: string, callback) {
                         if (prop.mode !== 'ocx') {
                             callback()
                             return
@@ -105,8 +103,8 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_SELECT_PATH')))
                             return
                         }
+
                         callback()
-                        return
                     },
                     trigger: 'manual',
                 },

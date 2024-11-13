@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-26 16:38:37
  * @Description: 现场预览-右侧视图 Layout
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-05 16:25:17
  */
 import { type LiveChannelList, type LiveSharedWinData } from '@/types/apiType/live'
 

@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-03 14:44:11
  * @Description: 智能分析-人员统计
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 15:18:09
 -->
 <template>
     <div class="base-intel-box">
@@ -102,7 +100,3 @@
 </template>
 
 <script lang="ts" src="./IntelPersonStats.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/intelligentAnalysis.scss';
-</style>

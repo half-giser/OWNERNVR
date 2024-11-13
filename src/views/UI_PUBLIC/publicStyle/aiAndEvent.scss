@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-29 09:12:33
  * @Description: ai与事件版块的一些公共样式，仅在需要用到的ai与事件版块下import
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-01 14:41:33
  */
 
 .base-ai-menu-tabs {
@@ -11,7 +9,6 @@
     margin-top: 10px;
 
     & > .el-tabs__header {
-
         .el-tabs__item {
             width: 188px;
             line-height: 35px;
@@ -21,7 +18,6 @@
             padding: 0 5px;
             text-align: center;
             box-sizing: border-box;
-
 
             &:not(:last-child) {
                 margin-right: -2px;
@@ -45,6 +41,7 @@
         /* 长分割线 */
         .el-tabs__nav-wrap::after {
             height: 0;
+
             /* position: static !important; 可以去掉长分割线 */
             // background-color: var(--content-border);
         }
@@ -74,7 +71,7 @@
 .base-ai-tabs {
     & > .el-tabs__header {
         border-bottom: 1px solid var(--content-border);
-        
+
         .el-tabs__item {
             width: fit-content;
             color: var(--main-text);
@@ -85,7 +82,7 @@
 
         /* 长分割线 */
         .el-tabs__nav-wrap::after {
-            position: static; //可以去掉长分割线
+            position: static; // 可以去掉长分割线
         }
 
         /* 去掉下划线 */
@@ -112,11 +109,12 @@
         }
     }
 
-    &>.el-tabs__content {
+    & > .el-tabs__content {
         padding-bottom: 50px;
+
         .el-tab-pane {
             position: relative;
-            // min-height: calc(100vh - 450px);
+            min-height: calc(100vh - 500px);
         }
     }
 }
@@ -135,37 +133,6 @@
     }
 }
 
-.base-ai-param-box {
-    width: 100%;
-    display: flex;
-
-    &-left {
-        width: 400px;
-        min-height: 400px;
-        padding: 8px 100px 0 20px;
-        flex-shrink: 0;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-
-        .player {
-            width: 400px;
-            height: 300px;
-        }
-
-        &.fixed {
-            position: absolute;
-            top: 87px;
-            z-index: 1;
-            min-height: unset;
-        }
-    }
-
-    &-right {
-        width: 100%;
-    }
-}
-
 .base-ai-linkage-content {
     display: flex;
     flex-wrap: nowrap;
@@ -179,7 +146,7 @@
     text-align: center;
     font-size: 15px;
     width: 100%;
-    height: 33px;
+    height: 34px;
     padding: 0 10px;
     background: var(--ai-linkbox-bg);
     box-sizing: border-box;
@@ -187,24 +154,17 @@
     justify-content: center;
     align-items: center;
 
-    &>span {
+    & > span {
         margin-right: 5px;
     }
 }
 
 .base-ai-linkage-title-checkbox {
     padding-left: 15px;
-    
-    .el-checkbox__label {
-        padding-left: 3px;
-    }
-}
-
-.base-ai-linkage-title-checkbox-input {
     justify-content: flex-start;
 
-    .el-checkbox__input {
-        margin-right: 0;
+    .el-checkbox__label {
+        padding-left: 3px;
     }
 }
 
@@ -220,21 +180,26 @@
 
     .el-checkbox-group {
         .el-checkbox {
-            width: 200px;
-            height: 45px;
-            padding-left: 10px;
+            display: flex;
+            height: 43px;
+            padding-left: 15px;
         }
     }
+}
 
-    .el-table {
+.base-ai-linkage-list {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+
+    li {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        line-height: 43px;
+        text-align: center;
         width: 100%;
-        height: 367px;
-
-        .el-table__cell {
-            padding: 3px;
-            height: 46px;
-            border-bottom: none;
-        }
+        font-size: 14px;
     }
 }
 
@@ -255,7 +220,6 @@
 
     &-left {
         width: 400px;
-        height: 100%;
         padding: 0 100px 0 20px;
         flex-shrink: 0;
         display: flex;
@@ -266,6 +230,13 @@
         .player {
             width: 400px;
             height: 300px;
+        }
+
+        &.fixed {
+            position: absolute;
+            top: 87px;
+            z-index: 1;
+            min-height: unset;
         }
     }
 
@@ -286,13 +257,19 @@
     }
 }
 
+.el-popper:has(.base-ai-chl-option) {
+    overflow: hidden;
+}
+
 .base-ai-chl-option {
     width: 430px;
     height: 140px;
-    padding: 10px;
     box-sizing: border-box;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: hidden auto;
+
+    &.narrow {
+        height: 100px;
+    }
 
     .el-select-dropdown__list {
         width: 100%;
@@ -300,6 +277,7 @@
         display: flex;
         justify-content: flex-start;
         align-items: flex-start;
+        padding: 10px 0 !important;
     }
 
     .el-select-dropdown__item {
@@ -307,7 +285,7 @@
         height: 30px;
         line-height: 30px;
         text-align: center;
-        margin: 5px;
+        margin: 5px 10px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -323,8 +301,10 @@
     justify-content: center;
     align-items: center;
     color: var(--el-table-header-text-color);
+
     .el-icon {
         cursor: pointer;
+
         &:hover {
             color: var(--input-text);
         }
@@ -333,6 +313,7 @@
 
 .row-together {
     width: fit-content;
+
     .table_btn {
         min-width: 80px;
         margin-left: 5px;

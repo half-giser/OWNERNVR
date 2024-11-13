@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-20 14:01:55
  * @Description: 云台-控制台
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 09:28:03
 -->
 <template>
     <div class="ctrl">

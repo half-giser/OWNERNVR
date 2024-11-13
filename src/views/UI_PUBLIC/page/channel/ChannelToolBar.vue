@@ -15,7 +15,17 @@
         class="base-toolbar-btn"
         @click="search"
     />
-    <el-button @click="addChl">{{ Translate('IDCS_ADD_CHANNEL') }}</el-button>
+    <el-button
+        v-if="isAddGroupBtn"
+        @click="addChl"
+        >{{ Translate('IDCS_ADD_CHANNEL') }}</el-button
+    >
+    <BaseImgSprite
+        v-else
+        file="toolbar_add"
+        class="base-toolbar-btn"
+        @click="addChl"
+    />
 </template>
 
 <script lang="ts">
@@ -28,6 +38,8 @@ export default defineComponent({
 
     setup(_props, ctx) {
         const msg = ref('')
+
+        const isAddGroupBtn = import.meta.env.VITE_UI_TYPE !== 'UI2-A'
 
         const search = () => {
             ctx.emit('toolBarEvent', {
@@ -49,6 +61,7 @@ export default defineComponent({
             msg,
             search,
             addChl,
+            isAddGroupBtn,
         }
     },
 })

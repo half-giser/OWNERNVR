@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-27 14:24:19
  * @Description: 业务应用-人脸签到
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 10:52:16
 -->
 <template>
     <div class="base-flex-box">
@@ -228,6 +226,7 @@
                     width: 550px !important;
                     flex-shrink: 0;
                 }
+
                 & > .el-form-item:last-child {
                     width: calc(100% - 550px) !important;
                 }

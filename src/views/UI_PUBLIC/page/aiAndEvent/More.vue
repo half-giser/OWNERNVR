@@ -2,8 +2,6 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-10 17:50:24
  * @Description: 更多功能页面的框架
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-01 14:58:04
 -->
 <template>
     <div>
@@ -21,8 +19,7 @@
                 <el-select
                     v-model="pageData.currChlId"
                     class="base-ai-chl-select"
-                    value-key="id"
-                    popper-class="base-ai-chl-option"
+                    :popper-class="pageData.chosenFunction === 'avd' ? 'base-ai-chl-option narrow' : 'base-ai-chl-option'"
                     @change="handleChangeChannel"
                 >
                     <el-option
@@ -95,7 +92,6 @@
                     :curr-chl-id="pageData.currChlId"
                     :chl-data="pageData.chlData"
                     :voice-list="pageData.voiceList"
-                    :online-channel-list="pageData.onlineChannelList"
                 />
             </el-tab-pane>
 
@@ -152,16 +148,3 @@
 </template>
 
 <script lang="ts" src="./More.v.ts"></script>
-
-<style>
-@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
-</style>
-
-<!-- <style lang="scss" scoped>
-:deep(.el-form-item__label) {
-    display: inline-block;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-</style> -->

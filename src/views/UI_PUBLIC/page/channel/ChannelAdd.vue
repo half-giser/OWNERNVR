@@ -132,7 +132,6 @@
                         <div class="form-wrapper">
                             <el-select
                                 v-model="scope.row.addrType"
-                                value-key="id"
                                 @change="cellChange($event, scope.$index, scope.row, 'addrType')"
                             >
                                 <el-option
@@ -202,7 +201,6 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.manufacturer"
-                            value-key="id"
                             @change="cellChange($event, scope.$index, scope.row, 'manufacturer')"
                         >
                             <el-option
@@ -341,7 +339,6 @@
 <style scoped lang="scss">
 .tabs {
     display: flex;
-    justify-content: center;
     padding: 5px 15px;
     border: 1px solid var(--table-border);
     flex-shrink: 0;

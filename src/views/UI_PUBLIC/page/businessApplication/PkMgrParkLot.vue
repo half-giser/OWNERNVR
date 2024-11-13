@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-09 18:39:25
  * @Description: 实时过车记录
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-01 14:57:20
 -->
 <template>
     <div class="lot">
@@ -208,7 +206,6 @@
 .container {
     width: calc(100vw - 80px);
     height: calc(100vh - 60px);
-    box-sizing: border-box;
     margin: 15px auto;
     display: flex;
     flex-direction: column;
@@ -361,7 +358,7 @@
 .copyright {
     text-align: center;
     font-size: 11px;
-    padding: 1px 0px 1px 0px;
+    padding: 1px 0;
     height: 18px;
     width: 100%;
     color: var(--header-menu-text);

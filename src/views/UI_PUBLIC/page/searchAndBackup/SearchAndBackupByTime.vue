@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-08 19:25:53
  * @Description: 按时间搜索
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-04 18:02:59
 -->
 <template>
     <div class="by-time">
@@ -141,6 +139,7 @@
         padding-left: 15px;
         display: flex;
         align-items: center;
+
         span:last-child {
             padding-left: 5px;
         }

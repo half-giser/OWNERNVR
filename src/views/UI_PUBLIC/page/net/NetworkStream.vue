@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-17 09:00:44
  * @Description: 网络码流设置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-01 18:04:52
 -->
 <template>
     <div class="base-flex-box">
@@ -42,7 +40,6 @@
                                 <el-dropdown-item
                                     v-for="item in pageData.videoEcodeTypeList"
                                     :key="item"
-                                    :value="item"
                                     @click="changeAllStreamType(item)"
                                 >
                                     {{ displayStreamType(item) }}

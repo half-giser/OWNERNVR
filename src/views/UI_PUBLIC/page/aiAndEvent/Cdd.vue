@@ -2,38 +2,12 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-09-19 17:51:14
  * @Description: 人群密度检测
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 15:57:22
 -->
 <template>
     <div>
         <ScheduleManagPop
             v-model="pageData.scheduleManagePopOpen"
             @close="handleSchedulePopClose"
-        />
-        <!-- record弹窗 -->
-        <BaseTransferDialog
-            v-model="pageData.recordIsShow"
-            header-title="IDCS_TRIGGER_CHANNEL_RECORD"
-            source-title="IDCS_CHANNEL"
-            target-title="IDCS_CHANNEL_TRGGER"
-            :source-data="pageData.recordSource"
-            :linked-list="pageData.recordList || []"
-            limit-tip="IDCS_RECORD_CHANNEL_LIMIT"
-            @confirm="recordConfirm"
-            @close="recordClose"
-        />
-        <!-- alarmOut弹窗 -->
-        <BaseTransferDialog
-            v-model="pageData.alarmOutIsShow"
-            header-title="IDCS_TRIGGER_ALARM_OUT"
-            source-title="IDCS_ALARM_OUT"
-            target-title="IDCS_TRIGGER_ALARM_OUT"
-            :source-data="pageData.alarmOutSource"
-            :linked-list="pageData.alarmOutList || []"
-            limit-tip="IDCS_ALARMOUT_LIMIT"
-            @confirm="alarmOutConfirm"
-            @close="alarmOutClose"
         />
         <!-- <div
             v-if="pageData.notSupportTipShow"
@@ -54,9 +28,8 @@
                 :span="2"
             >
                 <el-checkbox
-                    v-model="pageData.detectionEnable"
+                    v-model="formData.detectionEnable"
                     :label="Translate('IDCS_ENABLE')"
-                    @change="pageData.applyDisable = false"
                 />
             </div>
             <!-- 两种功能 -->
@@ -111,10 +84,7 @@
                                 <div class="base-ai-subheading">{{ Translate('IDCS_SCHEDULE') }}</div>
                                 <!-- 排程 -->
                                 <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
-                                    <el-select
-                                        v-model="pageData.schedule"
-                                        @change="pageData.applyDisable = false"
-                                    >
+                                    <el-select v-model="formData.schedule">
                                         <el-option
                                             v-for="item in pageData.scheduleList"
                                             :key="item.value"
@@ -129,12 +99,9 @@
                                 <div class="base-ai-subheading">{{ Translate('IDCD_RULE') }}</div>
                                 <!-- 持续时间 -->
                                 <el-form-item :label="Translate('IDCS_DURATION')">
-                                    <el-select
-                                        v-model="pageData.holdTime"
-                                        @change="pageData.applyDisable = false"
-                                    >
+                                    <el-select v-model="formData.holdTime">
                                         <el-option
-                                            v-for="item in pageData.holdTimeList"
+                                            v-for="item in formData.holdTimeList"
                                             :key="item.value"
                                             :label="item.label"
                                             :value="item.value"
@@ -143,12 +110,9 @@
                                 </el-form-item>
                                 <!-- 刷新频率 -->
                                 <el-form-item :label="Translate('IDCS_REFRESH_FREQUENCY')">
-                                    <el-select
-                                        v-model="pageData.refreshFrequency"
-                                        @change="pageData.applyDisable = false"
-                                    >
+                                    <el-select v-model="formData.refreshFrequency">
                                         <el-option
-                                            v-for="item in pageData.refreshFrequencyList"
+                                            v-for="item in formData.refreshFrequencyList"
                                             :key="item.value"
                                             :label="item.label"
                                             :value="item.value"
@@ -158,9 +122,8 @@
                                 <!-- 报警阈值 -->
                                 <el-form-item :label="Translate('IDCS_ALARM_THRESHOLD')">
                                     <el-slider
-                                        v-model="pageData.triggerAlarmLevel"
+                                        v-model="formData.triggerAlarmLevel"
                                         show-input
-                                        @change="pageData.applyDisable = false"
                                     />
                                 </el-form-item>
                             </el-form>
@@ -190,12 +153,9 @@
                             }"
                         >
                             <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">
-                                <el-select
-                                    v-model="pageData.sysAudio"
-                                    @change="pageData.applyDisable = false"
-                                >
+                                <el-select v-model="formData.sysAudio">
                                     <el-option
-                                        v-for="item in pageData.voiceList"
+                                        v-for="item in voiceList"
                                         :key="item.value"
                                         :label="item.label"
                                         :value="item.value"
@@ -205,94 +165,13 @@
                         </el-form>
                         <div class="base-ai-linkage-content">
                             <!-- 常规联动 -->
-                            <div class="base-ai-linkage-box">
-                                <el-checkbox
-                                    v-model="pageData.triggerSwitch"
-                                    class="base-ai-linkage-title base-ai-linkage-title-checkbox"
-                                    :label="Translate('IDCS_TRIGGER_NOMAL')"
-                                    @change="handleTriggerSwitch"
-                                />
-                                <el-table
-                                    height="367"
-                                    :data="triggerData"
-                                    :show-header="false"
-                                >
-                                    <el-table-column>
-                                        <template #default="scope">
-                                            <el-checkbox
-                                                v-model="scope.row.value"
-                                                class="table_item"
-                                                :label="Translate(scope.row.label)"
-                                                @change="handleTrigger(scope.row)"
-                                            />
-                                        </template>
-                                    </el-table-column>
-                                </el-table>
-                            </div>
+                            <AlarmBaseTriggerSelector v-model="formData.trigger" />
                             <!-- record -->
-                            <div class="base-ai-linkage-box">
-                                <div class="base-ai-linkage-title">
-                                    <span>{{ Translate('IDCS_RECORD') }}</span>
-                                    <el-button @click="pageData.recordIsShow = true">{{ Translate('IDCS_CONFIG') }} </el-button>
-                                </div>
-                                <el-table
-                                    :show-header="false"
-                                    height="367"
-                                    :data="pageData.record.chls"
-                                >
-                                    <el-table-column prop="label" />
-                                </el-table>
-                            </div>
-
+                            <AlarmBaseRecordSelector v-model="formData.record" />
                             <!-- alarm -->
-                            <div class="base-ai-linkage-box">
-                                <div class="base-ai-linkage-title">
-                                    <span>{{ Translate('IDCS_ALARM_OUT') }}</span>
-                                    <el-button @click="pageData.alarmOutIsShow = true">{{ Translate('IDCS_CONFIG') }} </el-button>
-                                </div>
-                                <el-table
-                                    :show-header="false"
-                                    height="367"
-                                    :data="pageData.alarmOut.chls"
-                                >
-                                    <el-table-column prop="label" />
-                                </el-table>
-                            </div>
-
+                            <AlarmBaseAlarmOutSelector v-model="formData.alarmOut" />
                             <!-- preset -->
-                            <div class="base-ai-linkage-box preset-box">
-                                <div class="base-ai-linkage-title">
-                                    {{ Translate('IDCS_TRIGGER_ALARM_PRESET') }}
-                                </div>
-                                <el-table
-                                    border
-                                    stripe
-                                    height="367"
-                                    :data="pageData.presetSource"
-                                >
-                                    <el-table-column
-                                        prop="name"
-                                        :label="Translate('IDCS_CHANNEL_NAME')"
-                                    />
-                                    <el-table-column :label="Translate('IDCS_PRESET_NAME')">
-                                        <template #default="scope">
-                                            <el-select
-                                                v-model="scope.row.preset.value"
-                                                :empty-values="[undefined, null]"
-                                                @visible-change="getPresetById(scope.row)"
-                                                @change="pageData.applyDisable = false"
-                                            >
-                                                <el-option
-                                                    v-for="item in scope.row.presetList"
-                                                    :key="item.value"
-                                                    :label="item.label"
-                                                    :value="item.value"
-                                                />
-                                            </el-select>
-                                        </template>
-                                    </el-table-column>
-                                </el-table>
-                            </div>
+                            <AlarmBasePresetSelector v-model="formData.preset" />
                         </div>
                         <div class="base-btn-box fixed">
                             <el-button
@@ -310,14 +189,3 @@
 </template>
 
 <script lang="ts" src="./Cdd.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/aiAndEvent.scss';
-</style>
-
-<style lang="scss" scoped>
-.table_item {
-    display: flex;
-    justify-content: flex-start;
-}
-</style>

@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-29 13:48:55
  * @Description: UI1-E 主题样式
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 16:28:37
  */
 
 #n9web {
@@ -17,26 +15,24 @@
 
     --img-authcodelogin-bg: none;
     --img-authcodelogin-mask: none;
-}
 
-#n9web {
-    --primary-light: #8CC1FF;
+    --primary-light: #8cc1ff;
     --primary: #50adff;
 
-    --main-text: #CCC;
+    --main-text: #ccc;
     --main-text-light: #8d8d8d;
-    --main-text-active: #fff; 
-    --main-bg: #333; 
-    --main-border: #666; 
+    --main-text-active: #fff;
+    --main-bg: #333;
+    --main-border: #666;
 
-    --content-border: #999; 
+    --content-border: #999;
 
-    --subheading-text: #fff;  
-    --subheading-bg: #7e7e7e; 
+    --subheading-text: #fff;
+    --subheading-bg: #7e7e7e;
 
     --header-bg: var(--main-bg);
     --header-text: var(--main-text);
-    --header-menu-text: #CCC; 
+    --header-menu-text: #ccc;
     --header-menu-text-hover: var(--primary-light);
     --header-menu-text-active: var(--primary);
     --header-menu-bg: transparent;
@@ -51,9 +47,9 @@
 
     --input-text: #000;
     --input-text-disabled: #545454;
-    --input-bg: #fff; 
-    --input-bg-disabled: #808080; 
-    --input-border: #888; 
+    --input-bg: #fff;
+    --input-bg-disabled: #808080;
+    --input-border: #888;
     --input-border-disabled: #888;
 
     --form-stripe: #666;
@@ -64,32 +60,32 @@
     --radio-btn-bg: transparent;
     --radio-btn-bg-hover: #406d96;
     --radio-btn-bg-active: var(--primary);
-    
+
     --upload-bg-text: #000;
     --upload-bg: #eee;
     --upload-bg-hover: #ddd;
 
     --slider-btn-border: #808080;
-    --slider-btn-border-disabled: #DCDCDC;
+    --slider-btn-border-disabled: #dcdcdc;
 
-    --btn-text: #ccc; 
+    --btn-text: #ccc;
     --btn-text-hover: var(--main-text-active);
-    --btn-text-disabled: #797979; 
-    --btn-bg: #666; 
-    --btn-bg-hover: var(--primary); 
-    --btn-bg-disabled: #444; 
-    --btn-border: #8f8f8f; 
-    --btn-border-hover: #406d96; 
-    --btn-border-disabled: #555; 
-    
+    --btn-text-disabled: #797979;
+    --btn-bg: #666;
+    --btn-bg-hover: var(--primary);
+    --btn-bg-disabled: #444;
+    --btn-border: #8f8f8f;
+    --btn-border-hover: #406d96;
+    --btn-border-disabled: #555;
+
     --table-text-disabled: #666;
     --table-border: #555;
     --table-bg: #333;
     --table-bg-hover: #406d96;
     --table-stripe: #444;
-    
+
     --table-thead-text: var(--main-text);
-    --table-thead-bg: #000000;
+    --table-thead-bg: #000;
     --table-thead-border: var(--table-border);
 
     --dialog-title: #ccc;
@@ -105,23 +101,23 @@
     --transfer-border: #999;
     --transfer-text: var(--main-text);
 
-    --config-menu-text: #fff; 
-    --config-menu-text-hover: #fff; 
+    --config-menu-text: #fff;
+    --config-menu-text-hover: #fff;
     --config-menu-text-active: var(--primary);
-    --config-menu-text-disabled: #D9D9D9;
+    --config-menu-text-disabled: #d9d9d9;
     --config-menu-bg: #404042;
-    --config-menu-bg-hover: #0066CC;
+    --config-menu-bg-hover: #06c;
     --config-menu-bg-active: unset;
     --config-menu-bg-disabled: unset;
-    --config-menu-border: #7F7F7F;
-    --config-menu-border-hover: #fff; 
+    --config-menu-border: #7f7f7f;
+    --config-menu-border-hover: #fff;
     --config-menu-border-disabled: #484848;
 
     --config-submenu-text: #ccc;
     --config-submenu-text-hover: #fff;
-    --config-submenu-text-disabled: #D9D9D9;
+    --config-submenu-text-disabled: #d9d9d9;
     --config-submenu-bg: unset;
-    
+
     --login-bg: #d4d4d4;
     --login-content-bg: #fff;
     --login-btn-text: #fff;
@@ -134,21 +130,21 @@
     --authcode-input-text-disabled: #454545;
     --authcode-input-bg-disabled: #ccc;
 
-    --config-aside-text: #ccc; 
+    --config-aside-text: #ccc;
     --config-aside-text-hover: #fff;
     --config-aside-text-active: #fff;
-    --config-aside-text-disabled: #D9D9D9;
-    --config-aside-bg: #404041; 
+    --config-aside-text-disabled: #d9d9d9;
+    --config-aside-bg: #404041;
     --config-aside-item-bg: #404041;
     --config-aside-item-bg-active: #7e7e7e;
 
-    --breadcrumb-text: #ccc; 
+    --breadcrumb-text: #ccc;
     --breadcrumb-bg: transparent;
 
     --ptz-btn: #f0f0f0;
     --ptz-btn-disabled: #fff;
 
-    --ai-linkbox-bg: #5E5E5E;
+    --ai-linkbox-bg: #5e5e5e;
     --ai-linkbox-border: #888;
     --ai-advance-bg: #333;
 
@@ -157,30 +153,30 @@
     --output-tab-btn-bg: transparent;
 
     --disk-group-text-active: var(--main-text);
-    --disk-group-bg-active: #AFE8FF;
+    --disk-group-bg-active: #afe8ff;
 
     --upgrade-text-active: #23de1a;
 
-    --panel-bg: #404042; 
-    --panel-header-bg: #404042; 
+    --panel-bg: #404042;
+    --panel-header-bg: #404042;
     --panel-header-text: #ccc;
     --panel-header-text-02: #ccc;
-    --panel-menu-bg: #2b2b2b; 
-    --panel-menu-bg-active: #515151; 
+    --panel-menu-bg: #2b2b2b;
+    --panel-menu-bg-active: #515151;
     --panel-btn-bg: #fff;
     --panel-btn-bg-disabled: #777;
 
     --panel-snap-border: black;
-    --panel-snap-history-border: #FFCC66;
-    --panel-snap-btn-bg: rgba(0,0,0,.5);
+    --panel-snap-history-border: #fc6;
+    --panel-snap-btn-bg: rgb(0 0 0 / 50%);
 
-    --panel-event-text: #D5D4D4;
+    --panel-event-text: #d5d4d4;
     --panel-event-bg: #454545;
     --panel-event-bg-hover: #76baf5;
     --panel-event-bg-active: #4ea7f6;
-    --panel-event-title-text: #D5D4D4;
+    --panel-event-title-text: #d5d4d4;
     --panel-event-title-bg: #999;
-    
+
     --tabbar-text: var(--header-menu-text);
     --tabbar-text-hover: var(--header-menu-text);
     --tabbar-text-active: #fff;
@@ -189,37 +185,37 @@
     --tabbar-bg-active: #4ea7f6;
 
     --sidebar-text: var(--header-menu-text);
-    --sidebar-text-hover: #fff; 
+    --sidebar-text-hover: #fff;
     --sidebar-text-active: var(--main-text-active);
     --sidebar-bg: transparent;
     --sidebar-bg-hover: #406d96;
     --sidebar-bg-active: var(--primary);
-    
-    --backup-snap-bg: #555; 
-    --backup-snap-border: #555; 
-    
-    --intel-snap-border: #000; 
+
+    --backup-snap-bg: #555;
+    --backup-snap-border: #555;
+
+    --intel-snap-border: #000;
 
     --parklog-label-text: #8d8d8d;
-    --parklog-bg: #000; 
-    --parklog-box-bg: #333; 
+    --parklog-bg: #000;
+    --parklog-box-bg: #333;
     --parklog-title-bg: #000;
 
-    --player-bg: #4c4c4b; 
-    --player-split-border: #343434; 
+    --player-bg: #4c4c4b;
+    --player-split-border: #343434;
 
     --calendar-bg: #222;
     --calendar-header-text: var(--main-text);
-    --calendar-header-bg: #222; 
-    --calendar-thead-bg: #222; 
-    --calendar-text-disabled: #666; 
-    --calendar-border: #7a7776; 
-    --calendar-bg-hover: #84a9d4; 
+    --calendar-header-bg: #222;
+    --calendar-thead-bg: #222;
+    --calendar-text-disabled: #666;
+    --calendar-border: #7a7776;
+    --calendar-bg-hover: #84a9d4;
     --calendar-bg-active: var(--primary);
     --calendar-bg-today: var(--primary-light);
-    
-    --loading-bg: rgba(255, 255, 255, 0.2);
-    
+
+    --loading-bg: rgb(255 255 255 / 20%);
+
     --color-online: green;
     --color-offline: red;
     --color-error: red;
@@ -242,27 +238,30 @@
     --timeline-pointer-02: #409eff;
     --timeline-pointer-time-02: #ddd;
     --timeline-moving-pointer-02: #ddd;
-    --timeline-moving-time-bg-02: rgba(255,255,255,.5);
+    --timeline-moving-time-bg-02: rgb(255 255 255 / 50%);
     --timeline-moving-time-text-02: #000;
-    --timeline-range-mask-02: rgba(78, 167, 246, .5);
+    --timeline-range-mask-02: rgb(78 167 246 / 50%);
 
-    --barchart-text: white; 
+    --barchart-text: white;
     --barchart-line: #ac7e7e;
     --barchart-item-01: #c94049;
     --barchart-item-02: #10df63;
 
     --schedule-form-text: #000;
     --schedule-form-bg: #ccc;
-    --schedule-form-btn: #6E83B3;
-    --schedule-btn: #6E83B3; 
+    --schedule-form-btn: #6e83b3;
+    --schedule-btn: #6e83b3;
     --schedule-scale: #ccc;
     --schedule-time-span-bg: #f2f2f3;
     --schedule-time-span-bg-active: #50adff;
     --schedule-time-span-bg-selection: #406d96;
 
     --float-ok: #006400;
-    --float-error: #ff0000;
+    --float-error: #f00;
 
     --qrcode-bg: #fff;
     --qrcode-label-bg: #8f8d8d;
+
+    --plugin-link-text: #327eee;
+    --plugin-link-text-hover: #4ea7f6;
 }

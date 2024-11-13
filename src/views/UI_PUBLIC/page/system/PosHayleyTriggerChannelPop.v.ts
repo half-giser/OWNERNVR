@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-02 17:13:17
  * @Description: POS联动通道设置（Hayley）
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 16:51:32
  */
 import { type SystemPosListChls } from '@/types/apiType/system'
 

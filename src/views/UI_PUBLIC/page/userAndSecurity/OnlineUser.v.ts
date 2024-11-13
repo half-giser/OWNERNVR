@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-18 18:42:30
  * @Description: 在线用户
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:33:17
  */
 import type { UserOnlineList } from '@/types/apiType/userAndSecurity'
 

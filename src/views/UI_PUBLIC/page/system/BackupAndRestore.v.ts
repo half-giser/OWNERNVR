@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-27 11:50:06
  * @Description: 备份与恢复
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-29 18:09:57
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import BaseInputEncryptPwdPop from '../../components/auth/BaseInputEncryptPwdPop.vue'
@@ -229,8 +227,8 @@ export default defineComponent({
             openLoading()
 
             const sendXml = rawXml`
-                <networkConfigSwitch>${String(exportFormData.value.isIncludeNetworkConfig)}</networkConfigSwitch>
-                <encryptionConfigSwitch>${String(exportFormData.value.isIncludeDataEncryptPwd)}</encryptionConfigSwitch>
+                <networkConfigSwitch>${exportFormData.value.isIncludeNetworkConfig}</networkConfigSwitch>
+                <encryptionConfigSwitch>${exportFormData.value.isIncludeDataEncryptPwd}</encryptionConfigSwitch>
                 <auth>
                     <userName>${userCheckAuthForm.userName}</userName>
                     <password>${userCheckAuthForm.hexHash}</password>

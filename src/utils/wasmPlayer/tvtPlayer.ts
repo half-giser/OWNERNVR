@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-05 14:16:36
  * @Description: 集成wasm-player和多分屏功能
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-21 11:01:52
  */
 
 import WasmPlayer, { type WasmPlayerVideoFrame } from './wasmPlayer'

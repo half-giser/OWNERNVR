@@ -2,8 +2,6 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-07-31 16:36:16
  * @Description: 排程管理弹框
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-22 19:55:18
 -->
 <template>
     <el-dialog
@@ -113,12 +111,14 @@
         float: left;
         color: var(--subheading-text);
     }
+
     .Sprite {
         float: right;
-        margin: 5px 10px 0px 0px;
+        margin: 5px 10px 0 0;
         cursor: pointer;
     }
 }
+
 #n9web .el-row {
     align-items: start;
     justify-content: space-between;

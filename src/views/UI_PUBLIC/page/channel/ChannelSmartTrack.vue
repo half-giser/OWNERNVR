@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-20 13:58:22
  * @Description: 云台-智能追踪
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 18:27:20
 -->
 <template>
     <div class="base-chl-box">
@@ -166,10 +164,6 @@
 </template>
 
 <script lang="ts" src="./ChannelSmartTrack.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/channel.scss';
-</style>
 
 <style lang="scss" scoped>
 .time {

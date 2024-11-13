@@ -3,7 +3,7 @@
  * @Date: 2024-06-27 11:55:36
  * @Description: 通道 - 图像参数配置
  */
-import { ChannelImage, ChannelLensCtrl, type ChannelScheduleInfo } from '@/types/apiType/channel'
+import { ChannelImageDto, ChannelLensCtrlDto, type ChannelScheduleInfoDto } from '@/types/apiType/channel'
 import { type TableInstance } from 'element-plus'
 import { cloneDeep } from 'lodash-es'
 
@@ -17,14 +17,14 @@ export default defineComponent({
         const osType = getSystemInfo().platform
 
         const playerRef = ref<PlayerInstance>()
-        const formData = ref(new ChannelImage())
+        const formData = ref(new ChannelImageDto())
         const tableRef = ref<TableInstance>()
-        const tableData = ref<ChannelImage[]>([])
+        const tableData = ref<ChannelImageDto[]>([])
         const pageIndex = ref(1)
         const pageSize = ref(10)
         const pageTotal = ref(0)
         const selectedChlId = ref('')
-        const scheduleLine = ref()
+        const scheduleLine = ref<ScheduleLineInstance>()
         const tipMsg = ref('')
         const tipImgIndex = ref(0)
         const tipVisiable = ref(false)
@@ -33,9 +33,12 @@ export default defineComponent({
         const defaultRadioVal = false
         const defaultFocusMode = 'auto'
         const chlNameMaxLen = 40 // 通道名最大长度
+        const floatErrorTo = ref('#divTip')
+        const floatErrorMessage = ref('')
+        const floatErrorType = ref('ok')
 
         const timeMode = ref(24)
-        let beforeEditData: ChannelImage
+        let beforeEditData: ChannelImageDto
 
         let tmpShutterUpLimit: string | undefined
         let tmpShutterLowLimit: string | undefined
@@ -43,13 +46,12 @@ export default defineComponent({
         let tmpNightTime = ''
         let curAzChlId = ''
 
-        const baseFloatErrorRef = ref()
-
         const tabKeys = {
             imageAdjust: 'imageAdjust',
             scheduleCtrl: 'scheduleCtrl',
             sceneCtrl: 'sceneCtrl',
         }
+
         const tabs = [
             {
                 key: tabKeys.imageAdjust,
@@ -168,6 +170,12 @@ export default defineComponent({
         const isSupportH5 = computed(() => {
             return Plugin.IsSupportH5()
         })
+
+        const showFloatError = (to: string, message: string, type = 'error') => {
+            floatErrorMessage.value = message
+            floatErrorTo.value = to
+            floatErrorType.value = type
+        }
 
         const handleSizeChange = (val: number) => {
             pageSize.value = val
@@ -301,7 +309,7 @@ export default defineComponent({
             event.target.blur()
         }
 
-        const handleExpandChange = (row: ChannelImage, expandedRows: ChannelImage[]) => {
+        const handleExpandChange = (row: ChannelImageDto, expandedRows: ChannelImageDto[]) => {
             if (!row.disabled) {
                 selectedChlId.value = row.id
                 tmpShutterUpLimit = row.shutterUpLimit
@@ -335,7 +343,7 @@ export default defineComponent({
             }
         }
 
-        const handleRowClick = (rowData: ChannelImage) => {
+        const handleRowClick = (rowData: ChannelImageDto) => {
             if (!rowData.disabled) {
                 selectedChlId.value = rowData.id
                 formData.value = cloneDeep(rowData)
@@ -415,28 +423,28 @@ export default defineComponent({
             if (rowData.sharpenValue !== undefined)
                 data += rawXml`
                     <sharpen>
-                        <switch>${Boolean(rowData.sharpenSwitch).toString()}</switch>
-                        <value>${rowData.sharpenValue.toString()}</value>
+                        <switch>${Boolean(rowData.sharpenSwitch)}</switch>
+                        <value>${rowData.sharpenValue}</value>
                     </sharpen>`
             if (rowData.denoiseValue !== undefined)
                 data += rawXml`
                     <denoise>
-                        <switch>${Boolean(rowData.denoiseSwitch).toString()}</switch>
-                        <value>${rowData.denoiseValue.toString()}</value>
+                        <switch>${Boolean(rowData.denoiseSwitch)}</switch>
+                        <value>${rowData.denoiseValue}</value>
                     </denoise>`
             if (rowData.WDRSwitch !== undefined)
                 data += rawXml`
                     <WDR>
-                        <switch>${rowData.WDRSwitch.toString()}</switch>
-                        <value>${Number(rowData.WDRValue).toString()}</value>
+                        <switch>${rowData.WDRSwitch}</switch>
+                        <value>${Number(rowData.WDRValue)}</value>
                     </WDR>`
             if (rowData.imageValue !== undefined) data += `<imageShift>${rowData.imageValue}</imageShift>`
             if (rowData.whiteBalanceMode !== undefined)
                 data += rawXml`
                     <whiteBalance>
                         <mode>${rowData.whiteBalanceMode}</mode>
-                        <red>${Number(rowData.redValue).toString()}</red>
-                        <blue>${Number(rowData.blueValue).toString()}</blue>
+                        <red>${Number(rowData.redValue)}</red>
+                        <blue>${Number(rowData.blueValue)}</blue>
                     </whiteBalance>`
             if (rowData.mirrorSwitch !== undefined) data += `<mirrorSwitch>${rowData.mirrorSwitch}</mirrorSwitch>`
             if (rowData.flipSwitch !== undefined) data += `<flipSwitch>${rowData.flipSwitch}</flipSwitch>`
@@ -459,31 +467,31 @@ export default defineComponent({
                 data += rawXml`
                     <smartIr>
                         <mode>${rowData.smartIrMode}</mode>
-                        <lightLevel_1>${Number(rowData.lightLevelValue).toString()}</lightLevel_1>
+                        <lightLevel_1>${Number(rowData.lightLevelValue)}</lightLevel_1>
                     </smartIr>`
             if (rowData.smartIrSwitch !== undefined)
                 data += rawXml`
                     <smartIR>
-                        <switch type='boolean' default='false'>${rowData.smartIrSwitch.toString()}</switch>
+                        <switch type='boolean' default='false'>${rowData.smartIrSwitch}</switch>
                         <level>${rowData.smartIrLevel || ''}</level>
                     </smartIR>`
             if (rowData.defogSwitch !== undefined)
                 data += rawXml`
                     <fogReduction>
-                        <switch>${rowData.defogSwitch.toString()}</switch>
-                        <value>${Number(rowData.defogValue).toString()}</value>
+                        <switch>${rowData.defogSwitch}</switch>
+                        <value>${Number(rowData.defogValue)}</value>
                     </fogReduction>`
             if (rowData.antiflicker !== undefined) data += `<antiflicker>${rowData.antiflicker}</antiflicker>`
             if (rowData.exposureMode !== undefined)
                 data += rawXml`
                     <autoExposureMode>
                         <mode>${rowData.exposureMode}</mode>
-                        <value>${Number(rowData.exposureModeValue).toString()}</value>
+                        <value>${Number(rowData.exposureModeValue)}</value>
                     </autoExposureMode>
                     <gain>
                         <mode>${rowData.gainMode || ''}</mode>
-                        <value>${Number(rowData.gainValue).toString()}</value>
-                        <AGC>${Number(rowData.gainAGC).toString()}</AGC>
+                        <value>${Number(rowData.gainValue)}</value>
+                        <AGC>${Number(rowData.gainAGC)}</AGC>
                     </gain>`
             if (rowData.delayTimeValue !== undefined) data += `<IRCutDelayTime>${rowData.delayTimeValue}</IRCutDelayTime>`
             if (rowData.InfraredMode !== undefined) data += `<InfraredMode>${rowData.InfraredMode}</InfraredMode>`
@@ -499,7 +507,7 @@ export default defineComponent({
                 data += rawXml`
                     <Whitelight>
                         <WhitelightMode type='WhitelightMode' default='off'>${rowData.whitelightMode}</WhitelightMode>
-                        <WhitelightStrength type="uint32" min="1" max="100" default="50">${Number(rowData.whitelightStrength).toString()}</WhitelightStrength>
+                        <WhitelightStrength type="uint32" min="1" max="100" default="50">${Number(rowData.whitelightStrength)}</WhitelightStrength>
                         <WhitelightOnTime type="string" default="00:00">${rowData.whitelightOnTime || ''}</WhitelightOnTime>
                         <WhitelightOffTime type="string" default="23:59">${rowData.whitelightOffTime || ''}</WhitelightOffTime>
                     </Whitelight>`
@@ -514,7 +522,7 @@ export default defineComponent({
             editChlVideoParam(data).then((res) => {
                 const $ = queryXml(res)
                 if ($('status').text() === 'success') {
-                    baseFloatErrorRef.value.show('#divTip', Translate('IDCS_SAVE_DATA_SUCCESS'), 'ok')
+                    showFloatError('#divTip', Translate('IDCS_SAVE_DATA_SUCCESS'), 'ok')
                 } else {
                     const rebootParam = $('rebootParam').text()
                     if (rebootParam) {
@@ -526,7 +534,7 @@ export default defineComponent({
                         let msg = Translate('IDCS_SAVE_DATA_FAIL')
                         if (errorCode == ErrorCode.USER_ERROR_NODE_NET_OFFLINE || errorCode == ErrorCode.USER_ERROR_GET_CONFIG_INFO_FAIL)
                             msg = Translate('IDCS_IP_CHANNEL_OFFLINE').formatForLang(rowData.name)
-                        baseFloatErrorRef.value.show('#divTip', msg)
+                        showFloatError('#divTip', msg)
                     }
                 }
             })
@@ -550,12 +558,12 @@ export default defineComponent({
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
                     getHallwayChlIds((chlIds: string[]) => {
-                        const rowData: ChannelImage[] = []
+                        const rowData: ChannelImageDto[] = []
                         $('content/item').forEach((ele) => {
                             const eleXml = queryXml(ele.element)
                             const chlId = ele.attr('id')!,
                                 isSupportHallway = chlIds.includes(chlId)
-                            const newData = new ChannelImage()
+                            const newData = new ChannelImageDto()
                             newData.id = chlId
                             newData.name = eleXml('name').text()
                             newData.chlType = eleXml('chlType').text()
@@ -612,7 +620,7 @@ export default defineComponent({
             })
         }
 
-        let tmpScheduleInfoList: ChannelScheduleInfo[] = []
+        let tmpScheduleInfoList: ChannelScheduleInfoDto[] = []
         const getData = (chlId: string, needSchedule: boolean, cfgFile: string | boolean | undefined, callback?: Function) => {
             const data = rawXml`
                 <condition>
@@ -919,14 +927,14 @@ export default defineComponent({
          * @param rowData
          * @param noRebootPrompt 是否需要重启提示判断（默认需要）
          */
-        const setData = (rowData: ChannelImage, noRebootPrompt = false) => {
+        const setData = (rowData: ChannelImageDto, noRebootPrompt = false) => {
             const data = rawXml`
                 <content>
                     ${
                         rowData.paletteCode
                             ? rawXml`
                                     <chl id='${rowData.id}'>
-                                        <rebootPrompt>${Boolean(!noRebootPrompt).toString()}</rebootPrompt>
+                                        <rebootPrompt>${Boolean(!noRebootPrompt)}</rebootPrompt>
                                         <palette>
                                             <color type='paletteType'>${rowData.paletteCode}</color>
                                         </palette>
@@ -934,12 +942,12 @@ export default defineComponent({
                                 `
                             : rawXml`
                                     <chl id='${rowData.id}'>
-                                        <rebootPrompt>${Boolean(!noRebootPrompt).toString()}</rebootPrompt>
+                                        <rebootPrompt>${Boolean(!noRebootPrompt)}</rebootPrompt>
                                         <cfgFile>${rowData.cfgFile || ''}</cfgFile>
-                                        <bright>${rowData.bright ? rowData.bright.toString() : ''}</bright>
-                                        <contrast>${rowData.contrast ? rowData.contrast.toString() : ''}</contrast>
-                                        <hue>${rowData.hue ? rowData.hue.toString() : ''}</hue>
-                                        <saturation>${rowData.saturation ? rowData.saturation.toString() : ''}</saturation>
+                                        <bright>${rowData.bright ? rowData.bright : ''}</bright>
+                                        <contrast>${rowData.contrast ? rowData.contrast : ''}</contrast>
+                                        <hue>${rowData.hue ? rowData.hue : ''}</hue>
+                                        <saturation>${rowData.saturation ? rowData.saturation : ''}</saturation>
                                     </chl>
                                 `
                     }
@@ -950,7 +958,7 @@ export default defineComponent({
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() == 'success') {
-                    baseFloatErrorRef.value.show('#divTip', Translate('IDCS_SAVE_DATA_SUCCESS'), 'ok')
+                    showFloatError('#divTip', Translate('IDCS_SAVE_DATA_SUCCESS'), 'ok')
                 } else {
                     const rebootParam = $('rebootParam').text()
                     if (rebootParam) {
@@ -964,7 +972,7 @@ export default defineComponent({
                             // 通道离线（节点不存在）
                             msg += Translate('IDCS_IP_CHANNEL_OFFLINE').formatForLang(rowData.name)
                         }
-                        baseFloatErrorRef.value.show('#divTip', msg)
+                        showFloatError('#divTip', msg)
                     }
                 }
             })
@@ -1003,12 +1011,12 @@ export default defineComponent({
         // }
 
         const getRowById = (chlId: string) => {
-            return tableData.value.find((ele) => ele.id == chlId) as ChannelImage
+            return tableData.value.find((ele) => ele.id == chlId) as ChannelImageDto
         }
 
         //镜头操作
-        let azList: ChannelLensCtrl[] = []
-        const curLensCtrl = ref(new ChannelLensCtrl())
+        let azList: ChannelLensCtrlDto[] = []
+        const curLensCtrl = ref(new ChannelLensCtrlDto())
         const getSupportAz = (chlId: string) => {
             const index = tableData.value.indexOf(getRowById(chlId))
             if (azList[index]) {
@@ -1022,7 +1030,7 @@ export default defineComponent({
             `
             queryCameraLensCtrlParam(data).then((res) => {
                 const $ = queryXml(res)
-                const newData = new ChannelLensCtrl()
+                const newData = new ChannelLensCtrlDto()
                 newData.id = chlId
                 if ($('status').text() == 'fail' || $('content').text() == '') {
                     newData.supportAz = false
@@ -1131,7 +1139,7 @@ export default defineComponent({
                 <content>
                     <chl id='${curLensCtrl.value.id}'>
                         <focusType type="focusType">${curLensCtrl.value.focusType}</focusType>
-                        <IrchangeFocus>${curLensCtrl.value.IrchangeFocus.toString()}</IrchangeFocus>
+                        <IrchangeFocus>${curLensCtrl.value.IrchangeFocus}</IrchangeFocus>
                         <timeInterval>${curLensCtrl.value.focusType == 'manual' ? '0' : curLensCtrl.value.timeInterval}</timeInterval>
                     </chl>
                 </content>`
@@ -1139,13 +1147,13 @@ export default defineComponent({
                 .then((res) => {
                     const $ = queryXml(res)
                     if ($('status').text() === 'success' || $('errorCode').text() === '0') {
-                        baseFloatErrorRef.value.show('#divLensTip', Translate('IDCS_SAVE_DATA_SUCCESS'), 'ok')
+                        showFloatError('#divLensTip', Translate('IDCS_SAVE_DATA_SUCCESS'), 'ok')
                     } else {
-                        baseFloatErrorRef.value.show('#divLensTip', Translate('IDCS_SAVE_DATA_FAIL'))
+                        showFloatError('#divLensTip', Translate('IDCS_SAVE_DATA_FAIL'))
                     }
                 })
                 .catch(() => {
-                    baseFloatErrorRef.value.show('#divLensTip', Translate('IDCS_SAVE_DATA_FAIL'))
+                    showFloatError('#divLensTip', Translate('IDCS_SAVE_DATA_FAIL'))
                 })
         }
 
@@ -1158,7 +1166,7 @@ export default defineComponent({
             }
         }
 
-        const handleProgramChange = (rowData: ChannelImage) => {
+        const handleProgramChange = (rowData: ChannelImageDto) => {
             if (rowData.scheduleInfo.program == 'auto') return
             rowData.cfgFile = rowData.scheduleInfo.program
             getData(rowData.id, false, rowData.cfgFile, () => {})
@@ -1179,7 +1187,7 @@ export default defineComponent({
                 tmpNightTime = rowData.scheduleInfo.nightTime
                 // todo
             }
-            scheduleLine.value.resetValue([[rowData.scheduleInfo.dayTime, rowData.scheduleInfo.nightTime]])
+            scheduleLine.value!.resetValue([[rowData.scheduleInfo.dayTime, rowData.scheduleInfo.nightTime]])
         }
 
         /**
@@ -1208,7 +1216,7 @@ export default defineComponent({
         const setSecheduleLineData = () => {
             const rowData = getRowById(selectedChlId.value)
             if (rowData.scheduleInfo.dayTime && rowData.scheduleInfo.nightTime) {
-                scheduleLine.value.resetValue([[rowData.scheduleInfo.dayTime, rowData.scheduleInfo.nightTime]])
+                scheduleLine.value!.resetValue([[rowData.scheduleInfo.dayTime, rowData.scheduleInfo.nightTime]])
             }
         }
 
@@ -1322,7 +1330,6 @@ export default defineComponent({
             SensortyMap,
             antiFlickerMap,
             infraredModeMap,
-            baseFloatErrorRef,
             timeMode,
             scheduleLine,
             handleSizeChange,
@@ -1348,6 +1355,9 @@ export default defineComponent({
             handleIRCutModeChange,
             setAZData,
             onReady,
+            floatErrorTo,
+            floatErrorMessage,
+            floatErrorType,
         }
     },
 })

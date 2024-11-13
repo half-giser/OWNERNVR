@@ -35,7 +35,7 @@ export default defineComponent({
         const rules = ref<FormRules>({
             password: [
                 {
-                    validator: (_rule, value, callback) => {
+                    validator: (_rule, value: string, callback) => {
                         if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
@@ -47,8 +47,8 @@ export default defineComponent({
             ],
             confirmPassword: [
                 {
-                    validator: (_rule, value, callback) => {
-                        if (formData.value.password != value) {
+                    validator: (_rule, value: string, callback) => {
+                        if (formData.value.password !== value) {
                             callback(new Error(Translate('IDCS_PWD_MISMATCH_TIPS')))
                             return
                         }

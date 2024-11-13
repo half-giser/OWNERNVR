@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-30 11:57:52
  * @Description: 智能分析 - 选择人脸 - 从抓拍库选择
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 09:29:56
 -->
 <template>
     <div class="snap">

@@ -2,11 +2,10 @@
  * @Description: 录像——录像子码流
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-07-31 10:13:57
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 16:43:15
  */
 
 import { type ResolutionRow, type RecordSubStreamList, type rowNonExistent, type RecordSubStreamQualityCaps } from '@/types/apiType/record'
+import { type TableInstance } from 'element-plus'
 import { uniq } from 'lodash-es'
 
 export default defineComponent({
@@ -21,8 +20,7 @@ export default defineComponent({
         let mainStreamLimitFps = 1 // 主码流帧率限制
         let poeModeNode = ''
 
-        const dropdownRef = ref()
-        const resolutionTableRef = ref()
+        const resolutionTableRef = ref<TableInstance>()
 
         const pageData = ref({
             isRowDisabled: [] as boolean[],
@@ -437,20 +435,28 @@ export default defineComponent({
         }
 
         const setRecSubStreamData = async () => {
-            let sendXML = rawXml`<content type='list' total='${String(tableData.value.length)}'>`
-            tableData.value.forEach((item, index) => {
-                if (!pageData.value.isRowDisabled[index]) {
-                    if (item.streamLength == 3) {
-                        sendXML += `<item id='${item.id}'><subRec res='${item.resolution}' fps='${item.frameRate}' QoI='${item.videoQuality}' bitType ='${item.bitType || 'CBR'}' level='${item.level}' enct='${item.videoEncodeType}'></subRec>`
-                        sendXML += '</item>'
-                    } else {
-                        sendXML += `<item id='${item.id}'><sub res='${item.resolution}' fps='${item.frameRate}' QoI='${item.videoQuality}' bitType ='${item.bitType || 'CBR'}' level='${item.level}' enct='${item.videoEncodeType}'></sub>`
-                        sendXML += '</item>'
-                    }
-                }
-            })
-            sendXML += '</content>'
-
+            const sendXML = rawXml`
+                <content type='list' total='${tableData.value.length}'>
+                    ${tableData.value
+                        .map((item, index) => {
+                            if (!pageData.value.isRowDisabled[index]) {
+                                if (item.streamLength == 3) {
+                                    return rawXml`
+                                    <item id='${item.id}'>
+                                        <subRec res='${item.resolution}' fps='${item.frameRate}' QoI='${item.videoQuality}' bitType ='${item.bitType || 'CBR'}' level='${item.level}' enct='${item.videoEncodeType}'></subRec>
+                                    </item>`
+                                } else {
+                                    return rawXml`
+                                    <item id='${item.id}'>
+                                        <sub res='${item.resolution}' fps='${item.frameRate}' QoI='${item.videoQuality}' bitType ='${item.bitType || 'CBR'}' level='${item.level}' enct='${item.videoEncodeType}'></sub>
+                                    </item>
+                                `
+                                }
+                            }
+                        })
+                        .join('')}
+                </content>
+            `
             const result = await editNodeEncodeInfo(sendXML)
             commSaveResponseHadler(result)
         }
@@ -693,7 +699,6 @@ export default defineComponent({
         })
 
         return {
-            dropdownRef,
             resolutionTableRef,
             STREAM_TYPE_MAPPING,
             RecordSubResAdaptive,

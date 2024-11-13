@@ -2,8 +2,6 @@
  * @Description: 录像——参数配置
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-02 16:12:12
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-31 14:32:51
  */
 
 import { cloneDeep } from 'lodash-es'
@@ -224,7 +222,7 @@ export default defineComponent({
                 </types>
                 <content>
                     <doubleStreamRecSwitch>${pageData.value.doubleStreamRecSwitch}</doubleStreamRecSwitch>
-                    <loopRecSwitch>${String(pageData.value.chkLoopRec)}</loopRecSwitch>
+                    <loopRecSwitch>${pageData.value.chkLoopRec}</loopRecSwitch>
                     <chlParam>
                         ${tableData.value
                             .map((item) => {
@@ -248,7 +246,7 @@ export default defineComponent({
 
         const setChlRecData = async (changeList: ChlRecParamList[]) => {
             const sendXml = rawXml`
-                <content type='list' total='${String(changeList.length)}'>
+                <content type='list' total='${changeList.length}'>
                     ${changeList
                         .map((item) => {
                             return rawXml`

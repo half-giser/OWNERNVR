@@ -6,17 +6,36 @@
 
 import http from './api'
 
-// 获取排程列表
+/**
+ * @description 获取排程列表
+ * @returns
+ */
 export const queryScheduleList = () => http.fetch('queryScheduleList', getXmlWrapData(''))
 
-// 获取排程详情
+/**
+ * @description 获取排程详情
+ * @param {string} data
+ * @returns
+ */
 export const querySchedule = (data: string) => http.fetch('querySchedule', getXmlWrapData(data))
 
-// 创建排程
+/**
+ * @description 创建排程
+ * @param {string} data
+ * @returns
+ */
 export const createSchedule = (data: string) => http.fetch('createSchedule', getXmlWrapData(data))
 
-// 编辑排程
+/**
+ * @description 编辑排程
+ * @param {string} data
+ * @returns
+ */
 export const editSchedule = (data: string) => http.fetch('editSchedule', getXmlWrapData(data))
 
-// 删除排程
+/**
+ * @description 删除排程
+ * @param {string} data
+ * @returns
+ */
 export const delSchedule = (data: string) => http.fetch('delSchedule', getXmlWrapData(data))

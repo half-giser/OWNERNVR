@@ -2,8 +2,6 @@
  * @Description: 普通事件——组合报警——人脸识别edit弹窗
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-26 16:18:39
- * @LastEditors: luoyiming luoyiming@tvt.net.cn
- * @LastEditTime: 2024-10-28 10:41:23
 -->
 <template>
     <el-dialog
@@ -108,7 +106,7 @@
     </el-dialog>
 </template>
 
-<script lang="ts" src="./FaceMatchPop.v.ts"></script>
+<script lang="ts" src="./CombinationAlarmFaceMatchPop.v.ts"></script>
 
 <style lang="scss" scoped>
 .box {

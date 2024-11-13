@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-22 16:45:40
  * @Description: 现场预览-目标检测视图-渲染单个抓拍元素组件
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-24 09:41:15
 -->
 <template>
     <div

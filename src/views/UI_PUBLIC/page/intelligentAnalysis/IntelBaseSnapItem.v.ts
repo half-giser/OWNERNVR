@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-06 17:34:44
  * @Description: 智能分析 - 抓拍选项框
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-11 16:56:58
  */
 
 import type { CheckboxValueType } from 'element-plus'
@@ -75,7 +73,7 @@ export default defineComponent({
             return true
         },
     },
-    setup(prop, ctx) {
+    setup(_prop, ctx) {
         /**
          * @description 选中/取消选中
          * @param {boolean} e

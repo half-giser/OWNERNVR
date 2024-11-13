@@ -2,8 +2,6 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-07-31 16:36:16
  * @Description: 排程编辑弹框
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-01 18:02:48
 -->
 <template>
     <el-dialog
@@ -161,7 +159,7 @@
 }
 
 #n9web .el-form .el-form-item {
-    padding: 3px 0px 0px 0px;
+    padding: 3px 0 0;
 }
 
 .btn-panel {

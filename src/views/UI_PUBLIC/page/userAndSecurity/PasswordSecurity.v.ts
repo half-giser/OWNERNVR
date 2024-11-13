@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-18 18:40:47
  * @Description: 密码安全
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:33:27
  */
 import { UserPasswordSecurityForm } from '@/types/apiType/userAndSecurity'
 

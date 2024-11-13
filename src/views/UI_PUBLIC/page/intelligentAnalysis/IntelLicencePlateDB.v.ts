@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-02 14:01:05
  * @Description: 车牌库
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 17:58:39
  */
 import { type TableInstance } from 'element-plus'
 import { IntelPlateDBGroupList, IntelPlateDBPlateInfo } from '@/types/apiType/intelligentAnalysis'
@@ -356,8 +354,8 @@ export default defineComponent({
             groupTableData.value = []
 
             const sendXml = rawXml`
-                <pageIndex>${pageIndex.toString()}</pageIndex>
-                <pageSize>${formData.value.pageSize.toString()}</pageSize>
+                <pageIndex>${pageIndex}</pageIndex>
+                <pageSize>${formData.value.pageSize}</pageSize>
                 <condition>
                     <groupId>${groupId}</groupId>
                     ${ternary(!!formData.value.name, `<plateInfoKeyword>${wrapCDATA(formData.value.name)}</plateInfoKeyword>`)}

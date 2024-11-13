@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-19 18:11:35
  * @Description: P2P语言模块
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:35:56
  */
 export const useP2PLang = () => {
     type LanguageResultItem = {

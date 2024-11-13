@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-24 14:37:52
  * @Description: UI2-A客制化 登录
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-26 14:52:08
 -->
 <template>
     <div class="login">
@@ -109,7 +107,8 @@
     flex-direction: column;
     border-bottom: 3px solid var(--primary);
     position: relative;
-    &:after {
+
+    &::after {
         content: '';
         width: 62%;
         position: absolute;
@@ -152,9 +151,9 @@
         }
 
         :deep(.el-form-item) {
-            margin: 0 0px 0px 428px;
+            margin: 0 0 0 428px;
             font-size: 16px;
-            padding: 0 0 28px 0;
+            padding: 0 0 28px;
 
             &:last-child {
                 padding-bottom: 0;

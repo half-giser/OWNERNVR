@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-05 19:35:04
  * @Description: 智能分析 属性选择器
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-31 19:43:58
 -->
 <template>
     <div>
@@ -89,10 +87,6 @@
 
 <script lang="ts" src="./IntelBaseProfileSelector.v.ts"></script>
 
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/intelligentAnalysis.scss';
-</style>
-
 <style lang="scss" scoped>
 .title {
     font-size: 18px;
@@ -123,7 +117,8 @@
     width: 200px;
     flex-shrink: 0;
     line-height: 40px;
-    &:after {
+
+    &::after {
         content: ' : ';
     }
 }

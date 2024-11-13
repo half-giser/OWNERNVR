@@ -2,10 +2,8 @@
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 11:05:51
  * @Description: 报警输出
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 17:42:14
  */
-import { AlarmOut } from '@/types/apiType/aiAndEvent'
+import { AlarmOutDto } from '@/types/apiType/aiAndEvent'
 import { cloneDeep } from 'lodash-es'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 
@@ -37,9 +35,9 @@ export default defineComponent({
         })
 
         // 表格数据
-        const tableData = ref<AlarmOut[]>([])
+        const tableData = ref<AlarmOutDto[]>([])
         // 缓存表格初始数据，保存时对比变化了的行
-        let tableDataInit = [] as AlarmOut[]
+        let tableDataInit = [] as AlarmOutDto[]
         // 名称被修改时保存原始名称
         const originalName = ref('')
         // 当前告警输出的常开/常闭类型
@@ -81,7 +79,7 @@ export default defineComponent({
                 const $chl = queryXml(result)
                 pageData.value.totalCount = Number($chl('//content').attr('total'))
                 $chl('//content/item').forEach(async (item) => {
-                    const row = new AlarmOut()
+                    const row = new AlarmOutDto()
                     row.id = item.attr('id')!
                     row.name = xmlParse('./name', item.element).text()
                     row.status = 'loading'
@@ -175,7 +173,7 @@ export default defineComponent({
             }
         }
 
-        const changeSchedule = (row: AlarmOut) => {
+        const changeSchedule = (row: AlarmOutDto) => {
             if (row.scheduleId == 'scheduleMgr') {
                 pageData.value.scheduleManagePopOpen = true
                 row.scheduleId = row.oldSchedule
@@ -209,7 +207,7 @@ export default defineComponent({
         }
 
         // 失去焦点时检查名称是否合法
-        const nameBlur = (row: AlarmOut) => {
+        const nameBlur = (row: AlarmOutDto) => {
             const name = row.name
             if (!checkChlName(name)) {
                 openMessageBox({
@@ -288,16 +286,16 @@ export default defineComponent({
         const setData = () => {
             const diffRows = getArrayDiffRows(tableData.value, tableDataInit, ['name', 'delayTime', 'scheduleId'])
 
-            if (diffRows.length > 0) {
+            if (diffRows.length) {
                 let completeCount = 0
                 openLoading()
                 diffRows.forEach(async (row) => {
-                    const rowItem = row as AlarmOut
+                    const rowItem = row as AlarmOutDto
                     const sendXml = rawXml`
                         <content>
                             <id>${rowItem.id}</id>
                             <name><![CDATA[${rowItem.name}]]></name>
-                            <delayTime unit='s'>${rowItem.delayTime.toString()}</delayTime>
+                            <delayTime unit='s'>${rowItem.delayTime}</delayTime>
                             <schedule id='${rowItem.scheduleId}'></schedule>
                         </content>
                     `
@@ -322,6 +320,10 @@ export default defineComponent({
             }
         }
 
+        const displaySerialNum = (row: AlarmOutDto) => {
+            return `${row.devDesc ? row.devDesc : Translate('IDCS_LOCAL')}-${row.index}`
+        }
+
         return {
             ScheduleManagPop,
             pageData,
@@ -338,6 +340,7 @@ export default defineComponent({
             changeSchedule,
             changeType,
             setData,
+            displaySerialNum,
         }
     },
 })

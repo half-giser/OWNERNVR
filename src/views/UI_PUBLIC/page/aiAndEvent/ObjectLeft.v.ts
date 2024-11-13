@@ -2,19 +2,24 @@
  * @Description: AI 事件——更多——物品遗留与看护
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-18 09:43:49
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 16:21:37
  */
-import { cloneDeep } from 'lodash-es'
-import { type BoundaryItem, ObjectLeft, type PresetList, type chlCaps } from '@/types/apiType/aiAndEvent'
+import { type AlarmObjectLeftBoundaryDto, AlarmObjectLeftDto, type AlarmChlDto } from '@/types/apiType/aiAndEvent'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
-import { type TabPaneName, type CheckboxValueType } from 'element-plus'
+import { type TabPaneName } from 'element-plus'
 import CanvasPolygon from '@/utils/canvas/canvasPolygon'
 import { type XmlResult } from '@/utils/xmlParse'
+import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
+import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
+import AlarmBaseTriggerSelector from './AlarmBaseTriggerSelector.vue'
+import AlarmBasePresetSelector from './AlarmBasePresetSelector.vue'
 
 export default defineComponent({
     components: {
         ScheduleManagPop,
+        AlarmBaseRecordSelector,
+        AlarmBaseAlarmOutSelector,
+        AlarmBaseTriggerSelector,
+        AlarmBasePresetSelector,
     },
     props: {
         /**
@@ -24,10 +29,16 @@ export default defineComponent({
             type: String,
             required: true,
         },
+        /**
+         * @property {AlarmChlDto} 通道数据
+         */
         chlData: {
-            type: Object as PropType<chlCaps>,
+            type: Object as PropType<AlarmChlDto>,
             required: true,
         },
+        /**
+         * @property {Array} 声音选项
+         */
         voiceList: {
             type: Array as PropType<SelectOption<string, string>[]>,
             required: true,
@@ -44,7 +55,7 @@ export default defineComponent({
         // 系统配置
         const supportAlarmAudioConfig = systemCaps.supportAlarmAudioConfig
         // 温度检测数据
-        const objectLeftData = ref(new ObjectLeft())
+        const objectLeftData = ref(new AlarmObjectLeftDto())
 
         // 播放器
         const playerRef = ref<PlayerInstance>()
@@ -53,21 +64,6 @@ export default defineComponent({
             abandum: Translate('IDCS_LEAVE_BEHIND'),
             objstolen: Translate('IDCS_ARTICLE_LOSE'),
         }
-
-        // 常规联动
-        const normalParamCheckAll = ref(false)
-        const normalParamCheckList = ref([] as string[])
-        // 常规联动多选数据项
-        const normalParamList = ref([
-            { value: 'catchSnapSwitch', label: Translate('IDCS_SNAP') },
-            { value: 'msgPushSwitch', label: Translate('IDCS_PUSH') },
-            { value: 'buzzerSwitch', label: Translate('IDCS_BUZZER') },
-            { value: 'popVideoSwitch', label: Translate('IDCS_VIDEO_POPUP') },
-            { value: 'emailSwitch', label: Translate('IDCS_EMAIL') },
-        ])
-        // 联动预置点
-        const MAX_TRIGGER_PRESET_COUNT = 16
-        const PresetTableData = ref<PresetList[]>([])
 
         const closeTip = getAlarmEventList()
 
@@ -87,28 +83,12 @@ export default defineComponent({
             configuredArea: [] as boolean[],
             // 声音列表
             voiceList: prop.voiceList,
-            // record穿梭框数据源
-            recordList: [] as SelectOption<string, string>[],
-            recordIsShow: false,
-            // alarmOut穿梭框数据源
-            alarmOutList: [] as SelectOption<string, string>[],
-            alarmOutIsShow: false,
             // 初始化，后判断应用是否可用
             initComplated: false,
             applyDisabled: true,
             // 消息提示
             notification: [] as string[],
         })
-
-        // 获取录像数据
-        const getRecordList = async () => {
-            pageData.value.recordList = await buildRecordChlList()
-        }
-
-        // 获取报警输出数据
-        const getAlarmOutData = async () => {
-            pageData.value.alarmOutList = await buildAlarmOutChlList()
-        }
 
         // 播放模式
         const mode = computed(() => {
@@ -125,7 +105,9 @@ export default defineComponent({
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
         // 物品遗留与看护绘制的Canvas
-        let objDrawer: CanvasPolygon
+        let objDrawer = new CanvasPolygon({
+            el: document.createElement('canvas'),
+        })
 
         /**
          * @description 播放器就绪时回调
@@ -278,7 +260,7 @@ export default defineComponent({
                         label: oscTypeTip[item.text()],
                     }
                 })
-                const boundary = [] as BoundaryItem[]
+                const boundary = [] as AlarmObjectLeftBoundaryDto[]
                 $('//content/chl/param/boundary/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     const boundaryItem = {
@@ -324,6 +306,11 @@ export default defineComponent({
                         },
                     }
                 })
+
+                const triggerList = ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch'].filter((item) => {
+                    return $trigger(item).text().toBoolean()
+                })
+
                 objectLeftData.value = {
                     enabledSwitch,
                     originalSwitch: enabledSwitch,
@@ -340,12 +327,8 @@ export default defineComponent({
                     record,
                     alarmOut,
                     preset,
-                    msgPushSwitch: $trigger('msgPushSwitch').text() == 'true',
-                    buzzerSwitch: $trigger('buzzerSwitch').text() == 'true',
-                    popVideoSwitch: $trigger('popVideoSwitch').text() == 'true',
-                    emailSwitch: $trigger('emailSwitch').text() == 'true',
-                    catchSnapSwitch: $trigger('snapSwitch').text() == 'true',
                     sysAudio: $('sysAudio').attr('id'),
+                    trigger: triggerList,
                 }
             }).then(() => {
                 pageData.value.initComplated = true
@@ -355,14 +338,7 @@ export default defineComponent({
 
         const handleObjectLeftData = () => {
             pageData.value.areaName = objectLeftData.value.boundary[pageData.value.warnArea].areaName
-            if (objectLeftData.value.msgPushSwitch) normalParamCheckList.value.push('msgPushSwitch')
-            if (objectLeftData.value.buzzerSwitch) normalParamCheckList.value.push('buzzerSwitch')
-            if (objectLeftData.value.popVideoSwitch) normalParamCheckList.value.push('popVideoSwitch')
-            if (objectLeftData.value.emailSwitch) normalParamCheckList.value.push('emailSwitch')
-            if (objectLeftData.value.catchSnapSwitch) normalParamCheckList.value.push('catchSnapSwitch')
-            if (normalParamCheckList.value.length == normalParamList.value.length) {
-                normalParamCheckAll.value = true
-            }
+
             // 初始化样式
             refreshInitPage()
             // 绘制
@@ -504,130 +480,6 @@ export default defineComponent({
             event.target.blur()
         }
 
-        // 常规联动多选
-        const handleNormalParamCheckAll = (value: CheckboxValueType) => {
-            normalParamCheckList.value = value ? normalParamList.value.map((item) => item.value) : []
-            if (value) {
-                objectLeftData.value.catchSnapSwitch = true
-                objectLeftData.value.msgPushSwitch = true
-                objectLeftData.value.buzzerSwitch = true
-                objectLeftData.value.popVideoSwitch = true
-                objectLeftData.value.emailSwitch = true
-            }
-        }
-
-        const handleNormalParamCheck = (value: CheckboxValueType[]) => {
-            normalParamCheckAll.value = value.length === normalParamList.value.length
-            objectLeftData.value.catchSnapSwitch = value.includes('catchSnapSwitch')
-            objectLeftData.value.msgPushSwitch = value.includes('msgPushSwitch')
-            objectLeftData.value.buzzerSwitch = value.includes('buzzerSwitch')
-            objectLeftData.value.popVideoSwitch = value.includes('popVideoSwitch')
-            objectLeftData.value.emailSwitch = value.includes('emailSwitch')
-        }
-
-        // 录像配置相关处理
-        const recordConfirm = (e: SelectOption<string, string>[]) => {
-            objectLeftData.value.record = cloneDeep(e)
-            pageData.value.recordIsShow = false
-        }
-
-        const recordClose = () => {
-            pageData.value.recordIsShow = false
-        }
-
-        // 报警输出相关处理
-        const alarmOutConfirm = (e: SelectOption<string, string>[]) => {
-            objectLeftData.value.alarmOut = cloneDeep(e)
-            pageData.value.alarmOutIsShow = false
-        }
-
-        const alarmOutClose = () => {
-            pageData.value.alarmOutIsShow = false
-        }
-
-        // 获取联动预置点数据
-        const getPresetData = async () => {
-            const result = await getChlList({
-                isSupportPtz: true,
-            })
-            let rowData = [] as PresetList[]
-            commLoadResponseHandler(result, async ($) => {
-                rowData = $('//content/item').map((item) => {
-                    const $item = queryXml(item.element)
-                    return {
-                        id: item.attr('id')!,
-                        name: $item('name').text(),
-                        chlType: $item('chlType').text(),
-                        preset: { value: '', label: Translate('IDCS_NULL') },
-                        presetList: [{ value: '', label: Translate('IDCS_NULL') }],
-                        isGetPresetList: false,
-                    }
-                })
-                rowData.forEach((row) => {
-                    objectLeftData.value.preset?.forEach((item) => {
-                        if (row.id == item.chl.value) {
-                            row.preset = { value: item.index, label: item.name }
-                            row.presetList.push({ value: item.index, label: item.name })
-                        }
-                    })
-                })
-                for (let i = rowData.length - 1; i >= 0; i--) {
-                    //预置点里过滤掉recorder通道
-                    if (rowData[i].chlType == 'recorder') {
-                        rowData.splice(i, 1)
-                    }
-                }
-                PresetTableData.value = rowData
-            })
-        }
-
-        // 预置点选择框下拉时获取预置点列表数据
-        const getPresetById = async (row: PresetList) => {
-            if (!row.isGetPresetList) {
-                row.presetList.splice(1)
-                const sendXml = rawXml`
-                    <condition>
-                        <chlId>${row.id}</chlId>
-                    </condition>
-                `
-                const result = await queryChlPresetList(sendXml)
-                commLoadResponseHandler(result, ($) => {
-                    $('//content/presets/item').forEach((item) => {
-                        row.presetList.push({
-                            value: item.attr('index')!,
-                            label: item.text(),
-                        })
-                    })
-                })
-                row.isGetPresetList = true
-            }
-        }
-
-        const presetChange = (row: PresetList) => {
-            const ids = objectLeftData.value.preset.map((item) => item.chl.value)
-            if (ids.includes(row.id)) {
-                objectLeftData.value.preset = objectLeftData.value.preset.filter((item) => row.id != item.chl.value)
-            }
-
-            if (row.preset.value !== '') {
-                objectLeftData.value.preset.push({
-                    index: row.preset.value,
-                    name: row.preset.label,
-                    chl: {
-                        value: row.id,
-                        label: row.name,
-                    },
-                })
-            }
-
-            if (objectLeftData.value.preset.length > MAX_TRIGGER_PRESET_COUNT) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_PRESET_LIMIT'),
-                })
-            }
-        }
-
         // 检测区域合法性(物品遗留看护AI事件中：区域为多边形)
         const verification = () => {
             for (const item of objectLeftData.value.boundary) {
@@ -638,7 +490,7 @@ export default defineComponent({
                         message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_INPUT_LIMIT_FOUR_POIONT'),
                     })
                     return false
-                } else if (count > 0 && !judgeAreaCanBeClosed(item.points)) {
+                } else if (count > 0 && !objDrawer.judgeAreaCanBeClosed(item.points)) {
                     openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_INTERSECT'),
@@ -654,10 +506,10 @@ export default defineComponent({
                 <content>
                     <chl id='${prop.currChlId}' scheduleGuid='${objectLeftData.value.schedule}'>
                         <param>
-                            <switch>${String(objectLeftData.value.enabledSwitch)}</switch>
+                            <switch>${objectLeftData.value.enabledSwitch}</switch>
                             <holdTime unit='s'>${objectLeftData.value.holdTime}</holdTime>
                             <oscType>${objectLeftData.value.oscType}</oscType>
-                            <boundary type='list' count='${String(objectLeftData.value.boundary.length)}'>
+                            <boundary type='list' count='${objectLeftData.value.boundary.length}'>
                                 <itemType>
                                     <point type='list'/>
                                 </itemType>
@@ -665,14 +517,14 @@ export default defineComponent({
                                     .map((item) => {
                                         return rawXml`
                                             <item>
-                                                <name maxLen='${objectLeftData.value.maxNameLength.toString()}'><![CDATA[${item.areaName}]]></name>
-                                                <point type='list' maxCount='6' count='${String(item.points.length)}'>
+                                                <name maxLen='${objectLeftData.value.maxNameLength}'><![CDATA[${item.areaName}]]></name>
+                                                <point type='list' maxCount='6' count='${item.points.length}'>
                                                     ${item.points
                                                         .map((ele) => {
                                                             return rawXml`
                                                                 <item>
-                                                                    <X>${ele.X.toString()}</X>
-                                                                    <Y>${ele.Y.toString()}</Y>
+                                                                    <X>${ele.X}</X>
+                                                                    <Y>${ele.Y}</Y>
                                                                 </item>`
                                                         })
                                                         .join('')}
@@ -716,11 +568,11 @@ export default defineComponent({
                                         .join('')}
                                 </presets>
                             </preset>
-                            <snapSwitch>${String(objectLeftData.value.catchSnapSwitch)}</snapSwitch>
-                            <msgPushSwitch>${String(objectLeftData.value.msgPushSwitch)}</msgPushSwitch>
-                            <buzzerSwitch>${String(objectLeftData.value.buzzerSwitch)}</buzzerSwitch>
-                            <popVideoSwitch>${String(objectLeftData.value.popVideoSwitch)}</popVideoSwitch>
-                            <emailSwitch>${String(objectLeftData.value.emailSwitch)}</emailSwitch>
+                            <snapSwitch>${objectLeftData.value.trigger.includes('snapSwitch')}</snapSwitch>
+                            <msgPushSwitch>${objectLeftData.value.trigger.includes('msgPushSwitch')}</msgPushSwitch>
+                            <buzzerSwitch>${objectLeftData.value.trigger.includes('buzzerSwitch')}</buzzerSwitch>
+                            <popVideoSwitch>${objectLeftData.value.trigger.includes('popVideoSwitch')}</popVideoSwitch>
+                            <emailSwitch>${objectLeftData.value.trigger.includes('emailSwitch')}</emailSwitch>
                             <sysAudio id='${objectLeftData.value.sysAudio}'></sysAudio>
                         </trigger>
                     </chl>
@@ -811,10 +663,7 @@ export default defineComponent({
                 Plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
             }
             pageData.value.scheduleList = await buildScheduleList()
-            await getRecordList()
-            await getAlarmOutData()
             await getObjectLeftData()
-            await getPresetData()
         })
 
         onBeforeUnmount(() => {
@@ -848,12 +697,6 @@ export default defineComponent({
             supportAlarmAudioConfig,
             playerRef,
             objectLeftData,
-            // 常规联动
-            normalParamCheckAll,
-            normalParamCheckList,
-            normalParamList,
-            // 联动预置点
-            PresetTableData,
             pageData,
             // 播放器就绪
             handlePlayerReady,
@@ -867,17 +710,12 @@ export default defineComponent({
             warnAreaChange,
             areaNameInput,
             enterBlur,
-            // 联动方式
-            handleNormalParamCheckAll,
-            handleNormalParamCheck,
-            recordConfirm,
-            recordClose,
-            alarmOutConfirm,
-            alarmOutClose,
-            presetChange,
-            getPresetById,
             // 提交物品遗留与看护数据
             applyObjectLeftData,
+            AlarmBaseRecordSelector,
+            AlarmBaseAlarmOutSelector,
+            AlarmBaseTriggerSelector,
+            AlarmBasePresetSelector,
         }
     },
 })

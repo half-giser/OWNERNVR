@@ -2,15 +2,13 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-10-25 09:17:39
  * @Description: Element Plus的默认值设置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 17:27:18
  */
 import { ElDialog, ElInputNumber, ElPagination, ElForm, ElTooltip, ElSelect, ElTable, ElDropdown, ElPopover, ElDatePicker, ElSlider } from 'element-plus'
 import { type PropType } from 'vue'
 
 ElPagination.props.layout = {
     type: String,
-    default: 'prev, pager, next, sizes, total, jumper',
+    default: 'jumper, prev, pager, next, sizes, total',
 }
 
 ElPagination.props.pageSizes = {

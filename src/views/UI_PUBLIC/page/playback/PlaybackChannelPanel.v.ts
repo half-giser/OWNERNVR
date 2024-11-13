@@ -2,12 +2,10 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-06 20:36:58
  * @Description: 回放-通道视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-14 17:43:00
  */
 import ChannelGroupEditPop from '../channel/ChannelGroupEditPop.vue'
 import ChannelGroupAddPop from '../channel/ChannelGroupAddPop.vue'
-import { ChlGroup } from '@/types/apiType/channel'
+import { ChannelGroupDto } from '@/types/apiType/channel'
 import { type PlaybackChlList, type PlaybackChannelGroupList } from '@/types/apiType/playback'
 
 export interface ChannelPanelExpose {
@@ -97,7 +95,7 @@ export default defineComponent({
             // 打开编辑通道组弹窗
             isEditChlGroup: false,
             // 编辑数据
-            editChlGroup: new ChlGroup(),
+            editChlGroup: new ChannelGroupDto(),
             // 通道视图是否显示
             isOpen: true,
         })

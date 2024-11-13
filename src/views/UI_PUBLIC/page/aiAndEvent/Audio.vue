@@ -2,8 +2,6 @@
  * @Description: AI/事件——事件通知——声音
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-13 09:23:15
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 16:14:24
 -->
 <template>
     <el-tabs
@@ -328,7 +326,7 @@
             </div>
         </el-tab-pane>
     </el-tabs>
-    <UploadAudioPop
+    <AudioUploadPop
         v-model="pageData.isImportAudioDialog"
         :type="pageData.audioTab"
         :ipc-audio-chl="ipcAudioFormData.audioChl"
@@ -375,6 +373,7 @@
         color: var(--primary);
         opacity: 1;
     }
+
     /* 鼠标悬浮时样式 */
     :deep(.el-tabs__item:hover) {
         color: var(--primary);

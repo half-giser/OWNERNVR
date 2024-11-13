@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-27 14:25:04
  * @Description: 业务应用-人脸考勤-详情弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-14 15:16:57
  */
 import { type BusinessFaceList, BusinessFaceDetailList, BusinessFaceResultList } from '@/types/apiType/business'
 import { type TableInstance } from 'element-plus'
@@ -150,7 +148,7 @@ export default defineComponent({
         const getPicData = async (item: BusinessFaceResultList) => {
             const sendXml = rawXml`
                 <condition>
-                    <imgId>${item.imgId.toString()}</imgId>
+                    <imgId>${item.imgId}</imgId>
                     <chlId>${item.chlId}</chlId>
                     <frameTime>${item.frameTime}</frameTime>
                     <isPanorama />

@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-18 18:42:59
  * @Description: 黑白名单
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 11:49:08
  */
 import BlockAndAllowEditPop from './BlockAndAllowEditPop.vue'
 import { UserBlackAllowListForm, UserEditBlackAllowListForm } from '@/types/apiType/userAndSecurity'
@@ -134,7 +132,7 @@ export default defineComponent({
                     </addressType>
                 </types>
                 <content>
-                    <switch>${String(formData.value.switch)}</switch>
+                    <switch>${formData.value.switch}</switch>
                     <filterType type="filterTypeMode">${formData.value.filterType}</filterType>
                     <filterList type="list">
                         <itemType>
@@ -143,7 +141,7 @@ export default defineComponent({
                                 .map((item) => {
                                     return rawXml`
                                         <item>
-                                            <switch>${String(item.switch)}</switch>
+                                            <switch>${item.switch}</switch>
                                             <addressType>${item.addressType}</addressType>
                                             ${item.addressType === 'ip' ? `<ip>${item.ip}</ip>` : ''}
                                             ${item.addressType === 'mac' ? `<mac>${item.mac}</mac>` : ''}

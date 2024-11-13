@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-17 20:32:26
  * @Description: 添加权限组
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 10:26:31
  */
 import { UserPermissionSystemAuthList, UserPermissionChannelAuthList } from '@/types/apiType/userAndSecurity'
 import { UserPermissionGroupAddForm } from '@/types/apiType/userAndSecurity'

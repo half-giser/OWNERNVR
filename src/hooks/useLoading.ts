@@ -2,8 +2,6 @@
  * @Author: tengxiang
  * @Date: 2024-05-30 08:58:30
  * @Description: Loading
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-31 17:56:41
  */
 interface LoadingItem {
     inst: any

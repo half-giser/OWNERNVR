@@ -28,6 +28,19 @@
     }
 
     .el-button {
+        --el-button-border-color: var(--btn-border);
+        --el-button-bg-color: var(--btn-bg);
+        --el-button-text-color: var(--btn-text);
+        --el-button-disabled-text-color: var(--btn-text-disabled);
+        --el-button-disabled-bg-color: var(--btn-bg-disabled);
+        --el-button-disabled-border-color: var(--btn-border-disabled);
+        --el-button-hover-text-color: var(--btn-text-hover);
+        --el-button-hover-bg-color: var(--btn-bg-hover);
+        --el-button-hover-border-color: var(--btn-border-hover);
+        --el-button-active-text-color: var(--btn-text);
+        --el-button-active-border-color: var(--btn-border-hover);
+        --el-button-active-bg-color: var(--btn-bg-hover);
+
         min-width: 80px;
         height: 26px;
 
@@ -36,7 +49,32 @@
         }
     }
 
+    .el-button--primary {
+        --el-button-border-color: var(--btn-border);
+        --el-button-bg-color: var(--btn-bg);
+        --el-button-text-color: var(--btn-text);
+        --el-button-disabled-text-color: var(--btn-text);
+        --el-button-disabled-bg-color: var(--btn-bg-disabled);
+        --el-button-disabled-border-color: var(--btn-border-disabled);
+        --el-button-hover-text-color: var(--btn-text);
+        --el-button-hover-bg-color: var(--btn-bg-hover);
+        --el-button-hover-border-color: var(--btn-border-hover);
+        --el-button-active-text-color: var(--btn-text);
+        --el-button-active-border-color: var(--btn-border-hover);
+        --el-button-active-bg-color: var(--btn-bg-hover);
+    }
+
     .el-select {
+        --el-border-color: var(--input-border);
+        --el-border-color-hover: var(--primary);
+        --el-disabled-border-color: var(--input-border-disabled);
+
+        .el-select__wrapper {
+            &.is-disabled {
+                background-color: var(--input-bg-disabled);
+            }
+        }
+
         &__wrapper {
             min-height: 26px;
             padding-block: 0;
@@ -79,6 +117,7 @@
     .el-message-box {
         background-color: var(--dialog-bg);
         --el-messagebox-content-color: var(--main-text);
+        --el-messagebox-border-radius: 0;
     }
 
     .el-radio-button {
@@ -101,39 +140,9 @@
         }
     }
 
-    .el-radio-button__original-radio:checked+.el-radio-button__inner {
+    .el-radio-button__original-radio:checked + .el-radio-button__inner {
         background-color: var(--radio-btn-bg-active);
         color: var(--radio-btn-text-active);
-    }
-
-    .el-button {
-        --el-button-border-color: var(--btn-border);
-        --el-button-bg-color: var(--btn-bg);
-        --el-button-text-color: var(--btn-text);
-        --el-button-disabled-text-color: var(--btn-text-disabled);
-        --el-button-disabled-bg-color: var(--btn-bg-disabled);
-        --el-button-disabled-border-color: var(--btn-border-disabled);
-        --el-button-hover-text-color: var(--btn-text-hover);
-        --el-button-hover-bg-color: var(--btn-bg-hover);
-        --el-button-hover-border-color: var(--btn-border-hover);
-        --el-button-active-text-color: var(--btn-text);
-        --el-button-active-border-color: var(--btn-border-hover);
-        --el-button-active-bg-color: var(--btn-bg-hover);
-    }
-
-    .el-button--primary {
-        --el-button-border-color: var(--btn-border);
-        --el-button-bg-color: var(--btn-bg);
-        --el-button-text-color: var(--btn-text);
-        --el-button-disabled-text-color: var(--btn-text);
-        --el-button-disabled-bg-color: var(--btn-bg-disabled);
-        --el-button-disabled-border-color: var(--btn-border-disabled);
-        --el-button-hover-text-color: var(--btn-text);
-        --el-button-hover-bg-color: var(--btn-bg-hover);
-        --el-button-hover-border-color: var(--btn-border-hover);
-        --el-button-active-text-color: var(--btn-text);
-        --el-button-active-border-color: var(--btn-border-hover);
-        --el-button-active-bg-color: var(--btn-bg-hover);
     }
 
     // .el-button--danger {
@@ -163,17 +172,6 @@
         --el-input-clear-hover-color: var(--primary);
         --el-disabled-border-color: var(--input-border-disabled);
         --el-disabled-bg-color: var(--input-bg-disabled);
-    }
-
-    .el-select {
-        --el-border-color: var(--input-border);
-        --el-border-color-hover: var(--primary);
-        --el-disabled-border-color: var(--input-border-disabled);
-        .el-select__wrapper {
-            &.is-disabled {
-                background-color: var(--input-bg-disabled);
-            }
-        }
     }
 
     .el-checkbox {
@@ -233,7 +231,7 @@
         }
 
         .el-table__body tr.el-table__row.active {
-            &>td.el-table__cell {
+            & > td.el-table__cell {
                 background-color: var(--primary);
                 color: var(--main-text-active);
             }
@@ -252,21 +250,26 @@
         .el-table__row {
             &.disabled {
                 color: var(--table-text-disabled);
+
                 .el-table__expand-icon {
                     color: var(--table-text-disabled);
                 }
             }
+
             &.current-row {
                 color: var(--main-text-active);
+
                 &:hover {
                     .el-table__cell {
                         background-color: var(--primary);
                     }
                 }
+
                 .el-table__expand-icon {
                     color: var(--main-text-active);
                 }
             }
+
             &.el-table__row--striped {
                 &.current-row {
                     .el-table__cell {
@@ -281,7 +284,7 @@
         background: var(--table-stripe);
     }
 
-    .el-table--enable-row-hover .el-table__body tr:hover>td.el-table__cell {
+    .el-table--enable-row-hover .el-table__body tr:hover > td.el-table__cell {
         background-color: var(--table-bg-hover);
     }
 
@@ -319,7 +322,9 @@
         --el-pagination-button-color: var(--main-text);
         --el-pagination-button-disabled-color: var(--input-text-disabled);
 
-        &__sizes, &__total, &__jump {
+        &__sizes,
+        &__total,
+        &__jump {
             color: var(--main-text);
         }
     }
@@ -327,8 +332,8 @@
     .table-icon-column {
         .el-icon {
             cursor: pointer;
-            margin: 0px 5px;
-            padding: 0px 10px;
+            margin: 0 5px;
+            padding: 0 10px;
 
             &.disabled {
                 cursor: default;
@@ -367,9 +372,10 @@
     .ruleTable {
         & tbody {
             .el-table__cell {
-                padding: 0px;
+                padding: 0;
+
                 .el-form-item {
-                    margin: 16px 0px 16px 0px;
+                    margin: 16px 0;
                 }
             }
         }
@@ -396,6 +402,10 @@
 
         &-menu {
             max-height: 270px;
+
+            &__item {
+                color: var(--main-text);
+            }
         }
 
         &__popper {
@@ -405,11 +415,9 @@
     }
 
     .el-form-item__error {
-        // width: 100%;
         white-space: nowrap;
-        // overflow: hidden;
-        // text-overflow: ellipsis;
-        // text-align: left;
+        padding-top: 0;
+        top: calc(100% - 2px);
     }
 
     .el-popper {
@@ -417,20 +425,29 @@
 
         .highlight {
             color: var(--color-error);
+
             &:hover {
                 color: var(--primary);
             }
+        }
+
+        &.is-light {
+            border-color: var(--table-border);
+        }
+
+        & > .el-popper__arrow::before {
+            border-color: var(--table-border);
         }
     }
 
     .el-popover {
         background-color: var(--popover-bg);
-        border-color: var(--content-border);
+        border-color: var(--table-border);
         width: fit-content;
 
-        &>.el-popper__arrow:before {
+        & > .el-popper__arrow::before {
             background-color: var(--popover-bg);
-            border-color: var(--content-border);
+            border-color: var(--table-border);
         }
 
         &.no-padding {
@@ -440,7 +457,7 @@
         &.selector {
             background-color: var(--main-bg);
 
-            &>.el-popper__arrow:before {
+            & > .el-popper__arrow::before {
                 background-color: var(--main-bg);
             }
         }
@@ -454,6 +471,7 @@
         --el-calendar-border: 1px solid var(--calendar-border);
         --el-calendar-cell-width: unset;
         --el-calendar-selected-bg-color: var(--calendar-bg-hover); // var(--primary);
+
         background-color: var(--calendar-bg);
 
         &__header {
@@ -470,6 +488,7 @@
             thead {
                 background-color: var(--calendar-thead-bg);
                 font-size: 12px;
+
                 th {
                     padding: 3px 0;
                 }
@@ -483,9 +502,7 @@
             &:not(.is-range) td.prev {
                 color: var(--calendar-text-disabled);
             }
-        }
 
-        &-table {
             td.is-today {
                 color: var(--main-text);
                 background-color: var(--calendar-bg-today);
@@ -518,12 +535,14 @@
 
             div {
                 padding: 6px 0;
+
                 &.active {
                     background-color: var(--primary);
                     color: var(--color-white);
                 }
+
                 &.badge {
-                    &:after {
+                    &::after {
                         position: absolute;
                         width: 4px;
                         height: 4px;
@@ -540,7 +559,7 @@
 
     .el-progress {
         &__text {
-            font-size: 14px!important;
+            font-size: 14px !important;
             width: 50px;
             color: var(--main-text);
         }
@@ -555,6 +574,10 @@
 
         &-panel {
             --el-bg-color-overlay: var(--main-bg);
+
+            .el-checkbox__inner {
+                border-radius: var(--el-checkbox-border-radius);
+            }
         }
 
         &-panel .el-transfer-panel__header .el-checkbox .el-checkbox__label {
@@ -579,7 +602,9 @@
 
         &-panel__item {
             --el-checkbox-font-size: 13px;
+
             font-size: 13px;
+
             &.el-checkbox {
                 color: var(--transfer-text);
             }
@@ -594,19 +619,15 @@
         }
 
         &__button {
-            min-width: 60px;
+            min-width: unset;
         }
 
         &__button:nth-child(2) {
-            margin: 0 0 5px 0;
+            margin: 0 0 5px;
         }
     }
 
     .el-loading-mask {
         transition: none;
-    }
-
-    .el-message-box {
-        --el-messagebox-border-radius: 0;
     }
 }

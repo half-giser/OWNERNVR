@@ -164,7 +164,3 @@
 </template>
 
 <script lang="ts" src="./ChannelMask.v.ts"></script>
-
-<style lang="scss">
-@import '@/views/UI_PUBLIC/publicStyle/channel.scss';
-</style>

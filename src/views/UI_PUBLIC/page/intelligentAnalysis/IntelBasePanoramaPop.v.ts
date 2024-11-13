@@ -2,11 +2,8 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-12 20:39:26
  * @Description: 智能分析 - 查看原图弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-12 20:39:36
  */
 import { type IntelPanoramaPopList } from '@/types/apiType/intelligentAnalysis'
-
 import CanvasBase from '@/utils/canvas/canvasBase'
 
 export default defineComponent({

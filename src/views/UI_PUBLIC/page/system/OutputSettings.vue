@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-25 09:59:16
  * @Description: 输出配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-01 10:43:43
 -->
 <template>
     <div class="OutputSetting">
@@ -323,11 +321,15 @@
     font-size: 15px;
     min-width: 1200px;
     user-select: none;
+    height: var(--content-height);
+    display: flex;
+    flex-direction: column;
 }
 
 .eth_list {
     width: 100%;
     height: 50px;
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     background-color: var(--output-eth-bg);
@@ -345,8 +347,7 @@
 }
 
 .main {
-    height: calc(100vh - 340px);
-    max-height: calc(100vh - 340px);
+    height: 100%;
     overflow-y: hidden;
     width: 100%;
     display: flex;
@@ -482,7 +483,6 @@
     &-thumbnail-add {
         flex-shrink: 0;
         height: 30px;
-        align-items: 30px;
         text-align: center;
         display: flex;
         justify-content: center;
@@ -544,6 +544,7 @@
         display: flex;
         margin: 0 10px;
         width: 100%;
+
         & > span {
             margin: 0 5px;
         }

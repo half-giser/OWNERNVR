@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-08 16:33:15
  * @Description: 备份状态
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-25 14:48:45
 -->
 <template>
     <div class="base-flex-box">
@@ -122,6 +120,7 @@
         padding-left: 10px;
         display: flex;
         align-items: center;
+
         span:last-child {
             padding-left: 5px;
         }

@@ -11,7 +11,7 @@ import { getRandomGUID } from '@/utils/websocket/websocketCmd'
 import { type XMLQuery } from '@/utils/xmlParse'
 
 export default defineComponent({
-    setup() {
+    setup(_prop, { expose }) {
         const { openMessageBox } = useMessageBox()
         const { Translate } = useLangStore()
         const Plugin = inject('Plugin') as PluginType
@@ -259,10 +259,13 @@ export default defineComponent({
             ipcUpgradePopVisiable.value = false
         }
 
-        return {
+        expose({
             init,
-            opened,
             initWsState,
+        })
+
+        return {
+            opened,
             productModelOptionList,
             selectedProductModel,
             ipcUpgradePopVisiable,

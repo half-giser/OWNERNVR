@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-29 10:46:13
  * @Description: 人脸库- 新增/编辑分组
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-11 11:16:25
  */
 import { IntelFaceDBGroupList } from '@/types/apiType/intelligentAnalysis'
 import { type FormRules, type FormInstance } from 'element-plus'
@@ -48,7 +46,7 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             groupName: [
                 {
-                    validator(_rule, value, callback) {
+                    validator: (_rule, value: string, callback) => {
                         if (!value.trim()) {
                             callback(new Error(Translate('IDCS_GROUP_NAME_EMPTY')))
                             return
@@ -89,7 +87,7 @@ export default defineComponent({
                         <groupId>${prop.data.groupId}</groupId>
                         <name>${formData.value.groupName}</name>
                         <property type="property">${prop.data.property}</property>
-                        <enableAlarmSwitch>${formData.value.enableAlarmSwitch.toString()}</enableAlarmSwitch>
+                        <enableAlarmSwitch>${formData.value.enableAlarmSwitch}</enableAlarmSwitch>
                     </item>
                 </content>
             `

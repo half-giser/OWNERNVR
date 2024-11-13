@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-14 09:47:42
  * @Description: 新增用户
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 17:02:49
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import { UserAddForm, type UserAuthGroupOption } from '@/types/apiType/userAndSecurity'
@@ -96,7 +94,7 @@ export default defineComponent({
             userName: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if (!value.length) {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
                             return
                         }
@@ -105,6 +103,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -113,7 +112,7 @@ export default defineComponent({
             password: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if (value.length === 0) {
+                        if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
                         }
@@ -122,6 +121,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PWD_STRONG_ERROR')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -130,7 +130,7 @@ export default defineComponent({
             confirmPassword: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if (value.length === 0) {
+                        if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
                         }
@@ -139,6 +139,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PWD_MISMATCH_TIPS')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -147,10 +148,11 @@ export default defineComponent({
             email: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if (value.length && !checkEmail(value)) {
+                        if (!!value && !checkEmail(value)) {
                             callback(new Error(Translate('IDCS_PROMPT_INVALID_EMAIL')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -181,7 +183,7 @@ export default defineComponent({
                     <userName maxByteLen="63">${wrapCDATA(formData.value.userName)}</userName>
                     <password ${getSecurityVer()}>${wrapCDATA(AES_encrypt(MD5_encrypt(formData.value.password), userSession.sesionKey))}</password>
                     <email>${wrapCDATA(formData.value.email)}</email>
-                    <modifyPassword>${formData.value.allowModifyPassword.toString()}</modifyPassword>
+                    <modifyPassword>${formData.value.allowModifyPassword}</modifyPassword>
                     <authGroupId>${formData.value.authGroup}</authGroupId>
                     <bindMacSwitch>false</bindMacSwitch>
                     <mac>${wrapCDATA('00:00:00:00:00:00')}</mac>

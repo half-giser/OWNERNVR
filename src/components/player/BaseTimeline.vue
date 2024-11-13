@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-29 10:41:06
  * @Description: 录像与回放时间轴组件
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-21 10:39:01
 -->
 <template>
     <div
@@ -1437,8 +1435,7 @@ defineExpose<TimelineInstance>({
     position: relative;
     width: 100%;
     min-height: calc(100% - 40px);
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: hidden auto;
     vertical-align: top;
 }
 

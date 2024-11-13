@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-10 16:50:11
  * @Description: Email测试发送弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 15:04:45
  */
 import { type FormInstance, type FormRules } from 'element-plus'
 import { type NetEmailForm, NetEmailTestForm, type NetEmailReceiverDto } from '@/types/apiType/net'
@@ -45,7 +43,7 @@ export default defineComponent({
             address: [
                 {
                     validator(_rule, value: string, callback) {
-                        if (!value.length) {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_EMAIL_ADDRESS_EMPTY')))
                             return
                         }
@@ -66,6 +64,7 @@ export default defineComponent({
                                 return
                             }
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -181,12 +180,12 @@ export default defineComponent({
                             <name>${wrapCDATA(prop.form.name)}</name>
                             <userName>${wrapCDATA(prop.form.userName)}</userName>
                             <password ${getSecurityVer()}>${password}</password>
-                            <anonymousSwitch>${prop.form.anonymousSwitch.toString()}</anonymousSwitch>
-                            <attachImg>${prop.form.attachImg.toString()}</attachImg>
-                            <imageNumber>${prop.form.imageNumber.toString()}</imageNumber>
+                            <anonymousSwitch>${prop.form.anonymousSwitch}</anonymousSwitch>
+                            <attachImg>${prop.form.attachImg}</attachImg>
+                            <imageNumber>${prop.form.imageNumber}</imageNumber>
                             <smtp>
                                 <server>${wrapCDATA(prop.form.server)}</server>
-                                <port>${String(prop.form.port)}</port>
+                                <port>${prop.form.port}</port>
                                 <ssl>${prop.form.ssl}</ssl>
                             </smtp>
                         </sender>

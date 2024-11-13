@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-29 16:09:44
  * @Description: 现场预览-目标检测视图-人脸比对项组件
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:12:33
  */
 import { type WebsocketSnapOnSuccessSnap } from '@/utils/websocket/websocketSnap'
 

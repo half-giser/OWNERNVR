@@ -2,8 +2,6 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-12 15:34:24
  * @Description: email通知
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 10:24:06
 -->
 <template>
     <div>
@@ -12,7 +10,7 @@
             :model="pageData.form"
             :rules="rules"
             :style="{
-                '--form-label-width': '260px',
+                '--form-label-width': '240px',
                 '--form-input-width': '180px',
             }"
             class="top"
@@ -76,8 +74,6 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.scheduleList"
                                         :key="item.value"
-                                        :value="item.value"
-                                        :label="item.label"
                                         @click="handleScheduleChangeAll(item.value)"
                                     >
                                         {{ item.label }}
@@ -170,16 +166,20 @@
 .top {
     width: 700px;
     height: 50px;
+
     :deep(.el-form-item) {
         padding-inline: 0 !important;
     }
+
     :deep(.el-select) {
         --el-color-danger: var(--input-border);
     }
 }
+
 .main {
     width: 700px;
 }
+
 .sender {
     margin-left: 5px;
     margin-right: 5px;

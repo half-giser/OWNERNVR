@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-29 15:43:32
  * @Description: 现场预览-镜头控制视图
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-24 10:23:37
  */
 import { LiveLensForm, type LiveSharedWinData } from '@/types/apiType/live'
 
@@ -170,8 +168,8 @@ export default defineComponent({
                     <content>
                         <chl id="${prop.winData.chlID}">
                             <focusType type="focusType">${formData.value.focusType}</focusType>
-                            <IrchangeFocus>${formData.value.irchangeFocus.toString()}</IrchangeFocus>
-                            <timeInterval>${formData.value.focusType === 'manual' ? '0' : formData.value.focusTime.toString()}</timeInterval>
+                            <IrchangeFocus>${formData.value.irchangeFocus}</IrchangeFocus>
+                            <timeInterval>${formData.value.focusType === 'manual' ? 0 : formData.value.focusTime}</timeInterval>
                         </chl>
                     </content>
                 `

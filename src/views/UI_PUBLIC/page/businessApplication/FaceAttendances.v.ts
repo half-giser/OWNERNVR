@@ -2,8 +2,6 @@
  * @Author: zhangdongming zhangdongming@tvt.net.cn
  * @Date: 2024-06-05 18:18:35
  * @Description: 业务应用-人脸考勤
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-05 10:58:11
  */
 import { cloneDeep } from 'lodash-es'
 import dayjs from 'dayjs'

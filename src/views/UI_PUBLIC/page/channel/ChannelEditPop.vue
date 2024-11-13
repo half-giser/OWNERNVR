@@ -20,6 +20,8 @@
             >
                 <el-input
                     v-model="editItem.name"
+                    :formatter="formatInputMaxLength"
+                    :parser="formatInputMaxLength"
                     maxlength="63"
                 />
             </el-form-item>

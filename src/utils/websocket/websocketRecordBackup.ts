@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-05-30 14:33:04
  * @Description: websocket 备份录像
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 16:15:57
  */
 import WebsocketBase from './websocketBase'
 import RecordBuilder from '../wasmPlayer/recordBuilder'

@@ -1,3 +1,8 @@
+/*
+ * @Author: tengxiang tengxiang@tvt.net.cn
+ * @Date: 2024-07-17 15:44:13
+ * @Description: 录像-模式配置
+ */
 import { type RecMode, RecordDistributeInfo, type RecordSchedule } from '@/types/apiType/record'
 import RecordModeAdvancePop from './RecordModeAdvancePop.vue'
 import RecordModeStreamPop from './RecordModeStreamPop.vue'
@@ -493,7 +498,7 @@ export default defineComponent({
                         <mode type="recModeType">${formData.value.mode}</mode>
                         <autoMode type="autoRecModeType" eventType="${events}">${formData.value.autoMode}</autoMode>
                     </recMode>
-                    <urgencyRecDuration unit="m">${formData.value.urgencyRecDuration.toString()}</urgencyRecDuration>
+                    <urgencyRecDuration unit="m">${formData.value.urgencyRecDuration}</urgencyRecDuration>
                 </content>`
             return editRecordDistributeInfo(sendXml)
         }
@@ -506,7 +511,7 @@ export default defineComponent({
                 return scheduleId === DEFAULT_EMPTY_ID ? 'false' : 'true'
             }
             const sendXml = rawXml`
-                <content type="list" total="${editRows.length.toString()}">
+                <content type="list" total="${editRows.length}">
                     ${editRows
                         .map((row) => {
                             return rawXml`

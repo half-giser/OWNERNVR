@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-18 18:43:27
  * @Description: 登出后预览
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-15 13:47:08
  */
 import { type UserPreviewOnLogoutChannelList } from '@/types/apiType/userAndSecurity'
 

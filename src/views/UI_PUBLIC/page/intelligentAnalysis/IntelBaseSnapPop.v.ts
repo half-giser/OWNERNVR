@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-09 19:24:00
  * @Description: 智能分析 - 抓拍详情弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-31 19:51:03
  */
 import CanvasBase from '@/utils/canvas/canvasBase'
 import { IntelSnapPopList } from '@/types/apiType/intelligentAnalysis'

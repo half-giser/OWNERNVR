@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-24 16:46:13
  * @Description: UI1-D客制化 功能面板
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-08 14:29:52
 -->
 <template>
     <div class="config-home">

@@ -2,8 +2,6 @@
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-16 17:19:02
  * @Description: 穿梭框弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 15:55:25
 -->
 <template>
     <el-dialog
@@ -42,12 +40,33 @@
 <script lang="ts" setup>
 const props = withDefaults(
     defineProps<{
+        /**
+         * @property {string} ElDialog 的 props.title
+         */
         headerTitle?: string
+        /**
+         * @property {string} ELTransfer 的 props.tities[0]
+         */
         sourceTitle?: string
+        /**
+         * @property {string} ELTransfer 的 props.tities[1]
+         */
         targetTitle?: string
+        /**
+         * @property {string} ELTransfer 的 props.data
+         */
         sourceData: { label: string; value: string; disabled?: boolean }[]
+        /**
+         * @property {string[]} ELTransfer 的 props.modelValue
+         */
         linkedList: string[]
+        /**
+         * @property {number} 数量限制
+         */
         limit?: number
+        /**
+         * @property {string} 超出数量限制时的文本提示
+         */
         limitTip?: string
     }>(),
     {

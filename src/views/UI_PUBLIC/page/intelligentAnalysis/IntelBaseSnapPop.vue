@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-09 15:29:39
  * @Description: 抓拍弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-29 20:19:48
 -->
 <template>
     <el-dialog
@@ -130,7 +128,7 @@
         width: 135px;
         flex-shrink: 0;
 
-        &:after {
+        &::after {
             content: ' : ';
         }
     }

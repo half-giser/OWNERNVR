@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-09-20 09:10:22
  * @Description: P2P授权码登录
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-11-04 15:44:26
  */
 import type { FormInstance, FormRules } from 'element-plus'
 import { AuthCodeLoginForm } from '@/types/apiType/user'
@@ -58,8 +56,8 @@ export default defineComponent({
         const rules = ref<FormRules>({
             sn: [
                 {
-                    validator(_rule, value, callback) {
-                        if (!value) {
+                    validator: (_rule, value: string, callback) => {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_SN_EMPTY')))
                             return
                         }
@@ -70,8 +68,8 @@ export default defineComponent({
             ],
             code: [
                 {
-                    validator(_rule, value, callback) {
-                        if (!value) {
+                    validator: (_rule, value: string, callback) => {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_AUTHCODE_EMPTY')))
                             return
                         }

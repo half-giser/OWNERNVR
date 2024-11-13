@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-12 18:21:09
  * @Description: SNMP配置
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 16:05:31
  */
 import { NetSNMPForm } from '@/types/apiType/net'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -18,7 +16,7 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             snmpPort: [
                 {
-                    validator(_rule, value, callback) {
+                    validator(_rule, value: number, callback) {
                         if (!disabled.value && !value) {
                             callback(new Error(Translate('IDCS_PROMPT_SNMP_PORT_EMPTY')))
                             return
@@ -30,8 +28,8 @@ export default defineComponent({
             ],
             readCommunity: [
                 {
-                    validator(_rule, value, callback) {
-                        if (!disabled.value && !value.length) {
+                    validator(_rule, value: string, callback) {
+                        if (!disabled.value && !value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_READ_COMMUNITY_EMPTY')))
                             return
                         }
@@ -42,8 +40,8 @@ export default defineComponent({
             ],
             writeCommunity: [
                 {
-                    validator(_rule, value, callback) {
-                        if (!disabled.value && !value.length) {
+                    validator(_rule, value: string, callback) {
+                        if (!disabled.value && !value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_WRITE_COMMUNITY_EMPTY')))
                             return
                         }
@@ -54,9 +52,9 @@ export default defineComponent({
             ],
             trapAddress: [
                 {
-                    validator(_rule, value, callback) {
+                    validator(_rule, value: string, callback) {
                         if (!disabled.value) {
-                            if (!value.length) {
+                            if (!value) {
                                 callback(new Error(Translate('IDCS_PROMPT_TRAP_ADDRESS_EMPTY')))
                                 return
                             }
@@ -73,7 +71,7 @@ export default defineComponent({
             ],
             trapPort: [
                 {
-                    validator(_rule, value, callback) {
+                    validator(_rule, value: number, callback) {
                         if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_TRAP_PORT_EMPTY')))
                             return
@@ -116,13 +114,13 @@ export default defineComponent({
 
                 const sendXml = rawXml`
                     <content>
-                        <snmpv1Switch>${formData.value.snmpv1Switch.toString()}</snmpv1Switch>
-                        <snmpv2Switch>${formData.value.snmpv2Switch.toString()}</snmpv2Switch>
-                        <snmpPort>${formData.value.snmpPort.toString()}</snmpPort>
+                        <snmpv1Switch>${formData.value.snmpv1Switch}</snmpv1Switch>
+                        <snmpv2Switch>${formData.value.snmpv2Switch}</snmpv2Switch>
+                        <snmpPort>${formData.value.snmpPort}</snmpPort>
                         <readCommunity>${formData.value.readCommunity}</readCommunity>
                         <writeCommunity>${formData.value.writeCommunity}</writeCommunity>
                         <trapAddress>${formData.value.trapAddress}</trapAddress>
-                        <trapPort>${formData.value.trapPort.toString()}</trapPort>
+                        <trapPort>${formData.value.trapPort}</trapPort>
                     </content>
                 `
                 const result = await editSNMPCfg(sendXml)

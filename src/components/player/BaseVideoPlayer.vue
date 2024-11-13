@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-05 13:35:57
  * @Description: 多分屏WASM播放器控件
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-30 09:30:26
 -->
 <template>
     <div
@@ -1727,6 +1725,7 @@ defineExpose({
             height: 100%;
             top: 0;
             left: 0;
+
             &:not(:first-child) {
                 display: none;
             }
@@ -1740,14 +1739,17 @@ defineExpose({
                 top: 0;
                 left: 0;
             }
+
             &[data-position='1'] {
                 top: 0;
                 left: 50%;
             }
+
             &[data-position='2'] {
                 top: 50%;
                 left: 0;
             }
+
             &[data-position='3'] {
                 top: 50%;
                 left: 50%;

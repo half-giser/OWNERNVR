@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-22 15:16:17
  * @Description: 云台-任务-编辑弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-10-09 15:02:44
  */
 import { type ChannelPtzTaskDto, ChannelPtzTaskForm } from '@/types/apiType/channel'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -86,11 +84,12 @@ export default defineComponent({
         const formRule = ref<FormRules>({
             name: [
                 {
-                    validator(_rule, value: string, callback) {
-                        if (!value) {
+                    validator: (_rule, value: string, callback) => {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -98,13 +97,13 @@ export default defineComponent({
             ],
             endTime: [
                 {
-                    validator(_rule, value: string, callback) {
+                    validator: (_rule, value: string, callback) => {
                         if (getSeconds(value) < getSeconds(formData.value.startTime)) {
                             callback(new Error(Translate('IDCS_END_TIME_GREATER_THAN_START')))
                             return
                         }
+
                         callback()
-                        return
                     },
                     trigger: 'manual',
                 },

@@ -2,8 +2,6 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-20 10:38:53
  * @Description: 编辑黑白名单弹窗
- * @LastEditors: yejiahao yejiahao@tvt.net.cn
- * @LastEditTime: 2024-09-05 14:16:10
  */
 import { UserEditBlackAllowListForm } from '@/types/apiType/userAndSecurity'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -58,11 +56,13 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_EMPTY')))
                             return
                         }
+
                         const findIndex = prop.tableData.findIndex((item) => item.ip === value)
                         if (findIndex > -1 && findIndex !== prop.index) {
                             callback(new Error(Translate('IDCS_IP_ADDRESS_REPEAT_LIMIT')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -91,6 +91,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_IP_ADDRESS_REPEAT_LIMIT')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -98,7 +99,7 @@ export default defineComponent({
             ],
             endIp: [
                 {
-                    validator: (_rule, _value, callback) => {
+                    validator: (_rule, _value: string, callback) => {
                         if (formData.value.addressType !== 'iprange') {
                             callback()
                             return
@@ -108,6 +109,7 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_EMPTY')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -125,11 +127,13 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_MACADDRESS_INVALID')))
                             return
                         }
+
                         const findIndex = prop.tableData.findIndex((item) => item.mac === value)
                         if (findIndex > -1 && findIndex !== prop.index) {
                             callback(new Error(Translate('IDCS_MAC_ADDRESS_REPEAT_LIMIT')))
                             return
                         }
+
                         callback()
                     },
                     trigger: 'manual',
