@@ -36,26 +36,33 @@ export default defineComponent({
             address: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if (value == '') {
+                        if (!value.trim()) {
                             callback(new Error(Translate('IDCS_PROMPT_EMAIL_ADDRESS_EMPTY')))
                             error.value = Translate('IDCS_PROMPT_EMAIL_ADDRESS_EMPTY')
                             return
-                        } else if (!checkEmail(value)) {
+                        }
+
+                        if (!checkEmail(value)) {
                             callback(new Error(Translate('IDCS_PROMPT_INVALID_EMAIL')))
                             error.value = Translate('IDCS_PROMPT_INVALID_EMAIL')
                             return
-                        } else if (checkExist(value)) {
+                        }
+
+                        if (checkExist(value)) {
                             callback(new Error(Translate('IDCS_PROMPT_EMAIL_EXIST')))
                             error.value = Translate('IDCS_PROMPT_EMAIL_EXIST')
                             return
-                        } else if (pageData.value.data.receiverData.length >= maxEmailCount.value) {
+                        }
+
+                        if (pageData.value.data.receiverData.length >= maxEmailCount.value) {
                             callback(new Error(Translate('IDCS_PROMPT_EMAIL_NUM_LIMIT').formatForLang(maxEmailCount.value)))
                             error.value = Translate('IDCS_PROMPT_EMAIL_NUM_LIMIT').formatForLang(maxEmailCount.value)
                             return
                         }
+
                         callback()
                     },
-                    trigger: 'blur',
+                    trigger: 'manual',
                 },
             ],
         })
@@ -174,6 +181,10 @@ export default defineComponent({
             return result
         }
 
+        const openEditReceiverPop = () => {
+            formRef.value?.clearValidate()
+        }
+
         const open = () => {
             pageData.value.data.saveTargetPicture = props.emailData.saveTargetPicture
             pageData.value.data.saveSourcePicture = props.emailData.saveSourcePicture
@@ -214,6 +225,7 @@ export default defineComponent({
             formatAddress,
             handleDelReceiver,
             handleAddReceiver,
+            openEditReceiverPop,
         }
     },
 })

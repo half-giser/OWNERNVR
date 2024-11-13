@@ -415,11 +415,9 @@
     }
 
     .el-form-item__error {
-        // width: 100%;
         white-space: nowrap;
-        // overflow: hidden;
-        // text-overflow: ellipsis;
-        // text-align: left;
+        padding-top: 0;
+        top: calc(100% - 2px);
     }
 
     .el-popper {

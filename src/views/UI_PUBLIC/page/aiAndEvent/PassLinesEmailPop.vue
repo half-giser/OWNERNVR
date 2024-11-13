@@ -16,6 +16,7 @@
             center
             append-to-body
             width="450"
+            @opened="openEditReceiverPop"
         >
             <el-form
                 ref="formRef"
@@ -30,18 +31,8 @@
                     prop="address"
                 >
                     <el-input v-model="formData.address" />
-                    <template #error>
-                        <div class="custom-error">
-                            {{ error }}
-                        </div>
-                    </template>
                 </el-form-item>
-                <el-form-item
-                    :label="Translate('IDCS_SCHEDULE')"
-                    :style="{
-                        '--form-input-width': '210px',
-                    }"
-                >
+                <el-form-item :label="Translate('IDCS_SCHEDULE')">
                     <el-select v-model="formData.schedule">
                         <el-option
                             v-for="item in pageData.scheduleList"
