@@ -27,7 +27,6 @@ declare global {
     interface String {
         formatForLang: Function
         format: Function
-        toBoolean: () => boolean
         /**
          * @description 如果text()返回的字符串为'true',则返回true，否则为false
          * @returns {boolean}

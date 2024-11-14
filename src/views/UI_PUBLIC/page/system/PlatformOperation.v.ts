@@ -266,7 +266,7 @@ export default defineComponent({
             commLoadResponseHandler(result, async ($) => {
                 $('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
-                    const chlId = item.attr('id')!
+                    const chlId = item.attr('id')
                     tableData.value.push({
                         chlId,
                         chlNum: parseInt(chlId.substring(1, chlId.indexOf('-')), 16),

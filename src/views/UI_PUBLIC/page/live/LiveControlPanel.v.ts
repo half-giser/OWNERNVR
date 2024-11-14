@@ -285,7 +285,7 @@ export default defineComponent({
             const $ = queryXml(result)
 
             if ($('//status').text() !== 'success') {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 let errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
                 if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
                     errorInfo = Translate('IDCS_NO_PERMISSION')
@@ -488,7 +488,7 @@ export default defineComponent({
             const content = $('//content/item')
             if (content.length) {
                 const $item = queryXml(content[0].element)
-                pageData.value.GOP = $item('sub').attr('GOP')!
+                pageData.value.GOP = $item('sub').attr('GOP')
                 pageData.value.chlType = $item('chlType').text()
             } else {
                 // rtsp通道无子码流
@@ -503,28 +503,28 @@ export default defineComponent({
                 }
                 const $chl = queryXml(chl[0].element)
 
-                pageData.value.enct = $chl('sub').attr('enct')!
-                pageData.value.bitType = $chl('sub').attr('bitType')!
-                pageData.value.QoI = $chl('sub').attr('QoI')!
+                pageData.value.enct = $chl('sub').attr('enct')
+                pageData.value.bitType = $chl('sub').attr('bitType')
+                pageData.value.QoI = $chl('sub').attr('QoI')
 
-                streamFormData.value.frameRate = Number($chl('sub').attr('fps'))
-                streamFormData.value.resolution = $chl('sub').attr('res')!
-                streamFormData.value.quality = $chl('sub').attr('QoI')!
+                streamFormData.value.frameRate = $chl('sub').attr('fps').num()
+                streamFormData.value.resolution = $chl('sub').attr('res')
+                streamFormData.value.quality = $chl('sub').attr('QoI')
 
                 pageData.value.resolutionOptions = $chl('subCaps/res').map((item) => {
                     return {
                         label: item.text(),
                         value: item.text(),
-                        maxFps: Number(item.attr('fps')),
+                        maxFps: item.attr('fps').num(),
                     }
                 })
 
                 pageData.value.qualityOptions = $chl('subStreamQualityCaps/item').map((item) => {
                     return {
-                        enct: item.attr('enct')!,
-                        res: item.attr('res')!,
+                        enct: item.attr('enct'),
+                        res: item.attr('res'),
                         value: item.text(),
-                        chlType: item.attr('chlType')!,
+                        chlType: item.attr('chlType'),
                     }
                 })
 
@@ -555,7 +555,7 @@ export default defineComponent({
             const res = streamFormData.value.resolution
             const fps = streamFormData.value.frameRate
             const qoi = streamFormData.value.quality
-            const gop = pageData.value.GOP || Number(streamFormData.value.frameRate * 4)
+            const gop = pageData.value.GOP || streamFormData.value.frameRate * 4
             const sendXml = rawXml`
                 <content type="list" total="1">
                     <item id="${chlID.value}">

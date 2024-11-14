@@ -118,7 +118,7 @@ export default defineComponent({
             pageData.value.chlOptions = $('//content/item').map((item) => {
                 const $item = queryXml(item.element)
                 const text = $item('name').text()
-                const id = item.attr('id')!
+                const id = item.attr('id')
                 chlMap[id] = text
                 return {
                     label: text,
@@ -431,11 +431,11 @@ export default defineComponent({
 
                 pageData.value.points = $('//content/hotPointList/item').map((item) => {
                     const $item = queryXml(item.element)
-                    const chlId = item.attr('hotPointId')!
+                    const chlId = item.attr('hotPointId')
                     return {
                         hotPointId: chlId,
-                        X: (Number($item('X').text()) / 10000) * pageData.value.width,
-                        Y: (Number($item('Y').text()) / 10000) * pageData.value.height,
+                        X: ($item('X').text().num() / 10000) * pageData.value.width,
+                        Y: ($item('Y').text().num() / 10000) * pageData.value.height,
                         count: countMap[chlId] || 0,
                         chlName: chlMap[chlId] || '',
                     }

@@ -416,12 +416,12 @@ export default defineComponent({
                         mainType: Translate(TRANS_MAPPING[SUB_MAIN_TYPE_MAPPING[logType]]),
                         content: $item('content').text(),
                         chl: {
-                            id: $item('chl').attr('id')!,
+                            id: $item('chl').attr('id'),
                             text: $item('chl').text(),
                         },
                         triggerRecChls: $('triggerRecChls/item').map((chl) => {
                             return {
-                                id: chl.attr('id')!,
+                                id: chl.attr('id'),
                                 text: chl.text(),
                             }
                         }),

@@ -56,7 +56,7 @@ export default defineComponent({
                 formData.value.switch = $('//content/autoMaintenanceCfg/switch').text().bool()
                 const interval = $('//content/autoMaintenanceCfg/interval').text()
                 if (interval !== '') {
-                    formData.value.interval = Number(interval)
+                    formData.value.interval = interval.num()
                 }
                 const timeValue = $('//content/autoMaintenanceCfg/time').text().trim().split(':')
                 formData.value.time = new Date(2000, 0, 1, Number(timeValue[0]), Number(timeValue[1]))

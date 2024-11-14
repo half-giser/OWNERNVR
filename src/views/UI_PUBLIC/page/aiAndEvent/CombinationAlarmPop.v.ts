@@ -115,18 +115,18 @@ export default defineComponent({
                         const accessType = $item('AccessType').text()
                         if (protocolType === 'RTSP') return
                         pageData.value.chlsMap.push({
-                            value: item.attr('id')!,
+                            value: item.attr('id'),
                             label: $item('name').text(),
                         })
                         if (factoryName === 'Recorder') return
                         pageData.value.chlsFilterMapForThermal.push({
-                            value: item.attr('id')!,
+                            value: item.attr('id'),
                             label: $item('name').text(),
                         })
                         // 过滤掉热成像通道
                         if (accessType === '1') return
                         pageData.value.chlsFilterMap.push({
-                            value: item.attr('id')!,
+                            value: item.attr('id'),
                             label: $item('name').text(),
                         })
                     })
@@ -144,7 +144,7 @@ export default defineComponent({
                             name = $item('devDesc').text() + '_' + name
                         }
                         pageData.value.sensorsMap.push({
-                            value: item.attr('id')!,
+                            value: item.attr('id'),
                             label: name,
                         })
                     })
@@ -172,7 +172,7 @@ export default defineComponent({
                         if (protocolType === 'RTSP') return
 
                         pageData.value.faceMap.push({
-                            value: item.attr('id')!,
+                            value: item.attr('id'),
                             label: $('name').text(),
                         })
                     })
@@ -197,7 +197,7 @@ export default defineComponent({
                         if (factoryName === 'Recorder') return
                         if (protocolType === 'RTSP') return
                         pageData.value.peaMap.push({
-                            value: item.attr('id')!,
+                            value: item.attr('id'),
                             label: $item('name').text(),
                         })
                     })
@@ -222,7 +222,7 @@ export default defineComponent({
                         if (factoryName === 'Recorder') return
                         if (protocolType === 'RTSP') return
                         pageData.value.tripwireMap.push({
-                            value: item.attr('id')!,
+                            value: item.attr('id'),
                             label: $item('name').text(),
                         })
                     })

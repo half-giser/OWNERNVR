@@ -85,7 +85,7 @@ export default defineComponent({
             pageData.value.faceGroupList = $('//content/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
-                    id: item.attr('id')!,
+                    id: item.attr('id'),
                     name: $item('name').text(),
                     property: $item('property').text(),
                     groupId: $item('groupId').text(),
@@ -185,7 +185,7 @@ export default defineComponent({
                 listData.value = $('//content/item').map((item) => {
                     const $item = queryXml(item.element)
                     const info = new IntelFaceDBFaceInfo()
-                    info.id = item.attr('id')!
+                    info.id = item.attr('id')
                     info.name = $item('name').text()
                     return info
                 })
@@ -216,7 +216,7 @@ export default defineComponent({
             const item = $('//content/item')[0]
             const $item = queryXml(item.element)
             return {
-                id: item.attr('id')!,
+                id: item.attr('id'),
                 number: $item('number').text(),
                 name: $item('name').text(),
                 sex: $item('sex').text(),
@@ -225,7 +225,7 @@ export default defineComponent({
                 certificateType: $item('certificateType').text(),
                 certificateNum: $item('certificateNum').text(),
                 mobile: $item('mobile').text(),
-                faceImgCount: Number($item('faceImgCount').text()),
+                faceImgCount: $item('faceImgCount').text().num(),
                 note: $item('remark').text(),
                 pic: [],
                 groupId: $item('groups/item/groupId').text(),
@@ -271,7 +271,7 @@ export default defineComponent({
             const result = await queryFacePersonnalInfoList(sendXml)
             const $ = queryXml(result)
             if ($('//status').text() === 'success') {
-                pageData.value.faceGroupList[index].count = Number($('//content').attr('total')!)
+                pageData.value.faceGroupList[index].count = $('//content').attr('total').num()
             }
         }
 

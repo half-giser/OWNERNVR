@@ -213,11 +213,11 @@ export default defineComponent({
             const $ = queryXml(res)
             if ($('status').text() === 'success') {
                 pageData.value.chlList = []
-                pageData.value.totalCount = Number($('//content').attr('total'))
+                pageData.value.totalCount = $('//content').attr('total').num()
                 pageData.value.chlList = $('//content/item').map((item) => {
                     const $ = queryXml(item.element)
                     return {
-                        chlId: item.attr('id')!,
+                        chlId: item.attr('id'),
                         chlName: $('name').text(),
                         chlIndex: '1',
                         chlType: $('chlType').text(),

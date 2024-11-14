@@ -63,9 +63,9 @@ export default defineComponent({
             tableData.value = $('//content/physicalDisk/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
-                    id: item.attr('id')!,
+                    id: item.attr('id'),
                     slotIndex: $item('slotIndex').text(),
-                    capacity: Math.floor(Number($item('capacity').text()) / 1024),
+                    capacity: Math.floor($item('capacity').text().num() / 1024),
                     raid: $item('raid').text(),
                     type: $item('type').text(),
                     state: STATE_MAPPING[$item('state').text()],
@@ -137,7 +137,7 @@ export default defineComponent({
                 pageData.value.isCheckAuth = false
                 getData()
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_PWD_ERR:

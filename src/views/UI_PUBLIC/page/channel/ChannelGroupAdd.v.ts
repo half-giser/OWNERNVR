@@ -161,7 +161,7 @@ export default defineComponent({
                     $('//content/item').forEach((ele) => {
                         const eleXml = queryXml(ele.element)
                         const newData = new ChannelInfoDto()
-                        newData.id = ele.attr('id')!
+                        newData.id = ele.attr('id')
                         newData.chlIndex = eleXml('chlIndex').text()
                         newData.chlType = eleXml('chlType').text()
                         newData.name = eleXml('name').text()

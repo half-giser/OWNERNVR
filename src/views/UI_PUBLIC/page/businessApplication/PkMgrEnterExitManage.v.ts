@@ -53,7 +53,7 @@ export default defineComponent({
             tableData.value = $('//content/entryLeaveConfig/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
-                    id: item.attr('id')!,
+                    id: item.attr('id'),
                     channelName: $item('channelName').text(),
                     direction: $item('direction').text(),
                     ip: $item('ip').text(),
@@ -96,7 +96,7 @@ export default defineComponent({
             const result = await queryOnlineChlList()
             const $ = queryXml(result)
 
-            pageData.value.onlineChlList = $('//content/item').map((item) => item.attr('id')!)
+            pageData.value.onlineChlList = $('//content/item').map((item) => item.attr('id'))
             chlStatusRefreshTimer.repeat()
         }
 

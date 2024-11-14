@@ -62,11 +62,11 @@ export default defineComponent({
             if ($('//status').text() === 'success') {
                 const chlList = prop.current.chlList.map((item) => item.id)
                 tableData.value = $('//content/item')
-                    .filter((item) => !chlList.includes(item.attr('id')!))
+                    .filter((item) => !chlList.includes(item.attr('id')))
                     .map((item) => {
                         const $item = queryXml(item.element)
                         return {
-                            id: item.attr('id')!,
+                            id: item.attr('id'),
                             name: $item('name').text(),
                             chlIndex: $item('chlIndex').text(),
                             chlType: $item('chlType').text(),

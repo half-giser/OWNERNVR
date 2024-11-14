@@ -73,7 +73,7 @@ export default defineComponent({
                 $chl('//content/item').forEach((item) => {
                     const $ele = queryXml(item.element)
                     const row = new AlarmEventDto()
-                    row.id = item.attr('id')!
+                    row.id = item.attr('id')
                     row.addType = $ele('addType').text()
                     row.chlType = $ele('chlType').text()
                     row.name = $ele('name').text()
@@ -110,7 +110,7 @@ export default defineComponent({
                             switch: res('//content/chl/trigger/sysRec/switch').text().bool(),
                             chls: res('//content/chl/trigger/sysRec/chls/item').map((item) => {
                                 return {
-                                    value: item.attr('id')!,
+                                    value: item.attr('id'),
                                     label: item.text(),
                                 }
                             }),
@@ -120,7 +120,7 @@ export default defineComponent({
                             switch: res('//content/chl/trigger/sysSnap/switch').text().bool(),
                             chls: res('//content/chl/trigger/sysSnap/chls/item').map((item) => {
                                 return {
-                                    value: item.attr('id')!,
+                                    value: item.attr('id'),
                                     label: item.text(),
                                 }
                             }),
@@ -129,7 +129,7 @@ export default defineComponent({
                             switch: res('//content/chl/trigger/alarmOut/switch').text().bool(),
                             alarmOuts: res('//content/chl/trigger/alarmOut/alarmOuts/item').map((item) => {
                                 return {
-                                    value: item.attr('id')!,
+                                    value: item.attr('id'),
                                     label: item.text(),
                                 }
                             }),
@@ -145,7 +145,7 @@ export default defineComponent({
                                 index: $item('index').text(),
                                 name: $item('name').text(),
                                 chl: {
-                                    value: $item('chl').attr('id')!,
+                                    value: $item('chl').attr('id'),
                                     label: $item('chl').text(),
                                 },
                             })

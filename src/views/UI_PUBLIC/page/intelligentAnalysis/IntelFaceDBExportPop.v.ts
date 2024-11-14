@@ -102,7 +102,7 @@ export default defineComponent({
                     }
 
                     data.forEach((item) => {
-                        pageData.value.totalTask = Number(item.total)
+                        pageData.value.totalTask = item.total.num()
 
                         const groupName = prop.data[item.groupId]
 

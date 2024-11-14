@@ -82,7 +82,7 @@ export default defineComponent({
             if ($('//status').text() === 'success') {
                 pageData.value.cruiseOptions = $('//content/cruises/item').map((item) => {
                     return {
-                        value: item.attr('index')!,
+                        value: item.attr('index'),
                         label: item.text(),
                     }
                 })

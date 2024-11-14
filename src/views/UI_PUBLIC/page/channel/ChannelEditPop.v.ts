@@ -72,7 +72,7 @@ export default defineComponent({
                     editItem.value.port = $('//content/port').text().num()
                     // editItem.value.manufacturer = res('//content/manufacturer').text()
                     const filterPropertyList = filterProperty(props.protocolList, 'index')
-                    const factoryName = $('//content/productModel').attr('factoryName')!
+                    const factoryName = $('//content/productModel').attr('factoryName')
                     const manufacturer = $('//content/manufacturer').text()
                     if (factoryName) {
                         editItem.value.manufacturer = factoryName

@@ -118,8 +118,8 @@ export default defineComponent({
             const $ = queryXml(result)
             $('content/item').forEach((ele) => {
                 const eleXml = queryXml(ele.element)
-                if (eleXml('protocolType').text() === 'HIKVISION') hikvisionIds.push(ele.attr('id')!)
-                if (eleXml('manufacturer').text() === 'TVT') privateProtocolIds.push(ele.attr('id')!)
+                if (eleXml('protocolType').text() === 'HIKVISION') hikvisionIds.push(ele.attr('id'))
+                if (eleXml('manufacturer').text() === 'TVT') privateProtocolIds.push(ele.attr('id'))
             })
         }
 
@@ -142,7 +142,7 @@ export default defineComponent({
                 tableData.value = $('content/item').map((ele) => {
                     const eleXml = queryXml(ele.element)
                     const newData = new ChannelFisheyeDto()
-                    newData.id = ele.attr('id')!
+                    newData.id = ele.attr('id')
                     newData.name = eleXml('name').text()
                     newData.chlIndex = eleXml('chlIndex').text()
                     newData.chlType = eleXml('chlType').text()
@@ -268,7 +268,7 @@ export default defineComponent({
             const $ = queryXml(res)
             $('content/chl').forEach((ele) => {
                 const eleXml = queryXml(ele.element)
-                const rowData = getRowById(ele.attr('id')!)!
+                const rowData = getRowById(ele.attr('id'))!
                 if (eleXml('fishEyeEnable').length) {
                     rowData.fishEyeEnable = eleXml('fishEyeEnable').text().bool()
                     rowData.supportFishEyeEnable = true

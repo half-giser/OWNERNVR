@@ -45,7 +45,7 @@ export default defineComponent({
                     formData.value.params = $('//content/item').map((ele) => {
                         const eleXml = queryXml(ele.element)
                         return {
-                            id: ele.attr('id')!,
+                            id: ele.attr('id'),
                             userName: eleXml('userName').text(),
                             password: '', // 协议修改之后密码不传输
                             displayName: eleXml('displayName').text(),
@@ -115,7 +115,7 @@ export default defineComponent({
                     const defaultPwdData: ChannelDefaultPwdDto[] = $('//content/item').map((ele) => {
                         const eleXml = queryXml(ele.element)
                         return {
-                            id: ele.attr('id')!,
+                            id: ele.attr('id'),
                             userName: eleXml('userName').text(),
                             password: eleXml('password').text(),
                             displayName: eleXml('displayName').text(),

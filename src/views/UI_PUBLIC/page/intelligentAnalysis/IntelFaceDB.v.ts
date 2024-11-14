@@ -247,7 +247,7 @@ export default defineComponent({
                     }
                 })
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_NO_AUTH:
@@ -337,7 +337,7 @@ export default defineComponent({
             tableData.value = $('//content/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
-                    id: item.attr('id')!,
+                    id: item.attr('id'),
                     name: $item('name').text(),
                     property: $item('property').text(),
                     groupId: $item('groupId').text(),
@@ -365,7 +365,7 @@ export default defineComponent({
             const result = await queryFacePersonnalInfoList(sendXml)
             const $ = queryXml(result)
             if ($('//status').text() === 'success') {
-                tableData.value[index].count = Number($('//content').attr('total')!)
+                tableData.value[index].count = $('//content').attr('total').num()
             }
         }
 
@@ -420,12 +420,12 @@ export default defineComponent({
                 const $ = queryXml(result)
                 if ($('//status').text() === 'success') {
                     if (findIndex > -1 && !formData.value.name) {
-                        tableData.value[findIndex].count = Number($('//content').attr('total')!)
+                        tableData.value[findIndex].count = $('//content').attr('total').num()
                     }
                     allGroupTableData.value = $('//content/item').map((item) => {
                         const $item = queryXml(item.element)
                         const info = new IntelFaceDBFaceInfo()
-                        info.id = item.attr('id')!
+                        info.id = item.attr('id')
                         info.name = $item('name').text()
                         return info
                     })
@@ -470,7 +470,7 @@ export default defineComponent({
             const item = $('//content/item')[0]
             const $item = queryXml(item.element)
             return {
-                id: item.attr('id')!,
+                id: item.attr('id'),
                 number: $item('number').text(),
                 name: $item('name').text(),
                 sex: $item('sex').text(),
@@ -479,7 +479,7 @@ export default defineComponent({
                 certificateType: $item('certificateType').text(),
                 certificateNum: $item('certificateNum').text(),
                 mobile: $item('mobile').text(),
-                faceImgCount: Number($item('faceImgCount').text()),
+                faceImgCount: $item('faceImgCount').text().num(),
                 note: $item('remark').text(),
                 pic: [],
                 groupId: '',
@@ -593,7 +593,7 @@ export default defineComponent({
 
                     getFace(1, group.groupId)
                 } else {
-                    const errorCode = Number($('//errorCode').text())
+                    const errorCode = $('//errorCode').text().num()
                     let errorInfo = ''
                     switch (errorCode) {
                         case ErrorCode.USER_ERROR_NO_AUTH:
@@ -666,7 +666,7 @@ export default defineComponent({
 
                 return true
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_NO_AUTH:

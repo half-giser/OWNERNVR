@@ -106,7 +106,7 @@ export default defineComponent({
             channelAuthList.value = $('//content/chlAuth/item').map((item) => {
                 const arrayItem = new UserPermissionChannelAuthList()
                 const $item = queryXml(item.element)
-                arrayItem.id = item.attr('id')!
+                arrayItem.id = item.attr('id')
                 arrayItem.name = $item('name').text()
                 const auth = $item('auth').text()
                 DEFAULT_CHANNEL_AUTH_LIST.forEach((key) => {

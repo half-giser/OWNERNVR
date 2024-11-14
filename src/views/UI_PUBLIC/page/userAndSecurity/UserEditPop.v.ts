@@ -78,7 +78,7 @@ export default defineComponent({
                 formData.value.enabled = $('//content/enabled').text().bool()
                 formData.value.userName = $('//content/userName').text()
                 formData.value.email = $('//content/email').text()
-                formData.value.authGroup = $('//content/authGroup').attr('id')!
+                formData.value.authGroup = $('//content/authGroup').attr('id')
                 formData.value.allowModifyPassword = $('//content/modifyPassword').text().bool()
                 formData.value.authEffective = $('//content/authEffective').text().bool()
 
@@ -159,7 +159,7 @@ export default defineComponent({
                 authGroupOptions.value = $('//content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         name: $item('name').text(),
                     }
                 })

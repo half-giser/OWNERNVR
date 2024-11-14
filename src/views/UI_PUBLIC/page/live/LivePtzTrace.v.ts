@@ -82,11 +82,11 @@ export default defineComponent({
             const result = await queryLocalChlPtzTraceList(sendXml)
             const $ = queryXml(result)
             if ($('//status').text() === 'success' && chlId === prop.chlId) {
-                pageData.value.maxCount = Number($('//content/traces').attr('maxCount'))
+                pageData.value.maxCount = $('//content/traces').attr('maxCount').num()
                 listData.value = $('//content/traces/item').map((item) => {
                     return {
                         name: item.text(),
-                        index: Number(item.attr('index')),
+                        index: item.attr('index').num(),
                     }
                 })
             }

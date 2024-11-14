@@ -158,31 +158,31 @@ export default defineComponent({
                 tableData.value = $('//content/timeStatistic/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
-                        imageTotalNum: Number($item('imageTotalNum').text()),
-                        imageTotalInNum: Number($item('imageTotalInNum').text()),
-                        imageTotalOutNum: Number($item('imageTotalOutNum').text()),
+                        imageTotalNum: $item('imageTotalNum').text().num(),
+                        imageTotalInNum: $item('imageTotalInNum').text().num(),
+                        imageTotalOutNum: $item('imageTotalOutNum').text().num(),
                         chl: $item('chls/item').map((chl) => {
                             const $chl = queryXml(chl.element)
                             return {
-                                chlId: chl.attr('id')!,
-                                imageNum: Number($chl('imageNum').text()),
-                                personIn: Number($chl('personIn').text()),
-                                personOut: Number($chl('personOut').text()),
+                                chlId: chl.attr('id'),
+                                imageNum: $chl('imageNum').text().num(),
+                                personIn: $chl('personIn').text().num(),
+                                personOut: $chl('personOut').text().num(),
                             }
                         }),
                         // groups: $item('groups/item').map((group) => {
                         //     const $group = queryXml(group.element)
                         //     return {
-                        //         groupId: group.attr('id')!,
+                        //         groupId: group.attr('id'),
                         //         name: $group('name').text() || Translate('IDCS_UNKNOWN_GROUP'),
-                        //         imageNum: Number($group('imageNum').text()),
+                        //         imageNum: $group('imageNum').text().num(),
                         //     }
                         // }),
                     }
                 })
                 showMaxSearchLimitTips($)
             } else {
-                if (Number($('//errorCode').text()) === ErrorCode.USER_ERROR_JSU_HAVEACSSYSTEM) {
+                if ($('//errorCode').text().num() === ErrorCode.USER_ERROR_JSU_HAVEACSSYSTEM) {
                     openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_SELECT_EVENT_TIP'),

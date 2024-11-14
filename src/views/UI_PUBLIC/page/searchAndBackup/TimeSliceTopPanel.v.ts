@@ -99,7 +99,7 @@ export default defineComponent({
 
             if ($('//status').text() === 'success') {
                 pageData.value.chlList = $('//content/item').map((item) => {
-                    const id = item.attr('id')!
+                    const id = item.attr('id')
 
                     chlMap.value[id] = item.text()
 
@@ -173,7 +173,7 @@ export default defineComponent({
                             startTime,
                             endTime,
                             chlList: $item('chl/item').map((chl) => {
-                                const chlId = chl.attr('id')!
+                                const chlId = chl.attr('id')
                                 const chlName = chl.text()
                                 chlTimeSliceMap.push({
                                     chlId,

@@ -71,7 +71,7 @@ export default defineComponent({
 
             pageData.value.scheduleList = $('//content/item').map((item) => {
                 return {
-                    id: item.attr('id')!,
+                    id: item.attr('id'),
                     name: item.text(),
                 }
             })

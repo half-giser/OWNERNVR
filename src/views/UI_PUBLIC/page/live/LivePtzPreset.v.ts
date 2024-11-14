@@ -69,11 +69,11 @@ export default defineComponent({
             const result = await queryChlPresetList(sendXml)
             const $ = queryXml(result)
             if ($('//status').text() === 'success' && chlId === prop.chlId) {
-                pageData.value.maxCount = Number($('//content/presets').attr('maxCount'))
+                pageData.value.maxCount = $('//content/presets').attr('maxCount').num()
                 listData.value = $('//content/presets/item').map((item) => {
                     return {
                         name: item.text(),
-                        index: Number(item.attr('index')),
+                        index: item.attr('index').num(),
                     }
                 })
             }

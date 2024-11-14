@@ -207,7 +207,7 @@ export default defineComponent({
             const result = await queryOnlineChlList()
             commLoadResponseHandler(result, ($) => {
                 $('//content/item').forEach((item) => {
-                    onlineChlList.push(item.attr('id')!)
+                    onlineChlList.push(item.attr('id'))
                 })
             })
 
@@ -220,7 +220,7 @@ export default defineComponent({
                         const protocolType = $item('protocolType').text()
                         const factoryName = $item('productModel').attr('factoryName')
                         if (factoryName === 'Recorder') return
-                        const curChlId = item.attr('id')!
+                        const curChlId = item.attr('id')
                         if (protocolType !== 'RTSP' && onlineChlList.includes(curChlId)) {
                             const supportVehiclePlate = $item('supportVehiclePlate').text().bool()
 
@@ -457,8 +457,8 @@ export default defineComponent({
                 } else {
                     // 存在大洲，存储大洲与区域的对应关系
                     plateAreaType.forEach((item) => {
-                        const translate = item.attr('translate')!
-                        const continent = item.attr('continent')!
+                        const translate = item.attr('translate')
+                        const continent = item.attr('continent')
                         const area = item.text()
                         if (continentArea[continent]) {
                             continentArea[continent].push(area)
@@ -1223,7 +1223,7 @@ export default defineComponent({
             commLoadResponseHandler(result, ($) => {
                 $('//content/group/item').forEach((item) => {
                     const $item = queryXml(item.element)
-                    const guid = item.attr('id')!
+                    const guid = item.attr('id')
                     const name = $item('name').text()
                     vehicleGroupNameMap[guid] = name
                     vehicleGroupData.push({

@@ -92,7 +92,7 @@ export default defineComponent({
                         name = connectState ? name : name + '(' + Translate('IDCS_OFFLINE') + ')'
 
                         $item('resource/item').forEach((ele) => {
-                            const eventType: string[] = ele.attr('eventType') ? ele.attr('eventType')!.split(',') : []
+                            const eventType = ele.attr('eventType').split(',')
 
                             const eventTypeText = eventType
                                 .map((item) => {

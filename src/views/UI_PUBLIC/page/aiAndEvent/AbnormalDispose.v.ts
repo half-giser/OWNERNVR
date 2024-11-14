@@ -176,13 +176,13 @@ export default defineComponent({
                     sensitivity: $('//content/chl/param/sensitivity').text().num(),
                     record: $trigger('sysRec/chls/item').map((item) => {
                         return {
-                            value: item.attr('id')!,
+                            value: item.attr('id'),
                             label: item.text(),
                         }
                     }),
                     alarmOut: $trigger('alarmOut/alarmOuts/item').map((item) => {
                         return {
-                            value: item.attr('id')!,
+                            value: item.attr('id'),
                             label: item.text(),
                         }
                     }),
@@ -192,7 +192,7 @@ export default defineComponent({
                             index: $item('index').text(),
                             name: $item('name').text(),
                             chl: {
-                                value: $item('chl').attr('id')!,
+                                value: $item('chl').attr('id'),
                                 label: $item('chl').text(),
                             },
                         }

@@ -173,7 +173,7 @@ export default defineComponent({
                 tableData.value = $('content/item').map((ele) => {
                     const eleXml = queryXml(ele.element)
                     const newData = new ChannelMaskDto()
-                    newData.id = ele.attr('id')!
+                    newData.id = ele.attr('id')
                     newData.name = eleXml('name').text()
                     newData.chlIndex = eleXml('chlIndex').text()
                     newData.chlType = eleXml('chlType').text()
@@ -181,7 +181,7 @@ export default defineComponent({
                     newData.disabled = true
                     return newData
                 })
-                pageTotal.value = Number($('content').attr('total'))
+                pageTotal.value = $('content').attr('total').num()
             } else {
                 tableData.value = []
                 selectedChlId.value = ''
@@ -296,10 +296,10 @@ export default defineComponent({
                         if (rectExist) {
                             const rectangleXml = queryXml(rectangles[index].element)
                             ele.switch = true
-                            ele.X = Number(rectangleXml('X').text())
-                            ele.Y = Number(rectangleXml('Y').text())
-                            ele.width = Number(rectangleXml('width').text())
-                            ele.height = Number(rectangleXml('height').text())
+                            ele.X = rectangleXml('X').text().num()
+                            ele.Y = rectangleXml('Y').text().num()
+                            ele.width = rectangleXml('width').text().num()
+                            ele.height = rectangleXml('height').text().num()
                         } else {
                             ele.switch = false
                             ele.X = ele.Y = ele.width = ele.height = 0

@@ -26,7 +26,7 @@ export const usePosInfo = (mode: Ref<string>) => {
         const height = $systemY.attr('max').num() - $systemY.attr('min').num()
 
         $('//channel/chl').forEach((ele) => {
-            const chlId = ele.attr('id')!
+            const chlId = ele.attr('id')
             const $ele = queryXml(ele.element)
             const previewDisplay = $ele('previewDisplay').text().bool()
             const printMode = $ele('printMode').text()
@@ -56,7 +56,7 @@ export const usePosInfo = (mode: Ref<string>) => {
                 height: $ele(`${$position}height`).text().num(),
             }
             $triggerChls.forEach((item) => {
-                const chlId = item.attr('id')!
+                const chlId = item.attr('id')
                 if (posInfo[chlId]) {
                     posInfo[chlId].displayPosition = displayPosition
                     posInfo[chlId].timeout = Number(timeout)

@@ -62,7 +62,7 @@ export default defineComponent({
                     const $item = queryXml(item.element)
                     return {
                         name: $item('name').text(),
-                        index: Number(item.attr('index') ? item.attr('index') : index),
+                        index: item.attr('index').num() || index,
                     }
                 })
             }

@@ -260,7 +260,7 @@ export default defineComponent({
             if ($('status').text() === 'success') {
                 $('content/item').forEach((ele) => {
                     const eleXml = queryXml(ele.element)
-                    manufacturer[ele.attr('id')!] = eleXml('manufacturer').text()
+                    manufacturer[ele.attr('id')] = eleXml('manufacturer').text()
                 })
             }
         }
@@ -385,7 +385,7 @@ export default defineComponent({
                 tableData.value = $('content/item').map((ele) => {
                     const eleXml = queryXml(ele.element)
                     const newData = new ChannelOsdDto()
-                    newData.id = ele.attr('id')!
+                    newData.id = ele.attr('id')
                     newData.name = eleXml('name').text()
                     newData.ip = eleXml('ip').text()
                     newData.chlIndex = eleXml('chlIndex').text()
@@ -394,7 +394,7 @@ export default defineComponent({
                     nameMapping[newData.id] = newData.name
                     return newData
                 })
-                pageTotal.value = Number($('content').attr('total')!)
+                pageTotal.value = $('content').attr('total').num()
             } else {
                 tableData.value = []
                 selectedChlId.value = ''
@@ -494,7 +494,7 @@ export default defineComponent({
                 return true
             } else {
                 let errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
-                if (Number($('errorCode').text()) === ErrorCode.USER_ERROR_NAME_EXISTED) {
+                if ($('errorCode').text().num() === ErrorCode.USER_ERROR_NAME_EXISTED) {
                     errorInfo = Translate('IDCS_PROMPT_CHANNEL_NAME_EXIST')
                 }
                 rowData.status = 'error'
@@ -550,7 +550,7 @@ export default defineComponent({
                 return true
             } else {
                 let errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
-                if (Number($('errorCode').text()) === ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR) {
+                if ($('errorCode').text().num() === ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR) {
                     errorInfo = Translate('resourceNotExist').formatForLang(Translate('IDCS_CHANNEL'))
                 }
                 rowData.status = 'error'

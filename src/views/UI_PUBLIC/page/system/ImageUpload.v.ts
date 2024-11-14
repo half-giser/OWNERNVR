@@ -101,7 +101,7 @@ export default defineComponent({
                         chlId,
                         chlNum: parseInt(chlId.substring(1, chlId.indexOf('-')), 16),
                         name: $item('chl').text(),
-                        timeCount: Number($item('timeList').attr('total')),
+                        timeCount: $item('timeList').attr('total').num(),
                         timelist,
                     })
                 })

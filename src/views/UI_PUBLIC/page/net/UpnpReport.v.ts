@@ -51,7 +51,7 @@ export default defineComponent({
                 pageData.value.upnpSwitch = $('//content/switch').text().bool()
                 formData.value.switch = $('//content/reportPorts/switch').text().bool()
                 formData.value.serverAddr = $('//content/reportPorts/serverAddr').text()
-                formData.value.port = Number($('//content/reportPorts/port').text())
+                formData.value.port = $('//content/reportPorts/port').text().num()
                 formData.value.manId = $('//content/reportPorts/manId').text()
             }
         }

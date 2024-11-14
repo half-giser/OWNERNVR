@@ -544,7 +544,7 @@ export default defineComponent({
                 pageData.value.chlList = []
                 $('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
-                    const id = item.attr('id')!
+                    const id = item.attr('id')
                     const value = $item('name').text()
                     pageData.value.chlList.push({
                         id,
@@ -571,9 +571,9 @@ export default defineComponent({
                 $('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     pageData.value.chlGroupList.push({
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         value: $item('name').text(),
-                        dwellTime: Number($item('dwellTime').text()),
+                        dwellTime: $item('dwellTime').text().num(),
                     })
                 })
             }
@@ -608,7 +608,7 @@ export default defineComponent({
                 $('//content/chlList/item').forEach((item) => {
                     // const $item = queryXml(item.element)
                     cacheChlListOfGroup[id].push({
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         value: item.text(),
                     })
                 })
@@ -697,8 +697,8 @@ export default defineComponent({
             // 解码卡输出排序
             decoderResXml.forEach((item) => {
                 const $item = queryXml(item.element)
-                const decoderId = Number(item.attr('id'))
-                const onlineStatus = item.attr('onlineStatus')!.bool()
+                const decoderId = item.attr('id').num()
+                const onlineStatus = item.attr('onlineStatus').bool()
                 decoderCardMap.value[decoderId].onlineStatus = onlineStatus
                 const currDecoderOut = $item('item').sort((a, b) => {
                     return a.attr('outIndex').num() - b.attr('outIndex').num()
@@ -715,7 +715,7 @@ export default defineComponent({
                     const $item = queryXml(item.element)
                     const outIndex = item.attr('outIndex').num()
                     // 0/1 表示当前输出是轮询('0')还是预览('1')模式
-                    const isDecoderCheckDwell = Number(item.attr('validItem')) === 0
+                    const isDecoderCheckDwell = item.attr('validItem').num() === 0
                     // 表示当前输出是HDMI IN输出
                     const showHdmiIn = item.attr('ShowHdmiIn').bool()
                     if (showHdmiIn) {
@@ -743,7 +743,7 @@ export default defineComponent({
                                 const chlsData: ChlsDto[] = []
                                 $chlGroup('chls/item').forEach((chlItem) => {
                                     chlsData.push({
-                                        id: chlItem.attr('id')!,
+                                        id: chlItem.attr('id'),
                                         winindex: chlItem.text().num(),
                                     })
                                 })
@@ -761,7 +761,7 @@ export default defineComponent({
                             const chlsData: ChlsDto[] = []
                             $element('chls/item').forEach((chl) => {
                                 chlsData.push({
-                                    id: chl.attr('id')!,
+                                    id: chl.attr('id'),
                                     winindex: chl.text().num(),
                                 })
                             })
@@ -783,7 +783,7 @@ export default defineComponent({
                 const chlsData: ChlsDto[] = []
                 $item('chls/item').forEach((chl) => {
                     chlsData.push({
-                        id: chl.attr('id')!,
+                        id: chl.attr('id'),
                         winindex: chl.text().num(),
                     })
                 })
@@ -843,12 +843,12 @@ export default defineComponent({
                         })
                     } else {
                         subOutputPreviewData.value[outIndex].displayMode = displayMode
-                        const segNum = Number($element('segNum').text())
+                        const segNum = $element('segNum').text().num()
                         const chlsData: ChlsDto[] = []
                         $element('chls/item').forEach((chl) => {
                             chlsData.push({
-                                id: chl.attr('id')!,
-                                winindex: Number(chl.text()),
+                                id: chl.attr('id'),
+                                winindex: chl.text().num(),
                             })
                         })
                         subOutputPreviewData.value[outIndex].chlGroups[0].segNum = segNum
@@ -922,7 +922,7 @@ export default defineComponent({
                 pageData.value.isCheckAuth = false
                 pageData.value.configSwitch = !pageData.value.configSwitch
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 let errorInfo = ''
 
                 switch (errorCode) {

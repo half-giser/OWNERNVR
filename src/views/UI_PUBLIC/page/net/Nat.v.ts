@@ -99,8 +99,8 @@ export default defineComponent({
             const result = await queryP2PCfg()
             const $ = queryXml(result)
             pageData.value.natServerTypeOptions = $('//types/natServerType/enum').map((item) => {
-                pageData.value.visitAddress = item.attr('visitAddress')!
-                const index = item.attr('index')!
+                pageData.value.visitAddress = item.attr('visitAddress')
+                const index = item.attr('index')
                 const defaultLabel = index === '0' ? Translate('IDCIDCS_NATS_TAG_P2P1') : Translate('IDCS_NAT')
                 return {
                     value: index,

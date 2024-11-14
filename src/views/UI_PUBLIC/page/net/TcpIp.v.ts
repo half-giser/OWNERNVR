@@ -126,7 +126,7 @@ export default defineComponent({
                         if (bond.ipV6Switch) {
                             data.ipV6 = $item('ipV6').text()
                             data.gatewayV6 = $item('gatewayV6').text()
-                            data.subLengthV6 = Number($item('subLengthV6').text())
+                            data.subLengthV6 = $item('subLengthV6').text().num()
                             if (bond.ipv6DnsDhcpSwitch) {
                                 data.ipv6Dns1 = $item('ipv6Dns1').text()
                                 data.ipv6Dns2 = $item('ipv6Dns2').text()
@@ -159,7 +159,7 @@ export default defineComponent({
                     if (config.ipV6Switch) {
                         data.ipV6 = $item('ipV6').text()
                         data.gatewayV6 = $item('gatewayV6').text()
-                        data.subLengthV6 = Number($item('subLengthV6').text())
+                        data.subLengthV6 = $item('subLengthV6').text().num()
                         if (config.ipv6DnsDhcpSwitch) {
                             data.ipv6Dns1 = $item('ipv6Dns1').text()
                             data.ipv6Dns2 = $item('ipv6Dns2').text()
@@ -178,7 +178,7 @@ export default defineComponent({
             const $ = queryXml(result)
             const $content = queryXml($('//content')[0].element)
             formData.value.netConfig.defaultNic = $content('defaultNic').text()
-            formData.value.netConfig.poeMode = Number($content('poeMode').text())
+            formData.value.netConfig.poeMode = $content('poeMode').text().num()
             formData.value.netConfig.supportNetworkFaultTolerance = $content('supportNetworkFaultTolerance').text().bool()
             formData.value.netConfig.supportNetworkMultiAddrSetting = $content('supportNetworkMultiAddrSetting').text().bool()
             formData.value.netConfig.toeEnable = $content('toeEnable').text().bool()
@@ -190,18 +190,18 @@ export default defineComponent({
                 const $item = queryXml(item.element)
                 return {
                     index: index,
-                    id: item.attr('id')!,
+                    id: item.attr('id'),
                     dhcpSwitch: $item('dhcpSwitch').text().bool(),
                     primaryNIC: $item('primaryNIC').text(),
                     NICs: $item('NICs').text(),
                     ip: $item('ip').text(),
                     gateway: $item('gateway').text(),
                     mask: $item('mask').text(),
-                    mtu: Number($item('mtu').text()),
+                    mtu: $item('mtu').text().num(),
                     ipV6Switch: $item('ipV6Switch').text().bool(),
                     ipV6: $item('ipV6').text(),
                     gatewayV6: $item('gatewayV6').text(),
-                    subLengthV6: Number($item('subLengthV6').text()),
+                    subLengthV6: $item('subLengthV6').text().num(),
                     ipv4DnsDhcpSwitch: $item('dhcpSwitch').text().bool() ? $item('ipv4DnsDhcpSwitch').text().bool() : false,
                     dns1: $item('dns1').text(),
                     dns2: $item('dns2').text() || '0.0.0.0',
@@ -213,26 +213,26 @@ export default defineComponent({
             })
             formData.value.nicConfigs = $content('nicConfigs/item').map((item, index) => {
                 const $item = queryXml(item.element)
-                if (item.attr('isPoe')!.bool()) {
+                if (item.attr('isPoe').bool()) {
                     pageData.value.hasPoeNic = true
                     pageData.value.nicIndex = index
                 }
                 return {
                     index: index,
-                    id: item.attr('id')!,
-                    isPoe: item.attr('isPoe')!.bool(),
-                    isSupSecondIP: item.attr('isSupSecondIP')!.bool(),
-                    isSupMultiWorkMode: item.attr('isSupMultiWorkMode')!.bool(),
+                    id: item.attr('id'),
+                    isPoe: item.attr('isPoe').bool(),
+                    isSupSecondIP: item.attr('isSupSecondIP').bool(),
+                    isSupMultiWorkMode: item.attr('isSupMultiWorkMode').bool(),
                     dhcpSwitch: $item('dhcpSwitch').text().bool(),
                     ip: $item('ip').text(),
                     gateway: $item('gateway').text(),
                     mask: $item('mask').text(),
                     mac: $item('mac').text(),
-                    mtu: Number($item('mtu').text()),
+                    mtu: $item('mtu').text().num(),
                     ipV6Switch: $item('ipV6Switch').text().bool(),
                     ipV6: $item('ipV6').text(),
                     gatewayV6: $item('gatewayV6').text(),
-                    subLengthV6: Number($item('subLengthV6').text()),
+                    subLengthV6: $item('subLengthV6').text().num(),
                     isOnline: $item('isOnline').text().bool(),
                     ipv4DnsDhcpSwitch: $item('dhcpSwitch').text().bool() ? $item('ipv4DnsDhcpSwitch').text().bool() : false,
                     dns1: $item('dns1').text(),
@@ -749,7 +749,7 @@ export default defineComponent({
             if ($('//status').text() === 'success') {
                 commSaveResponseHadler(result)
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_INVALID_IP:

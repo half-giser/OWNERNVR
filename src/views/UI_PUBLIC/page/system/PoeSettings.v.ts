@@ -48,7 +48,7 @@ export default defineComponent({
                 if (!tableData.value.length) {
                     tableData.value = $('//content/poePort/item').map((item, index) => {
                         const $item = queryXml(item.element)
-                        const id = item.attr('index')!
+                        const id = item.attr('index')
                         const poeName = index < 10 ? '0' + index : '' + index
                         indexMapping[id] = index
                         return {
@@ -61,7 +61,7 @@ export default defineComponent({
                 } else {
                     $('//content/poePort/item').forEach((item) => {
                         const $item = queryXml(item.element)
-                        const index = indexMapping[item.attr('index')!]
+                        const index = indexMapping[item.attr('index')]
                         tableData.value[index].power = $item('power').text() + 'W'
                     })
                 }

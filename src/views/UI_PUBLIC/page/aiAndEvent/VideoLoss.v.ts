@@ -51,7 +51,7 @@ export default defineComponent({
                     $('//content/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         pageData.value.videoPopupList.push({
-                            value: item.attr('id')!,
+                            value: item.attr('id'),
                             label: $item('name').text(),
                         })
                     })
@@ -71,7 +71,7 @@ export default defineComponent({
                 $chl('//content/item').forEach(async (item) => {
                     const $ele = queryXml(item.element)
                     const row = new AlarmEventDto()
-                    row.id = item.attr('id')!
+                    row.id = item.attr('id')
                     row.name = $ele('name').text()
                     row.status = 'loading'
                     tableData.value.push(row)
@@ -92,7 +92,7 @@ export default defineComponent({
                             switch: res('//content/sysSnap/switch').text().bool(),
                             chls: res('//content/sysSnap/chls/item').map((item) => {
                                 return {
-                                    value: item.attr('id')!,
+                                    value: item.attr('id'),
                                     label: item.text(),
                                 }
                             }),
@@ -103,7 +103,7 @@ export default defineComponent({
                             switch: res('//content/alarmOut/switch').text().bool(),
                             alarmOuts: res('//content/alarmOut/alarmOuts/item').map((item) => {
                                 return {
-                                    value: item.attr('id')!,
+                                    value: item.attr('id'),
                                     label: item.text(),
                                 }
                             }),

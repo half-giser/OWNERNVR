@@ -210,13 +210,13 @@ export default defineComponent({
             const $ = queryXml(result)
 
             formData.value.deviceName = $('//content/name').text()
-            formData.value.deviceNumber = Number($('//content/deviceNumber').text())
+            formData.value.deviceNumber = $('//content/deviceNumber').text().num()
             formData.value.enableAutoDwell = $('//content/autoDwell').text().bool()
 
-            formData.value.waitTime = Number($('//content/autoDwellWaitTime').text())
+            formData.value.waitTime = $('//content/autoDwellWaitTime').text().num()
             pageData.value.waitTimeOption = []
             $('//types/autoDwellWaitTime/enum').forEach((item) => {
-                pageData.value.waitTimeOption.push(Number(item.text()))
+                pageData.value.waitTimeOption.push(item.text().num())
             })
 
             formData.value.videoFormat = $('//content/videoType').text()
@@ -241,7 +241,7 @@ export default defineComponent({
 
             // 显示多路输出分辨率
             $('//content/resolution/item').forEach((item) => {
-                const index = Number(item.attr('index'))
+                const index = item.attr('index').num()
                 formData.value.resolution[index] = item.text()
                 if (index === 0) {
                     formData.value.outputAdapt = item.attr('set') === 'true'
@@ -268,20 +268,20 @@ export default defineComponent({
             // 解码卡输出排序
             const decoderResolutionEnumXml = $('//types/DecoderResolution/decoder')
             decoderResolutionEnumXml.sort(($a, $b) => {
-                return Number($a.attr('id')) - Number($b.attr('id'))
+                return $a.attr('id').num() - $b.attr('id').num()
             })
             const decoderEnum: Record<number, Record<number, string[]>> = {}
 
             decoderResolutionEnumXml.forEach((item) => {
                 const $item = queryXml(item.element)
-                const id = Number(item.attr('id'))
+                const id = item.attr('id').num()
 
                 if (!decoderEnum[id]) {
                     decoderEnum[id] = {}
                 }
                 $item('output').forEach((element) => {
                     const $element = queryXml(element.element)
-                    const outputIndex = Number(element.attr('index'))
+                    const outputIndex = element.attr('index').num()
 
                     if (!decoderCardMap[id]) {
                         // 用id区分属于哪一解码卡的输出
@@ -301,7 +301,7 @@ export default defineComponent({
 
             $('//content/decoderResolution/decoder').forEach((item) => {
                 const $item = queryXml(item.element)
-                const decoderId = Number(item.attr('id'))
+                const decoderId = item.attr('id').num()
                 const onlineStatus = item.attr('onlineStatus') === 'true'
                 decoderCardMap[decoderId].onlineStatus = onlineStatus
 
@@ -310,7 +310,7 @@ export default defineComponent({
                 }
 
                 $item('item').forEach((element) => {
-                    const index = Number(element.attr('index')) // 解码卡的输出序号
+                    const index = element.attr('index').num() // 解码卡的输出序号
                     const value = element.text()
                     decoderCardMap[decoderId][index] = value
                 })

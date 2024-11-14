@@ -107,7 +107,7 @@ export default defineComponent({
                         const protocolType = $item('protocolType').text()
                         if (protocolType === 'RTSP') return
                         pageData.value.videoPopupChlList.push({
-                            value: item.attr('id')!,
+                            value: item.attr('id'),
                             label: $item('name').text(),
                         })
                     })
@@ -147,7 +147,7 @@ export default defineComponent({
                     const $trigger = queryXml(trigger[0].element)
 
                     const row: AlarmCombinedDto = {
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         name: $item('param/name').text(),
                         status: '',
                         combinedAlarm: {
@@ -158,7 +158,7 @@ export default defineComponent({
                             switch: $trigger('sysRec/switch').text().bool(),
                             chls: $trigger('sysRec/chls/item').map((element) => {
                                 return {
-                                    value: element.attr('id')!,
+                                    value: element.attr('id'),
                                     label: element.text(),
                                 }
                             }),
@@ -167,7 +167,7 @@ export default defineComponent({
                             switch: $trigger('sysSnap/switch').text().bool(),
                             chls: $trigger('sysSnap/chls/item').map((element) => {
                                 return {
-                                    value: element.attr('id')!,
+                                    value: element.attr('id'),
                                     label: element.text(),
                                 }
                             }),
@@ -176,7 +176,7 @@ export default defineComponent({
                             switch: $trigger('alarmOut/switch').text().bool(),
                             alarmOuts: $trigger('alarmOut/alarmOuts/item').map((element) => {
                                 return {
-                                    value: element.attr('id')!,
+                                    value: element.attr('id'),
                                     label: element.text(),
                                 }
                             }),
@@ -207,7 +207,7 @@ export default defineComponent({
                         row.sysAudio = DEFAULT_EMPTY_ID
                     }
 
-                    const currCombinedId = item.attr('id')!
+                    const currCombinedId = item.attr('id')
                     $item('param/alarmSource/item').forEach((ele) => {
                         const $ele = queryXml(ele.element)
                         const APISource = $ele('alarmSourceType').text() // 接口返回报警类型
@@ -229,11 +229,11 @@ export default defineComponent({
                                         const faceDataBase = [] as string[]
                                         $faceGroup('content/item').forEach((ele2) => {
                                             const $ele2 = queryXml(ele2.element)
-                                            chlIdMapFaceName[ele2.attr('id')!] = $ele2('name').text()
+                                            chlIdMapFaceName[ele2.attr('id')] = $ele2('name').text()
                                         })
                                         $faceItem('groupId/item').forEach((ele3) => {
-                                            groupId.push(ele3.attr('id')!)
-                                            faceDataBase.push(chlIdMapFaceName[ele3.attr('id')!])
+                                            groupId.push(ele3.attr('id'))
+                                            faceDataBase.push(chlIdMapFaceName[ele3.attr('id')])
                                         })
                                         pageData.value.faceObj[currCombinedId] = {}
                                         pageData.value.faceObj[currCombinedId][APIChlId] = {}

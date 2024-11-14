@@ -161,7 +161,7 @@ export default defineComponent({
                     const rowData = new ChannelLogoSetDto()
                     rowData.disabled = true
                     rowData.status = 'loading'
-                    rowData.chlId = item.attr('id')!
+                    rowData.chlId = item.attr('id')
                     rowData.chlName = $item('name').text()
                     return rowData
                 })

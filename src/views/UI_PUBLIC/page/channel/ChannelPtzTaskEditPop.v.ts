@@ -134,7 +134,7 @@ export default defineComponent({
 
             pageData.value.nameOptions = $('//content/presets/item').map((item) => {
                 return {
-                    value: item.attr('index')!,
+                    value: item.attr('index'),
                     label: item.text(),
                 }
             })
@@ -154,7 +154,7 @@ export default defineComponent({
             const $ = queryXml(result)
             pageData.value.nameOptions = $('//content/cruises/item').map((item) => {
                 return {
-                    value: item.attr('index')!,
+                    value: item.attr('index'),
                     label: item.text(),
                 }
             })
@@ -174,7 +174,7 @@ export default defineComponent({
             const $ = queryXml(result)
             pageData.value.nameOptions = $('//content/traces/item').map((item) => {
                 return {
-                    value: item.attr('index')!,
+                    value: item.attr('index'),
                     label: item.text(),
                 }
             })

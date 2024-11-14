@@ -282,17 +282,17 @@ export default defineComponent({
                     if (item.attr('id') === 'NVMS5000') {
                         formData.value.nwms5000Switch = $item('switch').text().bool()
                         formData.value.serverAddr = $item('serverAddr').text()
-                        formData.value.reportId = Number($item('reportId').text())
-                        formData.value.port = Number($item('port').text())
+                        formData.value.reportId = $item('reportId').text().num()
+                        formData.value.port = $item('port').text().num()
                     } else if (item.attr('id') === 'GB28181') {
                         formData.value.gb28181Switch = $item('switch').text().bool()
                         formData.value.sipRelm = $item('sipServerInfo/relm').text()
                         formData.value.sipAddr = $item('sipServerInfo/addr').text()
-                        formData.value.sipLocalPort = Number($item('sipServerInfo/localPort').text())
-                        formData.value.sipPort = Number($item('sipServerInfo/port').text())
+                        formData.value.sipLocalPort = $item('sipServerInfo/localPort').text().num()
+                        formData.value.sipPort = $item('sipServerInfo/port').text().num()
                         formData.value.sipDeviceId = $item('sipServerInfo/deviceId').text()
                         formData.value.sipUserName = $item('sipServerInfo/username').text()
-                        formData.value.sipId = $item('sipServerInfo').attr('id')!
+                        formData.value.sipId = $item('sipServerInfo').attr('id')
                     }
                 })
                 $('//types/platformType/enum').forEach((item) => {
@@ -314,12 +314,12 @@ export default defineComponent({
                 if ($('//content/item/sipChl').length) {
                     tableData.value.push({
                         value: 'chl',
-                        type: $('//content/item/sipChl').attr('type')!,
+                        type: $('//content/item/sipChl').attr('type'),
                         label: Translate('IDCS_CHANNEL'),
                         list: $('//content/item/sipChl/item').map((item) => {
                             return {
-                                id: item.attr('id')!,
-                                gbId: item.attr('gbId')!,
+                                id: item.attr('id'),
+                                gbId: item.attr('gbId'),
                                 text: item.text(),
                             }
                         }),
@@ -327,12 +327,12 @@ export default defineComponent({
 
                     tableData.value.push({
                         value: 'alarm',
-                        type: $('//content/item/sipSensor').attr('type')!,
+                        type: $('//content/item/sipSensor').attr('type'),
                         label: Translate('IDCS_ALARM_IN'),
                         list: $('//content/item/sipSensor/item').map((item) => {
                             return {
-                                id: item.attr('id')!,
-                                gbId: item.attr('gbId')!,
+                                id: item.attr('id'),
+                                gbId: item.attr('gbId'),
                                 text: item.text(),
                             }
                         }),

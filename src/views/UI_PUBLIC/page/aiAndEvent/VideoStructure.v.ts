@@ -427,7 +427,7 @@ export default defineComponent({
                     const tagName = item.element.tagName
                     if (tagName !== 'shoulderbagSwitch' && tagName !== 'modelyearSwitch' && tagName !== 'modelSwitch') {
                         osdPersonCfgList.push({
-                            index: item.attr('index')!,
+                            index: item.attr('index'),
                             value: item.text(),
                             tagName,
                         })
@@ -439,7 +439,7 @@ export default defineComponent({
                     const tagName = item.element.tagName
                     if (tagName !== 'shoulderbagSwitch' && tagName !== 'modelyearSwitch' && tagName !== 'modelSwitch') {
                         osdCarCfgList.push({
-                            index: item.attr('index')!,
+                            index: item.attr('index'),
                             value: item.text(),
                             tagName,
                         })
@@ -451,7 +451,7 @@ export default defineComponent({
                     const tagName = item.element.tagName
                     if (tagName !== 'shoulderbagSwitch' && tagName !== 'modelyearSwitch' && tagName !== 'modelSwitch') {
                         osdBikeCfgList.push({
-                            index: item.attr('index')!,
+                            index: item.attr('index'),
                             value: item.text(),
                             tagName,
                         })

@@ -293,7 +293,7 @@ export default defineComponent({
                 if ($('//status').text() === 'success') {
                     searchPlate(row.groupId, true)
                 } else {
-                    const errorCode = Number($('//errorCode').text())
+                    const errorCode = $('//errorCode').text().num()
                     if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
                         openMessageBox({
                             type: 'info',
@@ -370,7 +370,7 @@ export default defineComponent({
                 groupTableData.value = $('//content/plate/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         groupId: $item('groupId').text(),
                         plateNumber: $item('plateNumber').text(),
                         owner: $item('owner').text(),
@@ -379,7 +379,7 @@ export default defineComponent({
                         ownerFaceId: $item('ownerFaceId').text(),
                     }
                 })
-                formData.value.total = Number($('//content/plate').attr('total')!)
+                formData.value.total = $('//content/plate').attr('total').num()
             }
         }
 
@@ -397,9 +397,9 @@ export default defineComponent({
             tableData.value = $('//content/group/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
-                    id: item.attr('id')!,
+                    id: item.attr('id'),
                     name: $item('name').text(),
-                    plateNum: Number($item('plateNum').text()),
+                    plateNum: $item('plateNum').text().num(),
                 }
             })
         }

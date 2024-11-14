@@ -153,13 +153,17 @@ export default defineComponent({
             const $ = await querySystemCaps()
             const res = queryXml($)
             if (res('status').text() === 'success') {
-                const totalBandwidth = Number(res('//content/totalBandwidth').text()) * 1
+                const totalBandwidth = res('//content/totalBandwidth').text().num()
                 let usedBandwidth = 0
                 // 需要改
                 if (props.mode === 'event') {
-                    usedBandwidth = Number(res('//content/' + (RecStreamModule.value.recType === 'me' ? 'usedManualBandwidth' : 'usedAutoBandwidth')).text()) * 1
+                    usedBandwidth = res('//content/' + (RecStreamModule.value.recType === 'me' ? 'usedManualBandwidth' : 'usedAutoBandwidth'))
+                        .text()
+                        .num()
                 } else if (props.mode === 'timing') {
-                    usedBandwidth = Number(res('//content/' + (RecStreamModule.value.recType === 'mn' ? 'usedManualBandwidth' : 'usedAutoBandwidth')).text()) * 1
+                    usedBandwidth = res('//content/' + (RecStreamModule.value.recType === 'mn' ? 'usedManualBandwidth' : 'usedAutoBandwidth'))
+                        .text()
+                        .num()
                 }
                 // 可能要用于bandwidthDetail
                 // const singleChannelBandwidth = res('//content/singleChannelBandwidth').text()
@@ -170,8 +174,8 @@ export default defineComponent({
                     remainBandwidth = 0
                 }
                 pageData.value.txtBandwidth = Translate('IDCS_CURRENT_BANDWIDTH_ALL_D_D').formatForLang(remainBandwidth.toFixed(0), totalBandwidth.toFixed(0))
-                pageData.value.audioInNum = Number(res('//content/audioInNum').text()) * 1
-                pageData.value.mainStreamLimitFps = Number(res('//content/mainStreamLimitFps').text()) * 1 || pageData.value.mainStreamLimitFps
+                pageData.value.audioInNum = res('//content/audioInNum').text().num()
+                pageData.value.mainStreamLimitFps = res('//content/mainStreamLimitFps').text().num() || pageData.value.mainStreamLimitFps
             }
             ctx.emit('bandwidth', pageData.value.txtBandwidth)
         }
@@ -184,7 +188,7 @@ export default defineComponent({
             $('//content/item').forEach((ele) => {
                 const eleXml = queryXml(ele.element)
                 rowData.push({
-                    '@id': ele.attr('id')!,
+                    '@id': ele.attr('id'),
                     addType: eleXml('addType').text(),
                     chlType: eleXml('chlType').text(),
                     chlIndex: eleXml('chlIndex').text(),
@@ -238,12 +242,12 @@ export default defineComponent({
                 res('//content/item').forEach((ele) => {
                     const eleXml = queryXml(ele.element)
                     const item = new RecordStreamInfoDto()
-                    item['@id'] = ele.attr('id')!.trim()
+                    item['@id'] = ele.attr('id').trim()
                     item.name = eleXml('name').text()
                     item.chlType = eleXml('chlType').text()
                     const resList: { '@fps': string; value: string }[] = []
                     eleXml('mainCaps/res').forEach((element) => {
-                        resList.push({ '@fps': element.attr('fps')!, value: element.text() })
+                        resList.push({ '@fps': element.attr('fps'), value: element.text() })
                     })
                     item.mainCaps = {
                         '@supEnct':
@@ -298,10 +302,10 @@ export default defineComponent({
                     // 获取码率类型
                     eleXml('mainStreamQualityCaps/item').forEach((element) => {
                         item.mainStreamQualityCaps.push({
-                            '@enct': element.attr('enct')!,
-                            '@res': element.attr('res')!,
-                            '@digitalDefault': element.attr('digitalDefault')!,
-                            '@analogDefault': element.attr('analogDefault')!,
+                            '@enct': element.attr('enct'),
+                            '@res': element.attr('res'),
+                            '@digitalDefault': element.attr('digitalDefault'),
+                            '@analogDefault': element.attr('analogDefault'),
                             value: element.text().split(',') ? element.text().split(',') : [],
                         })
                         if (element.attr('enct') === 'h264' && element.attr('res') === '0x0' && pageData.value.videoQualityListFlag === 0) {
@@ -479,7 +483,7 @@ export default defineComponent({
                         const recTimeArray: string[] = []
                         item.forEach((ele) => {
                             const elexml = queryXml(ele.element)
-                            const remainRecTime = Number(elexml('remainRecTime').text())
+                            const remainRecTime = elexml('remainRecTime').text().num()
                             const recTime =
                                 remainRecTime === 0 && RecStreamModule.value.loopRecSwitch
                                     ? Translate('IDCS_CYCLE_RECORD')
@@ -1308,7 +1312,7 @@ export default defineComponent({
                         })
                         pageData.value.editeRows = []
                     } else {
-                        const errorCode = Number(res('//errorCode').text())
+                        const errorCode = res('//errorCode').text().num()
                         if (errorCode === ErrorCode.USER_ERROR_OVER_LIMIT) {
                             openMessageBox({
                                 type: 'info',

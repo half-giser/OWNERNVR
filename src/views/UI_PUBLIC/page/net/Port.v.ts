@@ -212,11 +212,11 @@ export default defineComponent({
         const getPortData = async () => {
             const result = await queryNetPortCfg()
             commLoadResponseHandler(result, ($) => {
-                portFormData.value.httpPort = Number($('//content/httpPort').text())
-                portFormData.value.httpsPort = Number($('//content/httpsPort').text())
-                portFormData.value.netPort = Number($('//content/netPort').text())
-                portFormData.value.posPort = Number($('//content/posPort').text())
-                // portFormData.value.rtspPort = Number($("//content/rtspPort").text())
+                portFormData.value.httpPort = $('//content/httpPort').text().num()
+                portFormData.value.httpsPort = $('//content/httpsPort').text().num()
+                portFormData.value.netPort = $('//content/netPort').text().num()
+                portFormData.value.posPort = $('//content/posPort').text().num()
+                // portFormData.value.rtspPort = $("//content/rtspPort").text().num()
                 portFormData.value.virtualHostEnabled = $('//content/virtualHostEnabled').text().bool()
 
                 const reservedPort = $('//content/reservedPort').text().split(',')
@@ -325,7 +325,7 @@ export default defineComponent({
             pageData.value.upnp = {
                 switch: $('//content/switch').text(),
                 mappingType: $('//content/mappingType').text(),
-                portsType: $('//content/ports').attr('type')!,
+                portsType: $('//content/ports').attr('type'),
                 ports: $('//content/ports/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
@@ -460,7 +460,7 @@ export default defineComponent({
                 })
                 rtspServerFormData.value.rtspServerSwitch = $('//content/rtspServerSwitch').text().bool()
                 rtspServerFormData.value.rtspAuthType = $('//content/rtspAuthType').text()
-                rtspServerFormData.value.rtspPort = Number($('//content/rtspPort').text())
+                rtspServerFormData.value.rtspPort = $('//content/rtspPort').text().num()
                 rtspServerFormData.value.anonymousAccess = $('//content/anonymousAccess').text().bool()
             }
         }

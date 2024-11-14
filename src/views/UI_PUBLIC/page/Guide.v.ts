@@ -356,7 +356,7 @@ export default defineComponent({
             pageData.value.questionMaxCount = $('//content/maxQuestionNum').text().num() || 7
             pageData.value.questionOptions = $('//content/question').map((item) => {
                 return {
-                    id: item.attr('index')!,
+                    id: item.attr('index'),
                     question: item.text(),
                     answer: '',
                 }
@@ -397,8 +397,8 @@ export default defineComponent({
             if ($('//status').text() === 'success') {
                 pageData.value.regionList = $('//content/item').map((item) => {
                     return {
-                        id: item.attr('id')!,
-                        code: item.attr('localityCode')!,
+                        id: item.attr('id'),
+                        code: item.attr('localityCode'),
                         name: item.text(),
                     }
                 })
@@ -746,7 +746,7 @@ export default defineComponent({
             $storage('//content/diskList/item').map((item) => {
                 const $item = queryXml(item.element)
 
-                const diskId = item.attr('id')!
+                const diskId = item.attr('id')
                 const diskStatus = $(`//content/item[@id="${diskId}"]/diskStatus`).text()
                 const diskEncryptStatus = $(`//content/item[@id="${diskId}"]/diskEncryptStatus`).text()
                 const diskInterfaceType = $item('diskInterfaceType').text()

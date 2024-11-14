@@ -123,7 +123,7 @@ export default defineComponent({
 
             if ($('//status').text() === 'success') {
                 pageData.value.cacheChlList = $('//content/item').map((item) => {
-                    const id = item.attr('id')!
+                    const id = item.attr('id')
 
                     // 新获取的通道列表若没有已选中的通道，移除该选中的通道
                     const index = pageData.value.selectedChl.indexOf('id')
@@ -229,13 +229,13 @@ export default defineComponent({
                 pageData.value.chlGroupList = $('//content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         value: $item('name').text(),
-                        dwellTime: Number($item('dwellTime').text()),
+                        dwellTime: $item('dwellTime').text().num(),
                     }
                 })
             } else {
-                if (Number($('//errorCode').text()) === ErrorCode.USER_ERROR_NO_AUTH) {
+                if ($('//errorCode').text().num() === ErrorCode.USER_ERROR_NO_AUTH) {
                     openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_NO_PERMISSION'),
@@ -274,7 +274,7 @@ export default defineComponent({
             if ($('//status').text() === 'success') {
                 pageData.value.chlListOfGroup = $('//content/chlList/item').map((item) => {
                     return {
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         value: item.text(),
                     }
                 })

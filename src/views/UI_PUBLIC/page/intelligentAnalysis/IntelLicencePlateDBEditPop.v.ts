@@ -92,7 +92,7 @@ export default defineComponent({
             if ($('//status').text() === 'success') {
                 ctx.emit('confirm')
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 let errorInfo = ''
 
                 switch (errorCode) {
@@ -137,7 +137,7 @@ export default defineComponent({
             if ($('//status').text() === 'success') {
                 ctx.emit('confirm')
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 let errorInfo = ''
 
                 switch (errorCode) {

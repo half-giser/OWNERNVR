@@ -134,7 +134,7 @@ export default defineComponent({
                     nameList.value = []
                     $('//types/manufacturer/enum').forEach((ele) => {
                         const value = ele.text()
-                        const text = ele.attr('displayName')!
+                        const text = ele.attr('displayName')
                         manufacturerMap.value[value] = text
                         manufacturerList.value.push({
                             value: value,
@@ -239,7 +239,7 @@ export default defineComponent({
                         })
                         protocolList.value.push({
                             displayName: displayName,
-                            index: ele.attr('id')!,
+                            index: ele.attr('id'),
                         })
                     }
                 })

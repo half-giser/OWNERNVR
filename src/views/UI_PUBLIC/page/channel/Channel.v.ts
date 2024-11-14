@@ -235,16 +235,16 @@ export default defineComponent({
                     if ($('status').text() === 'success') {
                         manufacturerMap = {}
                         $('//types/manufacturer/enum').forEach((ele) => {
-                            manufacturerMap[ele.text()] = ele.attr('displayName')!
+                            manufacturerMap[ele.text()] = ele.attr('displayName')
                         })
 
                         tableData.value = []
                         nameMapping = {}
                         $('//content/item').forEach((ele) => {
                             const eleXml = queryXml(ele.element)
-                            nameMapping[ele.attr('id')!] = eleXml('name').text()
+                            nameMapping[ele.attr('id')] = eleXml('name').text()
                             const channelInfo = new ChannelInfoDto()
-                            channelInfo.id = ele.attr('id')!
+                            channelInfo.id = ele.attr('id')
                             channelInfo.chlNum = eleXml('chlNum').text()
                             channelInfo.name = eleXml('name').text()
                             channelInfo.devID = eleXml('devID').text()
@@ -314,7 +314,7 @@ export default defineComponent({
                         if (!ele.ip) return
                         let isOnline = false
                         $('//content/item').forEach((element) => {
-                            const chlId = element.attr('id')!
+                            const chlId = element.attr('id')
                             if (ele.id === chlId) {
                                 if (!ele.isOnline) {
                                     ele.isOnline = true
@@ -401,7 +401,7 @@ export default defineComponent({
                         const eleXml = queryXml(ele.element)
                         protocolList.value.push({
                             displayName: eleXml('displayName').text(),
-                            index: ele.attr('id')!,
+                            index: ele.attr('id'),
                         })
                     })
                     if (callback) callback()

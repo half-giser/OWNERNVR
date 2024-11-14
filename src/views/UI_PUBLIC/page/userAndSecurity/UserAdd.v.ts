@@ -69,7 +69,7 @@ export default defineComponent({
                 authGroupOptions.value = $('//content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         name: $item('name').text(),
                     }
                 })

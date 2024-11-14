@@ -691,7 +691,7 @@ export default defineComponent({
             pageData.value.recList = $('//content/chl/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
-                    chlId: item.attr('id')!,
+                    chlId: item.attr('id'),
                     chlName: $item('name').text(),
                     records: $item('recList/item').map((rec) => {
                         const $rec = queryXml(rec.element)
@@ -710,7 +710,7 @@ export default defineComponent({
                             duration: dayjs.utc(endTime - startTime).format('HH:mm:ss'),
                         }
                     }),
-                    timeZone: $item('recList').attr('timeZone')!,
+                    timeZone: $item('recList').attr('timeZone'),
                 }
             })
         }

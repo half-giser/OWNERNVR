@@ -88,7 +88,7 @@ export default defineComponent({
                         row.alarmOut.switch = $item('triggerAlarmOut/switch').text().bool()
                         $item('triggerAlarmOut/alarmOuts/item').forEach((item) => {
                             row.alarmOut.alarmOuts.push({
-                                value: item.attr('id')!,
+                                value: item.attr('id'),
                                 label: item.text(),
                             })
                         })
