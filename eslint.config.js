@@ -49,6 +49,7 @@ export default defineFlatConfig([
                 { blankLine: 'always', prev: 'class', next: 'class' },
             ],
             'dot-notation': 'error',
+            eqeqeq: 'error',
         },
     },
     ...prettier,
