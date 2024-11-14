@@ -92,7 +92,7 @@ export default defineComponent({
 
         const pageData = ref({
             audioTab: 'ipcAudio',
-            supportAlarmAudioConfig: systemCaps.supportAlarmAudioConfig == true,
+            supportAlarmAudioConfig: systemCaps.supportAlarmAudioConfig,
             btnApplyDisabled: false,
             isImportAudioDialog: false,
             scheduleManagPopOpen: false,
@@ -108,7 +108,7 @@ export default defineComponent({
                 isSupportAudioAlarmOut: true,
             }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
-                    if ($('//content').attr('total') == '0') {
+                    if ($('//content').attr('total') === '0') {
                         audioAlarmPageData.value.chlDisabled = true
                         changeAudioAlarmDataDisabled(true)
 
@@ -142,7 +142,7 @@ export default defineComponent({
             const result = await queryAudioAlarmOutCfg(sendXml)
             const $ = queryXml(result)
 
-            const success = $('//status').text() == 'success'
+            const success = $('//status').text() === 'success'
 
             const audioTypeList = [] as SelectOption<string, string>[]
             let customeAudioNum = 0 //保存已上传自定义声音的数量
@@ -152,7 +152,7 @@ export default defineComponent({
                     value: item.text(),
                     label: item.attr('value') as string,
                 })
-                if (Number(item.text()) >= 100) {
+                if (item.text().num() >= 100) {
                     customeAudioNum++
                 }
             })
@@ -160,9 +160,9 @@ export default defineComponent({
             const langArr = [] as SelectOption<string, string>[]
             $('//types/audioLanguageType/enum').forEach((item) => {
                 const langType = item.text()
-                if (langType == 'en-us') {
+                if (langType === 'en-us') {
                     langArr.push({ value: langType, label: Translate('IDCS_en_US') })
-                } else if (langType == 'zh-cn') {
+                } else if (langType === 'zh-cn') {
                     langArr.push({ value: langType, label: Translate('IDCS_zh_CN') })
                 }
             })
@@ -177,17 +177,17 @@ export default defineComponent({
                 langArr: langArr,
                 audioSwitch: success ? $('//content/chl/param/switch').text() : '',
                 audioType: success ? $('//content/chl/param/audioType').text() : '',
-                alarmTimes: success ? Number($('//content/chl/param/alarmTimes').text()) : 1,
-                audioVolume: success ? Number($('//content/chl/param/audioVolume').text()) : 0,
+                alarmTimes: success ? $('//content/chl/param/alarmTimes').text().num() : 1,
+                audioVolume: success ? $('//content/chl/param/audioVolume').text().num() : 0,
                 languageType: success ? $('//content/chl/param/languageType').text() : '',
                 audioFormat: success ? $('//content/chl/param/audioParamLimit/audioFormat').text() : '',
                 sampleRate: success ? $('//content/chl/param/audioParamLimit/sampleRate').text() : '',
                 audioChannel: success ? $('//content/chl/param/audioParamLimit/audioChannel').text() : '',
                 audioDepth: success ? $('//content/chl/param/audioParamLimit/audioDepth').text() : '',
-                audioFileLimitSize: success ? ($('//content/chl/param/audioParamLimit/audioFileSize').text().split(' ').pop() as string) : '',
+                audioFileLimitSize: success ? $('//content/chl/param/audioParamLimit/audioFileSize').text().split(' ').pop()! : '',
             }
 
-            if (audioAlarmPageData.value.firstId == id) {
+            if (audioAlarmPageData.value.firstId === id) {
                 ipcAudioFormData.value.audioChl = id
                 handleAudioAlarmOutData(audioAlarmOutData[id])
             }
@@ -226,7 +226,7 @@ export default defineComponent({
                 audioAlarmPageData.value.addAudioDisabled = false
 
                 if (data.audioSwitch) {
-                    ipcAudioFormData.value.audioChecked = data.audioSwitch == 'true'
+                    ipcAudioFormData.value.audioChecked = data.audioSwitch === 'true'
                     audioAlarmPageData.value.audioCheckDisabled = false
                 } else {
                     ipcAudioFormData.value.audioChecked = true
@@ -290,7 +290,7 @@ export default defineComponent({
 
         // 声音按钮若可勾选时，取消启用需要置灰语音、次数、音量、语言
         const setEnableList = (data: AlarmAudioAlarmOutDto) => {
-            const audioCheckEnable = data.audioSwitch && data.audioSwitch == 'false' ? true : false
+            const audioCheckEnable = data.audioSwitch && data.audioSwitch === 'false' ? true : false
 
             if (data.audioType) audioAlarmPageData.value.voiceDisabled = audioCheckEnable
             if (data.alarmTimes) audioAlarmPageData.value.numberDisabled = audioCheckEnable
@@ -353,7 +353,7 @@ export default defineComponent({
             audioAlarmOutData[ipcAudioFormData.value.audioChl].audioVolume = ipcAudioFormData.value.volume as number
             if (audioDeviceData[ipcAudioFormData.value.audioChl] && audioDeviceData[ipcAudioFormData.value.audioChl].audioOutEnabled) {
                 audioDeviceData[ipcAudioFormData.value.audioChl].audioOutVolume = Number(ipcAudioFormData.value.volume)
-                if (ipcAudioFormData.value.deviceChl == ipcAudioFormData.value.audioChl) {
+                if (ipcAudioFormData.value.deviceChl === ipcAudioFormData.value.audioChl) {
                     ipcAudioFormData.value.outputVolume = Number(ipcAudioFormData.value.volume)
                 }
             }
@@ -398,9 +398,9 @@ export default defineComponent({
             const result = await deleteCustomizeAudioAlarm(sendXml)
             const $ = queryXml(result)
 
-            if ($('//status').text() == 'success') {
+            if ($('//status').text() === 'success') {
                 const chlId = ipcAudioFormData.value.audioChl
-                audioAlarmPageData.value.audioTypeList = audioAlarmPageData.value.audioTypeList.filter((item) => item.value != ipcAudioFormData.value.voice)
+                audioAlarmPageData.value.audioTypeList = audioAlarmPageData.value.audioTypeList.filter((item) => item.value !== ipcAudioFormData.value.voice)
                 audioAlarmPageData.value.deleteAudioDisabled = true
                 audioAlarmPageData.value.languageDisbaled = false
                 audioAlarmOutData[chlId].languageType = audioAlarmPageData.value.langList[0].value
@@ -434,8 +434,8 @@ export default defineComponent({
             const result = await auditionCustomizeAudioAlarm(sendXml)
             const $ = queryXml(result)
 
-            if ($('//status').text() != 'success') {
-                const errorCode = Number($('//errorCode').text())
+            if ($('//status').text() !== 'success') {
+                const errorCode = $('//errorCode').text().num()
                 let msg = audioAlarmOutData[ipcAudioFormData.value.audioChl].name + Translate('IDCS_AUDITION_FAILED')
                 if (errorCode === ErrorCode.USER_ERROR_GET_CONFIG_INFO_FAIL) msg += Translate('IDCS_GET_CFG_FAIL')
                 openMessageBox({
@@ -511,7 +511,7 @@ export default defineComponent({
             const volume = $('//content/chl/param/volume')
             const $volume = volume.length ? queryXml(volume[0].element) : $
 
-            const success = $('//status').text() == 'success'
+            const success = $('//status').text() === 'success'
 
             audioDeviceData[id] = {
                 successFlag: success,
@@ -541,17 +541,17 @@ export default defineComponent({
                 audioInput: success ? $('//content/chl/param/audioInput').text() : '',
                 loudSpeaker: success ? $('//content/chl/param/loudSpeaker').text() : '',
                 audioOutput: success ? $('//content/chl/param/audioOutput').text() : '',
-                micInVolume: volume.length ? Number($volume('micInVolume').text()) : 0,
-                linInVolume: volume.length ? Number($volume('linInVolume').text()) : 0,
-                audioOutVolume: volume.length ? Number($volume('audioOutVolume').text()) : 0,
-                micMaxValue: volume.length ? ($volume('micInVolume').attr('max') ? Number($volume('micInVolume').attr('max')) : 100) : 100,
-                linMaxValue: volume.length ? ($volume('linInVolume').attr('max') ? Number($volume('linInVolume').attr('max')) : 100) : 100,
-                audioOutMaxValue: volume.length ? ($volume('audioOutVolume').attr('max') ? Number($volume('audioOutVolume').attr('max')) : 100) : 100,
+                micInVolume: volume.length ? $volume('micInVolume').text().num() : 0,
+                linInVolume: volume.length ? $volume('linInVolume').text().num() : 0,
+                audioOutVolume: volume.length ? $volume('audioOutVolume').text().num() : 0,
+                micMaxValue: volume.length ? ($volume('micInVolume').attr('max') ? $volume('micInVolume').attr('max').num() : 100) : 100,
+                linMaxValue: volume.length ? ($volume('linInVolume').attr('max') ? $volume('linInVolume').attr('max').num() : 100) : 100,
+                audioOutMaxValue: volume.length ? ($volume('audioOutVolume').attr('max') ? $volume('audioOutVolume').attr('max').num() : 100) : 100,
                 micOrLinEnabled: volume.length ? $volume('micInVolume').length > 0 || $volume('volume/linInVolume').length > 0 || false : false,
                 audioOutEnabled: volume.length ? $volume('audioOutVolume').length > 0 || false : false,
             }
 
-            if (audioDevicePageData.value.firstId == id) {
+            if (audioDevicePageData.value.firstId === id) {
                 ipcAudioFormData.value.deviceChl = id
                 handleAudioDeviceData(audioDeviceData[id])
             }
@@ -559,11 +559,11 @@ export default defineComponent({
 
         const handleAudioDeviceData = (data: AlarmAudioDevice) => {
             pageData.value.btnApplyDisabled = true
-            ipcAudioFormData.value.deviceEnable = data.audioInSwitch ? data.audioInSwitch == 'true' : true
+            ipcAudioFormData.value.deviceEnable = data.audioInSwitch ? data.audioInSwitch === 'true' : true
 
             if (data.successFlag) {
-                audioDevicePageData.value.micMaxValue = data.audioInput == 'MIC' ? data.micMaxValue : data.linMaxValue
-                ipcAudioFormData.value.micOrLinVolume = data.audioInput == 'MIC' ? data.micInVolume : data.linInVolume
+                audioDevicePageData.value.micMaxValue = data.audioInput === 'MIC' ? data.micMaxValue : data.linMaxValue
+                ipcAudioFormData.value.micOrLinVolume = data.audioInput === 'MIC' ? data.micInVolume : data.linInVolume
 
                 audioDevicePageData.value.audioInputList = data.audioInputType
                 audioDevicePageData.value.loudSpeakerList = data.audioOutputType
@@ -644,7 +644,7 @@ export default defineComponent({
         }
 
         const changeMicOrLinVolume = () => {
-            if (audioDeviceData[ipcAudioFormData.value.deviceChl].audioInput == 'MIC') {
+            if (audioDeviceData[ipcAudioFormData.value.deviceChl].audioInput === 'MIC') {
                 audioDeviceData[ipcAudioFormData.value.deviceChl].micInVolume = ipcAudioFormData.value.micOrLinVolume
             } else {
                 audioDeviceData[ipcAudioFormData.value.deviceChl].linInVolume = ipcAudioFormData.value.micOrLinVolume
@@ -782,7 +782,7 @@ export default defineComponent({
             openLoading()
             await setAudioAlarmData()
             await setAudiDeviceData()
-            if (pageData.value.audioSchedule != pageData.value.originAudioSchedule) {
+            if (pageData.value.audioSchedule !== pageData.value.originAudioSchedule) {
                 await setScheduleData()
             }
             pageData.value.btnApplyDisabled = true

@@ -74,7 +74,7 @@ export default defineComponent({
             editChlGroup(sendXml).then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     openMessageBox({
                         type: 'success',
                         message: Translate('IDCS_SAVE_DATA_SUCCESS'),
@@ -83,7 +83,7 @@ export default defineComponent({
                         emit('close')
                     })
                 } else {
-                    if (Number($('errorCode').text()) == ErrorCode.USER_ERROR_NAME_EXISTED) {
+                    if ($('errorCode').text().num() === ErrorCode.USER_ERROR_NAME_EXISTED) {
                         openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_PROMPT_CHANNEL_GROUP_NAME_EXIST'),
@@ -107,7 +107,6 @@ export default defineComponent({
             save,
             getTranslateForSecond,
             formatInputMaxLength,
-            nameByteMaxLen,
         }
     },
 })

@@ -128,7 +128,7 @@ export default defineComponent({
                 case 536871080: // 当前设备已经被绑定,需要授权码登录
                 case 536871081: // 当前设备已解绑，需要用户名/密码登录
                     let backHomeErrorCode = ErrorCode.USER_ERROR_NODE_NET_OFFLINE
-                    if (errorCode == 536871080 || errorCode == 536871081) {
+                    if (errorCode === 536871080 || errorCode === 536871081) {
                         backHomeErrorCode = 536871080 // 返回首页，并提示‘访问异常，请重试’
                     }
                     backToHomePage(backHomeErrorCode)
@@ -136,7 +136,7 @@ export default defineComponent({
                 case ErrorCode.USER_ERROR_NO_USER: // 用户名不存在
                 case ErrorCode.USER_ERROR_PWD_ERR: // 密码错误
                 case ErrorCode.USER_ERROR_USER_LOCKED: // 设备登录被锁定
-                    if (errorCode == ErrorCode.USER_ERROR_USER_LOCKED) {
+                    if (errorCode === ErrorCode.USER_ERROR_USER_LOCKED) {
                         timer.stop()
                         pageData.value.authCodeDisabled = true
                     }
@@ -172,7 +172,7 @@ export default defineComponent({
          * @param {string} errorDescription
          */
         const handleUserLockedError = (errorCode: number, errorDescription?: string) => {
-            if (errorCode == ErrorCode.USER_ERROR_USER_LOCKED) {
+            if (errorCode === ErrorCode.USER_ERROR_USER_LOCKED) {
                 setCookie('originError', ErrorCodeMapping[errorCode], 365)
                 delCookie('ec')
                 delCookie('em')
@@ -230,7 +230,7 @@ export default defineComponent({
                     distime: lockTime / 1000,
                     callback(obj) {
                         let info = ''
-                        if (parseInt(obj.disminites) > 0) {
+                        if (Number(obj.disminites) > 0) {
                             info = Translate('IDCS_TICK_MIN').formatForLang(obj.disminites, obj.disseconds)
                         } else {
                             info = Translate('IDCS_TICK_SEC').formatForLang(obj.disseconds)
@@ -279,7 +279,7 @@ export default defineComponent({
                         callback(obj) {
                             if (getCookie('loginLock') === 'true') {
                                 let info = ''
-                                if (parseInt(obj.disminites) > 0) {
+                                if (Number(obj.disminites) > 0) {
                                     info = Translate('IDCS_TICK_MIN').formatForLang(obj.disminites, obj.disseconds)
                                 } else {
                                     info = Translate('IDCS_TICK_SEC').formatForLang(obj.disseconds)

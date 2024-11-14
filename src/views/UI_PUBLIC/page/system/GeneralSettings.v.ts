@@ -211,7 +211,7 @@ export default defineComponent({
 
             formData.value.deviceName = $('//content/name').text()
             formData.value.deviceNumber = Number($('//content/deviceNumber').text())
-            formData.value.enableAutoDwell = $('//content/autoDwell').text().toBoolean()
+            formData.value.enableAutoDwell = $('//content/autoDwell').text().bool()
 
             formData.value.waitTime = Number($('//content/autoDwellWaitTime').text())
             pageData.value.waitTimeOption = []
@@ -226,9 +226,9 @@ export default defineComponent({
                 pageData.value.videoFormatOption.push(item.text())
             })
 
-            formData.value.enableGuide = $('//content/bootWizardSwitch').text().toBoolean()
+            formData.value.enableGuide = $('//content/bootWizardSwitch').text().bool()
             if (formData.value.enableGuide) {
-                formData.value.zeroOrAddIpc = $('//content/bootZeroCfgAddSwitch').text().toBoolean()
+                formData.value.zeroOrAddIpc = $('//content/bootZeroCfgAddSwitch').text().bool()
             } else {
                 pageData.value.isZeroOrAddIpc = false
             }
@@ -404,7 +404,6 @@ export default defineComponent({
             rules,
             formRef,
             formData,
-            nameByteMaxLen,
             pageData,
             displayWaitTimeOption,
             displayResolutionLabel,

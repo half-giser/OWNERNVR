@@ -49,7 +49,7 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryUPnPCfg()
             const $ = queryXml(result)
-            formData.value.switch = $('//content/switch').text().toBoolean()
+            formData.value.switch = $('//content/switch').text().bool()
             formData.value.mappingType = $('//content/mappingType').text()
 
             tableData.value = $('//content/ports/item').map((item) => {
@@ -70,7 +70,7 @@ export default defineComponent({
         const getWirelessNetworkData = async () => {
             const result = await queryWirelessNetworkCfg()
             const $ = queryXml(result)
-            pageData.value.wirelessSwitch = $('//content/switch').text().toBoolean()
+            pageData.value.wirelessSwitch = $('//content/switch').text().bool()
         }
 
         /**
@@ -79,7 +79,7 @@ export default defineComponent({
         const getPPPoEData = async () => {
             const result = await queryPPPoECfg()
             const $ = queryXml(result)
-            pageData.value.pppoeSwitch = $('//content/switch').text().toBoolean()
+            pageData.value.pppoeSwitch = $('//content/switch').text().bool()
         }
 
         /**

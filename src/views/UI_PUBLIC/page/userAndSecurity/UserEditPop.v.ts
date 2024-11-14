@@ -75,12 +75,12 @@ export default defineComponent({
             const result = await queryUser(sendXml)
             const $ = queryXml(result)
             if ($('//status').text() === 'success') {
-                formData.value.enabled = $('//content/enabled').text().toBoolean()
+                formData.value.enabled = $('//content/enabled').text().bool()
                 formData.value.userName = $('//content/userName').text()
                 formData.value.email = $('//content/email').text()
-                formData.value.authGroup = $('//content/authGroup').attr('id') as string
-                formData.value.allowModifyPassword = $('//content/modifyPassword').text().toBoolean()
-                formData.value.authEffective = $('//content/authEffective').text().toBoolean()
+                formData.value.authGroup = $('//content/authGroup').attr('id')!
+                formData.value.allowModifyPassword = $('//content/modifyPassword').text().bool()
+                formData.value.authEffective = $('//content/authEffective').text().bool()
 
                 const authInfo = userSession.getAuthInfo()
                 const currentUserName = authInfo ? authInfo[0] : ''
@@ -110,7 +110,7 @@ export default defineComponent({
                     pageData.value.isChangePasswordBtn = true
                 }
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 let errorText = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR:
@@ -193,7 +193,7 @@ export default defineComponent({
             if ($('//status').text() === 'success') {
                 ctx.emit('close')
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 let errorText = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR:

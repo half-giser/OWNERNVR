@@ -77,8 +77,8 @@ export default defineComponent({
 
             const res = await queryAIResourceDetail(sendXml)
             const $ = queryXml(res)
-            if ($('status').text() == 'success') {
-                pageData.value.totalResourceOccupancy = Math.min(100, Number($('//content/totalResourceOccupancy').text()))
+            if ($('status').text() === 'success') {
+                pageData.value.totalResourceOccupancy = Math.min(100, $('//content/totalResourceOccupancy').text().num())
 
                 if (pageData.value.totalResourceOccupancy <= 100) {
                     tableData.value = []
@@ -88,7 +88,7 @@ export default defineComponent({
 
                         let name = $item('name').text()
                         // 通道是否在线
-                        const connectState = $item('connectState').text().toBoolean()
+                        const connectState = $item('connectState').text().bool()
                         name = connectState ? name : name + '(' + Translate('IDCS_OFFLINE') + ')'
 
                         $item('resource/item').forEach((ele) => {
@@ -103,7 +103,7 @@ export default defineComponent({
                             const percent = ele.text() + '%'
 
                             const decodeResource = ele.attr('occupyDecodeCapPercent')
-                                ? ele.attr('occupyDecodeCapPercent') == 'notEnough'
+                                ? ele.attr('occupyDecodeCapPercent') === 'notEnough'
                                     ? Translate('IDCS_NO_DECODE_RESOURCE')
                                     : ele.attr('occupyDecodeCapPercent') + '%'
                                 : '--'
@@ -151,7 +151,7 @@ export default defineComponent({
                 const res = await freeAIOccupyResource(sendXml)
                 closeLoading()
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     getData()
                     ctx.emit('change')
                 }

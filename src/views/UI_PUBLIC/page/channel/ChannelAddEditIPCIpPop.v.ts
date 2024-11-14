@@ -105,17 +105,17 @@ export default defineComponent({
                 editDevNetworkList(data).then((res) => {
                     closeLoading()
                     const $ = queryXml(res)
-                    if ($('status').text() == 'success') {
-                        const errorCode = Number($('//content/item/errorCode').text())
+                    if ($('status').text() === 'success') {
+                        const errorCode = $('//content/item/errorCode').text().num()
                         if (errorCode === 0) {
                             emit('close')
                         } else {
                             if (errorCode === ErrorCode.USER_ERROR_CHANNEL_IPADDRESS_AND_PORT_EXIST) {
                                 showMsg(Translate('IDCS_PROMPT_CHANNEL_IPADDRESS_AND_PORT_EXIST'))
-                            } else if (errorCode == ErrorCode.USER_ERROR_MASK_NOT_CONTINE || errorCode == ErrorCode.USER_ERROR_INVALID_SUBMASK) {
+                            } else if (errorCode === ErrorCode.USER_ERROR_MASK_NOT_CONTINE || errorCode === ErrorCode.USER_ERROR_INVALID_SUBMASK) {
                                 // 子网掩码无效
                                 showMsg(Translate('IDCS_ERROR_MASK_NOT_CONTINE'))
-                            } else if (errorCode == ErrorCode.USER_ERROR_DIFFERENT_SEGMENT) {
+                            } else if (errorCode === ErrorCode.USER_ERROR_DIFFERENT_SEGMENT) {
                                 // 网关不在由IP地址和子网掩码定义的同一网段上
                                 showMsg(Translate('IDCS_ERROR_DIFFERENT_SEGMENT'))
                             } else {
@@ -147,8 +147,8 @@ export default defineComponent({
             newData.gateway = props.editItem.gateway
             newData.userName = props.mapping[props.editItem.manufacturer].userName
             formData.value = newData
-            maskDisabled.value = formData.value.mask == '0.0.0.0'
-            gatewayDisabled.value = formData.value.gateway == '0.0.0.0'
+            maskDisabled.value = formData.value.mask === '0.0.0.0'
+            gatewayDisabled.value = formData.value.gateway === '0.0.0.0'
         }
 
         return {

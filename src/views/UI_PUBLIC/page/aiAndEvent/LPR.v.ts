@@ -222,12 +222,13 @@ export default defineComponent({
                         if (factoryName === 'Recorder') return
                         const curChlId = item.attr('id')!
                         if (protocolType !== 'RTSP' && onlineChlList.includes(curChlId)) {
-                            const supportVehiclePlate = $item('supportVehiclePlate').text() == 'true'
+                            const supportVehiclePlate = $item('supportVehiclePlate').text().bool()
 
                             // 当前没有选中任何通道的情况下，初始化为第一个支持车牌识别的通道
                             if (!pageData.value.curChl && supportVehiclePlate) {
                                 pageData.value.curChl = curChlId
                             }
+
                             const name = $item('name').text()
                             chlList[curChlId] = {
                                 id: curChlId,
@@ -235,6 +236,7 @@ export default defineComponent({
                                 chlType: $item('chlType').text(),
                                 supportVehiclePlate,
                             }
+
                             pageData.value.vehicleChlList.push({
                                 value: curChlId,
                                 label: name,
@@ -332,7 +334,7 @@ export default defineComponent({
                     pluginStore.showPluginNoResponse = true
                     plugin.ShowPluginNoResponse()
                 }
-                const sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'CddConfig' : 'ReadOnly', 'Live')
+                const sendXML = OCX_XML_SetPluginModel(osType === 'mac' ? 'CddConfig' : 'ReadOnly', 'Live')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
         }
@@ -389,24 +391,24 @@ export default defineComponent({
          * @description 播放视频
          */
         const play = () => {
-            const chlData = chlList[pageData.value.curChl]
             if (mode.value === 'h5') {
                 player.play({
                     chlID: pageData.value.curChl,
                     streamType: 2,
                 })
             } else if (mode.value === 'ocx') {
-                if (osType == 'mac') {
-                    const sendXML = OCX_XML_Preview({
-                        winIndexList: [0],
-                        chlIdList: [chlData.id],
-                        chlNameList: [chlData.name],
-                        streamType: 'sub',
-                        // chl没有index属性
-                        chlIndexList: ['0'],
-                        chlTypeList: [chlData.chlType],
-                    })
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                if (osType === 'mac') {
+                    // const chlData = chlList[pageData.value.curChl]
+                    // const sendXML = OCX_XML_Preview({
+                    //     winIndexList: [0],
+                    //     chlIdList: [chlData.id],
+                    //     chlNameList: [chlData.name],
+                    //     streamType: 'sub',
+                    //     // chl没有index属性
+                    //     chlIndexList: ['0'],
+                    //     chlTypeList: [chlData.chlType],
+                    // })
+                    // plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 } else {
                     plugin.RetryStartChlView(pageData.value.curChl, chlList[pageData.value.curChl].name)
                 }
@@ -439,7 +441,7 @@ export default defineComponent({
             commLoadResponseHandler(result, async ($) => {
                 const param = $('//content/chl/param')
                 const $param = queryXml(param[0].element)
-                const enabledSwitch = $param('switch').text() == 'true'
+                const enabledSwitch = $param('switch').text().bool()
                 // 洲
                 const continentType = $('//types/continentType/enum')
                 continentType.forEach((item) => {
@@ -483,20 +485,20 @@ export default defineComponent({
                 const exposure = $param('plateExposure')
                 detectionPageData.value.exposureDisabled = !exposure.text()
                 const $exposure = queryXml(exposure[0].element)
-                const exposureChecked = $exposure('switch').text() === 'true'
-                detectionPageData.value.exposureMin = Number($exposure('exposureValue').attr('min'))
-                detectionPageData.value.exposureMax = Number($exposure('exposureValue').attr('max'))
+                const exposureChecked = $exposure('switch').text().bool()
+                detectionPageData.value.exposureMin = $exposure('exposureValue').attr('min').num()
+                detectionPageData.value.exposureMax = $exposure('exposureValue').attr('max').num()
                 // 抓拍无牌车
                 const plateAbsence = $param('capturePlateAbsenceVehicle').text()
-                detectionPageData.value.plateAbsenceDisabled = plateAbsence == ''
+                detectionPageData.value.plateAbsenceDisabled = plateAbsence === ''
                 // 侦测区域
                 const regionInfo = $param('regionInfo/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
-                        X1: Number($item('X1').text()),
-                        Y1: Number($item('Y1').text()),
-                        X2: Number($item('X2').text()),
-                        Y2: Number($item('Y2').text()),
+                        X1: $item('X1').text().num(),
+                        Y1: $item('Y1').text().num(),
+                        X2: $item('X2').text().num(),
+                        Y2: $item('Y2').text().num(),
                     }
                 })
                 // 屏蔽区域
@@ -507,8 +509,8 @@ export default defineComponent({
                     $item('point/item').forEach((ele) => {
                         const $ele = queryXml(ele.element)
                         const maskArea = {
-                            X: Number($ele('X').text()),
-                            Y: Number($ele('Y').text()),
+                            X: $ele('X').text().num(),
+                            Y: $ele('Y').text().num(),
                             isClosed: true,
                         }
                         maskAreaInfo[index].push(maskArea)
@@ -516,17 +518,20 @@ export default defineComponent({
                 })
                 const mutexList = $param('mutexList/item').map((item) => {
                     const $item = queryXml(item.element)
-                    return { object: $item('object').text(), status: $item('status').text() == 'true' }
+                    return {
+                        object: $item('object').text(),
+                        status: $item('status').text().bool(),
+                    }
                 })
                 // 车牌大小范围
                 let plateSize = { minWidth: 0, maxWidth: 0, min: 1, max: 50 }
                 $param('plateSize/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     plateSize = {
-                        minWidth: Number($item('MinWidth').text()) / 100,
-                        maxWidth: Number($item('MaxWidth').text()) / 100,
-                        min: Number($item('MinWidth').attr('min')) / 100,
-                        max: Number($item('MinWidth').attr('max')) / 100,
+                        minWidth: $item('MinWidth').text().num() / 100,
+                        maxWidth: $item('MaxWidth').text().num() / 100,
+                        min: $item('MinWidth').attr('min').num() / 100,
+                        max: $item('MinWidth').attr('max').num() / 100,
                     }
                 })
                 const minRegion = calcRegionInfo(plateSize.minWidth)
@@ -541,8 +546,8 @@ export default defineComponent({
                     plateSupportArea: $param('plateSupportArea').text(),
                     direction,
                     exposureChecked,
-                    exposureValue: Number($exposure('exposureValue').text()),
-                    plateAbsenceCheceked: plateAbsence == 'true',
+                    exposureValue: $exposure('exposureValue').text().num(),
+                    plateAbsenceCheceked: plateAbsence === 'true',
                     regionInfo,
                     maskAreaInfo,
                     mutexList,
@@ -586,9 +591,9 @@ export default defineComponent({
 
         // 车辆识别下的tab切换（侦测、识别、车牌库）
         const vehicleTabChange = (name: TabPaneName) => {
-            if (name == 'vehicleDetection') {
+            if (name === 'vehicleDetection') {
                 play()
-            } else if (name == 'vehicleLibrary') {
+            } else if (name === 'vehicleLibrary') {
                 if (import.meta.env.VITE_UI_TYPE === 'UI2-A') {
                     router.push({
                         path: '/config/alarm/vehicleDatabase',
@@ -612,7 +617,7 @@ export default defineComponent({
             vehicleDrawer && vehicleDrawer.setEnableShowAll(detectionPageData.value.isShowAllArea)
             if (detectionPageData.value.isShowAllArea) {
                 if (mode.value === 'h5') {
-                    const index = currAreaType == 'regionArea' ? detectionPageData.value.regionArea : detectionPageData.value.maskArea
+                    const index = currAreaType === 'regionArea' ? detectionPageData.value.regionArea : detectionPageData.value.maskArea
                     vehicleDrawer.setCurrAreaIndex(index, currAreaType)
                     vehicleDrawer.drawAllRegion(vehicleDetectionData.value.regionInfo, index)
                     vehicleDrawer.drawAllPolygon({}, vehicleDetectionData.value.maskAreaInfo, currAreaType, index, true)
@@ -624,7 +629,7 @@ export default defineComponent({
                         detectAreaInfo[index] = []
                         detectAreaInfo[index].push({ X: item.X1, Y: item.Y1 }, { X: item.X2, Y: item.Y1 }, { X: item.X2, Y: item.Y2 }, { X: item.X1, Y: item.Y2 })
                     })
-                    if (currAreaType == 'regionArea') {
+                    if (currAreaType === 'regionArea') {
                         // 当前区域为矩形并且显示全部的时候过滤掉当前区域
                         if (detectAreaInfo[detectionPageData.value.regionArea]) detectAreaInfo[detectionPageData.value.regionArea] = []
                     }
@@ -668,20 +673,20 @@ export default defineComponent({
             if (mode.value === 'h5') {
                 vehicleDrawer.clear()
             } else {
-                if (currAreaType == 'regionArea') {
+                if (currAreaType === 'regionArea') {
                     // 矩形侦测区域
                     const sendXML = OCX_XML_SetVfdAreaAction('NONE', 'vfdArea')
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                } else if (currAreaType == 'maskArea') {
+                } else if (currAreaType === 'maskArea') {
                     // 屏蔽区域
                     const sendXML = OCX_XML_SetPeaAreaAction('NONE')
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 }
             }
 
-            if (currAreaType == 'regionArea') {
+            if (currAreaType === 'regionArea') {
                 vehicleDetectionData.value.regionInfo[detectionPageData.value.regionArea] = { X1: 0, Y1: 0, X2: 0, Y2: 0 }
-            } else if (currAreaType == 'maskArea') {
+            } else if (currAreaType === 'maskArea') {
                 vehicleDetectionData.value.maskAreaInfo[detectionPageData.value.maskArea] = []
             }
 
@@ -738,8 +743,8 @@ export default defineComponent({
 
         // 设置区域图形
         const setAreaView = (type: string) => {
-            if (type == 'regionArea') {
-                if (vehicleDetectionData.value.regionInfo && vehicleDetectionData.value.regionInfo.length > 0) {
+            if (type === 'regionArea') {
+                if (vehicleDetectionData.value.regionInfo && vehicleDetectionData.value.regionInfo.length) {
                     if (mode.value === 'h5') {
                         vehicleDrawer.setCurrAreaIndex(detectionPageData.value.regionArea, currAreaType)
                         vehicleDrawer.setArea(vehicleDetectionData.value.regionInfo[detectionPageData.value.regionArea])
@@ -752,7 +757,7 @@ export default defineComponent({
                         }, 100)
                     }
                 }
-            } else if (type == 'maskArea') {
+            } else if (type === 'maskArea') {
                 if (vehicleDetectionData.value.maskAreaInfo) {
                     if (mode.value === 'h5') {
                         vehicleDrawer.setCurrAreaIndex(detectionPageData.value.maskArea, currAreaType)
@@ -764,7 +769,7 @@ export default defineComponent({
                         }, 100)
                     }
                 }
-            } else if (type == 'vehicleMax') {
+            } else if (type === 'vehicleMax') {
                 if (mode.value === 'h5') {
                     vehicleDrawer.setRangeMax(vehicleDetectionData.value.maxRegionInfo[0])
                 } else {
@@ -772,7 +777,7 @@ export default defineComponent({
                     // const sendXML = OCX_XML_SetVfdArea(vehicleDetectionData.value.maxRegionInfo[0], 'faceMax', 'green', 'TYPE_PLATE_DETECTION')
                     // plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 }
-            } else if (type == 'vehicleMin') {
+            } else if (type === 'vehicleMin') {
                 if (mode.value === 'h5') {
                     vehicleDrawer.setRangeMin(vehicleDetectionData.value.minRegionInfo[0])
                 } else {
@@ -790,14 +795,14 @@ export default defineComponent({
         // 检测和屏蔽区域的样式初始化
         const refreshInitPage = () => {
             vehicleDetectionData.value.regionInfo.forEach((item, index) => {
-                if (item.X1 != 0 || item.Y1 != 0 || item.X2 != 0 || item.Y2 != 0) {
+                if (item.X1 || item.Y1 || item.X2 || item.Y2) {
                     detectionPageData.value.reginConfiguredArea[index] = true
                 } else {
                     detectionPageData.value.reginConfiguredArea[index] = false
                 }
             })
             for (const key in vehicleDetectionData.value.maskAreaInfo) {
-                if (vehicleDetectionData.value.maskAreaInfo[key].length > 0) {
+                if (vehicleDetectionData.value.maskAreaInfo[key].length) {
                     detectionPageData.value.maskConfiguredArea[key] = true
                 } else {
                     detectionPageData.value.maskConfiguredArea[key] = false
@@ -808,7 +813,7 @@ export default defineComponent({
         // 切换洲时，对应的区域随之变化
         const refreshArea = (continent?: boolean) => {
             let areaList = continentArea[detectionPageData.value.continentValue] || []
-            if (detectionPageData.value.noContinentAreaList.length > 0) {
+            if (detectionPageData.value.noContinentAreaList.length) {
                 areaList = detectionPageData.value.noContinentAreaList
             }
 
@@ -826,7 +831,7 @@ export default defineComponent({
 
         // 在切换区域时设置区域数据，线条样式，当前绘制格式
         const changeArea = () => {
-            if (currAreaType == 'regionArea') {
+            if (currAreaType === 'regionArea') {
                 // 矩形侦测区域
                 if (mode.value === 'h5') {
                     vehicleDrawer.setCurrAreaIndex(detectionPageData.value.regionArea, currAreaType)
@@ -840,7 +845,7 @@ export default defineComponent({
                     const sendXML3 = OCX_XML_SetVfdAreaAction('EDIT_ON')
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML3)
                 }
-            } else if (currAreaType == 'maskArea') {
+            } else if (currAreaType === 'maskArea') {
                 // 屏蔽区域
                 if (mode.value === 'h5') {
                     vehicleDrawer.setCurrAreaIndex(detectionPageData.value.maskArea, currAreaType)
@@ -863,7 +868,7 @@ export default defineComponent({
             setOtherAreaClosed()
             setAreaView(currAreaType)
             // (配合插件。。。)
-            if (mode.value != 'h5') {
+            if (mode.value !== 'h5') {
                 showDisplayRange()
             }
         }
@@ -876,7 +881,7 @@ export default defineComponent({
         }
 
         const setOtherAreaClosed = () => {
-            if (mode.value == 'h5') {
+            if (mode.value === 'h5') {
                 // 画点-区域
                 for (const key in vehicleDetectionData.value.maskAreaInfo) {
                     setClosed(vehicleDetectionData.value.maskAreaInfo[key])
@@ -926,7 +931,7 @@ export default defineComponent({
                 detectAreaInfo[index] = []
                 detectAreaInfo[index].push({ X: item.X1, Y: item.Y1 }, { X: item.X2, Y: item.Y1 }, { X: item.X2, Y: item.Y2 }, { X: item.X1, Y: item.Y2 })
             })
-            if (currAreaType == 'regionArea') {
+            if (currAreaType === 'regionArea') {
                 // 当前区域为矩形并且显示全部的时候过滤掉当前区域
                 if (detectAreaInfo[detectionPageData.value.regionArea]) detectAreaInfo[detectionPageData.value.regionArea] = []
             }
@@ -1001,7 +1006,7 @@ export default defineComponent({
 
         // 区域为多边形时，检测区域合法性(车牌识别AI事件中：检测区域为矩形-regionArea；屏蔽区域为多边形-maskArea)
         const verification = () => {
-            if (currAreaType == 'maskArea' || vehicleDetectionData.value.maskAreaInfo) {
+            if (currAreaType === 'maskArea' || vehicleDetectionData.value.maskAreaInfo) {
                 for (const key in vehicleDetectionData.value.maskAreaInfo) {
                     const count = vehicleDetectionData.value.maskAreaInfo[key].length
                     if (count > 0 && count < 4) {
@@ -1095,13 +1100,13 @@ export default defineComponent({
             const result = await editVehicleConfig(sendXml)
             closeLoading()
             const $ = queryXml(result)
-            if ($('//status').text() == 'success') {
+            if ($('//status').text() === 'success') {
                 if (vehicleDetectionData.value.enabledSwitch) {
                     vehicleDetectionData.value.originalSwitch = true
                 }
 
                 // 保存成功后刷新视频区域，四个点时区域没有闭合但保存后也可以闭合（四点已经可以画面）
-                if (currAreaType == 'maskArea') {
+                if (currAreaType === 'maskArea') {
                     setAreaView('maskArea')
                 }
                 refreshInitPage()
@@ -1114,7 +1119,7 @@ export default defineComponent({
             if (!verification()) return
             let isSwitchChange = false
             const switchChangeTypeArr: string[] = []
-            if (vehicleDetectionData.value.enabledSwitch && vehicleDetectionData.value.enabledSwitch != vehicleDetectionData.value.originalSwitch) {
+            if (vehicleDetectionData.value.enabledSwitch && vehicleDetectionData.value.enabledSwitch !== vehicleDetectionData.value.originalSwitch) {
                 isSwitchChange = true
             }
             vehicleDetectionData.value.mutexList?.forEach((item) => {
@@ -1122,7 +1127,7 @@ export default defineComponent({
                     switchChangeTypeArr.push(closeTip[item.object])
                 }
             })
-            if (isSwitchChange && switchChangeTypeArr.length > 0) {
+            if (isSwitchChange && switchChangeTypeArr.length) {
                 const switchChangeType = switchChangeTypeArr.join(',')
                 openMessageBox({
                     type: 'info',
@@ -1187,10 +1192,10 @@ export default defineComponent({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_S'),
             }).then(() => {
-                haveUseNameId = haveUseNameId.filter((item) => item != Number(comparePageData.value.compareTab[9]))
-                taskTabs.value = taskTabs.value.filter((item) => item.value != comparePageData.value.compareTab)
+                haveUseNameId = haveUseNameId.filter((item) => item !== Number(comparePageData.value.compareTab[9]))
+                taskTabs.value = taskTabs.value.filter((item) => item.value !== comparePageData.value.compareTab)
                 vehicleCompareData.value.task = vehicleCompareData.value.task.filter((item) => {
-                    if (item.ruleType == 'whitelist' && item.nameId == Number(comparePageData.value.compareTab[9])) {
+                    if (item.ruleType === 'whitelist' && item.nameId === Number(comparePageData.value.compareTab[9])) {
                         if (item.guid) {
                             deleteVehicleCompareData(item)
                         }
@@ -1205,7 +1210,7 @@ export default defineComponent({
 
         // 识别tab选项切换
         const compareTabChange = (name: TabPaneName) => {
-            if (name == 'whitelist' || name == 'stranger') {
+            if (name === 'whitelist' || name === 'stranger') {
                 comparePageData.value.removeDisabled = true
             } else {
                 comparePageData.value.removeDisabled = false
@@ -1237,40 +1242,42 @@ export default defineComponent({
             taskTabs.value = []
             vehicleCompareData.value.task = []
             const sendXml = rawXml`
-            <condition><chlId>${pageData.value.curChl}</chlId></condition>
+                <condition>
+                    <chlId>${pageData.value.curChl}</chlId>
+                </condition>
             `
             const result = await queryVehicleMatchAlarm(sendXml)
             commLoadResponseHandler(result, ($) => {
-                vehicleCompareData.value.hitEnable = $('//content/chl/hitEnable').text() == 'true'
-                vehicleCompareData.value.notHitEnable = $('//content/chl/notHitEnable').text() == 'true'
+                vehicleCompareData.value.hitEnable = $('//content/chl/hitEnable').text().bool()
+                vehicleCompareData.value.notHitEnable = $('//content/chl/notHitEnable').text().bool()
                 $('//content/chl/task/item').forEach((item) => {
                     const $item = queryXml(item.element)
-                    const nameId = Number($item('param/nameId').text())
+                    const nameId = $item('param/nameId').text().num()
                     haveUseNameId.push(nameId)
                     vehicleCompareData.value.task.push({
-                        guid: item.attr('guid')!,
-                        id: item.attr('id')!,
+                        guid: item.attr('guid'),
+                        id: item.attr('id'),
                         ruleType: $item('param/ruleType').text(),
                         nameId,
-                        pluseSwitch: $item('param/pluseSwitch').text() == 'true',
-                        groupId: $item('param/groupId/item').map((item) => item.attr('guid')!),
+                        pluseSwitch: $item('param/pluseSwitch').text().bool(),
+                        groupId: $item('param/groupId/item').map((item) => item.attr('guid')),
                         hintword: $item('param/hint/word').text(),
                         schedule: $item('schedule').attr('id'),
                         record: $item('trigger/sysRec/chls/item').map((item) => {
                             return {
-                                value: item.attr('id')!,
+                                value: item.attr('id'),
                                 label: item.text(),
                             }
                         }),
                         alarmOut: $item('trigger/alarmOut/alarmOuts/item').map((item) => {
                             return {
-                                value: item.attr('id')!,
+                                value: item.attr('id'),
                                 label: item.text(),
                             }
                         }),
                         snap: $item('trigger/sysSnap/chls/item').map((item) => {
                             return {
-                                value: item.attr('id')!,
+                                value: item.attr('id'),
                                 label: item.text(),
                             }
                         }),
@@ -1280,26 +1287,26 @@ export default defineComponent({
                                 index: $item('index').text(),
                                 name: $item('name').text(),
                                 chl: {
-                                    value: $item('chl').attr('id')!,
+                                    value: $item('chl').attr('id'),
                                     label: $item('chl').text(),
                                 },
                             }
                         }),
                         trigger: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'popMsgSwitch'].filter((item) => {
-                            return $item(item).text().toBoolean()
+                            return $item(item).text().bool()
                         }),
                         sysAudio: $item('trigger/sysAudio').attr('id'),
                     })
                 })
             }).then(() => {
                 vehicleCompareData.value.task.forEach((item, index) => {
-                    if (index == 0) {
+                    if (index === 0) {
                         taskTabs.value.push({
                             value: 'whitelist',
                             label: Translate('IDCS_SUCCESSFUL_RECOGNITION'),
                         })
                         comparePageData.value.taskData = item
-                    } else if (index == 1) {
+                    } else if (index === 1) {
                         taskTabs.value.push({
                             value: 'stranger',
                             label: Translate('IDCS_STRANGE_PLATE'),
@@ -1317,13 +1324,13 @@ export default defineComponent({
         // tab项对应的识别数据
         const compareLinkData = (value: string) => {
             let taskData = {} as AlarmRecognitionTaskDto
-            if (value == 'whitelist') {
+            if (value === 'whitelist') {
                 taskData = vehicleCompareData.value.task?.[0]
-            } else if (value == 'stranger') {
+            } else if (value === 'stranger') {
                 taskData = vehicleCompareData.value.task?.[1]
             } else {
                 vehicleCompareData.value.task?.forEach((item) => {
-                    if (item.nameId == Number(value[9])) {
+                    if (item.nameId === Number(value[9])) {
                         taskData = item
                     }
                 })
@@ -1443,43 +1450,45 @@ export default defineComponent({
 
         const LiveNotify2Js = ($: (path: string) => XmlResult) => {
             // 侦测区域
-            const xmlNote = $("statenotify[@type='VfdArea']")
-            if (xmlNote.length > 0) {
-                const $xmlNote = queryXml(xmlNote[0].element)
-                const points = [] as { X1: number; Y1: number; X2: number; Y2: number }[]
-                $xmlNote('item').forEach((item) => {
+            if ($("statenotify[@type='VfdArea']").length) {
+                vehicleDetectionData.value.regionInfo = $('statenotify/item').map((item) => {
                     const $item = queryXml(item.element)
-                    points.push({ X1: Number($item('X1').text()), Y1: Number($item('Y1').text()), X2: Number($item('X2').text()), Y2: Number($item('Y2').text()) })
+                    return {
+                        X1: $item('X1').text().num(),
+                        Y1: $item('Y1').text().num(),
+                        X2: $item('X2').text().num(),
+                        Y2: $item('Y2').text().num(),
+                    }
                 })
-                vehicleDetectionData.value.regionInfo = points
             }
             // 屏蔽区域
-            const xmlPea = $("statenotify[@type='PeaArea']")
-            const $points = $("statenotify[@type='PeaArea']/points")
-            // 绘制点线
-            if ($points.length > 0) {
-                const $xmlPea = queryXml(xmlPea[0].element)
-                const points = [] as { X: number; Y: number; isClosed: boolean }[]
-                $xmlPea('points/item').forEach((item) => {
-                    points.push({ X: Number(item.attr('X')), Y: Number(item.attr('Y')), isClosed: true })
-                })
-                vehicleDetectionData.value.maskAreaInfo[detectionPageData.value.maskArea] = points
-            }
-            const errorCode = $("statenotify[@type='PeaArea']/errorCode").text()
-            // 处理错误码
-            if (errorCode == '517') {
-                // 517-区域已闭合
-                vehicleClearCurrentArea()
-            } else if (errorCode == '515') {
-                // 515-区域有相交直线，不可闭合
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_INTERSECT'),
-                })
+            else if ($("statenotify[@type='PeaArea']").length) {
+                if ($('statenotify/points').length) {
+                    vehicleDetectionData.value.maskAreaInfo[detectionPageData.value.maskArea] = $('statenotify/points/item').map((item) => {
+                        return {
+                            X: item.attr('X').num(),
+                            Y: item.attr('Y').num(),
+                            isClosed: true,
+                        }
+                    })
+                }
+                const errorCode = $('statenotify/errorCode').text().num()
+                // 处理错误码
+                if (errorCode === 517) {
+                    // 517-区域已闭合
+                    vehicleClearCurrentArea()
+                } else if (errorCode === 515) {
+                    // 515-区域有相交直线，不可闭合
+                    openMessageBox({
+                        type: 'info',
+                        message: Translate('IDCS_INTERSECT'),
+                    })
+                }
             }
         }
+
         onMounted(async () => {
-            if (mode.value != 'h5') {
+            if (mode.value !== 'h5') {
                 Plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
             }
             openLoading()
@@ -1501,7 +1510,7 @@ export default defineComponent({
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
 
-            if (mode.value == 'h5') {
+            if (mode.value === 'h5') {
                 vehicleDrawer.destroy()
             }
         })

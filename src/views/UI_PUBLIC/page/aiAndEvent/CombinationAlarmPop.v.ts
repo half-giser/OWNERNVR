@@ -124,7 +124,7 @@ export default defineComponent({
                             label: $item('name').text(),
                         })
                         // 过滤掉热成像通道
-                        if (accessType == '1') return
+                        if (accessType === '1') return
                         pageData.value.chlsFilterMap.push({
                             value: item.attr('id')!,
                             label: $item('name').text(),
@@ -167,7 +167,7 @@ export default defineComponent({
                         const accessType = $item('AccessType').text()
 
                         // 过滤掉rtsp和cms添加的通道以及热成像通道
-                        if (accessType == '1') return
+                        if (accessType === '1') return
                         if (factoryName === 'Recorder') return
                         if (protocolType === 'RTSP') return
 
@@ -256,8 +256,8 @@ export default defineComponent({
             let dataIndex = '' // 标记数据中是否是人脸比对类型
             let isInvadeAndTrip = true // 是否类型全是越界和区域入侵（先假设是）
             tableData.value.forEach((item, index) => {
-                if (item.alarmSourceType != 'InvadeDetect' && item.alarmSourceType != 'Tripwire') isInvadeAndTrip = false
-                if (item.alarmSourceType == 'FaceMatch' || item.alarmSourceType == 'InvadeDetect' || item.alarmSourceType == 'Tripwire') dataIndex = index.toString()
+                if (item.alarmSourceType !== 'InvadeDetect' && item.alarmSourceType !== 'Tripwire') isInvadeAndTrip = false
+                if (item.alarmSourceType === 'FaceMatch' || item.alarmSourceType === 'InvadeDetect' || item.alarmSourceType === 'Tripwire') dataIndex = index.toString()
             })
 
             tableData.value.forEach((item, index) => {
@@ -266,9 +266,9 @@ export default defineComponent({
                 if (isInvadeAndTrip) {
                     alarmSourceType = NO_FACE_ALARM_TYPES_MAPPING
                     // 0 && true 为false;dataIndex转为字符串(dataIndex不作为number类型，还因为其有为空的可能，数字类型初始化为0会影响判断)
-                } else if (dataIndex && dataIndex != index.toString()) {
+                } else if (dataIndex && dataIndex !== index.toString()) {
                     const currType = tableData.value[Number(dataIndex)].alarmSourceType
-                    alarmSourceType = currType == 'FaceMatch' ? COMMON_ALARM_TYPES_MAPPING : NO_FACE_ALARM_TYPES_MAPPING
+                    alarmSourceType = currType === 'FaceMatch' ? COMMON_ALARM_TYPES_MAPPING : NO_FACE_ALARM_TYPES_MAPPING
                 }
 
                 pageData.value.alarmSourceTypeList[index] = getTypeMap(alarmSourceType)
@@ -325,13 +325,13 @@ export default defineComponent({
             let optionMap = supportFaceMatch ? COMBINED_ALARM_TYPES_MAPPING : IntelAndFaceConfigHide ? COMMON_ALARM_TYPES_MAPPING : NO_FACE_ALARM_TYPES_MAPPING
             const type = row.alarmSourceType
 
-            if (type == 'FaceMatch') {
+            if (type === 'FaceMatch') {
                 optionMap = COMMON_ALARM_TYPES_MAPPING
-            } else if (type == 'InvadeDetect' || type == 'Tripwire') {
+            } else if (type === 'InvadeDetect' || type === 'Tripwire') {
                 optionMap = NO_FACE_ALARM_TYPES_MAPPING
             }
 
-            if (index == 0) {
+            if (index === 0) {
                 pageData.value.alarmSourceTypeList[1] = getTypeMap(optionMap)
             } else {
                 pageData.value.alarmSourceTypeList[0] = getTypeMap(optionMap)
@@ -352,7 +352,7 @@ export default defineComponent({
         const entityChange = (row: AlarmCombinedItemDto) => {
             const entityList = getEntityMap(row.alarmSourceType)
             entityList.some((item) => {
-                if (item.value == row.alarmSourceEntity.value) {
+                if (item.value === row.alarmSourceEntity.value) {
                     row.alarmSourceEntity.label = item.label
                     return true
                 }
@@ -364,7 +364,7 @@ export default defineComponent({
         const changeDescription = () => {
             pageData.value.description = []
             tableData.value.forEach((item) => {
-                if (item.alarmSourceType == 'FaceMatch') {
+                if (item.alarmSourceType === 'FaceMatch') {
                     let str = COMBINED_ALARM_TYPES_MAPPING[item.alarmSourceType] + ' ' + (item.alarmSourceEntity.label || '')
 
                     if (pageData.value.faceMatchObj[item.alarmSourceEntity.value]) {
@@ -410,8 +410,8 @@ export default defineComponent({
             // 在没有报警源时不进行后续处理
             if (!id) return false
 
-            let isShowDetect = ''
-            if (row.alarmSourceType == 'Sensor') {
+            let isShowDetect = false
+            if (row.alarmSourceType === 'Sensor') {
                 const sendXml = rawXml`
                     <condition>
                         <alarmInId>${id}</alarmInId>
@@ -419,7 +419,7 @@ export default defineComponent({
                 `
                 const result = await queryAlarmIn(sendXml)
                 commLoadResponseHandler(result, ($) => {
-                    isShowDetect = $('//content/param/switch').text()
+                    isShowDetect = $('//content/param/switch').text().bool()
                 })
                 // 以下几种类型的请求头是一样的
             } else {
@@ -432,27 +432,27 @@ export default defineComponent({
                     </requireField>
                 `
                 // 区域入侵
-                if (row.alarmSourceType == 'InvadeDetect') {
+                if (row.alarmSourceType === 'InvadeDetect') {
                     const typeMap = localTargetDectMaxCount ? pageData.value.chlsFilterMapForThermal : pageData.value.peaMap
-                    if (!typeMap.some((el) => el.value == id)) {
+                    if (!typeMap.some((el) => el.value === id)) {
                         return false
                     }
                     const result = await queryIntelAreaConfig(sendXml)
                     const $ = queryXml(result)
                     // 开关包含区域入侵、区域进入、区域离开
-                    const perimeterSwitch = $('//content/chl/perimeter/param/switch').text() == 'true'
-                    const entrySwitch = $('//content/chl/entry/param/switch').text() == 'true'
-                    const leaveSwitch = $('//content/chl/leave/param/switch').text() == 'true'
-                    isShowDetect = perimeterSwitch || entrySwitch || leaveSwitch ? 'true' : 'false'
+                    const perimeterSwitch = $('//content/chl/perimeter/param/switch').text().bool()
+                    const entrySwitch = $('//content/chl/entry/param/switch').text().bool()
+                    const leaveSwitch = $('//content/chl/leave/param/switch').text().bool()
+                    isShowDetect = perimeterSwitch || entrySwitch || leaveSwitch
                     // 人脸比对
-                } else if (row.alarmSourceType == 'FaceMatch') {
+                } else if (row.alarmSourceType === 'FaceMatch') {
                     const typeMap = localTargetDectMaxCount ? pageData.value.chlsFilterMap : pageData.value.faceMap
-                    if (!typeMap.some((el) => el.value == id)) {
+                    if (!typeMap.some((el) => el.value === id)) {
                         return false
                     }
                     let isVfdChl = false // 当前通道是否为前侦测通道
                     pageData.value.faceMap.forEach((item) => {
-                        if (item.value == id) {
+                        if (item.value === id) {
                             isVfdChl = true
                         }
                     })
@@ -460,35 +460,35 @@ export default defineComponent({
                     if (isVfdChl) {
                         const result = await queryIntelAreaConfig(sendXml)
                         const $ = queryXml(result)
-                        isShowDetect = $('//content/chl/param/switch').text()
+                        isShowDetect = $('//content/chl/param/switch').text().bool()
                     } else {
                         const result = await queryBackFaceMatch()
                         const $ = queryXml(result)
-                        isShowDetect = 'false'
+                        isShowDetect = false
                         $('//content/param/chls/item').forEach((item) => {
-                            if (item.attr('guid') == id) {
-                                isShowDetect = queryXml(item.element)('switch').text()
+                            if (item.attr('guid') === id) {
+                                isShowDetect = queryXml(item.element)('switch').text().bool()
                             }
                         })
                     }
-                } else if (row.alarmSourceType == 'Tripwire') {
+                } else if (row.alarmSourceType === 'Tripwire') {
                     const typeMap = localTargetDectMaxCount ? pageData.value.chlsFilterMapForThermal : pageData.value.tripwireMap
-                    if (!typeMap.some((el) => el.value == id)) {
+                    if (!typeMap.some((el) => el.value === id)) {
                         return false
                     }
                     const result = await queryTripwire(sendXml)
                     const $ = queryXml(result)
 
-                    isShowDetect = $('//content/chl/param/switch').text()
-                } else if (row.alarmSourceType == 'Motion') {
+                    isShowDetect = $('//content/chl/param/switch').text().bool()
+                } else if (row.alarmSourceType === 'Motion') {
                     const result = await queryMotion(sendXml)
                     const $ = queryXml(result)
 
-                    isShowDetect = $('//content/chl/param/switch').text()
+                    isShowDetect = $('//content/chl/param/switch').text().bool()
                 }
             }
 
-            if (isShowDetect == 'false') {
+            if (!isShowDetect) {
                 pageData.value.isDetectShow = true
                 pageData.value.detectChlId = row.alarmSourceEntity.value
                 pageData.value.detectEntity = row.alarmSourceEntity.label
@@ -574,7 +574,7 @@ export default defineComponent({
 
             const sameSource = [] as string[]
             for (let i = 0; i < tableData.value.length; i++) {
-                if (i == 0) {
+                if (i === 0) {
                     sameSource[i] = tableData.value[i].alarmSourceEntity.value
                 } else {
                     if (!sameSource.includes(tableData.value[i].alarmSourceEntity.value)) {
@@ -594,7 +594,7 @@ export default defineComponent({
             let entity = ''
             let obj = {} as AlarmCombinedFaceMatchDto
             tableData.value.forEach((item) => {
-                if (item.alarmSourceType == 'FaceMatch' && pageData.value.faceMatchObj[item.alarmSourceEntity.value]) {
+                if (item.alarmSourceType === 'FaceMatch' && pageData.value.faceMatchObj[item.alarmSourceEntity.value]) {
                     if (pageData.value.faceMatchObj[item.alarmSourceEntity.value]) {
                         entity = item.alarmSourceEntity.value
                         obj = pageData.value.faceMatchObj[item.alarmSourceEntity.value].obj

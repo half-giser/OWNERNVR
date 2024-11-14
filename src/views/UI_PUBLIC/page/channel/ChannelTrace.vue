@@ -76,7 +76,6 @@
                         v-model="formData.name"
                         :disabled="!traceOptions.length"
                         spellcheck="false"
-                        :maxlength="nameByteMaxLen"
                         :formatter="formatInputMaxLength"
                         :parser="formatInputMaxLength"
                     />

@@ -27,7 +27,7 @@ export default defineComponent({
             const result = await queryEventNotifyParam()
 
             commLoadResponseHandler(result, ($) => {
-                videoFormData.value.popVideoDuration = Number($('//content/popVideoDuration').text())
+                videoFormData.value.popVideoDuration = $('//content/popVideoDuration').text().num()
                 pageData.value.popVideoDurationOption = $('//content/popVideoDurationNote')
                     .text()
                     .split(',')
@@ -47,17 +47,17 @@ export default defineComponent({
                     if (popVideoOutputNote.length === 2) {
                         pageData.value.popVideoOutputOption.push({
                             value: item,
-                            label: Number(item) == 0 ? Translate('IDCS_MAIN_SCREEN') : Translate('IDCS_SECOND_SCREEN'),
+                            label: Number(item) === 0 ? Translate('IDCS_MAIN_SCREEN') : Translate('IDCS_SECOND_SCREEN'),
                         })
                     } else {
                         pageData.value.popVideoOutputOption.push({
                             value: item,
-                            label: Number(item) == 0 ? Translate('IDCS_MAIN_SCREEN') : Translate('IDCS_SECOND_SCREEN') + parseInt(item),
+                            label: Number(item) === 0 ? Translate('IDCS_MAIN_SCREEN') : Translate('IDCS_SECOND_SCREEN') + item,
                         })
                     }
                 })
 
-                msgFormData.value.popMsgDuration = Number($('//content/popMsgDuration').text())
+                msgFormData.value.popMsgDuration = $('//content/popMsgDuration').text().num()
                 pageData.value.popMsgDurationOption = $('//content/popMsgDurationNote')
                     .text()
                     .split(',')
@@ -69,7 +69,7 @@ export default defineComponent({
                         }!
                     })
 
-                msgFormData.value.popMsgShow = $('//content/popMsgShow').text() == 'false'
+                msgFormData.value.popMsgShow = !$('//content/popMsgShow').text().bool()
             })
         }
 

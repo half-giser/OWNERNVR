@@ -47,7 +47,7 @@ export default defineComponent({
                 nodeType: 'chls',
             }).then(async (res) => {
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     $('//content/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         pageData.value.videoPopupList.push({
@@ -67,7 +67,7 @@ export default defineComponent({
                 chlType: 'analog',
             }).then(async (res) => {
                 const $chl = queryXml(res)
-                pageData.value.totalCount = Number($chl('//content').attr('total'))
+                pageData.value.totalCount = $chl('//content').attr('total').num()
                 $chl('//content/item').forEach(async (item) => {
                     const $ele = queryXml(item.element)
                     const row = new AlarmEventDto()
@@ -86,10 +86,10 @@ export default defineComponent({
                     `
                     const videoLoss = await queryVideoLossTrigger(sendXml)
                     const res = queryXml(videoLoss)
-                    if (res('status').text() == 'success') {
+                    if (res('status').text() === 'success') {
                         row.rowDisable = false
                         row.snap = {
-                            switch: res('//content/sysSnap/switch').text() == 'true' ? true : false,
+                            switch: res('//content/sysSnap/switch').text().bool(),
                             chls: res('//content/sysSnap/chls/item').map((item) => {
                                 return {
                                     value: item.attr('id')!,
@@ -100,7 +100,7 @@ export default defineComponent({
                         // 获取snap中chls的value列表
                         // row.snapList = row.snap.chls.map((item) => item.value)
                         row.alarmOut = {
-                            switch: res('//content/alarmOut/switch').text() == 'true' ? true : false,
+                            switch: res('//content/alarmOut/switch').text().bool(),
                             alarmOuts: res('//content/alarmOut/alarmOuts/item').map((item) => {
                                 return {
                                     value: item.attr('id')!,
@@ -114,9 +114,9 @@ export default defineComponent({
                         row.msgPush = res('//content/msgPushSwitch').text()
                         row.videoPopup = res('//content/popVideoSwitch').text()
                         row.videoPopupInfo = {
-                            switch: res('//content/popVideo/switch').text() == 'true' ? true : false,
+                            switch: res('//content/popVideo/switch').text().bool(),
                             chl: {
-                                value: res('//content/popVideo/chl').attr('id') != '' ? res('//content/popVideo/chl').attr('id') : ' ',
+                                value: res('//content/popVideo/chl').attr('id') !== '' ? res('//content/popVideo/chl').attr('id') : ' ',
                                 label: res('//content/popVideo/chl').text(),
                             },
                         }
@@ -124,7 +124,7 @@ export default defineComponent({
                             return item.value !== row.id
                         })
                         row.msgBoxPopup = res('//content/popMsgSwitch').text()
-                        row.preset.switch = res('//content/preset/switch').text() == 'true' ? true : false
+                        row.preset.switch = res('//content/preset/switch').text().bool()
                         res('//content/preset/presets/item').forEach((item) => {
                             const $item = queryXml(item.element)
                             row.preset.presets.push({
@@ -235,40 +235,6 @@ export default defineComponent({
                 presets: cloneDeep(data),
             }
         }
-
-        // presetPop相关
-        // const openPresetPop = (row: AlarmEventDto) => {
-        //     pageData.value.presetChlId = row.id
-        //     pageData.value.presetLinkedList = row.preset.presets
-        //     pageData.value.isPresetPopOpen = true
-        // }
-
-        // const handlePresetLinkedList = (id: string, linkedList: AlarmPresetItem[]) => {
-        //     tableData.value.forEach((item) => {
-        //         if (item.id == id) {
-        //             item.preset.presets = linkedList
-        //             addEditRow(item)
-        //         }
-        //     })
-        // }
-
-        // const presetClose = (id: string) => {
-        //     pageData.value.isPresetPopOpen = false
-        //     tableData.value.forEach((item) => {
-        //         if (item.id == id && item.preset.presets.length == 0) {
-        //             item.preset.switch = false
-        //         }
-        //     })
-        // }
-
-        // const presetSwitchChange = (row: AlarmEventDto) => {
-        //     addEditRow(row)
-        //     if (row.preset.switch === false) {
-        //         row.preset.presets = []
-        //     } else {
-        //         openPresetPop(row)
-        //     }
-        // }
 
         // 系统音频
         const handleSysAudioChangeAll = (sysAudio: string) => {
@@ -399,8 +365,8 @@ export default defineComponent({
                     <msgPushSwitch>${rowData.msgPush}</msgPushSwitch>
                     <buzzerSwitch>${rowData.beeper}</buzzerSwitch>
                     <popVideo>
-                        <switch>${rowData.videoPopupInfo.chl.value == ' ' ? 'false' : 'true'}</switch>
-                        <chl id="${rowData.videoPopupInfo.chl.value == ' ' ? '' : rowData.videoPopupInfo.chl.value}"></chl>
+                        <switch>${rowData.videoPopupInfo.chl.value !== ' '}</switch>
+                        <chl id="${rowData.videoPopupInfo.chl.value === ' ' ? '' : rowData.videoPopupInfo.chl.value}"></chl>
                     </popVideo>
                     <popMsgSwitch>${rowData.msgBoxPopup}</popMsgSwitch>
                     <emailSwitch>${rowData.email}</emailSwitch>
@@ -429,11 +395,11 @@ export default defineComponent({
                 const sendXml = getSavaData(item)
                 editVideoLossTrigger(sendXml).then((res) => {
                     const $ = queryXml(res)
-                    if ($('status').text() == 'success') {
+                    if ($('status').text() === 'success') {
                         item.status = 'success'
                     } else {
                         item.status = 'error'
-                        const errorCode = Number($('errorCode').text())
+                        const errorCode = $('errorCode').text().num()
                         if (errorCode === ErrorCode.USER_ERROR_GET_CONFIG_INFO_FAIL) {
                             item.status = 'success'
                         } else {

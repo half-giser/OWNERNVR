@@ -77,7 +77,7 @@ export default class WebsocketPlateLib {
                         this.onerror && this.onerror(code)
                     } else if (res.url === '/device/platelib/export/data' && code !== 0) {
                         // 数据发送完毕
-                        if (code == ErrorCode.USER_ERROR_FILE_STREAM_COMPLETED) {
+                        if (code === ErrorCode.USER_ERROR_FILE_STREAM_COMPLETED) {
                             this.onsuccess && this.onsuccess(code)
                         }
                     }

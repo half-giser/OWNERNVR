@@ -145,7 +145,7 @@ export default defineComponent({
             if ($('//status').text() === 'success') {
                 tableData.value[index].cruise = $('//content/cruises/item').map((item) => {
                     return {
-                        index: Number(item.attr('index')!),
+                        index: item.attr('index').num(),
                         name: item.text(),
                     }
                 })
@@ -172,10 +172,10 @@ export default defineComponent({
                     const $item = queryXml(item.element)
                     return {
                         id: ++presetId,
-                        index: Number(item.attr('index')!),
+                        index: item.attr('index').num(),
                         name: $item('name').text(),
-                        speed: Number($item('speed').text()),
-                        holdTime: Number($item('holdTime').text()),
+                        speed: $item('speed').text().num(),
+                        holdTime: $item('holdTime').text().num(),
                     }
                 })
                 if (presetTableData.value.length) {
@@ -212,7 +212,7 @@ export default defineComponent({
                         return {
                             chlId: item.attr('id')!,
                             chlName: $item('name').text(),
-                            cruiseCount: Number($item('cruiseCount').text()),
+                            cruiseCount: $item('cruiseCount').text().num(),
                             cruise: [],
                             maxCount: Infinity,
                         }
@@ -322,7 +322,7 @@ export default defineComponent({
                     tableData.value[pageData.value.tableIndex].cruise[formData.value.cruiseIndex as number].name = formData.value.name
                 })
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 if (errorCode === ErrorCode.USER_ERROR_NAME_EXISTED) {
                     openMessageBox({
                         type: 'info',
@@ -649,7 +649,6 @@ export default defineComponent({
             addCruise,
             confirmAddCruise,
             deleteCruise,
-            nameByteMaxLen,
             formatInputMaxLength,
             ChannelCruiseAddPop,
             ChannelCruiseEditPresetPop,

@@ -70,7 +70,7 @@ export default defineComponent({
 
             const storageResult = await queryStorageDevInfo()
             const $storage = queryXml(storageResult)
-            const raidSwitch = $storage('//content/storageSysInfo/raidSwitch').text().toBoolean()
+            const raidSwitch = $storage('//content/storageSysInfo/raidSwitch').text().bool()
             const enclosureIndex = 0
 
             const result = await queryDiskStatus()
@@ -124,20 +124,20 @@ export default defineComponent({
                     id: item.attr('id')!,
                     diskNum: DISK_MAPPING[$item('diskInterfaceType').text()] + $item('slotIndex').text(),
                     raidType: 'normal',
-                    size: Math.floor(Number($item('size').text()) / 1024),
-                    freeSpace: Number($item('freeSpace').text()) / 1024,
+                    size: Math.floor($item('size').text().num() / 1024),
+                    freeSpace: $item('freeSpace').text().num() / 1024,
                     combinedStatus,
                     diskStatus,
                     diskEncryptStatus,
                     type: $item('diskInterfaceType').text(),
                     source: '',
                     group: '',
-                    recTime: recStartDate == recEndDate ? recStartDate : recStartDate + '~' + recEndDate,
+                    recTime: recStartDate === recEndDate ? recStartDate : recStartDate + '~' + recEndDate,
                     detail: [],
                     gridRowStatus: 'loading',
                     gridRowDisabled: true,
                     gridRowStatusInitTooltip: TRANS_MAPPING.loadingTip,
-                    sortIndex: enclosureIndex * 1000 + Number($item('slotIndex').text()),
+                    sortIndex: enclosureIndex * 1000 + $item('slotIndex').text().num(),
                 })
             })
 
@@ -179,15 +179,15 @@ export default defineComponent({
                         id: item.attr('logicDiskId')!,
                         diskNum: DISK_MAPPING[$item('name').text()] + $item('slotIndex').text(),
                         raidType: $item('raidType').text(),
-                        size: Math.floor(Number($item('realSize').text()) / 1024),
-                        freeSpace: Number($item('freeSpace').text()) / 1024,
+                        size: Math.floor($item('realSize').text().num() / 1024),
+                        freeSpace: $item('freeSpace').text().num() / 1024,
                         combinedStatus,
                         diskStatus,
                         diskEncryptStatus,
                         type: 'raid',
                         source: '',
                         group: '',
-                        recTime: recStartDate == recEndDate ? recStartDate : recStartDate + '~' + recEndDate,
+                        recTime: recStartDate === recEndDate ? recStartDate : recStartDate + '~' + recEndDate,
                         detail: [],
                         gridRowStatus: 'loading',
                         gridRowDisabled: true,

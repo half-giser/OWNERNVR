@@ -57,22 +57,22 @@ export default defineComponent({
 
             queryAbnormalTrigger().then((resb) => {
                 const res = queryXml(resb)
-                if (res('status').text() == 'success') {
+                if (res('status').text() === 'success') {
                     tableData.value = []
                     res('//content/item').forEach((item) => {
                         const row = new AlarmExceptionDto()
                         row.rowDisable = false
                         const $item = queryXml(item.element)
                         const abnormalType = $item('abnormalType').text()
-                        if (abnormalType == 'RAIDSubHealth' || abnormalType == 'RAIDUnavaiable' || abnormalType == 'signalShelter') {
+                        if (abnormalType === 'RAIDSubHealth' || abnormalType === 'RAIDUnavaiable' || abnormalType === 'signalShelter') {
                             return
                         }
 
-                        if (abnormalType == 'raidException' && !systemCaps.supportRaid) {
+                        if (abnormalType === 'raidException' && !systemCaps.supportRaid) {
                             return
                         }
 
-                        if (abnormalType == 'alarmServerOffline' && !systemCaps.supportAlarmServerConfig) {
+                        if (abnormalType === 'alarmServerOffline' && !systemCaps.supportAlarmServerConfig) {
                             return
                         }
                         row.eventType = $item('abnormalType').text()
@@ -81,11 +81,11 @@ export default defineComponent({
                         const AudioData = pageData.value.audioList.filter((element: { value: string; label: string }) => {
                             return element.value === row.sysAudio
                         })
-                        if (AudioData.length === 0) {
+                        if (!AudioData.length) {
                             row.sysAudio = DEFAULT_EMPTY_ID
                         }
                         row.msgPush = $item('msgPushSwitch').text()
-                        row.alarmOut.switch = $item('triggerAlarmOut/switch').text() == 'true' ? true : false
+                        row.alarmOut.switch = $item('triggerAlarmOut/switch').text().bool()
                         $item('triggerAlarmOut/alarmOuts/item').forEach((item) => {
                             row.alarmOut.alarmOuts.push({
                                 value: item.attr('id')!,
@@ -94,7 +94,7 @@ export default defineComponent({
                         })
                         row.alarmOutList = row.alarmOut.alarmOuts.map((item) => item.value)
                         row.beeper = $item('buzzerSwitch').text()
-                        if (row.eventType != 'networkBreak' && row.eventType != 'ipConflict') {
+                        if (row.eventType !== 'networkBreak' && row.eventType !== 'ipConflict') {
                             row.email = $item('emailSwitch').text()
                             row.emailDisable = false
                         }
@@ -243,7 +243,7 @@ export default defineComponent({
             const sendXml = getSavaData()
             editAbnormalTrigger(sendXml).then((resb) => {
                 const res = queryXml(resb)
-                if (res('status').text() == 'success') {
+                if (res('status').text() === 'success') {
                     openMessageBox({
                         type: 'success',
                         message: Translate('IDCS_SAVE_DATA_SUCCESS'),

@@ -73,11 +73,12 @@ export default defineComponent({
 
         const tableData = ref([] as AlarmSystemDisarmDto[])
         const cfgTableData = ref([] as { id: string; value: string; selected: boolean }[])
+
         // 获取在线的通道列表
         const getOnlineChlList = async () => {
             const onlineChls = await queryOnlineChlList()
             const res = queryXml(onlineChls)
-            if (res('status').text() == 'success') {
+            if (res('status').text() === 'success') {
                 res('//content/item').forEach((item) => {
                     pageData.value.onlineChlList.push(item.attr('id')!)
                 })
@@ -90,14 +91,14 @@ export default defineComponent({
                 requireField: ['protocolType', 'supportManualAudioAlarmOut', 'supportManualWhiteLightAlarmOut'],
             })
             const res = queryXml(chllist)
-            if (res('status').text() == 'success') {
+            if (res('status').text() === 'success') {
                 res('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     const chlId = item.attr('id')!
                     const chlName = $item('name').text()
                     const chlType = $item('chlType').text()
-                    const supportManualAudio = $item('supportManualAudioAlarmOut').text() == 'true'
-                    const supportManualWhiteLight = $item('supportManualWhiteLightAlarmOut').text() == 'true'
+                    const supportManualAudio = $item('supportManualAudioAlarmOut').text().bool()
+                    const supportManualWhiteLight = $item('supportManualWhiteLightAlarmOut').text().bool()
                     pageData.value.chlsMap[chlId] = {
                         id: chlId,
                         name: chlName,
@@ -107,7 +108,7 @@ export default defineComponent({
                     }
                     pageData.value.onlineChlList.forEach((id: string) => {
                         // 过滤不在线通道
-                        if (chlId == id) {
+                        if (chlId === id) {
                             pageData.value.chlAndsensorSourceList.push({
                                 id: chlId,
                                 value: chlName,
@@ -129,16 +130,16 @@ export default defineComponent({
                 nodeType: 'sensors',
             })
             const res = queryXml(chllist)
-            if (res('status').text() == 'success') {
+            if (res('status').text() === 'success') {
                 let virtualMaxIdx = Number.POSITIVE_INFINITY // alarmInType==virtual节点的最大index
                 res('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     let name = $item('name').text()
                     const devId = $item('devID').text()
                     const devDesc = $item('devDesc').text()
-                    const sensorId = item.attr('id')!
+                    const sensorId = item.attr('id')
                     const alarmInType = item.attr('alarmInType')
-                    const alarmIndex = Number(item.attr('index'))
+                    const alarmIndex = item.attr('index').num()
                     if (devDesc) {
                         name = devDesc + '_' + name
                     }
@@ -148,11 +149,11 @@ export default defineComponent({
                         supportManualAudio: false,
                         supportManualWhiteLight: false,
                     }
-                    if (alarmInType == 'virtual') {
+                    if (alarmInType === 'virtual') {
                         virtualMaxIdx = alarmIndex
                     }
 
-                    if (alarmInType != 'ipc' && alarmIndex <= virtualMaxIdx) {
+                    if (alarmInType !== 'ipc' && alarmIndex <= virtualMaxIdx) {
                         // 过滤掉IPC和报警盒子(index大于alarmInType==virtual节点的最大index并且不是IPC的就是报警盒子)
                         pageData.value.sensorSourcelist.push({
                             id: sensorId,
@@ -164,7 +165,7 @@ export default defineComponent({
 
                     if (devId) {
                         pageData.value.onlineChlList.forEach((chlId) => {
-                            if (chlId == devId) {
+                            if (chlId === devId) {
                                 pageData.value.chlAndsensorSourceList.push({
                                     id: sensorId,
                                     value: name,
@@ -190,10 +191,10 @@ export default defineComponent({
         const buildData = () => {
             querySystemDisArmParam().then(async (resb) => {
                 const res = queryXml(resb)
-                if (res('status').text() == 'success') {
-                    pageData.value.defenseSwitch = res('//content/defenseSwitch').text() == 'true'
-                    pageData.value.remoteSwitch = res('//content/remoteSwitch').text() == 'true'
-                    formData.value.sensorSwitch = res('//content/sensorSwitch').text() == 'true'
+                if (res('status').text() === 'success') {
+                    pageData.value.defenseSwitch = res('//content/defenseSwitch').text().bool()
+                    pageData.value.remoteSwitch = res('//content/remoteSwitch').text().bool()
+                    formData.value.sensorSwitch = res('//content/sensorSwitch').text().bool()
                     formData.value.inputSource = res('//content/inputSourceSensor').text()
                     formData.value.inputSource =
                         formData.value.inputSource && formData.value.inputSource !== DEFAULT_EMPTY_ID
@@ -204,7 +205,7 @@ export default defineComponent({
                     pageData.value.defenseParamList = []
                     res('//types/defenseType/enum').forEach((item) => {
                         const defenseType = item.text()
-                        if (defenseType != 'nodeAudioSwitch' && defenseType != 'nodeLightSwitch') {
+                        if (defenseType !== 'nodeAudioSwitch' && defenseType !== 'nodeLightSwitch') {
                             pageData.value.defenseParamList.push({
                                 id: defenseType,
                                 value: defenseParamMap[defenseType],
@@ -232,16 +233,16 @@ export default defineComponent({
                         const supportManualAudio = getCapabilityFieldRes(nodeType, chlId, 'supportManualAudioAlarmOut')
                         const supportManualWhiteLight = getCapabilityFieldRes(nodeType, chlId, 'supportManualWhiteLightAlarmOut')
                         const ipcDefenseParamList = getIpcDefenseParamList(supportManualAudio, supportManualWhiteLight)
-                        if (ipcDefenseParamList.length == disarmItemsList.length) {
+                        if (ipcDefenseParamList.length === disarmItemsList.length) {
                             disarmItemsStr = Translate('IDCS_FULL')
                         }
 
-                        if (disarmItemsList.length == 0) {
+                        if (disarmItemsList.length === 0) {
                             disarmItemsStr = Translate('IDCS_NULL')
                         }
                         row.id = chlId
                         row.chlName =
-                            nodeType == 'channel'
+                            nodeType === 'channel'
                                 ? pageData.value.chlsMap[chlId]
                                     ? pageData.value.chlsMap[chlId].name
                                     : ''
@@ -301,14 +302,14 @@ export default defineComponent({
             editSystemDisArmParam(sendXml).then((resb) => {
                 closeLoading()
                 const res = queryXml(resb)
-                if (res('status').text() == 'success') {
+                if (res('status').text() === 'success') {
                     openMessageBox({
                         type: 'success',
                         message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                     })
                 } else {
-                    const errorCode = Number(res('errorcode').text())
-                    if (errorCode == ErrorCode.USER_ERROR_NO_AUTH) {
+                    const errorCode = res('errorcode').text().num()
+                    if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
                         openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_DISARM_SAVE_INVALID'),
@@ -323,14 +324,14 @@ export default defineComponent({
         const getCapabilityFieldRes = (nodeType: string, chlId: string, capField: string) => {
             let supportManualAudio = false
             let supportManualWhiteLight = false
-            if (nodeType == 'channel') {
+            if (nodeType === 'channel') {
                 supportManualAudio = pageData.value.chlsMap[chlId] ? pageData.value.chlsMap[chlId].supportManualAudio : false
                 supportManualWhiteLight = pageData.value.chlsMap[chlId] ? pageData.value.chlsMap[chlId].supportManualWhiteLight : false
             } else {
                 supportManualAudio = pageData.value.sensorsMap[chlId] ? pageData.value.sensorsMap[chlId].supportManualAudio : false
                 supportManualWhiteLight = pageData.value.sensorsMap[chlId] ? pageData.value.sensorsMap[chlId].supportManualWhiteLight : false
             }
-            return capField == 'supportManualAudioAlarmOut' ? supportManualAudio : supportManualWhiteLight
+            return capField === 'supportManualAudioAlarmOut' ? supportManualAudio : supportManualWhiteLight
         }
 
         // 获取单个通道或传感器的撤防联动项列表
@@ -376,7 +377,7 @@ export default defineComponent({
             pageData.value.filterChlsSourceList = cloneDeep(pageData.value.chlAndsensorSourceList)
             for (let i = 0; i < tableData.value.length; i++) {
                 for (let j = 0; j < pageData.value.filterChlsSourceList.length; j++) {
-                    if (pageData.value.filterChlsSourceList[j] && pageData.value.filterChlsSourceList[j].id == tableData.value[i].id) {
+                    if (pageData.value.filterChlsSourceList[j] && pageData.value.filterChlsSourceList[j].id === tableData.value[i].id) {
                         pageData.value.filterChlsSourceList.splice(j, 1)
                     }
                 }
@@ -389,7 +390,7 @@ export default defineComponent({
                 let flagIdx = -1
                 let sensorName = ''
                 for (let i = 0; i < tableData.value.length; i++) {
-                    if (tableData.value[i] && tableData.value[i].id == formData.value.inputSource) {
+                    if (tableData.value[i] && tableData.value[i].id === formData.value.inputSource) {
                         flagIdx = i
                         sensorName = tableData.value[i].chlName
                         break
@@ -439,7 +440,7 @@ export default defineComponent({
                     const row = new AlarmSystemDisarmDto()
                     const ipcDefenseParamList = getIpcDefenseParamList(item.supportManualAudio, item.supportManualWhiteLight)
                     let disarmItemsStr = ''
-                    if (ipcDefenseParamList.length == pageData.value.defenseParamList.length) {
+                    if (ipcDefenseParamList.length === pageData.value.defenseParamList.length) {
                         disarmItemsStr = Translate('IDCS_FULL')
                     } else {
                         pageData.value.defenseParamList.forEach((ele: { id: string; value: string }, idx: number) => {
@@ -449,7 +450,7 @@ export default defineComponent({
                     }
                     row.id = item.id
                     row.chlName =
-                        item.nodeType == 'channel'
+                        item.nodeType === 'channel'
                             ? pageData.value.chlsMap[item.id]
                                 ? pageData.value.chlsMap[item.id].name
                                 : ''
@@ -476,7 +477,7 @@ export default defineComponent({
             cfgTableData.value = []
             tableData.value[pageData.value.triggerDialogIndex].disarmItems.forEach((item: { id: string; value: string }) => {
                 const selected = tableData.value[pageData.value.triggerDialogIndex].disarmItemsList.some((ele: { id: string; value: string }) => {
-                    return ele.id == item.id
+                    return ele.id === item.id
                 })
                 if (selected) {
                     pageData.value.selectedCfgList.push(item)
@@ -487,7 +488,7 @@ export default defineComponent({
                     selected: selected,
                 })
             })
-            pageData.value.isSelectAll = cfgTableData.value.length == pageData.value.selectedCfgList.length
+            pageData.value.isSelectAll = cfgTableData.value.length === pageData.value.selectedCfgList.length
             pageData.value.showCfgDialog = true
         }
 
@@ -499,11 +500,11 @@ export default defineComponent({
                 const splicer = idx < tableData.value[pageData.value.triggerDialogIndex].disarmItemsList.length - 1 ? ', ' : ''
                 tableData.value[pageData.value.triggerDialogIndex].disarmItemsStr += defenseParamMap[item.id] + splicer
             })
-            if (tableData.value[pageData.value.triggerDialogIndex].disarmItemsList.length == tableData.value[pageData.value.triggerDialogIndex].disarmItems.length) {
+            if (tableData.value[pageData.value.triggerDialogIndex].disarmItemsList.length === tableData.value[pageData.value.triggerDialogIndex].disarmItems.length) {
                 tableData.value[pageData.value.triggerDialogIndex].disarmItemsStr = Translate('IDCS_FULL')
             }
 
-            if (tableData.value[pageData.value.triggerDialogIndex].disarmItemsList.length == 0) {
+            if (!tableData.value[pageData.value.triggerDialogIndex].disarmItemsList.length) {
                 tableData.value[pageData.value.triggerDialogIndex].disarmItemsStr = Translate('IDCS_NULL')
             }
             pageData.value.showCfgDialog = false
@@ -515,7 +516,7 @@ export default defineComponent({
             tableData.value.forEach((item: AlarmSystemDisarmDto) => {
                 item.disarmItemsList = pageData.value.selectedCfgList.filter((ele: { id: string; value: string }) => {
                     return item.disarmItems.some((ele2: { id: string; value: string }) => {
-                        return ele.id == ele2.id
+                        return ele.id === ele2.id
                     })
                 })
                 item.disarmItemsStr = ''
@@ -523,11 +524,11 @@ export default defineComponent({
                     const splicer = idx < item.disarmItemsList.length - 1 ? ', ' : ''
                     item.disarmItemsStr += defenseParamMap[ele.id] + splicer
                 })
-                if (item.disarmItemsList.length == item.disarmItems.length) {
+                if (item.disarmItemsList.length === item.disarmItems.length) {
                     item.disarmItemsStr = Translate('IDCS_FULL')
                 }
 
-                if (item.disarmItemsList.length == 0) {
+                if (!item.disarmItemsList.length) {
                     item.disarmItemsStr = Translate('IDCS_NULL')
                 }
             })
@@ -542,7 +543,7 @@ export default defineComponent({
                 message: Translate('IDCS_DELETE_MP_S'),
             }).then(() => {
                 tableData.value.forEach((item: AlarmSystemDisarmDto) => {
-                    if (item.id == row.id) {
+                    if (item.id === row.id) {
                         tableData.value.splice(tableData.value.indexOf(item), 1)
                     }
                 })
@@ -594,9 +595,9 @@ export default defineComponent({
             if (row.selected) {
                 pageData.value.selectedCfgList.push(row)
             } else {
-                pageData.value.selectedCfgList = pageData.value.selectedCfgList.filter((item) => item.id != row.id)
+                pageData.value.selectedCfgList = pageData.value.selectedCfgList.filter((item) => item.id !== row.id)
             }
-            pageData.value.isSelectAll = cfgTableData.value.length == pageData.value.selectedCfgList.length
+            pageData.value.isSelectAll = cfgTableData.value.length === pageData.value.selectedCfgList.length
         }
 
         onMounted(async () => {

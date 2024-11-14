@@ -60,7 +60,7 @@ export default defineComponent({
             queryDevList(data).then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     const chlList: ChannelInfoDto[] = []
                     const addedChlList: string[] = tmpEditItem.chls.map((ele: Record<string, string | boolean>) => {
                         return ele.value as string
@@ -118,7 +118,7 @@ export default defineComponent({
             editSetAndElementRelation(sendXml).then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     tableRef.value!.getSelectionRows().forEach((ele: ChannelInfoDto) => {
                         tmpEditItem.chls.push({
                             value: ele.id,
@@ -128,8 +128,8 @@ export default defineComponent({
                     })
                     emit('close', true)
                 } else {
-                    const errorCdoe = $('errorCode').text()
-                    if (Number(errorCdoe) == ErrorCode.USER_ERROR_OVER_LIMIT) {
+                    const errorCdoe = $('errorCode').text().num()
+                    if (errorCdoe === ErrorCode.USER_ERROR_OVER_LIMIT) {
                         openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),

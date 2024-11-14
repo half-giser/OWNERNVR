@@ -200,7 +200,7 @@ const valueShowText = computed(() => {
  * @returns
  */
 const timeNumArrSortedAndMerge = (timeNumArr: Array<[number, number]>) => {
-    if (!timeNumArr || timeNumArr.length === 0) return timeNumArr
+    if (!timeNumArr || !timeNumArr.length) return timeNumArr
     //按开始时间排序
     timeNumArr.sort((a, b) => {
         return a[0] - b[0]
@@ -278,7 +278,7 @@ const checkAndInsertTimeSpan = (timeSpan: [string, string]) => {
  */
 const resetValue = (newValue: Array<[string, string]> | Array<[number, number]>) => {
     selectedTimeSpans.value.length = 0
-    if (newValue && newValue.length > 0) {
+    if (newValue && newValue.length) {
         if (typeof newValue[0][0] === 'number') {
             newValue.forEach((item) => {
                 checkAndInsertTimeNumSpan(item as [number, number])
@@ -315,7 +315,7 @@ const dateToTimeNum = (time: Date) => {
 }
 
 const manualTimeInputClose = (event?: Event) => {
-    if (event == null || (event.target != manualTimeInputTarget && !(event.target as HTMLElement).closest('.el-popper'))) {
+    if (!event || (event.target !== manualTimeInputTarget && !(event.target as HTMLElement).closest('.el-popper'))) {
         manualTimeInputShow.value = false
         document.removeEventListener('click', manualTimeInputClose)
     }
@@ -441,8 +441,8 @@ const scaleTextArr24 = scaleArr24.map((o) => o.toString())
 const scaleTextArr12 = (() => {
     const arr = [] as string[]
     scaleArr24.forEach((item) => {
-        if (item == 0 || item == 24) arr.push('12A')
-        else if (item == 12) arr.push('12P')
+        if (item === 0 || item === 24) arr.push('12A')
+        else if (item === 12) arr.push('12P')
         else if (item < 12) arr.push(item.toString())
         else arr.push((item - 12).toString())
     })

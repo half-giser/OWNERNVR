@@ -104,7 +104,7 @@ export default defineComponent({
                     pluginStore.showPluginNoResponse = true
                     plugin.ShowPluginNoResponse()
                 }
-                const sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'AvdConfig' : 'ReadOnly', 'Live')
+                const sendXML = OCX_XML_SetPluginModel(osType === 'mac' ? 'AvdConfig' : 'ReadOnly', 'Live')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
         }
@@ -120,7 +120,7 @@ export default defineComponent({
                     streamType: 2,
                 })
             } else if (mode.value === 'ocx') {
-                if (osType == 'mac') {
+                if (osType === 'mac') {
                     // const sendXML = OCX_XML_Preview({
                     //     winIndexList: [0],
                     //     chlIdList: [chlData.id],
@@ -173,7 +173,7 @@ export default defineComponent({
                     sceneChangeSwitch: $('//content/chl/param/sceneChangeSwitch').text(),
                     clarityAbnormalSwitch: $('//content/chl/param/clarityAbnormalSwitch').text(),
                     colorAbnormalSwitch: $('//content/chl/param/colorAbnormalSwitch').text(),
-                    sensitivity: Number($('//content/chl/param/sensitivity').text()),
+                    sensitivity: $('//content/chl/param/sensitivity').text().num(),
                     record: $trigger('sysRec/chls/item').map((item) => {
                         return {
                             value: item.attr('id')!,
@@ -198,7 +198,7 @@ export default defineComponent({
                         }
                     }),
                     trigger: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch'].filter((item) => {
-                        return $trigger(item).text().toBoolean()
+                        return $trigger(item).text().bool()
                     }),
                     sysAudio: $('sysAudio').attr('id'),
                 }
@@ -209,7 +209,7 @@ export default defineComponent({
 
         // tab切换
         const tabChange = (name: TabPaneName) => {
-            if (name == 'param') {
+            if (name === 'param') {
                 play()
             }
         }
@@ -286,7 +286,7 @@ export default defineComponent({
             const result = await editAvd(sendXml)
             closeLoading()
             const $ = queryXml(result)
-            if ($('//status').text() == 'success') {
+            if ($('//status').text() === 'success') {
                 pageData.value.applyDisabled = true
             }
         }

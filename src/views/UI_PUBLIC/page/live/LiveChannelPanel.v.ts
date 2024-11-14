@@ -165,10 +165,10 @@ export default defineComponent({
                         value: $item('name').text(),
                         chlType: $item('chlType').text(),
                         protocolType: $item('chlType').text(),
-                        supportPtz: $item('supportPtz').text().toBoolean(),
-                        supportPTZGroupTraceTask: $item('supportPTZGroupTraceTask').text().toBoolean(),
-                        supportAccessControl: $item('supportAccessControl').text().toBoolean(),
-                        supportTalkback: false, // $item('supportTalkback').text().toBoolean(),
+                        supportPtz: $item('supportPtz').text().bool(),
+                        supportPTZGroupTraceTask: $item('supportPTZGroupTraceTask').text().bool(),
+                        supportAccessControl: $item('supportAccessControl').text().bool(),
+                        supportTalkback: false, // $item('supportTalkback').text().bool(),
                         chlIp: '',
                         poeSwitch: false,
                     }
@@ -305,11 +305,11 @@ export default defineComponent({
                     return {
                         id: item.attr('id')!,
                         value: $item('name').text(),
-                        dwellTime: Number($item('dwellTime').text()),
+                        dwellTime: $item('dwellTime').text().num(),
                     }
                 })
             } else {
-                if (Number($('//errorCode').text()) === ErrorCode.USER_ERROR_NO_AUTH) {
+                if ($('//errorCode').text().num() === ErrorCode.USER_ERROR_NO_AUTH) {
                     openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_NO_PERMISSION'),
@@ -486,11 +486,11 @@ export default defineComponent({
                     const $item = queryXml(item.element)
                     return {
                         chlArr: $item('chls/item').map((chl) => ({
-                            chlId: chl.attr('id')!,
-                            chlIndex: Number(chl.text()),
+                            chlId: chl.attr('id'),
+                            chlIndex: chl.text().num(),
                         })),
                         historyPlay: $item('historyPlay').text(),
-                        segNum: Number($item('segNum').text()),
+                        segNum: $item('segNum').text().num(),
                         value: $item('name').text(),
                         id: index,
                     }

@@ -143,24 +143,24 @@ export default defineComponent({
                 pageData.value.wearMaskOpenEnable = $('//content/chl/wearMaskOpen').length > 0
 
                 formData.value.accessListType = $('//content/chl/accessListType').text()
-                formData.value.wearMaskOpen = $('//content/chl/wearMaskOpen').text().toBoolean()
+                formData.value.wearMaskOpen = $('//content/chl/wearMaskOpen').text().bool()
 
                 formData.value.accessLockData = $('//content/chl/doorLock/item').map((item) => {
                     const $item = queryXml(item.element)
-                    const id = Number($item('id').text())
+                    const id = $item('id').text().num()
                     return {
                         id,
                         name: `${Translate('IDCS_DOOR_LOCK')}${id + 1}`,
-                        openDelayTimeMin: Number($item('OpenDelayTime').attr('min')),
-                        openDelayTimeMax: Number($item('OpenDelayTime').attr('max')),
-                        openDelayTimeDefault: Number($item('OpenDelayTime').attr('default')),
+                        openDelayTimeMin: $item('OpenDelayTime').attr('min').num(),
+                        openDelayTimeMax: $item('OpenDelayTime').attr('max').num(),
+                        openDelayTimeDefault: $item('OpenDelayTime').attr('default').num(),
                         openDelayTimeEnabled: $item('OpenDelayTime').length > 0,
-                        openDelayTime: Number($item('OpenDelayTime').text()),
-                        openHoldTimeMin: Number($item('OpenHoldTime').attr('min')),
-                        openHoldTimeMax: Number($item('OpenHoldTime').attr('max')),
-                        openHoldTimeDefault: Number($item('OpenHoldTime').attr('default')),
+                        openDelayTime: $item('OpenDelayTime').text().num(),
+                        openHoldTimeMin: $item('OpenHoldTime').attr('min').num(),
+                        openHoldTimeMax: $item('OpenHoldTime').attr('max').num(),
+                        openHoldTimeDefault: $item('OpenHoldTime').attr('default').num(),
                         openHoldTimeEnabled: $item('OpenHoldTime').length > 0,
-                        openHoldTime: Number($item('OpenHoldTime').text()),
+                        openHoldTime: $item('OpenHoldTime').text().num(),
                         doorLockConfig: $item('doorLockConfig').text(),
                         alarmAction: $item('alarmAction').text(),
                     }
@@ -339,7 +339,7 @@ export default defineComponent({
                 const $ = await setAccessControl()
                 success = $('status').text() === 'success'
                 if (!success) {
-                    errorCode = Number($('errorCode').text())
+                    errorCode = $('errorCode').text().num()
                 }
             }
 
@@ -347,7 +347,7 @@ export default defineComponent({
                 const $ = await setAccessDataCom()
                 success = $('status').text() === 'success'
                 if (!success) {
-                    errorCode = Number($('errorCode').text())
+                    errorCode = $('errorCode').text().num()
                 }
             }
 

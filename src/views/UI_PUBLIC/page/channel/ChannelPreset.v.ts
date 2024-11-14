@@ -132,12 +132,12 @@ export default defineComponent({
                 tableData.value[index].presets = $('//content/presets/item').map((item) => {
                     // const $item = queryXml(item.element)
                     return {
-                        index: Number(item.attr('index')!),
+                        index: item.attr('index').num(),
                         name: item.text(),
                     }
                 })
                 tableData.value[index].presetCount = tableData.value[index].presets.length
-                tableData.value[index].maxCount = Number($('//content/presets').attr('maxCount'))
+                tableData.value[index].maxCount = $('//content/presets').attr('maxCount').num()
             }
         }
 
@@ -455,7 +455,6 @@ export default defineComponent({
             savePosition,
             deletePreset,
             setSpeed,
-            nameByteMaxLen,
             formatInputMaxLength,
             ChannelPtzCtrlPanel,
             ChannelPresetAddPop,

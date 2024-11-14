@@ -255,7 +255,7 @@ export default defineComponent({
                 const $ = queryXml(result)
                 if ($('//status').text() === 'success') {
                     pageData.value.recTimeList = $('//content/item').map((item) => {
-                        const index = Number(item.text())
+                        const index = item.text().num()
                         const utcTime = startTime.add(index, 'day')
                         return utcTime.valueOf()
                     })
@@ -1449,19 +1449,19 @@ export default defineComponent({
         const notify = ($: XMLQuery) => {
             // 播放进度
             if ($("statenotify[@type='RecCurPlayTime']").length) {
-                const time = Number($('statenotify/win').text())
+                const time = $('statenotify/win').text().num()
                 timelineRef.value?.setTime(time + Math.floor(startTimeStamp.value / 1000))
             }
             // 通知当前选中窗口信息
             else if ($("statenotify[@type='CurrentSelectedWindow']").length) {
                 const $item = queryXml($('statenotify')[0].element)
-                const winIndex = Number($item('winIndex').text())
+                const winIndex = $item('winIndex').text().num()
 
                 pageData.value.winData.chlID = $item('chlId').text()
                 pageData.value.winData.winIndex = winIndex
-                pageData.value.winData.audio = $item('volumOn').text().toBoolean()
-                pageData.value.winData.original = $item('isOriginalDisplayOn').text().toBoolean()
-                pageData.value.winData.streamType = Number($item('streamType').text())
+                pageData.value.winData.audio = $item('volumOn').text().bool()
+                pageData.value.winData.original = $item('isOriginalDisplayOn').text().bool()
+                pageData.value.winData.streamType = $item('streamType').text().num()
                 if (pageData.value.isFullScreen) {
                     pageData.value.fullScreenIndex = winIndex
                 } else {
@@ -1482,26 +1482,26 @@ export default defineComponent({
             }
             // 通知窗口状态信息
             else if ($("statenotify[@type='WindowStatus']").length) {
-                // const eventOpenWinNum = Number($("statenotify[@type='WindowStatus']/eventOpenWinNum").text())
-                const vedioOpenWinNum = Number($('statenotify/vedioOpenWinNum').text())
+                // const eventOpenWinNum = $("statenotify[@type='WindowStatus']/eventOpenWinNum").text().num()
+                const vedioOpenWinNum = $('statenotify/vedioOpenWinNum').text().num()
                 pageData.value.playingListNum = vedioOpenWinNum
             }
             // 通知分割屏数目
             else if ($("statenotify[@type='CurrentFrameNum']").length || $("statenotify[@type='CurrentScreenMode']").length) {
-                pageData.value.split = Number($('statenotify').text().trim())
+                pageData.value.split = $('statenotify').text().trim().num()
             }
             // 通知双击大屏分割屏数目
-            else if ($("statenotify[@type='MaxFrameMode']").length > 0) {
-                const segNum = Number($('statenotify').text().trim())
+            else if ($("statenotify[@type='MaxFrameMode']").length) {
+                const segNum = $('statenotify').text().trim().num()
                 pageData.value.split = segNum
                 pageData.value.isFullScreen = segNum === 1 ? false : true
             }
             // 播放
-            else if ($("statenotify[@type='RecPlay']").length > 0) {
+            else if ($("statenotify[@type='RecPlay']").length) {
                 const status = $('statenotify/status').text()
                 const chlId = $('statenotify/chlId').text()
                 // const winIndex = $("statenotify[@type='RecPlay']/winIndex").text()
-                const errorCode = Number($('statenotify/errorCode').text())
+                const errorCode = $('statenotify/errorCode').text().num()
                 if (status === 'fail') {
                     switch (errorCode) {
                         case ErrorCode.USER_ERROR_CHANNEL_NO_OPEN_VIDEO: // 解码能力不足
@@ -1511,7 +1511,7 @@ export default defineComponent({
                             }
                             break
                     }
-                } else if (status == 'noRecord') {
+                } else if (status === 'noRecord') {
                     const find = pageData.value.chls.find((item) => item.id === chlId)
                     pageData.value.notification.push(find ? `${find.value}: ${Translate('IDCS_NO_REC_DATA')}` : Translate('IDCS_NO_REC_DATA'))
                 }
@@ -1530,8 +1530,8 @@ export default defineComponent({
             else if ($("statenotify[@type='StartViewChl']").length) {
                 const status = $('statenotify/status').text()
                 const chlId = $('statenotify/chlId').text()
-                const winIndex = Number($('statenotify/winIndex').text())
-                if (status == 'success') {
+                const winIndex = $('statenotify/winIndex').text().num()
+                if (status === 'success') {
                     if (systemCaps.supportPOS) {
                         //设置通道是否显示POS信息
                         cmd(pos(true, chlId, winIndex))

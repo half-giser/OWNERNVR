@@ -48,8 +48,8 @@ export default defineComponent({
             const result = await queryUPnPCfg()
             const $ = queryXml(result)
             if ($('//content/reportPorts').length) {
-                pageData.value.upnpSwitch = $('//content/switch').text().toBoolean()
-                formData.value.switch = $('//content/reportPorts/switch').text().toBoolean()
+                pageData.value.upnpSwitch = $('//content/switch').text().bool()
+                formData.value.switch = $('//content/reportPorts/switch').text().bool()
                 formData.value.serverAddr = $('//content/reportPorts/serverAddr').text()
                 formData.value.port = Number($('//content/reportPorts/port').text())
                 formData.value.manId = $('//content/reportPorts/manId').text()
@@ -105,7 +105,6 @@ export default defineComponent({
             formData,
             formRule,
             setData,
-            nameByteMaxLen,
             formatInputMaxLength,
             changeSwitch,
         }

@@ -194,7 +194,7 @@ export default defineComponent({
                 const result = await testEmailCfg(sendXml)
                 const $ = queryXml(result)
 
-                if ($('//status').text() == 'success') {
+                if ($('//status').text() === 'success') {
                     openMessageBox({
                         type: 'success',
                         message: Translate('IDCS_TEST_SUCCESS'),

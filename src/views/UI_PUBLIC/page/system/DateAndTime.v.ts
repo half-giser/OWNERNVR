@@ -156,7 +156,7 @@ export default defineComponent({
             })
 
             formData.value.timeZone = $('//content/timezoneInfo/timeZone').text()
-            formData.value.enableDST = $('//content/timezoneInfo/daylightSwitch').text().toBoolean()
+            formData.value.enableDST = $('//content/timezoneInfo/daylightSwitch').text().bool()
 
             let currentDate = dayjs($('//content/synchronizeInfo/currentTime').text().trim(), formatSystemTime.value).toDate()
             if (currentDate < pageData.value.serverTimeStart) {

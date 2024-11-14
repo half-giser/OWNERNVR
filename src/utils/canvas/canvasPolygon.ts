@@ -203,7 +203,7 @@ export default class CanvasPolygon {
             ...this.area,
         }
         regionInfoList.forEach((regionInfo, regionIndex) => {
-            if (this.currAreaType === 'regionArea' && regionIndex == currentRegionIndex) {
+            if (this.currAreaType === 'regionArea' && regionIndex === currentRegionIndex) {
                 this.lineStyle.lineWidth = 3
             } else {
                 this.lineStyle.lineWidth = 1.5
@@ -369,12 +369,12 @@ export default class CanvasPolygon {
 
             // this.allDetectRegionList = allDetectRegionList
             for (let j = 0; j < allDetectRegionList.length; j++) {
-                if (allDetectRegionList[j].length > 0) {
+                if (allDetectRegionList[j].length) {
                     const startPoint = this.getRealItemByRelative(allDetectRegionList[j][0])
                     for (let i = 0; i < allDetectRegionList[j].length; i++) {
                         const item = this.getRealItemByRelative(allDetectRegionList[j][i])
                         const lineStyle = { strokeStyle: this.DEFAULT_LINE_COLOR, lineWidth: 1.5 }
-                        if (currAreaType == 'detectionArea' && currAreaIndex == j) {
+                        if (currAreaType === 'detectionArea' && currAreaIndex === j) {
                             lineStyle.lineWidth = 3
                         }
                         this.ctx.Circle(item.X, item.Y, 4, lineStyle)
@@ -401,12 +401,12 @@ export default class CanvasPolygon {
 
             // this.allMaskRegionList = allMaskRegionList
             for (let j = 0; j < allMaskRegionList.length; j++) {
-                if (allMaskRegionList[j].length > 0) {
+                if (allMaskRegionList[j].length) {
                     const startPoint = this.getRealItemByRelative(allMaskRegionList[j][0])
                     for (let i = 0; i < allMaskRegionList[j].length; i++) {
                         const item = this.getRealItemByRelative(allMaskRegionList[j][i])
                         const lineStyle = { strokeStyle: '#d9001b', lineWidth: 1.5 }
-                        if (currAreaType == 'maskArea' && currAreaIndex == j) {
+                        if (currAreaType === 'maskArea' && currAreaIndex === j) {
                             lineStyle.lineWidth = 3
                         }
                         this.ctx.Circle(item.X, item.Y, 4, lineStyle)
@@ -516,11 +516,11 @@ export default class CanvasPolygon {
         if (this.enableShowAll) {
             if (this.regulation) {
                 this.regionInfoList[this.currAreaIndex] = this.area
-            } else if (this.currAreaType == 'detectionArea') {
+            } else if (this.currAreaType === 'detectionArea') {
                 this.detectAreaInfo[this.currAreaIndex] = this.pointList
-            } else if (this.currAreaType == 'maskArea') {
+            } else if (this.currAreaType === 'maskArea') {
                 this.maskAreaInfo[this.currAreaIndex] = this.pointList
-            } else if (this.currAreaType == 'regionArea') {
+            } else if (this.currAreaType === 'regionArea') {
                 this.regionInfoList[this.currAreaIndex] = this.area
             }
             this.drawAllPolygon(this.detectAreaInfo, this.maskAreaInfo, this.currAreaType, this.currAreaIndex, true)
@@ -721,7 +721,7 @@ export default class CanvasPolygon {
                         })
                         if (repeatFlag) return
                         // 绘制最后一个点时首先判断区域是否可闭合
-                        if (this.pointList.length == this.max - 1 && this.judgeIntersect(newPoint)) {
+                        if (this.pointList.length === this.max - 1 && this.judgeIntersect(newPoint)) {
                             this.forceClosePath && this.forceClosePath(false) // 区域不可闭合
                             return
                         }

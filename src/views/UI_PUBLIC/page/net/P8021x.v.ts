@@ -57,7 +57,7 @@ export default defineComponent({
 
             closeLoading()
 
-            formData.value.switch = $('Switch').text().toBoolean()
+            formData.value.switch = $('Switch').text().bool()
             formData.value.protocal = $('Protocol').text()
             formData.value.version = $('Version').text()
             formData.value.userName = $('Username').text()

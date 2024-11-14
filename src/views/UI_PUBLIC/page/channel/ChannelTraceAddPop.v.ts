@@ -159,7 +159,6 @@ export default defineComponent({
             open,
             verify,
             close,
-            nameByteMaxLen,
             formatInputMaxLength,
         }
     },

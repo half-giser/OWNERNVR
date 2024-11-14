@@ -71,7 +71,7 @@ export default defineComponent({
         })
 
         const checkExist = (address: string) => {
-            const result = tableData.value.some((item) => item.address == address)
+            const result = tableData.value.some((item) => item.address === address)
             return result
         }
 
@@ -111,12 +111,12 @@ export default defineComponent({
             queryEmailCfg().then((resb) => {
                 closeLoading()
                 const res = queryXml(resb)
-                if (res('status').text() == 'success') {
+                if (res('status').text() === 'success') {
                     pageData.value.sender = res('//content/sender/address').text()
                     res('//content/receiver/item').forEach((ele) => {
                         const eleXml = queryXml(ele.element)
                         const emailReceiver = new AlarmEmailReceiverDto()
-                        if (typeof eleXml('schedule').attr('id') == undefined) {
+                        if (!eleXml('schedule').attr('id')) {
                             emailReceiver.address = eleXml('address').text()
                             emailReceiver.schedule = ''
                             emailReceiver.addressShow = hideEmailAddress(emailReceiver.address)
@@ -140,7 +140,7 @@ export default defineComponent({
             //     row.rowClicked = !row.rowClicked
             // }
             tableData.value.forEach((item) => {
-                if (item != row) {
+                if (item !== row) {
                     item.rowClicked = false
                 }
             })
@@ -150,7 +150,7 @@ export default defineComponent({
             tableRef.value?.setCurrentRow(row)
             row.rowClicked = true
             tableData.value.forEach((item) => {
-                if (item != row) {
+                if (item !== row) {
                     item.rowClicked = false
                 }
             })

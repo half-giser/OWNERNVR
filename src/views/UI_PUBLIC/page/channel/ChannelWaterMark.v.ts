@@ -98,7 +98,7 @@ export default defineComponent({
                     streamType: 2,
                 })
             } else if (mode.value === 'ocx') {
-                if (osType == 'mac') {
+                if (osType === 'mac') {
                     // const sendXML = OCX_XML_Preview({
                     //     winIndexList: [0],
                     //     chlIdList: [pageData.value.chlData['chlId']],
@@ -125,7 +125,7 @@ export default defineComponent({
         })
 
         const handleChlChange = (value: string) => {
-            const chlData = pageData.value.chlList.filter((item) => item.chlId == value)[0] as ChannelWaterMarkDto
+            const chlData = pageData.value.chlList.filter((item) => item.chlId === value)[0] as ChannelWaterMarkDto
             pageData.value.chlData = cloneDeep(chlData)
             if (pageData.value.chlData.disabled) {
                 pageData.value.switchDisabled = true
@@ -139,14 +139,14 @@ export default defineComponent({
         const handleSwitchChange = (value: string) => {
             addEditRow(pageData.value.chlData)
             pageData.value.chlList.forEach((item) => {
-                if (item.chlId == pageData.value.currChlId) {
+                if (item.chlId === pageData.value.currChlId) {
                     item.switch = value
                 }
             })
         }
 
         const handleTableSwitchChange = (row: ChannelWaterMarkDto) => {
-            if (pageData.value.currChlId == row.chlId) {
+            if (pageData.value.currChlId === row.chlId) {
                 pageData.value.chlData.switch = row.switch
             }
             addEditRow(pageData.value.chlData)
@@ -159,7 +159,7 @@ export default defineComponent({
                     addEditRow(item)
                 }
 
-                if (pageData.value.currChlId == item.chlId) {
+                if (pageData.value.currChlId === item.chlId) {
                     pageData.value.chlData.switch = value
                 }
             })
@@ -171,7 +171,7 @@ export default defineComponent({
 
         const handleCustomTextInput = (customText: string) => {
             pageData.value.chlList.forEach((item) => {
-                if (item.chlId == pageData.value.currChlId) {
+                if (item.chlId === pageData.value.currChlId) {
                     item.customText = customText
                 }
             })
@@ -185,7 +185,7 @@ export default defineComponent({
                     addEditRow(item)
                 }
 
-                if (pageData.value.currChlId == item.chlId) {
+                if (pageData.value.currChlId === item.chlId) {
                     pageData.value.chlData.customText = customText
                 }
             })
@@ -211,7 +211,7 @@ export default defineComponent({
                 isSupportMaskSetting: true,
             })
             const $ = queryXml(res)
-            if ($('status').text() == 'success') {
+            if ($('status').text() === 'success') {
                 pageData.value.chlList = []
                 pageData.value.totalCount = Number($('//content').attr('total'))
                 pageData.value.chlList = $('//content/item').map((item) => {
@@ -263,7 +263,7 @@ export default defineComponent({
                 `
                 const res = await queryChlWaterMark(sendXml)
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     const waterMarkSwitch = $('//content/chl/watermark/switch').text()
                     const customText = $('//content/chl/watermark/customText').text()
                     item.disabled = false
@@ -332,7 +332,7 @@ export default defineComponent({
         }
 
         const getRowById = (chlId: string) => {
-            return pageData.value.chlList.find((element) => element.chlId == chlId) as ChannelWaterMarkDto
+            return pageData.value.chlList.find((element) => element.chlId === chlId) as ChannelWaterMarkDto
         }
 
         const addEditRow = (row: ChannelWaterMarkDto) => {

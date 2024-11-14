@@ -104,7 +104,7 @@ export default defineComponent({
             closeLoading()
 
             if ($('//status').text() === 'success') {
-                pageData.value.tillNumberMax = Number($('//types/tillNumber').attr('max'))
+                pageData.value.tillNumberMax = $('//types/tillNumber').attr('max').num()
 
                 pageData.value.connectionTypeList = $('//types/connectionType/enum').map((item) => {
                     return {
@@ -121,17 +121,17 @@ export default defineComponent({
                         name: item.attr('name')!,
                         colorList: $item('color/item').map((color) => color.text()),
                         printMode: $item('printMode').text(),
-                        previewDisplay: $item('previewDisplay').text().toBoolean(),
+                        previewDisplay: $item('previewDisplay').text().bool(),
                     }
                 })
 
                 const displaysetString = '//content/itemType/param/displaySetting/displayPosition/'
-                pageData.value.displaysetList.xmin = Number($(`${displaysetString}coordinateSystem/X`).attr('min'))
-                pageData.value.displaysetList.xmax = Number($(`${displaysetString}coordinateSystem/X`).attr('max'))
-                pageData.value.displaysetList.ymin = Number($(`${displaysetString}coordinateSystem/Y`).attr('min'))
-                pageData.value.displaysetList.ymax = Number($(`${displaysetString}coordinateSystem/Y`).attr('max'))
-                pageData.value.displaysetList.wmin = Number($(`${displaysetString}width`).attr('min'))
-                pageData.value.displaysetList.hmin = Number($(`${displaysetString}height`).attr('min'))
+                pageData.value.displaysetList.xmin = $(`${displaysetString}coordinateSystem/X`).attr('min').num()
+                pageData.value.displaysetList.xmax = $(`${displaysetString}coordinateSystem/X`).attr('max').num()
+                pageData.value.displaysetList.ymin = $(`${displaysetString}coordinateSystem/Y`).attr('min').num()
+                pageData.value.displaysetList.ymax = $(`${displaysetString}coordinateSystem/Y`).attr('max').num()
+                pageData.value.displaysetList.wmin = $(`${displaysetString}width`).attr('min').num()
+                pageData.value.displaysetList.hmin = $(`${displaysetString}height`).attr('min').num()
 
                 pageData.value.manufacturersList = $('//types/manufacturers/enum').map((item) => {
                     const value = item.text()
@@ -158,12 +158,12 @@ export default defineComponent({
                         manufacturers,
                         connectionSetting: {
                             posIp: $item('param/connectionSetting/posIp').text(),
-                            filterDstIpSwitch: $item('param/connectionSetting/filterDstIpSwitch').text().toBoolean(),
+                            filterDstIpSwitch: $item('param/connectionSetting/filterDstIpSwitch').text().bool(),
                             dstIp: $item('param/connectionSetting/dstIp').text(),
-                            filterPostPortSwitch: $item('param/connectionSetting/filterPostPortSwitch').text().toBoolean(),
-                            posPort: Number($item('param/connectionSetting/posPort').text()),
-                            filterDstPortSwitch: $item('param/connectionSetting/filterDstPortSwitch').text().toBoolean(),
-                            dstPort: Number($item('param/connectionSetting/dstPort').text()),
+                            filterPostPortSwitch: $item('param/connectionSetting/filterPostPortSwitch').text().bool(),
+                            posPort: $item('param/connectionSetting/posPort').text().num(),
+                            filterDstPortSwitch: $item('param/connectionSetting/filterDstPortSwitch').text().bool(),
+                            dstPort: $item('param/connectionSetting/dstPort').text().num(),
                         },
                         encodeFormat: $item('param/encodeFormat').text(),
                         displaySetting: {
@@ -183,20 +183,20 @@ export default defineComponent({
                                 ignoreChar: $item('param/displaySetting/common/ignoreChar/item')
                                     .map((child) => child.text())
                                     .filter((child) => !!child),
-                                ignoreCase: $item('param/displaySetting/common/ignoreCase').text().toBoolean(),
-                                timeOut: Number($item('param/displaySetting/common/timeOut').text()),
+                                ignoreCase: $item('param/displaySetting/common/ignoreCase').text().bool(),
+                                timeOut: $item('param/displaySetting/common/timeOut').text().num(),
                             },
                             displayPosition: {
-                                width: Number($item('param/displaySetting/displayPosition/width').text()),
-                                height: Number($item('param/displaySetting/displayPosition/height').text()),
-                                X: Number($item('param/displaySetting/displayPosition/X').text()),
-                                Y: Number($item('param/displaySetting/displayPosition/Y').text()),
+                                width: $item('param/displaySetting/displayPosition/width').text().num(),
+                                height: $item('param/displaySetting/displayPosition/height').text().num(),
+                                X: $item('param/displaySetting/displayPosition/X').text().num(),
+                                Y: $item('param/displaySetting/displayPosition/Y').text().num(),
                             },
                         },
                         triggerChl: {
-                            switch: $item('trigger/triggerChl/switch').text().toBoolean(),
+                            switch: $item('trigger/triggerChl/switch').text().bool(),
                             chls: $item('triggerChl/chls/item').map((chl) => ({
-                                value: chl.attr('id')!,
+                                value: chl.attr('id'),
                                 label: chl.text(),
                                 till: chl.attr('till'),
                             })),
@@ -338,12 +338,12 @@ export default defineComponent({
             const isValidAddress = tableData.value.every((item) => {
                 const connectionType = item.connectionType
                 const connectionSettingIp = item.connectionSetting.posIp.split('.')
-                if (item.switch.toBoolean() && connectionSettingIp.length) {
+                if (item.switch.bool() && connectionSettingIp.length) {
                     const d1 = Number(connectionSettingIp[0])
                     const d2 = Number(connectionSettingIp[1])
                     const d3 = Number(connectionSettingIp[2])
                     const d4 = Number(connectionSettingIp[3])
-                    const firstPart = connectionType == 'Multicast' ? d1 >= 224 && d1 <= 239 : d1 >= 1 && d1 <= 223
+                    const firstPart = connectionType === 'Multicast' ? d1 >= 224 && d1 <= 239 : d1 >= 1 && d1 <= 223
                     if (!(firstPart && d2 >= 0 && d2 <= 255 && d3 >= 0 && d3 <= 255 && d4 >= 0 && d4 <= 255)) {
                         return false
                     }
@@ -361,7 +361,7 @@ export default defineComponent({
             // pos开启时,ip不能为空
             const isNoEmptyIp = tableData.value.every((item) => {
                 const connectionSetting = item.connectionSetting
-                if (item.switch.toBoolean() && connectionSetting.posIp === '') {
+                if (item.switch.bool() && connectionSetting.posIp === '') {
                     return false
                 }
                 return true
@@ -377,7 +377,7 @@ export default defineComponent({
             // 连接方式为UDP/组播时端口号不能为空
             const isNoEmptyPort = tableData.value.every((item) => {
                 const connectionSetting = item.connectionSetting
-                if (item.switch.toBoolean() && item.connectionType !== 'TCP-Listen') {
+                if (item.switch.bool() && item.connectionType !== 'TCP-Listen') {
                     if (connectionSetting.posPort === 0 || connectionSetting.posPort < 10) {
                         return false
                     }
@@ -396,7 +396,7 @@ export default defineComponent({
             const useIPAndPort = tableData.value
                 .filter((item) => {
                     const connectionSetting = item.connectionSetting
-                    if (item.switch.toBoolean() && connectionSetting.posIp) {
+                    if (item.switch.bool() && connectionSetting.posIp) {
                         return true
                     }
                     return false

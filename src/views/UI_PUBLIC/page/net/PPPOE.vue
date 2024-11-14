@@ -31,7 +31,6 @@
                     :disabled="!formData.switch"
                     :formatter="formatInputUserName"
                     :parser="formatInputUserName"
-                    :maxlength="nameByteMaxLen"
                 />
             </el-form-item>
             <el-form-item prop="password">

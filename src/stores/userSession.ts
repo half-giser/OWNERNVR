@@ -99,11 +99,11 @@ export const useUserSessionStore = defineStore(
         const initSystemAuth = ($: XMLQuery) => {
             authMask.value = 0
             SYSTEM_AUTH_LIST.forEach((element, index) => {
-                if ($(`content/systemAuth/${element}`).text().toBoolean()) {
+                if ($(`content/systemAuth/${element}`).text().bool()) {
                     authMask.value += Math.pow(2, index)
                 }
             })
-            authEffective.value = $('content/authEffective').text().toBoolean()
+            authEffective.value = $('content/authEffective').text().bool()
         }
 
         /**
@@ -160,13 +160,13 @@ export const useUserSessionStore = defineStore(
                 sesionKey.value = plaintext
                 securityVer.value = $('content/securityVer').text()
                 userId.value = $('content/userId').text()
-                facePersonnalInfoMgr.value = $('content/systemAuth/facePersonnalInfoMgr').text().toBoolean()
+                facePersonnalInfoMgr.value = $('content/systemAuth/facePersonnalInfoMgr').text().bool()
                 authGroupId.value = $('content/authGroupId').text()
                 allowModifyPassword.value = $('content/modifyPassword').text()
                 userType.value = $('content/userType').text()
 
                 const resetPassword = $('content/resetInfo').text()
-                if (userType.value === USER_TYPE_DEFAULT_ADMIN && MD5_encrypt(loginFormData!.password) == resetPassword) {
+                if (userType.value === USER_TYPE_DEFAULT_ADMIN && MD5_encrypt(loginFormData!.password) === resetPassword) {
                     defaultPwd.value = true
                 } else {
                     defaultPwd.value = false
@@ -175,7 +175,7 @@ export const useUserSessionStore = defineStore(
                 loginCheck.value = 'check'
                 isChangedPwd.value = false
                 pwdSaftyStrength.value = getPwdSaftyStrength(loginFormData!.password)
-                pwdExpired.value = $('content/passwordExpired').text() === 'true'
+                pwdExpired.value = $('content/passwordExpired').text().bool()
             }
 
             initSystemAuth($)
@@ -188,14 +188,14 @@ export const useUserSessionStore = defineStore(
                 csvDeviceName.value = $('content/name').text()
                 const CustomerID = $('content/CustomerID').text()
                 cababilityStore.CustomerID = Number(CustomerID)
-                cababilityStore.AISwitch = $('content/AISwitch').text() ? $('content/AISwitch').text().toBoolean() : undefined
+                cababilityStore.AISwitch = $('content/AISwitch').text() ? $('content/AISwitch').text().bool() : undefined
                 cababilityStore.productModel = $('content/productModel').text()
             })
 
             // 从磁盘信息获取Raid
             await queryDiskMode().then((result) => {
                 const $ = queryXml(result)
-                cababilityStore.isUseRaid = $('content/diskMode/isUseRaid').text().toBoolean()
+                cababilityStore.isUseRaid = $('content/diskMode/isUseRaid').text().bool()
             })
 
             await dateTime.getTimeConfig(true)

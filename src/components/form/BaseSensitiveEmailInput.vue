@@ -12,7 +12,6 @@
     <el-input
         v-model="value"
         type="text"
-        :maxlength="nameByteMaxLen"
         :formatter="formatInputMaxLength"
         :parser="formatInputMaxLength"
         @focus="handleFocus"
@@ -22,7 +21,6 @@
 </template>
 
 <script lang="ts" setup>
-import { nameByteMaxLen } from '@/utils/constants'
 import { formatInputMaxLength } from '@/utils/tools'
 
 const prop = withDefaults(

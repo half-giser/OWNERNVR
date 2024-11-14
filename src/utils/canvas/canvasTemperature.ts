@@ -193,7 +193,7 @@ export default class CanvasPolygon {
 
     // 设置最大顶点数(点、线、面)
     setPointCount(num: number, type: CanvasTemperatureType) {
-        this.temperatureFlag = type == 'temperatureDetect'
+        this.temperatureFlag = type === 'temperatureDetect'
         this.max = num
         this.init()
     }
@@ -280,12 +280,12 @@ export default class CanvasPolygon {
 
             // this.allDetectRegionList = allDetectRegionList
             for (let j = 0; j < allDetectRegionList.length; j++) {
-                if (allDetectRegionList[j].length > 0) {
+                if (allDetectRegionList[j].length) {
                     const startPoint = this.getRealItemByRelative(allDetectRegionList[j][0])
                     for (let i = 0; i < allDetectRegionList[j].length; i++) {
                         const item = this.getRealItemByRelative(allDetectRegionList[j][i])
                         const lineStyle = { strokeStyle: this.DEFAULT_LINE_COLOR, lineWidth: 1.5 }
-                        if (currAreaType == 'detectionArea' && currAreaIndex == j) {
+                        if (currAreaType === 'detectionArea' && currAreaIndex === j) {
                             lineStyle.lineWidth = 3
                         }
                         this.ctx.Circle(item.X, item.Y, 4, lineStyle)
@@ -312,12 +312,12 @@ export default class CanvasPolygon {
 
             // this.allMaskRegionList = allMaskRegionList
             for (let j = 0; j < allMaskRegionList.length; j++) {
-                if (allMaskRegionList[j].length > 0) {
+                if (allMaskRegionList[j].length) {
                     const startPoint = this.getRealItemByRelative(allMaskRegionList[j][0])
                     for (let i = 0; i < allMaskRegionList[j].length; i++) {
                         const item = this.getRealItemByRelative(allMaskRegionList[j][i])
                         const lineStyle = { strokeStyle: '#d9001b', lineWidth: 1.5 }
-                        if (currAreaType == 'maskArea' && currAreaIndex == j) {
+                        if (currAreaType === 'maskArea' && currAreaIndex === j) {
                             lineStyle.lineWidth = 3
                         }
                         this.ctx.Circle(item.X, item.Y, 4, lineStyle)
@@ -558,7 +558,7 @@ export default class CanvasPolygon {
                         endX = e2.clientX - clientX + startX
                         endY = e2.clientY - clientY + startY
                         // 若绘制线条，允许拖拽绘制
-                        if (this.temperatureFlag && this.max == 2) {
+                        if (this.temperatureFlag && this.max === 2) {
                             if (endX < 0) endX = 0
                             if (endX > this.cavWidth) endX = this.cavWidth
                             if (endY < 0) endY = 0
@@ -598,12 +598,12 @@ export default class CanvasPolygon {
 
                         // 温度检测事件重新绘制（点/线）时，清除图形
                         if (this.temperatureFlag) {
-                            if (this.max == 1) {
+                            if (this.max === 1) {
                                 this.pointList = []
                                 this.clear()
                             }
 
-                            if (this.max == 2 && this.pointList.length == 2) {
+                            if (this.max === 2 && this.pointList.length === 2) {
                                 // this.dragFlag = false
                                 return
                             }
@@ -624,7 +624,7 @@ export default class CanvasPolygon {
                         })
                         if (repeatFlag) return
                         // 绘制最后一个点时首先判断区域是否可闭合
-                        if (this.pointList.length == this.max - 1 && this.judgeIntersect(newPoint)) {
+                        if (this.pointList.length === this.max - 1 && this.judgeIntersect(newPoint)) {
                             this.forceClosePath && this.forceClosePath(false) // 区域不可闭合
                             return
                         }

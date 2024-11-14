@@ -217,7 +217,7 @@ export default defineComponent({
             const result = await requestChSnapFaceImage(sendXml)
             const $ = queryXml(result)
             const pic = $('//content').text()
-            const featureStatus = $('//featureStatus').text().toBoolean()
+            const featureStatus = $('//featureStatus').text().bool()
             if (pic) {
                 cachePic[key] = {
                     pic: 'data:image/png;base64,' + pic,

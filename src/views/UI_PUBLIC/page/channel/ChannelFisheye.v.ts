@@ -138,7 +138,7 @@ export default defineComponent({
 
             const $ = queryXml(result)
             if ($('status').text() === 'success') {
-                pageTotal.value = Number($('content').attr('total'))
+                pageTotal.value = $('content').attr('total').num()
                 tableData.value = $('content/item').map((ele) => {
                     const eleXml = queryXml(ele.element)
                     const newData = new ChannelFisheyeDto()
@@ -270,7 +270,7 @@ export default defineComponent({
                 const eleXml = queryXml(ele.element)
                 const rowData = getRowById(ele.attr('id')!)!
                 if (eleXml('fishEyeEnable').length) {
-                    rowData.fishEyeEnable = eleXml('fishEyeEnable').text().toBoolean()
+                    rowData.fishEyeEnable = eleXml('fishEyeEnable').text().bool()
                     rowData.supportFishEyeEnable = true
                 }
             })

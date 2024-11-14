@@ -201,7 +201,7 @@ export default defineComponent({
                     pluginStore.showPluginNoResponse = true
                     peaPlugin.ShowPluginNoResponse()
                 }
-                const sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'PeaConfig' : 'ReadOnly', 'Live')
+                const sendXML = OCX_XML_SetPluginModel(osType === 'mac' ? 'PeaConfig' : 'ReadOnly', 'Live')
                 peaPlugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
         }
@@ -217,16 +217,16 @@ export default defineComponent({
                     streamType: 2,
                 })
             } else {
-                if (osType == 'mac') {
-                    const sendXML = OCX_XML_Preview({
-                        winIndexList: [0],
-                        chlIdList: [id],
-                        chlNameList: [name],
-                        streamType: 'sub',
-                        chlIndexList: [peaData.value.chlData.id],
-                        chlTypeList: [peaData.value.chlData.chlType],
-                    })
-                    peaPlugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                if (osType === 'mac') {
+                    // const sendXML = OCX_XML_Preview({
+                    //     winIndexList: [0],
+                    //     chlIdList: [id],
+                    //     chlNameList: [name],
+                    //     streamType: 'sub',
+                    //     chlIndexList: [peaData.value.chlData.id],
+                    //     chlTypeList: [peaData.value.chlData.chlType],
+                    // })
+                    // peaPlugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 }
 
                 if (peamode.value === 'ocx') {
@@ -281,10 +281,10 @@ export default defineComponent({
             const res = await queryIntelAreaConfig(sendXML)
             closeLoading()
             const $ = queryXml(res)
-            if ($('status').text() == 'success') {
+            if ($('status').text() === 'success') {
                 peaData.value.applyDisable = true
                 const schedule = $('//content/chl').attr('scheduleGuid')
-                peaData.value.schedule = schedule !== '' ? (peaData.value.scheduleList.some((item) => item.value == schedule) ? schedule : DEFAULT_EMPTY_ID) : DEFAULT_EMPTY_ID
+                peaData.value.schedule = schedule !== '' ? (peaData.value.scheduleList.some((item) => item.value === schedule) ? schedule : DEFAULT_EMPTY_ID) : DEFAULT_EMPTY_ID
                 getPeaActivityData('perimeter', res)
                 getPeaActivityData('entry', res)
                 getPeaActivityData('leave', res)
@@ -303,11 +303,11 @@ export default defineComponent({
                     peaData.value.directionList = []
                 }
                 peaData.value.areaActive = peaData.value.areaActiveList[0].value
-                if (peaData.value.areaActive == 'perimeter') {
+                if (peaData.value.areaActive === 'perimeter') {
                     peaData.value.activityType = 'perimeter'
                     peaData.value.direction = peaData.value.directionList.length > 0 ? peaData.value.directionList[0].value : ''
                     peaData.value.directionDisable = true
-                } else if (peaData.value.areaActive == 'crossing') {
+                } else if (peaData.value.areaActive === 'crossing') {
                     peaData.value.activityType = peaData.value.directionList[0].value
                     peaData.value.direction = peaData.value.directionList[0].value
                     peaData.value.directionDisable = false
@@ -336,26 +336,29 @@ export default defineComponent({
                 const $item = queryXml(item.element)
                 return {
                     object: $item('object').text(),
-                    status: $item('status').text() == 'true' ? true : false,
+                    status: $item('status').text().bool(),
                 }
             })
             areaData.mutexListEx = $(`mutexListEx/item`).map((item) => {
                 const $item = queryXml(item.element)
-                return { object: $item('object').text(), status: $item('status').text() == 'true' ? true : false }
+                return {
+                    object: $item('object').text(),
+                    status: $item('status').text().bool(),
+                }
             })
-            areaData.detectionEnable = $(`switch`).text() == 'true'
+            areaData.detectionEnable = $(`switch`).text().bool()
             areaData.originalEnable = areaData.detectionEnable
             if (areaData.detectionEnable) {
                 peaData.value.activityType = activityType
             }
             const holdTimeArr = $(`holdTimeNote`).text().split(',')
-            areaData.holdTime = Number($(`alarmHoldTime`).text())
+            areaData.holdTime = $(`alarmHoldTime`).text().num()
             if (!holdTimeArr.includes(areaData.holdTime.toString())) {
                 holdTimeArr.push(areaData.holdTime.toString())
             }
             areaData.holdTimeList = formatHoldTime(holdTimeArr)
 
-            const regulation = $(`//content/chl/perimeter/param/boundary`).attr('regulation') == '1'
+            const regulation = $(`//content/chl/perimeter/param/boundary`).attr('regulation') === '1'
             areaData.regulation = regulation
 
             const boundaryInfo = [] as { point: { X: number; Y: number; isClosed: boolean }[]; maxCount: number; configured: boolean }[]
@@ -364,15 +367,15 @@ export default defineComponent({
                 const $element = queryXml(element.element)
                 const boundary = {
                     point: [] as { X: number; Y: number; isClosed: boolean }[],
-                    maxCount: Number($('point').attr('maxCount')),
+                    maxCount: $('point').attr('maxCount').num(),
                     configured: false,
                 }
                 const region = { X1: 0, Y1: 0, X2: 0, Y2: 0 }
                 $element('point/item').forEach((point, index) => {
                     const $item = queryXml(point.element)
                     boundary.point.push({
-                        X: Number($item('X').text()),
-                        Y: Number($item('Y').text()),
+                        X: $item('X').text().num(),
+                        Y: $item('Y').text().num(),
                         isClosed: true,
                     })
                     getRegion(index, point, region)
@@ -382,7 +385,7 @@ export default defineComponent({
             })
             if (regulation) {
                 regionInfo.forEach((ele, idx) => {
-                    if (ele.X1 != 0 || ele.Y1 != 0 || ele.X2 != 0 || ele.Y2 != 0) {
+                    if (ele.X1 || ele.Y1 || ele.X2 || ele.Y2) {
                         boundaryInfo[idx].configured = true
                     } else {
                         boundaryInfo[idx].configured = false
@@ -400,24 +403,24 @@ export default defineComponent({
 
             areaData.boundaryInfo = boundaryInfo
             areaData.regionInfo = regionInfo
-            areaData.audioSuport = $(`triggerAudio`).text() == '' ? false : true
-            areaData.lightSuport = $(`triggerWhiteLight`).text() == '' ? false : true
-            areaData.hasAutoTrack = $(`autoTrack`).text() == '' ? false : true
-            areaData.autoTrack = $(`autoTrack`).text() == 'true'
-            areaData.pictureAvailable = $(`saveTargetPicture`).text() == '' ? false : true
-            areaData.saveTargetPicture = $(`saveTargetPicture`).text() == 'true'
-            areaData.saveSourcePicture = $(`saveSourcePicture`).text() == 'true'
-            areaData.pea_onlyPreson = $(`sensitivity`).text() == '' ? false : true
+            areaData.audioSuport = $(`triggerAudio`).text() !== ''
+            areaData.lightSuport = $(`triggerWhiteLight`).text() !== ''
+            areaData.hasAutoTrack = $(`autoTrack`).text() !== ''
+            areaData.autoTrack = $(`autoTrack`).text().bool()
+            areaData.pictureAvailable = $(`saveTargetPicture`).text() !== ''
+            areaData.saveTargetPicture = $(`saveTargetPicture`).text().bool()
+            areaData.saveSourcePicture = $(`saveSourcePicture`).text().bool()
+            areaData.pea_onlyPreson = $(`sensitivity`).text() !== ''
             // NTA1-231：低配版IPC：4M S4L-C，越界/区域入侵目标类型只支持人
-            areaData.onlyPersonSensitivity = peaData.value.areaCfgData[activityType].pea_onlyPreson ? Number($(`sensitivity`).text()) : 0
-            areaData.hasObj = $(`objectFilter`).text() == '' ? false : true
+            areaData.onlyPersonSensitivity = peaData.value.areaCfgData[activityType].pea_onlyPreson ? $(`sensitivity`).text().num() : 0
+            areaData.hasObj = $(`objectFilter`).text() !== ''
             if (areaData.hasObj) {
-                const car = $(`objectFilter/car/switch`).text() == 'true'
-                const person = $(`objectFilter/person/switch`).text() == 'true'
-                const motorcycle = $(`objectFilter/motor/switch`).text() == 'true'
-                const personSensitivity = Number($(`objectFilter/person/sensitivity`).text())
-                const carSensitivity = Number($(`objectFilter/car/sensitivity`).text())
-                const motorSensitivity = Number($(`objectFilter/motor/sensitivity`).text())
+                const car = $(`objectFilter/car/switch`).text().bool()
+                const person = $(`objectFilter/person/switch`).text().bool()
+                const motorcycle = $(`objectFilter/motor/switch`).text().bool()
+                const personSensitivity = $(`objectFilter/person/sensitivity`).text().num()
+                const carSensitivity = $(`objectFilter/car/sensitivity`).text().num()
+                const motorSensitivity = $(`objectFilter/motor/sensitivity`).text().num()
                 areaData.car = car
                 areaData.person = person
                 areaData.motorcycle = motorcycle
@@ -428,21 +431,21 @@ export default defineComponent({
             const trigger = $(`//content/chl/${activityType}/trigger`)
             const $trigger = queryXml(trigger[0].element)
             areaData.sysAudio = $trigger('sysAudio').attr('id') || ''
-            areaData.recordSwitch = $trigger('sysRec/switch').text() == 'true'
+            areaData.recordSwitch = $trigger('sysRec/switch').text().bool()
             areaData.recordChls = $trigger('sysRec/chls/item').map((item) => {
                 return {
-                    value: item.attr('id')!,
+                    value: item.attr('id'),
                     label: item.text(),
                 }
             })
-            areaData.alarmOutSwitch = $trigger('alarmOut/switch').text() == 'true'
+            areaData.alarmOutSwitch = $trigger('alarmOut/switch').text().bool()
             areaData.alarmOutChls = $trigger('alarmOut/alarmOuts/item').map((item) => {
                 return {
                     value: item.attr('id')!,
                     label: item.text(),
                 }
             })
-            areaData.presetSwitch = $trigger('preset/switch').text() == 'true'
+            areaData.presetSwitch = $trigger('preset/switch').text().bool()
             areaData.presets = $trigger('preset/presets/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
@@ -456,14 +459,14 @@ export default defineComponent({
             })
 
             areaData.trigger = ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch'].filter((item) => {
-                return $trigger(item).text().toBoolean()
+                return $trigger(item).text().bool()
             })
 
             areaData.triggerList = ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch']
 
             if (areaData.audioSuport && peaData.value.chlData.supportAudio) {
                 areaData.triggerList.push('triggerAudio')
-                const triggerAudio = $(`triggerAudio`).text() == 'true'
+                const triggerAudio = $(`triggerAudio`).text().bool()
                 if (triggerAudio) {
                     areaData.trigger.push('triggerAudio')
                 }
@@ -471,7 +474,7 @@ export default defineComponent({
 
             if (areaData.lightSuport && peaData.value.chlData.supportWhiteLight) {
                 areaData.triggerList.push('triggerWhiteLight')
-                const triggerWhiteLight = $(`triggerWhiteLight`).text() == 'true'
+                const triggerWhiteLight = $(`triggerWhiteLight`).text().bool()
                 if (triggerWhiteLight) {
                     areaData.trigger.push('triggerWhiteLight')
                 }
@@ -486,7 +489,7 @@ export default defineComponent({
                         ${peaData.value.supportList
                             .map((type) => {
                                 const data = peaData.value.areaCfgData[type]
-                                if (type != peaData.value.activityType) {
+                                if (type !== peaData.value.activityType) {
                                     data.detectionEnable = false
                                 }
                                 return rawXml`
@@ -544,7 +547,7 @@ export default defineComponent({
                                                                 <sensitivity>${data.personSensitivity}</sensitivity>
                                                             </person>
                                                             ${
-                                                                peaData.value.chlData.accessType == '0'
+                                                                peaData.value.chlData.accessType === '0'
                                                                     ? rawXml`
                                                                         <motor>
                                                                             <switch>${data.motorcycle}</switch>
@@ -601,7 +604,7 @@ export default defineComponent({
             const $ = await editIntelAreaConfig(sendXml)
             const res = queryXml($)
             closeLoading()
-            if (res('status').text() == 'success') {
+            if (res('status').text() === 'success') {
                 if (peaData.value.areaCfgData[peaData.value.activityType].detectionEnable) {
                     peaData.value.areaCfgData.perimeter.originalEnable = true
                     peaData.value.areaCfgData.entry.originalEnable = true
@@ -614,7 +617,7 @@ export default defineComponent({
                     peaData.value.applyDisable = true
                 })
             } else {
-                const errorCode = Number(res('errorCode').text())
+                const errorCode = res('errorCode').text().num()
                 if (errorCode === 536871053) {
                     openMessageBox({
                         type: 'info',
@@ -630,7 +633,7 @@ export default defineComponent({
             let isSwitchChange = false
             const switchChangeTypeArr: string[] = []
             const data = peaData.value.areaCfgData[peaData.value.activityType]
-            if (data.detectionEnable && data.detectionEnable != data.originalEnable) {
+            if (data.detectionEnable && data.detectionEnable !== data.originalEnable) {
                 isSwitchChange = true
             }
             const mutexChlNameObj = getMutexChlNameObj()
@@ -668,16 +671,16 @@ export default defineComponent({
             const sameIPChlList: { id: string; ip: string; name: string; accessType: string }[] = []
             const chlIp = peaData.value.chlData.ip
             props.onlineChannelList.forEach((chl) => {
-                if (chl.ip == chlIp) {
+                if (chl.ip === chlIp) {
                     sameIPChlList.push(chl)
                 }
             })
             if (sameIPChlList.length > 1) {
                 sameIPChlList.forEach((chl) => {
-                    if (chl.accessType == '1') {
-                        thermalChlName = chl.name == peaData.value.chlData.name ? '' : chl.name
+                    if (chl.accessType === '1') {
+                        thermalChlName = chl.name === peaData.value.chlData.name ? '' : chl.name
                     } else {
-                        normalChlName = chl.name == peaData.value.chlData.name ? '' : chl.name
+                        normalChlName = chl.name === peaData.value.chlData.name ? '' : chl.name
                     }
                 })
             }
@@ -690,17 +693,17 @@ export default defineComponent({
         // 获取区域
         const getRegion = (index: number, element: XmlElement, region: { X1: number; Y1: number; X2: number; Y2: number }) => {
             const $ = queryXml(element.element)
-            if (index == 0) {
-                region.X1 = Number($('X').text())
-                region.Y1 = Number($('Y').text())
+            if (index === 0) {
+                region.X1 = $('X').text().num()
+                region.Y1 = $('Y').text().num()
             }
 
-            if (index == 1) {
-                region.X2 = Number($('X').text())
+            if (index === 1) {
+                region.X2 = $('X').text().num()
             }
 
-            if (index == 2) {
-                region.Y2 = Number($('Y').text())
+            if (index === 2) {
+                region.Y2 = $('Y').text().num()
             }
         }
 
@@ -747,7 +750,7 @@ export default defineComponent({
         // pea tab点击事件
         const handlePeaFunctionTabClick = async (pane: TabsPaneContext) => {
             peaData.value.peaFunction = pane.props.name?.toString() ? pane.props.name?.toString() : ''
-            if (peaData.value.peaFunction == 'pea_param') {
+            if (peaData.value.peaFunction === 'pea_param') {
                 const type = peaData.value.activityType
                 const area = peaData.value.chosenWarnAreaIndex
                 const boundaryInfo = peaData.value.areaCfgData[type].boundaryInfo
@@ -766,7 +769,7 @@ export default defineComponent({
                 if (peaData.value.isShowAllArea) {
                     showAllPeaArea(true)
                 }
-            } else if (peaData.value.peaFunction == 'pea_target') {
+            } else if (peaData.value.peaFunction === 'pea_target') {
                 showAllPeaArea(false)
                 if (peamode.value === 'h5') {
                     peaDrawer.clear()
@@ -789,7 +792,7 @@ export default defineComponent({
                 // 画矩形
                 const regionInfoList = peaData.value.areaCfgData[type].regionInfo
                 regionInfoList.forEach((ele, idx) => {
-                    if (ele.X1 != 0 || ele.Y1 != 0 || ele.X2 != 0 || ele.Y2 != 0) {
+                    if (ele.X1 || ele.Y1 || ele.X2 || ele.Y2) {
                         peaData.value.areaCfgData[type].boundaryInfo[idx].configured = true
                     } else {
                         peaData.value.areaCfgData[type].boundaryInfo[idx].configured = false
@@ -878,7 +881,7 @@ export default defineComponent({
 
         // pea切换区域活动操作
         const handleAreaActiveChange = async () => {
-            if (peaData.value.areaActive == 'perimeter') {
+            if (peaData.value.areaActive === 'perimeter') {
                 peaData.value.activityType = 'perimeter'
                 peaData.value.directionDisable = true
             } else {
@@ -918,9 +921,8 @@ export default defineComponent({
             `
             const res = await queryBallIPCPTZLockCfg(sendXML)
             const $ = queryXml(res)
-            if ($('status').text() == 'success') {
-                peaData.value.lockStatus = $('//content/chl/param/PTZLock').text() == 'true'
-                peaData.value.lockStatus = $('//content/chl/param/PTZLock').text() == 'true'
+            if ($('status').text() === 'success') {
+                peaData.value.lockStatus = $('//content/chl/param/PTZLock').text().bool()
             }
         }
 
@@ -938,7 +940,7 @@ export default defineComponent({
             openLoading()
             editBallIPCPTZLockCfg(sendXML).then((res) => {
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     closeLoading()
                     peaData.value.lockStatus = !peaData.value.lockStatus
                     peaData.value.lockStatus = !peaData.value.lockStatus
@@ -1046,7 +1048,7 @@ export default defineComponent({
             const area = peaData.value.chosenWarnAreaIndex
             const boundaryInfo = peaData.value.areaCfgData[type].boundaryInfo
             const regionInfo = peaData.value.areaCfgData[type].regionInfo
-            if (boundaryInfo.length > 0) {
+            if (boundaryInfo.length) {
                 if (peamode.value === 'h5') {
                     peaDrawer.setCurrAreaIndex(area, peaData.value.currAreaType)
                     if (peaData.value.currentRegulation) {
@@ -1064,7 +1066,7 @@ export default defineComponent({
                 }
             }
 
-            if (peaData.value.isShowAllArea == true) {
+            if (peaData.value.isShowAllArea) {
                 showAllPeaArea(true)
             }
         }
@@ -1193,43 +1195,41 @@ export default defineComponent({
 
         const peaLiveNotify2Js = ($: (path: string) => XmlResult) => {
             // 区域入侵
-            // const $xmlPea = $("statenotify[type='PeaArea']")
-            const $points = $("statenotify[@type='PeaArea']/points")
-            const errorCode = $("statenotify[@type='PeaArea']/errorCode").text()
-            // 绘制点线
-            if ($points.length > 0) {
-                const currType = peaData.value.activityType
-                const points: { X: number; Y: number }[] = []
-                $('statenotify/points/item').forEach((element) => {
-                    const X = parseInt(element.attr('X')!)
-                    const Y = parseInt(element.attr('Y')!)
-                    points.push({ X: X, Y: Y })
-                })
-                const area = peaData.value.chosenWarnAreaIndex
-                if (peaData.value.currentRegulation) {
-                    peaData.value.areaCfgData[currType].boundaryInfo[area].point = points
-                    peaData.value.areaCfgData[currType].regionInfo[area] = {
-                        X1: points[0].X,
-                        Y1: points[0].Y,
-                        X2: points[1].X,
-                        Y2: points[2].Y,
+            if ($("statenotify[@type='PeaArea']").length) {
+                if ($('statenotify/points').length) {
+                    const currType = peaData.value.activityType
+                    const points = $('statenotify/points/item').map((element) => {
+                        const X = element.attr('X').num()
+                        const Y = element.attr('Y').num()
+                        return { X, Y }
+                    })
+                    const area = peaData.value.chosenWarnAreaIndex
+                    if (peaData.value.currentRegulation) {
+                        peaData.value.areaCfgData[currType].boundaryInfo[area].point = points
+                        peaData.value.areaCfgData[currType].regionInfo[area] = {
+                            X1: points[0].X,
+                            Y1: points[0].Y,
+                            X2: points[1].X,
+                            Y2: points[2].Y,
+                        }
+                    } else {
+                        peaData.value.areaCfgData[currType].boundaryInfo[area].point = points
                     }
-                } else {
-                    peaData.value.areaCfgData[currType].boundaryInfo[area].point = points
+                    peaRefreshInitPage()
                 }
-                peaRefreshInitPage()
-            }
 
-            // 处理错误码
-            if (errorCode == '517') {
-                // 517-区域已闭合
-                peaClearCurrentArea()
-            } else if (errorCode == '515') {
-                // 515-区域有相交直线，不可闭合
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_INTERSECT'),
-                })
+                const errorCode = $('statenotify/errorCode').text().num()
+                // 处理错误码
+                if (errorCode === 517) {
+                    // 517-区域已闭合
+                    peaClearCurrentArea()
+                } else if (errorCode === 515) {
+                    // 515-区域有相交直线，不可闭合
+                    openMessageBox({
+                        type: 'info',
+                        message: Translate('IDCS_INTERSECT'),
+                    })
+                }
             }
         }
 

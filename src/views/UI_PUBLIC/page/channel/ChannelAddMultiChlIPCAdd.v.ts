@@ -67,11 +67,11 @@ export default defineComponent({
             rowDatas.forEach((item: Record<string, object>) => {
                 const isArray = Boolean(item.isArray)
                 const element = item.element as ChannelMultiChlIPCAddDto
-                if (isArray && ((element.addrType == 'ip' && element.ip != '0.0.0.0') || (element.addrType != 'ip' && element.domain))) {
+                if (isArray && ((element.addrType === 'ip' && element.ip !== '0.0.0.0') || (element.addrType !== 'ip' && element.domain))) {
                     RTSPData.push(element)
                 }
 
-                if (!isArray && ((element.addrType == 'ip' && element.ip != '0.0.0.0') || (element.addrType != 'ip' && element.domain)) && Number(element.port) != 0 && element.userName) {
+                if (!isArray && ((element.addrType === 'ip' && element.ip !== '0.0.0.0') || (element.addrType !== 'ip' && element.domain)) && Number(element.port) !== 0 && element.userName) {
                     nonRTSPData.push(element)
                 }
             })
@@ -87,14 +87,14 @@ export default defineComponent({
                 createLanDeviceRequest(item).then((res) => {
                     const $ = queryXml(res)
                     curRequestNum++
-                    if ($('status').text() == 'success') {
+                    if ($('status').text() === 'success') {
                         const supportChlType = $('//content/industryProductType').text() // 值为"THERMAL_DOUBLE"，代表“热成像双目IPC”
                         if (supportChlType) chlTypeMap[item.ip] = supportChlType
                     } else {
                         chlTypeMap[item.ip] = 'NORMAL' // 返回“fail”，代表“普通单目IPC”
                     }
 
-                    if (curRequestNum == nonRTSPData.length) {
+                    if (curRequestNum === nonRTSPData.length) {
                         curRequestNum = 0
                         getExistChl((allExistChlData: ChannelInfoDto[]) => {
                             normalChlData = []
@@ -103,11 +103,11 @@ export default defineComponent({
                             nonRTSPData.forEach((item: ChannelMultiChlIPCAddDto, index: number) => {
                                 const resArr: ChannelInfoDto[] = []
                                 allExistChlData.forEach((ele: ChannelInfoDto) => {
-                                    if (ele.ip == item.ip) resArr.push(ele)
+                                    if (ele.ip === item.ip) resArr.push(ele)
                                 })
-                                if (chlTypeMap[item.ip] == 'THERMAL_DOUBLE' || (!isNaN(Number(chlTypeMap[item.ip])) && Number(chlTypeMap[item.ip]) > 1)) {
+                                if (chlTypeMap[item.ip] === 'THERMAL_DOUBLE' || (!isNaN(Number(chlTypeMap[item.ip])) && Number(chlTypeMap[item.ip]) > 1)) {
                                     item.multichannelCheckedInfoList = []
-                                    if (chlTypeMap[item.ip] == 'THERMAL_DOUBLE') {
+                                    if (chlTypeMap[item.ip] === 'THERMAL_DOUBLE') {
                                         // 热成像通道
                                         const visibleLight = new ChannelMultiChlCheckedInfoDto()
                                         visibleLight.operateIndex = 0
@@ -119,8 +119,8 @@ export default defineComponent({
                                         thermal.chlLabel = Translate('IDCS_THERMAL_LIGHT')
                                         switch (resArr.length) {
                                             case 1:
-                                                visibleLight.disabled = resArr[0].accessType == 'NORMAL'
-                                                thermal.disabled = resArr[0].accessType == 'THERMAL'
+                                                visibleLight.disabled = resArr[0].accessType === 'NORMAL'
+                                                thermal.disabled = resArr[0].accessType === 'THERMAL'
                                                 break
                                             case 2:
                                                 visibleLight.disabled = true
@@ -136,14 +136,14 @@ export default defineComponent({
                                         thermalChlData.push(item)
                                     }
                                     multichannelIpcData = thermalChlData
-                                } else if (chlTypeMap[item.ip] == 'THERMAL_SINGLE') {
-                                    if (resArr.length > 0) return
+                                } else if (chlTypeMap[item.ip] === 'THERMAL_SINGLE') {
+                                    if (resArr.length) return
                                     normalChlData.push(item)
                                 } else {
                                     normalChlData.push(item)
                                 }
                             })
-                            if (multichannelIpcData.length > 0) {
+                            if (multichannelIpcData.length) {
                                 tableData.value = multichannelIpcData
                                 multiChlIPCCfgDialogVisiable.value = true
                             } else {
@@ -163,9 +163,9 @@ export default defineComponent({
         const createLanDeviceRequest = (element: ChannelMultiChlIPCAddDto) => {
             let ipXmlStr = ''
             let domainXmlStr = ''
-            if (element.addrType == 'ip') {
+            if (element.addrType === 'ip') {
                 ipXmlStr = `<ip>${element.ip}</ip>`
-            } else if (element.addrType == 'ipv6') {
+            } else if (element.addrType === 'ipv6') {
                 ipXmlStr = `<ip>${element.domain}</ip>`
             } else {
                 if (checkIpV4(element.domain)) {
@@ -181,7 +181,7 @@ export default defineComponent({
                     ${domainXmlStr}
                     <port>${element.port}</port>
                     <userName maxByteLen="63"><![CDATA[${cutStringByByte(element.userName, nameByteMaxLen)}]]></userName>
-                    ${element.password == '******' ? '' : '<password' + getSecurityVer() + '><![CDATA[' + AES_encrypt(element.password, userSessionStore.sesionKey) + ']]></password>'}
+                    ${element.password === '******' ? '' : '<password' + getSecurityVer() + '><![CDATA[' + AES_encrypt(element.password, userSessionStore.sesionKey) + ']]></password>'}
                 </content>`
             return queryLanDevice(data)
         }
@@ -209,7 +209,7 @@ export default defineComponent({
             queryDevList(data).then((res) => {
                 const $ = queryXml(res)
                 const rowData: ChannelInfoDto[] = []
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     $('//content/item').forEach((ele) => {
                         const eleXml = queryXml(ele.element)
                         const channelInfo = new ChannelInfoDto()
@@ -218,13 +218,13 @@ export default defineComponent({
                         channelInfo.name = eleXml('name').text()
                         channelInfo.devID = eleXml('devID').text()
                         channelInfo.ip = eleXml('ip').text()
-                        channelInfo.port = Number(eleXml('port').text())
+                        channelInfo.port = eleXml('port').text().num()
                         channelInfo.poePort = eleXml('poePort').text()
                         channelInfo.userName = eleXml('userName').text()
                         channelInfo.password = eleXml('password').text()
                         channelInfo.protocolType = eleXml('protocolType').text()
                         channelInfo.addType = eleXml('addType').text()
-                        channelInfo.accessType = eleXml('AccessType').text() == '0' ? 'NORMAL' : 'THERMAL'
+                        channelInfo.accessType = eleXml('AccessType').text() === '0' ? 'NORMAL' : 'THERMAL'
                         channelInfo.chlIndex = eleXml('chlIndex').text() // 多通道IPC产品的子通道号
                         rowData.push(channelInfo)
                     })
@@ -240,7 +240,7 @@ export default defineComponent({
                 tableData.value
                     .map((ele) => {
                         let tmpSendXml = ''
-                        if (ele.type == 'THERMAL_DOUBLE') {
+                        if (ele.type === 'THERMAL_DOUBLE') {
                             const visibleLight = ele.multichannelCheckedInfoList[0]
                             const thermal = ele.multichannelCheckedInfoList[1]
                             if (visibleLight.checked && !visibleLight.disabled) {
@@ -292,9 +292,9 @@ export default defineComponent({
             const name = calChlName()
             let ipXmlStr = ''
             let domainXmlStr = ''
-            if (element.addrType == 'ip') {
+            if (element.addrType === 'ip') {
                 ipXmlStr = `<ip>${element.ip}</ip>`
-            } else if (element.addrType == 'ipv6') {
+            } else if (element.addrType === 'ipv6') {
                 ipXmlStr = `<ip>${element.domain}</ip>`
             } else {
                 if (checkIpV4(element.domain)) {
@@ -304,7 +304,7 @@ export default defineComponent({
                 }
             }
 
-            if (chlType == 'RTSP') {
+            if (chlType === 'RTSP') {
                 let manufacturerID = '1'
                 protocolList.some((ele) => {
                     // 解决中间有空格不相等的问题
@@ -336,7 +336,7 @@ export default defineComponent({
                         ${domainXmlStr}
                         <port>${element.port}</port>
                         <userName><![CDATA[${cutStringByByte(element.userName, nameByteMaxLen)}]]></userName>
-                        ${element.password == '******' ? '' : `<password ${getSecurityVer()}>${wrapCDATA(AES_encrypt(element.password, userSessionStore.sesionKey))}</password>`}
+                        ${element.password === '******' ? '' : `<password ${getSecurityVer()}>${wrapCDATA(AES_encrypt(element.password, userSessionStore.sesionKey))}</password>`}
                         <index>0</index>
                         <manufacturer>${element.manufacturer}</manufacturer>
                         <protocolType>${chlMapping[element.manufacturer].protocolType}</protocolType>
@@ -358,7 +358,7 @@ export default defineComponent({
         const Trim = (str: string, is_global: string): string => {
             let result
             result = str.replace(/(^\s+)|(\s+$)/g, '')
-            if (is_global.toLowerCase() == 'g') {
+            if (is_global.toLowerCase() === 'g') {
                 result = result.replace(/\s/g, '')
             }
             return result

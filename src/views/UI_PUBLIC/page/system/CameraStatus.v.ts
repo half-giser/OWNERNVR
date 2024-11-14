@@ -47,7 +47,7 @@ export default defineComponent({
                     const $item = queryXml(item.element)
                     tableData.value.push({
                         name: $item('chl').text(),
-                        online: $item('online').text().toBoolean(),
+                        online: $item('online').text().bool(),
                         motionStatus: $item('motionStatus').text(),
                         intelligentStatus: $item('intelligentStatus').text(),
                         recStatus: $item('recStatus').text(),

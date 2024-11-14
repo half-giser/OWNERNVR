@@ -282,7 +282,7 @@ export default defineComponent({
                 }
             } else {
                 closeLoading()
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 handleErrorMsg(errorCode)
             }
         }
@@ -354,7 +354,7 @@ export default defineComponent({
                     case 'Import':
                         pageData.value.isCheckAuth = false
                         pageData.value.isEncryptPwd = false
-                        if (progress == '100%') {
+                        if (progress === '100%') {
                             pageData.value.importNote = TRANS_MAPPING.uploadReboot
                             openLoading(LoadingTarget.FullScreen, TRANS_MAPPING.uploadReboot)
                             //发送升级指令，但不一定会收到应答，需要延时检测重启
@@ -369,7 +369,7 @@ export default defineComponent({
                         closeLoading()
                         pageData.value.isCheckAuth = false
                         pageData.value.isEncryptPwd = false
-                        if (progress == '100%') {
+                        if (progress === '100%') {
                             pageData.value.exportNote = TRANS_MAPPING.downloadComplete
                         } else {
                             pageData.value.exportNote = `${TRANS_MAPPING.downloading}&nbsp;&nbsp;${progress}`
@@ -385,7 +385,7 @@ export default defineComponent({
                 closeLoading()
                 pageData.value.isEncryptPwd = false
                 if ($('statenotify/errorCode').length) {
-                    const errorCode = Number($('statenotify/errorCode').text())
+                    const errorCode = $('statenotify/errorCode').text().num()
                     handleErrorMsg(errorCode)
                 }
             }

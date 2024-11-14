@@ -131,19 +131,19 @@ export default defineComponent({
                     }
 
                     rowData.holdTimeList = holdTimeNote
-                    rowData.switch = $('content/chl/param/switch').text().toBoolean()
-                    rowData.sensitivity = Number($('content/chl/param/sensitivity').text())
+                    rowData.switch = $('content/chl/param/switch').text().bool()
+                    rowData.sensitivity = $('content/chl/param/sensitivity').text().num()
                     rowData.status = ''
                     rowData.disabled = false
 
                     if ($('content/chl/param/sensitivity').length) rowData.sensitivityMinValue = Number($('content/chl/param/sensitivity').attr('min'))
-                    if ($('content/chl/param/objectFilter/car').length) rowData.objectFilterCar = $('content/chl/param/objectFilter/car/switch').text().toBoolean()
-                    if ($('content/chl/param/objectFilter/person').length) rowData.objectFilterPerson = $('content/chl/param/objectFilter/person/switch').text().toBoolean()
-                    let max = $('content/chl/param/sensitivity').length ? Number($('content/chl/param/sensitivity').attr('max')) : NaN
+                    if ($('content/chl/param/objectFilter/car').length) rowData.objectFilterCar = $('content/chl/param/objectFilter/car/switch').text().bool()
+                    if ($('content/chl/param/objectFilter/person').length) rowData.objectFilterPerson = $('content/chl/param/objectFilter/person/switch').text().bool()
+                    let max = $('content/chl/param/sensitivity').length ? $('content/chl/param/sensitivity').attr('max').num() : 100
                     if (import.meta.env.VITE_UI_TYPE === 'UI1-F' && max === 100) max = 120
                     rowData.sensitivityMaxValue = max
-                    rowData.column = Number($('content/chl/param/area/itemType').attr('maxLen'))
-                    rowData.row = Number($('content/chl/param/area').attr('count'))
+                    rowData.column = $('content/chl/param/area/itemType').attr('maxLen').num()
+                    rowData.row = $('content/chl/param/area').attr('count').num()
                     rowData.areaInfo = areaInfo
                 } else {
                     rowData.status = ''
@@ -182,7 +182,7 @@ export default defineComponent({
                     newData.chlIndex = eleXml('chlIndex').text()
                     newData.chlType = eleXml('chlType').text()
                     newData.status = 'loading'
-                    newData.supportSMD = eleXml('supportSMD').text().toBoolean()
+                    newData.supportSMD = eleXml('supportSMD').text().bool()
                     return newData
                 })
                 pageTotal.value = Number($('content').attr('total'))

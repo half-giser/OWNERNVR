@@ -100,7 +100,7 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryDiskMode()
             const $ = queryXml(result)
-            formData.value.enable = $('//content/diskMode/isUseRaid').text().toBoolean()
+            formData.value.enable = $('//content/diskMode/isUseRaid').text().bool()
         }
 
         onMounted(() => {

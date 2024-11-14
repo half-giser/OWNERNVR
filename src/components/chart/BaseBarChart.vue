@@ -262,16 +262,16 @@ const drawBars = () => {
 
         for (let j = 0; j < prop.unitNum; j++) {
             const offset = (j + 1) * splitWidth + j * colWidth + w * i
-            const yValueUnit = prop.unitNum == 1 ? (yValue as number[])[i] : Number((yValue as number[][])[i][j])
+            const yValueUnit = prop.unitNum === 1 ? (yValue as number[])[i] : Number((yValue as number[][])[i][j])
             const height = (prop.lineSpacing * yValueUnit) / prop.writeYSpacing
             const Y = oy + yLength - height
             drawRect(offset + ox, Y, colWidth, height, barColors[prop.color[j]]) // 画柱状
             if (yValueUnit > 99 && yValueUnit < 999) {
-                drawText(String(yValueUnit), offset + ox + colWidth / 2 - 9, yValueUnit == 0 ? Y - 2 : Y - 8) // 写Y柱图上的值
+                drawText(String(yValueUnit), offset + ox + colWidth / 2 - 9, yValueUnit === 0 ? Y - 2 : Y - 8) // 写Y柱图上的值
             } else if (yValueUnit > 999) {
-                drawText(String(yValueUnit), offset + ox + colWidth / 2 - 12, yValueUnit == 0 ? Y - 2 : Y - 8) // 写Y柱图上的值
+                drawText(String(yValueUnit), offset + ox + colWidth / 2 - 12, yValueUnit === 0 ? Y - 2 : Y - 8) // 写Y柱图上的值
             } else {
-                drawText(String(yValueUnit), offset + ox + colWidth / 2 - 6, yValueUnit == 0 ? Y - 2 : Y - 8) // 写Y柱图上的值
+                drawText(String(yValueUnit), offset + ox + colWidth / 2 - 6, yValueUnit === 0 ? Y - 2 : Y - 8) // 写Y柱图上的值
             }
         }
     }

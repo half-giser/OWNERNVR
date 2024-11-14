@@ -60,7 +60,7 @@ export default defineComponent({
         // 需要用到的系统配置
         const supportFaceMatch = systemCaps.supportFaceMatch
         const showAIReourceDetail = systemCaps.showAIReourceDetail
-        const localFaceDectEnabled = systemCaps.localFaceDectMaxCount != 0
+        const localFaceDectEnabled = !!systemCaps.localFaceDectMaxCount
         const faceMatchLimitMaxChlNum = systemCaps.faceMatchLimitMaxChlNum
         const supportAlarmAudioConfig = systemCaps.supportAlarmAudioConfig
         const AISwitch = systemCaps.AISwitch
@@ -196,7 +196,7 @@ export default defineComponent({
                     pluginStore.showPluginNoResponse = true
                     plugin.ShowPluginNoResponse()
                 }
-                const sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'VfdConfig' : 'ReadOnly', 'Live')
+                const sendXML = OCX_XML_SetPluginModel(osType === 'mac' ? 'VfdConfig' : 'ReadOnly', 'Live')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
         }
@@ -212,7 +212,7 @@ export default defineComponent({
                     streamType: 2,
                 })
             } else if (mode.value === 'ocx') {
-                if (osType == 'mac') {
+                if (osType === 'mac') {
                     // const sendXML = OCX_XML_Preview({
                     //     winIndexList: [0],
                     //     chlIdList: [chlData.id],
@@ -295,9 +295,9 @@ export default defineComponent({
                         if (factoryName === 'Recorder') return
                         const curChlId = item.attr('id')!
                         if (protocolType !== 'RTSP' && onlineChlList.includes(curChlId)) {
-                            const supportVfd = $item('supportVfd').text() == 'true'
-                            const supportFire = $item('supportFire').text() == 'true'
-                            const supportTemperature = $item('supportTemperature').text() == 'true'
+                            const supportVfd = $item('supportVfd').text().bool()
+                            const supportFire = $item('supportFire').text().bool()
+                            const supportTemperature = $item('supportTemperature').text().bool()
                             let supportBackVfd = false
                             if (localFaceDectEnabled) {
                                 // 支持人脸后侦测且人脸前侦测为false，才算支持人脸后侦测
@@ -324,8 +324,8 @@ export default defineComponent({
                                 accessType: $item('accessType').text(),
                                 supportVfd,
                                 supportBackVfd,
-                                supportAudio: $item('supportAudioAlarmOut').text() == 'true',
-                                supportWhiteLight: $item('supportWhiteLightAlarmOut').text() == 'true',
+                                supportAudio: $item('supportAudioAlarmOut').text().bool(),
+                                supportWhiteLight: $item('supportWhiteLightAlarmOut').text().bool(),
                                 showAIReourceDetail,
                                 faceMatchLimitMaxChlNum,
                             }
@@ -429,7 +429,7 @@ export default defineComponent({
                 commLoadResponseHandler(result, async ($) => {
                     const param = $('//content/chl/param')
                     const $param = queryXml(param[0].element)
-                    const enabledSwitch = $param('switch').text() == 'true'
+                    const enabledSwitch = $param('switch').text().bool()
                     let holdTimeArr = $param('holdTimeNote').text().split(',')
                     const holdTime = $param('holdTime').text()
                     if (!holdTimeArr.includes(holdTime)) {
@@ -446,19 +446,25 @@ export default defineComponent({
                     const regionInfo = $param('regionInfo/item').map((item) => {
                         const $item = queryXml(item.element)
                         return {
-                            X1: Number($item('X1').text()),
-                            Y1: Number($item('Y1').text()),
-                            X2: Number($item('X2').text()),
-                            Y2: Number($item('Y2').text()),
+                            X1: $item('X1').text().num(),
+                            Y1: $item('Y1').text().num(),
+                            X2: $item('X2').text().num(),
+                            Y2: $item('Y2').text().num(),
                         }
                     })
                     const mutexList = $param('mutexList/item').map((item) => {
                         const $item = queryXml(item.element)
-                        return { object: $item('object').text(), status: $item('status').text() == 'true' }
+                        return {
+                            object: $item('object').text(),
+                            status: $item('status').text().bool(),
+                        }
                     })
                     const mutexListEx = $param('mutexListEx/item').map((item) => {
                         const $item = queryXml(item.element)
-                        return { object: $item('object').text(), status: $item('status').text() == 'true' }
+                        return {
+                            object: $item('object').text(),
+                            status: $item('status').text().bool(),
+                        }
                     })
                     const trigger = $('//content/chl/trigger')
                     const $trigger = queryXml(trigger[0].element)
@@ -497,20 +503,20 @@ export default defineComponent({
                         saveSourcePicture: $param('saveSourcePicture').text(),
                         snapInterval: $param('senceMode/customize/intervalTime').text(),
                         captureCycle: $param('senceMode/customize/captureCycle').text(),
-                        minFaceFrame: Number($param('minFaceFrame').text()),
+                        minFaceFrame: $param('minFaceFrame').text().num(),
                         minRegionInfo: [],
-                        maxFaceFrame: Number($param('maxFaceFrame').text()),
+                        maxFaceFrame: $param('maxFaceFrame').text().num(),
                         maxRegionInfo: [],
                         triggerAudio: $param('triggerAudio').text(),
                         triggerWhiteLight: $param('triggerWhiteLight').text(),
-                        faceExpSwitch: $param('faceExp/switch').text() == 'true',
-                        faceExpStrength: Number($param('senceMode/customize/faceExpStrength').text()),
+                        faceExpSwitch: $param('faceExp/switch').text().bool(),
+                        faceExpStrength: $param('senceMode/customize/faceExpStrength').text().num(),
                         schedule: $('//content/chl').attr('scheduleGuid'),
                         record,
                         alarmOut,
                         preset,
                         trigger: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch'].filter((item) => {
-                            return $trigger(item).text().toBoolean()
+                            return $trigger(item).text().bool()
                         }),
                         sysAudio: $trigger('sysAudio').attr('id'),
                     }
@@ -524,14 +530,17 @@ export default defineComponent({
                 const result = await queryBackFaceMatch(sendXml)
                 const $ = queryXml(result)
                 $('//content/param/chls/item').forEach((item) => {
-                    if (item.attr('guid') == pageData.value.curChl) {
+                    if (item.attr('guid') === pageData.value.curChl) {
                         const $item = queryXml(item.element)
-                        const enabledSwitch = $item('switch').text() == 'true'
+                        const enabledSwitch = $item('switch').text().bool()
                         faceDetectionData.value.enabledSwitch = enabledSwitch
                         faceDetectionData.value.originalSwitch = enabledSwitch
                         faceDetectionData.value.mutexList = $item('mutexList/item').map((item) => {
                             const $item = queryXml(item.element)
-                            return { object: $item('object').text(), status: $item('status').text() == 'true' }
+                            return {
+                                object: $item('object').text(),
+                                status: $item('status').text().bool(),
+                            }
                         })
                         faceDetectionData.value.schedule = item.attr('scheduleGuid')!
                     }
@@ -553,37 +562,37 @@ export default defineComponent({
                 // 这里faceDetectionData.value.saveSourcePicture为字符串，"false"判断为真
                 if (faceDetectionData.value.saveSourcePicture) {
                     // 将存储原图/目标图是否选中给到pagedata与元素绑定
-                    detectionPageData.value.isSaveSourcePicChecked = faceDetectionData.value.saveSourcePicture == 'true'
-                    detectionPageData.value.isSaveFacePicChecked = faceDetectionData.value.saveFacePicture == 'true'
+                    detectionPageData.value.isSaveSourcePicChecked = faceDetectionData.value.saveSourcePicture === 'true'
+                    detectionPageData.value.isSaveFacePicChecked = faceDetectionData.value.saveFacePicture === 'true'
                     detectionPageData.value.isSavePicDisabled = false
                 } else {
                     detectionPageData.value.isSavePicDisabled = true
                 }
 
-                if (faceDetectionData.value.snapInterval == '') {
+                if (faceDetectionData.value.snapInterval === '') {
                     detectionPageData.value.isSnapNumberChecked = false
                 } else {
-                    const checked = faceDetectionData.value.captureCycle != '65535' // true自定义可输入1-65534，false显示“无限制”，值为65535
+                    const checked = faceDetectionData.value.captureCycle !== '65535' // true自定义可输入1-65534，false显示“无限制”，值为65535
                     if (!checked) faceDetectionData.value.captureCycle = '3' // 防止返回值是65535时，是“无限制”状态，值取默认值3
                     detectionPageData.value.snapNumber = checked ? faceDetectionData.value.captureCycle : Translate('IDCS_NO_LIMITED')
                     detectionPageData.value.isSnapNumberDisabled = !checked
                     detectionPageData.value.isSnapNumberChecked = checked
                 }
                 // 先判断人脸曝光是否为空，确定是否禁用，再赋给其默认值50
-                detectionPageData.value.faceExpDisabled = faceDetectionData.value.faceExpStrength == 0
+                detectionPageData.value.faceExpDisabled = faceDetectionData.value.faceExpStrength === 0
                 faceDetectionData.value.faceExpStrength = faceDetectionData.value.faceExpStrength || 50
 
                 // 常规联动相关选项
                 if (faceDetectionData.value.triggerAudio && chlData.supportAudio) {
                     detectionPageData.value.triggerList.push('triggerAudio')
-                    if (faceDetectionData.value.triggerAudio == 'true') {
+                    if (faceDetectionData.value.triggerAudio === 'true') {
                         faceDetectionData.value.trigger.push('triggerAudio')
                     }
                 }
 
                 if (faceDetectionData.value.triggerWhiteLight && chlData.supportWhiteLight) {
                     detectionPageData.value.triggerList.push('triggerWhiteLight')
-                    if (faceDetectionData.value.triggerWhiteLight == 'true') {
+                    if (faceDetectionData.value.triggerWhiteLight === 'true') {
                         faceDetectionData.value.trigger.push('triggerWhiteLight')
                     }
                 }
@@ -598,7 +607,7 @@ export default defineComponent({
 
         // 当前通道play上的视图
         const setCurrChlView = (type: string) => {
-            if (type == 'vfdArea') {
+            if (type === 'vfdArea') {
                 if (faceDetectionData.value.regionInfo && faceDetectionData.value.regionInfo.length > 0) {
                     if (mode.value === 'h5') {
                         vfdDrawer.setArea(faceDetectionData.value.regionInfo[0])
@@ -607,14 +616,14 @@ export default defineComponent({
                         plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                     }
                 }
-            } else if (type == 'faceMax') {
+            } else if (type === 'faceMax') {
                 if (mode.value === 'h5') {
                     vfdDrawer.setRangeMax(faceDetectionData.value.maxRegionInfo[0])
                 } else {
                     const sendXML = OCX_XML_SetVfdArea(faceDetectionData.value.maxRegionInfo[0], type, '#00ff00', 'TYPE_VFD_BLOCK')
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 }
-            } else if (type == 'faceMin') {
+            } else if (type === 'faceMin') {
                 if (mode.value === 'h5') {
                     vfdDrawer.setRangeMin(faceDetectionData.value.minRegionInfo[0])
                 } else {
@@ -731,9 +740,9 @@ export default defineComponent({
         }
 
         const faceTabChange = async (name: TabPaneName) => {
-            if (name == 'faceDetection') {
+            if (name === 'faceDetection') {
                 play()
-            } else if (name == 'faceLibrary') {
+            } else if (name === 'faceLibrary') {
                 if (import.meta.env.VITE_UI_TYPE === 'UI2-A') {
                     router.push({
                         path: '/config/alarm/faceFeature',
@@ -753,16 +762,16 @@ export default defineComponent({
         }
 
         const detectionTabChange = (name: TabPaneName) => {
-            if (name == 'param') {
+            if (name === 'param') {
                 play()
             }
         }
 
         // 获取AI资源列表数据
         const handleAIResourceError = () => {
-            if (pageData.value.faceTab == 'faceDetection') {
+            if (pageData.value.faceTab === 'faceDetection') {
                 faceDetectionData.value.enabledSwitch = false
-            } else if (pageData.value.faceTab == 'faceCompare') {
+            } else if (pageData.value.faceTab === 'faceCompare') {
                 faceMatchData.value.hitEnable = false
                 faceMatchData.value.notHitEnable = false
             }
@@ -780,17 +789,17 @@ export default defineComponent({
             const sameIPChlList = []
             const chlData = chlList[pageData.value.curChl]
             for (const item in chlList) {
-                if (chlList[item].ip == chlData.ip) {
+                if (chlList[item].ip === chlData.ip) {
                     sameIPChlList.push(chlList[item])
                 }
             }
 
             if (sameIPChlList.length > 1) {
                 sameIPChlList.forEach((chl) => {
-                    if (chl.accessType == '1') {
-                        thermalChlName = chl.name == chlData.name ? '' : chl.name
+                    if (chl.accessType === '1') {
+                        thermalChlName = chl.name === chlData.name ? '' : chl.name
                     } else {
-                        normalChlName = chl.name == chlData.name ? '' : chl.name
+                        normalChlName = chl.name === chlData.name ? '' : chl.name
                     }
                 })
             }
@@ -804,7 +813,7 @@ export default defineComponent({
         const applyFaceDetectionData = () => {
             let isSwitchChange = false
             const switchChangeTypeArr: string[] = []
-            if (faceDetectionData.value.enabledSwitch && faceDetectionData.value.enabledSwitch != faceDetectionData.value.originalSwitch) {
+            if (faceDetectionData.value.enabledSwitch && faceDetectionData.value.enabledSwitch !== faceDetectionData.value.originalSwitch) {
                 isSwitchChange = true
             }
             const mutexChlNameObj = getMutexChlNameObj()
@@ -822,7 +831,7 @@ export default defineComponent({
                     switchChangeTypeArr.push(showInfo)
                 }
             })
-            if (isSwitchChange && switchChangeTypeArr.length > 0) {
+            if (isSwitchChange && switchChangeTypeArr.length) {
                 const switchChangeType = switchChangeTypeArr.join(',')
                 openMessageBox({
                     type: 'info',
@@ -1009,10 +1018,10 @@ export default defineComponent({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_S'),
             }).then(() => {
-                haveUseNameId = haveUseNameId.filter((item) => item != Number(comparePageData.value.compareTab[3]))
-                taskTabs.value = taskTabs.value.filter((item) => item.value != comparePageData.value.compareTab)
+                haveUseNameId = haveUseNameId.filter((item) => item !== Number(comparePageData.value.compareTab[3]))
+                taskTabs.value = taskTabs.value.filter((item) => item.value !== comparePageData.value.compareTab)
                 faceCompareData.value.task = faceCompareData.value.task.filter((item) => {
-                    if (item.ruleType == 'hit' && item.nameId == Number(comparePageData.value.compareTab[3])) {
+                    if (item.ruleType === 'hit' && item.nameId === Number(comparePageData.value.compareTab[3])) {
                         if (item.guid) {
                             deleteFaceCompareData(item)
                         }
@@ -1026,7 +1035,7 @@ export default defineComponent({
         }
 
         const compareTabChange = (name: TabPaneName) => {
-            if (name == 'param' || name == 'hit' || name == 'miss') {
+            if (name === 'param' || name === 'hit' || name === 'miss') {
                 comparePageData.value.removeDisabled = true
             } else {
                 comparePageData.value.removeDisabled = false
@@ -1043,13 +1052,13 @@ export default defineComponent({
                     let name = $item('name').text()
                     const groupId = $item('groupId').text()
                     if (!name) {
-                        if (groupId == '1' || groupId == '2') {
+                        if (groupId === '1' || groupId === '2') {
                             name = Translate('IDCS_WHITE_LIST') + groupId
-                        } else if (groupId == '3') {
+                        } else if (groupId === '3') {
                             name = Translate('IDCS_BLACK_LIST')
                         }
                     }
-                    const enableAlarmSwitch = $item('enableAlarmSwitch').text() == 'true'
+                    const enableAlarmSwitch = $item('enableAlarmSwitch').text().bool()
                     faceGroupNameMap[guid] = name
                     if (enableAlarmSwitch) {
                         faceGroupData.push({
@@ -1074,14 +1083,14 @@ export default defineComponent({
             `
             const result = await queryFaceMatchConfig(sendXml)
             commLoadResponseHandler(result, ($) => {
-                const hitEnable = $('//content/chl/hitEnable').text() == 'true'
-                const notHitEnable = $('//content/chl/notHitEnable').text() == 'true'
-                const liveDisplaySwitch = $('//content/chl/liveDisplaySwitch').text() == 'true'
+                const hitEnable = $('//content/chl/hitEnable').text().bool()
+                const notHitEnable = $('//content/chl/notHitEnable').text().bool()
+                const liveDisplaySwitch = $('//content/chl/liveDisplaySwitch').text().bool()
                 const groupInfo = [] as AlarmFaceGroupDto[]
                 $('//content/chl/groupId/item').forEach((item) => {
                     const $item = queryXml(item.element)
-                    const guid = item.attr('guid')!
-                    const similarity = Number($item('similarity').text())
+                    const guid = item.attr('guid')
+                    const similarity = $item('similarity').text().num()
                     const name = faceGroupNameMap[guid]
                     groupInfo.push({
                         guid: guid,
@@ -1124,7 +1133,7 @@ export default defineComponent({
                 e.target.dispatchEvent(new Event('input'))
             }
 
-            if (index != undefined) {
+            if (index !== undefined) {
                 faceMatchData.value.groupInfo[index].similarity = e.target.value
             }
         }
@@ -1163,8 +1172,8 @@ export default defineComponent({
             closeLoading()
 
             if ($('//status').text() !== 'success') {
-                const errorCode = Number($('//errorCode').text())
-                if (errorCode == ErrorCode.USER_ERROR_LIMITED_PLATFORM_VERSION_MISMATCH) {
+                const errorCode = $('//errorCode').text().num()
+                if (errorCode === ErrorCode.USER_ERROR_LIMITED_PLATFORM_VERSION_MISMATCH) {
                     openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_MAX_CHANNEL_LIMIT').formatForLang(faceMatchLimitMaxChlNum),
@@ -1208,14 +1217,14 @@ export default defineComponent({
                 })
                 $('//content/chl/task/item').forEach((item) => {
                     const $item = queryXml(item.element)
-                    const nameId = Number($item('param/nameId').text())
+                    const nameId = $item('param/nameId').text().num()
                     haveUseNameId.push(nameId)
                     faceCompareData.value.task.push({
                         guid: item.attr('guid')!,
                         id: item.attr('id')!,
                         ruleType: $item('param/ruleType').text(),
                         nameId,
-                        pluseSwitch: $item('param/pluseSwitch').text() == 'true',
+                        pluseSwitch: $item('param/pluseSwitch').text().bool(),
                         groupId: $item('param/groupId/item').map((item) => item.attr('guid')!),
                         hintword: $item('param/hint/word').text(),
                         schedule: $item('schedule').attr('id'),
@@ -1249,20 +1258,20 @@ export default defineComponent({
                             }
                         }),
                         trigger: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'popMsgSwitch'].filter((item) => {
-                            return $item(item).text().toBoolean()
+                            return $item(item).text().bool()
                         }),
                         sysAudio: $item('trigger/sysAudio').attr('id'),
                     })
                 })
             }).then(() => {
                 faceCompareData.value.task.forEach((item) => {
-                    if (item.ruleType == 'hit' && item.nameId == 0) {
+                    if (item.ruleType === 'hit' && !item.nameId) {
                         taskTabs.value.push({
                             value: 'hit',
                             label: Translate('IDCS_SUCCESSFUL_RECOGNITION'),
                         })
                         comparePageData.value.taskData = item
-                    } else if (item.ruleType == 'miss' && item.nameId == 0) {
+                    } else if (item.ruleType === 'miss' && !item.nameId) {
                         taskTabs.value.push({
                             value: 'miss',
                             label: Translate('IDCS_GROUP_STRANGER'),
@@ -1317,7 +1326,7 @@ export default defineComponent({
                                                     </alarmOuts>
                                                 </alarmOut>
                                                 <preset>
-                                                    <switch>${item.preset.length == 0 ? 'false' : 'true'}</switch>
+                                                    <switch>${!!item.preset.length}</switch>
                                                     <presets type='list'>
                                                         ${item.preset
                                                             .map((ele) => {
@@ -1389,19 +1398,21 @@ export default defineComponent({
         }
 
         const LiveNotify2Js = ($: (path: string) => XmlResult) => {
-            const $xmlNote = $("statenotify[@type='VfdArea']")
-            if ($xmlNote.length > 0) {
-                const points = [] as { X1: number; Y1: number; X2: number; Y2: number }[]
-                $('/statenotify/item').forEach((item) => {
+            if ($("statenotify[@type='VfdArea']").length) {
+                faceDetectionData.value.regionInfo = $('/statenotify/item').map((item) => {
                     const $item = queryXml(item.element)
-                    points.push({ X1: Number($item('X1').text()), Y1: Number($item('Y1').text()), X2: Number($item('X2').text()), Y2: Number($item('Y2').text()) })
+                    return {
+                        X1: $item('X1').text().num(),
+                        Y1: $item('Y1').text().num(),
+                        X2: $item('X2').text().num(),
+                        Y2: $item('Y2').text().num(),
+                    }
                 })
-                faceDetectionData.value.regionInfo = points
             }
         }
 
         onMounted(async () => {
-            if (mode.value != 'h5') {
+            if (mode.value !== 'h5') {
                 Plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
             }
             getSnapOptions()
@@ -1421,15 +1432,18 @@ export default defineComponent({
                 // 切到其他AI事件页面时清除一下插件显示的（线条/点/矩形/多边形）数据
                 const sendAreaXML = OCX_XML_SetVfdAreaAction('NONE', 'vfdArea')
                 plugin.GetVideoPlugin().ExecuteCmd(sendAreaXML)
+
                 const sendMaxXML = OCX_XML_SetVfdAreaAction('NONE', 'faceMax')
                 plugin.GetVideoPlugin().ExecuteCmd(sendMaxXML)
+
                 const sendMinXML = OCX_XML_SetVfdAreaAction('NONE', 'faceMin')
                 plugin.GetVideoPlugin().ExecuteCmd(sendMinXML)
+
                 const sendXML = OCX_XML_StopPreview('ALL')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
 
-            if (mode.value == 'h5') {
+            if (mode.value === 'h5') {
                 vfdDrawer.destroy()
             }
         })

@@ -67,8 +67,8 @@ export default defineComponent({
         const opened = () => {
             if (formRef.value) formRef.value.resetFields()
             formData.value = {}
-            tableData.value = props.editData.filter((ele: ChannelInfoDto) => {
-                return ele.isOnline && ele.protocolType == 'TVT_IPCAMERA' && ele.addType != 'poe'
+            tableData.value = props.editData.filter((ele) => {
+                return ele.isOnline && ele.protocolType === 'TVT_IPCAMERA' && ele.addType !== 'poe'
             })
             tableData.value.sort((a, b) => {
                 //按字符串排序 (NT2-1297)
@@ -96,7 +96,7 @@ export default defineComponent({
                 </content>
             `
             const res = await editIPChlPassword(sendXml)
-            if (queryXml(res)('status').text() == 'success') {
+            if (queryXml(res)('status').text() === 'success') {
                 return true
             } else {
                 return false

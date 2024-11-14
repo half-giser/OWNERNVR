@@ -66,17 +66,17 @@ export default defineComponent({
             queryDev(data).then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     editItem.value = new ChannelInfoDto()
                     editItem.value.name = $('//content/name').text()
-                    editItem.value.port = Number($('//content/port').text())
+                    editItem.value.port = $('//content/port').text().num()
                     // editItem.value.manufacturer = res('//content/manufacturer').text()
                     const filterPropertyList = filterProperty(props.protocolList, 'index')
                     const factoryName = $('//content/productModel').attr('factoryName')!
                     const manufacturer = $('//content/manufacturer').text()
                     if (factoryName) {
                         editItem.value.manufacturer = factoryName
-                    } else if (manufacturer.indexOf('RTSP') != -1) {
+                    } else if (manufacturer.indexOf('RTSP') !== -1) {
                         editItem.value.manufacturer = props.protocolList[filterPropertyList.indexOf(manufacturer.slice(5))].displayName
                     } else {
                         editItem.value.manufacturer = props.manufacturerMap[manufacturer]
@@ -84,7 +84,7 @@ export default defineComponent({
                     editItem.value.productModel.innerText = $('//content/productModel').text()
                     editItem.value.userName = $('//content/userName').text()
 
-                    if ($('//content/ip').length == 0 || $('//content/ip').text() == '') {
+                    if (!$('//content/ip').length || !$('//content/ip').text()) {
                         isAnolog.value = true
                         inputDisabled.value = true
                         ipDisabled.value = true
@@ -95,7 +95,7 @@ export default defineComponent({
                         isIpv6 = checkIpV6(ipdomain)
                         isDomain = !isIp && !isIpv6
 
-                        if ($('//content/protocolType').text() == 'RTSP') {
+                        if ($('//content/protocolType').text() === 'RTSP') {
                             portDisabled.value = true
                             editItem.value.port = 0
                         }
@@ -127,7 +127,7 @@ export default defineComponent({
                     }
                 } else {
                     let errorInfo = Translate('IDCS_QUERY_DATA_FAIL')
-                    const isNotExit = Number($('errorCode').text()) === ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR
+                    const isNotExit = $('errorCode').text().num() === ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR
                     if (isNotExit) errorInfo = Translate('IDCS_RESOURCE_NOT_EXIST').formatForLang(Translate('IDCS_CHANNEL'))
                     openMessageBox({
                         type: 'info',
@@ -220,7 +220,7 @@ export default defineComponent({
                     validator: (_rule, value: string, callback) => {
                         if (!isAnolog.value) {
                             value = value.trim()
-                            if (props.rowData.protocolType != 'RTSP' && !value.length) {
+                            if (props.rowData.protocolType !== 'RTSP' && !value.length) {
                                 callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
                                 return
                             }
@@ -252,20 +252,20 @@ export default defineComponent({
                     `
                     editDev(sendXml).then((res) => {
                         const $ = queryXml(res)
-                        if ($('status').text() == 'success') {
+                        if ($('status').text() === 'success') {
                             emit('updateNameMapping', props.rowData.id, editItem.value.name)
                             openMessageBox({
                                 type: 'success',
                                 message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                             }).then(() => {
-                                if (editItem.value.ip == '0.0.0.0') {
+                                if (editItem.value.ip === '0.0.0.0') {
                                     editItem.value.ip = ''
                                 }
                                 emit('setDataCallBack', editItem.value)
                                 emit('close', true)
                             })
                         } else {
-                            const errorCode = Number($('errorCode').text())
+                            const errorCode = $('errorCode').text().num()
                             let errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
                             if (errorCode === ErrorCode.USER_ERROR_NAME_EXISTED) {
                                 errorInfo = Translate('IDCS_PROMPT_CHANNEL_NAME_EXIST')

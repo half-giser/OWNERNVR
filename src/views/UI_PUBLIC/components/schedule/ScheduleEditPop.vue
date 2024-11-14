@@ -29,7 +29,6 @@
                             v-model="formData.name"
                             :formatter="formatInputMaxLength"
                             :parser="formatInputMaxLength"
-                            :maxlength="nameByteMaxLen"
                         />
                         <el-radio-group
                             v-model="pageData.dragAction"

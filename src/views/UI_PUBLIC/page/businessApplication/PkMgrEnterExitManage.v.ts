@@ -58,7 +58,7 @@ export default defineComponent({
                     direction: $item('direction').text(),
                     ip: $item('ip').text(),
                     ipc: `${$item('channelName').text()} ( ${$item('ip').text()} ) `,
-                    enableLEDScreen: $item('enableLEDScreen').text().toBoolean(),
+                    enableLEDScreen: $item('enableLEDScreen').text().bool(),
                     enableLEDScreenValid: $item('enableLEDScreen').length > 0 && cababilityStore.supportParkingLotLEDVisible,
                     LEDScreenType: $item('LEDScreenType').text() || '',
                     LEDScreenTypeValid: $item('LEDScreenType').length > 0 && cababilityStore.supportParkingLotLEDVisible,
@@ -137,7 +137,7 @@ export default defineComponent({
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 let errorMsg = Translate('IDCS_SAVE_DATA_FAIL')
                 if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
                     errorMsg = Translate('IDCS_NO_PERMISSION')

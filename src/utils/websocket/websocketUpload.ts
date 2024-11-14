@@ -121,7 +121,7 @@ export default class WebsocketUpload {
             const bufferSlice = buffer.slice(start, end)
             this.packageArr.push(bufferSlice)
         }
-        if (this.packageArr.length > 0) this.batchSend()
+        if (this.packageArr.length) this.batchSend()
     }
 
     /**

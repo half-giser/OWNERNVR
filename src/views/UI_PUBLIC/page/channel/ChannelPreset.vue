@@ -56,7 +56,6 @@
                         :disabled="!presetOptions.length"
                         :formatter="formatInputMaxLength"
                         :parser="formatInputMaxLength"
-                        :maxlength="nameByteMaxLen"
                         spellcheck="false"
                     />
                     <el-tooltip :content="Translate('IDCS_SAVE_CHANGE')">

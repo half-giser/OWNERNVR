@@ -98,14 +98,14 @@ export default defineComponent({
         const getOnlineChannel = async () => {
             const res = await queryOnlineChlList()
             const $ = queryXml(res)
-            if ($('status').text() == 'success') {
+            if ($('status').text() === 'success') {
                 $('//content/item').forEach((item) => {
                     const id = item.attr('id')
                     pageData.value.onlineChannelIdList.push(id ? id : '')
                 })
             }
 
-            if (pageData.value.onlineChannelIdList.length == 0) {
+            if (!pageData.value.onlineChannelIdList.length) {
                 pageData.value.chosenFunction = ''
                 pageData.value.fireDetectionDisable = true
                 pageData.value.videoStructureDisable = true
@@ -119,8 +119,8 @@ export default defineComponent({
 
         // 获取通道数据
         const getChannelData = async () => {
-            pageData.value.localFaceDectEnabled = systemCaps.localFaceDectMaxCount != 0
-            pageData.value.localTargetDectEnabled = systemCaps.localTargetDectMaxCount != 0
+            pageData.value.localFaceDectEnabled = !!systemCaps.localFaceDectMaxCount
+            pageData.value.localTargetDectEnabled = !!systemCaps.localTargetDectMaxCount
             pageData.value.faceMatchLimitMaxChlNum = systemCaps.faceMatchLimitMaxChlNum
             pageData.value.supportFaceMatch = systemCaps.supportFaceMatch
             pageData.value.supportPlateMatch = systemCaps.supportPlateMatch
@@ -146,14 +146,13 @@ export default defineComponent({
                     'supportAutoTrack',
                     'supportFire',
                     'supportWhiteLightAlarmOut',
-                    'supportAudioAlarmOut',
                     'supportTemperature',
                     'protocolType',
                     'supportVideoMetadata',
                 ],
             })
             const res = queryXml(resb)
-            if (res('status').text() == 'success') {
+            if (res('status').text() === 'success') {
                 res('//content/item').forEach((element) => {
                     const $item = queryXml(element.element)
                     const protocolType = $item('protocolType').text()
@@ -166,25 +165,25 @@ export default defineComponent({
                         const ip = $item('ip').text()
                         const chlType = $item('chlType').text()
                         const accessType = $item('AccessType').text()
-                        const supportOsc = $item('supportOsc').text() == 'true'
-                        const supportCdd = $item('supportCdd').text() == 'true'
-                        const supportVfd = $item('supportVfd').text() == 'true'
-                        const supportAvd = $item('supportAvd').text() == 'true'
-                        const supportPea = $item('supportPea').text() == 'true'
-                        const supportPeaTrigger = $item('supportPeaTrigger').text() == 'true' // NT-9829
-                        const supportIpd = $item('supportIpd').text() == 'true'
-                        const supportTripwire = $item('supportTripwire').text() == 'true'
-                        const supportAOIEntry = $item('supportAOIEntry').text() == 'true'
-                        const supportAOILeave = $item('supportAOILeave').text() == 'true'
-                        const supportVehiclePlate = $item('supportVehiclePlate').text() == 'true'
-                        const supportPassLine = $item('supportPassLine').text() == 'true'
-                        const supportCpc = $item('supportCpc').text() == 'true'
-                        const supportAudio = $item('supportAudioAlarmOut').text() == 'true'
-                        const supportWhiteLight = $item('supportWhiteLightAlarmOut').text() == 'true'
-                        const supportAutoTrack = $item('supportAutoTrack').text() == 'true'
-                        const supportFire = $item('supportFire').text() == 'true'
-                        const supportTemperature = $item('supportTemperature').text() == 'true'
-                        const supportVideoMetadata = $item('supportVideoMetadata').text() == 'true'
+                        const supportOsc = $item('supportOsc').text().bool()
+                        const supportCdd = $item('supportCdd').text().bool()
+                        const supportVfd = $item('supportVfd').text().bool()
+                        const supportAvd = $item('supportAvd').text().bool()
+                        const supportPea = $item('supportPea').text().bool()
+                        const supportPeaTrigger = $item('supportPeaTrigger').text().bool() // NT-9829
+                        const supportIpd = $item('supportIpd').text().bool()
+                        const supportTripwire = $item('supportTripwire').text().bool()
+                        const supportAOIEntry = $item('supportAOIEntry').text().bool()
+                        const supportAOILeave = $item('supportAOILeave').text().bool()
+                        const supportVehiclePlate = $item('supportVehiclePlate').text().bool()
+                        const supportPassLine = $item('supportPassLine').text().bool()
+                        const supportCpc = $item('supportCpc').text().bool()
+                        const supportAudio = $item('supportAudioAlarmOut').text().bool()
+                        const supportWhiteLight = $item('supportWhiteLightAlarmOut').text().bool()
+                        const supportAutoTrack = $item('supportAutoTrack').text().bool()
+                        const supportFire = $item('supportFire').text().bool()
+                        const supportTemperature = $item('supportTemperature').text().bool()
+                        const supportVideoMetadata = $item('supportVideoMetadata').text().bool()
                         let supportBackVfd = false
                         let supportBackTripwire = false
                         let supportBackPea = false
@@ -232,13 +231,13 @@ export default defineComponent({
                             supportVideoMetadata,
                         ]
                         if (allCapsArr.includes(true)) {
-                            if (pageData.value.checkFirstFaceChlId == '') {
+                            if (!pageData.value.checkFirstFaceChlId) {
                                 if (supportVfd || supportBackVfd) {
                                     pageData.value.checkFirstFaceChlId = id
                                 }
                             }
 
-                            if (pageData.value.checkFirstVehicleChlId == '' && supportVehiclePlate) {
+                            if (!pageData.value.checkFirstVehicleChlId && supportVehiclePlate) {
                                 pageData.value.checkFirstVehicleChlId = id
                             }
                             // 保存人车非周界的能力集，用于筛选出第一个支持的通道

@@ -149,7 +149,7 @@ export default defineComponent({
             try {
                 const result = await doLogin(sendXml)
                 const $ = queryXml(result)
-                if ($('//status').text() == 'success') {
+                if ($('//status').text() === 'success') {
                     // doLogin后更新用户会话信息
                     await userSessionStore.updateByLogin('STANDARD', result, reqData, formData.value)
                     pageData.value.btnDisabled = false
@@ -161,13 +161,13 @@ export default defineComponent({
                     Plugin.TogglePageByPlugin()
                     Plugin.StartV2Process()
                     router.push('/live')
-                } else if ($('//status').text() == 'fail') {
+                } else if ($('//status').text() === 'fail') {
                     pageData.value.btnDisabled = false
                     formData.value.password = ''
-                    const errorCode = Number($('errorCode').text())
+                    const errorCode = $('errorCode').text().num()
                     const ramainingNumber = $('ramainingNumber').text()
-                    errorLockChecker.setLockTime(Number($('ramainingTime').text()) * 1000)
-                    errorLockChecker.isLocked = $('locked').text().toBoolean()
+                    errorLockChecker.setLockTime($('ramainingTime').text().num() * 1000)
+                    errorLockChecker.isLocked = $('locked').text().bool()
                     if (errorCode) {
                         switch (errorCode) {
                             case ErrorCode.USER_ERROR_NO_USER:
@@ -211,7 +211,7 @@ export default defineComponent({
             const result = await queryShowPrivacyView()
             const $ = queryXml(result)
             if ($('//status').text() === 'success') {
-                if ($('//content/show').text().toBoolean() && !localStorage.getItem(LocalCacheKey.KEY_PRIVACY)) {
+                if ($('//content/show').text().bool() && !localStorage.getItem(LocalCacheKey.KEY_PRIVACY)) {
                     pageData.value.isPrivacy = true
                 } else {
                     localStorage.setItem(LocalCacheKey.KEY_PRIVACY, 'true')
@@ -269,7 +269,7 @@ export default defineComponent({
          * @param e
          */
         const keyUp = (e: KeyboardEvent) => {
-            if (e.key && e.key.toLowerCase() == 'enter') {
+            if (e.key && e.key.toLowerCase() === 'enter') {
                 handleLogin()
             }
         }

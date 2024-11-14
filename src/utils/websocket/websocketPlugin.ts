@@ -89,7 +89,7 @@ export default class WebsocketPlugin {
         }
 
         this.ws.onerror = () => {
-            if (this.wsType == 'pluginSubProcess') {
+            if (this.wsType === 'pluginSubProcess') {
                 this.openRetryConnect()
             } else {
                 this.printLog(this.wsType, 'interruptErr')

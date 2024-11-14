@@ -179,11 +179,11 @@ export default defineComponent({
             const $content = queryXml($('//content')[0].element)
             formData.value.netConfig.defaultNic = $content('defaultNic').text()
             formData.value.netConfig.poeMode = Number($content('poeMode').text())
-            formData.value.netConfig.supportNetworkFaultTolerance = $content('supportNetworkFaultTolerance').text().toBoolean()
-            formData.value.netConfig.supportNetworkMultiAddrSetting = $content('supportNetworkMultiAddrSetting').text().toBoolean()
-            formData.value.netConfig.toeEnable = $content('toeEnable').text().toBoolean()
+            formData.value.netConfig.supportNetworkFaultTolerance = $content('supportNetworkFaultTolerance').text().bool()
+            formData.value.netConfig.supportNetworkMultiAddrSetting = $content('supportNetworkMultiAddrSetting').text().bool()
+            formData.value.netConfig.toeEnable = $content('toeEnable').text().bool()
             formData.value.netConfig.curWorkMode = $content('curWorkMode').text()
-            formData.value.ipGroupSwitch = $content('ipGroupConfig/switch').text().toBoolean()
+            formData.value.ipGroupSwitch = $content('ipGroupConfig/switch').text().bool()
             formData.value.ipGroupMode = $content('ipGroupConfig/mode').text()
             formData.value.ipDefaultBond = $content('ipGroupConfig/defaultBond').text()
             formData.value.bonds = $content('ipGroupConfig/bonds/item').map((item, index) => {
@@ -191,21 +191,21 @@ export default defineComponent({
                 return {
                     index: index,
                     id: item.attr('id')!,
-                    dhcpSwitch: $item('dhcpSwitch').text().toBoolean(),
+                    dhcpSwitch: $item('dhcpSwitch').text().bool(),
                     primaryNIC: $item('primaryNIC').text(),
                     NICs: $item('NICs').text(),
                     ip: $item('ip').text(),
                     gateway: $item('gateway').text(),
                     mask: $item('mask').text(),
                     mtu: Number($item('mtu').text()),
-                    ipV6Switch: $item('ipV6Switch').text().toBoolean(),
+                    ipV6Switch: $item('ipV6Switch').text().bool(),
                     ipV6: $item('ipV6').text(),
                     gatewayV6: $item('gatewayV6').text(),
                     subLengthV6: Number($item('subLengthV6').text()),
-                    ipv4DnsDhcpSwitch: $item('dhcpSwitch').text().toBoolean() ? $item('ipv4DnsDhcpSwitch').text().toBoolean() : false,
+                    ipv4DnsDhcpSwitch: $item('dhcpSwitch').text().bool() ? $item('ipv4DnsDhcpSwitch').text().bool() : false,
                     dns1: $item('dns1').text(),
                     dns2: $item('dns2').text() || '0.0.0.0',
-                    ipv6DnsDhcpSwitch: $item('dhcpSwitch').text().toBoolean() ? $item('ipv6DnsDhcpSwitch').text().toBoolean() : false,
+                    ipv6DnsDhcpSwitch: $item('dhcpSwitch').text().bool() ? $item('ipv6DnsDhcpSwitch').text().bool() : false,
                     ipv6Dns1: $item('ipv6Dns1').text(),
                     ipv6Dns2: $item('ipv6Dns2').text(),
                     isPoe: false, // 手动加一个属性ipGroupConfig走的逻辑也是非poe类型
@@ -213,34 +213,34 @@ export default defineComponent({
             })
             formData.value.nicConfigs = $content('nicConfigs/item').map((item, index) => {
                 const $item = queryXml(item.element)
-                if (item.attr('isPoe')!.toBoolean()) {
+                if (item.attr('isPoe')!.bool()) {
                     pageData.value.hasPoeNic = true
                     pageData.value.nicIndex = index
                 }
                 return {
                     index: index,
                     id: item.attr('id')!,
-                    isPoe: item.attr('isPoe')!.toBoolean(),
-                    isSupSecondIP: item.attr('isSupSecondIP')!.toBoolean(),
-                    isSupMultiWorkMode: item.attr('isSupMultiWorkMode')!.toBoolean(),
-                    dhcpSwitch: $item('dhcpSwitch').text().toBoolean(),
+                    isPoe: item.attr('isPoe')!.bool(),
+                    isSupSecondIP: item.attr('isSupSecondIP')!.bool(),
+                    isSupMultiWorkMode: item.attr('isSupMultiWorkMode')!.bool(),
+                    dhcpSwitch: $item('dhcpSwitch').text().bool(),
                     ip: $item('ip').text(),
                     gateway: $item('gateway').text(),
                     mask: $item('mask').text(),
                     mac: $item('mac').text(),
                     mtu: Number($item('mtu').text()),
-                    ipV6Switch: $item('ipV6Switch').text().toBoolean(),
+                    ipV6Switch: $item('ipV6Switch').text().bool(),
                     ipV6: $item('ipV6').text(),
                     gatewayV6: $item('gatewayV6').text(),
                     subLengthV6: Number($item('subLengthV6').text()),
-                    isOnline: $item('isOnline').text().toBoolean(),
-                    ipv4DnsDhcpSwitch: $item('dhcpSwitch').text().toBoolean() ? $item('ipv4DnsDhcpSwitch').text().toBoolean() : false,
+                    isOnline: $item('isOnline').text().bool(),
+                    ipv4DnsDhcpSwitch: $item('dhcpSwitch').text().bool() ? $item('ipv4DnsDhcpSwitch').text().bool() : false,
                     dns1: $item('dns1').text(),
                     dns2: $item('dns2').text() || '0.0.0.0',
-                    ipv6DnsDhcpSwitch: $item('ipv6DnsDhcpSwitch').text().toBoolean(),
+                    ipv6DnsDhcpSwitch: $item('ipv6DnsDhcpSwitch').text().bool(),
                     ipv6Dns1: $item('ipv6Dns1').text(),
                     ipv6Dns2: $item('ipv6Dns2').text(),
-                    secondIpSwitch: $item('dhcpSwitch').text().toBoolean() ? $item('secondIpSwitch').text().toBoolean() : false,
+                    secondIpSwitch: $item('dhcpSwitch').text().bool() ? $item('secondIpSwitch').text().bool() : false,
                     secondIp: $item('secondIp').text(),
                     secondMask: $item('secondMask').text(),
                 }
@@ -378,7 +378,7 @@ export default defineComponent({
         const getPPPoeSwitch = async () => {
             const result = await queryPPPoECfg()
             const $ = queryXml(result)
-            pageData.value.pppoeSwitch = $('//content/switch').text().toBoolean()
+            pageData.value.pppoeSwitch = $('//content/switch').text().bool()
         }
 
         /**

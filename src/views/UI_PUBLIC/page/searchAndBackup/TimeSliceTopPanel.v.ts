@@ -139,7 +139,7 @@ export default defineComponent({
             const $ = queryXml(result)
             if ($('//status').text() === 'success') {
                 pageData.value.recTimeList = $('//content/item').map((item) => {
-                    const index = Number(item.text())
+                    const index = item.text().num()
                     const utcTime = startTime.add(index, 'day')
                     return utcTime.valueOf()
                 })
@@ -163,8 +163,8 @@ export default defineComponent({
             if ($('//status').text() === 'success') {
                 pageData.value.chlTimeSliceList = $('//content/item')
                     .map((item, index) => {
-                        const startTime = Number(item.attr('start')!) * 1000
-                        const endTime = Number(item.attr('end')!) * 1000
+                        const startTime = item.attr('start').num() * 1000
+                        const endTime = item.attr('end').num() * 1000
                         if (index === 0) {
                             ctx.emit('startTime', startTime)
                         }

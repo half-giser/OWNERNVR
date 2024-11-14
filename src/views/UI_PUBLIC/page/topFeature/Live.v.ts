@@ -265,13 +265,13 @@ const usePos = (mode: Ref<string>) => {
         if ($('//status').text() !== 'success') return
         const $systemX = $('//content/itemType/coordinateSystem/X')
         const $systemY = $('//content/itemType/coordinateSystem/Y')
-        const width = Number($systemX.attr('max')) - Number($systemX.attr('min'))
-        const height = Number($systemY.attr('max')) - Number($systemY.attr('min'))
+        const width = $systemX.attr('max').num() - $systemX.attr('min').num()
+        const height = $systemY.attr('max').num() - $systemY.attr('min').num()
 
         $('//channel/chl').forEach((ele) => {
-            const chlId = ele.attr('id') as string
+            const chlId = ele.attr('id')!
             const $ele = queryXml(ele.element)
-            const previewDisplay = $ele('previewDisplay').text() === 'true'
+            const previewDisplay = $ele('previewDisplay').text().bool()
             const printMode = $ele('printMode').text()
             posInfo[chlId] = {
                 previewDisplay: previewDisplay, // 现场预览是否显示pos
@@ -293,10 +293,10 @@ const usePos = (mode: Ref<string>) => {
             const timeout = $ele('param/displaySetting/common/timeOut').text()
             if ($triggerChls.length === 0) return
             const displayPosition = {
-                x: Number($ele(`${$position}X`).text()),
-                y: Number($ele(`${$position}Y`).text()),
-                width: Number($ele(`${$position}width`).text()),
-                height: Number($ele(`${$position}height`).text()),
+                x: $ele(`${$position}X`).text().num(),
+                y: $ele(`${$position}Y`).text().num(),
+                width: $ele(`${$position}width`).text().num(),
+                height: $ele(`${$position}height`).text().num(),
             }
             $triggerChls.forEach((item) => {
                 const chlId = item.attr('id')!
@@ -534,9 +534,9 @@ export default defineComponent({
         const getDeviceOSDDisplayConfig = async () => {
             const result = await queryDevOsdDisplayCfg()
             const $ = queryXml(result)
-            const nameSwitch = $('//content/nameSwitch').text().toBoolean()
-            const iconSwitch = $('//content/iconSwitch').text().toBoolean()
-            const addressSwitch = $('//content/addressSwitch').text().toBoolean()
+            const nameSwitch = $('//content/nameSwitch').text().bool()
+            const iconSwitch = $('//content/iconSwitch').text().bool()
+            const addressSwitch = $('//content/addressSwitch').text().bool()
             const sendXML = OCX_XML_SetPropertyOSD(nameSwitch, iconSwitch, addressSwitch)
             plugin.GetVideoPlugin().ExecuteCmd(sendXML)
         }
@@ -576,7 +576,7 @@ export default defineComponent({
         const stopInitialPlay = watchEffect(() => {
             if (Object.keys(pageData.value.chlMap).length && ready.value) {
                 nextTick(() => {
-                    if (layoutStore.liveLastChlList.length > 0) {
+                    if (layoutStore.liveLastChlList.length) {
                         const curerntOnlineList = chlRef.value?.getOnlineChlList() || []
                         const onlineList = layoutStore.liveLastChlList.filter((item) => {
                             return curerntOnlineList.includes(item)
@@ -1070,7 +1070,7 @@ export default defineComponent({
                     player.setPollingState(false)
                     player.stopAll()
                 }
-            } else {
+            } else if (mode.value === 'ocx') {
                 if (bool) {
                     const chlIds = (chlRef.value?.getOnlineChlList() || []).slice(0, pageData.value.split)
                     const chlNames = chlIds.map((item) => pageData.value.chlMap[item].value)
@@ -1338,7 +1338,7 @@ export default defineComponent({
                     const content = $('//content/item')
 
                     let mainResolution = ''
-                    if (content.length > 0) {
+                    if (content.length) {
                         const $el = queryXml(content[0].element)
                         if (recType.value) {
                             mainResolution = recType.value === 'auto' ? $el('ae').attr('res')! : $el('an').attr('res')!
@@ -1511,7 +1511,7 @@ export default defineComponent({
             if ($('statenotify[@type="StartViewChl"]').length) {
                 const status = $('statenotify/status').text()
                 const chlId = $('statenotify/chlId').text()
-                const winIndex = Number($('statenotify/winIndex').text())
+                const winIndex = $('statenotify/winIndex').text().num()
                 switch (status) {
                     case 'success':
                         cacheWinMap[winIndex].PLAY_STATUS = 'play'
@@ -1546,7 +1546,7 @@ export default defineComponent({
             // 设置停止预览通道状态
             else if ($('statenotify[@type="StopViewChl"]').length) {
                 const chlId = $('statenotify/chlId').text()
-                const winIndex = Number($('statenotify/winIndex').text())
+                const winIndex = $('statenotify/winIndex').text().num()
 
                 cacheWinMap[winIndex] = { ...cloneWinData }
 
@@ -1562,9 +1562,9 @@ export default defineComponent({
             // 设置预览通道失败
             else if ($('statenotify[@type="SetViewChannelId"]').length) {
                 if ($('statenotify/status').text() !== 'success') {
-                    const errorCode = Number($('statenotify/errorCode').text())
+                    const errorCode = $('statenotify/errorCode').text().num()
                     // 主码流预览失败超过上限，切换回子码流预览
-                    if (errorCode == ErrorCode.USER_ERROR_CHANNEL_NO_OPEN_VIDEO) {
+                    if (errorCode === ErrorCode.USER_ERROR_CHANNEL_NO_OPEN_VIDEO) {
                         changeStreamType(2)
                         pageData.value.notification.push(Translate('IDCS_OPEN_STREAM_FAIL'))
                     }
@@ -1572,14 +1572,14 @@ export default defineComponent({
             }
             // 窗口状态改变通知
             else if ($('statenotify[@type="WindowStatus"]').length) {
-                if (Number($('statenotify/previewingWinNum').text())) {
+                if ($('statenotify/previewingWinNum').text().num()) {
                     pageData.value.allPreview = true
                     // pageData.value.winData.PLAY_STATUS = 'stop'
                 } else {
                     pageData.value.allPreview = false
                 }
 
-                if (Number($('statenotify/recordingWinNum').text())) {
+                if ($('statenotify/recordingWinNum').text().num()) {
                     pageData.value.winData.localRecording = true
                     pageData.value.allClientRecord = true
                 } else {
@@ -1590,7 +1590,7 @@ export default defineComponent({
             // 如果是选中窗体改变通知，重新绑定预置点和巡航线
             else if ($('statenotify[@type="CurrentSelectedWindow"]').length) {
                 const $item = queryXml($('statenotify')[0].element)
-                const winIndex = Number($item('winIndex').text().trim())
+                const winIndex = $item('winIndex').text().trim().num()
                 cacheWinMap[winIndex] = { ...cloneWinData }
 
                 let chlID = $item('chlId').text().trim()
@@ -1603,27 +1603,27 @@ export default defineComponent({
                 }
 
                 cacheWinMap[winIndex].chlID = chlID
-                cacheWinMap[winIndex].winIndex = Number($item('winIndex').text().trim())
+                cacheWinMap[winIndex].winIndex = $item('winIndex').text().trim().num()
 
-                cacheWinMap[winIndex].isPolling = $item('isGroupPlay').text().toBoolean()
-                cacheWinMap[winIndex].isDwellPlay = $item('isDwellPlay').text().toBoolean()
+                cacheWinMap[winIndex].isPolling = $item('isGroupPlay').text().bool()
+                cacheWinMap[winIndex].isDwellPlay = $item('isDwellPlay').text().bool()
                 let groupID = $item('groupId').text()
                 if (groupID === DEFAULT_EMPTY_ID) {
                     groupID = ''
                 }
                 cacheWinMap[winIndex].groupID = groupID
 
-                cacheWinMap[winIndex].localRecording = $item('recing').text().toBoolean()
-                cacheWinMap[winIndex].audio = $item('volumOn').text().toBoolean()
-                cacheWinMap[winIndex].talk = $item('ipcTalking').text().toBoolean()
-                cacheWinMap[winIndex].original = $item('isOriginalDisplayOn').text().toBoolean()
-                cacheWinMap[winIndex].magnify3D = $item('is3DMagnifyOn').text().toBoolean()
-                cacheWinMap[winIndex].supportAudio = $item('isSupportAudio').text().toBoolean()
+                cacheWinMap[winIndex].localRecording = $item('recing').text().bool()
+                cacheWinMap[winIndex].audio = $item('volumOn').text().bool()
+                cacheWinMap[winIndex].talk = $item('ipcTalking').text().bool()
+                cacheWinMap[winIndex].original = $item('isOriginalDisplayOn').text().bool()
+                cacheWinMap[winIndex].magnify3D = $item('is3DMagnifyOn').text().bool()
+                cacheWinMap[winIndex].supportAudio = $item('isSupportAudio').text().bool()
 
                 const streamTypeNode = $item('streamType')
-                cacheWinMap[winIndex].streamType = !streamTypeNode.length ? 2 : Number(streamTypeNode.text())
+                cacheWinMap[winIndex].streamType = !streamTypeNode.length ? 2 : streamTypeNode.text().num()
 
-                if ($item('isFocusView').text().toBoolean()) {
+                if ($item('isFocusView').text().bool()) {
                     clearTimeout(notifyTimer)
                     notifyTimer = setTimeout(() => {
                         pageData.value.winData = { ...cacheWinMap[winIndex] }
@@ -1632,7 +1632,7 @@ export default defineComponent({
             }
             // 通知分割屏数目
             else if ($('statenotify[@type="CurrentFrameNum"]').length || $('statenotify[@type="CurrentScreenMode"]').length) {
-                pageData.value.split = Number($('statenotify').text().trim())
+                pageData.value.split = $('statenotify').text().trim().num()
             }
             // 通知抓图结果
             else if ($('statenotify[@type="TakePhoto"]').length) {
@@ -1651,7 +1651,7 @@ export default defineComponent({
             }
             // 通知手动录像结果
             else if ($('statenotify[@type="RecComplete"]').length) {
-                if ($('statenotify/status').text() == 'success') {
+                if ($('statenotify/status').text() === 'success') {
                     if (import.meta.env.VITE_UI_TYPE !== 'UI1-E') {
                         if (!localStorage.getItem(LocalCacheKey.KEY_LOCAL_AVI_NOT_ENCRYPTED)) {
                             pageData.value.notification.push(Translate('IDCS_AVI_UNENCRYPTED_TIP'))
@@ -1673,8 +1673,8 @@ export default defineComponent({
             }
             // 对讲
             else if ($('statenotify[@type="TalkSwitch"]').length) {
-                if ($('statenotify/status').text() == 'success') {
-                    if ($('statenotify/chlId').text() == pageData.value.winData.chlID) {
+                if ($('statenotify/status').text() === 'success') {
+                    if ($('statenotify/chlId').text() === pageData.value.winData.chlID) {
                         pageData.value.winData.talk = true
                     } else {
                         pageData.value.allTalk = true
@@ -1682,7 +1682,7 @@ export default defineComponent({
                     // 打开对讲时，关闭音频
                     setAudio(false)
                 } else {
-                    const errorCode = Number($('statenotify/errorCode').text())
+                    const errorCode = $('statenotify/errorCode').text().num()
                     const errorCodes: Record<number, string> = {
                         [ErrorCode.USER_ERROR_DEVICE_BUSY]: Translate('IDCS_AUDIO_BUSY'),
                         [ErrorCode.USER_ERROR_CHANNEL_AUDIO_OPEN_FAIL]: Translate('IDCS_DEVICE_BUSY'),

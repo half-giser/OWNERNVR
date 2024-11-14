@@ -114,8 +114,8 @@ const updateValue = (value: number, index: number) => {
  * @returns {boolean}
  */
 const isTextSelected = (input: HTMLInputElement) => {
-    if (typeof input.selectionStart == 'number') {
-        return input.selectionStart === 0 && input.selectionEnd == input.value.length
+    if (typeof input.selectionStart === 'number') {
+        return input.selectionStart === 0 && input.selectionEnd === input.value.length
     } else return false
     // else if (typeof document.selection != 'undefined') {
     //     input.focus()

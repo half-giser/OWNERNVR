@@ -68,7 +68,7 @@ export default defineComponent({
                 }
 
                 pageData.value.txtMSRecDuration = $('//content/mainStreamRecDuration').text()
-                pageData.value.chkLoopRec = $('//content/loopRecSwitch').text().toLowerCase() === 'true'
+                pageData.value.chkLoopRec = $('//content/loopRecSwitch').text().bool()
 
                 pageData.value.expirationList = $('//content/expirationNote')
                     .text()
@@ -76,7 +76,7 @@ export default defineComponent({
                     .map((item) => {
                         return {
                             value: item,
-                            label: item == '0' ? Translate('IDCS_EXPIRE_OFF') : item == '1' ? '1 ' + Translate('IDCS_DAY_ALL') : item + ' ' + Translate('IDCS_DAYS'),
+                            label: item === '0' ? Translate('IDCS_EXPIRE_OFF') : item === '1' ? '1 ' + Translate('IDCS_DAY_ALL') : item + ' ' + Translate('IDCS_DAYS'),
                         }
                     })
                 pageData.value.expirationList.push({ value: 'customization', label: Translate('IDCS_REPLAY_CUSTOMIZE') })
@@ -117,7 +117,7 @@ export default defineComponent({
                     .map((item) => {
                         return {
                             value: item,
-                            label: item == '0' ? Translate('IDCS_NO_BEFOREHAND_RECORD') : getTranslateForSecond(Number(item)),
+                            label: item === '0' ? Translate('IDCS_NO_BEFOREHAND_RECORD') : getTranslateForSecond(Number(item)),
                         }
                     })
 
@@ -127,7 +127,7 @@ export default defineComponent({
                     .map((item) => {
                         return {
                             value: item,
-                            label: item == '0' ? Translate('IDCS_NO_DELAY') : getTranslateForSecond(Number(item)),
+                            label: item === '0' ? Translate('IDCS_NO_DELAY') : getTranslateForSecond(Number(item)),
                         }
                     })
             })
@@ -141,7 +141,7 @@ export default defineComponent({
             const $dev = await getDevRecParamData()
             const $chl = await getChlRecParamData()
 
-            if ($dev('//status').text() == 'success' && $chl('//status').text() == 'success') {
+            if ($dev('//status').text() === 'success' && $chl('//status').text() === 'success') {
                 const expiration = $dev('//content/expiration').text()
                 const expirationUnit = $dev('//content/expiration').attr('unit')
 
@@ -162,7 +162,7 @@ export default defineComponent({
                         ANRSwitch: supportANR ? $item('ANRSwitch').text() : 'false',
                         expiration: expiration ? expiration : '0',
                         expirationUnit: expirationUnit ? expirationUnit : 'd',
-                        manufacturerEnable: pageData.value.IPCMap[id as string] == 'true',
+                        manufacturerEnable: pageData.value.IPCMap[id as string] === 'true',
                     }
                 })
                 $dev('//content/chlParam/item').forEach((item) => {
@@ -171,7 +171,7 @@ export default defineComponent({
                     const singleExpirationUnit = $item('expiration').attr('unit') ? $item('expiration').attr('unit') : 'd'
 
                     tableData.value.forEach((element) => {
-                        if (element.id == item.attr('id')) {
+                        if (element.id === item.attr('id')) {
                             element.week = $item('week').text()
                             element.holiday = $item('holiday').text()
                             element.singleExpirationUnit = singleExpirationUnit
@@ -186,8 +186,8 @@ export default defineComponent({
                         item.holiday = ''
                         item.singleExpirationUnit = expirationUnit
                     } else {
-                        if (item.singleExpirationUnit == 'h') {
-                            item.expirationDisplay = item.expiration == '1' ? '1 ' + Translate('IDCS_HOUR') : item.expiration + ' ' + Translate('IDCS_HOURS')
+                        if (item.singleExpirationUnit === 'h') {
+                            item.expirationDisplay = item.expiration === '1' ? '1 ' + Translate('IDCS_HOUR') : item.expiration + ' ' + Translate('IDCS_HOURS')
                         } else {
                             item.expirationDisplay = item.expiration
                         }
@@ -270,7 +270,7 @@ export default defineComponent({
             const devChangeList = [] as ChlRecParamList[]
             tableData.value.forEach((item, index) => {
                 const element = originalData.value.chlRecData[index]
-                if (item.per != element.per || item.post != element.post || item.ANRSwitch != element.ANRSwitch) {
+                if (item.per !== element.per || item.post !== element.post || item.ANRSwitch !== element.ANRSwitch) {
                     chlChangeList.push(item)
                     element.per = item.per
                     element.post = item.post
@@ -278,11 +278,11 @@ export default defineComponent({
                 }
 
                 if (
-                    item.expiration != element.expiration ||
-                    item.expirationUnit != element.expirationUnit ||
-                    item.week != element.week ||
-                    item.holiday != element.holiday ||
-                    item.singleExpirationUnit != element.singleExpirationUnit
+                    item.expiration !== element.expiration ||
+                    item.expirationUnit !== element.expirationUnit ||
+                    item.week !== element.week ||
+                    item.holiday !== element.holiday ||
+                    item.singleExpirationUnit !== element.singleExpirationUnit
                 ) {
                     devChangeList.push(item)
                     element.expiration = item.expiration
@@ -297,11 +297,11 @@ export default defineComponent({
 
             let devResult
             let chlResult
-            if (devChangeList.length > 0 || doubleStreamSwitchChange || loopRecSwitchChange) {
+            if (devChangeList.length || doubleStreamSwitchChange || loopRecSwitchChange) {
                 devResult = await setDevRecData()
             }
 
-            if (chlChangeList.length > 0) {
+            if (chlChangeList.length) {
                 chlResult = await setChlRecData(chlChangeList)
             }
 
@@ -323,7 +323,7 @@ export default defineComponent({
         const setData = async () => {
             openLoading()
 
-            if (originalData.value.streamRecSwitch.doubleStreamSwitch != pageData.value.doubleStreamRecSwitch) {
+            if (originalData.value.streamRecSwitch.doubleStreamSwitch !== pageData.value.doubleStreamRecSwitch) {
                 openMessageBox({
                     type: 'question',
                     message: Translate('IDCS_RECORD_MODE_CHANGE_AFTER_REBOOT'),
@@ -358,18 +358,18 @@ export default defineComponent({
 
         const changeExpirationList = (rowData: ChlRecParamList) => {
             const value = rowData.expirationDisplay!
-            if (value == 'customization') {
+            if (value === 'customization') {
                 rowData.expirationDisplay = oldExpirationArr[rowData.index]
                 pageData.value.expirationType = 'single'
                 pageData.value.expirationData = rowData
                 pageData.value.isSetCustomization = true
             } else {
-                if (value == '0') {
+                if (value === '0') {
                     rowData.expiration = value
                     rowData.singleExpirationUnit = 'd'
                     oldExpirationArr[rowData.index] = rowData.expiration
                 } else {
-                    const unit = value == '1' ? Translate('IDCS_BY_DAY') : Translate('IDCS_DAYS')
+                    const unit = value === '1' ? Translate('IDCS_BY_DAY') : Translate('IDCS_DAYS')
                     const tips = value + ' ' + unit
                     openMessageBox({
                         type: 'question',
@@ -381,7 +381,7 @@ export default defineComponent({
                             oldExpirationArr[rowData.index] = rowData.expiration
                         })
                         .catch(() => {
-                            if (rowData.singleExpirationUnit == 'h') {
+                            if (rowData.singleExpirationUnit === 'h') {
                                 rowData.expirationDisplay = oldExpirationArr[rowData.index]
                             } else {
                                 rowData.expiration = oldExpirationArr[rowData.index]
@@ -393,10 +393,10 @@ export default defineComponent({
         }
 
         const changeAllExpirationList = (value: string) => {
-            if (value == 'customization') {
+            if (value === 'customization') {
                 pageData.value.expirationType = 'all'
                 pageData.value.isSetCustomization = true
-            } else if (value == '0') {
+            } else if (value === '0') {
                 tableData.value.forEach((item) => {
                     item.expiration = value
                     item.expirationDisplay = value
@@ -404,7 +404,7 @@ export default defineComponent({
                     oldExpirationArr[item.index] = item.expiration
                 })
             } else {
-                const unit = value == '1' ? Translate('IDCS_BY_DAY') : Translate('IDCS_DAYS')
+                const unit = value === '1' ? Translate('IDCS_BY_DAY') : Translate('IDCS_DAYS')
                 const tips = value + ' ' + unit
                 openMessageBox({
                     type: 'question',
@@ -420,7 +420,7 @@ export default defineComponent({
                     })
                     .catch(() => {
                         tableData.value.forEach((item) => {
-                            if (item.singleExpirationUnit == 'h') {
+                            if (item.singleExpirationUnit === 'h') {
                                 item.expirationDisplay = oldExpirationArr[item.index]
                             } else {
                                 item.expiration = oldExpirationArr[item.index]
@@ -432,13 +432,13 @@ export default defineComponent({
         }
 
         const handleGetExpirationData = (week: string, holiday: string, expiration: number, expirationData?: ChlRecParamList) => {
-            if (pageData.value.expirationType == 'all') {
+            if (pageData.value.expirationType === 'all') {
                 tableData.value.forEach((item) => {
                     item.week = week
                     item.holiday = holiday
                     item.singleExpirationUnit = 'h'
                     item.expiration = String(expiration)
-                    item.expirationDisplay = expiration == 1 ? '1 ' + Translate('IDCS_HOUR') : expiration + ' ' + Translate('IDCS_HOURS')
+                    item.expirationDisplay = expiration === 1 ? '1 ' + Translate('IDCS_HOUR') : expiration + ' ' + Translate('IDCS_HOURS')
 
                     oldExpirationArr[item.index] = item.expirationDisplay
                 })
@@ -447,7 +447,7 @@ export default defineComponent({
                 expirationData!.holiday = holiday
                 expirationData!.singleExpirationUnit = 'h'
                 expirationData!.expiration = String(expiration)
-                expirationData!.expirationDisplay = expiration == 1 ? '1 ' + Translate('IDCS_HOUR') : expiration + ' ' + Translate('IDCS_HOURS')
+                expirationData!.expirationDisplay = expiration === 1 ? '1 ' + Translate('IDCS_HOUR') : expiration + ' ' + Translate('IDCS_HOURS')
 
                 oldExpirationArr[expirationData!.index] = expirationData!.expirationDisplay
             }

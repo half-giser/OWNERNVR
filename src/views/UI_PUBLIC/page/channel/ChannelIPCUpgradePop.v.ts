@@ -57,12 +57,12 @@ export default defineComponent({
             file = undefined
             fileName.value = ''
             btnOKDisabled.value = true
-            if (type.value == 'multiple') {
+            if (type.value === 'multiple') {
                 const tmpList: string[] = []
                 chlData.forEach((ele) => {
-                    if (ele.protocolType == 'TVT_IPCAMERA' && ele.productModel && ele.productModel.innerText) {
+                    if (ele.protocolType === 'TVT_IPCAMERA' && ele.productModel && ele.productModel.innerText) {
                         const value = ele.productModel.innerText
-                        if (tmpList.indexOf(value) == -1) tmpList.push(value)
+                        if (tmpList.indexOf(value) === -1) tmpList.push(value)
                     }
                 })
                 productModelOptionList.value = tmpList
@@ -100,13 +100,13 @@ export default defineComponent({
 
         // 更新IPC升级状态
         const changeStatus = (rowData: ChannelInfoDto, status: string, progress: string) => {
-            if (status == 'progress') {
+            if (status === 'progress') {
                 rowData.upgradeStatus = status
                 rowData.upgradeProgressText = progress + '%'
-            } else if (status == 'error' || status == 'success') {
+            } else if (status === 'error' || status === 'success') {
                 rowData.upgradeStatus = status
                 handleIndex++
-                if (handleIndex == uploadData.length) destory()
+                if (handleIndex === uploadData.length) destory()
             }
         }
 
@@ -137,7 +137,7 @@ export default defineComponent({
                     taskGUIDMap[taskGUID].forEach((ele) => {
                         changeStatus(ele, 'progress', progress)
                     })
-                    if (progress == '100') {
+                    if (progress === '100') {
                         openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_UPGRADE_IPC_NOTE'),
@@ -154,7 +154,7 @@ export default defineComponent({
             else if ($("statenotify[@type='FileNetTransport']").length) {
                 if ($('statenotify/errorCode').length) {
                     const taskGUID = $('statenotify/taskGUID').text().toLowerCase()
-                    const errorCode = Number($('statenotify/errorCode').text())
+                    const errorCode = $('statenotify/errorCode').text().num()
                     if (taskGUIDMap[taskGUID]) handleError(errorCode)
                 }
             }
@@ -213,11 +213,11 @@ export default defineComponent({
         const save = () => {
             uploadData = tempData
             const ids: string[] = []
-            if (type.value == 'multiple') {
+            if (type.value === 'multiple') {
                 uploadData = []
                 chlData.forEach((ele) => {
                     if (ele.productModel && ele.productModel.innerText) {
-                        if (selectedProductModel.value == ele.productModel.innerText) uploadData.push(ele)
+                        if (selectedProductModel.value === ele.productModel.innerText) uploadData.push(ele)
                     }
                 })
             }

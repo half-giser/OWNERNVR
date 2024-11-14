@@ -147,7 +147,7 @@ export default defineComponent({
 
             const result = await queryEmailCfg()
             commLoadResponseHandler(result, ($) => {
-                formData.value.anonymousSwitch = $('//content/sender/anonymousSwitch').text().toBoolean()
+                formData.value.anonymousSwitch = $('//content/sender/anonymousSwitch').text().bool()
                 formData.value.name = $('//content/sender/name').text()
                 formData.value.address = $('//content/sender/address').text()
                 formData.value.userName = $('//content/sender/userName').text()
@@ -155,7 +155,7 @@ export default defineComponent({
                 formData.value.port = Number($('//content/sender/smtp/port').text())
                 formData.value.attachImg = Number($('//content/sender/attachImg').text())
                 formData.value.imageNumber = Number($('//content/sender/imageNumber').text())
-                formData.value.ssl = $('//content/sender/smtp/ssl').text().toBoolean() ? 'SSL' : 'NO'
+                formData.value.ssl = $('//content/sender/smtp/ssl').text().bool() ? 'SSL' : 'NO'
             })
 
             closeLoading()

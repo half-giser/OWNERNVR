@@ -151,7 +151,7 @@ export default defineComponent({
 
         const handleSettingChannel = (rowData: ChannelInfoDto) => {
             const linkWinMode = browserInfo.type === 'ie' ? '_self' : '_blank'
-            if (rowData.poePort && rowData.poePort != '') {
+            if (rowData.poePort && rowData.poePort !== '') {
                 const ip = checkIpV6(userSession.serverIp) ? `[${userSession.serverIp}]` : userSession.serverIp
                 browserInfo.type === 'ie' && (pluginStore.showPluginNoResponse = false)
                 window.open(`http://${ip}:${rowData.poePort}`, linkWinMode, '')
@@ -249,7 +249,7 @@ export default defineComponent({
                             channelInfo.name = eleXml('name').text()
                             channelInfo.devID = eleXml('devID').text()
                             channelInfo.ip = eleXml('ip').text()
-                            channelInfo.port = Number(eleXml('port').text())
+                            channelInfo.port = eleXml('port').text().num()
                             channelInfo.poePort = eleXml('poePort').text()
                             channelInfo.userName = eleXml('userName').text()
                             channelInfo.password = eleXml('password').text()
@@ -308,8 +308,8 @@ export default defineComponent({
             queryOnlineChlList().then((res) => {
                 const $ = queryXml(res)
                 if ($('status').text() === 'success') {
-                    if (tableData.value.length === 0) return
-                    tableData.value.forEach((ele: ChannelInfoDto) => {
+                    if (!tableData.value.length) return
+                    tableData.value.forEach((ele) => {
                         //模拟通道，状态置为空
                         if (!ele.ip) return
                         let isOnline = false
@@ -329,7 +329,7 @@ export default defineComponent({
                             ele.upgradeDisabled = true
                         }
 
-                        if (ele.accessType == '1') {
+                        if (ele.accessType === '1') {
                             ele.upgradeDisabled = true
                             ele.showUpgradeBtn = true
                         }
@@ -347,9 +347,9 @@ export default defineComponent({
                 const $ = queryXml(res)
                 if ($('status').text() === 'success') {
                     let channelSignalTypeList: string[] = []
-                    if ($('//content/channelSignalType').length > 0) channelSignalTypeList = $('//content/channelSignalType').text().split(':')
+                    if ($('//content/channelSignalType').length) channelSignalTypeList = $('//content/channelSignalType').text().split(':')
                     ipChlMaxCountOriginal = 0
-                    channelSignalTypeList.forEach((ele: string) => {
+                    channelSignalTypeList.forEach((ele) => {
                         if (ele === 'D') ipChlMaxCountOriginal++
                     })
                 }
@@ -368,11 +368,13 @@ export default defineComponent({
                     closeLoading()
                     const $ = queryXml(res2)
                     if ($('status').text() === 'success') {
-                        const totalBandwidth = Number($('//content/totalBandwidth').text())
-                        const usedBandwidth = Number($('//content/' + (mode === 'auto' ? 'usedAutoBandwidth' : 'usedManualBandwidth')).text())
+                        const totalBandwidth = $('//content/totalBandwidth').text().num()
+                        const usedBandwidth = $('//content/' + (mode === 'auto' ? 'usedAutoBandwidth' : 'usedManualBandwidth'))
+                            .text()
+                            .num()
                         let remainBandwidth = (totalBandwidth * 1024 - usedBandwidth) / 1024
-                        const switchableIpChlMaxCount = Number($('//content/switchableIpChlMaxCount').text())
-                        ipChlMaxCount = ipChlMaxCountOriginal + Number($('//content/ipChlMaxCount').text())
+                        const switchableIpChlMaxCount = $('//content/switchableIpChlMaxCount').text().num()
+                        ipChlMaxCount = ipChlMaxCountOriginal + $('//content/ipChlMaxCount').text().num()
                         if (remainBandwidth < 0) remainBandwidth = 0
                         txtBrandwidth.value = Translate('IDCS_CURRENT_BANDWIDTH_ALL_D_D').formatForLang(remainBandwidth.toFixed(0), totalBandwidth.toFixed(0))
 
@@ -413,8 +415,8 @@ export default defineComponent({
             const pattern = defaultName + 'd*'
             for (const key in nameMapping) {
                 const result = nameMapping[key].match(pattern)
-                if (result && result.length > 0) {
-                    const num = parseInt(nameMapping[key].split(defaultName)[1])
+                if (result && result.length) {
+                    const num = Number(nameMapping[key].split(defaultName)[1])
                     value = num > value ? num : value
                 }
             }
@@ -424,7 +426,7 @@ export default defineComponent({
         const formatDisplayName = (rowData: ChannelInfoDto) => {
             let value = rowData.name
             if (rowData.chlType === 'recorder') {
-                const chlNum = Number(rowData.index) * 1 + 1
+                const chlNum = Number(rowData.index) + 1
                 const chlNumStr = chlNum < 10 ? '0' + chlNum : chlNum
                 value = '[R' + chlNumStr + ']' + value
             }
@@ -434,10 +436,10 @@ export default defineComponent({
         const formatDisplayManufacturer = (rowData: ChannelInfoDto) => {
             const value = rowData.manufacturer
             const filters = filterProperty(protocolList.value, 'index')
-            return rowData.productModel.factoryName && rowData.productModel.factoryName.toLowerCase() != ''
+            return rowData.productModel.factoryName && rowData.productModel.factoryName.toLowerCase() !== ''
                 ? rowData.productModel.factoryName
                 : value
-                  ? value.indexOf('RTSP') != -1
+                  ? value.indexOf('RTSP') !== -1
                       ? protocolList.value[filters.indexOf(value.slice(5))].displayName
                       : manufacturerMap[value]
                   : ''

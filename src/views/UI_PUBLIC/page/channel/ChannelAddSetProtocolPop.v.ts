@@ -36,7 +36,7 @@ export default defineComponent({
             if (formData.value.enabled) {
                 if (!(await verification())) return
             }
-            formData.value = protocolManageList.value.find((ele: ChannelProtocolManageDto) => ele.id == val) as ChannelProtocolManageDto
+            formData.value = protocolManageList.value.find((ele: ChannelProtocolManageDto) => ele.id === val) as ChannelProtocolManageDto
             tempProtocolLogo = val
         }
 
@@ -45,13 +45,13 @@ export default defineComponent({
             queryRtspProtocolList().then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     protocolManageList.value = []
                     $('//content/item').forEach((ele) => {
                         let eleXml = queryXml(ele.element)
                         const newData = new ChannelProtocolManageDto()
                         newData.id = ele.attr('id')!
-                        newData.enabled = eleXml('enabled').text() == 'true'
+                        newData.enabled = eleXml('enabled').text().bool()
                         newData.displayName = eleXml('displayName').text()
                         eleXml('resourcesPath/item').forEach((ele) => {
                             eleXml = queryXml(ele.element)
@@ -59,7 +59,7 @@ export default defineComponent({
                             resourcesPath.streamType = eleXml('streamType').text()
                             resourcesPath.protocol = eleXml('protocol').text()
                             resourcesPath.transportProtocol = eleXml('transportProtocol').text()
-                            resourcesPath.port = Number(eleXml('port').text())
+                            resourcesPath.port = eleXml('port').text().num()
                             resourcesPath.path = eleXml('path').text()
                             newData.resourcesPath.push(resourcesPath)
                         })
@@ -110,7 +110,7 @@ export default defineComponent({
         const verification = async () => {
             displayNameList = []
             protocolManageList.value.forEach((ele: ChannelProtocolManageDto) => {
-                if (ele.enabled && ele.id != tempProtocolLogo) displayNameList.push(ele.displayName)
+                if (ele.enabled && ele.id !== tempProtocolLogo) displayNameList.push(ele.displayName)
             })
             if (!formRef) return false
             const valid = await formRef.value!.validate()
@@ -164,10 +164,10 @@ export default defineComponent({
             editRtspProtocolList(getSaveData()).then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     emit('close', true)
                 } else {
-                    const errorCdoe = Number($('errorCode').text())
+                    const errorCdoe = $('errorCode').text().num()
                     let msg = ''
                     if (errorCdoe === ErrorCode.USER_ERROR_NO_AUTH) {
                         msg = Translate('IDCS_NO_AUTH')

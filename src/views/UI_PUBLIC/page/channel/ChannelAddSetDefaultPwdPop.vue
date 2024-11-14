@@ -40,7 +40,6 @@
                                 :validate-event="false"
                                 :formatter="formatInputMaxLength"
                                 :parser="formatInputMaxLength"
-                                :maxlength="nameByteMaxLen"
                                 @keydown.enter="handleKeydownEnter($event)"
                             />
                         </el-form-item>

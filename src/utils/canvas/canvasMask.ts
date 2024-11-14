@@ -169,7 +169,7 @@ export default class CanvasMask {
 
     // 判断新绘制的矩形是否包含于已画矩形内
     isInnerRect(startX: number, startY: number, width: number, height: number) {
-        if (this.maskList.length === 0) {
+        if (!this.maskList.length) {
             return false
         }
         let isInner = false

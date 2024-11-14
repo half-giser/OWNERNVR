@@ -195,7 +195,7 @@ export default defineComponent({
             tableRef.value!.setCurrentRow(rowData)
             if (!rowData.disabled && !rowData.isSupportThermal) {
                 getSupportAz(chlId)
-                if (expandedRowKeys.value.length != 0) expandedRowKeys.value = [chlId]
+                if (expandedRowKeys.value.length) expandedRowKeys.value = [chlId]
             }
         }
 
@@ -330,7 +330,7 @@ export default defineComponent({
                     expandedRowKeys.value = [row.id]
                 }
             } else {
-                expandedRowKeys.value = expandedRows.map((item) => item.id).filter((item) => item != row.id)
+                expandedRowKeys.value = expandedRows.map((item) => item.id).filter((item) => item !== row.id)
             }
         }
 
@@ -338,7 +338,7 @@ export default defineComponent({
             const rowData = getRowById(chlId)
             rowData[type] = val
             setData(rowData)
-            if (chlId == selectedChlId.value) {
+            if (chlId === selectedChlId.value) {
                 formData.value = cloneDeep(rowData)
             }
         }
@@ -362,20 +362,20 @@ export default defineComponent({
 
         const handleImageValueChange = (val: number) => {
             const rowData = getRowById(selectedChlId.value)
-            if (rowData.chlType !== 'analog' || rowData.imageMaxValue == undefined) return
+            if (rowData.chlType !== 'analog' || rowData.imageMaxValue === undefined) return
             rowData.imageValue! += val
             setAZData()
         }
 
         const handleExposureModeChange = () => {
             const rowData = getRowById(selectedChlId.value)
-            if (rowData.gainMode !== undefined) rowData.gainMode = rowData.exposureMode == 'manual' ? '1' : '0'
+            if (rowData.gainMode !== undefined) rowData.gainMode = rowData.exposureMode === 'manual' ? '1' : '0'
             setAZData()
         }
 
         const handleShutterUpLimitChange = () => {
             const rowData = getRowById(selectedChlId.value)
-            if (rowData.shutterLowLimit != undefined && Number(rowData.shutterUpLimit) > Number(rowData.shutterLowLimit)) {
+            if (rowData.shutterLowLimit !== undefined && Number(rowData.shutterUpLimit) > Number(rowData.shutterLowLimit)) {
                 rowData.shutterUpLimit = tmpShutterUpLimit
                 openMessageBox({
                     type: 'info',
@@ -389,7 +389,7 @@ export default defineComponent({
 
         const handleShutterLowLimitChange = () => {
             const rowData = getRowById(selectedChlId.value)
-            if (rowData.shutterUpLimit != undefined && Number(rowData.shutterUpLimit) > Number(rowData.shutterLowLimit)) {
+            if (rowData.shutterUpLimit !== undefined && Number(rowData.shutterUpLimit) > Number(rowData.shutterLowLimit)) {
                 rowData.shutterLowLimit = tmpShutterLowLimit
                 openMessageBox({
                     type: 'info',
@@ -436,15 +436,15 @@ export default defineComponent({
                 data += rawXml`
                     <WDR>
                         <switch>${rowData.WDRSwitch}</switch>
-                        <value>${Number(rowData.WDRValue)}</value>
+                        <value>${rowData.WDRValue || 0}</value>
                     </WDR>`
             if (rowData.imageValue !== undefined) data += `<imageShift>${rowData.imageValue}</imageShift>`
             if (rowData.whiteBalanceMode !== undefined)
                 data += rawXml`
                     <whiteBalance>
                         <mode>${rowData.whiteBalanceMode}</mode>
-                        <red>${Number(rowData.redValue)}</red>
-                        <blue>${Number(rowData.blueValue)}</blue>
+                        <red>${rowData.redValue || 0}</red>
+                        <blue>${rowData.blueValue || 0}</blue>
                     </whiteBalance>`
             if (rowData.mirrorSwitch !== undefined) data += `<mirrorSwitch>${rowData.mirrorSwitch}</mirrorSwitch>`
             if (rowData.flipSwitch !== undefined) data += `<flipSwitch>${rowData.flipSwitch}</flipSwitch>`
@@ -467,7 +467,7 @@ export default defineComponent({
                 data += rawXml`
                     <smartIr>
                         <mode>${rowData.smartIrMode}</mode>
-                        <lightLevel_1>${Number(rowData.lightLevelValue)}</lightLevel_1>
+                        <lightLevel_1>${rowData.lightLevelValue || 0}</lightLevel_1>
                     </smartIr>`
             if (rowData.smartIrSwitch !== undefined)
                 data += rawXml`
@@ -479,19 +479,19 @@ export default defineComponent({
                 data += rawXml`
                     <fogReduction>
                         <switch>${rowData.defogSwitch}</switch>
-                        <value>${Number(rowData.defogValue)}</value>
+                        <value>${rowData.defogValue || 0}</value>
                     </fogReduction>`
             if (rowData.antiflicker !== undefined) data += `<antiflicker>${rowData.antiflicker}</antiflicker>`
             if (rowData.exposureMode !== undefined)
                 data += rawXml`
                     <autoExposureMode>
                         <mode>${rowData.exposureMode}</mode>
-                        <value>${Number(rowData.exposureModeValue)}</value>
+                        <value>${rowData.exposureModeValue || 0}</value>
                     </autoExposureMode>
                     <gain>
                         <mode>${rowData.gainMode || ''}</mode>
-                        <value>${Number(rowData.gainValue)}</value>
-                        <AGC>${Number(rowData.gainAGC)}</AGC>
+                        <value>${rowData.gainValue || 0}</value>
+                        <AGC>${rowData.gainAGC || 0}</AGC>
                     </gain>`
             if (rowData.delayTimeValue !== undefined) data += `<IRCutDelayTime>${rowData.delayTimeValue}</IRCutDelayTime>`
             if (rowData.InfraredMode !== undefined) data += `<InfraredMode>${rowData.InfraredMode}</InfraredMode>`
@@ -507,14 +507,14 @@ export default defineComponent({
                 data += rawXml`
                     <Whitelight>
                         <WhitelightMode type='WhitelightMode' default='off'>${rowData.whitelightMode}</WhitelightMode>
-                        <WhitelightStrength type="uint32" min="1" max="100" default="50">${Number(rowData.whitelightStrength)}</WhitelightStrength>
+                        <WhitelightStrength type="uint32" min="1" max="100" default="50">${rowData.whitelightStrength || 0}</WhitelightStrength>
                         <WhitelightOnTime type="string" default="00:00">${rowData.whitelightOnTime || ''}</WhitelightOnTime>
                         <WhitelightOffTime type="string" default="23:59">${rowData.whitelightOffTime || ''}</WhitelightOffTime>
                     </Whitelight>`
             if (setSchedule)
                 data += rawXml`
                     <scheduleInfo>
-                        <program>${rowData.scheduleInfo.scheduleType == 'time' ? 'time' : rowData.scheduleInfo.program}</program>
+                        <program>${rowData.scheduleInfo.scheduleType === 'time' ? 'time' : rowData.scheduleInfo.program}</program>
                         <dayTime>${rowData.scheduleInfo.dayTime}</dayTime>
                         <nightTime>${rowData.scheduleInfo.nightTime}</nightTime>
                     </scheduleInfo>`
@@ -530,9 +530,9 @@ export default defineComponent({
                             setAZData(setSchedule, true)
                         })
                     } else {
-                        const errorCode = Number($('errorCode').text())
+                        const errorCode = $('errorCode').text().num()
                         let msg = Translate('IDCS_SAVE_DATA_FAIL')
-                        if (errorCode == ErrorCode.USER_ERROR_NODE_NET_OFFLINE || errorCode == ErrorCode.USER_ERROR_GET_CONFIG_INFO_FAIL)
+                        if (errorCode === ErrorCode.USER_ERROR_NODE_NET_OFFLINE || errorCode === ErrorCode.USER_ERROR_GET_CONFIG_INFO_FAIL)
                             msg = Translate('IDCS_IP_CHANNEL_OFFLINE').formatForLang(rowData.name)
                         showFloatError('#divTip', msg)
                     }
@@ -542,7 +542,7 @@ export default defineComponent({
 
         const getTimeCfg = () => {
             queryTimeCfg().then((res) => {
-                timeMode.value = Number(queryXml(res)('content/formatInfo/time').text())
+                timeMode.value = queryXml(res)('content/formatInfo/time').text().num()
             })
         }
 
@@ -556,7 +556,7 @@ export default defineComponent({
             }).then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     getHallwayChlIds((chlIds: string[]) => {
                         const rowData: ChannelImageDto[] = []
                         $('content/item').forEach((ele) => {
@@ -569,17 +569,17 @@ export default defineComponent({
                             newData.chlType = eleXml('chlType').text()
                             newData.status = 'loading'
                             newData.isSupportHallway = isSupportHallway
-                            newData.isSupportIRCutMode = eleXml('supportIRCutMode').text().toBoolean()
+                            newData.isSupportIRCutMode = eleXml('supportIRCutMode').text().bool()
                             newData.isSupportThermal = eleXml('AccessType').text() === '1'
                             rowData.push(newData)
                         })
                         tableData.value = rowData
-                        pageTotal.value = Number($('content').attr('total'))
+                        pageTotal.value = $('content').attr('total').num()
                         expandedRowKeys.value = []
                         azList = []
                         tmpScheduleInfoList = []
 
-                        if (rowData.length == 0) return
+                        if (!rowData.length) return
                         selectedChlId.value = rowData[0].id
                         tableRef.value!.setCurrentRow(rowData[0])
                         formData.value = cloneDeep(rowData[0])
@@ -587,11 +587,11 @@ export default defineComponent({
 
                         //请求显示设置数据
                         rowData.forEach((ele) => {
-                            if (ele.chlType != 'recorder') {
+                            if (ele.chlType !== 'recorder') {
                                 getData(ele.id, true, false)
                             } else {
                                 ele.status = ''
-                                if (ele.id == selectedChlId.value) {
+                                if (ele.id === selectedChlId.value) {
                                     formData.value = cloneDeep(ele)
                                 }
                             }
@@ -610,7 +610,7 @@ export default defineComponent({
                 isSupportImageRotate: true,
             }).then((res) => {
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     const chlIds: string[] = []
                     $('content/item').forEach((ele) => {
                         chlIds.push(ele.attr('id')!)
@@ -631,21 +631,21 @@ export default defineComponent({
             queryChlVideoParam(data).then((res) => {
                 const $ = queryXml(res)
                 const rowData = getRowById(chlId)
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     let isSpeco = false
-                    rowData.bright = $('content/chl/bright').length > 0 ? Number($('content/chl/bright').text()) : undefined
-                    rowData.contrast = $('content/chl/contrast').length > 0 ? Number($('content/chl/contrast').text()) : undefined
+                    rowData.bright = $('content/chl/bright').length ? $('content/chl/bright').text().num() : undefined
+                    rowData.contrast = $('content/chl/contrast').length ? $('content/chl/contrast').text().num() : undefined
                     // NT2-3481 设备接入海康IPC，协议不返回hue节点，“色调”配置项置灰
-                    rowData.hue = $('content/chl/hue').length > 0 ? Number($('content/chl/hue').text()) : -1
-                    rowData.saturation = $('content/chl/saturation').length > 0 ? Number($('content/chl/saturation').text()) : undefined
+                    rowData.hue = $('content/chl/hue').length ? $('content/chl/hue').text().num() : -1
+                    rowData.saturation = $('content/chl/saturation').length ? $('content/chl/saturation').text().num() : undefined
                     rowData.status = ''
                     rowData.disabled = false
 
-                    if ($('content/chl').length == 0 || chlId != $('content/chl').attr('id')) {
+                    if (!$('content/chl').length || chlId !== $('content/chl').attr('id')) {
                         isSpeco = true
                     }
                     rowData.isSpeco = rowData.disabled = isSpeco
-                    if ($('content/chl/palette').length > 0) {
+                    if ($('content/chl/palette').length) {
                         rowData.paletteCode = $('content/chl/palette/color').text()
                         rowData.defaultPaletteCode = $('content/chl/palette/color').attr('default')
                         $('types/paletteType/enum').forEach((ele) => {
@@ -657,41 +657,41 @@ export default defineComponent({
                     }
 
                     if ($('content/chl/bright').text()) {
-                        rowData.brightMinValue = Number($('content/chl/bright').attr('min'))
-                        rowData.brightMaxValue = Number($('content/chl/bright').attr('max'))
-                        rowData.brightDefaultValue = Number($('content/chl/bright').attr('default'))
+                        rowData.brightMinValue = $('content/chl/bright').attr('min').num()
+                        rowData.brightMaxValue = $('content/chl/bright').attr('max').num()
+                        rowData.brightDefaultValue = $('content/chl/bright').attr('default').num()
                     }
 
                     if ($('content/chl/contrast').text()) {
-                        rowData.contrastMinValue = Number($('content/chl/contrast').attr('min'))
-                        rowData.contrastMaxValue = Number($('content/chl/contrast').attr('max'))
-                        rowData.contrastDefaultValue = Number($('content/chl/contrast').attr('default'))
+                        rowData.contrastMinValue = $('content/chl/contrast').attr('min').num()
+                        rowData.contrastMaxValue = $('content/chl/contrast').attr('max').num()
+                        rowData.contrastDefaultValue = $('content/chl/contrast').attr('default').num()
                     }
 
                     if ($('content/chl/hue').text()) {
-                        rowData.hueMinValue = Number($('content/chl/hue').attr('min'))
-                        rowData.hueMaxValue = Number($('content/chl/hue').attr('max'))
-                        rowData.hueDefaultValue = Number($('content/chl/hue').attr('default'))
+                        rowData.hueMinValue = $('content/chl/hue').attr('min').num()
+                        rowData.hueMaxValue = $('content/chl/hue').attr('max').num()
+                        rowData.hueDefaultValue = $('content/chl/hue').attr('default').num()
                     }
 
                     if ($('content/chl/saturation').text()) {
-                        rowData.saturationMinValue = Number($('content/chl/saturation').attr('min'))
-                        rowData.saturationMaxValue = Number($('content/chl/saturation').attr('max'))
-                        rowData.saturationDefaultValue = Number($('content/chl/saturation').attr('default'))
+                        rowData.saturationMinValue = $('content/chl/saturation').attr('min').num()
+                        rowData.saturationMaxValue = $('content/chl/saturation').attr('max').num()
+                        rowData.saturationDefaultValue = $('content/chl/saturation').attr('default').num()
                     }
 
                     $('content/chl').forEach(() => {
                         rowData.cfgFile = $('content/chl/cfgFile').text()
                         rowData.cfgFileDefault = $('content/chl/cfgFile').attr('default')
                         if ($('content/chl/denoise/value').text()) {
-                            rowData.denoiseValue = Number($('content/chl/denoise/value').text())
-                            rowData.denoiseDefaultValue = Number($('content/chl/denoise/value').attr('default'))
-                            rowData.denoiseMinValue = Number($('content/chl/denoise/value').attr('min'))
-                            rowData.denoiseMaxValue = Number($('content/chl/denoise/value').attr('max'))
+                            rowData.denoiseValue = $('content/chl/denoise/value').text().num()
+                            rowData.denoiseDefaultValue = $('content/chl/denoise/value').attr('default').num()
+                            rowData.denoiseMinValue = $('content/chl/denoise/value').attr('min').num()
+                            rowData.denoiseMaxValue = $('content/chl/denoise/value').attr('max').num()
                         }
-                        rowData.denoiseSwitch = $('content/chl/denoise/switch').text().toBoolean()
+                        rowData.denoiseSwitch = $('content/chl/denoise/switch').text().bool()
                         // NT2-3947 此节点为false, 则为4.2.1版本ipc，隐藏增益模式
-                        rowData.ShowGainMode = $('content/chl/ShowGainMode').text().toBoolean()
+                        rowData.ShowGainMode = $('content/chl/ShowGainMode').text().bool()
 
                         if ($('content/chl/WDR/value').text()) {
                             rowData.WDRDefaultValue = Number($('content/chl/WDR/value').attr('default'))
@@ -699,7 +699,7 @@ export default defineComponent({
                             rowData.WDRMaxValue = Number($('content/chl/WDR/value').attr('max'))
                             rowData.WDRValue = Number($('content/chl/WDR/value').text())
                         }
-                        if ($('content/chl/WDR/switch').text()) rowData.WDRSwitch = $('content/chl/WDR/switch').text().toBoolean()
+                        if ($('content/chl/WDR/switch').text()) rowData.WDRSwitch = $('content/chl/WDR/switch').text().bool()
 
                         if ($('content/chl/whiteBalance/red').text()) {
                             rowData.redDefaultValue = Number($('content/chl/whiteBalance/red').attr('default'))
@@ -707,8 +707,8 @@ export default defineComponent({
                             rowData.redMaxValue = Number($('content/chl/whiteBalance/red').attr('max'))
                             rowData.redValue = Number($('content/chl/whiteBalance/red').text())
                         }
-                        rowData.HFR = $('content/chl/HFR').text().length > 0 ? $('content/chl/HFR').text().toBoolean() : undefined
-                        rowData.whiteBalanceMode = $('content/chl/whiteBalance/mode').length > 0 ? $('content/chl/whiteBalance/mode').text() : undefined
+                        rowData.HFR = $('content/chl/HFR').text().length ? $('content/chl/HFR').text().bool() : undefined
+                        rowData.whiteBalanceMode = $('content/chl/whiteBalance/mode').length ? $('content/chl/whiteBalance/mode').text() : undefined
 
                         if ($('content/chl/whiteBalance/blue').text()) {
                             rowData.blueDefaultValue = Number($('content/chl/whiteBalance/blue').attr('default'))
@@ -731,11 +731,11 @@ export default defineComponent({
                             rowData.sharpenMaxValue = Number($('content/chl/sharpen/value').attr('max'))
                             rowData.sharpenValue = Number($('content/chl/sharpen/value').text())
                         }
-                        rowData.sharpenSwitch = $('content/chl/sharpen/switch').text().toBoolean()
-                        rowData.sharpenSwitchEnable = $('content/chl/sharpen/switch').attr('switchEnabled') && !$('content/chl/sharpen/switch').attr('switchEnabled').toBoolean() ? false : true
+                        rowData.sharpenSwitch = $('content/chl/sharpen/switch').text().bool()
+                        rowData.sharpenSwitchEnable = $('content/chl/sharpen/switch').attr('switchEnabled') && !$('content/chl/sharpen/switch').attr('switchEnabled').bool() ? false : true
 
-                        rowData.mirrorSwitch = $('content/chl/mirrorSwitch').length > 0 ? $('content/chl/mirrorSwitch').text().toBoolean() : undefined
-                        rowData.flipSwitch = $('content/chl/flipSwitch').length > 0 ? $('content/chl/flipSwitch').text().toBoolean() : undefined
+                        rowData.mirrorSwitch = $('content/chl/mirrorSwitch').length ? $('content/chl/mirrorSwitch').text().bool() : undefined
+                        rowData.flipSwitch = $('content/chl/flipSwitch').length ? $('content/chl/flipSwitch').text().bool() : undefined
                         rowData.imageRotate = $('content/chl/imageRotate').text()
                         rowData.imageRotateDef = $('content/chl/imageRotate').attr('default')
 
@@ -746,9 +746,9 @@ export default defineComponent({
                             rowData.imageValue = Number($('content/chl/imageShift').text())
                         }
 
-                        rowData.BLCMode = $('content/chl/backlightCompensation/mode').length > 0 ? $('content/chl/backlightCompensation/mode').text() : undefined
+                        rowData.BLCMode = $('content/chl/backlightCompensation/mode').length ? $('content/chl/backlightCompensation/mode').text() : undefined
                         rowData.BLCModeDefault = $('content/chl/backlightCompensation/mode').attr('default')
-                        rowData.HWDRLevel = $('content/chl/backlightCompensation/HWDRLevel').length > 0 ? $('content/chl/backlightCompensation/HWDRLevel').text() : undefined
+                        rowData.HWDRLevel = $('content/chl/backlightCompensation/HWDRLevel').length ? $('content/chl/backlightCompensation/HWDRLevel').text() : undefined
                         rowData.HWDRLevelDefault = $('content/chl/backlightCompensation/HWDRLevel').attr('default')
 
                         if ($('content/chl/smartIr/mode').text()) {
@@ -761,8 +761,8 @@ export default defineComponent({
                         }
 
                         if ($('content/chl/smartIR').text()) {
-                            rowData.smartIrSwitch = $('content/chl/smartIR/switch').text().length > 0 ? $('content/chl/smartIR/switch').text().toBoolean() : undefined
-                            rowData.smartIrSwitchDefault = $('content/chl/smartIR/switch').attr('default')?.toBoolean()
+                            rowData.smartIrSwitch = $('content/chl/smartIR/switch').text().length ? $('content/chl/smartIR/switch').text().bool() : undefined
+                            rowData.smartIrSwitchDefault = $('content/chl/smartIR/switch').attr('default')?.bool()
                             rowData.smartIrLevel = $('content/chl/smartIR/level').text()
                             rowData.smartIrLevelDefault = $('content/chl/smartIR/level').attr('default')
                         }
@@ -773,7 +773,7 @@ export default defineComponent({
                             rowData.defogDefaultValue = Number($('content/chl/fogReduction/value').attr('default'))
                             rowData.defogMinValue = Number($('content/chl/fogReduction/value').attr('min'))
                             rowData.defogMaxValue = Number($('content/chl/fogReduction/value').attr('max'))
-                            rowData.defogSwitch = $('content/chl/fogReduction/switch').length > 0 ? $('content/chl/fogReduction/switch').text().toBoolean() : undefined
+                            rowData.defogSwitch = $('content/chl/fogReduction/switch').length ? $('content/chl/fogReduction/switch').text().bool() : undefined
                         }
 
                         // 抗闪
@@ -786,18 +786,18 @@ export default defineComponent({
                         if ($('content/chl/autoExposureMode/mode').text()) {
                             rowData.exposureMode = $('content/chl/autoExposureMode/mode').text()
                             rowData.exposureModeDefault = $('content/chl/autoExposureMode/mode').attr('default')
-                            rowData.exposureModeValue = Number($('content/chl/autoExposureMode/value').text())
-                            rowData.exposureModeDefaultValue = Number($('content/chl/autoExposureMode/value').attr('default'))
-                            rowData.exposureModeMinValue = Number($('content/chl/autoExposureMode/value').attr('min'))
-                            rowData.exposureModeMaxValue = Number($('content/chl/autoExposureMode/value').attr('max'))
+                            rowData.exposureModeValue = $('content/chl/autoExposureMode/value').text().num()
+                            rowData.exposureModeDefaultValue = $('content/chl/autoExposureMode/value').attr('default').num()
+                            rowData.exposureModeMinValue = $('content/chl/autoExposureMode/value').attr('min').num()
+                            rowData.exposureModeMaxValue = $('content/chl/autoExposureMode/value').attr('max').num()
                         }
 
                         // 延迟时间
                         if ($('content/chl/IRCutDelayTime').text()) {
-                            rowData.delayTimeValue = Number($('content/chl/IRCutDelayTime').text())
-                            rowData.delayTimeDefaultValue = Number($('content/chl/IRCutDelayTime').attr('default'))
-                            rowData.delayTimeMinValue = Number($('content/chl/IRCutDelayTime').attr('min'))
-                            rowData.delayTimeMaxValue = Number($('content/chl/IRCutDelayTime').attr('max'))
+                            rowData.delayTimeValue = $('content/chl/IRCutDelayTime').text().num()
+                            rowData.delayTimeDefaultValue = $('content/chl/IRCutDelayTime').attr('default').num()
+                            rowData.delayTimeMinValue = $('content/chl/IRCutDelayTime').attr('min').num()
+                            rowData.delayTimeMaxValue = $('content/chl/IRCutDelayTime').attr('max').num()
                         }
 
                         // 红外模式
@@ -810,12 +810,12 @@ export default defineComponent({
                         if ($('content/chl/gain/mode').text()) {
                             rowData.gainMode = $('content/chl/gain/mode').text()
                             rowData.gainModeDefault = $('content/chl/gain/mode').attr('default')
-                            rowData.gainValue = Number($('content/chl/gain/value').text())
-                            rowData.gainAGC = Number($('content/chl/gain/AGC').text())
-                            rowData.gainAGCDefaultValue = Number($('content/chl/gain/AGC').attr('default'))
-                            rowData.gainDefaultValue = Number($('content/chl/gain/value').attr('default'))
-                            rowData.gainMinValue = Number($('content/chl/gain/value').attr('min'))
-                            rowData.gainMaxValue = Number($('content/chl/gain/value').attr('max'))
+                            rowData.gainValue = $('content/chl/gain/value').text().num()
+                            rowData.gainAGC = $('content/chl/gain/AGC').text().num()
+                            rowData.gainAGCDefaultValue = $('content/chl/gain/AGC').attr('default').num()
+                            rowData.gainDefaultValue = $('content/chl/gain/value').attr('default').num()
+                            rowData.gainMinValue = $('content/chl/gain/value').attr('min').num()
+                            rowData.gainMaxValue = $('content/chl/gain/value').attr('max').num()
                         }
                         // 获取IPC设备版本号判断是否支持增益模式配置
                         rowData.IPCVersion = $('content/chl/DetailedSoftwareVersion').text() || ''
@@ -825,7 +825,7 @@ export default defineComponent({
                             rowData.shutterModeDefault = $('content/chl/shutter/mode').attr('default')
                             rowData.shutterValue = $('content/chl/shutter/value').text()
                             rowData.shutterValueDefault = $('content/chl/shutter/value').attr('default')
-                            rowData.shutterLowLimit = $('content/chl/shutter/lowLimit').length > 0 ? $('content/chl/shutter/lowLimit').text() : undefined
+                            rowData.shutterLowLimit = $('content/chl/shutter/lowLimit').length ? $('content/chl/shutter/lowLimit').text() : undefined
                             rowData.shutterLowLimitDefault = $('content/chl/shutter/lowLimit').attr('default')
                             rowData.shutterUpLimit = $('content/chl/shutter/upLimit').text()
                             rowData.shutterUpLimitDefault = $('content/chl/shutter/upLimit').attr('default')
@@ -842,7 +842,7 @@ export default defineComponent({
                                     rowData.scheduleInfo.scheduleInfoEnum.push(ele.text())
                                 })
 
-                                if (rowData.scheduleInfo.program == 'time') rowData.scheduleInfo.scheduleType = 'time'
+                                if (rowData.scheduleInfo.program === 'time') rowData.scheduleInfo.scheduleType = 'time'
 
                                 tmpScheduleInfoList[tableData.value.indexOf(rowData)] = cloneDeep(rowData.scheduleInfo)
                             } else {
@@ -909,13 +909,13 @@ export default defineComponent({
                     rowData.gainModeEnum = $('types/gainMode/enum').map((ele) => {
                         return ele.text()
                     })
-                    if (chlId == selectedChlId.value) {
+                    if (chlId === selectedChlId.value) {
                         formData.value = cloneDeep(rowData)
                     }
                     if (callback) callback()
                 } else {
                     rowData.status = ''
-                    if (chlId == selectedChlId.value) {
+                    if (chlId === selectedChlId.value) {
                         formData.value = cloneDeep(rowData)
                     }
                 }
@@ -957,7 +957,7 @@ export default defineComponent({
             editChlVideoParam(data).then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     showFloatError('#divTip', Translate('IDCS_SAVE_DATA_SUCCESS'), 'ok')
                 } else {
                     const rebootParam = $('rebootParam').text()
@@ -966,7 +966,7 @@ export default defineComponent({
                             setData(rowData, true)
                         })
                     } else {
-                        const errorCode = Number($('errorCode').text())
+                        const errorCode = $('errorCode').text().num()
                         let msg = Translate('IDCS_SAVE_DATA_FAIL')
                         if (errorCode === ErrorCode.USER_ERROR_NODE_NET_OFFLINE || errorCode === ErrorCode.USER_ERROR_GET_CONFIG_INFO_FAIL) {
                             // 通道离线（节点不存在）
@@ -1001,17 +1001,8 @@ export default defineComponent({
             tableData.value[tableData.value.indexOf(rowData)] = cloneDeep(beforeEditData)
         }
 
-        // const showFloatTip = (msg: string, imgIndex = 2) => {
-        //     tipMsg.value = msg
-        //     tipImgIndex.value = imgIndex
-        //     tipVisiable.value = true
-        //     setTimeout(() => {
-        //         tipVisiable.value = false
-        //     }, 5000)
-        // }
-
         const getRowById = (chlId: string) => {
-            return tableData.value.find((ele) => ele.id == chlId) as ChannelImageDto
+            return tableData.value.find((ele) => ele.id === chlId) as ChannelImageDto
         }
 
         //镜头操作
@@ -1032,7 +1023,7 @@ export default defineComponent({
                 const $ = queryXml(res)
                 const newData = new ChannelLensCtrlDto()
                 newData.id = chlId
-                if ($('status').text() == 'fail' || $('content').text() == '') {
+                if ($('status').text() === 'fail' || $('content').text() === '') {
                     newData.supportAz = false
                 } else {
                     newData.supportAz = true
@@ -1058,20 +1049,20 @@ export default defineComponent({
                         .forEach((ele: string) => {
                             newData.timeIntervalList.push({
                                 value: ele,
-                                text: ele == '0' ? Translate('IDCS_ALWAYS_KEEP') : ele == '60' ? '1 ' + Translate('MINUTE') : Number(ele) / 60 + ' ' + Translate('MINUTES'),
+                                text: ele === '0' ? Translate('IDCS_ALWAYS_KEEP') : ele === '60' ? '1 ' + Translate('MINUTE') : Number(ele) / 60 + ' ' + Translate('MINUTES'),
                             })
                         })
                     newData.timeInterval = $('content/chl/timeInterval').text()
-                    if (focusType != 'auto') {
+                    if (focusType !== 'auto') {
                         newData.focusType = 'manual'
                     } else {
                         newData.focusType = 'auto'
-                        if (!newData.timeInterval || newData.timeInterval == '0') {
+                        if (!newData.timeInterval || newData.timeInterval === '0') {
                             newData.IrchangeFocus = false
                             newData.IrchangeFocusDisabled = true
                         }
                     }
-                    newData.IrchangeFocus = $('content/chl/IrchangeFocus').text().toBoolean()
+                    newData.IrchangeFocus = $('content/chl/IrchangeFocus').text().bool()
                 } else {
                     newData.IrchangeFocusDisabled = true
                 }
@@ -1098,11 +1089,11 @@ export default defineComponent({
             if (!curLensCtrl.value.supportAz) return
             if (azCmdQueue.length > 1000) return
             azCmdQueue.push(cmd)
-            if (azCmdQueue.length == 1 && !azCmdQueueLock) executeCmd(chlId)
+            if (azCmdQueue.length === 1 && !azCmdQueueLock) executeCmd(chlId)
         }
 
         const executeCmd = (chlId: string) => {
-            if (azCmdQueue.length == 0 || azCmdQueueLock) return
+            if (azCmdQueue.length === 0 || azCmdQueueLock) return
             azCmdQueueLock = true
             const cmd = azCmdQueue[0]
             if (chlId) {
@@ -1140,7 +1131,7 @@ export default defineComponent({
                     <chl id='${curLensCtrl.value.id}'>
                         <focusType type="focusType">${curLensCtrl.value.focusType}</focusType>
                         <IrchangeFocus>${curLensCtrl.value.IrchangeFocus}</IrchangeFocus>
-                        <timeInterval>${curLensCtrl.value.focusType == 'manual' ? '0' : curLensCtrl.value.timeInterval}</timeInterval>
+                        <timeInterval>${curLensCtrl.value.focusType === 'manual' ? '0' : curLensCtrl.value.timeInterval}</timeInterval>
                     </chl>
                 </content>`
             editCameraLensCtrlParam(data)
@@ -1160,23 +1151,23 @@ export default defineComponent({
         // 排程
         const filteredScheduleInfoEnum = (scheduleInfoEnum: string[], excludeTimeEnum: boolean) => {
             if (excludeTimeEnum) {
-                return scheduleInfoEnum.filter((ele) => ele != 'time')
+                return scheduleInfoEnum.filter((ele) => ele !== 'time')
             } else {
-                return scheduleInfoEnum.filter((ele) => ele == 'time')
+                return scheduleInfoEnum.filter((ele) => ele === 'time')
             }
         }
 
         const handleProgramChange = (rowData: ChannelImageDto) => {
-            if (rowData.scheduleInfo.program == 'auto') return
+            if (rowData.scheduleInfo.program === 'auto') return
             rowData.cfgFile = rowData.scheduleInfo.program
             getData(rowData.id, false, rowData.cfgFile, () => {})
         }
 
         const handleChangeTime = (timeType: 'day' | 'night') => {
             const rowData = getRowById(selectedChlId.value)
-            if (timeMode.value != 12) {
+            if (timeMode.value !== 12) {
                 if (!compareTime(rowData.scheduleInfo.dayTime, rowData.scheduleInfo.nightTime)) {
-                    if (timeType == 'day') {
+                    if (timeType === 'day') {
                         rowData.scheduleInfo.dayTime = tmpDayTime
                     } else {
                         rowData.scheduleInfo.nightTime = tmpNightTime
@@ -1202,7 +1193,7 @@ export default defineComponent({
         const compareTime = (time1: string, time2: string, isWhitelight = false) => {
             const date1 = getSeconds(time1)
             const date2 = getSeconds(time2)
-            const isValid = isWhitelight ? date1 != date2 : date1 < date2
+            const isValid = isWhitelight ? date1 !== date2 : date1 < date2
             const msg = isWhitelight ? Translate('IDCS_STARTTIME_NOTEQUAL_ENDTIME') : Translate('IDCS_END_TIME_GREATER_THAN_START')
             if (!isValid) {
                 openMessageBox({
@@ -1243,7 +1234,7 @@ export default defineComponent({
                     streamType: 2,
                 })
             } else {
-                if (osType == 'mac') {
+                if (osType === 'mac') {
                 } else {
                     playerRef.value.plugin.RetryStartChlView(rowData.id, rowData.name)
                 }
@@ -1268,7 +1259,7 @@ export default defineComponent({
         watch(
             expandedRowKeys,
             (newVal) => {
-                curAzChlId = newVal.length > 0 ? newVal[0] : ''
+                curAzChlId = newVal.length ? newVal[0] : ''
             },
             {
                 immediate: true,

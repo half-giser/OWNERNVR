@@ -80,12 +80,12 @@ export default defineComponent({
 
             if ($('status').text() === 'success') {
                 formData.value.parkName = $('//content/basicInfo/name').text()
-                formData.value.totalNum = Number($('//content/basicInfo/totalVehicleNum').text())
-                formData.value.remainTotalNum = Number($('//content/basicInfo/remainSpaceNum').text())
+                formData.value.totalNum = $('//content/basicInfo/totalVehicleNum').text().num()
+                formData.value.remainTotalNum = $('//content/basicInfo/remainSpaceNum').text().num()
                 $('//content/parkingSapce/item').forEach((item) => {
                     const $item = queryXml(item.element)
-                    formData.value.groupTotalNum += Number($item('groupTotalNum').text())
-                    formData.value.groupRemainTotalNum += Number($item('groupRemainNum').text())
+                    formData.value.groupTotalNum += $item('groupTotalNum').text().num()
+                    formData.value.groupRemainTotalNum += $item('groupRemainNum').text().num()
                 })
             }
         }
@@ -119,7 +119,7 @@ export default defineComponent({
                             message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                         })
                     } else {
-                        const errorCode = Number($('errorCode').text())
+                        const errorCode = $('errorCode').text().num()
                         let errorMsg = Translate('IDCS_SAVE_DATA_FAIL')
                         if (errorCode === ErrorCode.USER_ERROR_INVALID_PARAM) {
                             errorMsg = Translate('IDCS_FTP_ERROR_INVALID_PARAM')

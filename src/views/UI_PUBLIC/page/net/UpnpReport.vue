@@ -25,7 +25,6 @@
                 <el-input
                     v-model="formData.serverAddr"
                     :disabled="!formData.switch"
-                    :maxlength="nameByteMaxLen"
                     :formatter="formatInputMaxLength"
                     :parser="formatInputMaxLength"
                 />

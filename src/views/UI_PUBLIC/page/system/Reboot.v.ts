@@ -52,7 +52,7 @@ export default defineComponent({
             } else {
                 closeLoading()
 
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_NO_AUTH:

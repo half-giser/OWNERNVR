@@ -48,10 +48,10 @@ export default defineComponent({
             const result = await querySystemWorkMode()
             const $ = queryXml(result)
 
-            formData.value.supportAI = $('//content/supportAI').text().toBoolean()
+            formData.value.supportAI = $('//content/supportAI').text().bool()
             cloneFormData.supportAI = formData.value.supportAI
             pageData.value.is3536Amode = !$('//content/openSubOutput').length
-            const openSubOutput = $('//content/openSubOutput').text().toBoolean()
+            const openSubOutput = $('//content/openSubOutput').text().bool()
             // 3536A机型一直是可勾选的，所以需要排除在外
             pageData.value.disabled = formData.value.supportAI && !openSubOutput && !pageData.value.is3536Amode
             // 3536A机型开启AI，则需要查询明细

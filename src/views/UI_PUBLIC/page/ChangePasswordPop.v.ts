@@ -139,7 +139,7 @@ export default defineComponent({
                     ctx.emit('close')
                 })
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_PWD_ERR:
                         ElMessage({

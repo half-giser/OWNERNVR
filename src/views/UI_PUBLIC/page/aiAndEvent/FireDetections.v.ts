@@ -121,7 +121,7 @@ export default defineComponent({
                     pluginStore.showPluginNoResponse = true
                     plugin.ShowPluginNoResponse()
                 }
-                const sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'FireConfig' : 'ReadOnly', 'Live')
+                const sendXML = OCX_XML_SetPluginModel(osType === 'mac' ? 'FireConfig' : 'ReadOnly', 'Live')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
         }
@@ -135,16 +135,16 @@ export default defineComponent({
                     streamType: 2,
                 })
             } else if (mode.value === 'ocx') {
-                if (osType == 'mac') {
-                    const sendXML = OCX_XML_Preview({
-                        winIndexList: [0],
-                        chlIdList: [props.chlData.id],
-                        chlNameList: [props.chlData.name],
-                        streamType: 'sub',
-                        chlIndexList: [props.chlData.id],
-                        chlTypeList: [props.chlData.chlType],
-                    })
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                if (osType === 'mac') {
+                    // const sendXML = OCX_XML_Preview({
+                    //     winIndexList: [0],
+                    //     chlIdList: [props.chlData.id],
+                    //     chlNameList: [props.chlData.name],
+                    //     streamType: 'sub',
+                    //     chlIndexList: [props.chlData.id],
+                    //     chlTypeList: [props.chlData.chlType],
+                    // })
+                    // plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 } else {
                     plugin.RetryStartChlView(id, name)
                 }
@@ -196,16 +196,16 @@ export default defineComponent({
             const sameIPChlList: { id: string; ip: string; name: string; accessType: string }[] = []
             const chlIp = props.chlData.ip
             props.onlineChannelList.forEach((chl) => {
-                if (chl.ip == chlIp) {
+                if (chl.ip === chlIp) {
                     sameIPChlList.push(chl)
                 }
             })
             if (sameIPChlList.length > 1) {
                 sameIPChlList.forEach((chl) => {
-                    if (chl.accessType == '1') {
-                        thermalChlName = chl.name == props.chlData.name ? '' : chl.name
+                    if (chl.accessType === '1') {
+                        thermalChlName = chl.name === props.chlData.name ? '' : chl.name
                     } else {
-                        normalChlName = chl.name == props.chlData.name ? '' : chl.name
+                        normalChlName = chl.name === props.chlData.name ? '' : chl.name
                     }
                 })
             }
@@ -230,15 +230,15 @@ export default defineComponent({
             const res = await querySmartFireConfig(sendXml)
             closeLoading()
             const $ = queryXml(res)
-            if ($('status').text() == 'success') {
+            if ($('status').text() === 'success') {
                 const holdTimeArr = $('//content/chl/param/holdTimeNote').text().split(',')
-                const holdTime = Number($('//content/chl/param/alarmHoldTime').text())
+                const holdTime = $('//content/chl/param/alarmHoldTime').text().num()
                 if (!holdTimeArr.includes(holdTime.toString())) {
                     holdTimeArr.push(holdTime.toString())
                 }
 
                 let schedule = $('//content/chl').attr('scheduleGuid')
-                schedule = schedule != '' ? (pageData.value.scheduleList.some((item: { value: string; label: string }) => item.value == schedule) ? schedule : DEFAULT_EMPTY_ID) : DEFAULT_EMPTY_ID
+                schedule = schedule !== '' ? (pageData.value.scheduleList.some((item) => item.value === schedule) ? schedule : DEFAULT_EMPTY_ID) : DEFAULT_EMPTY_ID
 
                 const trigger = $('//content/chl/trigger')
                 const $trigger = queryXml(trigger[0].element)
@@ -248,28 +248,28 @@ export default defineComponent({
                         const $item = queryXml(item.element)
                         return {
                             object: $item('object').text(),
-                            status: $item('status').text() == 'true' ? true : false,
+                            status: $item('status').text().bool(),
                         }
                     }),
                     mutexListEx: $('//content/chl/param/mutexListEx/item').map((item) => {
                         const $item = queryXml(item.element)
                         return {
                             object: $item('object').text(),
-                            status: $item('status').text() == 'true' ? true : false,
+                            status: $item('status').text().bool(),
                         }
                     }),
                     holdTime,
                     holdTimeList: formatHoldTime(holdTimeArr),
                     schedule,
-                    detectionEnable: $('//content/chl/param/switch').text().toBoolean(),
-                    originalEnable: $('//content/chl/param/switch').text().toBoolean(),
-                    audioSuport: $('//content/chl/param/triggerAudio').text() == '' ? false : true,
-                    lightSuport: $('//content/chl/param/triggerWhiteLight').text() == '' ? false : true,
+                    detectionEnable: $('//content/chl/param/switch').text().bool(),
+                    originalEnable: $('//content/chl/param/switch').text().bool(),
+                    audioSuport: $('//content/chl/param/triggerAudio').text() !== '',
+                    lightSuport: $('//content/chl/param/triggerWhiteLight').text() !== '',
                     trigger: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch', 'popMsgSwitch'].filter((item) => {
-                        return $trigger(item).text().toBoolean()
+                        return $trigger(item).text().bool()
                     }),
                     triggerList: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch', 'popMsgSwitch'],
-                    sysAudio: $trigger('sysAudio').attr('id') == '' ? $trigger('sysAudio').attr('id') : '',
+                    sysAudio: $trigger('sysAudio').attr('id') === '' ? $trigger('sysAudio').attr('id') : '',
                     record: $trigger('sysRec/chls/item').map((item) => {
                         return {
                             value: item.attr('id')!,
@@ -303,14 +303,14 @@ export default defineComponent({
 
                 if (formData.value.audioSuport && props.chlData.supportAudio) {
                     formData.value.triggerList.push('triggerAudio')
-                    if ($('//content/chl/param/triggerAudio').text().toBoolean()) {
+                    if ($('//content/chl/param/triggerAudio').text().bool()) {
                         formData.value.trigger.push('triggerAudio')
                     }
                 }
 
                 if (formData.value.lightSuport && props.chlData.supportWhiteLight) {
                     formData.value.triggerList.push('triggerWhiteLight')
-                    if ($('//content/chl/param/triggerWhiteLight').text().toBoolean()) {
+                    if ($('//content/chl/param/triggerWhiteLight').text().bool()) {
                         formData.value.trigger.push('triggerWhiteLight')
                     }
                 }
@@ -378,7 +378,7 @@ export default defineComponent({
             const res = await editSmartFireConfig(sendXml)
             const $ = queryXml(res)
             closeLoading()
-            if ($('status').text() == 'success') {
+            if ($('status').text() === 'success') {
                 if (formData.value.detectionEnable) {
                     // 开关为开把originalSwitch置为true避免多次弹出互斥提示
                     formData.value.originalEnable = true
@@ -418,7 +418,7 @@ export default defineComponent({
                     switchChangeTypeArr.push(showInfo)
                 }
             })
-            if (isSwitchChange && switchChangeTypeArr.length > 0) {
+            if (isSwitchChange && switchChangeTypeArr.length) {
                 const switchChangeType = switchChangeTypeArr.join(',')
                 openMessageBox({
                     type: 'question',

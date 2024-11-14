@@ -98,7 +98,7 @@ export default defineComponent({
             // const data: Record<number, string> = {}
             $('//content/item').forEach((item) => {
                 const $item = queryXml(item.element)
-                const groupId = Number($item('groupId').text())
+                const groupId = $item('groupId').text().num()
                 const name = $item('name').text()
                 if ([1, 2, 3].includes(groupId) && name) {
                     NAME_MAPPING[groupId] = name
@@ -208,7 +208,7 @@ export default defineComponent({
          * @returns
          */
         const getAlarmClassName = (row: SystemAlarmStatusList, index: number) => {
-            if (row.data.length === 0) {
+            if (!row.data.length) {
                 return 1
             }
 
@@ -233,7 +233,7 @@ export default defineComponent({
          * @returns
          */
         const getAlarmStatusActive = (row: SystemAlarmStatusList, index: number) => {
-            if (row.data.length === 0) {
+            if (!row.data.length) {
                 return false
             }
 
@@ -463,9 +463,9 @@ export default defineComponent({
                         },
                         {
                             key: 'IDCS_TARGET_DETECTION',
-                            value: TARGET_TYPE_MAPPING[Number($item('targetType').text())] || '',
+                            value: TARGET_TYPE_MAPPING[$item('targetType').text().num()] || '',
                             span: 1,
-                            hide: !(TARGET_TYPE_MAPPING[Number($item('targetType').text())] || ''),
+                            hide: !(TARGET_TYPE_MAPPING[$item('targetType').text().num()] || ''),
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_SEND_EMAIL',
@@ -572,7 +572,7 @@ export default defineComponent({
                 const $item = queryXml(item.element)
 
                 const abnormalType = $item('abnormalType').text() || ''
-                const diskType = Number($item('alarmNode').attr('diskType')!)
+                const diskType = $item('alarmNode').attr('diskType').num()
                 const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat)
                 const serialNO = $item('alarmNode').attr('serialNO')!
                 const nic = $item('alarmNode').attr('nic')!
@@ -613,7 +613,7 @@ export default defineComponent({
                     case 'networkBreak':
                         abnormalTypeText = '%1%2'.formatForLang(
                             Translate(ABNORMAL_TYPE_MAPPING[abnormalType]),
-                            nic ? '(%1)'.formatForLang(Translate(nic == 'eth0' ? 'IDCS_ETH0_NAME' : nic == 'eth1' ? 'IDCS_ETH1_NAME' : nic)) : '',
+                            nic ? '(%1)'.formatForLang(Translate(nic === 'eth0' ? 'IDCS_ETH0_NAME' : nic === 'eth1' ? 'IDCS_ETH1_NAME' : nic)) : '',
                         )
                         break
                     case 'ipConflict':
@@ -676,10 +676,10 @@ export default defineComponent({
             const frontEndOfflineData = $('//content/frontEndOffline/item').map((item) => {
                 const $item = queryXml(item.element)
                 const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat)
-                const ip = $item('alarmNode').attr('ip')!
+                const ip = $item('alarmNode').attr('ip')
 
                 let errorNote = ''
-                const errorCode = Number($item('errorCode').text())
+                const errorCode = $item('errorCode').text().num()
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_PWD_ERR:
                         errorNote = `(${Translate('IDCS_DEVICE_PWD_ERROR')})`
@@ -1038,7 +1038,7 @@ export default defineComponent({
                         },
                         {
                             key: 'IDCS_GROUP_NAME',
-                            value: PLATE_LIBRARY_NAME[Number($item('sourcePlateGroup').attr('id')!)],
+                            value: PLATE_LIBRARY_NAME[$item('sourcePlateGroup').attr('id').num()],
                             span: 2,
                         },
                         {

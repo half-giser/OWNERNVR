@@ -112,7 +112,7 @@ export default defineComponent({
             createChlGroup(sendXml).then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     openMessageBox({
                         type: 'success',
                         message: Translate('IDCS_SAVE_DATA_SUCCESS'),
@@ -121,11 +121,11 @@ export default defineComponent({
                         handleCancel()
                     })
                 } else {
-                    const errorCdoe = Number($('errorCode').text())
+                    const errorCdoe = $('errorCode').text().num()
                     let msg = Translate('IDCS_SAVE_DATA_FAIL')
-                    if (errorCdoe == ErrorCode.USER_ERROR_NAME_EXISTED) {
+                    if (errorCdoe === ErrorCode.USER_ERROR_NAME_EXISTED) {
                         msg = Translate('IDCS_PROMPT_CHANNEL_GROUP_NAME_EXIST')
-                    } else if (errorCdoe == ErrorCode.USER_ERROR_OVER_LIMIT) {
+                    } else if (errorCdoe === ErrorCode.USER_ERROR_OVER_LIMIT) {
                         msg = Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT')
                     }
                     openMessageBox({
@@ -156,7 +156,7 @@ export default defineComponent({
             queryDevList(data).then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     const chlList: ChannelInfoDto[] = []
                     $('//content/item').forEach((ele) => {
                         const eleXml = queryXml(ele.element)

@@ -127,17 +127,17 @@ export default defineComponent({
                 if ($('status').text() === 'success') {
                     let isSwitch = false
                     let isSpeco = false
-                    if (!$('content/chl').length || chlId != $('content/chl').attr('id')) isSpeco = true
+                    if (!$('content/chl').length || chlId !== $('content/chl').attr('id')) isSpeco = true
                     rowData.isSpeco = isSpeco
                     rowData.mask = $('content/chl/privacyMask/item').map((ele) => {
                         const eleXml = queryXml(ele.element)
-                        isSwitch = isSwitch || eleXml('switch').text().toBoolean()
+                        isSwitch = isSwitch || eleXml('switch').text().bool()
                         return {
-                            switch: eleXml('switch').text().toBoolean(),
-                            X: Number(eleXml('rectangle/X').text()),
-                            Y: Number(eleXml('rectangle/Y').text()),
-                            width: Number(eleXml('rectangle/width').text()),
-                            height: Number(eleXml('rectangle/height').text()),
+                            switch: eleXml('switch').text().bool(),
+                            X: eleXml('rectangle/X').text().num(),
+                            Y: eleXml('rectangle/Y').text().num(),
+                            width: eleXml('rectangle/width').text().num(),
+                            height: eleXml('rectangle/height').text().num(),
                         }
                     })
                     rowData.switch = String(isSwitch)
@@ -292,7 +292,7 @@ export default defineComponent({
                     }
                     const rectangles = $('statenotify/item/rectangle')
                     preRowData.mask.forEach((ele, index) => {
-                        const rectExist = rectangles[index] != undefined
+                        const rectExist = rectangles[index] !== undefined
                         if (rectExist) {
                             const rectangleXml = queryXml(rectangles[index].element)
                             ele.switch = true
@@ -320,7 +320,7 @@ export default defineComponent({
             }
             rowData.mask.forEach((ele, index) => {
                 const item = maskList[index]
-                const itemExist = item != undefined
+                const itemExist = item !== undefined
                 ele.switch = itemExist
                 ele.X = itemExist ? item.X : 0
                 ele.Y = itemExist ? item.Y : 0

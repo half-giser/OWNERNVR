@@ -201,7 +201,7 @@ export default defineComponent({
             if ($('//status').text() === 'success') {
                 ctx.emit('confirm', 'remote', formData.value.remoteDeviceName, formData.value.remoteFormat)
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_DISK_SPACE_NO_ENOUGH:

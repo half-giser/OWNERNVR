@@ -60,7 +60,7 @@ export const useUserChlAuth = (immediate = true) => {
             auth.value.bk[id] = $item('auth').text().includes('@bk')
             auth.value.lp[id] = $item('auth').text().includes('@lp')
         })
-        auth.value.accessControl = $('//content/systemAuth/AccessControlMgr').text().toBoolean()
+        auth.value.accessControl = $('//content/systemAuth/AccessControlMgr').text().bool()
     }
 
     auth.value.update = getAuth

@@ -121,7 +121,7 @@ export default class WebsocketKeyframe {
         try {
             const imgBufRange = json.data.thumbnail_stream_data.split(',')
             let imgBuf: ArrayBuffer | null = null
-            if (imgBufRange && imgBufRange.length > 0) {
+            if (imgBufRange && imgBufRange.length) {
                 const start = Number(imgBufRange[0]) + jsonEndPosition
                 const end = Number(imgBufRange[1]) * 1 + start
                 imgBuf = buffer.slice(start, end)

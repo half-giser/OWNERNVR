@@ -74,7 +74,7 @@ export default defineComponent({
                 listData.value = $('//content/cruises/item').map((item) => {
                     return {
                         name: item.text(),
-                        index: Number(item.attr('index')),
+                        index: item.attr('index').num(),
                     }
                 })
             }

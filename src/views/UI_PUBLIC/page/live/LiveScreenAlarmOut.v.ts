@@ -70,14 +70,14 @@ export default defineComponent({
             })
 
             tableData.value = $('//content/item')
-                .filter((item) => queryXml(item.element)('onlineStatus').text().toBoolean())
+                .filter((item) => queryXml(item.element)('onlineStatus').text().bool())
                 .map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         id: item.attr('id')!,
                         name: $item('name').text(),
-                        // onlineStatus: $item('onlineStatus').text().toBoolean(),
-                        switch: $item('switch').text().toBoolean(),
+                        // onlineStatus: $item('onlineStatus').text().bool(),
+                        switch: $item('switch').text().bool(),
                         delay: delayMap[item.attr('id')!] || pageData.value.delayList[0].value,
                     }
                 })

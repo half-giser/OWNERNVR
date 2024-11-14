@@ -132,11 +132,11 @@ export default defineComponent({
                     const $item = queryXml(item.element)
                     return {
                         id: ++cruiseId,
-                        index: Number(item.attr('index')!),
+                        index: item.attr('index').num(),
                         name: $item('name').text(),
                     }
                 })
-                // tableData.value[index].maxCount = Number($('//content/cruises').attr('maxCount'))
+                // tableData.value[index].maxCount = $('//content/cruises').attr('maxCount').num()
                 tableData.value[index].cruiseCount = tableData.value[index].cruise.length
             }
         }
@@ -167,9 +167,9 @@ export default defineComponent({
                         const $item = queryXml(item.element)
 
                         return {
-                            chlId: item.attr('id')!,
+                            chlId: item.attr('id'),
                             chlName: $item('name').text(),
-                            cruiseCount: Number($item('groupCruiseCount').text()),
+                            cruiseCount: $item('groupCruiseCount').text().num(),
                             cruise: [],
                             maxCount: CRUISE_MAX_COUNT,
                         }

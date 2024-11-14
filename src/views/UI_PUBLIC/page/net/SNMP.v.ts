@@ -90,8 +90,8 @@ export default defineComponent({
             const result = await querySNMPCfg()
             commLoadResponseHandler(result, ($) => {
                 const $content = queryXml($('//content')[0].element)
-                formData.value.snmpv1Switch = $content('snmpv1Switch').text().toBoolean()
-                formData.value.snmpv2Switch = $content('snmpv2Switch').text().toBoolean()
+                formData.value.snmpv1Switch = $content('snmpv1Switch').text().bool()
+                formData.value.snmpv2Switch = $content('snmpv2Switch').text().bool()
                 formData.value.snmpPort = Number($content('snmpPort').text())
                 formData.value.readCommunity = $content('readCommunity').text()
                 formData.value.writeCommunity = $content('writeCommunity').text()

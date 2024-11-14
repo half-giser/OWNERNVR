@@ -551,7 +551,6 @@ export default defineComponent({
             playTrace,
             stopTrace,
             formatInputMaxLength,
-            nameByteMaxLen,
             ChannelPtzCtrlPanel,
             ChannelTraceAddPop,
             ChannelPtzTableExpandPanel,

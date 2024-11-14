@@ -208,7 +208,7 @@ const update = () => {
  * @description 渲染
  */
 const render = () => {
-    if (prop.nums.length !== 0) {
+    if (prop.nums.length) {
         drawRectangle()
     }
     context.save()

@@ -96,7 +96,7 @@ export default defineComponent({
             const $ = queryXml($doc('//content/systemAuth')[0].element)
             Object.keys(systemAuthList.value).forEach((classify: string) => {
                 Object.keys(systemAuthList.value[classify].value).forEach((key) => {
-                    systemAuthList.value[classify].value[key].value = $(key).text().toBoolean()
+                    systemAuthList.value[classify].value[key].value = $(key).text().bool()
                 })
             })
         }
@@ -184,9 +184,9 @@ export default defineComponent({
                         email: $item('email').text(),
                         comment: $item('comment').text(),
                         enabled: $item('enabled').text(),
-                        authEffective: $item('authEffective').text().toBoolean(),
+                        authEffective: $item('authEffective').text().bool(),
 
-                        authGroupId: isAdmin ? '' : ($item('authGroup').attr('id') as string),
+                        authGroupId: isAdmin ? '' : $item('authGroup').attr('id')!,
                         authGroupName: isAdmin ? '' : $item('authGroup').text(),
                         del: !(isAdmin || $item('userName').text() === currentUserName),
                         edit: !(isAdmin && currentUserType !== USER_TYPE_DEFAULT_ADMIN),
