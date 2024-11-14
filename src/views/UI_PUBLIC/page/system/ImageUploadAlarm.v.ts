@@ -12,6 +12,19 @@ export default defineComponent({
         const openMessageBox = useMessageBox().openMessageBox
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
+
+        const EVENT_TYPE_MAPPING: Record<string, string> = {
+            MOTION: Translate('IDCS_MOTION_DETECTION'),
+            ALARM: Translate('IDCS_SENSOR_ALARM'),
+            'MOTION,ALARM': Translate('IDCS_SENSOR_AND_MOTION'),
+        }
+
+        const MENU_ID_MAPPING: Record<string, string> = {
+            MOTION: '/config/alarm/motion',
+            ALARM: '/config/alarm/sensor',
+            'MOTION,ALARM': '/config/alarm/sensor',
+        }
+
         const pageData = ref({
             hasAuth: false,
             alarmType: '',
@@ -21,18 +34,9 @@ export default defineComponent({
             saveTimeList: [] as SelectOption<string, string>[],
             preUnit: '',
             saveUnit: '',
-            evTypeLangMap: {
-                MOTION: Translate('IDCS_MOTION_DETECTION'),
-                ALARM: Translate('IDCS_SENSOR_ALARM'),
-                'MOTION,ALARM': Translate('IDCS_SENSOR_AND_MOTION'),
-            } as Record<string, string>,
-            menuIdMap: {
-                MOTION: '/config/alarm/motion',
-                ALARM: '/config/alarm/sensor',
-                'MOTION,ALARM': '/config/alarm/sensor',
-            } as Record<string, string>,
         })
         const tableData = ref<SystemImageUploadAlarmItem[]>([])
+
         const getAuth = async () => {
             const authGroupId = userSessionStore.authGroupId
             const sendXml = rawXml`
@@ -47,7 +51,7 @@ export default defineComponent({
             const res = await queryAuthGroup(sendXml)
             const $ = queryXml(res)
             if ($('status').text() === 'success') {
-                pageData.value.hasAuth = $('//content/systemAuth/alarmMgr').text() === 'true'
+                pageData.value.hasAuth = $('//content/systemAuth/alarmMgr').text().bool()
             }
         }
 
@@ -58,13 +62,12 @@ export default defineComponent({
             closeLoading()
             const $ = queryXml(res)
             if ($('status').text() === 'success') {
-                pageData.value.alarmType = $('//content/eventType').text().trim() == '' ? 'MOTION' : $('//content/eventType').text().trim()
-                // pageData.value.alarmType = $('//content/eventType').text().trim()
-                $('//types/eventType/enum').forEach((item) => {
-                    pageData.value.alarmTypeList.push({
+                pageData.value.alarmType = $('//content/eventType').text().trim() || 'MOTION'
+                pageData.value.alarmTypeList = $('//types/eventType/enum').map((item) => {
+                    return {
                         value: item.text(),
-                        label: pageData.value.evTypeLangMap[item.text()],
-                    })
+                        label: EVENT_TYPE_MAPPING[item.text()],
+                    }
                 })
                 pageData.value.originalAlarmTypeList = cloneDeep(pageData.value.alarmTypeList)
                 // 用于测试，后续删除
@@ -74,20 +77,25 @@ export default defineComponent({
                 //         label: pageData.value.evTypeLangMap['MOTION'],
                 //     })
                 // }
-                if (pageData.value.alarmTypeList.length > 0) {
+                if (pageData.value.alarmTypeList.length) {
                     pageData.value.alarmTypeList.push({
                         value: 'MOTION,ALARM',
-                        label: pageData.value.evTypeLangMap['MOTION,ALARM'],
+                        label: EVENT_TYPE_MAPPING['MOTION,ALARM'],
                     })
                 }
                 const pretimeList = $('//content/param/preTimeNote').text()
                 pageData.value.pretimeList = pretimeList !== '' ? pretimeList.split(',').map((item) => ({ value: item.trim(), label: getTranslateForSecond(Number(item.trim())) })) : []
-                const saveTimeList = $('//content/param/holdTimeNote').text()
-                pageData.value.saveTimeList =
-                    saveTimeList !== '' ? saveTimeList.split(',').map((item) => ({ value: item.trim(), label: item.trim() + getTranslateForSecond(Number(item.trim())) })) : []
-                pageData.value.preUnit = $('//content/param/chlParams/itemType/preTime').attr('unit') == '' ? 's' : $('//content/param/chlParams/itemType/preTime').attr('unit')
-                pageData.value.saveUnit = $('//content/param/chlParams/itemType/holdTime').attr('unit') == '' ? 's' : $('//content/param/chlParams/itemType/holdTime').attr('unit')
-                $('//content/param/chlParams/item').forEach((item) => {
+                pageData.value.saveTimeList = $('//content/param/holdTimeNote')
+                    .text()
+                    .split(',')
+                    .map((item) => ({
+                        value: item.trim(),
+                        label: getTranslateForSecond(Number(item.trim())),
+                    }))
+                pageData.value.preUnit = $('//content/param/chlParams/itemType/preTime').attr('unit') || 's'
+                pageData.value.saveUnit = $('//content/param/chlParams/itemType/holdTime').attr('unit') || 's'
+
+                tableData.value = $('//content/param/chlParams/item').map((item) => {
                     const row = new SystemImageUploadAlarmItem()
                     const $item = queryXml(item.element)
                     row.id = $item('chl').attr('id')
@@ -95,7 +103,7 @@ export default defineComponent({
                     row.chlNum = getChlNumById(row.id)
                     row.preTime = $item('preTime').text()
                     row.saveTime = $item('holdTime').text()
-                    tableData.value.push(row)
+                    return row
                 })
                 orderChl()
             } else {
@@ -152,7 +160,7 @@ export default defineComponent({
                 })
                 return
             }
-            router.push(pageData.value.menuIdMap[pageData.value.alarmType])
+            router.push(MENU_ID_MAPPING[pageData.value.alarmType])
         }
 
         // 通过id获取通道号
@@ -190,6 +198,7 @@ export default defineComponent({
             await getAuth()
             await getData()
         })
+
         return {
             pageData,
             tableData,

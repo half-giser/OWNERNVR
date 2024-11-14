@@ -3,22 +3,16 @@
  * @Date: 2024-10-23 11:22:10
  * @Description: 地标平台参数
  */
+
+import type { FormInstance, FormRules } from 'element-plus'
+import { SystemSHDBPlatformParameterForm } from '@/types/apiType/system'
+
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
 
-        const formData = ref({
-            enable: false,
-            proxyId: '',
-            ip: '',
-            domain: '',
-            isDomain: true,
-            port: 5901,
-            resolution: '',
-            level: '',
-            holdTime: '',
-        })
+        const formRef = ref<FormInstance>()
 
         const pageData = ref({
             // 获取到的地址
@@ -35,81 +29,80 @@ export default defineComponent({
             holdTimeList: [] as SelectOption<string, string>[],
         })
 
+        const formData = ref(new SystemSHDBPlatformParameterForm())
+
+        const formRule = ref<FormRules>({
+            ip: [
+                {
+                    validator(_rule, value: string, callback) {
+                        if (formData.value.isDomain) {
+                            if (formData.value.domain === '') {
+                                callback(new Error(Translate('IDCS_DOMAIN_NAME_EMPTY')))
+                                return
+                            } else if (!checkDomain(formData.value.domain)) {
+                                callback(new Error(Translate('IDCS_TEST_DDNS_INVALID_HOSTNAME')))
+                                return
+                            }
+                        } else {
+                            if (!value || value === '0.0.0.0') {
+                                callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_EMPTY')))
+                                return
+                            } else if (!checkIpV4(value)) {
+                                callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_INVALID')))
+                                return
+                            }
+                        }
+                    },
+                    trigger: 'manual',
+                },
+            ],
+        })
+
         const getData = async () => {
             openLoading()
             const res = await querySHDBParam()
             closeLoading()
             const $ = queryXml(res)
             if ($('status').text() === 'success') {
-                formData.value.enable = $('//content/platformParam/switch').text() === 'true'
-                formData.value.proxyId = $('//content/platformParam/proxyId').text()
-                // 地址
-                const defaultServerAddress = $('//content/platformParam/serverAddr').attr('default')
-                pageData.value.defaultServerAddress = defaultServerAddress == '' ? '180.166.128.182' : defaultServerAddress
+                pageData.value.defaultServerAddress = $('//content/platformParam/serverAddr').attr('default') || '180.166.128.182'
                 pageData.value.serverAddress = $('//content/platformParam/serverAddr').text()
-                setIpValue(pageData.value.serverAddress)
-                // 端口
-                const defaultPort = $('//content/platformParam/port').attr('default')
-                pageData.value.defaultPort = defaultPort == '' ? 5901 : Number(defaultPort)
-                const port = $('//content/platformParam/port').text()
-                formData.value.port = port == '' ? pageData.value.defaultPort : Number(port)
-                // 分辨率
-                const defaultResolution = $('//content/snapParam/resolution').attr('default')
-                pageData.value.defaultResolution = defaultResolution == '' ? 'CIF' : defaultResolution
-                const resolution = $('//content/snapParam/resolution').text()
-                formData.value.resolution = resolution == '' ? pageData.value.defaultResolution : resolution
-                const resolutionList = $('//content/snapParam/resolutionNote').text()
-                // TODO 后续修改
-                pageData.value.resolutionList =
-                    resolutionList !== ''
-                        ? resolutionList.split(',').map((item) => ({
-                              value: item.trim(),
-                              label: item.trim(),
-                          }))
-                        : [
-                              {
-                                  value: 'CIF',
-                                  label: 'CIF',
-                              },
-                          ]
-                // 画质
-                const defaultLevel = $('//content/snapParam/level').attr('default')
-                pageData.value.defaultLevel = defaultLevel == '' ? 'medium' : defaultLevel
-                const level = $('//content/snapParam/level').text()
-                formData.value.level = level == '' ? pageData.value.defaultLevel : level
-                const levelList = $('//content/snapParam/levelNote').text()
-                // TODO 后续修改
-                pageData.value.levelList =
-                    levelList !== ''
-                        ? levelList
-                              .split(',')
-                              .reverse()
-                              .map((item) => ({
-                                  value: item.trim(),
-                                  label: Translate(`IDCS_${item.trim().toUpperCase()}`),
-                              }))
-                        : [
-                              {
-                                  value: 'medium',
-                                  label: Translate('IDCS_MEDIUM'),
-                              },
-                          ]
-                // 时间间隔
-                const defaultHoldTime = $('//content/snapParam/holdTime').attr('default')
-                pageData.value.defaultHoldTime = defaultHoldTime == '' ? '3' : defaultHoldTime
-                const holdTime = $('//content/snapParam/holdTime').text()
-                formData.value.holdTime = holdTime == '' ? pageData.value.defaultHoldTime : holdTime
-                const holdTimeList = $('//content/snapParam/holdTimeNote').text()
-                // 时间单位,暂无用
+                pageData.value.defaultPort = $('//content/platformParam/port').attr('default').num() || 5901
+                pageData.value.defaultResolution = $('//content/snapParam/resolution').attr('default') || 'CIF'
+                pageData.value.resolutionList = $('//content/snapParam/resolutionNote')
+                    .text()
+                    .split(',')
+                    .map((item) => ({
+                        value: item.trim(),
+                        label: item.trim(),
+                    }))
+                pageData.value.defaultLevel = $('//content/snapParam/level').attr('default') || 'medium'
+                pageData.value.levelList = $('//content/snapParam/levelNote')
+                    .text()
+                    .split(',')
+                    .reverse()
+                    .map((item) => ({
+                        value: item.trim(),
+                        label: Translate(`IDCS_${item.trim().toUpperCase()}`),
+                    }))
+                pageData.value.defaultHoldTime = $('//content/snapParam/holdTime').attr('default') || '3'
                 pageData.value.unit = $('//content/snapParam/holdTime').attr('unit')
-                // TODO 后续修改
-                pageData.value.holdTimeList =
-                    holdTimeList !== ''
-                        ? holdTimeList.split(',').map((item) => ({
-                              value: item.trim(),
-                              label: item.trim() + Translate('IDCS_SECOND'),
-                          }))
-                        : [{ value: '3', label: '3' + Translate('IDCS_SECOND') }]
+                pageData.value.holdTimeList = $('//content/snapParam/holdTimeNote')
+                    .text()
+                    .split(',')
+                    .map((item) => ({
+                        value: item.trim(),
+                        label: getTranslateForSecond(Number(item.trim())),
+                    }))
+
+                formData.value.enable = $('//content/platformParam/switch').text().bool()
+                formData.value.proxyId = $('//content/platformParam/proxyId').text()
+                formData.value.port = $('//content/platformParam/port').text().num() || pageData.value.defaultPort
+                formData.value.resolution = $('//content/snapParam/resolution').text() || pageData.value.defaultResolution
+                formData.value.level = $('//content/snapParam/level').text() || pageData.value.defaultLevel
+                formData.value.holdTime = $('//content/snapParam/holdTime').text() || pageData.value.defaultHoldTime
+                formData.value.isDomain = true
+
+                setIpValue(pageData.value.serverAddress)
             }
         }
 
@@ -120,6 +113,7 @@ export default defineComponent({
             formData.value.resolution = pageData.value.defaultResolution
             formData.value.level = pageData.value.defaultLevel
             formData.value.holdTime = pageData.value.defaultHoldTime
+            formRef.value!.clearValidate()
         }
 
         const getSavaData = () => {
@@ -143,14 +137,15 @@ export default defineComponent({
             return sendXml
         }
 
-        const setData = () => {
-            if (!verification()) return
+        const setData = async () => {
+            const valid = await formRef.value!.validate()
+            if (!valid) return
+
             const sendXml = getSavaData()
             openLoading()
-            editSHDBParam(sendXml).then((res) => {
-                commSaveResponseHadler(res)
-                closeLoading()
-            })
+            const result = await editSHDBParam(sendXml)
+            commSaveResponseHadler(result)
+            closeLoading()
         }
 
         // 根据获取到的地址设置ip或者域名
@@ -164,48 +159,6 @@ export default defineComponent({
             }
         }
 
-        // 校验规则
-        const verification = () => {
-            if (formData.value.isDomain) {
-                if (formData.value.domain === '') {
-                    ElMessage({
-                        message: Translate('IDCS_DOMAIN_NAME_EMPTY'),
-                        type: 'error',
-                        customClass: 'errorMsg',
-                        duration: 2000,
-                    })
-                    return false
-                } else if (!checkDomain(formData.value.domain)) {
-                    ElMessage({
-                        message: Translate('IDCS_TEST_DDNS_INVALID_HOSTNAME'),
-                        type: 'error',
-                        customClass: 'errorMsg',
-                        duration: 2000,
-                    })
-                    return false
-                }
-            } else {
-                if (formData.value.ip === '') {
-                    ElMessage({
-                        message: Translate('IDCS_PROMPT_IPADDRESS_EMPTY'),
-                        type: 'error',
-                        customClass: 'errorMsg',
-                        duration: 2000,
-                    })
-                    return false
-                } else if (!checkIpV4(formData.value.ip)) {
-                    ElMessage({
-                        message: Translate('IDCS_PROMPT_IPADDRESS_INVALID'),
-                        type: 'error',
-                        customClass: 'errorMsg',
-                        duration: 2000,
-                    })
-                    return false
-                }
-            }
-            return true
-        }
-
         const handleIpChange = (value: string) => {
             formData.value.ip = value
         }
@@ -215,7 +168,9 @@ export default defineComponent({
         })
 
         return {
+            formRef,
             formData,
+            formRule,
             pageData,
             handleIpChange,
             setDefault,

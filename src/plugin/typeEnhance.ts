@@ -35,7 +35,7 @@ export default {
             let str = <string>this
             if (args.length > 0) {
                 for (let i = 0; i < args.length; i++) {
-                    if (args[i] != undefined) {
+                    if (args[i] !== undefined) {
                         const reg = new RegExp('({[' + i + ']})', 'g')
                         str = str.replace(reg, args[i])
                     }
@@ -44,8 +44,16 @@ export default {
             return str
         }
 
-        String.prototype.toBoolean = function (): boolean {
-            return (<string>this).toLowerCase() === 'true'
+        String.prototype.toBoolean = function () {
+            return (this as string).toLowerCase() === 'true'
+        }
+
+        String.prototype.bool = function () {
+            return (this as string).toLowerCase() === 'true'
+        }
+
+        String.prototype.num = function () {
+            return Number(this as string)
         }
 
         Boolean.prototype.toString = function (): string {

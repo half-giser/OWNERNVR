@@ -4,13 +4,13 @@
  * @Date: 2024-10-23 11:43:19
  */
 import dayjs from 'dayjs'
-import { type ImageUploadDto } from '@/types/apiType/system'
+import { type SystenSHDBImageUploadDto } from '@/types/apiType/system'
 import { type TableInstance } from 'element-plus'
-import AddUploadTimePop from './AddUploadTimePop.vue'
+import ImageUploadAddTimePop from './ImageUploadAddTimePop.vue'
 
 export default defineComponent({
     components: {
-        AddUploadTimePop,
+        ImageUploadAddTimePop,
     },
     setup(_prop, ctx) {
         const { Translate } = useLangStore()
@@ -19,13 +19,13 @@ export default defineComponent({
 
         const tableRef = ref<TableInstance>()
         const timeMode = ref(24)
-        const tableData = ref<ImageUploadDto[]>([])
+        const tableData = ref<SystenSHDBImageUploadDto[]>([])
 
         const pageData = ref({
             // 表格展开索引列表
             expandRowKey: [] as string[],
             // 当前行
-            currentRow: {} as ImageUploadDto,
+            currentRow: {} as SystenSHDBImageUploadDto,
             // 添加项时间
             addTimeData: '00:00:00',
             // 添加单个时间项弹窗开关
@@ -47,10 +47,10 @@ export default defineComponent({
 
         /**
          * @description 表格项展开回调
-         * @param {ImageUploadDto} row
+         * @param {SystenSHDBImageUploadDto} row
          * @param {boolean} expanded
          */
-        const handleExpandChange = async (row: ImageUploadDto, expanded: boolean) => {
+        const handleExpandChange = async (row: SystenSHDBImageUploadDto, expanded: boolean) => {
             tableRef.value?.setCurrentRow(row)
             if (expanded) {
                 if (!pageData.value.expandRowKey.includes(row.chlId)) {
@@ -65,21 +65,20 @@ export default defineComponent({
         }
 
         // 行标识
-        const getRowKey = (row: ImageUploadDto) => {
+        const getRowKey = (row: SystenSHDBImageUploadDto) => {
             return row.chlId
         }
 
         // 24小时制转12小时制
         const _24turn12 = (value: string) => {
-            const time = new Date('2024/1/1 ' + value)
+            const time = new Date(2000, 1, 1, ...value.split(':').map((item) => Number(item)))
             return dayjs(time).format('hh:mm:ss A')
         }
 
         // 获取时间格式
-        const getTimeCfg = () => {
-            queryTimeCfg().then((res) => {
-                timeMode.value = Number(queryXml(res)('content/formatInfo/time').text())
-            })
+        const getTimeCfg = async () => {
+            const res = await queryTimeCfg()
+            timeMode.value = queryXml(res)('content/formatInfo/time').text().num()
         }
 
         // 获取数据
@@ -119,7 +118,7 @@ export default defineComponent({
         }
 
         // 排序时间项
-        const orderTimeList = (row?: ImageUploadDto) => {
+        const orderTimeList = (row?: SystenSHDBImageUploadDto) => {
             if (!row) {
                 tableData.value.forEach((item) => {
                     orderTimeList(item)
@@ -127,18 +126,17 @@ export default defineComponent({
                 return
             }
             row.timelist.sort((a, b) => {
-                const timeA = new Date('2017/1/11 ' + a.value).getTime()
-                const timeB = new Date('2017/1/11 ' + b.value).getTime()
+                const timeA = getSeconds(a.value)
+                const timeB = getSeconds(b.value)
                 return timeA - timeB
             })
         }
 
         // 清空当前通道所有时间项
-        const clearChannelAllTime = (row: ImageUploadDto) => {
-            const shortName = row.name.length > 10 ? row.name.slice(0, 10) + '...' : row.name
+        const clearChannelAllTime = (row: SystenSHDBImageUploadDto) => {
             openMessageBox({
                 type: 'question',
-                message: Translate('IDCS_SCHEDULE_CLEAR').formatForLang(shortName),
+                message: Translate('IDCS_SCHEDULE_CLEAR').formatForLang(getShortString(row.name, 10)),
             }).then(() => {
                 row.timeCount = 0
                 row.timelist = []
@@ -146,13 +144,13 @@ export default defineComponent({
         }
 
         // 删除时间项
-        const deleteTimeItem = (row: ImageUploadDto, index: number) => {
+        const deleteTimeItem = (row: SystenSHDBImageUploadDto, index: number) => {
             row.timelist.splice(index, 1)
             row.timeCount = row.timelist.length
         }
 
         // 打开添加时间项弹窗
-        const openAddTimeDialog = (row: ImageUploadDto) => {
+        const openAddTimeDialog = (row: SystenSHDBImageUploadDto) => {
             pageData.value.currentRow = row
             pageData.value.addSignTimeDialogOpen = true
         }
@@ -185,7 +183,7 @@ export default defineComponent({
             }
 
             for (let i = 0; i < timeList.length; i++) {
-                const distime = (new Date('2017/1/11 ' + timeList[i].value).getTime() - new Date('2017/1/11 ' + time).getTime()) / 1000
+                const distime = getSeconds(timeList[i].value) - getSeconds(time)
                 if (Math.abs(distime) < 5 * 60) {
                     openMessageBox({
                         type: 'info',
@@ -198,9 +196,18 @@ export default defineComponent({
             return true
         }
 
+        /**
+         * @description 计算秒时间戳
+         * @param {String} formatString HH:mm
+         */
+        const getSeconds = (formatString = '00:00:00') => {
+            const split = formatString.split(':')
+            return Number(split[0]) * 3600 + Number(split[1]) * 60
+        }
+
         // 添加时间项弹窗确认
-        const addUploadTime = (data: ImageUploadDto[], addTime: string) => {
-            if (data.length === 0) {
+        const addUploadTime = (data: SystenSHDBImageUploadDto[], addTime: string) => {
+            if (!data.length) {
                 openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_PROMPT_CHANNEL_GROUP_EMPTY'),
@@ -258,7 +265,7 @@ export default defineComponent({
 
         // 挂载完成获取数据
         onMounted(async () => {
-            getTimeCfg()
+            await getTimeCfg()
             await getData()
         })
 
@@ -267,7 +274,7 @@ export default defineComponent({
         })
 
         return {
-            AddUploadTimePop,
+            ImageUploadAddTimePop,
             pageData,
             tableRef,
             tableData,

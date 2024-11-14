@@ -1,3 +1,8 @@
+/*
+ * @Author: luoyiming luoyiming@tvt.net.cn
+ * @Date: 2024-10-25 18:38:09
+ * @Description: 平台操作管理
+ */
 import { type chlDataItem } from '@/types/apiType/system'
 import { type TableInstance } from 'element-plus'
 
@@ -8,113 +13,224 @@ export default defineComponent({
         const { openMessageBox } = useMessageBox()
 
         const router = useRouter()
+
         const tableRef = ref<TableInstance>()
         const tableData = ref<chlDataItem[]>([])
 
         const pageData = ref({
-            userType: 'operator',
-            operationType: 'testScreenshot',
             operationTypeList: [] as SelectOption<string, string>[],
             // 用户类型
             userTypeList: [
-                { value: 'operator', label: Translate('IDCS_OPERATE_USER') },
-                { value: 'repairtor', label: Translate('IDCS_MAINTENANCE_USER') },
-                { value: 'acceptancetor', label: Translate('IDCS_ACCEPTANCE_USER') },
+                {
+                    value: 'operator',
+                    label: Translate('IDCS_OPERATE_USER'),
+                },
+                {
+                    value: 'repairtor',
+                    label: Translate('IDCS_MAINTENANCE_USER'),
+                },
+                {
+                    value: 'acceptancetor',
+                    label: Translate('IDCS_ACCEPTANCE_USER'),
+                },
             ],
             // 操作类型
             // 操作人员
             operatorTypeList: [
-                { value: 'testScreenshot', label: Translate('IDCS_OPERATE_USER_TEST_SNAP') },
-                { value: 'faultRepair', label: Translate('IDCS_OPERATE_USER_FAULT') },
+                {
+                    value: 'testScreenshot',
+                    label: Translate('IDCS_OPERATE_USER_TEST_SNAP'),
+                },
+                {
+                    value: 'faultRepair',
+                    label: Translate('IDCS_OPERATE_USER_FAULT'),
+                },
             ],
             // 维保人员
             repairtorTypeList: [
-                { value: 'maintenanceScreenshot', label: Translate('IDCS_MAINTEN_USER_SNAP') },
-                { value: 'maintenanceSign', label: Translate('IDCS_MAINTEN_USER_MAINTENSIGN') },
-                { value: 'repairSign', label: Translate('IDCS_MAINTEN_USER_REPAIRSIGN') },
+                {
+                    value: 'maintenanceScreenshot',
+                    label: Translate('IDCS_MAINTEN_USER_SNAP'),
+                },
+                {
+                    value: 'maintenanceSign',
+                    label: Translate('IDCS_MAINTEN_USER_MAINTENSIGN'),
+                },
+                {
+                    value: 'repairSign',
+                    label: Translate('IDCS_MAINTEN_USER_REPAIRSIGN'),
+                },
             ],
             // 验收人员
-            acceptancetorTypeList: [{ value: 'acceptScreenshot', label: Translate('IDCS_ACCEPTANCE_SNAP') }],
+            acceptancetorTypeList: [
+                {
+                    value: 'acceptScreenshot',
+                    label: Translate('IDCS_ACCEPTANCE_SNAP'),
+                },
+            ],
             // 测试抓图/维保抓图/验收抓图
             // 全选
             selectAll: true,
             // 反选
             reverseSelect: false,
+            faultTypeList: [
+                {
+                    value: 'videoMonitorError',
+                    label: Translate('IDCS_FAULT_VIDEO'),
+                },
+                {
+                    value: 'aroundAlarmError',
+                    label: Translate('IDCS_FAULT_PERIMETER'),
+                },
+                {
+                    value: 'netAlarmError',
+                    label: Translate('IDCS_FAULT_NETWORK'),
+                },
+                {
+                    value: 'localAlarmError',
+                    label: Translate('IDCS_FAULT_LOCAL'),
+                },
+                {
+                    value: 'invadeAlarmError',
+                    label: Translate('IDCS_FAULT_INTRUSION'),
+                },
+                {
+                    value: 'buildIntercomError',
+                    label: Translate('IDCS_FAULT_INTERCOM'),
+                },
+                {
+                    value: 'entranceGuardError',
+                    label: Translate('IDCS_FAULT_ACCESSCONTROL'),
+                },
+                {
+                    value: 'entranceCtrlError',
+                    label: Translate('IDCS_FAULT_ENTRYCONTROL'),
+                },
+                {
+                    value: 'electronicPatrolError',
+                    label: Translate('IDCS_FAULT_ELEPAT'),
+                },
+                {
+                    value: 'otherSystemError',
+                    label: Translate('IDCS_FAULT_OTHERSYS'),
+                },
+            ],
+            chooseFaultTypeList: [
+                {
+                    value: 'frontEndError',
+                    label: Translate('IDCS_FAULT_FRONTEQU'),
+                },
+                {
+                    value: 'transLineError',
+                    label: Translate('IDCS_FAULT_TRANSMISSION'),
+                },
+                {
+                    value: 'controlSystemError',
+                    label: Translate('IDCS_FAULT_CONTROLSYS'),
+                },
+            ],
+            maintenanceList: [
+                {
+                    value: 'normal',
+                    label: Translate('IDCS_MAINTENSIGN_DAILY'),
+                },
+                {
+                    value: 'special',
+                    label: Translate('IDCS_MAINTENSIGN_SPECIAL'),
+                },
+            ],
+            chooseMaintenanceTypeList: [
+                {
+                    value: 'videoMonitor',
+                    label: Translate('IDCS_MAINTENSIGN_ITEM_VIDEO'),
+                },
+                {
+                    value: 'aroundAlarm',
+                    label: Translate('IDCS_MAINTENSIGN_ITEM_PERIMETER'),
+                },
+                {
+                    value: 'invadeAlarm',
+                    label: Translate('IDCS_MAINTENSIGN_ITEM_INTRUSION'),
+                },
+                {
+                    value: 'buildIntercom',
+                    label: Translate('IDCS_MAINTENSIGN_ITEM_INTERCOM'),
+                },
+                {
+                    value: 'entranceGuard',
+                    label: Translate('IDCS_MAINTENSIGN_ITEM_ACCESSCONTROL'),
+                },
+                {
+                    value: 'entranceCtrl',
+                    label: Translate('IDCS_MAINTENSIGN_ITEM_ENTRYCONTROL'),
+                },
+                {
+                    value: 'electronicPatrol',
+                    label: Translate('IDCS_MAINTENSIGN_ITEM_ELEPAT'),
+                },
+                {
+                    value: 'other',
+                    label: Translate('IDCS_MAINTENSIGN_ITEM_OTHERSYS'),
+                },
+            ],
+            repairList: [
+                {
+                    value: 'noRepaired',
+                    label: Translate('IDCS_REPAIRSIGN_RESULT_NO'),
+                },
+                {
+                    value: 'partRepaired',
+                    label: Translate('IDCS_REPAIRSIGN_RESULT_SOME'),
+                },
+                {
+                    value: 'repaired',
+                    label: Translate('IDCS_REPAIRSIGN_RESULT_ALL'),
+                },
+            ],
+            // 上传按钮禁用
+            uploadDisabled: false,
+        })
+
+        const formData = ref({
+            userType: 'operator',
+            operationType: 'testScreenshot',
             // 警号
             alarmNum: '',
-            // 故障报修——故障类型
-            faultType: 'videoMonitorError',
-            faultTypeList: [
-                { value: 'videoMonitorError', label: Translate('IDCS_FAULT_VIDEO') },
-                { value: 'aroundAlarmError', label: Translate('IDCS_FAULT_PERIMETER') },
-                { value: 'netAlarmError', label: Translate('IDCS_FAULT_NETWORK') },
-                { value: 'localAlarmError', label: Translate('IDCS_FAULT_LOCAL') },
-                { value: 'invadeAlarmError', label: Translate('IDCS_FAULT_INTRUSION') },
-                { value: 'buildIntercomError', label: Translate('IDCS_FAULT_INTERCOM') },
-                { value: 'entranceGuardError', label: Translate('IDCS_FAULT_ACCESSCONTROL') },
-                { value: 'entranceCtrlError', label: Translate('IDCS_FAULT_ENTRYCONTROL') },
-                { value: 'electronicPatrolError', label: Translate('IDCS_FAULT_ELEPAT') },
-                { value: 'otherSystemError', label: Translate('IDCS_FAULT_OTHERSYS') },
-            ],
             // 选中的故障类型（多选）
             chooseFaultType: ['frontEndError', 'transLineError', 'controlSystemError'],
-            chooseFaultTypeList: [
-                { value: 'frontEndError', label: Translate('IDCS_FAULT_FRONTEQU') },
-                { value: 'transLineError', label: Translate('IDCS_FAULT_TRANSMISSION') },
-                { value: 'controlSystemError', label: Translate('IDCS_FAULT_CONTROLSYS') },
-            ],
+            // 故障报修——故障类型
+            faultType: 'videoMonitorError',
             // 故障维修——故障记录描述
             faultRecord: '',
             // 维保签到——保养项目
             maintenance: 'normal',
-            maintenanceList: [
-                { value: 'normal', label: Translate('IDCS_MAINTENSIGN_DAILY') },
-                { value: 'special', label: Translate('IDCS_MAINTENSIGN_SPECIAL') },
-            ],
             // 维保签到——选中的保养项目（多选）
             chooseMaintenanceType: ['videoMonitor', 'aroundAlarm', 'invadeAlarm', 'buildIntercom', 'entranceGuard', 'entranceCtrl', 'electronicPatrol', 'other'],
-            chooseMaintenanceTypeList: [
-                { value: 'videoMonitor', label: Translate('IDCS_MAINTENSIGN_ITEM_VIDEO') },
-                { value: 'aroundAlarm', label: Translate('IDCS_MAINTENSIGN_ITEM_PERIMETER') },
-                { value: 'invadeAlarm', label: Translate('IDCS_MAINTENSIGN_ITEM_INTRUSION') },
-                { value: 'buildIntercom', label: Translate('IDCS_MAINTENSIGN_ITEM_INTERCOM') },
-                { value: 'entranceGuard', label: Translate('IDCS_MAINTENSIGN_ITEM_ACCESSCONTROL') },
-                { value: 'entranceCtrl', label: Translate('IDCS_MAINTENSIGN_ITEM_ENTRYCONTROL') },
-                { value: 'electronicPatrol', label: Translate('IDCS_MAINTENSIGN_ITEM_ELEPAT') },
-                { value: 'other', label: Translate('IDCS_MAINTENSIGN_ITEM_OTHERSYS') },
-            ],
             // 维保签到——保养记录描述
             maintenanceRecord: '',
             // 维修签到——故障处理结果
             repair: 'noRepaired',
-            repairList: [
-                { value: 'noRepaired', label: Translate('IDCS_REPAIRSIGN_RESULT_NO') },
-                { value: 'partRepaired', label: Translate('IDCS_REPAIRSIGN_RESULT_SOME') },
-                { value: 'repaired', label: Translate('IDCS_REPAIRSIGN_RESULT_ALL') },
-            ],
             // 维修签到——选中的维修项目（多选）
             chooseRepairType: ['videoMonitor', 'aroundAlarm', 'invadeAlarm', 'buildIntercom', 'entranceGuard', 'entranceCtrl', 'electronicPatrol', 'other'],
             // 维修签到——维修记录描述
             repairRecord: '',
-            // 上传按钮禁用
-            uploadDisabled: false,
         })
 
         // 用户类型
         const changeUserType = (value: string) => {
             switch (value) {
                 case 'operator':
-                    pageData.value.operationType = 'testScreenshot'
+                    formData.value.operationType = 'testScreenshot'
                     changeOperationType('testScreenshot')
                     pageData.value.operationTypeList = pageData.value.operatorTypeList
                     break
                 case 'repairtor':
-                    pageData.value.operationType = 'maintenanceScreenshot'
+                    formData.value.operationType = 'maintenanceScreenshot'
                     changeOperationType('maintenanceScreenshot')
                     pageData.value.operationTypeList = pageData.value.repairtorTypeList
                     break
                 case 'acceptancetor':
-                    pageData.value.operationType = 'acceptScreenshot'
+                    formData.value.operationType = 'acceptScreenshot'
                     changeOperationType('acceptScreenshot')
                     pageData.value.operationTypeList = pageData.value.acceptancetorTypeList
                     break
@@ -210,20 +326,20 @@ export default defineComponent({
 
         //设置上传按钮状态
         const refreshUploadBtnStatus = () => {
-            switch (pageData.value.operationType) {
+            switch (formData.value.operationType) {
                 case 'testScreenshot':
                 case 'maintenanceScreenshot':
                 case 'acceptScreenshot':
                     pageData.value.uploadDisabled = tableRef.value!.getSelectionRows().length === 0
                     break
                 case 'faultRepair':
-                    pageData.value.uploadDisabled = pageData.value.chooseFaultType.length === 0
+                    pageData.value.uploadDisabled = formData.value.chooseFaultType.length === 0
                     break
                 case 'maintenanceSign':
-                    pageData.value.uploadDisabled = pageData.value.chooseMaintenanceType.length === 0
+                    pageData.value.uploadDisabled = formData.value.chooseMaintenanceType.length === 0
                     break
                 case 'repairSign':
-                    pageData.value.uploadDisabled = pageData.value.chooseRepairType.length === 0
+                    pageData.value.uploadDisabled = formData.value.chooseRepairType.length === 0
                     break
             }
         }
@@ -254,9 +370,9 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <item id='errorRepair'>
-                        <errorType>${pageData.value.faultType}</errorType>
-                        <errorParts>${pageData.value.chooseFaultType.join(',')}</errorParts>
-                        <comment><![CDATA[${pageData.value.faultRecord}]]></comment>
+                        <errorType>${formData.value.faultType}</errorType>
+                        <errorParts>${formData.value.chooseFaultType.join(',')}</errorParts>
+                        <comment><![CDATA[${formData.value.faultRecord}]]></comment>
                     </item>
                 </content>
             `
@@ -283,9 +399,9 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <item id='keeperAssign'>
-                        <keepType>${pageData.value.maintenance}</keepType>
-                        <operationItem>${pageData.value.chooseMaintenanceType.join(',')}</operationItem>
-                        <comment><![CDATA[${pageData.value.maintenanceRecord}]]></comment>
+                        <keepType>${formData.value.maintenance}</keepType>
+                        <operationItem>${formData.value.chooseMaintenanceType.join(',')}</operationItem>
+                        <comment><![CDATA[${formData.value.maintenanceRecord}]]></comment>
                     </item>
                 </content>
             `
@@ -297,9 +413,9 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <item id='repairAssign'>
-                        <repairResult>${pageData.value.repair}</repairResult>
-                        <operationItem>${pageData.value.chooseRepairType.join(',')}</operationItem>
-                        <comment><![CDATA[${pageData.value.repairRecord}]]></comment>
+                        <repairResult>${formData.value.repair}</repairResult>
+                        <operationItem>${formData.value.chooseRepairType.join(',')}</operationItem>
+                        <comment><![CDATA[${formData.value.repairRecord}]]></comment>
                     </item>
                 </content>
             `
@@ -315,7 +431,7 @@ export default defineComponent({
                         <chlList type='list'>
                             ${selection.map((item) => `<item>${item.chlId}</item>`).join('')}
                         </chlList>
-                        <alarmNum>${pageData.value.alarmNum}</alarmNum>
+                        <alarmNum>${formData.value.alarmNum}</alarmNum>
                     </item>
                 </content>
             `
@@ -325,7 +441,7 @@ export default defineComponent({
         // 上传数据
         const uploadData = async () => {
             let sendXml = ``
-            switch (pageData.value.operationType) {
+            switch (formData.value.operationType) {
                 case 'testScreenshot':
                     sendXml = getTestScreenshotSaveData()
                     break
@@ -348,7 +464,7 @@ export default defineComponent({
             openLoading()
             const result = await editSHDBOperationCfg(sendXml)
             const $ = queryXml(result)
-            if ($('//status').text() == 'success') {
+            if ($('//status').text() === 'success') {
                 openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_PLATFORM_OPERATE_UPLOAD_MSG'),
@@ -363,10 +479,12 @@ export default defineComponent({
             await getData()
             selectAll()
         })
+
         return {
             tableRef,
             tableData,
             pageData,
+            formData,
             // 用户类型
             changeUserType,
             // 操作类型

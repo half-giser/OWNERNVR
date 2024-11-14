@@ -1,3 +1,8 @@
+<!--
+ * @Author: luoyiming luoyiming@tvt.net.cn
+ * @Date: 2024-10-25 18:38:09
+ * @Description: 平台操作管理
+-->
 <template>
     <div class="type">
         <el-form
@@ -8,7 +13,7 @@
         >
             <el-form-item :label="Translate('IDCS_USER_TYPE')">
                 <el-select
-                    v-model="pageData.userType"
+                    v-model="formData.userType"
                     @change="changeUserType"
                 >
                     <el-option
@@ -21,7 +26,7 @@
             </el-form-item>
             <el-form-item :label="Translate('IDCS_OPERATE_TYPE')">
                 <el-select
-                    v-model="pageData.operationType"
+                    v-model="formData.operationType"
                     @change="changeOperationType"
                 >
                     <el-option
@@ -34,10 +39,15 @@
             </el-form-item>
         </el-form>
     </div>
-    <div class="wrap">
+    <div
+        class="wrap"
+        :style="{
+            '--form-input-width': '200px',
+        }"
+    >
         <!-- 测试抓图/维护抓图/验收抓图 -->
         <div
-            v-show="pageData.operationType === 'testScreenshot' || pageData.operationType === 'maintenanceScreenshot' || pageData.operationType === 'acceptScreenshot'"
+            v-show="formData.operationType === 'testScreenshot' || formData.operationType === 'maintenanceScreenshot' || formData.operationType === 'acceptScreenshot'"
             class="screenshot"
         >
             <el-form>
@@ -56,7 +66,7 @@
             </el-form>
             <el-table
                 ref="tableRef"
-                :height="pageData.operationType === 'acceptScreenshot' ? 360 : 400"
+                :height="formData.operationType === 'acceptScreenshot' ? 360 : 400"
                 border
                 stripe
                 :data="tableData"
@@ -80,142 +90,127 @@
                     width="620"
                 />
             </el-table>
-            <el-form
-                v-show="pageData.operationType === 'acceptScreenshot'"
-                :style="{ '--form-input-width': '200px', marginTop: '20px' }"
-            >
+            <el-form v-show="formData.operationType === 'acceptScreenshot'">
                 <el-form-item :label="Translate('IDCS_ACCEPTANCE_ALARM')">
                     <el-input
-                        v-model="pageData.alarmNum"
+                        v-model="formData.alarmNum"
                         maxlength="20"
                     />
                 </el-form-item>
             </el-form>
         </div>
         <!-- 故障报修 -->
-        <div
-            v-show="pageData.operationType === 'faultRepair'"
-            class="screenshot"
-        >
-            <el-form :style="{ '--form-input-width': '200px' }">
-                <el-form-item :label="Translate('IDCS_OPERATE_FAULT_TYPE')">
-                    <el-select v-model="pageData.faultType">
-                        <el-option
-                            v-for="item in pageData.faultTypeList"
-                            :key="item.value"
-                            :value="item.value"
-                            :label="item.label"
-                        />
-                    </el-select>
-                </el-form-item>
-                <el-form-item>
-                    <el-checkbox-group
-                        v-model="pageData.chooseFaultType"
-                        @change="refreshUploadBtnStatus"
-                    >
-                        <el-checkbox
-                            v-for="item in pageData.chooseFaultTypeList"
-                            :key="item.value"
-                            :value="item.value"
-                            :label="item.label"
-                        />
-                    </el-checkbox-group>
-                </el-form-item>
-                <el-form-item :label="Translate('IDCS_RECORD_DESCRIPTION')" />
-                <el-form-item>
-                    <el-input
-                        v-model="pageData.faultRecord"
-                        maxlength="40"
-                        resize="vertical"
-                        type="textarea"
+        <el-form v-show="formData.operationType === 'faultRepair'">
+            <el-form-item :label="Translate('IDCS_OPERATE_FAULT_TYPE')">
+                <el-select v-model="formData.faultType">
+                    <el-option
+                        v-for="item in pageData.faultTypeList"
+                        :key="item.value"
+                        :value="item.value"
+                        :label="item.label"
                     />
-                </el-form-item>
-            </el-form>
-        </div>
+                </el-select>
+            </el-form-item>
+            <el-form-item>
+                <el-checkbox-group
+                    v-model="formData.chooseFaultType"
+                    @change="refreshUploadBtnStatus"
+                >
+                    <el-checkbox
+                        v-for="item in pageData.chooseFaultTypeList"
+                        :key="item.value"
+                        :value="item.value"
+                        :label="item.label"
+                    />
+                </el-checkbox-group>
+            </el-form-item>
+            <el-form-item :label="Translate('IDCS_RECORD_DESCRIPTION')" />
+            <el-form-item>
+                <el-input
+                    v-model="formData.faultRecord"
+                    maxlength="40"
+                    resize="vertical"
+                    type="textarea"
+                />
+            </el-form-item>
+        </el-form>
         <!-- 维保签到 -->
-        <div
-            v-show="pageData.operationType === 'maintenanceSign'"
-            class="maintenanceSign"
-        >
-            <el-form :style="{ '--form-input-width': '200px' }">
-                <el-form-item :label="Translate('IDCS_MAINTENSIGN_ITEM')">
-                    <el-select v-model="pageData.maintenance">
-                        <el-option
-                            v-for="item in pageData.maintenanceList"
-                            :key="item.value"
-                            :value="item.value"
-                            :label="item.label"
-                        />
-                    </el-select>
-                </el-form-item>
-                <el-form-item :label="Translate('IDCS_MAINTENSIGN_ITEMCHOOSE')" />
-                <el-form-item>
-                    <el-checkbox-group
-                        v-model="pageData.chooseMaintenanceType"
-                        @change="refreshUploadBtnStatus"
-                    >
-                        <el-checkbox
-                            v-for="item in pageData.chooseMaintenanceTypeList"
-                            :key="item.value"
-                            :value="item.value"
-                            :label="item.label"
-                        />
-                    </el-checkbox-group>
-                </el-form-item>
-                <el-form-item :label="Translate('IDCS_RECORD_DESCRIPTION')" />
-                <el-form-item>
-                    <el-input
-                        v-model="pageData.maintenanceRecord"
-                        maxlength="40"
-                        resize="vertical"
-                        type="textarea"
+        <el-form v-show="formData.operationType === 'maintenanceSign'">
+            <el-form-item :label="Translate('IDCS_MAINTENSIGN_ITEM')">
+                <el-select v-model="formData.maintenance">
+                    <el-option
+                        v-for="item in pageData.maintenanceList"
+                        :key="item.value"
+                        :value="item.value"
+                        :label="item.label"
                     />
-                </el-form-item>
-            </el-form>
-        </div>
+                </el-select>
+            </el-form-item>
+            <el-form-item :label="Translate('IDCS_MAINTENSIGN_ITEMCHOOSE')" />
+            <el-form-item>
+                <el-checkbox-group
+                    v-model="formData.chooseMaintenanceType"
+                    @change="refreshUploadBtnStatus"
+                >
+                    <el-checkbox
+                        v-for="item in pageData.chooseMaintenanceTypeList"
+                        :key="item.value"
+                        :value="item.value"
+                        :label="item.label"
+                    />
+                </el-checkbox-group>
+            </el-form-item>
+            <el-form-item :label="Translate('IDCS_RECORD_DESCRIPTION')" />
+            <el-form-item>
+                <el-input
+                    v-model="formData.maintenanceRecord"
+                    maxlength="40"
+                    resize="vertical"
+                    type="textarea"
+                />
+            </el-form-item>
+        </el-form>
         <!-- 维修签到 -->
-        <div
-            v-show="pageData.operationType === 'repairSign'"
-            class="repairSign"
-        >
-            <el-form :style="{ '--form-input-width': '200px' }">
-                <el-form-item :label="Translate('IDCS_MAINTENSIGN_ITEMCHOOSE')" />
-                <el-form-item>
-                    <el-checkbox-group
-                        v-model="pageData.chooseRepairType"
-                        @change="refreshUploadBtnStatus"
-                    >
-                        <el-checkbox
-                            v-for="item in pageData.chooseMaintenanceTypeList"
-                            :key="item.value"
-                            :value="item.value"
-                            :label="item.label"
-                        />
-                    </el-checkbox-group>
-                </el-form-item>
-                <el-form-item :label="Translate('IDCS_RECORD_DESCRIPTION')" />
-                <el-form-item>
-                    <el-input
-                        v-model="pageData.repairRecord"
-                        maxlength="40"
-                        resize="vertical"
-                        type="textarea"
+        <el-form v-show="formData.operationType === 'repairSign'">
+            <el-form-item :label="Translate('IDCS_MAINTENSIGN_ITEMCHOOSE')" />
+            <el-form-item>
+                <el-checkbox-group
+                    v-model="formData.chooseRepairType"
+                    @change="refreshUploadBtnStatus"
+                >
+                    <el-checkbox
+                        v-for="item in pageData.chooseMaintenanceTypeList"
+                        :key="item.value"
+                        :value="item.value"
+                        :label="item.label"
                     />
-                </el-form-item>
-                <el-form-item :label="Translate('IDCS_REPAIRSIGN_RESULT')">
-                    <el-select v-model="pageData.repair">
-                        <el-option
-                            v-for="item in pageData.repairList"
-                            :key="item.value"
-                            :value="item.value"
-                            :label="item.label"
-                        />
-                    </el-select>
-                </el-form-item>
-            </el-form>
-        </div>
+                </el-checkbox-group>
+            </el-form-item>
+            <el-form-item :label="Translate('IDCS_RECORD_DESCRIPTION')" />
+            <el-form-item>
+                <el-input
+                    v-model="formData.repairRecord"
+                    maxlength="40"
+                    resize="vertical"
+                    type="textarea"
+                />
+            </el-form-item>
+            <el-form-item :label="Translate('IDCS_REPAIRSIGN_RESULT')">
+                <el-select v-model="formData.repair">
+                    <el-option
+                        v-for="item in pageData.repairList"
+                        :key="item.value"
+                        :value="item.value"
+                        :label="item.label"
+                    />
+                </el-select>
+            </el-form-item>
+        </el-form>
     </div>
-    <div class="base-btn-box bottom">
+    <div
+        class="base-btn-box"
+        :style="{ '--form-input-width': '665px' }"
+    >
         <el-button
             :disabled="pageData.uploadDisabled"
             @click="uploadData"
@@ -229,14 +224,14 @@
 
 <style lang="scss" scoped>
 .type {
-    margin: 10px 40px;
+    width: 800px;
+    padding: 15px;
 }
 
 .wrap {
     width: 800px;
     height: 470px;
-    margin-left: 20px;
-    padding: 20px;
+    padding: 15px;
     border: 1px solid var(--content-border);
 
     :deep(.el-textarea__inner) {
@@ -245,10 +240,8 @@
         max-height: 275px;
     }
 
-    .screenshot {
-        :deep(.el-textarea__inner) {
-            max-height: 350px;
-        }
+    :deep(.el-checkbox) {
+        margin-left: 0 !important;
     }
 }
 
