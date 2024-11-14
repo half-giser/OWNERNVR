@@ -280,12 +280,12 @@ export default defineComponent({
                 $('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     if (item.attr('id') === 'NVMS5000') {
-                        formData.value.nwms5000Switch = $item('switch').text().toBoolean()
+                        formData.value.nwms5000Switch = $item('switch').text().bool()
                         formData.value.serverAddr = $item('serverAddr').text()
                         formData.value.reportId = Number($item('reportId').text())
                         formData.value.port = Number($item('port').text())
                     } else if (item.attr('id') === 'GB28181') {
-                        formData.value.gb28181Switch = $item('switch').text().toBoolean()
+                        formData.value.gb28181Switch = $item('switch').text().bool()
                         formData.value.sipRelm = $item('sipServerInfo/relm').text()
                         formData.value.sipAddr = $item('sipServerInfo/addr').text()
                         formData.value.sipLocalPort = Number($item('sipServerInfo/localPort').text())
@@ -491,9 +491,8 @@ export default defineComponent({
             formData,
             formRules,
             tableData,
-            nameByteMaxLen: nameByteMaxLen,
-            formatDigit: formatDigit,
-            formatInputMaxLength: formatInputMaxLength,
+            formatDigit,
+            formatInputMaxLength,
             editCodeId,
             confirmEditCodeId,
             verify,

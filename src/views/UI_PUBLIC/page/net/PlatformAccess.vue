@@ -43,7 +43,6 @@
                         v-model="formData.serverAddr"
                         :formatter="formatInputMaxLength"
                         :parser="formatInputMaxLength"
-                        :maxlength="nameByteMaxLen"
                         :disabled="!formData.nwms5000Switch"
                     />
                 </el-form-item>
