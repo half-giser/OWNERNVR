@@ -486,6 +486,7 @@ input[type='number'] {
 
             .el-form-item__error {
                 padding-top: 0;
+                top: unset;
             }
         }
 
@@ -515,6 +516,7 @@ input[type='number'] {
 
             .el-form-item__error {
                 padding-top: 0;
+                top: unset;
             }
         }
     }
