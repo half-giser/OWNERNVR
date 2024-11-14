@@ -193,14 +193,14 @@ export default defineComponent({
         //         pageData.value.chlList = $('//content/item').map((item) => {
         //             const $item = queryXml(item.element)
         //             return {
-        //                 id: item.attr('id')!,
+        //                 id: item.attr('id'),
         //                 addType: $item('addType').text(),
         //                 chlType: $item('chlType').text(),
         //                 chlIndex: $item('chlIndex').text(),
         //                 name: $item('name').text(),
         //                 poeIndex: $item('poeIndex').text(),
         //                 productModel: $item('productModel').text(),
-        //                 factoryName: $item('productModel').attr('factoryName')!,
+        //                 factoryName: $item('productModel').attr('factoryName'),
         //             }
         //         })
         //     })
@@ -435,13 +435,13 @@ export default defineComponent({
                 tableData.value = $('//content/item').map((item, index) => {
                     const $item = queryXml(item.element)
 
-                    const chlId = item.attr('id')!
+                    const chlId = item.attr('id')
                     const chlName = $item('name').text()
 
-                    let frameRate = Number($item('sub').attr('fps')!)
+                    let frameRate = $item('sub').attr('fps').num()
                     const res = $item('subCaps/res')
                         .map((res) => ({
-                            fps: Number(res.attr('fps')!),
+                            fps: res.attr('fps').num(),
                             value: res.text(),
                         }))
                         .toSorted((a, b) => {
@@ -493,11 +493,11 @@ export default defineComponent({
                     const bitTypeList = $item('subCaps').length && $item('subCaps').attr('bitType') ? $item('subCaps').attr('bitType').split(',') : []
                     pageData.value.bitTypeList.push(...bitTypeList)
 
-                    const level = $item('sub').attr('level')!
+                    const level = $item('sub').attr('level')
 
-                    const bitType = $item('sub').attr('bitType')!
-                    const resolution = $item('sub').attr('res')!
-                    const videoEncodeType = $item('sub').attr('enct')!
+                    const bitType = $item('sub').attr('bitType')
+                    const resolution = $item('sub').attr('res')
+                    const videoEncodeType = $item('sub').attr('enct')
 
                     return {
                         id: chlId,
@@ -509,8 +509,8 @@ export default defineComponent({
                             res: res,
                         },
                         subStreamQualityCaps: $item('subStreamQualityCaps/item').map((caps) => {
-                            const enct = caps.attr('enct')!
-                            const res = caps.attr('res')!
+                            const enct = caps.attr('enct')
+                            const res = caps.attr('res')
                             const value = caps.text() ? caps.text().split(',').toReversed() : []
                             if (enct === 'h264' && res === '0x0' && !pageData.value.videoQualityList.length) {
                                 pageData.value.videoQualityList = value
@@ -526,19 +526,19 @@ export default defineComponent({
                             return {
                                 enct,
                                 res,
-                                digitalDefault: Number(caps.attr('digitalDefault')!),
-                                analogDefault: Number(caps.attr('analogDefault')!),
+                                digitalDefault: caps.attr('digitalDefault').num(),
+                                analogDefault: caps.attr('analogDefault').num(),
                                 value,
                             }
                         }),
                         videoEncodeType,
                         streamType: 'sub',
-                        GOP: Number($item('sub').attr('GOP')!),
+                        GOP: $item('sub').attr('GOP').num(),
                         resolution,
                         frameRate,
                         bitType,
                         level,
-                        videoQuality: Number($item('sub').attr('QoI')!),
+                        videoQuality: $item('sub').attr('QoI').num(),
                     }
                 })
 

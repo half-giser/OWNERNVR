@@ -245,14 +245,14 @@ export default defineComponent({
 
                     formData.value.record = $trigger('sysRec/chls/item').map((item) => {
                         return {
-                            value: item.attr('id')!,
+                            value: item.attr('id'),
                             label: item.text(),
                         }
                     })
 
                     formData.value.alarmOut = $trigger('alarmOut/alarmOuts/item').map((item) => {
                         return {
-                            value: item.attr('id')!,
+                            value: item.attr('id'),
                             label: item.text(),
                         }
                     })
@@ -370,14 +370,14 @@ export default defineComponent({
 
                     formData.value.record = $trigger('sysRec/chls/item').map((item) => {
                         return {
-                            value: item.attr('id')!,
+                            value: item.attr('id'),
                             label: item.text(),
                         }
                     })
 
                     formData.value.alarmOut = $trigger('alarmOut/alarmOuts/item').map((item) => {
                         return {
-                            value: item.attr('id')!,
+                            value: item.attr('id'),
                             label: item.text(),
                         }
                     })

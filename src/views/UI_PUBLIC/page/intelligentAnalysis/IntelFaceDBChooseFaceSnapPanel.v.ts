@@ -243,9 +243,9 @@ export default defineComponent({
             const $ = queryXml(result)
             pageData.value.chlList = $('//content/item').map((item) => {
                 const $item = queryXml(item.element)
-                chlMap[item.attr('id')!] = $item('name').text()
+                chlMap[item.attr('id')] = $item('name').text()
                 return {
-                    value: item.attr('id')!,
+                    value: item.attr('id'),
                     label: $item('name').text(),
                 }
             })

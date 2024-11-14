@@ -56,7 +56,7 @@ export default defineComponent({
                 chlList.value = $('//content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
-                        value: item.attr('id')!,
+                        value: item.attr('id'),
                         label: $item('name').text(),
                         till: '',
                     }

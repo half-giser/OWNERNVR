@@ -208,7 +208,7 @@ export default defineComponent({
             const $item = queryXml(item.element)
 
             return {
-                id: item.attr('id')!,
+                id: item.attr('id'),
                 number: $item('number').text(),
                 name: $item('name').text(),
                 sex: $item('sex').text(),
@@ -222,7 +222,7 @@ export default defineComponent({
                 groups: $item('groups/item').map((group) => {
                     const $group = queryXml(group.element)
                     return {
-                        id: group.attr('id')!,
+                        id: group.attr('id'),
                         groupId: $group('groupId').text(),
                         name: $group('name').text(),
                         property: $group('property').text(),

@@ -102,7 +102,7 @@ export default defineComponent({
                         const $item = queryXml(item.element)
 
                         pageData.value.videoPopupChlList.push({
-                            value: item.attr('id')!,
+                            value: item.attr('id'),
                             label: $item('name').text(),
                         })
                     })
@@ -134,7 +134,7 @@ export default defineComponent({
                         const row = new AlarmSensorEventDto()
                         row.id = item.attr('id')
                         row.alarmInType = item.attr('alarmInType')
-                        row.nodeIndex = item.attr('index')!
+                        row.nodeIndex = item.attr('index')
                         row.status = 'loading'
                         tableData.value.push(row)
                     })
@@ -205,7 +205,7 @@ export default defineComponent({
                     switch: $content('trigger/sysRec/switch').text().bool(),
                     chls: $content('trigger/sysRec/chls/item').map((item) => {
                         return {
-                            value: item.attr('id')!,
+                            value: item.attr('id'),
                             label: item.text(),
                         }
                     }),
@@ -215,7 +215,7 @@ export default defineComponent({
                     switch: $content('trigger/sysSnap/switch').text().bool(),
                     chls: $content('trigger/sysSnap/chls/item').map((item) => {
                         return {
-                            value: item.attr('id')!,
+                            value: item.attr('id'),
                             label: item.text(),
                         }
                     }),
@@ -224,7 +224,7 @@ export default defineComponent({
                     switch: $content('trigger/alarmOut/switch').text().bool(),
                     alarmOuts: $content('trigger/alarmOut/alarmOuts/item').map((item) => {
                         return {
-                            value: item.attr('id')!,
+                            value: item.attr('id'),
                             label: item.text(),
                         }
                     }),

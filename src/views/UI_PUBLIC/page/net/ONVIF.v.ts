@@ -78,7 +78,7 @@ export default defineComponent({
                 tableData.value = $('//content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         userName: $item('userName').text(),
                         userLevel: $item('userLevel').text(),
                         password: $item('password').text(),

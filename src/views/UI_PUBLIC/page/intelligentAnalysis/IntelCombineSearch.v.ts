@@ -371,12 +371,12 @@ export default defineComponent({
                         if (!content && times < REPEAR_REQUEST_IMG_TIMES) {
                             return getPic(row, isPanorama, index, times + 1)
                         }
-                        const width = Number($('//rect/ptWidth').text()) || 1
-                        const height = Number($('//rect/ptHeight').text()) || 1
-                        const leftTopX = Number($('//rect/leftTopX').text())
-                        const leftTopY = Number($('//rect/leftTopY').text())
-                        const rightBottomX = Number($('//rect/rightBottomX').text())
-                        const rightBottomY = Number($('//rect/rightBottomY').text())
+                        const width = $('//rect/ptWidth').text().num() || 1
+                        const height = $('//rect/ptHeight').text().num() || 1
+                        const leftTopX = $('//rect/leftTopX').text().num()
+                        const leftTopY = $('//rect/leftTopY').text().num()
+                        const rightBottomX = $('//rect/rightBottomX').text().num()
+                        const rightBottomY = $('//rect/rightBottomY').text().num()
                         const item = {
                             pic: cachePic[key] ? cachePic[key].pic : '',
                             panorama: cachePic[key] ? cachePic[key].panorama : '',
@@ -395,7 +395,7 @@ export default defineComponent({
                         }
 
                         $('//attribute').forEach((attribute) => {
-                            item.attribute[attribute.attr('type')!] = attribute.text()
+                            item.attribute[attribute.attr('type')] = attribute.text()
                         })
 
                         if (isPanorama) {
@@ -406,7 +406,7 @@ export default defineComponent({
                         cachePic[key] = item
                     } else {
                         cachePic[key] = cachePic[key] || new IntelSnapImgDto()
-                        const errorCode = Number($('//errorCode').text())
+                        const errorCode = $('//errorCode').text().num()
                         switch (errorCode) {
                             case ErrorCode.HTTPS_CERT_EXIST:
                                 cachePic[key].isDelSnap = true
@@ -488,7 +488,7 @@ export default defineComponent({
 
             if ($('//status').text() === 'success') {
                 tableData.value = $('//content/i').map((item) => {
-                    const isDelSnap = item.attr('s')! === 'd'
+                    const isDelSnap = item.attr('s') === 'd'
                     const split = item.text().split(',')
                     const guid = parseInt(split[3], 16)
                     const chlId = getChlGuid16(split[3]).toUpperCase()

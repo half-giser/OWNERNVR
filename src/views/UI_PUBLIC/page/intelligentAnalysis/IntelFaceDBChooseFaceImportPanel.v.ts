@@ -363,7 +363,7 @@ export default defineComponent({
                     const file = base64ToFile(fileBase64, fileName)
                     ocxData.uploadFileList.push(file)
                 } else {
-                    const errorCode = Number($item('errorCode').text())
+                    const errorCode = $item('errorCode').text().num()
                     switch (errorCode) {
                         case ErrorCode.USER_ERROR_KEYBOARDINDEX_ERROR:
                             closeLoading()
@@ -396,7 +396,7 @@ export default defineComponent({
             else if ($('statenotify[@type="FileNetTransport"]').length) {
                 closeLoading()
                 resetOCXData()
-                if (Number($('statenotify/errorCode').text()) === ErrorCode.USER_ERROR_NODE_NET_DISCONNECT) {
+                if ($('statenotify/errorCode').text().num() === ErrorCode.USER_ERROR_NODE_NET_DISCONNECT) {
                     openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_OCX_NET_DISCONNECT'),

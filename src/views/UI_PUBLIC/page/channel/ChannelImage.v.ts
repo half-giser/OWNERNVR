@@ -561,7 +561,7 @@ export default defineComponent({
                         const rowData: ChannelImageDto[] = []
                         $('content/item').forEach((ele) => {
                             const eleXml = queryXml(ele.element)
-                            const chlId = ele.attr('id')!,
+                            const chlId = ele.attr('id'),
                                 isSupportHallway = chlIds.includes(chlId)
                             const newData = new ChannelImageDto()
                             newData.id = chlId
@@ -613,7 +613,7 @@ export default defineComponent({
                 if ($('status').text() === 'success') {
                     const chlIds: string[] = []
                     $('content/item').forEach((ele) => {
-                        chlIds.push(ele.attr('id')!)
+                        chlIds.push(ele.attr('id'))
                     })
                     callback(chlIds)
                 }
@@ -694,27 +694,27 @@ export default defineComponent({
                         rowData.ShowGainMode = $('content/chl/ShowGainMode').text().bool()
 
                         if ($('content/chl/WDR/value').text()) {
-                            rowData.WDRDefaultValue = Number($('content/chl/WDR/value').attr('default'))
-                            rowData.WDRMinValue = Number($('content/chl/WDR/value').attr('min'))
-                            rowData.WDRMaxValue = Number($('content/chl/WDR/value').attr('max'))
-                            rowData.WDRValue = Number($('content/chl/WDR/value').text())
+                            rowData.WDRDefaultValue = $('content/chl/WDR/value').attr('default').num()
+                            rowData.WDRMinValue = $('content/chl/WDR/value').attr('min').num()
+                            rowData.WDRMaxValue = $('content/chl/WDR/value').attr('max').num()
+                            rowData.WDRValue = $('content/chl/WDR/value').text().num()
                         }
                         if ($('content/chl/WDR/switch').text()) rowData.WDRSwitch = $('content/chl/WDR/switch').text().bool()
 
                         if ($('content/chl/whiteBalance/red').text()) {
-                            rowData.redDefaultValue = Number($('content/chl/whiteBalance/red').attr('default'))
-                            rowData.redMinValue = Number($('content/chl/whiteBalance/red').attr('min'))
-                            rowData.redMaxValue = Number($('content/chl/whiteBalance/red').attr('max'))
-                            rowData.redValue = Number($('content/chl/whiteBalance/red').text())
+                            rowData.redDefaultValue = $('content/chl/whiteBalance/red').attr('default').num()
+                            rowData.redMinValue = $('content/chl/whiteBalance/red').attr('min').num()
+                            rowData.redMaxValue = $('content/chl/whiteBalance/red').attr('max').num()
+                            rowData.redValue = $('content/chl/whiteBalance/red').text().num()
                         }
                         rowData.HFR = $('content/chl/HFR').text().length ? $('content/chl/HFR').text().bool() : undefined
                         rowData.whiteBalanceMode = $('content/chl/whiteBalance/mode').length ? $('content/chl/whiteBalance/mode').text() : undefined
 
                         if ($('content/chl/whiteBalance/blue').text()) {
-                            rowData.blueDefaultValue = Number($('content/chl/whiteBalance/blue').attr('default'))
-                            rowData.blueMinValue = Number($('content/chl/whiteBalance/blue').attr('min'))
-                            rowData.blueMaxValue = Number($('content/chl/whiteBalance/blue').attr('max'))
-                            rowData.blueValue = Number($('content/chl/whiteBalance/blue').text())
+                            rowData.blueDefaultValue = $('content/chl/whiteBalance/blue').attr('default').num()
+                            rowData.blueMinValue = $('content/chl/whiteBalance/blue').attr('min').num()
+                            rowData.blueMaxValue = $('content/chl/whiteBalance/blue').attr('max').num()
+                            rowData.blueValue = $('content/chl/whiteBalance/blue').text().num()
                         }
 
                         rowData.IRCutMode = $('content/chl/IRCutMode').text() || undefined
@@ -726,10 +726,10 @@ export default defineComponent({
                         rowData.IRCutNightTime = $('content/chl/IRCutNightTime').text() || undefined
 
                         if ($('content/chl/sharpen/value').text()) {
-                            rowData.sharpenDefaultValue = Number($('content/chl/sharpen/value').attr('default'))
-                            rowData.sharpenMinValue = Number($('content/chl/sharpen/value').attr('min'))
-                            rowData.sharpenMaxValue = Number($('content/chl/sharpen/value').attr('max'))
-                            rowData.sharpenValue = Number($('content/chl/sharpen/value').text())
+                            rowData.sharpenDefaultValue = $('content/chl/sharpen/value').attr('default').num()
+                            rowData.sharpenMinValue = $('content/chl/sharpen/value').attr('min').num()
+                            rowData.sharpenMaxValue = $('content/chl/sharpen/value').attr('max').num()
+                            rowData.sharpenValue = $('content/chl/sharpen/value').text().num()
                         }
                         rowData.sharpenSwitch = $('content/chl/sharpen/switch').text().bool()
                         rowData.sharpenSwitchEnable = $('content/chl/sharpen/switch').attr('switchEnabled') && !$('content/chl/sharpen/switch').attr('switchEnabled').bool() ? false : true
@@ -740,10 +740,10 @@ export default defineComponent({
                         rowData.imageRotateDef = $('content/chl/imageRotate').attr('default')
 
                         if ($('content/chl/imageShift').text()) {
-                            rowData.imageDefaultValue = Number($('content/chl/imageShift').attr('default'))
-                            rowData.imageMinValue = Number($('content/chl/imageShift').attr('min'))
-                            rowData.imageMaxValue = Number($('content/chl/imageShift').attr('max'))
-                            rowData.imageValue = Number($('content/chl/imageShift').text())
+                            rowData.imageDefaultValue = $('content/chl/imageShift').attr('default').num()
+                            rowData.imageMinValue = $('content/chl/imageShift').attr('min').num()
+                            rowData.imageMaxValue = $('content/chl/imageShift').attr('max').num()
+                            rowData.imageValue = $('content/chl/imageShift').text().num()
                         }
 
                         rowData.BLCMode = $('content/chl/backlightCompensation/mode').length ? $('content/chl/backlightCompensation/mode').text() : undefined
@@ -754,10 +754,10 @@ export default defineComponent({
                         if ($('content/chl/smartIr/mode').text()) {
                             rowData.smartIrMode = $('content/chl/smartIr/mode').text()
                             rowData.smartIrModeDefault = $('content/chl/smartIr/mode').attr('default')
-                            rowData.lightLevelDefaultValue = Number($('content/chl/smartIr/lightLevel_1').attr('default'))
-                            rowData.lightLevelMinValue = Number($('content/chl/smartIr/lightLevel_1').attr('min'))
-                            rowData.lightLevelMaxValue = Number($('content/chl/smartIr/lightLevel_1').attr('max'))
-                            rowData.lightLevelValue = Number($('content/chl/smartIr/lightLevel_1').text())
+                            rowData.lightLevelDefaultValue = $('content/chl/smartIr/lightLevel_1').attr('default').num()
+                            rowData.lightLevelMinValue = $('content/chl/smartIr/lightLevel_1').attr('min').num()
+                            rowData.lightLevelMaxValue = $('content/chl/smartIr/lightLevel_1').attr('max').num()
+                            rowData.lightLevelValue = $('content/chl/smartIr/lightLevel_1').text().num()
                         }
 
                         if ($('content/chl/smartIR').text()) {
@@ -769,10 +769,10 @@ export default defineComponent({
 
                         // 透雾
                         if ($('content/chl/fogReduction/value').text()) {
-                            rowData.defogValue = Number($('content/chl/fogReduction/value').text())
-                            rowData.defogDefaultValue = Number($('content/chl/fogReduction/value').attr('default'))
-                            rowData.defogMinValue = Number($('content/chl/fogReduction/value').attr('min'))
-                            rowData.defogMaxValue = Number($('content/chl/fogReduction/value').attr('max'))
+                            rowData.defogValue = $('content/chl/fogReduction/value').text().num()
+                            rowData.defogDefaultValue = $('content/chl/fogReduction/value').attr('default').num()
+                            rowData.defogMinValue = $('content/chl/fogReduction/value').attr('min').num()
+                            rowData.defogMaxValue = $('content/chl/fogReduction/value').attr('max').num()
                             rowData.defogSwitch = $('content/chl/fogReduction/switch').length ? $('content/chl/fogReduction/switch').text().bool() : undefined
                         }
 
@@ -856,10 +856,10 @@ export default defineComponent({
                         if ($('content/chl/Whitelight').text()) {
                             rowData.whitelightMode = $('content/chl/Whitelight/WhitelightMode').text()
                             rowData.whitelightModeDefault = $('content/chl/Whitelight/WhitelightMode').attr('default')
-                            rowData.whitelightStrength = Number($('content/chl/Whitelight/WhitelightStrength').text())
-                            rowData.whitelightStrengthMin = Number($('content/chl/Whitelight/WhitelightStrength').attr('min'))
-                            rowData.whitelightStrengthMax = Number($('content/chl/Whitelight/WhitelightStrength').attr('max'))
-                            rowData.whitelightStrengthDefault = Number($('content/chl/Whitelight/WhitelightStrength').attr('default'))
+                            rowData.whitelightStrength = $('content/chl/Whitelight/WhitelightStrength').text().num()
+                            rowData.whitelightStrengthMin = $('content/chl/Whitelight/WhitelightStrength').attr('min').num()
+                            rowData.whitelightStrengthMax = $('content/chl/Whitelight/WhitelightStrength').attr('max').num()
+                            rowData.whitelightStrengthDefault = $('content/chl/Whitelight/WhitelightStrength').attr('default').num()
                             rowData.whitelightOnTime = $('content/chl/Whitelight/WhitelightOnTime').text()
                             rowData.whitelightOnTimeDefault = $('content/chl/Whitelight/WhitelightOnTime').attr('default')
                             rowData.whitelightOffTime = $('content/chl/Whitelight/WhitelightOffTime').text()
@@ -1046,10 +1046,10 @@ export default defineComponent({
                     $('content/chl/timeIntervalNote')
                         .text()
                         .split(',')
-                        .forEach((ele: string) => {
+                        .forEach((ele) => {
                             newData.timeIntervalList.push({
                                 value: ele,
-                                text: ele === '0' ? Translate('IDCS_ALWAYS_KEEP') : ele === '60' ? '1 ' + Translate('MINUTE') : Number(ele) / 60 + ' ' + Translate('MINUTES'),
+                                text: ele === '0' ? Translate('IDCS_ALWAYS_KEEP') : getTranslateForSecond(Number(ele)),
                             })
                         })
                     newData.timeInterval = $('content/chl/timeInterval').text()

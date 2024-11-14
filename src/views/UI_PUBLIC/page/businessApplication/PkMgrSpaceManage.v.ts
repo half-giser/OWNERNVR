@@ -128,7 +128,7 @@ export default defineComponent({
                     const groupSchedule = $item('groupSchedule').text()
                     const schedule = pageData.value.scheduleIdList.indexOf(groupSchedule) > -1 ? groupSchedule : DEFAULT_EMPTY_ID
                     return {
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         groupName: $item('groupName').text(),
                         parkingType: $item('parkingType').text(),
                         groupTotalNum: $item('groupTotalNum').text().num(),

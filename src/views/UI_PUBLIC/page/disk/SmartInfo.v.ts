@@ -144,7 +144,7 @@ export default defineComponent({
                 .map((item) => {
                     const $item = queryXml(item.element)
                     return {
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         diskNum: DISK_TYPE_MAPPING[$item('diskInterfaceType').text()] + $item('slotIndex').text(),
                         serialNum: $item('serialNum').text(),
                         model: $item('model').text(),
@@ -167,7 +167,7 @@ export default defineComponent({
             if ($('//status').text() === 'success') {
                 tableData.value = $('//content/smartItems/item').map((item) => {
                     const $item = queryXml(item.element)
-                    let id = Number(item.attr('id')).toString(16)
+                    let id = item.attr('id').num().toString(16)
                     id = `${id.length === 1 ? '0x0' : '0x'}${id}`
                     return {
                         id,

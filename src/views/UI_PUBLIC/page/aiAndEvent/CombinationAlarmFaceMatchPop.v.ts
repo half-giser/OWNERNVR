@@ -70,7 +70,7 @@ export default defineComponent({
                 $('content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     pageData.value.faceList.push({
-                        value: item.attr('id')!,
+                        value: item.attr('id'),
                         label: $item('name').text(),
                     })
                 })

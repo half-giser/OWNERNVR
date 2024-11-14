@@ -101,7 +101,7 @@ export default defineComponent({
                     return
                 }
 
-                const id = item.attr('id')!
+                const id = item.attr('id')
                 const diskStatus = $(`//content/item[@id="${id}"]/diskStatus`).text()
                 const diskEncryptStatus = $(`//content/item[@id="${id}"]/diskEncryptStatus`).text()
                 const recStartDate = formatDate($item('recStartDate').text(), dateTime.dateFormat, 'YYYY-MM-DD')
@@ -165,8 +165,8 @@ export default defineComponent({
                             break
                     }
 
-                    const size = String(Math.floor(Number($item('size').text()) / 1024))
-                    const freeSpace = Number($item('freeSpace').text()) / 1024
+                    const size = String(Math.floor($item('size').text().num() / 1024))
+                    const freeSpace = $item('freeSpace').text().num() / 1024
 
                     rowData.push({
                         id: logicDiskId,
@@ -244,7 +244,7 @@ export default defineComponent({
                     pageData.value.isCheckAuth = false
                     getData()
                 } else {
-                    const errorCode = Number($('//errorCode').text())
+                    const errorCode = $('//errorCode').text().num()
                     let errorInfo = ''
 
                     switch (errorCode) {

@@ -101,7 +101,7 @@ export default defineComponent({
             tableData.value = $('//content/item').map((item) => {
                 const $item = queryXml(item.element)
                 let text = $item('name').text()
-                const id = item.attr('id')!
+                const id = item.attr('id')
                 if (id === DEFAULT_EMPTY_ID) {
                     text = prop.mode === 'channel' ? Translate('IDCS_HISTORY_CHANNEL') : Translate('IDCS_HISTORY_ENTRANCE_EXIT')
                 }

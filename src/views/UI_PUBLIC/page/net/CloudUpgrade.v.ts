@@ -109,7 +109,7 @@ export default defineComponent({
             } else {
                 checkDownloadTimer.repeat()
 
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_PWD_ERR:
@@ -184,11 +184,11 @@ export default defineComponent({
                 if ($('//status').text() === 'success') {
                     const $content = queryXml($('//content')[0].element)
                     const state = $content('state').text()
-                    const downloadLen = Number($content('downloadLen').text())
-                    const fileLen = Number($content('fileLen').text())
+                    const downloadLen = $content('downloadLen').text().num()
+                    const fileLen = $content('fileLen').text().num()
                     const progress = fileLen ? Math.round((downloadLen / fileLen) * 100) : 0
                     const isRuningTask = $content('runCloudTask').text()
-                    const errorCode = Number($content('errorCode').text())
+                    const errorCode = $content('errorCode').text().num()
                     // state 为installing 并且 errorCode 为 0  表明当前升级成功
                     if (state === 'installing' && errorCode === 0) {
                         pageData.value.firstReq = true

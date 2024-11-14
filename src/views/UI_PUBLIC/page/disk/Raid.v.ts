@@ -77,10 +77,10 @@ export default defineComponent({
                 }
 
                 return {
-                    id: item.attr('id')!,
-                    logicDiskId: item.attr('logicDiskId')!,
+                    id: item.attr('id'),
+                    logicDiskId: item.attr('logicDiskId'),
                     name: $item('name').text(),
-                    capacity: Math.floor(Number($item('capacity').text()) / 1024),
+                    capacity: Math.floor($item('capacity').text().num() / 1024),
                     physicalDisk: $item('physicalDisks').text(),
                     raidState: $item('raidState').text(),
                     raidType: $item('raidType').text(),
@@ -153,7 +153,7 @@ export default defineComponent({
                 refreshData()
                 pageData.value.isCheckAuth = false
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_PWD_ERR:
@@ -185,7 +185,7 @@ export default defineComponent({
             let hasRebuildArray = false
             $('//content/item').forEach((item) => {
                 const $item = queryXml(item.element)
-                const raid = item.attr('id')!
+                const raid = item.attr('id')
                 const raidState = $item('raidState').text()
                 if (raidState === 'RAID_STATE_REBUILD') {
                     hasRebuildArray = true
@@ -193,7 +193,7 @@ export default defineComponent({
 
                 const findIndex = tableData.value.findIndex((data) => data.id === raid)
                 if (findIndex > -1) {
-                    const stateProgress = Number($item('stateProgress').text()) / 100
+                    const stateProgress = $item('stateProgress').text().num() / 100
                     tableData.value[findIndex].task = Translate('IDCS_REPAIRING') + stateProgress
                 }
             })

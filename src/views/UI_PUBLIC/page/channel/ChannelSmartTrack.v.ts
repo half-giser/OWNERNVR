@@ -135,7 +135,7 @@ export default defineComponent({
             try {
                 if ($('//status').text() === 'success') {
                     item.autoBackSwitch = $('//content/chl/param/backTime/switch').text().bool()
-                    item.autoBackTime = Number($('//content/chl/param/backTime/timeValue').text())
+                    item.autoBackTime = $('//content/chl/param/backTime/timeValue').text().num()
                     item.ptzControlMode = $('//content/chl/param/ptzControlMode').text()
                     item.disabled = false
                 } else {
@@ -208,7 +208,7 @@ export default defineComponent({
                     const $item = queryXml(item.element)
                     const rowData = new ChannelPtzSmartTrackDto()
                     rowData.status = 'loading'
-                    rowData.chlId = item.attr('id')!
+                    rowData.chlId = item.attr('id')
                     rowData.chlName = $item('name').text()
                     rowData.disabled = true
                     return rowData

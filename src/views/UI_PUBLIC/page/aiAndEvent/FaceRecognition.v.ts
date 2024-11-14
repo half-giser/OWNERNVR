@@ -281,7 +281,7 @@ export default defineComponent({
             const result = await queryOnlineChlList()
             commLoadResponseHandler(result, ($) => {
                 $('//content/item').forEach((item) => {
-                    onlineChlList.push(item.attr('id')!)
+                    onlineChlList.push(item.attr('id'))
                 })
             })
             getChlList({
@@ -293,7 +293,7 @@ export default defineComponent({
                         const protocolType = $item('protocolType').text()
                         const factoryName = $item('productModel').attr('factoryName')
                         if (factoryName === 'Recorder') return
-                        const curChlId = item.attr('id')!
+                        const curChlId = item.attr('id')
                         if (protocolType !== 'RTSP' && onlineChlList.includes(curChlId)) {
                             const supportVfd = $item('supportVfd').text().bool()
                             const supportFire = $item('supportFire').text().bool()
@@ -470,13 +470,13 @@ export default defineComponent({
                     const $trigger = queryXml(trigger[0].element)
                     const record = $trigger('sysRec/chls/item').map((item) => {
                         return {
-                            value: item.attr('id')!,
+                            value: item.attr('id'),
                             label: item.text(),
                         }
                     })
                     const alarmOut = $trigger('alarmOut/alarmOuts/item').map((item) => {
                         return {
-                            value: item.attr('id')!,
+                            value: item.attr('id'),
                             label: item.text(),
                         }
                     })
@@ -486,7 +486,7 @@ export default defineComponent({
                             index: $item('index').text(),
                             name: $item('name').text(),
                             chl: {
-                                value: $item('chl').attr('id')!,
+                                value: $item('chl').attr('id'),
                                 label: $item('chl').text(),
                             },
                         }
@@ -542,7 +542,7 @@ export default defineComponent({
                                 status: $item('status').text().bool(),
                             }
                         })
-                        faceDetectionData.value.schedule = item.attr('scheduleGuid')!
+                        faceDetectionData.value.schedule = item.attr('scheduleGuid')
                     }
                 })
             }
@@ -1048,7 +1048,7 @@ export default defineComponent({
             commLoadResponseHandler(result, ($) => {
                 $('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
-                    const guid = item.attr('id')!
+                    const guid = item.attr('id')
                     let name = $item('name').text()
                     const groupId = $item('groupId').text()
                     if (!name) {
@@ -1220,29 +1220,29 @@ export default defineComponent({
                     const nameId = $item('param/nameId').text().num()
                     haveUseNameId.push(nameId)
                     faceCompareData.value.task.push({
-                        guid: item.attr('guid')!,
-                        id: item.attr('id')!,
+                        guid: item.attr('guid'),
+                        id: item.attr('id'),
                         ruleType: $item('param/ruleType').text(),
                         nameId,
                         pluseSwitch: $item('param/pluseSwitch').text().bool(),
-                        groupId: $item('param/groupId/item').map((item) => item.attr('guid')!),
+                        groupId: $item('param/groupId/item').map((item) => item.attr('guid')),
                         hintword: $item('param/hint/word').text(),
                         schedule: $item('schedule').attr('id'),
                         record: $item('trigger/sysRec/chls/item').map((item) => {
                             return {
-                                value: item.attr('id')!,
+                                value: item.attr('id'),
                                 label: item.text(),
                             }
                         }),
                         alarmOut: $item('trigger/alarmOut/alarmOuts/item').map((item) => {
                             return {
-                                value: item.attr('id')!,
+                                value: item.attr('id'),
                                 label: item.text(),
                             }
                         }),
                         snap: $item('trigger/sysSnap/chls/item').map((item) => {
                             return {
-                                value: item.attr('id')!,
+                                value: item.attr('id'),
                                 label: item.text(),
                             }
                         }),
@@ -1252,7 +1252,7 @@ export default defineComponent({
                                 index: $item('index').text(),
                                 name: $item('name').text(),
                                 chl: {
-                                    value: $item('chl').attr('id')!,
+                                    value: $item('chl').attr('id'),
                                     label: $item('chl').text(),
                                 },
                             }

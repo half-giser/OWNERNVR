@@ -50,7 +50,7 @@ export default defineComponent({
                     $('//content/item').forEach((ele) => {
                         let eleXml = queryXml(ele.element)
                         const newData = new ChannelProtocolManageDto()
-                        newData.id = ele.attr('id')!
+                        newData.id = ele.attr('id')
                         newData.enabled = eleXml('enabled').text().bool()
                         newData.displayName = eleXml('displayName').text()
                         eleXml('resourcesPath/item').forEach((ele) => {

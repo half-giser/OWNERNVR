@@ -188,7 +188,7 @@ export default defineComponent({
                 commLoadResponseHandler(res, ($) => {
                     $('//content/item').forEach((ele) => {
                         const eleXml = queryXml(ele.element)
-                        if (eleXml('chlType').text() === 'digital') chls.push(parseInt(ele.attr('id')!.slice(7, 9), 16))
+                        if (eleXml('chlType').text() === 'digital') chls.push(parseInt(ele.attr('id').slice(7, 9), 16))
                     })
                 })
             })

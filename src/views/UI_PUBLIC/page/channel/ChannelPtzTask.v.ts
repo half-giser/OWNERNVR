@@ -216,7 +216,7 @@ export default defineComponent({
 
             pageData.value.nameOptions = $('//content/presets/item').map((item) => {
                 return {
-                    value: item.attr('index')!,
+                    value: item.attr('index'),
                     label: item.text(),
                 }
             })
@@ -236,7 +236,7 @@ export default defineComponent({
             const $ = queryXml(result)
             pageData.value.nameOptions = $('//content/cruises/item').map((item) => {
                 return {
-                    value: item.attr('index')!,
+                    value: item.attr('index'),
                     label: item.text(),
                 }
             })
@@ -256,7 +256,7 @@ export default defineComponent({
             const $ = queryXml(result)
             pageData.value.nameOptions = $('//content/traces/item').map((item) => {
                 return {
-                    value: item.attr('index')!,
+                    value: item.attr('index'),
                     label: item.text(),
                 }
             })
@@ -297,7 +297,7 @@ export default defineComponent({
             const $ = queryXml(result)
 
             if ($('//status').text() === 'success') {
-                const status = $('//content/tasks').attr('status')!.bool()
+                const status = $('//content/tasks').attr('status').bool()
                 const data = $('//content/tasks/item').map((item, index) => {
                     const $item = queryXml(item.element)
                     return {
@@ -307,7 +307,7 @@ export default defineComponent({
                         endTime: $item('endTime').text(), // formatDate($item('endTime').text(), dateTime.hourMinuteFormat.value, 'HH:mm'),
                         type: $item('type').text(),
                         name: $item('name').text(),
-                        editIndex: item.attr('index')!,
+                        editIndex: item.attr('index'),
                     }
                 })
                 if (update && chlId === pageData.value.expandRowKey[0]) {
@@ -486,15 +486,15 @@ export default defineComponent({
                 tableData.value = $('//content/item')
                     .filter((item) => {
                         const $item = queryXml(item.element)
-                        return (auth.value.hasAll || auth.value.ptz[item.attr('id')!]) && $item('chlType').text() !== 'recorder'
+                        return (auth.value.hasAll || auth.value.ptz[item.attr('id')]) && $item('chlType').text() !== 'recorder'
                     })
                     .map((item) => {
                         const $item = queryXml(item.element)
 
                         return {
-                            chlId: item.attr('id')!,
+                            chlId: item.attr('id'),
                             chlName: $item('name').text(),
-                            taskItemCount: Number($item('taskItemCount').text()),
+                            taskItemCount: $item('taskItemCount').text().num(),
                         }
                     })
             }

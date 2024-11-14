@@ -53,7 +53,7 @@ export const useUserChlAuth = (immediate = true) => {
 
         $('//content/chlAuth/item').forEach((item) => {
             const $item = queryXml(item.element)
-            const id = item.attr('id')!
+            const id = item.attr('id')
             auth.value.ptz[id] = $item('auth').text().includes('@ptz')
             auth.value.audio[id] = $item('auth').text().includes('@ad')
             auth.value.spr[id] = $item('auth').text().includes('@spr')

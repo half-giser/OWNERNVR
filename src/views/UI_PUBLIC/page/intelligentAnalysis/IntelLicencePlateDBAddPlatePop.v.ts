@@ -148,9 +148,9 @@ export default defineComponent({
 
             pageData.value.groupList = $('//content/group/item').map((item) => {
                 const $item = queryXml(item.element)
-                groupMap[$item('name').text()] = item.attr('id')!
+                groupMap[$item('name').text()] = item.attr('id')
                 return {
-                    value: item.attr('id')!,
+                    value: item.attr('id'),
                     label: $item('name').text(),
                 }
             })
@@ -224,7 +224,7 @@ export default defineComponent({
                     ctx.emit('confirm')
                 })
             } else {
-                handleError(Number($('//errorCode').text()))
+                handleError($('//errorCode').text().num())
             }
         }
 
@@ -261,7 +261,7 @@ export default defineComponent({
                     ctx.emit('confirm')
                 })
             } else {
-                handleError(Number($('//errorCode').text()))
+                handleError($('//errorCode').text().num())
             }
         }
 
@@ -529,7 +529,7 @@ export default defineComponent({
             //网络断开
             else if ($('statenotify[@type="FileNetTransport"]').length) {
                 closeLoading()
-                if (Number($('statenotify/errorCode').text()) === ErrorCode.USER_ERROR_NODE_NET_DISCONNECT) {
+                if ($('statenotify/errorCode').text().num() === ErrorCode.USER_ERROR_NODE_NET_DISCONNECT) {
                     openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_OCX_NET_DISCONNECT'),

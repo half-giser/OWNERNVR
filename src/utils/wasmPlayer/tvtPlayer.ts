@@ -1175,7 +1175,7 @@ export default class TVTPlayer {
                     $('//content/item').forEach((item) => {
                         const $el = queryXml(item.element)
                         const ip = $el('ip').text()
-                        const id = item.attr('id')!
+                        const id = item.attr('id')
                         this.chlIpMap[id] = ip
                     })
                     this.winDataList.forEach((item) => {

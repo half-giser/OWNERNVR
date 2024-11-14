@@ -117,8 +117,8 @@ export default defineComponent({
                     const $item = queryXml(item.element)
 
                     return {
-                        chlId: item.attr('id')!,
-                        name: item.attr('name')!,
+                        chlId: item.attr('id'),
+                        name: item.attr('name'),
                         colorList: $item('color/item').map((color) => color.text()),
                         printMode: $item('printMode').text(),
                         previewDisplay: $item('previewDisplay').text().bool(),
@@ -151,7 +151,7 @@ export default defineComponent({
                     const manufacturers = $item('param/manufacturers').text()
                     const connectionType = $item('param/connectionType').text()
                     return {
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         name: $item('param/name').text(),
                         switch: $item('param/switch').text(),
                         connectionType,
@@ -579,7 +579,7 @@ export default defineComponent({
                 pageData.value.chlList = $('//content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
-                        value: item.attr('id')!,
+                        value: item.attr('id'),
                         label: $item('name').text(),
                     }
                 })

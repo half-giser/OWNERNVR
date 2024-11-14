@@ -31,11 +31,11 @@ export default defineComponent({
                 $('//content/nicConfigs/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     const autoGetGatewayMac = $item('autoGetGatewayMac').text().bool()
-                    const gatewayMac = item.attr('gatewayMac')!
+                    const gatewayMac = item.attr('gatewayMac')
                     const manualInputGatewayMac = $item('manualInputGatewayMac').text()
                     tableData.value.push({
-                        id: item.attr('id')!,
-                        gateway: item.attr('gateway')!,
+                        id: item.attr('id'),
+                        gateway: item.attr('gateway'),
                         gatewayMac,
                         arpSwitch: $item('arpSwitch').text().bool(),
                         autoGetGatewayMac,

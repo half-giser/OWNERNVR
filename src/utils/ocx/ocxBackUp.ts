@@ -230,8 +230,8 @@ export const useOcxBackUp = (cmd: (str: string) => void) => {
             taskItems.forEach((item) => {
                 const findIndex = localTableData.value.findIndex((data) => data.chlIndex === item.attr('chlIndex').num())
                 if (findIndex > -1) {
-                    localTableData.value[findIndex].dataSize = item.attr('size')! === '0.0MB' ? '--' : item.attr('size')!
-                    localTableData.value[findIndex].taskId = item.attr('id')!
+                    localTableData.value[findIndex].dataSize = item.attr('size') === '0.0MB' ? '--' : item.attr('size')
+                    localTableData.value[findIndex].taskId = item.attr('id')
                     if (localTableData.value[findIndex].status !== 'complete') {
                         localTableData.value[findIndex].status = 'ongoing'
                     }

@@ -465,7 +465,7 @@ const getChannelList = async () => {
         commLoadResponseHandler(result, ($) => {
             $('//content/item').forEach((item) => {
                 const $item = queryXml(item.element)
-                chlMapping[item.attr('id')!] = {
+                chlMapping[item.attr('id')] = {
                     chlType: $item('chlType').text(),
                 }
             })

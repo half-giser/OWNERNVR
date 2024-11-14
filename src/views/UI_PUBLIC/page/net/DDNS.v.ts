@@ -154,7 +154,7 @@ export default defineComponent({
                 formData.value.userName = $('//content/userName').text()
                 formData.value.password = $('//content/password').text()
                 formData.value.domainName = $('//content/domainName').text()
-                formData.value.heartbeatTime = Number($('//content/heartbeatTime').text()) || undefined
+                formData.value.heartbeatTime = $('//content/heartbeatTime').text().num() || undefined
                 formData.value.switch = $('//content/switch').text().bool()
 
                 pageData.value.serverTypeOptions = $('//types/ddnsServerType/enum').map((item) => {
@@ -205,10 +205,10 @@ export default defineComponent({
                         domainName: isSelected ? formData.value.domainName : '',
                         heartbeatTime: isSelected ? formData.value.heartbeatTime : undefined,
                         suffix,
-                        requireParam: item.attr('requireParam')!.split(','),
+                        requireParam: item.attr('requireParam').split(','),
                         hideParam: hideParam,
                         defaultServerAddr,
-                        defaultHeartBeatTime: Number(item.attr('defaultHeartBeatTime')) || undefined,
+                        defaultHeartBeatTime: item.attr('defaultHeartBeatTime').num() || undefined,
                         defaultDomainName,
                         isRegisterBtn,
                         isTestBtn,

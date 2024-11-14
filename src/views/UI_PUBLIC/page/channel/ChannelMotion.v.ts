@@ -136,7 +136,7 @@ export default defineComponent({
                     rowData.status = ''
                     rowData.disabled = false
 
-                    if ($('content/chl/param/sensitivity').length) rowData.sensitivityMinValue = Number($('content/chl/param/sensitivity').attr('min'))
+                    if ($('content/chl/param/sensitivity').length) rowData.sensitivityMinValue = $('content/chl/param/sensitivity').attr('min').num()
                     if ($('content/chl/param/objectFilter/car').length) rowData.objectFilterCar = $('content/chl/param/objectFilter/car/switch').text().bool()
                     if ($('content/chl/param/objectFilter/person').length) rowData.objectFilterPerson = $('content/chl/param/objectFilter/person/switch').text().bool()
                     let max = $('content/chl/param/sensitivity').length ? $('content/chl/param/sensitivity').attr('max').num() : 100
@@ -177,7 +177,7 @@ export default defineComponent({
                 tableData.value = $('content/item').map((ele) => {
                     const eleXml = queryXml(ele.element)
                     const newData = new ChannelMotionDto()
-                    newData.id = ele.attr('id')!
+                    newData.id = ele.attr('id')
                     newData.name = eleXml('name').text()
                     newData.chlIndex = eleXml('chlIndex').text()
                     newData.chlType = eleXml('chlType').text()
@@ -185,7 +185,7 @@ export default defineComponent({
                     newData.supportSMD = eleXml('supportSMD').text().bool()
                     return newData
                 })
-                pageTotal.value = Number($('content').attr('total'))
+                pageTotal.value = $('content').attr('total').num()
             } else {
                 tableData.value = []
             }
@@ -216,7 +216,7 @@ export default defineComponent({
                     const $ = queryXml(res)
                     if ($('status').text() === 'success') {
                         motionAlarmList = $('content/motions/item').map((ele) => {
-                            return queryXml(ele.element)('sourceChl').attr('id')!
+                            return queryXml(ele.element)('sourceChl').attr('id')
                         })
                         alarmStatusTimer.repeat()
                     }
@@ -273,7 +273,7 @@ export default defineComponent({
                             ele.status = 'success'
                             editRows.delete(ele)
                         } else {
-                            const errorCode = Number($('errorCode').text())
+                            const errorCode = $('errorCode').text().num()
                             ele.status = 'error'
                             ele.statusTip = errorCode === ErrorCode.USER_ERROR_NO_AUTH ? Translate('IDCS_NO_PERMISSION') : ''
                         }

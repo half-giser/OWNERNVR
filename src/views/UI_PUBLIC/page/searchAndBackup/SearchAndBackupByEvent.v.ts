@@ -240,7 +240,7 @@ export default defineComponent({
 
             if ($('//status').text() === 'success') {
                 pageData.value.chlList = $('//content/item').map((item) => {
-                    const id = item.attr('id')!
+                    const id = item.attr('id')
 
                     // 新获取的通道列表若没有已选中的通道，移除该选中的通道
                     const index = formData.value.chls.indexOf('id')
@@ -430,9 +430,9 @@ export default defineComponent({
 
             $('//content/chl/item').forEach((item) => {
                 const $item = queryXml(item.element)
-                const chlId = item.attr('id')!
+                const chlId = item.attr('id')
                 const chlName = $item('name').text()
-                const timeZone = $item('recList').attr('timeZone')!
+                const timeZone = $item('recList').attr('timeZone')
                 $item('recList/item').forEach((rec) => {
                     const $rec = queryXml(rec.element)
                     const startTime = dayjs.utc($rec('startTime').text()).valueOf()

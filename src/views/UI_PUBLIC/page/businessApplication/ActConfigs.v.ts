@@ -96,12 +96,12 @@ export default defineComponent({
             closeLoading()
 
             if ($chl('//status').text() === 'success' && $('//status').text() === 'success') {
-                const chls = $('//content/item').map((item) => item.attr('id')!)
+                const chls = $('//content/item').map((item) => item.attr('id'))
                 pageData.value.chlList = $chl('//content/item')
                     .map((item) => {
                         const $item = queryXml(item.element)
                         return {
-                            value: item.attr('id')!,
+                            value: item.attr('id'),
                             label: $item('name').text(),
                         }
                     })

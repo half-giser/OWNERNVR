@@ -125,7 +125,7 @@ export default defineComponent({
             pageData.value.groupList = $('//content/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
-                    id: item.attr('id')!,
+                    id: item.attr('id'),
                     groupId: $item('groupId').text(),
                     name: $item('name').text(),
                 }

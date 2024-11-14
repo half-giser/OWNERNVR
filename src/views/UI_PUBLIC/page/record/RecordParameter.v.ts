@@ -92,7 +92,7 @@ export default defineComponent({
             commLoadResponseHandler(result, ($) => {
                 $('content/item').forEach((item) => {
                     const $item = queryXml(item.element)
-                    pageData.value.IPCMap[item.attr('id')!] = $item('supportANR').text()
+                    pageData.value.IPCMap[item.attr('id')] = $item('supportANR').text()
                 })
             })
         }
@@ -148,7 +148,7 @@ export default defineComponent({
                 tableData.value = $chl('//content/item').map((item, index) => {
                     const $item = queryXml(item.element)
 
-                    const id = item.attr('id')!
+                    const id = item.attr('id')
 
                     return {
                         id,

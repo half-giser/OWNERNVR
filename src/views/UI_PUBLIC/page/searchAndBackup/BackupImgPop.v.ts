@@ -59,7 +59,7 @@ export default defineComponent({
             pageData.value.remoteDeviceOptions = $('//content/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
-                    name: item.attr('name')!,
+                    name: item.attr('name'),
                     remainSize: $item('remainSize').text(),
                 }
             })

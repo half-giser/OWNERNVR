@@ -144,7 +144,7 @@ export default defineComponent({
                     if (factoryName === 'Recorder') return
                     const curChlId = element.attr('id')
                     if (protocolType !== 'RTSP' && pageData.value.onlineChannelIdList.some((item) => item === curChlId)) {
-                        const id = element.attr('id')!
+                        const id = element.attr('id')
                         const name = $item('name').text()
                         const ip = $item('ip').text()
                         const chlType = $item('chlType').text()

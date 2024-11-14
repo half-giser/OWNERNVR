@@ -145,11 +145,11 @@ export default defineComponent({
             if ($('//status').text() === 'success') {
                 tableData.value[index].trace = $('//content/traces/item').map((item) => {
                     return {
-                        index: Number(item.attr('index')!),
+                        index: item.attr('index').num(),
                         name: item.text(),
                     }
                 })
-                tableData.value[index].maxCount = Number($('//content/traces').attr('maxCount'))
+                tableData.value[index].maxCount = $('//content/traces').attr('maxCount').num()
                 tableData.value[index].traceCount = tableData.value[index].trace.length
             }
         }
@@ -174,14 +174,14 @@ export default defineComponent({
                 tableData.value = $('//content/item')
                     .filter((item) => {
                         const $item = queryXml(item.element)
-                        return (auth.value.hasAll || auth.value.ptz[item.attr('id')!]) && $item('chlType').text() !== 'recorder'
+                        return (auth.value.hasAll || auth.value.ptz[item.attr('id')]) && $item('chlType').text() !== 'recorder'
                     })
                     .map((item) => {
                         const $item = queryXml(item.element)
                         return {
-                            chlId: item.attr('id')!,
+                            chlId: item.attr('id'),
                             chlName: $item('name').text(),
-                            traceCount: Number($item('traceCount').text()),
+                            traceCount: $item('traceCount').text().num(),
                             trace: [],
                             maxCount: Infinity,
                         }
@@ -394,7 +394,7 @@ export default defineComponent({
                     tableData.value[pageData.value.tableIndex].trace[formData.value.traceIndex as number].name = formData.value.name
                 })
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 if (errorCode === ErrorCode.USER_ERROR_NAME_EXISTED) {
                     openMessageBox({
                         type: 'info',

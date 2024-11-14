@@ -44,7 +44,7 @@ export default defineComponent({
                 pageData.value.totalCount = $chl('//content').attr('total').num()
                 $chl('//content/item').forEach(async (item) => {
                     const row = new AlarmWhiteLightDto()
-                    row.id = item.attr('id')!
+                    row.id = item.attr('id')
                     row.name = xmlParse('./name', item.element).text()
                     row.status = 'loading'
                     tableData.value.push(row)

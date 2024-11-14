@@ -152,9 +152,9 @@ export default defineComponent({
                 formData.value.address = $('//content/sender/address').text()
                 formData.value.userName = $('//content/sender/userName').text()
                 formData.value.server = $('//content/sender/smtp/server').text()
-                formData.value.port = Number($('//content/sender/smtp/port').text())
-                formData.value.attachImg = Number($('//content/sender/attachImg').text())
-                formData.value.imageNumber = Number($('//content/sender/imageNumber').text())
+                formData.value.port = $('//content/sender/smtp/port').text().num()
+                formData.value.attachImg = $('//content/sender/attachImg').text().num()
+                formData.value.imageNumber = $('//content/sender/imageNumber').text().num()
                 formData.value.ssl = $('//content/sender/smtp/ssl').text().bool() ? 'SSL' : 'NO'
             })
 

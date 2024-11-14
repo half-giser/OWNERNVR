@@ -149,7 +149,7 @@ export default defineComponent({
 
                 formData.value.focusType = $('//content/focusType').text() !== 'auto' ? 'manual' : 'auto'
                 if (formData.value.focusType === 'auto') {
-                    formData.value.focusTime = Number($('//content/timeInterval').text())
+                    formData.value.focusTime = $('//content/timeInterval').text().num()
                 }
                 formData.value.irchangeFocus = $('//content/IrchangeFocus').text().bool()
             }

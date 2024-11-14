@@ -361,7 +361,7 @@ export default defineComponent({
             pageData.value.chlOptions = $('//content/item').map((item) => {
                 const $item = queryXml(item.element)
                 let text = $item('name').text()
-                const id = item.attr('id')!
+                const id = item.attr('id')
                 if (id === DEFAULT_EMPTY_ID) {
                     text = Translate('IDCS_HISTORY_CHANNEL')
                 }
@@ -800,7 +800,7 @@ export default defineComponent({
                     const item = $('//content/item')[0]
                     const $item = queryXml(item.element)
                     cacheInfo[key] = {
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         number: $item('number').text(),
                         name: $item('name').text(),
                         sex: $item('sex').text(),
@@ -809,7 +809,7 @@ export default defineComponent({
                         certificateType: $item('certificateType').text(),
                         certificateNum: $item('certificateNum').text(),
                         mobile: $item('mobile').text(),
-                        faceImgCount: Number($item('faceImgCount').text()),
+                        faceImgCount: $item('faceImgCount').text().num(),
                         note: $item('remark').text(),
                         pic: [],
                         groupId: $item('groups/item/groupId').text(),
@@ -884,7 +884,7 @@ export default defineComponent({
                 const $item = queryXml(item.element)
                 faceGroupMap[$item('groupId').text()] = $item('name').text()
                 return {
-                    id: item.attr('id')!,
+                    id: item.attr('id'),
                     groupId: $item('groupId').text(),
                     name: $item('name').text(),
                 }
@@ -997,7 +997,7 @@ export default defineComponent({
 
             if ($('//status').text() === 'success') {
                 tableData.value = $('//content/i').map((item) => {
-                    const isDelSnap = item.attr('s')! === 'd'
+                    const isDelSnap = item.attr('s') === 'd'
                     const split = item.text().split(',')
                     const guid = parseInt(split[4], 16)
                     const chlId = getChlGuid16(split[4]).toUpperCase()
@@ -1048,7 +1048,7 @@ export default defineComponent({
                 }
                 getTrackMapList()
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_WALL_HAVEDECODER:

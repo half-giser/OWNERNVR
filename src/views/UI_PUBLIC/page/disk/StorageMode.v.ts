@@ -76,7 +76,7 @@ export default defineComponent({
                 if (!isBackUp) {
                     const chlList = $item('chls/item').map((chl) => {
                         return {
-                            id: chl.attr('id')!,
+                            id: chl.attr('id'),
                             text: chl.text(),
                         }
                     })
@@ -84,28 +84,28 @@ export default defineComponent({
                     const diskList: StorageModeDiskGroupListDatum[] = []
                     let totalSize = 0
                     $item('disks/item').forEach((element) => {
-                        const id = element.attr('id')!
+                        const id = element.attr('id')
                         if (pageData.value.diskStatus[id].diskEncryptStatus !== excludeFlag) {
                             diskList.push({
                                 id,
                                 text: element.text(),
                             })
                             if (isDiskDataSuccess) {
-                                totalSize += Number($disk(`//content/item[@id="${id}"]/size`).text())
+                                totalSize += $disk(`//content/item[@id="${id}"]/size`).text().num()
                             }
                         }
                     })
 
                     pageData.value.diskTotalNum += diskList.length
                     pageData.value.diskGroupList.push({
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         chlList,
                         diskList,
                         diskCount: $item('disks/item').length,
                         totalSize: displayStorageSize(totalSize),
                     })
                 } else {
-                    const backupDiskId = $('disks/item').map((item) => item.attr('id')!)
+                    const backupDiskId = $('disks/item').map((item) => item.attr('id'))
                     pageData.value.backupDiskId.push(...backupDiskId)
                 }
             })
@@ -257,7 +257,7 @@ export default defineComponent({
                         diskStatus: $item('diskStatus').text(),
                         diskEncryptStatus: $item('diskEncryptStatus').text(),
                     }
-                    return [item.attr('id')!, obj]
+                    return [item.attr('id'), obj]
                 }),
             )
         }

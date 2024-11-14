@@ -161,14 +161,14 @@ export default defineComponent({
                 tableData.value = $('//content/item')
                     .filter((item) => {
                         const $item = queryXml(item.element)
-                        return (auth.value.hasAll || auth.value.ptz[item.attr('id')!]) && $item('chlType').text() !== 'recorder'
+                        return (auth.value.hasAll || auth.value.ptz[item.attr('id')]) && $item('chlType').text() !== 'recorder'
                     })
                     .map((item) => {
                         const $item = queryXml(item.element)
                         return {
-                            chlId: item.attr('id')!,
+                            chlId: item.attr('id'),
                             chlName: $item('name').text(),
-                            presetCount: Number($item('presetCount').text()),
+                            presetCount: $item('presetCount').text().num(),
                             presets: [],
                             maxCount: Infinity,
                         }
@@ -361,7 +361,7 @@ export default defineComponent({
                     tableData.value[pageData.value.tableIndex].presets[formData.value.presetIndex as number].name = formData.value.name
                 })
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 if (errorCode === ErrorCode.USER_ERROR_NAME_EXISTED) {
                     openMessageBox({
                         type: 'info',

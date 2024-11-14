@@ -167,9 +167,9 @@ export default defineComponent({
             const $ = queryXml(result)
             pageData.value.chlList = $('//content/item').map((item) => {
                 const $item = queryXml(item.element)
-                chlMap[item.attr('id')!] = $item('name').text()
+                chlMap[item.attr('id')] = $item('name').text()
                 return {
-                    value: item.attr('id')!,
+                    value: item.attr('id'),
                     label: $item('name').text(),
                 }
             })
@@ -200,7 +200,7 @@ export default defineComponent({
                     }
 
                     return {
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         name,
                         property: $item('property').text(),
                         groupId,
@@ -228,7 +228,7 @@ export default defineComponent({
             pageData.value.faceGroupList[index].members = $('//content/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
-                    id: item.attr('id')!,
+                    id: item.attr('id'),
                     name: $item('name').text(),
                 }
             })

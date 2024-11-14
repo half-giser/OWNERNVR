@@ -83,7 +83,7 @@ export default defineComponent({
 
             if ($('//status').text() === 'success') {
                 pageData.value.chlList = $('//content/item').map((item) => {
-                    const id = item.attr('id')!
+                    const id = item.attr('id')
 
                     // 新获取的通道列表若没有已选中的通道，移除该选中的通道
                     const index = formData.value.chls.indexOf('id')

@@ -63,7 +63,7 @@ export default defineComponent({
             if ($('//status').text() === 'success') {
                 pageData.value.isAuthDialog = false
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_PWD_ERR:

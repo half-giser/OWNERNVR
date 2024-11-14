@@ -161,7 +161,7 @@ export default defineComponent({
                 pageData.value.cacheChlList = $('//content/item').map((item) => {
                     const $item = queryXml(item.element)
                     const result = {
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         value: $item('name').text(),
                         chlType: $item('chlType').text(),
                         protocolType: $item('chlType').text(),
@@ -173,7 +173,7 @@ export default defineComponent({
                         poeSwitch: false,
                     }
                     if (item.attr('id')) {
-                        chlMap[item.attr('id')!] = result
+                        chlMap[item.attr('id')] = result
                     }
                     return result
                 })
@@ -192,8 +192,8 @@ export default defineComponent({
             if ($('//status').text() === 'success') {
                 $('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
-                    const id = item.attr('id')!
-                    const chlType = $item('productModel').attr('factoryName')!
+                    const id = item.attr('id')
+                    const chlType = $item('productModel').attr('factoryName')
                     const index = indexes.indexOf(id)
                     if (index > -1 && chlType !== 'Recorder') {
                         pageData.value.cacheChlList[index].supportTalkback = true
@@ -220,7 +220,7 @@ export default defineComponent({
             if ($('//status').text() === 'success') {
                 // 查询出所有在线的通道
                 pageData.value.onlineChlList = $('//content/item').map((item) => {
-                    return item.attr('id')!
+                    return item.attr('id')
                 })
             }
         }
@@ -303,7 +303,7 @@ export default defineComponent({
                 pageData.value.chlGroupList = $('//content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         value: $item('name').text(),
                         dwellTime: $item('dwellTime').text().num(),
                     }
@@ -336,7 +336,7 @@ export default defineComponent({
             if ($('//status').text() === 'success') {
                 pageData.value.chlListOfGroup = $('//content/chlList/item').map((item) => {
                     return {
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         value: item.text(),
                     }
                 })
@@ -528,7 +528,7 @@ export default defineComponent({
             const $ = queryXml(result)
             $('//content/item').forEach((item) => {
                 const $item = queryXml(item.element)
-                const id = item.attr('id')!
+                const id = item.attr('id')
                 if (chlMap[id]) {
                     chlMap[id].poeSwitch = $item('addType').text() === 'poe'
                     chlMap[id].chlIp = $item('ip').text()

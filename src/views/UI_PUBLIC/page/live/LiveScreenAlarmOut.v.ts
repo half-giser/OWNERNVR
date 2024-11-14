@@ -74,11 +74,11 @@ export default defineComponent({
                 .map((item) => {
                     const $item = queryXml(item.element)
                     return {
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         name: $item('name').text(),
                         // onlineStatus: $item('onlineStatus').text().bool(),
                         switch: $item('switch').text().bool(),
-                        delay: delayMap[item.attr('id')!] || pageData.value.delayList[0].value,
+                        delay: delayMap[item.attr('id')] || pageData.value.delayList[0].value,
                     }
                 })
 
@@ -142,7 +142,7 @@ export default defineComponent({
                     })
                 }
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
                     openMessageBox({
                         type: 'info',

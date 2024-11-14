@@ -95,9 +95,9 @@ export default defineComponent({
 
             tableData.value = $('//content/disk/item').map((item) => {
                 const $item = queryXml(item.element)
-                const id = item.attr('id')!
-                const status = item.attr('status')!
-                let value = item.attr('value')!
+                const id = item.attr('id')
+                const status = item.attr('status')
+                let value = item.attr('value')
                 if ([17, 18].includes(Number(id)) && status === 'normal') {
                     value = 'N/A'
                 }
@@ -128,7 +128,7 @@ export default defineComponent({
                 const $item = queryXml(item.element)
                 const healthStatus = $item('healthStatus').text()
                 return {
-                    id: item.attr('id')!,
+                    id: item.attr('id'),
                     name: $item('slotIndex').text(),
                     serialNum: $item('serialNum').text(),
                     healthStatus: healthStatus ? DISK_STATUS_MAPPING[healthStatus] : healthStatus,

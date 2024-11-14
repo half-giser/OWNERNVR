@@ -272,19 +272,19 @@ export default defineComponent({
                     sysAudio: $trigger('sysAudio').attr('id') === '' ? $trigger('sysAudio').attr('id') : '',
                     record: $trigger('sysRec/chls/item').map((item) => {
                         return {
-                            value: item.attr('id')!,
+                            value: item.attr('id'),
                             label: item.text(),
                         }
                     }),
                     alarmOut: $trigger('alarmOut/alarmOuts/item').map((item) => {
                         return {
-                            value: item.attr('id')!,
+                            value: item.attr('id'),
                             label: item.text(),
                         }
                     }),
                     snap: $trigger('sysSnap/chls/item').map((item) => {
                         return {
-                            value: item.attr('id')!,
+                            value: item.attr('id'),
                             label: item.text(),
                         }
                     }),
@@ -294,7 +294,7 @@ export default defineComponent({
                             index: $('index').text(),
                             name: $('name').text(),
                             chl: {
-                                value: $('chl').attr('id')!,
+                                value: $('chl').attr('id'),
                                 label: $('chl').text(),
                             },
                         }

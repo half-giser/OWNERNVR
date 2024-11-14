@@ -247,7 +247,7 @@ export default defineComponent({
             formData.value.mode = $('//content/recMode/mode').text()
             formData.value.autoMode = $('//content/recMode/autoMode').text()
             formData.value.autoModeEvents = $('//content/recMode/autoMode').attr('eventType').split(',')
-            formData.value.urgencyRecDuration = Number($('//content/urgencyRecDuration').text())
+            formData.value.urgencyRecDuration = $('//content/urgencyRecDuration').text().num()
 
             //TODO: CustomerID为100代表inw48客户,要求隐藏智能侦测
             // if (pageData.value.isInw48) {
@@ -422,7 +422,7 @@ export default defineComponent({
             const parseTableData = () => {
                 return recScheduleXml('//content/item').map((item) => {
                     return {
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         name: xmlParse('./name', item.element).text(),
                         alarmRec: getRecScheduleSelectValue(item, './alarmRec'),
                         motionRec: getRecScheduleSelectValue(item, './motionRec'),

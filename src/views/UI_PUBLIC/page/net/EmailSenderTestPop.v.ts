@@ -83,7 +83,7 @@ export default defineComponent({
                 pageData.value.cacheAddress.push($item('address').text())
                 return {
                     address: $item('address').text(),
-                    schedule: $item('schedule').attr('id')!,
+                    schedule: $item('schedule').attr('id'),
                 }
             })
         }
@@ -107,7 +107,7 @@ export default defineComponent({
                     let schedule = ''
                     const find = $('//content/item').find((item) => item.text() === '24x7')
                     if (find) {
-                        schedule = find.attr('id')!
+                        schedule = find.attr('id')
                     }
 
                     pageData.value.list.push({

@@ -516,7 +516,7 @@ export default defineComponent({
             //网络断开
             else if ($("statenotify[@type='FileNetTransport']").length) {
                 closeLoading()
-                handleErrorMsg(Number($('statenotify/errorCode').text()))
+                handleErrorMsg($('statenotify/errorCode').text().num())
             }
         }
 

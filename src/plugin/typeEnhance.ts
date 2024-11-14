@@ -44,10 +44,6 @@ export default {
             return str
         }
 
-        String.prototype.toBoolean = function () {
-            return (this as string).toLowerCase() === 'true'
-        }
-
         String.prototype.bool = function () {
             return (this as string).toLowerCase() === 'true'
         }

@@ -113,7 +113,7 @@ export default defineComponent({
                         $('//content/chlList/item').forEach((ele) => {
                             const eleXml = queryXml(ele.element)
                             const newData = new ChannelRecorderDto()
-                            newData.index = ele.attr('index')!
+                            newData.index = ele.attr('index')
                             newData.name = eleXml('name').text()
                             newData.isAdded = eleXml('isAdded').text().bool()
                             newData.bandWidth = eleXml('bandWidth').text()

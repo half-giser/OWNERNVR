@@ -124,7 +124,7 @@ export default defineComponent({
                         const chlList: Record<string, string | boolean>[] = []
                         $('//content/chlList/item').forEach((ele) => {
                             chlList.push({
-                                value: ele.attr('id')!,
+                                value: ele.attr('id'),
                                 text: ele.text(),
                                 showDelIcon: false,
                             })
@@ -156,7 +156,7 @@ export default defineComponent({
                     $('//content/item').forEach((ele) => {
                         const eleXml = queryXml(ele.element)
                         const newData = new ChannelGroupDto()
-                        newData.id = ele.attr('id')!
+                        newData.id = ele.attr('id')
                         newData.name = eleXml('name').text()
                         newData.dwellTime = eleXml('dwellTime').text().num()
                         newData.chlCount = eleXml('chlCount').text().num()

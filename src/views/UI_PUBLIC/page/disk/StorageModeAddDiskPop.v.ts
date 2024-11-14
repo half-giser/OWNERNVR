@@ -62,7 +62,7 @@ export default defineComponent({
             if ($('//status').text() === 'success') {
                 $disk('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
-                    const diskId = item.attr('id')!
+                    const diskId = item.attr('id')
                     const diskStatus = $(`//content/item[@id="${diskId}"]/diskStatus`).text()
                     const diskInterfaceType = $item('diskInterfaceType').text()
                     const diskType = $item('diskType').text()
@@ -73,7 +73,7 @@ export default defineComponent({
                         tableData.value.push({
                             id: diskId,
                             name: diskInterfaceType === 'esata' ? Translate('IDCS_ESATA') + diskName : diskType === 'raid' ? diskName : Translate('IDCS_DISK') + diskName,
-                            size: Math.floor(Number($item('size').text()) / 1024),
+                            size: Math.floor($item('size').text().num() / 1024),
                         })
                     }
                 })

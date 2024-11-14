@@ -178,7 +178,7 @@ export default defineComponent({
                     ctx.emit('confirm')
                 })
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_PWD_ERR:
@@ -237,7 +237,7 @@ export default defineComponent({
             `
             const result = await queryCreateRaidCapacity(sendXml)
             const $ = queryXml(result)
-            formData.value.space = Math.floor(Number($('//content/capacity').text()) / 1024) + ' GB'
+            formData.value.space = Math.floor($('//content/capacity').text().num() / 1024) + ' GB'
         }
 
         return {

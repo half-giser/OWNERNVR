@@ -161,7 +161,7 @@ export default defineComponent({
                 tableData.value = $('//content/item')
                     .filter((item) => {
                         const $item = queryXml(item.element)
-                        return (auth.value.hasAll || auth.value.ptz[item.attr('id')!]) && $item('chlType').text() !== 'recorder'
+                        return (auth.value.hasAll || auth.value.ptz[item.attr('id')]) && $item('chlType').text() !== 'recorder'
                     })
                     .map((item) => {
                         const $item = queryXml(item.element)

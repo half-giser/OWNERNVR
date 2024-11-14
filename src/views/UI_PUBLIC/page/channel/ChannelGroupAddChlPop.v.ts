@@ -67,7 +67,7 @@ export default defineComponent({
                     })
                     $('//content/item').forEach((ele) => {
                         const eleXml = queryXml(ele.element)
-                        const id = ele.attr('id')!
+                        const id = ele.attr('id')
                         if (!addedChlList.includes(id)) {
                             const newData = new ChannelInfoDto()
                             newData.id = id

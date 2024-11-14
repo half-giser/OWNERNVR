@@ -56,7 +56,7 @@ export default defineComponent({
                 const $item = queryXml(item.element)
                 return {
                     portType: $item('portType').text(),
-                    externalPort: Number($item('externalPort').text()),
+                    externalPort: $item('externalPort').text().num(),
                     externalIP: $item('externalIP').text(),
                     localPort: $item('localPort').text(),
                     status: TRANS_MAPPING[$item('status').text()],

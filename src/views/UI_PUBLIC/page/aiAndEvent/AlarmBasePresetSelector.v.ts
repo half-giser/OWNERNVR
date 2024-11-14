@@ -69,7 +69,7 @@ export default defineComponent({
                     })
                     .map((item) => {
                         const $item = queryXml(item.element)
-                        const id = item.attr('id')!
+                        const id = item.attr('id')
                         pageData.value.presetList[id] = [
                             {
                                 value: ' ',
@@ -110,7 +110,7 @@ export default defineComponent({
                 ].concat(
                     $('//content/presets/item').map((item) => {
                         return {
-                            value: item.attr('index')!,
+                            value: item.attr('index'),
                             label: item.text(),
                         }
                     }),

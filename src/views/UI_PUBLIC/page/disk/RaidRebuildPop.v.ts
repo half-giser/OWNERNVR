@@ -73,7 +73,7 @@ export default defineComponent({
                 })
                 .map((item) => {
                     return {
-                        id: item.attr('id')!,
+                        id: item.attr('id'),
                         slotIndex: queryXml(item.element)('slotIndex').text(),
                     }
                 })
@@ -117,7 +117,7 @@ export default defineComponent({
             closeLoading()
 
             if ($('//status').text() === 'success') {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 let errorInfo = ''
 
                 switch (errorCode) {

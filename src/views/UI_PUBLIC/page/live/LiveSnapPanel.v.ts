@@ -148,7 +148,7 @@ export default defineComponent({
             })
             const $ = queryXml(result)
             const chlIdList = $('//content/item').map((item) => ({
-                channel_id: item.attr('id')!,
+                channel_id: item.attr('id'),
                 face_detect: {
                     info: true,
                     detect_pic: true,

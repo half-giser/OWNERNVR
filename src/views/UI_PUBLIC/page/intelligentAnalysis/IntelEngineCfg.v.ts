@@ -69,7 +69,7 @@ export default defineComponent({
                 const $item = queryXml(item.element)
                 const name = $item('name').text()
                 $item('resource/item').forEach((res) => {
-                    const eventType = res.attr('eventType')!.split(',')
+                    const eventType = res.attr('eventType').split(',')
                     tableData.value.push({
                         name,
                         eventType: eventType.map((event) => EVENT_TYPE_MAPPING[event]).join('+'),
@@ -128,7 +128,7 @@ export default defineComponent({
             if ($('//status').text() === 'success') {
                 pageData.value.isCheckAuthPop = false
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_PWD_ERR:

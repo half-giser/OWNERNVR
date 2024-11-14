@@ -441,7 +441,7 @@ export default defineComponent({
             areaData.alarmOutSwitch = $trigger('alarmOut/switch').text().bool()
             areaData.alarmOutChls = $trigger('alarmOut/alarmOuts/item').map((item) => {
                 return {
-                    value: item.attr('id')!,
+                    value: item.attr('id'),
                     label: item.text(),
                 }
             })
@@ -452,7 +452,7 @@ export default defineComponent({
                     index: $item('index').text(),
                     name: $item('name').text(),
                     chl: {
-                        value: $item('chl').attr('id')!,
+                        value: $item('chl').attr('id'),
                         label: $item('chl').text(),
                     },
                 }

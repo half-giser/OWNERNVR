@@ -260,13 +260,13 @@ export default defineComponent({
                     }),
                     record: $trigger('sysRec/chls/item').map((item) => {
                         return {
-                            value: item.attr('id')!,
+                            value: item.attr('id'),
                             label: item.text(),
                         }
                     }),
                     alarmOut: $trigger('alarmOut/alarmOuts/item').map((item) => {
                         return {
-                            value: item.attr('id')!,
+                            value: item.attr('id'),
                             label: item.text(),
                         }
                     }),

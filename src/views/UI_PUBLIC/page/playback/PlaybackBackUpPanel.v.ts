@@ -95,7 +95,7 @@ export default defineComponent({
                     const dataSize = $item('dataSize').text()
 
                     return {
-                        taskId: item.attr('id')!,
+                        taskId: item.attr('id'),
                         startEndTime: startTime + '~' + endTime,
                         duration,
                         chlName: $item('chls/item').text(),
@@ -112,7 +112,7 @@ export default defineComponent({
                         endTime: '',
                         startTimeEx: '',
                         endTimeEx: '',
-                        chlId: $item('chls/item').attr('id')!,
+                        chlId: $item('chls/item').attr('id'),
                         streamType: 0,
                         groupby: '',
                     }

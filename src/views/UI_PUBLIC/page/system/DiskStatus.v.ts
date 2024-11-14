@@ -80,7 +80,7 @@ export default defineComponent({
 
             $('//content/item').forEach((item) => {
                 const $item = queryXml(item.element)
-                diskStatus[item.attr('id')!] = {
+                diskStatus[item.attr('id')] = {
                     diskStatus: $item('diskStatus').text(),
                     diskEncryptStatus: $item('diskEncryptStatus').text(),
                 }
@@ -121,7 +121,7 @@ export default defineComponent({
                 }
 
                 rowData.push({
-                    id: item.attr('id')!,
+                    id: item.attr('id'),
                     diskNum: DISK_MAPPING[$item('diskInterfaceType').text()] + $item('slotIndex').text(),
                     raidType: 'normal',
                     size: Math.floor($item('size').text().num() / 1024),
@@ -176,7 +176,7 @@ export default defineComponent({
                     }
 
                     rowData.push({
-                        id: item.attr('logicDiskId')!,
+                        id: item.attr('logicDiskId'),
                         diskNum: DISK_MAPPING[$item('name').text()] + $item('slotIndex').text(),
                         raidType: $item('raidType').text(),
                         size: Math.floor($item('realSize').text().num() / 1024),

@@ -132,25 +132,25 @@ export default defineComponent({
                 tableData.value = $('//content/timeStatistic/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
-                        imageTotalNum: Number($item('imageTotalNum').text()),
-                        imageTotalInNum: Number($item('imageTotalInNum').text()),
-                        imageTotalOutNum: Number($item('imageTotalOutNum').text()),
+                        imageTotalNum: $item('imageTotalNum').text().num(),
+                        imageTotalInNum: $item('imageTotalInNum').text().num(),
+                        imageTotalOutNum: $item('imageTotalOutNum').text().num(),
                         chl: $item('chls/item').map((chl) => {
                             const $chl = queryXml(chl.element)
                             return {
-                                chlId: chl.attr('id')!,
-                                imageNum: Number($chl('imageNum').text()),
-                                vehicleIn: Number($chl('vehicleIn').text()),
-                                vehicleOut: Number($chl('vehicleOut').text()),
-                                nonVehicleIn: Number($chl('nonVehicleIn').text()),
-                                nonVehicleOut: Number($chl('nonVehicleOut').text()),
+                                chlId: chl.attr('id'),
+                                imageNum: $chl('imageNum').text().num(),
+                                vehicleIn: $chl('vehicleIn').text().num(),
+                                vehicleOut: $chl('vehicleOut').text().num(),
+                                nonVehicleIn: $chl('nonVehicleIn').text().num(),
+                                nonVehicleOut: $chl('nonVehicleOut').text().num(),
                             }
                         }),
                     }
                 })
                 showMaxSearchLimitTips($)
             } else {
-                if (Number($('//errorCode').text()) === ErrorCode.USER_ERROR_JSU_HAVEACSSYSTEM) {
+                if ($('//errorCode').text().num() === ErrorCode.USER_ERROR_JSU_HAVEACSSYSTEM) {
                     openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_SELECT_EVENT_TIP'),

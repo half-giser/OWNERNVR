@@ -482,7 +482,7 @@ export const checkChlListCaps = async (route: string) => {
 
     const resultOnline = await queryOnlineChlList()
     const $online = queryXml(resultOnline)
-    const onlineList = $online('//content/item').map((item) => item.attr('id')!)
+    const onlineList = $online('//content/item').map((item) => item.attr('id'))
 
     const result = await getChlList({
         requireField: [
@@ -508,11 +508,11 @@ export const checkChlListCaps = async (route: string) => {
     const supportFlag = $('//content/item').some((item) => {
         const $item = queryXml(item.element)
         const protocolType = $('protocolType').text()
-        const factoryName = $('productModel').attr('factoryName')!
+        const factoryName = $('productModel').attr('factoryName')
         if (factoryName === 'Recorder') {
             return false
         }
-        const chlId = item.attr('id')!
+        const chlId = item.attr('id')
         if (protocolType !== 'RTSP' && onlineList.includes(chlId)) {
             const supportOsc = $item('supportOsc').text().bool()
             const supportCdd = $item('supportCdd').text().bool()
@@ -927,7 +927,7 @@ export const buildScheduleList = async (option: Partial<ScheduleListOption> = {}
     const $ = await commLoadResponseHandler(result)
     const scheduleList = $('//content/item').map((item) => {
         return {
-            value: item.attr('id')!,
+            value: item.attr('id'),
             label: item.text(),
         }
     })
@@ -956,7 +956,7 @@ export const buildAudioList = async () => {
     const $ = await commLoadResponseHandler(result)
     const audioList = $('//content/audioList/item').map((item) => {
         return {
-            value: item.attr('id')!,
+            value: item.attr('id'),
             label: item.text(),
         }
     })
@@ -984,7 +984,7 @@ export const buildAlarmOutChlList = async () => {
             label = $item('devDesc').text() + '_' + label
         }
         return {
-            value: item.attr('id')!,
+            value: item.attr('id'),
             label,
             device: {
                 value: $item('device').attr('id'),
@@ -1008,7 +1008,7 @@ export const buildRecordChlList = async () => {
         const $item = queryXml(item.element)
         return {
             label: $item('name').text(),
-            value: item.attr('id')!,
+            value: item.attr('id'),
         }
     })
     return chlList
@@ -1027,7 +1027,7 @@ export const buildSnapChlList = async () => {
         const $item = queryXml(item.element)
         return {
             label: $item('name').text(),
-            value: item.attr('id')!,
+            value: item.attr('id'),
         }
     })
     return chlList

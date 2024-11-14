@@ -83,7 +83,7 @@ export default defineComponent({
             const result = await querySystemCaps()
             const $ = queryXml(result)
 
-            mainStreamLimitFps = Number($('//content/mainStreamLimitFps').text()) || mainStreamLimitFps
+            mainStreamLimitFps = $('//content/mainStreamLimitFps').text().num() || mainStreamLimitFps
         }
 
         const getQualityList = (rowData: RecordSubStreamList) => {
@@ -264,10 +264,10 @@ export default defineComponent({
                     // 码率上限总选项
                     $item('subStreamQualityCaps/item').forEach((item) => {
                         subStreamQualityCaps.push({
-                            enct: item.attr('enct')!,
-                            res: item.attr('res')!,
-                            digitalDefault: item.attr('digitalDefault')!,
-                            analogDefault: item.attr('analogDefault')!,
+                            enct: item.attr('enct'),
+                            res: item.attr('res'),
+                            digitalDefault: item.attr('digitalDefault'),
+                            analogDefault: item.attr('analogDefault'),
                             value: item.text().split(',') ? item.text().split(',') : [],
                         })
                         if (item.attr('enct') === 'h264' && item.attr('res') === '0x0' && videoQualityListFlag === 0) {

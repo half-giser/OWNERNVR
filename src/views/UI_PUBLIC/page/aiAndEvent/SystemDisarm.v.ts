@@ -80,7 +80,7 @@ export default defineComponent({
             const res = queryXml(onlineChls)
             if (res('status').text() === 'success') {
                 res('//content/item').forEach((item) => {
-                    pageData.value.onlineChlList.push(item.attr('id')!)
+                    pageData.value.onlineChlList.push(item.attr('id'))
                 })
             }
         }
@@ -94,7 +94,7 @@ export default defineComponent({
             if (res('status').text() === 'success') {
                 res('//content/item').forEach((item) => {
                     const $item = queryXml(item.element)
-                    const chlId = item.attr('id')!
+                    const chlId = item.attr('id')
                     const chlName = $item('name').text()
                     const chlType = $item('chlType').text()
                     const supportManualAudio = $item('supportManualAudioAlarmOut').text().bool()
@@ -216,7 +216,7 @@ export default defineComponent({
                     res('//content/defenseSwitchParam/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         const row = new AlarmSystemDisarmDto()
-                        const chlId = item.attr('id')!
+                        const chlId = item.attr('id')
                         const nodeType = $item('nodeType').text()
                         // 撤防联动项
                         let disarmItemsStr = ''
