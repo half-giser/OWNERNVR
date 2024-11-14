@@ -135,6 +135,7 @@
                                 <el-checkbox
                                     v-model="vsdData.countOSD.switch"
                                     :label="Translate('IDCS_STATIST_OSD')"
+                                    :disabled="vsdData.countOSD.supportCountOSD"
                                     @change="setEnableOSD"
                                 />
                             </el-form-item>
