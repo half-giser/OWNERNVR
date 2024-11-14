@@ -69,7 +69,7 @@ export default defineComponent({
                 isSupportMotion: true,
             }).then(async (resb) => {
                 const $chl = queryXml(resb)
-                pageData.value.totalCount = Number($chl('//content').attr('total'))
+                pageData.value.totalCount = $chl('//content').attr('total').num()
                 $chl('//content/item').forEach((item) => {
                     const $ele = queryXml(item.element)
                     const row = new AlarmEventDto()
@@ -96,10 +96,10 @@ export default defineComponent({
                     const res = queryXml(motion)
                     row.status = ''
 
-                    if (res('status').text() == 'success') {
+                    if (res('status').text() === 'success') {
                         row.rowDisable = false
                         row.schedule = {
-                            value: res('//content/chl/trigger/triggerSchedule/schedule').attr('id') == '' ? ' ' : res('//content/chl/trigger/triggerSchedule/schedule').attr('id'),
+                            value: res('//content/chl/trigger/triggerSchedule/schedule').attr('id') === '' ? ' ' : res('//content/chl/trigger/triggerSchedule/schedule').attr('id'),
                             label: res('//content/chl/trigger/triggerSchedule/schedule').text(),
                         }
                         row.oldSchedule = {
@@ -107,7 +107,7 @@ export default defineComponent({
                             label: row.schedule.label,
                         }
                         row.record = {
-                            switch: res('//content/chl/trigger/sysRec/switch').text().toBoolean(),
+                            switch: res('//content/chl/trigger/sysRec/switch').text().bool(),
                             chls: res('//content/chl/trigger/sysRec/chls/item').map((item) => {
                                 return {
                                     value: item.attr('id')!,
@@ -117,7 +117,7 @@ export default defineComponent({
                         }
                         row.sysAudio = res('//content/chl/trigger/sysAudio').attr('id') || DEFAULT_EMPTY_ID
                         row.snap = {
-                            switch: res('//content/chl/trigger/sysSnap/switch').text().toBoolean(),
+                            switch: res('//content/chl/trigger/sysSnap/switch').text().bool(),
                             chls: res('//content/chl/trigger/sysSnap/chls/item').map((item) => {
                                 return {
                                     value: item.attr('id')!,
@@ -126,7 +126,7 @@ export default defineComponent({
                             }),
                         }
                         row.alarmOut = {
-                            switch: res('//content/chl/trigger/alarmOut/switch').text() == 'true' ? true : false,
+                            switch: res('//content/chl/trigger/alarmOut/switch').text().bool(),
                             alarmOuts: res('//content/chl/trigger/alarmOut/alarmOuts/item').map((item) => {
                                 return {
                                     value: item.attr('id')!,
@@ -138,7 +138,7 @@ export default defineComponent({
                         row.email = res('//content/chl/trigger/emailSwitch').text()
                         row.msgPush = res('//content/chl/trigger/msgPushSwitch').text()
                         row.videoPopup = res('//content/chl/trigger/popVideoSwitch').text()
-                        row.preset.switch = res('//content/chl/trigger/preset/switch').text() == 'true' ? true : false
+                        row.preset.switch = res('//content/chl/trigger/preset/switch').text().bool()
                         res('//content/chl/trigger/preset/presets/item').forEach((item) => {
                             const $item = queryXml(item.element)
                             row.preset.presets.push({
@@ -151,10 +151,10 @@ export default defineComponent({
                             })
                         })
                         // 设置的声音文件被删除时，显示为none
-                        const AudioData = pageData.value.audioList.filter((element: { value: string; label: string }) => {
+                        const AudioData = pageData.value.audioList.filter((element) => {
                             return element.value === row.sysAudio
                         })
-                        if (AudioData.length === 0) {
+                        if (!AudioData.length) {
                             row.sysAudio = DEFAULT_EMPTY_ID
                         }
                     } else {
@@ -177,7 +177,7 @@ export default defineComponent({
         }
 
         const handleScheduleChangeAll = (schedule: { value: string; label: string }) => {
-            if (schedule.value == 'scheduleMgr') {
+            if (schedule.value === 'scheduleMgr') {
                 pageData.value.scheduleManagePopOpen = true
                 return
             }
@@ -190,7 +190,7 @@ export default defineComponent({
         }
 
         const handleScheduleChangeSingle = (row: AlarmEventDto) => {
-            if (row.schedule.value == 'scheduleMgr') {
+            if (row.schedule.value === 'scheduleMgr') {
                 pageData.value.scheduleManagePopOpen = true
                 row.schedule.value = row.oldSchedule.value
                 row.schedule.label = row.oldSchedule.label
@@ -432,8 +432,8 @@ export default defineComponent({
                             <msgPushSwitch>${rowData.msgPush}</msgPushSwitch>
                             <sysAudio id='${rowData.sysAudio}'></sysAudio>
                             <triggerSchedule>
-                                <switch>${rowData.schedule.value == ' ' ? 'true' : 'false'}</switch>
-                                <schedule id="${rowData.schedule.value == ' ' ? '' : rowData.schedule.value}"></schedule>
+                                <switch>${rowData.schedule.value !== ' '}</switch>
+                                <schedule id="${rowData.schedule.value === ' ' ? '' : rowData.schedule.value}"></schedule>
                             </triggerSchedule>
                             <popVideoSwitch>${rowData.videoPopup}</popVideoSwitch>
                             <emailSwitch>${rowData.email}</emailSwitch>
@@ -450,11 +450,11 @@ export default defineComponent({
                 const sendXml = getSavaData(item)
                 editMotion(sendXml).then((resb) => {
                     const res = queryXml(resb)
-                    if (res('status').text() == 'success') {
+                    if (res('status').text() === 'success') {
                         item.status = 'success'
                     } else {
                         item.status = 'error'
-                        const errorCode = Number(res('errorCode').text())
+                        const errorCode = res('errorCode').text().num()
                         if (errorCode === ErrorCode.USER_ERROR_GET_CONFIG_INFO_FAIL) {
                             item.status = 'success'
                         } else {
