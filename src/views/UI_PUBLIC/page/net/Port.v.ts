@@ -217,7 +217,7 @@ export default defineComponent({
                 portFormData.value.netPort = Number($('//content/netPort').text())
                 portFormData.value.posPort = Number($('//content/posPort').text())
                 // portFormData.value.rtspPort = Number($("//content/rtspPort").text())
-                portFormData.value.virtualHostEnabled = $('//content/virtualHostEnabled').text().toBoolean()
+                portFormData.value.virtualHostEnabled = $('//content/virtualHostEnabled').text().bool()
 
                 const reservedPort = $('//content/reservedPort').text().split(',')
                 pageData.value.reservedPort = []
@@ -312,7 +312,7 @@ export default defineComponent({
             if (userSession.appType === 'P2P') {
                 const result = await queryWirelessNetworkCfg()
                 const $ = queryXml(result)
-                pageData.value.wirelessSwitch = $('//content/switch').text().toBoolean()
+                pageData.value.wirelessSwitch = $('//content/switch').text().bool()
             }
         }
 
@@ -405,7 +405,7 @@ export default defineComponent({
                         label: VERIFICATION_MAPPING[item.text()],
                     }
                 })
-                apiServerFormData.value.apiserverSwitch = $('//content/apiserverSwitch').text().toBoolean()
+                apiServerFormData.value.apiserverSwitch = $('//content/apiserverSwitch').text().bool()
                 apiServerFormData.value.authenticationType = $('//content/authenticationType').text()
             }
         }
@@ -458,10 +458,10 @@ export default defineComponent({
                         label: VERIFICATION_MAPPING[item.text()],
                     }
                 })
-                rtspServerFormData.value.rtspServerSwitch = $('//content/rtspServerSwitch').text().toBoolean()
+                rtspServerFormData.value.rtspServerSwitch = $('//content/rtspServerSwitch').text().bool()
                 rtspServerFormData.value.rtspAuthType = $('//content/rtspAuthType').text()
                 rtspServerFormData.value.rtspPort = Number($('//content/rtspPort').text())
-                rtspServerFormData.value.anonymousAccess = $('//content/anonymousAccess').text().toBoolean()
+                rtspServerFormData.value.anonymousAccess = $('//content/anonymousAccess').text().bool()
             }
         }
 

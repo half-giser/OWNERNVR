@@ -25,7 +25,6 @@
                     type="text"
                     :formatter="formatInputUserName"
                     :parser="formatInputUserName"
-                    :maxlength="nameByteMaxLen"
                     @paste.capture.prevent=""
                 />
             </el-form-item>

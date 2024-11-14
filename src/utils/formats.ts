@@ -121,7 +121,7 @@ export const getLimitStr = (str: string, limit: number) => {
  * @returns {string}
  */
 export const getShortString = (str: string, len: number) => {
-    return str.length > len ? str.substr(0, len) + '...' : str
+    return str.length > len ? str.slice(0, len) + '...' : str
 }
 
 /**
@@ -245,7 +245,7 @@ export const hideSensitiveInfo = (value: string, level: 'low' | 'high' | 'medium
         { type: /\·/, value: '·' },
         { type: /\s/, value: ' ' },
     ]
-    if (type == 'name') {
+    if (type === 'name') {
         let result = ''
         const nameArr = []
         for (let index = 0; index < separator.length; index++) {
@@ -263,14 +263,14 @@ export const hideSensitiveInfo = (value: string, level: 'low' | 'high' | 'medium
             nameArr.push(value)
         }
         const spaceCharArr = nameArr.filter((item) => {
-            return item == '·' || item == ' ' || item == '.'
+            return item === '·' || item === ' ' || item === '.'
         })
-        if (spaceCharArr.length == 0) {
+        if (!spaceCharArr.length) {
             const nameLevel = nameArr[0].length >= 3 ? 'medium' : 'tail'
             result = hideSensitiveInfo(nameArr[0], nameLevel)
-        } else if (spaceCharArr.length == 1) {
+        } else if (spaceCharArr.length === 1) {
             nameArr.forEach((e, i) => {
-                if (i == 0 || i == nameArr.length - 1) {
+                if (i === 0 || i === nameArr.length - 1) {
                     result += hideSensitiveInfo(e, 'medium', 'name')
                 } else {
                     result += e
@@ -278,7 +278,7 @@ export const hideSensitiveInfo = (value: string, level: 'low' | 'high' | 'medium
             })
         } else {
             nameArr.forEach((e, i) => {
-                if (i == 0 || i == nameArr.length - 1) {
+                if (i === 0 || i === nameArr.length - 1) {
                     result += hideSensitiveInfo(e, 'medium', 'name')
                 } else {
                     result += e
@@ -300,24 +300,24 @@ export const hideSensitiveInfo = (value: string, level: 'low' | 'high' | 'medium
     }
 
     // 全部显示
-    if (level == 'low') {
+    if (level === 'low') {
         return value
     }
 
     // 全部脱敏
-    if (level == 'high') {
+    if (level === 'high') {
         return value.replace(/./g, '*')
     }
 
     // 3N+x中间脱敏
-    if (level == 'medium') {
+    if (level === 'medium') {
         return (str = value.substr(0, n) + f + value.substr(strLen - n, n))
     }
 
     // 3N+x尾部脱敏
-    if (level == 'tail') {
-        if (strLen == 1) return (str = '*')
-        if (strLen == 2) return (str = value.substr(0, 1) + '*')
+    if (level === 'tail') {
+        if (strLen === 1) return (str = '*')
+        if (strLen === 2) return (str = value.substr(0, 1) + '*')
         return (str = value.substr(0, 2 * n + x) + value.substr(strLen - n, n).replace(/./g, '*'))
     }
 

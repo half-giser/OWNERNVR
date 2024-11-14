@@ -66,7 +66,6 @@
                     <template #default="scope">
                         <el-select
                             v-model="scope.row.schedule.value"
-                            :empty-values="[undefined, null]"
                             @change="changeSchedule(scope.row)"
                         >
                             <el-option

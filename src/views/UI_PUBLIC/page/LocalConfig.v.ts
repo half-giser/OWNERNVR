@@ -62,7 +62,7 @@ export default defineComponent({
                 Plugin.AsynQueryInfo(Plugin.GetVideoPlugin(), OCX_XML_GetLocalCfg(), (result) => {
                     const doc = XMLStr2XMLDoc(result)
                     const $ = queryXml(doc)
-                    formData.value.snapCount = Number($('//snapCount').text())
+                    formData.value.snapCount = $('//snapCount').text().num()
                     formData.value.liveSnapSavePath = $('//liveSnapSavePath').text()
                     formData.value.recSavePath = $('//recSavePath').text()
                     formData.value.recBackUpPath = $('//recBackUpPath').text()

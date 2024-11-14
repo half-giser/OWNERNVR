@@ -109,7 +109,7 @@ class Request {
                         if (xmlDoc) {
                             const $ = queryXml(xmlDoc)
                             if ($('//status').text() === ApiStatus.fail) {
-                                const errorCode = Number(queryXml(xmlDoc)('//errorCode').text())
+                                const errorCode = queryXml(xmlDoc)('//errorCode').text().num()
                                 if (checkCommonErrorSwitch && this.handelCommonError(errorCode)) {
                                     reject(errorCode)
                                     return
@@ -133,7 +133,7 @@ class Request {
                     resolve: (xmlDoc) => {
                         const $ = queryXml(xmlDoc)
                         if ($('//status').text() === ApiStatus.fail) {
-                            const errorCode = Number(queryXml(xmlDoc)('//errorCode').text())
+                            const errorCode = queryXml(xmlDoc)('//errorCode').text().num()
                             if (checkCommonErrorSwitch && this.handelCommonError(errorCode)) {
                                 reject(errorCode)
                                 return

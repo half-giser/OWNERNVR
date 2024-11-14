@@ -54,7 +54,7 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryPPPoECfg()
             commLoadResponseHandler(result, ($) => {
-                formData.value.switch = $('//content/switch').text().toBoolean()
+                formData.value.switch = $('//content/switch').text().bool()
                 formData.value.userName = $('//content/userName').text().trim()
 
                 if (!formData.value.userName) {
@@ -95,7 +95,7 @@ export default defineComponent({
         const getWirelessNetworkData = async () => {
             const result = await queryWirelessNetworkCfg()
             const $ = queryXml(result)
-            pageData.value.wirelessSwitch = $('//content/switch').text().toBoolean()
+            pageData.value.wirelessSwitch = $('//content/switch').text().bool()
         }
 
         onMounted(async () => {
@@ -114,7 +114,6 @@ export default defineComponent({
             pageData,
             setData,
             formatInputUserName,
-            nameByteMaxLen,
         }
     },
 })

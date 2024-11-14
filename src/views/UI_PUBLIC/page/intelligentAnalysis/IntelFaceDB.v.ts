@@ -341,7 +341,7 @@ export default defineComponent({
                     name: $item('name').text(),
                     property: $item('property').text(),
                     groupId: $item('groupId').text(),
-                    enableAlarmSwitch: $item('enableAlarmSwitch').text().toBoolean(),
+                    enableAlarmSwitch: $item('enableAlarmSwitch').text().bool(),
                     count: 0,
                 }
             })

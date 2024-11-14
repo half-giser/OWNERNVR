@@ -84,11 +84,13 @@ export default defineComponent({
                 querySystemCaps().then((res) => {
                     closeLoading()
                     const $ = queryXml(res)
-                    chlCountLimit.value = Number($('//content/chlMaxCount').text())
-                    const totalBandwidth = Number($('//content/totalBandwidth').text())
-                    const usedBandwidth = Number($('//content/' + (mode == 'auto' ? 'usedAutoBandwidth' : 'usedManualBandwidth')).text())
-                    supportRecorder.value = $('//content/supportRecorder').text().toBoolean()
-                    faceMatchLimitMaxChlNum.value = Number($('//content/faceMatchLimitMaxChlNum').text())
+                    chlCountLimit.value = $('//content/chlMaxCount').text().num()
+                    const totalBandwidth = $('//content/totalBandwidth').text().num()
+                    const usedBandwidth = $('//content/' + (mode === 'auto' ? 'usedAutoBandwidth' : 'usedManualBandwidth'))
+                        .text()
+                        .num()
+                    supportRecorder.value = $('//content/supportRecorder').text().bool()
+                    faceMatchLimitMaxChlNum.value = $('//content/faceMatchLimitMaxChlNum').text().num()
                     let remainBandwidth = (totalBandwidth * 1024 - usedBandwidth) / 1024
                     if (remainBandwidth < 0) remainBandwidth = 0
                     txtBandwidth.value = Translate('IDCS_CURRENT_BANDWIDTH_ALL_D_D').formatForLang(remainBandwidth.toFixed(0), totalBandwidth.toFixed(0))
@@ -101,7 +103,7 @@ export default defineComponent({
             queryDevDefaultPwd().then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     defaultPwdList.value = []
                     mapping.value = {}
                     $('//content/item').forEach((ele) => {
@@ -126,7 +128,7 @@ export default defineComponent({
             queryLanFreeDeviceList().then(async (res) => {
                 closeLoading()
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     manufacturerMap.value = {}
                     manufacturerList.value = []
                     nameList.value = []
@@ -183,8 +185,8 @@ export default defineComponent({
                         return getIpNumber(ele2.ip) - getIpNumber(ele1.ip)
                     })
                     rowData.sort((ele1, ele2) => {
-                        const activate1 = ele1.activateStatus == 'UNACTIVATED' ? 1 : ele1.activateStatus == 'UNKNOWN' ? 0 : -1
-                        const activate2 = ele2.activateStatus == 'UNACTIVATED' ? 1 : ele2.activateStatus == 'UNKNOWN' ? 0 : -1
+                        const activate1 = ele1.activateStatus === 'UNACTIVATED' ? 1 : ele1.activateStatus === 'UNKNOWN' ? 0 : -1
+                        const activate2 = ele2.activateStatus === 'UNACTIVATED' ? 1 : ele2.activateStatus === 'UNKNOWN' ? 0 : -1
                         return activate2 - activate1
                     })
                     quickAddTableData.value = rowData
@@ -198,20 +200,20 @@ export default defineComponent({
             queryLanRecorderList().then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     addRecorderTableData.value = $('//content/item').map((ele) => {
                         const eleXml = queryXml(ele.element)
                         return {
                             ip: eleXml('ip').text(),
-                            port: Number(eleXml('port').text()),
+                            port: eleXml('port').text().num(),
                             version: eleXml('version').text(),
                             name: eleXml('name').text(),
                             serialNum: eleXml('serialNum').text(),
-                            chlTotalCount: Number(eleXml('chlTotalCount').text()),
-                            httpPort: Number(eleXml('httpPort').text()),
-                            chlAddedCount: Number(eleXml('chlAddedCount').text()),
+                            chlTotalCount: eleXml('chlTotalCount').text().num(),
+                            httpPort: eleXml('httpPort').text().num(),
+                            chlAddedCount: eleXml('chlAddedCount').text().num(),
                             productModel: eleXml('productModel').text(),
-                            displayName: eleXml('name').text() + (Number(eleXml('chlTotalCount').text()) > 0 ? '(' + eleXml('chlAddedCount').text() + '/' + eleXml('chlTotalCount').text() + ')' : ''),
+                            displayName: eleXml('name').text() + (eleXml('chlTotalCount').text().num() > 0 ? '(' + eleXml('chlAddedCount').text() + '/' + eleXml('chlTotalCount').text() + ')' : ''),
                         }
                     })
                 }
@@ -221,12 +223,12 @@ export default defineComponent({
         const getProtocolList = async () => {
             const res = await queryRtspProtocolList()
             const $ = queryXml(res)
-            if ($('status').text() == 'success') {
+            if ($('status').text() === 'success') {
                 protocolList.value = []
                 rtspMapping = []
                 $('//content/item').forEach((ele) => {
                     const eleXml = queryXml(ele.element)
-                    if (eleXml('enabled').text().toBoolean()) {
+                    if (eleXml('enabled').text().bool()) {
                         // todo key、value相同？
                         const displayName = eleXml('displayName').text()
                         manufacturerMap.value[displayName] = displayName
@@ -252,8 +254,8 @@ export default defineComponent({
         const manualAddNewRow = (rowCount: number) => {
             const defaultPwdData = defaultPwdList.value[0]
             let defaultPort = 80
-            if (defaultPwdData.protocolType == 'TVT_IPCAMERA') {
-                if (defaultPwdData.displayName == 'Speco') {
+            if (defaultPwdData.protocolType === 'TVT_IPCAMERA') {
+                if (defaultPwdData.displayName === 'Speco') {
                     defaultPort = 554
                 } else {
                     defaultPort = 9008
@@ -308,7 +310,7 @@ export default defineComponent({
                         let isArray = false
                         filters.forEach((ele) => {
                             //解决中间有空格不相等的问题
-                            if (Trim(ele, 'g') == Trim(val, 'g')) isArray = true
+                            if (Trim(ele, 'g') === Trim(val, 'g')) isArray = true
                         })
                         if (isArray) {
                             row.port = 0
@@ -317,8 +319,8 @@ export default defineComponent({
                             row.portDisabled = true
                         } else {
                             let defaultPort = 80
-                            if (mapping.value[val].protocolType == 'TVT_IPCAMERA') {
-                                if (mapping.value[val].displayName == 'Speco') {
+                            if (mapping.value[val].protocolType === 'TVT_IPCAMERA') {
+                                if (mapping.value[val].displayName === 'Speco') {
                                     defaultPort = 554
                                 } else {
                                     defaultPort = 9008
@@ -334,13 +336,13 @@ export default defineComponent({
                     }
                 }
             }
-            if (index == manualAddFormData.value.length - 1) manualAddNewRow(manualAddFormData.value.length)
+            if (index === manualAddFormData.value.length - 1) manualAddNewRow(manualAddFormData.value.length)
         }
 
         const Trim = (str: string, is_global: string) => {
             let result
             result = str.replace(/(^\s+)|(\s+$)/g, '')
-            if (is_global.toLowerCase() == 'g') {
+            if (is_global.toLowerCase() === 'g') {
                 result = result.replace(/\s/g, '')
             }
             return result
@@ -350,7 +352,7 @@ export default defineComponent({
             for (let s = 0; s < arrayToSearch.length; s++) {
                 const thisEntry = arrayToSearch[s]
                 //解决中间有空格不相等的问题
-                if (Trim(thisEntry, 'g') == Trim(stringToSearch, 'g')) {
+                if (Trim(thisEntry, 'g') === Trim(stringToSearch, 'g')) {
                     return true
                 }
             }
@@ -373,7 +375,7 @@ export default defineComponent({
         const activateVerify = () => {
             const selectedRows: Array<ChannelQuickAddDto> = quickAddTableRef.value!.getSelectionRows()
             const unActivateData: Array<ChannelQuickAddDto> = []
-            if (selectedRows.length == 0) {
+            if (!selectedRows.length) {
                 openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_SEL_ACTIVATE_CHANNEL'),
@@ -381,9 +383,9 @@ export default defineComponent({
                 return false
             }
             selectedRows.forEach((ele) => {
-                if (ele.activateStatus == 'UNACTIVATED') unActivateData.push(ele)
+                if (ele.activateStatus === 'UNACTIVATED') unActivateData.push(ele)
             })
-            if (unActivateData.length == 0) {
+            if (!unActivateData.length) {
                 openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_NO_CHANNEL_TO_ACTIVATE'),
@@ -509,7 +511,7 @@ export default defineComponent({
                                 thermalName = defaultName + ' ' + thermalName
                             }
 
-                            if (ele.industryProductType == 'THERMAL_DOUBLE') {
+                            if (ele.industryProductType === 'THERMAL_DOUBLE') {
                                 data += getXmlDataByQuickAdd(ele, 'NORMAL', normalName)
                                 data += getXmlDataByQuickAdd(ele, 'THERMAL_DOUBLE', thermalName)
                                 numName++
@@ -553,7 +555,7 @@ export default defineComponent({
                         let isArray = false
                         filters.forEach((ele: string) => {
                             //解决中间有空格不相等的问题
-                            if (Trim(ele, 'g') == Trim(element.manufacturer, 'g')) {
+                            if (Trim(ele, 'g') === Trim(element.manufacturer, 'g')) {
                                 isArray = true
                             }
                         })
@@ -599,7 +601,7 @@ export default defineComponent({
                 closeLoading()
                 const $ = queryXml(res)
                 getSystemCaps()
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     openMessageBox({
                         type: 'success',
                         message: Translate('IDCS_SAVE_DATA_SUCCESS'),
@@ -607,42 +609,42 @@ export default defineComponent({
                         router.push('list')
                     })
                 } else {
-                    const errorCode = Number($('errorCode').text())
-                    if (errorCode == ErrorCode.USER_ERROR_NODE_ID_EXISTS) {
+                    const errorCode = $('errorCode').text().num()
+                    if (errorCode === ErrorCode.USER_ERROR_NODE_ID_EXISTS) {
                         openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_PROMPT_CHANNEL_EXIST'),
                         })
-                    } else if (errorCode == ErrorCode.USER_ERROR_OVER_LIMIT) {
+                    } else if (errorCode === ErrorCode.USER_ERROR_OVER_LIMIT) {
                         openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
                         }).then(() => {
                             router.push('list')
                         })
-                    } else if (errorCode == ErrorCode.USER_ERROR_OVER_BANDWIDTH_LIMIT) {
+                    } else if (errorCode === ErrorCode.USER_ERROR_OVER_BANDWIDTH_LIMIT) {
                         openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_BANDWIDTH_LIMIT'),
                         })
-                    } else if (errorCode == ErrorCode.USER_ERROR_SPECIAL_CHAR) {
+                    } else if (errorCode === ErrorCode.USER_ERROR_SPECIAL_CHAR) {
                         const poePort = $('poePort').text()
                         // POE连接冲突提示
                         openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_POE_RESOURCE_CONFLICT_TIP').formatForLang(poePort),
                         })
-                    } else if (errorCode == ErrorCode.USER_ERROR_LIMITED_PLATFORM_TYPE_MISMATCH) {
+                    } else if (errorCode === ErrorCode.USER_ERROR_LIMITED_PLATFORM_TYPE_MISMATCH) {
                         openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_ADD_CHANNEL_FAIL').formatForLang(faceMatchLimitMaxChlNum),
                         })
-                    } else if (errorCode == ErrorCode.USER_ERROR_INVALID_IP) {
+                    } else if (errorCode === ErrorCode.USER_ERROR_INVALID_IP) {
                         openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID'),
                         })
-                    } else if (errorCode == ErrorCode.USER_ERROR_PC_LICENSE_MISMATCH) {
+                    } else if (errorCode === ErrorCode.USER_ERROR_PC_LICENSE_MISMATCH) {
                         const msg = Translate('IDCS_ADD_CHANNEL_FAIL').formatForLang(faceMatchLimitMaxChlNum) + Translate('IDCS_REBOOT_DEVICE').formatForLang(Translate('IDCS_KEEP_ADD'))
                         openMessageBox({
                             type: 'question',

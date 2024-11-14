@@ -126,7 +126,7 @@ export default defineComponent({
                     pluginStore.showPluginNoResponse = true
                     plugin.ShowPluginNoResponse()
                 }
-                const sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'FireConfig' : 'ReadOnly', 'Live')
+                const sendXML = OCX_XML_SetPluginModel(osType === 'mac' ? 'FireConfig' : 'ReadOnly', 'Live')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
         }
@@ -140,7 +140,7 @@ export default defineComponent({
                     streamType: 2,
                 })
             } else if (mode.value === 'ocx') {
-                if (osType == 'mac') {
+                if (osType === 'mac') {
                     // const sendXML = OCX_XML_Preview({
                     //     winIndexList: [0],
                     //     chlIdList: [props.chlData.id],
@@ -181,7 +181,7 @@ export default defineComponent({
         // tab点击事件
         const handleFunctionTabClick = async (pane: TabsPaneContext) => {
             pageData.value.fuction = pane.props.name?.toString() ? pane.props.name?.toString() : ''
-            if (pageData.value.fuction == 'param') {
+            if (pageData.value.fuction === 'param') {
                 setOcxData()
             }
         }
@@ -211,28 +211,28 @@ export default defineComponent({
             const res = await queryCdd(sendXml)
             closeLoading()
             const $ = queryXml(res)
-            if ($('status').text() == 'success') {
+            if ($('status').text() === 'success') {
                 const holdTimeArr = $('//content/chl/param/holdTimeNote').text().split(',')
-                const holdTime = Number($('//content/chl/param/alarmHoldTime').text())
+                const holdTime = $('//content/chl/param/alarmHoldTime').text().num()
                 if (!holdTimeArr.includes(holdTime.toString())) {
                     holdTimeArr.push(holdTime.toString())
                 }
 
                 let schedule = $('//content/chl').attr('scheduleGuid')
-                schedule = schedule !== '' ? (pageData.value.scheduleList.some((item: { value: string; label: string }) => item.value == schedule) ? schedule : DEFAULT_EMPTY_ID) : DEFAULT_EMPTY_ID
+                schedule = schedule !== '' ? (pageData.value.scheduleList.some((item: { value: string; label: string }) => item.value === schedule) ? schedule : DEFAULT_EMPTY_ID) : DEFAULT_EMPTY_ID
 
                 const trigger = $('//content/chl/trigger')
                 const $trigger = queryXml(trigger[0].element)
 
                 formData.value = {
-                    detectionEnable: $('//content/chl/param/switch').text().toBoolean(),
-                    originalEnable: $('//content/chl/param/switch').text().toBoolean(),
+                    detectionEnable: $('//content/chl/param/switch').text().bool(),
+                    originalEnable: $('//content/chl/param/switch').text().bool(),
                     schedule,
                     holdTime,
                     holdTimeList: formatHoldTime(holdTimeArr),
-                    refreshFrequency: Number($('//content/chl/param/detectFrequency').text()),
+                    refreshFrequency: $('//content/chl/param/detectFrequency').text().num(),
                     refreshFrequencyList: $('//types/refreshFrequency/enum').map((item) => {
-                        const value = Number(item.text()) / 1000
+                        const value = item.text().num() / 1000
                         return {
                             value,
                             label: getTranslateForSecond(value / 1000),
@@ -241,21 +241,22 @@ export default defineComponent({
                     regionInfo: $('//content/chl/param/regionInfo/item').map((item) => {
                         const $ = queryXml(item.element)
                         return {
-                            X1: Number($('X1').text()),
-                            X2: Number($('X2').text()),
-                            Y1: Number($('Y1').text()),
-                            Y2: Number($('Y2').text()),
+                            X1: $('X1').text().num(),
+                            X2: $('X2').text().num(),
+                            Y1: $('Y1').text().num(),
+                            Y2: $('Y2').text().num(),
                         }
                     }),
                     mutexList: $('//content/trigger/mutexList/item').map((item) => {
+                        const $item = queryXml(item.element)
                         return {
-                            object: item.text(),
-                            status: item.attr('status') == 'true',
+                            object: $item('object').text(),
+                            status: $item('status').text().bool(),
                         }
                     }),
-                    triggerAlarmLevel: Number($('//content/chl/param/triggerAlarmLevel').text()),
+                    triggerAlarmLevel: $('//content/chl/param/triggerAlarmLevel').text().num(),
                     trigger: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch'].filter((item) => {
-                        return $trigger(item).text().toBoolean()
+                        return $trigger(item).text().bool()
                     }),
                     record: $trigger('sysRec/chls/item').map((item) => {
                         return {
@@ -280,7 +281,7 @@ export default defineComponent({
                             },
                         }
                     }),
-                    sysAudio: $trigger('sysAudio').attr('id') == '' ? $trigger('sysAudio').attr('id') : '',
+                    sysAudio: $trigger('sysAudio').attr('id') === '' ? $trigger('sysAudio').attr('id') : '',
                 }
             } else {
                 pageData.value.requireDataFail = true
@@ -349,7 +350,7 @@ export default defineComponent({
             const res = await editCdd(sendXml)
             closeLoading()
             const $ = queryXml(res)
-            if ($('status').text() == 'success') {
+            if ($('status').text() === 'success') {
                 // NT-9292 开关为开把originalSwitch置为true避免多次弹出互斥提示
                 if (formData.value.detectionEnable) {
                     formData.value.originalEnable = true
@@ -429,10 +430,10 @@ export default defineComponent({
                 formData.value.regionInfo = $('statenotify/item').map((element) => {
                     const $ = queryXml(element.element)
                     return {
-                        X1: Number($('X1').text()),
-                        Y1: Number($('Y1').text()),
-                        X2: Number($('X2').text()),
-                        Y2: Number($('Y2').text()),
+                        X1: $('X1').text().num(),
+                        Y1: $('Y1').text().num(),
+                        X2: $('X2').text().num(),
+                        Y2: $('Y2').text().num(),
                     }
                 })
             }

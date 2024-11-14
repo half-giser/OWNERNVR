@@ -187,7 +187,7 @@ export const useOcxBackUp = (cmd: (str: string) => void) => {
         // 备份通知
         if ($('statenotify[@type="BackUpRec"]').length) {
             // var backupTaskGrid = $("#backupTaskGrid");
-            const errorCode = Number($('statenotify/errorCode').text())
+            const errorCode = $('statenotify/errorCode').text().num()
 
             if ([ErrorCode.USER_ERROR_NO_AUTH, 513, ErrorCode.USER_ERROR_SYSTEM_BUSY].includes(errorCode)) {
                 const taskIds = $('statenotify/errorDescription').text().split(',')
@@ -201,7 +201,7 @@ export const useOcxBackUp = (cmd: (str: string) => void) => {
                         }
                     })
                 }
-            } else if (errorCode == ErrorCode.USER_ERROR_DISK_SPACE_NO_ENOUGH) {
+            } else if (errorCode === ErrorCode.USER_ERROR_DISK_SPACE_NO_ENOUGH) {
                 const errorDescription = $('statenotify/errorDescription').text()
                 localTableData.value = []
                 openMessageBox({
@@ -228,7 +228,7 @@ export const useOcxBackUp = (cmd: (str: string) => void) => {
             }
 
             taskItems.forEach((item) => {
-                const findIndex = localTableData.value.findIndex((data) => data.chlIndex === Number(item.attr('chlIndex')!))
+                const findIndex = localTableData.value.findIndex((data) => data.chlIndex === item.attr('chlIndex').num())
                 if (findIndex > -1) {
                     localTableData.value[findIndex].dataSize = item.attr('size')! === '0.0MB' ? '--' : item.attr('size')!
                     localTableData.value[findIndex].taskId = item.attr('id')!

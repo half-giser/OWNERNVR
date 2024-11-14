@@ -51,14 +51,14 @@ export default defineComponent({
             ],
             port: [
                 {
-                    validator: (_rule, value: string, callback) => {
+                    validator: (_rule, value: number | null | undefined, callback) => {
                         if (formData.value.switch) {
                             if (!value) {
                                 callback(new Error(Translate('IDCS_POS_PORT_EMPTY')))
                                 return
                             }
 
-                            if (Number(value) < 10 || Number(value) > 65535) {
+                            if (value < 10 || value > 65535) {
                                 callback(new Error(Translate('IDCS_PROMPT_PORT_INVALID')))
                                 return
                             }

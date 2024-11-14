@@ -41,7 +41,7 @@ export default defineComponent({
                 isSupportWhiteLightAlarmOut: true,
             }).then(async (res) => {
                 const $chl = queryXml(res)
-                pageData.value.totalCount = Number($chl('//content').attr('total'))
+                pageData.value.totalCount = $chl('//content').attr('total').num()
                 $chl('//content/item').forEach(async (item) => {
                     const row = new AlarmWhiteLightDto()
                     row.id = item.attr('id')!
@@ -63,7 +63,7 @@ export default defineComponent({
                     const whiteLightInfo = await queryWhiteLightAlarmOutCfg(sendXml)
                     const res = queryXml(whiteLightInfo)
                     row.status = ''
-                    if (res('status').text() == 'success') {
+                    if (res('status').text() === 'success') {
                         if (pageData.value.lightFrequencyList.length === 0) {
                             res('//types/lightFrequency/enum').forEach((item) => {
                                 pageData.value.lightFrequencyList.push({
@@ -73,7 +73,7 @@ export default defineComponent({
                             })
                         }
                         row.enable = res('//content/chl/param/lightSwitch').text()
-                        row.durationTime = Number(res('//content/chl/param/durationTime').text())
+                        row.durationTime = res('//content/chl/param/durationTime').text().num()
                         row.frequencyType = res('//content/chl/param/frequencyType').text()
                         setRowDisable(row)
                         row.rowDisable = false
@@ -138,14 +138,14 @@ export default defineComponent({
                         row.status = isSuccess ? 'success' : 'error'
                         if (isSuccess) {
                             pageData.value.editRows.splice(pageData.value.editRows.indexOf(row), 1)
-                            if (pageData.value.editRows.length === 0) {
+                            if (!pageData.value.editRows.length) {
                                 pageData.value.applyDisable = true
                             }
                         }
                     })
                 }
             })
-            if (pageData.value.scheduleChanged == true) {
+            if (pageData.value.scheduleChanged) {
                 const scheduleSendXml = rawXml`
                     <content>
                         <triggerChannelLightSchedule id="${pageData.value.schedule}">
@@ -218,7 +218,7 @@ export default defineComponent({
 
         const handleFrequencyTypeChangeAll = (value: string) => {
             tableData.value.forEach((row) => {
-                if (!row.rowDisable && !(row.enable && row.enable == 'false')) {
+                if (!row.rowDisable && !(row.enable && row.enable === 'false')) {
                     row.frequencyType = value
                     addEditRows(row)
                     if (!row.rowDisable) pageData.value.applyDisable = false
@@ -255,20 +255,20 @@ export default defineComponent({
         const handleScheduleChange = () => {
             pageData.value.applyDisable = false
             pageData.value.scheduleChanged = true
-            pageData.value.scheduleName = pageData.value.schedule === DEFAULT_EMPTY_ID ? '' : pageData.value.scheduleList.find((item) => item.value == pageData.value.schedule)!.label
+            pageData.value.scheduleName = pageData.value.schedule === DEFAULT_EMPTY_ID ? '' : pageData.value.scheduleList.find((item) => item.value === pageData.value.schedule)!.label
         }
 
         const addEditRows = (row: AlarmWhiteLightDto) => {
             if (!row.rowDisable) {
-                if (!pageData.value.editRows.some((item) => item.id == row.id)) {
+                if (!pageData.value.editRows.some((item) => item.id === row.id)) {
                     pageData.value.editRows.push(row)
                 }
             }
         }
 
         const setRowDisable = (rowData: AlarmWhiteLightDto) => {
-            const disabled = rowData.enable == 'false'
-            if (rowData.enable == '') {
+            const disabled = rowData.enable === 'false'
+            if (rowData.enable === '') {
                 rowData.rowDisable = true
                 rowData.enableDisable = true
                 rowData.durationTimeDisable = true

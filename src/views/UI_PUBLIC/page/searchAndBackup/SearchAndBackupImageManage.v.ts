@@ -125,7 +125,7 @@ export default defineComponent({
             closeLoading()
 
             showMaxSearchLimitTips($)
-            pageData.value.totalCount = Number($('//content').attr('total')!)
+            pageData.value.totalCount = $('//content').attr('total').num()
 
             tableData.value = $('//content/item').map((item, index) => {
                 const $item = queryXml(item.element)
@@ -134,7 +134,7 @@ export default defineComponent({
                     chlId: $item('chl').attr('id')!,
                     chlName: $item('chl').text(),
                     creator: Translate($item('creator').text()),
-                    captureMode: Number($item('captureMode').text()),
+                    captureMode: $item('captureMode').text().num(),
                     captureModeKey: Translate($item('captureMode').attr('translateKey')!),
                     captureTimeStamp: dayjs.utc($item('captureTime').text().substring(0, 19), 'YYYY-MM-DD HH:mm:ss').valueOf(),
                     captureTime: $item('captureTime').text(),

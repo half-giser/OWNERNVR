@@ -102,7 +102,7 @@ export const checkRtspUrl = (str: string) => {
      */
     const rtspReg = /^rtsp:\/\/((?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]\d|[1-9])(?:\.(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}):(\d{1,5})\/([^&$|\\'<>]+)$/
     const result = str.match(rtspReg)
-    return result != null
+    return result !== null
 }
 
 /**

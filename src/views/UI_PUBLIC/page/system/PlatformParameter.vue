@@ -6,12 +6,14 @@
 <template>
     <div>
         <el-form
+            ref="formRef"
             class="stripe"
             :model="formData"
             inline-message
             :style="{
                 '--form-input-width': '250px',
             }"
+            :rules="formRule"
         >
             <div class="base-subheading-box">{{ Translate('IDCS_ACCESS_PLATFORM_SET') }}</div>
             <!-- 启用 -->
@@ -29,7 +31,10 @@
                 />
             </el-form-item>
             <!-- 服务器地址 -->
-            <el-form-item :label="Translate('IDCS_SERVER_ADDRESS')">
+            <el-form-item
+                prop="ip"
+                :label="Translate('IDCS_SERVER_ADDRESS')"
+            >
                 <BaseIpInput
                     v-if="!formData.isDomain"
                     :disabled="!formData.enable"

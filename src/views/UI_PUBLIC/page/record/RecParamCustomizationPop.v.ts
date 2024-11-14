@@ -74,8 +74,8 @@ export default defineComponent({
          * @description 打开弹窗时更新页面项
          */
         const open = async () => {
-            if (prop.expirationType != 'all') {
-                const expirationTime = prop.expirationData?.singleExpirationUnit == 'd' ? Number(prop.expirationData?.expiration) * 24 : Number(prop.expirationData?.expiration)
+            if (prop.expirationType !== 'all') {
+                const expirationTime = prop.expirationData?.singleExpirationUnit === 'd' ? Number(prop.expirationData?.expiration) * 24 : Number(prop.expirationData?.expiration)
                 pageData.value.expireTime = expirationTime
                 const week = prop.expirationData?.week
                 if (week) {
@@ -83,7 +83,7 @@ export default defineComponent({
                 }
                 const holiday = prop.expirationData?.holiday
                 if (holiday) {
-                    holiday.split(',').forEach((item: string) => {
+                    holiday.split(',').forEach((item) => {
                         pageData.value.toAddDateList.push({
                             date: formatDate(item, pageData.value.dateFormat, 'YYYY-MM-DD'),
                         })
@@ -120,14 +120,14 @@ export default defineComponent({
                 return
             }
 
-            if (pageData.value.weekArr.length == 7) {
+            if (pageData.value.weekArr.length === 7) {
                 openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_KEEPVIDEO_WEEK_ALL'),
                 })
                 return
             }
-            const unit = pageData.value.expireTime == 1 ? Translate('IDCS_HOUR') : Translate('IDCS_HOURS')
+            const unit = pageData.value.expireTime === 1 ? Translate('IDCS_HOUR') : Translate('IDCS_HOURS')
             const tips = pageData.value.expireTime + ' ' + unit
             const week = pageData.value.weekArr.join(',')
             const holiday = pageData.value.toAddDateList.map((item) => formatDate(item.date, 'YYYY-MM-DD', pageData.value.dateFormat)).join(',')
@@ -138,7 +138,7 @@ export default defineComponent({
                 type: 'question',
                 message: Translate('IDCS_CHANGE_EXPIRE_TIME_WARNING_D').formatForLang(tips),
             }).then(() => {
-                if (prop.expirationType == 'all') {
+                if (prop.expirationType === 'all') {
                     ctx.emit('confirm', week, holiday, expiration)
                 } else {
                     ctx.emit('confirm', week, holiday, expiration, prop.expirationData)

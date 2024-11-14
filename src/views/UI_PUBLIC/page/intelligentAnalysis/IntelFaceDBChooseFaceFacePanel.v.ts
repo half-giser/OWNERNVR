@@ -89,7 +89,7 @@ export default defineComponent({
                     name: $item('name').text(),
                     property: $item('property').text(),
                     groupId: $item('groupId').text(),
-                    enableAlarmSwitch: $item('enableAlarmSwitch').text().toBoolean(),
+                    enableAlarmSwitch: $item('enableAlarmSwitch').text().bool(),
                     count: 0,
                 }
             })
@@ -191,7 +191,7 @@ export default defineComponent({
                 })
             }
 
-            if (formData.value.faceGroup.length === 0) {
+            if (!formData.value.faceGroup.length) {
                 listData.value = []
             }
             closeLoading()

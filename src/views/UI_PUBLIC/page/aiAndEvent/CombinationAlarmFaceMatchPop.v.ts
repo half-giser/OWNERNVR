@@ -60,9 +60,9 @@ export default defineComponent({
                 pageData.value.rule = obj.rule
                 pageData.value.duration = -obj.duration
                 pageData.value.delay = obj.delay
-                pageData.value.noShowDisplay = obj.noShowDisplay == 'true' ? true : false
+                pageData.value.noShowDisplay = obj.noShowDisplay === 'true' ? true : false
                 pageData.value.displayText = obj.displayText
-                pageData.value.faceDataIds = obj.groupId.filter((item: string) => item != 'undefined')
+                pageData.value.faceDataIds = obj.groupId.filter((item) => item !== 'undefined')
             }
 
             const result = await queryFacePersonnalInfoGroupList()

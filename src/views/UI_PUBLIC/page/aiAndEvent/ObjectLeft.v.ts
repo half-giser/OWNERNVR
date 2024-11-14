@@ -140,7 +140,7 @@ export default defineComponent({
                     pluginStore.showPluginNoResponse = true
                     plugin.ShowPluginNoResponse()
                 }
-                const sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'OscConfig' : 'ReadOnly', 'Live')
+                const sendXML = OCX_XML_SetPluginModel(osType === 'mac' ? 'OscConfig' : 'ReadOnly', 'Live')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
         }
@@ -155,7 +155,7 @@ export default defineComponent({
 
         const closePath = (points: { X: number; Y: number; isClosed?: boolean }[]) => {
             points.forEach((item) => (item.isClosed = true))
-            objectLeftData.value.boundary[pageData.value.warnArea].points = points as { X: number; Y: number; isClosed: boolean }[]
+            objectLeftData.value.boundary[pageData.value.warnArea].points = points
         }
 
         const forceClosePath = (canBeClosed: boolean) => {
@@ -172,7 +172,7 @@ export default defineComponent({
                 type: 'question',
                 message: Translate('IDCS_DRAW_CLEAR_TIP'),
             }).then(() => {
-                if (objectLeftData.value.boundary.length == 0) return
+                if (!objectLeftData.value.boundary.length) return
                 objectLeftData.value.boundary[pageData.value.warnArea].points = []
                 if (mode.value === 'h5') {
                     objDrawer.clear()
@@ -198,17 +198,17 @@ export default defineComponent({
                     streamType: 2,
                 })
             } else if (mode.value === 'ocx') {
-                if (osType == 'mac') {
-                    const sendXML = OCX_XML_Preview({
-                        winIndexList: [0],
-                        chlIdList: [chlData.id],
-                        chlNameList: [chlData.name],
-                        streamType: 'sub',
-                        // chl没有index属性
-                        chlIndexList: ['0'],
-                        chlTypeList: [chlData.chlType],
-                    })
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                if (osType === 'mac') {
+                    // const sendXML = OCX_XML_Preview({
+                    //     winIndexList: [0],
+                    //     chlIdList: [chlData.id],
+                    //     chlNameList: [chlData.name],
+                    //     streamType: 'sub',
+                    //     // chl没有index属性
+                    //     chlIndexList: ['0'],
+                    //     chlTypeList: [chlData.chlType],
+                    // })
+                    // plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 } else {
                     plugin.RetryStartChlView(prop.currChlId, chlData.name)
                 }
@@ -240,7 +240,7 @@ export default defineComponent({
             const result = await queryOsc(sendXml)
             closeLoading()
             commLoadResponseHandler(result, async ($) => {
-                const enabledSwitch = $('//content/chl/param/switch').text() == 'true'
+                const enabledSwitch = $('//content/chl/param/switch').text().bool()
                 let holdTimeArr = $('//content/chl/param/holdTimeNote').text().split(',')
                 const holdTime = $('//content/chl/param/holdTime').text()
                 if (!holdTimeArr.includes(holdTime)) {
@@ -265,13 +265,13 @@ export default defineComponent({
                     const $item = queryXml(item.element)
                     const boundaryItem = {
                         areaName: $item('name').text().trim(),
-                        points: [] as { X: number; Y: number; isClosed: boolean }[],
+                        points: [] as { X: number; Y: number; isClosed?: boolean }[],
                     }
                     $item('point/item').forEach((ele) => {
                         const $ele = queryXml(ele.element)
                         boundaryItem.points.push({
-                            X: Number($ele('X').text()),
-                            Y: Number($ele('Y').text()),
+                            X: $ele('X').text().num(),
+                            Y: $ele('Y').text().num(),
                             isClosed: true,
                         })
                     })
@@ -279,7 +279,10 @@ export default defineComponent({
                 })
                 const mutexList = $('//content/chl/param/mutexList/item').map((item) => {
                     const $item = queryXml(item.element)
-                    return { object: $item('object').text(), status: $item('status').text() == 'true' }
+                    return {
+                        object: $item('object').text(),
+                        status: $item('status').text().bool(),
+                    }
                 })
                 const trigger = $('//content/chl/trigger')
                 const $trigger = queryXml(trigger[0].element)
@@ -308,7 +311,7 @@ export default defineComponent({
                 })
 
                 const triggerList = ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch'].filter((item) => {
-                    return $trigger(item).text().toBoolean()
+                    return $trigger(item).text().bool()
                 })
 
                 objectLeftData.value = {
@@ -319,11 +322,11 @@ export default defineComponent({
                     schedule: $('//content/chl').attr('scheduleGuid'),
                     oscTypeList,
                     oscType: $('//content/chl/param/oscType').text(),
-                    areaMaxCount: Number($('//content/chl/param/boundary').attr('maxCount')), // 支持配置几个警戒面
-                    regulation: $('//content/chl/param/boundary').attr('regulation') == '1', // 区别联咏ipc标志
+                    areaMaxCount: $('//content/chl/param/boundary').attr('maxCount').num(), // 支持配置几个警戒面
+                    regulation: $('//content/chl/param/boundary').attr('regulation') === '1', // 区别联咏ipc标志
                     boundary,
                     mutexList,
-                    maxNameLength: Number($('//content/chl/param/boundary/item/name').attr('maxLen')) || 15,
+                    maxNameLength: $('//content/chl/param/boundary/item/name').attr('maxLen').num() || 15,
                     record,
                     alarmOut,
                     preset,
@@ -348,7 +351,7 @@ export default defineComponent({
         // 检测和屏蔽区域的样式初始化
         const refreshInitPage = () => {
             objectLeftData.value.boundary.forEach((item, index) => {
-                if (item.points && item.points.length > 0) {
+                if (item.points && item.points.length) {
                     pageData.value.configuredArea[index] = true
                 } else {
                     pageData.value.configuredArea[index] = false
@@ -366,7 +369,7 @@ export default defineComponent({
 
         // tab项切换
         const tabChange = (name: TabPaneName) => {
-            if (name == 'param') {
+            if (name === 'param') {
                 play()
             }
         }
@@ -375,7 +378,7 @@ export default defineComponent({
         const showAllArea = () => {
             objDrawer && objDrawer.setEnableShowAll(pageData.value.isShowAllArea)
             if (pageData.value.isShowAllArea) {
-                const detectAreaInfo = {} as Record<number, { X: number; Y: number; isClosed: boolean }[]>
+                const detectAreaInfo = {} as Record<number, { X: number; Y: number; isClosed?: boolean }[]>
                 objectLeftData.value.boundary.forEach((item, index) => {
                     detectAreaInfo[index] = item.points
                 })
@@ -389,7 +392,7 @@ export default defineComponent({
                 }
             } else {
                 // TODO
-                if (mode.value != 'h5') {
+                if (mode.value !== 'h5') {
                     console.log('ocx not show all alarm area')
                 }
                 setAreaView()
@@ -403,7 +406,7 @@ export default defineComponent({
                 const sendXML = OCX_XML_SetOscAreaAction('NONE')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
-            if (objectLeftData.value.boundary.length == 0) return
+            if (!objectLeftData.value.boundary.length) return
             objectLeftData.value.boundary[pageData.value.warnArea].points = []
             if (pageData.value.isShowAllArea) {
                 showAllArea()
@@ -450,14 +453,14 @@ export default defineComponent({
         }
 
         // 闭合区域
-        const setClosed = (points: { X: number; Y: number; isClosed: boolean }[]) => {
-            points?.forEach((item) => {
+        const setClosed = (points: { X: number; Y: number; isClosed?: boolean }[]) => {
+            points.forEach((item) => {
                 item.isClosed = true
             })
         }
 
         const setOtherAreaClosed = () => {
-            if (mode.value == 'h5') {
+            if (mode.value === 'h5') {
                 // 画点-区域
                 if (objectLeftData.value.boundary && objectLeftData.value.boundary.length > 0) {
                     objectLeftData.value.boundary.forEach((item) => {
@@ -588,7 +591,7 @@ export default defineComponent({
             const result = await editOsc(sendXml)
             closeLoading()
             const $ = queryXml(result)
-            if ($('//status').text() == 'success') {
+            if ($('//status').text() === 'success') {
                 if (objectLeftData.value.enabledSwitch) {
                     objectLeftData.value.originalSwitch = true
                 }
@@ -603,7 +606,7 @@ export default defineComponent({
             if (!verification()) return
             let isSwitchChange = false
             const switchChangeTypeArr: string[] = []
-            if (objectLeftData.value.enabledSwitch && objectLeftData.value.enabledSwitch != objectLeftData.value.originalSwitch) {
+            if (objectLeftData.value.enabledSwitch && objectLeftData.value.enabledSwitch !== objectLeftData.value.originalSwitch) {
                 isSwitchChange = true
             }
             objectLeftData.value.mutexList?.forEach((item) => {
@@ -634,32 +637,34 @@ export default defineComponent({
 
         const LiveNotify2Js = ($: (path: string) => XmlResult) => {
             // 物品看护改变
-            // const $xmlNote = $("statenotify[@type='OscArea']")
-            const $points = $("statenotify[@type='OscArea']/points")
-            const errorCode = $("statenotify[@type='OscArea']/errorCode").text()
-            // 绘制点线
-            if ($points.length > 0) {
-                const points = [] as { X: number; Y: number }[]
-                $('/statenotify/points/item').forEach((item) => {
-                    points.push({ X: Number(item.attr('X')), Y: Number(item.attr('Y')) })
-                })
-                objectLeftData.value.boundary[pageData.value.warnArea].points = points as { X: number; Y: number; isClosed: boolean }[]
-            }
+            if ($("statenotify[@type='OscArea']").length) {
+                // 绘制点线
+                if ($('statenotify/points').length) {
+                    objectLeftData.value.boundary[pageData.value.warnArea].points = $('/statenotify/points/item').map((item) => {
+                        return {
+                            X: item.attr('X').num(),
+                            Y: item.attr('Y').num(),
+                        }
+                    })
+                }
 
-            // 处理错误码
-            if (errorCode == '517') {
-                // 517-区域已闭合
-                clearCurrentArea()
-            } else if (errorCode == '515') {
-                // 515-区域有相交直线，不可闭合
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_INTERSECT'),
-                })
+                const errorCode = $('statenotify/errorCode').text().num()
+
+                // 处理错误码
+                if (errorCode === 517) {
+                    // 517-区域已闭合
+                    clearCurrentArea()
+                } else if (errorCode === 515) {
+                    // 515-区域有相交直线，不可闭合
+                    openMessageBox({
+                        type: 'info',
+                        message: Translate('IDCS_INTERSECT'),
+                    })
+                }
             }
         }
         onMounted(async () => {
-            if (mode.value != 'h5') {
+            if (mode.value !== 'h5') {
                 Plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
             }
             pageData.value.scheduleList = await buildScheduleList()
@@ -676,7 +681,7 @@ export default defineComponent({
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
 
-            if (mode.value == 'h5') {
+            if (mode.value === 'h5') {
                 objDrawer.destroy()
             }
         })

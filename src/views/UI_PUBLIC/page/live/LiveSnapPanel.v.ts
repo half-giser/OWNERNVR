@@ -312,7 +312,7 @@ export default defineComponent({
             } else if (data.type === 'vehicle_plate') {
                 let eventType = 'plateDetection'
                 if (data.info.compare_status) {
-                    eventType = data.info.compare_status == 1 ? 'plateMatchWhiteList' : 'plateMatchStranger'
+                    eventType = data.info.compare_status === 1 ? 'plateMatchWhiteList' : 'plateMatchStranger'
                 }
                 const searchInfo = {
                     type: data.type,

@@ -62,7 +62,7 @@ const hanedleActivationStatus = async (checkActivationStatus: boolean) => {
 
 if (session.appType === 'STANDARD') {
     queryActivationStatus().then((result) => {
-        const checkActivationStatus = queryXml(result)('//content/activated').text().toBoolean()
+        const checkActivationStatus = queryXml(result)('//content/activated').text().bool()
         hanedleActivationStatus(checkActivationStatus)
     })
 } else {

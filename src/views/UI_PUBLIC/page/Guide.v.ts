@@ -312,7 +312,7 @@ export default defineComponent({
                     openLoading(LoadingTarget.FullScreen, Translate('IDCS_REBOOTING'))
                 })
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 if (errorCode === 536871054) {
                     //设备已初始化完成,跳转登录页面
                     openMessageBox({
@@ -337,7 +337,7 @@ export default defineComponent({
             closeLoading()
 
             // 检查设备是否已经激活
-            const activated = $('//content/activated').text().toBoolean()
+            const activated = $('//content/activated').text().bool()
             if (activated) {
                 // 设备已初始化完成,跳转登录页面
                 openMessageBox({
@@ -353,7 +353,7 @@ export default defineComponent({
 
             userFormData.value.userName = $('//content/userName').text()
 
-            pageData.value.questionMaxCount = Number($('//content/maxQuestionNum').text()) || 7
+            pageData.value.questionMaxCount = $('//content/maxQuestionNum').text().num() || 7
             pageData.value.questionOptions = $('//content/question').map((item) => {
                 return {
                     id: item.attr('index')!,
@@ -363,9 +363,9 @@ export default defineComponent({
             })
             qaFormData.value.id = pageData.value.questionOptions[0]?.id || ''
 
-            stepList.languageAndRegion = !$('//content/showLanguage').length || $('//content/showLanguage').text().toBoolean()
-            stepList.privacy = !$('//content/showPrivacyStatement').length || $('//content/showPrivacyStatement').text().toBoolean()
-            stepList.dateAndTimezone = !$('//content/showDateTime').length || $('//content/showDateTime').text().toBoolean()
+            stepList.languageAndRegion = !$('//content/showLanguage').length || $('//content/showLanguage').text().bool()
+            stepList.privacy = !$('//content/showPrivacyStatement').length || $('//content/showPrivacyStatement').text().bool()
+            stepList.dateAndTimezone = !$('//content/showDateTime').length || $('//content/showDateTime').text().bool()
 
             steps.value = Object.keys(stepList).filter((item) => stepList[item])
         }
@@ -405,7 +405,7 @@ export default defineComponent({
                 langFormData.value.regionId = $('//content/defaultItem').text()
                 langFormData.value.regionCode = pageData.value.regionList.find((item) => item.id === langFormData.value.regionId)!.code
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 if (errorCode === ErrorCode.USER_ERROR_FAIL) {
                     getActivationStatus()
                 }
@@ -435,7 +435,7 @@ export default defineComponent({
             const result = await queryDefaultInitData(sendXml)
             const $ = queryXml(result)
             dateTimeFormData.value.timeZone = $('//content/timeCfg/timezoneInfo/timeZone').text()
-            dateTimeFormData.value.enableDST = $('//content/timeCfg/timezoneInfo/daylightSwitch').text().toBoolean()
+            dateTimeFormData.value.enableDST = $('//content/timeCfg/timezoneInfo/daylightSwitch').text().bool()
             dateTimeFormData.value.dateFormat = $('//content/timeCfg/formatInfo/data').text()
             dateTimeFormData.value.timeFormat = $('//content/timeCfg/formatInfo/time').text()
 
@@ -519,7 +519,7 @@ export default defineComponent({
                 })
 
                 dateTimeFormData.value.timeZone = $('//content/timezoneInfo/timeZone').text()
-                dateTimeFormData.value.enableDST = $('//content/timezoneInfo/daylightSwitch').text().toBoolean()
+                dateTimeFormData.value.enableDST = $('//content/timezoneInfo/daylightSwitch').text().bool()
 
                 nextTick(() => {
                     dateTimeFormData.value.systemTime = dayjs(Date.now()).format(formatSystemTime.value)
@@ -528,7 +528,7 @@ export default defineComponent({
                     clock()
                 })
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 if (errorCode === ErrorCode.USER_ERROR_FAIL) {
                     getActivationStatus()
                 }
@@ -601,7 +601,7 @@ export default defineComponent({
                 pageData.value.passwordStrength = ($('//content/pwdSecureSetting/pwdSecLevel').text() as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING & null) ?? 'weak'
                 getPasswordNoticeMsg()
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 if (errorCode === ErrorCode.USER_ERROR_FAIL) {
                     getActivationStatus()
                 }
@@ -735,7 +735,7 @@ export default defineComponent({
             const storage = await queryStorageDevInfo(false)
             const $storage = queryXml(queryXml(storage)('//content')[0].element)
 
-            const errorCode = Number($storage('//errorCode').text())
+            const errorCode = $storage('//errorCode').text().num()
             if (errorCode === ErrorCode.USER_ERROR_FAIL) {
                 getActivationStatus()
                 return
@@ -772,7 +772,7 @@ export default defineComponent({
                         id: diskId,
                         name: DISK_TYPE_MAPPING[diskInterfaceType] + $item('slotIndex').text(),
                         type: TYPE_MAPPING[diskInterfaceType] || '',
-                        size: Math.floor(Number($item('size').text()) / 1024),
+                        size: Math.floor($item('size').text().num() / 1024),
                         combinedStatus,
                         diskStatus,
                         serialNum: $item('serialNum').text(),

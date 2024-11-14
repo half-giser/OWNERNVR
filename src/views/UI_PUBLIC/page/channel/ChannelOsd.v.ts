@@ -162,7 +162,7 @@ export default defineComponent({
                     editRows.add(ele)
                 }
 
-                if (ele.id == selectedChlId.value) {
+                if (ele.id === selectedChlId.value) {
                     formData.value = cloneDeep(ele)
                     setOcxData(ele)
                 }
@@ -173,7 +173,7 @@ export default defineComponent({
         const changeDateFormatAll = (val: string) => {
             if (!tableData.value.length) return
             tableData.value.forEach((ele) => {
-                if (ele.status == 'loading') return
+                if (ele.status === 'loading') return
                 if (ele.dateEnum.includes(val) && !ele.disabled) {
                     ele.dateFormat = val
                     editRows.add(ele)
@@ -194,7 +194,7 @@ export default defineComponent({
         const changeTimeFormatAll = (val: string) => {
             if (!tableData.value.length) return
             tableData.value.forEach((ele) => {
-                if (ele.disabled || ele.status == 'loading') return
+                if (ele.disabled || ele.status === 'loading') return
                 ele.timeFormat = val
                 editRows.add(ele)
             })
@@ -225,8 +225,8 @@ export default defineComponent({
         const checkIsNameExit = (name: string, currId: string): boolean => {
             let isSameName = false
             for (const key in nameMapping) {
-                if (key != currId) {
-                    if (name == nameMapping[key]) {
+                if (key !== currId) {
+                    if (name === nameMapping[key]) {
                         isSameName = true
                         break
                     }
@@ -236,19 +236,19 @@ export default defineComponent({
         }
 
         const getRowById = (chlId: string) => {
-            return tableData.value.find((element) => element.id == chlId)
+            return tableData.value.find((element) => element.id === chlId)
         }
 
         const LiveNotify2Js = ($: XMLQuery) => {
             //OSD位置改变
             if ($("statenotify[@type='OSDInfo']").length) {
                 const preRowData = getRowById(selectedChlId.value)!
-                if (osType == 'mac') {
+                if (osType === 'mac') {
                 } else {
-                    preRowData.timeX = Number($('statenotify/timeStamp/X').text())
-                    preRowData.timeY = Number($('statenotify/timeStamp/Y').text())
-                    preRowData.nameX = Number($('statenotify/deviceName/X').text())
-                    preRowData.nameY = Number($('statenotify/deviceName/Y').text())
+                    preRowData.timeX = $('statenotify/timeStamp/X').text().num()
+                    preRowData.timeY = $('statenotify/timeStamp/Y').text().num()
+                    preRowData.nameX = $('statenotify/deviceName/X').text().num()
+                    preRowData.nameY = $('statenotify/deviceName/Y').text().num()
                 }
                 btnOKDisabled.value = false
             }
@@ -257,7 +257,7 @@ export default defineComponent({
         const getTimeEnabledData = async () => {
             const res = await queryDevList('')
             const $ = queryXml(res)
-            if ($('status').text() == 'success') {
+            if ($('status').text() === 'success') {
                 $('content/item').forEach((ele) => {
                     const eleXml = queryXml(ele.element)
                     manufacturer[ele.attr('id')!] = eleXml('manufacturer').text()
@@ -282,8 +282,8 @@ export default defineComponent({
                 return
             }
 
-            if ($('status').text() == 'success') {
-                channelOsd.remarkSwitch = $('content/chl/watermark/switch').text().toBoolean()
+            if ($('status').text() === 'success') {
+                channelOsd.remarkSwitch = $('content/chl/watermark/switch').text().bool()
                 channelOsd.remarkNote = $('content/chl/watermark/value').text()
                 channelOsd.remarkDisabled = false
             } else {
@@ -310,7 +310,7 @@ export default defineComponent({
                     return
                 }
 
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     let isSpeco = false
                     // 时间枚举值
                     const timeEnum: string[] = []
@@ -327,8 +327,8 @@ export default defineComponent({
                     channelOsd.supportDateFormat = dateEnum.length > 0
                     channelOsd.supportTimeFormat = dateEnum.length > 0
 
-                    channelOsd.displayName = $('content/chl/chlName/switch').text().toBoolean()
-                    channelOsd.displayTime = $('content/chl/time/switch').text().toBoolean()
+                    channelOsd.displayName = $('content/chl/chlName/switch').text().bool()
+                    channelOsd.displayTime = $('content/chl/time/switch').text().bool()
                     channelOsd.dateFormat = $('content/chl/time/dateFormat').text()
                     channelOsd.timeFormat = $('content/chl/time/timeFormat').text()
 
@@ -336,18 +336,18 @@ export default defineComponent({
                     if (!$('content/chl').length || chlId !== $('content/chl').attr('id')) isSpeco = true
                     channelOsd.isSpeco = isSpeco
 
-                    channelOsd.timeX = Number($('content/chl/time/X').text())
-                    channelOsd.timeXMinValue = Number($('content/chl/time/X').attr('min')!)
-                    channelOsd.timeXMaxValue = Number($('content/chl/time/X').attr('max')!)
-                    channelOsd.timeY = Number($('content/chl/time/Y').text())
-                    channelOsd.timeYMinValue = Number($('content/chl/time/Y').attr('min')!)
-                    channelOsd.timeYMaxValue = Number($('content/chl/time/Y').attr('max')!)
-                    channelOsd.nameX = Number($('content/chl/chlName/X').text())
-                    channelOsd.nameXMinValue = Number($('content/chl/chlName/X').attr('min')!)
-                    channelOsd.nameXMaxValue = Number($('content/chl/chlName/X').attr('max')!)
-                    channelOsd.nameY = Number($('content/chl/chlName/Y').text())
-                    channelOsd.nameYMinValue = Number($('content/chl/chlName/Y').attr('min')!)
-                    channelOsd.nameYMaxValue = Number($('content/chl/chlName/Y').attr('max')!)
+                    channelOsd.timeX = $('content/chl/time/X').text().num()
+                    channelOsd.timeXMinValue = $('content/chl/time/X').attr('min').num()
+                    channelOsd.timeXMaxValue = $('content/chl/time/X').attr('max').num()
+                    channelOsd.timeY = $('content/chl/time/Y').text().num()
+                    channelOsd.timeYMinValue = $('content/chl/time/Y').attr('min').num()
+                    channelOsd.timeYMaxValue = $('content/chl/time/Y').attr('max').num()
+                    channelOsd.nameX = $('content/chl/chlName/X').text().num()
+                    channelOsd.nameXMinValue = $('content/chl/chlName/X').attr('min').num()
+                    channelOsd.nameXMaxValue = $('content/chl/chlName/X').attr('max').num()
+                    channelOsd.nameY = $('content/chl/chlName/Y').text().num()
+                    channelOsd.nameYMinValue = $('content/chl/chlName/Y').attr('min').num()
+                    channelOsd.nameYMaxValue = $('content/chl/chlName/Y').attr('max').num()
 
                     channelOsd.disabled = isSpeco
                     return
@@ -381,7 +381,7 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('status').text() == 'success') {
+            if ($('status').text() === 'success') {
                 tableData.value = $('content/item').map((ele) => {
                     const eleXml = queryXml(ele.element)
                     const newData = new ChannelOsdDto()
@@ -454,7 +454,7 @@ export default defineComponent({
                         const flagSetDevice = await setDevice(rowData)
                         if (!flagSetDevice) continue
 
-                        if (rowData.manufacturer == 'TVT') {
+                        if (rowData.manufacturer === 'TVT') {
                             await setChlWaterMark(rowData)
                         }
 
@@ -550,7 +550,7 @@ export default defineComponent({
                 return true
             } else {
                 let errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
-                if (Number($('errorCode').text()) == ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR) {
+                if (Number($('errorCode').text()) === ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR) {
                     errorInfo = Translate('resourceNotExist').formatForLang(Translate('IDCS_CHANNEL'))
                 }
                 rowData.status = 'error'
@@ -618,7 +618,7 @@ export default defineComponent({
                     plugin.ShowPluginNoResponse()
                 }
                 plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
-                const sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'OSDConfig' : 'ReadOnly', 'Live')
+                const sendXML = OCX_XML_SetPluginModel(osType === 'mac' ? 'OSDConfig' : 'ReadOnly', 'Live')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
         }
@@ -649,7 +649,7 @@ export default defineComponent({
                     streamType: 2,
                 })
             } else {
-                if (osType == 'mac') {
+                if (osType === 'mac') {
                 } else {
                     plugin.RetryStartChlView(channelOsd.id, channelOsd.name)
                 }
@@ -671,7 +671,7 @@ export default defineComponent({
                 setCanvasDrawerData(rowData)
             } else {
                 if (rowData.timeX) {
-                    if (osType == 'mac') {
+                    if (osType === 'mac') {
                     } else {
                         const osd: OcxXmlSetOSDInfo = {
                             timeStamp: {

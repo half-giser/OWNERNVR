@@ -47,7 +47,7 @@ export default defineComponent({
             address: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if (pageData.value.isTestAlarmServer == true && !value) {
+                        if (pageData.value.isTestAlarmServer && !value) {
                             callback(new Error(Translate('IDCS_DDNS_SERVER_ADDR_EMPTY')))
                             return
                         }
@@ -156,7 +156,7 @@ export default defineComponent({
             const result = await queryBasicCfg()
             const res = queryXml(result)
             pageData.value.CustomerID = res('//content/CustomerID').text()
-            if (pageData.value.CustomerID == '6') {
+            if (pageData.value.CustomerID === '6') {
                 pageData.value.supportAdditionalServerSetting = true
                 pageData.value.maxDeviceIdLength = 16
             }
@@ -171,18 +171,18 @@ export default defineComponent({
             queryAlarmServerParam().then(async (resb) => {
                 const res = queryXml(resb)
                 if (res('status').text() === 'success') {
-                    formData.value.enable = res('//content/switch').text() == 'true'
+                    formData.value.enable = res('//content/switch').text().bool()
                     formData.value.deviceId = res('//content/deviceId').text()
                     formData.value.token = res('//content/token').text()
                     formData.value.address = res('//content/address').text()
                     formData.value.url = res('//content/url').text()
-                    formData.value.port = Number(res('//content/port').text())
-                    formData.value.heartEnable = res('//content/heartbeat/switch').text() == 'true'
+                    formData.value.port = res('//content/port').text().num()
+                    formData.value.heartEnable = res('//content/heartbeat/switch').text().bool()
                     formData.value.protocol = res('//content/dataFormat').text()
                     res('//types/dataFormat/enum').forEach((ele) => {
                         pageData.value.protocolOptions.push({ value: ele.text(), label: ele.text() })
                     })
-                    formData.value.interval = Number(res('//content/heartbeat/interval').text())
+                    formData.value.interval = res('//content/heartbeat/interval').text().num()
                     formData.value.schedule = res('//content/alarmServerSchedule').text()
 
                     const alarmServerAlarmTypeValue = res('//content/alarmServerAlarmTypes').text()
@@ -199,21 +199,21 @@ export default defineComponent({
         }
 
         const setFormByProtocol = () => {
-            pageData.value.isProtocolXML = formData.value.protocol == 'XML'
-            pageData.value.isArisanProtocol = formData.value.protocol == 'ARISAN'
-            pageData.value.isJSONProtocol = formData.value.protocol == 'JSON' || Trim(formData.value.protocol, 'g') == Trim('VIDEO GUARD', 'g')
+            pageData.value.isProtocolXML = formData.value.protocol === 'XML'
+            pageData.value.isArisanProtocol = formData.value.protocol === 'ARISAN'
+            pageData.value.isJSONProtocol = formData.value.protocol === 'JSON' || Trim(formData.value.protocol, 'g') === Trim('VIDEO GUARD', 'g')
             pageData.value.showAlarmTypeCfg = pageData.value.isProtocolXML ? true : false
             pageData.value.urlDisabled = pageData.value.isProtocolXML ? false : true
             pageData.value.heartEnableDisabled = pageData.value.isArisanProtocol ? true : false
             if (pageData.value.heartEnableDisabled === true) {
                 formData.value.heartEnable = false
             }
-            pageData.value.isAnothorUI = pageData.value.supportAdditionalServerSetting == true && pageData.value.isArisanProtocol ? true : false
+            pageData.value.isAnothorUI = pageData.value.supportAdditionalServerSetting === true && pageData.value.isArisanProtocol
             pageData.value.deviceIdShow = pageData.value.isJSONProtocol ? true : false
         }
 
         const setAlarmTypes = () => {
-            if (pageData.value.linkedAlarmList.length === 0) {
+            if (!pageData.value.linkedAlarmList.length) {
                 tableData.value = []
                 pageData.value.showAlarmTransfer = false
             } else {
@@ -253,14 +253,14 @@ export default defineComponent({
             if (!str) return ''
             let result
             result = str.replace(/(^\s+)|(\s+$)/g, '')
-            if (is_global.toLowerCase() == 'g') {
+            if (is_global.toLowerCase() === 'g') {
                 result = result.replace(/\s/g, '')
             }
             return result
         }
 
         const getSavaData = (url: string) => {
-            const scheduleLabel = formData.value.schedule === DEFAULT_EMPTY_ID ? '' : pageData.value.scheduleList.find((item) => item.value == formData.value.schedule)!.label
+            const scheduleLabel = formData.value.schedule === DEFAULT_EMPTY_ID ? '' : pageData.value.scheduleList.find((item) => item.value === formData.value.schedule)!.label
             const sendXml = rawXml`
                 <content>
                     <address>${formData.value.address}</address>
@@ -296,17 +296,17 @@ export default defineComponent({
 
         const setData = (url: string) => {
             if (!formRef.value) return
-            if (url == 'testAlarmServerParam') {
+            if (url === 'testAlarmServerParam') {
                 pageData.value.isTestAlarmServer = true
             }
             formRef.value.validate((valid) => {
                 if (valid) {
-                    if (url == 'testAlarmServerParam') {
+                    if (url === 'testAlarmServerParam') {
                         openLoading()
                         testAlarmServerParam(getSavaData(url)).then((resb) => {
                             closeLoading()
                             const res = queryXml(resb)
-                            if (res('status').text() == 'success') {
+                            if (res('status').text() === 'success') {
                                 openMessageBox({
                                     type: 'success',
                                     message: Translate('IDCS_TEST_ALARM_SERVER_SUCCESS'),
@@ -319,20 +319,20 @@ export default defineComponent({
                             }
                         })
                         pageData.value.isTestAlarmServer = false
-                    } else if (url == 'editAlarmServerParam') {
+                    } else if (url === 'editAlarmServerParam') {
                         pageData.value.isTestAlarmServer = false
                         openLoading()
                         editAlarmServerParam(getSavaData(url)).then((resb) => {
                             closeLoading()
                             const res = queryXml(resb)
-                            if (res('status').text() == 'success') {
+                            if (res('status').text() === 'success') {
                                 openMessageBox({
                                     type: 'success',
                                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                                 })
                             } else {
                                 let msg = ''
-                                const errorCode = Number(res('errorCode').text())
+                                const errorCode = res('errorCode').text().num()
                                 switch (errorCode) {
                                     case ErrorCode.USER_ERROR_FAIL:
                                         msg = Translate('IDCS_LOGIN_OVERTIME')

@@ -627,7 +627,7 @@ export default class TVTPlayer {
                 case ErrorCode.USER_ERROR_DEVICE_BUSY:
                 case ErrorCode.USER_ERROR_DEV_RESOURCE_LIMITED:
                     // 回放返回设备忙时，直接关闭回放链路
-                    if (url == '/device/playback/open#response' && this.playerList[winIndex]) {
+                    if (url === '/device/playback/open#response' && this.playerList[winIndex]) {
                         this.playerList[winIndex]!.stop()
                         this.playerList[winIndex]!.destroy()
                         this.playerList[winIndex] = null // NCNHZ07-49
@@ -637,7 +637,7 @@ export default class TVTPlayer {
                     break
             }
 
-            if (this.noRecordFlag && errorCode == ErrorCode.USER_ERROR_FILE_STREAM_COMPLETED) {
+            if (this.noRecordFlag && errorCode === ErrorCode.USER_ERROR_FILE_STREAM_COMPLETED) {
                 this.screen.showErrorTips('noRecord', winIndex, this.winDataList[winIndex])
             } else {
                 this.screen.showErrorTips(this.ERROR_CODE_MAP[errorCode], winIndex, this.winDataList[winIndex])
@@ -1069,14 +1069,14 @@ export default class TVTPlayer {
             if ($('//status').text() !== 'success') return
             const $systemX = $('//content/itemType/coordinateSystem/X')
             const $systemY = $('//content/itemType/coordinateSystem/Y')
-            const width = Number($systemX.attr('max')) - Number($systemX.attr('min'))
-            const height = Number($systemY.attr('max')) - Number($systemY.attr('min'))
+            const width = $systemX.attr('max').num() - $systemX.attr('min').num()
+            const height = $systemY.attr('max').num() - $systemY.attr('min').num()
             this.screen.setPosBaseSize({ width, height })
             const posInfo: Record<string, TVTPlayerPosInfoItem> = {}
             $('//channel/chl').forEach((ele) => {
                 const chlId = ele.attr('id') as string
                 const $ele = queryXml(ele.element)
-                const previewDisplay = $ele('previewDisplay').text() === 'true'
+                const previewDisplay = $ele('previewDisplay').text().bool()
                 const printMode = $ele('printMode').text()
                 posInfo[chlId] = {
                     previewDisplay: previewDisplay, // 现场预览是否显示pos
@@ -1096,15 +1096,15 @@ export default class TVTPlayer {
                 const $position = `param/displaySetting/displayPosition/`
                 const $triggerChls = $ele('trigger/triggerChl/chls/item')
                 const timeout = $ele('param/displaySetting/common/timeOut').text()
-                if ($triggerChls.length === 0) return
+                if (!$triggerChls.length) return
                 const displayPosition = {
-                    x: Number($ele(`${$position}X`).text()),
-                    y: Number($ele(`${$position}Y`).text()),
-                    width: Number($ele(`${$position}width`).text()),
-                    height: Number($ele(`${$position}height`).text()),
+                    x: $ele(`${$position}X`).text().num(),
+                    y: $ele(`${$position}Y`).text().num(),
+                    width: $ele(`${$position}width`).text().num(),
+                    height: $ele(`${$position}height`).text().num(),
                 }
                 $triggerChls.forEach((item) => {
-                    const chlId = item.attr('id') as string
+                    const chlId = item.attr('id')
                     if (posInfo[chlId]) {
                         posInfo[chlId].displayPosition = displayPosition
                         posInfo[chlId].timeout = Number(timeout)
@@ -1161,9 +1161,13 @@ export default class TVTPlayer {
         queryDevOsdDisplayCfg().then((res) => {
             const $ = queryXml(res)
             if ($('//status').text() !== 'success') return
-            if ($('//content/addressSwitch').text() === 'true') {
+            if ($('//content/addressSwitch').text().bool()) {
                 // 若为true则可以显示ip地址
-                const sendXml = '<requireField><ip/></requireField>'
+                const sendXml = rawXml`
+                    <requireField>
+                        <ip/>
+                    </requireField>
+                `
                 queryDevList(sendXml).then((res) => {
                     const $ = queryXml(res)
                     if ($('//status').text() !== 'success') return

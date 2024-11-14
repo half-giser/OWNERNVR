@@ -129,18 +129,18 @@ export default defineComponent({
                 nodeType: 'sensors',
             }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
-                    pageData.value.totalCount = Number($('//content').attr('total'))
+                    pageData.value.totalCount = $('//content').attr('total').num()
                     $('//content/item').forEach(async (item) => {
                         const row = new AlarmSensorEventDto()
-                        row.id = item.attr('id')!
-                        row.alarmInType = item.attr('alarmInType')!
+                        row.id = item.attr('id')
+                        row.alarmInType = item.attr('alarmInType')
                         row.nodeIndex = item.attr('index')!
                         row.status = 'loading'
                         tableData.value.push(row)
                     })
                     tableData.value.forEach(async (item) => {
                         await getDataById(item)
-                        if (tableDataInit.length == tableData.value.length) {
+                        if (tableDataInit.length === tableData.value.length) {
                             // 数据获取完成，用于打开对tabledata的监听，判断applyBtn是否可用
                             pageData.value.initComplated = true
                         }
@@ -176,9 +176,9 @@ export default defineComponent({
                 const content = $('//content')[0]
                 const $content = queryXml(content.element)
 
-                const index = Number($content('param/index').text()) - 0 + 1
+                const index = $content('param/index').text().num() + 1
                 const devDescTemp = $content('param/devDesc').text()
-                const isEditable = $content('param/devDesc').attr('isEditable') == 'false' ? false : true
+                const isEditable = $content('param/devDesc').attr('isEditable') === 'false' ? false : true
                 let serialNum = ''
                 if (rowData.alarmInType === 'local') {
                     serialNum = Translate('IDCS_LOCAL') + '-' + rowData.nodeIndex
@@ -202,7 +202,7 @@ export default defineComponent({
                 }
                 rowData.oldSchedule = $content('trigger/triggerSchedule/schedule').attr('id')
                 rowData.record = {
-                    switch: $content('trigger/sysRec/switch').text().toBoolean(),
+                    switch: $content('trigger/sysRec/switch').text().bool(),
                     chls: $content('trigger/sysRec/chls/item').map((item) => {
                         return {
                             value: item.attr('id')!,
@@ -212,7 +212,7 @@ export default defineComponent({
                 }
                 rowData.sysAudio = $content('trigger/sysAudio').attr('id') || DEFAULT_EMPTY_ID
                 rowData.snap = {
-                    switch: $content('trigger/sysSnap/switch').text().toBoolean(),
+                    switch: $content('trigger/sysSnap/switch').text().bool(),
                     chls: $content('trigger/sysSnap/chls/item').map((item) => {
                         return {
                             value: item.attr('id')!,
@@ -221,7 +221,7 @@ export default defineComponent({
                     }),
                 }
                 rowData.alarmOut = {
-                    switch: $content('trigger/alarmOut/switch').text().toBoolean(),
+                    switch: $content('trigger/alarmOut/switch').text().bool(),
                     alarmOuts: $content('trigger/alarmOut/alarmOuts/item').map((item) => {
                         return {
                             value: item.attr('id')!,
@@ -237,7 +237,7 @@ export default defineComponent({
                     },
                 }
                 rowData.preset = {
-                    switch: $content('trigger/preset/switch').text() == 'true',
+                    switch: $content('trigger/preset/switch').text().bool(),
                     presets: [],
                 }
                 rowData.msgPushSwitch = $content('trigger/msgPushSwitch').text()
@@ -246,9 +246,9 @@ export default defineComponent({
                 rowData.popMsgSwitch = $content('trigger/popMsgSwitch').text()
 
                 const audioData = pageData.value.audioList.filter((item) => {
-                    item.value == rowData.sysAudio
+                    item.value === rowData.sysAudio
                 })
-                if (audioData.length == 0) {
+                if (!audioData.length) {
                     rowData.sysAudio = DEFAULT_EMPTY_ID
                 }
 
@@ -290,7 +290,7 @@ export default defineComponent({
                 }
 
                 for (const item of tableData.value) {
-                    if (item.id != row.id && name == item.name) {
+                    if (item.id !== row.id && name === item.name) {
                         openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_NAME_SAME'),
@@ -409,7 +409,7 @@ export default defineComponent({
         }
 
         const changeScheduleAll = (value: string) => {
-            if (value == 'scheduleMgr') {
+            if (value === 'scheduleMgr') {
                 pageData.value.scheduleManagePopOpen = true
             } else {
                 tableData.value.forEach((item) => {
@@ -420,7 +420,7 @@ export default defineComponent({
         }
 
         const changeSchedule = (row: AlarmSensorEventDto) => {
-            if (row.schedule.value == 'scheduleMgr') {
+            if (row.schedule.value === 'scheduleMgr') {
                 pageData.value.scheduleManagePopOpen = true
                 row.schedule.value = row.oldSchedule
             } else {
@@ -429,17 +429,16 @@ export default defineComponent({
         }
 
         /**
-         * @description: 改变所有项的值
+         * @description 改变所有项的值
          * @param {string} value 值
          * @param {string} field 字段名
-         * @return {*}
          */
-        const changeAllValue = (value: any, field: string) => {
+        const changeAllValue = (value: string, field: string) => {
             tableData.value.forEach((item) => {
-                if (field == 'videoPopUp') {
+                if (field === 'videoPopUp') {
                     item.popVideo.chl.id = value
-                    if (value != '') item.popVideo.switch = 'true'
-                } else if (field == 'type') {
+                    if (value !== '') item.popVideo.switch = 'true'
+                } else if (field === 'type') {
                     if (item.type && item.alarmInType !== 'virtual' && item.isEditable) {
                         item.type = value
                     }
@@ -517,7 +516,10 @@ export default defineComponent({
                         </popVideo>
                         <popMsgSwitch>${row.popMsgSwitch}</popMsgSwitch>
                         <sysAudio id='${row.sysAudio}'></sysAudio>
-                        <triggerSchedule><switch>${row.schedule ? 'true' : 'flase'}</switch><schedule id='${row.schedule.value}'></schedule></triggerSchedule>
+                        <triggerSchedule>
+                            <switch>${row.schedule.value !== ''}</switch>
+                            <schedule id='${row.schedule.value}'></schedule>
+                        </triggerSchedule>
                         <emailSwitch>${row.emailSwitch}</emailSwitch>
                         <msgPushSwitch>${row.msgPushSwitch}</msgPushSwitch>
                     </trigger>
@@ -529,7 +531,7 @@ export default defineComponent({
         const setData = async () => {
             const editedRows = getEditedRows(tableData.value, tableDataInit)
             let count = 0
-            if (editedRows.length != 0) {
+            if (editedRows.length) {
                 openLoading()
                 editedRows.forEach(async (item) => {
                     const sendXml = getSavaData(item)

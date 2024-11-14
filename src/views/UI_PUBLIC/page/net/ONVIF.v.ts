@@ -51,7 +51,7 @@ export default defineComponent({
             const result = await queryOnvifCfg()
             const $ = queryXml(result)
             if ($('//status').text() === 'success') {
-                formData.value.switch = $('//content/switch').text().toBoolean()
+                formData.value.switch = $('//content/switch').text().bool()
             }
         }
 
@@ -63,7 +63,7 @@ export default defineComponent({
             const result = await queryRTSPServer()
             const $ = queryXml(result)
             if ($('//status').text() === 'success') {
-                return $('//content/rtspServerSwitch').text().toBoolean()
+                return $('//content/rtspServerSwitch').text().bool()
             }
             return false
         }

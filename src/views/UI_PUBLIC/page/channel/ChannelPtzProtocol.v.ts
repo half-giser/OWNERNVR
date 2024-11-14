@@ -205,11 +205,11 @@ export default defineComponent({
                     const rowData = new ChannelPtzProtocolDto()
                     rowData.disabled = true
                     rowData.status = 'loading'
-                    rowData.chlId = item.attr('id')!
+                    rowData.chlId = item.attr('id')
                     rowData.chlName = $item('name').text()
                     return rowData
                 })
-                pageData.value.total = Number($('//content').attr('total'))!
+                pageData.value.total = $('//content').attr('total').num()
             }
         }
 
@@ -232,10 +232,10 @@ export default defineComponent({
                 if ($('//status').text() === 'success') {
                     item.baudRate = $('//content/chl/baudRate').text()
                     item.protocol = $('//content/chl/protocol').text()
-                    item.address = Number($('//content/chl/address').text())
-                    item.addressMin = Number($('//content/chl/address').attr('min')!)
-                    item.addressMax = Number($('//content/chl/address').attr('max')!)
-                    item.ptz = $('//content/chl/ptz').text().toBoolean()
+                    item.address = $('//content/chl/address').text().num()
+                    item.addressMin = $('//content/chl/address').attr('min').num()
+                    item.addressMax = $('//content/chl/address').attr('max').num()
+                    item.ptz = $('//content/chl/ptz').text().bool()
                     item.baudRateOptions = $('//types/baudRate/enum').map((item) => {
                         return {
                             value: item.text(),

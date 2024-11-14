@@ -61,8 +61,8 @@ export default defineComponent({
                     return {
                         id: item.attr('id') as string,
                         name: $item('name').text(),
-                        isDefault: $item('isDefault').text().toBoolean(),
-                        enableEdit: $item('enableEdit').text().toBoolean(),
+                        isDefault: $item('isDefault').text().bool(),
+                        enableEdit: $item('enableEdit').text().bool(),
                         chlAuth: $item('chlAuth/item').map((chlItem) => {
                             const $chlItem = queryXml(chlItem.element)
                             return {
@@ -72,21 +72,21 @@ export default defineComponent({
                             }
                         }),
                         systemAuth: {
-                            localChlMgr: $item('systemAuth/localChlMgr').text().toBoolean(),
-                            remoteChlMgr: $item('systemAuth/remoteChlMgr').text().toBoolean(),
-                            diskMgr: $item('systemAuth/diskMgr').text().toBoolean(),
-                            talk: $item('systemAuth/talk').text().toBoolean(),
-                            alarmMgr: $item('systemAuth/alarmMgr').text().toBoolean(),
-                            net: $item('systemAuth/net').text().toBoolean(),
-                            rec: $item('systemAuth/rec').text().toBoolean(),
-                            remoteLogin: $item('systemAuth/remoteLogin').text().toBoolean(),
-                            scheduleMgr: $item('systemAuth/scheduleMgr').text().toBoolean(),
-                            localSysCfgAndMaintain: $item('systemAuth/localSysCfgAndMaintain').text().toBoolean(),
-                            facePersonnalInfoMgr: $item('systemAuth/facePersonnalInfoMgr').text().toBoolean(),
-                            remoteSysCfgAndMaintain: $item('systemAuth/remoteSysCfgAndMaintain').text().toBoolean(),
-                            securityMgr: $item('systemAuth/securityMgr').text().toBoolean(),
-                            parkingLotMgr: $item('systemAuth/parkingLotMgr').text().toBoolean(),
-                            AccessControlMgr: $item('systemAuth/AccessControlMgr').text().toBoolean(),
+                            localChlMgr: $item('systemAuth/localChlMgr').text().bool(),
+                            remoteChlMgr: $item('systemAuth/remoteChlMgr').text().bool(),
+                            diskMgr: $item('systemAuth/diskMgr').text().bool(),
+                            talk: $item('systemAuth/talk').text().bool(),
+                            alarmMgr: $item('systemAuth/alarmMgr').text().bool(),
+                            net: $item('systemAuth/net').text().bool(),
+                            rec: $item('systemAuth/rec').text().bool(),
+                            remoteLogin: $item('systemAuth/remoteLogin').text().bool(),
+                            scheduleMgr: $item('systemAuth/scheduleMgr').text().bool(),
+                            localSysCfgAndMaintain: $item('systemAuth/localSysCfgAndMaintain').text().bool(),
+                            facePersonnalInfoMgr: $item('systemAuth/facePersonnalInfoMgr').text().bool(),
+                            remoteSysCfgAndMaintain: $item('systemAuth/remoteSysCfgAndMaintain').text().bool(),
+                            securityMgr: $item('systemAuth/securityMgr').text().bool(),
+                            parkingLotMgr: $item('systemAuth/parkingLotMgr').text().bool(),
+                            AccessControlMgr: $item('systemAuth/AccessControlMgr').text().bool(),
                         },
                     }
                 })
@@ -217,7 +217,7 @@ export default defineComponent({
                     })
                     getAuthGroup()
                 } else {
-                    const errorCode = Number($('//errorCode').text())
+                    const errorCode = $('//errorCode').text().num()
                     let errorInfo = ''
                     switch (errorCode) {
                         case ErrorCode.USER_ERROR_EXISTED_CHILD_NODE:

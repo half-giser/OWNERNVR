@@ -187,14 +187,14 @@ export default defineComponent({
             const result = await queryFTPCfg()
             commLoadResponseHandler(result, ($) => {
                 const $content = queryXml($('//content')[0].element)
-                formData.value.switch = $content('switch').text().toBoolean()
+                formData.value.switch = $content('switch').text().bool()
                 formData.value.serverAddr = $content('serverAddr').text()
                 formData.value.port = Number($content('port').text())
                 formData.value.userName = $content('userName').text()
-                formData.value.anonymousSwitch = $content('anonymousSwitch').text().toBoolean()
+                formData.value.anonymousSwitch = $content('anonymousSwitch').text().bool()
                 formData.value.maxSize = Number($content('maxSize').text() || '64')
                 formData.value.path = $content('path').text()
-                formData.value.disNetUpLoad = $content('disNetUpLoad').text().toBoolean()
+                formData.value.disNetUpLoad = $content('disNetUpLoad').text().bool()
 
                 pageData.value.minFileSize = Number($content('maxSize').attr('min') || '0')
                 pageData.value.maxFileSize = Number($content('maxSize').attr('max') || '4096')

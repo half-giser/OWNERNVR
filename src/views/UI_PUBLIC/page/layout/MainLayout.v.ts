@@ -216,8 +216,8 @@ export default defineComponent({
         const checkIsDiskStatus = async () => {
             const result = await queryDiskStatus()
             const $ = queryXml(result)
-            const diskNum = Number($('//content/item').text())
-            if (diskNum == 0) {
+            const diskNum = $('//content/item').text().num()
+            if (diskNum === 0) {
                 openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_NO_DISK'),
@@ -228,7 +228,7 @@ export default defineComponent({
             $('//content/item').forEach((item) => {
                 const $item = queryXml(item.element)
                 const diskStatus = $item('/diskStatus').text()
-                if (diskStatus === 'bad' || diskStatus == 'read') {
+                if (diskStatus === 'bad' || diskStatus === 'read') {
                     diskDamage = true
                 }
             })
@@ -240,7 +240,7 @@ export default defineComponent({
                     if (userSession.hasAuth('diskMgr')) {
                         if (systemCaps.supportRaid) {
                             queryDiskMode().then((result) => {
-                                const isUseRaid = queryXml(result)('//content/diskMode/isUseRaid').text().toBoolean()
+                                const isUseRaid = queryXml(result)('//content/diskMode/isUseRaid').text().bool()
                                 const routeUrl = isUseRaid ? '/config/disk/diskArray' : '/config/disk/management'
                                 router.push(routeUrl)
                             })

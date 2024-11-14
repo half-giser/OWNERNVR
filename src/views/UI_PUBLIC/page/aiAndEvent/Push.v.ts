@@ -33,14 +33,14 @@ export default defineComponent({
             const result = await queryEventNotifyParam()
 
             commLoadResponseHandler(result, ($) => {
-                pushFormData.value.chkEnable = $('//content/mobilePushSwitch').text() == 'true'
+                pushFormData.value.chkEnable = $('//content/mobilePushSwitch').text().bool()
 
                 if ($('//content/pushSchedule').attr('id')) {
                     pushFormData.value.pushSchedule = $('//content/pushSchedule').attr('id')
                 } else {
                     const scheduleName = $('//content/pushSchedule').text() || '24x7'
                     pageData.value.scheduleOption.forEach((item) => {
-                        if (scheduleName == item.label) {
+                        if (scheduleName === item.label) {
                             pushFormData.value.pushSchedule = item.value
                         }
                     })
@@ -52,7 +52,7 @@ export default defineComponent({
         const testMobile = async () => {
             const result = await testMobilePush()
             const $ = queryXml(result)
-            if ($('//status').text() == 'success') {
+            if ($('//status').text() === 'success') {
                 openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_TEST_PUSH_MOBILE_SUCCESS'),
@@ -80,6 +80,7 @@ export default defineComponent({
             pageData.value.scheduleManagPopOpen = false
             getScheduleData()
         }
+
         onMounted(async () => {
             openLoading()
 

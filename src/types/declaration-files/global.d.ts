@@ -28,7 +28,18 @@ declare global {
         formatForLang: Function
         format: Function
         toBoolean: () => boolean
+        /**
+         * @description 如果text()返回的字符串为'true',则返回true，否则为false
+         * @returns {boolean}
+         */
+        bool: () => boolean
+        /**
+         * @description 将text()返回的字符串转换为数字
+         * @returns {number}
+         */
+        num: () => number
     }
+
     /**
      * el-tree自定义类型
      */

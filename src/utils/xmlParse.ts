@@ -73,7 +73,7 @@ export class XmlElement {
      * @description: 返回标签文本
      * @return {string} value
      */
-    text(): string {
+    text() {
         return this.element.innerHTML.replace(/(<!\[CDATA\[)|(\]\]>$)/g, '')
     }
 
@@ -83,25 +83,11 @@ export class XmlElement {
      * @param {string} value
      * @return {string}
      */
-    attr(attribute: string, value?: string): string | undefined {
-        if (value) this.element.setAttribute(attribute, value)
-        else return this.element.getAttribute(attribute) || ''
-    }
-
-    /**
-     * @description 返回status是否等于success
-     * @returns {boolean}
-     */
-    status() {
-        return xmlParse('status', this.element).text() === 'success'
-    }
-
-    /**
-     * @description 如果有错误码 返回错误码，否则返回0
-     * @returns {number}
-     */
-    errorCode() {
-        return Number(xmlParse('errorCode', this.element).text())
+    attr(attribute: string, value?: string) {
+        if (value) {
+            this.element.setAttribute(attribute, value)
+            return value
+        } else return this.element.getAttribute(attribute) || ''
     }
 }
 

@@ -165,7 +165,7 @@ export default defineComponent({
                     rowData.chlName = $item('name').text()
                     return rowData
                 })
-                pageData.value.total = Number($('//content').attr('total'))!
+                pageData.value.total = $('//content').attr('total').num()
             }
         }
 
@@ -186,16 +186,16 @@ export default defineComponent({
                 const result = await queryIPChlORChlLogo(sendXml)
                 const $ = queryXml(result)
                 if ($('status').text() === 'success') {
-                    item.switch = $('content/chl/logo/switch').text().toBoolean().toString()
-                    item.opacity = Number($('content/chl/logo/opacity').text())
-                    item.minOpacity = Number($('content/chl/logo/opacity').attr('min'))
-                    item.maxOpacity = Number($('content/chl/logo/opacity').attr('max'))
-                    item.X = Number($('content/chl/logo/X').text())
-                    item.Y = Number($('content/chl/logo/Y').text())
-                    item.minX = Number($('content/chl/logo/X').attr('min'))
-                    item.maxX = Number($('content/chl/logo/X').attr('max'))
-                    item.minY = Number($('content/chl/logo/Y').attr('min'))
-                    item.maxY = Number($('content/chl/logo/Y').attr('max'))
+                    item.switch = $('content/chl/logo/switch').text().bool().toString()
+                    item.opacity = $('content/chl/logo/opacity').text().num()
+                    item.minOpacity = $('content/chl/logo/opacity').attr('min').num()
+                    item.maxOpacity = $('content/chl/logo/opacity').attr('max').num()
+                    item.X = $('content/chl/logo/X').text().num()
+                    item.Y = $('content/chl/logo/Y').text().num()
+                    item.minX = $('content/chl/logo/X').attr('min').num()
+                    item.maxX = $('content/chl/logo/X').attr('max').num()
+                    item.minY = $('content/chl/logo/Y').attr('min').num()
+                    item.maxY = $('content/chl/logo/Y').attr('max').num()
                     item.disabled = false
                 } else {
                     item.disabled = true

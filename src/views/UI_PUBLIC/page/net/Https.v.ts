@@ -107,7 +107,7 @@ export default defineComponent({
             const result = await queryNetPortCfg()
             const $ = queryXml(result)
             if ($('//status').text() === 'success') {
-                formData.value.httpsSwitch = $('//content/httpsSwitch').text().toBoolean()
+                formData.value.httpsSwitch = $('//content/httpsSwitch').text().bool()
                 pageData.value.cacheHttpsSwitch = formData.value.httpsSwitch
                 pageData.value.isDeleteCertDisabled = formData.value.httpsSwitch ? true : false
             }
@@ -310,7 +310,7 @@ export default defineComponent({
          */
         const handleH5Import = (e: Event) => {
             const files = (e.target as HTMLInputElement).files
-            if (files && files.length > 0) {
+            if (files && files.length) {
                 // 安装生成的证书 导入文件
                 if (formData.value.cert === 1) {
                     directFile = files[0]
@@ -487,7 +487,7 @@ export default defineComponent({
                 const progress = $('statenotify/progress').text()
                 const action = $('statenotify/action').text()
                 if (progress === '100%') {
-                    if (action == 'ImportCert') {
+                    if (action === 'ImportCert') {
                         importCert().then((result) => {
                             const $res = queryXml(result)
                             if ($res('//status').text() === 'success') {

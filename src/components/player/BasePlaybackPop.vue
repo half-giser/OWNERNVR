@@ -488,7 +488,7 @@ const reset = () => {
  * @param {Function} $
  */
 const ocxNotify = ($: XMLQuery) => {
-    if ($('statenotify[@type="connectstate"]').length > 0) {
+    if ($('statenotify[@type="connectstate"]').length) {
         if ($('statenotify').text() === 'success') {
             const sendXML = OCX_XML_SetRecPlayMode('SYNC')
             playerRef.value!.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
@@ -496,28 +496,28 @@ const ocxNotify = ($: XMLQuery) => {
         }
     }
 
-    if ($('statenotify[@type="RecCurPlayTime"]').length > 0) {
+    if ($('statenotify[@type="RecCurPlayTime"]').length) {
         if (pageData.value.lockSlider) {
             return
         }
-        const seconds = Number($('statenotify/win[@index="0"]').text())
+        const seconds = $('statenotify/win[@index="0"]').text().num()
         pageData.value.progress = seconds
     }
 
-    if ($('statenotify[@type="CurrentSelectedWindow"]').length > 0) {
+    if ($('statenotify[@type="CurrentSelectedWindow"]').length) {
         if ($('statenotify/playStatus').text() === 'STOP') {
             pageData.value.iconDisabled = false
         }
     }
 
-    if ($('statenotify[@type="RecPlay"]/errorCode').length > 0) {
+    if ($('statenotify[@type="RecPlay"]/errorCode').length) {
         reset()
     }
     // StartViewChl
-    if ($('statenotify[@type="StartViewChl"]').length > 0) {
+    if ($('statenotify[@type="StartViewChl"]').length) {
         const status = $('statenotify/status').text()
         const chlId = $('statenotify/chlId').text()
-        const winIndex = Number($('statenotify/winIndex').text())
+        const winIndex = $('statenotify/winIndex').text().num()
         if (status.trim() === 'success') {
             if (systemCaps.supportPOS) {
                 //设置通道是否显示POS信息

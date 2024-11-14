@@ -178,7 +178,7 @@ export default defineComponent({
                     ctx.emit('confirm')
                 })
             } else {
-                handleError(Number($('//errorCode').text()))
+                handleError($('//errorCode').text().num())
             }
         }
 
@@ -209,7 +209,7 @@ export default defineComponent({
                     ctx.emit('confirm')
                 })
             } else {
-                handleError(Number($('//errorCode').text()))
+                handleError($('//errorCode').text().num())
             }
         }
 

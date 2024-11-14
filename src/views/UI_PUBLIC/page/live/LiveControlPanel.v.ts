@@ -351,7 +351,7 @@ export default defineComponent({
             const result = await queryManualRecord(sendXml)
             const $ = queryXml(result)
             if ($('//status').text() === 'success') {
-                ctx.emit('remoteRecord', $('//content/switch').text().toBoolean())
+                ctx.emit('remoteRecord', $('//content/switch').text().bool())
             }
         }
 
@@ -402,7 +402,7 @@ export default defineComponent({
                 const res = streamFormData.value.resolution.split('x')
                 pageData.value.qualityOptions.forEach((item) => {
                     const curRes = item.res.split('x')
-                    if (item.enct === pageData.value.enct && (Number(curRes[0]) < Number(res[0]) || (curRes[0] == res[0] && Number(curRes[1]) < Number(res[1])))) {
+                    if (item.enct === pageData.value.enct && (Number(curRes[0]) < Number(res[0]) || (curRes[0] === res[0] && Number(curRes[1]) < Number(res[1])))) {
                         if (item.value) {
                             isQualityCapsEmpty = false
                             const qualitys = item.value.split(',')
@@ -498,7 +498,7 @@ export default defineComponent({
             if ($('//status').text() === 'success') {
                 // 多分割时会遍历窗口触发请求，异步请求返回值通过通道id来确定最后一次的数据正确
                 const chl = $(`//content/item[@id="${chlID.value}"]`)
-                if (chl.length === 0) {
+                if (!chl.length) {
                     return
                 }
                 const $chl = queryXml(chl[0].element)
@@ -571,7 +571,7 @@ export default defineComponent({
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 let errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
                 if (errorCode === ErrorCode.USER_ERROR_UNSUPPORTED_FUNC) {
                     errorInfo = Translate('IDCS_NOT_SUPPORTFUNC')

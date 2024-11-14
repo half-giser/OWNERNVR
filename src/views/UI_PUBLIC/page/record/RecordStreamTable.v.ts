@@ -134,16 +134,16 @@ export default defineComponent({
         const getDevRecParamCfgModule = async () => {
             const $ = await queryRecordDistributeInfo()
             const res = queryXml($)
-            if (res('status').text() == 'success') {
-                DevRecParamCfgModule.doubleStreamRecSwitch = res('//content/recMode/doubleStreamRecSwitch').text() == 'true'
-                if (props.mode == 'event') {
-                    RecStreamModule.value.recType = res('//content/recMode/mode').text() == 'auto' ? 'ae' : 'me'
-                    RecStreamModule.value.recType1 = res('//content/recMode/mode').text() == 'auto' ? 'an' : 'mn'
-                    RecStreamModule.value.loopRecSwitch = res('//content/loopRecSwitch').text().toLowerCase() === 'true'
-                } else if (props.mode == 'timing') {
-                    RecStreamModule.value.recType = res('//content/recMode/mode').text() == 'auto' ? 'an' : 'mn'
-                    RecStreamModule.value.recType1 = res('//content/recMode/mode').text() == 'auto' ? 'ae' : 'me'
-                    RecStreamModule.value.loopRecSwitch = res('//content/loopRecSwitch').text().toLowerCase() === 'true'
+            if (res('status').text() === 'success') {
+                DevRecParamCfgModule.doubleStreamRecSwitch = res('//content/recMode/doubleStreamRecSwitch').text().bool()
+                if (props.mode === 'event') {
+                    RecStreamModule.value.recType = res('//content/recMode/mode').text() === 'auto' ? 'ae' : 'me'
+                    RecStreamModule.value.recType1 = res('//content/recMode/mode').text() === 'auto' ? 'an' : 'mn'
+                    RecStreamModule.value.loopRecSwitch = res('//content/loopRecSwitch').text().bool()
+                } else if (props.mode === 'timing') {
+                    RecStreamModule.value.recType = res('//content/recMode/mode').text() === 'auto' ? 'an' : 'mn'
+                    RecStreamModule.value.recType1 = res('//content/recMode/mode').text() === 'auto' ? 'ae' : 'me'
+                    RecStreamModule.value.loopRecSwitch = res('//content/loopRecSwitch').text().bool()
                 }
             }
         }
@@ -156,10 +156,10 @@ export default defineComponent({
                 const totalBandwidth = Number(res('//content/totalBandwidth').text()) * 1
                 let usedBandwidth = 0
                 // 需要改
-                if (props.mode == 'event') {
-                    usedBandwidth = Number(res('//content/' + (RecStreamModule.value.recType == 'me' ? 'usedManualBandwidth' : 'usedAutoBandwidth')).text()) * 1
-                } else if (props.mode == 'timing') {
-                    usedBandwidth = Number(res('//content/' + (RecStreamModule.value.recType == 'mn' ? 'usedManualBandwidth' : 'usedAutoBandwidth')).text()) * 1
+                if (props.mode === 'event') {
+                    usedBandwidth = Number(res('//content/' + (RecStreamModule.value.recType === 'me' ? 'usedManualBandwidth' : 'usedAutoBandwidth')).text()) * 1
+                } else if (props.mode === 'timing') {
+                    usedBandwidth = Number(res('//content/' + (RecStreamModule.value.recType === 'mn' ? 'usedManualBandwidth' : 'usedAutoBandwidth')).text()) * 1
                 }
                 // 可能要用于bandwidthDetail
                 // const singleChannelBandwidth = res('//content/singleChannelBandwidth').text()
@@ -181,10 +181,10 @@ export default defineComponent({
             const res = await getChlList({})
             const $ = queryXml(res)
             const rowData = [] as ChlItem[]
-            $('//content/item').forEach((ele: any) => {
+            $('//content/item').forEach((ele) => {
                 const eleXml = queryXml(ele.element)
                 rowData.push({
-                    '@id': ele.attr('id'),
+                    '@id': ele.attr('id')!,
                     addType: eleXml('addType').text(),
                     chlType: eleXml('chlType').text(),
                     chlIndex: eleXml('chlIndex').text(),
@@ -304,16 +304,16 @@ export default defineComponent({
                             '@analogDefault': element.attr('analogDefault')!,
                             value: element.text().split(',') ? element.text().split(',') : [],
                         })
-                        if (element.attr('enct') == 'h264' && element.attr('res') == '0x0' && pageData.value.videoQualityListFlag === 0) {
+                        if (element.attr('enct') === 'h264' && element.attr('res') === '0x0' && pageData.value.videoQualityListFlag === 0) {
                             element
                                 .text()
                                 .split(',')
-                                .forEach((ele: string) => {
-                                    pageData.value.maxQoI = Math.max(parseInt(ele) * 1, pageData.value.maxQoI)
-                                    if (pageData.value.poeModeNode && pageData.value.poeModeNode == '10' && parseInt(ele) <= 6144) {
+                                .forEach((ele) => {
+                                    pageData.value.maxQoI = Math.max(Number(ele), pageData.value.maxQoI)
+                                    if (pageData.value.poeModeNode && pageData.value.poeModeNode === '10' && Number(ele) <= 6144) {
                                         //为长线模式时，过滤掉6M以上的码率
                                         pageData.value.videoQualityList.push({ value: ele, label: ele + 'Kbps' })
-                                    } else if (!pageData.value.poeModeNode || pageData.value.poeModeNode == '100') {
+                                    } else if (!pageData.value.poeModeNode || pageData.value.poeModeNode === '100') {
                                         pageData.value.videoQualityList.push({ value: ele, label: ele + 'Kbps' })
                                     }
                                 })
@@ -321,24 +321,27 @@ export default defineComponent({
                         }
                     })
                     item.levelNote = eleXml('levelNote').text() ? eleXml('levelNote').text().split(',') : []
-                    if (item.levelNote.length > 0) {
+                    if (item.levelNote.length) {
                         pageData.value.levelList = []
                         item.levelNote.reverse().forEach((element) => {
                             pageData.value.levelList.push({ value: element, text: Translate(imageLevelMapping[element]) })
                         })
                     }
+
                     //遍历item['mainCaps']['@supEnct']，获取编码类型并集
-                    item.mainCaps['@supEnct'].forEach((element: string) => {
+                    item.mainCaps['@supEnct'].forEach((element) => {
                         if (!pageData.value.videoEncodeTypeUnionList.includes(element)) {
                             pageData.value.videoEncodeTypeUnionList.push(element)
                         }
                     })
-                    item.mainCaps['@bitType'].forEach((element: string) => {
+
+                    item.mainCaps['@bitType'].forEach((element) => {
                         if (!pageData.value.bitTypeUnionList.includes(element)) {
                             pageData.value.bitTypeUnionList.push(element)
                         }
                     })
-                    if (props.mode == 'event') {
+
+                    if (props.mode === 'event') {
                         if (RecStreamModule.value.recType === 'ae') {
                             item.GOP = item.main['@aGOP'] ? Number(item.main['@aGOP']) : undefined
                             item.resolution = item.ae['@res']
@@ -359,7 +362,7 @@ export default defineComponent({
                             item.audio = item.me['@audio']
                             item.recordStream = item.me['@type']
                         }
-                    } else if (props.mode == 'timing') {
+                    } else if (props.mode === 'timing') {
                         if (RecStreamModule.value.recType === 'an') {
                             item.GOP = item.main['@aGOP'] ? Number(item.main['@aGOP']) : undefined
                             item.resolution = item.an['@res']
@@ -382,15 +385,16 @@ export default defineComponent({
                         }
                     }
 
-                    if (!item.frameRate && item.mainCaps.res.length > 0) {
+                    if (!item.frameRate && item.mainCaps.res.length) {
                         item.frameRate = item.mainCaps.res[0]['@fps']
                     }
 
                     if (item.mainCaps.res.length > 1) {
                         item.mainCaps.res.sort((a, b) => resolutionSort(a, b))
                     }
+
                     item.bitRange =
-                        item.bitType == 'CBR' || item.bitType == ''
+                        item.bitType === 'CBR' || item.bitType === ''
                             ? null
                             : getBitrateRange({
                                   resolution: item.resolution,
@@ -402,8 +406,8 @@ export default defineComponent({
 
                     item.supportAudio = true
                     if (pageData.value.audioInNum > 0) {
-                        pageData.value.chls.forEach((chl: ChlItem) => {
-                            if (chl['@id'] == item['@id'] && chl.chlIndex && parseInt(chl.chlIndex) * 1 >= pageData.value.audioInNum) {
+                        pageData.value.chls.forEach((chl) => {
+                            if (chl['@id'] === item['@id'] && chl.chlIndex && Number(chl.chlIndex) >= pageData.value.audioInNum) {
                                 item.supportAudio = false
                                 return false
                             }
@@ -439,10 +443,10 @@ export default defineComponent({
         // 查询和显示当前录制状态下剩余的录制时间
         const queryRemainRecTimeF = () => {
             let recType = ''
-            if (props.mode == 'event') {
-                recType = RecStreamModule.value.recType == 'ae' ? 'auto' : 'manually'
-            } else if (props.mode == 'timing') {
-                recType = RecStreamModule.value.recType == 'an' ? 'auto' : 'manually'
+            if (props.mode === 'event') {
+                recType = RecStreamModule.value.recType === 'ae' ? 'auto' : 'manually'
+            } else if (props.mode === 'timing') {
+                recType = RecStreamModule.value.recType === 'an' ? 'auto' : 'manually'
             }
             const sendXml = rawXml`
                 <content>  
@@ -473,11 +477,11 @@ export default defineComponent({
                     const item = res('//content/item')
                     if (item.length >= 2) {
                         const recTimeArray: string[] = []
-                        item.forEach((ele: any) => {
+                        item.forEach((ele) => {
                             const elexml = queryXml(ele.element)
-                            const remainRecTime = parseInt(elexml('remainRecTime').text()) * 1
+                            const remainRecTime = Number(elexml('remainRecTime').text())
                             const recTime =
-                                remainRecTime == 0 && RecStreamModule.value.loopRecSwitch
+                                remainRecTime === 0 && RecStreamModule.value.loopRecSwitch
                                     ? Translate('IDCS_CYCLE_RECORD')
                                     : remainRecTime <= 1
                                       ? remainRecTime < 0
@@ -488,13 +492,13 @@ export default defineComponent({
                             recTimeArray.push('' + recTime + diskGroupIndex + '')
                         })
                         pageData.value.recTime = recTimeArray.join(';')
-                    } else if (item.length == 0) {
+                    } else if (!item.length) {
                         pageData.value.PredictVisible = false
                         pageData.value.CalculateVisible = false
                     } else {
                         const remainRecTime = Number(res('//content/item/remainRecTime').text())
                         const recTime =
-                            remainRecTime == 0 && RecStreamModule.value.loopRecSwitch
+                            remainRecTime === 0 && RecStreamModule.value.loopRecSwitch
                                 ? Translate('IDCS_CYCLE_RECORD')
                                 : remainRecTime <= 1
                                   ? remainRecTime < 0
@@ -521,7 +525,7 @@ export default defineComponent({
         const checkIsEdite = (rowData: RecordStreamInfoDto) => {
             let isEdite = false
             pageData.value.editeRows.forEach((ele) => {
-                if (ele['@id'] == rowData['@id']) {
+                if (ele['@id'] === rowData['@id']) {
                     isEdite = true
                 }
             })
@@ -535,7 +539,7 @@ export default defineComponent({
             } else {
                 // 如果已经存在于编辑行，更新数据
                 pageData.value.editeRows.forEach((ele) => {
-                    if (ele['@id'] == rowData['@id']) {
+                    if (ele['@id'] === rowData['@id']) {
                         ele = rowData
                         return
                     }
@@ -547,15 +551,15 @@ export default defineComponent({
         // 设置videoQuality
         const setQuality = (rowData: RecordStreamInfoDto) => {
             rowData.mainStreamQualityCaps.forEach((element) => {
-                if (rowData.resolution == element['@res'] && rowData.videoEncodeType == element['@enct']) {
-                    if (rowData.chlType == 'digital') {
-                        if (pageData.value.poeModeNode && pageData.value.poeModeNode == '10' && parseInt(element['@digitalDefault']) * 1 > 6144) {
+                if (rowData.resolution === element['@res'] && rowData.videoEncodeType === element['@enct']) {
+                    if (rowData.chlType === 'digital') {
+                        if (pageData.value.poeModeNode && pageData.value.poeModeNode === '10' && Number(element['@digitalDefault']) > 6144) {
                             rowData.videoQuality = '6144'
                         } else {
                             rowData.videoQuality = element['@digitalDefault']
                         }
                     } else {
-                        if (pageData.value.poeModeNode && pageData.value.poeModeNode == '10' && parseInt(element['@analogDefault']) * 1 > 6144) {
+                        if (pageData.value.poeModeNode && pageData.value.poeModeNode === '10' && Number(element['@analogDefault']) > 6144) {
                             rowData.videoQuality = '6144'
                         } else {
                             rowData.videoQuality = element['@analogDefault']
@@ -588,7 +592,7 @@ export default defineComponent({
             rowData.GOPDisable = isDisabled
             if (!isDisabled) {
                 genQualityList(rowData)
-                if (rowData.bitType == 'CBR') {
+                if (rowData.bitType === 'CBR') {
                     setQuality(rowData)
                 }
             }
@@ -598,7 +602,7 @@ export default defineComponent({
 
         // 设置整列的视频编码
         const handleVideoEncodeTypeChangeAll = (videoEncodeType: string) => {
-            tableData.value.forEach((rowData: RecordStreamInfoDto) => {
+            tableData.value.forEach((rowData) => {
                 if (rowData.chlType !== 'recorder' && rowData.mainCaps['@supEnct'].includes(videoEncodeType) && !rowData.rowDisable && !rowData.videoEncodeTypeDisable) {
                     rowData.videoEncodeType = videoEncodeType
                     handleVideoEncodeTypeChange(rowData)
@@ -611,28 +615,28 @@ export default defineComponent({
         // 对单个分辨率进行处理
         const handleResolutionChange = (rowData: RecordStreamInfoDto) => {
             rowData.mainCaps.res.forEach((element) => {
-                if (element.value == rowData.resolution) {
-                    let frameRate = parseInt(rowData.frameRate) * 1
-                    if (frameRate > parseInt(element['@fps']) * 1) {
-                        frameRate = parseInt(element['@fps']) * 1
+                if (element.value === rowData.resolution) {
+                    let frameRate = Number(rowData.frameRate)
+                    if (frameRate > Number(element['@fps'])) {
+                        frameRate = Number(element['@fps'])
                     }
 
-                    if (pageData.value.maxFpsMap[rowData['@id']] != parseInt(element['@fps'])) {
+                    if (pageData.value.maxFpsMap[rowData['@id']] !== Number(element['@fps'])) {
                         //更新ui
-                        updateFrameRates(rowData, parseInt(element['@fps']), rowData['@id'], rowData.frameRate)
+                        updateFrameRates(rowData, Number(element['@fps']), rowData['@id'], rowData.frameRate)
                         updateHeaderFrameRates()
                     }
                 }
             })
             genQualityList(rowData)
-            if (rowData.bitType == 'CBR') {
+            if (rowData.bitType === 'CBR') {
                 rowData.mainStreamQualityCaps.forEach((element) => {
-                    if (rowData.chlType == 'digital') {
-                        if (rowData.resolution == element['@res'] && rowData.videoEncodeType == element['@enct']) {
+                    if (rowData.chlType === 'digital') {
+                        if (rowData.resolution === element['@res'] && rowData.videoEncodeType === element['@enct']) {
                             rowData.videoQuality = element['@digitalDefault']
                         }
                     } else {
-                        if (rowData.resolution == element['@res'] && rowData.videoEncodeType == element['@enct']) {
+                        if (rowData.resolution === element['@res'] && rowData.videoEncodeType === element['@enct']) {
                             rowData.videoQuality = element['@analogDefault']
                         }
                     }
@@ -644,14 +648,14 @@ export default defineComponent({
 
         // 设置整列的分辨率
         const handleSetResolutionAll = () => {
-            pageData.value.resolutionGroups.forEach((rowData: { res: string; resGroup: SelectOption<string, string>[]; chls: { expand: boolean; data: { value: string; text: string }[] } }) => {
+            pageData.value.resolutionGroups.forEach((rowData) => {
                 const resolution = rowData.res
                 const ids = rowData.chls.data.map((element) => {
                     return element.value
                 })
                 const changeRows = [] as RecordStreamInfoDto[]
                 // 获取tableData中的被修改的数据,设置编辑状态，更新数据
-                tableData.value.forEach((element: RecordStreamInfoDto) => {
+                tableData.value.forEach((element) => {
                     if (element.chlType !== 'recorder' && !element.rowDisable && !element.resolutionDisable) {
                         if (ids.includes(element['@id'])) {
                             addEditeRows(element)
@@ -663,15 +667,15 @@ export default defineComponent({
                 })
                 // 修正帧率上限
                 changeRows[0].mainCaps.res.forEach((element) => {
-                    if (element.value == resolution) {
-                        const frameRate = parseInt(element['@fps']) * 1
+                    if (element.value === resolution) {
+                        const frameRate = Number(element['@fps'])
                         changeRows.forEach((element) => {
-                            let currentFrameRate = parseInt(element.frameRate) * 1
+                            let currentFrameRate = Number(element.frameRate)
                             if (currentFrameRate > frameRate) {
                                 currentFrameRate = frameRate
                             }
 
-                            if (pageData.value.maxFpsMap[element['@id']] != frameRate) {
+                            if (pageData.value.maxFpsMap[element['@id']] !== frameRate) {
                                 //更新ui
                                 updateFrameRates(element, frameRate, element['@id'], currentFrameRate.toString())
                                 updateHeaderFrameRates()
@@ -681,12 +685,12 @@ export default defineComponent({
                     }
                 })
                 // 生成码率范围
-                changeRows.forEach((element: RecordStreamInfoDto) => {
+                changeRows.forEach((element) => {
                     genQualityList(element)
-                    if (element.bitType == 'CBR') {
+                    if (element.bitType === 'CBR') {
                         element.mainStreamQualityCaps.forEach((ele) => {
-                            if (element.resolution == ele['@res'] && element.videoEncodeType == ele['@enct']) {
-                                if (element.chlType == 'digital') {
+                            if (element.resolution === ele['@res'] && element.videoEncodeType === ele['@enct']) {
+                                if (element.chlType === 'digital') {
                                     element.videoQuality = ele['@digitalDefault']
                                 } else {
                                     element.videoQuality = ele['@analogDefault']
@@ -728,7 +732,7 @@ export default defineComponent({
             if (row.chls.expand && resolutionTableRef.value) {
                 row.chls.expand = true
                 resolutionTableRef.value.toggleRowExpansion(row, true)
-            } else if (row.chls.expand == false && resolutionTableRef.value) {
+            } else if (row.chls.expand === false && resolutionTableRef.value) {
                 row.chls.expand = false
                 resolutionTableRef.value.toggleRowExpansion(row, false)
             }
@@ -742,10 +746,10 @@ export default defineComponent({
 
         // 设置整列的帧率
         const handleFrameRateChangeAll = (frameRate: string) => {
-            tableData.value.forEach((rowData: RecordStreamInfoDto) => {
+            tableData.value.forEach((rowData) => {
                 let currentFrameRate = frameRate
-                if (rowData.rowDisable == false) {
-                    if (parseInt(frameRate) > pageData.value.maxFpsMap[rowData['@id']]) {
+                if (rowData.rowDisable === false) {
+                    if (Number(frameRate) > pageData.value.maxFpsMap[rowData['@id']]) {
                         currentFrameRate = pageData.value.maxFpsMap[rowData['@id']].toString()
                     }
                     rowData.frameRate = currentFrameRate
@@ -757,14 +761,14 @@ export default defineComponent({
 
         // 对单个码率类型进行处理
         const handleBitTypeChange = (rowData: RecordStreamInfoDto) => {
-            const isCBR = rowData.bitType == 'CBR'
+            const isCBR = rowData.bitType === 'CBR'
             rowData.imageLevelDisable = isCBR
             if (isCBR) {
                 setQuality(rowData)
             }
             let isAllCBR = true
-            tableData.value.forEach((item: RecordStreamInfoDto) => {
-                isAllCBR = isAllCBR && (item.rowDisable || item.bitType == 'CBR')
+            tableData.value.forEach((item) => {
+                isAllCBR = isAllCBR && (item.rowDisable || item.bitType === 'CBR')
             })
             pageData.value.levelDropDisable = isAllCBR
             setBitRange(rowData)
@@ -773,8 +777,8 @@ export default defineComponent({
 
         // 设置整列的bitType
         const handleBitTypeChangeAll = (bitType: string) => {
-            const isCBR = bitType == 'CBR'
-            tableData.value.forEach((rowData: RecordStreamInfoDto) => {
+            const isCBR = bitType === 'CBR'
+            tableData.value.forEach((rowData) => {
                 if (rowData.chlType !== 'recorder' && !rowData.rowDisable && rowData.mainCaps['@bitType'].includes(bitType) && rowData.bitType.length !== 0 && !rowData.bitTypeDisable) {
                     rowData.bitType = bitType
                     rowData.imageLevelDisable = isCBR
@@ -796,8 +800,8 @@ export default defineComponent({
 
         // 设置整列的level
         const handleLevelChangeAll = (level: string) => {
-            tableData.value.forEach((rowData: RecordStreamInfoDto) => {
-                if (rowData.chlType !== 'recorder' && !rowData.rowDisable && rowData.bitType != 'CBR' && rowData.bitType && !rowData.imageLevelDisable) {
+            tableData.value.forEach((rowData) => {
+                if (rowData.chlType !== 'recorder' && !rowData.rowDisable && rowData.bitType !== 'CBR' && rowData.bitType && !rowData.imageLevelDisable) {
                     rowData.level = level
                     setBitRange(rowData)
                     addEditeRows(rowData)
@@ -812,10 +816,10 @@ export default defineComponent({
 
         // 设置整列的videoQuality
         const handleVideoQualityChangeAll = (videoQuality: { value: string; label: string }) => {
-            tableData.value.forEach((rowData: RecordStreamInfoDto) => {
+            tableData.value.forEach((rowData) => {
                 if (rowData.chlType !== 'recorder' && !rowData.rowDisable && !rowData.videoQualityDisable) {
                     rowData.qualitys.forEach((element) => {
-                        if (element.value == videoQuality.value) {
+                        if (element.value === videoQuality.value) {
                             rowData.videoQuality = videoQuality.value
                         }
                     })
@@ -845,21 +849,21 @@ export default defineComponent({
         //     if (typeof value == 'object') {
         //         // 使用正则表达式去掉非数字字符
         //         value.GOP = value.GOP.replace(/[^\d]/g, '')
-        //         if (parseInt(value.GOP) > maxValue) {
+        //         if (Number(value.GOP) > maxValue) {
         //             value.GOP = maxValue.toString()
-        //         } else if (parseInt(value.GOP) < 1) {
+        //         } else if (Number(value.GOP) < 1) {
         //             value.GOP = '1'
         //         }
         //     } else {
         //         // 使用正则表达式去掉非数字字符
         //         pageData.value.gopSetAll = value.replace(/[^\d]/g, '')
-        //         if (isNaN(parseInt(value))) {
+        //         if (isNaN(Number(value))) {
         //             pageData.value.gopSetAll = '1'
         //         }
 
-        //         if (parseInt(value) > maxValue) {
+        //         if (Number(value) > maxValue) {
         //             pageData.value.gopSetAll = maxValue.toString()
-        //         } else if (parseInt(value) < 1) {
+        //         } else if (Number(value) < 1) {
         //             pageData.value.gopSetAll = '1'
         //         }
         //     }
@@ -911,7 +915,7 @@ export default defineComponent({
                     rowData.GOPDisable = true
                 }
 
-                if (rowData.chlType == 'recorder' || rowData.mainCaps.res.length == 0) {
+                if (rowData.chlType === 'recorder' || !rowData.mainCaps.res.length) {
                     rowData.rowDisable = true
                     rowData.videoEncodeTypeDisable = true
                     rowData.resolutionDisable = true
@@ -934,27 +938,27 @@ export default defineComponent({
                     rowData.bitTypeVisible = false
                 }
 
-                if (rowData.bitType == 'CBR' || rowData.bitType == '') {
+                if (rowData.bitType === 'CBR' || rowData.bitType === '') {
                     rowData.imageLevelDisable = true
                 }
 
                 if (typeof rowData.GOP !== 'number') {
                     rowData.GOPDisable = true
                 }
-                pageData.value.isAllCBR = pageData.value.isAllCBR && rowData.bitType == 'CBR'
+                pageData.value.isAllCBR = pageData.value.isAllCBR && rowData.bitType === 'CBR'
                 rowData.mainStreamQualityCaps.sort((item1, item2) => {
                     const resolutionParts1 = item1['@res'].split('x')
                     const resolutionParts2 = item2['@res'].split('x')
-                    return item1['@enct'] != item2['@enct']
+                    return item1['@enct'] !== item2['@enct']
                         ? item1['@enct'] > item2['@enct']
                             ? -1
                             : 1
-                        : resolutionParts1[0] != resolutionParts2[0]
-                          ? parseInt(resolutionParts1[0]) * 1 > parseInt(resolutionParts2[0]) * 1
+                        : resolutionParts1[0] !== resolutionParts2[0]
+                          ? Number(resolutionParts1[0]) > Number(resolutionParts2[0])
                               ? -1
                               : 1
-                          : resolutionParts1[1] != resolutionParts2[1]
-                            ? parseInt(resolutionParts1[1]) * 1 > parseInt(resolutionParts2[1]) * 1
+                          : resolutionParts1[1] !== resolutionParts2[1]
+                            ? Number(resolutionParts1[1]) > Number(resolutionParts2[1])
                                 ? -1
                                 : 1
                             : 0
@@ -971,7 +975,7 @@ export default defineComponent({
 
         // 对图像质量显示进行处理
         const formatDisplayImageLevel = (value: string) => {
-            if (value != '') {
+            if (value !== '') {
                 return Translate(imageLevelMapping[value])
             } else {
                 return Translate(imageLevelMapping.lowest)
@@ -990,14 +994,14 @@ export default defineComponent({
         // 获取全局可选取的帧率范围
         const getFrameRateList = (tableData: RecordStreamInfoDto[]): SelectOption<string, string>[] => {
             let maxFrameRate: number = 0
-            tableData.forEach((element: any) => {
-                element.mainCaps.res.forEach((obj: { '@fps': string; value: string }) => {
-                    if (element.resolution == obj.value && maxFrameRate < parseInt(obj['@fps']) * 1) {
-                        maxFrameRate = parseInt(obj['@fps']) * 1
+            tableData.forEach((element) => {
+                element.mainCaps.res.forEach((obj) => {
+                    if (element.resolution === obj.value && maxFrameRate < Number(obj['@fps'])) {
+                        maxFrameRate = Number(obj['@fps'])
                     }
                 })
             })
-            if (maxFrameRate == 0) return []
+            if (maxFrameRate === 0) return []
             const minFrameRate = pageData.value.mainStreamLimitFps > maxFrameRate ? maxFrameRate : pageData.value.mainStreamLimitFps
             for (let i = minFrameRate; i <= maxFrameRate; i++) {
                 pageData.value.frameRateList.push({ value: i + '', label: i + '' })
@@ -1008,9 +1012,9 @@ export default defineComponent({
         // 获取单个设备的帧率范围
         const getFrameRateSingleList = (rowData: RecordStreamInfoDto): SelectOption<string, string>[] => {
             const frameRates = [] as SelectOption<string, string>[]
-            rowData.mainCaps.res.forEach((obj: { '@fps': string; value: string }) => {
+            rowData.mainCaps.res.forEach((obj) => {
                 if (obj.value === rowData.resolution) {
-                    const maxFrameRate = parseInt(obj['@fps']) * 1
+                    const maxFrameRate = Number(obj['@fps'])
                     pageData.value.maxFpsMap[rowData['@id']] = maxFrameRate
                     const minFrameRate = pageData.value.mainStreamLimitFps > maxFrameRate ? maxFrameRate : pageData.value.mainStreamLimitFps
                     for (let i = minFrameRate; i <= maxFrameRate; i++) {
@@ -1024,7 +1028,7 @@ export default defineComponent({
         // 获取单个设备的分辨率范围
         const getResolutionSingleList = (rowData: RecordStreamInfoDto): SelectOption<string, string>[] => {
             const resolutions = [] as SelectOption<string, string>[]
-            rowData.mainCaps.res.forEach((obj: { '@fps': string; value: string }) => {
+            rowData.mainCaps.res.forEach((obj) => {
                 resolutions.push({ value: obj.value, label: obj.value })
             })
             return resolutions
@@ -1073,19 +1077,19 @@ export default defineComponent({
         // 根据其他参数变化生成码率范围
         const genQualityList = (rowData: RecordStreamInfoDto) => {
             // rtsp通道只有声音节点，没有其他
-            if (rowData.mainStreamQualityCaps.length > 0) {
+            if (rowData.mainStreamQualityCaps.length) {
                 let isQualityCapsMatch = false
                 let isQualityCapsEmpty = true
                 rowData.qualitys = []
                 rowData.mainStreamQualityCaps.forEach((element) => {
-                    if (element['@enct'] == rowData.videoEncodeType && element['@res'] == rowData.resolution) {
+                    if (element['@enct'] === rowData.videoEncodeType && element['@res'] === rowData.resolution) {
                         if (element.value[0]) {
                             isQualityCapsEmpty = false
                             const tmp = element.value
-                            tmp.forEach((element: any) => {
-                                if (pageData.value.poeModeNode && pageData.value.poeModeNode == '10' && parseInt(element) <= 6144) {
+                            tmp.forEach((element) => {
+                                if (pageData.value.poeModeNode && pageData.value.poeModeNode === '10' && Number(element) <= 6144) {
                                     rowData.qualitys.push({ value: element, label: element + 'Kbps' })
-                                } else if (!pageData.value.poeModeNode || pageData.value.poeModeNode == '100') {
+                                } else if (!pageData.value.poeModeNode || pageData.value.poeModeNode === '100') {
                                     rowData.qualitys.push({ value: element, label: element + 'Kbps' })
                                 }
                             })
@@ -1100,17 +1104,17 @@ export default defineComponent({
                     rowData.mainStreamQualityCaps.forEach((element) => {
                         const currentResolutionParts = element['@res'].split('x')
                         if (
-                            element['@enct'] == rowData.videoEncodeType &&
-                            (parseInt(currentResolutionParts[0]) * 1 < parseInt(resolutionParts[0]) * 1 ||
-                                (currentResolutionParts[0] == resolutionParts[0] && parseInt(currentResolutionParts[1]) * 1 < parseInt(resolutionParts[1]) * 1))
+                            element['@enct'] === rowData.videoEncodeType &&
+                            (Number(currentResolutionParts[0]) < Number(resolutionParts[0]) ||
+                                (currentResolutionParts[0] === resolutionParts[0] && Number(currentResolutionParts[1]) < Number(resolutionParts[1])))
                         ) {
                             if (element.value[0]) {
                                 isQualityCapsEmpty = false
                                 const tmp = element.value
-                                tmp.forEach((element: any) => {
-                                    if (pageData.value.poeModeNode && pageData.value.poeModeNode == '10' && parseInt(element) <= 6144) {
+                                tmp.forEach((element) => {
+                                    if (pageData.value.poeModeNode && pageData.value.poeModeNode === '10' && Number(element) <= 6144) {
                                         rowData.qualitys.push({ value: element, label: element + 'Kbps' })
-                                    } else if (!pageData.value.poeModeNode || pageData.value.poeModeNode == '100') {
+                                    } else if (!pageData.value.poeModeNode || pageData.value.poeModeNode === '100') {
                                         rowData.qualitys.push({ value: element, label: element + 'Kbps' })
                                     }
                                 })
@@ -1122,12 +1126,12 @@ export default defineComponent({
                 // 对应项如果码率列表为空，则取所有支持的码率列表
                 if (isQualityCapsEmpty) {
                     rowData.mainStreamQualityCaps.forEach((element) => {
-                        if (element['@enct'] == rowData.videoEncodeType && element['@res'] == '0x0') {
+                        if (element['@enct'] === rowData.videoEncodeType && element['@res'] === '0x0') {
                             const tmp = element.value
-                            tmp.forEach((element: any) => {
-                                if (pageData.value.poeModeNode && pageData.value.poeModeNode == '10' && parseInt(element) <= 6144) {
+                            tmp.forEach((element) => {
+                                if (pageData.value.poeModeNode && pageData.value.poeModeNode === '10' && Number(element) <= 6144) {
                                     rowData.qualitys.push({ value: element, label: element + 'Kbps' })
-                                } else if (!pageData.value.poeModeNode || pageData.value.poeModeNode == '100') {
+                                } else if (!pageData.value.poeModeNode || pageData.value.poeModeNode === '100') {
                                     rowData.qualitys.push({ value: element, label: element + 'Kbps' })
                                 }
                             })
@@ -1141,7 +1145,7 @@ export default defineComponent({
             // 计算分辨率对应参数
             let resolution: string | number = options.resolution
             const videoEncodeType = options.videoEncodeType
-            if (typeof resolution == 'string') {
+            if (typeof resolution === 'string') {
                 const resParts: any[] = resolution.split('x').map((res) => Number(res))
                 const resolutionObj = { width: resParts[0] * 1, height: resParts[1] * 1 }
                 resolution = resolutionObj.width * resolutionObj.height
@@ -1168,14 +1172,14 @@ export default defineComponent({
                 return null
             }
             // 根据帧率使用不同公式计算下限和上限
-            const fps = parseInt(options.fps)
+            const fps = Number(options.fps)
             const minBase = (768 * resParam * levelParam * (fps >= 10 ? fps : 10)) / 3000
             let min = minBase - (fps >= 10 ? 0 : ((10 - fps) * minBase * 2) / 27)
             const maxBase = (1280 * resParam * levelParam * (fps >= 10 ? fps : 10)) / 3000
             let max = maxBase - (fps >= 10 ? 0 : ((10 - fps) * maxBase * 2) / 27)
             min = options.maxQoI ? (options.maxQoI < min ? options.maxQoI : min) : min
-            max = videoEncodeType == 'h265' ? Math.floor(max * 0.55) : Math.floor(max)
-            if (videoEncodeType == 'h265' || videoEncodeType == 'h265p' || videoEncodeType == 'h265s') {
+            max = videoEncodeType === 'h265' ? Math.floor(max * 0.55) : Math.floor(max)
+            if (videoEncodeType === 'h265' || videoEncodeType === 'h265p' || videoEncodeType === 'h265s') {
                 min = Math.floor(min * 0.55)
             } else {
                 min = Math.floor(min)
@@ -1190,8 +1194,8 @@ export default defineComponent({
 
         //分辨率选项根据大小排序
         const resolutionSort = (a: { '@fps': string; value: string }, b: { '@fps': string; value: string }) => {
-            const a1: number = parseInt(a.value.split('x')[0])
-            const b1: number = parseInt(b.value.split('x')[0])
+            const a1: number = Number(a.value.split('x')[0])
+            const b1: number = Number(b.value.split('x')[0])
             return b1 - a1
         }
 
@@ -1232,7 +1236,7 @@ export default defineComponent({
         const getSaveData = () => {
             // 编辑时rtsp通道由设备端区分，web还是传所有节点设备对无效节点过滤
             const editRowDatas = pageData.value.editeRows
-            if (editRowDatas.length == 0) {
+            if (!editRowDatas.length) {
                 return ''
             }
             let sendXml = rawXml`
@@ -1250,19 +1254,19 @@ export default defineComponent({
                             let mainXml = ''
                             if (typeof element.GOP !== 'number') {
                                 if (props.mode === 'event') {
-                                    if (RecStreamModule.value.recType1 == 'an') {
-                                        const min = parseInt(element.frameRate) * 4 > parseInt(element.an['@fps']) * 4 ? parseInt(element.frameRate) * 4 : parseInt(element.an['@fps']) * 4
+                                    if (RecStreamModule.value.recType1 === 'an') {
+                                        const min = Number(element.frameRate) * 4 > Number(element.an['@fps']) * 4 ? Number(element.frameRate) * 4 : Number(element.an['@fps']) * 4
                                         mainXml = `<main enct="${element.videoEncodeType}" ${gop}="${min}"></main>`
-                                    } else if (RecStreamModule.value.recType1 == 'mn') {
-                                        const min = parseInt(element.frameRate) * 4 > parseInt(element.mn['@fps']) * 4 ? parseInt(element.frameRate) * 4 : parseInt(element.mn['@fps']) * 4
+                                    } else if (RecStreamModule.value.recType1 === 'mn') {
+                                        const min = Number(element.frameRate) * 4 > Number(element.mn['@fps']) * 4 ? Number(element.frameRate) * 4 : Number(element.mn['@fps']) * 4
                                         mainXml = `<main enct="${element.videoEncodeType}" ${gop}="${min}"></main>`
                                     }
                                 } else if (props.mode === 'timing') {
-                                    if (RecStreamModule.value.recType1 == 'ae') {
-                                        const min = parseInt(element.frameRate) * 4 > parseInt(element.ae['@fps']) * 4 ? parseInt(element.frameRate) * 4 : parseInt(element.ae['@fps']) * 4
+                                    if (RecStreamModule.value.recType1 === 'ae') {
+                                        const min = Number(element.frameRate) * 4 > Number(element.ae['@fps']) * 4 ? Number(element.frameRate) * 4 : Number(element.ae['@fps']) * 4
                                         mainXml = `<main enct="${element.videoEncodeType}" ${gop}="${min}"></main>`
-                                    } else if (RecStreamModule.value.recType1 == 'me') {
-                                        const min = parseInt(element.frameRate) * 4 > parseInt(element.me['@fps']) * 4 ? parseInt(element.frameRate) * 4 : parseInt(element.me['@fps']) * 4
+                                    } else if (RecStreamModule.value.recType1 === 'me') {
+                                        const min = Number(element.frameRate) * 4 > Number(element.me['@fps']) * 4 ? Number(element.frameRate) * 4 : Number(element.me['@fps']) * 4
                                         mainXml = `<main enct="${element.videoEncodeType}" ${gop}="${min}"></main>`
                                     }
                                 }
@@ -1285,7 +1289,7 @@ export default defineComponent({
 
         const setData = () => {
             const sendXml = getSaveData()
-            if (sendXml == '') {
+            if (sendXml === '') {
                 return
             }
             openLoading()
@@ -1294,7 +1298,7 @@ export default defineComponent({
                     closeLoading()
                     const res = queryXml(resb)
                     getSystemCaps()
-                    if (res('status').text() == 'success') {
+                    if (res('status').text() === 'success') {
                         openMessageBox({
                             type: 'success',
                             message: Translate('IDCS_SAVE_DATA_SUCCESS'),

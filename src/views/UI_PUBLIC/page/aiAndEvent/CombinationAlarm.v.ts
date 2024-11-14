@@ -105,7 +105,7 @@ export default defineComponent({
                     $('//content/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         const protocolType = $item('protocolType').text()
-                        if (protocolType == 'RTSP') return
+                        if (protocolType === 'RTSP') return
                         pageData.value.videoPopupChlList.push({
                             value: item.attr('id')!,
                             label: $item('name').text(),
@@ -146,16 +146,16 @@ export default defineComponent({
                     const trigger = $item('trigger')
                     const $trigger = queryXml(trigger[0].element)
 
-                    const row = {
-                        id: item.attr('id'),
+                    const row: AlarmCombinedDto = {
+                        id: item.attr('id')!,
                         name: $item('param/name').text(),
                         status: '',
                         combinedAlarm: {
-                            switch: $item('param/switch').text() == 'true',
+                            switch: $item('param/switch').text().bool(),
                             item: [],
                         },
                         record: {
-                            switch: $trigger('sysRec/switch').text() == 'true',
+                            switch: $trigger('sysRec/switch').text().bool(),
                             chls: $trigger('sysRec/chls/item').map((element) => {
                                 return {
                                     value: element.attr('id')!,
@@ -164,7 +164,7 @@ export default defineComponent({
                             }),
                         },
                         snap: {
-                            switch: $trigger('sysSnap/switch').text() == 'true',
+                            switch: $trigger('sysSnap/switch').text().bool(),
                             chls: $trigger('sysSnap/chls/item').map((element) => {
                                 return {
                                     value: element.attr('id')!,
@@ -173,7 +173,7 @@ export default defineComponent({
                             }),
                         },
                         alarmOut: {
-                            switch: $trigger('alarmOut/switch').text() == 'true',
+                            switch: $trigger('alarmOut/switch').text().bool(),
                             alarmOuts: $trigger('alarmOut/alarmOuts/item').map((element) => {
                                 return {
                                     value: element.attr('id')!,
@@ -189,7 +189,7 @@ export default defineComponent({
                             },
                         },
                         preset: {
-                            switch: $trigger('preset/switch').text() == 'true',
+                            switch: $trigger('preset/switch').text().bool(),
                             presets: [],
                         },
                         sysAudio: $trigger('sysAudio').attr('id') || DEFAULT_EMPTY_ID,
@@ -197,8 +197,8 @@ export default defineComponent({
                         beeper: $trigger('buzzerSwitch').text(),
                         email: $trigger('emailSwitch').text(),
                         msgBoxPopup: $trigger('popMsgSwitch').text(),
-                        videoPopup: $trigger('popVideo/switch').text() == 'false' ? '' : $trigger('popVideo/chl').attr('id'),
-                    } as AlarmCombinedDto
+                        videoPopup: $trigger('popVideo/switch').text() === 'false' ? '' : $trigger('popVideo/chl').attr('id'),
+                    }
 
                     const audioData = pageData.value.audioList.filter((item) => {
                         return item.value === row.sysAudio
@@ -214,16 +214,16 @@ export default defineComponent({
                         const APIChlId = $ele('alarmSourceEntity').attr('id') // 接口返回报警源
                         let realSource = ''
 
-                        if (APISource == 'Motion') {
+                        if (APISource === 'Motion') {
                             // 已配置的FaceMatch数组
                             $faceMatch('content/item').forEach((faceItem) => {
                                 const $faceItem = queryXml(faceItem.element)
                                 // FaceMatch数组XML包含了组合报警Id和通道chlId,若匹配上，证明已配置，是FaceMatch类型
-                                if (faceItem.attr('id') == currCombinedId && $faceItem('chlID').attr('id') == APIChlId) {
+                                if (faceItem.attr('id') === currCombinedId && $faceItem('chlID').attr('id') === APIChlId) {
                                     const alarmSourceType = faceItem.attr('alarmSourceType')
                                     realSource = alarmSourceType ? alarmSourceType : 'Motion'
 
-                                    if (alarmSourceType == 'FaceMatch') {
+                                    if (alarmSourceType === 'FaceMatch') {
                                         const chlIdMapFaceName = {} as Record<string, string>
                                         const groupId = [] as string[]
                                         const faceDataBase = [] as string[]
@@ -238,8 +238,8 @@ export default defineComponent({
                                         pageData.value.faceObj[currCombinedId] = {}
                                         pageData.value.faceObj[currCombinedId][APIChlId] = {}
                                         pageData.value.faceObj[currCombinedId][APIChlId].obj = {
-                                            duration: parseInt($faceItem('startTime').text()),
-                                            delay: parseInt($faceItem('endTime').text()),
+                                            duration: $faceItem('startTime').text().num(),
+                                            delay: $faceItem('endTime').text().num(),
                                             faceDataBase: faceDataBase,
                                             groupId: groupId,
                                             rule: $faceItem('matchRule').text(),
@@ -299,7 +299,7 @@ export default defineComponent({
                 }
 
                 for (const item of tableData.value) {
-                    if (item.id != row.id && name == item.name) {
+                    if (item.id !== row.id && name === item.name) {
                         openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_NAME_SAME'),
@@ -312,8 +312,8 @@ export default defineComponent({
         }
 
         // 回车键失去焦点
-        const enterBlur = (event: { target: { blur: () => void } }) => {
-            event.target.blur()
+        const enterBlur = (event: Event) => {
+            ;(event.target as HTMLElement).blur()
         }
 
         // 组合报警弹窗打开
@@ -326,7 +326,7 @@ export default defineComponent({
 
         const handleCombinedAlarmLinkedList = (currId: string, combinedAlarmItems: AlarmCombinedItemDto[], entity: string, obj: AlarmCombinedFaceMatchDto) => {
             tableData.value.some((item) => {
-                if (item.id == currId) {
+                if (item.id === currId) {
                     item.combinedAlarm.item = combinedAlarmItems
                     if (entity) {
                         pageData.value.faceObj[currId] = {}
@@ -340,9 +340,9 @@ export default defineComponent({
         const combinedAlarmClose = (id: string) => {
             pageData.value.isCombinedAlarmPopOpen = false
             tableData.value.forEach((item) => {
-                if (item.id == id) {
+                if (item.id === id) {
                     changeCombinedALarmInfo(item)
-                    if (item.combinedAlarm.item.length == 0) item.combinedAlarm.switch = false
+                    if (!item.combinedAlarm.item.length) item.combinedAlarm.switch = false
                 }
             })
         }
@@ -451,7 +451,7 @@ export default defineComponent({
         const changeCombinedALarmInfo = (row: AlarmCombinedDto) => {
             let info = ''
             row.combinedAlarm.item.forEach((item, index) => {
-                if (index == 0) {
+                if (index === 0) {
                     info += row.name + ': '
                 }
                 info += item.alarmSourceEntity.label + '  ' + COMBINED_ALARM_TYPES_MAPPING[item.alarmSourceType] + ' & '
@@ -468,11 +468,11 @@ export default defineComponent({
          * @param {string} field 字段名
          * @return {*}
          */
-        const changeAllValue = (value: any, field: string) => {
+        const changeAllValue = (value: string, field: string) => {
             tableData.value.forEach((item) => {
-                if (field == 'videoPopUp') {
+                if (field === 'videoPopUp') {
                     item.popVideo.chl.value = value
-                    if (value != '') item.popVideo.switch = 'true'
+                    if (value !== '') item.popVideo.switch = 'true'
                 } else {
                     ;(item as any)[field] = value
                 }
@@ -609,13 +609,13 @@ export default defineComponent({
             tableData.value.forEach((item) => {
                 if (item.combinedAlarm.switch) {
                     item.combinedAlarm.item.forEach((ele) => {
-                        if (ele.alarmSourceType == 'FaceMatch') {
+                        if (ele.alarmSourceType === 'FaceMatch') {
                             combinedId.push(item.id)
                             groupId.push(ele.alarmSourceEntity.value)
-                        } else if (ele.alarmSourceType == 'InvadeDetect') {
+                        } else if (ele.alarmSourceType === 'InvadeDetect') {
                             peaCombinedId.push(item.id)
                             peaGroupId.push(ele.alarmSourceEntity.value)
-                        } else if (ele.alarmSourceType == 'Tripwire') {
+                        } else if (ele.alarmSourceType === 'Tripwire') {
                             tripwireCombinedId.push(item.id)
                             tripwireGroupId.push(ele.alarmSourceEntity.value)
                         }

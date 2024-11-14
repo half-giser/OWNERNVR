@@ -154,7 +154,7 @@ export default defineComponent({
                     pluginStore.showPluginNoResponse = true
                     tripwirePlugin.ShowPluginNoResponse()
                 }
-                const sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'TripwireConfig' : 'ReadOnly', 'Live')
+                const sendXML = OCX_XML_SetPluginModel(osType === 'mac' ? 'TripwireConfig' : 'ReadOnly', 'Live')
                 tripwirePlugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
         }
@@ -170,7 +170,7 @@ export default defineComponent({
                     streamType: 2,
                 })
             } else {
-                if (osType == 'mac') {
+                if (osType === 'mac') {
                     // const sendXML = OCX_XML_Preview({
                     //     winIndexList: [0],
                     //     chlIdList: [id],
@@ -227,18 +227,18 @@ export default defineComponent({
                 const res = await queryTripwire(sendXML)
                 closeLoading()
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     pageData.value.applyDisable = true
 
                     const schedule = $('//content/chl').attr('scheduleGuid')
                     formData.value.tripwire_schedule =
-                        schedule != '' ? (pageData.value.scheduleList.some((item: { value: string; label: string }) => item.value == schedule) ? schedule : DEFAULT_EMPTY_ID) : DEFAULT_EMPTY_ID
+                        schedule !== '' ? (pageData.value.scheduleList.some((item: { value: string; label: string }) => item.value === schedule) ? schedule : DEFAULT_EMPTY_ID) : DEFAULT_EMPTY_ID
 
                     const trigger = $('//content/chl/trigger')
                     const $trigger = queryXml(trigger[0].element)
 
                     formData.value.trigger = ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch'].filter((item) => {
-                        return $trigger(item).text().toBoolean()
+                        return $trigger(item).text().bool()
                     })
 
                     formData.value.sysAudio = $trigger('sysAudio').attr('id') || ''
@@ -284,11 +284,11 @@ export default defineComponent({
                 const res = await queryTripwire(sendXML)
                 closeLoading()
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     pageData.value.applyDisable = true
                     const schedule = $('//content/chl').attr('scheduleGuid')
                     formData.value.tripwire_schedule =
-                        schedule == '' ? DEFAULT_EMPTY_ID : pageData.value.scheduleList.some((item: { value: string; label: string }) => item.value == schedule) ? schedule : DEFAULT_EMPTY_ID
+                        schedule === '' ? DEFAULT_EMPTY_ID : pageData.value.scheduleList.some((item: { value: string; label: string }) => item.value === schedule) ? schedule : DEFAULT_EMPTY_ID
                     formData.value.directionList = $('//types/direction/enum').map((item) => {
                         return {
                             value: item.text(),
@@ -299,19 +299,19 @@ export default defineComponent({
                         const $item = queryXml(item.element)
                         return {
                             object: $item('object').text(),
-                            status: $item('status').text() == 'true' ? true : false,
+                            status: $item('status').text().bool(),
                         }
                     })
                     formData.value.mutexListEx = $('//content/chl/param/mutexListEx/item').map((item) => {
                         const $item = queryXml(item.element)
                         return {
                             object: $item('object').text(),
-                            status: $item('status').text() == 'true' ? true : false,
+                            status: $item('status').text().bool(),
                         }
                     })
 
                     const holdTimeArr = $('//content/chl/param/holdTimeNote').text().split(',')
-                    formData.value.holdTime = Number($('//content/chl/param/alarmHoldTime').text())
+                    formData.value.holdTime = $('//content/chl/param/alarmHoldTime').text().num()
                     if (!holdTimeArr.includes(formData.value.holdTime.toString())) {
                         holdTimeArr.push(formData.value.holdTime.toString())
                     }
@@ -322,37 +322,37 @@ export default defineComponent({
                         return {
                             direction: $item('direction').text() as CanvasPasslineDirection,
                             startPoint: {
-                                X: Number($item('startPoint/X').text()),
-                                Y: Number($item('startPoint/Y').text()),
+                                X: $item('startPoint/X').text().num(),
+                                Y: $item('startPoint/Y').text().num(),
                             },
                             endPoint: {
-                                X: Number($item('endPoint/X').text()),
-                                Y: Number($item('endPoint/Y').text()),
+                                X: $item('endPoint/X').text().num(),
+                                Y: $item('endPoint/Y').text().num(),
                             },
                             configured: false,
                         }
                     })
                     formData.value.direction = formData.value.lineInfo[pageData.value.chosenSurfaceIndex].direction
-                    formData.value.detectionEnable = $('//content/chl/param/switch').text() == 'true'
+                    formData.value.detectionEnable = $('//content/chl/param/switch').text().bool()
                     formData.value.originalEnable = formData.value.detectionEnable
-                    formData.value.audioSuport = $('//content/chl/param/triggerAudio').text() == '' ? false : true
-                    formData.value.lightSuport = $('//content/chl/param/triggerWhiteLight').text() == '' ? false : true
-                    formData.value.hasAutoTrack = $('//content/chl/param/autoTrack').text() == '' ? false : true
-                    formData.value.autoTrack = $('//content/chl/param/autoTrack').text() == 'true'
-                    formData.value.pictureAvailable = $('//content/chl/param/saveTargetPicture').text() == '' ? false : true
-                    formData.value.saveTargetPicture = $('//content/chl/param/saveTargetPicture').text() == 'true'
-                    formData.value.saveSourcePicture = $('//content/chl/param/saveSourcePicture').text() == 'true'
-                    formData.value.tripwire_onlyPreson = $('//content/chl/param/sensitivity').text() == '' ? false : true
+                    formData.value.audioSuport = $('//content/chl/param/triggerAudio').text() !== ''
+                    formData.value.lightSuport = $('//content/chl/param/triggerWhiteLight').text() !== ''
+                    formData.value.hasAutoTrack = $('//content/chl/param/autoTrack').text() !== ''
+                    formData.value.autoTrack = $('//content/chl/param/autoTrack').text().bool()
+                    formData.value.pictureAvailable = $('//content/chl/param/saveTargetPicture').text() !== ''
+                    formData.value.saveTargetPicture = $('//content/chl/param/saveTargetPicture').text().bool()
+                    formData.value.saveSourcePicture = $('//content/chl/param/saveSourcePicture').text().bool()
+                    formData.value.tripwire_onlyPreson = $('//content/chl/param/sensitivity').text() !== ''
                     // NTA1-231：低配版IPC：4M S4L-C，越界/区域入侵目标类型只支持人
-                    formData.value.onlyPersonSensitivity = formData.value.tripwire_onlyPreson ? Number($('//content/chl/param/sensitivity').text()) : 0
-                    formData.value.hasObj = $('//content/chl/param/objectFilter').text() == '' ? false : true
+                    formData.value.onlyPersonSensitivity = formData.value.tripwire_onlyPreson ? $('//content/chl/param/sensitivity').text().num() : 0
+                    formData.value.hasObj = $('//content/chl/param/objectFilter').text() !== ''
                     if (formData.value.hasObj) {
-                        const car = $('//content/chl/param/objectFilter/car/switch').text() == 'true'
-                        const person = $('//content/chl/param/objectFilter/person/switch').text() == 'true'
-                        const motorcycle = $('//content/chl/param/objectFilter/motor/switch').text() == 'true'
-                        const personSensitivity = Number($('//content/chl/param/objectFilter/person/sensitivity').text())
-                        const carSensitivity = Number($('//content/chl/param/objectFilter/car/sensitivity').text())
-                        const motorSensitivity = Number($('//content/chl/param/objectFilter/motor/sensitivity').text())
+                        const car = $('//content/chl/param/objectFilter/car/switch').text().bool()
+                        const person = $('//content/chl/param/objectFilter/person/switch').text().bool()
+                        const motorcycle = $('//content/chl/param/objectFilter/motor/switch').text().bool()
+                        const personSensitivity = $('//content/chl/param/objectFilter/person/sensitivity').text().num()
+                        const carSensitivity = $('//content/chl/param/objectFilter/car/sensitivity').text().num()
+                        const motorSensitivity = $('//content/chl/param/objectFilter/motor/sensitivity').text().num()
                         formData.value.objectFilter = {
                             car: car,
                             person: person,
@@ -396,7 +396,7 @@ export default defineComponent({
 
                     if (formData.value.audioSuport && props.chlData.supportAudio) {
                         formData.value.triggerList.push('triggerAudio')
-                        const triggerAudio = $('//content/chl/param/triggerAudio').text() == 'true'
+                        const triggerAudio = $('//content/chl/param/triggerAudio').text().bool()
                         if (triggerAudio) {
                             formData.value.trigger.push('triggerAudio')
                         }
@@ -404,7 +404,7 @@ export default defineComponent({
 
                     if (formData.value.lightSuport && props.chlData.supportWhiteLight) {
                         formData.value.triggerList.push('triggerWhiteLight')
-                        const triggerWhiteLight = $('//content/chl/param/triggerWhiteLight').text() == 'true'
+                        const triggerWhiteLight = $('//content/chl/param/triggerWhiteLight').text().bool()
                         if (triggerWhiteLight) {
                             formData.value.trigger.push('triggerWhiteLight')
                         }
@@ -437,7 +437,7 @@ export default defineComponent({
                                             <sensitivity>${formData.value.objectFilter.personSensitivity}</sensitivity>
                                         </person>
                                         ${
-                                            props.chlData.accessType == '0'
+                                            props.chlData.accessType === '0'
                                                 ? rawXml`
                                                     <motor>
                                                         <switch>${formData.value.objectFilter.motorcycle}</switch>
@@ -546,7 +546,7 @@ export default defineComponent({
             const $ = await editTripwire(sendXml)
             const res = queryXml($)
             closeLoading()
-            if (res('status').text() == 'success') {
+            if (res('status').text() === 'success') {
                 // NT-9292 开关为开把originalSwitch置为true避免多次弹出互斥提示
                 if (formData.value.detectionEnable) {
                     formData.value.originalEnable = formData.value.detectionEnable
@@ -565,7 +565,7 @@ export default defineComponent({
             } else {
                 let isSwitchChange = false
                 const switchChangeTypeArr: string[] = []
-                if (formData.value.detectionEnable && formData.value.detectionEnable != formData.value.originalEnable) {
+                if (formData.value.detectionEnable && formData.value.detectionEnable !== formData.value.originalEnable) {
                     isSwitchChange = true
                 }
                 const mutexChlNameObj = getMutexChlNameObj()
@@ -609,16 +609,16 @@ export default defineComponent({
             const sameIPChlList: { id: string; ip: string; name: string; accessType: string }[] = []
             const chlIp = props.chlData.ip
             props.onlineChannelList.forEach((chl) => {
-                if (chl.ip == chlIp) {
+                if (chl.ip === chlIp) {
                     sameIPChlList.push(chl)
                 }
             })
             if (sameIPChlList.length > 1) {
                 sameIPChlList.forEach((chl) => {
-                    if (chl.accessType == '1') {
-                        thermalChlName = chl.name == props.chlData.name ? '' : chl.name
+                    if (chl.accessType === '1') {
+                        thermalChlName = chl.name === props.chlData.name ? '' : chl.name
                     } else {
-                        normalChlName = chl.name == props.chlData.name ? '' : chl.name
+                        normalChlName = chl.name === props.chlData.name ? '' : chl.name
                     }
                 })
             }
@@ -631,7 +631,7 @@ export default defineComponent({
         // tripwire tab点击事件
         const handleTripwireFunctionTabClick = async (pane: TabsPaneContext) => {
             pageData.value.tripwireFunction = pane.props.name?.toString() ? pane.props.name?.toString() : ''
-            if (pageData.value.tripwireFunction == 'tripwire_param') {
+            if (pageData.value.tripwireFunction === 'tripwire_param') {
                 if (tripwiremode.value === 'h5') {
                     setTripwireOcxData()
                     tripwireDrawer.setEnable('line', true)
@@ -646,7 +646,7 @@ export default defineComponent({
                 if (pageData.value.isShowAllArea) {
                     showAllTripwireArea(true)
                 }
-            } else if (pageData.value.tripwireFunction == 'tripwire_target') {
+            } else if (pageData.value.tripwireFunction === 'tripwire_target') {
                 showAllTripwireArea(false)
                 if (tripwiremode.value === 'h5') {
                     tripwireDrawer.clear()
@@ -665,7 +665,7 @@ export default defineComponent({
             // 区域状态
             const lineInfoList = formData.value.lineInfo
             lineInfoList.forEach((lineInfo, surface) => {
-                if (lineInfo && lineInfo.startPoint.X == 0 && lineInfo.startPoint.Y == 0 && lineInfo.endPoint.X == 0 && lineInfo.endPoint.Y == 0) {
+                if (lineInfo && !lineInfo.startPoint.X && !lineInfo.startPoint.Y && !lineInfo.endPoint.X && !lineInfo.endPoint.Y) {
                     formData.value.lineInfo[surface].configured = false
                 } else {
                     formData.value.lineInfo[surface].configured = true
@@ -762,8 +762,8 @@ export default defineComponent({
             `
             const res = await queryBallIPCPTZLockCfg(sendXML)
             const $ = queryXml(res)
-            if ($('status').text() == 'success') {
-                pageData.value.lockStatus = $('//content/chl/param/PTZLock').text() == 'true'
+            if ($('status').text() === 'success') {
+                pageData.value.lockStatus = $('//content/chl/param/PTZLock').text().bool()
             }
         }
 
@@ -781,7 +781,7 @@ export default defineComponent({
             openLoading()
             editBallIPCPTZLockCfg(sendXML).then((res) => {
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     closeLoading()
                     pageData.value.lockStatus = !pageData.value.lockStatus
                 }
@@ -836,7 +836,7 @@ export default defineComponent({
 
         // tripwire显示
         const setTripwireOcxData = () => {
-            if (pageData.value.tripwireFunction == 'tripwire_param') {
+            if (pageData.value.tripwireFunction === 'tripwire_param') {
                 const surface = pageData.value.chosenSurfaceIndex
                 if (formData.value.lineInfo.length > 0) {
                     if (tripwiremode.value === 'h5') {
@@ -908,12 +908,12 @@ export default defineComponent({
             if ($('/statenotify[@type="TripwireLine"]').length > 0) {
                 const surface = pageData.value.chosenSurfaceIndex
                 formData.value.lineInfo[surface].startPoint = {
-                    X: parseInt($('/statenotify/startPoint').attr('X')),
-                    Y: parseInt($('/statenotify/startPoint').attr('Y')),
+                    X: $('/statenotify/startPoint').attr('X').num(),
+                    Y: $('/statenotify/startPoint').attr('Y').num(),
                 }
                 formData.value.lineInfo[surface].endPoint = {
-                    X: parseInt($('/statenotify/endPoint').attr('X')),
-                    Y: parseInt($('/statenotify/endPoint').attr('Y')),
+                    X: $('/statenotify/endPoint').attr('X').num(),
+                    Y: $('/statenotify/endPoint').attr('Y').num(),
                 }
                 tripwireRefreshInitPage()
             }

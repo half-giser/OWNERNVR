@@ -107,7 +107,7 @@ const copyToOpen = (index: number) => {
  * @returns
  */
 const copyToOk = (index: number) => {
-    if (copyToCheckedDay.value.length === 0) return
+    if (!copyToCheckedDay.value.length) return
 
     const selectLines = scheduleLines.value?.filter((item: InstanceType<typeof BaseScheduleLine>) => {
         return copyToCheckedDay.value.indexOf(Number((item.$attrs.id as string).substring(5))) !== -1

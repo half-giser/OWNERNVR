@@ -48,15 +48,15 @@ export default defineComponent({
         })
 
         const open = () => {
-            pageData.value.title = prop.type == 'ipcAudio' ? Translate('IDCS_LOAD_WAV') : Translate('IDCS_LOAD_MP3')
-            pageData.value.uploadAccept = prop.type == 'ipcAudio' ? '.wav' : '.mp3'
+            pageData.value.title = prop.type === 'ipcAudio' ? Translate('IDCS_LOAD_WAV') : Translate('IDCS_LOAD_MP3')
+            pageData.value.uploadAccept = prop.type === 'ipcAudio' ? '.wav' : '.mp3'
 
             pageData.value.uploadFile = {} as UploadFile
             pageData.value.uploadFileName = ''
             pageData.value.btnApplyDisabled = true
 
             const data = prop.ipcRowData
-            if (prop.type == 'ipcAudio') {
+            if (prop.type === 'ipcAudio') {
                 pageData.value.isIpcTipsShow = true
                 pageData.value.isLocalTipsShow = false
                 const audioFormat = '*.' + data.audioFormat + ',' + data.audioDepth + ',' + data.sampleRate + ',' + data.audioChannel
@@ -71,14 +71,14 @@ export default defineComponent({
         }
 
         const uploadFile = (uploadFile: UploadFile) => {
-            if (prop.type == 'nvrAudio' && uploadFile.name.indexOf('.mp3') == -1) {
+            if (prop.type === 'nvrAudio' && uploadFile.name.indexOf('.mp3') === -1) {
                 // 过滤非mp3文件
                 openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_SELECT_MP3_FILE'),
                 })
                 return
-            } else if (prop.type == 'ipcAudio' && uploadFile.name.indexOf('.wav') == -1) {
+            } else if (prop.type === 'ipcAudio' && uploadFile.name.indexOf('.wav') === -1) {
                 openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_NO_CHOOSE_TDB_FILE').formatForLang('wav'),
@@ -95,9 +95,9 @@ export default defineComponent({
             const blob = new Blob([_file] as BlobPart[])
             fileToBase64(blob, async (data: string) => {
                 const fileSize = base64FileSize(data)
-                if (prop.type == 'ipcAudio') {
-                    let audioFileLimitSize = prop?.ipcRowData?.audioFileLimitSize
-                    audioFileLimitSize = (parseInt(audioFileLimitSize!) / 1024).toFixed(2)
+                if (prop.type === 'ipcAudio') {
+                    let audioFileLimitSize = prop.ipcRowData.audioFileLimitSize
+                    audioFileLimitSize = (Number(audioFileLimitSize) / 1024).toFixed(2)
                     if (fileSize > audioFileLimitSize) {
                         showMsg(Translate('IDCS_OUT_FILE_SIZE'))
                         return
@@ -118,12 +118,12 @@ export default defineComponent({
                     const result = await addCustomizeAudioAlarm(sendXml)
                     const $ = queryXml(result)
 
-                    if ($('//status').text() == 'success') {
+                    if ($('//status').text() === 'success') {
                         ctx.emit('close')
                         const audioId = $('//content/param/id').text()
                         ctx.emit('apply', audioId, pageData.value.uploadFileName)
                     } else {
-                        const errorCode = Number($('//errorCode').text())
+                        const errorCode = $('//errorCode').text().num()
                         handleErrorMsg(errorCode)
                     }
                 } else {
@@ -143,10 +143,10 @@ export default defineComponent({
                     const result = await addAlarmAudioCfg(sendXml)
                     const $ = queryXml(result)
 
-                    if ($('//status').text() == 'success') {
+                    if ($('//status').text() === 'success') {
                         ctx.emit('close')
                     } else {
-                        const errorCode = Number($('//errorCode').text())
+                        const errorCode = $('//errorCode').text().num()
                         handleErrorMsg(errorCode)
                     }
                 }
@@ -161,13 +161,13 @@ export default defineComponent({
         }
 
         const handleErrorMsg = (errorCode: number) => {
-            if (errorCode == ErrorCode.USER_ERROR_CLIENT_LIMITED_BY_LITE_TYPE) {
+            if (errorCode === ErrorCode.USER_ERROR_CLIENT_LIMITED_BY_LITE_TYPE) {
                 showMsg(Translate('IDCS_OUT_FILE_SIZE'))
-            } else if (errorCode == ErrorCode.USER_ERROR_NAME_EXISTED) {
+            } else if (errorCode === ErrorCode.USER_ERROR_NAME_EXISTED) {
                 showMsg(Translate('IDCS_NAME_SAME'))
-            } else if (errorCode == ErrorCode.USER_ERROR_DEV_RESOURCE_LIMITED) {
+            } else if (errorCode === ErrorCode.USER_ERROR_DEV_RESOURCE_LIMITED) {
                 showMsg(Translate('IDCS_CONFIG_SPACE_NOT_ENOUGH'))
-            } else if (errorCode == ErrorCode.USER_ERROR_NODE_NET_DISCONNECT) {
+            } else if (errorCode === ErrorCode.USER_ERROR_NODE_NET_DISCONNECT) {
                 showMsg(Translate('IDCS_OCX_NET_DISCONNECT'))
             } else {
                 showMsg(Translate('IDCS_AUDIO_FILE_TASK_ERROR').formatForLang(pageData.value.uploadFileName))

@@ -23,7 +23,6 @@
                 <el-input
                     v-model="formData.deviceName"
                     type="text"
-                    :maxlength="nameByteMaxLen"
                     :formatter="formatInputMaxLength"
                     :parser="formatInputMaxLength"
                 />

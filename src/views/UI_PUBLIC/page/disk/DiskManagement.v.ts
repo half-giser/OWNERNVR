@@ -89,7 +89,7 @@ export default defineComponent({
             const $ = queryXml(result)
 
             const rowData: DiskManagememtList[] = []
-            const raidSwitch = $storage('storageSysInfo/raidSwitch').text().toBoolean()
+            const raidSwitch = $storage('storageSysInfo/raidSwitch').text().bool()
             const cycleRecord = $storage('cycleRecord').text()
 
             $storage('diskList/item').forEach((item) => {
@@ -122,8 +122,8 @@ export default defineComponent({
                 }
 
                 const isUDisk = diskInterfaceType === 'removable'
-                const size = String(Math.floor(Number($item('size').text()) / 1024))
-                const freeSpace = Number($item('freeSpace').text()) / 1024
+                const size = String(Math.floor($item('size').text().num() / 1024))
+                const freeSpace = $item('freeSpace').text().num() / 1024
 
                 rowData.push({
                     id: id,

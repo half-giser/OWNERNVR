@@ -205,7 +205,7 @@ export default defineComponent({
                 goBack()
             } else {
                 let errorInfo = ''
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_NAME_EXISTED:
                         errorInfo = Translate('IDCS_USER_EXISTED_TIPS')
@@ -254,7 +254,6 @@ export default defineComponent({
             authGroupOptions,
             strength,
             isAuthDialog,
-            nameByteMaxLen,
             doCreateUser,
             verify,
             goBack,

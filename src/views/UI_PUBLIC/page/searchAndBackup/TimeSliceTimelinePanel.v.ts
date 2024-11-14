@@ -302,7 +302,7 @@ export default defineComponent({
             const $ = queryXml(result)
             if ($('//status').text() === 'success') {
                 if (formData.value.startTime === startTime && formData.value.endTime === endTime) {
-                    const size = Number($('//content/dataSize').text())
+                    const size = $('//content/dataSize').text().num()
                     formData.value.size = size
                 }
             } else {

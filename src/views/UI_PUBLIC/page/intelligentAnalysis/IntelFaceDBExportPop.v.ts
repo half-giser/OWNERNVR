@@ -165,7 +165,7 @@ export default defineComponent({
          */
         const isHandleExport = () => {
             // 超出压缩包文件数量最大上限，先导出（有后续）
-            if (imgFileNum == MAX_ZIP_FILE_LENGTH && pageData.value.currentTask < pageData.value.totalTask) {
+            if (imgFileNum === MAX_ZIP_FILE_LENGTH && pageData.value.currentTask < pageData.value.totalTask) {
                 downloadZip({
                     zipName: getZipName(),
                     files: exportData,

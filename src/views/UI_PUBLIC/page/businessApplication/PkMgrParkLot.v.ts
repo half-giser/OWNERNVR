@@ -209,11 +209,11 @@ export default defineComponent({
                 type = 'nonEnter-exit'
             }
             // 进场-拒绝放行
-            else if (isEnter && (enterType === '0' || enterType == 'refuse')) {
+            else if (isEnter && (enterType === '0' || enterType === 'refuse')) {
                 type = 'nonEnter-nonExit'
             }
             // "出场拒绝放行"、"无进场和出场数据"时, 没有进出结果
-            else if ((isExit && (exitType === '0' || exitType == 'refuse')) || (!isEnter && !isExit)) {
+            else if ((isExit && (exitType === '0' || exitType === 'refuse')) || (!isEnter && !isExit)) {
                 type = ''
             }
             return type
@@ -397,7 +397,7 @@ export default defineComponent({
             const result = await openGate(sendXml)
             const $ = queryXml(result)
             if ($('//status').text() === 'fail') {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_INVALID_PARAM:

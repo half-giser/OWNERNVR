@@ -691,17 +691,17 @@ export default defineComponent({
             // 解码卡排序
             const decoderResXml = $('//decoderContent/decoder')
             decoderResXml.sort((a, b) => {
-                return Number(a.attr('id')) - Number(b.attr('id'))
+                return a.attr('id').num() - b.attr('id').num()
             })
             const decorderOutputXml: Record<number, XmlResult> = {}
             // 解码卡输出排序
             decoderResXml.forEach((item) => {
                 const $item = queryXml(item.element)
                 const decoderId = Number(item.attr('id'))
-                const onlineStatus = item.attr('onlineStatus')!.toBoolean()
+                const onlineStatus = item.attr('onlineStatus')!.bool()
                 decoderCardMap.value[decoderId].onlineStatus = onlineStatus
                 const currDecoderOut = $item('item').sort((a, b) => {
-                    return Number(a.attr('outIndex')) - Number(b.attr('outIndex'))
+                    return a.attr('outIndex').num() - b.attr('outIndex').num()
                 })
                 if (!decorderOutputXml[decoderId]) {
                     decorderOutputXml[decoderId] = currDecoderOut // 用id区分属于哪一解码卡的输出
@@ -713,11 +713,11 @@ export default defineComponent({
                 const outItemXml = decorderOutputXml[id] // 获取每张解码卡的各个输出数据
                 outItemXml.forEach((item) => {
                     const $item = queryXml(item.element)
-                    const outIndex = Number(item.attr('outIndex'))
+                    const outIndex = item.attr('outIndex').num()
                     // 0/1 表示当前输出是轮询('0')还是预览('1')模式
                     const isDecoderCheckDwell = Number(item.attr('validItem')) === 0
                     // 表示当前输出是HDMI IN输出
-                    const showHdmiIn = item.attr('ShowHdmiIn')!.toBoolean()
+                    const showHdmiIn = item.attr('ShowHdmiIn').bool()
                     if (showHdmiIn) {
                         // outIndex：0表示输出1、1表示输出2...
                         decoderCardMap.value[id].ShowHdmiIn = outIndex * 1 + 1
@@ -730,7 +730,7 @@ export default defineComponent({
                         if (displayMode === 'dwell') {
                             decoderCardMap.value[id].decoderDwellData[outIndex] = {
                                 displayMode,
-                                timeInterval: Number($element('timeInterval').text()),
+                                timeInterval: $element('timeInterval').text().num(),
                                 // 表示当前输出是否勾选轮询check框
                                 isCheckDwell: isDecoderCheckDwell,
                                 chlGroups: [],
@@ -739,12 +739,12 @@ export default defineComponent({
                             // 表示当前输出是否勾选轮询check框
                             $element('chlGroups/item').forEach((chlGroup) => {
                                 const $chlGroup = queryXml(chlGroup.element)
-                                const segNum = Number($chlGroup('segNum').text())
+                                const segNum = $chlGroup('segNum').text().num()
                                 const chlsData: ChlsDto[] = []
                                 $chlGroup('chls/item').forEach((chlItem) => {
                                     chlsData.push({
                                         id: chlItem.attr('id')!,
-                                        winindex: Number(chlItem.text()),
+                                        winindex: chlItem.text().num(),
                                     })
                                 })
                                 decoderCardMap.value[id].decoderDwellData[outIndex].chlGroups.push({
@@ -757,12 +757,12 @@ export default defineComponent({
                                 displayMode,
                                 chlGroups: [],
                             }
-                            const segNum = Number($element('segNum').text())
+                            const segNum = $element('segNum').text().num()
                             const chlsData: ChlsDto[] = []
                             $element('chls/item').forEach((chl) => {
                                 chlsData.push({
                                     id: chl.attr('id')!,
-                                    winindex: Number(chl.text()),
+                                    winindex: chl.text().num(),
                                 })
                             })
                             decoderCardMap.value[id].decoderPreviewData[outIndex].chlGroups[0].segNum = segNum
@@ -775,16 +775,16 @@ export default defineComponent({
             // 获取主输出的配置
             mainOutputData.value = new MainOutputData()
             mainOutputData.value.displayMode = $('//content/item[@outType="Main"]/item1/displayMode').text()
-            mainOutputData.value.timeInterval = Number($('//content/item[@outType="Main"]/item1/timeInterval').text())
+            mainOutputData.value.timeInterval = $('//content/item[@outType="Main"]/item1/timeInterval').text().num()
             mainOutputData.value.chlGroups = []
             $('//content/item[@outType="Main"]/item1/chlGroups/item').forEach((item) => {
                 const $item = queryXml(item.element)
-                const segNum = Number($item('segNum').text())
+                const segNum = $item('segNum').text().num()
                 const chlsData: ChlsDto[] = []
                 $item('chls/item').forEach((chl) => {
                     chlsData.push({
                         id: chl.attr('id')!,
-                        winindex: Number(chl.text()),
+                        winindex: chl.text().num(),
                     })
                 })
                 mainOutputData.value.chlGroups.push({
@@ -815,25 +815,25 @@ export default defineComponent({
             $("//content/item[contains(@outType,'Sub')]").forEach((item) => {
                 const $item = queryXml(item.element)
                 // 每个辅输出对应的索引序号（1，2，3...）
-                const outIndex = Number(item.attr('outIndex'))
+                const outIndex = item.attr('outIndex').num()
                 // validItem：0/1表示当前辅输出是轮询('0')还是预览('1')模式
-                const isSubCheckDwell = Number(item.attr('validItem')) === 0
+                const isSubCheckDwell = item.attr('validItem').num() === 0
                 $item('item1').forEach((element) => {
                     const $element = queryXml(element.element)
                     const displayMode = $element('displayMode').text()
                     if (displayMode === 'dwell') {
                         subOutputDwellData.value[outIndex].displayMode = displayMode
-                        subOutputDwellData.value[outIndex].timeInterval = Number($element('timeInterval').text())
+                        subOutputDwellData.value[outIndex].timeInterval = $element('timeInterval').text().num()
                         // 表示当前输出是否勾选轮询check框
                         subOutputDwellData.value[outIndex].isCheckDwell = isSubCheckDwell
                         $element('chlGroups/item').forEach((chlGroup) => {
                             const $chlGroup = queryXml(chlGroup.element)
-                            const segNum = Number($chlGroup('segNum').text())
+                            const segNum = $chlGroup('segNum').text().num()
                             const chlsData: ChlsDto[] = []
                             $chlGroup('chls/item').forEach((chlItem) => {
                                 chlsData.push({
-                                    id: chlItem.attr('id')!,
-                                    winindex: Number(chlItem.text()),
+                                    id: chlItem.attr('id'),
+                                    winindex: chlItem.text().num(),
                                 })
                             })
                             subOutputDwellData.value[outIndex].chlGroups.push({
@@ -870,9 +870,9 @@ export default defineComponent({
         const getSystemWorkMode = async () => {
             const result = await querySystemWorkMode()
             const $ = queryXml(result)
-            const supportAI = $('//content/supportAI').text().toBoolean()
+            const supportAI = $('//content/supportAI').text().bool()
             const is3535A = $('//content/openSubOutput').length > 0
-            const openSubOutput = $('//content/openSubOutput').text().toBoolean()
+            const openSubOutput = $('//content/openSubOutput').text().bool()
             // 只有3535A且支持AI的机型才会有辅输出开关
             if (supportAI && is3535A) {
                 pageData.value.isConfigSwitch = true

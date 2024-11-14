@@ -45,7 +45,7 @@ export default defineComponent({
             const supportPOS = systemCaps.supportPOS
             const netStatusContentNicPoe = $('//content/nic').attr('poe')
             const poeCount = netStatusContentNicPoe ? 1 : 0
-            const ipGroupSwitch = $('//content/ipGroup/switch').text().toBoolean()
+            const ipGroupSwitch = $('//content/ipGroup/switch').text().bool()
             const toleranceAndPoe = ipGroupSwitch && netStatusContentNicPoe // 3535A:即支持网络容错又存在poe网卡
 
             if (ipGroupSwitch) {
@@ -355,7 +355,7 @@ export default defineComponent({
             array.push({
                 i: 0,
                 k: Translate('IDCS_NAT_STATUS'),
-                v: $('//content/natStatus').text().toBoolean() ? Translate('IDCS_ENABLE') : Translate('IDCS_DISABLE'),
+                v: $('//content/natStatus').text().bool() ? Translate('IDCS_ENABLE') : Translate('IDCS_DISABLE'),
             })
             if ($('//content/reportStatus').text()) {
                 array.push({

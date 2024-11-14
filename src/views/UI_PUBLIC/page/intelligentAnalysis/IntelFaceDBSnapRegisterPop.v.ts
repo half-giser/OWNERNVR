@@ -174,7 +174,7 @@ export default defineComponent({
                     close()
                 })
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_WALL_HAVEDECODER:

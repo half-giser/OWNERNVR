@@ -95,7 +95,7 @@ export const OCX_XML_GetLangNode = () => {
  */
 export const OCX_XML_Initial = (model: string, notifyFunName: string, viewType: string, screenNum?: number) => {
     return wrapXml(rawXml`<cmd type="Initial">
-            ${viewType == TIMESLIDER_PLUGIN ? `<cmd type="Initial" target="dateCtrl">` : viewType ? `<viewType>${viewType}</viewType>` : ''}
+            ${viewType === TIMESLIDER_PLUGIN ? `<cmd type="Initial" target="dateCtrl">` : viewType ? `<viewType>${viewType}</viewType>` : ''}
             ${model ? `<setModel>${model}</setModel>` : ''}
             <setLang></setLang>
             ${notifyFunName ? `<NotifyFunName>${notifyFunName}</NotifyFunName>` : ''}
@@ -116,7 +116,7 @@ export const OCX_XML_Initial = (model: string, notifyFunName: string, viewType: 
 export const OCX_XML_Initial_P2P = (model?: string, notifyFunName?: string, viewType?: string, screenNum?: number) => {
     const p2pVersion = useUserSessionStore().p2pVersion
     return wrapXml(rawXml`
-        ${viewType == TIMESLIDER_PLUGIN ? '<cmd type="Initial" target="dateCtrl">' : '<cmd type="Initial">' + viewType ? `<viewType>${viewType}</viewType>` : ''}
+        ${viewType === TIMESLIDER_PLUGIN ? '<cmd type="Initial" target="dateCtrl">' : '<cmd type="Initial">' + viewType ? `<viewType>${viewType}</viewType>` : ''}
             ${model ? `<setModel>${model}</setModel>` : ''}
             <natSvc>
                 ${p2pVersion === '1.0' ? `<item ver="${p2pVersion}" ip="${natIp}" port="${natPort}" />` : `<item ver="${p2pVersion}" ip="${natIp_2_0}" port="${natPort_2_0}" />`}
@@ -137,7 +137,7 @@ export const OCX_XML_Initial_P2P = (model?: string, notifyFunName?: string, view
  */
 export const OCX_XML_SetPluginModel = (model?: string, viewType?: string) => {
     return wrapXml(rawXml`
-        ${(viewType == TIMESLIDER_PLUGIN ? '<cmd type="SetPluginModel" target="dateCtrl">' : '<cmd type="SetPluginModel">') + (viewType ? `<viewType>${viewType}</viewType>` : '')}
+        ${(viewType === TIMESLIDER_PLUGIN ? '<cmd type="SetPluginModel" target="dateCtrl">' : '<cmd type="SetPluginModel">') + (viewType ? `<viewType>${viewType}</viewType>` : '')}
             ${model ? `<setModel>${model}</setModel>` : ''}
         </cmd>
     `)
@@ -197,7 +197,7 @@ export const OCX_XML_DisplayPlugin = (isShow: boolean) => {
  */
 export const OCX_XML_SetProperty = (properties: Record<string, string | Boolean>, viewType?: string) => {
     return wrapXml(rawXml`
-        ${(viewType == TIMESLIDER_PLUGIN ? '<cmd type="SetProperty" target="dateCtrl">' : '<cmd type="SetProperty">') + (viewType ? `<viewType>${viewType}</viewType>` : '')}
+        ${(viewType === TIMESLIDER_PLUGIN ? '<cmd type="SetProperty" target="dateCtrl">' : '<cmd type="SetProperty">') + (viewType ? `<viewType>${viewType}</viewType>` : '')}
             ${Object.entries(properties)
                 .map(([key, item]) => `<${key}>${item}</${key}>`)
                 .join('')}
@@ -232,7 +232,7 @@ export const OCX_XML_SetPropertyOSD = (nameSwitch: boolean, iconSwitch: boolean,
  */
 export const OCX_XML_SetModeTwo = (properties: Record<string, string | Boolean>, viewType: string) => {
     return wrapXml(rawXml`
-        ${viewType == TIMESLIDER_PLUGIN ? '<cmd type="SetNewProperty" target="dateCtrl">' : '<cmd type="SetNewProperty">' + viewType ? `<viewType>${viewType}</viewType>` : ''}
+        ${viewType === TIMESLIDER_PLUGIN ? '<cmd type="SetNewProperty" target="dateCtrl">' : '<cmd type="SetNewProperty">' + viewType ? `<viewType>${viewType}</viewType>` : ''}
             ${Object.entries(properties)
                 .map(([key, item]) => `<${key}>${item}</${key}>`)
                 .join('')}
@@ -1888,7 +1888,7 @@ export const OCX_XML_SetAllArea = (
         ${maxMinXml ?? ''}
     `
 
-    if (areaType == 'IrregularPolygon') {
+    if (areaType === 'IrregularPolygon') {
         // const detectAreaInfo = areaInfo.detectAreaInfo?.flat() || []
         const detectAreaInfo = areaInfo.detectAreaInfo || []
         // const maskAreaInfo = areaInfo.maskAreaInfo?.flat() || []
@@ -1898,27 +1898,27 @@ export const OCX_XML_SetAllArea = (
             ${cmd}
             ${detectAreaInfo
                 .map((item) =>
-                    item.length > 0
+                    item.length
                         ? rawXml`
-                        <points>
-                            ${item.map((point) => `<item X="${point.X}" Y="${point.Y}" />`).join('')}
-                            <Area>${++index}</Area>
-                            <LineColor>green</LineColor>
-                        </points>
-                `
+                            <points>
+                                ${item.map((point) => `<item X="${point.X}" Y="${point.Y}" />`).join('')}
+                                <Area>${++index}</Area>
+                                <LineColor>green</LineColor>
+                            </points>
+                    `
                         : '',
                 )
                 .join('')}
             ${maskAreaInfo
                 .map((item) =>
-                    item.length > 0
+                    item.length
                         ? rawXml`
-                        <points>
-                            ${item.map((point) => `<item X="${point.X}" Y="${point.Y}" />`).join('')}
-                            <Area>${++index}</Area>
-                            <LineColor>red</LineColor>
-                        </points>
-                `
+                            <points>
+                                ${item.map((point) => `<item X="${point.X}" Y="${point.Y}" />`).join('')}
+                                <Area>${++index}</Area>
+                                <LineColor>red</LineColor>
+                            </points>
+                    `
                         : '',
                 )
                 .join('')}
@@ -1946,7 +1946,7 @@ export const OCX_XML_SetAllArea = (
                 .join('')}
             </cmd>
         `)
-    } else if (areaType == 'WarningLine') {
+    } else if (areaType === 'WarningLine') {
         // 绘制警戒线
         const directionType = {
             none: 'NONE',
@@ -2033,14 +2033,14 @@ export const parseStreamUrl = (url: string) => {
         result.devIp = urlParts[1]
         result.devPort = urlParts[2]
         let param = urlParts[3]
-        while (param[param.length - 1] == '/') {
+        while (param[param.length - 1] === '/') {
             param = param.substr(0, param.length - 1)
         }
         const paramArr = param.split('&')
         let paramItem
         for (let i = 0; i < paramArr.length; i++) {
             paramItem = paramArr[i].split('=')
-            if (paramItem[0] == 'chlName') {
+            if (paramItem[0] === 'chlName') {
                 result[paramItem[0]] = decodeURIComponent(paramItem[1])
             } else {
                 result[paramItem[0]] = paramItem[1]

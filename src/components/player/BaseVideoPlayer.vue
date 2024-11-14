@@ -634,7 +634,7 @@ const handleDrop = (newWinIndex: number) => {
     isDrag = false
     if (newWinIndex === oldDragIndex) return
     // 开启通道组轮询后，拖拽涉及轮询的窗口则拖拽失效
-    if (pollIndex.length > 0) {
+    if (pollIndex.length) {
         if (pollIndex.indexOf(oldDragIndex) > -1 || pollIndex.indexOf(newWinIndex) > -1) return
     }
 
@@ -1458,7 +1458,7 @@ const toggleVideoLossLogo = (winIndex: number, bool: boolean, tips?: string) => 
  * @description 设置当前轮询播放通道组的窗口
  */
 const setPollIndex = (winIndex: number) => {
-    if (pollIndex.indexOf(winIndex) == -1) {
+    if (pollIndex.indexOf(winIndex) === -1) {
         pollIndex.push(winIndex)
     }
 }
@@ -1519,7 +1519,7 @@ const get3DParam = (winIndex: number, rectWrap: Get3DParamRectParam) => {
     dy = (dy * 1000) / (realHeight / 2)
 
     let zoom = 1
-    if (rectWrap.startX != rectWrap.endX || rectWrap.startY != rectWrap.endY) {
+    if (rectWrap.startX !== rectWrap.endX || rectWrap.startY !== rectWrap.endY) {
         if ((drawWidth * 10) / rectWrap.width > (drawHeight * 10) / rectWrap.height) {
             zoom = drawHeight / rectWrap.height > 10 ? 10 * 10 : (drawHeight * 10) / rectWrap.height
         } else {

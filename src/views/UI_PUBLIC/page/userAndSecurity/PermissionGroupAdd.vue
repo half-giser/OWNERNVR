@@ -23,7 +23,6 @@
                     v-model.trim="formData.name"
                     :formatter="formatInputMaxLength"
                     :parser="formatInputMaxLength"
-                    :maxlength="nameByteMaxLen"
                 />
             </el-form-item>
         </el-form>

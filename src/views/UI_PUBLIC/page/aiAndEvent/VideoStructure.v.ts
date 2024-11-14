@@ -7,7 +7,7 @@ import { AlarmVideoStructureDto, type AlarmChlDto } from '@/types/apiType/aiAndE
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import CanvasPolygon from '@/utils/canvas/canvasPolygon'
 import { type CheckboxValueType, type TabPaneName } from 'element-plus'
-import { type XmlResult } from '@/utils/xmlParse'
+import { type XMLQuery } from '@/utils/xmlParse'
 export default defineComponent({
     components: {
         ScheduleManagPop,
@@ -135,13 +135,34 @@ export default defineComponent({
             // 重置模式列表
             countCycleTypeList: [] as SelectOption<string, string>[],
             weekOption: [
-                { value: '0', label: Translate('IDCS_WEEK_DAY_SEVEN') },
-                { value: '1', label: Translate('IDCS_WEEK_DAY_ONE') },
-                { value: '2', label: Translate('IDCS_WEEK_DAY_TWO') },
-                { value: '3', label: Translate('IDCS_WEEK_DAY_THREE') },
-                { value: '4', label: Translate('IDCS_WEEK_DAY_FOUR') },
-                { value: '5', label: Translate('IDCS_WEEK_DAY_FIVE') },
-                { value: '6', label: Translate('IDCS_WEEK_DAY_SIX') },
+                {
+                    value: '0',
+                    label: Translate('IDCS_WEEK_DAY_SEVEN'),
+                },
+                {
+                    value: '1',
+                    label: Translate('IDCS_WEEK_DAY_ONE'),
+                },
+                {
+                    value: '2',
+                    label: Translate('IDCS_WEEK_DAY_TWO'),
+                },
+                {
+                    value: '3',
+                    label: Translate('IDCS_WEEK_DAY_THREE'),
+                },
+                {
+                    value: '4',
+                    label: Translate('IDCS_WEEK_DAY_FOUR'),
+                },
+                {
+                    value: '5',
+                    label: Translate('IDCS_WEEK_DAY_FIVE'),
+                },
+                {
+                    value: '6',
+                    label: Translate('IDCS_WEEK_DAY_SIX'),
+                },
             ],
             monthOption: [] as SelectOption<string, string>[],
 
@@ -206,7 +227,7 @@ export default defineComponent({
                     pluginStore.showPluginNoResponse = true
                     plugin.ShowPluginNoResponse()
                 }
-                const sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'OscConfig' : 'ReadOnly', 'Live')
+                const sendXML = OCX_XML_SetPluginModel(osType === 'mac' ? 'OscConfig' : 'ReadOnly', 'Live')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
         }
@@ -217,9 +238,9 @@ export default defineComponent({
             osdInfo: { X: number; Y: number; osdFormat: string } | undefined,
         ) => {
             // 检测区域/屏蔽区域
-            if (currAreaType == 'detectionArea') {
+            if (currAreaType === 'detectionArea') {
                 vsdData.value.detectAreaInfo[pageData.value.detectArea] = area as { X: number; Y: number; isClosed: boolean }[]
-            } else if (currAreaType == 'maskArea') {
+            } else if (currAreaType === 'maskArea') {
                 vsdData.value.maskAreaInfo[pageData.value.maskArea] = area as { X: number; Y: number; isClosed: boolean }[]
             }
 
@@ -232,9 +253,9 @@ export default defineComponent({
 
         const vsdClosePath = (area: { X: number; Y: number; isClosed?: boolean }[]) => {
             area.forEach((item) => (item.isClosed = true))
-            if (currAreaType == 'detectionArea') {
+            if (currAreaType === 'detectionArea') {
                 vsdData.value.detectAreaInfo[pageData.value.detectArea] = area as { X: number; Y: number; isClosed: boolean }[]
-            } else if (currAreaType == 'maskArea') {
+            } else if (currAreaType === 'maskArea') {
                 vsdData.value.maskAreaInfo[pageData.value.maskArea] = area as { X: number; Y: number; isClosed: boolean }[]
             }
         }
@@ -253,9 +274,9 @@ export default defineComponent({
                 type: 'question',
                 message: Translate('IDCS_DRAW_CLEAR_TIP'),
             }).then(() => {
-                if (currAreaType == 'detectionArea') {
+                if (currAreaType === 'detectionArea') {
                     vsdData.value.detectAreaInfo[pageData.value.detectArea] = []
-                } else if (currAreaType == 'maskArea') {
+                } else if (currAreaType === 'maskArea') {
                     vsdData.value.maskAreaInfo[pageData.value.maskArea] = []
                 }
 
@@ -280,17 +301,17 @@ export default defineComponent({
                     streamType: 2,
                 })
             } else if (mode.value === 'ocx') {
-                if (osType == 'mac') {
-                    const sendXML = OCX_XML_Preview({
-                        winIndexList: [0],
-                        chlIdList: [chlData.id],
-                        chlNameList: [chlData.name],
-                        streamType: 'sub',
-                        // chl没有index属性
-                        chlIndexList: ['0'],
-                        chlTypeList: [chlData.chlType],
-                    })
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                if (osType === 'mac') {
+                    // const sendXML = OCX_XML_Preview({
+                    //     winIndexList: [0],
+                    //     chlIdList: [chlData.id],
+                    //     chlNameList: [chlData.name],
+                    //     streamType: 'sub',
+                    //     // chl没有index属性
+                    //     chlIndexList: ['0'],
+                    //     chlTypeList: [chlData.chlType],
+                    // })
+                    // plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 } else {
                     plugin.RetryStartChlView(prop.currChlId, chlData.name)
                 }
@@ -319,7 +340,7 @@ export default defineComponent({
             commLoadResponseHandler(result, async ($) => {
                 const param = $('//content/chl/param')
                 const $param = queryXml(param[0].element)
-                const enabledSwitch = $param('switch').text() == 'true'
+                const enabledSwitch = $param('switch').text().bool()
                 // 识别模式选项
                 pageData.value.algoModelList = $('//types/algoChkType/enum').map((item) => {
                     return {
@@ -335,8 +356,8 @@ export default defineComponent({
                     $item('point/item').forEach((ele) => {
                         const $ele = queryXml(ele.element)
                         const detectArea = {
-                            X: Number($ele('X').text()),
-                            Y: Number($ele('Y').text()),
+                            X: $ele('X').text().num(),
+                            Y: $ele('Y').text().num(),
                             isClosed: true,
                         }
                         detectAreaInfo[index].push(detectArea)
@@ -350,8 +371,8 @@ export default defineComponent({
                     $item('point/item').forEach((ele) => {
                         const $ele = queryXml(ele.element)
                         const maskArea = {
-                            X: Number($ele('X').text()),
-                            Y: Number($ele('Y').text()),
+                            X: $ele('X').text().num(),
+                            Y: $ele('Y').text().num(),
                             isClosed: true,
                         }
                         maskAreaInfo[index].push(maskArea)
@@ -359,7 +380,10 @@ export default defineComponent({
                 })
                 const mutexList = $('mutexList/item').map((item) => {
                     const $item = queryXml(item.element)
-                    return { object: $item('object').text(), status: $item('status').text() == 'true' }
+                    return {
+                        object: $item('object').text(),
+                        status: $item('status').text().bool(),
+                    }
                 })
                 // 重置信息（循环模式列表）
                 $('//types/countCycleType/enum').forEach((item) => {
@@ -372,9 +396,9 @@ export default defineComponent({
                 })
                 // OSD
                 const countOSD = {
-                    switch: $param('countOSD/switch').text() == 'true',
-                    X: Number($param('countOSD/X').text()),
-                    Y: Number($param('countOSD/Y').text()),
+                    switch: $param('countOSD/switch').text().bool(),
+                    X: $param('countOSD/X').text().num(),
+                    Y: $param('countOSD/Y').text().num(),
                     osdPersonName: $param('countOSD/osdPersonName').text(),
                     osdCarName: $param('countOSD/osdCarName').text(),
                     osdBikeName: $param('countOSD/osdBikeName').text(),
@@ -401,7 +425,7 @@ export default defineComponent({
                 const osdPersonCfgList = [] as { index: string; value: string; tagName: string }[]
                 $param('osdConfig/personcfg/*[@index]').forEach((item) => {
                     const tagName = item.element.tagName
-                    if (tagName != 'shoulderbagSwitch' && tagName != 'modelyearSwitch' && tagName != 'modelSwitch') {
+                    if (tagName !== 'shoulderbagSwitch' && tagName !== 'modelyearSwitch' && tagName !== 'modelSwitch') {
                         osdPersonCfgList.push({
                             index: item.attr('index')!,
                             value: item.text(),
@@ -413,7 +437,7 @@ export default defineComponent({
                 const osdCarCfgList = [] as { index: string; value: string; tagName: string }[]
                 $param('osdConfig/carcfg/*[@index]').forEach((item) => {
                     const tagName = item.element.tagName
-                    if (tagName != 'shoulderbagSwitch' && tagName != 'modelyearSwitch' && tagName != 'modelSwitch') {
+                    if (tagName !== 'shoulderbagSwitch' && tagName !== 'modelyearSwitch' && tagName !== 'modelSwitch') {
                         osdCarCfgList.push({
                             index: item.attr('index')!,
                             value: item.text(),
@@ -425,7 +449,7 @@ export default defineComponent({
                 const osdBikeCfgList = [] as { index: string; value: string; tagName: string }[]
                 $param('osdConfig/bikecfg/*[@index]').forEach((item) => {
                     const tagName = item.element.tagName
-                    if (tagName != 'shoulderbagSwitch' && tagName != 'modelyearSwitch' && tagName != 'modelSwitch') {
+                    if (tagName !== 'shoulderbagSwitch' && tagName !== 'modelyearSwitch' && tagName !== 'modelSwitch') {
                         osdBikeCfgList.push({
                             index: item.attr('index')!,
                             value: item.text(),
@@ -441,9 +465,9 @@ export default defineComponent({
                     saveSourcePicture: $param('saveSourcePicture').text(),
                     saveTargetPicture: $param('saveTargetPicture').text(),
                     algoChkModel: $param('algoModel/algoChkModel').text(),
-                    intervalCheck: Number($param('algoModel/intervalCheck').text()),
-                    intervalCheckMin: Number($param('algoModel/intervalCheck').attr('min')),
-                    intervalCheckMax: Number($param('algoModel/intervalCheck').attr('max')),
+                    intervalCheck: $param('algoModel/intervalCheck').text().num(),
+                    intervalCheckMin: $param('algoModel/intervalCheck').attr('min').num(),
+                    intervalCheckMax: $param('algoModel/intervalCheck').attr('max').num(),
                     detectAreaInfo,
                     maskAreaInfo,
                     mutexList,
@@ -464,12 +488,12 @@ export default defineComponent({
                         },
                     },
                     objectFilter: {
-                        car: $param('objectFilter/car/switch').text() == 'true',
-                        person: $param('objectFilter/person/switch').text() == 'true',
-                        motorcycle: $param('objectFilter/motor/switch').text() == 'true',
-                        carSensitivity: Number($param('objectFilter/car/sensitivity').text()),
-                        personSensitivity: Number($param('objectFilter/person/sensitivity').text()),
-                        motorSensitivity: Number($param('objectFilter/motor/sensitivity').text()),
+                        car: $param('objectFilter/car/switch').text().bool(),
+                        person: $param('objectFilter/person/switch').text().bool(),
+                        motorcycle: $param('objectFilter/motor/switch').text().bool(),
+                        carSensitivity: $param('objectFilter/car/sensitivity').text().num(),
+                        personSensitivity: $param('objectFilter/person/sensitivity').text().num(),
+                        motorSensitivity: $param('objectFilter/motor/sensitivity').text().num(),
                     },
                     osdType: $param('osdConfig/osdType').text(),
                     osdPersonCfgList,
@@ -487,15 +511,15 @@ export default defineComponent({
             // 这里saveSourcePicture为字符串，"false"判断为真
             if (vsdData.value.saveSourcePicture) {
                 // 将存储原图/目标图是否选中给到pagedata与元素绑定
-                pageData.value.isSaveSourcePicChecked = vsdData.value.saveSourcePicture == 'true'
-                pageData.value.isSaveTargetPicChecked = vsdData.value.saveTargetPicture == 'true'
+                pageData.value.isSaveSourcePicChecked = vsdData.value.saveSourcePicture.bool()
+                pageData.value.isSaveTargetPicChecked = vsdData.value.saveTargetPicture.bool()
                 pageData.value.isSavePicDisabled = false
             } else {
                 pageData.value.isSavePicDisabled = true
             }
 
             // 识别模式
-            if (vsdData.value.algoChkModel && vsdData.value.algoChkModel == 'inter_model') {
+            if (vsdData.value.algoChkModel && vsdData.value.algoChkModel === 'inter_model') {
                 pageData.value.algoHoldTimeShow = true
             } else {
                 pageData.value.algoHoldTimeShow = false
@@ -510,17 +534,17 @@ export default defineComponent({
             // 重置信息
             pageData.value.autoReset = vsdData.value.countPeriod.countTimeType !== 'off'
             // 图片叠加(OSD)
-            if (vsdData.value.osdType == 'person') {
+            if (vsdData.value.osdType === 'person') {
                 // OSD-人
                 getOsdCfgHtml(vsdData.value.osdPersonCfgList)
                 judgeCheckAll(vsdData.value.osdPersonCfgList)
                 getOsdShowListHtml(vsdData.value.osdPersonCfgList)
-            } else if (vsdData.value.osdType == 'vehicle') {
+            } else if (vsdData.value.osdType === 'vehicle') {
                 // OSD-汽车
                 getOsdCfgHtml(vsdData.value.osdCarCfgList)
                 judgeCheckAll(vsdData.value.osdCarCfgList)
                 getOsdShowListHtml(vsdData.value.osdCarCfgList)
-            } else if (vsdData.value.osdType == 'bike') {
+            } else if (vsdData.value.osdType === 'bike') {
                 // OSD-摩托车
                 getOsdCfgHtml(vsdData.value.osdBikeCfgList)
                 judgeCheckAll(vsdData.value.osdBikeCfgList)
@@ -557,13 +581,13 @@ export default defineComponent({
                 vsdData.value.countOSD.osdFormat = (osdPersonName ? osdPersonName + '-# ' : '') + (osdCarName ? osdCarName + '-# ' : '') + (osdBikeName ? osdBikeName + '-# ' : '')
             }
 
-            if (pageData.value.tab == 'param') {
+            if (pageData.value.tab === 'param') {
                 setEnableOSD()
             }
         }
 
         const tabChange = (name: TabPaneName) => {
-            if (name == 'param') {
+            if (name === 'param') {
                 setAreaView(currAreaType)
                 if (mode.value === 'h5') {
                     vsdDrawer.setEnable(true)
@@ -583,7 +607,7 @@ export default defineComponent({
                 if (pageData.value.isShowAllArea) {
                     showAllArea(true)
                 }
-            } else if (name == 'detection') {
+            } else if (name === 'detection') {
                 if (mode.value === 'h5') {
                     vsdDrawer.clear()
                     vsdDrawer.setEnable(false)
@@ -601,7 +625,7 @@ export default defineComponent({
                     }, 100)
                 }
                 showAllArea(false)
-            } else if (name == 'image') {
+            } else if (name === 'image') {
                 if (mode.value === 'h5') {
                     vsdDrawer.clear()
                     vsdDrawer.setEnable(false)
@@ -630,9 +654,9 @@ export default defineComponent({
                 const maskAreaInfo = vsdData.value.maskAreaInfo
                 if (mode.value === 'h5') {
                     let index = -1
-                    if (currAreaType == 'detectionArea') {
+                    if (currAreaType === 'detectionArea') {
                         index = pageData.value.detectArea
-                    } else if (currAreaType == 'maskArea') {
+                    } else if (currAreaType === 'maskArea') {
                         index = pageData.value.maskArea
                     }
                     vsdDrawer.setCurrAreaIndex(index, currAreaType)
@@ -644,12 +668,12 @@ export default defineComponent({
                     }, 100)
                 }
             } else {
-                if (mode.value != 'h5') {
+                if (mode.value !== 'h5') {
                     const sendXML = OCX_XML_SetAllArea({ detectAreaInfo: [], maskAreaInfo: [] }, 'IrregularPolygon', 'TYPE_VSD', '', false)
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML!)
                 }
 
-                if (pageData.value.tab == 'param') {
+                if (pageData.value.tab === 'param') {
                     changeArea()
                 }
             }
@@ -657,9 +681,9 @@ export default defineComponent({
 
         // 清空
         const clearArea = () => {
-            if (currAreaType == 'detectionArea') {
+            if (currAreaType === 'detectionArea') {
                 vsdData.value.detectAreaInfo[pageData.value.detectArea] = []
-            } else if (currAreaType == 'maskArea') {
+            } else if (currAreaType === 'maskArea') {
                 vsdData.value.maskAreaInfo[pageData.value.maskArea] = []
             }
 
@@ -692,6 +716,7 @@ export default defineComponent({
                 // Plugin.GetVideoPlugin().ExecuteCmd(sendXML, sendXML.length);
                 const sendXML1 = OCX_XML_SetAllArea({ detectAreaInfo: [], maskAreaInfo: [] }, 'IrregularPolygon', 'TYPE_VSD', '', pageData.value.isShowAllArea)
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML1!)
+
                 const sendXML2 = OCX_XML_SetVsdAreaAction('NONE')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML2)
             }
@@ -718,10 +743,10 @@ export default defineComponent({
             // 切换另一个区域前先封闭其他可闭合的区域（“area”）
             setOtherAreaClosed()
             // 检测区域/屏蔽区域
-            if (currAreaType == 'detectionArea') {
+            if (currAreaType === 'detectionArea') {
                 vsdDrawer && vsdDrawer.setLineStyle('#00ff00', 1.5)
                 setAreaView('detectionArea')
-            } else if (currAreaType == 'maskArea') {
+            } else if (currAreaType === 'maskArea') {
                 vsdDrawer && vsdDrawer.setLineStyle('#d9001b', 1.5)
                 setAreaView('maskArea')
             }
@@ -729,7 +754,7 @@ export default defineComponent({
 
         // 设置区域图形
         const setAreaView = (type: string) => {
-            if (type == 'detectionArea') {
+            if (type === 'detectionArea') {
                 const index = pageData.value.detectArea
                 if (vsdData.value.detectAreaInfo[index]) {
                     if (mode.value === 'h5') {
@@ -744,7 +769,7 @@ export default defineComponent({
                         }, 100)
                     }
                 }
-            } else if (type == 'maskArea') {
+            } else if (type === 'maskArea') {
                 const index = pageData.value.maskArea
                 if (vsdData.value.maskAreaInfo[index]) {
                     if (mode.value === 'h5') {
@@ -759,7 +784,7 @@ export default defineComponent({
                 }
             }
 
-            if (pageData.value.tab == 'param' && pageData.value.isShowAllArea) {
+            if (pageData.value.tab === 'param' && pageData.value.isShowAllArea) {
                 showAllArea(true)
             }
         }
@@ -767,7 +792,7 @@ export default defineComponent({
         // 设置OSD
         const setEnableOSD = () => {
             const enable = vsdData.value.countOSD.switch
-            if (mode.value != 'h5') {
+            if (mode.value !== 'h5') {
                 // 需要插件提供专门在画点多边形情况下显示OSD的插件命令
                 const sendXML = OCX_XML_SetVsdAreaInfo(vsdData.value.countOSD, 'vsd')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
@@ -786,7 +811,7 @@ export default defineComponent({
 
         // 闭合其他区域
         const setOtherAreaClosed = () => {
-            if (mode.value == 'h5') {
+            if (mode.value === 'h5') {
                 // 画点-区域
                 const boundaryInfoList = []
                 const detectAreaInfo = vsdData.value.detectAreaInfo
@@ -822,7 +847,7 @@ export default defineComponent({
 
         // 识别模式
         const algoModelChange = (value: string) => {
-            if (value == 'inter_model') {
+            if (value === 'inter_model') {
                 pageData.value.algoHoldTimeShow = true
             } else {
                 pageData.value.algoHoldTimeShow = false
@@ -878,17 +903,17 @@ export default defineComponent({
 
         // 图片叠加
         const osdTypeChange = (value: string) => {
-            if (value == 'person') {
+            if (value === 'person') {
                 // OSD-人
                 getOsdCfgHtml(vsdData.value.osdPersonCfgList)
                 judgeCheckAll(vsdData.value.osdPersonCfgList)
                 getOsdShowListHtml(vsdData.value.osdPersonCfgList)
-            } else if (value == 'vehicle') {
+            } else if (value === 'vehicle') {
                 // OSD-汽车
                 getOsdCfgHtml(vsdData.value.osdCarCfgList)
                 judgeCheckAll(vsdData.value.osdCarCfgList)
                 getOsdShowListHtml(vsdData.value.osdCarCfgList)
-            } else if (value == 'bike') {
+            } else if (value === 'bike') {
                 // OSD-摩托车
                 getOsdCfgHtml(vsdData.value.osdBikeCfgList)
                 judgeCheckAll(vsdData.value.osdBikeCfgList)
@@ -897,21 +922,21 @@ export default defineComponent({
         }
 
         const osdCfgCheckListChange = (value: CheckboxValueType[]) => {
-            if (vsdData.value.osdType == 'person') {
+            if (vsdData.value.osdType === 'person') {
                 // OSD-人
                 vsdData.value.osdPersonCfgList.forEach((item) => {
                     item.value = value.includes(item.index) ? 'true' : 'false'
                 })
                 judgeCheckAll(vsdData.value.osdPersonCfgList)
                 getOsdShowListHtml(vsdData.value.osdPersonCfgList)
-            } else if (vsdData.value.osdType == 'vehicle') {
+            } else if (vsdData.value.osdType === 'vehicle') {
                 // OSD-汽车
                 vsdData.value.osdCarCfgList.forEach((item) => {
                     item.value = value.includes(item.index) ? 'true' : 'false'
                 })
                 judgeCheckAll(vsdData.value.osdCarCfgList)
                 getOsdShowListHtml(vsdData.value.osdCarCfgList)
-            } else if (vsdData.value.osdType == 'bike') {
+            } else if (vsdData.value.osdType === 'bike') {
                 // OSD-摩托车
                 vsdData.value.osdBikeCfgList.forEach((item) => {
                     item.value = value.includes(item.index) ? 'true' : 'false'
@@ -930,7 +955,7 @@ export default defineComponent({
                     value: item.index,
                     label: osdListTagNameMap[item.tagName],
                 })
-                if (item.value == 'true') {
+                if (item.value === 'true') {
                     osdCfgCheckedList.value.push(item.index)
                 }
             })
@@ -938,13 +963,13 @@ export default defineComponent({
 
         // 判断是否全选
         const judgeCheckAll = (list: { index: string; value: string; tagName: string }[]) => {
-            pageData.value.osdCheckAll = osdCfgCheckedList.value.length == list.length
+            pageData.value.osdCheckAll = osdCfgCheckedList.value.length === list.length
         }
 
         const getOsdShowListHtml = (list: { index: string; value: string; tagName: string }[]) => {
             pageData.value.osdShowList = []
             list.forEach((item) => {
-                if (item.value == 'true') {
+                if (item.value === 'true') {
                     pageData.value.osdShowList.push(osdListTagNameMap[item.tagName])
                 }
             })
@@ -953,7 +978,7 @@ export default defineComponent({
         // 全选
         const checkAllOsdType = (value: CheckboxValueType) => {
             osdCfgCheckedList.value = []
-            if (vsdData.value.osdType == 'person') {
+            if (vsdData.value.osdType === 'person') {
                 // OSD-人
                 vsdData.value.osdPersonCfgList.forEach((item) => {
                     item.value = value ? 'true' : 'false'
@@ -962,7 +987,7 @@ export default defineComponent({
                     }
                 })
                 getOsdShowListHtml(vsdData.value.osdPersonCfgList)
-            } else if (vsdData.value.osdType == 'vehicle') {
+            } else if (vsdData.value.osdType === 'vehicle') {
                 // OSD-汽车
                 vsdData.value.osdCarCfgList.forEach((item) => {
                     item.value = value ? 'true' : 'false'
@@ -971,7 +996,7 @@ export default defineComponent({
                     }
                 })
                 getOsdShowListHtml(vsdData.value.osdCarCfgList)
-            } else if (vsdData.value.osdType == 'bike') {
+            } else if (vsdData.value.osdType === 'bike') {
                 // OSD-摩托车
                 vsdData.value.osdBikeCfgList.forEach((item) => {
                     item.value = value ? 'true' : 'false'
@@ -1105,7 +1130,7 @@ export default defineComponent({
                                     <sensitivity>${vsdData.value.objectFilter.personSensitivity}</sensitivity>
                                 </person>
                                 ${
-                                    prop.chlData.accessType == '0'
+                                    prop.chlData.accessType === '0'
                                         ? rawXml`
                                             <motor>
                                                 <switch>${vsdData.value.objectFilter.motorcycle}</switch>
@@ -1183,15 +1208,15 @@ export default defineComponent({
             const result = await editOsc(sendXml)
             closeLoading()
             const $ = queryXml(result)
-            if ($('//status').text() == 'success') {
+            if ($('//status').text() === 'success') {
                 if (vsdData.value.enabledSwitch) {
                     vsdData.value.originalSwitch = true
                 }
 
                 // 保存成功后刷新视频区域，四个点时区域没有闭合但保存后也可以闭合（四点已经可以画面）
-                if (currAreaType == 'detectionArea') {
+                if (currAreaType === 'detectionArea') {
                     setAreaView('detectionArea')
-                } else if (currAreaType == 'maskArea') {
+                } else if (currAreaType === 'maskArea') {
                     setAreaView('maskArea')
                 }
                 refreshInitPage()
@@ -1203,7 +1228,7 @@ export default defineComponent({
             if (!verification()) return
             let isSwitchChange = false
             const switchChangeTypeArr: string[] = []
-            if (vsdData.value.enabledSwitch && vsdData.value.enabledSwitch != vsdData.value.originalSwitch) {
+            if (vsdData.value.enabledSwitch && vsdData.value.enabledSwitch !== vsdData.value.originalSwitch) {
                 isSwitchChange = true
             }
             vsdData.value.mutexList?.forEach((item) => {
@@ -1224,43 +1249,43 @@ export default defineComponent({
             }
         }
 
-        const LiveNotify2Js = ($: (path: string) => XmlResult) => {
+        const LiveNotify2Js = ($: XMLQuery) => {
             // 侦测区域/屏蔽区域
-            // const $xmlPea = $("statenotify[@type='PeaArea']")
-            const points = $("statenotify[@type='PeaArea']/points")
-            const errorCode = $("statenotify[@type='PeaArea']/errorCode").text()
-            // 绘制点线
-            if (points.length > 0) {
-                const point = [] as { X: number; Y: number }[]
-                const $points = queryXml(points[0].element)
-                $points('item').forEach((item) => {
-                    point.push({ X: Number(item.attr('X')), Y: Number(item.attr('Y')) })
-                })
-                if (currAreaType == 'detectionArea') {
-                    vsdData.value.detectAreaInfo[pageData.value.detectArea] = point as { X: number; Y: number; isClosed: boolean }[]
-                } else if (currAreaType == 'maskArea') {
-                    vsdData.value.maskAreaInfo[pageData.value.maskArea] = point as { X: number; Y: number; isClosed: boolean }[]
+            if ($("statenotify[@type='PeaArea']").length) {
+                // 绘制点线
+                if ($('statenotify/points').length > 0) {
+                    const point = $('statenotify/points/item').map((item) => {
+                        return {
+                            X: item.attr('X').num(),
+                            Y: item.attr('Y').num(),
+                        }
+                    })
+                    if (currAreaType === 'detectionArea') {
+                        vsdData.value.detectAreaInfo[pageData.value.detectArea] = point as { X: number; Y: number; isClosed: boolean }[]
+                    } else if (currAreaType === 'maskArea') {
+                        vsdData.value.maskAreaInfo[pageData.value.maskArea] = point as { X: number; Y: number; isClosed: boolean }[]
+                    }
+                }
+
+                const errorCode = $('statenotify/errorCode').text().num()
+                // 处理错误码
+                if (errorCode === 517) {
+                    // 517-区域已闭合
+                    vsdClearCurrentArea()
+                } else if (errorCode === 515) {
+                    // 515-区域有相交直线，不可闭合
+                    openMessageBox({
+                        type: 'info',
+                        message: Translate('IDCS_INTERSECT'),
+                    })
                 }
             }
             // OSD
-            const $xmlOsd = $("statenotify[@type='TripwireLineInfo']")
-            if ($xmlOsd.length > 0) {
-                const X = Number($('/statenotify/PosInfo/X').text())
-                const Y = Number($('/statenotify/PosInfo/Y').text())
+            else if ($("statenotify[@type='TripwireLineInfo']").length) {
+                const X = $('/statenotify/PosInfo/X').text().num()
+                const Y = $('/statenotify/PosInfo/Y').text().num()
                 vsdData.value.countOSD.X = X
                 vsdData.value.countOSD.Y = Y
-            }
-
-            // 处理错误码
-            if (errorCode == '517') {
-                // 517-区域已闭合
-                vsdClearCurrentArea()
-            } else if (errorCode == '515') {
-                // 515-区域有相交直线，不可闭合
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_INTERSECT'),
-                })
             }
         }
         onMounted(async () => {
@@ -1271,7 +1296,7 @@ export default defineComponent({
                 })
             }
 
-            if (mode.value != 'h5') {
+            if (mode.value !== 'h5') {
                 Plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
             }
             openLoading()
@@ -1292,7 +1317,7 @@ export default defineComponent({
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
 
-            if (mode.value == 'h5') {
+            if (mode.value === 'h5') {
                 vsdDrawer.destroy()
             }
         })

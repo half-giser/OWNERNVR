@@ -134,7 +134,7 @@ export default defineComponent({
 
             try {
                 if ($('//status').text() === 'success') {
-                    item.autoBackSwitch = $('//content/chl/param/backTime/switch').text().toBoolean()
+                    item.autoBackSwitch = $('//content/chl/param/backTime/switch').text().bool()
                     item.autoBackTime = Number($('//content/chl/param/backTime/timeValue').text())
                     item.ptzControlMode = $('//content/chl/param/ptzControlMode').text()
                     item.disabled = false

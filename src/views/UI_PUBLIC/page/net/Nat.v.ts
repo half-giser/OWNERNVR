@@ -107,7 +107,7 @@ export default defineComponent({
                     label: systemCaps.showNatServerAddress ? `${Translate('IDCS_NAT')}(${item.text()})` : defaultLabel,
                 }
             })
-            formData.value.natSwitch = $('//content/switch').text().toBoolean()
+            formData.value.natSwitch = $('//content/switch').text().bool()
             formData.value.index = $('//content/switch').attr('index')
             pageData.value.isBindUser = $('//content/mode').text() === 'user'
             pageData.value.natServerState = STATUS_MAPPING[$('//content/natServerState').text()]

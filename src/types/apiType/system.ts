@@ -429,7 +429,7 @@ export class SystemImageUploadAlarmItem {
 /**
  * @description 定时图像上传表格项
  */
-export class ImageUploadDto {
+export class SystenSHDBImageUploadDto {
     chlId = ''
     chlNum = 0
     name = ''
@@ -444,4 +444,19 @@ export class chlDataItem {
     chlId = ''
     chlNum = 0
     name = ''
+}
+
+/**
+ * @description 地标平台参数 表单
+ */
+export class SystemSHDBPlatformParameterForm {
+    enable = false
+    proxyId = ''
+    ip = ''
+    domain = ''
+    isDomain = true
+    port = 5901
+    resolution = ''
+    level = ''
+    holdTime = ''
 }

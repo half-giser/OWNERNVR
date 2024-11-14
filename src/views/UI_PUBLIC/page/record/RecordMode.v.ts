@@ -293,7 +293,7 @@ export default defineComponent({
                 const item = pageData.value.basicRecModes[index]
                 //如果当前返回的事件列表和基础模式的事件列表相同，则表示选中基础事件模式
                 if (
-                    formData.value.autoModeEvents.length == item.events.length &&
+                    formData.value.autoModeEvents.length === item.events.length &&
                     formData.value.autoMode === item.type &&
                     formData.value.autoModeEvents.filter((o) => item.events.includes(o)).length === formData.value.autoModeEvents.length
                 ) {
@@ -329,7 +329,7 @@ export default defineComponent({
          */
         const genAdvanceMode = (events: string[]) => {
             // 如果选择的项为空，表示删除高级模式项
-            if (events.length === 0) {
+            if (!events.length) {
                 pageData.value.advanceModeCurrent = null
                 return true
             }
@@ -555,7 +555,7 @@ export default defineComponent({
 
             if (formData.value.mode === 'manually') {
                 const diffRows = getArrayDiffRows(formData.value.recordScheduleList, recordScheduleListInit)
-                if (diffRows.length > 0) requestList.push(setRecScheduleInfo(diffRows as RecordSchedule[]))
+                if (diffRows.length) requestList.push(setRecScheduleInfo(diffRows as RecordSchedule[]))
             }
             const resultList = await Promise.all(requestList)
 

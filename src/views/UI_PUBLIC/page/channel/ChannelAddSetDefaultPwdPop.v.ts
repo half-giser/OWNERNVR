@@ -41,7 +41,7 @@ export default defineComponent({
             queryDevDefaultPwd().then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     formData.value.params = $('//content/item').map((ele) => {
                         const eleXml = queryXml(ele.element)
                         return {
@@ -111,7 +111,7 @@ export default defineComponent({
 
             editDevDefaultPwd(sendXml).then((res) => {
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     const defaultPwdData: ChannelDefaultPwdDto[] = $('//content/item').map((ele) => {
                         const eleXml = queryXml(ele.element)
                         return {
@@ -127,14 +127,14 @@ export default defineComponent({
                     baseCheckAuthPopVisiable.value = false
                     emit('close')
                 } else {
-                    const errorCode = Number($('errorCode').text())
-                    if (errorCode == ErrorCode.USER_ERROR_PWD_ERR || errorCode == ErrorCode.USER_ERROR_NO_USER) {
+                    const errorCode = $('errorCode').text().num()
+                    if (errorCode === ErrorCode.USER_ERROR_PWD_ERR || errorCode === ErrorCode.USER_ERROR_NO_USER) {
                         // 用户名/密码错误
                         openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_DEVICE_PWD_ERROR'),
                         })
-                    } else if (errorCode == ErrorCode.USER_ERROR_NO_AUTH) {
+                    } else if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
                         // 鉴权账号无相关权限
                         openMessageBox({
                             type: 'info',
@@ -170,7 +170,6 @@ export default defineComponent({
             setData,
             handleKeydownEnter,
             formatInputMaxLength,
-            nameByteMaxLen,
         }
     },
 })

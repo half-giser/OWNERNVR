@@ -222,7 +222,7 @@ export default defineComponent({
                     pluginStore.showPluginNoResponse = true
                     plugin.ShowPluginNoResponse()
                 }
-                const sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'TripwireConfig' : 'ReadOnly', 'Live')
+                const sendXML = OCX_XML_SetPluginModel(osType === 'mac' ? 'TripwireConfig' : 'ReadOnly', 'Live')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
         }
@@ -236,7 +236,7 @@ export default defineComponent({
                     streamType: 2,
                 })
             } else if (mode.value === 'ocx') {
-                if (osType == 'mac') {
+                if (osType === 'mac') {
                     // const sendXML = OCX_XML_Preview({
                     //     winIndexList: [0],
                     //     chlIdList: [props.chlData['id']],
@@ -294,7 +294,7 @@ export default defineComponent({
             const res = await queryEmailCfg()
             const $ = queryXml(res)
             pageData.value.receiverData = []
-            if ($('status').text() == 'success') {
+            if ($('status').text() === 'success') {
                 $('//content/receiver/item').forEach((item) => {
                     const $ = queryXml(item.element)
                     let schedule = $('schedule').attr('id')
@@ -335,19 +335,19 @@ export default defineComponent({
         const getTimingSendEmail = async () => {
             const res = await queryTimingSendEmail()
             const $res = queryXml(res)
-            if ($res('status').text() == 'success') {
+            if ($res('status').text() === 'success') {
                 $res('//content/chl').forEach((chl) => {
-                    if (chl.attr('id') == props.currChlId) {
+                    if (chl.attr('id') === props.currChlId) {
                         const $ = queryXml(chl.element)
                         const type = $('param/item/type').text()
-                        const enableSwitch = $('param/item/switch').text() == 'true'
-                        const dailyReportSwitch = $('param/item/dailyReportSwitch').text() == 'true'
-                        const weeklyReportSwitch = $('param/item/weeklyReportSwitch').text() == 'true'
+                        const enableSwitch = $('param/item/switch').text().bool()
+                        const dailyReportSwitch = $('param/item/dailyReportSwitch').text().bool()
+                        const weeklyReportSwitch = $('param/item/weeklyReportSwitch').text().bool()
                         const weeklyReportDate = $('param/item/weeklyReportDate').text()
-                        const mouthlyReportSwitch = $('param/item/mouthlyReportSwitch').text() == 'true'
+                        const mouthlyReportSwitch = $('param/item/mouthlyReportSwitch').text().bool()
                         const mouthlyReportDate = $('param/item/mouthlyReportDate').text()
-                        const reportHour = Number($('param/item/reportHour').text())
-                        const reportMin = Number($('param/item/reportMin').text())
+                        const reportHour = $('param/item/reportHour').text().num()
+                        const reportMin = $('param/item/reportMin').text().num()
                         pageData.value.sendEmailData = {
                             type: type,
                             enableSwitch: enableSwitch,
@@ -403,7 +403,7 @@ export default defineComponent({
         // 打开更多弹窗
         const handleMoreClick = async () => {
             // 第一次打开更多弹窗时获取邮件配置和定时发送邮件配置
-            if (pageData.value.openCount == 0) {
+            if (!pageData.value.openCount) {
                 await getEmailCfg()
                 await getTimingSendEmail()
             }
@@ -428,7 +428,7 @@ export default defineComponent({
         // tab点击事件
         const handleFunctionTabClick = async (pane: TabsPaneContext) => {
             pageData.value.fuction = pane.props.name?.toString() ? pane.props.name?.toString() : ''
-            if (pageData.value.fuction == 'param') {
+            if (pageData.value.fuction === 'param') {
                 if (props.chlData.supportPassLine) {
                     if (mode.value === 'h5') {
                         passLineSetOcxData()
@@ -439,10 +439,13 @@ export default defineComponent({
                         setTimeout(() => {
                             const alarmLine = pageData.value.chosenSurfaceIndex
                             const plugin = playerRef.value!.plugin
+
                             const sendXML1 = OCX_XML_SetTripwireLine(formData.value.lineInfo[alarmLine])
                             plugin.GetVideoPlugin().ExecuteCmd(sendXML1)
+
                             const sendXML2 = OCX_XML_SetTripwireLineAction('EDIT_ON')
                             plugin.GetVideoPlugin().ExecuteCmd(sendXML2)
+
                             const sendXML3 = OCX_XML_SetTripwireLineInfo(formData.value.countOSD)
                             plugin.GetVideoPlugin().ExecuteCmd(sendXML3)
                         }, 100)
@@ -451,7 +454,7 @@ export default defineComponent({
                     cpcDrawSetOcxData()
                     cpcDrawer.setEnable(true)
                 }
-            } else if (pageData.value.fuction == 'target') {
+            } else if (pageData.value.fuction === 'target') {
                 if (props.chlData.supportPassLine) {
                     if (mode.value === 'h5') {
                         passLineDrawer.clear()
@@ -491,7 +494,7 @@ export default defineComponent({
                 const res = await queryPls(sendXml)
                 closeLoading()
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     const countCycleTypeList = $('//types/countCycleType/enum').map((element) => {
                         const itemValue = element.text()
                         return {
@@ -512,7 +515,7 @@ export default defineComponent({
                         const $ = queryXml(element.element)
                         return {
                             object: $('object').text(),
-                            status: $('status').text().toBoolean(),
+                            status: $('status').text().bool(),
                         }
                     })
 
@@ -520,14 +523,14 @@ export default defineComponent({
                         const $ = queryXml(element.element)
                         return {
                             object: $('object').text(),
-                            status: $('status').text().toBoolean(),
+                            status: $('status').text().bool(),
                         }
                     })
 
-                    let enabledSwitch = $('//content/chl/param/switch').text() == 'true'
+                    let enabledSwitch = $('//content/chl/param/switch').text().bool()
                     if (manualResetSwitch) {
                         // 手动重置时, 再次判断开关取值
-                        const applyDisabled = manualResetSwitch == ($('//content/chl/param/switch').text() == 'true')
+                        const applyDisabled = manualResetSwitch === enabledSwitch
                         pageData.value.applyDisable = applyDisabled
                         enabledSwitch = manualResetSwitch
                     }
@@ -542,12 +545,12 @@ export default defineComponent({
                         motorSensitivity: 0,
                     }
                     if ($('//content/chl/param/objectFilter').text() !== '') {
-                        const car = $('//content/chl/param/objectFilter/car/switch').text() == 'true'
-                        const person = $('//content/chl/param/objectFilter/person/switch').text() == 'true'
-                        const motorcycle = $('//content/chl/param/objectFilter/motor/switch').text() == 'true'
-                        const personSensitivity = Number($('//content/chl/param/objectFilter/person/sensitivity').text())
-                        const carSensitivity = Number($('//content/chl/param/objectFilter/car/sensitivity').text())
-                        const motorSensitivity = Number($('//content/chl/param/objectFilter/motor/sensitivity').text())
+                        const car = $('//content/chl/param/objectFilter/car/switch').text().bool()
+                        const person = $('//content/chl/param/objectFilter/person/switch').text().bool()
+                        const motorcycle = $('//content/chl/param/objectFilter/motor/switch').text().bool()
+                        const personSensitivity = $('//content/chl/param/objectFilter/person/sensitivity').text().num()
+                        const carSensitivity = $('//content/chl/param/objectFilter/car/sensitivity').text().num()
+                        const motorSensitivity = $('//content/chl/param/objectFilter/motor/sensitivity').text().num()
                         objectFilter = {
                             car: car,
                             person: person,
@@ -574,33 +577,33 @@ export default defineComponent({
                         },
                     }
                     const countOSD = {
-                        switch: $('//content/chl/param/countOSD/switch').text() == 'true',
-                        X: Number($('//content/chl/param/countOSD/X').text()),
-                        Y: Number($('//content/chl/param/countOSD/Y').text()),
+                        switch: $('//content/chl/param/countOSD/switch').text().bool(),
+                        X: $('//content/chl/param/countOSD/X').text().num(),
+                        Y: $('//content/chl/param/countOSD/Y').text().num(),
                         osdFormat: $('//content/chl/param/countOSD/osdFormat').text(),
                     }
-                    const triggerAudio = $('//content/chl/param/triggerAudio').text() == 'true'
-                    const triggerWhiteLight = $('//content/chl/param/triggerWhiteLight').text() == 'true'
-                    const saveTargetPicture = $('//content/chl/param/saveTargetPicture').text() == 'true'
-                    const saveSourcePicture = $('//content/chl/param/saveSourcePicture').text() == 'true'
+                    const triggerAudio = $('//content/chl/param/triggerAudio').text().bool()
+                    const triggerWhiteLight = $('//content/chl/param/triggerWhiteLight').text().bool()
+                    const saveTargetPicture = $('//content/chl/param/saveTargetPicture').text().bool()
+                    const saveSourcePicture = $('//content/chl/param/saveSourcePicture').text().bool()
                     const lineInfo = $('//content/chl/param/line/item').map((element) => {
                         const $ = queryXml(element.element)
                         const direction: CanvasPasslineDirection = $('direction').text() as CanvasPasslineDirection
                         return {
                             direction: direction,
                             startPoint: {
-                                X: Number($('startPoint/X').text()),
-                                Y: Number($('startPoint/Y').text()),
+                                X: $('startPoint/X').text().num(),
+                                Y: $('startPoint/Y').text().num(),
                             },
                             endPoint: {
-                                X: Number($('endPoint/X').text()),
-                                Y: Number($('endPoint/Y').text()),
+                                X: $('endPoint/X').text().num(),
+                                Y: $('endPoint/Y').text().num(),
                             },
                             configured: false,
                         }
                     })
                     lineInfo.forEach((element) => {
-                        if (element.startPoint.X != 0 && element.startPoint.Y != 0 && element.endPoint.X != 0 && element.endPoint.Y != 0) {
+                        if (element.startPoint.X && element.startPoint.Y && element.endPoint.X && element.endPoint.Y) {
                             element.configured = true
                         }
                     })
@@ -610,11 +613,7 @@ export default defineComponent({
                     }
                     const schedule = $('//content/chl').attr('scheduleGuid')
 
-                    formData.value.passLineSchedule = schedule
-                        ? pageData.value.scheduleList.some((item: { value: string; label: string }) => item.value == schedule)
-                            ? schedule
-                            : DEFAULT_EMPTY_ID
-                        : DEFAULT_EMPTY_ID
+                    formData.value.passLineSchedule = schedule ? (pageData.value.scheduleList.some((item) => item.value === schedule) ? schedule : DEFAULT_EMPTY_ID) : DEFAULT_EMPTY_ID
                     formData.value.passLineholdTime = Number(holdTime)
                     formData.value.countCycleTypeList = countCycleTypeList.filter((item) => item.value !== 'off')
                     formData.value.passLineMutexList = mutexList
@@ -658,19 +657,19 @@ export default defineComponent({
                 const res = await queryCpc(sendXml)
                 closeLoading()
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     const holdTimeArr = $('//content/chl/param/holdTimeNote').text().split(',')
                     holdTimeArr.forEach((element) => {
                         holdTimeList.push({ value: Number(element), label: element })
                     })
-                    const holdTime = Number($('//content/chl/param/holdTime').text())
+                    const holdTime = $('//content/chl/param/holdTime').text().num()
                     if (!holdTimeArr.includes(holdTime.toString())) {
                         holdTimeArr.push(holdTime.toString())
                     }
                     const holdTimeList = formatHoldTime(holdTimeArr)
 
                     const detectSensitivityList = $('//types/detectSensitivity/enum').map((element) => {
-                        const itemValue = Number(element.text())
+                        const itemValue = element.text().num()
                         return {
                             value: itemValue,
                             label: itemValue.toString(),
@@ -689,10 +688,10 @@ export default defineComponent({
                     $('//content/chl/param/regionInfo/item').forEach((element) => {
                         const $ = queryXml(element.element)
                         const region = {
-                            X1: Number($('X1').text()),
-                            Y1: Number($('Y1').text()),
-                            X2: Number($('X2').text()),
-                            Y2: Number($('Y2').text()),
+                            X1: $('X1').text().num(),
+                            Y1: $('Y1').text().num(),
+                            X2: $('X2').text().num(),
+                            Y2: $('Y2').text().num(),
                         }
                         regionInfo = region
                     })
@@ -701,10 +700,10 @@ export default defineComponent({
                     $('//content/chl/param/lineInfo/item').forEach((element) => {
                         const $ = queryXml(element.element)
                         const line = {
-                            X1: Number($('X1').text()),
-                            Y1: Number($('Y1').text()),
-                            X2: Number($('X2').text()),
-                            Y2: Number($('Y2').text()),
+                            X1: $('X1').text().num(),
+                            Y1: $('Y1').text().num(),
+                            X2: $('X2').text().num(),
+                            Y2: $('Y2').text().num(),
                         }
                         lineInfo = line
                     })
@@ -713,7 +712,7 @@ export default defineComponent({
                         const $ = queryXml(element.element)
                         return {
                             object: $('object').text(),
-                            status: $('status').text() == 'true',
+                            status: $('status').text().bool(),
                         }
                     })
 
@@ -721,24 +720,19 @@ export default defineComponent({
                         const $ = queryXml(element.element)
                         return {
                             object: $('object').text(),
-                            status: $('status').text() == 'true',
+                            status: $('status').text().bool(),
                         }
                     })
 
-                    const enabledSwitch = $('//content/chl/param/switch').text() == 'true'
-                    const detectSensitivity = Number($('//content/chl/param/detectSensitivity').text())
+                    const enabledSwitch = $('//content/chl/param/switch').text().bool()
+                    const detectSensitivity = $('//content/chl/param/detectSensitivity').text().num()
                     const statisticalPeriod = $('//content/chl/param/statisticalPeriod').text()
-                    const crossInAlarmNumValue = Number($('//content/chl/param/crossInAlarmNum').text())
-                    const crossOutAlarmNumValue = Number($('//content/chl/param/crossOutAlarmNum').text())
-                    const twoWayDiffAlarmNumValue = Number($('//content/chl/param/twoWayDiffAlarmNum').text())
+                    const crossInAlarmNumValue = $('//content/chl/param/crossInAlarmNum').text().num()
+                    const crossOutAlarmNumValue = $('//content/chl/param/crossOutAlarmNum').text().num()
+                    const twoWayDiffAlarmNumValue = $('//content/chl/param/twoWayDiffAlarmNum').text().num()
                     const cpcSchedule = $('//content/chl').attr('scheduleGuid')
 
-                    formData.value.cpcSchedule =
-                        cpcSchedule == ''
-                            ? pageData.value.scheduleList.some((item: { value: string; label: string }) => item.value == cpcSchedule)
-                                ? cpcSchedule
-                                : DEFAULT_EMPTY_ID
-                            : DEFAULT_EMPTY_ID
+                    formData.value.cpcSchedule = cpcSchedule === '' ? (pageData.value.scheduleList.some((item) => item.value === cpcSchedule) ? cpcSchedule : DEFAULT_EMPTY_ID) : DEFAULT_EMPTY_ID
                     formData.value.cpcDetectionEnable = enabledSwitch
                     formData.value.cpcOriginalEnable = enabledSwitch
                     formData.value.holdTime = holdTime
@@ -779,7 +773,7 @@ export default defineComponent({
                                     <sensitivity>${formData.value.objectFilter.personSensitivity}</sensitivity>
                                 </person>
                                 ${
-                                    props.chlData.accessType == '0'
+                                    props.chlData.accessType === '0'
                                         ? rawXml`
                                             <motor>
                                                 <switch>${formData.value.objectFilter.motorcycle}</switch>
@@ -845,7 +839,7 @@ export default defineComponent({
             const res = await editPls(sendXml)
             const $ = queryXml(res)
             closeLoading()
-            if ($('status').text() == 'success') {
+            if ($('status').text() === 'success') {
                 setEmailCfg()
                 setTimingSendEmail()
                 setScheduleGuid()
@@ -894,7 +888,7 @@ export default defineComponent({
             const res = await editCpc(sendXml)
             closeLoading()
             const $ = queryXml(res)
-            if ($('status').text() == 'success') {
+            if ($('status').text() === 'success') {
                 if (formData.value.cpcDetectionEnable) {
                     formData.value.cpcOriginalEnable = true
                 }
@@ -967,7 +961,7 @@ export default defineComponent({
                     }
                 })
 
-                if (isSwitchChange && switchChangeTypeArr.length > 0) {
+                if (isSwitchChange && switchChangeTypeArr.length) {
                     const switchChangeType = switchChangeTypeArr.join(',')
                     openMessageBox({
                         type: 'question',
@@ -993,7 +987,7 @@ export default defineComponent({
                 </content>`
             const res = await editPls(sendXml)
             const $ = queryXml(res)
-            if ($('status').text() == 'success') {
+            if ($('status').text() === 'success') {
                 openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_RESET_SUCCESSED'),
@@ -1017,7 +1011,7 @@ export default defineComponent({
                 </content>`
             const res = await forceResetCpc(sendXml)
             const $ = queryXml(res)
-            if ($('status').text() == 'success') {
+            if ($('status').text() === 'success') {
                 openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_RESET_SUCCESSED'),
@@ -1127,16 +1121,16 @@ export default defineComponent({
             const sameIPChlList: { id: string; ip: string; name: string; accessType: string }[] = []
             const chlIp = props.chlData.ip
             props.onlineChannelList.forEach((chl) => {
-                if (chl.ip == chlIp) {
+                if (chl.ip === chlIp) {
                     sameIPChlList.push(chl)
                 }
             })
             if (sameIPChlList.length > 1) {
                 sameIPChlList.forEach((chl) => {
-                    if (chl.accessType == '1') {
-                        thermalChlName = chl.name == props.chlData.name ? '' : chl.name
+                    if (chl.accessType === '1') {
+                        thermalChlName = chl.name === props.chlData.name ? '' : chl.name
                     } else {
-                        normalChlName = chl.name == props.chlData.name ? '' : chl.name
+                        normalChlName = chl.name === props.chlData.name ? '' : chl.name
                     }
                 })
             }
@@ -1192,7 +1186,7 @@ export default defineComponent({
         const passLineSetOcxData = () => {
             const alarmLine = pageData.value.chosenSurfaceIndex
             const plugin = playerRef.value!.plugin
-            if (formData.value.lineInfo.length > 0) {
+            if (formData.value.lineInfo.length) {
                 if (mode.value === 'h5') {
                     passLineDrawer.setCurrentSurfaceOrAlarmLine(alarmLine)
                     passLineDrawer.setDirection(formData.value.lineInfo[alarmLine].direction)
@@ -1290,7 +1284,7 @@ export default defineComponent({
         const passLineRefreshInitPage = () => {
             const lineInfoList = formData.value.lineInfo
             lineInfoList.forEach((lineInfo) => {
-                if (lineInfo && lineInfo.startPoint.X == 0 && lineInfo.startPoint.Y == 0 && lineInfo.endPoint.X == 0 && lineInfo.endPoint.Y == 0) {
+                if (lineInfo && !lineInfo.startPoint.X && !lineInfo.startPoint.Y && !lineInfo.endPoint.X && !lineInfo.endPoint.Y) {
                     lineInfo.configured = false
                 } else {
                     lineInfo.configured = true
@@ -1345,44 +1339,44 @@ export default defineComponent({
         }
 
         const LiveNotify2Js = ($: (path: string) => XmlResult) => {
-            if ($("statenotify[@type='CpcParam']").length > 0) {
+            if ($("statenotify[@type='CpcParam']").length) {
                 const region: AlarmPassLinesRegion[] = []
                 const line: AlarmPassLinesRegion[] = []
                 $('statenotify/regionInfo/item').forEach((element) => {
                     const $ = queryXml(element.element)
                     region.push({
-                        X1: parseInt($('X1').text()),
-                        Y1: parseInt($('Y1').text()),
-                        X2: parseInt($('X2').text()),
-                        Y2: parseInt($('Y2').text()),
+                        X1: $('X1').text().num(),
+                        Y1: $('Y1').text().num(),
+                        X2: $('X2').text().num(),
+                        Y2: $('Y2').text().num(),
                     })
                 })
                 $('statenotify/lineInfo/item').forEach((element) => {
                     const $ = queryXml(element.element)
                     line.push({
-                        X1: parseInt($('X1').text()),
-                        Y1: parseInt($('Y1').text()),
-                        X2: parseInt($('X2').text()),
-                        Y2: parseInt($('Y2').text()),
+                        X1: $('X1').text().num(),
+                        Y1: $('Y1').text().num(),
+                        X2: $('X2').text().num(),
+                        Y2: $('Y2').text().num(),
                     })
                 })
                 formData.value.regionInfo = region[0]
                 formData.value.cpcLineInfo = line[0]
-            } else if ($("statenotify[@type='TripwireLine']").length > 0) {
+            } else if ($("statenotify[@type='TripwireLine']").length) {
                 const alarmLine = pageData.value.chosenSurfaceIndex
                 formData.value.lineInfo[alarmLine].startPoint = {
-                    X: parseInt($('statenotify/startPoint').attr('X')),
-                    Y: parseInt($('statenotify/startPoint').attr('Y')),
+                    X: $('statenotify/startPoint').attr('X').num(),
+                    Y: $('statenotify/startPoint').attr('Y').num(),
                 }
                 formData.value.lineInfo[alarmLine].endPoint = {
-                    X: parseInt($('statenotify/endPoint').attr('X')),
-                    Y: parseInt($('statenotify/endPoint').attr('Y')),
+                    X: $('statenotify/endPoint').attr('X').num(),
+                    Y: $('statenotify/endPoint').attr('Y').num(),
                 }
-            } else if ($("statenotify[@type='TripwireLineInfo']").length > 0) {
-                const X = $('statenotify/PosInfo/X').text()
-                const Y = $('statenotify/PosInfo/Y').text()
-                formData.value.countOSD.X = parseInt(X)
-                formData.value.countOSD.Y = parseInt(Y)
+            } else if ($("statenotify[@type='TripwireLineInfo']").length) {
+                const X = $('statenotify/PosInfo/X').text().num()
+                const Y = $('statenotify/PosInfo/Y').text().num()
+                formData.value.countOSD.X = X
+                formData.value.countOSD.Y = Y
             }
         }
 

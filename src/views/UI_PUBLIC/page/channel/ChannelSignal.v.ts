@@ -48,8 +48,8 @@ export default defineComponent({
 
         const handleAnalogIpChange = (rowData: ChannelSignalDto) => {
             btnOkDisabled.value = false
-            const count = tableData.value.filter((item) => item.signal == 'D').length
-            if (rowData.analogIp == 'IP') {
+            const count = tableData.value.filter((item) => item.signal === 'D').length
+            if (rowData.analogIp === 'IP') {
                 if ((switchIpChlRange[0] && rowData.id < switchIpChlRange[0] - 1) || (switchIpChlRange[1] && rowData.id > switchIpChlRange[1] - 1)) {
                     openMessageBox({
                         type: 'info',
@@ -72,7 +72,7 @@ export default defineComponent({
                 rowData.signal = 'D'
                 ipChlMaxCount.value++
             } else {
-                const name = rowData.name.slice(2, 4).indexOf('0') == 0 ? rowData.name.slice(3, 4) : rowData.name.slice(2, 4)
+                const name = rowData.name.slice(2, 4).indexOf('0') === 0 ? rowData.name.slice(3, 4) : rowData.name.slice(2, 4)
                 if (chls.includes(Number(name))) {
                     openMessageBox({
                         type: 'info',
@@ -93,14 +93,14 @@ export default defineComponent({
             let guidAnalog = false
             const isIp: number[] = []
             tableData.value.forEach((ele) => {
-                if (ele.analogIp == 'IP') isIp.push(ele.id)
-                const name = ele.name.slice(2, 4).indexOf('0') == 0 ? ele.name.slice(3, 4) : ele.name.slice(2, 4)
+                if (ele.analogIp === 'IP') isIp.push(ele.id)
+                const name = ele.name.slice(2, 4).indexOf('0') === 0 ? ele.name.slice(3, 4) : ele.name.slice(2, 4)
                 if (chls.includes(Number(name))) guidAnalog = true
             })
             let changeIpCount = 0
             const changeIpRowData: ChannelSignalDto[] = []
             let hasChangeIP = false
-            if (val == 'IP' && tableData.value.length > switchableIpChlMaxCount) {
+            if (val === 'IP' && tableData.value.length > switchableIpChlMaxCount) {
                 tableData.value.forEach((ele) => {
                     if (!isIp.includes(ele.id) && changeIpCount < switchableIpChlMaxCount - isIp.length) {
                         changeIpRowData.push(ele)
@@ -114,7 +114,7 @@ export default defineComponent({
                 hasChangeIP = true
             }
 
-            if ((switchIpChlRange[0] && 1 < switchIpChlRange[0] && val == 'IP') || (switchIpChlRange[1] && tableData.value.length > switchIpChlRange[1] && val == 'IP')) {
+            if ((switchIpChlRange[0] && 1 < switchIpChlRange[0] && val === 'IP') || (switchIpChlRange[1] && tableData.value.length > switchIpChlRange[1] && val === 'IP')) {
                 tableData.value.forEach((ele) => {
                     if (ele.id > switchIpChlRange[0] && ele.id < switchIpChlRange[1]) changeIpRowData.push(ele)
                 })
@@ -124,7 +124,7 @@ export default defineComponent({
                 })
             }
 
-            if (guidAnalog && val == 'Analog') {
+            if (guidAnalog && val === 'Analog') {
                 openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_SIGNAL_IP_TO_ANALOG_TIP'),
@@ -143,7 +143,7 @@ export default defineComponent({
                 })
             } else {
                 tableData.value.forEach((ele) => {
-                    if (val == 'IP') {
+                    if (val === 'IP') {
                         ele.showLite = false
                         ele.showSignal = false
                         ele.signal = 'D'
@@ -155,7 +155,7 @@ export default defineComponent({
                 tableData.value.forEach((ele) => (ele.analogIp = val))
             }
 
-            if (val == 'IP') {
+            if (val === 'IP') {
                 ipChlMaxCount.value = ipChlMaxCountOriginal + switchableIpChlMaxCount
             } else {
                 ipChlMaxCount.value = ipChlMaxCountOriginal
@@ -166,7 +166,7 @@ export default defineComponent({
         const handleSignalChangeAll = (val: string) => {
             if (!tableData.value.length) return
             tableData.value.forEach((ele) => {
-                if (ele.signal != 'D') {
+                if (ele.signal !== 'D') {
                     ele.signal = val
                     btnOkDisabled.value = false
                 }
@@ -188,7 +188,7 @@ export default defineComponent({
                 commLoadResponseHandler(res, ($) => {
                     $('//content/item').forEach((ele) => {
                         const eleXml = queryXml(ele.element)
-                        if (eleXml('chlType').text() == 'digital') chls.push(parseInt(ele.attr('id')!.slice(7, 9), 16))
+                        if (eleXml('chlType').text() === 'digital') chls.push(parseInt(ele.attr('id')!.slice(7, 9), 16))
                     })
                 })
             })
@@ -202,7 +202,7 @@ export default defineComponent({
                 chlSupSignalTypeList.value = []
                 let supportCvi = false
                 chlSupSignalType.forEach((ele) => {
-                    if (ele == 'CVI') {
+                    if (ele === 'CVI') {
                         supportCvi = true
                     } else {
                         chlSupSignalTypeList.value.push({
@@ -217,7 +217,7 @@ export default defineComponent({
                         text: signalTrasMap.CVI,
                     })
 
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     const analogChlCount = cababilityStore.analogChlCount
                     const channelSignalTypeList = $('content/channelSignalType').text().split(':')
                     const defaultChannelSignalType = $('content/defaultChannelSignalType').text().split(':')
@@ -239,7 +239,7 @@ export default defineComponent({
                             return {
                                 id: i,
                                 name: Translate('IDCS_ANALOG_PREFIX').formatForLang(i + 1 > 9 ? i + 1 : '0' + (i + 1)),
-                                lite: channelSignalLiteList[i].toBoolean(),
+                                lite: channelSignalLiteList[i].bool(),
                                 signalType: channelSignalTypeList[i],
                                 chlSupSignalTypeArray: chlSupSignalType,
                                 defaultChannelSignalType: defaultChannelSignalType[i],

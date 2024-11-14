@@ -159,13 +159,13 @@ export default defineComponent({
                 const apiTime = $('//time').text()
                 const time = apiTime ? dayjs.utc(apiTime.slice(0, apiTime.length - 8), 'YYYY-MM-DD HH:mm:ss').valueOf() : 0
                 const img = $('//content').text()
-                if (resDirection == 'in') {
+                if (resDirection === 'in') {
                     obj.enterChl = gateName
                     obj.enterType = openType
                     obj.enterTime = time
                     obj.enterImg = img
                     obj.isEnter = true
-                } else if (resDirection == 'out') {
+                } else if (resDirection === 'out') {
                     obj.exitChl = gateName
                     obj.exitType = openType
                     obj.exitTime = time
@@ -283,11 +283,11 @@ export default defineComponent({
                 type = 'nonEnter-exit'
             }
             // 进场-拒绝放行
-            else if (isEnter && (enterType === '0' || enterType == 'refuse')) {
+            else if (isEnter && (enterType === '0' || enterType === 'refuse')) {
                 type = 'nonEnter-nonExit'
             }
             // "出场拒绝放行"、"无进场和出场数据"时, 没有进出结果
-            else if ((isExit && (exitType === '0' || exitType == 'refuse')) || (!isEnter && !isExit)) {
+            else if ((isExit && (exitType === '0' || exitType === 'refuse')) || (!isEnter && !isExit)) {
                 type = ''
             }
             return type
@@ -353,7 +353,7 @@ export default defineComponent({
             const result = await openGate(sendXml)
             const $ = queryXml(result)
             if ($('//status').text() === 'fail') {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_INVALID_PARAM:

@@ -60,7 +60,7 @@ export default class WebsocketImportPlateLib {
                         this.onerror && this.onerror(code)
                     }
                     // 通知进度
-                    else if (res.url === '/device/platelib/import/data#response' && code == 0) {
+                    else if (res.url === '/device/platelib/import/data#response' && code === 0) {
                         const step = res.data.step
                         if (step >= this.totalNum) {
                             this.onsuccess && this.onsuccess()
@@ -71,7 +71,7 @@ export default class WebsocketImportPlateLib {
                         }
                     }
                     // 导入过程有误
-                    else if (res.url === '/device/platelib/import/data#response' && code != 0) {
+                    else if (res.url === '/device/platelib/import/data#response' && code !== 0) {
                         this.onerror && this.onerror(code)
                     }
                     // 停止录入成功
@@ -93,7 +93,7 @@ export default class WebsocketImportPlateLib {
         const startIdx = importIdx * this.limitNum
         const endIdx = (importIdx + 1) * this.limitNum
         const plateDataListSlice = this.plateDataList.slice(startIdx, endIdx)
-        if (plateDataListSlice.length > 0) {
+        if (plateDataListSlice.length) {
             const cmd = CMD_PLATELIB_IMPORT_DATA(this.taskId as string, plateDataListSlice)
             this.sendJsonBuffer(cmd)
         }

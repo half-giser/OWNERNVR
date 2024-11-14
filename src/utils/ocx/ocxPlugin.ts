@@ -79,7 +79,7 @@ const useOCXPlugin = () => {
         for (let i = 0; i < var1Arr.length; i++) {
             if (Number(var1Arr[i]) > Number(var2Arr[i])) {
                 return 1
-            } else if (Number(var1Arr[i]) == Number(var2Arr[i])) {
+            } else if (Number(var1Arr[i]) === Number(var2Arr[i])) {
                 continue
             } else {
                 return -1
@@ -122,27 +122,27 @@ const useOCXPlugin = () => {
         const browserVersion = browserInfo.majorVersion
         const browserType = browserInfo.type
         // 若满足下列浏览器和对应的版本号，则需要升级浏览器（低版本不支持websocket）
-        if (browserType == 'ie' && browserVersion < 10) {
+        if (browserType === 'ie' && browserVersion < 10) {
             isPluginAvailable.value = false
             pluginNoticeHtml.value = 'IDCS_IE_VERSION_WARNING'
             return false
-        } else if (browserType == 'chrome' && browserVersion < 57) {
+        } else if (browserType === 'chrome' && browserVersion < 57) {
             isPluginAvailable.value = false
             pluginNoticeHtml.value = 'IDCS_CHROME_VERSION_WARNING'
             return false
-        } else if (browserType == 'firefox' && browserVersion < 53) {
+        } else if (browserType === 'firefox' && browserVersion < 53) {
             isPluginAvailable.value = false
             pluginNoticeHtml.value = 'IDCS_FIREFOX_VERSION_WARNING'
             return false
-        } else if (browserType == 'opera' && browserVersion < 44) {
+        } else if (browserType === 'opera' && browserVersion < 44) {
             isPluginAvailable.value = false
             pluginNoticeHtml.value = 'IDCS_OPERA_VERSION_WARNING'
             return false
-        } else if (browserType == 'safari' && browserVersion < 11) {
+        } else if (browserType === 'safari' && browserVersion < 11) {
             isPluginAvailable.value = false
             pluginNoticeHtml.value = 'IDCS_SAFARI_VERSION_WARNING'
             return false
-        } else if ((browserType == 'edge' || browserType == 'lowEdge') && browserVersion < 16) {
+        } else if ((browserType === 'edge' || browserType === 'lowEdge') && browserVersion < 16) {
             isPluginAvailable.value = false
             pluginNoticeHtml.value = 'IDCS_EDGE_VERSION_WARNING'
             return false
@@ -161,7 +161,7 @@ const useOCXPlugin = () => {
      */
     const VideoPluginNotify = async (strXMLFormat: string) => {
         const $ = queryXml(XMLStr2XMLDoc(strXMLFormat))
-        const funcName = Number($('/response').attr('reqId'))
+        const funcName = $('/response').attr('reqId').num()
 
         if ($('/response').length && funcName) {
             ;(getVideoPlugin() as WebsocketPlugin).queryInfoMap[funcName](strXMLFormat)
@@ -265,7 +265,7 @@ const useOCXPlugin = () => {
                 }
             } else {
                 if (userSession.appType === 'P2P') {
-                    const errorCode = Number($('/statenotify/errorCode').text())
+                    const errorCode = $('/statenotify/errorCode').text().num()
                     const errorDescription = $('/statenotify/errorDescription').text() || ''
                     const curRoutUrl = route.path
                     switch (errorCode) {
@@ -333,8 +333,8 @@ const useOCXPlugin = () => {
      */
     const videoPluginLoginForStandard = () => {
         const userInfoArr = userSession.getAuthInfo()
-        if (userInfoArr != null) {
-            if (videoPluginLoginForStandard_timeoutId != null) {
+        if (userInfoArr !== null) {
+            if (videoPluginLoginForStandard_timeoutId !== null) {
                 clearTimeout(videoPluginLoginForStandard_timeoutId)
                 videoPluginLoginForStandard_timeoutId = null
             }
@@ -374,7 +374,7 @@ const useOCXPlugin = () => {
                         const $item = queryXml(item.element)
                         if (item.attr('isSupSecondIP') === 'true') {
                             // 判断是否使用了辅IP
-                            const secondIpSwitch = $item('secondIpSwitch').text().toBoolean()
+                            const secondIpSwitch = $item('secondIpSwitch').text().bool()
                             isSubIpUsed = hostName === $item('secondIp').text() && secondIpSwitch
                         }
                     })
@@ -384,16 +384,16 @@ const useOCXPlugin = () => {
             .then((result) => {
                 const $ = queryXml(result)
                 if ($('//status').text() === 'success') {
-                    const isUPnPEnable = $('//content/switch').text().toBoolean()
+                    const isUPnPEnable = $('//content/switch').text().bool()
                     let port = 0
                     $('//content/ports/item').forEach((item) => {
                         const $item = queryXml(item.element)
 
                         if ($item('portType').text() === 'SERVICE') {
                             if (isSubIpUsed && isUPnPEnable) {
-                                port = Number($item('externalPort').text())
+                                port = $item('externalPort').text().num()
                             } else {
-                                port = Number($item('localPort').text())
+                                port = $item('localPort').text().num()
                             }
                             return false
                         }
@@ -421,7 +421,7 @@ const useOCXPlugin = () => {
     const p2pUsernameLogin = () => {
         userSession.p2pSessionId = null // 采用用户名/密码登录，要么无sessionId, 要么产生新的授权码后有新的sessionId
         const userInfoArr = userSession.getAuthInfo()
-        if (userInfoArr != null) {
+        if (userInfoArr !== null) {
             const sendXML = OCX_XML_SetPasswordLogin_P2P(userInfoArr[0], userInfoArr[1], userInfoArr[2])
             getVideoPlugin().ExecuteCmd(sendXML)
         } else {
@@ -511,7 +511,7 @@ const useOCXPlugin = () => {
                 return
             }
             this.queue.push(cmd)
-            if (this.queue.length == 1 && !this.lock) {
+            if (this.queue.length === 1 && !this.lock) {
                 setTimeout(this.execute, 10)
             }
             return cmd
@@ -600,7 +600,7 @@ const useOCXPlugin = () => {
             onmessage: (strXMLFormat: string) => {
                 const $ = queryXml(XMLStr2XMLDoc(strXMLFormat))
                 if ($('/response').attr('type') === 'SetWebSocketPort') {
-                    const port = Number($('/response/port').text())
+                    const port = $('/response/port').text().num()
                     if (port) {
                         pluginStore.ocxPort = port
                         startPluginError = false
@@ -697,7 +697,7 @@ const useOCXPlugin = () => {
                 isInstallPlugin.value = false
                 // 将showPluginNoResponse置为空，避免更新插件并安装后页面弹出：插件无响应
                 pluginStore.showPluginNoResponse = false
-                userSession.appType == 'P2P' && setPluginNotice('body')
+                userSession.appType === 'P2P' && setPluginNotice('body')
                 return
             } else {
                 isPluginAvailable.value = true
@@ -726,7 +726,7 @@ const useOCXPlugin = () => {
     const togglePageByPlugin = () => {
         let currPluginMode = pluginStore.currPluginMode
         // 如果当前浏览器不支持H5，获取的插件模式为'h5'时，需要进行转换为'ocx'
-        if (userSession.appType == 'STANDARD' && 'WebAssembly' in window) {
+        if (userSession.appType === 'STANDARD' && 'WebAssembly' in window) {
             // currPluginMode = currPluginMode // || 'h5'
         } else {
             currPluginMode = 'ocx'
@@ -754,7 +754,7 @@ const useOCXPlugin = () => {
         if (!videoPlugin) {
             initVideoPlugin()
         } else {
-            if (getVideoPluginStatus() == 'Disconnected') {
+            if (getVideoPluginStatus() === 'Disconnected') {
                 setVideoPluginStatus('Reconnecting')
                 videoPluginLogin()
             }
@@ -834,7 +834,7 @@ const useOCXPlugin = () => {
      * @returns {Function}
      */
     const execLoginErrorCallback = (errorCode?: number, errorDescription?: string) => {
-        if (typeof loginErrorCallback == 'function') {
+        if (typeof loginErrorCallback === 'function') {
             loginErrorCallback(errorCode, errorDescription)
         } else {
             goToIndex(errorCode, errorDescription)
@@ -855,7 +855,7 @@ const useOCXPlugin = () => {
             pluginStore.currPluginMode = 'ocx'
         }
         const path = getPluginPath()
-        if (userSession.appType == 'P2P') {
+        if (userSession.appType === 'P2P') {
             getPluginNotice(path.P2PClientPluDownLoadPath)
             // 与插件建链成功后，发生了错误，禁止跳转到插件下载页面,保留当前页面状态
             if (pluginStore.showPluginNoResponse) return
@@ -988,7 +988,7 @@ const useOCXPlugin = () => {
         // if (isShow && $('.ocxWinTab').hasClass('active')) return
 
         // 检查浏览器当前标签页是否为可见。若不可见,则不显示视频插件窗口
-        if (isShow && document.visibilityState == 'hidden') return
+        if (isShow && document.visibilityState === 'hidden') return
         if (!getIsPluginAvailable()) return
         // if (systemInfo.platform === 'mac' && userSession.appType === 'P2P') {
         //     // effect
@@ -1087,7 +1087,7 @@ const useOCXPlugin = () => {
         // 视频插件窗口的顶部越过页面导航菜单区域（顶部收缩）
         // && $.inArray(pluginPlaceholderId, ['divPopRecOCX', 'popLiveOCX']) == -1
         if (divOcxTop <= navHeight) {
-            winTop = ocxMode == 'relativeToBrowser' || browserType == 'lowEdge' ? navHeight + menuH : navHeight
+            winTop = ocxMode === 'relativeToBrowser' || browserType === 'lowEdge' ? navHeight + menuH : navHeight
             refH -= navHeight - divOcxTop
         }
 
@@ -1102,7 +1102,7 @@ const useOCXPlugin = () => {
             refW += divOcxLeft
         }
 
-        if (ocxMode == 'relativeToScreen') {
+        if (ocxMode === 'relativeToScreen') {
             winLeft = window.screenLeft * ratio + winLeft
             winTop = window.screenTop * ratio + winTop
         }
@@ -1114,8 +1114,8 @@ const useOCXPlugin = () => {
             }
             return size
         }
-        const domWidth = ocxMode == 'relativeToDom' ? window.innerWidth * ratio : 0
-        const domHeight = ocxMode == 'relativeToDom' ? window.innerHeight * ratio : 0
+        const domWidth = ocxMode === 'relativeToDom' ? window.innerWidth * ratio : 0
+        const domHeight = ocxMode === 'relativeToDom' ? window.innerHeight * ratio : 0
         const sendXML = OCX_XML_SetPluginSize(winLeft, winTop, adjust(refW), adjust(refH), ocxMode, domWidth, domHeight)
         pluginObj.ExecuteCmd(sendXML)
     }
@@ -1126,7 +1126,7 @@ const useOCXPlugin = () => {
      * @returns {Object}
      */
     const getViewPort = (ratio: number) => {
-        if (document.compatMode == 'BackCompat') {
+        if (document.compatMode === 'BackCompat') {
             return {
                 width: document.body.clientWidth * ratio,
                 height: document.body.clientHeight * ratio,
@@ -1240,7 +1240,7 @@ const useOCXPlugin = () => {
             const screenY = window.screenY
             const width = window.outerWidth
             const height = window.outerHeight
-            if (oldX == screenX && oldY == screenY && oldWidth == width && oldHeihgt == height) return
+            if (oldX === screenX && oldY === screenY && oldWidth === width && oldHeihgt === height) return
             if (
                 (oldX > 0 && oldY > 0 && screenX <= 0 && screenY <= 0) || // 浏览器最大化
                 (oldX <= 0 && oldY <= 0 && screenX > 0 && screenY > 0) // 浏览器缩放
@@ -1342,7 +1342,7 @@ const useOCXPlugin = () => {
             return
         }
 
-        if (document.visibilityState == 'hidden') {
+        if (document.visibilityState === 'hidden') {
             //状态判断
             displayOCX(false)
         } else {

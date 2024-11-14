@@ -96,13 +96,13 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryBlackAndWhiteList()
             commLoadResponseHandler(result, ($) => {
-                formData.value.switch = $('//content/switch').text().toBoolean()
+                formData.value.switch = $('//content/switch').text().bool()
                 formData.value.filterType = $('//content/filterType').text() as UserBlackAllowListForm['filterType']
                 tableData.value = []
                 $('//content/filterList/itemType/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     tableData.value.push({
-                        switch: $item('switch').text().toBoolean(),
+                        switch: $item('switch').text().bool(),
                         addressType: $item('addressType').text() as UserEditBlackAllowListForm['addressType'],
                         ip: $item('ip').text() || '',
                         startIp: $item('startIp').text() || '',

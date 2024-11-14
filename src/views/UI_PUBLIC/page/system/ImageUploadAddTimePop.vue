@@ -15,13 +15,11 @@
                 '--form-label-width': '180px',
             }"
         >
-            <el-form-item
-                :label="Translate('IDCS_SCHEDULE_START_TIME')"
-                :style="{ '--form-input-width': '150px' }"
-            >
+            <el-form-item :label="Translate('IDCS_SCHEDULE_START_TIME')">
                 <el-time-picker
                     v-model="pageData.addTimeData"
                     value-format="HH:mm:ss"
+                    :clearable="false"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
@@ -42,7 +40,7 @@
             height="260"
             border
             stripe
-            :data="prop.tableData"
+            :data="tableData"
             highlight-current-row
             @row-click="handleRowClick"
             @select="handleSelect"
@@ -74,4 +72,4 @@
     </el-dialog>
 </template>
 
-<script lang="ts" src="./AddUploadTimePop.v.ts"></script>
+<script lang="ts" src="./ImageUploadAddTimePop.v.ts"></script>

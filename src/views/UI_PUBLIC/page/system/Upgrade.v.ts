@@ -100,14 +100,14 @@ export default defineComponent({
             if ($("statenotify[@type='FileNetTransportProgress']").length) {
                 const progress = $('statenotify/progress').text()
                 pageData.value.isCheckAuth = false
-                if ($('statenotify/action').text() == 'Export') {
-                    if (progress == '100%' && clickFlag) {
+                if ($('statenotify/action').text() === 'Export') {
+                    if (progress === '100%' && clickFlag) {
                         upgrade()
                         clickFlag = false
                     }
                     closeAllLoading()
                 } else {
-                    if (progress == '100%') {
+                    if (progress === '100%') {
                         pageData.value.upgradeNote = TRANS_MAPPING.uploadReboot
                         openLoading(LoadingTarget.FullScreen, TRANS_MAPPING.uploadReboot)
                         //发送升级指令，但不一定会收到应答，需要延时检测重启
@@ -122,7 +122,7 @@ export default defineComponent({
             else if ($("statenotify[@type='FileNetTransport']").length) {
                 closeAllLoading()
                 if ($('statenotify/errorCode').length) {
-                    const errorCode = Number($('statenotify/errorCode').text())
+                    const errorCode = $('statenotify/errorCode').text().num()
                     handleErrorMsg(errorCode)
                 }
             }
@@ -142,12 +142,12 @@ export default defineComponent({
                 `
                 queryUpgradeFileHead(sendXml).then((result) => {
                     const $$ = queryXml(result)
-                    const errorCode = Number($$('/content/errorCode').text())
+                    const errorCode = $$('/content/errorCode').text().num()
                     if ($$('//status').text() === 'success') {
                         if (errorCode !== 0) handleErrorMsg(errorCode)
                     }
                     // 若errorCode为0，即正常低升高版本
-                    if (errorCode == 0) upgrade(true)
+                    if (errorCode === 0) upgrade(true)
                 })
             }
         }
@@ -192,7 +192,7 @@ export default defineComponent({
 
             const files = (e.target as HTMLInputElement).files
 
-            if (files && files.length > 0) {
+            if (files && files.length) {
                 const name = files[0].name
 
                 file = files[0]
@@ -302,7 +302,7 @@ export default defineComponent({
                     pageData.value.isUpgradeBackUp = true
                 }
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 handleErrorMsg(errorCode)
             }
         }
@@ -416,7 +416,7 @@ export default defineComponent({
                 pageData.value.isCheckAuth = false
             }
 
-            switch (Number(errorCode)) {
+            switch (errorCode) {
                 case ErrorCode.USER_ERROR_PWD_ERR:
                 case ErrorCode.USER_ERROR_NO_USER:
                     showMessage(Translate('IDCS_DEVICE_PWD_ERROR'))

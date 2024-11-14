@@ -86,7 +86,7 @@ export default defineComponent({
                 queryRecorder(data).then((res) => {
                     closeLoading()
                     const $ = queryXml(res)
-                    if ($('status').text() == 'success') {
+                    if ($('status').text() === 'success') {
                         if (showSuccessTip) {
                             openMessageBox({
                                 type: 'success',
@@ -101,8 +101,8 @@ export default defineComponent({
                             formData.value.chkDomain = !isIp
                             formData.value.domain = isIp ? '' : $('//content/domain').text()
                         }
-                        formData.value.servePort = Number($('//content/port').text())
-                        const chlCount = Number($('//content/chlList').attr('total')!)
+                        formData.value.servePort = $('//content/port').text().num()
+                        const chlCount = $('//content/chlList').attr('total').num()
                         if (chlCount > 0) {
                             formData.value.channelCount = chlCount
                         } else {
@@ -115,7 +115,7 @@ export default defineComponent({
                             const newData = new ChannelRecorderDto()
                             newData.index = ele.attr('index')!
                             newData.name = eleXml('name').text()
-                            newData.isAdded = eleXml('isAdded').text() == 'true'
+                            newData.isAdded = eleXml('isAdded').text().bool()
                             newData.bandWidth = eleXml('bandWidth').text()
                             newData.productModel = productModel
                             formData.value.recorderList.push(newData)
@@ -124,14 +124,14 @@ export default defineComponent({
                             return Number(a.index) - Number(b.index)
                         })
                     } else {
-                        const errorCode = Number($('errorCode').text())
+                        const errorCode = $('errorCode').text().num()
                         openMessageBox({
                             type: 'info',
                             message: errorMap[errorCode] || Translate('IDCS_LOGIN_OVERTIME'),
                         }).then(() => {
                             formData.value.recorderList = []
                             const chlCount = formData.value.channelCount
-                            for (let i = 0; i < Number(chlCount); i++) {
+                            for (let i = 0; i < chlCount; i++) {
                                 const newData = new ChannelRecorderDto()
                                 newData.index = String(i + 1)
                                 newData.productModel = props.editItem.productModel
@@ -158,7 +158,7 @@ export default defineComponent({
                             }
                         } else {
                             const ip = value.trim()
-                            if (!ip || ip == '0.0.0.0') {
+                            if (!ip || ip === '0.0.0.0') {
                                 callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_INVALID')))
                                 return
                             }
@@ -201,12 +201,12 @@ export default defineComponent({
                         if ($('status').text() === 'success') {
                             getData(true)
                         } else {
-                            const errorCode = Number($('errorCode').text())
+                            const errorCode = $('errorCode').text().num()
                             openMessageBox({
                                 type: 'info',
                                 message: errorMap[errorCode] || Translate('IDCS_LOGIN_OVERTIME'),
                             }).then(() => {
-                                loadNoRecoderData(Number(formData.value.channelCount))
+                                loadNoRecoderData(formData.value.channelCount)
                             })
                         }
                     })
@@ -215,7 +215,7 @@ export default defineComponent({
         }
 
         const save = () => {
-            if (tableRef.value!.getSelectionRows().length === 0) return
+            if (!tableRef.value!.getSelectionRows().length) return
             setData()
         }
 
@@ -246,8 +246,8 @@ export default defineComponent({
                                         router.push('list')
                                     })
                                 } else {
-                                    const errorCdoe = Number($('errorCode').text())
-                                    if (errorCdoe == ErrorCode.USER_ERROR_NODE_ID_EXISTS) {
+                                    const errorCdoe = $('errorCode').text().num()
+                                    if (errorCdoe === ErrorCode.USER_ERROR_NODE_ID_EXISTS) {
                                         openMessageBox({
                                             type: 'info',
                                             message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_CAMERA_EXISTED'),

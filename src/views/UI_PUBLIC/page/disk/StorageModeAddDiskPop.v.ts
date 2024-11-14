@@ -72,7 +72,7 @@ export default defineComponent({
                         // 非备份组磁盘
                         tableData.value.push({
                             id: diskId,
-                            name: diskInterfaceType == 'esata' ? Translate('IDCS_ESATA') + diskName : diskType === 'raid' ? diskName : Translate('IDCS_DISK') + diskName,
+                            name: diskInterfaceType === 'esata' ? Translate('IDCS_ESATA') + diskName : diskType === 'raid' ? diskName : Translate('IDCS_DISK') + diskName,
                             size: Math.floor(Number($item('size').text()) / 1024),
                         })
                     }

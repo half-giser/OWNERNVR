@@ -53,7 +53,7 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryAutoMaintenance()
             commLoadResponseHandler(result, ($) => {
-                formData.value.switch = $('//content/autoMaintenanceCfg/switch').text().toBoolean()
+                formData.value.switch = $('//content/autoMaintenanceCfg/switch').text().bool()
                 const interval = $('//content/autoMaintenanceCfg/interval').text()
                 if (interval !== '') {
                     formData.value.interval = Number(interval)

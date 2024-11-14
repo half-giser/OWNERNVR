@@ -133,7 +133,7 @@ export default defineComponent({
             const $ = queryXml($doc('//content/systemAuth')[0].element)
             Object.keys(systemAuthList.value).forEach((classify: string) => {
                 Object.keys(systemAuthList.value[classify].value).forEach((key) => {
-                    systemAuthList.value[classify].value[key].value = $(key).text().toBoolean()
+                    systemAuthList.value[classify].value[key].value = $(key).text().bool()
                 })
             })
             if (userSession.userType === USER_TYPE_DEFAULT_ADMIN) {
@@ -245,7 +245,7 @@ export default defineComponent({
             if ($('//status').text() === 'success') {
                 goBack()
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_NAME_EXISTED:
@@ -290,7 +290,6 @@ export default defineComponent({
             formData,
             rules,
             formatInputMaxLength,
-            nameByteMaxLen,
             systemAuthList,
             channelAuthList,
             pageData,

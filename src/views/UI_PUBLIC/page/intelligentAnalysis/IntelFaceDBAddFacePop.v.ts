@@ -312,7 +312,7 @@ export default defineComponent({
                 formData.value[index].success = true
                 isAddedFace = true
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_CANNOT_DEL_CUR_USER:
                     case ErrorCode.USER_ERROR_NO_AUTH:
@@ -398,7 +398,7 @@ export default defineComponent({
                 pageData.value.errorTip = Translate('IDCS_FACE_ADD_SUCCESS')
                 isAddedFace = true
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_CANNOT_DEL_CUR_USER:
                     case ErrorCode.USER_ERROR_NO_AUTH:

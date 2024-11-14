@@ -399,7 +399,7 @@ export default {
                 const { Translate } = useLangStore()
                 const result = await querySystemDisArmParam()
                 const $ = queryXml(result)
-                const remoteSwitch = $('//content/remoteSwitch').text().toBoolean()
+                const remoteSwitch = $('//content/remoteSwitch').text().bool()
                 if (remoteSwitch) {
                     next()
                 } else {

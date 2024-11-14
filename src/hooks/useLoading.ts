@@ -44,7 +44,7 @@ const useLoading = () => {
      */
     const openLoading = (target: string | HTMLElement = 'FullScreen', text = Translate('IDCS_LOADING')) => {
         //当前已经打开了全屏loading
-        if (fullScreenInst != null) {
+        if (fullScreenInst !== null) {
             layoutStore.loadingCount += 1
             return
         }
@@ -94,7 +94,7 @@ const useLoading = () => {
      */
     const closeLoading = (target: string | HTMLElement = 'FullScreen') => {
         //当前已经打开了全屏loading
-        if (fullScreenInst != null) {
+        if (fullScreenInst !== null) {
             if (layoutStore.loadingCount > 0) layoutStore.loadingCount -= 1
             if (layoutStore.loadingCount === 0) {
                 const inst = fullScreenInst
@@ -107,7 +107,7 @@ const useLoading = () => {
         if (loadingInstMap.has(target)) {
             const item = loadingInstMap.get(target) as LoadingItem
             item.count--
-            if (item.count == 0) {
+            if (!item.count) {
                 closeInst(item.inst)
                 loadingInstMap.delete(target)
             }
@@ -122,7 +122,7 @@ const useLoading = () => {
      * @description 关闭所有loading
      */
     const closeAllLoading = () => {
-        if (fullScreenInst != null) {
+        if (fullScreenInst !== null) {
             closeInst(fullScreenInst)
             layoutStore.loadingCount = 0
         }

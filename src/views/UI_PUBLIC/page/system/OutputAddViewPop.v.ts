@@ -91,7 +91,7 @@ export default defineComponent({
             if ($('//status').text() === 'success') {
                 ctx.emit('close')
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 if (errorCode === ErrorCode.USER_ERROR_NAME_EXISTED) {
                     openMessageBox({
                         type: 'info',

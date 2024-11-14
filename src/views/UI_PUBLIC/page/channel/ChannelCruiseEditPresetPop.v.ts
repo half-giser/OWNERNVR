@@ -98,7 +98,7 @@ export default defineComponent({
             if ($('//status').text() === 'success') {
                 pageData.value.nameOptions = $('//content/presets/item').map((item) => {
                     return {
-                        value: Number(item.attr('index')!),
+                        value: item.attr('index').num(),
                         label: item.text(),
                     }
                 })

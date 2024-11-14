@@ -47,7 +47,7 @@ export default defineComponent({
         const getAudioList = async () => {
             pageData.value.supportAudio = systemCaps.supportAlarmAudioConfig
             // pageData.value.supportAudio = true
-            if (pageData.value.supportAudio == true) {
+            if (pageData.value.supportAudio) {
                 pageData.value.audioList = await buildAudioList()
             }
         }
@@ -58,7 +58,7 @@ export default defineComponent({
                 nodeType: 'chls',
             }).then(async (resb) => {
                 const res = queryXml(resb)
-                if (res('status').text() == 'success') {
+                if (res('status').text() === 'success') {
                     res('//content/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         pageData.value.videoPopupList.push({
@@ -78,7 +78,7 @@ export default defineComponent({
                 chlType: 'digital',
             }).then(async (res) => {
                 const $chl = queryXml(res)
-                pageData.value.totalCount = Number($chl('//content').attr('total'))
+                pageData.value.totalCount = $chl('//content').attr('total').num()
                 $chl('//content/item').forEach((item) => {
                     const $ele = queryXml(item.element)
                     const row = new AlarmEventDto()
@@ -98,11 +98,11 @@ export default defineComponent({
                     `
                     const offLine = await queryFrontEndOfflineTrigger(sendXml)
                     const res = queryXml(offLine)
-                    if (res('status').text() == 'success') {
+                    if (res('status').text() === 'success') {
                         row.rowDisable = false
                         row.sysAudio = res('//content/sysAudio').attr('id') || DEFAULT_EMPTY_ID
                         row.snap = {
-                            switch: res('//content/sysSnap/switch').text() == 'true' ? true : false,
+                            switch: res('//content/sysSnap/switch').text().bool(),
                             chls: res('//content/sysSnap/chls/item').map((item) => {
                                 return {
                                     value: item.attr('id')!,
@@ -112,7 +112,7 @@ export default defineComponent({
                         }
                         // 获取snap中chls的value列表
                         row.alarmOut = {
-                            switch: res('//content/alarmOut/switch').text() == 'true' ? true : false,
+                            switch: res('//content/alarmOut/switch').text().bool(),
                             alarmOuts: res('//content/alarmOut/alarmOuts/item').map((item) => {
                                 return {
                                     value: item.attr('id')!,
@@ -125,9 +125,9 @@ export default defineComponent({
                         row.msgPush = res('//content/msgPushSwitch').text()
                         row.videoPopup = res('//content/popVideoSwitch').text()
                         row.videoPopupInfo = {
-                            switch: res('//content/popVideo/switch').text() == 'true' ? true : false,
+                            switch: res('//content/popVideo/switch').text().bool(),
                             chl: {
-                                value: res('//content/popVideo/chl').attr('id') != '' ? res('//content/popVideo/chl').attr('id') : ' ',
+                                value: res('//content/popVideo/chl').attr('id') !== '' ? res('//content/popVideo/chl').attr('id') : ' ',
                                 label: res('//content/popVideo/chl').text(),
                             },
                         }
@@ -135,7 +135,7 @@ export default defineComponent({
                             return item.value !== row.id
                         })
                         row.msgBoxPopup = res('//content/popMsgSwitch').text()
-                        row.preset.switch = res('//content/preset/switch').text() == 'true' ? true : false
+                        row.preset.switch = res('//content/preset/switch').text().bool()
                         res('//content/preset/presets/item').forEach((item) => {
                             const $item = queryXml(item.element)
                             row.preset.presets.push({
@@ -151,7 +151,7 @@ export default defineComponent({
                         const AudioData = pageData.value.audioList.filter((element: { value: string; label: string }) => {
                             return element.value === row.sysAudio
                         })
-                        if (AudioData.length === 0) {
+                        if (!AudioData.length) {
                             row.sysAudio = DEFAULT_EMPTY_ID
                         }
                     } else {
@@ -376,8 +376,8 @@ export default defineComponent({
                     </preset>
                     <buzzerSwitch>${rowData.beeper}</buzzerSwitch>
                     <popVideo>
-                        <switch>${rowData.videoPopupInfo.chl.value == ' ' ? 'false' : 'true'}</switch>
-                        <chl id="${rowData.videoPopupInfo.chl.value == ' ' ? '' : rowData.videoPopupInfo.chl.value}"></chl>
+                        <switch>${rowData.videoPopupInfo.chl.value !== ' '}</switch>
+                        <chl id="${rowData.videoPopupInfo.chl.value === ' ' ? '' : rowData.videoPopupInfo.chl.value}"></chl>
                     </popVideo>
                     <popMsgSwitch>${rowData.msgBoxPopup}</popMsgSwitch>
                     <emailSwitch>${rowData.email}</emailSwitch>
@@ -407,11 +407,11 @@ export default defineComponent({
                 const sendXml = getSavaData(item)
                 editFrontEndOfflineTrigger(sendXml).then((resb) => {
                     const res = queryXml(resb)
-                    if (res('status').text() == 'success') {
+                    if (res('status').text() === 'success') {
                         item.status = 'success'
                     } else {
                         item.status = 'error'
-                        const errorCode = Number(res('errorCode').text())
+                        const errorCode = res('errorCode').text().num()
                         if (errorCode === ErrorCode.USER_ERROR_GET_CONFIG_INFO_FAIL) {
                             item.status = 'success'
                         } else {

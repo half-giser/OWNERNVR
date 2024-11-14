@@ -101,7 +101,7 @@ export default defineComponent({
          * @return {*}
          */
         const manualTimeInputOk = () => {
-            if (pageData.value.weekdays.length > 0) {
+            if (pageData.value.weekdays.length) {
                 scheduleWeekRef.value!.addTimeSpan([dateToTimeNum(pageData.value.manualTimeSpan[0]), dateToTimeNum(pageData.value.manualTimeSpan[1])], pageData.value.weekdays)
             }
             manualTimeInputClose()
@@ -183,7 +183,6 @@ export default defineComponent({
             manualTimeInputOk,
             save,
             formatInputMaxLength,
-            nameByteMaxLen,
         }
     },
 })

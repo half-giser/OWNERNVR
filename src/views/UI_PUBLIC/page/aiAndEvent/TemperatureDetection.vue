@@ -90,137 +90,153 @@
                                 </div>
                             </el-form-item>
                         </el-form>
-
-                        <el-table
-                            ref="boundaryTableRef"
-                            stripe
-                            border
-                            :data="tempDetectionData.boundaryData"
-                            highlight-current-row
-                            :style="{ width: '940px', height: '280px' }"
-                            @row-click="boundaryRowClick"
-                        >
-                            <!-- 序号 -->
-                            <el-table-column
-                                type="index"
-                                :label="Translate('IDCS_SERIAL_NUMBER')"
-                                width="60"
-                            />
-                            <!-- 启用 -->
-                            <el-table-column
-                                width="60"
-                                :label="Translate('IDCS_ENABLE')"
+                        <div class="base-table-box">
+                            <el-table
+                                ref="boundaryTableRef"
+                                stripe
+                                border
+                                :data="tempDetectionData.boundaryData"
+                                highlight-current-row
+                                width="100%"
+                                height="280"
+                                @row-click="boundaryRowClick"
                             >
-                                <template #default="scope">
-                                    <el-checkbox v-model="scope.row.switch" />
-                                </template>
-                            </el-table-column>
-                            <!-- 名称 -->
-                            <el-table-column
-                                width="180"
-                                :label="Translate('IDCS_NAME')"
-                            >
-                                <template #default="scope">
-                                    <el-input
-                                        v-model="scope.row.ruleName"
-                                        @input="ruleNameInput(scope.row.ruleName, scope.$index)"
-                                        @keyup.enter="enterBlur($event)"
-                                    />
-                                </template>
-                            </el-table-column>
-                            <!-- 类型 -->
-                            <el-table-column
-                                width="110"
-                                :label="Translate('IDCS_TYPE')"
-                            >
-                                <template #default="scope">
-                                    <el-select
-                                        v-model="scope.row.ruleType"
-                                        @change="ruleTypeChange(scope.row.ruleType, scope.row, scope.$index)"
-                                    >
-                                        <el-option
-                                            v-for="item in ruleShapeTypeList"
-                                            :key="item.value"
-                                            :value="item.value"
-                                            :label="item.label"
+                                <!-- 序号 -->
+                                <el-table-column
+                                    type="index"
+                                    :label="Translate('IDCS_SERIAL_NUMBER')"
+                                    width="60"
+                                />
+                                <!-- 启用 -->
+                                <el-table-column
+                                    width="60"
+                                    :label="Translate('IDCS_ENABLE')"
+                                >
+                                    <template #default="scope">
+                                        <el-checkbox v-model="scope.row.switch" />
+                                    </template>
+                                </el-table-column>
+                                <!-- 名称 -->
+                                <el-table-column
+                                    width="180"
+                                    :label="Translate('IDCS_NAME')"
+                                >
+                                    <template #default="scope">
+                                        <el-input
+                                            v-model="scope.row.ruleName"
+                                            :formatter="formatInputMaxLength"
+                                            :parser="formatInputMaxLength"
+                                            @keyup.enter="enterBlur($event)"
                                         />
-                                    </el-select>
-                                </template>
-                            </el-table-column>
-                            <!-- 发射率 -->
-                            <el-table-column
-                                width="90"
-                                :label="Translate('IDCS_EMISSIVITY')"
-                            >
-                                <template #default="scope">
-                                    <el-input
-                                        v-model="scope.row.emissivity"
-                                        type="number"
-                                        @input="emissivityInput(scope.row.emissivity, scope.$index)"
-                                        @blur="emissivityBlur(scope.row)"
-                                        @keyup.enter="enterBlur($event)"
-                                    />
-                                </template>
-                            </el-table-column>
-                            <!-- 距离（m） -->
-                            <el-table-column
-                                width="90"
-                                :label="Translate('IDCS_DISTANCE')"
-                            >
-                                <template #default="scope">
-                                    <el-input
-                                        v-model="scope.row.distance"
-                                        @input="distanceInput(scope.row.distance, scope.$index)"
-                                        @blur="distanceBlur(scope.row)"
-                                        @keyup.enter="enterBlur($event)"
-                                    />
-                                </template>
-                            </el-table-column>
-                            <!-- 反射温度（℃） -->
-                            <el-table-column
-                                width="120"
-                                :label="Translate('IDCS_REFLECTED_TEMPERATURE')"
-                            >
-                                <template #default="scope">
-                                    <el-input
-                                        v-model="scope.row.reflectTemper"
-                                        @input="reflectTemperInput(scope.row.reflectTemper, scope.$index)"
-                                        @blur="reflectTemperBlur(scope.row)"
-                                        @keyup.enter="enterBlur($event)"
-                                    />
-                                </template>
-                            </el-table-column>
-                            <!-- 报警规则 -->
-                            <el-table-column
-                                width="180"
-                                :label="Translate('IDCS_ALARM_RULES')"
-                            >
-                                <template #default="scope">
-                                    <el-select v-model="scope.row.alarmRule">
-                                        <el-option
-                                            v-for="item in pageData.alarmRuleTypeList[scope.$index]"
-                                            :key="item.value"
-                                            :value="item.value"
-                                            :label="item.label"
+                                    </template>
+                                </el-table-column>
+                                <!-- 类型 -->
+                                <el-table-column
+                                    width="110"
+                                    :label="Translate('IDCS_TYPE')"
+                                >
+                                    <template #default="scope">
+                                        <el-select
+                                            v-model="scope.row.ruleType"
+                                            @change="ruleTypeChange(scope.row)"
+                                        >
+                                            <el-option
+                                                v-for="item in ruleShapeTypeList"
+                                                :key="item.value"
+                                                :value="item.value"
+                                                :label="item.label"
+                                            />
+                                        </el-select>
+                                    </template>
+                                </el-table-column>
+                                <!-- 发射率 -->
+                                <el-table-column
+                                    width="90"
+                                    :label="Translate('IDCS_EMISSIVITY')"
+                                >
+                                    <template #default="scope">
+                                        <el-input-number
+                                            v-model="scope.row.emissivity"
+                                            :min="0.01"
+                                            :max="1"
+                                            :precision="2"
+                                            :step="0.01"
+                                            @input="inputValue"
+                                            @focus="focusValue(scope.row.emissivity)"
+                                            @blur="blurValue(0.01, 1)"
+                                            @keyup.enter="enterBlur"
                                         />
-                                    </el-select>
-                                </template>
-                            </el-table-column>
-                            <!-- 报警温度（℃） -->
-                            <el-table-column
-                                width="150"
-                                :label="Translate('IDCS_ALARM_TEMPERATURE')"
-                            >
-                                <template #default="scope">
-                                    <el-input
-                                        v-model="scope.row.alarmTemper"
-                                        @input="alarmTemperInput(scope.row.alarmTemper, scope.$index)"
-                                        @blur="alarmTemperBlur(scope.row)"
-                                        @keyup.enter="enterBlur($event)"
-                                    />
-                                </template>
-                            </el-table-column>
-                        </el-table>
+                                    </template>
+                                </el-table-column>
+                                <!-- 距离（m） -->
+                                <el-table-column
+                                    width="90"
+                                    :label="Translate('IDCS_DISTANCE')"
+                                >
+                                    <template #default="scope">
+                                        <el-input-number
+                                            v-model="scope.row.distance"
+                                            :min="0"
+                                            :max="10000"
+                                            @input="inputValue"
+                                            @focus="focusValue(scope.row.distance)"
+                                            @blur="blurValue(0, 10000)"
+                                            @keyup.enter="enterBlur"
+                                        />
+                                    </template>
+                                </el-table-column>
+                                <!-- 反射温度（℃） -->
+                                <el-table-column
+                                    width="120"
+                                    :label="Translate('IDCS_REFLECTED_TEMPERATURE')"
+                                >
+                                    <template #default="scope">
+                                        <el-input-number
+                                            v-model="scope.row.reflectTemper"
+                                            :min="-30"
+                                            :max="60"
+                                            @input="inputValue"
+                                            @focus="focusValue(scope.row.reflectTemper)"
+                                            @blur="blurValue(-30, 60)"
+                                            @keyup.enter="enterBlur"
+                                        />
+                                    </template>
+                                </el-table-column>
+                                <!-- 报警规则 -->
+                                <el-table-column
+                                    width="180"
+                                    :label="Translate('IDCS_ALARM_RULES')"
+                                >
+                                    <template #default="scope">
+                                        <el-select v-model="scope.row.alarmRule">
+                                            <el-option
+                                                v-for="item in getRuleTypeList(scope.row.ruleType)"
+                                                :key="item.value"
+                                                :value="item.value"
+                                                :label="item.label"
+                                            />
+                                        </el-select>
+                                    </template>
+                                </el-table-column>
+                                <!-- 报警温度（℃） -->
+                                <el-table-column
+                                    width="150"
+                                    :label="Translate('IDCS_ALARM_TEMPERATURE')"
+                                >
+                                    <template #default="scope">
+                                        <el-input-number
+                                            v-model="scope.row.alarmTemper"
+                                            :min="-50"
+                                            :max="550"
+                                            @input="inputValue"
+                                            @focus="focusValue(scope.row.alarmTemper)"
+                                            @blur="blurValue(-50, 550)"
+                                            @keyup.enter="enterBlur"
+                                        />
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                        </div>
                     </div>
                 </el-tab-pane>
                 <!-- 联动方式 -->
@@ -284,5 +300,9 @@
 <style scoped>
 .divTip {
     line-height: normal;
+}
+
+.base-table-box {
+    height: 280px;
 }
 </style>

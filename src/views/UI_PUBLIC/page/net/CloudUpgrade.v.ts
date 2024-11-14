@@ -148,7 +148,7 @@ export default defineComponent({
                 formData.value.upgradeType = $content('cloudUpgrade/nvrItem/upgradeType').text()
                 pageData.value.isUpdateNotify = formData.value.upgradeType !== 'close'
             }
-            pageData.value.isLatest = $content('isLatest').text().toBoolean()
+            pageData.value.isLatest = $content('isLatest').text().bool()
 
             if (pageData.value.isLatest) {
                 pageData.value.checkLog = Translate('IDCS_ONLINE_UPGRADE_TIP_LATEST')
@@ -171,7 +171,7 @@ export default defineComponent({
          */
         const getNat2Switch = async () => {
             const result = await queryP2PCfg()
-            return queryXml(result)('//content/switch[@index="1"]').text().toBoolean()
+            return queryXml(result)('//content/switch[@index="1"]').text().bool()
         }
 
         /**
@@ -250,7 +250,7 @@ export default defineComponent({
             if ($('//status').text() === 'success') {
                 const $content = queryXml($('//content')[0].element)
 
-                pageData.value.isLatest = $content('isLatest').text().toBoolean()
+                pageData.value.isLatest = $content('isLatest').text().bool()
 
                 if (pageData.value.isLatest) {
                     pageData.value.checkLog = Translate('IDCS_ONLINE_UPGRADE_TIP_LATEST')

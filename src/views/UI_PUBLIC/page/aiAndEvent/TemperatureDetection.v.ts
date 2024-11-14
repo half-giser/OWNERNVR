@@ -8,7 +8,7 @@ import { type AlarmTemperatureDetectionBoundryDto, type AlarmChlDto, AlarmTemper
 import CanvasPolygon from '@/utils/canvas/canvasTemperature'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import { type TableInstance, type TabPaneName } from 'element-plus'
-import { type XmlResult } from '@/utils/xmlParse'
+import { type XMLQuery } from '@/utils/xmlParse'
 import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
 import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
 import AlarmBaseTriggerSelector from './AlarmBaseTriggerSelector.vue'
@@ -146,7 +146,6 @@ export default defineComponent({
             drawAreaTip: '',
             scheduleList: [] as SelectOption<string, string>[],
             scheduleManagPopOpen: false,
-            alarmRuleTypeList: [] as SelectOption<string, string>[][],
             // 声音列表
             voiceList: prop.voiceList,
             triggerList: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch', 'popMsgSwitch'],
@@ -207,7 +206,7 @@ export default defineComponent({
                     pluginStore.showPluginNoResponse = true
                     plugin.ShowPluginNoResponse()
                 }
-                const sendXML = OCX_XML_SetPluginModel(osType == 'mac' ? 'OscConfig' : 'ReadOnly', 'Live')
+                const sendXML = OCX_XML_SetPluginModel(osType === 'mac' ? 'OscConfig' : 'ReadOnly', 'Live')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
         }
@@ -221,7 +220,7 @@ export default defineComponent({
         }
 
         const tempClosePath = (points: { X: number; Y: number; isClosed?: boolean }[]) => {
-            if (pageData.value.currRowData.ruleType == 'area') {
+            if (pageData.value.currRowData.ruleType === 'area') {
                 points.forEach((item) => (item.isClosed = true))
                 pageData.value.currRowData.points = points as { X: number; Y: number; isClosed: boolean }[]
             }
@@ -241,7 +240,7 @@ export default defineComponent({
                 type: 'question',
                 message: Translate('IDCS_DRAW_CLEAR_TIP'),
             }).then(() => {
-                if (tempDetectionData.value.boundaryData.length == 0) return
+                if (!tempDetectionData.value.boundaryData.length) return
                 pageData.value.currRowData.points = []
                 if (mode.value === 'h5') {
                     tempDrawer.clear()
@@ -267,17 +266,17 @@ export default defineComponent({
                     streamType: 2,
                 })
             } else if (mode.value === 'ocx') {
-                if (osType == 'mac') {
-                    const sendXML = OCX_XML_Preview({
-                        winIndexList: [0],
-                        chlIdList: [chlData.id],
-                        chlNameList: [chlData.name],
-                        streamType: 'sub',
-                        // chl没有index属性
-                        chlIndexList: ['0'],
-                        chlTypeList: [chlData.chlType],
-                    })
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                if (osType === 'mac') {
+                    // const sendXML = OCX_XML_Preview({
+                    //     winIndexList: [0],
+                    //     chlIdList: [chlData.id],
+                    //     chlNameList: [chlData.name],
+                    //     streamType: 'sub',
+                    //     // chl没有index属性
+                    //     chlIndexList: ['0'],
+                    //     chlTypeList: [chlData.chlType],
+                    // })
+                    // plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 } else {
                     plugin.RetryStartChlView(prop.currChlId, chlData.name)
                 }
@@ -296,11 +295,11 @@ export default defineComponent({
         }
 
         const getRealValueByRatio = (value: string) => {
-            return (Number(value) / 10000).toFixed(2)
+            return Number(value) / 10000
         }
 
-        const getScaleValueByRatio = (value: string) => {
-            return String(Number(value) * 10000)
+        const getScaleValueByRatio = (value: number) => {
+            return value * 10000
         }
 
         // 获取温度检测数据
@@ -337,15 +336,15 @@ export default defineComponent({
                     const points = $item('point/item').map((ele) => {
                         const $ele = queryXml(ele.element)
                         return {
-                            X: Number($ele('X').text()),
-                            Y: Number($ele('Y').text()),
+                            X: $ele('X').text().num(),
+                            Y: $ele('Y').text().num(),
                             isClosed: true,
                         }
                     })
                     boundaryData.push({
                         id: $item('ruleId').text(),
-                        ruleId: Number($item('ruleId').text()),
-                        switch: $item('switch').text() == 'true',
+                        ruleId: $item('ruleId').text().num(),
+                        switch: $item('switch').text().bool(),
                         ruleName: $item('ruleName').text(),
                         ruleType: $item('ruleType').text(),
                         emissivity: getRealValueByRatio($item('emissivity').text()),
@@ -357,7 +356,7 @@ export default defineComponent({
                         alarmRule: $item('alarmRule').text(),
                         alarmTemper: getRealValueByRatio($item('alarmTemper').text()),
                         alarmTemperDefault: getRealValueByRatio($item('alarmTemper').attr('default')),
-                        maxCount: Number($item('point').attr('maxCount')),
+                        maxCount: $item('point').attr('maxCount').num(),
                         points,
                     })
                 })
@@ -393,7 +392,7 @@ export default defineComponent({
                     }
                 })
                 tempDetectionData.value = {
-                    enabledSwitch: $('//content/chl/param/switch').text() == 'true',
+                    enabledSwitch: $('//content/chl/param/switch').text().bool(),
                     holdTime,
                     holdTimeList,
                     schedule: $('//content/chl').attr('scheduleGuid'),
@@ -404,7 +403,7 @@ export default defineComponent({
                     snap,
                     preset,
                     trigger: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch', 'popMsgSwitch'].filter((item) => {
-                        return $trigger(item).text().toBoolean()
+                        return $trigger(item).text().bool()
                     }),
                     sysAudio: $('sysAudio').attr('id'),
                     boundaryData,
@@ -433,20 +432,24 @@ export default defineComponent({
         const handleTemperatureDetectionData = () => {
             // 报警规则选项列表与类型有关
             tempDetectionData.value.boundaryData.forEach((item, index) => {
-                if (index == 0) {
+                if (index === 0) {
                     // 初始化选中第一行并绘制图形
                     boundaryTableRef.value!.setCurrentRow(item)
                     pageData.value.currRowData = item
                 }
-                pageData.value.alarmRuleTypeList[index] = item.ruleType == 'point' ? alarmRuleTypeList2 : alarmRuleTypeList1
+                // pageData.value.alarmRuleTypeList[index] = item.ruleType === 'point' ? alarmRuleTypeList2 : alarmRuleTypeList1
             })
             setPaintType()
             setAreaView()
         }
 
+        const getRuleTypeList = (ruleType: string) => {
+            return ruleType === 'point' ? alarmRuleTypeList2 : alarmRuleTypeList1
+        }
+
         // tab项（参数设置，联动方式）
         const tempTabChange = (name: TabPaneName) => {
-            if (name == 'param') {
+            if (name === 'param') {
                 play()
             }
         }
@@ -468,9 +471,9 @@ export default defineComponent({
 
         // 设置区域图形
         const setAreaView = () => {
-            if (pageData.value.currRowData) {
+            if (pageData.value.currRowData?.points) {
                 if (mode.value === 'h5') {
-                    const isFoucusClosePath = pageData.value.currRowData.ruleType == 'area'
+                    const isFoucusClosePath = pageData.value.currRowData.ruleType === 'area'
                     tempDrawer.setCurrAreaIndex(pageData.value.currRowData.ruleId, 'detectionArea')
                     tempDrawer.setPointList(pageData.value.currRowData.points, isFoucusClosePath)
                 } else {
@@ -488,7 +491,7 @@ export default defineComponent({
         const showAllArea = () => {
             tempDrawer && tempDrawer.setEnableShowAll(pageData.value.isShowAllArea)
             if (pageData.value.isShowAllArea) {
-                const detectAreaInfo = [] as { X: number; Y: number; isClosed: boolean }[][]
+                const detectAreaInfo = [] as { X: number; Y: number; isClosed?: boolean }[][]
                 tempDetectionData.value.boundaryData.forEach((item, index) => {
                     detectAreaInfo[index] = item.points
                 })
@@ -520,7 +523,7 @@ export default defineComponent({
                 const sendXML = OCX_XML_SetOscAreaAction('NONE')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
-            if (tempDetectionData.value.boundaryData.length == 0) return
+            if (!tempDetectionData.value.boundaryData.length) return
             pageData.value.currRowData.points = []
             if (pageData.value.isShowAllArea) {
                 showAllArea()
@@ -546,19 +549,14 @@ export default defineComponent({
             }
         }
 
-        // 名称输入限制
-        const ruleNameInput = (value: string, index: number) => {
-            tempDetectionData.value.boundaryData[index].ruleName = cutStringByByte(value, 63)
-        }
-
         // 回车键失去焦点
-        const enterBlur = (event: { target: { blur: () => void } }) => {
-            event.target.blur()
+        const enterBlur = (event: Event) => {
+            ;(event.target as HTMLElement).blur()
         }
 
         // 类型改变
-        const ruleTypeChange = (value: string, row: AlarmTemperatureDetectionBoundryDto, index: number) => {
-            pageData.value.alarmRuleTypeList[index] = value == 'point' ? alarmRuleTypeList2 : alarmRuleTypeList1
+        const ruleTypeChange = (row: AlarmTemperatureDetectionBoundryDto) => {
+            // pageData.value.alarmRuleTypeList[index] = value === 'point' ? alarmRuleTypeList2 : alarmRuleTypeList1
             pageData.value.currRowData = row
             boundaryTableRef.value!.setCurrentRow(row)
             row.alarmRule = 'avgtemperabove'
@@ -566,124 +564,28 @@ export default defineComponent({
             clearArea()
         }
 
-        // 发射率输入限制
-        const emissivityInput = (value: string, index: number) => {
-            let num = '' + value
-            num = num
-                .replace(/[^\d.]/g, '') // 清除“数字”和“.”以外的字符
-                .replace(/\.{2,}/g, '.') // 只保留第一个. 清除多余的
-                .replace('.', '$#$') //把字符"."替换成'$#$',把'.'转换成一个比较特殊的字符防止被下一个正则替换给替换掉，因为replace对于字符串只匹配一次,所以只会替换第一个'.'
-                .replace(/\./g, '') //把其余的字符'.'替换为空字符串(删除)
-                .replace('$#$', '.') //把字符'$#$'替换回原来的'.'
-                .replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3') // 只能输入两个小数。^字符串开始;第一组匹配,匹配1个'-';重复匹配`-`0-n个,但不进入分组 (\d+)第二组匹配,匹配1-n个数字; \.随后匹配一个'.'; (\d\d)第三组匹配,一个两位的数字; .*$后面匹配任意字符0-n个,直到字符串结束. 替换的目标是:'(第一组匹配)(第二组匹配).(第三组匹配)' */
+        let currentValue = 0
 
-            let res = Number(num)
-            if (num.indexOf('.') < 0 && num !== '') {
-                // 如果没有小数点，首位不能为类似于00、 01、02的数字
-                res = parseFloat(num)
-            }
-
-            if (res > 1) {
-                // 数字默认为0.01
-                res = 0.01
-                pageData.value.errorMessage = Translate('IDCS_HEARTBEAT_RANGE_TIP').formatForLang(0.01, 1)
-            }
-            tempDetectionData.value.boundaryData[index].emissivity = value != '' ? String(res) : ''
+        const focusValue = (value: number) => {
+            currentValue = value
         }
 
-        const emissivityBlur = (row: AlarmTemperatureDetectionBoundryDto) => {
-            const value = Number(row.emissivity)
-            if (!value || value < 0.01 || value > 1) {
-                // 数字默认为0.01
-                row.emissivity = '0.01'
-                pageData.value.errorMessage = Translate('IDCS_HEARTBEAT_RANGE_TIP').formatForLang(0.01, 1)
-            }
+        const inputValue = (e: number | undefined | null) => {
+            currentValue = Number(e)
         }
 
-        // 距离
-        const distanceInput = (value: string, index: number) => {
-            if (!/^[0-9]+$/.test(value)) value = value.replace(/\D/g, '')
-            if ((value[0] == '0' && value[1] > '0') || value == '00') value = value.slice(1)
-            if (Number(value) > 10000) {
-                value = cutStringByByte(value, 4)
-                pageData.value.errorMessage = Translate('IDCS_HEARTBEAT_RANGE_TIP').formatForLang(0, 10000)
+        const blurValue = (min: number, max: number) => {
+            if (currentValue < min || currentValue > max) {
+                pageData.value.errorMessage = Translate('IDCS_HEARTBEAT_RANGE_TIP').formatForLang(min, max)
             }
-            tempDetectionData.value.boundaryData[index].distance = value
-        }
-
-        const distanceBlur = (row: AlarmTemperatureDetectionBoundryDto) => {
-            if (!row.distance) row.distance = '0'
-            row.distance = parseFloat(row.distance).toFixed(2)
-        }
-
-        // 反射温度(℃)
-        const reflectTemperInput = (value: string, index: number) => {
-            if (!/^[0-9]+$/.test(value)) {
-                value = value.replace(/[^-?\d+$.]/g, '')
-            }
-
-            if (value[0] == '-') {
-                value = value
-                    .replace(/\.{2,}/g, '.') // 只保留第一个- 清除多余的
-                    .replace('-', '$#$') //把字符"-"替换成'$#$',把'-'转换成一个比较特殊的字符防止被下一个正则替换给替换掉，因为replace对于字符串只匹配一次,所以只会替换第一个'.'
-                    .replace(/\-/g, '') //把其余的字符'-'替换为空字符串(删除)
-                    .replace('$#$', '-') //把字符'$#$'替换回原来的'-'
-                if (Number(value) < -30) {
-                    value = value.slice(0, -1)
-                    pageData.value.errorMessage = Translate('IDCS_HEARTBEAT_RANGE_TIP').formatForLang(-30, 60)
-                }
-            } else {
-                value = value.replace(/\-/g, '') //把字符'-'替换为空字符串(删除)
-                if (Number(value) > 60) {
-                    value = value.slice(0, -1)
-                    pageData.value.errorMessage = Translate('IDCS_HEARTBEAT_RANGE_TIP').formatForLang(-30, 60)
-                }
-            }
-            tempDetectionData.value.boundaryData[index].reflectTemper = value
-        }
-
-        const reflectTemperBlur = (row: AlarmTemperatureDetectionBoundryDto) => {
-            if (!row.reflectTemper) row.reflectTemper = '-30'
-            row.reflectTemper = parseFloat(row.reflectTemper).toFixed(2)
-        }
-
-        // 报警温度(℃)
-        const alarmTemperInput = (value: string, index: number) => {
-            if (!/^[0-9]+$/.test(value)) {
-                value = value.replace(/[^-?\d+$.]/g, '')
-            }
-
-            if (value[0] == '-') {
-                value = value
-                    .replace(/\.{2,}/g, '.') // 只保留第一个- 清除多余的
-                    .replace('-', '$#$') //把字符"-"替换成'$#$',把'-'转换成一个比较特殊的字符防止被下一个正则替换给替换掉，因为replace对于字符串只匹配一次,所以只会替换第一个'.'
-                    .replace(/\-/g, '') //把其余的字符'-'替换为空字符串(删除)
-                    .replace('$#$', '-') //把字符'$#$'替换回原来的'-'
-                if (Number(value) < -50) {
-                    value = value.slice(0, -1)
-                    pageData.value.errorMessage = Translate('IDCS_HEARTBEAT_RANGE_TIP').formatForLang(-50, 500)
-                }
-            } else {
-                value = value.replace(/\-/g, '') //把字符'-'替换为空字符串(删除)
-                if (Number(value) > 500) {
-                    value = value.slice(0, -1)
-                    pageData.value.errorMessage = Translate('IDCS_HEARTBEAT_RANGE_TIP').formatForLang(-50, 500)
-                }
-            }
-            tempDetectionData.value.boundaryData[index].alarmTemper = value
-        }
-
-        const alarmTemperBlur = (row: AlarmTemperatureDetectionBoundryDto) => {
-            if (!row.alarmTemper) row.alarmTemper = '-30'
-            row.alarmTemper = parseFloat(row.alarmTemper).toFixed(2)
         }
 
         // 设置绘制类型
         const setPaintType = () => {
             const rowData = pageData.value.currRowData
-            if (rowData.ruleType == 'line') {
+            if (rowData.ruleType === 'line') {
                 pageData.value.drawAreaTip = Translate('IDCS_DRAW_LINE_TIP')
-            } else if (rowData.ruleType == 'area') {
+            } else if (rowData.ruleType === 'area') {
                 pointToValueMap.area = rowData.maxCount
                 pageData.value.drawAreaTip = Translate('IDCS_DRAW_AREA_TIP').formatForLang(6)
             } else {
@@ -699,18 +601,18 @@ export default defineComponent({
         }
 
         // 闭合区域
-        const setClosed = (points: { X: number; Y: number; isClosed: boolean }[]) => {
-            points?.forEach((item) => {
+        const setClosed = (points: { X: number; Y: number; isClosed?: boolean }[]) => {
+            points.forEach((item) => {
                 item.isClosed = true
             })
         }
 
         const setOtherAreaClosed = () => {
-            if (mode.value == 'h5') {
+            if (mode.value === 'h5') {
                 // 画点-区域
                 if (tempDetectionData.value.boundaryData && tempDetectionData.value.boundaryData.length > 0) {
                     tempDetectionData.value.boundaryData.forEach((item) => {
-                        if (item.ruleType == 'area' && item.points.length >= 3 && tempDrawer.judgeAreaCanBeClosed(item.points)) {
+                        if (item.ruleType === 'area' && item.points.length >= 3 && tempDrawer.judgeAreaCanBeClosed(item.points)) {
                             setClosed(item.points)
                         }
                     })
@@ -757,7 +659,16 @@ export default defineComponent({
                                                 <alarmRule>${item.alarmRule}</alarmRule>
                                                 <alarmTemper min='4294667296' max='600000' default='250000'>${getScaleValueByRatio(item.alarmTemper)}</alarmTemper>
                                                 <point type='list' count='${item.points.length}' maxCount='${item.maxCount}'>
-                                                    ${item.points.map((ele) => `<item><X>${Number(ele.X).toFixed(0)}</X><Y>${Number(ele.Y).toFixed(0)}</Y></item>`).join('')}
+                                                    ${item.points
+                                                        .map(
+                                                            (ele) => rawXml`
+                                                                <item>
+                                                                    <X>${Math.floor(ele.X)}</X>
+                                                                    <Y>${Math.floor(ele.Y)}</Y>
+                                                                </item>
+                                                            `,
+                                                        )
+                                                        .join('')}
                                                 </point>
                                             </item>
                                         `
@@ -816,7 +727,7 @@ export default defineComponent({
             const result = await editTemperatureAlarmConfig(sendXml)
             closeLoading()
             const $ = queryXml(result)
-            if ($('//status').text() == 'success') {
+            if ($('//status').text() === 'success') {
                 // 保存成功后刷新视频区域，四个点时区域没有闭合但保存后也可以闭合（四点已经可以画面）
                 setAreaView()
                 pageData.value.applyDisabled = true
@@ -825,8 +736,8 @@ export default defineComponent({
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
             } else {
-                const errorCode = $('//errorCode').text()
-                if (errorCode == '536871053') {
+                const errorCode = $('//errorCode').text().num()
+                if (errorCode === 536871053) {
                     openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_INPUT_LIMIT_FOUR_POIONT'),
@@ -848,34 +759,34 @@ export default defineComponent({
             }
         })
 
-        const LiveNotify2Js = ($: (path: string) => XmlResult) => {
+        const LiveNotify2Js = ($: XMLQuery) => {
             // 温度报警检测
-            // const $xmlNote = $("statenotify[type='OscArea']")
-            const $points = $("statenotify[@type='OscArea']/points")
-            const errorCode = $("statenotify[@type='OscArea']/errorCode").text()
-            // 绘制点线
-            if ($points.length > 0) {
-                const points = [] as { X: number; Y: number }[]
-                $('/statenotify/points/item').forEach((item) => {
-                    points.push({ X: Number(item.attr('X')), Y: Number(item.attr('Y')) })
-                })
-                pageData.value.currRowData.points = points as { X: number; Y: number; isClosed: boolean }[]
-            }
+            if ($("statenotify[@type='OscArea']").length) {
+                if ($('statenotify/points').length) {
+                    pageData.value.currRowData.points = $('/statenotify/points/item').map((item) => {
+                        return {
+                            X: item.attr('X').num(),
+                            Y: item.attr('Y').num(),
+                        }
+                    })
+                }
 
-            // 处理错误码
-            if (errorCode == '517') {
-                // 517-区域已闭合
-                tempClearCurrentArea()
-            } else if (errorCode == '515') {
-                // 515-区域有相交直线，不可闭合
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_INTERSECT'),
-                })
+                const errorCode = $('statenotify/errorCode').text().num()
+                if (errorCode === 517) {
+                    // 517-区域已闭合
+                    tempClearCurrentArea()
+                } else if (errorCode === 515) {
+                    // 515-区域有相交直线，不可闭合
+                    openMessageBox({
+                        type: 'info',
+                        message: Translate('IDCS_INTERSECT'),
+                    })
+                }
             }
         }
+
         onMounted(async () => {
-            if (mode.value != 'h5') {
+            if (mode.value !== 'h5') {
                 Plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
             }
             pageData.value.scheduleList = await buildScheduleList()
@@ -888,13 +799,15 @@ export default defineComponent({
                 // 切到其他AI事件页面时清除一下插件显示的（线条/点/矩形/多边形）数据
                 const sendMinXML = OCX_XML_SetOscAreaAction('NONE')
                 plugin.GetVideoPlugin().ExecuteCmd(sendMinXML)
+
                 const sendXMLAll = OCX_XML_SetAllArea({ detectAreaInfo: [] }, 'IrregularPolygon', 'TYPE_WATCH_DETECTION', '', false)
                 plugin.GetVideoPlugin().ExecuteCmd(sendXMLAll!)
+
                 const sendXML = OCX_XML_StopPreview('ALL')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
 
-            if (mode.value == 'h5') {
+            if (mode.value === 'h5') {
                 tempDrawer.destroy()
             }
         })
@@ -921,8 +834,6 @@ export default defineComponent({
             // 报警规则类型
             alarmRuleTypeList1,
             alarmRuleTypeList2,
-            // 联动预置点
-            // PresetTableData,
             pageData,
             // 播放器就绪
             handlePlayerReady,
@@ -935,25 +846,18 @@ export default defineComponent({
             // 区域table切换行
             boundaryRowClick,
             // 名称输入限制
-            ruleNameInput,
+            // ruleNameInput,
             // 回车键失去焦点
             enterBlur,
             // 类型（区域，线，点）
             ruleTypeChange,
-            // 发射率
-            emissivityInput,
-            emissivityBlur,
-            // 距离
-            distanceInput,
-            distanceBlur,
-            // 反射温度(℃)
-            reflectTemperInput,
-            reflectTemperBlur,
-            // 报警温度(℃)
-            alarmTemperInput,
-            alarmTemperBlur,
+            focusValue,
+            inputValue,
+            blurValue,
+            getRuleTypeList,
             // 提交温度检测数据
             applyTempDetectionData,
+            formatInputMaxLength,
             AlarmBaseRecordSelector,
             AlarmBaseAlarmOutSelector,
             AlarmBaseTriggerSelector,

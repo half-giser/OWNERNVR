@@ -21,7 +21,6 @@
             >
                 <el-input
                     v-model="formData.name"
-                    maxlength="63"
                     :formatter="formatInputMaxLength"
                     :parser="formatInputMaxLength"
                 />

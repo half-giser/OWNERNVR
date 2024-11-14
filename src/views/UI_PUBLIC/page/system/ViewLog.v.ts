@@ -400,7 +400,7 @@ export default defineComponent({
             closeLoading()
 
             commLoadResponseHandler(result, ($) => {
-                pageData.value.totalCount = Number($('//content').attr('total'))
+                pageData.value.totalCount = $('//content').attr('total').num()
 
                 const data = $('//content/item').map((item, index) => {
                     const $item = queryXml(item.element)

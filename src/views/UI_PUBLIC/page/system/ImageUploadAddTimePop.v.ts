@@ -3,18 +3,18 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-10-24 10:03:25
  */
-import { type ImageUploadDto } from '@/types/apiType/system'
+import { type SystenSHDBImageUploadDto } from '@/types/apiType/system'
 import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
     props: {
         tableData: {
-            type: Array as PropType<ImageUploadDto[]>,
+            type: Array as PropType<SystenSHDBImageUploadDto[]>,
             required: true,
         },
     },
     emits: {
-        confirm(data: ImageUploadDto[], addTime: string) {
+        confirm(data: SystenSHDBImageUploadDto[], addTime: string) {
             return data || addTime
         },
         close() {
@@ -32,6 +32,7 @@ export default defineComponent({
             // 反选
             reverseSelect: false,
         })
+
         const open = () => {
             pageData.value.addTimeData = '00:00:00'
             pageData.value.selectAll = true
@@ -40,12 +41,12 @@ export default defineComponent({
         }
 
         // 表头全选checkbox点击
-        const selectAllChl = (rows: ImageUploadDto[]) => {
+        const selectAllChl = (rows: SystenSHDBImageUploadDto[]) => {
             pageData.value.selectAll = rows.length === prop.tableData.length
         }
 
         // 手动点击选择行checkbox
-        const handleSelect = (selection: ImageUploadDto[], row: ImageUploadDto) => {
+        const handleSelect = (selection: SystenSHDBImageUploadDto[], row: SystenSHDBImageUploadDto) => {
             if (!selection.some((item) => item.chlId === row.chlId)) {
                 tableRef.value!.setCurrentRow(null)
             }
@@ -62,10 +63,10 @@ export default defineComponent({
 
         // 反选
         const reverseSelection = () => {
-            const selectedRowsIds = tableRef.value!.getSelectionRows().map((row: ImageUploadDto) => row.chlId)
+            const selectedRowsIds = tableRef.value!.getSelectionRows().map((row: SystenSHDBImageUploadDto) => row.chlId)
             tableRef.value!.setCurrentRow(null)
             tableRef.value!.clearSelection()
-            prop.tableData.forEach((row: ImageUploadDto) => {
+            prop.tableData.forEach((row) => {
                 if (!selectedRowsIds.includes(row.chlId)) {
                     tableRef.value!.toggleRowSelection(row, true)
                 }
@@ -74,7 +75,7 @@ export default defineComponent({
         }
 
         // 行点击事件
-        const handleRowClick = (rowData: ImageUploadDto) => {
+        const handleRowClick = (rowData: SystenSHDBImageUploadDto) => {
             pageData.value.selectAll = false
             tableRef.value!.clearSelection()
             tableRef.value!.toggleRowSelection(rowData, true)
@@ -89,7 +90,6 @@ export default defineComponent({
         }
 
         return {
-            prop,
             tableRef,
             pageData,
             open,

@@ -77,7 +77,7 @@ export default defineComponent({
                 nodeType: 'alarmOuts',
             }).then(async (result) => {
                 const $chl = queryXml(result)
-                pageData.value.totalCount = Number($chl('//content').attr('total'))
+                pageData.value.totalCount = $chl('//content').attr('total').num()
                 $chl('//content/item').forEach(async (item) => {
                     const row = new AlarmOutDto()
                     row.id = item.attr('id')!
@@ -101,7 +101,7 @@ export default defineComponent({
                     row.status = ''
 
                     // 从第一个数据中获取延迟时间下拉选项和类型下拉选项
-                    if (pageData.value.delayList.length === 0) {
+                    if (!pageData.value.delayList.length) {
                         pageData.value.delayList = $('//content/delayTimeNote')
                             .text()
                             .split(',')
@@ -117,7 +117,7 @@ export default defineComponent({
                     if ($('//status').text() === 'success') {
                         // 查询成功的行取消禁用
                         row.disabled = false
-                        row.delayTime = Number($('//content/delayTime').text())
+                        row.delayTime = $('//content/delayTime').text().num()
                         const $schedule = $('//content/schedule')
                         row.scheduleId = $schedule.attr('id')
                         row.scheduleName = $schedule.text()
@@ -163,7 +163,7 @@ export default defineComponent({
         }
 
         const changeScheduleAll = (value: string) => {
-            if (value == 'scheduleMgr') {
+            if (value === 'scheduleMgr') {
                 pageData.value.scheduleManagePopOpen = true
             } else {
                 tableData.value.forEach((item) => {
@@ -174,7 +174,7 @@ export default defineComponent({
         }
 
         const changeSchedule = (row: AlarmOutDto) => {
-            if (row.scheduleId == 'scheduleMgr') {
+            if (row.scheduleId === 'scheduleMgr') {
                 pageData.value.scheduleManagePopOpen = true
                 row.scheduleId = row.oldSchedule
             } else {
@@ -225,7 +225,7 @@ export default defineComponent({
                 }
 
                 for (const item of tableData.value) {
-                    if (item.id != row.id && name == item.name) {
+                    if (item.id !== row.id && name === item.name) {
                         openMessageBox({
                             type: 'info',
                             message: Translate('IDCS_NAME_SAME'),

@@ -121,8 +121,8 @@ export default defineComponent({
             popOpen: false,
         })
         const handleTimePickerChange = () => {
-            pageData.value.data.sendEmailData.reportHour = parseInt(pageData.value.time.split(':')[0])
-            pageData.value.data.sendEmailData.reportMin = parseInt(pageData.value.time.split(':')[1])
+            pageData.value.data.sendEmailData.reportHour = Number(pageData.value.time.split(':')[0])
+            pageData.value.data.sendEmailData.reportMin = Number(pageData.value.time.split(':')[1])
         }
 
         // 原代码中显示了地址后无法隐藏，这里改为再次点击隐藏
@@ -133,7 +133,7 @@ export default defineComponent({
             //     row.rowClicked = !row.rowClicked
             // }
             pageData.value.data.receiverData.forEach((item) => {
-                if (item != row) {
+                if (item !== row) {
                     item.rowClicked = false
                 }
             })
@@ -177,7 +177,7 @@ export default defineComponent({
         }
 
         const checkExist = (address: string) => {
-            const result = pageData.value.data.receiverData.some((item) => item.address == address)
+            const result = pageData.value.data.receiverData.some((item) => item.address === address)
             return result
         }
 

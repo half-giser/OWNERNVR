@@ -351,7 +351,7 @@ const init = () => {
     }
 
     // 如果有选择时间范围遮罩层，则进行遮罩层绘制
-    if (timeRangeMask && timeRangeMask.length > 0) {
+    if (timeRangeMask && timeRangeMask.length) {
         drawTimeRangeMask(timeRangeMask[0], timeRangeMask[1])
     }
 }
@@ -876,7 +876,7 @@ const updateTimeSplitList = (startTime: number) => {
  */
 const drawScaleByDay = (startScaleX: number, startScaleTime: number, i: number) => {
     let timeStr = ''
-    if (oneDayHours == 24) {
+    if (oneDayHours === 24) {
         if (i % 2 === 0) {
             // 长刻度
             drawLine(ctx, startScaleX + offsetWidth, 40, startScaleX + offsetWidth, 32)
@@ -887,10 +887,10 @@ const drawScaleByDay = (startScaleX: number, startScaleTime: number, i: number) 
             drawLine(ctx, startScaleX + offsetWidth, 40, startScaleX + offsetWidth, 35)
         }
     } else {
-        if (oneDayHours == 23 && startScaleTime >= 3600 * dstStartHour) {
+        if (oneDayHours === 23 && startScaleTime >= 3600 * dstStartHour) {
             // 夏令时开始当天
             timeStr = formatTime(startScaleTime + 3600)
-        } else if (oneDayHours == 25 && startScaleTime >= 3600 * dstEndHour) {
+        } else if (oneDayHours === 25 && startScaleTime >= 3600 * dstEndHour) {
             // 夏令时结束当天
             timeStr = formatTime(startScaleTime - 3600)
         } else {
@@ -898,7 +898,7 @@ const drawScaleByDay = (startScaleX: number, startScaleTime: number, i: number) 
         }
         const dstStartOrEndHour = dstStartHour ? dstStartHour : dstEndHour
         if (i <= dstStartOrEndHour) {
-            if (i == dstStartOrEndHour) {
+            if (i === dstStartOrEndHour) {
                 if (dstStartOrEndHour % 2 === 0) {
                     // 短刻度
                     drawLine(ctx, startScaleX + offsetWidth, 40, startScaleX + offsetWidth, 35)
@@ -1026,13 +1026,13 @@ const drawPointer = () => {
         let timeStr = ''
         const startY = 12
         if (mode === 'day') {
-            if (oneDayHours == 24) {
+            if (oneDayHours === 24) {
                 timeStr = formatTime(pointerTime, prop.dayFormat)
             } else {
-                if (oneDayHours == 23 && pointerTime >= 3600 * dstStartHour) {
+                if (oneDayHours === 23 && pointerTime >= 3600 * dstStartHour) {
                     // 夏令时开始当天
                     timeStr = formatTime(pointerTime + 3600, prop.dayFormat)
-                } else if (oneDayHours == 25 && pointerTime >= 3600 * dstEndHour) {
+                } else if (oneDayHours === 25 && pointerTime >= 3600 * dstEndHour) {
                     // 夏令时结束当天
                     timeStr = formatTime(pointerTime - 3600, prop.dayFormat)
                 } else {
@@ -1066,13 +1066,13 @@ const drawMovingWithMousePointer = (x: number, y: number) => {
     let rectY = y - 17
     const rectH = 24
     if (mode === 'day') {
-        if (oneDayHours == 24) {
+        if (oneDayHours === 24) {
             timeStr = formatTime(time, prop.dayFormat)
         } else {
-            if (oneDayHours == 23 && time >= 3600 * dstStartHour) {
+            if (oneDayHours === 23 && time >= 3600 * dstStartHour) {
                 // 夏令时开始当天
                 timeStr = formatTime(time + 3600, prop.dayFormat)
-            } else if (oneDayHours == 25 && time >= 3600 * dstEndHour) {
+            } else if (oneDayHours === 25 && time >= 3600 * dstEndHour) {
                 // 夏令时结束当天
                 timeStr = formatTime(time - 3600, prop.dayFormat)
             } else {
@@ -1289,7 +1289,7 @@ const setDstDayTime = (currentDayStartTime: string) => {
 const updateChlList = (newChlList: ChlList[], newAutoPointer: boolean, pageType: 'live' | 'record') => {
     chlList = newChlList
     autoPointer = newAutoPointer
-    if (pageType == 'record') {
+    if (pageType === 'record') {
         const records = chlList.map((item) => item.records).flat()
         if (newChlList.length && records.length) {
             const startDate = formatDate(records[0].startTime, 'YYYY/MM/DD')

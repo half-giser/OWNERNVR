@@ -157,7 +157,7 @@ export default class CanvasPassline {
         this.lineInfoList = lineInfoList
         const lineStyle = JSON.parse(JSON.stringify(this.lineStyle))
         lineInfoList.forEach((lineInfo, surfaceOrAlarmLine) => {
-            if (surfaceOrAlarmLine == currentSurfaceOrAlarmLine) {
+            if (surfaceOrAlarmLine === currentSurfaceOrAlarmLine) {
                 this.lineStyle.lineWidth = 3
             } else {
                 this.lineStyle.lineWidth = 1.5

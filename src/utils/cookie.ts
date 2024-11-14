@@ -40,7 +40,7 @@ export const delCookie = (name: string) => {
     const exp = new Date()
     exp.setTime(exp.getTime() - 1)
     const cval = getCookie(name)
-    if (cval != null) {
+    if (cval !== null) {
         document.cookie = name + '=' + cval + ';path=/' + ';expires=' + exp.toUTCString()
     }
 }

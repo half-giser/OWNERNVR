@@ -81,7 +81,7 @@ export default defineComponent({
 
         // 初始化数据
         const initData = () => {
-            pageData.value.selectAll = taskData.groupId.length > 0 && taskData.groupId.length == prop.groupData?.length
+            pageData.value.selectAll = taskData.groupId.length > 0 && taskData.groupId.length === prop.groupData?.length
             handleGroupName()
         }
 
@@ -133,7 +133,7 @@ export default defineComponent({
         const saveGroup = () => {
             taskData.groupId = pageData.value.groupSelection.map((item) => item.guid)
             closeGroupPop()
-            pageData.value.selectAll = taskData.groupId.length > 0 && taskData.groupId.length == prop.groupData?.length
+            pageData.value.selectAll = taskData.groupId.length > 0 && taskData.groupId.length === prop.groupData?.length
             handleGroupName()
         }
 

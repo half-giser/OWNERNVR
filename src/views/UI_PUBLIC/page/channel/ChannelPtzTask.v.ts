@@ -297,7 +297,7 @@ export default defineComponent({
             const $ = queryXml(result)
 
             if ($('//status').text() === 'success') {
-                const status = $('//content/tasks').attr('status')!.toBoolean()
+                const status = $('//content/tasks').attr('status')!.bool()
                 const data = $('//content/tasks/item').map((item, index) => {
                     const $item = queryXml(item.element)
                     return {

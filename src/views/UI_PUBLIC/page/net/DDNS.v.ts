@@ -155,7 +155,7 @@ export default defineComponent({
                 formData.value.password = $('//content/password').text()
                 formData.value.domainName = $('//content/domainName').text()
                 formData.value.heartbeatTime = Number($('//content/heartbeatTime').text()) || undefined
-                formData.value.switch = $('//content/switch').text().toBoolean()
+                formData.value.switch = $('//content/switch').text().bool()
 
                 pageData.value.serverTypeOptions = $('//types/ddnsServerType/enum').map((item) => {
                     const serverType = item.attr('display') || item.text()
@@ -373,7 +373,6 @@ export default defineComponent({
             setData,
             formatDomainName,
             formatInputUserName,
-            nameByteMaxLen,
         }
     },
 })

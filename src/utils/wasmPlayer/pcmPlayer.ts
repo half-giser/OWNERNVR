@@ -83,7 +83,7 @@ export default class PCMPlayer {
     }
 
     isTypedArray(data: Uint8Array) {
-        return data.byteLength && data.buffer && data.buffer.constructor == ArrayBuffer
+        return data.byteLength && data.buffer && data.buffer.constructor === ArrayBuffer
     }
 
     /**

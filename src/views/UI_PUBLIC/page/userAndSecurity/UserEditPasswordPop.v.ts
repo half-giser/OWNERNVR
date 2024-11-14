@@ -152,7 +152,7 @@ export default defineComponent({
                 isAuthDialog.value = false
                 ctx.emit('close')
             } else {
-                const errorCode = Number($('//errorCode').text())
+                const errorCode = $('//errorCode').text().num()
                 let errorText = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_PWD_ERR:

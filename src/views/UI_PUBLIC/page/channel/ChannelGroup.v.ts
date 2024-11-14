@@ -22,7 +22,7 @@ export default defineComponent({
         const { openLoading, closeLoading } = useLoading()
         const { openMessageBox } = useMessageBox()
 
-        const tableData = ref<ChannelGroupDto[]>()
+        const tableData = ref<ChannelGroupDto[]>([])
         const pageIndex = ref(1)
         const pageSize = ref(10)
         const pageTotal = ref(0)
@@ -81,7 +81,7 @@ export default defineComponent({
                 delChlGroup(data).then((res) => {
                     closeLoading()
                     const $ = queryXml(res)
-                    if ($('status').text() == 'success') {
+                    if ($('status').text() === 'success') {
                         openMessageBox({
                             type: 'success',
                             message: Translate('IDCS_DELETE_SUCCESS'),
@@ -120,7 +120,7 @@ export default defineComponent({
                 queryChlGroup(data).then((res) => {
                     closeLoading()
                     const $ = queryXml(res)
-                    if ($('status').text() == 'success') {
+                    if ($('status').text() === 'success') {
                         const chlList: Record<string, string | boolean>[] = []
                         $('//content/chlList/item').forEach((ele) => {
                             chlList.push({
@@ -151,18 +151,18 @@ export default defineComponent({
             queryChlGroupList(data).then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     tableData.value = []
                     $('//content/item').forEach((ele) => {
                         const eleXml = queryXml(ele.element)
                         const newData = new ChannelGroupDto()
                         newData.id = ele.attr('id')!
                         newData.name = eleXml('name').text()
-                        newData.dwellTime = Number(eleXml('dwellTime').text())
-                        newData.chlCount = Number(eleXml('chlCount').text())
-                        tableData.value?.push(newData)
+                        newData.dwellTime = eleXml('dwellTime').text().num()
+                        newData.chlCount = eleXml('chlCount').text().num()
+                        tableData.value.push(newData)
                     })
-                    pageTotal.value = Number($('content').attr('total'))
+                    pageTotal.value = $('content').attr('total').num()
                 }
             })
         }
@@ -201,12 +201,12 @@ export default defineComponent({
             editSetAndElementRelation(data).then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
-                if ($('status').text() == 'success') {
+                if ($('status').text() === 'success') {
                     openMessageBox({
                         type: 'success',
                         message: Translate('IDCS_DELETE_SUCCESS'),
                     }).then(() => {
-                        rowData.chls = rowData.chls.filter((item) => item.value != chlId)
+                        rowData.chls = rowData.chls.filter((item) => item.value !== chlId)
                         rowData.chlCount = rowData.chls.length
                     })
                 } else {

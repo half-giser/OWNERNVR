@@ -892,17 +892,17 @@ export class AlarmTemperatureDetectionBoundryDto {
     switch = false
     ruleName = ''
     ruleType = ''
-    emissivity = ''
-    emissivityDefault = ''
-    distance = ''
-    distanceDefault = ''
-    reflectTemper = ''
-    reflectTemperDefault = ''
+    emissivity = 0
+    emissivityDefault = 0
+    distance = 0
+    distanceDefault = 0
+    reflectTemper = 0
+    reflectTemperDefault = 0
     alarmRule = ''
-    alarmTemper = ''
-    alarmTemperDefault = ''
+    alarmTemper = 0
+    alarmTemperDefault = 0
     maxCount = 0
-    points = [] as { X: number; Y: number; isClosed: boolean }[]
+    points = [] as { X: number; Y: number; isClosed?: boolean }[]
 }
 
 /**
@@ -930,7 +930,7 @@ export class AlarmObjectLeftDto {
 
 export class AlarmObjectLeftBoundaryDto {
     areaName = ''
-    points = [] as { X: number; Y: number; isClosed: boolean }[]
+    points = [] as { X: number; Y: number; isClosed?: boolean }[]
 }
 
 /**

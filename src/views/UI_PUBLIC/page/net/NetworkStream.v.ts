@@ -359,7 +359,7 @@ export default defineComponent({
                 const res = resolution.split('x')
                 qualityOptions.forEach((item) => {
                     const curRes = item.res.split('x')
-                    if (item.enct === enct && (Number(curRes[0]) < Number(res[0]) || (curRes[0] == res[0] && Number(curRes[1]) < Number(res[1])))) {
+                    if (item.enct === enct && (Number(curRes[0]) < Number(res[0]) || (curRes[0] === res[0] && Number(curRes[1]) < Number(res[1])))) {
                         if (item.value.length) {
                             isQualityCapsEmpty = false
                             item.value.forEach((quality) => {

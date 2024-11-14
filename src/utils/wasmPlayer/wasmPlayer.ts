@@ -514,7 +514,7 @@ export default class WasmPlayer {
                         this.clearDisplayLoop()
                         this.displayLoop()
                         this.onsuccess && this.onsuccess()
-                        if (this.type == 'live') {
+                        if (this.type === 'live') {
                             this.onfinished && this.onfinished()
                         }
                     }
@@ -753,7 +753,7 @@ export default class WasmPlayer {
             if (this.displayNextVideoFrame()) {
                 this.videoQueue.shift()
                 if (this.playState === PLAY_STATE_NEXT_FRAME) {
-                    if (this.videoQueue.length === 0) {
+                    if (!this.videoQueue.length) {
                         this.refreshPlaybackFrameIndex(this.frameIndex)
                     }
                     this.clearDisplayLoop()
@@ -762,7 +762,7 @@ export default class WasmPlayer {
                 }
             }
 
-            if (this.videoQueue.length === 0) {
+            if (!this.videoQueue.length) {
                 break
             }
         }

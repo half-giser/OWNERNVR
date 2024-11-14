@@ -26,9 +26,9 @@ export const getSystemInfo = (): SystemInfo => {
     const userAgent = navigator.userAgent
     const platform = navigator.platform.toLowerCase()
 
-    const isWin = platform == 'win32' || platform == 'win64' || platform == 'windows'
-    const isMac = platform == 'mac68k' || platform == 'macppc' || platform == 'macintosh' || platform == 'macintel'
-    const isUnix = platform == 'x11' && !isWin && !isMac
+    const isWin = platform === 'win32' || platform === 'win64' || platform === 'windows'
+    const isMac = platform === 'mac68k' || platform === 'macppc' || platform === 'macintosh' || platform === 'macintel'
+    const isUnix = platform === 'x11' && !isWin && !isMac
     const isLinux = String(platform).indexOf('linux') > -1
 
     if (isWin) {
@@ -155,7 +155,7 @@ export const getFileNameNoExtFromPath = (path: string) => {
  * @returns {boolean}
  */
 export const isHttpsLogin = () => {
-    return window.location.protocol == 'https:'
+    return window.location.protocol === 'https:'
 }
 
 // 判断浏览器是否支持webAssembly
@@ -452,10 +452,9 @@ export const getChlList = (options: Partial<QueryNodeListDto>) => {
             ${ternary(options.ignoreNdChl, '<ignoreNdChl/>')}
         </condition>
         <requireField>
-            <name/>
-            <chlIndex/>
-            <chlType/>
-            ${options.requireField ? options.requireField.map((ele) => `<${ele}/>`).join('') : ''}
+            ${Array.from(new Set(['name', 'chlIndex', 'chlType'].concat(options.requireField || [])))
+                .map((ele) => `<${ele}/>`)
+                .join('')}
         </requireField>
     `
     return queryNodeList(data)
@@ -515,18 +514,18 @@ export const checkChlListCaps = async (route: string) => {
         }
         const chlId = item.attr('id')!
         if (protocolType !== 'RTSP' && onlineList.includes(chlId)) {
-            const supportOsc = $item('supportOsc').text().toBoolean()
-            const supportCdd = $item('supportCdd').text().toBoolean()
-            const supportVfd = $item('supportVfd').text().toBoolean()
-            const supportAvd = $item('supportAvd').text().toBoolean()
-            const supportPea = $item('supportPea').text().toBoolean()
-            const supportPeaTrigger = $item('supportPeaTrigger').text().toBoolean()
-            const supportTripwire = $item('supportTripwire').text().toBoolean()
-            const supportAOIEntry = $item('supportAOIEntry').text().toBoolean()
-            const supportAOILeave = $item('supportAOILeave').text().toBoolean()
-            const supportVehiclePlate = $item('supportVehiclePlate').text().toBoolean()
-            const supportPassLine = $item('supportPassLine').text().toBoolean()
-            const supportCpc = $item('supportCpc').text().toBoolean()
+            const supportOsc = $item('supportOsc').text().bool()
+            const supportCdd = $item('supportCdd').text().bool()
+            const supportVfd = $item('supportVfd').text().bool()
+            const supportAvd = $item('supportAvd').text().bool()
+            const supportPea = $item('supportPea').text().bool()
+            const supportPeaTrigger = $item('supportPeaTrigger').text().bool()
+            const supportTripwire = $item('supportTripwire').text().bool()
+            const supportAOIEntry = $item('supportAOIEntry').text().bool()
+            const supportAOILeave = $item('supportAOILeave').text().bool()
+            const supportVehiclePlate = $item('supportVehiclePlate').text().bool()
+            const supportPassLine = $item('supportPassLine').text().bool()
+            const supportCpc = $item('supportCpc').text().bool()
             let supportBackVfd = false
             if (localFaceDectEnabled && !supportVfd) {
                 supportBackVfd = true
@@ -568,7 +567,7 @@ export const commLoadResponseHandler = ($response: any, successHandler?: (result
         const Translate = useLangStore().Translate
         const openMessageBox = useMessageBox().openMessageBox
         const $ = queryXml($response)
-        if ($('status').text() == 'success') {
+        if ($('status').text() === 'success') {
             successHandler && successHandler($)
             resolve($)
         } else {
@@ -594,7 +593,7 @@ export const commSaveResponseHadler = ($response: ApiResult, successHandler?: (r
         const Translate = useLangStore().Translate
         const openMessageBox = useMessageBox().openMessageBox
         const $ = queryXml($response)
-        if ($('//status').text() == 'success') {
+        if ($('//status').text() === 'success') {
             openMessageBox({
                 type: 'success',
                 message: Translate('IDCS_SAVE_DATA_SUCCESS'),
@@ -1116,7 +1115,7 @@ export const getBoolSwitchOptions = () => {
     return DEFAULT_SWITCH_OPTIONS.map((item) => {
         return {
             label: Translate(item.label),
-            value: item.value.toBoolean(),
+            value: item.value.bool(),
         }
     })
 }
@@ -1149,7 +1148,7 @@ export const getAlarmEventList = () => {
  * @param $
  */
 export const showMaxSearchLimitTips = ($: XMLQuery) => {
-    const isMaxSearchResultNum = $('//content/IsMaxSearchResultNum').text().toBoolean()
+    const isMaxSearchResultNum = $('//content/IsMaxSearchResultNum').text().bool()
     const { openMessageBox } = useMessageBox()
     const { Translate } = useLangStore()
 
@@ -1184,7 +1183,7 @@ export const getBitrateRange = (options: GetBitRateRangeOption) => {
     // const resolution = options.resolution
     const videoEncodeType = options.videoEncodeType
     let resolution = { width: 0, height: 0 }
-    if (typeof options.resolution == 'string') {
+    if (typeof options.resolution === 'string') {
         const resParts = options.resolution.split('x')
         resolution = { width: Number(resParts[0]), height: Number(resParts[1]) }
     } else {
@@ -1217,8 +1216,8 @@ export const getBitrateRange = (options: GetBitRateRangeOption) => {
     const maxBase = (1280 * resParam * levelParam * (options.fps >= 10 ? options.fps : 10)) / 3000
     let max = maxBase - (options.fps >= 10 ? 0 : ((10 - options.fps) * maxBase * 2) / 27)
     min = options.maxQoI ? (options.maxQoI < min ? options.maxQoI : min) : min
-    max = videoEncodeType == 'h265' ? Math.floor(max * 0.55) : Math.floor(max)
-    if (videoEncodeType == 'h265' || videoEncodeType == 'h265p' || videoEncodeType == 'h265s') {
+    max = videoEncodeType === 'h265' ? Math.floor(max * 0.55) : Math.floor(max)
+    if (videoEncodeType === 'h265' || videoEncodeType === 'h265p' || videoEncodeType === 'h265s') {
         min = Math.floor(min * 0.55)
     } else {
         min = Math.floor(min)
@@ -1249,7 +1248,7 @@ export const fileToBase64 = (file: Blob, callback: Function) => {
 export const formatBase64 = (param: string) => {
     let result = ''
     for (let i = 0; i < param.length; i++) {
-        if (i != 0 && i % 76 == 0) {
+        if (i !== 0 && i % 76 === 0) {
             result += '\r\n'
         }
         result += param[i]

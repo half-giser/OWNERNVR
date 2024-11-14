@@ -20,19 +20,19 @@
                 <el-table-column
                     prop="chlNum"
                     :label="Translate('IDCS_CHANNEL_NUMBER')"
-                    width="120px"
+                    width="120"
                 />
                 <!-- 通道名称 -->
                 <el-table-column
                     prop="name"
                     :label="Translate('IDCS_CHANNEL_NAME')"
-                    width="520px"
+                    min-width="300"
                 />
                 <!-- 时间点 -->
                 <el-table-column
                     prop="timeCount"
                     :label="Translate('IDCS_SCHEDULE_TIMES')"
-                    width="700px"
+                    min-width="400"
                 >
                     <template #default="scope">
                         <span>{{ Translate('IDCS_SCHEDULE_UPLOAD_PIC_TIMES').formatForLang(scope.row.timeCount) }}</span>
@@ -42,7 +42,7 @@
                 <el-table-column
                     prop="delete"
                     :label="Translate('IDCS_CLEAR_ALL')"
-                    width="110px"
+                    width="110"
                 >
                     <template #default="scope">
                         <BaseImgSprite
@@ -59,7 +59,7 @@
                 <el-table-column
                     type="expand"
                     :label="Translate('IDCS_EDIT')"
-                    width="106px"
+                    width="106"
                 >
                     <template #default="scope">
                         <div class="expand">
@@ -104,18 +104,16 @@
             }"
         >
             <el-form-item :label="Translate('IDCS_CHANNEL_NUMBER')">
-                <span>{{ pageData.currentRow.chlNum }}</span>
+                {{ pageData.currentRow.chlNum }}
             </el-form-item>
             <el-form-item :label="Translate('IDCS_CHANNEL_NAME')">
-                <span>{{ pageData.currentRow.name }}</span>
+                {{ pageData.currentRow.name }}
             </el-form-item>
-            <el-form-item
-                :label="Translate('IDCS_SCHEDULE_START_TIME')"
-                :style="{ '--form-input-width': '150px' }"
-            >
+            <el-form-item :label="Translate('IDCS_SCHEDULE_START_TIME')">
                 <el-time-picker
                     v-model="pageData.addTimeData"
                     value-format="HH:mm:ss"
+                    :clearable="false"
                 />
             </el-form-item>
         </el-form>
@@ -128,7 +126,7 @@
             </el-row>
         </template>
     </el-dialog>
-    <AddUploadTimePop
+    <ImageUploadAddTimePop
         v-model="pageData.addUploadTimePopOpen"
         :table-data="tableData"
         @confirm="addUploadTime"
