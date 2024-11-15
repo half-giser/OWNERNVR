@@ -21,13 +21,7 @@ function print(head: string, body: string, type = 'info') {
     }
 }
 
-function getDate() {
-    const date = new Date()
-    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
-}
-
 function getDistName(...str: string[]) {
-    str.push(getDate())
     return path.resolve('dist', str.join('_'))
 }
 
@@ -48,7 +42,7 @@ async function generateCustomerPackage(ui: string, customer: string) {
     const sourcePath = path.resolve('dist', ui)
 
     if (!customer) {
-        const standardPath = getDistName(ui)
+        const standardPath = getDistName(ui, 'STANDARD')
         await copyDir(sourcePath, standardPath)
         await copyDir(path.resolve('plugin/OCX'), path.resolve(standardPath, 'OCX'))
 
@@ -164,6 +158,11 @@ async function generate() {
 
         if (LEGAL_UI.includes(ui)) {
             await cleanUp(path.resolve('dist', ui))
+            try {
+                const standardPath = getDistName(ui, 'STANDARD')
+                await copyDir(standardPath, path.resolve('dist', ui))
+                await cleanUp(standardPath)
+            } catch {}
         }
     }
 

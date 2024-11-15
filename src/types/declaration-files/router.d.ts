@@ -65,7 +65,7 @@ declare global {
         /** 组件路径 `可选` */
         component?: string
         /** 多组件路径，用于需要通过命令视图在同级展示多个视图的场景 `可选` */
-        components?: componentMap
+        components?: Record<string, string>
         /** 元标签 */
         meta: {
             /** 能力集是否支持回调，这里会传入能力集和UI名参数 **/

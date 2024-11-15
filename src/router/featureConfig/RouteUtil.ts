@@ -77,9 +77,6 @@ Object.keys(puglicPages).forEach((prop) => {
     }
 })
 
-// let root: RouteRecordRaw
-// let config: RouteRecordRaw
-
 /**
  * @description: 基于功能树和UI配置生成路由树
  * @return {*}
@@ -208,11 +205,6 @@ function setRouteRecordField(featureItem: FeatureItem, routeRecord: RouteRecordR
 
     if (featureItem.name) {
         routeRecord.name = featureItem.name
-        // if (featureItem.name === 'root') {
-        //     root = routeRecord
-        // } else if (featureItem.name === 'config') {
-        //     config = routeRecord
-        // }
     }
 
     if (featureItem.meta) {
@@ -253,7 +245,4 @@ function setRouteRecordField(featureItem: FeatureItem, routeRecord: RouteRecordR
 
 export {
     buildRouter, //基于功能树和UI配置生成路由树
-    // setRouteAuth, //设置路由权限
-    // root, //登录后的根路由节点
-    // config, //配置的根路由节点
 }
