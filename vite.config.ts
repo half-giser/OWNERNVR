@@ -39,7 +39,7 @@ export default defineConfig(({ mode }) => {
 
     const buildPlugin: PluginOption[] = [
         MinifyWorkers({
-            src: `dist/${VITE_UI_TYPE}/workers/*.js`,
+            src: `dist/${VITE_UI_TYPE}/**/*.js`,
         }),
     ]
 
@@ -86,6 +86,7 @@ export default defineConfig(({ mode }) => {
                     additionalData: `
                         $GLOBAL_UI_TYPE: ${VITE_UI_TYPE};
                     `,
+                    api: 'modern-compiler',
                 },
             },
             postcss: {

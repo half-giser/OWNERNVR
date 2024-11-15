@@ -1,7 +1,7 @@
 ## 准备工作
 
 #### 开发环境
-建议 Node 20.0.0+, npm 10.0.0+
+建议 Node 20.13.0+, npm 10.5.0+
 
 #### VSCode
 建议使用**VSCode**，并安装以下Extensions：
@@ -91,9 +91,16 @@ npm run dev
 
 ## 生产打包
 
-在Terminal中运行
+##### 方法1. 在Terminal中运行
 ```bash
-npm run generate
+npm run generate bundle=UI1-A,UI2-A_IL03,UI1-E_USE44
+```
+
+bundle=后面跟随需要打包的{UI类型}_{客户}，多个包则使用英文逗号隔开. 如果没带客户后缀，则会打包中性客户版本. 打包结果在**dist**目录下
+
+##### 方法2. 在Termial中运行
+```bash
+npm run generate manual
 ```
 
 然后，根据提示，在Terminal中通过按键选择需要打包的UI，回车确认，即可开始打包. 打包结果在**dist**目录下：
