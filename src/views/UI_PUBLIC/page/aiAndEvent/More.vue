@@ -46,7 +46,7 @@
                 <FireDetection
                     v-if="pageData.chosenFunction === 'fireDetection'"
                     :curr-chl-id="pageData.currChlId"
-                    :chl-data="pageData.chlData"
+                    :chl-data="chlData"
                     :voice-list="pageData.voiceList"
                     :online-channel-list="pageData.onlineChannelList"
                 />
@@ -61,7 +61,7 @@
                 <VideoStructure
                     v-if="pageData.chosenFunction === 'videoStructure'"
                     :curr-chl-id="pageData.currChlId"
-                    :chl-data="pageData.chlData"
+                    :chl-data="chlData"
                     :voice-list="pageData.voiceList"
                 />
             </el-tab-pane>
@@ -75,7 +75,7 @@
                 <PassLine
                     v-if="pageData.chosenFunction === 'passLine'"
                     :curr-chl-id="pageData.currChlId"
-                    :chl-data="pageData.chlData"
+                    :chl-data="chlData"
                     :voice-list="pageData.voiceList"
                     :online-channel-list="pageData.onlineChannelList"
                 />
@@ -90,7 +90,7 @@
                 <Cdd
                     v-if="pageData.chosenFunction === 'cdd'"
                     :curr-chl-id="pageData.currChlId"
-                    :chl-data="pageData.chlData"
+                    :chl-data="chlData"
                     :voice-list="pageData.voiceList"
                 />
             </el-tab-pane>
@@ -104,7 +104,7 @@
                 <TemperatureDetection
                     v-if="pageData.chosenFunction === 'temperatureDetection'"
                     :curr-chl-id="pageData.currChlId"
-                    :chl-data="pageData.chlData"
+                    :chl-data="chlData"
                     :voice-list="pageData.voiceList"
                 />
             </el-tab-pane>
@@ -118,7 +118,7 @@
                 <ObjectLeft
                     v-if="pageData.chosenFunction === 'objectLeft'"
                     :curr-chl-id="pageData.currChlId"
-                    :chl-data="pageData.chlData"
+                    :chl-data="chlData"
                     :voice-list="pageData.voiceList"
                 />
             </el-tab-pane>
@@ -132,7 +132,7 @@
                 <AbnormalDispose
                     v-if="pageData.chosenFunction === 'avd'"
                     :curr-chl-id="pageData.currChlId"
-                    :chl-data="pageData.chlData"
+                    :chl-data="chlData"
                     :voice-list="pageData.voiceList"
                 />
             </el-tab-pane>

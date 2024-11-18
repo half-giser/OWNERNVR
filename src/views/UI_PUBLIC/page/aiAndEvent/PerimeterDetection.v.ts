@@ -4,7 +4,7 @@
  * @Description: 周界防范/人车检测
  */
 import { type TabsPaneContext } from 'element-plus'
-import { type AlarmChlDto } from '@/types/apiType/aiAndEvent'
+import { AlarmChlDto } from '@/types/apiType/aiAndEvent'
 import Tripwire from './Tripwire.vue'
 import Pea from './Pea.vue'
 export default defineComponent({
@@ -22,8 +22,6 @@ export default defineComponent({
             onlineChannelIdList: [] as string[],
             // 在线通道列表
             onlineChannelList: [] as { id: string; ip: string; name: string; accessType: string }[],
-            // 当前选择通道数据
-            chlData: {} as AlarmChlDto,
             // 通道能力集
             chlCaps: {} as Record<string, AlarmChlDto>,
             // 当前选择的功能
@@ -82,14 +80,17 @@ export default defineComponent({
             alarmOutSource: [] as { value: string; label: string; device: { value: string; label: string } }[],
         })
 
+        const chlData = computed(() => {
+            return pageData.value.chlCaps[pageData.value.currChlId] || new AlarmChlDto()
+        })
+
         // 获取在线通道
         const getOnlineChannel = async () => {
             const res = await queryOnlineChlList()
             const $ = queryXml(res)
             if ($('status').text() === 'success') {
-                $('//content/item').forEach((item) => {
-                    const id = item.attr('id')
-                    pageData.value.onlineChannelIdList.push(id ? id : '')
+                pageData.value.onlineChannelIdList = $('//content/item').map((item) => {
+                    return item.attr('id')
                 })
             }
 
@@ -289,7 +290,7 @@ export default defineComponent({
                     delete history.state.chlId
                 }
                 if (!pageData.value.currChlId) pageData.value.currChlId = pageData.value.onlineChannelList[0].id
-                pageData.value.chlData = pageData.value.chlCaps[pageData.value.currChlId]
+                // pageData.value.chlData = pageData.value.chlCaps[pageData.value.currChlId]
             }
         }
 
@@ -303,7 +304,7 @@ export default defineComponent({
 
         // 切换通道操作
         const handleChangeChannel = async () => {
-            pageData.value.chlData = pageData.value.chlCaps[pageData.value.currChlId]
+            // pageData.value.chlData = pageData.value.chlCaps[pageData.value.currChlId]
             pageData.value.tabKey += 1
             initPageData()
         }
@@ -316,8 +317,8 @@ export default defineComponent({
 
         // 切换通道及初始化时判断tab是否可用，若不可用则切换到可用的tab，都不可用再显示提示
         const isTabDisabled = () => {
-            pageData.value.tripwireDisable = pageData.value.chlData.supportTripwire || pageData.value.chlData.supportBackTripwire || pageData.value.chlData.supportPeaTrigger ? false : true
-            pageData.value.peaDisable = pageData.value.chlData.supportPea || pageData.value.chlData.supportBackPea || pageData.value.chlData.supportPeaTrigger ? false : true
+            pageData.value.tripwireDisable = chlData.value.supportTripwire || chlData.value.supportBackTripwire || chlData.value.supportPeaTrigger ? false : true
+            pageData.value.peaDisable = chlData.value.supportPea || chlData.value.supportBackPea || chlData.value.supportPeaTrigger ? false : true
             if (pageData.value.tripwireDisable && !pageData.value.peaDisable) {
                 pageData.value.chosenFunction = 'pea'
             } else if (!pageData.value.tripwireDisable && pageData.value.peaDisable) {
@@ -346,6 +347,7 @@ export default defineComponent({
             pageData,
             handleChangeChannel,
             handleTabClick,
+            chlData,
             Tripwire,
             Pea,
         }

@@ -3,7 +3,7 @@
  * @Date: 2024-09-10 17:50:35
  * @Description: 更多功能页面的框架
  */
-import { type AlarmChlDto } from '@/types/apiType/aiAndEvent'
+import { AlarmChlDto } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
 import FireDetection from './FireDetections.vue'
 import TemperatureDetection from './TemperatureDetection.vue'
@@ -32,8 +32,6 @@ export default defineComponent({
             onlineChannelIdList: [] as string[],
             // 在线通道列表
             onlineChannelList: [] as { id: string; ip: string; name: string; accessType: string }[],
-            // 当前选择通道数据
-            chlData: {} as AlarmChlDto,
             // 通道能力集
             chlCaps: {} as Record<string, AlarmChlDto>,
             // 当前选择的功能
@@ -81,9 +79,12 @@ export default defineComponent({
             tabKey: 0,
         })
 
+        const chlData = computed(() => {
+            return pageData.value.chlCaps[pageData.value.currChlId] || new AlarmChlDto()
+        })
+
         // 切换通道
         const handleChangeChannel = async () => {
-            pageData.value.chlData = pageData.value.chlCaps[pageData.value.currChlId]
             pageData.value.tabKey += 1
             initPage()
         }
@@ -297,7 +298,6 @@ export default defineComponent({
                     }
                 })
                 pageData.value.currChlId = pageData.value.onlineChannelList[0].id
-                pageData.value.chlData = pageData.value.chlCaps[pageData.value.currChlId]
             }
         }
 
@@ -311,13 +311,13 @@ export default defineComponent({
 
         // 切换通道及初始化时判断tab是否可用，若不可用则切换到可用的tab，都不可用再显示提示
         const isTabDisabled = () => {
-            pageData.value.fireDetectionDisable = !pageData.value.chlData.supportFire
-            pageData.value.videoStructureDisable = !pageData.value.chlData.supportVideoMetadata
-            pageData.value.passLineDisable = !(pageData.value.chlData.supportPassLine || pageData.value.chlData.supportCpc)
-            pageData.value.cddDisable = !pageData.value.chlData.supportCdd
-            pageData.value.temperatureDetectionDisable = !pageData.value.chlData.supportTemperature
-            pageData.value.objectLeftDisable = !pageData.value.chlData.supportOsc
-            pageData.value.avdDisable = !pageData.value.chlData.supportAvd
+            pageData.value.fireDetectionDisable = !chlData.value.supportFire
+            pageData.value.videoStructureDisable = !chlData.value.supportVideoMetadata
+            pageData.value.passLineDisable = !(chlData.value.supportPassLine || chlData.value.supportCpc)
+            pageData.value.cddDisable = !chlData.value.supportCdd
+            pageData.value.temperatureDetectionDisable = !chlData.value.supportTemperature
+            pageData.value.objectLeftDisable = !chlData.value.supportOsc
+            pageData.value.avdDisable = !chlData.value.supportAvd
             // 遍历上述七个tab，找到第一个可用的tab，切换到该tab
             const tabList = ['fireDetection', 'videoStructure', 'passLine', 'cdd', 'temperatureDetection', 'objectLeft', 'avd']
             let flag = false
@@ -347,6 +347,7 @@ export default defineComponent({
         })
 
         return {
+            chlData,
             FireDetection,
             PassLine,
             Cdd,
