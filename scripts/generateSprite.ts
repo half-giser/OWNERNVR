@@ -4,17 +4,17 @@
  * @Description: 生成雪碧图
  */
 import { type Plugin } from 'vite'
-
 import fs from 'node:fs/promises'
 import path from 'path'
 import globby from 'globby'
 import MagicString from 'magic-string'
 import SpriteSmith from 'spritesmith'
 import Chalk from 'chalk'
+import { SPRITE_PNG_FILE_PATH, SPRITE_JSON_FILE_PATH } from './filePaths'
 
 interface GenerateSpriteOption {
     src: string
-    dist: string
+    // dist: string
 }
 
 function generateSprite(option: GenerateSpriteOption) {
@@ -47,8 +47,8 @@ function generateSprite(option: GenerateSpriteOption) {
             ms.prepend(`const sprite:ImageSprite=`)
             ms.append(`;export default sprite`)
             const text = ms.toString()
-            await fs.writeFile(path.resolve(option.dist, 'sprites.png'), result.image)
-            await fs.writeFile(path.resolve(option.dist, 'sprites.ts'), text)
+            await fs.writeFile(path.resolve(SPRITE_PNG_FILE_PATH), result.image)
+            await fs.writeFile(path.resolve(SPRITE_JSON_FILE_PATH), text)
             console.log(Chalk.green.bold('SUCCESS'), Chalk.blueBright(new Date().toLocaleString('zh-CN')), Chalk.white('Generate Sprite Successfully'))
             resolve(void 0)
         })

@@ -11,6 +11,7 @@ import Chalk from 'chalk'
 
 interface MinifyWorkerOption {
     src: string
+    ui: string
 }
 
 export default function minifyWorkers(option: MinifyWorkerOption): Plugin {
@@ -24,10 +25,20 @@ export default function minifyWorkers(option: MinifyWorkerOption): Plugin {
                 const file = files[i]
                 try {
                     const data = await fs.readFile(file, 'utf-8')
-                    const result = await minify(data, {
-                        module: file.includes('workers') ? false : true,
-                    })
-                    await fs.writeFile(file, result.code!)
+                    if (file.includes('workers')) {
+                        const result = await minify(data, {
+                            module: false,
+                        })
+                        await fs.writeFile(file, result.code)
+                    } else {
+                        const result = await minify(data, {
+                            module: true,
+                        })
+                        // a tricky way to hide original file paths
+                        let code = result.code.replace(new RegExp('/src/views/UI_PUBLIC/page/', 'g'), '/page/')
+                        code = code.replace(new RegExp(`/src/views/${option.ui}/page/`, 'g'), '/page/')
+                        await fs.writeFile(file, code)
+                    }
                 } catch (e) {
                     console.error(e)
                 }

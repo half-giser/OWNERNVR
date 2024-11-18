@@ -3,7 +3,6 @@
  * @Date: 2024-04-16 13:47:54
  * @Description:
  */
-import path from 'node:path'
 import { defineConfig, loadEnv, type PluginOption } from 'vite'
 import Vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
@@ -18,6 +17,7 @@ import MinifyWorkers from './scripts/minifyWorkers'
 import PostCssVariableCompress from 'postcss-variable-compress'
 import { visualizer as Visualizer } from 'rollup-plugin-visualizer'
 import optimizeDepsIncludes from './scripts/optimizeDeps'
+import { STATS_FILE_PATH, TYPE_AUTO_IMPORT_FILE_PATH, TYPE_COMPONENTS_FILE_PATH } from './scripts/filePaths'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -34,12 +34,14 @@ export default defineConfig(({ mode }) => {
             open: false,
             gzipSize: true,
             brotliSize: true,
+            filename: STATS_FILE_PATH,
         }),
     ]
 
     const buildPlugin: PluginOption[] = [
         MinifyWorkers({
             src: `dist/${VITE_UI_TYPE}/**/*.js`,
+            ui: VITE_UI_TYPE,
         }),
     ]
 
@@ -96,7 +98,6 @@ export default defineConfig(({ mode }) => {
         plugins: [
             GenerateSprite({
                 src: `sprite/${VITE_UI_TYPE}-sprite/sprite/*.png`,
-                dist: path.resolve(__dirname, 'src/components/sprite/'),
             }),
             MinifyXmlTemplateStrings(),
             Vue(),
@@ -137,12 +138,12 @@ export default defineConfig(({ mode }) => {
                 ],
                 //按需自动导入ElementPlus
                 resolvers: [ElementPlusResolver()],
-                dts: 'src/types/declaration-files/auto-import.d.ts',
-                eslintrc: {
-                    enabled: true,
-                    filepath: './.eslintrc-auto-import.json',
-                    globalsPropValue: true,
-                },
+                dts: TYPE_AUTO_IMPORT_FILE_PATH,
+                // eslintrc: {
+                //     enabled: true,
+                //     filepath: './.eslintrc-auto-import.json',
+                //     globalsPropValue: true,
+                // },
                 defaultExportByFilename: false,
                 dirs: [
                     // 添加需要自动导入的模块
@@ -160,7 +161,7 @@ export default defineConfig(({ mode }) => {
             }),
             Components({
                 resolvers: [ElementPlusResolver()],
-                dts: 'src/types/declaration-files/components.d.ts',
+                dts: TYPE_COMPONENTS_FILE_PATH,
                 dirs: ['./src/components/'],
                 deep: true,
             }),

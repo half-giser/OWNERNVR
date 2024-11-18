@@ -67,7 +67,12 @@
 
 ## 安装
 
-在Terminal中运行
+首先，设置NPM私有镜像
+```bash
+npm run mirror:set
+```
+
+然后，在Terminal中运行
 ```bash
 npm install
 ```
