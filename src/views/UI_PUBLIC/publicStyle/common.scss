@@ -240,6 +240,10 @@ input[type='number'] {
 
     // .el-table 公共样式
     .el-table {
+        .cell {
+            width: 100%;
+        }
+
         .el-table__header {
             thead {
                 .cell {

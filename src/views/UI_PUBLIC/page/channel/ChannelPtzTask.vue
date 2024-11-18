@@ -206,9 +206,3 @@
 </template>
 
 <script lang="ts" src="./ChannelPtzTask.v.ts"></script>
-
-<style lang="scss" scoped>
-.el-table :deep(.cell) {
-    width: 100%;
-}
-</style>

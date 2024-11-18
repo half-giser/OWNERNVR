@@ -249,9 +249,3 @@
 </template>
 
 <script lang="ts" src="./PlatformAccess.v.ts"></script>
-
-<style lang="scss" scoped>
-.el-table :deep(.cell) {
-    width: 100%;
-}
-</style>
