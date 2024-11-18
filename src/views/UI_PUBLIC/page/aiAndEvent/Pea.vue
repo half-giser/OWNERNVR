@@ -32,7 +32,7 @@
                 <AlarmBaseResourceData
                     :event="areaType"
                     :chl-id="currChlId"
-                    :enable="peaData.areaCfgData[peaData.activityType].detectionEnable && !peaData.chlData.supportTripwire"
+                    :enable="peaData.areaCfgData[peaData.activityType].detectionEnable && !chlData.supportTripwire"
                     @error="peaData.areaCfgData[peaData.activityType].detectionEnable = false"
                 />
             </div>
@@ -226,12 +226,12 @@
                                     {{ Translate('IDCS_DETECTION_ONLY_ONE_OBJECT').formatForLang(Translate('IDCS_BEYOND_DETECTION'), Translate('IDCS_DETECTION_PERSON')) }}
                                 </el-form-item>
                                 <!-- 云台 -->
-                                <div v-if="peaData.chlData.supportAutoTrack">
+                                <div v-if="chlData.supportAutoTrack">
                                     <div class="base-ai-subheading">
                                         {{ Translate('IDCS_PTZ') }}
                                     </div>
                                     <ChannelPtzCtrlPanel
-                                        :chl-id="peaData.currChlId || ''"
+                                        :chl-id="currChlId || ''"
                                         @speed="setPeaSpeed"
                                     />
                                     <div
@@ -357,7 +357,7 @@
                                 class="audio_select"
                             >
                                 <el-option
-                                    v-for="item in peaData.voiceList"
+                                    v-for="item in voiceList"
                                     :key="item.value"
                                     :label="item.label"
                                     :value="item.value"

@@ -78,12 +78,6 @@ export default defineComponent({
         const closeTip = getAlarmEventList()
 
         const peaData = ref({
-            // 当前选中的通道
-            currChlId: '',
-            // 当前选择通道数据
-            chlData: {} as AlarmChlDto,
-            // 声音列表
-            voiceList: [] as SelectOption<string, string>[],
             // 是否支持声音设置
             supportAlarmAudioConfig: true,
             // 不支持功能提示页面是否展示
@@ -210,7 +204,7 @@ export default defineComponent({
          * @description 播放视频
          */
         const peaPlay = () => {
-            const { id, name } = peaData.value.chlData
+            const { id, name } = props.chlData
             if (peamode.value === 'h5') {
                 peaPlayer.play({
                     chlID: id,
@@ -270,7 +264,7 @@ export default defineComponent({
             peaData.value.directionList = []
             const sendXML = rawXml`
                 <condition>
-                    <chlId>${peaData.value.currChlId}</chlId>
+                    <chlId>${props.currChlId}</chlId>
                 </condition>
                 <requireField>
                     <param/>
@@ -464,7 +458,7 @@ export default defineComponent({
 
             areaData.triggerList = ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch']
 
-            if (areaData.audioSuport && peaData.value.chlData.supportAudio) {
+            if (areaData.audioSuport && props.chlData.supportAudio) {
                 areaData.triggerList.push('triggerAudio')
                 const triggerAudio = $(`triggerAudio`).text().bool()
                 if (triggerAudio) {
@@ -472,7 +466,7 @@ export default defineComponent({
                 }
             }
 
-            if (areaData.lightSuport && peaData.value.chlData.supportWhiteLight) {
+            if (areaData.lightSuport && props.chlData.supportWhiteLight) {
                 areaData.triggerList.push('triggerWhiteLight')
                 const triggerWhiteLight = $(`triggerWhiteLight`).text().bool()
                 if (triggerWhiteLight) {
@@ -485,7 +479,7 @@ export default defineComponent({
         const savePeaData = async () => {
             const sendXml = rawXml`
                 <content>
-                    <chl id="${peaData.value.currChlId}" scheduleGuid="${peaData.value.schedule}">
+                    <chl id="${props.currChlId}" scheduleGuid="${peaData.value.schedule}">
                         ${peaData.value.supportList
                             .map((type) => {
                                 const data = peaData.value.areaCfgData[type]
@@ -522,8 +516,8 @@ export default defineComponent({
                                                     })
                                                     .join('')}
                                             </boundary>
-                                            ${data.audioSuport && peaData.value.chlData.supportAudio ? `<triggerAudio>${data.trigger.includes('triggerAudio')}</triggerAudio>` : ''}
-                                            ${data.lightSuport && peaData.value.chlData.supportWhiteLight ? `<triggerWhiteLight>${data.trigger.includes('triggerWhiteLight')}</triggerWhiteLight>` : ''}
+                                            ${data.audioSuport && props.chlData.supportAudio ? `<triggerAudio>${data.trigger.includes('triggerAudio')}</triggerAudio>` : ''}
+                                            ${data.lightSuport && props.chlData.supportWhiteLight ? `<triggerWhiteLight>${data.trigger.includes('triggerWhiteLight')}</triggerWhiteLight>` : ''}
                                             ${
                                                 data.pictureAvailable
                                                     ? rawXml`
@@ -547,7 +541,7 @@ export default defineComponent({
                                                                 <sensitivity>${data.personSensitivity}</sensitivity>
                                                             </person>
                                                             ${
-                                                                peaData.value.chlData.accessType === '0'
+                                                                props.chlData.accessType === '0'
                                                                     ? rawXml`
                                                                         <motor>
                                                                             <switch>${data.motorcycle}</switch>
@@ -655,7 +649,7 @@ export default defineComponent({
                 const switchChangeType = switchChangeTypeArr.join(',')
                 openMessageBox({
                     type: 'question',
-                    message: Translate('IDCS_SIMPLE_INVADE_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + peaData.value.chlData.name, switchChangeType),
+                    message: Translate('IDCS_SIMPLE_INVADE_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + props.chlData.name, switchChangeType),
                 }).then(async () => {
                     await savePeaData()
                 })
@@ -669,7 +663,7 @@ export default defineComponent({
             let normalChlName = ''
             let thermalChlName = ''
             const sameIPChlList: { id: string; ip: string; name: string; accessType: string }[] = []
-            const chlIp = peaData.value.chlData.ip
+            const chlIp = props.chlData.ip
             props.onlineChannelList.forEach((chl) => {
                 if (chl.ip === chlIp) {
                     sameIPChlList.push(chl)
@@ -678,9 +672,9 @@ export default defineComponent({
             if (sameIPChlList.length > 1) {
                 sameIPChlList.forEach((chl) => {
                     if (chl.accessType === '1') {
-                        thermalChlName = chl.name === peaData.value.chlData.name ? '' : chl.name
+                        thermalChlName = chl.name === props.chlData.name ? '' : chl.name
                     } else {
-                        normalChlName = chl.name === peaData.value.chlData.name ? '' : chl.name
+                        normalChlName = chl.name === props.chlData.name ? '' : chl.name
                     }
                 })
             }
@@ -830,9 +824,6 @@ export default defineComponent({
         // 初始化数据
         const initPageData = async () => {
             peaData.value.supportAlarmAudioConfig = systemCaps.supportAlarmAudioConfig
-            peaData.value.currChlId = props.currChlId
-            peaData.value.chlData = props.chlData
-            peaData.value.voiceList = props.voiceList
             peaData.value.initComplete = false
             const pageTimer = setTimeout(async () => {
                 // 临时方案-NVRUSS44-79（页面快速切换时。。。）
@@ -840,13 +831,13 @@ export default defineComponent({
                 if (peamode.value === 'ocx') {
                     peaPlugin?.VideoPluginNotifyEmitter.addListener(peaLiveNotify2Js)
                 }
-                peaData.value.detectionTypeText = Translate('IDCS_DETECTION_BY_DEVICE').formatForLang(peaData.value.chlData.supportPea ? 'IPC' : 'NVR')
+                peaData.value.detectionTypeText = Translate('IDCS_DETECTION_BY_DEVICE').formatForLang(props.chlData.supportPea ? 'IPC' : 'NVR')
                 await getPeaData()
                 peaData.value.currentRegulation = peaData.value.areaCfgData[peaData.value.activityType].regulation
                 peaData.value.currAreaType = peaData.value.currentRegulation ? 'regionArea' : 'detectionArea'
                 peaRefreshInitPage()
                 peaData.value.initComplete = true
-                if (peaData.value.chlData.supportAutoTrack) {
+                if (props.chlData.supportAutoTrack) {
                     getPTZLockStatus()
                 }
 
@@ -916,7 +907,7 @@ export default defineComponent({
         const getPTZLockStatus = async () => {
             const sendXML = rawXml`
                 <condition>
-                    <chlId>${peaData.value.currChlId}</chlId>
+                    <chlId>${props.currChlId}</chlId>
                 </condition>
             `
             const res = await queryBallIPCPTZLockCfg(sendXML)
@@ -930,7 +921,7 @@ export default defineComponent({
         const editLockStatus = () => {
             const sendXML = rawXml`
                 <content>
-                    <chl id='${peaData.value.currChlId}'>
+                    <chl id='${props.currChlId}'>
                         <param>
                             <PTZLock>${!peaData.value.lockStatus}</PTZLock>
                         </param>
