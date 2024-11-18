@@ -294,6 +294,7 @@
         <BaseCheckAuthPop
             v-model="pageData.isCheckAuth"
             @confirm="handleCheckAuthByConfigSwitchChange"
+            @close="pageData.isCheckAuth = false"
         />
         <OutputAddViewPop
             v-model="pageData.isAddView"
