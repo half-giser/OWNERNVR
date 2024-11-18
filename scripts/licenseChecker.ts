@@ -4,7 +4,9 @@
  * @Description: 生成license列表文件
  */
 import * as checker from 'license-checker-rseidelsohn'
-import * as fs from 'node:fs'
+import * as fs from 'node:fs/promises'
+import path from 'node:path'
+import { TEMP_FOLDER, LICENSE_FILE_PATH } from './filePaths'
 
 const MAIN_DEPENDENCY: Record<string, { licensePath: string; target: string }> = {
     vue: {
@@ -73,7 +75,7 @@ checker.init(
     {
         start: './',
     },
-    (err, packages) => {
+    async (err, packages) => {
         if (err) {
             console.log(err)
         } else {
@@ -104,11 +106,18 @@ checker.init(
                 })
                 .join('\n')
             const text = `序号,第三方组件名称,版本,使用说明,下载地址,licence地址,许可证类型\n${result}`
-            fs.writeFile('./licenses.csv', text, 'utf8', (err) => {
-                if (err) {
-                    console.error(err)
-                }
-            })
+
+            try {
+                await fs.access(path.resolve(TEMP_FOLDER))
+            } catch {
+                await fs.mkdir(path.resolve(TEMP_FOLDER))
+            }
+
+            try {
+                await fs.writeFile(path.resolve(LICENSE_FILE_PATH), text, 'utf8')
+            } catch (err) {
+                console.error(err)
+            }
         }
     },
 )
