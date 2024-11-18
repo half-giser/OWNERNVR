@@ -147,14 +147,9 @@
                 </el-form-item>
             </el-form>
             <template #footer>
-                <el-row>
-                    <el-col
-                        :span="24"
-                        class="el-col-flex-end"
-                    >
-                        <el-button @click="pageData.isShowAbout = false">{{ Translate('IDCS_OK') }}</el-button>
-                    </el-col>
-                </el-row>
+                <div class="base-btn-box">
+                    <el-button @click="pageData.isShowAbout = false">{{ Translate('IDCS_OK') }}</el-button>
+                </div>
             </template>
         </el-dialog>
     </div>

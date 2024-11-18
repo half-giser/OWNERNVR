@@ -65,20 +65,15 @@
             </el-form-item>
         </el-form>
         <template #footer>
-            <el-row>
-                <el-col
-                    :span="24"
-                    class="el-col-flex-end"
+            <div class="base-btn-box">
+                <el-button
+                    v-show="pageData.isChangePasswordBtn"
+                    @click="changePassword"
+                    >{{ Translate('IDCS_CHANGE_PWD') }}</el-button
                 >
-                    <el-button
-                        v-show="pageData.isChangePasswordBtn"
-                        @click="changePassword"
-                        >{{ Translate('IDCS_CHANGE_PWD') }}</el-button
-                    >
-                    <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="goBack">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </el-col>
-            </el-row>
+                <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
+                <el-button @click="goBack">{{ Translate('IDCS_CANCEL') }}</el-button>
+            </div>
         </template>
     </el-dialog>
 </template>

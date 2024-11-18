@@ -86,7 +86,7 @@
                         </div>
                         <div
                             v-show="scope.row.data.length"
-                            class="row_pagination"
+                            class="base-pagination-box"
                         >
                             <el-pagination
                                 v-model:current-page="scope.row.index"
@@ -204,7 +204,7 @@
     }
 }
 
-.row_pagination {
+.base-pagination-box {
     justify-content: center;
 }
 </style>

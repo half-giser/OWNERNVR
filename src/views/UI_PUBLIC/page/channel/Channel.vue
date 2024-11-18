@@ -48,10 +48,7 @@
                     <template #default="scope">
                         <span
                             class="status"
-                            :class="{
-                                online: scope.row.isOnline,
-                                offline: !scope.row.isOnline,
-                            }"
+                            :class="[scope.row.isOnline ? 'text-online' : 'text-offline']"
                             >{{ scope.row.ip === '' ? '' : scope.row.isOnline ? Translate('IDCS_ONLINE') : Translate('IDCS_OFFLINE') }}</span
                         >
                     </template>
@@ -243,15 +240,3 @@
 </template>
 
 <script lang="ts" src="./Channel.v.ts"></script>
-
-<style scoped lang="scss">
-.status {
-    &.online {
-        color: var(--color-online);
-    }
-
-    &.offline {
-        color: var(--color-offline);
-    }
-}
-</style>

@@ -193,7 +193,7 @@
                         />
                     </template>
                     <template #default="scope">
-                        <el-row class="row-together">
+                        <div class="row-together">
                             <el-checkbox
                                 v-model="scope.row.record.switch"
                                 @change="switchRecord(scope.$index)"
@@ -205,7 +205,7 @@
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
-                        </el-row>
+                        </div>
                     </template>
                 </el-table-column>
 
@@ -220,7 +220,7 @@
                         />
                     </template>
                     <template #default="scope">
-                        <el-row class="row-together">
+                        <div class="row-together">
                             <el-checkbox
                                 v-model="scope.row.snap.switch"
                                 @change="switchSnap(scope.$index)"
@@ -232,7 +232,7 @@
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
-                        </el-row>
+                        </div>
                     </template>
                 </el-table-column>
 
@@ -314,7 +314,7 @@
                         />
                     </template>
                     <template #default="scope">
-                        <el-row class="row-together">
+                        <div class="row-together">
                             <el-checkbox
                                 v-model="scope.row.alarmOut.switch"
                                 @change="switchAlarmOut(scope.$index)"
@@ -326,7 +326,7 @@
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
-                        </el-row>
+                        </div>
                     </template>
                 </el-table-column>
 
@@ -336,7 +336,7 @@
                     width="180"
                 >
                     <template #default="scope">
-                        <el-row class="row-together">
+                        <div class="row-together">
                             <el-checkbox
                                 v-model="scope.row.preset.switch"
                                 @change="switchPreset(scope.$index)"
@@ -348,7 +348,7 @@
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
-                        </el-row>
+                        </div>
                     </template>
                 </el-table-column>
 
@@ -481,7 +481,7 @@
                 </el-table-column>
             </el-table>
         </div>
-        <div class="row_pagination">
+        <div class="base-pagination-box">
             <el-pagination
                 v-model:current-page="pageData.pageIndex"
                 v-model:page-size="pageData.pageSize"

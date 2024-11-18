@@ -97,29 +97,24 @@
             append-to-body
         />
         <template #footer>
-            <el-row>
-                <el-col
-                    :span="24"
-                    class="el-col-flex-end"
+            <div class="base-btn-box">
+                <el-button
+                    :disabled="!formData.plateNum"
+                    @click="addPlate"
+                    >{{ Translate('IDCS_ENTRY') }}</el-button
                 >
-                    <el-button
-                        :disabled="!formData.plateNum"
-                        @click="addPlate"
-                        >{{ Translate('IDCS_ENTRY') }}</el-button
-                    >
-                    <el-button @click="close">{{ Translate('IDCS_EXIT') }}</el-button>
-                    <el-button
-                        :disabled="pageData.index === pageData.list.length - 1"
-                        @click="handleNext"
-                        >{{ Translate('IDCS_NEXT') }}</el-button
-                    >
-                    <el-button
-                        :disabled="pageData.index === 0"
-                        @click="handlePrev"
-                        >{{ Translate('IDCS_PREVIOUS') }}</el-button
-                    >
-                </el-col>
-            </el-row>
+                <el-button @click="close">{{ Translate('IDCS_EXIT') }}</el-button>
+                <el-button
+                    :disabled="pageData.index === pageData.list.length - 1"
+                    @click="handleNext"
+                    >{{ Translate('IDCS_NEXT') }}</el-button
+                >
+                <el-button
+                    :disabled="pageData.index === 0"
+                    @click="handlePrev"
+                    >{{ Translate('IDCS_PREVIOUS') }}</el-button
+                >
+            </div>
         </template>
     </el-dialog>
 </template>

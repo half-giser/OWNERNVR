@@ -314,7 +314,7 @@
                     </el-table-column>
                 </el-table>
             </div>
-            <div class="row_pagination">
+            <div class="base-pagination-box">
                 <el-pagination
                     v-model:current-page="pageIndex"
                     v-model:page-size="pageSize"

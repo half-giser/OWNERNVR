@@ -70,24 +70,19 @@
             </div>
         </el-form>
         <template #footer>
-            <el-row>
-                <el-col
-                    :span="24"
-                    class="el-col-flex-end"
+            <div class="base-btn-box">
+                <el-button
+                    :disabled="activeIndex <= 0"
+                    @click="prev"
+                    >{{ Translate('IDCS_PRE_LOG') }}</el-button
                 >
-                    <el-button
-                        :disabled="activeIndex <= 0"
-                        @click="prev"
-                        >{{ Translate('IDCS_PRE_LOG') }}</el-button
-                    >
-                    <el-button
-                        :disabled="activeIndex >= data.length - 1"
-                        @click="next"
-                        >{{ Translate('IDCS_NEXT_LOG') }}</el-button
-                    >
-                    <el-button @click="close">{{ Translate('IDCS_CLOSE') }}</el-button>
-                </el-col>
-            </el-row>
+                <el-button
+                    :disabled="activeIndex >= data.length - 1"
+                    @click="next"
+                    >{{ Translate('IDCS_NEXT_LOG') }}</el-button
+                >
+                <el-button @click="close">{{ Translate('IDCS_CLOSE') }}</el-button>
+            </div>
         </template>
     </el-dialog>
 </template>

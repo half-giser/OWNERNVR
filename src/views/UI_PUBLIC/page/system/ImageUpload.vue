@@ -118,12 +118,10 @@
             </el-form-item>
         </el-form>
         <template #footer>
-            <el-row>
-                <el-col class="el-col-flex-end">
-                    <el-button @click="addTimeItem">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="pageData.addSignTimeDialogOpen = false">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </el-col>
-            </el-row>
+            <div class="base-btn-box">
+                <el-button @click="addTimeItem">{{ Translate('IDCS_OK') }}</el-button>
+                <el-button @click="pageData.addSignTimeDialogOpen = false">{{ Translate('IDCS_CANCEL') }}</el-button>
+            </div>
         </template>
     </el-dialog>
     <ImageUploadAddTimePop

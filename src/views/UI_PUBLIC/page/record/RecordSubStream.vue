@@ -99,7 +99,6 @@
                                     :row-key="getRowKey"
                                     :expand-row-keys="pageData.expands"
                                     stripe
-                                    border
                                     @expand-change="handleExpandChange($event, pageData.expands)"
                                 >
                                     <el-table-column width="220">
@@ -119,37 +118,33 @@
                                         </template>
                                     </el-table-column>
                                     <el-table-column
-                                        width="190"
+                                        width="188"
                                         type="expand"
                                     >
                                         <template #default="scope">
-                                            <div :style="{ height: '260px' }">
-                                                <el-row>
-                                                    <el-col
-                                                        v-for="(item, index) in scope.row.chls.data"
-                                                        :key="index"
-                                                        :span="12"
-                                                    >
-                                                        <div class="device-item">
-                                                            <BaseImgSprite
-                                                                file="chl_icon"
-                                                                :index="0"
-                                                                :hover-index="1"
-                                                                :chunk="4"
-                                                                :style="{ margin: '0 3px 0 5px' }"
-                                                            />
-                                                            <span class="device-name">{{ item.label }}</span>
-                                                        </div>
-                                                    </el-col>
-                                                </el-row>
+                                            <div class="chl-box">
+                                                <div
+                                                    v-for="(item, index) in scope.row.chls.data"
+                                                    :key="index"
+                                                    :span="12"
+                                                    class="chl-item"
+                                                >
+                                                    <BaseImgSprite
+                                                        file="chl_icon"
+                                                        :index="0"
+                                                        :hover-index="1"
+                                                        :chunk="4"
+                                                    />
+                                                    <span class="text-ellispsis">{{ item.label }}</span>
+                                                </div>
                                             </div>
                                         </template>
                                     </el-table-column>
                                 </el-table>
-                                <el-row class="base-btn-box">
+                                <div class="base-btn-box">
                                     <el-button @click="apply">{{ Translate('IDCS_OK') }}</el-button>
                                     <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
-                                </el-row>
+                                </div>
                             </div>
                         </el-popover>
                     </template>
@@ -274,12 +269,26 @@
 <script lang="ts" src="./RecordSubStream.v.ts"></script>
 
 <style scoped lang="scss">
-.disabled {
-    color: var(--input-text-disabled);
+.chl-box {
+    display: flex;
+    flex-wrap: wrap;
 }
 
-.device-item {
-    margin: 5px;
+.chl-item {
+    padding-left: 15px;
+    display: flex;
+    align-items: center;
+    width: 50%;
+    box-sizing: border-box;
+    height: 30px;
+
+    span:first-child {
+        flex-shrink: 0;
+    }
+
+    span:last-child {
+        margin-left: 5px;
+    }
 }
 
 :deep(.cell) {

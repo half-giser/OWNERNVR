@@ -14,13 +14,15 @@
             ref="formRef"
             :model="formData"
             :rules="formRule"
-            inline-message
             :style="{
                 '--form-input-width': '200px',
             }"
         >
-            <el-row class="form">
-                <el-col :span="14">
+            <div
+                class="base-btn-box form"
+                span="2"
+            >
+                <div>
                     <el-form-item
                         :label="Translate('IDCS_SCHEDULE_NAME')"
                         prop="name"
@@ -44,8 +46,8 @@
                             />
                         </el-radio-group>
                     </el-form-item>
-                </el-col>
-                <el-col :span="10">
+                </div>
+                <div>
                     <div class="btn-panel">
                         <el-popover
                             v-model:visible="pageData.manualTimeInputShow"
@@ -99,8 +101,8 @@
                             v-text="Translate('IDCS_CLEAR')"
                         ></a>
                     </div>
-                </el-col>
-            </el-row>
+                </div>
+            </div>
             <el-form-item prop="timespan">
                 <BaseScheduleWeek
                     ref="scheduleWeekRef"
@@ -110,15 +112,10 @@
             </el-form-item>
         </el-form>
         <template #footer>
-            <el-row>
-                <el-col
-                    :span="24"
-                    class="el-col-flex-end"
-                >
-                    <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="$emit('close', true)">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </el-col>
-            </el-row>
+            <div class="base-btn-box">
+                <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
+                <el-button @click="$emit('close', true)">{{ Translate('IDCS_CANCEL') }}</el-button>
+            </div>
         </template>
     </el-dialog>
 </template>
@@ -138,18 +135,12 @@
         margin-bottom: 0;
     }
 
-    #n9web & :deep(.el-form-item__label) {
-        color: var(--schedule-form-text);
-    }
-
     #n9web & :deep(.el-radio) {
         --el-radio-text-color: var(--schedule-form-text);
     }
 
-    :deep(.el-form-item__error--inline) {
-        position: absolute;
-        top: 33px;
-        z-index: 1000;
+    :deep(.el-form-item__error) {
+        margin-top: 5px;
     }
 }
 
@@ -162,13 +153,10 @@
 }
 
 .btn-panel {
-    position: relative;
     flex: 0 0 auto;
     font-size: 13px;
-    float: right;
-    margin-right: 20px;
 
-    :deep(a) {
+    a {
         margin-left: 15px;
         text-decoration: none;
         cursor: pointer;

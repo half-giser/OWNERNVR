@@ -171,7 +171,7 @@
                 </el-table-column>
             </el-table>
         </div>
-        <div class="row_pagination">
+        <div class="base-pagination-box">
             <el-pagination
                 :current-page="formData.pageIndex"
                 :page-size="formData.pageSize"
@@ -221,14 +221,9 @@
                 :label="Translate('IDCS_NOT_SHOW_AGAIN')"
             />
             <template #footer>
-                <el-row>
-                    <el-col
-                        :span="24"
-                        class="el-col-flex-end"
-                    >
-                        <el-button @click="closeBackupTipPop">{{ Translate('IDCS_OK') }}</el-button>
-                    </el-col>
-                </el-row>
+                <div class="base-btn-box">
+                    <el-button @click="closeBackupTipPop">{{ Translate('IDCS_OK') }}</el-button>
+                </div>
             </template>
         </el-dialog>
     </div>

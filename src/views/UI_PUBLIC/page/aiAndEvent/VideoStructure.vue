@@ -38,7 +38,7 @@
             <div v-show="pageData.tab === 'param'">
                 <div
                     class="base-btn-box"
-                    :span="2"
+                    span="2"
                 >
                     <div>
                         <el-checkbox

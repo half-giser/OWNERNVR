@@ -108,7 +108,7 @@
         </div>
         <div
             class="base-btn-box padding"
-            :span="2"
+            span="2"
         >
             <div class="tips">{{ Translate('IDCS_VEHICLE_NUM_TIPS') }}</div>
             <div>

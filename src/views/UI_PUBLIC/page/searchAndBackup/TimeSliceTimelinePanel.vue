@@ -96,26 +96,21 @@
                         </div>
                     </div>
                 </div>
-                <el-row>
-                    <el-col
-                        :span="24"
-                        class="el-col-flex-end"
+                <div class="base-btn-box collapse">
+                    <el-radio-group
+                        v-model="pageData.mode"
+                        class="always-border"
+                        @change="changeMode"
                     >
-                        <el-radio-group
-                            v-model="pageData.mode"
-                            class="always-border"
-                            @change="changeMode"
-                        >
-                            <el-radio-button
-                                v-for="item in pageData.modeOptions"
-                                v-show="item.hidden !== pageData.mode"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            />
-                        </el-radio-group>
-                    </el-col>
-                </el-row>
+                        <el-radio-button
+                            v-for="item in pageData.modeOptions"
+                            v-show="item.hidden !== pageData.mode"
+                            :key="item.value"
+                            :value="item.value"
+                            :label="item.label"
+                        />
+                    </el-radio-group>
+                </div>
             </div>
             <div class="right-bottom">
                 <div class="right-type">

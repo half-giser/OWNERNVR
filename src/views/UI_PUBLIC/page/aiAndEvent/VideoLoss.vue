@@ -40,7 +40,7 @@
                         />
                     </template>
                     <template #default="scope">
-                        <el-row class="row-together">
+                        <div class="row-together">
                             <el-checkbox
                                 v-model="scope.row.snap.switch"
                                 :disabled="scope.row.rowDisable"
@@ -53,7 +53,7 @@
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
-                        </el-row>
+                        </div>
                     </template>
                 </el-table-column>
                 <!-- 消息推送   -->
@@ -102,7 +102,7 @@
                         />
                     </template>
                     <template #default="scope">
-                        <el-row class="row-together">
+                        <div class="row-together">
                             <el-checkbox
                                 v-model="scope.row.alarmOut.switch"
                                 :disabled="scope.row.rowDisable"
@@ -115,7 +115,7 @@
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
-                        </el-row>
+                        </div>
                     </template>
                 </el-table-column>
                 <!-- 预置点名称   -->
@@ -125,7 +125,7 @@
                     :label="Translate('IDCS_PRESET_NAME')"
                 >
                     <template #default="scope">
-                        <el-row class="row-together">
+                        <div class="row-together">
                             <el-checkbox
                                 v-model="scope.row.preset.switch"
                                 :disabled="scope.row.rowDisable"
@@ -138,7 +138,7 @@
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
-                        </el-row>
+                        </div>
                     </template>
                 </el-table-column>
                 <!-- FTPSnap   -->
@@ -320,7 +320,7 @@
                 </el-table-column>
             </el-table>
         </div>
-        <div class="row_pagination">
+        <div class="base-pagination-box">
             <el-pagination
                 v-model:current-page="pageData.pageIndex"
                 v-model:page-size="pageData.pageSize"

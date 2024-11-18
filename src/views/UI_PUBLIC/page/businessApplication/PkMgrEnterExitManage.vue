@@ -51,7 +51,7 @@
                     :label="Translate('IDCS_COMMON_STATE')"
                 >
                     <template #default="scope">
-                        <span :class="getChlStatus(scope.row.id)">{{ getChlStatus(scope.row.id) === 'online' ? Translate('IDCS_ONLINE') : Translate('IDCS_OFFLINE') }}</span>
+                        <span :class="getChlStatus(scope.row.id)">{{ getChlStatus(scope.row.id) === 'text-online' ? Translate('IDCS_ONLINE') : Translate('IDCS_OFFLINE') }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -97,13 +97,3 @@
 </template>
 
 <script lang="ts" src="./PkMgrEnterExitManage.v.ts"></script>
-
-<style lang="scss" scoped>
-.online {
-    color: var(--color-online);
-}
-
-.offline {
-    color: var(--color-offline);
-}
-</style>

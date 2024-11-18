@@ -155,7 +155,7 @@ export default defineComponent({
          * @returns {string}
          */
         const getChlStatus = (id: string) => {
-            return pageData.value.onlineChlList.includes(id) ? 'online' : 'offline'
+            return pageData.value.onlineChlList.includes(id) ? 'text-online' : 'text-offline'
         }
 
         watch(

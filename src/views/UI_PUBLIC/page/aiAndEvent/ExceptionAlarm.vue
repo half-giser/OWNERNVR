@@ -106,7 +106,7 @@
                         />
                     </template>
                     <template #default="scope">
-                        <el-row class="row-together">
+                        <div class="row-together">
                             <el-checkbox
                                 v-model="scope.row.alarmOut.switch"
                                 :disabled="scope.row.rowDisable"
@@ -119,7 +119,7 @@
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
-                        </el-row>
+                        </div>
                     </template>
                 </el-table-column>
                 <!-- 蜂鸣器   -->
@@ -227,9 +227,9 @@
                 </el-table-column>
             </el-table>
         </div>
-        <el-row
+        <div
             class="base-btn-box"
-            :span="2"
+            span="2"
         >
             <div class="tips_text">
                 {{ Translate('IDCS_DISK_FAILURE_TIPS').formatForLang(Translate('IDCS_DISK_FAILURE')) }}
@@ -242,7 +242,7 @@
                     {{ Translate('IDCS_APPLY') }}
                 </el-button>
             </div>
-        </el-row>
+        </div>
     </div>
 </template>
 
@@ -253,9 +253,5 @@
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-.tips_text {
-    font-size: 14px;
 }
 </style>

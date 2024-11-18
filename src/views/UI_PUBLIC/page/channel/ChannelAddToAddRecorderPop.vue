@@ -120,17 +120,14 @@
             />
         </el-table>
         <template #footer>
-            <el-row>
-                <el-col
-                    :span="10"
-                    class="el-col-flex-start"
-                >
+            <div
+                class="base-btn-box"
+                span="2"
+            >
+                <div>
                     {{ Translate('IDCS_SELECT_CHANNEL_COUNT').formatForLang(selNum, formData.recorderList.length) }}
-                </el-col>
-                <el-col
-                    :span="14"
-                    class="el-col-flex-end"
-                >
+                </div>
+                <div>
                     <el-button
                         :disabled="eleBtnTestDisabled"
                         @click="test"
@@ -138,8 +135,8 @@
                     >
                     <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
                     <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </el-col>
-            </el-row>
+                </div>
+            </div>
         </template>
     </el-dialog>
 </template>

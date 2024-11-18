@@ -21,7 +21,7 @@
             <!-- nvr/ipc检测开启及ai按钮 -->
             <div
                 class="base-btn-box padding collapse"
-                :span="2"
+                span="2"
             >
                 <div>
                     <el-checkbox
@@ -87,7 +87,7 @@
                 <div v-if="pageData.tripwireFunction === 'tripwire_param'">
                     <div
                         class="base-btn-box"
-                        :span="2"
+                        span="2"
                     >
                         <div>
                             <el-checkbox

@@ -5,24 +5,26 @@
 -->
 <template>
     <div class="top">
-        <el-row>
-            <el-col :span="18" />
-            <el-col :span="6">
-                <el-form>
-                    <el-form-item :label="Translate('IDCS_VIEW_WAY')">
-                        <el-select v-model="pageData.viewOption">
-                            <el-option
-                                v-for="item in pageData.viewOptions"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                                :disabled="disabledOption(item.value)"
-                            />
-                        </el-select>
-                    </el-form-item>
-                </el-form>
-            </el-col>
-        </el-row>
+        <div class="base-btn-box collapse">
+            <el-form
+                :style="{
+                    '--form-label-width': 'auto',
+                    '--form-input-width': '150px',
+                }"
+            >
+                <el-form-item :label="Translate('IDCS_VIEW_WAY')">
+                    <el-select v-model="pageData.viewOption">
+                        <el-option
+                            v-for="item in pageData.viewOptions"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value"
+                            :disabled="disabledOption(item.value)"
+                        />
+                    </el-select>
+                </el-form-item>
+            </el-form>
+        </div>
         <div class="list">
             <div
                 v-show="pageData.viewOption === 'time'"

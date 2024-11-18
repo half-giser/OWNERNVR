@@ -104,7 +104,7 @@
                                             {{ hideSensitiveInfo(item.name, 'medium', 'name') }}
                                         </IntelBaseFaceItem>
                                     </div>
-                                    <div class="row_pagination">
+                                    <div class="base-pagination-box">
                                         <el-pagination
                                             v-model:current-page="formData.pageIndex"
                                             v-model:page-size="pageData.pageSize"
@@ -175,7 +175,7 @@
         </div>
         <div
             class="base-btn-box padding"
-            :span="2"
+            span="2"
         >
             <div>
                 <el-button @click="handleFaceRecognition">{{ Translate('IDCS_FACE_RECOGNITION') }}</el-button>
@@ -204,15 +204,10 @@
                 <div class="text-error">{{ Translate('IDCS_EXPORT_UNENCRYPTED_TIP') }}</div>
             </div>
             <template #footer>
-                <el-row>
-                    <el-col
-                        :span="24"
-                        class="el-col-flex-end"
-                    >
-                        <el-button @click="confirmExportGroup">{{ Translate('IDCS_OK') }}</el-button>
-                        <el-button @click="pageData.isExportTipPop = false">{{ Translate('IDCS_CANCEL') }}</el-button>
-                    </el-col>
-                </el-row>
+                <div class="base-btn-box">
+                    <el-button @click="confirmExportGroup">{{ Translate('IDCS_OK') }}</el-button>
+                    <el-button @click="pageData.isExportTipPop = false">{{ Translate('IDCS_CANCEL') }}</el-button>
+                </div>
             </template>
         </el-dialog>
         <IntelFaceDBExportPop
@@ -306,7 +301,7 @@
     }
 }
 
-.row_pagination {
+.base-pagination-box {
     border-top: 1px solid var(--content-border);
 }
 </style>

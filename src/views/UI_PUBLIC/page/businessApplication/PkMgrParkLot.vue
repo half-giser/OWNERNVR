@@ -108,7 +108,7 @@
             </div>
             <div
                 class="base-btn-box padding"
-                :span="2"
+                span="2"
             >
                 <div>{{ Translate('IDCS_MORE_VEHICLE_RECORD') }}</div>
                 <div>

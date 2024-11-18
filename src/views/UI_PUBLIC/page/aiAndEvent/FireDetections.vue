@@ -20,7 +20,7 @@
             <!-- 检测开启及ai按钮 -->
             <div
                 class="base-btn-box collapse padding"
-                :span="2"
+                span="2"
             >
                 <div>
                     <el-checkbox

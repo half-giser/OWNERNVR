@@ -10,8 +10,8 @@
         :destroy-on-close="true"
         @open="onOpen"
     >
-        <el-row>
-            <el-col :span="16">
+        <div class="base-btn-box">
+            <div>
                 <div class="base-subheading-box">
                     <span class="scheduleTitle">{{ scheduleTitle }}</span>
                     <BaseImgSprite
@@ -24,14 +24,15 @@
                     :width="600"
                     :readonly="true"
                 />
-            </el-col>
-            <el-col :span="8">
+            </div>
+            <div>
                 <el-table
                     ref="scheduleTable"
                     stripe
                     border
                     :data="pageData.scheduleList"
                     highlight-current-row
+                    width="305"
                     height="481"
                     @current-change="tableRowChange"
                 >
@@ -75,8 +76,8 @@
                         </template>
                     </el-table-column>
                 </el-table>
-            </el-col>
-        </el-row>
+            </div>
+        </div>
         <Teleport to="body">
             <!-- 排程编辑弹窗 -->
             <ScheduleEditPop
@@ -87,14 +88,9 @@
             />
         </Teleport>
         <template #footer>
-            <el-row>
-                <el-col
-                    :span="24"
-                    class="el-col-flex-end"
-                >
-                    <el-button @click="$emit('close')">{{ Translate('IDCS_CLOSE') }}</el-button>
-                </el-col>
-            </el-row>
+            <div class="base-btn-box">
+                <el-button @click="$emit('close')">{{ Translate('IDCS_CLOSE') }}</el-button>
+            </div>
         </template>
     </el-dialog>
 </template>
@@ -106,21 +102,17 @@
     width: 600px;
     height: 35px;
     margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    margin-right: 10px;
 
     .scheduleTitle {
-        float: left;
         color: var(--subheading-text);
     }
 
     .Sprite {
-        float: right;
         margin: 5px 10px 0 0;
         cursor: pointer;
     }
-}
-
-#n9web .el-row {
-    align-items: start;
-    justify-content: space-between;
 }
 </style>

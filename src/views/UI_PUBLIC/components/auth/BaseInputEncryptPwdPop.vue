@@ -36,19 +36,14 @@
             </el-form-item>
         </el-form>
         <template #footer>
-            <el-row>
-                <el-col
-                    :span="24"
-                    class="el-col-flex-end"
+            <div class="base-btn-box">
+                <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
+                <el-button
+                    v-show="!upgradeFlag"
+                    @click="close"
+                    >{{ Translate('IDCS_CANCEL') }}</el-button
                 >
-                    <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button
-                        v-show="!upgradeFlag"
-                        @click="close"
-                        >{{ Translate('IDCS_CANCEL') }}</el-button
-                    >
-                </el-col>
-            </el-row>
+            </div>
         </template>
     </el-dialog>
 </template>

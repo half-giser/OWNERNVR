@@ -57,21 +57,15 @@
         </el-table>
         <BaseLivePop ref="baseLivePopRef" />
         <template #footer>
-            <el-row>
-                <el-col
-                    :span="12"
-                    class="el-col-flex-start"
-                >
+            <div class="base-btn-box">
+                <div>
                     <span>{{ Translate('IDCS_SELECT_CHANNEL_COUNT').formatForLang(selNum, tableData.length) }}</span>
-                </el-col>
-                <el-col
-                    :span="12"
-                    class="el-col-flex-end"
-                >
+                </div>
+                <div>
                     <el-button @click="save()">{{ Translate('IDCS_OK') }}</el-button>
                     <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </el-col>
-            </el-row>
+                </div>
+            </div>
         </template>
     </el-dialog>
 </template>

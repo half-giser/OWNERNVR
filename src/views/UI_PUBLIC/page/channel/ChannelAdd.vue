@@ -52,7 +52,7 @@
                     min-width="140"
                 >
                     <template #default="scope">
-                        <span :style="{ color: scope.row.activateStatus === 'UNACTIVATED' ? 'var(--color-offline)' : '' }">{{
+                        <span :class="[scope.row.activateStatus === 'UNACTIVATED' ? 'text-offline' : '']">{{
                             scope.row.activateStatus === 'ACTIVATED' ? Translate('IDCS_ACTIVATED') : scope.row.activateStatus === 'UNACTIVATED' ? Translate('IDCS_UN_ACTIVATED') : '--'
                         }}</span>
                     </template>
@@ -280,7 +280,7 @@
         </div>
         <div
             class="base-btn-box collapse"
-            :span="2"
+            span="2"
         >
             <div>
                 {{ txtBandwidth }}

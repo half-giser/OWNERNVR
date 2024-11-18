@@ -32,7 +32,7 @@
             <!-- 检测开启 -->
             <div
                 class="base-btn-box padding collapse"
-                :span="2"
+                span="2"
             >
                 <div v-if="chlData.supportPassLine">
                     <el-checkbox
@@ -73,7 +73,7 @@
                 <div v-if="pageData.fuction === 'param' && chlData.supportPassLine">
                     <div
                         class="base-btn-box"
-                        :span="2"
+                        span="2"
                     >
                         <div>
                             <el-checkbox
@@ -98,7 +98,7 @@
                 <div v-if="pageData.fuction === 'param' && chlData.supportCpc">
                     <div
                         class="base-btn-box"
-                        :span="2"
+                        span="2"
                     >
                         <div>
                             <!-- <el-checkbox

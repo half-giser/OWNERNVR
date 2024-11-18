@@ -51,7 +51,7 @@
             <div>
                 <div
                     class="base-btn-box padding collapse"
-                    :span="2"
+                    span="2"
                 >
                     <div>
                         <el-checkbox
@@ -308,7 +308,7 @@
             <div>
                 <div
                     class="base-btn-box collapse"
-                    :span="2"
+                    span="2"
                 >
                     <div>
                         <el-text :style="{ margin: '0 20px' }">{{ Translate('IDCS_ENABLE') }}</el-text>
