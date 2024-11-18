@@ -116,7 +116,7 @@ export default defineComponent({
                     } else {
                         $('//content/item').forEach((item) => {
                             const $item = queryXml(item.element)
-                            const id = item.attr('id') as string
+                            const id = item.attr('id')
                             const name = $item('name').text()
                             audioAlarmPageData.value.chlAlarmOutList.push({
                                 value: id,
@@ -144,16 +144,14 @@ export default defineComponent({
 
             const success = $('//status').text() === 'success'
 
-            const audioTypeList = [] as SelectOption<string, string>[]
             let customeAudioNum = 0 //保存已上传自定义声音的数量
-
-            $('//types/audioAlarmType/enum').forEach((item) => {
-                audioTypeList.push({
-                    value: item.text(),
-                    label: item.attr('value') as string,
-                })
+            const audioTypeList = $('//types/audioAlarmType/enum').map((item) => {
                 if (item.text().num() >= 100) {
                     customeAudioNum++
+                }
+                return {
+                    value: item.text(),
+                    label: item.attr('value'),
                 }
             })
 
@@ -161,9 +159,15 @@ export default defineComponent({
             $('//types/audioLanguageType/enum').forEach((item) => {
                 const langType = item.text()
                 if (langType === 'en-us') {
-                    langArr.push({ value: langType, label: Translate('IDCS_en_US') })
+                    langArr.push({
+                        value: langType,
+                        label: Translate('IDCS_en_US'),
+                    })
                 } else if (langType === 'zh-cn') {
-                    langArr.push({ value: langType, label: Translate('IDCS_zh_CN') })
+                    langArr.push({
+                        value: langType,
+                        label: Translate('IDCS_zh_CN'),
+                    })
                 }
             })
 
@@ -484,7 +488,7 @@ export default defineComponent({
                     changeAudioDeviceDataDisabled(true) // "声音设备"配置默认全置灰
                     $('//content/item').forEach((item) => {
                         const $item = queryXml(item.element)
-                        const id = item.attr('id') as string
+                        const id = item.attr('id')
                         const name = $item('name').text()
                         audioDevicePageData.value.chlAudioDevList.push({
                             value: id,
@@ -743,8 +747,8 @@ export default defineComponent({
                 pageData.value.localTableData = $('//content/audioList/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
-                        id: item.attr('id') as string,
-                        index: item.attr('index') as string,
+                        id: item.attr('id'),
+                        index: item.attr('index'),
                         name: $item('name').text(),
                         originalName: $item('name').text(),
                         fileValid: $item('fileValid').text(),
