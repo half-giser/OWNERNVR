@@ -17,7 +17,7 @@
             <el-form-item>
                 <el-radio-group
                     v-model="formData.encryption"
-                    class="radio-group"
+                    class="line-break"
                 >
                     <el-radio
                         v-for="item in pageData.options"
@@ -46,13 +46,3 @@
 </template>
 
 <script lang="ts" src="./HttpsCertPasswordPop.v.ts"></script>
-
-<style lang="scss" scoped>
-.radio-group {
-    display: block;
-
-    :deep(.el-radio) {
-        display: flex;
-    }
-}
-</style>

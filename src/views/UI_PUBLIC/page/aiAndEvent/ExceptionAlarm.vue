@@ -106,7 +106,7 @@
                         />
                     </template>
                     <template #default="scope">
-                        <div class="row-together">
+                        <div class="base-cell-box">
                             <el-checkbox
                                 v-model="scope.row.alarmOut.switch"
                                 :disabled="scope.row.rowDisable"
@@ -114,7 +114,6 @@
                             />
                             <el-button
                                 :disabled="!scope.row.alarmOut.switch || scope.row.rowDisable"
-                                class="table_btn"
                                 @click="openAlarmOut(scope.$index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
@@ -247,11 +246,3 @@
 </template>
 
 <script lang="ts" src="./ExceptionAlarm.v.ts"></script>
-
-<style lang="scss" scoped>
-:deep(.el-table .cell) {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-</style>

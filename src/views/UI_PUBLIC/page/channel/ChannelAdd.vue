@@ -129,7 +129,7 @@
                     :show-overflow-tooltip="false"
                 >
                     <template #default="scope">
-                        <div class="form-wrapper">
+                        <div class="base-cell-box">
                             <el-select
                                 v-model="scope.row.addrType"
                                 @change="cellChange($event, scope.$index, scope.row, 'addrType')"
@@ -349,14 +349,6 @@
         width: 100px;
         display: flex;
         justify-content: flex-end;
-    }
-}
-
-.form-wrapper {
-    display: flex;
-
-    & > div:first-child {
-        margin-right: 10px;
     }
 }
 </style>

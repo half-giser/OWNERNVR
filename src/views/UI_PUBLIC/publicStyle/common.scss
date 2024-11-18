@@ -376,6 +376,19 @@ input[type='number'] {
         }
     }
 
+    .el-input-number {
+        &.is-without-controls {
+            .el-input__inner {
+                text-align: left;
+            }
+
+            .el-input__wrapper {
+                padding-left: 11px;
+                padding-right: 11px;
+            }
+        }
+    }
+
     // .el-form 公共样式
     .el-form {
         flex-shrink: 0;
@@ -448,19 +461,6 @@ input[type='number'] {
         .el-checkbox {
             display: inline-flex;
             align-items: center;
-        }
-
-        .el-input-number {
-            &.is-without-controls {
-                .el-input__inner {
-                    text-align: left;
-                }
-
-                .el-input__wrapper {
-                    padding-left: 11px;
-                    padding-right: 11px;
-                }
-            }
         }
 
         .el-slider {
@@ -792,6 +792,18 @@ input[type='number'] {
 
     &[span='start'] {
         justify-content: flex-start;
+    }
+}
+
+// 表格cell内多个控件的容器
+.base-cell-box {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    * + * {
+        margin-left: 5px;
     }
 }
 

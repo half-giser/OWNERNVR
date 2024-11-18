@@ -253,17 +253,6 @@
     .el-button {
         margin-left: 10px;
     }
-
-    :deep(.el-button) {
-        &.is-link {
-            color: var(--main-text);
-
-            &:hover {
-                text-decoration: underline;
-                color: var(--primary);
-            }
-        }
-    }
 }
 
 .backup-tip {
