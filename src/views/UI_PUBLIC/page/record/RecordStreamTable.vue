@@ -504,20 +504,6 @@
 
 .resolutionContainer {
     padding: 10px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-
-    :deep() {
-        .cell {
-            overflow: visible;
-        }
-
-        .el-table__cell {
-            z-index: auto;
-        }
-    }
 }
 
 .chl-box {

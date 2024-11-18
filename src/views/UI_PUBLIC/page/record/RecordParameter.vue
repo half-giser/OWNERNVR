@@ -215,7 +215,7 @@
                 <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>
             </div>
         </div>
-        <RecParamCustomizationPop
+        <RecordParameterCustomPop
             v-model="pageData.isSetCustomization"
             :expiration-type="pageData.expirationType"
             :expiration-data="pageData.expirationData"

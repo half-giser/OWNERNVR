@@ -4,7 +4,7 @@
  * @Date: 2024-08-05 16:26:27
  */
 import dayjs from 'dayjs'
-import { type ChlRecParamList } from '@/types/apiType/record'
+import { type RecordParamDto } from '@/types/apiType/record'
 
 export default defineComponent({
     props: {
@@ -13,12 +13,12 @@ export default defineComponent({
             required: true,
         },
         expirationData: {
-            type: Object as PropType<ChlRecParamList>,
+            type: Object as PropType<RecordParamDto>,
             required: true,
         },
     },
     emits: {
-        confirm(week: string, holiday: string, expiration: number, expirationData?: ChlRecParamList) {
+        confirm(week: string, holiday: string, expiration: number, expirationData?: RecordParamDto) {
             return (typeof week === 'string' && typeof holiday === 'string' && typeof expiration === 'number') || !!expirationData
         },
         close() {
@@ -30,13 +30,34 @@ export default defineComponent({
         const { openMessageBox } = useMessageBox()
 
         const week = [
-            { value: 1, label: Translate('IDCS_MONDAY') },
-            { value: 2, label: Translate('IDCS_TUESDAY') },
-            { value: 3, label: Translate('IDCS_WEDNESDAY') },
-            { value: 4, label: Translate('IDCS_THURSDAY') },
-            { value: 5, label: Translate('IDCS_FRIDAY') },
-            { value: 6, label: Translate('IDCS_SATURDAY') },
-            { value: 7, label: Translate('IDCS_SUNDAY') },
+            {
+                value: 1,
+                label: Translate('IDCS_MONDAY'),
+            },
+            {
+                value: 2,
+                label: Translate('IDCS_TUESDAY'),
+            },
+            {
+                value: 3,
+                label: Translate('IDCS_WEDNESDAY'),
+            },
+            {
+                value: 4,
+                label: Translate('IDCS_THURSDAY'),
+            },
+            {
+                value: 5,
+                label: Translate('IDCS_FRIDAY'),
+            },
+            {
+                value: 6,
+                label: Translate('IDCS_SATURDAY'),
+            },
+            {
+                value: 7,
+                label: Translate('IDCS_SUNDAY'),
+            },
         ]
 
         const pageData = ref({
@@ -75,13 +96,13 @@ export default defineComponent({
          */
         const open = async () => {
             if (prop.expirationType !== 'all') {
-                const expirationTime = prop.expirationData?.singleExpirationUnit === 'd' ? Number(prop.expirationData?.expiration) * 24 : Number(prop.expirationData?.expiration)
+                const expirationTime = prop.expirationData.singleExpirationUnit === 'd' ? Number(prop.expirationData?.expiration) * 24 : Number(prop.expirationData?.expiration)
                 pageData.value.expireTime = expirationTime
                 const week = prop.expirationData?.week
                 if (week) {
                     pageData.value.weekArr = week.split(',').map((item) => Number(item))
                 }
-                const holiday = prop.expirationData?.holiday
+                const holiday = prop.expirationData.holiday
                 if (holiday) {
                     holiday.split(',').forEach((item) => {
                         pageData.value.toAddDateList.push({

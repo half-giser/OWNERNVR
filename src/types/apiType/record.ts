@@ -7,19 +7,19 @@
 /**
  * @description 录像-模式配置
  */
-export class RecordDistributeInfo {
+export class RecordDistributeInfoDto {
     mode = '' // 录像模式类型
     autoMode = '' // 自动录像模式
     autoModeEvents = [] as string[] // 自动录像模式事件列表
     autoModeId = '' //自动模式Radio列表中选择的ID
     urgencyRecDuration = 0 // 手动录像时长
-    recordScheduleList = [] as RecordSchedule[]
+    recordScheduleList = [] as RecordScheduleDto[]
 }
 
 /**
  * @description 通道的录像排程配置
  */
-export class RecordSchedule {
+export class RecordScheduleDto {
     id = '' //通道ID
     name = '' //通道名称
     alarmRec = '' //传感器录像排程
@@ -32,7 +32,7 @@ export class RecordSchedule {
 /**
  * @description 录像模式
  */
-export interface RecMode {
+export interface RecordModeDto {
     id: string
     text: string
     type: string
@@ -43,7 +43,7 @@ export interface RecMode {
 /**
  * @description 通道录像参数列表
  */
-export class ChlRecParamList {
+export class RecordParamDto {
     id = ''
     index = 0
     name = ''
@@ -56,18 +56,10 @@ export class ChlRecParamList {
     expiration = ''
     expirationUnit = ''
     manufacturerEnable = false
-    expirationDisplay? = ''
-    week? = ''
-    holiday? = ''
-    singleExpirationUnit? = ''
-}
-
-/**
- * @description 页面选择项
- */
-export class ItemList {
-    value = ''
-    label = ''
+    expirationDisplay = ''
+    week = ''
+    holiday = ''
+    singleExpirationUnit = ''
 }
 
 /**
@@ -110,16 +102,19 @@ export class RecordSubStreamList {
 /**
  * @description 分辨率数据项
  */
-export class ResolutionRow {
+export class RecordSubStreamResolutionDto {
     res = ''
     resGroup = [] as string[]
-    chls = { expand: false, data: [] as SelectOption<string, string>[] }
+    chls = {
+        expand: false,
+        data: [] as SelectOption<string, string>[],
+    }
 }
 
 /**
  * @description 录像子码流页面，表格行中不存在的属性
  */
-export class rowNonExistent {
+export class RecordSubStreamNoneDto {
     videoEncodeType = ''
     videoQuality = ''
     frameRate = ''
