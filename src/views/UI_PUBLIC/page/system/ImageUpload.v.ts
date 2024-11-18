@@ -4,7 +4,7 @@
  * @Date: 2024-10-23 11:43:19
  */
 import dayjs from 'dayjs'
-import { type SystenSHDBImageUploadDto } from '@/types/apiType/system'
+import { SystenSHDBImageUploadDto } from '@/types/apiType/system'
 import { type TableInstance } from 'element-plus'
 import ImageUploadAddTimePop from './ImageUploadAddTimePop.vue'
 
@@ -25,7 +25,7 @@ export default defineComponent({
             // 表格展开索引列表
             expandRowKey: [] as string[],
             // 当前行
-            currentRow: {} as SystenSHDBImageUploadDto,
+            currentRow: new SystenSHDBImageUploadDto(),
             // 添加项时间
             addTimeData: '00:00:00',
             // 添加单个时间项弹窗开关
@@ -51,7 +51,7 @@ export default defineComponent({
          * @param {boolean} expanded
          */
         const handleExpandChange = async (row: SystenSHDBImageUploadDto, expanded: boolean) => {
-            tableRef.value?.setCurrentRow(row)
+            tableRef.value!.setCurrentRow(row)
             if (expanded) {
                 if (!pageData.value.expandRowKey.includes(row.chlId)) {
                     pageData.value.expandRowKey.push(row.chlId)
