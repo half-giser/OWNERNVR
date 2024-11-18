@@ -4,7 +4,7 @@
  * @Date: 2024-07-31 10:13:57
  */
 
-import { type ResolutionRow, type RecordSubStreamList, type rowNonExistent, type RecordSubStreamQualityCaps } from '@/types/apiType/record'
+import { type RecordSubStreamResolutionDto, type RecordSubStreamList, RecordSubStreamNoneDto, type RecordSubStreamQualityCaps } from '@/types/apiType/record'
 import { type TableInstance } from 'element-plus'
 import { uniq } from 'lodash-es'
 
@@ -24,7 +24,7 @@ export default defineComponent({
 
         const pageData = ref({
             isRowDisabled: [] as boolean[],
-            isRowNonExistent: [] as rowNonExistent[],
+            isRowNonExistent: [] as RecordSubStreamNoneDto[],
             doubleStreamRecSwitch: true,
             recType: '',
             recType1: '',
@@ -35,7 +35,7 @@ export default defineComponent({
             // 分辨率表头下拉框
             resolutionHeaderVisble: false,
             resolutionUnionList: [] as string[],
-            resolutionGroups: [] as ResolutionRow[],
+            resolutionGroups: [] as RecordSubStreamResolutionDto[],
             resolutionList: [[] as string[]],
             frameRateUnionList: [] as string[],
             frameRateList: [[] as string[]],
@@ -120,7 +120,7 @@ export default defineComponent({
                 if (!isQualityCapsMatch) {
                     const resolutionParts = rowData.resolution.split('x')
                     rowData.subStreamQualityCaps.forEach((item) => {
-                        const currentResolutionParts = (item.res as string).split('x')
+                        const currentResolutionParts = item.res.split('x')
                         if (
                             item.enct === rowData.videoEncodeType &&
                             (Number(currentResolutionParts[0]) < Number(resolutionParts[0]) ||
@@ -227,7 +227,7 @@ export default defineComponent({
 
                         $item('aux1Caps/res').forEach((elem) => {
                             subCaps.res.push({
-                                fps: elem.attr('fps') as string,
+                                fps: elem.attr('fps'),
                                 value: elem.text(),
                             })
                         })
@@ -239,7 +239,7 @@ export default defineComponent({
 
                         $item('subCaps/res').forEach((elem) => {
                             subCaps.res.push({
-                                fps: elem.attr('fps') as string,
+                                fps: elem.attr('fps'),
                                 value: elem.text(),
                             })
                         })
@@ -304,16 +304,16 @@ export default defineComponent({
                     if (initItem) {
                         // 视频编码
                         let videoEncodeType = ''
-                        if (initItem.attr('enct')?.indexOf('plus') !== -1) {
-                            videoEncodeType = initItem.attr('enct')?.replace(/plus/g, 'p') as string
-                        } else if (initItem.attr('enct')?.indexOf('smart') !== -1) {
-                            videoEncodeType = initItem.attr('enct')?.replace(/smart/g, 's') as string
+                        if (initItem.attr('enct').indexOf('plus') !== -1) {
+                            videoEncodeType = initItem.attr('enct').replace(/plus/g, 'p')
+                        } else if (initItem.attr('enct').indexOf('smart') !== -1) {
+                            videoEncodeType = initItem.attr('enct').replace(/smart/g, 's')
                         } else {
-                            videoEncodeType = initItem.attr('enct') as string
+                            videoEncodeType = initItem.attr('enct')
                         }
 
                         // 分辨率
-                        let frameRate = initItem?.attr('fps')
+                        let frameRate = initItem.attr('fps')
                         if (!frameRate && subCaps.res.length) {
                             frameRate = subCaps.res[0].fps
                         }
@@ -325,7 +325,7 @@ export default defineComponent({
                         }
 
                         // 帧率
-                        const resolution = initItem?.attr('res')
+                        const resolution = initItem.attr('res')
                         pageData.value.frameRateList[index] = []
                         subCaps.res.forEach((item) => {
                             if (item.value === resolution) {
@@ -347,7 +347,7 @@ export default defineComponent({
 
                         return {
                             index,
-                            id: item.attr('id')?.trim(),
+                            id: item.attr('id').trim(),
                             name: $item('name').text(),
                             isRTSPChl: item.attr('isRTSPChl'),
                             chlType: $item('chlType').text(),
@@ -358,9 +358,9 @@ export default defineComponent({
                             videoEncodeType,
                             frameRate,
                             resolution,
-                            bitType: initItem?.attr('bitType'),
-                            level: initItem?.attr('level'),
-                            videoQuality: initItem?.attr('QoI'),
+                            bitType: initItem.attr('bitType'),
+                            level: initItem.attr('level'),
+                            videoQuality: initItem.attr('QoI'),
                         }
                     }
 
@@ -373,7 +373,7 @@ export default defineComponent({
 
                     return {
                         index,
-                        id: item.attr('id')?.trim(),
+                        id: item.attr('id').trim(),
                         name: $item('name').text(),
                         isRTSPChl: item.attr('isRTSPChl'),
                         chlType: $item('chlType').text(),
@@ -398,22 +398,25 @@ export default defineComponent({
                 }
 
                 if (item.isRTSPChl === 'true') {
-                    pageData.value.isRowNonExistent[item.index] = {} as rowNonExistent
+                    const none = new RecordSubStreamNoneDto()
+
                     if (!item.videoEncodeType) {
-                        pageData.value.isRowNonExistent[item.index].videoEncodeType = 'true'
+                        none.videoEncodeType = 'true'
                     }
 
                     if (!item.resolution) {
-                        pageData.value.isRowNonExistent[item.index].resolution = 'true'
+                        none.resolution = 'true'
                     }
 
                     if (!item.frameRate) {
-                        pageData.value.isRowNonExistent[item.index].frameRate = 'true'
+                        none.frameRate = 'true'
                     }
 
                     if (!item.videoQuality) {
-                        pageData.value.isRowNonExistent[item.index].videoQuality = 'true'
+                        none.videoQuality = 'true'
                     }
+
+                    pageData.value.isRowNonExistent[item.index] = none
                 }
             })
 
@@ -639,7 +642,7 @@ export default defineComponent({
             pageData.value.resolutionHeaderVisble = false
         }
 
-        const handleExpandChange = (row: ResolutionRow, expandedRows: string[]) => {
+        const handleExpandChange = (row: RecordSubStreamResolutionDto, expandedRows: string[]) => {
             if (expandedRows.includes(row.chls.data[0].value) && resolutionTableRef.value) {
                 resolutionTableRef.value.toggleRowExpansion(row, false)
                 row.chls.expand = false
@@ -651,12 +654,12 @@ export default defineComponent({
             }
         }
 
-        const getRowKey = (row: ResolutionRow) => {
+        const getRowKey = (row: RecordSubStreamResolutionDto) => {
             return row.chls.data[0].value
         }
 
         // 在选择项时下拉框保持打开
-        const keepDropDownOpen = (row: ResolutionRow) => {
+        const keepDropDownOpen = (row: RecordSubStreamResolutionDto) => {
             pageData.value.resolutionHeaderVisble = true
             if (row.chls.expand && resolutionTableRef.value) {
                 row.chls.expand = true
@@ -682,7 +685,7 @@ export default defineComponent({
 
         const changeAllVideoQuality = (value: string) => {
             tableData.value.forEach((item, index) => {
-                if (item.chlType !== 'recorder' && !pageData.value.isRowDisabled[index] && item.qualitys?.includes(value)) item.videoQuality = value
+                if (item.chlType !== 'recorder' && !pageData.value.isRowDisabled[index] && item.qualitys.includes(value)) item.videoQuality = value
             })
         }
 

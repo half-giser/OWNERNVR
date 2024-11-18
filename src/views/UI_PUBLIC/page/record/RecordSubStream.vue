@@ -290,12 +290,4 @@
         margin-left: 5px;
     }
 }
-
-:deep(.cell) {
-    overflow: visible;
-}
-
-:deep(.el-table__cell) {
-    z-index: auto;
-}
 </style>
