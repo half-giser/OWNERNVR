@@ -388,11 +388,3 @@
 </template>
 
 <script lang="ts" src="./CombinationAlarm.v.ts"></script>
-
-<style lang="scss" scoped>
-:deep(.el-table .cell) {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-</style>

@@ -241,7 +241,7 @@ export default defineComponent({
                     alarmSourceEntity: { value: '', label: '' },
                 },
             ]
-            prop.linkedList?.forEach((item, index) => {
+            prop.linkedList.forEach((item, index) => {
                 tableData.value[index] = {
                     alarmSourceType: item.alarmSourceType,
                     alarmSourceEntity: {
@@ -278,7 +278,7 @@ export default defineComponent({
             pageData.value.faceMatchObj = prop.currRowFaceObj || {}
 
             changeDescription()
-            CheckDetect(tableData.value[1])
+            tableData.value[1] && CheckDetect(tableData.value[1])
         }
 
         // 类型的映射对象转换为选择器数组列表
@@ -374,10 +374,7 @@ export default defineComponent({
                             '0': Translate('IDCS_GROUP_STRANGER'),
                             '2': Translate('IDCS_WORKTIME_MISS_HIT'),
                         }
-                        let faceStr = ''
-                        obj.faceDataBase.forEach((item) => {
-                            if (item) faceStr += item
-                        })
+                        const faceStr = obj.faceDataBase.map((item) => item || '').join('')
 
                         str +=
                             '，' +
@@ -406,7 +403,7 @@ export default defineComponent({
         }
 
         const CheckDetect = async (row: AlarmCombinedItemDto) => {
-            const id = row?.alarmSourceEntity.value
+            const id = row.alarmSourceEntity.value
             // 在没有报警源时不进行后续处理
             if (!id) return false
 
@@ -591,25 +588,24 @@ export default defineComponent({
             }
             if (isSameId) return false
 
-            let entity = ''
-            let obj = {} as AlarmCombinedFaceMatchDto
-            tableData.value.forEach((item) => {
+            tableData.value.some((item) => {
                 if (item.alarmSourceType === 'FaceMatch' && pageData.value.faceMatchObj[item.alarmSourceEntity.value]) {
                     if (pageData.value.faceMatchObj[item.alarmSourceEntity.value]) {
-                        entity = item.alarmSourceEntity.value
-                        obj = pageData.value.faceMatchObj[item.alarmSourceEntity.value].obj
+                        const entity = item.alarmSourceEntity.value
+                        const obj = pageData.value.faceMatchObj[item.alarmSourceEntity.value].obj
+                        ctx.emit('confirm', prop.linkedId, tableData.value, entity, obj)
+                        ctx.emit('close', prop.linkedId)
+                        return true
                     }
                 }
             })
-            ctx.emit('confirm', prop.linkedId!, tableData.value, entity, obj)
-            ctx.emit('close', prop.linkedId!)
         }
 
         const close = () => {
-            ctx.emit('close', prop.linkedId!)
+            ctx.emit('close', prop.linkedId)
         }
 
-        onMounted(async () => {
+        onMounted(() => {
             getChls()
             getSensors()
             getFaceMatchData()
@@ -625,7 +621,6 @@ export default defineComponent({
             rowChange,
             typeChange,
             entityChange,
-            CheckDetect,
             clickChangeDetect,
             handleEdit,
             handleFaceMatchLinkedObj,
