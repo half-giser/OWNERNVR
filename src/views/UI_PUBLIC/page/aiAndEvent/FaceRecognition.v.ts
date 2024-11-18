@@ -50,7 +50,7 @@ export default defineComponent({
         let haveUseNameId = [] as Number[]
         // 人脸分组数据，初始化后不会改变
         const faceGroupNameMap = {} as Record<string, string>
-        let faceGroupData = [] as { guid: string; name: string }[]
+        const faceGroupData = ref<{ guid: string; name: string }[]>([])
         // 人脸匹配数据
         const faceMatchData = ref(new AlarmFaceMatchDto())
         const faceGroupTable = ref<AlarmFaceGroupDto[]>([])
@@ -277,16 +277,14 @@ export default defineComponent({
         // 获取通道及相关配置数据
         const getChlData = async () => {
             // 获取在线通道列表
-            const onlineChlList = [] as string[]
             const result = await queryOnlineChlList()
-            commLoadResponseHandler(result, ($) => {
-                $('//content/item').forEach((item) => {
-                    onlineChlList.push(item.attr('id'))
-                })
+            const $ = await commLoadResponseHandler(result)
+            const onlineChlList = $('//content/item').map((item) => {
+                return item.attr('id')
             })
             getChlList({
                 requireField: ['ip', 'supportVfd', 'supportAudioAlarmOut', 'supportFire', 'supportWhiteLightAlarmOut', 'supportTemperature'],
-            }).then((result: any) => {
+            }).then((result) => {
                 commLoadResponseHandler(result, async ($) => {
                     $('//content/item').forEach((item) => {
                         const $item = queryXml(item.element)
@@ -387,9 +385,9 @@ export default defineComponent({
             pageData.value.notChlSupport = false
             handleCurrChlData(chlList[pageData.value.curChl])
             // 更换通道时清空上一个通道的数据
-            faceDetectionData.value = {} as AlarmFaceDetectionDto
-            faceCompareData.value = {} as AlarmFaceRecognitionDto
-            faceGroupData = []
+            faceDetectionData.value = new AlarmFaceDetectionDto()
+            faceCompareData.value = new AlarmFaceRecognitionDto()
+            faceGroupData.value = []
             haveUseNameId = []
             detectionPageData.value.initComplated = false
             comparePageData.value.initComplated = false
@@ -817,14 +815,14 @@ export default defineComponent({
                 isSwitchChange = true
             }
             const mutexChlNameObj = getMutexChlNameObj()
-            faceDetectionData.value.mutexList?.forEach((item) => {
+            faceDetectionData.value.mutexList.forEach((item) => {
                 if (item.status) {
                     const prefixName = mutexChlNameObj.normalChlName ? joinSpaceForLang(Translate('IDCS_CHANNEL') + ':' + mutexChlNameObj.normalChlName) : ''
                     const showInfo = prefixName ? prefixName + closeTip[item.object].toLowerCase() : closeTip[item.object]
                     switchChangeTypeArr.push(showInfo)
                 }
             })
-            faceDetectionData.value.mutexListEx?.forEach((item) => {
+            faceDetectionData.value.mutexListEx.forEach((item) => {
                 if (item.status) {
                     const prefixName = mutexChlNameObj.thermalChlName ? joinSpaceForLang(Translate('IDCS_CHANNEL') + ':' + mutexChlNameObj.thermalChlName) : ''
                     const showInfo = prefixName ? prefixName + closeTip[item.object].toLowerCase() : closeTip[item.object]
@@ -1061,7 +1059,7 @@ export default defineComponent({
                     const enableAlarmSwitch = $item('enableAlarmSwitch').text().bool()
                     faceGroupNameMap[guid] = name
                     if (enableAlarmSwitch) {
-                        faceGroupData.push({
+                        faceGroupData.value.push({
                             guid: guid,
                             name: name,
                         })
@@ -1215,11 +1213,11 @@ export default defineComponent({
                         label: $item('name').text(),
                     })
                 })
-                $('//content/chl/task/item').forEach((item) => {
+                faceCompareData.value.task = $('//content/chl/task/item').map((item) => {
                     const $item = queryXml(item.element)
                     const nameId = $item('param/nameId').text().num()
                     haveUseNameId.push(nameId)
-                    faceCompareData.value.task.push({
+                    return {
                         guid: item.attr('guid'),
                         id: item.attr('id'),
                         ruleType: $item('param/ruleType').text(),
@@ -1261,7 +1259,7 @@ export default defineComponent({
                             return $item(item).text().bool()
                         }),
                         sysAudio: $item('trigger/sysAudio').attr('id'),
-                    })
+                    }
                 })
             }).then(() => {
                 faceCompareData.value.task.forEach((item) => {
