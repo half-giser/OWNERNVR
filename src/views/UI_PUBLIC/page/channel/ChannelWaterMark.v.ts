@@ -3,9 +3,8 @@
  * @Date: 2024-09-29 11:48:59
  * @Description: 水印设置
  */
-import { type ChannelWaterMarkDto } from '@/types/apiType/channel'
+import { ChannelWaterMarkDto } from '@/types/apiType/channel'
 import { type TableInstance } from 'element-plus'
-import { cloneDeep } from 'lodash-es'
 export default defineComponent({
     setup() {
         const { openLoading, closeLoading } = useLoading()
@@ -18,7 +17,7 @@ export default defineComponent({
             currChlId: '',
             switchDisabled: true,
             // 当前选择通道数据
-            chlData: {} as ChannelWaterMarkDto,
+            chlData: new ChannelWaterMarkDto(),
             // 通道列表
             chlList: [] as ChannelWaterMarkDto[],
             customTextSetAll: '',
@@ -125,14 +124,18 @@ export default defineComponent({
         })
 
         const handleChlChange = (value: string) => {
-            const chlData = pageData.value.chlList.filter((item) => item.chlId === value)[0] as ChannelWaterMarkDto
-            pageData.value.chlData = cloneDeep(chlData)
+            const chlData = pageData.value.chlList.find((item) => item.chlId === value)
+            if (chlData) {
+                pageData.value.chlData = chlData
+            }
+
             if (pageData.value.chlData.disabled) {
                 pageData.value.switchDisabled = true
             } else {
                 pageData.value.switchDisabled = false
             }
-            tableRef.value?.setCurrentRow(getRowById(value))
+
+            tableRef.value!.setCurrentRow(chlData)
             play()
         }
 
@@ -242,9 +245,9 @@ export default defineComponent({
 
                 if (i === 0) {
                     pageData.value.currChlId = pageData.value.chlList[0].chlId
-                    tableRef.value?.setCurrentRow(pageData.value.chlList[0])
+                    tableRef.value!.setCurrentRow(pageData.value.chlList[0])
                     pageData.value.initComplete = true
-                    pageData.value.chlData = cloneDeep(item)
+                    pageData.value.chlData = item
                     if (pageData.value.chlData.disabled) {
                         pageData.value.switchDisabled = true
                     } else {
@@ -320,23 +323,23 @@ export default defineComponent({
         const handleRowClick = (rowData: ChannelWaterMarkDto) => {
             if (!rowData.disabled) {
                 pageData.value.currChlId = rowData.chlId
-                pageData.value.chlData = cloneDeep(rowData)
+                pageData.value.chlData = rowData
                 if (pageData.value.chlData.disabled) {
                     pageData.value.switchDisabled = true
                 } else {
                     pageData.value.switchDisabled = false
                 }
-                tableRef.value?.setCurrentRow(rowData)
+                tableRef.value!.setCurrentRow(rowData)
                 play()
             }
         }
 
         const getRowById = (chlId: string) => {
-            return pageData.value.chlList.find((element) => element.chlId === chlId) as ChannelWaterMarkDto
+            return pageData.value.chlList.find((element) => element.chlId === chlId)!
         }
 
         const addEditRow = (row: ChannelWaterMarkDto) => {
-            pageData.value.editRows.add(row)
+            pageData.value.editRows.add(getRowById(row.chlId))
         }
 
         onMounted(() => {
