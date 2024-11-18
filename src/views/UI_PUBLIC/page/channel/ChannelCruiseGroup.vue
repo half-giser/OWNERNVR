@@ -78,7 +78,7 @@
             </div>
             <div
                 class="base-btn-box"
-                :span="2"
+                span="2"
             >
                 <div>
                     <el-button @click="addCruise(pageData.tableIndex)">{{ Translate('IDCS_ADD_CRUISE') }}</el-button>

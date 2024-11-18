@@ -66,23 +66,18 @@
                             {{ tip }}
                         </p>
                     </div>
-                    <el-row>
-                        <el-col
-                            :span="24"
-                            class="el-col-flex-end"
+                    <div class="base-btn-box">
+                        <el-button
+                            class="event-btn"
+                            @click="changeEventList"
+                            >{{ Translate('IDCS_OK') }}</el-button
                         >
-                            <el-button
-                                class="event-btn"
-                                @click="changeEventList"
-                                >{{ Translate('IDCS_OK') }}</el-button
-                            >
-                            <el-button
-                                class="event-btn"
-                                @click="closeEventPop"
-                                >{{ Translate('IDCS_CLOSE') }}</el-button
-                            >
-                        </el-col>
-                    </el-row>
+                        <el-button
+                            class="event-btn"
+                            @click="closeEventPop"
+                            >{{ Translate('IDCS_CLOSE') }}</el-button
+                        >
+                    </div>
                 </div>
             </el-popover>
         </div>

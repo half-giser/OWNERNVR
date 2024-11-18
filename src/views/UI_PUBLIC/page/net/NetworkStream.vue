@@ -378,18 +378,6 @@
 <script lang="ts" src="./NetworkStream.v.ts"></script>
 
 <style lang="scss" scoped>
-:deep(.el-input-number) {
-    width: 100%;
-
-    .el-input__wrapper {
-        padding: 0 10px;
-    }
-
-    .el-input__inner {
-        text-align: left;
-    }
-}
-
 .expand {
     display: flex;
     flex-wrap: wrap;

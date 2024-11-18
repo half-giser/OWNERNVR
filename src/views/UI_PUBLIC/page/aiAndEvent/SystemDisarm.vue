@@ -74,15 +74,15 @@
             />
         </el-table>
         <template #footer>
-            <el-row class="tips_text_pop">{{ Translate('IDCS_CLOSE_GUARD_TIP') }}</el-row>
-            <el-row class="base-btn-box collapse">
+            <div class="tips_text_pop">{{ Translate('IDCS_CLOSE_GUARD_TIP') }}</div>
+            <div class="base-btn-box collapse">
                 <el-button @click="cfgItem">
                     {{ Translate('IDCS_OK') }}
                 </el-button>
                 <el-button @click="pageData.showCfgDialog = false">
                     {{ Translate('IDCS_CANCEL') }}
                 </el-button>
-            </el-row>
+            </div>
         </template>
     </el-dialog>
     <div class="base-flex-box">
@@ -134,7 +134,7 @@
             <el-form-item>
                 <div
                     class="base-btn-box"
-                    :span="2"
+                    span="2"
                 >
                     <div>{{ Translate('IDCS_RECOVER_GUARD_CHANNEL') }}</div>
                     <div>
@@ -190,14 +190,14 @@
                                         prop="value"
                                     />
                                 </el-table>
-                                <el-row class="base-btn-box">
+                                <div class="base-btn-box">
                                     <el-button @click="disarmCfgAll">
                                         {{ Translate('IDCS_OK') }}
                                     </el-button>
                                     <el-button @click="pageData.popoverVisible = false">
                                         {{ Translate('IDCS_CANCEL') }}
                                     </el-button>
-                                </el-row>
+                                </div>
                             </div>
                         </el-popover>
                     </template>

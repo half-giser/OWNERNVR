@@ -137,16 +137,12 @@
             />
         </div>
         <template #footer>
-            <el-row>
-                <el-col
-                    :span="12"
-                    class="el-col-flex-start"
-                    >{{ progress }}</el-col
-                >
-                <el-col
-                    :span="12"
-                    class="el-col-flex-end"
-                >
+            <div
+                class="base-btn-box"
+                span="2"
+            >
+                <div>{{ progress }}</div>
+                <div>
                     <el-button @click="chooseFace">{{ Translate('IDCS_SELECT_FACE') }}</el-button>
                     <el-button
                         :disabled="!formData[0].pic"
@@ -160,8 +156,8 @@
                     >
                     <el-button @click="close()">{{ Translate('IDCS_CLOSE') }}</el-button>
                     <!-- <el-button @click="close()">{{ Translate('IDCS_DELETE') }}</el-button> -->
-                </el-col>
-            </el-row>
+                </div>
+            </div>
         </template>
     </el-dialog>
 </template>

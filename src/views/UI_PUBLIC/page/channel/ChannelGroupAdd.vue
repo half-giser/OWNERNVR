@@ -85,7 +85,7 @@
         </div>
         <div
             class="base-btn-box"
-            :span="2"
+            span="2"
         >
             <div>
                 <span>{{ Translate('IDCS_SELECT_CHANNEL_COUNT').formatForLang(selNum, chlGroupCountLimit) }}</span>

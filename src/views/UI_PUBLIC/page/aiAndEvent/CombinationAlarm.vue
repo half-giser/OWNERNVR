@@ -45,19 +45,18 @@
                     width="180"
                 >
                     <template #default="scope">
-                        <el-row class="row-together">
+                        <div class="base-cell-box">
                             <el-checkbox
                                 v-model="scope.row.combinedAlarm.switch"
                                 @change="combinedAlarmCheckChange(scope.row)"
                             />
                             <el-button
                                 :disabled="!scope.row.combinedAlarm.switch"
-                                class="table_btn"
                                 @click="openCombinedAlarmPop(scope.row)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
-                        </el-row>
+                        </div>
                     </template>
                 </el-table-column>
 
@@ -72,19 +71,18 @@
                         />
                     </template>
                     <template #default="scope">
-                        <el-row class="row-together">
+                        <div class="base-cell-box">
                             <el-checkbox
                                 v-model="scope.row.record.switch"
                                 @change="switchRecord(scope.$index)"
                             />
                             <el-button
                                 :disabled="!scope.row.record.switch"
-                                class="table_btn"
                                 @click="openRecord(scope.$index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
-                        </el-row>
+                        </div>
                     </template>
                 </el-table-column>
 
@@ -99,19 +97,18 @@
                         />
                     </template>
                     <template #default="scope">
-                        <el-row class="row-together">
+                        <div class="base-cell-box">
                             <el-checkbox
                                 v-model="scope.row.snap.switch"
                                 @change="switchSnap(scope.$index)"
                             />
                             <el-button
                                 :disabled="!scope.row.snap.switch"
-                                class="table_btn"
                                 @click="openSnap(scope.$index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
-                        </el-row>
+                        </div>
                     </template>
                 </el-table-column>
 
@@ -193,19 +190,18 @@
                         />
                     </template>
                     <template #default="scope">
-                        <el-row class="row-together">
+                        <div class="base-cell-box">
                             <el-checkbox
                                 v-model="scope.row.alarmOut.switch"
                                 @change="switchAlarmOut(scope.$index)"
                             />
                             <el-button
                                 :disabled="!scope.row.alarmOut.switch"
-                                class="table_btn"
                                 @click="openAlarmOut(scope.$index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
-                        </el-row>
+                        </div>
                     </template>
                 </el-table-column>
 
@@ -215,19 +211,18 @@
                     width="180"
                 >
                     <template #default="scope">
-                        <el-row class="row-together">
+                        <div class="base-cell-box">
                             <el-checkbox
                                 v-model="scope.row.preset.switch"
                                 @change="switchPreset(scope.$index)"
                             />
                             <el-button
                                 :disabled="!scope.row.preset.switch"
-                                class="table_btn"
                                 @click="openPreset(scope.$index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
-                        </el-row>
+                        </div>
                     </template>
                 </el-table-column>
 
@@ -363,7 +358,7 @@
         </div>
         <div
             class="base-btn-box"
-            :span="2"
+            span="2"
         >
             <div>{{ pageData.CombinedALarmInfo }}</div>
             <div>

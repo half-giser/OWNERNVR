@@ -52,7 +52,7 @@
                     min-width="140"
                 >
                     <template #default="scope">
-                        <span :style="{ color: scope.row.activateStatus === 'UNACTIVATED' ? 'var(--color-offline)' : '' }">{{
+                        <span :class="[scope.row.activateStatus === 'UNACTIVATED' ? 'text-offline' : '']">{{
                             scope.row.activateStatus === 'ACTIVATED' ? Translate('IDCS_ACTIVATED') : scope.row.activateStatus === 'UNACTIVATED' ? Translate('IDCS_UN_ACTIVATED') : '--'
                         }}</span>
                     </template>
@@ -129,7 +129,7 @@
                     :show-overflow-tooltip="false"
                 >
                     <template #default="scope">
-                        <div class="form-wrapper">
+                        <div class="base-cell-box">
                             <el-select
                                 v-model="scope.row.addrType"
                                 @change="cellChange($event, scope.$index, scope.row, 'addrType')"
@@ -280,7 +280,7 @@
         </div>
         <div
             class="base-btn-box collapse"
-            :span="2"
+            span="2"
         >
             <div>
                 {{ txtBandwidth }}
@@ -349,14 +349,6 @@
         width: 100px;
         display: flex;
         justify-content: flex-end;
-    }
-}
-
-.form-wrapper {
-    display: flex;
-
-    & > div:first-child {
-        margin-right: 10px;
     }
 }
 </style>

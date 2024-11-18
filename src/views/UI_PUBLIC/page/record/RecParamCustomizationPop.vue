@@ -35,7 +35,7 @@
                 </el-checkbox-group>
                 <div
                     class="base-btn-box"
-                    :span="2"
+                    span="2"
                     :style="{ margin: '30px 0 10px' }"
                 >
                     <span>{{ Translate('IDCS_KEEPVIDEO_HOLIDAY') }}</span>
@@ -106,15 +106,10 @@
                 </el-form-item>
             </el-form>
             <template #footer>
-                <el-row>
-                    <el-col
-                        :span="24"
-                        class="el-col-flex-end"
-                    >
-                        <el-button @click="addDateToList">{{ Translate('IDCS_OK') }}</el-button>
-                        <el-button @click="closeAddDate">{{ Translate('IDCS_CANCEL') }}</el-button>
-                    </el-col>
-                </el-row>
+                <div class="base-btn-box">
+                    <el-button @click="addDateToList">{{ Translate('IDCS_OK') }}</el-button>
+                    <el-button @click="closeAddDate">{{ Translate('IDCS_CANCEL') }}</el-button>
+                </div>
             </template>
         </el-dialog>
     </el-dialog>

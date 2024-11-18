@@ -37,21 +37,18 @@
             </el-table>
         </div>
         <template #footer>
-            <el-row>
-                <el-col
-                    :span="12"
-                    class="el-col-flex-start"
-                >
+            <div
+                class="base-btn-box"
+                span="2"
+            >
+                <div>
                     {{ Translate('IDCS_SELECT_CHANNEL_COUNT').formatForLang(pageData.selection.length, tableData.length) }}
-                </el-col>
-                <el-col
-                    :span="12"
-                    class="el-col-flex-end"
-                >
+                </div>
+                <div>
                     <el-button @click="confirm">{{ Translate('IDCS_ADD') }}</el-button>
                     <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </el-col>
-            </el-row>
+                </div>
+            </div>
         </template>
     </el-dialog>
 </template>

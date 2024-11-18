@@ -14,6 +14,7 @@
         v-model="pageData.isAuthPop"
         :tip="Translate('IDCS_REBOOT_CONFIRM')"
         @confirm="confirm"
+        @close="pageData.isAuthPop = false"
     />
 </template>
 

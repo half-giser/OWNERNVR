@@ -48,15 +48,10 @@
             </div>
         </div>
         <template #footer>
-            <el-row>
-                <el-col
-                    :span="24"
-                    class="el-col-flex-end"
-                >
-                    <el-button @click="confirm">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </el-col>
-            </el-row>
+            <div class="base-btn-box">
+                <el-button @click="confirm">{{ Translate('IDCS_OK') }}</el-button>
+                <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
+            </div>
         </template>
     </el-dialog>
 </template>

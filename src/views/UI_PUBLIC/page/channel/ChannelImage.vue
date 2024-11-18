@@ -132,7 +132,7 @@
             </el-form>
             <div
                 class="base-btn-box"
-                :span="2"
+                span="2"
             >
                 <div>
                     <div id="divTip"></div>
@@ -1166,8 +1166,8 @@
                                                     '--form-label-width': '150px',
                                                 }"
                                             >
-                                                <el-row class="row_scene_title">{{ Translate('IDCS_SCENE_CONTROL') }}</el-row>
-                                                <el-row class="row_scene_control scene_item">
+                                                <div class="row_scene_title">{{ Translate('IDCS_SCENE_CONTROL') }}</div>
+                                                <div class="row_scene_control scene_item">
                                                     <div
                                                         class="scene_control_btn_wrap"
                                                         :class="{ disabled: !curLensCtrl.supportAz }"
@@ -1211,7 +1211,7 @@
                                                             :disabled-index="curLensCtrl.supportAz ? -1 : 1"
                                                         />
                                                     </div>
-                                                </el-row>
+                                                </div>
                                                 <el-form-item :label="Translate('IDCS_FOCUS_MODE')">
                                                     <el-select
                                                         v-if="curLensCtrl.focusTypeList.length"
@@ -1240,7 +1240,7 @@
                                                         />
                                                     </el-select>
                                                 </el-form-item>
-                                                <el-row
+                                                <div
                                                     v-if="!curLensCtrl.supportAz || (curLensCtrl.supportAz && curLensCtrl.focusType !== 'auto')"
                                                     class="row_scene_control"
                                                 >
@@ -1296,7 +1296,7 @@
                                                     >
                                                         {{ Translate('IDCS_ONE_KEY_FOCUS') }}
                                                     </el-button>
-                                                </el-row>
+                                                </div>
                                                 <el-form-item
                                                     v-else-if="curLensCtrl.supportAz || (curLensCtrl.supportAz && curLensCtrl.focusType === 'auto')"
                                                     :label="Translate('IDCS_FOCUS_TIME')"
@@ -1360,7 +1360,7 @@
                     </el-table-column>
                 </el-table>
             </div>
-            <div class="row_pagination">
+            <div class="base-pagination-box">
                 <el-pagination
                     v-model:current-page="pageIndex"
                     v-model:page-size="pageSize"

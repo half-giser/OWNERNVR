@@ -62,12 +62,10 @@
             />
         </el-table>
         <template #footer>
-            <el-row>
-                <el-col class="el-col-flex-end">
-                    <el-button @click="addTime">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </el-col>
-            </el-row>
+            <div class="base-btn-box">
+                <el-button @click="addTime">{{ Translate('IDCS_OK') }}</el-button>
+                <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
+            </div>
         </template>
     </el-dialog>
 </template>

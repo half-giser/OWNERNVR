@@ -46,15 +46,12 @@
                     />
                 </el-form-item>
             </el-form>
-            <el-row>
-                <el-col
-                    :span="24"
-                    class="el-col-flex-end btnBox"
-                >
+            <template #footer>
+                <div class="base-btn-box">
                     <el-button @click="verifyCustomPop">{{ Translate('IDCS_OK') }}</el-button>
                     <el-button @click="cancelCustomPop">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </el-col>
-            </el-row>
+                </div>
+            </template>
         </el-dialog>
     </div>
 </template>

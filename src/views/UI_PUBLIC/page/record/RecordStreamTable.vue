@@ -87,6 +87,7 @@
                             <div class="resolutionContainer">
                                 <el-table
                                     ref="resolutionTableRef"
+                                    width="408"
                                     max-height="400"
                                     :data="pageData.resolutionGroups"
                                     :show-header="pageData.headerVisble"
@@ -112,36 +113,31 @@
                                         </template>
                                     </el-table-column>
                                     <el-table-column
-                                        width="190"
                                         type="expand"
+                                        width="188"
                                     >
                                         <template #default="scope">
-                                            <div class="chl_area">
-                                                <el-row>
-                                                    <el-col
-                                                        v-for="(item, index) in scope.row.chls.data"
-                                                        :key="index"
-                                                        :span="12"
-                                                        class="fit-content-height"
-                                                    >
-                                                        <div class="device-item">
-                                                            <BaseImgSprite
-                                                                file="chl_icon"
-                                                                :index="0"
-                                                                :chunk="4"
-                                                            />
-                                                            <span class="device-name">{{ item.text }}</span>
-                                                        </div>
-                                                    </el-col>
-                                                </el-row>
+                                            <div class="chl-box">
+                                                <div
+                                                    v-for="(item, index) in scope.row.chls.data"
+                                                    :key="index"
+                                                    class="chl-item"
+                                                >
+                                                    <BaseImgSprite
+                                                        file="chl_icon"
+                                                        :index="0"
+                                                        :chunk="4"
+                                                    />
+                                                    <span class="text-ellipsis">{{ item.text }}</span>
+                                                </div>
                                             </div>
                                         </template>
                                     </el-table-column>
                                 </el-table>
-                                <el-row class="base-btn-box">
+                                <div class="base-btn-box">
                                     <el-button @click="handleSetResolutionAll">{{ Translate('IDCS_OK') }}</el-button>
                                     <el-button @click="handleSetResolutionCancel">{{ Translate('IDCS_CANCEL') }}</el-button>
-                                </el-row>
+                                </div>
                             </div>
                         </el-popover>
                     </template>
@@ -436,10 +432,10 @@
                                             :max="480"
                                         />
                                     </el-form-item>
-                                    <el-row class="base-btn-box">
+                                    <div class="base-btn-box">
                                         <el-button @click="handleSetGopAll(pageData.gopSetAll)">{{ Translate('IDCS_OK') }}</el-button>
                                         <el-button @click="handleGopCancel">{{ Translate('IDCS_CANCEL') }}</el-button>
-                                    </el-row>
+                                    </div>
                                 </el-form>
                             </div>
                         </el-popover>
@@ -456,9 +452,10 @@
                 </el-table-column>
             </el-table>
         </div>
-        <el-row
+        <div
             v-if="!pageData.pop"
-            class="bottom_row"
+            class="base-btn-box"
+            span="2"
         >
             <div>
                 <span class="row_bandwidth">{{ pageData.txtBandwidth }}</span>
@@ -466,11 +463,7 @@
                 <!-- <span
                     class="detailBtn"
                 ></span> -->
-                <span
-                    v-if="pageData.PredictVisible"
-                    class="txRecTime"
-                    >{{ pageData.recTime }}</span
-                >
+                <span v-if="pageData.PredictVisible">{{ pageData.recTime }}</span>
                 <el-button
                     v-if="pageData.CalculateVisible"
                     class="btnActivate"
@@ -478,37 +471,20 @@
                     >{{ Translate('IDCS_CALCULATE') }}</el-button
                 >
             </div>
-            <el-button
-                :disabled="pageData.applyBtnDisable"
-                @click="setData"
-                >{{ Translate('IDCS_APPLY') }}</el-button
-            >
-        </el-row>
+            <div>
+                <el-button
+                    :disabled="pageData.applyBtnDisable"
+                    @click="setData"
+                    >{{ Translate('IDCS_APPLY') }}</el-button
+                >
+            </div>
+        </div>
     </div>
 </template>
 
 <script lang="ts" src="./RecordStreamTable.v.ts"></script>
 
 <style lang="scss" scoped>
-.RecordStreamList {
-    .status {
-        &.online {
-            color: var(--color-online);
-        }
-
-        &.offline {
-            color: var(--color-offline);
-        }
-    }
-}
-
-.bottom_row {
-    margin-top: 10px;
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-}
-
 .txRecTime {
     margin-left: 20px;
     margin-top: 10px;
@@ -544,21 +520,26 @@
     }
 }
 
-.device-item {
-    margin-left: 15px;
+.chl-box {
     display: flex;
-    align-items: center;
-    gap: 3px;
+    flex-wrap: wrap;
 }
 
-.chl_area {
-    min-height: 260px;
-}
-
-.fit-content-height {
-    height: 35px;
+.chl-item {
+    padding-left: 15px;
     display: flex;
     align-items: center;
+    width: 50%;
+    box-sizing: border-box;
+    height: 30px;
+
+    span:first-child {
+        flex-shrink: 0;
+    }
+
+    span:last-child {
+        margin-left: 5px;
+    }
 }
 
 .GOP_dropDown {

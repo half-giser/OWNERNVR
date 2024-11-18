@@ -37,13 +37,12 @@
             @rec-time="getRecTime"
         />
         <template #footer>
-            <el-row class="bottom_row">
+            <div
+                class="base-btn-box"
+                span="2"
+            >
                 <div>
-                    <span
-                        id="txtBandwidth"
-                        class="row_bandwidth"
-                        >{{ pageData.txtBandwidth }}</span
-                    >
+                    <span class="row_bandwidth">{{ pageData.txtBandwidth }}</span>
                     <span class="detailBtn"></span>
                     <span
                         v-if="pageData.PredictVisible"
@@ -61,7 +60,7 @@
                     <el-button @click="setData">{{ Translate('IDCS_OK') }}</el-button>
                     <el-button @click.prevent="$emit('close', false)">{{ Translate('IDCS_CANCEL') }}</el-button>
                 </div>
-            </el-row>
+            </div>
         </template>
     </el-dialog>
 </template>
@@ -83,11 +82,6 @@
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-}
-
-.txRecTime {
-    margin-left: 20px;
-    margin-top: 10px;
 }
 
 .btnActivate {

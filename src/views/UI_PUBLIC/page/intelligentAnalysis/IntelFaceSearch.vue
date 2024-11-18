@@ -360,7 +360,7 @@
             <div
                 v-show="pageData.isSupportBackUp && !isTrackVisible"
                 class="base-btn-box"
-                :span="2"
+                span="2"
             >
                 <div>
                     <el-checkbox v-model="pageData.isBackUpPic">

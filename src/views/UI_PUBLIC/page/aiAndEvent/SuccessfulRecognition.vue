@@ -108,12 +108,10 @@
             />
         </el-table>
         <template #footer>
-            <el-row>
-                <el-col class="el-col-flex-end btnBox">
-                    <el-button @click="saveGroup">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="closeGroupPop">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </el-col>
-            </el-row>
+            <div class="base-btn-box">
+                <el-button @click="saveGroup">{{ Translate('IDCS_OK') }}</el-button>
+                <el-button @click="closeGroupPop">{{ Translate('IDCS_CANCEL') }}</el-button>
+            </div>
         </template>
     </el-dialog>
     <!-- 排程管理 -->

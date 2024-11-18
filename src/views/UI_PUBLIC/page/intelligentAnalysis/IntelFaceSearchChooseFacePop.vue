@@ -84,7 +84,7 @@
                         </div>
                         <div
                             class="base-btn-box padding"
-                            :span="2"
+                            span="2"
                         >
                             <div>
                                 <span>{{ currentSelected }}</span>
@@ -117,26 +117,21 @@
             </div>
         </div>
         <template #footer>
-            <el-row>
-                <el-col
-                    :span="24"
-                    class="el-col-flex-end"
+            <div class="base-btn-box">
+                <el-button
+                    v-show="pageData.type !== 'import'"
+                    :disabled="pageData.type !== 'face'"
+                    @click="confirmGroup"
+                    >{{ Translate('IDCS_SELECT_GROUP') }}</el-button
                 >
-                    <el-button
-                        v-show="pageData.type !== 'import'"
-                        :disabled="pageData.type !== 'face'"
-                        @click="confirmGroup"
-                        >{{ Translate('IDCS_SELECT_GROUP') }}</el-button
-                    >
-                    <el-button
-                        v-show="pageData.type !== 'import'"
-                        :disabled="pageData.type !== 'face' && pageData.type !== 'snap'"
-                        @click="confirm"
-                        >{{ Translate('IDCS_SELECT_FACE') }}</el-button
-                    >
-                    <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </el-col>
-            </el-row>
+                <el-button
+                    v-show="pageData.type !== 'import'"
+                    :disabled="pageData.type !== 'face' && pageData.type !== 'snap'"
+                    @click="confirm"
+                    >{{ Translate('IDCS_SELECT_FACE') }}</el-button
+                >
+                <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
+            </div>
         </template>
     </el-dialog>
 </template>

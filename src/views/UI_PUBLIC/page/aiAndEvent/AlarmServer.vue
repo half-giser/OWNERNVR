@@ -25,15 +25,10 @@
                 :titles="[Translate('IDCS_ALARM'), Translate('IDCS_SEND_ALARM')]"
             />
             <template #footer>
-                <el-row>
-                    <el-col
-                        :span="24"
-                        class="el-col-flex-end"
-                    >
-                        <el-button @click="setAlarmTypes()">{{ Translate('IDCS_OK') }}</el-button>
-                        <el-button @click="pageData.showAlarmTransfer = false">{{ Translate('IDCS_CANCEL') }}</el-button>
-                    </el-col>
-                </el-row>
+                <div class="base-btn-box">
+                    <el-button @click="setAlarmTypes()">{{ Translate('IDCS_OK') }}</el-button>
+                    <el-button @click="pageData.showAlarmTransfer = false">{{ Translate('IDCS_CANCEL') }}</el-button>
+                </div>
             </template>
         </el-dialog>
         <div class="base-subheading-box">{{ Translate('IDCS_ALARM_SERVER') }}</div>
@@ -182,7 +177,7 @@
                     :label="Translate('IDCS_ALARM_TYPE')"
                 >
                     <template #header>
-                        <el-row class="tabel_header">
+                        <div class="tabel_header">
                             <span>{{ Translate('IDCS_ALARM_TYPE') }}</span>
                             <el-button
                                 class="btn"
@@ -190,7 +185,7 @@
                                 @click="pageData.showAlarmTransfer = true"
                                 >{{ Translate('IDCS_CONFIG') }}</el-button
                             >
-                        </el-row>
+                        </div>
                     </template>
                     <template #default="scope">
                         <span class="table_item">{{ scope.row.value }}</span>

@@ -123,7 +123,7 @@
                     width="150"
                 >
                     <template #default="scope">
-                        <div class="channel-trigger">
+                        <div class="base-cell-box">
                             <el-checkbox
                                 v-model="scope.row.triggerChl.switch"
                                 @change="changeTriggerChannel(scope.$index)"
@@ -224,16 +224,3 @@
 </template>
 
 <script lang="ts" src="./PosSettings.v.ts"></script>
-
-<style lang="scss" scoped>
-.channel-trigger {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    :deep(.el-checkbox) {
-        margin-right: 5px;
-    }
-}
-</style>

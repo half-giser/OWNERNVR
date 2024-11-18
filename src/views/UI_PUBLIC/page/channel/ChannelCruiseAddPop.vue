@@ -86,7 +86,7 @@
             </el-table>
             <div
                 class="base-btn-box"
-                :span="2"
+                span="2"
             >
                 <div>
                     <el-button @click="addPreset">{{ Translate('IDCS_ADD_PRESET') }}</el-button>
@@ -114,15 +114,10 @@
             @close="pageData.isPresetPop = false"
         />
         <template #footer>
-            <el-row>
-                <el-col
-                    :span="24"
-                    class="el-col-flex-end"
-                >
-                    <el-button @click="verify">{{ Translate('IDCS_ADD') }}</el-button>
-                    <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </el-col>
-            </el-row>
+            <div class="base-btn-box">
+                <el-button @click="verify">{{ Translate('IDCS_ADD') }}</el-button>
+                <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
+            </div>
         </template>
     </el-dialog>
 </template>

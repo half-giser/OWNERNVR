@@ -62,8 +62,9 @@ const uiPages = import.meta.glob('@ui/page/**/*.vue')
 // }
 
 const getItemName = (file: string) => {
-    const item = file.replace('/src/views/', '')
-    return item.substring(item.indexOf('/', item.indexOf('/') + 1) + 1)
+    // const item = file.replace('/src/views/', '')
+    // return item.substring(item.indexOf('/', item.indexOf('/') + 1) + 1)
+    return file.split('/page/')[1]
 }
 
 Object.keys(uiPages).forEach((prop) => {

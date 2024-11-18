@@ -74,7 +74,7 @@
                         />
                     </template>
                     <template #default="scope">
-                        <el-row class="row-together">
+                        <div class="base-cell-box">
                             <el-checkbox
                                 v-model="scope.row.record.switch"
                                 :disabled="scope.row.rowDisable"
@@ -82,12 +82,11 @@
                             />
                             <el-button
                                 :disabled="!scope.row.record.switch || scope.row.rowDisable"
-                                class="table_btn"
                                 @click="openRecord(scope.$index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
-                        </el-row>
+                        </div>
                     </template>
                 </el-table-column>
                 <!-- 抓图   -->
@@ -101,7 +100,7 @@
                         />
                     </template>
                     <template #default="scope">
-                        <el-row class="row-together">
+                        <div class="base-cell-box">
                             <el-checkbox
                                 v-model="scope.row.snap.switch"
                                 :disabled="scope.row.rowDisable"
@@ -109,12 +108,11 @@
                             />
                             <el-button
                                 :disabled="!scope.row.snap.switch || scope.row.rowDisable"
-                                class="table_btn"
                                 @click="openSnap(scope.$index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
-                        </el-row>
+                        </div>
                     </template>
                 </el-table-column>
                 <!-- 音频   -->
@@ -201,7 +199,7 @@
                         />
                     </template>
                     <template #default="scope">
-                        <el-row class="row-together">
+                        <div class="base-cell-box">
                             <el-checkbox
                                 v-model="scope.row.alarmOut.switch"
                                 :disabled="scope.row.rowDisable"
@@ -209,12 +207,11 @@
                             />
                             <el-button
                                 :disabled="!scope.row.alarmOut.switch || scope.row.rowDisable"
-                                class="table_btn"
                                 @click="openAlarmOut(scope.$index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
-                        </el-row>
+                        </div>
                     </template>
                 </el-table-column>
                 <!-- 预置点名称   -->
@@ -223,7 +220,7 @@
                     :label="Translate('IDCS_PRESET_NAME')"
                 >
                     <template #default="scope">
-                        <el-row class="row-together">
+                        <div class="base-cell-box">
                             <el-checkbox
                                 v-model="scope.row.preset.switch"
                                 :disabled="scope.row.rowDisable"
@@ -231,12 +228,11 @@
                             />
                             <el-button
                                 :disabled="!scope.row.preset.switch || scope.row.rowDisable"
-                                class="table_btn"
                                 @click="openPreset(scope.$index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
-                        </el-row>
+                        </div>
                     </template>
                 </el-table-column>
                 <!-- 蜂鸣器   -->
@@ -344,7 +340,7 @@
                 </el-table-column>
             </el-table>
         </div>
-        <div class="row_pagination">
+        <div class="base-pagination-box">
             <el-pagination
                 v-model:current-page="pageData.pageIndex"
                 v-model:page-size="pageData.pageSize"
@@ -378,11 +374,3 @@
 </template>
 
 <script lang="ts" src="./MotionEventConfig.v.ts"></script>
-
-<style lang="scss" scoped>
-:deep(.el-table .cell) {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-</style>

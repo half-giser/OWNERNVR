@@ -127,7 +127,7 @@
             </el-table>
             <div
                 class="base-btn-box"
-                :span="2"
+                span="2"
             >
                 <div>
                     <span>{{ Translate('IDCS_SENDER') }} :</span>

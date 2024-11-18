@@ -7,7 +7,7 @@
     <div class="feature">
         <div
             class="base-btn-box"
-            :span="2"
+            span="2"
         >
             <div>
                 <span class="group-title">{{ Translate('IDCS_ADD_FACE_GROUP') }}</span>
@@ -50,7 +50,7 @@
             </div>
             <div
                 class="base-btn-box padding"
-                :span="2"
+                span="2"
             >
                 <div>
                     <span v-show="multiple">{{ Translate('IDCS_SELECTED_NUM_D').formatForLang(formData.faceIndex.length) }}</span>

@@ -87,7 +87,7 @@
                 <div v-show="peaData.peaFunction === 'pea_param'">
                     <div
                         class="base-btn-box"
-                        :span="2"
+                        span="2"
                     >
                         <div>
                             <el-checkbox
@@ -287,12 +287,10 @@
                                 <!-- 人灵敏度 -->
                                 <el-form-item>
                                     <template #label>
-                                        <el-row>
-                                            <el-checkbox
-                                                v-model="peaData.areaCfgData[peaData.activityType].person"
-                                                :label="Translate('IDCS_DETECTION_PERSON')"
-                                            />
-                                        </el-row>
+                                        <el-checkbox
+                                            v-model="peaData.areaCfgData[peaData.activityType].person"
+                                            :label="Translate('IDCS_DETECTION_PERSON')"
+                                        />
                                     </template>
                                     <template #default>
                                         <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
@@ -305,12 +303,10 @@
                                 <!-- 汽车灵敏度 -->
                                 <el-form-item>
                                     <template #label>
-                                        <div class="sensitivity_box">
-                                            <el-checkbox
-                                                v-model="peaData.areaCfgData[peaData.activityType].car"
-                                                :label="Translate('IDCS_DETECTION_VEHICLE')"
-                                            />
-                                        </div>
+                                        <el-checkbox
+                                            v-model="peaData.areaCfgData[peaData.activityType].car"
+                                            :label="Translate('IDCS_DETECTION_VEHICLE')"
+                                        />
                                     </template>
                                     <template #default>
                                         <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
@@ -323,12 +319,10 @@
                                 <!-- 摩托车灵敏度 -->
                                 <el-form-item>
                                     <template #label>
-                                        <div class="sensitivity_box">
-                                            <el-checkbox
-                                                v-model="peaData.areaCfgData[peaData.activityType].motorcycle"
-                                                :label="Translate('IDCS_NON_VEHICLE')"
-                                            />
-                                        </div>
+                                        <el-checkbox
+                                            v-model="peaData.areaCfgData[peaData.activityType].motorcycle"
+                                            :label="Translate('IDCS_NON_VEHICLE')"
+                                        />
                                     </template>
                                     <template #default>
                                         <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>

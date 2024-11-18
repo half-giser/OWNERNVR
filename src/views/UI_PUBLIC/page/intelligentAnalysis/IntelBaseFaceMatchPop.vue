@@ -81,19 +81,16 @@
             />
         </div>
         <template #footer>
-            <el-row>
-                <el-col
-                    :span="12"
-                    class="el-col-flex-start"
-                >
+            <div
+                class="base-btn-box"
+                span="2"
+            >
+                <div>
                     <el-button @click="showSnapShot">{{ Translate('IDCS_VIEW_SNAPSHOT') }}</el-button>
                     <el-button @click="search">{{ Translate('IDCS_SEARCH') }}</el-button>
                     <el-button @click="playRec">{{ Translate('IDCS_PLAYBACK_BY_SNAPIMAGE') }}</el-button>
-                </el-col>
-                <el-col
-                    :span="12"
-                    class="el-col-flex-end"
-                >
+                </div>
+                <div>
                     <el-button
                         :disabled="pageData.currentIndex <= 0"
                         @click="previous"
@@ -105,8 +102,8 @@
                         >{{ Translate('IDCS_NEXT') }}</el-button
                     >
                     <el-button @click="close">{{ Translate('IDCS_EXIT') }}</el-button>
-                </el-col>
-            </el-row>
+                </div>
+            </div>
         </template>
     </el-dialog>
 </template>

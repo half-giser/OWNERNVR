@@ -25,7 +25,7 @@
             <!-- 检测开启-->
             <div
                 class="base-btn-box padding collapse"
-                :span="2"
+                span="2"
             >
                 <el-checkbox
                     v-model="formData.detectionEnable"
@@ -57,7 +57,7 @@
                             <div v-if="pageData.fuction === 'param'">
                                 <div
                                     class="base-btn-box"
-                                    :span="2"
+                                    span="2"
                                 >
                                     <!-- <div>
                                         <el-checkbox

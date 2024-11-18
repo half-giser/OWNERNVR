@@ -48,6 +48,14 @@ li {
     color: var(--color-error);
 }
 
+.text-online {
+    color: var(--color-online);
+}
+
+.text-offline {
+    color: var(--color-offline);
+}
+
 /* 滚动条样式 */
 ::-webkit-scrollbar {
     width: 10px;
@@ -113,18 +121,6 @@ input[type='number'] {
         display: flex;
         justify-content: center;
     }
-
-    // .configTop .el-row {
-    //     height: 42px;
-    //     padding: 5px 0px;
-    //     font-size: var(--el-font-size-base);
-
-    //     .form-item_label {
-    //         display: inline-block;
-    //         padding: 8px 3px;
-    //         margin: 0px 20px 0px 0px;
-    //     }
-    // }
 
     .config-row {
         padding: 5px 0;
@@ -235,6 +231,10 @@ input[type='number'] {
         .el-dialog__footer {
             margin: 0;
             padding: 0 20px 20px;
+
+            .base-btn-box {
+                margin-top: 0;
+            }
         }
     }
 
@@ -376,6 +376,19 @@ input[type='number'] {
         }
     }
 
+    .el-input-number {
+        &.is-without-controls {
+            .el-input__inner {
+                text-align: left;
+            }
+
+            .el-input__wrapper {
+                padding-left: 11px;
+                padding-right: 11px;
+            }
+        }
+    }
+
     // .el-form 公共样式
     .el-form {
         flex-shrink: 0;
@@ -448,19 +461,6 @@ input[type='number'] {
         .el-checkbox {
             display: inline-flex;
             align-items: center;
-        }
-
-        .el-input-number {
-            &.is-without-controls {
-                .el-input__inner {
-                    text-align: left;
-                }
-
-                .el-input__wrapper {
-                    padding-left: 11px;
-                    padding-right: 11px;
-                }
-            }
         }
 
         .el-slider {
@@ -623,6 +623,10 @@ input[type='number'] {
 
             .el-radio {
                 display: flex;
+
+                & + .el-radio {
+                    margin-left: 0;
+                }
             }
         }
 
@@ -655,6 +659,10 @@ input[type='number'] {
             .el-checkbox {
                 display: flex;
                 padding-block: 5px;
+
+                & + .el-checkbox {
+                    margin-left: 0;
+                }
             }
         }
 
@@ -690,7 +698,7 @@ input[type='number'] {
 }
 
 // 将el-pagination放置在此容器下，以便el-pagination能和el-table贴合在一起
-.row_pagination {
+.base-pagination-box {
     padding: 5px;
     border-style: none solid solid;
     border-width: 1px;
@@ -784,6 +792,18 @@ input[type='number'] {
 
     &[span='start'] {
         justify-content: flex-start;
+    }
+}
+
+// 表格cell内多个控件的容器
+.base-cell-box {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    * + * {
+        margin-left: 5px;
     }
 }
 

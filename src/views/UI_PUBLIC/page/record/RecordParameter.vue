@@ -206,7 +206,7 @@
         </div>
         <div
             class="base-btn-box"
-            :span="2"
+            span="2"
         >
             <div>
                 <span v-show="supportANR">{{ Translate('IDCS_OFFLINE_RECORDING_TIPS') }}</span>

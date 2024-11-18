@@ -33,6 +33,7 @@
             v-model="pageData.isAuthDialog"
             :tip="pageData.recoverDefaultTip"
             @confirm="confirm"
+            @close="pageData.isAuthDialog = false"
         />
     </div>
 </template>

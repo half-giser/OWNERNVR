@@ -176,21 +176,18 @@
         </div>
         <PermissionGroupInfoPop v-model="pageData.isShowInfo" />
         <template #footer>
-            <el-row>
-                <el-col
-                    :span="8"
-                    class="el-col-flex-start"
-                >
+            <div
+                class="base-btn-box"
+                span="2"
+            >
+                <div>
                     <el-button @click="pageData.isShowInfo = true">{{ Translate('IDCS_DESCRIPTION') }}</el-button>
-                </el-col>
-                <el-col
-                    :span="16"
-                    class="el-col-flex-end"
-                >
+                </div>
+                <div>
                     <el-button @click="doEditAuthGroup">{{ Translate('IDCS_ADD') }}</el-button>
                     <el-button @click="goBack">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </el-col>
-            </el-row>
+                </div>
+            </div>
         </template>
     </el-dialog>
 </template>

@@ -193,19 +193,18 @@
                         />
                     </template>
                     <template #default="scope">
-                        <el-row class="row-together">
+                        <div class="base-cell-box">
                             <el-checkbox
                                 v-model="scope.row.record.switch"
                                 @change="switchRecord(scope.$index)"
                             />
                             <el-button
                                 :disabled="!scope.row.record.switch"
-                                class="table_btn"
                                 @click="openRecord(scope.$index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
-                        </el-row>
+                        </div>
                     </template>
                 </el-table-column>
 
@@ -220,19 +219,18 @@
                         />
                     </template>
                     <template #default="scope">
-                        <el-row class="row-together">
+                        <div class="base-cell-box">
                             <el-checkbox
                                 v-model="scope.row.snap.switch"
                                 @change="switchSnap(scope.$index)"
                             />
                             <el-button
                                 :disabled="!scope.row.snap.switch"
-                                class="table_btn"
                                 @click="openSnap(scope.$index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
-                        </el-row>
+                        </div>
                     </template>
                 </el-table-column>
 
@@ -314,19 +312,18 @@
                         />
                     </template>
                     <template #default="scope">
-                        <el-row class="row-together">
+                        <div class="base-cell-box">
                             <el-checkbox
                                 v-model="scope.row.alarmOut.switch"
                                 @change="switchAlarmOut(scope.$index)"
                             />
                             <el-button
                                 :disabled="!scope.row.alarmOut.switch"
-                                class="table_btn"
                                 @click="openAlarmOut(scope.$index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
-                        </el-row>
+                        </div>
                     </template>
                 </el-table-column>
 
@@ -336,19 +333,18 @@
                     width="180"
                 >
                     <template #default="scope">
-                        <el-row class="row-together">
+                        <div class="base-cell-box">
                             <el-checkbox
                                 v-model="scope.row.preset.switch"
                                 @change="switchPreset(scope.$index)"
                             />
                             <el-button
                                 :disabled="!scope.row.preset.switch"
-                                class="table_btn"
                                 @click="openPreset(scope.$index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
-                        </el-row>
+                        </div>
                     </template>
                 </el-table-column>
 
@@ -481,7 +477,7 @@
                 </el-table-column>
             </el-table>
         </div>
-        <div class="row_pagination">
+        <div class="base-pagination-box">
             <el-pagination
                 v-model:current-page="pageData.pageIndex"
                 v-model:page-size="pageData.pageSize"
@@ -513,11 +509,3 @@
 </template>
 
 <script lang="ts" src="./SensorEventConfig.v.ts"></script>
-
-<style lang="scss" scoped>
-:deep(.el-table .cell) {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-</style>

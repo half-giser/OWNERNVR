@@ -39,18 +39,15 @@
             </div>
             <div class="fileFormatTips">{{ pageData.audioFormatTips }}</div>
         </div>
-        <el-row>
-            <el-col
-                :span="24"
-                class="el-col-flex-end"
-            >
+        <template #footer>
+            <div class="base-btn-box">
                 <el-button
                     :disabled="pageData.btnApplyDisabled"
                     @click="apply"
                     >{{ Translate('IDCS_APPLY') }}</el-button
                 >
-            </el-col>
-        </el-row>
+            </div>
+        </template>
     </el-dialog>
 </template>
 
