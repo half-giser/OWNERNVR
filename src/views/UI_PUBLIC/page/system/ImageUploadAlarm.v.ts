@@ -35,10 +35,14 @@ export default defineComponent({
             preUnit: '',
             saveUnit: '',
         })
+
         const tableData = ref<SystemImageUploadAlarmItem[]>([])
 
         const getAuth = async () => {
             const authGroupId = userSessionStore.authGroupId
+            if (!authGroupId) {
+                return
+            }
             const sendXml = rawXml`
                 <condition>
                     <authGroupId>${authGroupId}</authGroupId>
@@ -51,19 +55,18 @@ export default defineComponent({
             const res = await queryAuthGroup(sendXml)
             const $ = queryXml(res)
             if ($('status').text() === 'success') {
-                pageData.value.hasAuth = $('//content/systemAuth/alarmMgr').text().bool()
+                pageData.value.hasAuth = $('//systemAuth/alarmMgr').text().bool()
             }
         }
 
-        // TODO待测试
         const getData = async () => {
             openLoading()
             const res = await querySHDBEventUploadCfg()
             closeLoading()
             const $ = queryXml(res)
             if ($('status').text() === 'success') {
-                pageData.value.alarmType = $('//content/eventType').text().trim() || 'MOTION'
-                pageData.value.alarmTypeList = $('//types/eventType/enum').map((item) => {
+                pageData.value.alarmType = $('content/eventType').text().trim() || 'MOTION'
+                pageData.value.alarmTypeList = $('types/eventType/enum').map((item) => {
                     return {
                         value: item.text(),
                         label: EVENT_TYPE_MAPPING[item.text()],
@@ -83,19 +86,19 @@ export default defineComponent({
                         label: EVENT_TYPE_MAPPING['MOTION,ALARM'],
                     })
                 }
-                const pretimeList = $('//content/param/preTimeNote').text()
+                const pretimeList = $('//param/preTimeNote').text()
                 pageData.value.pretimeList = pretimeList !== '' ? pretimeList.split(',').map((item) => ({ value: item.trim(), label: getTranslateForSecond(Number(item.trim())) })) : []
-                pageData.value.saveTimeList = $('//content/param/holdTimeNote')
+                pageData.value.saveTimeList = $('//param/holdTimeNote')
                     .text()
                     .split(',')
                     .map((item) => ({
                         value: item.trim(),
                         label: getTranslateForSecond(Number(item.trim())),
                     }))
-                pageData.value.preUnit = $('//content/param/chlParams/itemType/preTime').attr('unit') || 's'
-                pageData.value.saveUnit = $('//content/param/chlParams/itemType/holdTime').attr('unit') || 's'
+                pageData.value.preUnit = $('//param/chlParams/itemType/preTime').attr('unit') || 's'
+                pageData.value.saveUnit = $('//param/chlParams/itemType/holdTime').attr('unit') || 's'
 
-                tableData.value = $('//content/param/chlParams/item').map((item) => {
+                tableData.value = $('//param/chlParams/item').map((item) => {
                     const row = new SystemImageUploadAlarmItem()
                     const $item = queryXml(item.element)
                     row.id = $item('chl').attr('id')
@@ -143,7 +146,7 @@ export default defineComponent({
             return sendXml
         }
 
-        const setData = async () => {
+        const setData = () => {
             const sendXml = getSavaData()
             openLoading()
             editSHDBEventUploadCfg(sendXml).then((res) => {
@@ -152,7 +155,7 @@ export default defineComponent({
             })
         }
 
-        const setDispose = async () => {
+        const setDispose = () => {
             if (!pageData.value.hasAuth) {
                 openMessageBox({
                     type: 'info',
@@ -194,6 +197,7 @@ export default defineComponent({
                 }
             })
         }
+
         onMounted(async () => {
             await getAuth()
             await getData()
