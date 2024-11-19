@@ -93,8 +93,8 @@ export default defineComponent({
          * @param {Function} $doc
          */
         const getSystemAuth = ($doc: XMLQuery) => {
-            const $ = queryXml($doc('//content/systemAuth')[0].element)
-            Object.keys(systemAuthList.value).forEach((classify: string) => {
+            const $ = queryXml($doc('content/systemAuth')[0].element)
+            Object.keys(systemAuthList.value).forEach((classify) => {
                 Object.keys(systemAuthList.value[classify].value).forEach((key) => {
                     systemAuthList.value[classify].value[key].value = $(key).text().bool()
                 })
@@ -108,7 +108,7 @@ export default defineComponent({
          */
         const getChannelAuth = ($: XMLQuery, isQueryFromUserID: boolean) => {
             if (isQueryFromUserID) {
-                channelAuthList.value = $('//content/chlAuth/item').map((item) => {
+                channelAuthList.value = $('content/chlAuth/item').map((item) => {
                     const arrayItem = new UserPermissionChannelAuthList()
                     const $item = queryXml(item.element)
                     arrayItem.id = item.attr('id')
@@ -124,7 +124,7 @@ export default defineComponent({
                     return arrayItem
                 })
             } else {
-                channelAuthList.value = $('//content/item').map((item) => {
+                channelAuthList.value = $('content/item').map((item) => {
                     const arrayItem = new UserPermissionChannelAuthList()
                     const $item = queryXml(item.element)
                     arrayItem.id = item.attr('id')
@@ -141,7 +141,7 @@ export default defineComponent({
          * @description 清除所有左侧权限信息
          */
         const resetAuth = () => {
-            Object.keys(systemAuthList.value).forEach((classify: string) => {
+            Object.keys(systemAuthList.value).forEach((classify) => {
                 Object.keys(systemAuthList.value[classify].value).forEach((key) => {
                     systemAuthList.value[classify].value[key].value = false
                 })
@@ -170,12 +170,12 @@ export default defineComponent({
                 const currentUserName = authInfo ? authInfo[0] : ''
                 const currentUserType = userSession.userType
 
-                userList.value = $('//content/item').map((item) => {
+                userList.value = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     const isAdmin = $item('userType').text() === USER_TYPE_DEFAULT_ADMIN
 
                     return {
-                        id: item.attr('id') as string,
+                        id: item.attr('id'),
                         userName: $item('userName').text(),
                         password: $item('password').text(),
                         bindMacSwitch: $item('bindMacSwitch').text(),
@@ -206,7 +206,7 @@ export default defineComponent({
          * @description 点击右侧表格项，更新权限组
          * @param row
          */
-        const handleChangeUser = async (row: UserList) => {
+        const handleChangeUser = (row: UserList) => {
             pageData.value.activeUser = userList.value.findIndex((item) => item.id === row.id)
             if (currentUser.value) {
                 getAuthGroup(row.id)
@@ -228,7 +228,7 @@ export default defineComponent({
         /**
          * @description 关闭编辑用户弹窗
          */
-        const handleCloseEditUser = () => {
+        const handleConfirmEditUser = () => {
             pageData.value.isEditUser = false
             getUserList(pageData.value.searchText)
         }
@@ -266,9 +266,9 @@ export default defineComponent({
         /**
          * @description 关闭修改密码弹窗
          */
-        const handleCloseEditUserPassword = () => {
-            pageData.value.isEditUserPassword = false
-        }
+        // const handleCloseEditUserPassword = () => {
+        //     pageData.value.isEditUserPassword = false
+        // }
 
         // 当前选中的用户
         const currentUser = computed(() => {
@@ -350,9 +350,8 @@ export default defineComponent({
             handleChangeUser,
             handleEditUser,
             handleDeleteUser,
-            handleCloseEditUser,
+            handleConfirmEditUser,
             handleEditUserPassword,
-            handleCloseEditUserPassword,
             UserEditPop,
             UserEditPasswordPop,
         }

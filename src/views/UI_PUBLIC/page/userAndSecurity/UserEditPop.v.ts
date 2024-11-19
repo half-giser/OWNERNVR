@@ -17,6 +17,9 @@ export default defineComponent({
         },
     },
     emits: {
+        confirm() {
+            return true
+        },
         close() {
             return true
         },
@@ -74,18 +77,18 @@ export default defineComponent({
             `
             const result = await queryUser(sendXml)
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                formData.value.enabled = $('//content/enabled').text().bool()
-                formData.value.userName = $('//content/userName').text()
-                formData.value.email = $('//content/email').text()
-                formData.value.authGroup = $('//content/authGroup').attr('id')
-                formData.value.allowModifyPassword = $('//content/modifyPassword').text().bool()
-                formData.value.authEffective = $('//content/authEffective').text().bool()
+            if ($('status').text() === 'success') {
+                formData.value.enabled = $('//enabled').text().bool()
+                formData.value.userName = $('//userName').text()
+                formData.value.email = $('//email').text()
+                formData.value.authGroup = $('//authGroup').attr('id')
+                formData.value.allowModifyPassword = $('//modifyPassword').text().bool()
+                formData.value.authEffective = $('//authEffective').text().bool()
 
                 const authInfo = userSession.getAuthInfo()
                 const currentUserName = authInfo ? authInfo[0] : ''
                 const editUserName = formData.value.userName
-                const editUserType = $('//content/userType').text()
+                const editUserType = $('//userType').text()
                 pageData.value.isAuthGroup = USER_TYPE_DEFAULT_ADMIN !== editUserType
                 pageData.value.isEnableDisabled = false
 
@@ -110,7 +113,7 @@ export default defineComponent({
                     pageData.value.isChangePasswordBtn = true
                 }
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 let errorText = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR:
@@ -137,7 +140,7 @@ export default defineComponent({
          * @description 表单验证
          */
         const verify = () => {
-            formRef.value?.validate((valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     doEditUser()
                 }
@@ -156,7 +159,7 @@ export default defineComponent({
             const result = await queryAuthGroupList(sendXml)
 
             commLoadResponseHandler(result, ($) => {
-                authGroupOptions.value = $('//content/item').map((item) => {
+                authGroupOptions.value = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         id: item.attr('id'),
@@ -190,10 +193,10 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                ctx.emit('close')
+            if ($('status').text() === 'success') {
+                ctx.emit('confirm')
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 let errorText = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR:
@@ -213,10 +216,16 @@ export default defineComponent({
          * @description 打开弹窗时的数据请求
          */
         const handleOpen = async () => {
-            formRef.value?.clearValidate()
-            formData.value = new UserEditForm()
             await getAuthGroup()
             await getUser()
+        }
+
+        /**
+         * @description 清除表单
+         */
+        const clear = () => {
+            formRef.value?.clearValidate()
+            formData.value = new UserEditForm()
         }
 
         /**
@@ -246,6 +255,7 @@ export default defineComponent({
             verify,
             rules,
             goBack,
+            clear,
             displayAuthGroup,
         }
     },
