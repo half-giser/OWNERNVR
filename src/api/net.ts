@@ -295,7 +295,7 @@ export const editNetworkNodeEncodeInfo = (data: string) => http.fetch('editNetwo
  * @description 获取OVNIF配置信息
  * @returns
  */
-export const queryOnvifCfg = () => http.fetch('editNetworkNodeEncodeInfo', getXmlWrapData(''))
+export const queryOnvifCfg = () => http.fetch('queryOnvifCfg', getXmlWrapData(''))
 
 /**
  * @description 修改OVNIF配置信息
