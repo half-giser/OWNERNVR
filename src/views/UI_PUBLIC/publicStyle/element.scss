@@ -47,6 +47,10 @@
         &.is-link {
             min-width: unset;
         }
+
+        & + .el-button {
+            margin-left: 5px;
+        }
     }
 
     .el-button--primary {
