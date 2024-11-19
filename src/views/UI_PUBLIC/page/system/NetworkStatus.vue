@@ -15,7 +15,7 @@
                 <template #default="scope">
                     <div
                         class="align"
-                        :style="{ 'text-indent': `${(scope.row.i + 1) * 20}px` }"
+                        :style="{ 'text-indent': `${scope.row.i * 20}px` }"
                     >
                         {{ scope.row.k }}
                     </div>
