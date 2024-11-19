@@ -518,7 +518,7 @@ export default defineComponent({
                     const result = await delChlGroup(sendXml)
                     const $ = queryXml(result)
                     closeLoading()
-                    if ($('//status').text() === 'success') {
+                    if ($('status').text() === 'success') {
                         openMessageBox({
                             type: 'success',
                             message: Translate('IDCS_DELETE_SUCCESS'),
@@ -540,17 +540,16 @@ export default defineComponent({
                 requireField: ['name'],
             })
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                pageData.value.chlList = []
-                $('//content/item').forEach((item) => {
+            if ($('status').text() === 'success') {
+                pageData.value.chlList = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     const id = item.attr('id')
                     const value = $item('name').text()
-                    pageData.value.chlList.push({
+                    chlNameMaping[id] = value
+                    return {
                         id,
                         value,
-                    })
-                    chlNameMaping[id] = value
+                    }
                 })
             }
         }
@@ -566,15 +565,14 @@ export default defineComponent({
             `
             const result = await queryChlGroupList(sendXml)
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                pageData.value.chlGroupList = []
-                $('//content/item').forEach((item) => {
+            if ($('status').text() === 'success') {
+                pageData.value.chlGroupList = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
-                    pageData.value.chlGroupList.push({
+                    return {
                         id: item.attr('id'),
                         value: $item('name').text(),
                         dwellTime: $item('dwellTime').text().num(),
-                    })
+                    }
                 })
             }
         }
@@ -603,14 +601,12 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                cacheChlListOfGroup[id] = [] as ChlItem[]
-                $('//content/chlList/item').forEach((item) => {
-                    // const $item = queryXml(item.element)
-                    cacheChlListOfGroup[id].push({
+            if ($('status').text() === 'success') {
+                cacheChlListOfGroup[id] = $('//chlList/item').map((item) => {
+                    return {
                         id: item.attr('id'),
                         value: item.text(),
-                    })
+                    }
                 })
                 pageData.value.chlListOfGroup = cacheChlListOfGroup[id]
             } else {
@@ -739,17 +735,14 @@ export default defineComponent({
                             // 表示当前输出是否勾选轮询check框
                             $element('chlGroups/item').forEach((chlGroup) => {
                                 const $chlGroup = queryXml(chlGroup.element)
-                                const segNum = $chlGroup('segNum').text().num()
-                                const chlsData: ChlsDto[] = []
-                                $chlGroup('chls/item').forEach((chlItem) => {
-                                    chlsData.push({
-                                        id: chlItem.attr('id'),
-                                        winindex: chlItem.text().num(),
-                                    })
-                                })
                                 decoderCardMap.value[id].decoderDwellData[outIndex].chlGroups.push({
-                                    segNum: segNum,
-                                    chls: chlsData,
+                                    segNum: $chlGroup('segNum').text().num(),
+                                    chls: $chlGroup('chls/item').map((chlItem) => {
+                                        return {
+                                            id: chlItem.attr('id'),
+                                            winindex: chlItem.text().num(),
+                                        }
+                                    }),
                                 })
                             })
                         } else {
@@ -757,16 +750,13 @@ export default defineComponent({
                                 displayMode,
                                 chlGroups: [],
                             }
-                            const segNum = $element('segNum').text().num()
-                            const chlsData: ChlsDto[] = []
-                            $element('chls/item').forEach((chl) => {
-                                chlsData.push({
+                            decoderCardMap.value[id].decoderPreviewData[outIndex].chlGroups[0].segNum = $element('segNum').text().num()
+                            decoderCardMap.value[id].decoderPreviewData[outIndex].chlGroups[0].chls = $element('chls/item').map((chl) => {
+                                return {
                                     id: chl.attr('id'),
                                     winindex: chl.text().num(),
-                                })
+                                }
                             })
-                            decoderCardMap.value[id].decoderPreviewData[outIndex].chlGroups[0].segNum = segNum
-                            decoderCardMap.value[id].decoderPreviewData[outIndex].chlGroups[0].chls = chlsData
                         }
                     })
                 })
@@ -774,23 +764,20 @@ export default defineComponent({
 
             // 获取主输出的配置
             mainOutputData.value = new MainOutputData()
-            mainOutputData.value.displayMode = $('//content/item[@outType="Main"]/item1/displayMode').text()
-            mainOutputData.value.timeInterval = $('//content/item[@outType="Main"]/item1/timeInterval').text().num()
-            mainOutputData.value.chlGroups = []
-            $('//content/item[@outType="Main"]/item1/chlGroups/item').forEach((item) => {
+            mainOutputData.value.displayMode = $('content/item[@outType="Main"]/item1/displayMode').text()
+            mainOutputData.value.timeInterval = $('content/item[@outType="Main"]/item1/timeInterval').text().num()
+            mainOutputData.value.chlGroups = $('content/item[@outType="Main"]/item1/chlGroups/item').map((item) => {
                 const $item = queryXml(item.element)
-                const segNum = $item('segNum').text().num()
-                const chlsData: ChlsDto[] = []
-                $item('chls/item').forEach((chl) => {
-                    chlsData.push({
-                        id: chl.attr('id'),
-                        winindex: chl.text().num(),
-                    })
-                })
-                mainOutputData.value.chlGroups.push({
-                    segNum: segNum,
-                    chls: chlsData,
-                })
+
+                return {
+                    segNum: $item('segNum').text().num(),
+                    chls: $item('chls/item').map((chl) => {
+                        return {
+                            id: chl.attr('id'),
+                            winindex: chl.text().num(),
+                        }
+                    }),
+                }
             })
 
             // 获取副输出的配置
@@ -812,7 +799,7 @@ export default defineComponent({
                 }
             }
 
-            $("//content/item[contains(@outType,'Sub')]").forEach((item) => {
+            $("content/item[contains(@outType,'Sub')]").forEach((item) => {
                 const $item = queryXml(item.element)
                 // 每个辅输出对应的索引序号（1，2，3...）
                 const outIndex = item.attr('outIndex').num()
@@ -828,31 +815,25 @@ export default defineComponent({
                         subOutputDwellData.value[outIndex].isCheckDwell = isSubCheckDwell
                         $element('chlGroups/item').forEach((chlGroup) => {
                             const $chlGroup = queryXml(chlGroup.element)
-                            const segNum = $chlGroup('segNum').text().num()
-                            const chlsData: ChlsDto[] = []
-                            $chlGroup('chls/item').forEach((chlItem) => {
-                                chlsData.push({
-                                    id: chlItem.attr('id'),
-                                    winindex: chlItem.text().num(),
-                                })
-                            })
                             subOutputDwellData.value[outIndex].chlGroups.push({
-                                segNum: segNum,
-                                chls: chlsData,
+                                segNum: $chlGroup('segNum').text().num(),
+                                chls: $chlGroup('chls/item').map((chlItem) => {
+                                    return {
+                                        id: chlItem.attr('id'),
+                                        winindex: chlItem.text().num(),
+                                    }
+                                }),
                             })
                         })
                     } else {
                         subOutputPreviewData.value[outIndex].displayMode = displayMode
-                        const segNum = $element('segNum').text().num()
-                        const chlsData: ChlsDto[] = []
-                        $element('chls/item').forEach((chl) => {
-                            chlsData.push({
+                        subOutputPreviewData.value[outIndex].chlGroups[0].segNum = $element('segNum').text().num()
+                        subOutputPreviewData.value[outIndex].chlGroups[0].chls = $element('chls/item').map((chl) => {
+                            return {
                                 id: chl.attr('id'),
                                 winindex: chl.text().num(),
-                            })
+                            }
                         })
-                        subOutputPreviewData.value[outIndex].chlGroups[0].segNum = segNum
-                        subOutputPreviewData.value[outIndex].chlGroups[0].chls = chlsData
                     }
                 })
             })
@@ -870,9 +851,9 @@ export default defineComponent({
         const getSystemWorkMode = async () => {
             const result = await querySystemWorkMode()
             const $ = queryXml(result)
-            const supportAI = $('//content/supportAI').text().bool()
-            const is3535A = $('//content/openSubOutput').length > 0
-            const openSubOutput = $('//content/openSubOutput').text().bool()
+            const supportAI = $('//supportAI').text().bool()
+            const is3535A = $('//openSubOutput').length > 0
+            const openSubOutput = $('//openSubOutput').text().bool()
             // 只有3535A且支持AI的机型才会有辅输出开关
             if (supportAI && is3535A) {
                 pageData.value.isConfigSwitch = true
@@ -918,11 +899,11 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 pageData.value.isCheckAuth = false
                 pageData.value.configSwitch = !pageData.value.configSwitch
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
 
                 switch (errorCode) {
