@@ -60,7 +60,7 @@
                             @change="handleVideoEncodeTypeChange(scope.row)"
                         >
                             <el-option
-                                v-for="item in scope.row.mainCaps['@supEnct']"
+                                v-for="item in scope.row.mainCaps.supEnct"
                                 :key="item"
                                 :label="Translate(streamTypeMapping[item])"
                                 :value="item"
@@ -227,7 +227,7 @@
                             @change="handleBitTypeChange(scope.row)"
                         >
                             <el-option
-                                v-for="item in scope.row.mainCaps['@bitType']"
+                                v-for="item in scope.row.mainCaps.bitType"
                                 :key="item"
                                 :label="item"
                                 :value="item"

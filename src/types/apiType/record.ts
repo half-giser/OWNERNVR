@@ -125,7 +125,7 @@ export class RecordSubStreamNoneDto {
  * @description 录像码流信息
  */
 export class RecordStreamInfoDto {
-    '@id' = ''
+    id = ''
     name = ''
     streamType = ''
     videoEncodeType = ''
@@ -141,53 +141,53 @@ export class RecordStreamInfoDto {
     chlType = ''
     mainCaps = {
         // 可选的编码类型
-        '@supEnct': [] as string[],
+        supEnct: [] as string[],
         // 可选的码率
-        '@bitType': [] as string[],
-        res: [] as { '@fps': string; value: string }[],
+        bitType: [] as string[],
+        res: [] as { fps: string; value: string }[],
     }
     main = {
-        '@enct': '',
-        '@aGOP': '',
-        '@mGOP': '',
+        enct: '',
+        aGOP: '',
+        mGOP: '',
     }
     an = {
-        '@res': '',
-        '@fps': '',
-        '@QoI': '',
-        '@audio': '',
-        '@type': '',
-        '@bitType': '',
-        '@level': '',
+        res: '',
+        fps: '',
+        QoI: '',
+        audio: '',
+        type: '',
+        bitType: '',
+        level: '',
     }
     ae = {
-        '@res': '',
-        '@fps': '',
-        '@QoI': '',
-        '@audio': '',
-        '@type': '',
-        '@bitType': '',
-        '@level': '',
+        res: '',
+        fps: '',
+        QoI: '',
+        audio: '',
+        type: '',
+        bitType: '',
+        level: '',
     }
     mn = {
-        '@res': '',
-        '@fps': '',
-        '@QoI': '',
-        '@audio': '',
-        '@type': '',
-        '@bitType': '',
-        '@level': '',
+        res: '',
+        fps: '',
+        QoI: '',
+        audio: '',
+        type: '',
+        bitType: '',
+        level: '',
     }
     me = {
-        '@res': '',
-        '@fps': '',
-        '@QoI': '',
-        '@audio': '',
-        '@type': '',
-        '@bitType': '',
-        '@level': '',
+        res: '',
+        fps: '',
+        QoI: '',
+        audio: '',
+        type: '',
+        bitType: '',
+        level: '',
     }
-    mainStreamQualityCaps: { '@enct': string; '@res': string; '@digitalDefault': string; '@analogDefault': string; value: string[] }[] = []
+    mainStreamQualityCaps: { enct: string; res: string; digitalDefault: string; analogDefault: string; value: string[] }[] = []
     levelNote: string[] = []
     bitType = ''
     supportAudio = false
