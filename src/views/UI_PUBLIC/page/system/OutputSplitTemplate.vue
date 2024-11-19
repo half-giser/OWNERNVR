@@ -20,7 +20,7 @@
                 }"
                 @click.prevent="handleClick(index - 1)"
                 @dragover.prevent="handleDragOver(index - 1)"
-                @mousedown="handleMouseDown($event, index - 1)"
+                @contextmenu="handleMouseDown($event, index - 1)"
                 @drop="handleDrop($event, index - 1)"
             >
                 <div>{{ winData[index - 1].value }}</div>

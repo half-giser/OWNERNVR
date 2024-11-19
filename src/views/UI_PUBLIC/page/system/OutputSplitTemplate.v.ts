@@ -105,11 +105,9 @@ export default defineComponent({
          */
         const handleMouseDown = (event: MouseEvent, index: number) => {
             ctx.emit('change', index)
-            if (event.which === 3) {
-                isContextMenu.value = true
-                x.value = event.pageX
-                y.value = event.pageY
-            }
+            isContextMenu.value = true
+            x.value = event.pageX
+            y.value = event.pageY
         }
 
         /**
