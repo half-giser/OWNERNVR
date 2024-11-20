@@ -163,19 +163,19 @@ const useOCXPlugin = () => {
         const $ = queryXml(XMLStr2XMLDoc(strXMLFormat))
         const funcName = $('/response').attr('reqId').num()
 
-        if ($('/response').length && funcName) {
+        if ($('response').length && funcName) {
             ;(getVideoPlugin() as WebsocketPlugin).queryInfoMap[funcName](strXMLFormat)
             return
         }
 
-        if ($('/statenotify[@target="dateCtrl"]').length) {
+        if ($('statenotify[@target="dateCtrl"]').length) {
             // TimeSliderPluginNotify(strXMLFormat)
             return
         }
 
-        if ($('/statenotify[@type="NVMS_NAT_CMD"]').length) {
-            const $response = $('/statenotify[@type="NVMS_NAT_CMD"]/response')
-            const $request = queryXml(XMLStr2XMLDoc(CMD_QUEUE.cmd.cmd))("//cmd[@type='NVMS_NAT_CMD']/request")
+        if ($('statenotify[@type="NVMS_NAT_CMD"]').length) {
+            const $response = $('statenotify[@type="NVMS_NAT_CMD"]/response')
+            const $request = queryXml(XMLStr2XMLDoc(CMD_QUEUE.cmd.cmd))('//cmd[@type="NVMS_NAT_CMD"]/request')
             // const curCmdUrl = $request.attr('url')
             // const curCmdFlay = $request.attr('flag')
             if ($response.attr('flag') === $request.attr('flag') && $response.attr('url') === $request.attr('url')) {
@@ -191,27 +191,26 @@ const useOCXPlugin = () => {
         }
 
         // 获取插件返回的sessionId，用于刷新无感知登录（授权码登录成功后，返回sessionId)
-        if ($("/statenotify[@type='sessionId']").length) {
+        if ($('statenotify[@type="sessionId"]').length) {
             let sessionId = null
-            if ($('/statenotify[@type="sessionId"]/sessionId').length) {
-                sessionId = $('/statenotify[@type="sessionId"]/sessionId').text()
+            if ($('statenotify[@type="sessionId"]/sessionId').length) {
+                sessionId = $('statenotify[@type="sessionId"]/sessionId').text()
             }
             userSession.p2pSessionId = sessionId
             return
         }
         //OCX已创建好窗口，通知可以登录了
-        else if ($('/statenotify[@type="InitialComplete"]').length) {
+        else if ($('statenotify[@type="InitialComplete"]').length) {
             setVideoPluginStatus('InitialComplete')
             videoPluginLogin()
         }
         //连接成功
-        else if ($('/statenotify[@type="connectstate"]').length) {
-            const $xmlNote = $('/statenotify[@type="connectstate"]')
+        else if ($('statenotify[@type="connectstate"]').length) {
             let status = ''
-            if ($('/statenotify[@type="connectstate"]/status').length) {
-                status = $('/statenotify[@type="connectstate"]/status').text().trim()
+            if ($('statenotify/status').length) {
+                status = $('statenotify/status').text().trim()
             } else {
-                status = $xmlNote.text().trim()
+                status = $('statenotify').text().trim()
             }
 
             if (status === 'success') {
@@ -250,7 +249,7 @@ const useOCXPlugin = () => {
                             const sendXML = OCX_XML_SetLang()
                             getVideoPlugin().ExecuteCmd(sendXML)
                             const result = await doLogin('', {}, false)
-                            if (queryXml(result)('//status').text() === 'success') {
+                            if (queryXml(result)('status').text() === 'success') {
                                 if (userInfoArr) {
                                     setCookie('lastSN', userInfoArr[2], 36500)
                                 }
@@ -265,8 +264,8 @@ const useOCXPlugin = () => {
                 }
             } else {
                 if (userSession.appType === 'P2P') {
-                    const errorCode = $('/statenotify/errorCode').text().num()
-                    const errorDescription = $('/statenotify/errorDescription').text() || ''
+                    const errorCode = $('statenotify/errorCode').text().num()
+                    const errorDescription = $('statenotify/errorDescription').text()
                     const curRoutUrl = route.path
                     switch (errorCode) {
                         case ErrorCode.USER_ERROR_NODE_NET_DISCONNECT: //SN掉线，重新连接
@@ -369,8 +368,8 @@ const useOCXPlugin = () => {
             })
             .then((result) => {
                 const $ = queryXml(result)
-                if ($('//status').text() === 'success') {
-                    $('//content/nicConfigs/item').forEach((item) => {
+                if ($('status').text() === 'success') {
+                    $('content/nicConfigs/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         if (item.attr('isSupSecondIP') === 'true') {
                             // 判断是否使用了辅IP
@@ -383,10 +382,10 @@ const useOCXPlugin = () => {
             })
             .then((result) => {
                 const $ = queryXml(result)
-                if ($('//status').text() === 'success') {
-                    const isUPnPEnable = $('//content/switch').text().bool()
+                if ($('status').text() === 'success') {
+                    const isUPnPEnable = $('content/switch').text().bool()
                     let port = 0
-                    $('//content/ports/item').forEach((item) => {
+                    $('content/ports/item').forEach((item) => {
                         const $item = queryXml(item.element)
 
                         if ($item('portType').text() === 'SERVICE') {
@@ -971,17 +970,10 @@ const useOCXPlugin = () => {
      * @returns
      */
     const displayOCX = (isShow: boolean) => {
-        // effect
-        // 有弹框时，不显示视频插件窗口（排除录像回放窗口、通道预览窗口、系统设置-》POS显示弹窗设置窗口）
-        // if (isShow && $('.tvt_dialog').length > 0 && $('#popRec_content').length == 0 && $('#popLiveOCX').length == 0 && $('#editDisplaySet').length == 0) {
-        //     return
-        // }
         if (isShow && layoutStore.messageBoxCount) return
         if (isShow && layoutStore.loadingCount) return
-        /**
-         * 大回放页面事件模式窗口、任务备份表格、事件录像记录表格显示时;
-         */
-        // if (isShow && $('.ocxWinCover').is(':visible')) return
+        if (isShow && forcedHidden) return
+
         /**
          * 智能分析-》车辆搜索-》停车记录tab激活时,不显示视频插件窗口，通过特殊类ocxWinTab进行标记
          */
@@ -1192,6 +1184,9 @@ const useOCXPlugin = () => {
         }
     }
 
+    // Dialog、Popover等遮挡OCX视窗时，强制OCX视窗隐藏
+    let forcedHidden = false
+
     /**
      * @description 关闭插件位置监听
      * @param pluginPlaceholderId
@@ -1211,8 +1206,6 @@ const useOCXPlugin = () => {
             forcedHidden = false
         }
     }
-
-    let forcedHidden = false
 
     /**
      * @description 监听浏览器窗口的移动，控制插件随之一起移动
@@ -1280,13 +1273,13 @@ const useOCXPlugin = () => {
                         return item.style.display !== 'none'
                     })
                     if (!hasPop && browserEventMap.data.length) {
-                        displayOCX(true)
                         forcedHidden = false
+                        displayOCX(true)
                     }
 
                     if (hasPop) {
-                        displayOCX(false)
                         forcedHidden = true
+                        displayOCX(false)
                     }
                 }
             }
@@ -1308,7 +1301,8 @@ const useOCXPlugin = () => {
         }
 
         for (const popper of poppers) {
-            if (popper.classList.contains('popper')) {
+            // 有keep-ocx类的popover在显示时不会遮挡插件. 所以这里不监听keep-ocx的popover的显示隐藏
+            if (popper.classList.contains('keep-ocx')) {
                 continue
             }
             mutationObserver.observe(popper, { attributes: true })
