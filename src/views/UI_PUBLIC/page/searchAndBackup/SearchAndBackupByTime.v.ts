@@ -81,8 +81,8 @@ export default defineComponent({
 
             chlMap.value = {}
 
-            if ($('//status').text() === 'success') {
-                pageData.value.chlList = $('//content/item').map((item) => {
+            if ($('status').text() === 'success') {
+                pageData.value.chlList = $('content/item').map((item) => {
                     const id = item.attr('id')
 
                     // 新获取的通道列表若没有已选中的通道，移除该选中的通道
@@ -191,7 +191,7 @@ export default defineComponent({
             },
         )
 
-        onMounted(async () => {
+        onMounted(() => {
             Plugin.SetPluginNotice('#layout2Main')
             getChlsList()
 

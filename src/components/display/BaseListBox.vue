@@ -4,14 +4,15 @@
  * @Description: 列表组件
 -->
 <template>
-    <div
+    <el-scrollbar
         class="BaseListBox"
         :class="{ border }"
+        always
     >
         <ul>
             <slot></slot>
         </ul>
-    </div>
+    </el-scrollbar>
 </template>
 
 <script lang="ts" setup>
@@ -32,8 +33,7 @@ withDefaults(
 .BaseListBox {
     width: 100%;
     height: calc(100% - 80px);
-    overflow-y: scroll;
-    border-collapse: collapse;
+    // overflow-y: scroll;
 
     &.border {
         border: 1px solid var(--content-border);
@@ -42,11 +42,6 @@ withDefaults(
     ul {
         margin: 0;
         padding: 0;
-
-        :deep(.el-checkbox) {
-            margin-left: 10px;
-            display: flex;
-        }
     }
 }
 </style>

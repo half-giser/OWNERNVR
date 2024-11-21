@@ -34,15 +34,21 @@
                     @change="toggleAllChl"
                 />
             </div>
-            <BaseListBox class="chl-box">
+            <BaseListBox
+                class="chl-box"
+                border
+            >
                 <el-checkbox-group v-model="formData.chls">
-                    <el-checkbox
+                    <BaseListBoxItem
                         v-for="item in pageData.chlList"
                         :key="item.id"
-                        :value="item.id"
-                        :label="item.value"
-                        :disabled="isChlAll && !formData.chls.includes(item.id)"
-                    />
+                    >
+                        <el-checkbox
+                            :value="item.id"
+                            :label="item.value"
+                            :disabled="isChlAll && !formData.chls.includes(item.id)"
+                        />
+                    </BaseListBoxItem>
                 </el-checkbox-group>
             </BaseListBox>
         </div>
@@ -112,7 +118,7 @@
     &-box {
         width: calc(100% - 30px);
         margin: 0 auto 15px;
-        border: 1px solid var(--input-border);
+        // border: 1px solid var(--input-border);
     }
 }
 
