@@ -140,7 +140,7 @@ export default defineComponent({
             const result = await createChlCruise(sendXml)
             const $ = queryXml(result)
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
@@ -148,7 +148,7 @@ export default defineComponent({
                     ctx.emit('confirm')
                 })
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_NAME_EXISTED:

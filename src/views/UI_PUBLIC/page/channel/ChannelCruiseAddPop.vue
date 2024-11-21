@@ -29,15 +29,19 @@
             <el-table
                 ref="tableRef"
                 :data="tableData"
-                border
-                stripe
                 highlight-current-row
+                show-overflow-tooltip
                 height="300"
                 @row-click="handleRowClick"
             >
                 <el-table-column
+                    :label="Translate('IDCS_PRESET')"
+                    prop="index"
+                />
+                <el-table-column
                     :label="Translate('IDCS_PRESET_NAME')"
                     prop="name"
+                    width="95"
                 />
                 <el-table-column
                     :label="Translate('IDCS_SPEED')"

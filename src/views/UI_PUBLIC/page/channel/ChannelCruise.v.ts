@@ -142,14 +142,14 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                tableData.value[index].cruise = $('//content/cruises/item').map((item) => {
+            if ($('status').text() === 'success') {
+                tableData.value[index].cruise = $('content/cruises/item').map((item) => {
                     return {
                         index: item.attr('index').num(),
                         name: item.text(),
                     }
                 })
-                tableData.value[index].maxCount = CRUISE_MAX_COUNT // Number($('//content/cruises').attr('maxCount'))
+                tableData.value[index].maxCount = CRUISE_MAX_COUNT // Number($('content/cruises').attr('maxCount'))
                 tableData.value[index].cruiseCount = tableData.value[index].cruise.length
             }
         }
@@ -167,8 +167,8 @@ export default defineComponent({
             const result = await queryChlCruise(sendXml)
             const $ = queryXml(result)
 
-            if ($('//status').text() === 'success') {
-                presetTableData.value = $('//content/presets/item').map((item) => {
+            if ($('status').text() === 'success') {
+                presetTableData.value = $('content/presets/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         id: ++presetId,
@@ -200,8 +200,8 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                tableData.value = $('//content/item')
+            if ($('status').text() === 'success') {
+                tableData.value = $('content/item')
                     .filter((item) => {
                         const $item = queryXml(item.element)
                         return (auth.value.hasAll || auth.value.ptz[item.attr('id')]) && $item('chlType').text() !== 'recorder'
@@ -224,7 +224,7 @@ export default defineComponent({
          * @description 修改通道选项
          */
         const changeChl = () => {
-            tableRef.value?.setCurrentRow(tableData.value[pageData.value.tableIndex])
+            tableRef.value!.setCurrentRow(tableData.value[pageData.value.tableIndex])
             getCruise(tableData.value[pageData.value.tableIndex].chlId)
         }
 
@@ -247,7 +247,7 @@ export default defineComponent({
          */
         const handleExpandChange = async (row: ChannelPtzCruiseChlDto, expanded: boolean) => {
             const index = tableData.value.findIndex((item) => item.chlId === row.chlId)
-            tableRef.value?.setCurrentRow(row)
+            tableRef.value!.setCurrentRow(row)
             if (index !== pageData.value.tableIndex) {
                 pageData.value.tableIndex = index
                 getCruise(tableData.value[pageData.value.tableIndex].chlId)
@@ -314,7 +314,7 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
@@ -322,7 +322,7 @@ export default defineComponent({
                     tableData.value[pageData.value.tableIndex].cruise[formData.value.cruiseIndex as number].name = formData.value.name
                 })
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 if (errorCode === ErrorCode.USER_ERROR_NAME_EXISTED) {
                     openMessageBox({
                         type: 'info',

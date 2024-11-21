@@ -94,40 +94,34 @@
                 <el-table
                     ref="presetTableRef"
                     :data="presetTableData"
-                    border
-                    stripe
                     highlight-current-row
+                    show-overflow-tooltip
                     @row-click="handlePresetRowClick"
                 >
                     <el-table-column
+                        :label="Translate('IDCS_PRESET')"
+                        prop="index"
+                    />
+                    <el-table-column
                         :label="Translate('IDCS_PRESET_NAME')"
                         prop="name"
+                        width="92"
                     />
                     <el-table-column
                         :label="Translate('IDCS_SPEED')"
                         prop="speed"
+                        width="60"
                     />
                     <el-table-column
                         :label="Translate('IDCS_TIME')"
                         prop="holdTime"
+                        width="60"
                     />
-                    <el-table-column :label="Translate('IDCS_EDIT')">
-                        <template #default="scope">
-                            <BaseImgSprite
-                                file="edit (2)"
-                                :index="2"
-                                :hover-index="0"
-                                :disabled-index="3"
-                                :chunk="4"
-                                @click="editPreset(scope.$index)"
-                            />
-                        </template>
-                    </el-table-column>
                     <el-table-column>
                         <template #header>
                             <el-dropdown>
                                 <BaseTableDropdownLink>
-                                    {{ Translate('IDCS_DELETE') }}
+                                    {{ Translate('IDCS_EDIT') }}
                                 </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
@@ -137,14 +131,24 @@
                             </el-dropdown>
                         </template>
                         <template #default="scope">
-                            <BaseImgSprite
-                                file="del"
-                                :index="2"
-                                :hover-index="0"
-                                :disabled-index="3"
-                                :chunk="4"
-                                @click="deletePreset(scope.$index)"
-                            />
+                            <div class="base-cell-box">
+                                <BaseImgSprite
+                                    file="edit (2)"
+                                    :index="2"
+                                    :hover-index="0"
+                                    :disabled-index="3"
+                                    :chunk="4"
+                                    @click="editPreset(scope.$index)"
+                                />
+                                <BaseImgSprite
+                                    file="del"
+                                    :index="2"
+                                    :hover-index="0"
+                                    :disabled-index="3"
+                                    :chunk="4"
+                                    @click="deletePreset(scope.$index)"
+                                />
+                            </div>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -183,8 +187,7 @@
                     :row-key="getRowKey"
                     :expand-row-key="pageData.expandRowKey"
                     highlight-current-row
-                    border
-                    stripe
+                    show-overflow-tooltip
                     @row-click="handleRowClick"
                     @expand-change="handleExpandChange"
                 >

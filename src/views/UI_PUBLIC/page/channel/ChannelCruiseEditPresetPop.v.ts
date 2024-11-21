@@ -95,8 +95,8 @@ export default defineComponent({
             `
             const result = await queryChlPresetList(sendXml)
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                pageData.value.nameOptions = $('//content/presets/item').map((item) => {
+            if ($('status').text() === 'success') {
+                pageData.value.nameOptions = $('content/presets/item').map((item) => {
                     return {
                         value: item.attr('index').num(),
                         label: item.text(),
@@ -114,7 +114,7 @@ export default defineComponent({
         const confirm = () => {
             const data = {
                 ...formData.value,
-                index: pageData.value.nameOptions.findIndex((item) => item.label === formData.value.name),
+                index: pageData.value.nameOptions.findIndex((item) => item.label === formData.value.name) + 1,
                 id: prop.data.id,
             }
             ctx.emit('confirm', data)
