@@ -34,7 +34,8 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const formRef = ref<FormInstance>()
         const formData = ref(new ChangePasswordForm())
-        const noticeMsg = ref('')
+        const errorMessage = ref('')
+        const passwordErrorMessage = ref('')
         const strength = computed(() => getPwdSaftyStrength(formData.value.newPassword))
         const userSession = useUserSessionStore()
         const { openMessageBox } = useMessageBox()
@@ -45,6 +46,11 @@ export default defineComponent({
                     validator: (_rule, value: string, callback) => {
                         if (!value.length) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
+                            return
+                        }
+
+                        if (passwordErrorMessage.value) {
+                            callback(new Error(passwordErrorMessage.value))
                             return
                         }
 
@@ -79,11 +85,6 @@ export default defineComponent({
             confirmNewPassword: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if (!value.length) {
-                            callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
-                            return
-                        }
-
                         if (value !== formData.value.newPassword) {
                             callback(new Error(Translate('IDCS_PWD_MISMATCH_TIPS')))
                             return
@@ -99,19 +100,26 @@ export default defineComponent({
         /**
          * @description 获取密码强度提示文本
          */
-        const getNoticeMsg = () => {
+        const noticeMsg = computed(() => {
             return getTranslateForPasswordStrength(prop.passwordStrength)
-        }
+        })
 
         /**
          * @description 验证表单
          */
         const verify = () => {
-            formRef.value!.validate(async (valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     doUpdateUserPassword()
                 }
             })
+        }
+
+        const changePassword = () => {
+            if (passwordErrorMessage.value) {
+                passwordErrorMessage.value = ''
+                formRef.value!.clearValidate()
+            }
         }
 
         /**
@@ -128,7 +136,7 @@ export default defineComponent({
             `
             const result = await editUserPassword(xml)
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 userSession.defaultPwd = false
                 userSession.isChangedPwd = true
                 userSession.pwdExpired = false
@@ -139,21 +147,14 @@ export default defineComponent({
                     ctx.emit('close')
                 })
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_PWD_ERR:
-                        ElMessage({
-                            type: 'info',
-                            message: Translate('IDCS_PASSWORD_NOT_CORRENT'),
-                            grouping: true,
-                        })
+                        passwordErrorMessage.value = Translate('IDCS_PASSWORD_NOT_CORRENT')
+                        formRef.value!.validate()
                         break
                     case ErrorCode.USER_ERROR_NO_AUTH:
-                        ElMessage({
-                            type: 'info',
-                            message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_NO_PERMISSION'),
-                            grouping: true,
-                        })
+                        errorMessage.value = Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_NO_PERMISSION')
                         break
                     case ErrorCode.USER_ERROR_NO_USER:
                         openMessageBox({
@@ -164,11 +165,7 @@ export default defineComponent({
                         })
                         break
                     default:
-                        ElMessage({
-                            type: 'info',
-                            message: Translate('IDCS_SAVE_DATA_FAIL'),
-                            grouping: true,
-                        })
+                        errorMessage.value = Translate('IDCS_SAVE_DATA_FAIL')
                         break
                 }
             }
@@ -206,10 +203,6 @@ export default defineComponent({
             }
         }
 
-        onMounted(() => {
-            getNoticeMsg()
-        })
-
         return {
             formRef,
             formData,
@@ -219,6 +212,8 @@ export default defineComponent({
             rules,
             opened,
             verify,
+            errorMessage,
+            changePassword,
             handleBeforeClose,
         }
     },
