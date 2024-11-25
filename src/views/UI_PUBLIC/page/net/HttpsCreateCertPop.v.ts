@@ -70,8 +70,8 @@ export default defineComponent({
             ],
             validityPeriod: [
                 {
-                    validator(_rule, value: string, callback) {
-                        if (prop.type !== 2 && !value.trim()) {
+                    validator(_rule, value: number, callback) {
+                        if (prop.type !== 2 && !value) {
                             callback(new Error(Translate('IDCS_HTTPS_EMPTY_TIP')))
                             return
                         }

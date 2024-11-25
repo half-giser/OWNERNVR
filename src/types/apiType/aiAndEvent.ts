@@ -101,10 +101,10 @@ export class AlarmServerForm {
 /**
  * @description 事件通知——报警服务器-报警类型
  */
-export class AlarmTypeInfoDto {
-    id = ''
-    value = ''
-}
+// export class AlarmTypeInfoDto {
+//     id = ''
+//     value = ''
+// }
 
 /**
  * @description 移动侦测、前端掉线、视频丢失的通用表格数据类型
@@ -579,7 +579,7 @@ export class AlarmPeaDto {
     // 区别联咏ipc标志
     regulation = false
     boundaryInfo = [] as { point: { X: number; Y: number; isClosed?: boolean }[]; maxCount: number; configured: boolean }[]
-    regionInfo = {} as { X1: number; Y1: number; X2: number; Y2: number }[]
+    regionInfo = [] as { X1: number; Y1: number; X2: number; Y2: number }[]
     mutexList = [] as { object: string; status: boolean }[]
     mutexListEx = [] as { object: string; status: boolean }[]
     // 目标类型只支持人

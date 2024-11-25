@@ -37,15 +37,15 @@ const ready = ref(false)
  */
 const handleReady = () => {
     if (ready.value && pluginStore.ready && pluginStore.currPluginMode === 'ocx') {
-        if (prop.isUpdatePos) {
-            Plugin.AddPluginMoveEvent($player.value!)
-        }
         Plugin.SetPluginSize($player.value!)
         emits('onready')
     }
 }
 
 onMounted(() => {
+    if (prop.isUpdatePos) {
+        Plugin.AddPluginMoveEvent($player.value!)
+    }
     ready.value = true
     handleReady()
 })

@@ -357,33 +357,31 @@
                                             <el-popover
                                                 ref="similarityRef"
                                                 :hide-on-click="false"
-                                                placement="bottom-start"
+                                                width="300"
                                             >
                                                 <template #reference>
                                                     <BaseTableDropdownLink> {{ Translate('IDCS_SIMILARITY') }}(%) </BaseTableDropdownLink>
                                                 </template>
-                                                <div class="dropdownBox">
-                                                    <el-form
-                                                        class="stripe"
-                                                        :style="{
-                                                            '--form-input-width': '100px',
-                                                        }"
-                                                        label-width="100"
-                                                        inline-message
-                                                    >
-                                                        <el-form-item :label="Translate('IDCS_SIMILARITY')">
-                                                            <BaseNumberInput
-                                                                v-model="comparePageData.similarityNumber"
-                                                                :min="1"
-                                                                :max="100"
-                                                            />
-                                                            <span>%</span>
-                                                        </el-form-item>
-                                                    </el-form>
-                                                    <div class="base-btn-box">
-                                                        <el-button @click="similarityChangeAll">{{ Translate('IDCS_OK') }}</el-button>
-                                                        <el-button @click="comparePageData.isSimilarityPop = false">{{ Translate('IDCS_CANCEL') }}</el-button>
-                                                    </div>
+                                                <el-form
+                                                    class="stripe"
+                                                    :style="{
+                                                        '--form-label-width': '100px',
+                                                        '--form-input-width': '100px',
+                                                    }"
+                                                    inline-message
+                                                >
+                                                    <el-form-item :label="Translate('IDCS_SIMILARITY')">
+                                                        <BaseNumberInput
+                                                            v-model="comparePageData.similarityNumber"
+                                                            :min="1"
+                                                            :max="100"
+                                                        />
+                                                        <span>%</span>
+                                                    </el-form-item>
+                                                </el-form>
+                                                <div class="base-btn-box">
+                                                    <el-button @click="similarityChangeAll">{{ Translate('IDCS_OK') }}</el-button>
+                                                    <el-button @click="comparePageData.isSimilarityPop = false">{{ Translate('IDCS_CANCEL') }}</el-button>
                                                 </div>
                                             </el-popover>
                                         </template>
@@ -460,11 +458,7 @@
     <!-- 排程管理弹窗 -->
     <ScheduleManagPop
         v-model="pageData.scheduleManagPopOpen"
-        @close="
-            () => {
-                pageData.scheduleManagPopOpen = false
-            }
-        "
+        @close="pageData.scheduleManagPopOpen = false"
     />
 </template>
 
@@ -512,11 +506,5 @@
     .removeDisabled {
         color: var(--main-text-light);
     }
-}
-
-.dropdownBox {
-    width: 300px;
-    height: 100px;
-    padding: 10px;
 }
 </style>

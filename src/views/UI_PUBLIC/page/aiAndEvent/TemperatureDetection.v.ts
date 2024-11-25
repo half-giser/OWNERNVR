@@ -4,7 +4,7 @@
  * @Description: AI 事件——更多——温度检测
  */
 import { cloneDeep } from 'lodash-es'
-import { type AlarmTemperatureDetectionBoundryDto, type AlarmChlDto, AlarmTemperatureDetectionDto } from '@/types/apiType/aiAndEvent'
+import { AlarmTemperatureDetectionBoundryDto, type AlarmChlDto, AlarmTemperatureDetectionDto } from '@/types/apiType/aiAndEvent'
 import CanvasPolygon from '@/utils/canvas/canvasTemperature'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import { type TableInstance, type TabPaneName } from 'element-plus'
@@ -139,7 +139,7 @@ export default defineComponent({
         // 页面数据
         const pageData = ref({
             tab: 'param',
-            currRowData: {} as AlarmTemperatureDetectionBoundryDto,
+            currRowData: new AlarmTemperatureDetectionBoundryDto(),
             // 是否显示全部区域
             isShowAllArea: false,
             // 绘图区域下提示信息

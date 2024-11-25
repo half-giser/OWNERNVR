@@ -232,16 +232,6 @@
 <script lang="ts" src="./PassLinesEmailPop.v.ts"></script>
 
 <style lang="scss" scoped>
-.custom-error {
-    color: var(--color-error);
-
-    /* 自定义错误提示的位置 */
-    position: absolute;
-    top: -20px; /* 调整错误提示的垂直位置 */
-    left: 0;
-    font-size: 13px;
-}
-
 .main {
     width: 100%;
     height: 100%;

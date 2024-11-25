@@ -3,7 +3,7 @@
  * @Date: 2024-07-31 11:11:05
  * @Description: 自动模式通道码流参数配置
  */
-import { type RecMode, type RecordStreamTableExpose } from '@/types/apiType/record'
+import { type RecordModeDto, type RecordStreamTableExpose } from '@/types/apiType/record'
 import { defineComponent } from 'vue'
 import RecordStreamTable from './RecordStreamTable.vue'
 import { cloneDeep } from 'lodash-es'
@@ -13,7 +13,7 @@ export default defineComponent({
     },
     props: {
         advanceRecModeMap: {
-            type: Object as PropType<Record<string, RecMode>>,
+            type: Object as PropType<Record<string, RecordModeDto>>,
             required: true,
         },
         autoModeId: {

@@ -6,7 +6,10 @@
 <template>
     <div class="OutputSetting">
         <!-- 主Tab，切换主机、解码卡 -->
-        <div class="eth_list">
+        <div
+            v-if="pageData.hasDecoder"
+            class="eth_list"
+        >
             <div
                 :class="{ active: pageData.tabId === 0 }"
                 @click="changeTab(0)"
@@ -22,23 +25,50 @@
                 {{ Translate('IDCS_DECODE_CARD') + (Number(key) + 1) }}
             </div>
         </div>
+        <!-- 主副输出Tab -->
+        <div
+            v-if="!pageData.hasDecoder"
+            class="top no-decoder"
+        >
+            <div class="top-tabs">
+                <div
+                    v-for="i in pageData.outputScreenCount"
+                    :key="i"
+                    :class="{ active: pageData.outputIdx === i - 1 }"
+                    @click="changeOutput(i - 1)"
+                >
+                    {{ displayTabName(i) }}
+                </div>
+            </div>
+            <!-- 3535A是否显示辅输出控制开关，只在主输出可能显示 -->
+            <div class="top-config">
+                <el-switch
+                    v-show="pageData.tabId === 0 && pageData.isConfigSwitch"
+                    v-model="pageData.configSwitch"
+                />
+            </div>
+            <div
+                v-if="pageData.tabId !== 0"
+                class="top-hdmi"
+            >
+                <span>{{ Translate('IDCS_HDMI_IN_EXPORT_TO') }}</span>
+                <el-select v-model="decoderCardMap[pageData.tabId].ShowHdmiIn">
+                    <el-option :value="0">{{ Translate('IDCS_NULL') }}</el-option>
+                    <el-option
+                        v-for="key in Object.keys(decoderCardMap[pageData.tabId].decoderDwellData)"
+                        :key
+                        :value="Number(key) + 1"
+                        :label="`${Translate('IDCS_OUTPUT')}${Number(key) + 1}`"
+                    />
+                </el-select>
+            </div>
+        </div>
         <main class="main">
             <div class="left">
-                <div class="top">
-                    <!-- 主副输出Tab -->
-                    <div
-                        v-if="!pageData.hasDecoder"
-                        class="top-tabs"
-                    >
-                        <div
-                            v-for="i in pageData.outputScreenCount"
-                            :key="i"
-                            :class="{ active: pageData.outputIdx === i - 1 }"
-                            @click="changeOutput(i - 1)"
-                        >
-                            {{ displayTabName(i) }}
-                        </div>
-                    </div>
+                <div
+                    v-if="pageData.hasDecoder"
+                    class="top"
+                >
                     <!-- 解码卡Tab -->
                     <div
                         v-if="pageData.hasDecoder"
@@ -372,10 +402,16 @@
     flex-shrink: 0;
     background-color: var(--output-tab-bg);
 
+    &.no-decoder {
+        border: 1px solid var(--content-border);
+        border-bottom: none;
+        background-color: var(--output-eth-bg);
+    }
+
     &-tabs {
         display: flex;
         align-items: center;
-        height: 100%;
+        height: 60px;
 
         & > div {
             display: inline-block;
@@ -388,13 +424,8 @@
             background-color: var(--output-tab-btn-bg);
             border: 1px solid var(--content-border);
 
-            &:hover {
-                background-color: var(--primary-light);
-                color: var(--color-white);
-            }
-
             &.active,
-            &.active:hover {
+            &:hover {
                 background-color: var(--primary);
                 color: var(--color-white);
             }

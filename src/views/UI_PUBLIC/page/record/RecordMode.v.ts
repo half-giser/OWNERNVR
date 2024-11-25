@@ -3,7 +3,7 @@
  * @Date: 2024-07-17 15:44:13
  * @Description: 录像-模式配置
  */
-import { type RecMode, RecordDistributeInfo, type RecordSchedule } from '@/types/apiType/record'
+import { type RecordModeDto, RecordDistributeInfoDto, type RecordScheduleDto } from '@/types/apiType/record'
 import RecordModeAdvancePop from './RecordModeAdvancePop.vue'
 import RecordModeStreamPop from './RecordModeStreamPop.vue'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
@@ -26,7 +26,7 @@ export default defineComponent({
             auto: Translate('IDCS_AUTO'),
         }
 
-        const formData = ref(new RecordDistributeInfo())
+        const formData = ref(new RecordDistributeInfoDto())
         const pageData = ref({
             //录像模式下拉列表
             recModeTypeList: [] as SelectOption<string, string>[],
@@ -42,7 +42,7 @@ export default defineComponent({
             recModeStreamPopOpen: false,
 
             //当前生效的高级模式选项（只支持一个）
-            advanceModeCurrent: null as RecMode | null,
+            advanceModeCurrent: null as RecordModeDto | null,
             // 应用按钮是否禁用
             applyDisabled: true,
             // 页面初始化完成
@@ -79,7 +79,7 @@ export default defineComponent({
                     events: ['INTELLIGENT'],
                     index: 3,
                 },
-            ] as RecMode[],
+            ] as RecordModeDto[],
             basicRecModes: [
                 {
                     id: 'MOTION',
@@ -130,7 +130,7 @@ export default defineComponent({
                     events: ['MOTION', 'ALARM', 'INTELLIGENT'],
                     index: 7,
                 },
-            ] as RecMode[],
+            ] as RecordModeDto[],
             icons: {} as Record<string, string[]>,
             // icon信息映射
             iconMap: {
@@ -160,10 +160,10 @@ export default defineComponent({
         /**
          * 缓存初始化查询时的列表数据，保存时对比变化了的行
          */
-        let recordScheduleListInit = [] as RecordSchedule[]
+        let recordScheduleListInit = [] as RecordScheduleDto[]
 
         //高级录像模式列表转MAP
-        const advanceRecModeMap = {} as Record<string, RecMode>
+        const advanceRecModeMap = {} as Record<string, RecordModeDto>
         pageData.value.advanceRecModes.forEach((item) => {
             advanceRecModeMap[item.id] = item
         })
@@ -202,7 +202,7 @@ export default defineComponent({
             },
         )
 
-        const genIconMap = (modes: RecMode[]) => {
+        const genIconMap = (modes: RecordModeDto[]) => {
             pageData.value.icons = {}
             modes.forEach((item) => {
                 pageData.value.icons[item.id] = []
@@ -354,7 +354,7 @@ export default defineComponent({
             events.sort((a, b) => {
                 return advanceRecModeMap[a].index - advanceRecModeMap[b].index
             })
-            const advanceModeCurrent = {} as RecMode
+            const advanceModeCurrent = {} as RecordModeDto
             advanceModeCurrent.id = events.join('_')
             advanceModeCurrent.text = events
                 .map((item) => {
@@ -506,7 +506,7 @@ export default defineComponent({
         /**
          * @description 提交通道录像排程信息
          */
-        const setRecScheduleInfo = (editRows: RecordSchedule[]) => {
+        const setRecScheduleInfo = (editRows: RecordScheduleDto[]) => {
             const getSwitch = (scheduleId: string) => {
                 return scheduleId === DEFAULT_EMPTY_ID ? 'false' : 'true'
             }
@@ -555,7 +555,7 @@ export default defineComponent({
 
             if (formData.value.mode === 'manually') {
                 const diffRows = getArrayDiffRows(formData.value.recordScheduleList, recordScheduleListInit)
-                if (diffRows.length) requestList.push(setRecScheduleInfo(diffRows as RecordSchedule[]))
+                if (diffRows.length) requestList.push(setRecScheduleInfo(diffRows as RecordScheduleDto[]))
             }
             const resultList = await Promise.all(requestList)
 

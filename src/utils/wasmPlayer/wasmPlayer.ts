@@ -22,9 +22,6 @@ import {
     CMD_STOP_PREVIEW,
     CMD_PLAYBACK_CLOSE,
 } from '../websocket/websocketCmd'
-import { appendBuffer, Uint8ArrayToStr } from '../tools'
-import { ErrorCode } from '../constants'
-
 export interface WasmPlayerVideoFrame {
     buffer: Iterable<number>
     width: number
@@ -268,9 +265,7 @@ export default class WasmPlayer {
         if (!timestamp) {
             return ''
         }
-        return localToUtc(timestamp, 'yyyy-MM-DD HH:mm:ss:S')
-        // const utcDate = LocalTime2UTCTime(new Date(timestamp))
-        // return utcDate.format('yyyy-MM-dd HH:mm:ss:S')
+        return localToUtc(timestamp, 'YYYY-MM-DD HH:mm:ss:SSS')
     }
 
     /**

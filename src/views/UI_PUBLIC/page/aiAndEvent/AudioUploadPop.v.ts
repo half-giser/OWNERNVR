@@ -4,7 +4,7 @@
  * @Description: 事件通知——声音——ipc/local添加语音文件弹窗
  */
 import { AlarmAudioAlarmOutDto } from '@/types/apiType/aiAndEvent'
-import { type UploadFile } from 'element-plus'
+import { type UploadRawFile, type UploadFile } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -44,14 +44,15 @@ export default defineComponent({
             isLocalTipsShow: false,
             uploadFileName: '',
             btnApplyDisabled: true,
-            uploadFile: {} as UploadFile,
         })
+
+        let rawFile: UploadRawFile | undefined = undefined
 
         const open = () => {
             pageData.value.title = prop.type === 'ipcAudio' ? Translate('IDCS_LOAD_WAV') : Translate('IDCS_LOAD_MP3')
             pageData.value.uploadAccept = prop.type === 'ipcAudio' ? '.wav' : '.mp3'
 
-            pageData.value.uploadFile = {} as UploadFile
+            rawFile = undefined
             pageData.value.uploadFileName = ''
             pageData.value.btnApplyDisabled = true
 
@@ -85,14 +86,18 @@ export default defineComponent({
                 })
                 return
             }
-            pageData.value.uploadFile = uploadFile
+            rawFile = uploadFile.raw
+            // pageData.value.uploadFile = uploadFile
             pageData.value.uploadFileName = uploadFile.name
             pageData.value.btnApplyDisabled = false
         }
 
         const apply = () => {
-            const _file = pageData.value.uploadFile.raw
-            const blob = new Blob([_file] as BlobPart[])
+            const _file = rawFile
+            if (!_file) {
+                return
+            }
+            const blob = new Blob([_file])
             fileToBase64(blob, async (data: string) => {
                 const fileSize = base64FileSize(data)
                 if (prop.type === 'ipcAudio') {
@@ -104,7 +109,7 @@ export default defineComponent({
                     }
                     const sendXml = rawXml`
                         <content>
-                            <chl id='${prop.ipcAudioChl as string}'>
+                            <chl id='${prop.ipcAudioChl}'>
                                 <param>
                                     <addAudioAlarm>
                                         <audioName><![CDATA[${pageData.value.uploadFileName}]]></audioName>

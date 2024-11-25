@@ -55,8 +55,8 @@ export default defineComponent({
             pageData.value.faceDataIds = []
             pageData.value.faceList = []
 
-            if (prop.linkedObj?.obj) {
-                const obj = prop.linkedObj?.obj
+            if (prop.linkedObj.obj) {
+                const obj = prop.linkedObj.obj
                 pageData.value.rule = obj.rule
                 pageData.value.duration = -obj.duration
                 pageData.value.delay = obj.delay
@@ -67,12 +67,12 @@ export default defineComponent({
 
             const result = await queryFacePersonnalInfoGroupList()
             commLoadResponseHandler(result, ($) => {
-                $('content/item').forEach((item) => {
+                pageData.value.faceList = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
-                    pageData.value.faceList.push({
+                    return {
                         value: item.attr('id'),
                         label: $item('name').text(),
-                    })
+                    }
                 })
             })
         }

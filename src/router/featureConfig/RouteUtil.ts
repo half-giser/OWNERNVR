@@ -46,7 +46,7 @@ export const camel2Kebab = (name: string) => {
 
 //视图集合
 const viewComponents: Record<string, any> = {}
-const puglicPages = import.meta.glob('@public/page/**/*.vue')
+const puglicPages = import.meta.glob(['@public/page/**/*.vue', '!**/IntelBase*.vue', '!**/AlarmBase*.vue', '!**/*Pop.vue', '!**/live/*.vue', '!**/playback/*.vue'])
 const uiPages = import.meta.glob('@ui/page/**/*.vue')
 
 // let uiPages: Record<string, any> = {} // import.meta.glob(import.meta.env.VITE_UI)

@@ -5,7 +5,7 @@
  */
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { type FormInstance, type FormRules } from 'element-plus'
-import { AlarmServerForm, type AlarmTypeInfoDto } from '@/types/apiType/aiAndEvent'
+import { AlarmServerForm } from '@/types/apiType/aiAndEvent'
 export default defineComponent({
     components: {
         ScheduleManagPop,
@@ -25,7 +25,7 @@ export default defineComponent({
             scheduleList: [] as SelectOption<string, string>[],
             showAlarmTypeCfg: true,
             showAlarmTransfer: false,
-            alarmList: [] as { id: string; value: string }[],
+            alarmList: [] as SelectOption<string, string>[],
             linkedAlarmList: [] as string[],
             // 多UI
             CustomerID: '',
@@ -94,7 +94,7 @@ export default defineComponent({
             ],
         })
 
-        const tableData = ref<AlarmTypeInfoDto[]>([])
+        const tableData = ref<SelectOption<string, string>[]>([])
 
         const ALARM_SERVER_TYPE: Record<string, string> = {
             1: Translate('IDCS_MOTION_DETECT_ALARM'), // 移动侦测报警输入
@@ -138,16 +138,16 @@ export default defineComponent({
             // 排除车牌识别类型
             const supportPlateMatchArr = [140]
             const alarmList = []
-            const linkedIds: string[] = []
-            pageData.value.linkedAlarmList.forEach((item) => {
-                linkedIds.push(item)
-            })
+
             for (const key in ALARM_SERVER_TYPE) {
                 const k = Number(key)
                 if (supportRaidArr.includes(k) && !systemCaps.supportRaid) return
                 if (supportFaceMatchArr.includes(k) && !systemCaps.supportFaceMatch) return
                 if (supportPlateMatchArr.includes(k) && !systemCaps.supportPlateMatch) return
-                alarmList.push({ id: key, value: ALARM_SERVER_TYPE[key] })
+                alarmList.push({
+                    value: key,
+                    label: ALARM_SERVER_TYPE[key],
+                })
             }
             pageData.value.alarmList = alarmList
         }
@@ -179,18 +179,24 @@ export default defineComponent({
                     formData.value.port = res('//content/port').text().num()
                     formData.value.heartEnable = res('//content/heartbeat/switch').text().bool()
                     formData.value.protocol = res('//content/dataFormat').text()
-                    res('//types/dataFormat/enum').forEach((ele) => {
-                        pageData.value.protocolOptions.push({ value: ele.text(), label: ele.text() })
+                    pageData.value.protocolOptions = res('//types/dataFormat/enum').map((ele) => {
+                        return {
+                            value: ele.text(),
+                            label: ele.text(),
+                        }
                     })
                     formData.value.interval = res('//content/heartbeat/interval').text().num()
                     formData.value.schedule = res('//content/alarmServerSchedule').text()
 
                     const alarmServerAlarmTypeValue = res('//content/alarmServerAlarmTypes').text()
-                    const alarmTypes = alarmServerAlarmTypeValue ? alarmServerAlarmTypeValue.split(',') : []
-                    alarmTypes.forEach((item: string) => {
-                        tableData.value.push({ id: item, value: ALARM_SERVER_TYPE[item] })
-                        pageData.value.linkedAlarmList.push(item)
+                    pageData.value.linkedAlarmList = alarmServerAlarmTypeValue ? alarmServerAlarmTypeValue.split(',') : []
+                    tableData.value = pageData.value.linkedAlarmList.map((item) => {
+                        return {
+                            value: item,
+                            label: ALARM_SERVER_TYPE[item],
+                        }
                     })
+
                     genAlarmList()
 
                     setFormByProtocol()
@@ -212,17 +218,10 @@ export default defineComponent({
             pageData.value.deviceIdShow = pageData.value.isJSONProtocol ? true : false
         }
 
-        const setAlarmTypes = () => {
-            if (!pageData.value.linkedAlarmList.length) {
-                tableData.value = []
-                pageData.value.showAlarmTransfer = false
-            } else {
-                tableData.value = []
-                pageData.value.linkedAlarmList.forEach((item) => {
-                    tableData.value.push({ id: item, value: ALARM_SERVER_TYPE[item] })
-                    pageData.value.showAlarmTransfer = false
-                })
-            }
+        const setAlarmTypes = (e: SelectOption<string, string>[]) => {
+            tableData.value = e
+            pageData.value.showAlarmTransfer = false
+            pageData.value.linkedAlarmList = e.map((item) => item.value)
         }
 
         const checkRule = (value: string, reg: RegExp) => {

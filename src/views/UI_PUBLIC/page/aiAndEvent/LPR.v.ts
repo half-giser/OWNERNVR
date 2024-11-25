@@ -114,7 +114,7 @@ export default defineComponent({
         let haveUseNameId = [] as Number[]
         // 车牌分组数据，初始化后不会改变
         const vehicleGroupNameMap = {} as Record<string, string>
-        const vehicleGroupData = [] as { guid: string; name: string }[]
+        const vehicleGroupData = ref<{ guid: string; name: string }[]>([])
         // 车牌识别数据
         const vehicleCompareData = ref(new AlarmVehicleRecognitionDto())
 
@@ -203,14 +203,11 @@ export default defineComponent({
         // 获取通道及相关配置数据
         const getChlData = async () => {
             // 获取在线通道列表
-            const onlineChlList = [] as string[]
             const result = await queryOnlineChlList()
-            commLoadResponseHandler(result, ($) => {
-                $('//content/item').forEach((item) => {
-                    onlineChlList.push(item.attr('id'))
-                })
+            const $ = await commLoadResponseHandler(result)
+            const onlineChlList = $('//content/item').map((item) => {
+                return item.attr('id')
             })
-
             getChlList({
                 requireField: ['supportVehiclePlate'],
             }).then((result) => {
@@ -504,16 +501,14 @@ export default defineComponent({
                 // 屏蔽区域
                 const maskAreaInfo = {} as Record<number, { X: number; Y: number; isClosed: boolean }[]>
                 $param('maskArea/item').forEach((item, index) => {
-                    maskAreaInfo[index] = []
                     const $item = queryXml(item.element)
-                    $item('point/item').forEach((ele) => {
+                    maskAreaInfo[index] = $item('point/item').map((ele) => {
                         const $ele = queryXml(ele.element)
-                        const maskArea = {
+                        return {
                             X: $ele('X').text().num(),
                             Y: $ele('Y').text().num(),
                             isClosed: true,
                         }
-                        maskAreaInfo[index].push(maskArea)
                     })
                 })
                 const mutexList = $param('mutexList/item').map((item) => {
@@ -1221,15 +1216,15 @@ export default defineComponent({
         const getVehicleGroupData = async () => {
             const result = await queryPlateLibrary()
             commLoadResponseHandler(result, ($) => {
-                $('//content/group/item').forEach((item) => {
+                vehicleGroupData.value = $('//content/group/item').map((item) => {
                     const $item = queryXml(item.element)
                     const guid = item.attr('id')
                     const name = $item('name').text()
                     vehicleGroupNameMap[guid] = name
-                    vehicleGroupData.push({
+                    return {
                         guid: guid,
                         name: name,
-                    })
+                    }
                 })
             }).then(async () => {
                 await getVehicleCompareData()
@@ -1250,11 +1245,11 @@ export default defineComponent({
             commLoadResponseHandler(result, ($) => {
                 vehicleCompareData.value.hitEnable = $('//content/chl/hitEnable').text().bool()
                 vehicleCompareData.value.notHitEnable = $('//content/chl/notHitEnable').text().bool()
-                $('//content/chl/task/item').forEach((item) => {
+                vehicleCompareData.value.task = $('//content/chl/task/item').map((item) => {
                     const $item = queryXml(item.element)
                     const nameId = $item('param/nameId').text().num()
                     haveUseNameId.push(nameId)
-                    vehicleCompareData.value.task.push({
+                    return {
                         guid: item.attr('guid'),
                         id: item.attr('id'),
                         ruleType: $item('param/ruleType').text(),
@@ -1296,7 +1291,7 @@ export default defineComponent({
                             return $item(item).text().bool()
                         }),
                         sysAudio: $item('trigger/sysAudio').attr('id'),
-                    })
+                    }
                 })
             }).then(() => {
                 vehicleCompareData.value.task.forEach((item, index) => {
@@ -1323,19 +1318,15 @@ export default defineComponent({
 
         // tab项对应的识别数据
         const compareLinkData = (value: string) => {
-            let taskData = {} as AlarmRecognitionTaskDto
             if (value === 'whitelist') {
-                taskData = vehicleCompareData.value.task?.[0]
+                return vehicleCompareData.value.task?.[0]
             } else if (value === 'stranger') {
-                taskData = vehicleCompareData.value.task?.[1]
+                return vehicleCompareData.value.task?.[1]
             } else {
-                vehicleCompareData.value.task?.forEach((item) => {
-                    if (item.nameId === Number(value[9])) {
-                        taskData = item
-                    }
-                })
+                return vehicleCompareData.value.task.find((item) => {
+                    return item.nameId === Number(value[9])
+                })!
             }
-            return taskData
         }
 
         // 提交数据参数

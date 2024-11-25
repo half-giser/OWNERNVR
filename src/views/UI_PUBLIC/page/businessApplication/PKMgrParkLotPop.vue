@@ -95,6 +95,7 @@
                 plateNumber: pageData.plateNum,
             }"
             append-to-body
+            @close="pageData.isAddPlatePop = false"
         />
         <template #footer>
             <div class="base-btn-box">

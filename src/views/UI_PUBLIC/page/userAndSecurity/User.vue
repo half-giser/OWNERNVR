@@ -169,14 +169,15 @@
         <UserEditPop
             v-model="pageData.isEditUser"
             :user-id="pageData.editUserId"
-            @close="handleCloseEditUser"
+            @confirm="handleConfirmEditUser"
+            @close="pageData.isEditUser = false"
             @reset-password="handleEditUserPassword"
         />
         <UserEditPasswordPop
             v-model="pageData.isEditUserPassword"
             :user-id="pageData.editUserId"
             :user-name="pageData.editUserName"
-            @close="handleCloseEditUserPassword"
+            @close="pageData.isEditUserPassword = false"
         />
     </div>
 </template>

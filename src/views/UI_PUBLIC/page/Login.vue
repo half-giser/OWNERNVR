@@ -120,7 +120,7 @@
         }
 
         :deep(.el-form-item) {
-            margin: 0 0 0 428px;
+            margin: 0 0 0 438px;
             font-size: 16px;
             padding: 0 0 28px;
 
@@ -139,8 +139,7 @@
             width: 314px;
             height: 50px;
             font-size: 18px;
-            margin-left: -40px;
-            // margin: 0 0px 0px 378px;
+            margin-left: -50px;
             background: var(--img-login-btn);
             transition: none;
 
@@ -170,7 +169,6 @@
     position: absolute;
     top: calc(100% + 30px);
     left: 405px;
-    // margin: 30px 0px 0px 10px;
     color: var(--color-error);
 }
 </style>

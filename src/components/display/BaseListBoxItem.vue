@@ -55,17 +55,21 @@ const handleDblClick = () => {
 <style lang="scss" scoped>
 li {
     list-style: none;
-    padding: 5px;
+    margin: 0;
+    padding: 5px 10px;
     border: 1px solid transparent;
     cursor: pointer;
     font-size: 13px;
     display: flex;
     align-items: center;
+    line-height: 20px;
 
-    :deep(span) {
-        &:last-child {
-            margin-left: 10px;
-        }
+    :deep(.Sprite) {
+        margin-right: 8px;
+    }
+
+    :deep(.el-checkbox) {
+        height: 20px;
     }
 
     &:hover,

@@ -5,32 +5,6 @@
 -->
 <template>
     <div class="base-flex-box">
-        <ScheduleManagPop
-            v-model="pageData.scheduleManagePopOpen"
-            @close="handleSchedulePopClose"
-        />
-        <el-dialog
-            v-model="pageData.showAlarmTransfer"
-            :title="Translate('IDCS_ALARM_TYPE')"
-            width="615"
-            @close="pageData.showAlarmTransfer = false"
-        >
-            <el-transfer
-                v-model="pageData.linkedAlarmList"
-                :data="pageData.alarmList"
-                :props="{
-                    key: 'id',
-                    label: 'value',
-                }"
-                :titles="[Translate('IDCS_ALARM'), Translate('IDCS_SEND_ALARM')]"
-            />
-            <template #footer>
-                <div class="base-btn-box">
-                    <el-button @click="setAlarmTypes()">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="pageData.showAlarmTransfer = false">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </div>
-            </template>
-        </el-dialog>
         <div class="base-subheading-box">{{ Translate('IDCS_ALARM_SERVER') }}</div>
         <!-- 表单 -->
         <el-form
@@ -188,7 +162,7 @@
                         </div>
                     </template>
                     <template #default="scope">
-                        <span class="table_item">{{ scope.row.value }}</span>
+                        <span class="table_item">{{ scope.row.label }}</span>
                     </template>
                 </el-table-column>
             </el-table>
@@ -206,6 +180,21 @@
             >
             <el-button @click="applyAlarmSever()">{{ Translate('IDCS_APPLY') }}</el-button>
         </div>
+        <ScheduleManagPop
+            v-model="pageData.scheduleManagePopOpen"
+            @close="handleSchedulePopClose"
+        />
+        <BaseTransferDialog
+            v-model="pageData.showAlarmTransfer"
+            header-title="IDCS_ALARM_TYPE"
+            source-title="IDCS_ALARM"
+            target-title="IDCS_SEND_ALARM"
+            :source-data="pageData.alarmList"
+            :linked-list="pageData.linkedAlarmList"
+            :limit="10000"
+            @confirm="setAlarmTypes"
+            @close="pageData.showAlarmTransfer = false"
+        />
     </div>
 </template>
 

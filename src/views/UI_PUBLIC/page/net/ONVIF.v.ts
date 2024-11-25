@@ -50,8 +50,8 @@ export default defineComponent({
         const getOnvifConfig = async () => {
             const result = await queryOnvifCfg()
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                formData.value.switch = $('//content/switch').text().bool()
+            if ($('status').text() === 'success') {
+                formData.value.switch = $('//switch').text().bool()
             }
         }
 
@@ -62,8 +62,8 @@ export default defineComponent({
         const getRtspSwitch = async () => {
             const result = await queryRTSPServer()
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                return $('//content/rtspServerSwitch').text().bool()
+            if ($('status').text() === 'success') {
+                return $('//rtspServerSwitch').text().bool()
             }
             return false
         }
@@ -74,8 +74,8 @@ export default defineComponent({
         const getUserList = async () => {
             const result = await queryOnvifUserList()
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                tableData.value = $('//content/item').map((item) => {
+            if ($('status').text() === 'success') {
+                tableData.value = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         id: item.attr('id'),
@@ -120,8 +120,11 @@ export default defineComponent({
             }).then(async () => {
                 openLoading()
 
-                const itemXml = tableData.value.map((item) => `<item id="${item.id}"></item>`).join('')
-                const sendXml = `<content>${itemXml}</content>`
+                const sendXml = rawXml`
+                    <content>
+                        ${tableData.value.map((item) => `<item id="${item.id}"></item>`).join('')}
+                    </content>
+                `
 
                 await deleteOnivfUser(sendXml)
                 await getUserList()

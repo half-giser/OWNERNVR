@@ -14,7 +14,9 @@
             ref="formRef"
             :model="formData"
             :rules="rules"
-            label-width="150"
+            :style="{
+                '--form-label-width': '150px',
+            }"
         >
             <el-form-item
                 prop="currentPassword"
@@ -25,6 +27,7 @@
                     type="password"
                     @paste.capture.prevent=""
                     @copy.capture.prevent=""
+                    @change="changePassword"
                 />
             </el-form-item>
             <el-form-item
@@ -50,14 +53,23 @@
                     @copy.capture.prevent=""
                 />
             </el-form-item>
-            <div>
-                {{ noticeMsg }}
-            </div>
+            <el-form-item>{{ noticeMsg }}</el-form-item>
         </el-form>
         <template #footer>
-            <div class="base-btn-box">
-                <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="close()">{{ Translate('IDCS_CANCEL') }}</el-button>
+            <div
+                class="base-btn-box"
+                :span="2"
+            >
+                <div>
+                    <BaseFloatError
+                        v-model:message="errorMessage"
+                        :teleported="false"
+                    />
+                </div>
+                <div>
+                    <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
+                    <el-button @click="close()">{{ Translate('IDCS_CANCEL') }}</el-button>
+                </div>
             </div>
         </template>
     </el-dialog>

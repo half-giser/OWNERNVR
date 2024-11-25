@@ -63,27 +63,32 @@
                             @click="refreshChl"
                         />
                     </div>
+                    <el-checkbox
+                        :model-value="isChlAll"
+                        :label="Translate('IDCS_ALL')"
+                        class="left-chl-check-all"
+                        @change="toggleAllChl"
+                    />
                     <BaseListBox class="left-chl-box">
-                        <el-checkbox
-                            :model-value="isChlAll"
-                            :label="Translate('IDCS_ALL')"
-                            @change="toggleAllChl"
-                        />
                         <el-checkbox-group v-model="pageData.selectedChl">
-                            <el-checkbox
+                            <BaseListBoxItem
                                 v-for="item in pageData.cacheChlList"
-                                v-show="chlList.includes(item.id)"
                                 :key="item.id"
-                                :value="item.id"
-                                :disabled="isChlAll && !pageData.selectedChl.includes(item.id)"
                             >
-                                <BaseImgSprite
-                                    file="chl_rec_icon"
-                                    :index="1"
-                                    :chunk="2"
-                                />
-                                <span>{{ item.value }}</span>
-                            </el-checkbox>
+                                <el-checkbox
+                                    v-show="chlList.includes(item.id)"
+                                    :key="item.id"
+                                    :value="item.id"
+                                    :disabled="isChlAll && !pageData.selectedChl.includes(item.id)"
+                                >
+                                    <BaseImgSprite
+                                        file="chl_rec_icon"
+                                        :index="1"
+                                        :chunk="2"
+                                    />
+                                    <span>{{ item.value }}</span>
+                                </el-checkbox>
+                            </BaseListBoxItem>
                         </el-checkbox-group>
                     </BaseListBox>
                 </div>
@@ -319,10 +324,10 @@
             height: 100%;
         }
 
-        // .el-checkbox {
-        //     margin-left: 10px;
-        //     display: flex;
-        // }
+        &-check-all {
+            margin-left: 11px;
+            height: 32px;
+        }
     }
 
     &-chlgroup {
@@ -396,7 +401,6 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            // border: 2px solid var(--border-color5);
             margin: 0 4px;
 
             span {

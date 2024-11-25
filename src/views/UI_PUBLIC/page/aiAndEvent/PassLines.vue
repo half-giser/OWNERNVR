@@ -5,17 +5,6 @@
 -->
 <template>
     <div>
-        <ScheduleManagPop
-            v-model="pageData.scheduleManagePopOpen"
-            @close="handleSchedulePopClose"
-        />
-        <PassLineEmailPop
-            v-model="pageData.morePopOpen"
-            :schedule-list="pageData.scheduleList"
-            :email-data="pageData.emailData"
-            @close="handleMorePopClose"
-        />
-        <BaseNotification v-model:notifications="pageData.notification" />
         <!-- <div
             v-if="pageData.notSupportTipShow"
             class="base-ai-not-support-box"
@@ -464,6 +453,17 @@
                 </el-tab-pane>
             </el-tabs>
         </div>
+        <ScheduleManagPop
+            v-model="pageData.scheduleManagePopOpen"
+            @close="handleSchedulePopClose"
+        />
+        <PassLineEmailPop
+            v-model="pageData.morePopOpen"
+            :schedule-list="pageData.scheduleList"
+            :email-data="pageData.emailData"
+            @close="handleMorePopClose"
+        />
+        <BaseNotification v-model:notifications="pageData.notification" />
     </div>
 </template>
 

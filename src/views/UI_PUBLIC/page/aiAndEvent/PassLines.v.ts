@@ -3,7 +3,7 @@
  * @Date: 2024-09-11 15:00:19
  * @Description: 过线检测
  */
-import { type AlarmChlDto, AlarmPassLinesRegion, type AlarmPassLinesEmailDto, AlarmPassLinesDto } from '@/types/apiType/aiAndEvent'
+import { type AlarmChlDto, AlarmPassLinesRegion, AlarmPassLinesEmailDto, AlarmPassLinesDto } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import CanvasPassline from '@/utils/canvas/canvasPassline'
@@ -111,7 +111,7 @@ export default defineComponent({
             showCpcDrawAvailable: false,
             // CPC绘制控制
             isCpcDrawAvailable: false,
-            emailData: {} as AlarmPassLinesEmailDto,
+            emailData: new AlarmPassLinesEmailDto(),
             sendEmailData: {
                 type: '0',
                 enableSwitch: false,
@@ -1340,25 +1340,23 @@ export default defineComponent({
 
         const LiveNotify2Js = ($: (path: string) => XmlResult) => {
             if ($("statenotify[@type='CpcParam']").length) {
-                const region: AlarmPassLinesRegion[] = []
-                const line: AlarmPassLinesRegion[] = []
-                $('statenotify/regionInfo/item').forEach((element) => {
+                const region = $('statenotify/regionInfo/item').map((element) => {
                     const $ = queryXml(element.element)
-                    region.push({
+                    return {
                         X1: $('X1').text().num(),
                         Y1: $('Y1').text().num(),
                         X2: $('X2').text().num(),
                         Y2: $('Y2').text().num(),
-                    })
+                    }
                 })
-                $('statenotify/lineInfo/item').forEach((element) => {
+                const line = $('statenotify/lineInfo/item').map((element) => {
                     const $ = queryXml(element.element)
-                    line.push({
+                    return {
                         X1: $('X1').text().num(),
                         Y1: $('Y1').text().num(),
                         X2: $('X2').text().num(),
                         Y2: $('Y2').text().num(),
-                    })
+                    }
                 })
                 formData.value.regionInfo = region[0]
                 formData.value.cpcLineInfo = line[0]

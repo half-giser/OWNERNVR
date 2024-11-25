@@ -229,23 +229,23 @@ const getFirstDayByGreDate = (dateStr: string) => {
 
 /**
  * @description 根据日期字符串获取对应时间戳
- * @param {String} 'YYYY/MM/DD hh:mm:ss'
+ * @param {String} 'YYYY/MM/DD HH:mm:ss'
  * @return {Number} 时间戳秒
  */
 const getTimestamp = (dateStr: string) => {
-    return dayjs(dateStr, 'YYYY/MM/DD hh:mm:ss').unix()
+    return dayjs(dateStr, 'YYYY/MM/DD HH:mm:ss').unix()
 }
 
 /**
  * @description 获取n个月后的第一天, n <= 12
  * 比如: getLastDateAfterNMonths('2021/03/01 00:00:00', 1) => '2021/04/01 00:00:00'
- * @param {String} 'YYYY/MM/DD hh:mm:ss'
+ * @param {String} 'YYYY/MM/DD HH:mm:ss'
  * @param {Number} n
- * @returns {String} 'YYYY/MM/DD hh:mm:ss'
+ * @returns {String} 'YYYY/MM/DD HH:mm:ss'
  */
 
 const getLastDateAfterNMonths = (dateStr: string, n: number) => {
-    return dayjs(dateStr, 'YYYY/MM/DD hh:mm:ss').add(n, 'month').format('YYYY/MM/DD hh:mm:ss')
+    return dayjs(dateStr, 'YYYY/MM/DD HH:mm:ss').add(n, 'month').format('YYYY/MM/DD HH:mm:ss')
 }
 
 /**

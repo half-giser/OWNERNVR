@@ -46,7 +46,7 @@
                 <Tripwire
                     v-if="pageData.chosenFunction === 'Tripwire'"
                     :curr-chl-id="pageData.currChlId"
-                    :chl-data="pageData.chlData"
+                    :chl-data="chlData"
                     :voice-list="pageData.voiceList"
                     :online-channel-list="pageData.onlineChannelList"
                 />
@@ -60,7 +60,7 @@
                 <Pea
                     v-if="pageData.chosenFunction === 'Pea'"
                     :curr-chl-id="pageData.currChlId"
-                    :chl-data="pageData.chlData"
+                    :chl-data="chlData"
                     :voice-list="pageData.voiceList"
                     :online-channel-list="pageData.onlineChannelList"
                 />

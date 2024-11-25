@@ -49,8 +49,8 @@ export default class CanvasOSD {
     private readonly OSD_FONT = this.OSD_FONT_SIZE + 'px Arial'
     private readonly DATE_FORMAT_MAP = {
         'year-month-day': 'YYYY/MM/DD',
-        'month-day-year': 'MM/DD/yyyy',
-        'day-month-year': 'DD/MM/yyyy',
+        'month-day-year': 'MM/DD/YYYY',
+        'day-month-year': 'DD/MM/YYYY',
     }
     private readonly TIME_FORMAT_MAP = {
         12: 'hh:mm:ss A',

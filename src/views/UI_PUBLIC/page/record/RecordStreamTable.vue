@@ -60,7 +60,7 @@
                             @change="handleVideoEncodeTypeChange(scope.row)"
                         >
                             <el-option
-                                v-for="item in scope.row.mainCaps['@supEnct']"
+                                v-for="item in scope.row.mainCaps.supEnct"
                                 :key="item"
                                 :label="Translate(streamTypeMapping[item])"
                                 :value="item"
@@ -227,7 +227,7 @@
                             @change="handleBitTypeChange(scope.row)"
                         >
                             <el-option
-                                v-for="item in scope.row.mainCaps['@bitType']"
+                                v-for="item in scope.row.mainCaps.bitType"
                                 :key="item"
                                 :label="item"
                                 :value="item"
@@ -504,20 +504,6 @@
 
 .resolutionContainer {
     padding: 10px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-
-    :deep() {
-        .cell {
-            overflow: visible;
-        }
-
-        .el-table__cell {
-            z-index: auto;
-        }
-    }
 }
 
 .chl-box {

@@ -5,12 +5,12 @@
  */
 
 import { cloneDeep } from 'lodash-es'
-import RecParamCustomizationPop from './RecParamCustomizationPop.vue'
-import { type ChlRecParamList, type ItemList } from '@/types/apiType/record'
+import RecordParameterCustomPop from './RecordParameterCustomPop.vue'
+import { RecordParamDto } from '@/types/apiType/record'
 
 export default defineComponent({
     components: {
-        RecParamCustomizationPop,
+        RecordParameterCustomPop,
     },
     setup() {
         const { Translate } = useLangStore()
@@ -21,7 +21,7 @@ export default defineComponent({
         const supportANR = systemCaps.supportANR
         // 保存原始数据，用来判断数据是否已被修改
         const originalData = ref({
-            chlRecData: [] as ChlRecParamList[],
+            chlRecData: [] as RecordParamDto[],
             streamRecSwitch: {
                 doubleStreamSwitch: '',
                 loopRecSwitch: '',
@@ -33,24 +33,33 @@ export default defineComponent({
         const pageData = ref({
             doubleStreamRecSwitch: '',
             chkDoubleStreamRec: [
-                { value: 'double', label: Translate('IDCS_RECORD_MODE_DOUBLE') },
-                { value: 'main', label: Translate('IDCS_RECORD_MODE_MAIN') },
-                { value: 'sub', label: Translate('IDCS_RECORD_MODE_SUB') },
+                {
+                    value: 'double',
+                    label: Translate('IDCS_RECORD_MODE_DOUBLE'),
+                },
+                {
+                    value: 'main',
+                    label: Translate('IDCS_RECORD_MODE_MAIN'),
+                },
+                {
+                    value: 'sub',
+                    label: Translate('IDCS_RECORD_MODE_SUB'),
+                },
             ],
             txtMSRecDuration: '',
             chkLoopRec: true,
             IPCMap: {} as Record<string, string>,
-            expirationList: [] as ItemList[],
-            perList: [] as ItemList[],
-            postList: [] as ItemList[],
+            expirationList: [] as SelectOption<string, string>[],
+            perList: [] as SelectOption<string, string>[],
+            postList: [] as SelectOption<string, string>[],
             // 开关选项列表
             switchOption: getSwitchOptions(),
             isSetCustomization: false,
             expirationType: '',
-            expirationData: {} as ChlRecParamList,
+            expirationData: new RecordParamDto(),
         })
 
-        const tableData = ref<ChlRecParamList[]>([])
+        const tableData = ref<RecordParamDto[]>([])
 
         const getDevRecParamData = async () => {
             const result = await queryRecordDistributeInfo()
@@ -160,23 +169,28 @@ export default defineComponent({
                         per: $item('rec').attr('per'),
                         post: $item('rec').attr('post'),
                         ANRSwitch: supportANR ? $item('ANRSwitch').text() : 'false',
-                        expiration: expiration ? expiration : '0',
+                        expiration: expiration || '0',
                         expirationUnit: expirationUnit ? expirationUnit : 'd',
-                        manufacturerEnable: pageData.value.IPCMap[id as string] === 'true',
+                        manufacturerEnable: pageData.value.IPCMap[id] === 'true',
+                        expirationDisplay: '',
+                        week: '',
+                        holiday: '',
+                        singleExpirationUnit: '',
                     }
                 })
                 $dev('//content/chlParam/item').forEach((item) => {
                     const $item = queryXml(item.element)
 
-                    const singleExpirationUnit = $item('expiration').attr('unit') ? $item('expiration').attr('unit') : 'd'
+                    const singleExpirationUnit = $item('expiration').attr('unit') || 'd'
 
-                    tableData.value.forEach((element) => {
+                    tableData.value.some((element) => {
                         if (element.id === item.attr('id')) {
                             element.week = $item('week').text()
                             element.holiday = $item('holiday').text()
                             element.singleExpirationUnit = singleExpirationUnit
-                            element.expiration = $item('expiration').text() ? $item('expiration').text() : '0'
+                            element.expiration = $item('expiration').text() || '0'
                             element.expirationUnit = singleExpirationUnit
+                            return true
                         }
                     })
                 })
@@ -244,7 +258,7 @@ export default defineComponent({
             return result
         }
 
-        const setChlRecData = async (changeList: ChlRecParamList[]) => {
+        const setChlRecData = async (changeList: RecordParamDto[]) => {
             const sendXml = rawXml`
                 <content type='list' total='${changeList.length}'>
                     ${changeList
@@ -266,8 +280,8 @@ export default defineComponent({
 
         const setRecParamCfgData = async () => {
             // 判断修改过的选项
-            const chlChangeList = [] as ChlRecParamList[]
-            const devChangeList = [] as ChlRecParamList[]
+            const chlChangeList = [] as RecordParamDto[]
+            const devChangeList = [] as RecordParamDto[]
             tableData.value.forEach((item, index) => {
                 const element = originalData.value.chlRecData[index]
                 if (item.per !== element.per || item.post !== element.post || item.ANRSwitch !== element.ANRSwitch) {
@@ -356,7 +370,7 @@ export default defineComponent({
             })
         }
 
-        const changeExpirationList = (rowData: ChlRecParamList) => {
+        const changeExpirationList = (rowData: RecordParamDto) => {
             const value = rowData.expirationDisplay!
             if (value === 'customization') {
                 rowData.expirationDisplay = oldExpirationArr[rowData.index]
@@ -431,7 +445,7 @@ export default defineComponent({
             }
         }
 
-        const handleGetExpirationData = (week: string, holiday: string, expiration: number, expirationData?: ChlRecParamList) => {
+        const handleGetExpirationData = (week: string, holiday: string, expiration: number, expirationData?: RecordParamDto) => {
             if (pageData.value.expirationType === 'all') {
                 tableData.value.forEach((item) => {
                     item.week = week
@@ -462,7 +476,7 @@ export default defineComponent({
         })
 
         return {
-            RecParamCustomizationPop,
+            RecordParameterCustomPop,
             supportANR,
             tableData,
             pageData,
