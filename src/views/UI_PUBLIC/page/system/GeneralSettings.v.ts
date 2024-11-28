@@ -3,7 +3,7 @@
  * @Date: 2024-06-24 15:06:48
  * @Description: 基本配置
  */
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormRules } from 'element-plus'
 import { SystemGeneralSettingForm } from '@/types/apiType/system'
 
 export default defineComponent({
@@ -13,7 +13,7 @@ export default defineComponent({
         const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new SystemGeneralSettingForm())
 
         const decoderCardMap: Record<number, { [index: number]: string; onlineStatus: boolean }> = {}
@@ -33,9 +33,9 @@ export default defineComponent({
                 },
             ],
             // 等待时长选项
-            waitTimeOption: [] as number[],
+            waitTimeOption: [] as SelectOption<number, string>[],
             // 视频格式选项
-            videoFormatOption: [] as string[],
+            videoFormatOption: [] as SelectOption<string, string>[],
             // 当前视频格式
             currrentVideoFormat: '',
             // 当前输入配置
@@ -120,14 +120,6 @@ export default defineComponent({
         }
 
         /**
-         * @description 等待时长选项的格式化文案
-         * @param {number} value 秒
-         */
-        const displayWaitTimeOption = (value: number) => {
-            return getTranslateForSecond(value)
-        }
-
-        /**
          * @description 主/副屏Label的格式化文案
          * @param {number} value
          */
@@ -175,9 +167,9 @@ export default defineComponent({
                         option.push(item)
                     }
                 })
-                return option
+                return arrayToOptions(option)
             }
-            return options
+            return arrayToOptions(options)
         }
 
         // 根据主输入选中的值，更新副输出2选中的值
@@ -209,45 +201,50 @@ export default defineComponent({
             const result = await queryBasicCfg()
             const $ = queryXml(result)
 
-            formData.value.deviceName = $('//content/name').text()
-            formData.value.deviceNumber = $('//content/deviceNumber').text().num()
-            formData.value.enableAutoDwell = $('//content/autoDwell').text().bool()
+            formData.value.deviceName = $('content/name').text()
+            formData.value.deviceNumber = $('content/deviceNumber').text().num()
+            formData.value.enableAutoDwell = $('content/autoDwell').text().bool()
 
-            formData.value.waitTime = $('//content/autoDwellWaitTime').text().num()
-            pageData.value.waitTimeOption = []
-            $('//types/autoDwellWaitTime/enum').forEach((item) => {
-                pageData.value.waitTimeOption.push(item.text().num())
+            formData.value.waitTime = $('content/autoDwellWaitTime').text().num()
+            pageData.value.waitTimeOption = $('types/autoDwellWaitTime/enum').map((item) => {
+                const value = item.text().num()
+                return {
+                    label: getTranslateForSecond(value),
+                    value,
+                }
             })
 
-            formData.value.videoFormat = $('//content/videoType').text()
+            formData.value.videoFormat = $('content/videoType').text()
             pageData.value.currrentVideoFormat = formData.value.videoFormat
-            pageData.value.videoFormatOption = []
-            $('//types/videoType/enum').forEach((item) => {
-                pageData.value.videoFormatOption.push(item.text())
+            pageData.value.videoFormatOption = $('types/videoType/enum').map((item) => {
+                return {
+                    label: item.text(),
+                    value: item.text(),
+                }
             })
 
-            formData.value.enableGuide = $('//content/bootWizardSwitch').text().bool()
+            formData.value.enableGuide = $('content/bootWizardSwitch').text().bool()
             if (formData.value.enableGuide) {
-                formData.value.zeroOrAddIpc = $('//content/bootZeroCfgAddSwitch').text().bool()
+                formData.value.zeroOrAddIpc = $('content/bootZeroCfgAddSwitch').text().bool()
             } else {
                 pageData.value.isZeroOrAddIpc = false
             }
 
             // NLYC-48：同源异源输出配置
             if (systemCaps.supportHdmiVgaSeparate) {
-                formData.value.outputConfig = $('//content/hdmivgaParam').text()
+                formData.value.outputConfig = $('content/hdmivgaParam').text()
                 pageData.value.currentOutputConfig = formData.value.outputConfig
             }
 
             // 显示多路输出分辨率
-            $('//content/resolution/item').forEach((item) => {
+            $('content/resolution/item').forEach((item) => {
                 const index = item.attr('index').num()
                 formData.value.resolution[index] = item.text()
                 if (index === 0) {
-                    formData.value.outputAdapt = item.attr('set') === 'true'
-                    const mainOutputList: string[] = [] // 主输出分辨率枚举值
-                    $('//types/resolution/output[@index="0"]/enum').forEach((enumValue) => {
-                        mainOutputList.push(enumValue.text())
+                    formData.value.outputAdapt = item.attr('set').bool()
+                    // 主输出分辨率枚举值
+                    const mainOutputList = $('types/resolution/output[@index="0"]/enum').map((enumValue) => {
+                        return enumValue.text()
                     })
                     // 支持8k,则在主输出后拼接8k提示
                     const findIndex = mainOutputList.findIndex((res) => RES_8K.includes(res))
@@ -256,17 +253,15 @@ export default defineComponent({
                     }
                     pageData.value.resolutionOptions[index] = mainOutputList
                 } else if (systemCaps.outputScreensCount > 1) {
-                    const outputList: string[] = []
-                    $(`//types/resolution/output[@index="${index}"]/enum`).forEach((enumValue) => {
-                        outputList.push(enumValue.text())
+                    pageData.value.resolutionOptions[index] = $(`types/resolution/output[@index="${index}"]/enum`).map((enumValue) => {
+                        return enumValue.text()
                     })
-                    pageData.value.resolutionOptions[index] = outputList
                 }
             })
 
             // TODO 解码卡输出部分需要测试数据才能测试
             // 解码卡输出排序
-            const decoderResolutionEnumXml = $('//types/DecoderResolution/decoder')
+            const decoderResolutionEnumXml = $('types/DecoderResolution/decoder')
             decoderResolutionEnumXml.sort(($a, $b) => {
                 return $a.attr('id').num() - $b.attr('id').num()
             })
@@ -299,7 +294,7 @@ export default defineComponent({
                 })
             })
 
-            $('//content/decoderResolution/decoder').forEach((item) => {
+            $('content/decoderResolution/decoder').forEach((item) => {
                 const $item = queryXml(item.element)
                 const decoderId = item.attr('id').num()
                 const onlineStatus = item.attr('onlineStatus') === 'true'
@@ -327,8 +322,8 @@ export default defineComponent({
                 })
             })
 
-            pageData.value.langType = $('//types/langType/enum').map((item) => item.text())
-            pageData.value.resolutionType = $('//types/resolutionType/enum').map((item) => item.text())
+            pageData.value.langType = $('types/langType/enum').map((item) => item.text())
+            pageData.value.resolutionType = $('types/resolutionType/enum').map((item) => item.text())
 
             closeLoading()
         }
@@ -337,7 +332,7 @@ export default defineComponent({
          * @description 表单验证
          */
         const verify = () => {
-            formRef.value?.validate((valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     setData()
                 }
@@ -405,7 +400,6 @@ export default defineComponent({
             formRef,
             formData,
             pageData,
-            displayWaitTimeOption,
             displayResolutionLabel,
             hanelChangeVideoFormat,
             handleChangeOutputConfig,
@@ -414,6 +408,7 @@ export default defineComponent({
             displayDecoderLabel,
             formatInputMaxLength,
             verify,
+            arrayToOptions,
         }
     },
 })

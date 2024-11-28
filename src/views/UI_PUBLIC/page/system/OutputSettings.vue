@@ -52,15 +52,10 @@
                 class="top-hdmi"
             >
                 <span>{{ Translate('IDCS_HDMI_IN_EXPORT_TO') }}</span>
-                <el-select v-model="decoderCardMap[pageData.tabId].ShowHdmiIn">
-                    <el-option :value="0">{{ Translate('IDCS_NULL') }}</el-option>
-                    <el-option
-                        v-for="key in Object.keys(decoderCardMap[pageData.tabId].decoderDwellData)"
-                        :key
-                        :value="Number(key) + 1"
-                        :label="`${Translate('IDCS_OUTPUT')}${Number(key) + 1}`"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="decoderCardMap[pageData.tabId].ShowHdmiIn"
+                    :options="hdmiInOptions"
+                />
             </div>
         </div>
         <main class="main">
@@ -98,15 +93,10 @@
                         class="top-hdmi"
                     >
                         <span>{{ Translate('IDCS_HDMI_IN_EXPORT_TO') }}</span>
-                        <el-select v-model="decoderCardMap[pageData.tabId].ShowHdmiIn">
-                            <el-option :value="0">{{ Translate('IDCS_NULL') }}</el-option>
-                            <el-option
-                                v-for="key in Object.keys(decoderCardMap[pageData.tabId].decoderDwellData)"
-                                :key
-                                :value="Number(key) + 1"
-                                :label="`${Translate('IDCS_OUTPUT')}${Number(key) + 1}`"
-                            />
-                        </el-select>
+                        <el-select-v2
+                            v-model="decoderCardMap[pageData.tabId].ShowHdmiIn"
+                            :options="hdmiInOptions"
+                        />
                     </div>
                 </div>
                 <div class="panel">
@@ -118,14 +108,14 @@
                             <!-- 轮询 -->
                             <div class="panel-title">{{ Translate('IDCS_DWELL') }}</div>
                             <!-- 缩略图列表 -->
-                            <div class="panel-thumbnail">
+                            <el-scrollbar class="panel-thumbnail">
                                 <div
                                     v-for="(item, key) in currentViewList.chlGroups"
                                     :key="`${pageData.tabId}-${pageData.outputIdx}-${key}`"
                                     class="panel-thumbnail-item"
                                     @click="changeView(key)"
                                 >
-                                    <OutputSplitTemplate
+                                    <OutputTemplateItem
                                         type="thumbail"
                                         :segment="item.segNum"
                                         :active-win="0"
@@ -142,7 +132,7 @@
                                         ×
                                     </div>
                                 </div>
-                            </div>
+                            </el-scrollbar>
                             <!-- 新增视图按钮 -->
                             <div
                                 class="panel-thumbnail-add"
@@ -157,7 +147,7 @@
                         </div>
                         <!-- 视窗区域 -->
                         <div class="panel-center">
-                            <OutputSplitTemplate
+                            <OutputTemplateItem
                                 type="screen"
                                 :segment="currentSegment"
                                 :active-win="pageData.activeWinIndex"
@@ -206,19 +196,13 @@
                                     @click="changeSplit(seg)"
                                 />
                             </div>
-                            <el-select
+                            <el-select-v2
                                 v-show="outputType === 'dwell'"
                                 :model-value="currentTimeInterval"
+                                :options="pageData.dwellTimeOptions"
                                 class="panel-dwell-time"
                                 @change="changeTimeInterval"
-                            >
-                                <el-option
-                                    v-for="value in pageData.dwellTimeOptions"
-                                    :key="value"
-                                    :value
-                                    :label="displayDwellTimeLabel(value)"
-                                />
-                            </el-select>
+                            />
                             <el-tooltip :content="Translate('IDCS_CLEAR_AWAY')">
                                 <BaseImgSprite
                                     class="panel-clear"
@@ -282,7 +266,7 @@
                         <BaseListBoxItem
                             v-for="groupItem in pageData.chlGroupList"
                             :key="groupItem.id"
-                            :class="{ active: pageData.activeChlGroup === groupItem.id }"
+                            :active="pageData.activeChlGroup === groupItem.id"
                             draggable="true"
                             icon="chlGroup"
                             @click="getChlListOfGroup(groupItem.id)"
@@ -302,19 +286,17 @@
                         <el-button @click="editChlGroup">{{ Translate('IDCS_EDIT') }}</el-button>
                         <el-button @click="deleteChlGroup">{{ Translate('IDCS_DELETE') }}</el-button>
                     </div>
-                    <div class="chl-list">
-                        <ul>
-                            <li
-                                v-for="listItem in pageData.chlListOfGroup"
-                                :key="listItem.id"
-                                draggable
-                                @dragstart="handleDragChl(listItem.id)"
-                                @dblclick="setWinFromChl(listItem.id)"
-                            >
-                                <span>{{ listItem.value }}</span>
-                            </li>
-                        </ul>
-                    </div>
+                    <BaseListBox>
+                        <BaseListBoxItem
+                            v-for="listItem in pageData.chlListOfGroup"
+                            :key="listItem.id"
+                            draggable="true"
+                            @dragstart="handleDragChl(listItem.id)"
+                            @dblclick="setWinFromChl(listItem.id)"
+                        >
+                            <span>{{ listItem.value }}</span>
+                        </BaseListBoxItem>
+                    </BaseListBox>
                 </div>
             </div>
         </main>
@@ -458,7 +440,6 @@
 
     &-left {
         width: 260px;
-        // flex-grow: 1;
         height: 100%;
         border-right: 1px solid var(--content-border);
         display: flex;
@@ -479,7 +460,6 @@
     &-thumbnail {
         width: 100%;
         height: calc(100% - 120px);
-        overflow-y: scroll;
 
         &-item {
             width: 220px;
@@ -628,46 +608,12 @@
     }
 
     &-btns {
-        // height: 0px;
         flex-shrink: 0;
         padding: 10px 0;
         border-top: 1px solid var(--content-border);
         border-bottom: 1px solid var(--content-border);
         display: flex;
         justify-content: center;
-    }
-
-    &-list {
-        width: 100%;
-        height: calc(100% - 80px);
-        overflow-y: scroll;
-
-        ul {
-            margin: 0;
-            padding: 0;
-        }
-
-        li {
-            list-style: none;
-            padding: 5px;
-            border: 1px solid transparent;
-            cursor: pointer;
-            font-size: 13px;
-
-            span:last-child {
-                margin-left: 10px;
-            }
-
-            &:hover,
-            &.active {
-                border-color: var(--primary);
-            }
-
-            &.active {
-                background-color: var(--primary);
-                color: var(--color-white);
-            }
-        }
     }
 }
 </style>

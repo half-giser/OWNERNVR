@@ -6,42 +6,30 @@
 <template>
     <el-form
         ref="popVideoRef"
-        :model="videoFormData"
         :style="{
             '--form-input-width': '215px',
         }"
-        inline-message
     >
         <div class="base-subheading-box">{{ Translate('IDCS_POPUP_VIDEO') }}</div>
         <el-form-item :label="Translate('IDCS_DURATION')">
-            <el-select v-model="videoFormData.popVideoDuration">
-                <el-option
-                    v-for="item in pageData.popVideoDurationOption"
-                    :key="item.value"
-                    :value="item.value"
-                    :label="item.label"
-                />
-            </el-select>
+            <el-select-v2
+                v-model="videoFormData.popVideoDuration"
+                :options="pageData.popVideoDurationOption"
+            />
         </el-form-item>
         <el-form-item
             v-show="videoFormData.popVideoOutputShow"
             :label="Translate('IDCS_OUTPUT')"
         >
-            <el-select v-model="videoFormData.popVideoOutput">
-                <el-option
-                    v-for="item in pageData.popVideoOutputOption"
-                    :key="item.value"
-                    :value="item.value"
-                    :label="item.label"
-                />
-            </el-select>
+            <el-select-v2
+                v-model="videoFormData.popVideoOutput"
+                :options="pageData.popVideoOutputOption"
+            />
         </el-form-item>
     </el-form>
     <el-form
         ref="popMsgRef"
-        :model="msgFormData"
-        class="msgbox"
-        inline-message
+        class="gap"
         :style="{
             '--form-input-width': '215px',
         }"
@@ -54,24 +42,15 @@
             />
         </el-form-item>
         <el-form-item :label="Translate('IDCS_DURATION')">
-            <el-select v-model="msgFormData.popMsgDuration">
-                <el-option
-                    v-for="item in pageData.popMsgDurationOption"
-                    :key="item.value"
-                    :value="item.value"
-                    :label="item.label"
-                />
-            </el-select>
+            <el-select-v2
+                v-model="msgFormData.popMsgDuration"
+                :options="pageData.popMsgDurationOption"
+            />
         </el-form-item>
-        <div
-            class="base-btn-box"
-            :style="{ paddingTop: '40px' }"
-        >
-            <el-button
-                class="btn-ok"
-                @click="setData"
-                >{{ Translate('IDCS_APPLY') }}</el-button
-            >
+        <div class="base-btn-box gap">
+            <el-button @click="setData">
+                {{ Translate('IDCS_APPLY') }}
+            </el-button>
         </div>
     </el-form>
 </template>
@@ -79,7 +58,7 @@
 <script lang="ts" src="./Display.v.ts"></script>
 
 <style scoped>
-.msgbox {
-    margin-top: 50px;
+.gap {
+    margin-top: 40px;
 }
 </style>

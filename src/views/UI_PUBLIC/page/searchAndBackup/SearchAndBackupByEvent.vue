@@ -84,21 +84,25 @@
             <div class="chl-box">
                 <BaseListBox>
                     <el-checkbox-group v-model="formData.chls">
-                        <el-checkbox
+                        <BaseListBoxItem
                             v-for="item in pageData.chlList"
                             :key="item.id"
-                            :value="item.id"
-                            :label="item.value"
-                            :disabled="isChlAll && !formData.chls.includes(item.id)"
-                        />
+                        >
+                            <el-checkbox
+                                :value="item.id"
+                                :label="item.value"
+                                :disabled="isChlAll && !formData.chls.includes(item.id)"
+                            />
+                        </BaseListBoxItem>
                     </el-checkbox-group>
                 </BaseListBox>
                 <div class="base-btn-box">
                     <el-button
                         :disabled="!formData.chls.length"
                         @click="search"
-                        >{{ Translate('IDCS_SEARCH') }}</el-button
                     >
+                        {{ Translate('IDCS_SEARCH') }}
+                    </el-button>
                 </div>
             </div>
         </div>
@@ -108,8 +112,6 @@
                     <el-table
                         ref="tableRef"
                         :data="filterTableData"
-                        border
-                        stripe
                         show-overflow-tooltip
                         @row-click="handleRecClick"
                         @selection-change="handleRecChange"
@@ -212,13 +214,13 @@
                         <el-button
                             :disabled="!pageData.selectedRecList.length"
                             @click="backUp"
-                            >{{ Translate('IDCS_BACKUP') }}</el-button
                         >
+                            {{ Translate('IDCS_BACKUP') }}
+                        </el-button>
                     </div>
                 </div>
             </div>
         </div>
-        <BasePluginNotice />
         <BackupPop
             v-model="pageData.isBackUpPop"
             :mode="mode"
@@ -288,11 +290,10 @@
 
 .left {
     width: 260px;
-    height: 100%;
     flex-shrink: 0;
-    border-right: 1px solid var(--input-border);
     display: flex;
     flex-direction: column;
+    height: var(--content-height);
 
     .el-form {
         flex-shrink: 0;
@@ -309,7 +310,7 @@
 
     &-box {
         width: calc(100% - 30px);
-        height: calc(100% - 400px);
+        height: calc(100% - 300px);
         display: flex;
         flex-direction: column;
         margin: 0 auto 15px;
@@ -331,6 +332,7 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+    border-left: 1px solid var(--input-border);
 }
 
 .center {

@@ -95,9 +95,9 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($chl('//status').text() === 'success' && $('//status').text() === 'success') {
-                const chls = $('//content/item').map((item) => item.attr('id'))
-                pageData.value.chlList = $chl('//content/item')
+            if ($chl('status').text() === 'success' && $('status').text() === 'success') {
+                const chls = $('content/item').map((item) => item.attr('id'))
+                pageData.value.chlList = $chl('content/item')
                     .map((item) => {
                         const $item = queryXml(item.element)
                         return {
@@ -121,31 +121,31 @@ export default defineComponent({
             `
             const result = await queryAccessControlCfg(sendXml)
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                pageData.value.doorLockTypeEnum = $('//types/doorLockType/enum').map((item) => {
+            if ($('status').text() === 'success') {
+                pageData.value.doorLockTypeEnum = $('types/doorLockType/enum').map((item) => {
                     return {
                         value: item.text(),
                         label: DOOR_LOCK_TYPE_MAPPING[item.text()],
                     }
                 })
-                pageData.value.doorLockActionEnum = $('//types/doorLockAction/enum').map((item) => {
+                pageData.value.doorLockActionEnum = $('types/doorLockAction/enum').map((item) => {
                     return {
                         value: item.text(),
                         label: DOOR_LOCK_ACTION_MAPPING[item.text()],
                     }
                 })
-                pageData.value.accessListTypeEnum = $('//types/accessListType/enum').map((item) => {
+                pageData.value.accessListTypeEnum = $('types/accessListType/enum').map((item) => {
                     return {
                         value: item.text(),
                         label: ACCESS_LIST_TYPE_MAPPING[item.text()],
                     }
                 })
-                pageData.value.wearMaskOpenEnable = $('//content/chl/wearMaskOpen').length > 0
+                pageData.value.wearMaskOpenEnable = $('content/chl/wearMaskOpen').length > 0
 
-                formData.value.accessListType = $('//content/chl/accessListType').text()
-                formData.value.wearMaskOpen = $('//content/chl/wearMaskOpen').text().bool()
+                formData.value.accessListType = $('content/chl/accessListType').text()
+                formData.value.wearMaskOpen = $('content/chl/wearMaskOpen').text().bool()
 
-                formData.value.accessLockData = $('//content/chl/doorLock/item').map((item) => {
+                formData.value.accessLockData = $('content/chl/doorLock/item').map((item) => {
                     const $item = queryXml(item.element)
                     const id = $item('id').text().num()
                     return {
@@ -194,22 +194,22 @@ export default defineComponent({
             `
             const result = await queryAccessControlCfg(sendXml)
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                pageData.value.doorLockTypeEnum = $('//types/wiegandIOType/enum').map((item) => {
+            if ($('status').text() === 'success') {
+                pageData.value.doorLockTypeEnum = $('types/wiegandIOType/enum').map((item) => {
                     return {
                         value: item.text(),
                         label: WIEGAND_IO_TYPE_MAPPING[item.text()],
                     }
                 })
-                pageData.value.doorLockActionEnum = $('//types/wiegandMode/enum').map((item) => {
+                pageData.value.doorLockActionEnum = $('types/wiegandMode/enum').map((item) => {
                     return {
                         value: item.text(),
                         label: WIEGAND_MODE_MAPPING[item.text()],
                     }
                 })
 
-                formData.value.wiegandIOType = $('//content/chl/accessDataComDev/wiegand/IOType').text()
-                formData.value.wiegandMode = $('//content/chl/accessDataComDev/wiegand/mode').text()
+                formData.value.wiegandIOType = $('content/chl/accessDataComDev/wiegand/IOType').text()
+                formData.value.wiegandMode = $('content/chl/accessDataComDev/wiegand/mode').text()
             } else {
                 pageData.value.doorLockTypeEnum = []
                 pageData.value.doorLockActionEnum = []
@@ -291,7 +291,7 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <chl id="${pageData.value.chlId}">
-                        ${ternary(formData.value.wearMaskOpen, `<wearmaskOpen>true</wearmaskOpen>`)}
+                        ${ternary(formData.value.wearMaskOpen, '<wearmaskOpen>true</wearmaskOpen>')}
                         ${ternary(!!formData.value.accessListType, `<accessListType type="accessListType">${formData.value.accessListType}</accessListType>`)}
                         ${ternary(!!lockDataLength, `<doorLock type="list" count="${lockDataLength}">${accessLockData}</doorLock>`)}
                     </chl>

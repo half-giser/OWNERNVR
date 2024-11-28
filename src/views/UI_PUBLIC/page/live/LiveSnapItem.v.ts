@@ -72,7 +72,7 @@ export default defineComponent({
          */
         const displayBase64Img = (src?: null | string) => {
             if (!src) return ''
-            return 'data:image/png;base64,' + src
+            return wrapBase64Img(src)
         }
 
         /**

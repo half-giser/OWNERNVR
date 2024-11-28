@@ -48,7 +48,7 @@ export default defineComponent({
         const auth = useUserChlAuth()
 
         // 图像失败重新请求最大次数
-        const REPEAR_REQUEST_IMG_TIMES = 2
+        const REPEAT_REQUEST_IMG_TIMES = 2
         // 图像缓存，避免重复请求相同的图片 key为imgId+timestamp
         const cachePic: Record<string, IntelFaceImgDto> = {}
         // 个人信息缓存，避免重复请求相同的个人信息 key 为 faceFeatureId
@@ -181,8 +181,6 @@ export default defineComponent({
             isChlPop: false,
             // 是否打开人脸比对弹窗
             isMatchPop: false,
-            // 人脸比对列表
-            matchList: [] as IntelFaceMatchPopList[],
             // 当前选中的匹配列表的索引
             matchIndex: 0,
             // 选择人脸弹窗
@@ -233,8 +231,11 @@ export default defineComponent({
         const sliceTableData = ref<IntelSearchFaceList[]>([])
 
         const cloneIntelSearchFaceList = new IntelSearchFaceList()
-        // 将列表数据整理为拥有日期cols span的列表数据，用于渲染显示
-        const sliceTableDataWithDateColsSpan = computed(() => {
+
+        /**
+         * @description 将列表数据整理为拥有日期cols span的列表数据，用于渲染显示
+         */
+        const sliceTableDataWithDateColsSpan = () => {
             const data: IntelSearchFaceList[][] = []
             let currentDate = ''
             let index = -1
@@ -253,7 +254,7 @@ export default defineComponent({
                 data[index].push(item)
             })
             return data.flat()
-        })
+        }
 
         const chlMap: Record<string, string> = {}
         const faceGroupMap: Record<string, string> = {}
@@ -358,7 +359,7 @@ export default defineComponent({
                 authList: '@spr,@bk',
             })
             const $ = queryXml(result)
-            pageData.value.chlOptions = $('//content/item').map((item) => {
+            pageData.value.chlOptions = $('content/item').map((item) => {
                 const $item = queryXml(item.element)
                 let text = $item('name').text()
                 const id = item.attr('id')
@@ -414,7 +415,9 @@ export default defineComponent({
             resetFaceData()
             formData.value.face = 'snap'
             formData.value.snapFace = e
-            getData()
+            setTimeout(() => {
+                getData()
+            }, 300)
         }
 
         /**
@@ -430,7 +433,9 @@ export default defineComponent({
             }
             formData.value.face = 'face'
             formData.value.featureFace = e
-            getData()
+            setTimeout(() => {
+                getData()
+            }, 300)
         }
 
         /**
@@ -441,7 +446,9 @@ export default defineComponent({
             resetFaceData()
             formData.value.face = 'group'
             formData.value.featureFaceGroup = e
-            getData()
+            setTimeout(() => {
+                getData()
+            }, 300)
         }
 
         /**
@@ -452,7 +459,9 @@ export default defineComponent({
             resetFaceData()
             formData.value.face = 'import'
             formData.value.importFace = e
-            getData()
+            setTimeout(() => {
+                getData()
+            }, 300)
         }
 
         /**
@@ -507,8 +516,8 @@ export default defineComponent({
         }
 
         const getUniqueKey = (row: { imgId: string; frameTime: string }) => {
-            if (!row.imgId || !row.frameTime) {
-                return Math.floor(Math.random() * 1e8) + ''
+            if (!row || !row.imgId || !row.frameTime) {
+                return getNonce() + ''
             }
             return `${row.imgId}:${row.frameTime}`
         }
@@ -614,53 +623,67 @@ export default defineComponent({
             tableRef.value!.clearSelection()
             formData.value.pageIndex = pageIndex
             sliceTableData.value = tableData.value.slice((pageIndex - 1) * formData.value.pageSize, pageIndex * formData.value.pageSize)
-            for (let i = 0; i < sliceTableData.value.length; i++) {
-                const item = sliceTableData.value[i]
+
+            // 按人脸搜索因为表格显示不同，因此数据结构有所不同
+            if (formData.value.searchType === 'face') {
+                sliceTableData.value = sliceTableDataWithDateColsSpan()
+            }
+
+            sliceTableData.value.forEach(async (item, i) => {
+                if (item.faceFeatureId === -1000) {
+                    return
+                }
+
                 const key = getUniqueKey(item)
+
+                if (formData.value.faceType === 'import') {
+                    item.match = cacheImportFace[item.faceFeatureId]
+                }
+
+                if (formData.value.faceType === 'snap') {
+                    item.match = cacheSnapFace[item.faceFeatureId]
+                }
+
                 const snapFlag = await getPic(item, false, i)
                 if (!snapFlag) {
-                    break
+                    return
                 }
+
                 const panoramaFlag = await getPic(item, true, i)
                 if (!panoramaFlag) {
-                    break
+                    return
                 }
-                let match = ''
+
+                if (cachePic[key]) {
+                    item.pic = cachePic[key].pic
+                    item.panorama = cachePic[key].panorama
+                    item.width = cachePic[key].width
+                    item.height = cachePic[key].height
+                    item.X1 = cachePic[key].X1
+                    item.Y1 = cachePic[key].Y1
+                    item.X2 = cachePic[key].X2
+                    item.Y2 = cachePic[key].Y2
+                    item.isDelSnap = cachePic[key].isDelSnap
+                    item.isNoData = cachePic[key].isNoData
+                    item.identity = cachePic[key].identity
+                    item.attribute = cachePic[key].attribute
+                }
+
                 if (formData.value.eventType === 'byWhiteList' || formData.value.faceType === 'face' || formData.value.faceType === 'group') {
                     const matchFlag = await getFacePic(item, i)
                     if (!matchFlag) {
-                        break
+                        return
                     }
 
                     const infoFlag = await getFaceInfo(item, i)
                     if (!infoFlag) {
-                        break
+                        return
                     }
 
-                    if (cacheInfo[item.faceFeatureId]) {
-                        sliceTableData.value[i].info = {
-                            ...cacheInfo[item.faceFeatureId],
-                        }
-                    }
-                    match = cacheInfo[item.faceFeatureId]?.pic[0] || ''
+                    item.match = cacheInfo[item.faceFeatureId]?.pic[0] || ''
+                    item.info = cacheInfo[item.faceFeatureId]
                 }
-
-                if (formData.value.faceType === 'import') {
-                    match = cacheImportFace[item.faceFeatureId]
-                }
-
-                if (formData.value.faceType === 'snap') {
-                    match = cacheSnapFace[item.faceFeatureId]
-                }
-
-                if (cachePic[key]) {
-                    sliceTableData.value[i] = {
-                        ...sliceTableData.value[i],
-                        ...cachePic[key],
-                        match,
-                    }
-                }
-            }
+            })
         }
 
         /**
@@ -706,17 +729,17 @@ export default defineComponent({
                     const result = await requestChSnapFaceImage(sendXml)
                     const $ = queryXml(result)
 
-                    if ($('//status').text() === 'success') {
-                        const content = $('//content').text()
-                        if (!content && times < REPEAR_REQUEST_IMG_TIMES) {
+                    if ($('status').text() === 'success') {
+                        const content = $('content').text()
+                        if (!content && times < REPEAT_REQUEST_IMG_TIMES) {
                             return getPic(row, isPanorama, index, times + 1)
                         }
-                        const width = $('//rect/ptWidth').text().num() || 1
-                        const height = $('//rect/ptHeight').text().num() || 1
-                        const leftTopX = $('//rect/leftTopX').text().num()
-                        const leftTopY = $('//rect/leftTopY').text().num()
-                        const rightBottomX = $('//rect/rightBottomX').text().num()
-                        const rightBottomY = $('//rect/rightBottomY').text().num()
+                        const width = $('rect/ptWidth').text().num() || 1
+                        const height = $('rect/ptHeight').text().num() || 1
+                        const leftTopX = $('rect/leftTopX').text().num()
+                        const leftTopY = $('rect/leftTopY').text().num()
+                        const rightBottomX = $('rect/rightBottomX').text().num()
+                        const rightBottomY = $('rect/rightBottomY').text().num()
                         const item = {
                             pic: cachePic[key] ? cachePic[key].pic : '',
                             panorama: cachePic[key] ? cachePic[key].panorama : '',
@@ -733,15 +756,15 @@ export default defineComponent({
                             attribute: {},
                         }
                         if (isPanorama) {
-                            item.panorama = 'data:image/png;base64,' + content
+                            item.panorama = wrapBase64Img(content)
                         } else {
-                            item.pic = 'data:image/png;base64,' + content
-                            item.identity = $('//featureStatus').text().bool()
+                            item.pic = wrapBase64Img(content)
+                            item.identity = $('featureStatus').text().bool()
                         }
                         cachePic[key] = item
                     } else {
                         cachePic[key] = cachePic[key] || new IntelFaceImgDto()
-                        const errorCode = $('//errorCode').text().num()
+                        const errorCode = $('errorCode').text().num()
                         switch (errorCode) {
                             case ErrorCode.HTTPS_CERT_EXIST:
                                 cachePic[key].isDelSnap = true
@@ -753,7 +776,7 @@ export default defineComponent({
                                 break
                             default:
                                 // 重复获取数据
-                                if (times < REPEAR_REQUEST_IMG_TIMES) {
+                                if (times < REPEAT_REQUEST_IMG_TIMES) {
                                     return getPic(row, isPanorama, index, times + 1)
                                 }
                         }
@@ -766,7 +789,7 @@ export default defineComponent({
                     return false
                 }
             } catch (e) {
-                if (times < REPEAR_REQUEST_IMG_TIMES) {
+                if (times < REPEAT_REQUEST_IMG_TIMES) {
                     return getPic(row, isPanorama, index, times + 1)
                 } else {
                     cachePic[key] = cachePic[key] || new IntelFaceImgDto()
@@ -797,7 +820,7 @@ export default defineComponent({
                     `
                     const result = await queryFacePersonnalInfoList(sendXml)
                     const $ = queryXml(result)
-                    const item = $('//content/item')[0]
+                    const item = $('content/item')[0]
                     const $item = queryXml(item.element)
                     cacheInfo[key] = {
                         id: item.attr('id'),
@@ -849,23 +872,23 @@ export default defineComponent({
                 `
                 const result = await requestFacePersonnalInfoImage(sendXml)
                 const $ = queryXml(result)
-                if ($('//status').text() === 'success') {
-                    const content = $('//content').text()
+                if ($('status').text() === 'success') {
+                    const content = $('content').text()
                     if (!content) {
                         return ''
                     } else {
-                        return 'data:image/png;base64,' + content
+                        return wrapBase64Img(content)
                     }
                 } else {
                     // 重复获取数据
-                    if (times < REPEAR_REQUEST_IMG_TIMES) {
+                    if (times < REPEAT_REQUEST_IMG_TIMES) {
                         return getFacePic(row, times + 1)
                     } else {
                         return ''
                     }
                 }
             } catch (e) {
-                if (times < REPEAR_REQUEST_IMG_TIMES) {
+                if (times < REPEAT_REQUEST_IMG_TIMES) {
                     return getFacePic(row, times + 1)
                 } else {
                     return ''
@@ -880,7 +903,7 @@ export default defineComponent({
             const result = await queryFacePersonnalInfoGroupList()
             const $ = queryXml(result)
 
-            pageData.value.faceDatabaseList = $('//content/item').map((item) => {
+            pageData.value.faceDatabaseList = $('content/item').map((item) => {
                 const $item = queryXml(item.element)
                 faceGroupMap[$item('groupId').text()] = $item('name').text()
                 return {
@@ -995,25 +1018,25 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                tableData.value = $('//content/i').map((item) => {
+            if ($('status').text() === 'success') {
+                tableData.value = $('content/i').map((item) => {
                     const isDelSnap = item.attr('s') === 'd'
                     const split = item.text().split(',')
-                    const guid = parseInt(split[4], 16)
+                    const guid = hexToDec(split[4])
                     const chlId = getChlGuid16(split[4]).toUpperCase()
-                    const timestamp = parseInt(split[1], 16) * 1000
+                    const timestamp = hexToDec(split[1]) * 1000
                     return {
-                        faceFeatureId: parseInt(split[0], 16),
+                        faceFeatureId: hexToDec(split[0]),
                         isDelSnap: isDelSnap,
                         isNoData: false,
-                        imgId: parseInt(split[3], 16) + '',
+                        imgId: hexToDec(split[3]) + '',
                         timestamp,
-                        frameTime: localToUtc(timestamp) + ':' + ('0000000' + parseInt(split[2], 16)).slice(-7),
+                        frameTime: localToUtc(timestamp) + ':' + ('0000000' + hexToDec(split[2])).slice(-7),
                         guid,
                         chlId,
                         chlName: chlMap[chlId],
-                        recStartTime: parseInt(split[6], 16) * 1000,
-                        recEndTime: parseInt(split[7], 16) * 1000,
+                        recStartTime: hexToDec(split[6]) * 1000,
+                        recEndTime: hexToDec(split[7]) * 1000,
                         pic: '',
                         panorama: '',
                         match: '',
@@ -1025,7 +1048,7 @@ export default defineComponent({
                         Y1: 0,
                         X2: 0,
                         Y2: 0,
-                        similarity: parseInt(split[5], 16),
+                        similarity: hexToDec(split[5]),
                         plateNumber: '',
                         identity: false,
                         attribute: {},
@@ -1048,7 +1071,7 @@ export default defineComponent({
                 }
                 getTrackMapList()
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_WALL_HAVEDECODER:
@@ -1074,24 +1097,43 @@ export default defineComponent({
             changeSortType()
         }
 
+        // 人脸比对列表
+        const matchList = computed(() => {
+            if (pageData.value.isMatchPop) {
+                return sliceTableData.value
+                    .filter((item) => item.faceFeatureId !== -1000)
+                    .map((item) => {
+                        return {
+                            ...item.info,
+                            ...item,
+                            info: '',
+                            groupName: faceGroupMap[item.info.groupId],
+                        }
+                    })
+            }
+            return []
+        })
+
         /**
          * @description 查看抓拍详情
          * @param {IntelSearchFaceList} index
          */
         const showDetail = (row: IntelSearchFaceList) => {
-            const index = sliceTableData.value.findIndex((item) => getUniqueKey(item) === getUniqueKey(row))
+            const filterTable = sliceTableData.value.filter((item) => item.faceFeatureId !== -1000)
+            const index = filterTable.findIndex((item) => getUniqueKey(item) === getUniqueKey(row))
             stop()
             if (formData.value.eventType === 'byWhiteList' || formData.value.faceType === 'face' || formData.value.faceType === 'group') {
-                pageData.value.matchList = sliceTableData.value.map((item) => {
-                    return {
-                        ...item.info,
-                        ...item,
-                        info: '',
-                        groupName: faceGroupMap[item.info.groupId],
-                    }
-                })
+                // pageData.value.matchList = filterTable.map((item) => {
+                //     return {
+                //         ...item.info,
+                //         ...item,
+                //         info: '',
+                //         groupName: faceGroupMap[item.info.groupId],
+                //     }
+                // })
                 pageData.value.matchIndex = index
                 pageData.value.isMatchPop = true
+                // console.log(pageData.value.matchList)
             } else {
                 pageData.value.detailIndex = index
                 pageData.value.isDetailPop = true
@@ -1117,9 +1159,9 @@ export default defineComponent({
          * @param {IntelSearchFaceList} row
          */
         const handleTableRowClick = (row: IntelSearchFaceList) => {
-            play(row)
             tableRef.value!.clearSelection()
             tableRef.value!.toggleRowSelection(row, true)
+            setTimeout(() => play(row), 300)
         }
 
         /**
@@ -1127,7 +1169,7 @@ export default defineComponent({
          * @param {IntelSearchFaceList[]} row
          */
         const handleTableSelectionChange = (row: IntelSearchFaceList[]) => {
-            pageData.value.selection = row
+            pageData.value.selection = row.filter((item) => item.faceFeatureId !== -1000)
         }
 
         /**
@@ -1145,6 +1187,11 @@ export default defineComponent({
         const handleSelect = (index: number, bool: boolean) => {
             tableRef.value!.toggleRowSelection(sliceTableData.value[index], bool)
         }
+
+        // 是否全选
+        const isSelectAll = computed(() => {
+            return !!sliceTableData.value.length && sliceTableData.value.filter((item) => item.faceFeatureId !== -1000).length === pageData.value.selection.length
+        })
 
         /**
          * @description 全选/取消全选
@@ -1184,6 +1231,8 @@ export default defineComponent({
          * @param {IntelSnapPopList | IntelFaceMatchPopList} row
          */
         const searchSnap = (row: IntelSnapPopList | IntelFaceMatchPopList) => {
+            pageData.value.isDetailPop = false
+            pageData.value.isMatchPop = false
             changeSnap([
                 {
                     timestamp: row.timestamp,
@@ -1441,6 +1490,7 @@ export default defineComponent({
             getTableSelectable,
             selectionIds,
             handleSelect,
+            isSelectAll,
             handleSelectAll,
             playRec,
             confirmBackUp,
@@ -1469,9 +1519,10 @@ export default defineComponent({
             resume,
             getUniqueKey,
             register,
+            matchList,
             BackupPop,
             BackupLocalPop,
-            sliceTableDataWithDateColsSpan,
+            // sliceTableDataWithDateColsSpan,
             IntelBaseSnapItem,
             IntelBaseSnapPop,
             IntelFaceDBSnapRegisterPop,

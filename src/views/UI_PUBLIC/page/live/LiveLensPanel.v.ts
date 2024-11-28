@@ -28,6 +28,8 @@ export default defineComponent({
             focusOptions: [] as SelectOption<string, string>[],
             // 时间间隔选项
             timeIntervalOptions: [] as SelectOption<number, string>[],
+            errorMessage: '',
+            errorMessageType: 'ok',
         })
 
         const formData = ref(new LiveLensForm())
@@ -128,15 +130,15 @@ export default defineComponent({
             `
             const result = await queryCameraLensCtrlParam(sendXml)
             const $ = queryXml(result)
-            if ($('//status').text() === 'fail' || !$('//content/chl').length) {
+            if ($('status').text() === 'fail' || !$('content/chl').length) {
                 ctx.emit('updateSupportAz', false)
             } else {
                 ctx.emit('updateSupportAz', true)
 
-                const focusType = $('//types/focusType').text()
+                const focusType = $('types/focusType').text()
                 renderFocusTypeOptions(focusType)
 
-                pageData.value.timeIntervalOptions = $('//content/chl/timeIntervalNote')
+                pageData.value.timeIntervalOptions = $('content/chl/timeIntervalNote')
                     .text()
                     .split(',')
                     .map((item) => {
@@ -147,12 +149,17 @@ export default defineComponent({
                         }
                     })
 
-                formData.value.focusType = $('//content/focusType').text() !== 'auto' ? 'manual' : 'auto'
+                formData.value.focusType = $('content/focusType').text() !== 'auto' ? 'manual' : 'auto'
                 if (formData.value.focusType === 'auto') {
-                    formData.value.focusTime = $('//content/timeInterval').text().num()
+                    formData.value.focusTime = $('content/timeInterval').text().num()
                 }
-                formData.value.irchangeFocus = $('//content/IrchangeFocus').text().bool()
+                formData.value.irchangeFocus = $('content/IrchangeFocus').text().bool()
             }
+        }
+
+        const showErrorMessage = (type: string, message: string) => {
+            pageData.value.errorMessageType = type
+            pageData.value.errorMessage = message
         }
 
         /**
@@ -175,31 +182,15 @@ export default defineComponent({
                 `
                 const result = await editCameraLensCtrlParam(sendXml)
                 const $ = queryXml(result)
-                if ($('//status').text() === 'success') {
-                    ElMessage({
-                        type: 'success',
-                        message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                        grouping: true,
-                    })
-                } else if ($('//errorCode').text() === '0') {
-                    ElMessage({
-                        type: 'success',
-                        message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                        grouping: true,
-                    })
+                if ($('status').text() === 'success') {
+                    showErrorMessage('ok', Translate('IDCS_SAVE_DATA_SUCCESS'))
+                } else if ($('errorCode').text().num() === 0) {
+                    showErrorMessage('ok', Translate('IDCS_SAVE_DATA_SUCCESS'))
                 } else {
-                    ElMessage({
-                        type: 'error',
-                        message: Translate('IDCS_SAVE_DATA_FAIL'),
-                        grouping: true,
-                    })
+                    showErrorMessage('error', Translate('IDCS_SAVE_DATA_FAIL'))
                 }
             } catch (e) {
-                ElMessage({
-                    type: 'error',
-                    message: Translate('IDCS_SAVE_DATA_FAIL'),
-                    grouping: true,
-                })
+                showErrorMessage('error', Translate('IDCS_SAVE_DATA_FAIL'))
             }
         }
 

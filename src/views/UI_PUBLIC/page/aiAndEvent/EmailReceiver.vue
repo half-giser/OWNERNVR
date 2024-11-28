@@ -23,18 +23,11 @@
                     v-model="pageData.form.recipient"
                     maxlength="63"
                 />
-                <el-select v-model="pageData.schedule">
-                    <el-option
-                        v-for="item in pageData.scheduleList"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    />
-                </el-select>
-                <el-button
-                    type="primary"
-                    @click="addRecipient()"
-                >
+                <el-select-v2
+                    v-model="pageData.schedule"
+                    :options="pageData.scheduleList"
+                />
+                <el-button @click="addRecipient()">
                     {{ Translate('IDCS_ADD') }}
                 </el-button>
             </el-form-item>
@@ -43,12 +36,8 @@
             <el-table
                 ref="tableRef"
                 :data="tableData"
-                stripe
-                border
                 height="343"
-                highlight-current-row
-                show-overflow-tooltip
-                @row-click="handleRowClick($event)"
+                @row-click="handleRowClick"
             >
                 <el-table-column
                     :label="Translate('IDCS_SERIAL_NUMBER')"
@@ -58,6 +47,7 @@
                 <el-table-column
                     width="325"
                     :label="Translate('IDCS_RECIPIENT')"
+                    show-overflow-tooltip
                 >
                     <template #default="scope">
                         {{ formatAddress(scope.row) }}
@@ -83,17 +73,10 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select
+                        <el-select-v2
                             v-model="scope.row.schedule"
-                            @focus="handleScheduleChange(scope.row)"
-                        >
-                            <el-option
-                                v-for="item in pageData.scheduleList"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            />
-                        </el-select>
+                            :options="pageData.scheduleList"
+                        />
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -119,7 +102,6 @@
                             :index="0"
                             :hover-index="1"
                             :active-index="1"
-                            :class="{ disabled: scope.row.delDisabled }"
                             @click="handleDelReceiver(scope.row)"
                         />
                     </template>

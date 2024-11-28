@@ -9,51 +9,35 @@
             <div class="base-chl-box-player">
                 <BaseVideoPlayer
                     ref="playerRef"
-                    type="live"
-                    @onready="handlePlayerReady"
+                    @ready="handlePlayerReady"
                 />
             </div>
-            <el-form
-                v-if="tableData.length"
-                :style="{
-                    '--form-label-width': '150px',
-                }"
-                class="inline-message"
-            >
+            <el-form v-if="tableData.length">
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                    <el-select
+                    <el-select-v2
                         v-if="tableData.length"
                         v-model="pageData.tableIndex"
+                        :options="chlOptions"
                         @change="changeChl"
-                    >
-                        <el-option
-                            v-for="(item, index) in tableData"
-                            :key="item.chlId"
-                            :value="index"
-                            :label="item.chlName"
-                        />
-                    </el-select>
-                    <el-select
+                    />
+                    <el-select-v2
                         v-else
+                        model-value=""
+                        :options="[]"
                         disabled
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_AUTO_TRACK_MODE')">
-                    <el-select
+                    <el-select-v2
                         v-if="tableData[pageData.tableIndex]"
                         v-model="tableData[pageData.tableIndex].ptzControlMode"
                         :disabled="tableData[pageData.tableIndex].disabled"
-                        @change="addEditRow(pageData.tableIndex)"
-                    >
-                        <el-option
-                            v-for="item in pageData.trackModeOptions"
-                            :key="item.value"
-                            :value="item.value"
-                            :label="item.label"
-                        />
-                    </el-select>
-                    <el-select
+                        :options="pageData.trackModeOptions"
+                    />
+                    <el-select-v2
                         v-else
+                        model-value=""
+                        :options="[]"
                         disabled
                     />
                 </el-form-item>
@@ -62,14 +46,12 @@
                         <el-checkbox
                             v-model="tableData[pageData.tableIndex].autoBackSwitch"
                             :disabled="tableData[pageData.tableIndex].disabled"
-                            @change="addEditRow(pageData.tableIndex)"
                         />
                         <el-slider
                             v-model="tableData[pageData.tableIndex].autoBackTime"
                             :disabled="!tableData[pageData.tableIndex].autoBackSwitch || tableData[pageData.tableIndex].disabled"
                             :min="0"
                             :max="100"
-                            @change="addEditRow(pageData.tableIndex)"
                         />
                     </template>
                     <template v-else>
@@ -84,8 +66,6 @@
             <div class="base-table-box">
                 <el-table
                     :data="tableData"
-                    border
-                    stripe
                     highlight-current-row
                     :row-class-name="(data) => (data.row.disabled ? 'disabled' : '')"
                     @row-click="handleRowClick"
@@ -102,6 +82,7 @@
                     <el-table-column
                         :label="Translate('IDCS_CHANNEL_NAME')"
                         prop="chlName"
+                        show-overflow-tooltip
                     />
                     <el-table-column :label="Translate('IDCS_HOMING_AFTER_TARGET_STATIONARY')">
                         <template #header>
@@ -123,18 +104,11 @@
                             </el-dropdown>
                         </template>
                         <template #default="scope">
-                            <el-select
+                            <el-select-v2
                                 v-model="scope.row.autoBackSwitch"
+                                :options="pageData.autoBackOptions"
                                 :disabled="scope.row.disabled"
-                                @change="addEditRow(scope.$index)"
-                            >
-                                <el-option
-                                    v-for="item in pageData.autoBackOptions"
-                                    :key="item.label"
-                                    :value="item.value"
-                                    :label="item.label"
-                                />
-                            </el-select>
+                            />
                         </template>
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_HOMING_AFTER_TARGET_STATIONARY_TIME')">
@@ -144,7 +118,6 @@
                                 :min="0"
                                 :max="100"
                                 :disabled="!scope.row.autoBackSwitch || scope.row.disabled"
-                                @change="addEditRow(scope.$index)"
                             />
                         </template>
                     </el-table-column>
@@ -152,14 +125,13 @@
             </div>
             <div class="base-btn-box">
                 <el-button
-                    :disabled="!editRows.size"
+                    :disabled="!editRows.size()"
                     @click="setData"
                 >
                     {{ Translate('IDCS_APPLY') }}
                 </el-button>
             </div>
         </div>
-        <BaseNotification v-model:notifications="pageData.notification" />
     </div>
 </template>
 

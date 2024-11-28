@@ -59,9 +59,9 @@ export default defineComponent({
             const result = await queryDevList(sendXml)
             const $ = queryXml(result)
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 const chlList = prop.current.chlList.map((item) => item.id)
-                tableData.value = $('//content/item')
+                tableData.value = $('content/item')
                     .filter((item) => !chlList.includes(item.attr('id')))
                     .map((item) => {
                         const $item = queryXml(item.element)
@@ -143,7 +143,7 @@ export default defineComponent({
             const result = await editSetAndElementRelation(sendXml)
             const $ = queryXml(result)
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 ctx.emit('confirm')
             }
 

@@ -1066,14 +1066,14 @@ export default class TVTPlayer {
     getPosCfg() {
         queryPosList().then((res) => {
             const $ = queryXml(res)
-            if ($('//status').text() !== 'success') return
-            const $systemX = $('//content/itemType/coordinateSystem/X')
-            const $systemY = $('//content/itemType/coordinateSystem/Y')
+            if ($('status').text() !== 'success') return
+            const $systemX = $('content/itemType/coordinateSystem/X')
+            const $systemY = $('content/itemType/coordinateSystem/Y')
             const width = $systemX.attr('max').num() - $systemX.attr('min').num()
             const height = $systemY.attr('max').num() - $systemY.attr('min').num()
             this.screen.setPosBaseSize({ width, height })
             const posInfo: Record<string, TVTPlayerPosInfoItem> = {}
-            $('//channel/chl').forEach((ele) => {
+            $('channel/chl').forEach((ele) => {
                 const chlId = ele.attr('id') as string
                 const $ele = queryXml(ele.element)
                 const previewDisplay = $ele('previewDisplay').text().bool()
@@ -1091,9 +1091,9 @@ export default class TVTPlayer {
                     timeout: 10, // pos超时隐藏时间，默认10秒
                 }
             })
-            $('//content/item').forEach((ele) => {
+            $('content/item').forEach((ele) => {
                 const $ele = queryXml(ele.element)
-                const $position = `param/displaySetting/displayPosition/`
+                const $position = 'param/displaySetting/displayPosition/'
                 const $triggerChls = $ele('trigger/triggerChl/chls/item')
                 const timeout = $ele('param/displaySetting/common/timeOut').text()
                 if (!$triggerChls.length) return
@@ -1142,15 +1142,11 @@ export default class TVTPlayer {
      */
     handleHttpsPlay() {
         const { Translate } = useLangStore()
-        const notify = useNotification()
+        const { openNotify } = useNotification()
         if (this.type === 'live') {
-            notify({
-                message: formatHttpsTips(Translate('IDCS_LIVE_PREVIEW')),
-            })
+            openNotify(formatHttpsTips(Translate('IDCS_LIVE_PREVIEW')))
         } else if (this.type === 'record') {
-            notify({
-                message: formatHttpsTips(Translate('IDCS_REPLAY')),
-            })
+            openNotify(formatHttpsTips(Translate('IDCS_REPLAY')))
         }
     }
 
@@ -1160,8 +1156,8 @@ export default class TVTPlayer {
     getChlIp() {
         queryDevOsdDisplayCfg().then((res) => {
             const $ = queryXml(res)
-            if ($('//status').text() !== 'success') return
-            if ($('//content/addressSwitch').text().bool()) {
+            if ($('status').text() !== 'success') return
+            if ($('content/addressSwitch').text().bool()) {
                 // 若为true则可以显示ip地址
                 const sendXml = rawXml`
                     <requireField>
@@ -1170,9 +1166,9 @@ export default class TVTPlayer {
                 `
                 queryDevList(sendXml).then((res) => {
                     const $ = queryXml(res)
-                    if ($('//status').text() !== 'success') return
+                    if ($('status').text() !== 'success') return
                     this.chlIpMap = {}
-                    $('//content/item').forEach((item) => {
+                    $('content/item').forEach((item) => {
                         const $el = queryXml(item.element)
                         const ip = $el('ip').text()
                         const id = item.attr('id')

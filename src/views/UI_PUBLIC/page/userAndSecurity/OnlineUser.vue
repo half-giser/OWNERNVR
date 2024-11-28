@@ -7,8 +7,7 @@
     <div class="base-flex-box">
         <el-table
             :data="tableData"
-            border
-            stripe
+            show-overflow-tooltip
             height="100%"
         >
             <el-table-column

@@ -8,6 +8,7 @@
         :title="type === 'add' ? Translate('IDCS_ADD_PRESET') : Translate('IDCS_EDIT_PRESET')"
         width="500"
         @open="open"
+        @closed="formRef?.resetFields()"
     >
         <el-form
             ref="formRef"
@@ -18,42 +19,28 @@
                 :label="Translate('IDCS_PRESET_NAME')"
                 prop="name"
             >
-                <el-select v-model="formData.name">
-                    <el-option
-                        v-for="item in pageData.nameOptions"
-                        :key="item.value"
-                        :value="item.label"
-                        :label="item.label"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="formData.name"
+                    :options="pageData.nameOptions"
+                />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_DURATION')">
-                <el-select v-model="formData.holdTime">
-                    <el-option
-                        v-for="item in pageData.timeOptions"
-                        :key="item"
-                        :value="item"
-                        :label="getTranslateForSecond(item)"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="formData.holdTime"
+                    :options="pageData.timeOptions"
+                />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_SPEED')">
-                <el-select v-model="formData.speed">
-                    <el-option
-                        v-for="item in pageData.speedOptions"
-                        :key="item"
-                        :value="item"
-                        :label="item"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="formData.speed"
+                    :options="pageData.speedOptions"
+                />
             </el-form-item>
         </el-form>
-        <template #footer>
-            <div class="base-btn-box">
-                <el-button @click="confirm">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="confirm">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 

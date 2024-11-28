@@ -18,7 +18,6 @@ export default defineComponent({
     setup() {
         const chosedList = ref<any[]>([])
         const { Translate } = useLangStore()
-        const tableData = ref<AlarmEventDto[]>([])
 
         const { openLoading, closeLoading } = useLoading()
         const pageData = ref({
@@ -26,7 +25,6 @@ export default defineComponent({
             pageSize: 10,
             totalCount: 0,
             enableList: getSwitchOptions(),
-            // TODO 未传值
             // supportFTP: false,
             audioList: [] as SelectOption<string, string>[],
             // 打开穿梭框时选择行的索引
@@ -36,19 +34,23 @@ export default defineComponent({
             filterChlIds: [] as string[],
             isPresetPopOpen: false,
             videoPopupList: [] as SelectOption<string, string>[],
-            // disable
-            applyDisable: true,
-            editRows: [] as AlarmEventDto[],
         })
 
-        const getVideoPopupList = async () => {
-            pageData.value.videoPopupList.push({ value: ' ', label: Translate('IDCS_OFF') })
+        const tableData = ref<AlarmEventDto[]>([])
+
+        const editRows = useWatchEditRows<AlarmEventDto>()
+
+        const getVideoPopupList = () => {
+            pageData.value.videoPopupList.push({
+                value: ' ',
+                label: Translate('IDCS_OFF'),
+            })
             getChlList({
                 nodeType: 'chls',
-            }).then(async (res) => {
+            }).then((res) => {
                 const $ = queryXml(res)
                 if ($('status').text() === 'success') {
-                    $('//content/item').forEach((item) => {
+                    $('content/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         pageData.value.videoPopupList.push({
                             value: item.attr('id'),
@@ -60,37 +62,44 @@ export default defineComponent({
         }
 
         const buildTableData = () => {
-            tableData.value.length = 0
+            editRows.clear()
+            tableData.value = []
+
             getChlList({
                 pageIndex: pageData.value.pageIndex,
                 pageSize: pageData.value.pageSize,
                 chlType: 'analog',
-            }).then(async (res) => {
+            }).then((res) => {
                 const $chl = queryXml(res)
-                pageData.value.totalCount = $chl('//content').attr('total').num()
-                $chl('//content/item').forEach(async (item) => {
+                pageData.value.totalCount = $chl('content').attr('total').num()
+                tableData.value = $chl('content/item').map((item) => {
                     const $ele = queryXml(item.element)
                     const row = new AlarmEventDto()
                     row.id = item.attr('id')
                     row.name = $ele('name').text()
                     row.status = 'loading'
-                    tableData.value.push(row)
+                    return row
                 })
-                for (let i = 0; i < tableData.value.length; i++) {
-                    const row = tableData.value[i]
-                    row.status = ''
+                tableData.value.forEach(async (row) => {
                     const sendXml = rawXml`
                         <condition>
                             <chlId>${row.id}</chlId>
                         </condition>
                     `
-                    const videoLoss = await queryVideoLossTrigger(sendXml)
-                    const res = queryXml(videoLoss)
-                    if (res('status').text() === 'success') {
-                        row.rowDisable = false
+                    const result = await queryVideoLossTrigger(sendXml)
+                    const $ = queryXml(result)
+
+                    if (!tableData.value.some((item) => item === row)) {
+                        return
+                    }
+
+                    row.status = ''
+
+                    if ($('status').text() === 'success') {
+                        row.disabled = false
                         row.snap = {
-                            switch: res('//content/sysSnap/switch').text().bool(),
-                            chls: res('//content/sysSnap/chls/item').map((item) => {
+                            switch: $('content/sysSnap/switch').text().bool(),
+                            chls: $('content/sysSnap/chls/item').map((item) => {
                                 return {
                                     value: item.attr('id'),
                                     label: item.text(),
@@ -100,8 +109,8 @@ export default defineComponent({
                         // 获取snap中chls的value列表
                         // row.snapList = row.snap.chls.map((item) => item.value)
                         row.alarmOut = {
-                            switch: res('//content/alarmOut/switch').text().bool(),
-                            alarmOuts: res('//content/alarmOut/alarmOuts/item').map((item) => {
+                            switch: $('content/alarmOut/switch').text().bool(),
+                            alarmOuts: $('content/alarmOut/alarmOuts/item').map((item) => {
                                 return {
                                     value: item.attr('id'),
                                     label: item.text(),
@@ -109,37 +118,39 @@ export default defineComponent({
                             }),
                         }
                         // row.alarmOutList = row.alarmOut.chls.map((item) => item.value)
-                        row.beeper = res('//content/buzzerSwitch').text()
-                        row.email = res('//content/emailSwitch').text()
-                        row.msgPush = res('//content/msgPushSwitch').text()
-                        row.videoPopup = res('//content/popVideoSwitch').text()
+                        row.beeper = $('content/buzzerSwitch').text()
+                        row.email = $('content/emailSwitch').text()
+                        row.msgPush = $('content/msgPushSwitch').text()
+                        row.videoPopup = $('content/popVideoSwitch').text()
                         row.videoPopupInfo = {
-                            switch: res('//content/popVideo/switch').text().bool(),
+                            switch: $('content/popVideo/switch').text().bool(),
                             chl: {
-                                value: res('//content/popVideo/chl').attr('id') !== '' ? res('//content/popVideo/chl').attr('id') : ' ',
-                                label: res('//content/popVideo/chl').text(),
+                                value: $('content/popVideo/chl').attr('id') !== '' ? $('content/popVideo/chl').attr('id') : ' ',
+                                label: $('content/popVideo/chl').text(),
                             },
                         }
                         row.videoPopupList = pageData.value.videoPopupList.filter((item) => {
                             return item.value !== row.id
                         })
-                        row.msgBoxPopup = res('//content/popMsgSwitch').text()
-                        row.preset.switch = res('//content/preset/switch').text().bool()
-                        res('//content/preset/presets/item').forEach((item) => {
+                        row.msgBoxPopup = $('content/popMsgSwitch').text()
+                        row.preset.switch = $('content/preset/switch').text().bool()
+                        row.preset.presets = $('content/preset/presets/item').map((item) => {
                             const $item = queryXml(item.element)
-                            row.preset.presets.push({
+                            return {
                                 index: $item('index').text(),
                                 name: $item('name').text(),
                                 chl: {
                                     value: $item('chl').attr('id'),
                                     label: $item('chl').text(),
                                 },
-                            })
+                            }
                         })
+
+                        editRows.listen(row)
                     } else {
-                        row.rowDisable = true
+                        row.disabled = true
                     }
-                }
+                })
             })
         }
 
@@ -157,7 +168,6 @@ export default defineComponent({
 
         const switchSnap = (index: number) => {
             const row = tableData.value[index].snap
-            addEditRow(tableData.value[index])
             if (row.switch) {
                 openSnap(index)
             } else {
@@ -172,11 +182,10 @@ export default defineComponent({
         }
 
         const changeSnap = (index: number, data: SelectOption<string, string>[]) => {
-            if (tableData.value[index].rowDisable) {
+            if (tableData.value[index].disabled) {
                 return
             }
             pageData.value.snapIsShow = false
-            addEditRow(tableData.value[index])
             tableData.value[index].snap = {
                 switch: !!data.length,
                 chls: cloneDeep(data),
@@ -185,7 +194,6 @@ export default defineComponent({
 
         const switchAlarmOut = (index: number) => {
             const row = tableData.value[index].alarmOut
-            addEditRow(tableData.value[index])
             if (row.switch) {
                 openAlarmOut(index)
             } else {
@@ -200,11 +208,10 @@ export default defineComponent({
         }
 
         const changeAlarmOut = (index: number, data: SelectOption<string, string>[]) => {
-            if (tableData.value[index].rowDisable) {
+            if (tableData.value[index].disabled) {
                 return
             }
             pageData.value.alarmOutIsShow = false
-            addEditRow(tableData.value[index])
             tableData.value[index].alarmOut = {
                 switch: !!data.length,
                 alarmOuts: cloneDeep(data),
@@ -212,7 +219,6 @@ export default defineComponent({
         }
 
         const switchPreset = (index: number) => {
-            addEditRow(tableData.value[index])
             const row = tableData.value[index].preset
             if (row.switch) {
                 openPreset(index)
@@ -228,7 +234,6 @@ export default defineComponent({
         }
 
         const changePreset = (index: number, data: AlarmPresetItem[]) => {
-            addEditRow(tableData.value[index])
             pageData.value.isPresetPopOpen = false
             tableData.value[index].preset = {
                 switch: !!data.length,
@@ -239,8 +244,7 @@ export default defineComponent({
         // 系统音频
         const handleSysAudioChangeAll = (sysAudio: string) => {
             tableData.value.forEach((item) => {
-                if (!item.rowDisable) {
-                    addEditRow(item)
+                if (!item.disabled) {
                     item.sysAudio = sysAudio
                 }
             })
@@ -249,8 +253,7 @@ export default defineComponent({
         // 消息推送
         const handleMsgPushChangeAll = (msgPush: string) => {
             tableData.value.forEach((item) => {
-                if (!item.rowDisable) {
-                    addEditRow(item)
+                if (!item.disabled) {
                     item.msgPush = msgPush
                 }
             })
@@ -259,8 +262,7 @@ export default defineComponent({
         // ftpSnap 未传值
         // const handleFtpSnapChangeAll = (ftpSnap: string) => {
         //     tableData.value.forEach((item) => {
-        //         if (!item.rowDisable) {
-        //             addEditRow(item)
+        //         if (!item.disabled) {
         //             item.ftpSnap = ftpSnap
         //         }
         //     })
@@ -269,8 +271,7 @@ export default defineComponent({
         // 蜂鸣器
         const handleBeeperChangeAll = (beeper: string) => {
             tableData.value.forEach((item) => {
-                if (!item.rowDisable) {
-                    addEditRow(item)
+                if (!item.disabled) {
                     item.beeper = beeper
                 }
             })
@@ -280,9 +281,8 @@ export default defineComponent({
         const handleVideoPopupChangeAll = (videoPopup: string) => {
             tableData.value.forEach((row) => {
                 const values = row.videoPopupList.map((item) => item.value)
-                if (!row.rowDisable) {
+                if (!row.disabled) {
                     if (values.includes(videoPopup)) {
-                        addEditRow(row)
                         row.videoPopupInfo.chl.value = videoPopup
                         row.videoPopupInfo.chl.label = row.videoPopupList.find((item) => item.value === videoPopup)!.label
                     } else {
@@ -296,8 +296,7 @@ export default defineComponent({
         // 消息框弹出
         const handleMsgBoxPopupChangeAll = (msgBoxPopup: string) => {
             tableData.value.forEach((item) => {
-                if (!item.rowDisable) {
-                    addEditRow(item)
+                if (!item.disabled) {
                     item.msgBoxPopup = msgBoxPopup
                 }
             })
@@ -306,20 +305,10 @@ export default defineComponent({
         // 邮件
         const handleEmailChangeAll = (email: string) => {
             tableData.value.forEach((item) => {
-                if (!item.rowDisable) {
-                    addEditRow(item)
+                if (!item.disabled) {
                     item.email = email
                 }
             })
-        }
-
-        const addEditRow = (row: AlarmEventDto) => {
-            // 若该行不存在于编辑行中，则添加
-            const isExist = pageData.value.editRows.some((item) => item.id === row.id)
-            if (!isExist) {
-                pageData.value.editRows.push(row)
-            }
-            pageData.value.applyDisable = false
         }
 
         const getSavaData = (rowData: AlarmEventDto) => {
@@ -389,28 +378,31 @@ export default defineComponent({
             return sendXml
         }
 
-        const setData = () => {
+        const setData = async () => {
             openLoading()
-            pageData.value.editRows.forEach((item) => {
+
+            tableData.value.forEach((item) => (item.status = ''))
+
+            for (const item of editRows.toArray()) {
                 const sendXml = getSavaData(item)
-                editVideoLossTrigger(sendXml).then((res) => {
-                    const $ = queryXml(res)
-                    if ($('status').text() === 'success') {
+                const result = await editVideoLossTrigger(sendXml)
+                const $ = queryXml(result)
+                if ($('status').text() === 'success') {
+                    item.status = 'success'
+                    editRows.remove(item)
+                } else {
+                    item.status = 'error'
+                    const errorCode = $('errorCode').text().num()
+                    if (errorCode === ErrorCode.USER_ERROR_GET_CONFIG_INFO_FAIL) {
                         item.status = 'success'
+                        editRows.remove(item)
                     } else {
                         item.status = 'error'
-                        const errorCode = $('errorCode').text().num()
-                        if (errorCode === ErrorCode.USER_ERROR_GET_CONFIG_INFO_FAIL) {
-                            item.status = 'success'
-                        } else {
-                            item.status = 'error'
-                        }
                     }
-                })
-            })
+                }
+            }
+
             closeLoading()
-            pageData.value.editRows = []
-            pageData.value.applyDisable = true
         }
 
         onMounted(async () => {
@@ -424,6 +416,7 @@ export default defineComponent({
             chosedList,
             pageData,
             tableData,
+            editRows,
             switchAlarmOut,
             openAlarmOut,
             changeAlarmOut,
@@ -440,7 +433,6 @@ export default defineComponent({
             handleMsgBoxPopupChangeAll,
             handleEmailChangeAll,
             setData,
-            addEditRow,
             AlarmBasePresetPop,
             AlarmBaseSnapPop,
             AlarmBaseAlarmOutPop,

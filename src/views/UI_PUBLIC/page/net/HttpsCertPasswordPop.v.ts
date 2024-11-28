@@ -3,7 +3,7 @@
  * @Date: 2024-07-15 17:12:04
  * @Description: 证书加密密码弹窗
  */
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormRules } from 'element-plus'
 import { NetHTTPSCertPasswordForm } from '@/types/apiType/net'
 
 export default defineComponent({
@@ -32,7 +32,7 @@ export default defineComponent({
             ],
         })
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new NetHTTPSCertPasswordForm())
         const formRule = ref<FormRules>({
             password: [
@@ -73,8 +73,7 @@ export default defineComponent({
         /**
          * @description 打开弹窗时重置表单
          */
-        const opened = () => {
-            formRef.value?.clearValidate()
+        const open = () => {
             formData.value = new NetHTTPSCertPasswordForm()
         }
 
@@ -85,7 +84,7 @@ export default defineComponent({
             formRef,
             verify,
             close,
-            opened,
+            open,
         }
     },
 })

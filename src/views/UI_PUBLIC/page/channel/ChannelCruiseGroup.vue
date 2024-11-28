@@ -9,49 +9,42 @@
             <div class="base-chl-box-player">
                 <BaseVideoPlayer
                     ref="playerRef"
-                    type="live"
-                    @onready="handlePlayerReady"
+                    @ready="handlePlayerReady"
                 />
             </div>
             <el-form
                 :style="{
                     '--form-label-width': '100px',
                 }"
-                class="inline-message"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                    <el-select
+                    <el-select-v2
                         v-model="pageData.tableIndex"
+                        :options="chlOptions"
                         @change="changeChl"
-                    >
-                        <el-option
-                            v-for="(item, index) in tableData"
-                            :key="item.chlId"
-                            :value="index"
-                            :label="item.chlName"
-                        />
-                    </el-select>
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_PTZ_GROUP')">
                     <el-button
                         :disabled="!cruiseOptions.length"
                         @click="playCruiseGroup"
-                        >{{ Translate('IDCS_PLAY') }}</el-button
                     >
+                        {{ Translate('IDCS_PLAY') }}
+                    </el-button>
                     <el-button
                         :disabled="!cruiseOptions.length"
                         @click="stopCruiseGroup"
-                        >{{ Translate('IDCS_STOP') }}</el-button
                     >
+                        {{ Translate('IDCS_STOP') }}
+                    </el-button>
                 </el-form-item>
             </el-form>
             <div class="base-table-box">
                 <el-table
                     ref="cruiseTableRef"
                     :data="cruiseOptions"
-                    border
-                    stripe
                     highlight-current-row
+                    show-overflow-tooltip
                     @row-click="handleCruiseRowClick"
                 >
                     <el-table-column
@@ -61,8 +54,9 @@
                     <el-table-column
                         :label="Translate('IDCS_CRUISE_NAME')"
                         prop="name"
+                        width="152"
                     />
-                    <el-table-column :label="Translate('IDCS_DELETE')">
+                    <el-table-column :label="Translate('IDCS_EDIT')">
                         <template #default="scope">
                             <BaseImgSprite
                                 file="del"
@@ -95,8 +89,7 @@
                     :row-key="getRowKey"
                     :expand-row-key="pageData.expandRowKey"
                     highlight-current-row
-                    border
-                    stripe
+                    show-overflow-tooltip
                     @row-click="handleRowClick"
                     @expand-change="handleExpandChange"
                 >
@@ -130,7 +123,6 @@
             @confirm="confirmAddCruise"
             @close="pageData.isAddPop = false"
         />
-        <BaseNotification v-model:notifications="pageData.notification" />
     </div>
 </template>
 

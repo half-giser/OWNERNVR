@@ -8,17 +8,16 @@
         :title="Translate('IDCS_CHANGE_USER_INFO')"
         width="600"
         @opened="handleOpen"
-        @close="clear"
+        @closed="formRef?.resetFields()"
     >
         <el-form
             ref="formRef"
-            class="form stripe"
+            class="stripe"
             :rules
             :model="formData"
             :class="{
                 '--form-label-width': '200px',
             }"
-            inline-message
         >
             <el-form-item>
                 <el-checkbox
@@ -52,30 +51,23 @@
                 v-show="pageData.isAuthGroup"
                 :label="Translate('IDCS_RIGHT_GROUP')"
             >
-                <el-select
+                <el-select-v2
                     v-model="formData.authGroup"
+                    :options="authGroupOptions"
                     :disabled="pageData.isAuthGroupDisabled"
-                >
-                    <el-option
-                        v-for="item in authGroupOptions"
-                        :key="item.id || 'null'"
-                        :label="displayAuthGroup(item.name)"
-                        :value="item.id"
-                    />
-                </el-select>
+                />
             </el-form-item>
         </el-form>
-        <template #footer>
-            <div class="base-btn-box">
-                <el-button
-                    v-show="pageData.isChangePasswordBtn"
-                    @click="changePassword"
-                    >{{ Translate('IDCS_CHANGE_PWD') }}</el-button
-                >
-                <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="goBack">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button
+                v-show="pageData.isChangePasswordBtn"
+                @click="changePassword"
+            >
+                {{ Translate('IDCS_CHANGE_PWD') }}
+            </el-button>
+            <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="goBack">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 

@@ -106,9 +106,11 @@ export default defineComponent({
         const tableData = ref<AlarmCombinedItemDto[]>([])
 
         const getChls = () => {
-            getChlList({ requireField: ['protocolType'] }).then((result) => {
+            getChlList({
+                requireField: ['protocolType'],
+            }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
-                    $('//content/item').forEach((item) => {
+                    $('content/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         const protocolType = $item('protocolType').text()
                         const factoryName = $item('productModel').attr('factoryName')
@@ -135,18 +137,20 @@ export default defineComponent({
         }
 
         const getSensors = () => {
-            getChlList({ nodeType: 'sensors' }).then((result) => {
+            getChlList({
+                nodeType: 'sensors',
+            }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
-                    $('//content/item').forEach((item) => {
+                    pageData.value.sensorsMap = $('content/item').map((item) => {
                         const $item = queryXml(item.element)
                         let name = $item('name').text()
                         if ($item('devDesc').text()) {
                             name = $item('devDesc').text() + '_' + name
                         }
-                        pageData.value.sensorsMap.push({
+                        return {
                             value: item.attr('id'),
                             label: name,
-                        })
+                        }
                     })
                 })
             })
@@ -160,7 +164,7 @@ export default defineComponent({
                 requireField: ['protocolType'],
             }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
-                    $('//content/item').forEach((item) => {
+                    $('content/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         const protocolType = $item('protocolType').text()
                         const factoryName = $item('productModel').attr('factoryName')
@@ -188,7 +192,7 @@ export default defineComponent({
                 requireField: ['protocolType'],
             }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
-                    $('//content/item').forEach((item) => {
+                    $('content/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         const protocolType = $item('protocolType').text()
                         const factoryName = $item('productModel').attr('factoryName')
@@ -213,7 +217,7 @@ export default defineComponent({
                 requireField: ['protocolType'],
             }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
-                    $('//content/item').forEach((item) => {
+                    $('content/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         const protocolType = $item('protocolType').text()
                         const factoryName = $item('productModel').attr('factoryName')
@@ -416,7 +420,7 @@ export default defineComponent({
                 `
                 const result = await queryAlarmIn(sendXml)
                 commLoadResponseHandler(result, ($) => {
-                    isShowDetect = $('//content/param/switch').text().bool()
+                    isShowDetect = $('content/param/switch').text().bool()
                 })
                 // 以下几种类型的请求头是一样的
             } else {
@@ -437,12 +441,13 @@ export default defineComponent({
                     const result = await queryIntelAreaConfig(sendXml)
                     const $ = queryXml(result)
                     // 开关包含区域入侵、区域进入、区域离开
-                    const perimeterSwitch = $('//content/chl/perimeter/param/switch').text().bool()
-                    const entrySwitch = $('//content/chl/entry/param/switch').text().bool()
-                    const leaveSwitch = $('//content/chl/leave/param/switch').text().bool()
+                    const perimeterSwitch = $('content/chl/perimeter/param/switch').text().bool()
+                    const entrySwitch = $('content/chl/entry/param/switch').text().bool()
+                    const leaveSwitch = $('content/chl/leave/param/switch').text().bool()
                     isShowDetect = perimeterSwitch || entrySwitch || leaveSwitch
-                    // 人脸比对
-                } else if (row.alarmSourceType === 'FaceMatch') {
+                }
+                // 人脸比对
+                else if (row.alarmSourceType === 'FaceMatch') {
                     const typeMap = localTargetDectMaxCount ? pageData.value.chlsFilterMap : pageData.value.faceMap
                     if (!typeMap.some((el) => el.value === id)) {
                         return false
@@ -457,18 +462,20 @@ export default defineComponent({
                     if (isVfdChl) {
                         const result = await queryIntelAreaConfig(sendXml)
                         const $ = queryXml(result)
-                        isShowDetect = $('//content/chl/param/switch').text().bool()
+                        isShowDetect = $('content/chl/param/switch').text().bool()
                     } else {
                         const result = await queryBackFaceMatch()
                         const $ = queryXml(result)
                         isShowDetect = false
-                        $('//content/param/chls/item').forEach((item) => {
+                        $('content/param/chls/item').forEach((item) => {
                             if (item.attr('guid') === id) {
                                 isShowDetect = queryXml(item.element)('switch').text().bool()
                             }
                         })
                     }
-                } else if (row.alarmSourceType === 'Tripwire') {
+                }
+                // 越界
+                else if (row.alarmSourceType === 'Tripwire') {
                     const typeMap = localTargetDectMaxCount ? pageData.value.chlsFilterMapForThermal : pageData.value.tripwireMap
                     if (!typeMap.some((el) => el.value === id)) {
                         return false
@@ -476,12 +483,14 @@ export default defineComponent({
                     const result = await queryTripwire(sendXml)
                     const $ = queryXml(result)
 
-                    isShowDetect = $('//content/chl/param/switch').text().bool()
-                } else if (row.alarmSourceType === 'Motion') {
+                    isShowDetect = $('content/chl/param/switch').text().bool()
+                }
+                // 移动侦测
+                else if (row.alarmSourceType === 'Motion') {
                     const result = await queryMotion(sendXml)
                     const $ = queryXml(result)
 
-                    isShowDetect = $('//content/chl/param/switch').text().bool()
+                    isShowDetect = $('content/chl/param/switch').text().bool()
                 }
             }
 

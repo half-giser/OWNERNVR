@@ -27,7 +27,6 @@
                 :style="{
                     '--form-input-width': '100%',
                 }"
-                class="inline-message"
             >
                 <el-form-item :label="Translate('IDCS_START_TIME')">
                     <el-date-picker
@@ -46,12 +45,10 @@
                     />
                 </el-form-item>
             </el-form>
-            <template #footer>
-                <div class="base-btn-box">
-                    <el-button @click="verifyCustomPop">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="cancelCustomPop">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </div>
-            </template>
+            <div class="base-btn-box">
+                <el-button @click="verifyCustomPop">{{ Translate('IDCS_OK') }}</el-button>
+                <el-button @click="cancelCustomPop">{{ Translate('IDCS_CANCEL') }}</el-button>
+            </div>
         </el-dialog>
     </div>
 </template>

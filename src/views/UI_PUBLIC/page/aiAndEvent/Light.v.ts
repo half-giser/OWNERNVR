@@ -1,7 +1,7 @@
 /*
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-13 15:58:57
- * @Description:闪灯
+ * @Description: 闪灯
  */
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { AlarmWhiteLightDto } from '@/types/apiType/aiAndEvent'
@@ -12,8 +12,6 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
-
-        const tableData = ref<AlarmWhiteLightDto[]>([])
 
         const pageData = ref({
             pageIndex: 1,
@@ -26,32 +24,32 @@ export default defineComponent({
             scheduleList: [] as SelectOption<string, string>[],
             enableList: getSwitchOptions(),
             lightFrequencyList: [] as SelectOption<string, string>[],
-            applyDisable: true,
-            initComplated: false,
-            editRows: [] as AlarmWhiteLightDto[],
         })
 
+        const tableData = ref<AlarmWhiteLightDto[]>([])
+        // 编辑行
+        const editRows = useWatchEditRows<AlarmWhiteLightDto>()
+
         const buildTableData = () => {
-            pageData.value.initComplated = false
-            tableData.value.length = 0
+            editRows.clear()
+            tableData.value = []
+
             getChlList({
                 pageIndex: pageData.value.pageIndex,
                 pageSize: pageData.value.pageSize,
                 nodeType: 'chls',
                 isSupportWhiteLightAlarmOut: true,
-            }).then(async (res) => {
+            }).then((res) => {
                 const $chl = queryXml(res)
-                pageData.value.totalCount = $chl('//content').attr('total').num()
-                $chl('//content/item').forEach(async (item) => {
+                pageData.value.totalCount = $chl('content').attr('total').num()
+                tableData.value = $chl('content/item').map((item) => {
                     const row = new AlarmWhiteLightDto()
                     row.id = item.attr('id')
-                    row.name = xmlParse('./name', item.element).text()
+                    row.name = queryXml(item.element)('name').text()
                     row.status = 'loading'
-                    tableData.value.push(row)
+                    return row
                 })
-                let completeCount = 0
-                for (let i = 0; i < tableData.value.length; i++) {
-                    const row = tableData.value[i]
+                tableData.value.forEach(async (row) => {
                     const sendXml = rawXml`
                         <condition>
                             <chlId>${row.id}</chlId>
@@ -60,35 +58,34 @@ export default defineComponent({
                             <param></param>
                         </requireField>
                     `
-                    const whiteLightInfo = await queryWhiteLightAlarmOutCfg(sendXml)
-                    const res = queryXml(whiteLightInfo)
-                    row.status = ''
-                    if (res('status').text() === 'success') {
-                        if (pageData.value.lightFrequencyList.length === 0) {
-                            res('//types/lightFrequency/enum').forEach((item) => {
-                                pageData.value.lightFrequencyList.push({
-                                    value: item.text(),
-                                    label: getLightFrequencyLang(item.text()),
-                                })
-                            })
-                        }
-                        row.enable = res('//content/chl/param/lightSwitch').text()
-                        row.durationTime = res('//content/chl/param/durationTime').text().num()
-                        row.frequencyType = res('//content/chl/param/frequencyType').text()
-                        setRowDisable(row)
-                        row.rowDisable = false
-                    } else {
-                        row.enableDisable = true
-                        row.rowDisable = true
+                    const result = await queryWhiteLightAlarmOutCfg(sendXml)
+                    const $ = queryXml(result)
+
+                    if (!tableData.value.some((item) => item === row)) {
+                        return
                     }
 
-                    completeCount++
-                    if (completeCount >= tableData.value.length) {
-                        nextTick(() => {
-                            pageData.value.initComplated = true
-                        })
+                    row.status = ''
+                    if ($('status').text() === 'success') {
+                        if (!pageData.value.lightFrequencyList.length) {
+                            pageData.value.lightFrequencyList = $('types/lightFrequency/enum').map((item) => {
+                                return {
+                                    value: item.text(),
+                                    label: getLightFrequencyLang(item.text()),
+                                }
+                            })
+                        }
+                        row.enable = $('content/chl/param/lightSwitch').text()
+                        row.durationTime = $('content/chl/param/durationTime').text().num()
+                        row.frequencyType = $('content/chl/param/frequencyType').text()
+                        setRowDisable(row)
+                        row.disabled = false
+                        editRows.listen(row)
+                    } else {
+                        row.enableDisable = true
+                        row.disabled = true
                     }
-                }
+                })
             })
         }
 
@@ -106,8 +103,6 @@ export default defineComponent({
                         </chl>
                     </content>`
                 return sendXml
-            } else {
-                console.log('durationTime is null')
             }
         }
 
@@ -117,34 +112,39 @@ export default defineComponent({
 
         const getSchedule = async () => {
             await getScheduleList()
-            queryEventNotifyParam().then((resb) => {
-                const res = queryXml(resb)
-                if (res('status').text() === 'success') {
-                    pageData.value.schedule = res('//content/triggerChannelLightSchedule').attr('id')
-                    pageData.value.scheduleName = res('//content/triggerChannelLightSchedule').text()
+            queryEventNotifyParam().then((result) => {
+                const $ = queryXml(result)
+                if ($('status').text() === 'success') {
+                    pageData.value.schedule = $('content/triggerChannelLightSchedule').attr('id')
+                    pageData.value.scheduleName = $('content/triggerChannelLightSchedule').text()
                 }
             })
             pageData.value.scheduleChanged = false
         }
 
-        const setData = () => {
+        const setData = async () => {
             openLoading()
-            pageData.value.editRows.forEach((row) => {
+
+            tableData.value.forEach((item) => (item.status = ''))
+
+            for (const row of editRows.toArray()) {
                 const sendXml = getSaveData(row)
                 if (sendXml) {
-                    editWhiteLightAlarmOutCfg(sendXml).then((resb) => {
-                        const res = queryXml(resb)
-                        const isSuccess = res('status').text() === 'success'
-                        row.status = isSuccess ? 'success' : 'error'
-                        if (isSuccess) {
-                            pageData.value.editRows.splice(pageData.value.editRows.indexOf(row), 1)
-                            if (!pageData.value.editRows.length) {
-                                pageData.value.applyDisable = true
-                            }
+                    try {
+                        const result = await editWhiteLightAlarmOutCfg(sendXml)
+                        const $ = queryXml(result)
+                        if ($('status').text() === 'success') {
+                            row.status = 'success'
+                            editRows.remove(row)
+                        } else {
+                            row.status = 'error'
                         }
-                    })
+                    } catch {
+                        row.status = 'error'
+                    }
                 }
-            })
+            }
+
             if (pageData.value.scheduleChanged) {
                 const scheduleSendXml = rawXml`
                     <content>
@@ -153,14 +153,12 @@ export default defineComponent({
                         </triggerChannelLightSchedule>
                     </content>
                 `
-                editEventNotifyParam(scheduleSendXml).then((resb) => {
-                    const res = queryXml(resb)
-                    if (res('status').text() === 'success') {
-                        pageData.value.applyDisable = true
-                    }
-                    pageData.value.scheduleChanged = false
-                })
+                try {
+                    await editEventNotifyParam(scheduleSendXml)
+                } catch {}
+                pageData.value.scheduleChanged = false
             }
+
             closeLoading()
         }
 
@@ -191,8 +189,6 @@ export default defineComponent({
 
         const handleEnabelChange = (row: AlarmWhiteLightDto) => {
             setRowDisable(row)
-            addEditRows(row)
-            pageData.value.applyDisable = false
         }
 
         const handleEnabelChangeAll = (value: string) => {
@@ -200,28 +196,14 @@ export default defineComponent({
                 if (row.enable) {
                     row.enable = value
                     setRowDisable(row)
-                    addEditRows(row)
-                    if (!row.rowDisable) pageData.value.applyDisable = false
                 }
             })
         }
 
-        const handleDurationTimeChange = (row: AlarmWhiteLightDto) => {
-            addEditRows(row)
-            if (!row.rowDisable) pageData.value.applyDisable = false
-        }
-
-        const handleFrequencyTypeChange = (row: AlarmWhiteLightDto) => {
-            addEditRows(row)
-            if (!row.rowDisable) pageData.value.applyDisable = false
-        }
-
         const handleFrequencyTypeChangeAll = (value: string) => {
             tableData.value.forEach((row) => {
-                if (!row.rowDisable && !(row.enable && row.enable === 'false')) {
+                if (!row.disabled && !(row.enable && row.enable === 'false')) {
                     row.frequencyType = value
-                    addEditRows(row)
-                    if (!row.rowDisable) pageData.value.applyDisable = false
                 }
             })
         }
@@ -253,23 +235,14 @@ export default defineComponent({
         }
 
         const handleScheduleChange = () => {
-            pageData.value.applyDisable = false
             pageData.value.scheduleChanged = true
             pageData.value.scheduleName = pageData.value.schedule === DEFAULT_EMPTY_ID ? '' : pageData.value.scheduleList.find((item) => item.value === pageData.value.schedule)!.label
-        }
-
-        const addEditRows = (row: AlarmWhiteLightDto) => {
-            if (!row.rowDisable) {
-                if (!pageData.value.editRows.some((item) => item.id === row.id)) {
-                    pageData.value.editRows.push(row)
-                }
-            }
         }
 
         const setRowDisable = (rowData: AlarmWhiteLightDto) => {
             const disabled = rowData.enable === 'false'
             if (rowData.enable === '') {
-                rowData.rowDisable = true
+                rowData.disabled = true
                 rowData.enableDisable = true
                 rowData.durationTimeDisable = true
                 rowData.frequencyTypeDisable = true
@@ -303,12 +276,11 @@ export default defineComponent({
         return {
             pageData,
             tableData,
+            editRows,
             changePagination,
             changePaginationSize,
             handleEnabelChange,
             handleEnabelChangeAll,
-            handleDurationTimeChange,
-            handleFrequencyTypeChange,
             handleFrequencyTypeChangeAll,
             handleDurationTimeFocus,
             handleDurationTimeBlur,

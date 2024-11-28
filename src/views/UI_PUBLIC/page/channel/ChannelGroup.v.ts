@@ -121,13 +121,12 @@ export default defineComponent({
                     closeLoading()
                     const $ = queryXml(res)
                     if ($('status').text() === 'success') {
-                        const chlList: Record<string, string | boolean>[] = []
-                        $('//content/chlList/item').forEach((ele) => {
-                            chlList.push({
+                        const chlList = $('content/chlList/item').map((ele) => {
+                            return {
                                 value: ele.attr('id'),
                                 text: ele.text(),
                                 showDelIcon: false,
-                            })
+                            }
                         })
                         row.chls = chlList
                         row.chlCount = chlList.length
@@ -152,15 +151,14 @@ export default defineComponent({
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() === 'success') {
-                    tableData.value = []
-                    $('//content/item').forEach((ele) => {
-                        const eleXml = queryXml(ele.element)
+                    tableData.value = $('content/item').map((ele) => {
+                        const $item = queryXml(ele.element)
                         const newData = new ChannelGroupDto()
                         newData.id = ele.attr('id')
-                        newData.name = eleXml('name').text()
-                        newData.dwellTime = eleXml('dwellTime').text().num()
-                        newData.chlCount = eleXml('chlCount').text().num()
-                        tableData.value.push(newData)
+                        newData.name = $item('name').text()
+                        newData.dwellTime = $item('dwellTime').text().num()
+                        newData.chlCount = $item('chlCount').text().num()
+                        return newData
                     })
                     pageTotal.value = $('content').attr('total').num()
                 }

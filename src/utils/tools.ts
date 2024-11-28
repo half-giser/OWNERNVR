@@ -5,16 +5,10 @@
  */
 
 import { type QueryNodeListDto } from '@/types/apiType/channel'
+import { type AlarmMutexDto } from '@/types/apiType/aiAndEvent'
 import { type ApiResult } from '@/api/api'
 import { type XMLQuery, type XmlResult } from './xmlParse'
 import JSZip from 'jszip'
-
-export * from './transformers'
-export * from './validates'
-export * from './formats'
-export * from './xmlParse'
-export * from './encrypt'
-export * from './date'
 
 /**
  * @description: 获取客户端操作系统
@@ -389,6 +383,15 @@ export const wrapEnums = (array: string[] | SelectOption<any, any>[]) => {
     }
 }
 
+/**
+ * @description base64字符串添加前缀
+ * @param {string} str
+ * @returns {string}
+ */
+export const wrapBase64Img = (str: string) => {
+    return 'data:image/png;base64,' + str
+}
+
 export const ternary = (condition: boolean | number | string | undefined | null, trueResult = '', falseResult = '') => {
     return condition ? trueResult : falseResult
 }
@@ -417,10 +420,10 @@ export const getChlList = (options: Partial<QueryNodeListDto>) => {
         <nodeType type='nodeType'>${options.nodeType || 'chls'}</nodeType>
         <condition>
             ${ternary(options.chlName, `<name>${wrapCDATA(options.chlName!)}</name>`)}
-            ${ternary(options.isSupportPtz, `<supportPtz/>`)}
-            ${ternary(options.isSupportPtzGroupTraceTask, `<supportPTZGroupTraceTask/>`)}
-            ${ternary(options.isSupportTalkback, `<supportTalkback/>`)}
-            ${ternary(options.isSupportOsc, `<supportOsc/>`)}
+            ${ternary(options.isSupportPtz, '<supportPtz/>')}
+            ${ternary(options.isSupportPtzGroupTraceTask, '<supportPTZGroupTraceTask/>')}
+            ${ternary(options.isSupportTalkback, '<supportTalkback/>')}
+            ${ternary(options.isSupportOsc, '<supportOsc/>')}
             ${ternary(options.isSupportSnap, '<supportSnap/>')}
             ${ternary(options.isSupportVfd, '<supportVfd/>')}
             ${ternary(options.isSupportBackEndVfd, '<supportBackEndVfd/>')}
@@ -482,7 +485,7 @@ export const checkChlListCaps = async (route: string) => {
 
     const resultOnline = await queryOnlineChlList()
     const $online = queryXml(resultOnline)
-    const onlineList = $online('//content/item').map((item) => item.attr('id'))
+    const onlineList = $online('content/item').map((item) => item.attr('id'))
 
     const result = await getChlList({
         requireField: [
@@ -505,7 +508,7 @@ export const checkChlListCaps = async (route: string) => {
 
     closeLoading()
 
-    const supportFlag = $('//content/item').some((item) => {
+    const supportFlag = $('content/item').some((item) => {
         const $item = queryXml(item.element)
         const protocolType = $('protocolType').text()
         const factoryName = $('productModel').attr('factoryName')
@@ -593,7 +596,7 @@ export const commSaveResponseHadler = ($response: ApiResult, successHandler?: (r
         const Translate = useLangStore().Translate
         const openMessageBox = useMessageBox().openMessageBox
         const $ = queryXml($response)
-        if ($('//status').text() === 'success') {
+        if ($('status').text() === 'success') {
             openMessageBox({
                 type: 'success',
                 message: Translate('IDCS_SAVE_DATA_SUCCESS'),
@@ -628,9 +631,9 @@ export const commMutiSaveResponseHadler = (
     let allSuccess = true
     const responseXmlList: ((path: string) => XmlResult)[] = []
     responseList.forEach((item) => {
-        const resultXml = queryXml(item as ApiResult)
-        responseXmlList.push(resultXml)
-        if (resultXml('status').text() !== 'success') {
+        const $ = queryXml(item as ApiResult)
+        responseXmlList.push($)
+        if ($('status').text() !== 'success') {
             allSuccess = false
             return
         }
@@ -925,7 +928,7 @@ export const buildScheduleList = async (option: Partial<ScheduleListOption> = {}
     const Translate = useLangStore().Translate
     const result = await queryScheduleList()
     const $ = await commLoadResponseHandler(result)
-    const scheduleList = $('//content/item').map((item) => {
+    const scheduleList = $('content/item').map((item) => {
         return {
             value: item.attr('id'),
             label: item.text(),
@@ -954,7 +957,7 @@ export const buildAudioList = async () => {
     const Translate = useLangStore().Translate
     const result = await queryAlarmAudioCfg()
     const $ = await commLoadResponseHandler(result)
-    const audioList = $('//content/audioList/item').map((item) => {
+    const audioList = $('content/audioList/item').map((item) => {
         return {
             value: item.attr('id'),
             label: item.text(),
@@ -977,7 +980,7 @@ export const buildAlarmOutChlList = async () => {
         nodeType: 'alarmOuts',
     })
     const $ = await commLoadResponseHandler(result)
-    const alarmOutList = $('//content/item').map((item) => {
+    const alarmOutList = $('content/item').map((item) => {
         const $item = queryXml(item.element)
         let label = $item('name').text()
         if ($item('devDesc').text()) {
@@ -1004,7 +1007,7 @@ export const buildRecordChlList = async () => {
         isSupportSnap: false,
     })
     const $ = await commLoadResponseHandler(result)
-    const chlList = $('//content/item').map((item) => {
+    const chlList = $('content/item').map((item) => {
         const $item = queryXml(item.element)
         return {
             label: $item('name').text(),
@@ -1023,7 +1026,7 @@ export const buildSnapChlList = async () => {
         isSupportSnap: true,
     })
     const $ = await commLoadResponseHandler(result)
-    const chlList = $('//content/item').map((item) => {
+    const chlList = $('content/item').map((item) => {
         const $item = queryXml(item.element)
         return {
             label: $item('name').text(),
@@ -1134,21 +1137,12 @@ export const getAlwaysOptions = () => {
     })
 }
 
-export const getAlarmEventList = () => {
-    const Translate = useLangStore().Translate
-    const obj: Record<string, string> = {}
-    for (const i in DEFAULT_ALARM_EVENT) {
-        obj[i] = Translate(DEFAULT_ALARM_EVENT[i])
-    }
-    return obj
-}
-
 /**
  * @description 提示达到搜索最大数量
  * @param $
  */
 export const showMaxSearchLimitTips = ($: XMLQuery) => {
-    const isMaxSearchResultNum = $('//content/IsMaxSearchResultNum').text().bool()
+    const isMaxSearchResultNum = $('content/IsMaxSearchResultNum').text().bool()
     const { openMessageBox } = useMessageBox()
     const { Translate } = useLangStore()
 
@@ -1287,8 +1281,29 @@ export const getChlGuid16 = (id: string) => {
     }
 }
 
-// 翻译key值拼接添加空格（排除简体中文、繁体中文）
-export const joinSpaceForLang = (str: string) => {
+interface MutexChlDto {
+    id: string
+    ip: string
+    name: string
+    accessType: string
+}
+
+type MutexOptions = {
+    isChange: boolean
+    mutexList: AlarmMutexDto[]
+    mutexListEx?: AlarmMutexDto[]
+    chlList?: MutexChlDto[]
+    chlIp?: string
+    chlName: string
+    tips: string
+}
+
+/**
+ * @description 翻译key值拼接添加空格（排除简体中文、繁体中文）
+ * @param {string} str
+ * @returns {string}
+ */
+const joinSpaceForLang = (str: string) => {
     if (!str) return ''
     const { langType } = useLangStore()
     const langTypeList = ['zh-cn', 'zh-tw']
@@ -1296,4 +1311,103 @@ export const joinSpaceForLang = (str: string) => {
     const isInclude = langTypeList.includes(currLangType)
     str = isInclude ? str : str + ' '
     return str
+}
+
+const getMutexChlNameObj = (onlineChannelList: MutexChlDto[], chlIp: string, chlName: string) => {
+    let normalChlName = ''
+    let thermalChlName = ''
+    const sameIPChlList = onlineChannelList.filter((chl) => {
+        return chl.ip === chlIp
+    })
+    if (sameIPChlList.length > 1) {
+        sameIPChlList.forEach((chl) => {
+            if (chl.accessType === '1') {
+                thermalChlName = chl.name === chlName ? '' : chl.name
+            } else {
+                normalChlName = chl.name === chlName ? '' : chl.name
+            }
+        })
+    }
+    return {
+        normalChlName: normalChlName,
+        thermalChlName: thermalChlName,
+    }
+}
+
+/**
+ * @description 查询是否有互斥通道
+ */
+export const checkMutexChl = async ({ isChange, mutexList, mutexListEx = [], chlList = [], chlIp = '', chlName, tips }: MutexOptions) => {
+    if (!isChange) {
+        return Promise.resolve()
+    }
+
+    const { Translate } = useLangStore()
+    const { openMessageBox } = useMessageBox()
+    const DEFAULT_ALARM_EVENT: Record<string, string> = {
+        cdd: Translate('IDCS_CROWD_DENSITY_DETECTION'),
+        cpc: Translate('IDCS_PASS_LINE_COUNT_DETECTION'),
+        ipd: Translate('IDCS_INVADE_DETECTION'),
+        tripwire: Translate('IDCS_BEYOND_DETECTION'),
+        osc: Translate('IDCS_WATCH_DETECTION'),
+        avd: Translate('IDCS_ABNORMAL_DETECTION'),
+        perimeter: Translate('IDCS_INVADE_DETECTION'),
+        vfd: Translate('IDCS_FACE_DETECTION'),
+        aoientry: Translate('IDCS_INVADE_DETECTION'),
+        aoileave: Translate('IDCS_INVADE_DETECTION'),
+        passlinecount: Translate('IDCS_PASS_LINE_COUNT_DETECTION'),
+        vehicle: Translate('IDCS_PLATE_DETECTION'),
+        fire: Translate('IDCS_FIRE_POINT_DETECTION'),
+        vsd: Translate('IDCS_VSD_DETECTION'),
+    }
+
+    const switchChangeTypeArr: string[] = []
+
+    if (chlList.length) {
+        const mutexChlNameObj = getMutexChlNameObj(chlList, chlIp, chlName)
+
+        mutexList.forEach((item) => {
+            if (item.status) {
+                const prefixName = mutexChlNameObj.normalChlName ? joinSpaceForLang(Translate('IDCS_CHANNEL') + ':' + mutexChlNameObj.normalChlName) : ''
+                const showInfo = prefixName ? prefixName + DEFAULT_ALARM_EVENT[item.object].toLowerCase() : DEFAULT_ALARM_EVENT[item.object].toLowerCase()
+                switchChangeTypeArr.push(showInfo)
+            }
+        })
+
+        mutexListEx.forEach((item) => {
+            if (item.status) {
+                const prefixName = mutexChlNameObj.thermalChlName ? joinSpaceForLang(Translate('IDCS_CHANNEL') + ':' + mutexChlNameObj.thermalChlName) : ''
+                const showInfo = prefixName ? prefixName + DEFAULT_ALARM_EVENT[item.object].toLowerCase() : DEFAULT_ALARM_EVENT[item.object].toLowerCase()
+                switchChangeTypeArr.push(showInfo)
+            }
+        })
+    } else {
+        mutexList.forEach((item) => {
+            if (item.status) {
+                switchChangeTypeArr.push(DEFAULT_ALARM_EVENT[item.object].toLowerCase())
+            }
+        })
+    }
+
+    if (switchChangeTypeArr.length) {
+        const switchChangeType = switchChangeTypeArr.join(',')
+        return openMessageBox({
+            type: 'question',
+            message: Translate(tips).formatForLang(Translate('IDCS_CHANNEL') + ':' + chlName, switchChangeType),
+        })
+    } else {
+        return Promise.resolve()
+    }
+}
+
+/**
+ * @description 将number[]/string[]转换为SelectOption<number,number>/SelectOption<string, string>
+ * @param {Array} array
+ * @returns {SelectOption[]}
+ */
+export const arrayToOptions = <T>(array: T[]) => {
+    return array.map((value) => ({
+        label: value,
+        value,
+    }))
 }

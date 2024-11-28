@@ -9,72 +9,45 @@
             <div class="base-chl-box-player">
                 <BaseVideoPlayer
                     ref="playerRef"
-                    :split="1"
-                    @onready="onReady"
+                    @ready="onReady"
                 />
             </div>
             <el-form
-                ref="formRef"
-                :model="formData"
                 :style="{
                     '--form-label-width': '160px',
                 }"
                 class="stripe"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                    <el-select
+                    <el-select-v2
                         v-model="selectedChlId"
+                        :options="chlOptions"
                         @change="handleChlSel"
-                    >
-                        <el-option
-                            v-for="(item, index) in tableData"
-                            :key="index"
-                            :value="item.id"
-                            :label="item.name || ' '"
-                        />
-                    </el-select>
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_FISHEYE_STREAM_MODE')">
-                    <el-select
+                    <el-select-v2
                         v-model="formData.fishEyeMode"
                         :disabled="formData.disabled || formData.reqCfgFail"
+                        :options="fishEyeModeOption"
                         @change="handleChangeVal()"
-                    >
-                        <el-option
-                            v-for="(item, index) in fishEyeModeOption"
-                            :key="index"
-                            :value="item.value"
-                            :label="item.label"
-                        />
-                    </el-select>
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_FISHEYE_MODE')">
-                    <el-select
+                    <el-select-v2
                         v-model="formData.installType"
                         :disabled="formData.disabled || formData.reqCfgFail"
+                        :options="installTypeOption"
                         @change="handleChangeVal()"
-                    >
-                        <el-option
-                            v-for="(item, index) in installTypeOption"
-                            :key="index"
-                            :value="item.value"
-                            :label="item.label"
-                        />
-                    </el-select>
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_ENABLE')">
-                    <el-select
+                    <el-select-v2
                         v-model="formData.fishEyeEnable"
                         :disabled="!formData.reqCfgFail"
+                        :options="switchOptions"
                         @change="handleChangeVal(true)"
-                    >
-                        <el-option
-                            v-for="item in switchOptions"
-                            :key="item.label"
-                            :value="item.value"
-                            :label="item.label"
-                        />
-                    </el-select>
+                    />
                 </el-form-item>
             </el-form>
         </div>
@@ -82,8 +55,6 @@
             <div class="base-table-box">
                 <el-table
                     ref="tableRef"
-                    border
-                    stripe
                     :data="tableData"
                     show-overflow-tooltip
                     highlight-current-row
@@ -129,19 +100,13 @@
                             </el-dropdown>
                         </template>
                         <template #default="scope">
-                            <el-select
+                            <el-select-v2
                                 v-model="scope.row.fishEyeMode"
                                 :disabled="scope.row.disabled || scope.row.reqCfgFail || scope.row.HIKVISION"
+                                :options="fishEyeModeOption"
                                 @focus="handleRowClick(scope.row)"
                                 @change="handleChangeVal()"
-                            >
-                                <el-option
-                                    v-for="(item, index) in fishEyeModeOption"
-                                    :key="index"
-                                    :value="item.value"
-                                    :label="item.label"
-                                />
-                            </el-select>
+                            />
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -167,19 +132,13 @@
                             </el-dropdown>
                         </template>
                         <template #default="scope">
-                            <el-select
+                            <el-select-v2
                                 v-model="scope.row.installType"
                                 :disabled="scope.row.disabled || scope.row.reqCfgFail || scope.row.HIKVISION"
+                                :options="installTypeOption"
                                 @focus="handleRowClick(scope.row)"
                                 @change="handleChangeVal()"
-                            >
-                                <el-option
-                                    v-for="(item, index) in installTypeOption"
-                                    :key="index"
-                                    :value="item.value"
-                                    :label="item.label"
-                                />
-                            </el-select>
+                            />
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -205,19 +164,13 @@
                             </el-dropdown>
                         </template>
                         <template #default="scope">
-                            <el-select
+                            <el-select-v2
                                 v-model="scope.row.fishEyeEnable"
                                 :disabled="!scope.row.reqCfgFail || scope.row.privateProtocol"
+                                :options="switchOptions"
                                 @focus="handleRowClick(scope.row)"
                                 @change="handleChangeVal(true)"
-                            >
-                                <el-option
-                                    v-for="item in switchOptions"
-                                    :key="item.label"
-                                    :value="item.value"
-                                    :label="item.label"
-                                />
-                            </el-select>
+                            />
                         </template>
                     </el-table-column>
                 </el-table>
@@ -233,9 +186,10 @@
             </div>
             <div class="base-btn-box">
                 <el-button
-                    :disabled="btnOKDisabled"
+                    :disabled="!editRows.size()"
                     @click="save"
-                    >{{ Translate('IDCS_APPLY') }}
+                >
+                    {{ Translate('IDCS_APPLY') }}
                 </el-button>
             </div>
         </div>

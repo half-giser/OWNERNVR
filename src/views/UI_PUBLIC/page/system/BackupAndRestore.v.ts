@@ -8,7 +8,6 @@ import BaseInputEncryptPwdPop from '../../components/auth/BaseInputEncryptPwdPop
 import WebsocketUpload from '@/utils/websocket/websocketUpload'
 import WebsocketDownload from '@/utils/websocket/websocketDownload'
 import { SystemRestoreForm, SystemBackUpForm } from '@/types/apiType/system'
-import { type XMLQuery } from '@/utils/xmlParse'
 import { UserCheckAuthForm, UserInputEncryptPwdForm } from '@/types/apiType/user'
 
 export default defineComponent({
@@ -20,8 +19,8 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
+        const { openNotify } = useNotification()
         const userSession = useUserSessionStore()
-        const Plugin = inject('Plugin') as PluginType
         const browserInfo = getBrowserInfo()
 
         let file: File
@@ -34,13 +33,87 @@ export default defineComponent({
             isExportDisabled: true,
             importNote: '',
             exportNote: '',
-            notifications: [] as string[],
             isCheckAuth: false,
             checkAuthTip: '',
             checkAuthType: 'import',
             isEncryptPwd: false,
             encryptPwdTitle: '',
             encryptPwdDecryptFlag: false,
+            configSwitchOptions: [
+                {
+                    label: Translate('IDCS_INCLUDE_NETWORK'),
+                    value: 'network',
+                },
+                {
+                    label: Translate('IDCS_INCLUDE_DATA_ENCRYPT_PASSWORD'),
+                    value: 'encryption',
+                },
+            ],
+        })
+
+        const plugin = usePluginHook({
+            onReady: (mode, plugin) => {
+                if (mode.value === 'h5' && isHttpsLogin()) {
+                    openNotify(formatHttpsTips(Translate('IDCS_BACKUP_AND_RESTORE_SET')))
+                    pageData.value.isUploadDisabled = true
+                } else {
+                    pageData.value.isUploadDisabled = false
+                }
+
+                if (mode.value === 'ocx') {
+                    const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
+                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    if (!exportFormData.value.filePath) {
+                        pageData.value.isExportDisabled = true
+                    }
+                } else {
+                    pageData.value.isExportDisabled = false
+                }
+            },
+            onMessage: ($) => {
+                //导入或导出进度
+                if ($("statenotify[@type='FileNetTransportProgress']").length) {
+                    const progress = $('statenotify/progress').text()
+                    switch ($('statenotify/action').text()) {
+                        case 'Import':
+                            pageData.value.isCheckAuth = false
+                            pageData.value.isEncryptPwd = false
+                            if (progress === '100%') {
+                                pageData.value.importNote = TRANS_MAPPING.uploadReboot
+                                openLoading(LoadingTarget.FullScreen, TRANS_MAPPING.uploadReboot)
+                                //发送升级指令，但不一定会收到应答，需要延时检测重启
+                                //延时检测重启
+                                importTimer = reconnect()
+                            } else {
+                                closeLoading()
+                                pageData.value.importNote = `${TRANS_MAPPING.uploading}&nbsp;&nbsp;${progress}`
+                            }
+                            break
+                        case 'Export':
+                            closeLoading()
+                            pageData.value.isCheckAuth = false
+                            pageData.value.isEncryptPwd = false
+                            if (progress === '100%') {
+                                pageData.value.exportNote = TRANS_MAPPING.downloadComplete
+                            } else {
+                                pageData.value.exportNote = `${TRANS_MAPPING.downloading}&nbsp;&nbsp;${progress}`
+                            }
+                            break
+                    }
+                }
+                //连接成功
+                else if ($("statenotify[@type='connectstate']").length) {
+                }
+                //网络断开
+                else if ($("statenotify[@type='FileNetTransport']").length) {
+                    closeLoading()
+                    pageData.value.isEncryptPwd = false
+                    if ($('statenotify/errorCode').length) {
+                        const errorCode = $('statenotify/errorCode').text().num()
+                        handleErrorMsg(errorCode)
+                    }
+                }
+            },
         })
 
         const importFormData = ref(new SystemRestoreForm())
@@ -60,7 +133,7 @@ export default defineComponent({
         }
 
         const isSupportH5 = computed(() => {
-            return Plugin.IsSupportH5()
+            return plugin.IsSupportH5()
         })
 
         /**
@@ -85,7 +158,7 @@ export default defineComponent({
          */
         const handleOCXUpload = () => {
             const sendXML = OCX_XML_OpenFileBrowser('OPEN_FILE')
-            Plugin.AsynQueryInfo(Plugin.GetVideoPlugin(), sendXML, (result) => {
+            plugin.AsynQueryInfo(plugin.GetVideoPlugin(), sendXML, (result) => {
                 const path = OCX_XML_OpenFileBrowser_getpath(result).trim()
                 if (path) {
                     importFormData.value.filePath = path
@@ -112,7 +185,7 @@ export default defineComponent({
         const handleBrowse = () => {
             pageData.value.exportNote = ''
             const sendXML = OCX_XML_OpenFileBrowser('SAVE_FILE', '', 'ConfigurationBackupFile')
-            Plugin.AsynQueryInfo(Plugin.GetVideoPlugin(), sendXML, (result) => {
+            plugin.AsynQueryInfo(plugin.GetVideoPlugin(), sendXML, (result) => {
                 const path = OCX_XML_OpenFileBrowser_getpath(result).trim()
                 if (path) {
                     exportFormData.value.filePath = path
@@ -216,7 +289,7 @@ export default defineComponent({
                 }
                 const sendXML = OCX_XML_FileNetTransport('Import', param)
                 openLoading()
-                Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
         }
 
@@ -227,8 +300,8 @@ export default defineComponent({
             openLoading()
 
             const sendXml = rawXml`
-                <networkConfigSwitch>${exportFormData.value.isIncludeNetworkConfig}</networkConfigSwitch>
-                <encryptionConfigSwitch>${exportFormData.value.isIncludeDataEncryptPwd}</encryptionConfigSwitch>
+                <networkConfigSwitch>${exportFormData.value.configSwitch.includes('network')}</networkConfigSwitch>
+                <encryptionConfigSwitch>${exportFormData.value.configSwitch.includes('encryption')}</encryptionConfigSwitch>
                 <auth>
                     <userName>${userCheckAuthForm.userName}</userName>
                     <password>${userCheckAuthForm.hexHash}</password>
@@ -240,7 +313,7 @@ export default defineComponent({
 
             pageData.value.isEncryptPwd = false
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 if (isSupportH5.value) {
                     new WebsocketDownload({
                         config: {
@@ -278,11 +351,11 @@ export default defineComponent({
                         secPassword: userInputEncryptPwdForm.password,
                     }
                     const sendXML = OCX_XML_FileNetTransport('Export', param)
-                    Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 }
             } else {
                 closeLoading()
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 handleErrorMsg(errorCode)
             }
         }
@@ -342,93 +415,8 @@ export default defineComponent({
             }
         }
 
-        /**
-         * @description OCX数据响应侦听
-         * @param {Function} $
-         */
-        const notify = ($: XMLQuery) => {
-            //导入或导出进度
-            if ($("statenotify[@type='FileNetTransportProgress']").length) {
-                const progress = $('statenotify/progress').text()
-                switch ($('statenotify/action').text()) {
-                    case 'Import':
-                        pageData.value.isCheckAuth = false
-                        pageData.value.isEncryptPwd = false
-                        if (progress === '100%') {
-                            pageData.value.importNote = TRANS_MAPPING.uploadReboot
-                            openLoading(LoadingTarget.FullScreen, TRANS_MAPPING.uploadReboot)
-                            //发送升级指令，但不一定会收到应答，需要延时检测重启
-                            //延时检测重启
-                            importTimer = reconnect()
-                        } else {
-                            closeLoading()
-                            pageData.value.importNote = `${TRANS_MAPPING.uploading}&nbsp;&nbsp;${progress}`
-                        }
-                        break
-                    case 'Export':
-                        closeLoading()
-                        pageData.value.isCheckAuth = false
-                        pageData.value.isEncryptPwd = false
-                        if (progress === '100%') {
-                            pageData.value.exportNote = TRANS_MAPPING.downloadComplete
-                        } else {
-                            pageData.value.exportNote = `${TRANS_MAPPING.downloading}&nbsp;&nbsp;${progress}`
-                        }
-                        break
-                }
-            }
-            //连接成功
-            else if ($("statenotify[@type='connectstate']").length) {
-            }
-            //网络断开
-            else if ($("statenotify[@type='FileNetTransport']").length) {
-                closeLoading()
-                pageData.value.isEncryptPwd = false
-                if ($('statenotify/errorCode').length) {
-                    const errorCode = $('statenotify/errorCode').text().num()
-                    handleErrorMsg(errorCode)
-                }
-            }
-        }
-
-        watch(
-            isSupportH5,
-            (newVal) => {
-                if (!newVal && !Plugin.IsPluginAvailable()) {
-                    Plugin.SetPluginNoResponse()
-                    Plugin.ShowPluginNoResponse()
-                }
-
-                if (newVal && isHttpsLogin()) {
-                    pageData.value.notifications.push(formatHttpsTips(Translate('IDCS_BACKUP_AND_RESTORE_SET')))
-                    pageData.value.isUploadDisabled = true
-                } else {
-                    pageData.value.isUploadDisabled = false
-                }
-
-                if (!newVal) {
-                    const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
-                    Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                    if (!exportFormData.value.filePath) {
-                        pageData.value.isExportDisabled = true
-                    }
-                } else {
-                    pageData.value.isExportDisabled = false
-                }
-            },
-            {
-                immediate: true,
-            },
-        )
-
-        onMounted(() => {
-            Plugin.SetPluginNotice('#layout2Content')
-            Plugin.VideoPluginNotifyEmitter.addListener(notify)
-        })
-
         onBeforeUnmount(() => {
             clearTimeout(importTimer)
-            Plugin.VideoPluginNotifyEmitter.removeListener(notify)
         })
 
         return {

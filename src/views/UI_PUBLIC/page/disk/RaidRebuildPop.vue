@@ -8,12 +8,12 @@
         :title="Translate('IDCS_REPAIRING_ARRAY')"
         width="600"
         @open="open"
+        @closed="formRef?.resetFields()"
     >
         <el-form
             ref="formRef"
             :model="formData"
             :rules
-            label-width="150"
         >
             <el-form-item :label="Translate('IDCS_RAID_NAME')">
                 {{ current.name }}
@@ -24,7 +24,10 @@
             <el-form-item :label="Translate('IDCS_RAID_DISK')">
                 {{ current.physicalDisk }}
             </el-form-item>
-            <el-form-item :label="Translate('IDCS_PHYSICAL_DISK')">
+            <el-form-item
+                :label="Translate('IDCS_PHYSICAL_DISK')"
+                prop="diskId"
+            >
                 <el-radio-group v-model="formData.diskId">
                     <el-radio
                         v-for="item in pageData.physicalDiskList"
@@ -40,12 +43,10 @@
             @confirm="confirmRebuildRaid"
             @close="pageData.isCheckAuth = false"
         />
-        <template #footer>
-            <div class="base-btn-box">
-                <el-button @click="rebuildRaid">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="rebuildRaid">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 

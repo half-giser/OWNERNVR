@@ -14,14 +14,11 @@
             :label="pageTabs[0].label"
         >
             <el-form
-                ref="ipcAudioRef"
-                :model="ipcAudioFormData"
                 class="stripe"
                 :style="{
                     '--form-input-width': '215px',
                     '--form-label-width': '220px',
                 }"
-                inline-message
             >
                 <el-form-item>
                     <el-radio-group v-model="ipcAudioFormData.ipcRadio">
@@ -39,21 +36,15 @@
                 <template v-if="ipcAudioFormData.ipcRadio === 'audioAlarm'">
                     <!-- 通道 -->
                     <el-form-item :label="Translate('IDCS_CHANNEL')">
-                        <el-select
+                        <el-select-v2
                             v-model="ipcAudioFormData.audioChl"
                             :disabled="audioAlarmPageData.chlDisabled"
+                            :options="audioAlarmPageData.chlAlarmOutList"
                             @change="changeChl"
-                        >
-                            <el-option
-                                v-for="item in audioAlarmPageData.chlAlarmOutList"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            />
-                        </el-select>
+                        />
                         <span
                             v-show="audioAlarmPageData.queryFailTipsShow"
-                            :style="{ marginLeft: '80px' }"
+                            class="state"
                             >{{ Translate('IDCS_QUERY_DATA_FAIL').replace(/，/g, '') }}</span
                         >
                     </el-form-item>
@@ -68,33 +59,31 @@
                     </el-form-item>
                     <!-- 语音 -->
                     <el-form-item :label="Translate('IDCS_ALERT_VOICE')">
-                        <el-select
+                        <el-select-v2
                             v-model="ipcAudioFormData.voice"
                             :disabled="audioAlarmPageData.voiceDisabled"
+                            :options="audioAlarmPageData.audioTypeList"
                             @change="changeVioce"
-                        >
-                            <el-option
-                                v-for="item in audioAlarmPageData.audioTypeList"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                        /></el-select>
-                        <div :style="{ marginLeft: '80px' }">
+                        />
+                        <div class="state">
                             <el-button
                                 :disabled="audioAlarmPageData.addAudioDisabled"
                                 @click="addAudio"
-                                >{{ Translate('IDCS_ADD') }}</el-button
                             >
+                                {{ Translate('IDCS_ADD') }}
+                            </el-button>
                             <el-button
                                 :disabled="audioAlarmPageData.deleteAudioDisabled"
                                 @click="deleteAudio"
-                                >{{ Translate('IDCS_DELETE') }}</el-button
                             >
+                                {{ Translate('IDCS_DELETE') }}
+                            </el-button>
                             <el-button
                                 :disabled="audioAlarmPageData.listenAudioDisabled"
                                 @click="listenAudio"
-                                >{{ Translate('IDCS_AUDITION') }}</el-button
                             >
+                                {{ Translate('IDCS_AUDITION') }}
+                            </el-button>
                         </div>
                     </el-form-item>
                     <!-- 次数 -->
@@ -121,39 +110,24 @@
                     </el-form-item>
                     <!-- 语言 -->
                     <el-form-item :label="Translate('IDCS_LANGUAGE')">
-                        <el-select
+                        <el-select-v2
                             v-model="ipcAudioFormData.language"
                             :disabled="audioAlarmPageData.languageDisbaled"
+                            :options="audioAlarmPageData.langList"
                             @change="changeLanguage"
-                        >
-                            <el-option
-                                v-for="item in audioAlarmPageData.langList"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                        /></el-select>
+                        />
                     </el-form-item>
                 </template>
                 <!-- 声音设备 -->
                 <template v-if="ipcAudioFormData.ipcRadio === 'audioDevice'">
                     <!-- 通道 -->
                     <el-form-item :label="Translate('IDCS_CHANNEL')">
-                        <el-select
+                        <el-select-v2
                             v-model="ipcAudioFormData.deviceChl"
+                            :options="audioDevicePageData.chlAudioDevList"
                             @change="chagneDeviceChl"
-                        >
-                            <el-option
-                                v-for="item in audioDevicePageData.chlAudioDevList"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            />
-                        </el-select>
-                        <span
-                            v-show="audioDevicePageData.resFailShow"
-                            :style="{ marginLeft: '200px' }"
-                            >{{ Translate('IDCS_OFFLINE') }}</span
-                        >
+                        />
+                        <span v-show="audioDevicePageData.resFailShow">{{ Translate('IDCS_OFFLINE') }}</span>
                     </el-form-item>
                     <!-- 声音设备 -->
                     <el-form-item :label="Translate('IDCS_AUDIO_DEVICE')">
@@ -166,18 +140,12 @@
                     </el-form-item>
                     <!-- 音频输入设备 -->
                     <el-form-item :label="Translate('IDCS_DEVICE_AUDIO_IN')">
-                        <el-select
+                        <el-select-v2
                             v-model="ipcAudioFormData.deviceAudioInput"
+                            :options="audioDevicePageData.audioInputList"
                             :disabled="audioDevicePageData.deviceAudioInputDisabled"
                             @change="chagneAudioInput"
-                        >
-                            <el-option
-                                v-for="item in audioDevicePageData.audioInputList"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            />
-                        </el-select>
+                        />
                     </el-form-item>
                     <!-- 音频输入音量 -->
                     <el-form-item :label="Translate('IDCS_IN_VOLUME')">
@@ -190,33 +158,21 @@
                     </el-form-item>
                     <!-- 扬声器（内置） -->
                     <el-form-item :label="Translate('IDCS_DEVICE_SPEAKER_BUILT_IN')">
-                        <el-select
+                        <el-select-v2
                             v-model="ipcAudioFormData.loudSpeaker"
                             :disabled="audioDevicePageData.loudSpeakerDisabled"
+                            :options="audioDevicePageData.loudSpeakerList"
                             @change="changeLoudSpeaker"
-                        >
-                            <el-option
-                                v-for="item in audioDevicePageData.loudSpeakerList"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            />
-                        </el-select>
+                        />
                     </el-form-item>
                     <!-- LOUT（外置） -->
                     <el-form-item :label="Translate('IDCS_DEVICE_SPEAKER_LINE_OUT')">
-                        <el-select
+                        <el-select-v2
                             v-model="ipcAudioFormData.deviceAudioOutput"
+                            :options="audioDevicePageData.audioOutputList"
                             :disabled="audioDevicePageData.deviceAudioOutputDisabled"
                             @change="chagneAudioOutput"
-                        >
-                            <el-option
-                                v-for="item in audioDevicePageData.audioOutputList"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            />
-                        </el-select>
+                        />
                     </el-form-item>
                     <!-- 音频输出音量 -->
                     <el-form-item :label="Translate('IDCS_AUDIO_OUT_VOLUME')">
@@ -229,18 +185,12 @@
                     </el-form-item>
                     <!-- 音频输入编码 -->
                     <el-form-item :label="Translate('IDCS_ENCODE_AUDIO_IN')">
-                        <el-select
+                        <el-select-v2
                             v-model="ipcAudioFormData.audioEncode"
+                            :options="audioDevicePageData.audioEncodeList"
                             :disabled="audioDevicePageData.audioEncodeDisabled"
                             @change="changeAudioEncode"
-                        >
-                            <el-option
-                                v-for="item in audioDevicePageData.audioEncodeList"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            />
-                        </el-select>
+                        />
                     </el-form-item>
                 </template>
             </el-form>
@@ -250,37 +200,27 @@
                     '--form-input-width': '215px',
                     '--form-label-width': '220px',
                 }"
-                inline-message
             >
                 <!-- 排程 -->
                 <div class="base-subheading-box">{{ Translate('IDCS_AUDIO_LINK_SCHEDULE') }}</div>
                 <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
-                    <el-select
+                    <el-select-v2
                         v-model="pageData.audioSchedule"
-                        :empty-values="[undefined, null]"
+                        :options="pageData.audioScheduleList"
                         @change="pageData.btnApplyDisabled = false"
-                    >
-                        <el-option
-                            v-for="item in pageData.audioScheduleList"
-                            :key="item.value"
-                            :value="item.value"
-                            :label="item.label"
-                        />
-                    </el-select>
+                    />
                     <el-button @click="pageData.scheduleManagPopOpen = true">{{ Translate('IDCS_MANAGE') }}</el-button>
                 </el-form-item>
                 <el-form-item>
                     <span class="ipcAudioTips">*{{ Translate('IDCS_AUDIO_LINK_SCHEDULE_TIPS') }}</span>
                 </el-form-item>
-                <div
-                    class="base-btn-box"
-                    :style="{ paddingTop: '10px' }"
-                >
+                <div class="base-btn-box">
                     <el-button
                         :disabled="pageData.btnApplyDisabled"
                         @click="setData"
-                        >{{ Translate('IDCS_APPLY') }}</el-button
                     >
+                        {{ Translate('IDCS_APPLY') }}
+                    </el-button>
                 </div>
             </el-form>
         </el-tab-pane>
@@ -290,13 +230,10 @@
             :name="pageTabs[1].name"
             :label="pageTabs[1].label"
         >
-            <span :style="{ padding: '10px 0px 0px 15px' }">{{ Translate('IDCS_FILE_LIST') }}</span>
-            <div :style="{ position: 'relative', padding: '10px 0px 0px 15px' }">
+            <p>{{ Translate('IDCS_FILE_LIST') }}</p>
+            <div class="local">
                 <el-table
                     ref="localTableRef"
-                    class="localTable"
-                    border
-                    stripe
                     :data="pageData.localTableData"
                     highlight-current-row
                     @row-click="handleRowClick"
@@ -309,20 +246,13 @@
                         prop="name"
                         :label="Translate('IDCS_FILE_NAME')"
                         width="395"
+                        show-overflow-tooltip
                     />
                 </el-table>
-                <el-button
-                    class="localBtn"
-                    :style="{ top: '30px' }"
-                    @click="addLocalAudio"
-                    >{{ Translate('IDCS_ADD') }}</el-button
-                >
-                <el-button
-                    class="localBtn"
-                    :style="{ top: '70px', marginLeft: '0' }"
-                    @click="deleteLocalAudio"
-                    >{{ Translate('IDCS_DELETE') }}</el-button
-                >
+                <div class="local-btns">
+                    <el-button @click="addLocalAudio">{{ Translate('IDCS_ADD') }}</el-button>
+                    <el-button @click="deleteLocalAudio">{{ Translate('IDCS_DELETE') }}</el-button>
+                </div>
             </div>
         </el-tab-pane>
     </el-tabs>
@@ -386,14 +316,26 @@
     color: var(--main-text-light);
 }
 
-.localTable {
-    width: 450px;
-    height: 180px;
-}
+.local {
+    display: flex;
 
-.localBtn {
-    position: absolute;
-    left: 500px;
-    min-width: 100px;
+    .el-table {
+        width: 450px;
+        height: 180px;
+    }
+
+    &-btns {
+        display: flex;
+        width: 80px;
+        height: 180px;
+        flex-direction: column;
+        justify-content: center;
+        margin-left: 10px;
+
+        .el-button + .el-button {
+            margin-left: 0 !important;
+            margin-top: 10px;
+        }
+    }
 }
 </style>

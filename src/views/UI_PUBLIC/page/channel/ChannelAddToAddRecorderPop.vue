@@ -8,6 +8,7 @@
         :title="Translate('IDCS_ADD_RECORDER_CHANNEL')"
         width="800"
         @opened="opened"
+        @closed="formRef?.resetFields()"
     >
         <el-form
             ref="formRef"
@@ -87,8 +88,6 @@
         </el-form>
         <el-table
             ref="tableRef"
-            border
-            stripe
             :data="formData.recorderList"
             height="340"
             show-overflow-tooltip
@@ -119,25 +118,24 @@
                 min-width="220"
             />
         </el-table>
-        <template #footer>
-            <div
-                class="base-btn-box"
-                span="2"
-            >
-                <div>
-                    {{ Translate('IDCS_SELECT_CHANNEL_COUNT').formatForLang(selNum, formData.recorderList.length) }}
-                </div>
-                <div>
-                    <el-button
-                        :disabled="eleBtnTestDisabled"
-                        @click="test"
-                        >{{ Translate('IDCS_TEST') }}</el-button
-                    >
-                    <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </div>
+        <div
+            class="base-btn-box"
+            span="2"
+        >
+            <div>
+                {{ Translate('IDCS_SELECT_CHANNEL_COUNT').formatForLang(selNum, formData.recorderList.length) }}
             </div>
-        </template>
+            <div>
+                <el-button
+                    :disabled="eleBtnTestDisabled"
+                    @click="test"
+                >
+                    {{ Translate('IDCS_TEST') }}
+                </el-button>
+                <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
+                <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
+            </div>
+        </div>
     </el-dialog>
 </template>
 

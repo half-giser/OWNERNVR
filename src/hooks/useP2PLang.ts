@@ -49,7 +49,7 @@ export const useP2PLang = () => {
             langId.value = localStorage.getItem(LocalCacheKey.KEY_LANG_ID) || ''
         }
 
-        return fetch(`/public/LanguageInfo/LanguageIndex.js`)
+        return fetch('/public/LanguageInfo/LanguageIndex.js')
             .then((res) => res.json())
             .then((res: LanguageResult) => {
                 langTypes.value = Object.entries(res.languages).map((item) => {

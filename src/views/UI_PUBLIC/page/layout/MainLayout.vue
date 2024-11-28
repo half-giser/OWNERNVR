@@ -219,7 +219,7 @@
 }
 
 #mainMenu {
-    height: 40px;
+    height: 35px;
     --el-menu-active-color: var(--primary);
     --el-menu-base-level-padding: 10px;
 
@@ -279,12 +279,9 @@
 #layoutMainContent {
     position: relative;
     padding-inline: 49px;
-    // margin-bottom: 25px;
-    // padding: 25px 49px;
     box-sizing: border-box;
     width: 100%;
     height: 100%;
-    // overflow-y: auto;
     flex-shrink: 1;
 }
 

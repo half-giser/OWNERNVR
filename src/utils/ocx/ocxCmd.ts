@@ -95,7 +95,7 @@ export const OCX_XML_GetLangNode = () => {
  */
 export const OCX_XML_Initial = (model: string, notifyFunName: string, viewType: string, screenNum?: number) => {
     return wrapXml(rawXml`<cmd type="Initial">
-            ${viewType === TIMESLIDER_PLUGIN ? `<cmd type="Initial" target="dateCtrl">` : viewType ? `<viewType>${viewType}</viewType>` : ''}
+            ${viewType === TIMESLIDER_PLUGIN ? '<cmd type="Initial" target="dateCtrl">' : viewType ? `<viewType>${viewType}</viewType>` : ''}
             ${model ? `<setModel>${model}</setModel>` : ''}
             <setLang></setLang>
             ${notifyFunName ? `<NotifyFunName>${notifyFunName}</NotifyFunName>` : ''}
@@ -925,7 +925,7 @@ export const OCX_XML_GetMotionArea = () => {
  * @returns {string}
  */
 export const OCX_XML_GetOSDInfo = () => {
-    return `<request type="GetOSDInfo"/>`
+    return '<request type="GetOSDInfo"/>'
 }
 
 export interface OcxXmlSetOSDInfoOption {
@@ -1758,7 +1758,7 @@ export const OCX_XML_SetPeaArea = (points: { X: number; Y: number }[], regulatio
  * @returns {string}
  */
 export const OCX_XML_GetPeaArea = () => {
-    return `<request type="GetPeaArea"/>`
+    return '<request type="GetPeaArea"/>'
 }
 
 /**
@@ -1818,7 +1818,8 @@ export const OCX_XML_SetVsdArea = (points: { X: number; Y: number }[], regulatio
  */
 export const OCX_XML_SetAllVsdArea = (regulation: boolean, regionInfo: { X: number; Y: number }[], maskAreaInfo: { X: number; Y: number }[]) => {
     const region = regionInfo?.length
-        ? `<points>
+        ? rawXml`
+            <points>
                 ${regionInfo.map((item) => `<item X="${item.X}" Y="${item.Y}" />`).join('')}
                 <Area>${regionInfo.length}</Area>
                 <LineColor>red</LineColor>

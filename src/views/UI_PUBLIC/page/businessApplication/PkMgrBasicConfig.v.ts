@@ -4,7 +4,7 @@
  * @Description: 业务应用-停车场管理-基础配置
  */
 
-import { type FormRules, type FormInstance } from 'element-plus'
+import { type FormRules } from 'element-plus'
 import { PkMgrBasicConfigForm } from '@/types/apiType/business'
 
 export default defineComponent({
@@ -14,7 +14,7 @@ export default defineComponent({
         const { openMessageBox } = useMessageBox()
 
         const formData = ref(new PkMgrBasicConfigForm())
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
 
         const rules = reactive<FormRules>({
             parkName: [
@@ -79,10 +79,10 @@ export default defineComponent({
             closeLoading()
 
             if ($('status').text() === 'success') {
-                formData.value.parkName = $('//content/basicInfo/name').text()
-                formData.value.totalNum = $('//content/basicInfo/totalVehicleNum').text().num()
-                formData.value.remainTotalNum = $('//content/basicInfo/remainSpaceNum').text().num()
-                $('//content/parkingSapce/item').forEach((item) => {
+                formData.value.parkName = $('content/basicInfo/name').text()
+                formData.value.totalNum = $('content/basicInfo/totalVehicleNum').text().num()
+                formData.value.remainTotalNum = $('content/basicInfo/remainSpaceNum').text().num()
+                $('content/parkingSapce/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     formData.value.groupTotalNum += $item('groupTotalNum').text().num()
                     formData.value.groupRemainTotalNum += $item('groupRemainNum').text().num()

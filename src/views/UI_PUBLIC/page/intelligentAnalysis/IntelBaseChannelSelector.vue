@@ -23,11 +23,10 @@
             <el-table
                 ref="tableRef"
                 height="400"
-                border
-                stripe
                 :data="tableData"
                 row-key="value"
                 @selection-change="handleCurrentChange"
+                @row-click="handleRowClick"
             >
                 <el-table-column
                     type="selection"

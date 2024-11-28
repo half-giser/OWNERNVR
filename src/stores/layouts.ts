@@ -10,6 +10,8 @@ export const useLayoutStore = defineStore('layout', () => {
     const loadingCount = ref(0)
     // 是否已经初始化
     const isInitial = ref(false)
+    // RollMsg消息
+    const notifications = ref<string[]>([])
 
     const liveLastSegNum = ref(1)
     const liveLastChlList = ref<string[]>([])
@@ -35,6 +37,7 @@ export const useLayoutStore = defineStore('layout', () => {
         isInitial,
         liveLastSegNum,
         liveLastChlList,
+        notifications,
 
         menu1Items,
         menu1Item,

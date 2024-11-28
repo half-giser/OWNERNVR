@@ -85,7 +85,7 @@ export const checkInt = (str: string) => {
  */
 export const checkPort = (str: string) => {
     if (checkInt(str)) {
-        const port = parseInt(str)
+        const port = Number(str)
         return port >= 10 && port <= 65535
     }
     return false

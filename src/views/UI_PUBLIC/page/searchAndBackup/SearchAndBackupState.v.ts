@@ -8,12 +8,22 @@ import dayjs from 'dayjs'
 
 export default defineComponent({
     setup() {
-        const Plugin = inject('Plugin') as PluginType
         const { Translate } = useLangStore()
         const { openMessageBox } = useMessageBox()
 
-        const mode = computed(() => {
-            return Plugin.IsSupportH5() ? 'h5' : 'ocx'
+        const plugin = usePluginHook({
+            onReady: (mode, plugin) => {
+                if (mode.value === 'ocx') {
+                    const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Playback')
+                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                }
+            },
+            onDestroy: (mode, plugin) => {
+                if (mode.value === 'ocx') {
+                    const sendXML = OCX_XML_StopPreview('ALL')
+                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                }
+            },
         })
 
         // 任务列表刷新间隔3秒
@@ -25,7 +35,7 @@ export default defineComponent({
 
         // 本地任务列表（OCX）
         const localTableData = computed(() => {
-            return Plugin.BackUpTask.localTableData.value
+            return plugin.BackUpTask.localTableData.value
         })
         // 远程任务列表
         const remoteTableData = ref<PlaybackBackUpTaskList[]>([])
@@ -71,8 +81,8 @@ export default defineComponent({
             const result = await queryRecBackupTaskList()
             const $ = queryXml(result)
 
-            if ($('//status').text() === 'success') {
-                remoteTableData.value = $('//content/item').map((item) => {
+            if ($('status').text() === 'success') {
+                remoteTableData.value = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     const startTime = $item('startTime').text()
                     const endTime = $item('endTime').text()
@@ -116,7 +126,7 @@ export default defineComponent({
             if (row.destination === 'remote') {
                 editRecBackUpTask([row.taskId], 'pause')
             } else {
-                Plugin.BackUpTask.pauseTask(row)
+                plugin.BackUpTask.pauseTask(row)
             }
         }
 
@@ -128,7 +138,7 @@ export default defineComponent({
             if (row.destination === 'remote') {
                 editRecBackUpTask([row.taskId], 'resume')
             } else {
-                Plugin.BackUpTask.resumeTask(row)
+                plugin.BackUpTask.resumeTask(row)
             }
         }
 
@@ -144,7 +154,7 @@ export default defineComponent({
                 if (row.destination === 'remote') {
                     editRecBackUpTask([row.taskId], 'delete')
                 } else {
-                    Plugin.BackUpTask.deleteTask(row)
+                    plugin.BackUpTask.deleteTask(row)
                 }
             })
         }
@@ -161,7 +171,7 @@ export default defineComponent({
                     remoteTableData.value.map((item) => item.taskId),
                     'delete',
                 )
-                Plugin.BackUpTask.deleteAllTask()
+                plugin.BackUpTask.deleteAllTask()
             })
         }
 
@@ -173,7 +183,7 @@ export default defineComponent({
                 remoteTableData.value.map((item) => item.taskId),
                 'pause',
             )
-            Plugin.BackUpTask.pauseAllTask()
+            plugin.BackUpTask.pauseAllTask()
         }
 
         /**
@@ -185,37 +195,11 @@ export default defineComponent({
                 'resume',
             )
 
-            Plugin.BackUpTask.resumeAllTask()
+            plugin.BackUpTask.resumeAllTask()
         }
 
-        watch(
-            mode,
-            (newVal) => {
-                if (newVal !== 'h5' && !Plugin.IsPluginAvailable()) {
-                    Plugin.SetPluginNoResponse()
-                    Plugin.ShowPluginNoResponse()
-                }
-
-                if (newVal === 'ocx') {
-                    const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Playback')
-                    Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                }
-            },
-            {
-                immediate: true,
-            },
-        )
-
         onMounted(() => {
-            Plugin.SetPluginNotice('#layout2Main')
             getRecBackUpTaskList()
-        })
-
-        onBeforeUnmount(() => {
-            if (mode.value === 'ocx') {
-                const sendXML = OCX_XML_StopPreview('ALL')
-                Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-            }
         })
 
         return {

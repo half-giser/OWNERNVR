@@ -62,13 +62,13 @@ export default defineComponent({
             const $ = queryXml(result)
             const disk = await queryLogicalDiskList(sendXml)
             const $disk = queryXml(disk)
-            const isDiskDataSuccess = $disk('//status').text() === 'success'
+            const isDiskDataSuccess = $disk('status').text() === 'success'
 
             pageData.value.diskGroupList = []
             pageData.value.diskTotalNum = 0
             pageData.value.backupDiskId = []
 
-            $('//content/item').forEach((item) => {
+            $('content/item').forEach((item) => {
                 const $item = queryXml(item.element)
                 const isBackUp = item.attr('type') === 'backup'
 
@@ -91,7 +91,7 @@ export default defineComponent({
                                 text: element.text(),
                             })
                             if (isDiskDataSuccess) {
-                                totalSize += $disk(`//content/item[@id="${id}"]/size`).text().num()
+                                totalSize += $disk(`content/item[@id="${id}"]/size`).text().num()
                             }
                         }
                     })
@@ -229,7 +229,7 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_DELETE_SUCCESS'),
@@ -251,7 +251,7 @@ export default defineComponent({
             const result = await queryDiskStatus()
             const $ = queryXml(result)
             pageData.value.diskStatus = Object.fromEntries(
-                $('//content/item').map((item) => {
+                $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     const obj = {
                         diskStatus: $item('diskStatus').text(),

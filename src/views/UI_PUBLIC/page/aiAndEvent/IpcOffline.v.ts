@@ -16,9 +16,7 @@ export default defineComponent({
         AlarmBaseSnapPop,
     },
     setup() {
-        const chosedList = ref<any[]>([])
         const { Translate } = useLangStore()
-        const tableData = ref<AlarmEventDto[]>([])
 
         const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
@@ -36,13 +34,12 @@ export default defineComponent({
             snapIsShow: false,
             alarmOutIsShow: false,
             isPresetPopOpen: false,
-
             videoPopupList: [] as SelectOption<string, string>[],
-
-            // disable
-            applyDisable: true,
-            editRows: [] as AlarmEventDto[],
         })
+
+        const tableData = ref<AlarmEventDto[]>([])
+        // 编辑行
+        const editRows = useWatchEditRows<AlarmEventDto>()
 
         const getAudioList = async () => {
             pageData.value.supportAudio = systemCaps.supportAlarmAudioConfig
@@ -52,14 +49,17 @@ export default defineComponent({
             }
         }
 
-        const getVideoPopupList = async () => {
-            pageData.value.videoPopupList.push({ value: ' ', label: Translate('IDCS_OFF') })
+        const getVideoPopupList = () => {
+            pageData.value.videoPopupList.push({
+                value: ' ',
+                label: Translate('IDCS_OFF'),
+            })
             getChlList({
                 nodeType: 'chls',
-            }).then(async (resb) => {
-                const res = queryXml(resb)
-                if (res('status').text() === 'success') {
-                    res('//content/item').forEach((item) => {
+            }).then((result) => {
+                const $ = queryXml(result)
+                if ($('status').text() === 'success') {
+                    $('content/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         pageData.value.videoPopupList.push({
                             value: item.attr('id'),
@@ -71,39 +71,45 @@ export default defineComponent({
         }
 
         const buildTableData = () => {
+            editRows.clear()
             tableData.value = []
+
             getChlList({
                 pageIndex: pageData.value.pageIndex,
                 pageSize: pageData.value.pageSize,
                 chlType: 'digital',
-            }).then(async (res) => {
+            }).then((res) => {
                 const $chl = queryXml(res)
-                pageData.value.totalCount = $chl('//content').attr('total').num()
-                $chl('//content/item').forEach((item) => {
+                pageData.value.totalCount = $chl('content').attr('total').num()
+                tableData.value = $chl('content/item').map((item) => {
                     const $ele = queryXml(item.element)
                     const row = new AlarmEventDto()
                     row.id = item.attr('id')
                     row.name = $ele('name').text()
                     row.status = 'loading'
-                    tableData.value.push(row)
+                    return row
                 })
 
-                for (let i = 0; i < tableData.value.length; i++) {
-                    const row = tableData.value[i]
-                    row.status = ''
+                tableData.value.forEach(async (row) => {
                     const sendXml = rawXml`
                         <condition>
                             <chlId>${row.id}</chlId>
                         </condition>
                     `
-                    const offLine = await queryFrontEndOfflineTrigger(sendXml)
-                    const res = queryXml(offLine)
-                    if (res('status').text() === 'success') {
-                        row.rowDisable = false
-                        row.sysAudio = res('//content/sysAudio').attr('id') || DEFAULT_EMPTY_ID
+                    const result = await queryFrontEndOfflineTrigger(sendXml)
+                    const $ = queryXml(result)
+
+                    if (!tableData.value.some((item) => item === row)) {
+                        return
+                    }
+
+                    row.status = ''
+                    if ($('status').text() === 'success') {
+                        row.disabled = false
+                        row.sysAudio = $('content/sysAudio').attr('id') || DEFAULT_EMPTY_ID
                         row.snap = {
-                            switch: res('//content/sysSnap/switch').text().bool(),
-                            chls: res('//content/sysSnap/chls/item').map((item) => {
+                            switch: $('content/sysSnap/switch').text().bool(),
+                            chls: $('content/sysSnap/chls/item').map((item) => {
                                 return {
                                     value: item.attr('id'),
                                     label: item.text(),
@@ -112,52 +118,54 @@ export default defineComponent({
                         }
                         // 获取snap中chls的value列表
                         row.alarmOut = {
-                            switch: res('//content/alarmOut/switch').text().bool(),
-                            alarmOuts: res('//content/alarmOut/alarmOuts/item').map((item) => {
+                            switch: $('content/alarmOut/switch').text().bool(),
+                            alarmOuts: $('content/alarmOut/alarmOuts/item').map((item) => {
                                 return {
                                     value: item.attr('id'),
                                     label: item.text(),
                                 }
                             }),
                         }
-                        row.beeper = res('//content/buzzerSwitch').text()
-                        row.email = res('//content/emailSwitch').text()
-                        row.msgPush = res('//content/msgPushSwitch').text()
-                        row.videoPopup = res('//content/popVideoSwitch').text()
+                        row.beeper = $('content/buzzerSwitch').text()
+                        row.email = $('content/emailSwitch').text()
+                        row.msgPush = $('content/msgPushSwitch').text()
+                        row.videoPopup = $('content/popVideoSwitch').text()
                         row.videoPopupInfo = {
-                            switch: res('//content/popVideo/switch').text().bool(),
+                            switch: $('content/popVideo/switch').text().bool(),
                             chl: {
-                                value: res('//content/popVideo/chl').attr('id') !== '' ? res('//content/popVideo/chl').attr('id') : ' ',
-                                label: res('//content/popVideo/chl').text(),
+                                value: $('content/popVideo/chl').attr('id') !== '' ? $('content/popVideo/chl').attr('id') : ' ',
+                                label: $('content/popVideo/chl').text(),
                             },
                         }
                         row.videoPopupList = pageData.value.videoPopupList.filter((item) => {
                             return item.value !== row.id
                         })
-                        row.msgBoxPopup = res('//content/popMsgSwitch').text()
-                        row.preset.switch = res('//content/preset/switch').text().bool()
-                        res('//content/preset/presets/item').forEach((item) => {
+                        row.msgBoxPopup = $('content/popMsgSwitch').text()
+                        row.preset.switch = $('content/preset/switch').text().bool()
+                        row.preset.presets = $('content/preset/presets/item').map((item) => {
                             const $item = queryXml(item.element)
-                            row.preset.presets.push({
+                            return {
                                 index: $item('index').text(),
                                 name: $item('name').text(),
                                 chl: {
                                     value: $item('chl').attr('id'),
                                     label: $item('chl').text(),
                                 },
-                            })
+                            }
                         })
                         // 设置的声音文件被删除时，显示为none
-                        const AudioData = pageData.value.audioList.filter((element: { value: string; label: string }) => {
+                        const audioData = pageData.value.audioList.filter((element: { value: string; label: string }) => {
                             return element.value === row.sysAudio
                         })
-                        if (!AudioData.length) {
+                        if (!audioData.length) {
                             row.sysAudio = DEFAULT_EMPTY_ID
                         }
+
+                        editRows.listen(row)
                     } else {
-                        row.rowDisable = true
+                        row.disabled = true
                     }
-                }
+                })
             })
         }
 
@@ -174,7 +182,6 @@ export default defineComponent({
         }
 
         const switchSnap = (index: number) => {
-            addEditRow(tableData.value[index])
             const row = tableData.value[index].snap
             if (row.switch) {
                 openSnap(index)
@@ -190,10 +197,9 @@ export default defineComponent({
         }
 
         const changeSnap = (index: number, data: SelectOption<string, string>[]) => {
-            if (tableData.value[index].rowDisable) {
+            if (tableData.value[index].disabled) {
                 return
             }
-            addEditRow(tableData.value[index])
             pageData.value.snapIsShow = false
             tableData.value[index].snap = {
                 switch: !!data.length,
@@ -202,7 +208,6 @@ export default defineComponent({
         }
 
         const switchAlarmOut = (index: number) => {
-            addEditRow(tableData.value[index])
             const row = tableData.value[index].alarmOut
             if (row.switch) {
                 openAlarmOut(index)
@@ -218,10 +223,9 @@ export default defineComponent({
         }
 
         const changeAlarmOut = (index: number, data: SelectOption<string, string>[]) => {
-            if (tableData.value[index].rowDisable) {
+            if (tableData.value[index].disabled) {
                 return
             }
-            addEditRow(tableData.value[index])
             pageData.value.alarmOutIsShow = false
             tableData.value[index].alarmOut = {
                 switch: !!data.length,
@@ -230,7 +234,6 @@ export default defineComponent({
         }
 
         const switchPreset = (index: number) => {
-            addEditRow(tableData.value[index])
             const row = tableData.value[index].preset
             if (row.switch) {
                 openPreset(index)
@@ -246,7 +249,6 @@ export default defineComponent({
         }
 
         const changePreset = (index: number, data: AlarmPresetItem[]) => {
-            addEditRow(tableData.value[index])
             pageData.value.isPresetPopOpen = false
             tableData.value[index].preset = {
                 switch: !!data.length,
@@ -257,8 +259,7 @@ export default defineComponent({
         // 系统音频
         const handleSysAudioChangeAll = (sysAudio: string) => {
             tableData.value.forEach((item) => {
-                if (!item.rowDisable) {
-                    addEditRow(item)
+                if (!item.disabled) {
                     item.sysAudio = sysAudio
                 }
             })
@@ -267,8 +268,7 @@ export default defineComponent({
         // 消息推送
         const handleMsgPushChangeAll = (msgPush: string) => {
             tableData.value.forEach((item) => {
-                if (!item.rowDisable) {
-                    addEditRow(item)
+                if (!item.disabled) {
                     item.msgPush = msgPush
                 }
             })
@@ -277,8 +277,7 @@ export default defineComponent({
         // ftpSnap 未传值
         // const handleFtpSnapChangeAll = (ftpSnap: string) => {
         //     tableData.value.forEach((item) => {
-        //         if (!item.rowDisable) {
-        //             addEditRow(item)
+        //         if (!item.disabled) {
         //             item.ftpSnap = ftpSnap
         //         }
         //     })
@@ -287,8 +286,7 @@ export default defineComponent({
         // 蜂鸣器
         const handleBeeperChangeAll = (beeper: string) => {
             tableData.value.forEach((item) => {
-                if (!item.rowDisable) {
-                    addEditRow(item)
+                if (!item.disabled) {
                     item.beeper = beeper
                 }
             })
@@ -298,9 +296,8 @@ export default defineComponent({
         const handleVideoPopupChangeAll = (videoPopup: string) => {
             tableData.value.forEach((row) => {
                 const values = row.videoPopupList.map((item) => item.value)
-                if (!row.rowDisable) {
+                if (!row.disabled) {
                     if (values.includes(videoPopup)) {
-                        addEditRow(row)
                         row.videoPopupInfo.chl.value = videoPopup
                         row.videoPopupInfo.chl.label = row.videoPopupList.find((item) => item.value === videoPopup)!.label
                     } else {
@@ -314,8 +311,7 @@ export default defineComponent({
         // 消息框弹出
         const handleMsgBoxPopupChangeAll = (msgBoxPopup: string) => {
             tableData.value.forEach((item) => {
-                if (!item.rowDisable) {
-                    addEditRow(item)
+                if (!item.disabled) {
                     item.msgBoxPopup = msgBoxPopup
                 }
             })
@@ -324,20 +320,10 @@ export default defineComponent({
         // 邮件
         const handleEmailChangeAll = (email: string) => {
             tableData.value.forEach((item) => {
-                if (!item.rowDisable) {
-                    addEditRow(item)
+                if (!item.disabled) {
                     item.email = email
                 }
             })
-        }
-
-        const addEditRow = (row: AlarmEventDto) => {
-            // 若该行不存在于编辑行中，则添加
-            const isExist = pageData.value.editRows.some((item) => item.id === row.id)
-            if (!isExist) {
-                pageData.value.editRows.push(row)
-            }
-            pageData.value.applyDisable = false
         }
 
         const getSavaData = (rowData: AlarmEventDto) => {
@@ -401,28 +387,33 @@ export default defineComponent({
             return sendXml
         }
 
-        const setData = () => {
+        const setData = async () => {
             openLoading()
-            pageData.value.editRows.forEach((item: AlarmEventDto) => {
+
+            for (const item of editRows.toArray()) {
                 const sendXml = getSavaData(item)
-                editFrontEndOfflineTrigger(sendXml).then((resb) => {
-                    const res = queryXml(resb)
-                    if (res('status').text() === 'success') {
+                try {
+                    const result = await editFrontEndOfflineTrigger(sendXml)
+                    const $ = queryXml(result)
+                    if ($('status').text() === 'success') {
                         item.status = 'success'
+                        editRows.remove(item)
                     } else {
                         item.status = 'error'
-                        const errorCode = res('errorCode').text().num()
+                        const errorCode = $('errorCode').text().num()
                         if (errorCode === ErrorCode.USER_ERROR_GET_CONFIG_INFO_FAIL) {
                             item.status = 'success'
+                            editRows.remove(item)
                         } else {
                             item.status = 'error'
                         }
                     }
-                })
-            })
+                } catch {
+                    item.status = 'error'
+                }
+            }
+
             closeLoading()
-            pageData.value.editRows = []
-            pageData.value.applyDisable = true
         }
 
         onMounted(async () => {
@@ -434,9 +425,9 @@ export default defineComponent({
         return {
             changePagination,
             changePaginationSize,
-            chosedList,
             pageData,
             tableData,
+            editRows,
             handleSysAudioChangeAll,
             handleMsgPushChangeAll,
             handleBeeperChangeAll,
@@ -444,7 +435,6 @@ export default defineComponent({
             handleMsgBoxPopupChangeAll,
             handleEmailChangeAll,
             setData,
-            addEditRow,
             switchAlarmOut,
             openAlarmOut,
             changeAlarmOut,

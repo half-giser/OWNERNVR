@@ -3,7 +3,7 @@
  * @Date: 2024-07-15 17:12:18
  * @Description: 创建私有证书弹窗
  */
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormRules } from 'element-plus'
 import { NetHTTPSPrivateCertForm } from '@/types/apiType/net'
 
 export default defineComponent({
@@ -29,7 +29,7 @@ export default defineComponent({
         const { openLoading, closeLoading } = useLoading()
         const userSession = useUserSessionStore()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new NetHTTPSPrivateCertForm())
         const formRule = ref<FormRules>({
             countryName: [
@@ -166,21 +166,12 @@ export default defineComponent({
             ctx.emit('close')
         }
 
-        /**
-         * @description 打开弹窗时，重置表单
-         */
-        const open = () => {
-            formRef.value?.clearValidate()
-            formRef.value?.resetFields()
-        }
-
         return {
             formRef,
             formRule,
             formData,
             close,
             verify,
-            open,
         }
     },
 })

@@ -8,6 +8,7 @@
         :title="Translate('IDCS_CHANGE_IP_CAMERA')"
         width="450"
         @opened="opened"
+        @closed="formRef?.resetFields()"
     >
         <el-form
             ref="formRef"
@@ -86,12 +87,10 @@
                 />
             </el-form-item>
         </el-form>
-        <template #footer>
-            <div class="dialog-footer">
-                <el-button @click="save(false)">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="save(false)">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 

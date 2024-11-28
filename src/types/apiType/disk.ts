@@ -15,6 +15,7 @@ export class DiskModeForm {
  * @description S.M.A.R.T信息磁盘列表项
  */
 export class DiskSmartInfoDiskList {
+    index = 0
     id = ''
     diskNum = ''
     serialNum = ''

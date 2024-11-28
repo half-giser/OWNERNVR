@@ -7,9 +7,9 @@
     <div class="base-flex-box">
         <div class="base-table-box">
             <el-table
-                stripe
-                border
                 :data="tableData"
+                highlight-current-row
+                :row-class-name="(data) => (data.row.disabled ? 'disabled' : '')"
             >
                 <!-- 状态列 -->
                 <el-table-column
@@ -24,8 +24,9 @@
                 <!-- 序号 -->
                 <el-table-column
                     :label="Translate('IDCS_SERIAL_NUMBER')"
-                    prop="serialNum"
                     width="120"
+                    show-overflow-tooltip
+                    prop="serialNum"
                 />
 
                 <!-- 名称 -->
@@ -37,6 +38,7 @@
                         <el-input
                             v-model="scope.row.name"
                             maxlength="32"
+                            :disabled="scope.row.disabled"
                             @focus="nameFocus(scope.row.name)"
                             @blur="nameBlur(scope.row)"
                             @keyup.enter="enterBlur($event)"
@@ -64,17 +66,12 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select
+                        <el-select-v2
                             v-model="scope.row.schedule.value"
+                            :disabled="scope.row.disabled"
+                            :options="pageData.scheduleList"
                             @change="changeSchedule(scope.row)"
-                        >
-                            <el-option
-                                v-for="item in pageData.scheduleList"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            />
-                        </el-select>
+                        />
                     </template>
                 </el-table-column>
 
@@ -99,17 +96,11 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select
+                        <el-select-v2
                             v-model="scope.row.type"
-                            :disabled="!scope.row.type || scope.row.alarmInType === 'virtual' || !scope.row.isEditable"
-                        >
-                            <el-option
-                                v-for="item in pageData.typeList"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            />
-                        </el-select>
+                            :options="pageData.typeList"
+                            :disabled="!scope.row.type || scope.row.alarmInType === 'virtual' || !scope.row.isEditable || scope.row.disabled"
+                        />
                     </template>
                 </el-table-column>
 
@@ -134,17 +125,11 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select
+                        <el-select-v2
                             v-model="scope.row.switch"
-                            :disabled="!scope.row.switch || !scope.row.isEditable"
-                        >
-                            <el-option
-                                v-for="item in pageData.switchList"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            />
-                        </el-select>
+                            :options="pageData.switchList"
+                            :disabled="scope.row.disabled || !scope.row.switch || !scope.row.isEditable"
+                        />
                     </template>
                 </el-table-column>
 
@@ -168,17 +153,11 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select
+                        <el-select-v2
                             v-model="scope.row.holdTime"
-                            :disabled="!scope.row.holdTime || !scope.row.isEditable"
-                        >
-                            <el-option
-                                v-for="item in pageData.durationList"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            />
-                        </el-select>
+                            :options="pageData.durationList"
+                            :disabled="scope.row.disabled || !scope.row.holdTime || !scope.row.isEditable"
+                        />
                     </template>
                 </el-table-column>
 
@@ -196,10 +175,11 @@
                         <div class="base-cell-box">
                             <el-checkbox
                                 v-model="scope.row.record.switch"
+                                :disabled="scope.row.disabled"
                                 @change="switchRecord(scope.$index)"
                             />
                             <el-button
-                                :disabled="!scope.row.record.switch"
+                                :disabled="!scope.row.record.switch || scope.row.disabled"
                                 @click="openRecord(scope.$index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
@@ -222,10 +202,11 @@
                         <div class="base-cell-box">
                             <el-checkbox
                                 v-model="scope.row.snap.switch"
+                                :disabled="scope.row.disabled"
                                 @change="switchSnap(scope.$index)"
                             />
                             <el-button
-                                :disabled="!scope.row.snap.switch"
+                                :disabled="!scope.row.snap.switch || scope.row.disabled"
                                 @click="openSnap(scope.$index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
@@ -258,14 +239,11 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select v-model="scope.row.sysAudio">
-                            <el-option
-                                v-for="item in pageData.audioList"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            />
-                        </el-select>
+                        <el-select-v2
+                            v-model="scope.row.sysAudio"
+                            :options="pageData.audioList"
+                            :disabled="scope.row.disabled"
+                        />
                     </template>
                 </el-table-column>
 
@@ -290,14 +268,11 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select v-model="scope.row.msgPushSwitch">
-                            <el-option
-                                v-for="item in pageData.switchList"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            />
-                        </el-select>
+                        <el-select-v2
+                            v-model="scope.row.msgPushSwitch"
+                            :disabled="scope.row.disabled"
+                            :options="pageData.switchList"
+                        />
                     </template>
                 </el-table-column>
 
@@ -315,10 +290,11 @@
                         <div class="base-cell-box">
                             <el-checkbox
                                 v-model="scope.row.alarmOut.switch"
+                                :disabled="scope.row.disabled"
                                 @change="switchAlarmOut(scope.$index)"
                             />
                             <el-button
-                                :disabled="!scope.row.alarmOut.switch"
+                                :disabled="!scope.row.alarmOut.switch || scope.row.disabled"
                                 @click="openAlarmOut(scope.$index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
@@ -336,10 +312,11 @@
                         <div class="base-cell-box">
                             <el-checkbox
                                 v-model="scope.row.preset.switch"
+                                :disabled="scope.row.disabled"
                                 @change="switchPreset(scope.$index)"
                             />
                             <el-button
-                                :disabled="!scope.row.preset.switch"
+                                :disabled="!scope.row.preset.switch || scope.row.disabled"
                                 @click="openPreset(scope.$index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
@@ -369,14 +346,11 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select v-model="scope.row.buzzerSwitch">
-                            <el-option
-                                v-for="item in pageData.switchList"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            />
-                        </el-select>
+                        <el-select-v2
+                            v-model="scope.row.buzzerSwitch"
+                            :disabled="scope.row.disabled"
+                            :options="pageData.switchList"
+                        />
                     </template>
                 </el-table-column>
 
@@ -401,17 +375,11 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select
+                        <el-select-v2
                             v-model="scope.row.popVideo.chl.id"
-                            :empty-values="[undefined, null]"
-                        >
-                            <el-option
-                                v-for="item in pageData.videoPopupChlList"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            />
-                        </el-select>
+                            :disabled="scope.row.disabled"
+                            :options="pageData.videoPopupChlList"
+                        />
                     </template>
                 </el-table-column>
 
@@ -436,15 +404,11 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select v-model="scope.row.popMsgSwitch">
-                            <el-option
-                                v-for="item in pageData.switchList"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            />
-                        </el-select>
-                    </template>
+                        <el-select-v2
+                            v-model="scope.row.popMsgSwitch"
+                            :disabled="scope.row.disabled"
+                            :options="pageData.switchList"
+                    /></template>
                 </el-table-column>
                 <!-- Email -->
                 <el-table-column width="100">
@@ -465,14 +429,11 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select v-model="scope.row.emailSwitch">
-                            <el-option
-                                v-for="item in pageData.switchList"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            />
-                        </el-select>
+                        <el-select-v2
+                            v-model="scope.row.emailSwitch"
+                            :disabled="scope.row.disabled"
+                            :options="pageData.switchList"
+                        />
                     </template>
                 </el-table-column>
             </el-table>
@@ -488,10 +449,11 @@
         </div>
         <div class="base-btn-box">
             <el-button
-                :disabled="pageData.applyDisabled"
+                :disabled="!editRows.size()"
                 @click="setData()"
-                >{{ Translate('IDCS_APPLY') }}</el-button
             >
+                {{ Translate('IDCS_APPLY') }}
+            </el-button>
         </div>
         <!-- 预置点名称 -->
         <AlarmBasePresetPop

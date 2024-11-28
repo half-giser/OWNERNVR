@@ -54,8 +54,6 @@
                 <el-table
                     ref="tableRef"
                     highlight-current-row
-                    border
-                    stripe
                     :row-keys="getRowKey"
                     :data="data.detail"
                     height="500"
@@ -87,11 +85,9 @@
                 </el-table>
             </div>
         </div>
-        <template #footer>
-            <div class="base-btn-box">
-                <el-button @click="$emit('close')">{{ Translate('IDCS_OK') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="$emit('close')">{{ Translate('IDCS_OK') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 

@@ -7,45 +7,30 @@
     <div class="OSDSetting">
         <el-form
             class="stripe"
-            :model="formData"
-            label-width="150"
             :style="{
                 '--form-input-width': '340px',
             }"
-            inline-message
         >
             <el-form-item :label="Translate('IDCS_NAME_ENABLE')">
-                <el-select v-model="formData.nameEnable">
-                    <el-option
-                        v-for="item in pageData.options"
-                        :key="item.value"
-                        :value="item.value"
-                        :label="item.label"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="formData.nameEnable"
+                    :options="pageData.options"
+                />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_ICON_ENABLE')">
-                <el-select v-model="formData.iconEnable">
-                    <el-option
-                        v-for="item in pageData.options"
-                        :key="item.value"
-                        :value="item.value"
-                        :label="item.label"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="formData.iconEnable"
+                    :options="pageData.options"
+                />
             </el-form-item>
             <el-form-item
                 v-show="pageData.isAddress"
                 :label="Translate('IDCS_ADDRESS_ENABLE')"
             >
-                <el-select v-model="formData.addressEnable">
-                    <el-option
-                        v-for="item in pageData.options"
-                        :key="item.value"
-                        :value="item.value"
-                        :label="item.label"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="formData.addressEnable"
+                    :options="pageData.options"
+                />
             </el-form-item>
             <div class="base-btn-box">
                 <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>

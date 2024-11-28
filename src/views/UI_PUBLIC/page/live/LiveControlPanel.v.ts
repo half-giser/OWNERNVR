@@ -284,8 +284,8 @@ export default defineComponent({
             const result = await manualUnlocking(sendXml)
             const $ = queryXml(result)
 
-            if ($('//status').text() !== 'success') {
-                const errorCode = $('//errorCode').text().num()
+            if ($('status').text() !== 'success') {
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
                 if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
                     errorInfo = Translate('IDCS_NO_PERMISSION')
@@ -350,8 +350,8 @@ export default defineComponent({
             `
             const result = await queryManualRecord(sendXml)
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                ctx.emit('remoteRecord', $('//content/switch').text().bool())
+            if ($('status').text() === 'success') {
+                ctx.emit('remoteRecord', $('content/switch').text().bool())
             }
         }
 
@@ -485,7 +485,7 @@ export default defineComponent({
             `
             const result = await queryNodeEncodeInfo(sendXml)
             const $ = queryXml(result)
-            const content = $('//content/item')
+            const content = $('content/item')
             if (content.length) {
                 const $item = queryXml(content[0].element)
                 pageData.value.GOP = $item('sub').attr('GOP')
@@ -495,9 +495,9 @@ export default defineComponent({
                 pageData.value.isRTSP = true
             }
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 // 多分割时会遍历窗口触发请求，异步请求返回值通过通道id来确定最后一次的数据正确
-                const chl = $(`//content/item[@id="${chlID.value}"]`)
+                const chl = $(`content/item[@id="${chlID.value}"]`)
                 if (!chl.length) {
                     return
                 }
@@ -565,13 +565,13 @@ export default defineComponent({
             `
             const result = await editNodeEncodeInfo(sendXml)
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
                 if (errorCode === ErrorCode.USER_ERROR_UNSUPPORTED_FUNC) {
                     errorInfo = Translate('IDCS_NOT_SUPPORTFUNC')
@@ -629,6 +629,18 @@ export default defineComponent({
             ctx.emit('talk', bool)
         }
 
+        const fpsOptions = computed(() => {
+            return Array(pageData.value.maxFps)
+                .fill(1)
+                .map((item, index) => {
+                    const value = item + index
+                    return {
+                        label: value,
+                        value,
+                    }
+                })
+        })
+
         watch(
             () => prop.winData.chlID,
             (newVal) => {
@@ -674,6 +686,7 @@ export default defineComponent({
             audioDisabled,
             talk,
             talkDisabled,
+            fpsOptions,
         }
     },
 })

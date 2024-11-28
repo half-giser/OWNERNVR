@@ -8,16 +8,13 @@ import WebsocketState from '@/utils/websocket/websocketState'
 import WebsocketUpload from '@/utils/websocket/websocketUpload'
 import { type UploadFile, type UploadInstance, type UploadRawFile, genFileId } from 'element-plus'
 import { getRandomGUID } from '@/utils/websocket/websocketCmd'
-import { type XMLQuery } from '@/utils/xmlParse'
 
 export default defineComponent({
     setup(_prop, { expose }) {
         const { openMessageBox } = useMessageBox()
         const { Translate } = useLangStore()
-        const Plugin = inject('Plugin') as PluginType
-        const isSupportH5 = Plugin.IsSupportH5()
         const ipcUpgradePopVisiable = ref(false)
-        const productModelOptionList = ref([] as string[])
+        const productModelOptionList = ref<SelectOption<string, string>[]>([])
         const selectedProductModel = ref('')
         const type = ref<'single' | 'multiple'>('single') // 单个：single, 批量：multiple
         const upload = ref<UploadInstance>()
@@ -42,10 +39,44 @@ export default defineComponent({
         let file: UploadRawFile | undefined = undefined
         const taskGUIDMap = {} as Record<string, ChannelInfoDto[]> // 插件上传IPC升级包任务ID-上传通道数组
 
+        const plugin = usePluginHook({
+            onMessage: ($) => {
+                //升级进度
+                if ($("statenotify[@type='FileNetTransportProgress']").length) {
+                    const taskGUID = $('statenotify/taskGUID').text().toLowerCase()
+                    if (taskGUIDMap[taskGUID]) {
+                        const progress = $('statenotify/progress').text().replace('%', '')
+                        taskGUIDMap[taskGUID].forEach((ele) => {
+                            changeStatus(ele, 'progress', progress)
+                        })
+                        if (progress === '100') {
+                            openMessageBox({
+                                type: 'info',
+                                message: Translate('IDCS_UPGRADE_IPC_NOTE'),
+                            })
+                        }
+                    }
+                }
+                //连接成功
+                // else if ($("statenotify[@type='connectstate']").length) {
+                //     const status = $("statenotify[@type='connectstate']").text()
+                // }
+                // 网络断开
+                else if ($("statenotify[@type='FileNetTransport']").length) {
+                    if ($('statenotify/errorCode').length) {
+                        const taskGUID = $('statenotify/taskGUID').text().toLowerCase()
+                        const errorCode = $('statenotify/errorCode').text().num()
+                        if (taskGUIDMap[taskGUID]) handleError(errorCode)
+                    }
+                }
+            },
+        })
+
+        const isSupportH5 = computed(() => {
+            return plugin.IsSupportH5()
+        })
+
         const init = (_type: 'single' | 'multiple', data: ChannelInfoDto[]) => {
-            if (!isSupportH5) {
-                Plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
-            }
             destory()
             type.value = _type
             tempData = data
@@ -65,9 +96,12 @@ export default defineComponent({
                         if (tmpList.indexOf(value) === -1) tmpList.push(value)
                     }
                 })
-                productModelOptionList.value = tmpList
+                productModelOptionList.value = arrayToOption(tmpList)
             }
-            selectedProductModel.value = productModelOptionList.value[0]
+
+            if (productModelOptionList.value.length) {
+                selectedProductModel.value = productModelOptionList.value[0].value
+            }
         }
 
         // websocket监听升级状态
@@ -78,7 +112,7 @@ export default defineComponent({
             chlData.forEach((ele) => {
                 contextMap[ele.id] = ele
             })
-            if (isSupportH5) {
+            if (isSupportH5.value) {
                 // 监听升级进度
                 wsState = new WebsocketState({
                     config: {
@@ -128,38 +162,6 @@ export default defineComponent({
             wsUpload = null
         }
 
-        const LiveNotify2Js = ($: XMLQuery) => {
-            //升级进度
-            if ($("statenotify[@type='FileNetTransportProgress']").length) {
-                const taskGUID = $('statenotify/taskGUID').text().toLowerCase()
-                if (taskGUIDMap[taskGUID]) {
-                    const progress = $('statenotify/progress').text().replace('%', '')
-                    taskGUIDMap[taskGUID].forEach((ele) => {
-                        changeStatus(ele, 'progress', progress)
-                    })
-                    if (progress === '100') {
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_UPGRADE_IPC_NOTE'),
-                        })
-                    }
-                }
-            }
-
-            //连接成功
-            // else if ($("statenotify[@type='connectstate']").length) {
-            //     const status = $("statenotify[@type='connectstate']").text()
-            // }
-            // 网络断开
-            else if ($("statenotify[@type='FileNetTransport']").length) {
-                if ($('statenotify/errorCode').length) {
-                    const taskGUID = $('statenotify/taskGUID').text().toLowerCase()
-                    const errorCode = $('statenotify/errorCode').text().num()
-                    if (taskGUIDMap[taskGUID]) handleError(errorCode)
-                }
-            }
-        }
-
         const handleError = (errorCode: number) => {
             // 恢复为默认状态
             tempData.forEach((ele) => {
@@ -201,7 +203,7 @@ export default defineComponent({
 
         const handleOcxBtnClick = () => {
             const sendXML = OCX_XML_OpenFileBrowser('OPEN_FILE')
-            Plugin.AsynQueryInfo(Plugin.GetVideoPlugin(), sendXML, (result) => {
+            plugin.AsynQueryInfo(plugin.GetVideoPlugin(), sendXML, (result) => {
                 const path = OCX_XML_OpenFileBrowser_getpath(result).trim()
                 if (path) {
                     fileName.value = path
@@ -226,7 +228,7 @@ export default defineComponent({
                 ele.upgradeStatus = 'progress'
                 ele.upgradeProgressText = '0%'
             })
-            if (isSupportH5) {
+            if (isSupportH5.value) {
                 wsUpload = new WebsocketUpload({
                     file: file as Blob,
                     config: {
@@ -254,7 +256,7 @@ export default defineComponent({
                     taskGUID: taskGUID,
                 }
                 const sendXML = OCX_XML_FileNetTransport('UpgradeIPC', param)
-                Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
             ipcUpgradePopVisiable.value = false
         }

@@ -11,10 +11,9 @@
             ref="formRef"
             :model="formData"
             :rules="rules"
-            class="form inline-message"
-            label-width="172"
             :style="{
                 '--form-input-width': '250px',
+                '--form-label-width': '172px',
             }"
         >
             <el-form-item>
@@ -79,18 +78,12 @@
             </el-form-item>
             <!-- protocol -->
             <el-form-item :label="Translate('IDCS_PROTOCOL')">
-                <el-select
+                <el-select-v2
                     v-model="formData.protocol"
                     :disabled="!formData.enable"
+                    :options="pageData.protocolOptions"
                     @change="handleProtocolChange()"
-                >
-                    <el-option
-                        v-for="item in pageData.protocolOptions"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    />
-                </el-select>
+                />
             </el-form-item>
             <br />
             <!-- heartEnable -->
@@ -118,17 +111,11 @@
                 prop="schedule"
                 :label="Translate('IDCS_SCHEDULE')"
             >
-                <el-select
+                <el-select-v2
                     v-model="formData.schedule"
+                    :options="pageData.scheduleList"
                     :disabled="!formData.enable"
-                >
-                    <el-option
-                        v-for="item in pageData.scheduleList"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    />
-                </el-select>
+                />
                 <el-button
                     class="btn"
                     :disabled="!formData.enable"
@@ -144,7 +131,7 @@
                 v-show="pageData.showAlarmTypeCfg"
                 :data="tableData"
                 class="table"
-                border
+                :stripe="false"
             >
                 <el-table-column
                     prop="alarmType"
@@ -157,8 +144,9 @@
                                 class="btn"
                                 :disabled="!formData.enable"
                                 @click="pageData.showAlarmTransfer = true"
-                                >{{ Translate('IDCS_CONFIG') }}</el-button
                             >
+                                {{ Translate('IDCS_CONFIG') }}
+                            </el-button>
                         </div>
                     </template>
                     <template #default="scope">
@@ -176,8 +164,9 @@
             <el-button
                 :disabled="!formData.enable"
                 @click="testAlarmServer()"
-                >{{ Translate('IDCS_TEST') }}</el-button
             >
+                {{ Translate('IDCS_TEST') }}
+            </el-button>
             <el-button @click="applyAlarmSever()">{{ Translate('IDCS_APPLY') }}</el-button>
         </div>
         <ScheduleManagPop

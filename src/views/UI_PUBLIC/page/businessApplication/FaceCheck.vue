@@ -7,10 +7,8 @@
     <div class="base-flex-box">
         <div class="form">
             <el-form
-                class="inline-message"
                 :style="{
                     '--form-input-width': '200px',
-                    '--form-label-width': '150px',
                 }"
             >
                 <el-form-item>
@@ -134,11 +132,7 @@
             </div>
         </div>
         <div class="base-table-box">
-            <el-table
-                :data="sliceTableData"
-                border
-                stripe
-            >
+            <el-table :data="sliceTableData">
                 <el-table-column :label="Translate('No.')">
                     <template #default="scope">
                         {{ displayIndex(scope.$index) }}

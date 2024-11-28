@@ -61,8 +61,8 @@ export default defineComponent({
             const result = await getChlList({
                 isSupportPtz: true,
             })
-            commLoadResponseHandler(result, async ($) => {
-                pageData.value.chlList = $('//content/item')
+            commLoadResponseHandler(result, ($) => {
+                pageData.value.chlList = $('content/item')
                     .filter((item) => {
                         const $item = queryXml(item.element)
                         return $item('chlType').text() !== 'recorder'
@@ -108,7 +108,7 @@ export default defineComponent({
                         label: Translate('IDCS_NULL'),
                     },
                 ].concat(
-                    $('//content/presets/item').map((item) => {
+                    $('content/presets/item').map((item) => {
                         return {
                             value: item.attr('index'),
                             label: item.text(),

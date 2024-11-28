@@ -265,7 +265,7 @@ export default defineComponent({
                         <itemType type='recType'/>
                         ${prop.eventList.map((event) => `<item>${event}</item>`).join('')}
                     </recType>
-                    ${prop.eventList.includes('POS') ? `<keyword></keyword>` : ''}
+                    ${prop.eventList.includes('POS') ? '<keyword></keyword>' : ''}
                     ${prop.chls.length ? `<chl>${chls}</chl>` : ''}
                 </condition>
             `
@@ -274,9 +274,9 @@ export default defineComponent({
 
             isLocked = false
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 let hasPosEvent = false
-                tableData.value = $('//content/chl/item').map((item) => {
+                tableData.value = $('content/chl/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         chlId: item.attr('id'),
@@ -305,7 +305,7 @@ export default defineComponent({
                 })
                 ctx.emit('callback', tableData.value, hasPosEvent)
             } else {
-                const errorType = $('//errorDescription').text()
+                const errorType = $('errorDescription').text()
                 if (errorType === 'noRecord') {
                     const error = prop.chls.map((item) => item.value + ' : ' + Translate('IDCS_NO_RECORD_DATA'))
                     ctx.emit('error', error)

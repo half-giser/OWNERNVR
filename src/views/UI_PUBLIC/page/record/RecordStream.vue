@@ -5,7 +5,7 @@
 -->
 <template>
     <div>
-        <RecordStreamTable
+        <RecordBaseStreamTable
             :v-model="pageData.init"
             :mode="pageData.mode"
             :pop="false"

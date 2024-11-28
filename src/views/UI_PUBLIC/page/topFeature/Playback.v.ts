@@ -153,6 +153,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openMessageBox } = useMessageBox()
+        const { openNotify } = useNotification()
         const systemCaps = useCababilityStore()
         const userSession = useUserSessionStore()
 
@@ -164,8 +165,6 @@ export default defineComponent({
         const ocxCacheWinMap = useOCXCacheWinMap(systemCaps.playbackMaxWin)
 
         const pageData = ref({
-            // 通知数据
-            notification: [] as string[],
             // 分屏数
             split: 1,
             // 事件图例
@@ -253,8 +252,8 @@ export default defineComponent({
                 `
                 const result = await queryRecSection(sendXml)
                 const $ = queryXml(result)
-                if ($('//status').text() === 'success') {
-                    pageData.value.recTimeList = $('//content/item').map((item) => {
+                if ($('status').text() === 'success') {
+                    pageData.value.recTimeList = $('content/item').map((item) => {
                         const index = item.text().num()
                         const utcTime = startTime.add(index, 'day')
                         return utcTime.valueOf()
@@ -387,14 +386,13 @@ export default defineComponent({
         /**
          * @description 播放器准备就绪回调
          */
-        const handlePlayerReady = async () => {
+        const handlePlayerReady = () => {
             player = playerRef.value!.player
             plugin = playerRef.value!.plugin
 
             if (mode.value === 'h5') {
             } else if (mode.value === 'ocx') {
                 //设置插件为回放交互模式
-                plugin.VideoPluginNotifyEmitter.addListener(notify)
                 cmd(OCX_XML_SetPluginModel('Interactive', 'Playback'))
 
                 //设置录像位置
@@ -766,7 +764,7 @@ export default defineComponent({
             if (removeChl.length) {
                 chlRef.value?.removeChls(
                     removeChl.map((item) => {
-                        pageData.value.notification.push(`${item.value}: ${Translate('IDCS_NO_REC_DATA')}`)
+                        openNotify(`${item.value}: ${Translate('IDCS_NO_REC_DATA')}`)
                         return item.id
                     }),
                 )
@@ -822,7 +820,7 @@ export default defineComponent({
                 player.snap(pageData.value.winData.winIndex, `${chlName}_${date}`)
                 // NT-12559 首次本地抓图，提示图片数据未加密
                 if (!localStorage.getItem(LocalCacheKey.KEY_SNAP_PIC_NOT_ENCRYPTED)) {
-                    pageData.value.notification.push(Translate('IDCS_IMG_UNENCRYPTED_TIP'))
+                    openNotify(Translate('IDCS_IMG_UNENCRYPTED_TIP'))
                     localStorage.setItem(LocalCacheKey.KEY_SNAP_PIC_NOT_ENCRYPTED, 'true')
                 }
             } else if (mode.value === 'ocx') {
@@ -954,7 +952,7 @@ export default defineComponent({
                 }
             } else if (mode.value === 'ocx') {
                 if (!pageData.value.winData.chlID) {
-                    pageData.value.notification.push(Translate('IDCS_OPERATE_CLOSE_WIN'))
+                    openNotify(Translate('IDCS_OPERATE_CLOSE_WIN'))
                     return
                 }
 
@@ -1320,7 +1318,9 @@ export default defineComponent({
          * @param {Array} error
          */
         const handleRecLogError = (error: string[]) => {
-            pageData.value.notification.push(...error)
+            error.forEach((item) => {
+                openNotify(item)
+            })
             pageData.value.isBackUpPop = false
         }
 
@@ -1507,23 +1507,23 @@ export default defineComponent({
                         case ErrorCode.USER_ERROR_CHANNEL_NO_OPEN_VIDEO: // 解码能力不足
                             const find = pageData.value.chls.find((item) => item.id === chlId)
                             if (find) {
-                                pageData.value.notification.push(find.value + ': ' + Translate('IDCS_OPEN_STREAM_FAIL'))
+                                openNotify(find.value + ': ' + Translate('IDCS_OPEN_STREAM_FAIL'))
                             }
                             break
                     }
                 } else if (status === 'noRecord') {
                     const find = pageData.value.chls.find((item) => item.id === chlId)
-                    pageData.value.notification.push(find ? `${find.value}: ${Translate('IDCS_NO_REC_DATA')}` : Translate('IDCS_NO_REC_DATA'))
+                    openNotify(find ? `${find.value}: ${Translate('IDCS_NO_REC_DATA')}` : Translate('IDCS_NO_REC_DATA'))
                 }
             }
             // 通知抓图结果
             else if ($("statenotify[@type='TakePhoto']").length) {
                 const status = $('statenotify/status').text()
                 if (status === 'success') {
-                    pageData.value.notification.push(Translate('IDCS_SNAP_SUCCESS_PATH') + Translate($('statenotify[@type="TakePhoto"].dir').text()))
+                    openNotify(Translate('IDCS_SNAP_SUCCESS_PATH') + Translate($('statenotify[@type="TakePhoto"].dir').text()))
                 } else {
                     const errorDescription = $('statenotify/errorDescription').text()
-                    pageData.value.notification.push(Translate('IDCS_SNAP_FAIL') + (errorDescription || ''))
+                    openNotify(Translate('IDCS_SNAP_FAIL') + (errorDescription || ''))
                 }
             }
             // StartViewChl
@@ -1552,7 +1552,6 @@ export default defineComponent({
                 // 离开时关闭osd信息，防止pc其他带视频的地方显示两个通道名
                 stop()
             }
-            plugin?.VideoPluginNotifyEmitter.removeListener(notify)
         })
 
         watch(
@@ -1681,6 +1680,7 @@ export default defineComponent({
             mode,
             changeEvent,
             handlePlayerReady,
+            notify,
             playerRef,
             timelineRef,
             chlRef,

@@ -25,7 +25,7 @@
                     trigger="hover"
                     :width="pageData.ocxSeg.length * 45 + 22"
                     :disabled="winData.isDwellPlay"
-                    popper-class="popper"
+                    popper-class="keep-ocx"
                 >
                     <template #reference>
                         <BaseImgSprite
@@ -87,7 +87,7 @@
             </el-radio-group>
         </div>
         <div class="ctrl-right">
-            <LiveScreenAlarmOut />
+            <LiveScreenAlarmOutPop />
             <!-- 关闭/开启图像 -->
             <el-tooltip :content="preview ? Translate('IDCS_CLOSE_ALL_IMAGE') : Translate('IDCS_PREVIEW_ALL')">
                 <BaseImgSprite

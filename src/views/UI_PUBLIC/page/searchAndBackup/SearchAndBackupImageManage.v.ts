@@ -15,17 +15,12 @@ export default defineComponent({
         BackupImgPlayerPop,
     },
     setup() {
-        const Plugin = inject('Plugin') as PluginType
         const { Translate } = useLangStore()
         const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const browser = getBrowserInfo()
 
         const tableRef = ref<TableInstance>()
-
-        const mode = computed(() => {
-            return Plugin.IsSupportH5() ? 'h5' : 'ocx'
-        })
 
         const dateTime = useDateTimeStore()
         const userAuth = useUserChlAuth()
@@ -59,6 +54,25 @@ export default defineComponent({
         const tableData = ref<PlaybackSearchImgList[]>([])
 
         const formData = ref(new PlaybackSearchImgForm())
+
+        const plugin = usePluginHook({
+            onReady: (mode, plugin) => {
+                if (mode.value === 'ocx') {
+                    const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Playback')
+                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                }
+            },
+            onDestroy: (mode, plugin) => {
+                if (mode.value === 'ocx') {
+                    const sendXML = OCX_XML_StopPreview('ALL')
+                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                }
+            },
+        })
+
+        const mode = computed(() => {
+            return plugin.IsSupportH5() ? 'h5' : 'ocx'
+        })
 
         /**
          * @description 搜索
@@ -103,7 +117,7 @@ export default defineComponent({
 
             openLoading()
 
-            tableRef.value?.clearSelection()
+            tableRef.value!.clearSelection()
             tableData.value = []
 
             const sendXml = rawXml`
@@ -125,9 +139,9 @@ export default defineComponent({
             closeLoading()
 
             showMaxSearchLimitTips($)
-            pageData.value.totalCount = $('//content').attr('total').num()
+            pageData.value.totalCount = $('content').attr('total').num()
 
-            tableData.value = $('//content/item').map((item, index) => {
+            tableData.value = $('content/item').map((item, index) => {
                 const $item = queryXml(item.element)
                 return {
                     index: (formData.value.pageIndex - 1) * formData.value.pageSize + index + 1,
@@ -233,7 +247,7 @@ export default defineComponent({
                 `
                 const result = await delPictures(sendXml)
                 const $ = queryXml(result)
-                if ($('//status').text() === 'success') {
+                if ($('status').text() === 'success') {
                     if (tableData.value.length === 1 && formData.value.pageIndex > 1) {
                         formData.value.pageIndex--
                     }
@@ -281,7 +295,7 @@ export default defineComponent({
                 `
                 const result = await delPictures(sendXml)
                 const $ = queryXml(result)
-                if ($('//status').text() === 'success') {
+                if ($('status').text() === 'success') {
                     formData.value.pageIndex = 1
                     getData()
                 }
@@ -387,27 +401,7 @@ export default defineComponent({
             pageData.value.playerIndex++
         }
 
-        watch(
-            mode,
-            (newVal) => {
-                if (newVal !== 'h5' && !Plugin.IsPluginAvailable()) {
-                    Plugin.SetPluginNoResponse()
-                    Plugin.ShowPluginNoResponse()
-                }
-
-                if (newVal === 'ocx') {
-                    const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Playback')
-                    Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                }
-            },
-            {
-                immediate: true,
-            },
-        )
-
-        onMounted(async () => {
-            Plugin.SetPluginNotice('#layout2Main')
-
+        onMounted(() => {
             const date = new Date()
             pageData.value.startTime = dayjs(date).hour(0).minute(0).second(0).format(dateTime.dateTimeFormat)
             pageData.value.endTime = dayjs(date).hour(23).minute(59).second(59).format(dateTime.dateTimeFormat)
@@ -416,13 +410,6 @@ export default defineComponent({
 
             if (!sessionStorage.getItem(LocalCacheKey.KEY_BACKUP_PIC_MSG)) {
                 pageData.value.isBackUpTipPop = true
-            }
-        })
-
-        onBeforeUnmount(() => {
-            if (mode.value === 'ocx') {
-                const sendXML = OCX_XML_StopPreview('ALL')
-                Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
         })
 

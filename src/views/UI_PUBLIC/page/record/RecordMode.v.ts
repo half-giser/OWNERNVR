@@ -7,7 +7,8 @@ import { type RecordModeDto, RecordDistributeInfoDto, type RecordScheduleDto } f
 import RecordModeAdvancePop from './RecordModeAdvancePop.vue'
 import RecordModeStreamPop from './RecordModeStreamPop.vue'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
-import { type XmlElement } from '@/utils/xmlParse'
+import { cloneDeep } from 'lodash-es'
+
 export default defineComponent({
     components: {
         RecordModeAdvancePop,
@@ -242,12 +243,12 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() !== 'success') return
+            if ($('status').text() !== 'success') return
 
-            formData.value.mode = $('//content/recMode/mode').text()
-            formData.value.autoMode = $('//content/recMode/autoMode').text()
-            formData.value.autoModeEvents = $('//content/recMode/autoMode').attr('eventType').split(',')
-            formData.value.urgencyRecDuration = $('//content/urgencyRecDuration').text().num()
+            formData.value.mode = $('content/recMode/mode').text()
+            formData.value.autoMode = $('content/recMode/autoMode').text()
+            formData.value.autoModeEvents = $('content/recMode/autoMode').attr('eventType').split(',')
+            formData.value.urgencyRecDuration = $('content/urgencyRecDuration').text().num()
 
             //TODO: CustomerID为100代表inw48客户,要求隐藏智能侦测
             // if (pageData.value.isInw48) {
@@ -259,15 +260,15 @@ export default defineComponent({
             //     MODE_MAPPING.manually = Translate('IDCS_REC_MODE_MANUAL')
             // }
             //绑定录像模式下拉
-            $('//types/recModeType/enum').forEach((item) => {
-                pageData.value.recModeTypeList.push({
+            pageData.value.recModeTypeList = $('types/recModeType/enum').map((item) => {
+                return {
                     value: item.text(),
                     label: MODE_MAPPING[item.text()],
-                })
+                }
             })
 
             //绑定手动录像时长下拉
-            $('//content/urgencyRecDurationNote')
+            $('content/urgencyRecDurationNote')
                 .text()
                 .split(',')
                 .forEach((item) => {
@@ -406,36 +407,31 @@ export default defineComponent({
 
             pageData.value.scheduleList = await buildScheduleList()
 
-            const resultArr = await queryRecordScheduleList()
+            const result = await queryRecordScheduleList()
+            const $ = queryXml(result)
 
-            // const scheduleXml = queryXml(resultArr[0] as ApiResult)
-            const recScheduleXml = queryXml(resultArr)
-            if (recScheduleXml('//status').text() !== 'success') {
+            if ($('status').text() !== 'success') {
                 return
             }
 
-            const getRecScheduleSelectValue = (item: XmlElement, path: string) => {
-                const scheduleElement = xmlParse(path, item.element)[0].element
-                return xmlParse('./switch', scheduleElement).text() === 'false' ? DEFAULT_EMPTY_ID : xmlParse('./schedule', scheduleElement).attr('id')
-            }
-
-            const parseTableData = () => {
-                return recScheduleXml('//content/item').map((item) => {
-                    return {
-                        id: item.attr('id'),
-                        name: xmlParse('./name', item.element).text(),
-                        alarmRec: getRecScheduleSelectValue(item, './alarmRec'),
-                        motionRec: getRecScheduleSelectValue(item, './motionRec'),
-                        intelligentRec: getRecScheduleSelectValue(item, './intelligentRec'),
-                        posRec: getRecScheduleSelectValue(item, './posRec'),
-                        scheduleRec: getRecScheduleSelectValue(item, './scheduleRec'),
-                    }
-                })
-            }
-
             // 通道的录像排程表格数据
-            formData.value.recordScheduleList = parseTableData()
-            recordScheduleListInit = parseTableData()
+            formData.value.recordScheduleList = $('content/item').map((item) => {
+                const $item = queryXml(item.element)
+                const switchType = $item('switch').text().bool()
+                const getRecScheduleSelectValue = (str: string) => {
+                    return switchType ? $item(str).text() : DEFAULT_EMPTY_ID
+                }
+                return {
+                    id: item.attr('id'),
+                    name: $item('name').text(),
+                    alarmRec: getRecScheduleSelectValue('alarmRec'),
+                    motionRec: getRecScheduleSelectValue('motionRec'),
+                    intelligentRec: getRecScheduleSelectValue('intelligentRec'),
+                    posRec: getRecScheduleSelectValue('posRec'),
+                    scheduleRec: getRecScheduleSelectValue('scheduleRec'),
+                }
+            })
+            recordScheduleListInit = cloneDeep(formData.value.recordScheduleList)
 
             closeLoading()
         }

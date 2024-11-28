@@ -78,7 +78,7 @@ export default defineConfig(({ mode }) => {
         resolve: {
             alias: {
                 '@': sourceDir,
-                '@public': getSourceDir(`src/views/UI_PUBLIC`),
+                '@public': getSourceDir('src/views/UI_PUBLIC'),
                 '@ui': getSourceDir(`src/views/${VITE_UI_TYPE}`),
             },
         },

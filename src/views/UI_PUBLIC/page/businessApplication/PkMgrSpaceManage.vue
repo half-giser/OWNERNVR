@@ -9,8 +9,6 @@
             <el-table
                 :data="tableData"
                 show-overflow-tooltip
-                stripe
-                border
             >
                 <el-table-column
                     type="index"
@@ -27,14 +25,10 @@
                     :label="Translate('IDCS_PARKING_TYPE')"
                 >
                     <template #default="scope">
-                        <el-select v-model="scope.row.parkingType">
-                            <el-option
-                                v-for="item in pageData.parkingTypeList"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            />
-                        </el-select>
+                        <el-select-v2
+                            v-model="scope.row.parkingType"
+                            :options="pageData.parkingTypeList"
+                        />
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -83,17 +77,11 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select
+                        <el-select-v2
                             v-model="scope.row.groupSchedule"
+                            :options="pageData.scheduleList"
                             @change="changeSingleSchedule(scope.row)"
-                        >
-                            <el-option
-                                v-for="item in pageData.scheduleList"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            />
-                        </el-select>
+                        />
                     </template>
                 </el-table-column>
                 <el-table-column

@@ -20,6 +20,7 @@ body {
     padding: 0;
     background-color: var(--main-bg);
     font-family: 'Microsoft YaHei', Arial, Helvetica, sans-serif;
+    font-size: 15px;
     height: 100%;
     color: var(--main-text);
 }
@@ -101,26 +102,6 @@ input[type='number'] {
 
 #n9web {
     height: 100%;
-
-    .el-col-flex-end {
-        display: flex;
-        justify-content: flex-end;
-
-        & > .el-icon {
-            cursor: pointer;
-            margin: auto 0;
-        }
-    }
-
-    .el-col-flex-start {
-        display: flex;
-        justify-content: flex-start;
-    }
-
-    .el-col-flex-center {
-        display: flex;
-        justify-content: center;
-    }
 
     .config-row {
         padding: 5px 0;
@@ -223,6 +204,7 @@ input[type='number'] {
         }
 
         .el-dialog__body {
+            position: relative;
             width: 100%;
             padding: 20px;
             box-sizing: border-box;
@@ -231,10 +213,6 @@ input[type='number'] {
         .el-dialog__footer {
             margin: 0;
             padding: 0 20px 20px;
-
-            .base-btn-box {
-                margin-top: 0;
-            }
         }
     }
 
@@ -283,10 +261,16 @@ input[type='number'] {
             }
 
             .el-checkbox {
+                color: unset;
+
                 &.is-checked {
                     .el-checkbox__inner {
                         border: var(--el-border-width) var(--el-border-style) var(--table-checkbox-border-checked);
                     }
+                }
+
+                .el-checkbox__label {
+                    color: unset;
                 }
             }
             // .el-table-column--selection {
@@ -307,15 +291,15 @@ input[type='number'] {
     }
 
     // .el-input 公共样式
-    .el-input {
-        &.el-input--small {
-            .el-input__wrapper {
-                .el-input__inner {
-                    padding-top: 2px;
-                }
-            }
-        }
-    }
+    // .el-input {
+    //     &.el-input--small {
+    //         .el-input__wrapper {
+    //             .el-input__inner {
+    //                 padding-top: 2px;
+    //             }
+    //         }
+    //     }
+    // }
 
     // .el-popper/.el-dropdown/.el-select 公共样式
     .el-popper {
@@ -348,6 +332,10 @@ input[type='number'] {
                         color: var(--color-white);
                         background-color: var(--primary);
                     }
+                }
+
+                &.el-vl__window {
+                    margin: 0;
                 }
             }
 
@@ -414,6 +402,11 @@ input[type='number'] {
                 .el-checkbox {
                     margin-left: 5px;
                 }
+            }
+
+            &__content {
+                display: flex;
+                flex-wrap: nowrap;
             }
         }
 
@@ -482,18 +475,6 @@ input[type='number'] {
             }
         }
 
-        // 错误信息不换行
-        &.inline-message {
-            .el-form-item__content {
-                flex-wrap: nowrap;
-            }
-
-            .el-form-item__error {
-                padding-top: 0;
-                top: unset;
-            }
-        }
-
         // 斑马线样式（默认错误信息不换行）
         &.stripe {
             .el-form-item__content {
@@ -516,11 +497,6 @@ input[type='number'] {
                 &:nth-child(even) {
                     background-color: unset;
                 }
-            }
-
-            .el-form-item__error {
-                padding-top: 0;
-                top: unset;
             }
         }
     }
@@ -627,6 +603,7 @@ input[type='number'] {
 
             .el-radio {
                 display: flex;
+                height: 32px;
 
                 & + .el-radio {
                     margin-left: 0;
@@ -699,6 +676,26 @@ input[type='number'] {
             }
         }
     }
+}
+
+.el-col-flex-end {
+    display: flex;
+    justify-content: flex-end;
+
+    & > .el-icon {
+        cursor: pointer;
+        margin: auto 0;
+    }
+}
+
+.el-col-flex-start {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.el-col-flex-center {
+    display: flex;
+    justify-content: center;
 }
 
 // 将el-pagination放置在此容器下，以便el-pagination能和el-table贴合在一起
@@ -832,5 +829,34 @@ input[type='number'] {
 
     & + .el-button {
         margin-left: 5px;
+    }
+}
+
+.base-group-select {
+    .el-select-group__title {
+        position: relative;
+
+        &::before {
+            content: '';
+            border-top: 1px solid var(--content-border);
+            position: absolute;
+            top: 17px;
+            left: 0;
+            width: 100%;
+        }
+    }
+}
+
+.fadeOut {
+    animation: fade-out 2.5s linear 1.8s forwards;
+}
+
+@keyframes fade-out {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
     }
 }

@@ -5,7 +5,6 @@
  */
 import WebsocketBase from './websocketBase'
 import { CMD_STATE_INFO_SUBSCRIBE, CMD_STATE_INFO_UNSUBSCRIBE, type CmdStateInfoSubscribeOption } from './websocketCmd'
-import { Uint8ArrayToStr } from '../tools'
 
 export interface WebsocketStateOption {
     config: CmdStateInfoSubscribeOption

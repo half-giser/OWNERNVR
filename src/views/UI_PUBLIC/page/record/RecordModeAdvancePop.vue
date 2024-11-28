@@ -7,7 +7,7 @@
     <el-dialog
         width="700"
         :title="Translate('IDCS_ADD_RECORD_MODE')"
-        :destroy-on-close="true"
+        destroy-on-close
     >
         <div class="recModeList">
             <el-checkbox-group
@@ -32,12 +32,10 @@
                 </template>
             </el-checkbox-group>
         </div>
-        <template #footer>
-            <div class="base-btn-box">
-                <el-button @click="$emit('confirm', selectedEvents.slice(0))">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="$emit('confirm', selectedEvents.slice(0))">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 

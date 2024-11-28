@@ -19,14 +19,14 @@ export default defineComponent({
         const mute = ref(false)
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
+        const { openNotify } = useNotification()
         const browserInfo = getBrowserInfo()
         const cababilityStore = useCababilityStore()
         const userSession = useUserSessionStore()
         const router = useRouter()
         const { openMessageBox } = useMessageBox()
-        const Plugin = inject('Plugin') as PluginType
+        const plugin = usePlugin()
         const pluginStore = usePluginStore()
-        const isSupportH5 = Plugin.IsSupportH5()
 
         const tableData = ref([] as ChannelInfoDto[])
         const channelEditPopVisable = ref(false)
@@ -37,7 +37,6 @@ export default defineComponent({
         const ipNumVisable = ref(false)
         const editNameMapping = ref({} as Record<string, string>)
         const baseLivePopRef = ref<LivePopInstance>()
-        const notifications = ref([] as string[])
         const channelIPCUpgradePopRef = ref<ChannelIPCUpgradeExpose>()
 
         let ipChlMaxCount = 0
@@ -166,7 +165,7 @@ export default defineComponent({
                 queryChlPort(data).then((res) => {
                     closeLoading()
                     const $ = queryXml(res)
-                    const httpPort = $('//content/chl/port/httpPort').length ? $('//content/chl/port/httpPort').text() : ''
+                    const httpPort = $('content/chl/port/httpPort').length ? $('content/chl/port/httpPort').text() : ''
                     // ipv6地址访问格式为：http://[ipv6]
                     const ip = checkIpV6(rowData.ip) ? '[' + rowData.ip + ']' : rowData.ip
                     browserInfo.type === 'ie' && (pluginStore.showPluginNoResponse = false)
@@ -190,8 +189,8 @@ export default defineComponent({
         }
 
         const openUpgradePop = (type: 'single' | 'multiple', data: ChannelInfoDto[]) => {
-            if (isSupportH5 && isHttpsLogin()) {
-                notifications.value.push(formatHttpsTips(Translate('IDCS_IPC_UPGRADE')))
+            if (plugin.IsSupportH5() && isHttpsLogin()) {
+                openNotify(formatHttpsTips(Translate('IDCS_IPC_UPGRADE')))
                 return
             }
             openMessageBox({
@@ -234,13 +233,12 @@ export default defineComponent({
                 getProtocolList(() => {
                     if ($('status').text() === 'success') {
                         manufacturerMap = {}
-                        $('//types/manufacturer/enum').forEach((ele) => {
+                        $('types/manufacturer/enum').forEach((ele) => {
                             manufacturerMap[ele.text()] = ele.attr('displayName')
                         })
 
-                        tableData.value = []
                         nameMapping = {}
-                        $('//content/item').forEach((ele) => {
+                        tableData.value = $('content/item').map((ele) => {
                             const eleXml = queryXml(ele.element)
                             nameMapping[ele.attr('id')] = eleXml('name').text()
                             const channelInfo = new ChannelInfoDto()
@@ -266,10 +264,10 @@ export default defineComponent({
                             channelInfo.chlIndex = eleXml('chlIndex').text()
                             channelInfo.chlType = eleXml('chlType').text()
 
-                            tableData.value.push(channelInfo)
+                            return channelInfo
                         })
                         saveMaxValueForDefaultChl()
-                        tableData.value.forEach((ele: ChannelInfoDto) => {
+                        tableData.value.forEach((ele) => {
                             //UI1-E POE通道可删除，其他UI不能删除
                             if ((ele.addType === 'poe' && import.meta.env.VITE_UI_TYPE !== 'UI1-E') || !ele.ip) {
                                 ele.delDisabled = true
@@ -299,7 +297,7 @@ export default defineComponent({
                 </condition>
             `
             queryIPChlInfo(sendXml).then((res) => {
-                const version = queryXml(res)('//content/chl/detailedSoftwareVersion').text()
+                const version = queryXml(res)('content/chl/detailedSoftwareVersion').text()
                 if (version !== channelInfo.version) channelInfo.version = version
             })
         }
@@ -313,7 +311,7 @@ export default defineComponent({
                         //模拟通道，状态置为空
                         if (!ele.ip) return
                         let isOnline = false
-                        $('//content/item').forEach((element) => {
+                        $('content/item').forEach((element) => {
                             const chlId = element.attr('id')
                             if (ele.id === chlId) {
                                 if (!ele.isOnline) {
@@ -347,7 +345,7 @@ export default defineComponent({
                 const $ = queryXml(res)
                 if ($('status').text() === 'success') {
                     let channelSignalTypeList: string[] = []
-                    if ($('//content/channelSignalType').length) channelSignalTypeList = $('//content/channelSignalType').text().split(':')
+                    if ($('content/channelSignalType').length) channelSignalTypeList = $('content/channelSignalType').text().split(':')
                     ipChlMaxCountOriginal = 0
                     channelSignalTypeList.forEach((ele) => {
                         if (ele === 'D') ipChlMaxCountOriginal++
@@ -362,19 +360,19 @@ export default defineComponent({
             queryRecordDistributeInfo().then((res1) => {
                 closeLoading()
                 const $ = queryXml(res1)
-                const mode = $('//content/recMode/mode').text()
+                const mode = $('content/recMode/mode').text()
                 openLoading()
                 querySystemCaps().then((res2) => {
                     closeLoading()
                     const $ = queryXml(res2)
                     if ($('status').text() === 'success') {
-                        const totalBandwidth = $('//content/totalBandwidth').text().num()
-                        const usedBandwidth = $('//content/' + (mode === 'auto' ? 'usedAutoBandwidth' : 'usedManualBandwidth'))
+                        const totalBandwidth = $('content/totalBandwidth').text().num()
+                        const usedBandwidth = $('content/' + (mode === 'auto' ? 'usedAutoBandwidth' : 'usedManualBandwidth'))
                             .text()
                             .num()
                         let remainBandwidth = (totalBandwidth * 1024 - usedBandwidth) / 1024
-                        const switchableIpChlMaxCount = $('//content/switchableIpChlMaxCount').text().num()
-                        ipChlMaxCount = ipChlMaxCountOriginal + $('//content/ipChlMaxCount').text().num()
+                        const switchableIpChlMaxCount = $('content/switchableIpChlMaxCount').text().num()
+                        ipChlMaxCount = ipChlMaxCountOriginal + $('content/ipChlMaxCount').text().num()
                         if (remainBandwidth < 0) remainBandwidth = 0
                         txtBrandwidth.value = Translate('IDCS_CURRENT_BANDWIDTH_ALL_D_D').formatForLang(remainBandwidth.toFixed(0), totalBandwidth.toFixed(0))
 
@@ -395,14 +393,12 @@ export default defineComponent({
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() === 'success') {
-                    protocolList.value = []
-                    const nodes = $('//content/item')
-                    nodes.forEach((ele) => {
+                    protocolList.value = $('content/item').map((ele) => {
                         const eleXml = queryXml(ele.element)
-                        protocolList.value.push({
+                        return {
                             displayName: eleXml('displayName').text(),
                             index: ele.attr('id'),
-                        })
+                        }
                     })
                     if (callback) callback()
                 }
@@ -481,7 +477,6 @@ export default defineComponent({
             volumn,
             mute,
             baseLivePopRef,
-            notifications,
             channelIPCUpgradePopRef,
             ChannelEditPop,
             ChannelEditIPCPwdPop,

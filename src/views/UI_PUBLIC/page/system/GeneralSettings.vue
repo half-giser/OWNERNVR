@@ -14,7 +14,6 @@
                 '--form-label-width': '200px',
                 '--form-input-width': '250px',
             }"
-            inline-message
         >
             <el-form-item
                 prop="deviceName"
@@ -38,17 +37,11 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_VIDEO_FORMAT')">
-                <el-select
+                <el-select-v2
                     v-model="formData.videoFormat"
+                    :options="pageData.videoFormatOption"
                     @change="hanelChangeVideoFormat"
-                >
-                    <el-option
-                        v-for="value in pageData.videoFormatOption"
-                        :key="value"
-                        :value
-                        :label="value"
-                    />
-                </el-select>
+                />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_OUTPUT_ADAPT')">
                 <el-checkbox v-model="formData.outputAdapt" />
@@ -60,17 +53,11 @@
                 :key
             >
                 <el-form-item :label="displayResolutionLabel(key)">
-                    <el-select
+                    <el-select-v2
                         v-model="formData.resolution[key]"
                         :disabled="getResolutionDisabled(key)"
-                    >
-                        <el-option
-                            v-for="(value, optionKey) in getResolutionOptions(key, item)"
-                            :key="optionKey"
-                            :value
-                            :label="value"
-                        />
-                    </el-select>
+                        :options="getResolutionOptions(key, item)"
+                    />
                 </el-form-item>
                 <el-form-item v-if="key === 0 && pageData.resolutionTip">{{ pageData.resolutionTip }}</el-form-item>
             </template>
@@ -84,31 +71,21 @@
                     :key="key2"
                     :label="displayDecoderLabel(key, key2)"
                 >
-                    <el-select v-model="formData.decoder[key][key2]">
-                        <el-option
-                            v-for="(value, optionKey) in item2"
-                            :key="optionKey"
-                            :value
-                            :label="value"
-                        />
-                    </el-select>
+                    <el-select-v2
+                        v-model="formData.decoder[key][key2]"
+                        :options="arrayToOptions(item2)"
+                    />
                 </el-form-item>
             </template>
             <el-form-item
                 v-if="pageData.isOutputConfig"
                 :label="Translate('IDCS_OUTPUT_CONFIG')"
             >
-                <el-select
+                <el-select-v2
                     v-model="formData.outputConfig"
+                    :options="pageData.outputConfigOption"
                     @change="handleChangeOutputConfig"
-                >
-                    <el-option
-                        v-for="item in pageData.outputConfigOption"
-                        :key="item.value"
-                        :value="item.value"
-                        :label="item.label"
-                    />
-                </el-select>
+                />
             </el-form-item>
             <el-form-item>
                 <el-checkbox
@@ -129,17 +106,11 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_WAIT_TIME')">
-                <el-select
+                <el-select-v2
                     v-model="formData.waitTime"
                     :disabled="!formData.enableAutoDwell"
-                >
-                    <el-option
-                        v-for="value in pageData.waitTimeOption"
-                        :key="value"
-                        :value="value"
-                        :label="displayWaitTimeOption(value)"
-                    />
-                </el-select>
+                    :options="pageData.waitTimeOption"
+                />
             </el-form-item>
             <el-form-item v-if="pageData.isZeroOrAddIpc">
                 <el-checkbox

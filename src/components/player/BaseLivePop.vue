@@ -15,8 +15,7 @@
             <BaseVideoPlayer
                 v-if="playerOpened"
                 ref="playerRef"
-                :split="1"
-                @onready="ready"
+                @ready="ready"
             />
         </div>
     </el-dialog>

@@ -7,8 +7,6 @@
     <div>
         <el-form
             class="stripe"
-            :model="formData"
-            inline-message
             :style="{
                 '--form-input-width': '250px',
             }"
@@ -34,61 +32,38 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_DATE_FORMAT')">
-                <el-select v-model="formData.dateFormat">
-                    <el-option
-                        v-for="item in pageData.dateFormatOptions"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="formData.dateFormat"
+                    :options="pageData.dateFormatOptions"
+                />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_TIME_FORMAT')">
-                <el-select v-model="formData.timeFormat">
-                    <el-option
-                        v-for="item in pageData.timeFormatOptions"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="formData.timeFormat"
+                    :options="pageData.timeFormatOptions"
+                />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_SYNC_WAY')">
-                <el-select
+                <el-select-v2
                     v-model="formData.syncType"
+                    :options="pageData.syncTypeOptions"
                     @change="handleSyncTypeChange"
-                >
-                    <el-option
-                        v-for="item in pageData.syncTypeOptions"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    />
-                </el-select>
+                />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_TIME_SERVER')">
-                <el-select
+                <el-select-v2
                     v-model="formData.timeServer"
+                    :options="pageData.timeServerOptions"
                     filterable
-                >
-                    <el-option
-                        v-for="item in pageData.timeServerOptions"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    />
-                </el-select>
+                />
             </el-form-item>
             <div class="base-subheading-box">{{ Translate('IDCS_TIMEZONE_DST') }}</div>
             <el-form-item :label="Translate('IDCS_TIME_ZONE')">
-                <el-select v-model="formData.timeZone">
-                    <el-option
-                        v-for="(item, index) in pageData.timeZoneOption"
-                        :key="item.timeZone"
-                        :label="displayTimeZone(index)"
-                        :value="item.timeZone"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="formData.timeZone"
+                    :options="pageData.timeZoneOption"
+                    :props="{ value: 'timeZone' }"
+                />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_DST')">
                 <el-checkbox

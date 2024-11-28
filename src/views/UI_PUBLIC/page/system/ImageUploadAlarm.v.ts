@@ -55,7 +55,7 @@ export default defineComponent({
             const res = await queryAuthGroup(sendXml)
             const $ = queryXml(res)
             if ($('status').text() === 'success') {
-                pageData.value.hasAuth = $('//systemAuth/alarmMgr').text().bool()
+                pageData.value.hasAuth = $('content/systemAuth/alarmMgr').text().bool()
             }
         }
 
@@ -73,32 +73,25 @@ export default defineComponent({
                     }
                 })
                 pageData.value.originalAlarmTypeList = cloneDeep(pageData.value.alarmTypeList)
-                // 用于测试，后续删除
-                // if ($('//types/eventType/enum').length === 0) {
-                //     pageData.value.alarmTypeList.push({
-                //         value: 'MOTION',
-                //         label: pageData.value.evTypeLangMap['MOTION'],
-                //     })
-                // }
                 if (pageData.value.alarmTypeList.length) {
                     pageData.value.alarmTypeList.push({
                         value: 'MOTION,ALARM',
                         label: EVENT_TYPE_MAPPING['MOTION,ALARM'],
                     })
                 }
-                const pretimeList = $('//param/preTimeNote').text()
+                const pretimeList = $('content/param/preTimeNote').text()
                 pageData.value.pretimeList = pretimeList !== '' ? pretimeList.split(',').map((item) => ({ value: item.trim(), label: getTranslateForSecond(Number(item.trim())) })) : []
-                pageData.value.saveTimeList = $('//param/holdTimeNote')
+                pageData.value.saveTimeList = $('content/param/holdTimeNote')
                     .text()
                     .split(',')
                     .map((item) => ({
                         value: item.trim(),
                         label: getTranslateForSecond(Number(item.trim())),
                     }))
-                pageData.value.preUnit = $('//param/chlParams/itemType/preTime').attr('unit') || 's'
-                pageData.value.saveUnit = $('//param/chlParams/itemType/holdTime').attr('unit') || 's'
+                pageData.value.preUnit = $('content/param/chlParams/itemType/preTime').attr('unit') || 's'
+                pageData.value.saveUnit = $('content/param/chlParams/itemType/holdTime').attr('unit') || 's'
 
-                tableData.value = $('//param/chlParams/item').map((item) => {
+                tableData.value = $('content/param/chlParams/item').map((item) => {
                     const row = new SystemImageUploadAlarmItem()
                     const $item = queryXml(item.element)
                     row.id = $item('chl').attr('id')
@@ -168,7 +161,7 @@ export default defineComponent({
 
         // 通过id获取通道号
         const getChlNumById = (chlId: string) => {
-            return parseInt(chlId.substring(1, chlId.indexOf('-')), 16)
+            return hexToDec(chlId.substring(1, chlId.indexOf('-')))
         }
 
         // 通道排序

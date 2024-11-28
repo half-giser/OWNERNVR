@@ -8,6 +8,7 @@
         :title="type === 'add' ? Translate('IDCS_ADD') : Translate('IDCS_EDIT')"
         width="600"
         @open="open"
+        @closed="formRef?.resetFields()"
     >
         <el-form
             ref="formRef"
@@ -72,12 +73,10 @@
                 </el-radio-group>
             </el-form-item>
         </el-form>
-        <template #footer>
-            <div class="base-btn-box">
-                <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="close()">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="close()">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 

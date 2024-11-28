@@ -16,17 +16,11 @@
                 v-show="formData.netConfig.curWorkMode !== 'work_mode_none'"
                 :label="Translate('IDCS_WORK_PATTERN')"
             >
-                <el-select
+                <el-select-v2
                     v-model="formData.netConfig.curWorkMode"
                     :disabled="pageData.pppoeSwitch || !(formData.netConfig.supportNetworkMultiAddrSetting && formData.netConfig.supportNetworkFaultTolerance)"
-                >
-                    <el-option
-                        v-for="item in pageData.workModeOptions"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    />
-                </el-select>
+                    :options="pageData.workModeOptions"
+                />
                 <el-text>{{ Translate('IDCS_WORK_PATTERN_TIP') }}</el-text>
             </el-form-item>
             <!-- BONDS -->
@@ -34,17 +28,11 @@
                 v-show="formData.netConfig.curWorkMode === 'network_fault_tolerance' && formData.bonds.length > 1"
                 :label="Translate('IDCS_BONDS')"
             >
-                <el-select
+                <el-select-v2
                     v-model="pageData.bondIndex"
                     :disabled="pageData.pppoeSwitch"
-                >
-                    <el-option
-                        v-for="(item, index) in formData.bonds"
-                        :key="item.id"
-                        :value="item.index"
-                        :label="Translate('IDCS_FAULT_ETH_NAME').formatForLang(index + 1)"
-                    />
-                </el-select>
+                    :options="bondsOptions"
+                />
             </el-form-item>
             <!-- 网口 -->
             <div
@@ -69,8 +57,9 @@
                     class="advance-btn"
                     :disabled="pageData.pppoeSwitch"
                     @click="setAdvanceData"
-                    >{{ Translate('IDCS_ADVANCED') }}</el-button
                 >
+                    {{ Translate('IDCS_ADVANCED') }}
+                </el-button>
                 <!-- DHCP -->
                 <div class="dhcp">
                     <el-form-item>
@@ -117,18 +106,12 @@
                             v-show="isPoe"
                             :label="Translate('IDCS_POE_MODE')"
                         >
-                            <el-select
+                            <el-select-v2
                                 v-model="formData.netConfig.poeMode"
                                 :disabled="!poeEnabled"
+                                :options="pageData.poeModeOptions"
                                 @change="handleChangePoeMode"
-                            >
-                                <el-option
-                                    v-for="item in pageData.poeModeOptions"
-                                    :key="item.value"
-                                    :value="item.value"
-                                    :label="item.label"
-                                />
-                            </el-select>
+                            />
                         </el-form-item>
                         <!-- IPv4 自动DNS -->
                         <el-form-item>
@@ -171,7 +154,6 @@
                         <el-form-item :label="Translate('IDCS_IP_ADDRESS')">
                             <el-input
                                 :model-value="current.ipV6"
-                                spellcheck="false"
                                 :disabled="!current.ipV6Switch || current.dhcpSwitch || !poeEnabled"
                                 @update:model-value="changeData($event, 'ipV6')"
                             />
@@ -212,7 +194,6 @@
                             <el-input
                                 :model-value="current.ipv6Dns1"
                                 :disabled="!current.ipV6Switch || current.ipv6DnsDhcpSwitch || !poeEnabled"
-                                spellcheck="false"
                                 @update:model-value="changeData($event, 'ipv6Dns1')"
                             />
                         </el-form-item>
@@ -221,7 +202,6 @@
                             <el-input
                                 :model-value="current.ipv6Dns2"
                                 :disabled="!current.ipV6Switch || current.ipv6DnsDhcpSwitch || !poeEnabled"
-                                spellcheck="false"
                                 @update:model-value="changeData($event, 'ipv6Dns2')"
                             />
                         </el-form-item>
@@ -234,17 +214,11 @@
                 v-show="formData.netConfig.curWorkMode === 'network_fault_tolerance'"
                 :label="Translate('IDCS_PRIMARY_NETWORK_CARD')"
             >
-                <el-select
+                <el-select-v2
                     :model-value="current.primaryNIC || ''"
+                    :options="nicConfigOptions"
                     @update:model-value="changeData($event, 'primaryNIC')"
-                >
-                    <el-option
-                        v-for="item in formData.nicConfigs"
-                        :key="item.id"
-                        :value="item.id"
-                        :label="displayNicName(item)"
-                    />
-                </el-select>
+                />
             </el-form-item>
             <!-- 网口 -->
             <div
@@ -270,41 +244,30 @@
                 v-show="formData.netConfig.curWorkMode === 'network_fault_tolerance' && formData.bonds.length > 1"
                 :label="Translate('IDCS_PROMPT_DEFAULT_NIC')"
             >
-                <el-select
+                <el-select-v2
                     v-model="formData.ipDefaultBond"
                     :disabled="pageData.pppoeSwitch"
-                >
-                    <el-option
-                        v-for="(item, index) in formData.bonds"
-                        :key="item.id"
-                        :value="item.id"
-                        :label="Translate('IDCS_FAULT_ETH_NAME').formatForLang(index + 1)"
-                    />
-                </el-select>
+                    :options="bondsOptions"
+                />
             </el-form-item>
             <el-form-item
                 v-show="formData.netConfig.curWorkMode === 'multiple_address_setting'"
                 :label="Translate('IDCS_PROMPT_DEFAULT_NIC')"
             >
-                <el-select
+                <el-select-v2
                     v-model="formData.netConfig.defaultNic"
                     :disabled="pageData.pppoeSwitch"
-                >
-                    <el-option
-                        v-for="item in formData.nicConfigs"
-                        :key="item.id"
-                        :value="item.id"
-                        :label="displayNicName(item)"
-                    />
-                </el-select>
+                    :options="nicConfigOptions"
+                />
             </el-form-item>
         </el-form>
         <div class="base-btn-box">
             <el-button
                 :disabled="!poeEnabled"
                 @click="setData"
-                >{{ Translate('IDCS_APPLY') }}</el-button
             >
+                {{ Translate('IDCS_APPLY') }}
+            </el-button>
         </div>
         <TcpIpAdvancePop
             v-model="pageData.isAdvancePop"

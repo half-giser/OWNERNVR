@@ -51,16 +51,17 @@ export const useUserChlAuth = (immediate = true) => {
         const result = await queryAuthGroup(sendXml)
         const $ = queryXml(result)
 
-        $('//content/chlAuth/item').forEach((item) => {
+        $('content/chlAuth/item').forEach((item) => {
             const $item = queryXml(item.element)
             const id = item.attr('id')
-            auth.value.ptz[id] = $item('auth').text().includes('@ptz')
-            auth.value.audio[id] = $item('auth').text().includes('@ad')
-            auth.value.spr[id] = $item('auth').text().includes('@spr')
-            auth.value.bk[id] = $item('auth').text().includes('@bk')
-            auth.value.lp[id] = $item('auth').text().includes('@lp')
+            const text = $item('auth').text()
+            auth.value.ptz[id] = text.includes('@ptz')
+            auth.value.audio[id] = text.includes('@ad')
+            auth.value.spr[id] = text.includes('@spr')
+            auth.value.bk[id] = text.includes('@bk')
+            auth.value.lp[id] = text.includes('@lp')
         })
-        auth.value.accessControl = $('//content/systemAuth/AccessControlMgr').text().bool()
+        auth.value.accessControl = $('content/systemAuth/AccessControlMgr').text().bool()
     }
 
     auth.value.update = getAuth

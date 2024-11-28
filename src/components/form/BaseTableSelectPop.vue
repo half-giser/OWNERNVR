@@ -15,11 +15,10 @@
         <el-table
             ref="tableRef"
             height="400"
-            border
-            stripe
             :data="data"
             :row-key="value"
             @selection-change="handleCurrentChange"
+            @row-click="handleRowClick"
         >
             <el-table-column
                 type="selection"
@@ -31,12 +30,10 @@
             />
         </el-table>
         <slot></slot>
-        <template #footer>
-            <div class="base-btn-box">
-                <el-button @click="confirm">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="emits('update:modelValue', false)">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="confirm">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="emits('update:modelValue', false)">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 
@@ -95,6 +92,15 @@ const selected = ref<any[]>([])
  */
 const handleCurrentChange = (row: any[]) => {
     selected.value = row
+}
+
+/**
+ * @description 点击行 仅选中该行
+ * @param {any} row
+ */
+const handleRowClick = (row: any) => {
+    tableRef.value!.clearSelection()
+    tableRef.value!.toggleRowSelection(row, true)
 }
 
 /**

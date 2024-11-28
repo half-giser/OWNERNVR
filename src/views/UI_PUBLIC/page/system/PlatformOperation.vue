@@ -12,30 +12,18 @@
             }"
         >
             <el-form-item :label="Translate('IDCS_USER_TYPE')">
-                <el-select
+                <el-select-v2
                     v-model="formData.userType"
+                    :options="pageData.userTypeList"
                     @change="changeUserType"
-                >
-                    <el-option
-                        v-for="item in pageData.userTypeList"
-                        :key="item.value"
-                        :value="item.value"
-                        :label="item.label"
-                    />
-                </el-select>
+                />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_OPERATE_TYPE')">
-                <el-select
+                <el-select-v2
                     v-model="formData.operationType"
+                    :options="pageData.operationTypeList"
                     @change="changeOperationType"
-                >
-                    <el-option
-                        v-for="item in pageData.operationTypeList"
-                        :key="item.value"
-                        :value="item.value"
-                        :label="item.label"
-                    />
-                </el-select>
+                />
             </el-form-item>
         </el-form>
     </div>
@@ -67,8 +55,6 @@
             <el-table
                 ref="tableRef"
                 :height="formData.operationType === 'acceptScreenshot' ? 360 : 400"
-                border
-                stripe
                 :data="tableData"
                 highlight-current-row
                 @row-click="handleRowClick"
@@ -102,14 +88,10 @@
         <!-- 故障报修 -->
         <el-form v-show="formData.operationType === 'faultRepair'">
             <el-form-item :label="Translate('IDCS_OPERATE_FAULT_TYPE')">
-                <el-select v-model="formData.faultType">
-                    <el-option
-                        v-for="item in pageData.faultTypeList"
-                        :key="item.value"
-                        :value="item.value"
-                        :label="item.label"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="formData.faultType"
+                    :options="pageData.faultTypeList"
+                />
             </el-form-item>
             <el-form-item>
                 <el-checkbox-group
@@ -137,14 +119,10 @@
         <!-- 维保签到 -->
         <el-form v-show="formData.operationType === 'maintenanceSign'">
             <el-form-item :label="Translate('IDCS_MAINTENSIGN_ITEM')">
-                <el-select v-model="formData.maintenance">
-                    <el-option
-                        v-for="item in pageData.maintenanceList"
-                        :key="item.value"
-                        :value="item.value"
-                        :label="item.label"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="formData.maintenance"
+                    :options="pageData.maintenanceList"
+                />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_MAINTENSIGN_ITEMCHOOSE')" />
             <el-form-item>
@@ -196,14 +174,10 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_REPAIRSIGN_RESULT')">
-                <el-select v-model="formData.repair">
-                    <el-option
-                        v-for="item in pageData.repairList"
-                        :key="item.value"
-                        :value="item.value"
-                        :label="item.label"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="formData.repair"
+                    :options="pageData.repairList"
+                />
             </el-form-item>
         </el-form>
     </div>
@@ -214,8 +188,9 @@
         <el-button
             :disabled="pageData.uploadDisabled"
             @click="uploadData"
-            >{{ Translate('IDCS_PLATFORM_OPERATE_UPLOAD') }}</el-button
         >
+            {{ Translate('IDCS_PLATFORM_OPERATE_UPLOAD') }}
+        </el-button>
         <el-button @click="handleReturn">{{ Translate('IDCS_PLATFORM_OPERATE_RETURN') }}</el-button>
     </div>
 </template>

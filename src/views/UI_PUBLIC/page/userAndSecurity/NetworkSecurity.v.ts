@@ -27,13 +27,12 @@ export default defineComponent({
 
             closeLoading()
             commLoadResponseHandler(result, ($) => {
-                tableData.value = []
-                $('//content/nicConfigs/item').forEach((item) => {
+                tableData.value = $('content/nicConfigs/item').map((item) => {
                     const $item = queryXml(item.element)
                     const autoGetGatewayMac = $item('autoGetGatewayMac').text().bool()
                     const gatewayMac = item.attr('gatewayMac')
                     const manualInputGatewayMac = $item('manualInputGatewayMac').text()
-                    tableData.value.push({
+                    return {
                         id: item.attr('id'),
                         gateway: item.attr('gateway'),
                         gatewayMac,
@@ -42,7 +41,7 @@ export default defineComponent({
                         manualInputGatewayMac,
                         preventDetection: $item('preventDetection').text().bool(),
                         getGatewayMac: autoGetGatewayMac ? gatewayMac : manualInputGatewayMac,
-                    })
+                    }
                 })
                 nextTick(() => {
                     pageData.value.mounted = true

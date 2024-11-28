@@ -28,8 +28,6 @@
                         <!-- 开始结束字符 -->
                         <div>
                             <el-table
-                                stripe
-                                border
                                 :data="startEndCharTableList"
                                 height="300"
                             >
@@ -71,8 +69,6 @@
                         <!-- 换行符 -->
                         <div>
                             <el-table
-                                stripe
-                                border
                                 :data="lineBreakTableList"
                                 height="300"
                             >
@@ -104,8 +100,6 @@
                         <!-- 忽略字符 -->
                         <div>
                             <el-table
-                                stripe
-                                border
                                 :data="ignoreChareTableList"
                                 height="300"
                             >
@@ -179,24 +173,21 @@
                 <!-- 显示模式 -->
                 <div v-show="pageData.tabIndex === 2">
                     <div v-if="colorTableList.length">
-                        <el-select
+                        <el-select-v2
                             v-model="pageData.colorTableIndex"
+                            :options="colorTableList"
+                            :props="{
+                                value: 'index',
+                                label: 'name',
+                            }"
                             @change="play"
                             @visible-change="toggleOCX"
-                        >
-                            <el-option
-                                v-for="(item, key) in colorTableList"
-                                :key
-                                :value="key"
-                                :label="item.name"
-                            />
-                        </el-select>
+                        />
                         <div class="player">
                             <BaseVideoPlayer
                                 v-if="pageData.tabIndex === 2"
                                 ref="playerRef"
-                                :split="1"
-                                @onready="handlePlayerReady"
+                                @ready="handlePlayerReady"
                             />
                         </div>
                         <el-form
@@ -219,14 +210,10 @@
                                 {{ Translate('IDCS_SELECT_CHANNEL_TIP') }}
                             </el-form-item>
                             <el-form-item :label="Translate('IDCS_PRINT_METHOD')">
-                                <el-select v-model="colorTableList[pageData.colorTableIndex].printMode">
-                                    <el-option
-                                        v-for="item in pageData.printOption"
-                                        :key="item.value"
-                                        :label="item.label"
-                                        :value="item.value"
-                                    />
-                                </el-select>
+                                <el-select-v2
+                                    v-model="colorTableList[pageData.colorTableIndex].printMode"
+                                    :options="pageData.printOption"
+                                />
                             </el-form-item>
                             <el-form-item>
                                 <el-checkbox
@@ -239,12 +226,10 @@
                 </div>
             </div>
         </div>
-        <template #footer>
-            <div class="base-btn-box">
-                <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 

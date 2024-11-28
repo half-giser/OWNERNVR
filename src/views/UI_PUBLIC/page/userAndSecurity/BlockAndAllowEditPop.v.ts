@@ -4,7 +4,7 @@
  * @Description: 编辑黑白名单弹窗
  */
 import { UserEditBlackAllowListForm } from '@/types/apiType/userAndSecurity'
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -41,7 +41,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new UserEditBlackAllowListForm())
         const rules = ref<FormRules>({
             ip: [
@@ -184,7 +184,6 @@ export default defineComponent({
          * @description 开启弹窗时更新表单数据
          */
         const handleOpen = () => {
-            formRef.value?.clearValidate()
             formData.value.switch = prop.data.switch
             formData.value.addressType = prop.data.addressType
             formData.value.ip = prop.data.ip

@@ -6,40 +6,30 @@
 <template>
     <div class="act">
         <el-form
-            :model="pageData"
             :style="{
                 '--form-input-width': '300px',
                 '--form-label-width': '200px',
             }"
-            class="inline-message"
         >
             <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                <el-select
+                <el-select-v2
                     v-model="pageData.chlId"
+                    :options="pageData.chlList"
                     :disabled="!pageData.chlList.length"
                     @change="handleChlChange"
-                >
-                    <el-option
-                        v-for="item in pageData.chlList"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    />
-                </el-select>
+                />
             </el-form-item>
             <div class="base-business-subheading">{{ Translate('IDCS_DOOR_LOCK') }}</div>
             <el-form-item label=" ">
-                <el-select
+                <el-select-v2
                     v-model="pageData.accessLockCurrentIndex"
                     :disabled="!pageData.accessLockEnabled"
-                >
-                    <el-option
-                        v-for="item in formData.accessLockData"
-                        :key="item.id"
-                        :label="item.name"
-                        :value="item.id"
-                    />
-                </el-select>
+                    :props="{
+                        value: 'id',
+                        label: 'name',
+                    }"
+                    :options="formData.accessLockData"
+                />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_UNLOCKING_CONDITION')">
                 <el-checkbox
@@ -49,17 +39,11 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_UNLOCKING_GROUP')">
-                <el-select
+                <el-select-v2
                     v-model="formData.accessListType"
                     :disabled="!formData.accessListType"
-                >
-                    <el-option
-                        v-for="item in pageData.accessListTypeEnum"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    />
-                </el-select>
+                    :options="pageData.accessListTypeEnum"
+                />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_UNLOCKING_DELAY_TIME')">
                 <el-slider
@@ -80,64 +64,41 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_DOOR_LOCK_SETTING')">
-                <el-select
+                <el-select-v2
                     v-model="formData.accessLockData[pageData.accessLockCurrentIndex].doorLockConfig"
                     :disabled="!formData.accessLockData[pageData.accessLockCurrentIndex].doorLockConfig"
-                >
-                    <el-option
-                        v-for="item in pageData.doorLockTypeEnum"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    />
-                </el-select>
+                    :options="pageData.doorLockTypeEnum"
+                />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_ALARM_LINKAGE_TYPE')">
-                <el-select
+                <el-select-v2
                     v-model="formData.accessLockData[pageData.accessLockCurrentIndex].alarmAction"
                     :disabled="!formData.accessLockData[pageData.accessLockCurrentIndex].alarmAction"
-                >
-                    <el-option
-                        v-for="item in pageData.doorLockActionEnum"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    />
-                </el-select>
+                    :options="pageData.doorLockActionEnum"
+                />
             </el-form-item>
             <div class="base-business-subheading">{{ Translate('IDCS_WIEGAND_CONFIG') }}</div>
             <el-form-item :label="Translate('IDCS_TRANSPORT_DIR')">
-                <el-select
+                <el-select-v2
                     v-model="formData.wiegandIOType"
                     :disabled="!formData.wiegandIOType"
-                >
-                    <el-option
-                        v-for="item in pageData.wiegandIOTypeEnum"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    />
-                </el-select>
+                    :options="pageData.wiegandIOTypeEnum"
+                />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_WIEGAND_MODE')">
-                <el-select
+                <el-select-v2
                     v-model="formData.wiegandMode"
                     :disabled="!formData.wiegandMode"
-                >
-                    <el-option
-                        v-for="item in pageData.wiegandModeEnum"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    />
-                </el-select>
+                    :options="pageData.wiegandModeEnum"
+                />
             </el-form-item>
             <div class="base-btn-box">
                 <el-button
                     :disabled="!pageData.chlId"
                     @click="apply()"
-                    >{{ Translate('IDCS_APPLY') }}</el-button
                 >
+                    {{ Translate('IDCS_APPLY') }}
+                </el-button>
             </div>
         </el-form>
     </div>

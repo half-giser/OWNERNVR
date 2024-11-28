@@ -4,7 +4,6 @@
  * @Description: 人脸库 - 编辑人脸弹窗
  */
 import { IntelFaceDBFaceForm, type IntelFaceDBGroupDto, type IntelFaceDBSnapFaceList, type IntelFaceDBFaceInfo } from '@/types/apiType/intelligentAnalysis'
-import { type FormInstance } from 'element-plus'
 import IntelBaseFaceItem from './IntelBaseFaceItem.vue'
 import IntelFaceDBChooseFacePop from './IntelFaceDBChooseFacePop.vue'
 
@@ -42,8 +41,6 @@ export default defineComponent({
         const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
         const dateTime = useDateTimeStore()
-
-        const formRef = ref<FormInstance>()
 
         const pageData = ref({
             // 性别选项
@@ -91,7 +88,7 @@ export default defineComponent({
 
             closeLoading()
 
-            pageData.value.groupList = $('//content/item').map((item) => {
+            pageData.value.groupList = $('content/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
                     id: item.attr('id'),
@@ -280,10 +277,10 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 return -1
             } else {
-                return $('//errorCode').text().num()
+                return $('errorCode').text().num()
             }
         }
 
@@ -300,7 +297,6 @@ export default defineComponent({
         return {
             dateTime,
             disabled,
-            formRef,
             formData,
             pageData,
             open,

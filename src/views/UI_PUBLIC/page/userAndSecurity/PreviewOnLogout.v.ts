@@ -24,6 +24,15 @@ export default defineComponent({
             buttonDisabled: true,
         })
 
+        const chlOptions = computed(() => {
+            return channelList.value.map((item, value) => {
+                return {
+                    value,
+                    label: item.name,
+                }
+            })
+        })
+
         watch(
             () => pageData.value.activeChannelIndex,
             () => play(),
@@ -51,15 +60,14 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                channelList.value = []
-                $('//content/item').forEach((item) => {
+            if ($('status').text() === 'success') {
+                channelList.value = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
-                    channelList.value.push({
-                        id: item.attr('id') as string,
+                    return {
+                        id: item.attr('id'),
                         name: $item('name').text(),
                         switch: $item('switch').text(),
-                    })
+                    }
                 })
                 play()
             }
@@ -110,7 +118,7 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
@@ -128,7 +136,6 @@ export default defineComponent({
          * @description 视频插件ready回调
          */
         const onReady = () => {
-            playerRef.value?.plugin.SetPluginNotice('#layout2Content')
             if (playerRef.value?.mode === 'ocx') {
                 const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
                 playerRef.value?.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
@@ -160,6 +167,7 @@ export default defineComponent({
             onReady,
             channelList,
             pageData,
+            chlOptions,
             changeAllChannel,
             setData,
             handleChangeUser,

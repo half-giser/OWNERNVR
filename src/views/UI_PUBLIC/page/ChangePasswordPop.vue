@@ -8,15 +8,13 @@
         :title="Translate(title)"
         width="600"
         :before-close="handleBeforeClose"
-        @opened="opened"
+        @close="close"
+        @closed="formRef?.resetFields()"
     >
         <el-form
             ref="formRef"
             :model="formData"
             :rules="rules"
-            :style="{
-                '--form-label-width': '150px',
-            }"
         >
             <el-form-item
                 prop="currentPassword"
@@ -55,23 +53,21 @@
             </el-form-item>
             <el-form-item>{{ noticeMsg }}</el-form-item>
         </el-form>
-        <template #footer>
-            <div
-                class="base-btn-box"
-                :span="2"
-            >
-                <div>
-                    <BaseFloatError
-                        v-model:message="errorMessage"
-                        :teleported="false"
-                    />
-                </div>
-                <div>
-                    <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="close()">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </div>
+        <div
+            class="base-btn-box"
+            :span="2"
+        >
+            <div>
+                <BaseFloatError
+                    v-model:message="errorMessage"
+                    :teleported="false"
+                />
             </div>
-        </template>
+            <div>
+                <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
+                <el-button @click="close()">{{ Translate('IDCS_CANCEL') }}</el-button>
+            </div>
+        </div>
     </el-dialog>
 </template>
 

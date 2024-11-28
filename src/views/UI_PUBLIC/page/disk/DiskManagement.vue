@@ -8,9 +8,8 @@
         <div class="base-table-box">
             <el-table
                 :data="tableData"
-                border
-                stripe
                 show-overflow-tooltip
+                highlight-current-row
             >
                 <el-table-column
                     :label="Translate('IDCS_DISK')"
@@ -67,8 +66,9 @@
             <el-button
                 :disabled="pageData.unlockDisabled"
                 @click="handleUnlockDisk"
-                >{{ Translate('IDCS_UNLOCK') }}</el-button
             >
+                {{ Translate('IDCS_UNLOCK') }}
+            </el-button>
         </div>
         <BaseCheckAuthPop
             v-model="pageData.isCheckAuth"

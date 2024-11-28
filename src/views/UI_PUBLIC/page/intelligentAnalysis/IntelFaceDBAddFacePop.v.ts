@@ -4,7 +4,6 @@
  * @Description: 人脸库 - 添加人脸
  */
 import { IntelFaceDBFaceForm, type IntelFaceDBGroupDto, type IntelFaceDBSnapFaceList, type IntelFaceDBImportFaceDto } from '@/types/apiType/intelligentAnalysis'
-import { type FormInstance } from 'element-plus'
 import IntelBaseFaceItem from './IntelBaseFaceItem.vue'
 import IntelFaceDBChooseFacePop from './IntelFaceDBChooseFacePop.vue'
 
@@ -47,7 +46,7 @@ export default defineComponent({
             [ErrorCode.USER_ERROR_WALL_HAVEDECODER]: Translate('IDCS_UNQUALIFIED_PICTURE'),
         }
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
 
         const pageData = ref({
             // 性别选项
@@ -122,7 +121,7 @@ export default defineComponent({
 
             closeLoading()
 
-            pageData.value.groupList = $('//content/item').map((item) => {
+            pageData.value.groupList = $('content/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
                     id: item.attr('id'),
@@ -307,12 +306,12 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 pageData.value.errorTip = Translate('IDCS_FACE_ADD_SUCCESS')
                 formData.value[index].success = true
                 isAddedFace = true
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_CANNOT_DEL_CUR_USER:
                     case ErrorCode.USER_ERROR_NO_AUTH:
@@ -326,8 +325,8 @@ export default defineComponent({
                         break
                     case ErrorCode.USER_ERROR_NODE_ID_EXISTS:
                         if (!force) {
-                            const name = $('//content/name').text()
-                            const similarity = $('//content/similarity').text() + '%'
+                            const name = $('content/name').text()
+                            const similarity = $('content/similarity').text() + '%'
                             return openMessageBox({
                                 type: 'question',
                                 message: Translate('IDCS_TARGET_LIBRARY_FACE_HAS_EXIST').formatForLang(name, similarity),
@@ -363,7 +362,7 @@ export default defineComponent({
                     <property>${wrapEnums(['allow', 'reject', 'limited'])}</property>
                 </types>
                 <content>
-                    ${ternary(force, `<force>true</force>`, '')}
+                    ${ternary(force, '<force>true</force>', '')}
                     <name>${item.name}</name>
                     <sex type="sex">${item.sex}</sex>
                     <birthday>${formatDate(item.birthday, 'YYYY-MM-DD', dateTime.dateFormat)}</birthday>
@@ -393,12 +392,12 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 formData.value[index].success = true
                 pageData.value.errorTip = Translate('IDCS_FACE_ADD_SUCCESS')
                 isAddedFace = true
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_CANNOT_DEL_CUR_USER:
                     case ErrorCode.USER_ERROR_NO_AUTH:
@@ -412,8 +411,8 @@ export default defineComponent({
                         break
                     case ErrorCode.USER_ERROR_NODE_ID_EXISTS:
                         if (!force) {
-                            const name = $('//content/name').text()
-                            const similarity = $('//content/similarity').text() + '%'
+                            const name = $('content/name').text()
+                            const similarity = $('content/similarity').text() + '%'
                             return openMessageBox({
                                 type: 'question',
                                 message: Translate('IDCS_TARGET_LIBRARY_FACE_HAS_EXIST').formatForLang(name, similarity),

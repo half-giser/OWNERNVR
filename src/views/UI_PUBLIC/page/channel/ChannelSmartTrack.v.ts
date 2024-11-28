@@ -10,10 +10,10 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
+        const { openNotify } = useNotification()
         const playerRef = ref<PlayerInstance>()
 
         const pageData = ref({
-            notification: [] as string[],
             // 追踪模式选项
             trackModeOptions: [
                 {
@@ -43,8 +43,17 @@ export default defineComponent({
         const tableRef = ref<TableInstance>()
         const tableData = ref<ChannelPtzSmartTrackDto[]>([])
 
+        const chlOptions = computed(() => {
+            return tableData.value.map((item, index) => {
+                return {
+                    label: item.chlName,
+                    value: index,
+                }
+            })
+        })
+
         // 编辑行索引
-        const editRows = ref(new Set<number>())
+        const editRows = useWatchEditRows<ChannelPtzSmartTrackDto>()
 
         // 播放模式
         const mode = computed(() => {
@@ -70,20 +79,11 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 if (isHttpsLogin()) {
-                    pageData.value.notification = [formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`)]
+                    openNotify(formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`))
                 }
             }
 
             if (mode.value === 'ocx') {
-                if (!plugin.IsInstallPlugin()) {
-                    plugin.SetPluginNotice('#layout2Content')
-                    return
-                }
-
-                if (!plugin.IsPluginAvailable()) {
-                    plugin.SetPluginNoResponse()
-                    plugin.ShowPluginNoResponse()
-                }
                 const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
@@ -109,10 +109,9 @@ export default defineComponent({
          * @param {Boolean} bool
          */
         const changeAllAutoBack = (bool: boolean) => {
-            tableData.value.forEach((item, index) => {
+            tableData.value.forEach((item) => {
                 if (!item.disabled) {
                     item.autoBackSwitch = bool
-                    addEditRow(index)
                 }
             })
         }
@@ -133,10 +132,10 @@ export default defineComponent({
             const $ = queryXml(result)
 
             try {
-                if ($('//status').text() === 'success') {
-                    item.autoBackSwitch = $('//content/chl/param/backTime/switch').text().bool()
-                    item.autoBackTime = $('//content/chl/param/backTime/timeValue').text().num()
-                    item.ptzControlMode = $('//content/chl/param/ptzControlMode').text()
+                if ($('status').text() === 'success') {
+                    item.autoBackSwitch = $('content/chl/param/backTime/switch').text().bool()
+                    item.autoBackTime = $('content/chl/param/backTime/timeValue').text().num()
+                    item.ptzControlMode = $('content/chl/param/ptzControlMode').text()
                     item.disabled = false
                 } else {
                     item.disabled = true
@@ -154,34 +153,33 @@ export default defineComponent({
         const setData = async () => {
             openLoading()
 
-            for (let i = 0; i < tableData.value.length; i++) {
-                if (editRows.value.has(i)) {
-                    const item = tableData.value[i]
-                    const sendXml = rawXml`
-                        <content>
-                            <chl id="${item.chlId}">
-                                <param>
-                                    <backTime>
-                                        <switch>${item.autoBackSwitch}</switch>
-                                        <timeValue>${item.autoBackTime}</timeValue>
-                                    </backTime>
-                                    <ptzControlMode>${item.ptzControlMode}</ptzControlMode>
-                                </param>
-                            </chl>
-                        </content>
-                    `
-                    try {
-                        const result = await editBallIPCATCfg(sendXml)
-                        const $ = queryXml(result)
-                        if ($('//status').text() === 'success') {
-                            item.status = 'success'
-                            editRows.value.delete(i)
-                        } else {
-                            item.status = 'error'
-                        }
-                    } catch {
+            tableData.value.forEach((item) => (item.status = ''))
+
+            for (const item of editRows.toArray()) {
+                const sendXml = rawXml`
+                    <content>
+                        <chl id="${item.chlId}">
+                            <param>
+                                <backTime>
+                                    <switch>${item.autoBackSwitch}</switch>
+                                    <timeValue>${item.autoBackTime}</timeValue>
+                                </backTime>
+                                <ptzControlMode>${item.ptzControlMode}</ptzControlMode>
+                            </param>
+                        </chl>
+                    </content>
+                `
+                try {
+                    const result = await editBallIPCATCfg(sendXml)
+                    const $ = queryXml(result)
+                    if ($('status').text() === 'success') {
+                        item.status = 'success'
+                        editRows.remove(item)
+                    } else {
                         item.status = 'error'
                     }
+                } catch {
+                    item.status = 'error'
                 }
             }
 
@@ -203,8 +201,8 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                tableData.value = $('//content/item').map((item) => {
+            if ($('status').text() === 'success') {
+                tableData.value = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     const rowData = new ChannelPtzSmartTrackDto()
                     rowData.status = 'loading'
@@ -220,7 +218,7 @@ export default defineComponent({
          * @description 修改通道选项
          */
         const changeChl = () => {
-            tableRef.value?.setCurrentRow(tableData.value[pageData.value.tableIndex])
+            tableRef.value!.setCurrentRow(tableData.value[pageData.value.tableIndex])
         }
 
         /**
@@ -232,13 +230,6 @@ export default defineComponent({
             if (index !== pageData.value.tableIndex) {
                 pageData.value.tableIndex = index
             }
-        }
-
-        /**
-         * @description 记录修改行的索引
-         */
-        const addEditRow = (index: number) => {
-            editRows.value.add(index)
         }
 
         // 首次加载成功 播放视频
@@ -257,14 +248,23 @@ export default defineComponent({
         )
 
         onMounted(async () => {
+            editRows.clear()
+
             await getData()
-            for (let i = 0; i < tableData.value.length; i++) {
-                await getConfig(tableData.value[i].chlId, i)
+
+            tableData.value.forEach(async (item, i) => {
+                await getConfig(item.chlId, i)
+
+                if (!tableData.value.some((find) => find === item)) {
+                    return
+                }
+
+                editRows.listen(item)
 
                 if (i === 0) {
-                    tableRef.value?.setCurrentRow(tableData.value[0])
+                    tableRef.value?.setCurrentRow(item)
                 }
-            }
+            })
         })
 
         return {
@@ -272,12 +272,12 @@ export default defineComponent({
             handlePlayerReady,
             pageData,
             tableData,
+            chlOptions,
             changeChl,
             setData,
             handleRowClick,
             changeAllAutoBack,
             editRows,
-            addEditRow,
         }
     },
 })

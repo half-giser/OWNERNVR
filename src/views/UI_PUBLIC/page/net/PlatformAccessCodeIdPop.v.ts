@@ -3,7 +3,7 @@
  * @Date: 2024-08-16 14:52:59
  * @Description: 平台接入 设置Code ID弹窗
  */
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -40,7 +40,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref({
             name: '',
             code: '',
@@ -62,7 +62,7 @@ export default defineComponent({
 
                         callback()
                     },
-                    trigger: 'blur',
+                    trigger: 'manual',
                 },
             ],
         })
@@ -71,7 +71,6 @@ export default defineComponent({
          * @description 打开弹窗时重置表单
          */
         const open = () => {
-            formRef.value?.clearValidate()
             formData.value.name = prop.name
             formData.value.code = prop.code
         }

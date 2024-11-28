@@ -86,6 +86,24 @@ export default defineComponent({
             return item.isPoe ? Translate('IDCS_POE_ETH_NAME') : Translate('IDCS_ETH_NAME').formatForLang(item.index + 1)
         }
 
+        const nicConfigOptions = computed(() => {
+            return formData.value.nicConfigs.map((item) => {
+                return {
+                    label: displayNicName(item),
+                    value: item.id,
+                }
+            })
+        })
+
+        const bondsOptions = computed(() => {
+            return formData.value.bonds.map((item, index) => {
+                return {
+                    label: Translate('IDCS_FAULT_ETH_NAME').formatForLang(index + 1),
+                    value: item.id,
+                }
+            })
+        })
+
         /**
          * @description 网口状态文本显示
          * @param {NetTcpIpNicConfigList} item
@@ -109,7 +127,7 @@ export default defineComponent({
             } else {
                 formData.value.bonds.forEach((bond) => {
                     const data = { ...DEFAULT_DATA }
-                    const item = $(`//content/bonds/item[@id="${bond.id}"]`)
+                    const item = $(`bonds/item[@id="${bond.id}"]`)
                     if (!item.length) {
                         return
                     }
@@ -142,7 +160,7 @@ export default defineComponent({
                     return
                 }
                 const data = { ...DEFAULT_DATA }
-                const item = $(`//content/nic/item[@id="${config.id}"]`)
+                const item = $(`nic/item[@id="${config.id}"]`)
                 if (!item.length) {
                     return
                 }
@@ -176,7 +194,7 @@ export default defineComponent({
         const getNetConfigV3 = async () => {
             const result = await queryNetCfgV3()
             const $ = queryXml(result)
-            const $content = queryXml($('//content')[0].element)
+            const $content = queryXml($('content')[0].element)
             formData.value.netConfig.defaultNic = $content('defaultNic').text()
             formData.value.netConfig.poeMode = $content('poeMode').text().num()
             formData.value.netConfig.supportNetworkFaultTolerance = $content('supportNetworkFaultTolerance').text().bool()
@@ -378,7 +396,7 @@ export default defineComponent({
         const getPPPoeSwitch = async () => {
             const result = await queryPPPoECfg()
             const $ = queryXml(result)
-            pageData.value.pppoeSwitch = $('//content/switch').text().bool()
+            pageData.value.pppoeSwitch = $('content/switch').text().bool()
         }
 
         /**
@@ -736,7 +754,7 @@ export default defineComponent({
                 <content>
                     ${sendXml}
                     ${ternary(pageData.value.hasPoeNic, `<poeMode>${formData.value.netConfig.poeMode}</poeMode>`)}
-                    ${ternary(formData.value.netConfig.toeEnable, `<toeEnable>true</toeEnable>`)}
+                    ${ternary(formData.value.netConfig.toeEnable, '<toeEnable>true</toeEnable>')}
                     ${ternary(!pageData.value.pppoeSwitch, `<curWorkMode>${formData.value.netConfig.curWorkMode}</curWorkMode>`)}
                 </content>
             `
@@ -746,10 +764,10 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 commSaveResponseHadler(result)
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_INVALID_IP:
@@ -874,6 +892,8 @@ export default defineComponent({
             changeData,
             changeSwitch,
             displayNicName,
+            nicConfigOptions,
+            bondsOptions,
             displayNicStatus,
             handleChangeIpV6Switch,
             isPoe,

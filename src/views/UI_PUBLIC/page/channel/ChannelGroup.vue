@@ -8,8 +8,6 @@
         <div class="base-table-box">
             <el-table
                 ref="tableRef"
-                border
-                stripe
                 :data="tableData"
                 show-overflow-tooltip
                 highlight-current-row

@@ -61,9 +61,8 @@
                 <div class="base-table-box">
                     <el-table
                         :data="tableData"
-                        stripe
-                        border
                         show-overflow-tooltip
+                        highlight-current-row
                     >
                         <el-table-column
                             :label="Translate('IDCS_SERIAL_NUMBER')"
@@ -73,18 +72,22 @@
                         <el-table-column
                             :label="Translate('IDCS_ALARM_NAME')"
                             prop="name"
+                            min-width="245"
                         />
                         <el-table-column
                             :label="Translate('IDCS_STATE')"
                             prop="status"
+                            width="145"
                         />
                         <el-table-column
                             :label="Translate('IDCS_DISK_SMART_VALUE')"
                             prop="value"
+                            width="145"
                         />
                         <el-table-column
                             :label="Translate('IDCS_SUGGESTION')"
                             prop="suggest"
+                            min-width="492"
                         />
                     </el-table>
                 </div>

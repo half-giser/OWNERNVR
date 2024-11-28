@@ -9,8 +9,7 @@
             <div class="base-chl-box-player">
                 <BaseVideoPlayer
                     ref="playerRef"
-                    type="live"
-                    @onready="handlePlayerReady"
+                    @ready="handlePlayerReady"
                 />
             </div>
             <el-form
@@ -22,43 +21,27 @@
                 :rules="formRule"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                    <el-select
+                    <el-select-v2
                         v-model="pageData.tableIndex"
+                        :options="chlOptions"
                         @change="changeChl"
-                    >
-                        <el-option
-                            v-for="(item, index) in tableData"
-                            :key="item.chlId"
-                            :value="index"
-                            :label="item.chlName"
-                        />
-                    </el-select>
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_FUNCTION')">
-                    <el-select
+                    <el-select-v2
                         v-model="formData.type"
+                        :options="pageData.typeOptions"
                         @change="changeType"
-                    >
-                        <el-option
-                            v-for="item in pageData.typeOptions"
-                            :key="item.value"
-                            :value="item.value"
-                            :label="item.label"
-                        />
-                    </el-select>
+                    />
                 </el-form-item>
                 <el-form-item
                     :label="Translate('IDCS_NAME')"
                     prop="name"
                 >
-                    <el-select v-model="formData.name">
-                        <el-option
-                            v-for="item in pageData.nameOptions"
-                            :key="item.value"
-                            :value="item.value"
-                            :label="item.label"
-                        />
-                    </el-select>
+                    <el-select-v2
+                        v-model="formData.name"
+                        :options="pageData.nameOptions"
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_START_TIME')">
                     <el-time-picker
@@ -85,8 +68,9 @@
                     <el-button
                         :disabled="!tableData.length || !formData.name"
                         @click="setData"
-                        >{{ Translate('IDCS_ADD') }}</el-button
                     >
+                        {{ Translate('IDCS_ADD') }}
+                    </el-button>
                 </div>
             </el-form>
         </div>
@@ -99,8 +83,6 @@
                     :row-key="getRowKey"
                     :expand-row-key="pageData.expandRowKey"
                     highlight-current-row
-                    border
-                    stripe
                     @row-click="handleRowClick"
                     @expand-change="handleExpandChange"
                 >
@@ -115,8 +97,6 @@
                             <el-table
                                 :data="pageData.expandRowKey.includes(data.row.chlId) ? taskTableData : []"
                                 highlight-current-row
-                                border
-                                stripe
                                 show-overflow-tooltip
                                 height="300"
                                 class="expand-table"
@@ -201,7 +181,6 @@
             @confirm="confirmEditTask"
             @close="closeEditTask"
         />
-        <BaseNotification v-model:notifications="pageData.notification" />
     </div>
 </template>
 

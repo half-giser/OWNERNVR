@@ -1,15 +1,12 @@
 <!--
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-04 10:17:30
- * @Description: 不支持WebSocket或未安装插件时的占位弹窗
+ * @Description: 不支持WebSocket/未安装插件时/插件需升级的占位弹窗
 -->
 <template>
-    <teleport
-        :to="container || 'body'"
-        :disabled="!container"
-    >
+    <teleport :to="container || 'body'">
         <div
-            v-show="pluginStore.showPluginNoResponse"
+            v-show="showNotice"
             class="PluginNotice"
             :class="{
                 warning: notice.warning,
@@ -28,7 +25,8 @@
 <script lang="ts" setup>
 const lang = useLangStore()
 const pluginStore = usePluginStore()
-const Plugin = inject('Plugin') as PluginType
+const plugin = usePlugin()
+const router = useRouter()
 
 /**
  * @description 获取语言配置
@@ -56,8 +54,8 @@ const getHTML = (langKey: keyof typeof OCX_Plugin_Notice_Map, downloadUrl?: stri
 }
 
 const notice = computed(() => {
-    if (Plugin.pluginNoticeHtml.value) {
-        return getHTML(Plugin.pluginNoticeHtml.value, Plugin.pluginDownloadUrl.value)
+    if (plugin.pluginNoticeHtml.value) {
+        return getHTML(plugin.pluginNoticeHtml.value, plugin.pluginDownloadUrl.value)
     } else {
         return {
             warning: false,
@@ -67,7 +65,17 @@ const notice = computed(() => {
 })
 
 const container = computed(() => {
-    return Plugin.pluginNoticeContainer.value
+    return plugin.pluginNoticeContainer.value
+})
+
+const showNotice = computed(() => {
+    return pluginStore.currPluginMode === 'ocx' && container.value && (!plugin.IsInstallPlugin() || !plugin.IsPluginAvailable())
+})
+
+router.beforeResolve(() => {
+    if (container.value !== '' && container.value !== 'body') {
+        plugin.SetPluginNotice('')
+    }
 })
 </script>
 
@@ -79,6 +87,7 @@ const container = computed(() => {
     left: 0;
     color: var(--main-text);
     width: 100%;
+    min-height: 100%;
     height: 100%;
     z-index: 9999;
     display: flex;

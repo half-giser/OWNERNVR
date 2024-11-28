@@ -159,8 +159,9 @@
                 <el-button
                     :disabled="pageData.playStatus !== 'stop' || pageData.trackStatus !== 'stop'"
                     @click="pageData.isChlPop = true"
-                    >{{ Translate('IDCS_ADD_CHANNEL') }}</el-button
                 >
+                    {{ Translate('IDCS_ADD_CHANNEL') }}
+                </el-button>
             </div>
         </div>
         <IntelFaceSearchTrackMapColorPop

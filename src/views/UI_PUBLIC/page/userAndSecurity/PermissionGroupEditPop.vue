@@ -11,11 +11,9 @@
     >
         <div>
             <el-form
-                :model="formData"
                 :style="{
                     '--form-input-width': '340px',
                 }"
-                inline-message
             >
                 <el-form-item :label="Translate('IDCS_USER_RIGHT_GROUP_NAME')">
                     <el-input
@@ -68,9 +66,6 @@
                     <div :class="{ active: pageData.activeChannelTab === 'IDCS_LOCAL_RIGHT' }">
                         <el-table
                             :data="channelAuthList"
-                            border
-                            stripe
-                            scrollbar-always-on
                             height="200"
                         >
                             <el-table-column
@@ -102,18 +97,10 @@
                                     </el-dropdown>
                                 </template>
                                 <template #default="{ $index }">
-                                    <!-- 出于el-select的渲染性能考虑，以label作为value值 -->
-                                    <el-select
+                                    <el-select-v2
                                         v-model="channelAuthList[$index][item.value]"
-                                        :persistent="false"
-                                    >
-                                        <el-option
-                                            v-for="value in pageData.channelOption"
-                                            :key="value.value"
-                                            :label="value.label"
-                                            :value="value.label"
-                                        />
-                                    </el-select>
+                                        :options="pageData.channelOption"
+                                    />
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -121,9 +108,6 @@
                     <div :class="{ active: pageData.activeChannelTab === 'IDCS_REMOTE_RIGHT' }">
                         <el-table
                             :data="channelAuthList"
-                            border
-                            stripe
-                            scrollbar-always-on
                             height="200"
                         >
                             <el-table-column
@@ -155,18 +139,10 @@
                                     </el-dropdown>
                                 </template>
                                 <template #default="{ $index }">
-                                    <!-- 出于el-select的渲染性能考虑，以label作为value值 -->
-                                    <el-select
+                                    <el-select-v2
                                         v-model="channelAuthList[$index][item.value]"
-                                        :persistent="false"
-                                    >
-                                        <el-option
-                                            v-for="value in pageData.channelOption"
-                                            :key="value.value"
-                                            :label="value.label"
-                                            :value="value.label"
-                                        />
-                                    </el-select>
+                                        :options="pageData.channelOption"
+                                    />
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -175,20 +151,18 @@
             </div>
         </div>
         <PermissionGroupInfoPop v-model="pageData.isShowInfo" />
-        <template #footer>
-            <div
-                class="base-btn-box"
-                span="2"
-            >
-                <div>
-                    <el-button @click="pageData.isShowInfo = true">{{ Translate('IDCS_DESCRIPTION') }}</el-button>
-                </div>
-                <div>
-                    <el-button @click="doEditAuthGroup">{{ Translate('IDCS_ADD') }}</el-button>
-                    <el-button @click="goBack">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </div>
+        <div
+            class="base-btn-box"
+            span="2"
+        >
+            <div>
+                <el-button @click="pageData.isShowInfo = true">{{ Translate('IDCS_DESCRIPTION') }}</el-button>
             </div>
-        </template>
+            <div>
+                <el-button @click="doEditAuthGroup">{{ Translate('IDCS_ADD') }}</el-button>
+                <el-button @click="goBack">{{ Translate('IDCS_CANCEL') }}</el-button>
+            </div>
+        </div>
     </el-dialog>
 </template>
 

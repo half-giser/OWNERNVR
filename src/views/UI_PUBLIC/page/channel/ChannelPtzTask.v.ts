@@ -5,7 +5,7 @@
  */
 import { cloneDeep } from 'lodash-es'
 import { ChannelPtzTaskDto, type ChannelPtzTaskChlDto, ChannelPtzTaskForm } from '@/types/apiType/channel'
-import { type FormInstance, type TableInstance, type FormRules } from 'element-plus'
+import { type TableInstance, type FormRules } from 'element-plus'
 import ChannelPtzTaskEditPop from './ChannelPtzTaskEditPop.vue'
 
 export default defineComponent({
@@ -16,6 +16,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
+        const { openNotify } = useNotification()
 
         const playerRef = ref<PlayerInstance>()
         const auth = useUserChlAuth(false)
@@ -46,8 +47,6 @@ export default defineComponent({
         }
 
         const pageData = ref({
-            // 通知列表
-            notification: [] as string[],
             // 当前表格选中索引
             tableIndex: 0,
             // 表格展开索引列表
@@ -96,7 +95,7 @@ export default defineComponent({
             editChlId: '',
         })
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
 
         const formData = ref(new ChannelPtzTaskForm())
 
@@ -143,6 +142,15 @@ export default defineComponent({
 
         const taskTableData = ref<ChannelPtzTaskDto[]>([])
 
+        const chlOptions = computed(() => {
+            return tableData.value.map((item, index) => {
+                return {
+                    label: item.chlName,
+                    value: index,
+                }
+            })
+        })
+
         // 播放模式
         const mode = computed(() => {
             if (!playerRef.value) {
@@ -167,20 +175,11 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 if (isHttpsLogin()) {
-                    pageData.value.notification = [formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`)]
+                    openNotify(formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`))
                 }
             }
 
             if (mode.value === 'ocx') {
-                if (!plugin.IsInstallPlugin()) {
-                    plugin.SetPluginNotice('#layout2Content')
-                    return
-                }
-
-                if (!plugin.IsPluginAvailable()) {
-                    plugin.SetPluginNoResponse()
-                    plugin.ShowPluginNoResponse()
-                }
                 const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
@@ -214,7 +213,7 @@ export default defineComponent({
             const result = await queryChlPresetList(sendXml)
             const $ = queryXml(result)
 
-            pageData.value.nameOptions = $('//content/presets/item').map((item) => {
+            pageData.value.nameOptions = $('content/presets/item').map((item) => {
                 return {
                     value: item.attr('index'),
                     label: item.text(),
@@ -234,7 +233,7 @@ export default defineComponent({
             `
             const result = await queryChlCruiseList(sendXml)
             const $ = queryXml(result)
-            pageData.value.nameOptions = $('//content/cruises/item').map((item) => {
+            pageData.value.nameOptions = $('content/cruises/item').map((item) => {
                 return {
                     value: item.attr('index'),
                     label: item.text(),
@@ -254,7 +253,7 @@ export default defineComponent({
             `
             const result = await queryLocalChlPtzTraceList(sendXml)
             const $ = queryXml(result)
-            pageData.value.nameOptions = $('//content/traces/item').map((item) => {
+            pageData.value.nameOptions = $('content/traces/item').map((item) => {
                 return {
                     value: item.attr('index'),
                     label: item.text(),
@@ -296,9 +295,9 @@ export default defineComponent({
             const result = await queryLocalChlPtzTask(sendData)
             const $ = queryXml(result)
 
-            if ($('//status').text() === 'success') {
-                const status = $('//content/tasks').attr('status').bool()
-                const data = $('//content/tasks/item').map((item, index) => {
+            if ($('status').text() === 'success') {
+                const status = $('content/tasks').attr('status').bool()
+                const data = $('content/tasks/item').map((item, index) => {
                     const $item = queryXml(item.element)
                     return {
                         index: index + 1,
@@ -482,8 +481,8 @@ export default defineComponent({
                 isSupportPtzGroupTraceTask: true,
             })
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                tableData.value = $('//content/item')
+            if ($('status').text() === 'success') {
+                tableData.value = $('content/item')
                     .filter((item) => {
                         const $item = queryXml(item.element)
                         return (auth.value.hasAll || auth.value.ptz[item.attr('id')]) && $item('chlType').text() !== 'recorder'
@@ -504,7 +503,7 @@ export default defineComponent({
          * @description 添加任务
          */
         const setData = () => {
-            formRef.value?.validate(async (valid) => {
+            formRef.value!.validate(async (valid) => {
                 if (valid) {
                     renderTaskListTimer.stop()
                     const chlId = tableData.value[pageData.value.tableIndex].chlId
@@ -594,8 +593,7 @@ export default defineComponent({
          * @description 修改通道选项
          */
         const changeChl = () => {
-            tableRef.value?.setCurrentRow(tableData.value[pageData.value.tableIndex])
-            formRef.value?.clearValidate()
+            tableRef.value!.setCurrentRow(tableData.value[pageData.value.tableIndex])
             formData.value.name = ''
             getName()
         }
@@ -624,10 +622,10 @@ export default defineComponent({
          * @param {ChannelPtzTaskChlDto} row
          * @param {boolean} expanded
          */
-        const handleExpandChange = async (row: ChannelPtzTaskChlDto, expanded: ChannelPtzTaskChlDto[]) => {
+        const handleExpandChange = (row: ChannelPtzTaskChlDto, expanded: ChannelPtzTaskChlDto[]) => {
             if (expanded.length > 1) {
                 const find = tableData.value.find((item) => item.chlId === expanded[0].chlId)!
-                tableRef.value?.toggleRowExpansion(find, false)
+                tableRef.value!.toggleRowExpansion(find, false)
             }
 
             if (!expanded.length) {
@@ -637,7 +635,7 @@ export default defineComponent({
             }
 
             if (expanded.some((item) => item.chlId === row.chlId)) {
-                tableRef.value?.setCurrentRow(row)
+                tableRef.value!.setCurrentRow(row)
                 taskTableData.value = []
                 pageData.value.expandRowKey = [row.chlId]
                 renderTaskListTimer.repeat(true)
@@ -677,6 +675,7 @@ export default defineComponent({
             playerRef,
             tableRef,
             tableData,
+            chlOptions,
             formRef,
             formData,
             formRule,

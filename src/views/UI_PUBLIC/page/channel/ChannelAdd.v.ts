@@ -47,22 +47,22 @@ export default defineComponent({
             ]
         })
         const activeTab = ref(tabKeys.quickAdd)
-        const quickAddTableData = ref([] as Array<ChannelQuickAddDto>)
-        const manualAddFormData = ref([] as Array<ChannelManualAddDto>)
-        const addRecorderTableData = ref([] as Array<ChannelAddRecorderDto>)
-        const defaultPwdList = ref([] as Array<ChannelDefaultPwdDto>)
-        const mapping = ref({} as Record<string, ChannelDefaultPwdDto>)
+        const quickAddTableData = ref<ChannelQuickAddDto[]>([])
+        const manualAddFormData = ref<ChannelManualAddDto[]>([])
+        const addRecorderTableData = ref<ChannelAddRecorderDto[]>([])
+        const defaultPwdList = ref<ChannelDefaultPwdDto[]>([])
+        const mapping = ref<Record<string, ChannelDefaultPwdDto>>({})
         const selNum = ref(0)
         const total = ref(0)
         const txtBandwidth = ref('')
-        const manufacturerMap = ref({} as Record<string, string>)
-        const manufacturerList = ref([] as Array<Record<string, string>>)
-        const nameList = ref([] as Array<Record<string, string>>)
-        const protocolList = ref([] as Array<Record<string, string>>)
+        const manufacturerMap = ref<Record<string, string>>({})
+        const manufacturerList = ref<SelectOption<string, string>[]>([])
+        const nameList = ref<SelectOption<string, string>[]>([])
+        const protocolList = ref<{ displayName: string; index: string }[]>([])
         const quickAddEditRowData = ref(new ChannelQuickAddDto())
         const chlCountLimit = ref(128) // 通道个数上限
         const faceMatchLimitMaxChlNum = ref(0)
-        const activateIpcData = ref([] as Array<ChannelQuickAddDto>)
+        const activateIpcData = ref<ChannelQuickAddDto[]>([])
         const setProtocolPopVisiable = ref(false)
         const multiChlIPCAddRef = ref<channelAddMultiChlIPCAddPop>()
 
@@ -71,26 +71,26 @@ export default defineComponent({
 
         // 手动添加
         const manualAddTypeOptions = ref([
-            { value: 'ip', text: 'IPv4' },
-            { value: 'ipv6', text: 'IPv6' },
-            { value: 'domain', text: Translate('IDCS_DOMAIN') },
+            { value: 'ip', label: 'IPv4' },
+            { value: 'ipv6', label: 'IPv6' },
+            { value: 'domain', label: Translate('IDCS_DOMAIN') },
         ])
 
         const getSystemCaps = () => {
             openLoading()
             queryRecordDistributeInfo().then((res) => {
                 const $ = queryXml(res)
-                const mode = $('//content/recMode/mode').text()
+                const mode = $('content/recMode/mode').text()
                 querySystemCaps().then((res) => {
                     closeLoading()
                     const $ = queryXml(res)
-                    chlCountLimit.value = $('//content/chlMaxCount').text().num()
-                    const totalBandwidth = $('//content/totalBandwidth').text().num()
-                    const usedBandwidth = $('//content/' + (mode === 'auto' ? 'usedAutoBandwidth' : 'usedManualBandwidth'))
+                    chlCountLimit.value = $('content/chlMaxCount').text().num()
+                    const totalBandwidth = $('content/totalBandwidth').text().num()
+                    const usedBandwidth = $('content/' + (mode === 'auto' ? 'usedAutoBandwidth' : 'usedManualBandwidth'))
                         .text()
                         .num()
-                    supportRecorder.value = $('//content/supportRecorder').text().bool()
-                    faceMatchLimitMaxChlNum.value = $('//content/faceMatchLimitMaxChlNum').text().num()
+                    supportRecorder.value = $('content/supportRecorder').text().bool()
+                    faceMatchLimitMaxChlNum.value = $('content/faceMatchLimitMaxChlNum').text().num()
                     let remainBandwidth = (totalBandwidth * 1024 - usedBandwidth) / 1024
                     if (remainBandwidth < 0) remainBandwidth = 0
                     txtBandwidth.value = Translate('IDCS_CURRENT_BANDWIDTH_ALL_D_D').formatForLang(remainBandwidth.toFixed(0), totalBandwidth.toFixed(0))
@@ -106,14 +106,14 @@ export default defineComponent({
                 if ($('status').text() === 'success') {
                     defaultPwdList.value = []
                     mapping.value = {}
-                    $('//content/item').forEach((ele) => {
-                        const eleXml = queryXml(ele.element)
+                    $('content/item').forEach((ele) => {
+                        const $item = queryXml(ele.element)
                         const defaultPwdData = new ChannelDefaultPwdDto()
-                        defaultPwdData.id = ele.attr('id') as string
-                        defaultPwdData.userName = eleXml('userName').text()
-                        defaultPwdData.password = eleXml('password').text()
-                        defaultPwdData.displayName = eleXml('displayName').text()
-                        defaultPwdData.protocolType = eleXml('protocolType').text()
+                        defaultPwdData.id = ele.attr('id')
+                        defaultPwdData.userName = $item('userName').text()
+                        defaultPwdData.password = $item('password').text()
+                        defaultPwdData.displayName = $item('displayName').text()
+                        defaultPwdData.protocolType = $item('protocolType').text()
                         defaultPwdList.value.push(defaultPwdData)
 
                         mapping.value[defaultPwdData.id] = defaultPwdData
@@ -132,33 +132,33 @@ export default defineComponent({
                     manufacturerMap.value = {}
                     manufacturerList.value = []
                     nameList.value = []
-                    $('//types/manufacturer/enum').forEach((ele) => {
+                    $('types/manufacturer/enum').forEach((ele) => {
                         const value = ele.text()
-                        const text = ele.attr('displayName')
-                        manufacturerMap.value[value] = text
+                        const label = ele.attr('displayName')
+                        manufacturerMap.value[value] = label
                         manufacturerList.value.push({
-                            value: value,
-                            text: text,
+                            value,
+                            label,
                         })
                         nameList.value.push({
-                            value: value,
-                            text: text,
+                            value,
+                            label,
                         })
                     })
                     await getProtocolList()
                     if (cababilityStore.analogChlCount * 1 <= 0) {
                         manufacturerList.value.push({
                             value: 'ProtocolMgr',
-                            text: Translate('IDCS_PROTOCOL_MANAGE'),
+                            label: Translate('IDCS_PROTOCOL_MANAGE'),
                         })
                         nameList.value.push({
                             value: 'ProtocolMgr',
-                            text: Translate('IDCS_PROTOCOL_MANAGE'),
+                            label: Translate('IDCS_PROTOCOL_MANAGE'),
                         })
                     }
                     manualAddFormData.value = []
                     manualAddNewRow(0)
-                    const rowData: ChannelQuickAddDto[] = $('//content/item').map((ele) => {
+                    const rowData = $('content/item').map((ele) => {
                         const eleXml = queryXml(ele.element)
                         return {
                             ip: eleXml('ip').text(),
@@ -201,7 +201,7 @@ export default defineComponent({
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() === 'success') {
-                    addRecorderTableData.value = $('//content/item').map((ele) => {
+                    addRecorderTableData.value = $('content/item').map((ele) => {
                         const eleXml = queryXml(ele.element)
                         return {
                             ip: eleXml('ip').text(),
@@ -226,7 +226,7 @@ export default defineComponent({
             if ($('status').text() === 'success') {
                 protocolList.value = []
                 rtspMapping = []
-                $('//content/item').forEach((ele) => {
+                $('content/item').forEach((ele) => {
                     const eleXml = queryXml(ele.element)
                     if (eleXml('enabled').text().bool()) {
                         // todo key、value相同？
@@ -235,7 +235,7 @@ export default defineComponent({
                         rtspMapping.push(displayName)
                         manufacturerList.value.push({
                             value: displayName,
-                            text: displayName,
+                            label: displayName,
                         })
                         protocolList.value.push({
                             displayName: displayName,
@@ -302,15 +302,17 @@ export default defineComponent({
             if (tag) {
                 if (tag === 'manufacturer') {
                     if (val === 'ProtocolMgr') {
-                        row.manufacturer = tempManualProtocolData[index]
                         setProtocolPopVisiable.value = true
+                        nextTick(() => {
+                            row.manufacturer = tempManualProtocolData[index]
+                        })
                     } else {
                         if (index < tempManualProtocolData.length) tempManualProtocolData[index] = val
                         const filters = filterProperty(protocolList.value, 'displayName')
                         let isArray = false
                         filters.forEach((ele) => {
                             //解决中间有空格不相等的问题
-                            if (Trim(ele, 'g') === Trim(val, 'g')) isArray = true
+                            if (trimAllSpace(ele) === trimAllSpace(val)) isArray = true
                         })
                         if (isArray) {
                             row.port = 0
@@ -339,20 +341,11 @@ export default defineComponent({
             if (index === manualAddFormData.value.length - 1) manualAddNewRow(manualAddFormData.value.length)
         }
 
-        const Trim = (str: string, is_global: string) => {
-            let result
-            result = str.replace(/(^\s+)|(\s+$)/g, '')
-            if (is_global.toLowerCase() === 'g') {
-                result = result.replace(/\s/g, '')
-            }
-            return result
-        }
-
         const in_array = (stringToSearch: string, arrayToSearch: string[]) => {
             for (let s = 0; s < arrayToSearch.length; s++) {
                 const thisEntry = arrayToSearch[s]
                 //解决中间有空格不相等的问题
-                if (Trim(thisEntry, 'g') === Trim(stringToSearch, 'g')) {
+                if (trimAllSpace(thisEntry) === trimAllSpace(stringToSearch)) {
                     return true
                 }
             }
@@ -440,7 +433,7 @@ export default defineComponent({
         const handleUpdateMapping = (rows: Array<ChannelDefaultPwdDto>) => {
             defaultPwdList.value = rows
             mapping.value = {}
-            rows.forEach((ele: ChannelDefaultPwdDto) => {
+            rows.forEach((ele) => {
                 mapping.value[ele.id] = ele
             })
         }
@@ -553,9 +546,9 @@ export default defineComponent({
                     for (const element of manualAddFormData.value) {
                         const filters = filterProperty(protocolList.value, 'displayName')
                         let isArray = false
-                        filters.forEach((ele: string) => {
+                        filters.forEach((ele) => {
                             //解决中间有空格不相等的问题
-                            if (Trim(ele, 'g') === Trim(element.manufacturer, 'g')) {
+                            if (trimAllSpace(ele) === trimAllSpace(element.manufacturer)) {
                                 isArray = true
                             }
                         })

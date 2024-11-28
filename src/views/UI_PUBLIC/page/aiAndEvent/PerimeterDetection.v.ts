@@ -5,12 +5,15 @@
  */
 import { type TabsPaneContext } from 'element-plus'
 import { AlarmChlDto } from '@/types/apiType/aiAndEvent'
-import Tripwire from './Tripwire.vue'
-import Pea from './Pea.vue'
+import AlarmBaseChannelSelector from './AlarmBaseChannelSelector.vue'
+import TripwirePanel from './TripwirePanel.vue'
+import PeaPanel from './PeaPanel.vue'
+
 export default defineComponent({
     components: {
-        Tripwire,
-        Pea,
+        AlarmBaseChannelSelector,
+        TripwirePanel,
+        PeaPanel,
     },
     setup() {
         const systemCaps = useCababilityStore()
@@ -89,7 +92,7 @@ export default defineComponent({
             const res = await queryOnlineChlList()
             const $ = queryXml(res)
             if ($('status').text() === 'success') {
-                pageData.value.onlineChannelIdList = $('//content/item').map((item) => {
+                pageData.value.onlineChannelIdList = $('content/item').map((item) => {
                     return item.attr('id')
                 })
             }
@@ -110,7 +113,7 @@ export default defineComponent({
             pageData.value.supportPlateMatch = systemCaps.supportPlateMatch
             pageData.value.showAIReourceDetail = systemCaps.showAIReourceDetail
 
-            const resb = await getChlList({
+            const result = await getChlList({
                 requireField: [
                     'ip',
                     'supportVfd',
@@ -136,9 +139,9 @@ export default defineComponent({
                     'supportVideoMetadata',
                 ],
             })
-            const res = queryXml(resb)
-            if (res('status').text() === 'success') {
-                res('//content/item').forEach((element) => {
+            const $ = queryXml(result)
+            if ($('status').text() === 'success') {
+                $('content/item').forEach((element) => {
                     const $item = queryXml(element.element)
                     const protocolType = $item('protocolType').text()
                     const factoryName = $item('productModel').attr('factoryName')
@@ -303,14 +306,14 @@ export default defineComponent({
         }
 
         // 切换通道操作
-        const handleChangeChannel = async () => {
+        const handleChangeChannel = () => {
             // pageData.value.chlData = pageData.value.chlCaps[pageData.value.currChlId]
             pageData.value.tabKey += 1
             initPageData()
         }
 
         // 大tab点击事件,切换功能 Tripwire/Pea
-        const handleTabClick = async (pane: TabsPaneContext) => {
+        const handleTabClick = (pane: TabsPaneContext) => {
             pageData.value.chosenFunction = pane.props.name?.toString() ? pane.props.name?.toString() : ''
             pageData.value.tabKey += 1
         }
@@ -331,7 +334,7 @@ export default defineComponent({
         }
 
         // 初始化页面数据
-        const initPageData = async () => {
+        const initPageData = () => {
             isTabDisabled()
             pageData.value.tabKey += 1
         }
@@ -340,7 +343,7 @@ export default defineComponent({
             await getOnlineChannel()
             await getChannelData()
             await getVoiceList()
-            await initPageData()
+            initPageData()
         })
 
         return {
@@ -348,8 +351,9 @@ export default defineComponent({
             handleChangeChannel,
             handleTabClick,
             chlData,
-            Tripwire,
-            Pea,
+            AlarmBaseChannelSelector,
+            TripwirePanel,
+            PeaPanel,
         }
     },
 })

@@ -8,8 +8,6 @@
         <div class="base-table-box">
             <el-table
                 ref="tableRef"
-                border
-                stripe
                 :data="tableData"
                 show-overflow-tooltip
                 highlight-current-row
@@ -43,17 +41,11 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select
+                        <el-select-v2
                             v-model="scope.row.analogIp"
+                            :options="analogIpOptions"
                             @change="handleAnalogIpChange(scope.row)"
-                        >
-                            <el-option
-                                v-for="item in analogIpOptions"
-                                :key="item.label"
-                                :value="item.value"
-                                :label="item.label"
-                            />
-                        </el-select>
+                        />
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -67,31 +59,40 @@
                             </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
-                                    <el-dropdown-item
+                                    <template
                                         v-for="item in chlSupSignalTypeList"
                                         :key="item.value"
-                                        :class="{ signalItemCvi: item.value === 'CVI' }"
-                                        @click="handleSignalChangeAll(item.value)"
-                                        >{{ item.text }}
-                                    </el-dropdown-item>
+                                    >
+                                        <el-dropdown-item
+                                            v-if="!item.options"
+                                            @click="handleSignalChangeAll(item.value)"
+                                        >
+                                            {{ item.label }}
+                                        </el-dropdown-item>
+                                        <template v-else>
+                                            <el-dropdown-item
+                                                v-for="item2 in item.options"
+                                                :key="item2.value"
+                                                class="signalItemCvi"
+                                                @click="handleSignalChangeAll(item2.value)"
+                                            >
+                                                <span class="signalItemCvi">{{ item2.label }}</span>
+                                            </el-dropdown-item>
+                                        </template>
+                                    </template>
                                 </el-dropdown-menu>
                             </template>
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select
+                        <el-select-v2
                             v-if="scope.row.showSignal"
                             v-model="scope.row.signal"
-                            @change="btnOkDisabled = false"
-                        >
-                            <el-option
-                                v-for="item in chlSupSignalTypeList"
-                                :key="item.value"
-                                :label="item.text"
-                                :value="item.value"
-                                :class="{ signalItemCvi: item.value === 'CVI' }"
-                            />
-                        </el-select>
+                            :options="chlSupSignalTypeList"
+                            filterable
+                            :persistent="true"
+                            popper-class="base-group-select"
+                        />
                         <span v-else>--</span>
                     </template>
                 </el-table-column>
@@ -119,18 +120,11 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select
+                        <el-select-v2
                             v-if="scope.row.showLite"
                             v-model="scope.row.lite"
-                            @change="btnOkDisabled = false"
-                        >
-                            <el-option
-                                v-for="item in switchOptions"
-                                :key="item.label"
-                                :value="item.value"
-                                :label="item.label"
-                            />
-                        </el-select>
+                            :options="switchOptions"
+                        />
                         <span v-else>--</span>
                     </template>
                 </el-table-column>
@@ -151,10 +145,11 @@
             <div>{{ Translate('IDCS_SIGNAL_TIPS') }}</div>
             <div>
                 <el-button
-                    :disabled="btnOkDisabled"
+                    :disabled="editWatcher.disabled.value"
                     @click="save()"
-                    >{{ Translate('IDCS_APPLY') }}</el-button
                 >
+                    {{ Translate('IDCS_APPLY') }}
+                </el-button>
             </div>
         </div>
     </div>
@@ -163,7 +158,7 @@
 <script lang="ts" src="./ChannelSignal.v.ts"></script>
 
 <style scoped lang="scss">
-.signalItemCvi {
+:deep(.el-dropdown-menu__item).signalItemCvi {
     border-top: 1px solid var(--content-border);
 }
 </style>

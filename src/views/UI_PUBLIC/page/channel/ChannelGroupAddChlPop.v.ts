@@ -65,17 +65,17 @@ export default defineComponent({
                     const addedChlList: string[] = tmpEditItem.chls.map((ele: Record<string, string | boolean>) => {
                         return ele.value as string
                     })
-                    $('//content/item').forEach((ele) => {
-                        const eleXml = queryXml(ele.element)
+                    $('content/item').forEach((ele) => {
+                        const $item = queryXml(ele.element)
                         const id = ele.attr('id')
                         if (!addedChlList.includes(id)) {
                             const newData = new ChannelInfoDto()
                             newData.id = id
-                            newData.chlIndex = eleXml('chlIndex').text()
-                            newData.chlType = eleXml('chlType').text()
-                            newData.name = eleXml('name').text()
-                            newData.ip = eleXml('ip').text()
-                            newData.addType = eleXml('addType').text()
+                            newData.chlIndex = $item('chlIndex').text()
+                            newData.chlType = $item('chlType').text()
+                            newData.name = $item('name').text()
+                            newData.ip = $item('ip').text()
+                            newData.addType = $item('addType').text()
                             chlList.push(newData)
                         }
                     })

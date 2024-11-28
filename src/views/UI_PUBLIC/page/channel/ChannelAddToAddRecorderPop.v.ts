@@ -4,7 +4,7 @@
  * @Description: 添加通道 - 添加录像机通道弹窗
  */
 import { type ChannelAddRecorderDto, type ChannelDefaultPwdDto, ChannelRecorderAddDto, ChannelRecorderDto } from '@/types/apiType/channel'
-import { type TableInstance, type FormInstance, type FormRules } from 'element-plus'
+import { type TableInstance, type FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -39,7 +39,7 @@ export default defineComponent({
         const userSessionStore = useUserSessionStore()
         const { openMessageBox } = useMessageBox()
         const router = useRouter()
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new ChannelRecorderAddDto())
         const tableRef = ref<TableInstance>()
         const selNum = ref(0)
@@ -93,32 +93,31 @@ export default defineComponent({
                                 message: Translate('IDCS_TEST_SUCCESS'),
                             })
                         }
-                        formData.value.ip = $('//content/ip').text() || DEFAULT_RECORDER_IP
-                        formData.value.chkDomain = !!$('//content/ip').text()
-                        if ($('//content/domain').text()) {
-                            const isIp = checkIpV4($('//content/domain').text())
-                            if (isIp) formData.value.ip = $('//content/domain').text()
+                        formData.value.ip = $('content/ip').text() || DEFAULT_RECORDER_IP
+                        formData.value.chkDomain = !!$('content/ip').text()
+                        if ($('content/domain').text()) {
+                            const isIp = checkIpV4($('content/domain').text())
+                            if (isIp) formData.value.ip = $('content/domain').text()
                             formData.value.chkDomain = !isIp
-                            formData.value.domain = isIp ? '' : $('//content/domain').text()
+                            formData.value.domain = isIp ? '' : $('content/domain').text()
                         }
-                        formData.value.servePort = $('//content/port').text().num()
-                        const chlCount = $('//content/chlList').attr('total').num()
+                        formData.value.servePort = $('content/port').text().num()
+                        const chlCount = $('content/chlList').attr('total').num()
                         if (chlCount > 0) {
                             formData.value.channelCount = chlCount
                         } else {
                             eleChlCountDisabled.value = false
                         }
-                        const productModel = $('//content/productModel').text() || props.editItem.productModel
-                        formData.value.recorderList = []
-                        $('//content/chlList/item').forEach((ele) => {
-                            const eleXml = queryXml(ele.element)
+                        const productModel = $('content/productModel').text() || props.editItem.productModel
+                        formData.value.recorderList = $('content/chlList/item').map((ele) => {
+                            const $item = queryXml(ele.element)
                             const newData = new ChannelRecorderDto()
                             newData.index = ele.attr('index')
-                            newData.name = eleXml('name').text()
-                            newData.isAdded = eleXml('isAdded').text().bool()
-                            newData.bandWidth = eleXml('bandWidth').text()
+                            newData.name = $item('name').text()
+                            newData.isAdded = $item('isAdded').text().bool()
+                            newData.bandWidth = $item('bandWidth').text()
                             newData.productModel = productModel
-                            formData.value.recorderList.push(newData)
+                            return newData
                         })
                         formData.value.recorderList.sort((a, b) => {
                             return Number(a.index) - Number(b.index)
@@ -129,14 +128,14 @@ export default defineComponent({
                             type: 'info',
                             message: errorMap[errorCode] || Translate('IDCS_LOGIN_OVERTIME'),
                         }).then(() => {
-                            formData.value.recorderList = []
                             const chlCount = formData.value.channelCount
-                            for (let i = 0; i < chlCount; i++) {
-                                const newData = new ChannelRecorderDto()
-                                newData.index = String(i + 1)
-                                newData.productModel = props.editItem.productModel
-                                formData.value.recorderList.push(newData)
-                            }
+                            formData.value.recorderList = Array(chlCount)
+                                .fill(new ChannelRecorderDto())
+                                .map((item, index) => {
+                                    item.index = (index + 1).toString()
+                                    item.productModel = props.editItem.productModel
+                                    return item
+                                })
                             eleUserNameDisabled.value = false
                             eleBtnTestDisabled.value = false
                             eleChlCountDisabled.value = false
@@ -171,12 +170,12 @@ export default defineComponent({
         })
 
         const loadNoRecoderData = (chlCount: number) => {
-            formData.value.recorderList = []
-            for (let i = 0; i < chlCount; i++) {
-                const newData = new ChannelRecorderDto()
-                newData.index = String(i + 1)
-                formData.value.recorderList.push(newData)
-            }
+            formData.value.recorderList = Array(chlCount)
+                .fill(new ChannelRecorderDto())
+                .map((item, index) => {
+                    item.index = (index + 1).toString()
+                    return item
+                })
         }
 
         const getTestData = () => {
@@ -192,7 +191,7 @@ export default defineComponent({
         }
 
         const test = () => {
-            formRef.value?.validate((valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     openLoading()
                     testRecorder(getTestData()).then((res) => {
@@ -220,13 +219,13 @@ export default defineComponent({
         }
 
         const setData = () => {
-            formRef.value?.validate((valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     getChlList({}).then((res) => {
                         closeLoading()
                         commLoadResponseHandler(res, () => {
                             const $ = queryXml(res)
-                            const addedChlNum = $('//content/item').length
+                            const addedChlNum = $('content/item').length
                             if (addedChlNum + tableRef.value!.getSelectionRows().length > props.chlCountLimit) {
                                 openMessageBox({
                                     type: 'info',

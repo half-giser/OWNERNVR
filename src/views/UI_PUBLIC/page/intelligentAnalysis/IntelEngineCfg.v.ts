@@ -48,10 +48,10 @@ export default defineComponent({
             const result = await querySystemWorkMode()
             const $ = queryXml(result)
 
-            formData.value.supportAI = $('//content/supportAI').text().bool()
+            formData.value.supportAI = $('content/supportAI').text().bool()
             cloneFormData.supportAI = formData.value.supportAI
-            pageData.value.is3536Amode = !$('//content/openSubOutput').length
-            const openSubOutput = $('//content/openSubOutput').text().bool()
+            pageData.value.is3536Amode = !$('content/openSubOutput').length
+            const openSubOutput = $('content/openSubOutput').text().bool()
             // 3536A机型一直是可勾选的，所以需要排除在外
             pageData.value.disabled = formData.value.supportAI && !openSubOutput && !pageData.value.is3536Amode
             // 3536A机型开启AI，则需要查询明细
@@ -65,7 +65,7 @@ export default defineComponent({
             const result = await queryAIResourceDetail('')
             const $ = queryXml(result)
             tableData.value = []
-            $('//content/chl/item').map((item) => {
+            $('content/chl/item').map((item) => {
                 const $item = queryXml(item.element)
                 const name = $item('name').text()
                 $item('resource/item').forEach((res) => {
@@ -113,7 +113,7 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <supportAI>${formData.value.supportAI}</supportAI>
-                    ${ternary(!pageData.value.is3536Amode, `<openSubOutput>false</openSubOutput>`)}
+                    ${ternary(!pageData.value.is3536Amode, '<openSubOutput>false</openSubOutput>')}
                 </content>
                 <auth>
                     <userName>${e.userName}</userName>
@@ -125,10 +125,10 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 pageData.value.isCheckAuthPop = false
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_PWD_ERR:

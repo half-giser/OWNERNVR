@@ -68,7 +68,7 @@
                     <img src="" />
                 </div>
                 <div class="data">
-                    <el-form class="inline-message">
+                    <el-form>
                         <el-form-item>
                             <el-input
                                 v-model="formData.plateNum"
@@ -124,11 +124,7 @@
                 </div>
             </div>
             <div class="base-table-box">
-                <el-table
-                    :data="tableData"
-                    border
-                    stripe
-                >
+                <el-table :data="tableData">
                     <el-table-column :label="Translate('IDCS_LICENSE_PLATE_NUM')">
                         <template #default="scope">
                             {{ displayPlateNum(scope.row.plateNum) }}

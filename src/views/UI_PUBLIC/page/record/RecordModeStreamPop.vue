@@ -7,7 +7,7 @@
     <el-dialog
         width="1270"
         :title="pageData.mainTitle"
-        :destroy-on-close="true"
+        destroy-on-close
         @open="onOpen"
         @close="$emit('close', false)"
     >
@@ -26,7 +26,7 @@
                 {{ item.label }}
             </el-menu-item>
         </el-menu>
-        <RecordStreamTable
+        <RecordBaseStreamTable
             ref="recordStreamTableRef"
             v-model="pageData.initComplete"
             :mode="pageData.currenMode"
@@ -36,32 +36,31 @@
             @bandwidth="getBandwidth"
             @rec-time="getRecTime"
         />
-        <template #footer>
-            <div
-                class="base-btn-box"
-                span="2"
-            >
-                <div>
-                    <span class="row_bandwidth">{{ pageData.txtBandwidth }}</span>
-                    <span class="detailBtn"></span>
-                    <span
-                        v-if="pageData.PredictVisible"
-                        class="txRecTime"
-                        >{{ pageData.recTime }}</span
-                    >
-                    <el-button
-                        v-if="pageData.CalculateVisible"
-                        class="btnActivate"
-                        @click="handleCalculate"
-                        >{{ Translate('IDCS_CALCULATE') }}</el-button
-                    >
-                </div>
-                <div>
-                    <el-button @click="setData">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click.prevent="$emit('close', false)">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </div>
+        <div
+            class="base-btn-box"
+            span="2"
+        >
+            <div>
+                <span class="row_bandwidth">{{ pageData.txtBandwidth }}</span>
+                <span class="detailBtn"></span>
+                <span
+                    v-if="pageData.PredictVisible"
+                    class="txRecTime"
+                    >{{ pageData.recTime }}</span
+                >
+                <el-button
+                    v-if="pageData.CalculateVisible"
+                    class="btnActivate"
+                    @click="handleCalculate"
+                >
+                    {{ Translate('IDCS_CALCULATE') }}
+                </el-button>
             </div>
-        </template>
+            <div>
+                <el-button @click="setData">{{ Translate('IDCS_OK') }}</el-button>
+                <el-button @click.prevent="$emit('close', false)">{{ Translate('IDCS_CANCEL') }}</el-button>
+            </div>
+        </div>
     </el-dialog>
 </template>
 

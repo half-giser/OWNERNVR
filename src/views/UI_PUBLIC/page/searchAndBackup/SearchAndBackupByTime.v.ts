@@ -15,15 +15,10 @@ export default defineComponent({
         BackupLocalPop,
     },
     setup() {
-        const Plugin = inject('Plugin') as PluginType
         const { Translate } = useLangStore()
         const { openMessageBox } = useMessageBox()
         const router = useRouter()
         const systemCaps = useCababilityStore()
-
-        const mode = computed(() => {
-            return Plugin.IsSupportH5() ? 'h5' : 'ocx'
-        })
 
         const EVENTS = ['MANUAL', 'SENSOR', 'MOTION', 'SCHEDULE']
         if (systemCaps.ipChlMaxCount) {
@@ -62,6 +57,25 @@ export default defineComponent({
             chls: [] as string[],
         })
 
+        const plugin = usePluginHook({
+            onReady: (mode, plugin) => {
+                if (mode.value === 'ocx') {
+                    const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Playback')
+                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                }
+            },
+            onDestroy: (mode, plugin) => {
+                if (mode.value === 'ocx') {
+                    const sendXML = OCX_XML_StopPreview('ALL')
+                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                }
+            },
+        })
+
+        const mode = computed(() => {
+            return plugin.IsSupportH5() ? 'h5' : 'ocx'
+        })
+
         // 支持的最大通道数
         const maxChl = computed(() => {
             return Math.min(pageData.value.chlList.length, pageData.value.maxChl)
@@ -69,7 +83,7 @@ export default defineComponent({
 
         // 通道全选
         const isChlAll = computed(() => {
-            return formData.value.chls.length >= maxChl.value
+            return !!formData.value.chls.length && formData.value.chls.length >= maxChl.value
         })
 
         /**
@@ -119,10 +133,10 @@ export default defineComponent({
                 return
             }
 
-            if (mode.value === 'ocx' && Plugin.BackUpTask.isExeed(formData.value.chls.length)) {
+            if (mode.value === 'ocx' && plugin.BackUpTask.isExeed(formData.value.chls.length)) {
                 openMessageBox({
                     type: 'info',
-                    message: Translate('IDCS_BACKUP_TASK_NUM_LIMIT').formatForLang(Plugin.BackUpTask.limit),
+                    message: Translate('IDCS_BACKUP_TASK_NUM_LIMIT').formatForLang(plugin.BackUpTask.limit),
                 })
                 return
             }
@@ -150,7 +164,7 @@ export default defineComponent({
                 if (mode.value === 'h5') {
                     pageData.value.isLocalBackUpPop = true
                 } else if (mode.value === 'ocx') {
-                    Plugin.BackUpTask.addTask(pageData.value.backupRecList, path, format)
+                    plugin.BackUpTask.addTask(pageData.value.backupRecList, path, format)
                     router.push({
                         path: '/search-and-backup/backup-state',
                     })
@@ -173,38 +187,12 @@ export default defineComponent({
             }
         }
 
-        watch(
-            mode,
-            (newVal) => {
-                if (newVal !== 'h5' && !Plugin.IsPluginAvailable()) {
-                    Plugin.SetPluginNoResponse()
-                    Plugin.ShowPluginNoResponse()
-                }
-
-                if (newVal === 'ocx') {
-                    const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Playback')
-                    Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                }
-            },
-            {
-                immediate: true,
-            },
-        )
-
         onMounted(() => {
-            Plugin.SetPluginNotice('#layout2Main')
             getChlsList()
 
             const date = new Date()
             formData.value.startTime = dayjs(date).hour(0).minute(0).second(0).format(dateTime.dateTimeFormat)
             formData.value.endTime = dayjs(date).hour(23).minute(59).second(59).format(dateTime.dateTimeFormat)
-        })
-
-        onBeforeUnmount(() => {
-            if (mode.value === 'ocx') {
-                const sendXML = OCX_XML_StopPreview('ALL')
-                Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-            }
         })
 
         return {

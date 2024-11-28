@@ -4,7 +4,7 @@
  * @Description: PPPoE
  */
 import { NetPPPoEForm } from '@/types/apiType/net'
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     setup() {
@@ -19,7 +19,7 @@ export default defineComponent({
             // 是否启用无线
             wirelessSwitch: false,
         })
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new NetPPPoEForm())
         const formRule = ref<FormRules>({
             userName: [
@@ -54,8 +54,8 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryPPPoECfg()
             commLoadResponseHandler(result, ($) => {
-                formData.value.switch = $('//content/switch').text().bool()
-                formData.value.userName = $('//content/userName').text().trim()
+                formData.value.switch = $('content/switch').text().bool()
+                formData.value.userName = $('content/userName').text().trim()
 
                 if (!formData.value.userName) {
                     pageData.value.passwordSwitch = true
@@ -95,7 +95,7 @@ export default defineComponent({
         const getWirelessNetworkData = async () => {
             const result = await queryWirelessNetworkCfg()
             const $ = queryXml(result)
-            pageData.value.wirelessSwitch = $('//content/switch').text().bool()
+            pageData.value.wirelessSwitch = $('content/switch').text().bool()
         }
 
         onMounted(async () => {

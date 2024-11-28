@@ -6,14 +6,15 @@
 <template>
     <el-dialog
         :title="Translate(title)"
-        width="600"
+        width="500"
         @close="close"
-        @opened="reset"
+        @closed="formRef?.resetFields()"
     >
         <el-form
             ref="formRef"
             :model="formData"
             :rules="rules"
+            class="stripe"
         >
             <el-form-item
                 prop="userName"
@@ -42,12 +43,10 @@
                 {{ tip }}
             </el-form-item>
         </el-form>
-        <template #footer>
-            <div class="base-btn-box">
-                <el-button @click="verify">{{ Translate(confirmText) }}</el-button>
-                <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="verify">{{ Translate(confirmText) }}</el-button>
+            <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 

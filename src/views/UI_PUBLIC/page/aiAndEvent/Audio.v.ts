@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-13 09:23:25
  */
-import { AlarmIpcAudioForm, type AlarmAudioAlarmOutDto, type AlarmAudioDevice, type AlarmLocalAudioDto } from '@/types/apiType/aiAndEvent'
+import { AlarmIpcAudioForm, AlarmAudioAlarmOutDto, AlarmAudioDevice, type AlarmLocalAudioDto } from '@/types/apiType/aiAndEvent'
 import AudioUploadPop from './AudioUploadPop.vue'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import { type TableInstance } from 'element-plus'
@@ -17,11 +17,10 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
+        const { openNotify } = useNotification()
         const systemCaps = useCababilityStore()
 
-        const Plugin = inject('Plugin') as PluginType
-        const isSupportH5 = Plugin.IsSupportH5()
-
+        const plugin = usePlugin()
         const localTableRef = ref<TableInstance>()
 
         const ipcAudioFormData = ref(new AlarmIpcAudioForm())
@@ -103,18 +102,18 @@ export default defineComponent({
         })
 
         // 获取语音播报信息
-        const getAudioAlarmData = async () => {
+        const getAudioAlarmData = () => {
             getChlList({
                 isSupportAudioAlarmOut: true,
             }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
-                    if ($('//content').attr('total') === '0') {
+                    if ($('content').attr('total') === '0') {
                         audioAlarmPageData.value.chlDisabled = true
                         changeAudioAlarmDataDisabled(true)
 
                         ipcAudioFormData.value.audioChecked = true
                     } else {
-                        $('//content/item').forEach((item) => {
+                        $('content/item').forEach((item) => {
                             const $item = queryXml(item.element)
                             const id = item.attr('id')
                             const name = $item('name').text()
@@ -142,53 +141,60 @@ export default defineComponent({
             const result = await queryAudioAlarmOutCfg(sendXml)
             const $ = queryXml(result)
 
-            const success = $('//status').text() === 'success'
+            const rowData = new AlarmAudioAlarmOutDto()
+            rowData.id = id
+            rowData.name = name
 
-            let customeAudioNum = 0 //保存已上传自定义声音的数量
-            const audioTypeList = $('//types/audioAlarmType/enum').map((item) => {
-                if (item.text().num() >= 100) {
-                    customeAudioNum++
-                }
-                return {
-                    value: item.text(),
-                    label: item.attr('value'),
-                }
-            })
+            if ($('status').text() === 'success') {
+                let customeAudioNum = 0 //保存已上传自定义声音的数量
+                const audioTypeList = $('types/audioAlarmType/enum').map((item) => {
+                    if (item.text().num() >= 100) {
+                        customeAudioNum++
+                    }
+                    return {
+                        value: item.text(),
+                        label: item.attr('value'),
+                    }
+                })
 
-            const langArr = [] as SelectOption<string, string>[]
-            $('//types/audioLanguageType/enum').forEach((item) => {
-                const langType = item.text()
-                if (langType === 'en-us') {
-                    langArr.push({
-                        value: langType,
-                        label: Translate('IDCS_en_US'),
-                    })
-                } else if (langType === 'zh-cn') {
-                    langArr.push({
-                        value: langType,
-                        label: Translate('IDCS_zh_CN'),
-                    })
-                }
-            })
+                const langArr = [] as SelectOption<string, string>[]
+                $('types/audioLanguageType/enum').forEach((item) => {
+                    const langType = item.text()
+                    if (langType === 'en-us') {
+                        langArr.push({
+                            value: langType,
+                            label: Translate('IDCS_en_US'),
+                        })
+                    } else if (langType === 'zh-cn') {
+                        langArr.push({
+                            value: langType,
+                            label: Translate('IDCS_zh_CN'),
+                        })
+                    }
+                })
 
-            audioAlarmOutData[id] = {
-                successFlag: success,
-                editFlag: false,
-                id,
-                name,
-                audioTypeList: audioTypeList,
-                customeAudioNum: customeAudioNum,
-                langArr: langArr,
-                audioSwitch: success ? $('//content/chl/param/switch').text() : '',
-                audioType: success ? $('//content/chl/param/audioType').text() : '',
-                alarmTimes: success ? $('//content/chl/param/alarmTimes').text().num() : 1,
-                audioVolume: success ? $('//content/chl/param/audioVolume').text().num() : 0,
-                languageType: success ? $('//content/chl/param/languageType').text() : '',
-                audioFormat: success ? $('//content/chl/param/audioParamLimit/audioFormat').text() : '',
-                sampleRate: success ? $('//content/chl/param/audioParamLimit/sampleRate').text() : '',
-                audioChannel: success ? $('//content/chl/param/audioParamLimit/audioChannel').text() : '',
-                audioDepth: success ? $('//content/chl/param/audioParamLimit/audioDepth').text() : '',
-                audioFileLimitSize: success ? $('//content/chl/param/audioParamLimit/audioFileSize').text().split(' ').pop()! : '',
+                const $param = queryXml($('content/chl/param')[0].element)
+
+                audioAlarmOutData[id] = {
+                    ...rowData,
+                    successFlag: true,
+                    editFlag: false,
+                    audioTypeList: audioTypeList,
+                    customeAudioNum: customeAudioNum,
+                    langArr: langArr,
+                    audioSwitch: $param('switch').text(),
+                    audioType: $param('audioType').text(),
+                    alarmTimes: $param('alarmTimes').text().num(),
+                    audioVolume: $param('audioVolume').text().num(),
+                    languageType: $param('languageType').text(),
+                    audioFormat: $param('audioParamLimit/audioFormat').text(),
+                    sampleRate: $param('audioParamLimit/sampleRate').text(),
+                    audioChannel: $param('audioParamLimit/audioChannel').text(),
+                    audioDepth: $param('audioParamLimit/audioDepth').text(),
+                    audioFileLimitSize: $param('audioParamLimit/audioFileSize').text().split(' ').pop()!,
+                }
+            } else {
+                audioAlarmOutData[id] = rowData
             }
 
             if (audioAlarmPageData.value.firstId === id) {
@@ -372,11 +378,8 @@ export default defineComponent({
         }
 
         const handleClickAddAudio = () => {
-            if (isSupportH5 && isHttpsLogin()) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_NOT_SUPPORTED').formatForLang('https', Translate('IDCS_UPLOAD_VOICE')) + '!',
-                })
+            if (plugin.IsSupportH5() && isHttpsLogin()) {
+                openNotify(Translate('IDCS_NOT_SUPPORTED').formatForLang('https', Translate('IDCS_UPLOAD_VOICE')) + '!')
                 return false
             }
             return true
@@ -402,7 +405,7 @@ export default defineComponent({
             const result = await deleteCustomizeAudioAlarm(sendXml)
             const $ = queryXml(result)
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 const chlId = ipcAudioFormData.value.audioChl
                 audioAlarmPageData.value.audioTypeList = audioAlarmPageData.value.audioTypeList.filter((item) => item.value !== ipcAudioFormData.value.voice)
                 audioAlarmPageData.value.deleteAudioDisabled = true
@@ -438,8 +441,8 @@ export default defineComponent({
             const result = await auditionCustomizeAudioAlarm(sendXml)
             const $ = queryXml(result)
 
-            if ($('//status').text() !== 'success') {
-                const errorCode = $('//errorCode').text().num()
+            if ($('status').text() !== 'success') {
+                const errorCode = $('errorCode').text().num()
                 let msg = audioAlarmOutData[ipcAudioFormData.value.audioChl].name + Translate('IDCS_AUDITION_FAILED')
                 if (errorCode === ErrorCode.USER_ERROR_GET_CONFIG_INFO_FAIL) msg += Translate('IDCS_GET_CFG_FAIL')
                 openMessageBox({
@@ -480,13 +483,13 @@ export default defineComponent({
 
         // 摄像机声音（ipc）—— 声音设备相关方法
 
-        const getAudioDeviceData = async () => {
+        const getAudioDeviceData = () => {
             getChlList({
                 isSupportAudioDev: true,
             }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
                     changeAudioDeviceDataDisabled(true) // "声音设备"配置默认全置灰
-                    $('//content/item').forEach((item) => {
+                    $('content/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         const id = item.attr('id')
                         const name = $item('name').text()
@@ -512,47 +515,52 @@ export default defineComponent({
             `
             const result = await queryAudioStreamConfig(sendXml)
             const $ = queryXml(result)
-            const volume = $('//content/chl/param/volume')
-            const $volume = volume.length ? queryXml(volume[0].element) : $
 
-            const success = $('//status').text() === 'success'
+            const rowData = new AlarmAudioDevice()
+            rowData.id = id
+            rowData.name = name
 
-            audioDeviceData[id] = {
-                successFlag: success,
-                editFlag: false,
-                id,
-                name,
-                audioEncodeType: $('//types/audioEncode/enum').map((item) => {
-                    return {
-                        value: item.text(),
-                        label: item.text(),
-                    }
-                }),
-                audioInputType: $('//types/audioInput/enum').map((item) => {
-                    return {
-                        value: item.text(),
-                        label: AUDIO_INPUT_MAPPING[item.text()],
-                    }
-                }),
-                audioOutputType: $('//types/audioOutput/enum').map((item) => {
-                    return {
-                        value: item.text(),
-                        label: AUDIO_OUTPUT_MAPPING[item.text()],
-                    }
-                }),
-                audioInSwitch: success ? $('//content/chl/param/audioInSwitch').text() : '',
-                audioEncode: success ? $('//content/chl/param/audioEncode').text() : '',
-                audioInput: success ? $('//content/chl/param/audioInput').text() : '',
-                loudSpeaker: success ? $('//content/chl/param/loudSpeaker').text() : '',
-                audioOutput: success ? $('//content/chl/param/audioOutput').text() : '',
-                micInVolume: volume.length ? $volume('micInVolume').text().num() : 0,
-                linInVolume: volume.length ? $volume('linInVolume').text().num() : 0,
-                audioOutVolume: volume.length ? $volume('audioOutVolume').text().num() : 0,
-                micMaxValue: volume.length ? ($volume('micInVolume').attr('max') ? $volume('micInVolume').attr('max').num() : 100) : 100,
-                linMaxValue: volume.length ? ($volume('linInVolume').attr('max') ? $volume('linInVolume').attr('max').num() : 100) : 100,
-                audioOutMaxValue: volume.length ? ($volume('audioOutVolume').attr('max') ? $volume('audioOutVolume').attr('max').num() : 100) : 100,
-                micOrLinEnabled: volume.length ? $volume('micInVolume').length > 0 || $volume('volume/linInVolume').length > 0 || false : false,
-                audioOutEnabled: volume.length ? $volume('audioOutVolume').length > 0 || false : false,
+            if ($('status').text() === 'success') {
+                const $param = queryXml($('content/chl/param')[0].element)
+
+                audioDeviceData[id] = {
+                    ...rowData,
+                    successFlag: true,
+                    editFlag: false,
+                    audioEncodeType: $('types/audioEncode/enum').map((item) => {
+                        return {
+                            value: item.text(),
+                            label: item.text(),
+                        }
+                    }),
+                    audioInputType: $('types/audioInput/enum').map((item) => {
+                        return {
+                            value: item.text(),
+                            label: AUDIO_INPUT_MAPPING[item.text()],
+                        }
+                    }),
+                    audioOutputType: $('types/audioOutput/enum').map((item) => {
+                        return {
+                            value: item.text(),
+                            label: AUDIO_OUTPUT_MAPPING[item.text()],
+                        }
+                    }),
+                    audioInSwitch: $param('audioInSwitch').text(),
+                    audioEncode: $param('audioEncode').text(),
+                    audioInput: $param('audioInput').text(),
+                    loudSpeaker: $param('loudSpeaker').text(),
+                    audioOutput: $param('audioOutput').text(),
+                    micInVolume: $param('volume/micInVolume').text().num(),
+                    linInVolume: $param('volume/linInVolume').text().num(),
+                    audioOutVolume: $param('volume/audioOutVolume').text().num(),
+                    micMaxValue: $param('volume/micInVolume').attr('max') ? $param('volume/micInVolume').attr('max').num() : 100,
+                    linMaxValue: $param('volume/linInVolume').attr('max') ? $param('volume/linInVolume').attr('max').num() : 100,
+                    audioOutMaxValue: $param('volume/audioOutVolume').attr('max') ? $param('volume/audioOutVolume').attr('max').num() : 100,
+                    micOrLinEnabled: $param('volume/micInVolume').length > 0 || $param('volume/volume/linInVolume').length > 0,
+                    audioOutEnabled: $param('volume/audioOutVolume').length > 0,
+                }
+            } else {
+                audioDeviceData[id] = rowData
             }
 
             if (audioDevicePageData.value.firstId === id) {
@@ -708,13 +716,13 @@ export default defineComponent({
 
             const result = await queryEventNotifyParam()
             commLoadResponseHandler(result, ($) => {
-                const scheduleId = $('//content/triggerChannelAudioSchedule').attr('id')
+                const scheduleId = $('content/triggerChannelAudioSchedule').attr('id')
                 // 判断返回的排程是否存在，若不存在设为空ID
                 if (scheduleId) {
                     pageData.value.audioSchedule = scheduleId
                     pageData.value.originAudioSchedule = scheduleId
                 } else {
-                    const scheduleName = $('//content/triggerChannelAudioSchedule').text()
+                    const scheduleName = $('content/triggerChannelAudioSchedule').text()
                     const find = pageData.value.audioScheduleList.find((item) => item.label === scheduleName)
                     if (find) {
                         pageData.value.audioSchedule = find.value
@@ -744,7 +752,7 @@ export default defineComponent({
             const result = await queryAlarmAudioCfg()
 
             commLoadResponseHandler(result, ($) => {
-                pageData.value.localTableData = $('//content/audioList/item').map((item) => {
+                pageData.value.localTableData = $('content/audioList/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         id: item.attr('id'),

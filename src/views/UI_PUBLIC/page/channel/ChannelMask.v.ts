@@ -5,7 +5,7 @@
  */
 import { ChannelMaskDto, ChannelPrivacyMaskDto } from '@/types/apiType/channel'
 import CanvasMask, { type CanvasMaskMaskItem } from '@/utils/canvas/canvasMask'
-import { type XmlResult } from '@/utils/xmlParse'
+import { type XMLQuery } from '@/utils/xmlParse'
 import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
@@ -22,8 +22,7 @@ export default defineComponent({
         const pageSize = ref(10)
         const pageTotal = ref(0)
         const selectedChlId = ref('')
-        const btnOKDisabled = ref(true)
-        const editRows = new Set<ChannelMaskDto>()
+        const editRows = useWatchEditRows<ChannelMaskDto>()
         const editStatus = ref(false)
         const switchOptions = getSwitchOptions()
         let maskDrawer: CanvasMask | undefined = undefined
@@ -33,6 +32,15 @@ export default defineComponent({
             white: Translate('IDCS_WHITE'),
             gray: Translate('IDCS_GRAY'),
         }
+
+        const chlOptions = computed(() => {
+            return tableData.value.map((item) => {
+                return {
+                    label: item.name,
+                    value: item.id,
+                }
+            })
+        })
 
         const handleChlSel = (chlId: string) => {
             const rowData = getRowById(chlId)!
@@ -50,8 +58,6 @@ export default defineComponent({
 
         const handleChangeSwitch = () => {
             const rowData = getRowById(selectedChlId.value)!
-            editRows.add(rowData)
-            btnOKDisabled.value = false
             setOcxData(rowData)
         }
 
@@ -59,8 +65,6 @@ export default defineComponent({
             tableData.value.forEach((ele) => {
                 if (!ele.disabled) {
                     ele.switch = val
-                    editRows.add(ele)
-                    btnOKDisabled.value = false
                     setOcxData(ele)
                 }
             })
@@ -101,8 +105,6 @@ export default defineComponent({
                     ele.switch = false
                     ele.X = ele.Y = ele.width = ele.height = 0
                 })
-                editRows.add(rowData)
-                btnOKDisabled.value = false
             }
         }
 
@@ -130,14 +132,14 @@ export default defineComponent({
                     if (!$('content/chl').length || chlId !== $('content/chl').attr('id')) isSpeco = true
                     rowData.isSpeco = isSpeco
                     rowData.mask = $('content/chl/privacyMask/item').map((ele) => {
-                        const eleXml = queryXml(ele.element)
-                        isSwitch = isSwitch || eleXml('switch').text().bool()
+                        const $item = queryXml(ele.element)
+                        isSwitch = isSwitch || $item('switch').text().bool()
                         return {
-                            switch: eleXml('switch').text().bool(),
-                            X: eleXml('rectangle/X').text().num(),
-                            Y: eleXml('rectangle/Y').text().num(),
-                            width: eleXml('rectangle/width').text().num(),
-                            height: eleXml('rectangle/height').text().num(),
+                            switch: $item('switch').text().bool(),
+                            X: $item('rectangle/X').text().num(),
+                            Y: $item('rectangle/Y').text().num(),
+                            width: $item('rectangle/width').text().num(),
+                            height: $item('rectangle/height').text().num(),
                         }
                     })
                     rowData.switch = String(isSwitch)
@@ -156,7 +158,6 @@ export default defineComponent({
         }
 
         const getDataList = async () => {
-            btnOKDisabled.value = true
             editRows.clear()
             openLoading()
 
@@ -171,12 +172,12 @@ export default defineComponent({
 
             if ($('status').text() === 'success') {
                 tableData.value = $('content/item').map((ele) => {
-                    const eleXml = queryXml(ele.element)
+                    const $item = queryXml(ele.element)
                     const newData = new ChannelMaskDto()
                     newData.id = ele.attr('id')
-                    newData.name = eleXml('name').text()
-                    newData.chlIndex = eleXml('chlIndex').text()
-                    newData.chlType = eleXml('chlType').text()
+                    newData.name = $item('name').text()
+                    newData.chlIndex = $item('chlIndex').text()
+                    newData.chlType = $item('chlType').text()
                     newData.status = 'loading'
                     newData.disabled = true
                     return newData
@@ -187,24 +188,25 @@ export default defineComponent({
                 selectedChlId.value = ''
             }
 
-            for (let i = 0; i < tableData.value.length; i++) {
-                const ele = tableData.value[i]
-                if (ele.chlType !== 'recorder') {
-                    await getData(ele.id)
+            tableData.value.forEach(async (item, i) => {
+                if (item.chlType !== 'recorder') {
+                    await getData(item.id)
                 } else {
-                    ele.status = ''
+                    item.status = ''
                 }
 
-                if (!getRowById(ele.id)) {
-                    break
+                if (!tableData.value.some((row) => row === item)) {
+                    return
                 }
+
+                editRows.listen(item)
 
                 if (i === 0) {
-                    formData.value = tableData.value[0]
-                    selectedChlId.value = tableData.value[0].id
-                    tableRef.value!.setCurrentRow(tableData.value[0])
+                    formData.value = item
+                    selectedChlId.value = item.id
+                    tableRef.value!.setCurrentRow(item)
                 }
-            }
+            })
         }
 
         const getSaveData = (rowData: ChannelMaskDto) => {
@@ -247,40 +249,33 @@ export default defineComponent({
         }
 
         const save = async () => {
-            if (!editRows.size) return
-
             openLoading()
+
             tableData.value.forEach((ele) => (ele.status = ''))
 
-            for (let i = 0; i < tableData.value.length; i++) {
-                const ele = tableData.value[i]
-                if (editRows.has(ele)) {
-                    try {
-                        const res = await editPrivacyMask(getSaveData(ele))
-                        const $ = queryXml(res)
-                        if ($('status').text() === 'success') {
-                            ele.status = 'success'
-                            editRows.delete(ele)
-                        } else {
-                            ele.status = 'error'
-                        }
-                    } catch {
+            for (const ele of editRows.toArray()) {
+                try {
+                    const res = await editPrivacyMask(getSaveData(ele))
+                    const $ = queryXml(res)
+                    if ($('status').text() === 'success') {
+                        ele.status = 'success'
+                        editRows.remove(ele)
+                    } else {
                         ele.status = 'error'
                     }
+                } catch {
+                    ele.status = 'error'
                 }
             }
 
             closeLoading()
-            if (!editRows.size) {
-                btnOKDisabled.value = true
-            }
         }
 
         const getRowById = (chlId: string) => {
             return tableData.value.find((element) => element.id === chlId)
         }
 
-        const LiveNotify2Js = ($: (path: string) => XmlResult) => {
+        const notify = ($: XMLQuery) => {
             if ($("statenotify[@type='MaskArea']").length) {
                 const preRowData = getRowById(selectedChlId.value)!
                 if (osType === 'mac') {
@@ -294,20 +289,18 @@ export default defineComponent({
                     preRowData.mask.forEach((ele, index) => {
                         const rectExist = rectangles[index] !== undefined
                         if (rectExist) {
-                            const rectangleXml = queryXml(rectangles[index].element)
+                            const $rect = queryXml(rectangles[index].element)
                             ele.switch = true
-                            ele.X = rectangleXml('X').text().num()
-                            ele.Y = rectangleXml('Y').text().num()
-                            ele.width = rectangleXml('width').text().num()
-                            ele.height = rectangleXml('height').text().num()
+                            ele.X = $rect('X').text().num()
+                            ele.Y = $rect('Y').text().num()
+                            ele.width = $rect('width').text().num()
+                            ele.height = $rect('height').text().num()
                         } else {
                             ele.switch = false
                             ele.X = ele.Y = ele.width = ele.height = 0
                         }
                     })
                 }
-                editRows.add(preRowData)
-                btnOKDisabled.value = false
             }
         }
 
@@ -327,8 +320,6 @@ export default defineComponent({
                 ele.width = itemExist ? item.width : 0
                 ele.height = itemExist ? item.height : 0
             })
-            editRows.add(rowData)
-            btnOKDisabled.value = false
         }
 
         const setOcxData = (rowData: ChannelMaskDto) => {
@@ -382,7 +373,6 @@ export default defineComponent({
                     onchange: handleMaskChange,
                 })
             } else {
-                plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
                 const sendXML = OCX_XML_SetPluginModel(osType === 'mac' ? 'VedioMaskConfig' : 'ReadOnly', 'Live')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
@@ -437,7 +427,6 @@ export default defineComponent({
         onBeforeUnmount(() => {
             if (ready.value) {
                 if (mode.value === 'ocx') {
-                    plugin.VideoPluginNotifyEmitter.removeListener(LiveNotify2Js)
                     const sendXML = OCX_XML_StopPreview('ALL')
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 } else {
@@ -449,10 +438,12 @@ export default defineComponent({
 
         return {
             playerRef,
+            notify,
             formData,
             tableRef,
             tableData,
-            btnOKDisabled,
+            chlOptions,
+            editRows,
             pageIndex,
             pageSize,
             pageTotal,

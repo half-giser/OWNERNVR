@@ -8,34 +8,31 @@
         :title="Translate('IDCS_RECIPIENT_ADDRESS')"
         width="600"
         @open="open"
+        @closed="formRef?.resetFields()"
     >
         <el-form
             ref="formRef"
-            class="form"
             :model="formData"
             :rules="formRule"
             :style="{
                 '--form-input-width': '240px',
             }"
-            inline-message
         >
             <el-form-item
                 :label="Translate('IDCS_RECIPIENT_ADDRESS')"
                 prop="address"
             >
-                <el-select
+                <el-select-v2
                     v-model="formData.address"
                     filterable
                     allow-create
                     default-first-option
-                >
-                    <el-option
-                        v-for="item in pageData.list"
-                        :key="item.address"
-                        :value="item.address"
-                        :label="item.address"
-                    />
-                </el-select>
+                    :options="pageData.list"
+                    :props="{
+                        value: 'address',
+                        label: 'address',
+                    }"
+                />
                 <el-button @click="addReceiver">{{ Translate('IDCS_ADD_ECIPIENT') }}</el-button>
             </el-form-item>
             <el-form-item :label="Translate('IDCS_PASSWORD')">
@@ -45,12 +42,10 @@
                 />
             </el-form-item>
         </el-form>
-        <template #footer>
-            <div class="base-btn-box">
-                <el-button @click="confirm">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="confirm">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 

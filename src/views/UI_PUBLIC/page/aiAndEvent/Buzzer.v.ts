@@ -18,8 +18,8 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryEventNotifyParam()
             commLoadResponseHandler(result, ($) => {
-                formData.value.buzzerDuration = $('//content/buzzerDuration').text().num()
-                pageData.value.buzzerDurationOption = $('//content/buzzerDurationNote')
+                formData.value.buzzerDuration = $('content/buzzerDuration').text().num()
+                pageData.value.buzzerDurationOption = $('content/buzzerDurationNote')
                     .text()
                     .split(',')
                     .map((item) => {

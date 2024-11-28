@@ -25,9 +25,9 @@ export default defineComponent({
             const result = await queryDevOsdDisplayCfg()
             const $ = queryXml(result)
 
-            formData.value.nameEnable = $('//content/nameSwitch').text()
-            formData.value.iconEnable = $('//content/iconSwitch').text()
-            formData.value.addressEnable = $('//content/addressSwitch').text()
+            formData.value.nameEnable = $('content/nameSwitch').text()
+            formData.value.iconEnable = $('content/iconSwitch').text()
+            formData.value.addressEnable = $('content/addressSwitch').text()
 
             closeLoading()
         }

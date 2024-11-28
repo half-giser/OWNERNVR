@@ -27,16 +27,15 @@
                 <el-button
                     link
                     @click="showBackupTipPop"
-                    >{{ Translate('IDCS_EXPORT_NOTICE') }}</el-button
                 >
+                    {{ Translate('IDCS_EXPORT_NOTICE') }}
+                </el-button>
             </div>
         </div>
         <div class="base-table-box">
             <el-table
                 ref="tableRef"
                 :data="tableData"
-                border
-                stripe
                 show-overflow-tooltip
                 @row-click="handleRowClick"
             >
@@ -181,7 +180,6 @@
                 @update:page-size="changePageSize"
             />
         </div>
-        <BasePluginNotice />
         <BackupImgPop
             v-model="pageData.isBackUpPop"
             :backup-list="pageData.backupImgList"
@@ -220,11 +218,9 @@
                 v-model="pageData.isBackUpTipNotAgain"
                 :label="Translate('IDCS_NOT_SHOW_AGAIN')"
             />
-            <template #footer>
-                <div class="base-btn-box">
-                    <el-button @click="closeBackupTipPop">{{ Translate('IDCS_OK') }}</el-button>
-                </div>
-            </template>
+            <div class="base-btn-box">
+                <el-button @click="closeBackupTipPop">{{ Translate('IDCS_OK') }}</el-button>
+            </div>
         </el-dialog>
     </div>
 </template>

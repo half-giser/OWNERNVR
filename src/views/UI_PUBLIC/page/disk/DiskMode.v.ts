@@ -60,10 +60,10 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 pageData.value.isAuthDialog = false
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_PWD_ERR:
@@ -100,7 +100,7 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryDiskMode()
             const $ = queryXml(result)
-            formData.value.enable = $('//content/diskMode/isUseRaid').text().bool()
+            formData.value.enable = $('content/diskMode/isUseRaid').text().bool()
         }
 
         onMounted(() => {

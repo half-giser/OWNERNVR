@@ -5,32 +5,11 @@
 -->
 <template>
     <div>
-        <el-form
-            class="stripe"
-            :style="{
-                '--form-input-width': '430px',
-            }"
-            inline-message
-        >
-            <el-form-item
-                :label="Translate('IDCS_CHANNEL_NAME')"
-                label-width="108"
-            >
-                <el-select
-                    v-model="pageData.currChlId"
-                    class="base-ai-chl-select"
-                    popper-class="base-ai-chl-option"
-                    @change="handleChangeChannel"
-                >
-                    <el-option
-                        v-for="item in pageData.onlineChannelList"
-                        :key="item.id"
-                        :label="item.name"
-                        :value="item.id"
-                    />
-                </el-select>
-            </el-form-item>
-        </el-form>
+        <AlarmBaseChannelSelector
+            v-model="pageData.currChlId"
+            :list="pageData.onlineChannelList"
+            @change="handleChangeChannel"
+        />
         <el-tabs
             :key="pageData.tabKey"
             v-model="pageData.chosenFunction"
@@ -43,7 +22,7 @@
                 name="Tripwire"
                 :label="Translate('IDCS_BEYOND_DETECTION')"
             >
-                <Tripwire
+                <TripwirePanel
                     v-if="pageData.chosenFunction === 'Tripwire'"
                     :curr-chl-id="pageData.currChlId"
                     :chl-data="chlData"
@@ -57,7 +36,7 @@
                 name="Pea"
                 :label="Translate('IDCS_INVADE_DETECTION')"
             >
-                <Pea
+                <PeaPanel
                     v-if="pageData.chosenFunction === 'Pea'"
                     :curr-chl-id="pageData.currChlId"
                     :chl-data="chlData"

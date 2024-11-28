@@ -4,17 +4,17 @@
  * @Description: 现场预览-云台视图
  */
 import { type LiveSharedWinData, type LiveChannelList } from '@/types/apiType/live'
-import LivePtzCruise from './LivePtzCruise.vue'
-import LivePtzGroup from './LivePtzGroup.vue'
-import LivePtzPreset from './LivePtzPreset.vue'
-import LivePtzTrace from './LivePtzTrace.vue'
+import LivePtzCruisePanel from './LivePtzCruisePanel.vue'
+import LivePtzGroupPanel from './LivePtzGroupPanel.vue'
+import LivePtzPresetPanel from './LivePtzPresetPanel.vue'
+import LivePtzTracePanel from './LivePtzTracePanel.vue'
 
 export default defineComponent({
     components: {
-        LivePtzCruise,
-        LivePtzGroup,
-        LivePtzPreset,
-        LivePtzTrace,
+        LivePtzCruisePanel,
+        LivePtzGroupPanel,
+        LivePtzPresetPanel,
+        LivePtzTracePanel,
     },
     props: {
         /**
@@ -296,10 +296,10 @@ export default defineComponent({
             decreaseSpeed,
             increaseSpeed,
             changeMenu,
-            LivePtzCruise,
-            LivePtzGroup,
-            LivePtzPreset,
-            LivePtzTrace,
+            LivePtzCruisePanel,
+            LivePtzGroupPanel,
+            LivePtzPresetPanel,
+            LivePtzTracePanel,
         }
     },
 })

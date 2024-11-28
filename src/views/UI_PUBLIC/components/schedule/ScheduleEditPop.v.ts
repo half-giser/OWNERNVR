@@ -4,7 +4,7 @@
  * @Description: 排程编辑弹框
  */
 import { ScheduleInfo } from '@/types/apiType/schedule'
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -35,7 +35,7 @@ export default defineComponent({
             weekdays: [0, 1, 2, 3, 4, 5, 6] as number[],
         })
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData: Ref<ScheduleInfo> = ref(new ScheduleInfo())
 
         // 表单验证规则

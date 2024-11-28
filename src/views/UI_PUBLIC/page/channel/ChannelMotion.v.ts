@@ -21,12 +21,11 @@ export default defineComponent({
         const formData = ref(new ChannelMotionDto())
         const tableRef = ref<TableInstance>()
         const tableData = ref([] as ChannelMotionDto[])
-        const btnOKDisabled = ref(true)
         const pageIndex = ref(1)
         const pageSize = ref(10)
         const pageTotal = ref(0)
         const selectedChlId = ref('')
-        const editRows = new Set<ChannelMotionDto>()
+        const editRows = useWatchEditRows<ChannelMotionDto>()
         const switchOptions = getBoolSwitchOptions()
         let motionDrawer: CanvasMotion
         let motionAlarmList: string[] = []
@@ -36,7 +35,16 @@ export default defineComponent({
             getAlarmStatus()
         }, REFRESH_INTERVAL)
 
-        const holdTimeList = ref<string[]>([])
+        const chlOptions = computed(() => {
+            return tableData.value.map((item) => {
+                return {
+                    value: item.id,
+                    label: item.name,
+                }
+            })
+        })
+
+        const holdTimeList = ref<SelectOption<string, string>[]>([])
 
         const handleChlSel = (chlId: string) => {
             const rowData = getRowById(chlId)!
@@ -65,12 +73,6 @@ export default defineComponent({
             })
         }
 
-        const handleChangeVal = () => {
-            const rowData = getRowById(selectedChlId.value)!
-            editRows.add(rowData)
-            btnOKDisabled.value = false
-        }
-
         const handleChangeAll = (type: 'switch' | 'holdTime', val: boolean | string) => {
             tableData.value.forEach((ele) => {
                 if (!ele.disabled) {
@@ -79,8 +81,6 @@ export default defineComponent({
                     } else {
                         ele.holdTime = val as string
                     }
-                    btnOKDisabled.value = false
-                    editRows.add(ele)
                 }
             })
         }
@@ -108,7 +108,12 @@ export default defineComponent({
 
                 rowData.isOnvifChl = !$('content/chl/param/holdTimeNote').length
                 if (!holdTimeList.value.length && !rowData.isOnvifChl) {
-                    holdTimeList.value = ['5', '10', '20', '30', '60', '120']
+                    holdTimeList.value = ['5', '10', '20', '30', '60', '120'].map((item) => {
+                        return {
+                            label: getTranslateForSecond(Number(item)),
+                            value: item,
+                        }
+                    })
                 }
 
                 if ($('status').text() === 'success') {
@@ -130,7 +135,13 @@ export default defineComponent({
                         rowData.holdTime = holdTime
                     }
 
-                    rowData.holdTimeList = holdTimeNote
+                    rowData.holdTimeList = holdTimeNote.map((item) => {
+                        return {
+                            label: getTranslateForSecond(Number(item)),
+                            value: item,
+                        }
+                    })
+
                     rowData.switch = $('content/chl/param/switch').text().bool()
                     rowData.sensitivity = $('content/chl/param/sensitivity').text().num()
                     rowData.status = ''
@@ -158,7 +169,6 @@ export default defineComponent({
         }
 
         const getDataList = async () => {
-            btnOKDisabled.value = true
             editRows.clear()
             openLoading()
 
@@ -175,14 +185,14 @@ export default defineComponent({
             if ($('status').text() === 'success') {
                 holdTimeList.value = []
                 tableData.value = $('content/item').map((ele) => {
-                    const eleXml = queryXml(ele.element)
+                    const $item = queryXml(ele.element)
                     const newData = new ChannelMotionDto()
                     newData.id = ele.attr('id')
-                    newData.name = eleXml('name').text()
-                    newData.chlIndex = eleXml('chlIndex').text()
-                    newData.chlType = eleXml('chlType').text()
+                    newData.name = $item('name').text()
+                    newData.chlIndex = $item('chlIndex').text()
+                    newData.chlType = $item('chlType').text()
                     newData.status = 'loading'
-                    newData.supportSMD = eleXml('supportSMD').text().bool()
+                    newData.supportSMD = $item('supportSMD').text().bool()
                     return newData
                 })
                 pageTotal.value = $('content').attr('total').num()
@@ -190,24 +200,25 @@ export default defineComponent({
                 tableData.value = []
             }
 
-            for (let i = 0; i < tableData.value.length; i++) {
-                const ele = tableData.value[i]
-                if (ele.chlType !== 'recorder') {
-                    await getData(ele.id)
+            tableData.value.forEach(async (item, i) => {
+                if (item.chlType !== 'recorder') {
+                    await getData(item.id)
                 } else {
-                    ele.status = ''
+                    item.status = ''
                 }
 
-                if (!getRowById(ele.id)) {
-                    break
+                if (!tableData.value.some((row) => row === item)) {
+                    return
                 }
+
+                editRows.listen(item)
 
                 if (i === 0) {
-                    selectedChlId.value = tableData.value[0].id
-                    tableRef.value!.setCurrentRow(tableData.value[0])
-                    formData.value = tableData.value[0]
+                    selectedChlId.value = item.id
+                    tableRef.value!.setCurrentRow(item)
+                    formData.value = item
                 }
-            }
+            })
         }
 
         const getAlarmStatus = () => {
@@ -258,43 +269,34 @@ export default defineComponent({
         }
 
         const save = async () => {
-            if (!editRows.size) return
-
             openLoading()
 
             tableData.value.forEach((ele) => (ele.status = ''))
-            for (let i = 0; i < tableData.value.length; i++) {
-                const ele = tableData.value[i]
-                if (editRows.has(ele)) {
-                    try {
-                        const res = await editMotion(getSaveData(ele))
-                        const $ = queryXml(res)
-                        if ($('status').text() === 'success') {
-                            ele.status = 'success'
-                            editRows.delete(ele)
-                        } else {
-                            const errorCode = $('errorCode').text().num()
-                            ele.status = 'error'
-                            ele.statusTip = errorCode === ErrorCode.USER_ERROR_NO_AUTH ? Translate('IDCS_NO_PERMISSION') : ''
-                        }
-                    } catch {
+
+            for (const ele of editRows.toArray()) {
+                try {
+                    const res = await editMotion(getSaveData(ele))
+                    const $ = queryXml(res)
+                    if ($('status').text() === 'success') {
+                        ele.status = 'success'
+                        editRows.remove(ele)
+                    } else {
+                        const errorCode = $('errorCode').text().num()
                         ele.status = 'error'
+                        ele.statusTip = errorCode === ErrorCode.USER_ERROR_NO_AUTH ? Translate('IDCS_NO_PERMISSION') : ''
                     }
+                } catch {
+                    ele.status = 'error'
                 }
             }
 
-            if (!editRows.size) {
-                btnOKDisabled.value = true
-            }
             closeLoading()
         }
 
-        const LiveNotify2Js = ($: XMLQuery) => {
+        const notify = ($: XMLQuery) => {
             if ($("statenotify[@type='MotionArea']").length) {
                 const rowData = getRowById(selectedChlId.value)!
                 rowData.areaInfo = $('statenotify/areaInfo/item').map((ele) => ele.text())
-                editRows.add(rowData)
-                btnOKDisabled.value = false
             }
         }
 
@@ -342,13 +344,11 @@ export default defineComponent({
                 const sendXML = OCX_XML_GetMotionArea()
                 plugin.AsynQueryInfo(plugin.GetVideoPlugin(), sendXML, (result: string) => {
                     const $ = queryXml(XMLStr2XMLDoc(result))
-                    $('//areaInfo/item').forEach((ele) => {
+                    $('response/areaInfo/item').forEach((ele) => {
                         areaInfo.push(ele.text())
                     })
                 })
             }
-            editRows.add(rowData)
-            btnOKDisabled.value = false
         }
 
         // 播放模式
@@ -376,7 +376,6 @@ export default defineComponent({
                     onchange: motionAreaChange,
                 })
             } else {
-                plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
                 const sendXML = OCX_XML_SetPluginModel(osType === 'mac' ? 'MotionConfig' : 'ReadOnly', 'Live')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
@@ -438,7 +437,6 @@ export default defineComponent({
         onBeforeUnmount(() => {
             if (ready.value) {
                 if (mode.value === 'ocx') {
-                    plugin.VideoPluginNotifyEmitter.removeListener(LiveNotify2Js)
                     const sendXML = OCX_XML_StopPreview('ALL')
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 } else {
@@ -449,10 +447,12 @@ export default defineComponent({
 
         return {
             playerRef,
+            notify,
             formData,
             tableRef,
             tableData,
-            btnOKDisabled,
+            chlOptions,
+            editRows,
             pageIndex,
             pageSize,
             pageTotal,
@@ -462,14 +462,12 @@ export default defineComponent({
             handleRowClick,
             handleChlSel,
             handleDisposeWayClick,
-            handleChangeVal,
             handleChangeAll,
             save,
             onReady,
             handleSelAll,
             handleSelReverse,
             handleClear,
-            getTranslateForSecond,
             switchOptions,
             getDataList,
         }

@@ -9,8 +9,7 @@
             <div class="base-chl-box-player">
                 <BaseVideoPlayer
                     ref="playerRef"
-                    type="live"
-                    @onready="handlePlayerReady"
+                    @ready="handlePlayerReady"
                 />
             </div>
             <ChannelPtzCtrlPanel :chl-id="tableData[pageData.tableIndex]?.chlId || ''" />
@@ -18,34 +17,24 @@
                 :style="{
                     '--form-label-width': '100px',
                 }"
-                class="inline-message"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                    <el-select
+                    <el-select-v2
                         v-model="pageData.tableIndex"
-                        popper-class="base-chl-select"
+                        :height="170"
+                        :options="chlOptions"
                         @change="changeChl"
-                    >
-                        <el-option
-                            v-for="(item, index) in tableData"
-                            :key="item.chlId"
-                            :value="index"
-                            :label="item.chlName"
-                        />
-                    </el-select>
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_PTZ_TRACE')">
-                    <el-select
+                    <el-select-v2
                         v-model="formData.traceIndex"
-                        popper-class="base-chl-select"
-                    >
-                        <el-option
-                            v-for="(item, index) in traceOptions"
-                            :key="`${pageData.tableIndex}_${item.index}`"
-                            :label="item.index"
-                            :value="index"
-                        />
-                    </el-select>
+                        :options="traceOptions"
+                        :props="{
+                            label: 'index',
+                        }"
+                        :height="170"
+                    />
                     <el-tooltip :content="Translate('IDCS_TRACK_PLAY')">
                         <BaseImgSprite
                             class="base-chl-icon-btn"
@@ -75,7 +64,6 @@
                     <el-input
                         v-model="formData.name"
                         :disabled="!traceOptions.length"
-                        spellcheck="false"
                         :formatter="formatInputMaxLength"
                         :parser="formatInputMaxLength"
                     />
@@ -97,20 +85,23 @@
                     <el-button
                         :disabled="!traceOptions.length"
                         @click="deleteTrace(pageData.tableIndex, Number(formData.traceIndex))"
-                        >{{ Translate('IDCS_DELETE') }}</el-button
                     >
+                        {{ Translate('IDCS_DELETE') }}
+                    </el-button>
                     <el-button
                         v-show="!pageData.recordStatus"
                         :disabled="!traceOptions.length"
                         @click="startRecord"
-                        >{{ Translate('IDCS_START_RECORD') }}</el-button
                     >
+                        {{ Translate('IDCS_START_RECORD') }}
+                    </el-button>
                     <el-button
                         v-show="pageData.recordStatus"
                         :disabled="!traceOptions.length"
                         @click="stopRecord"
-                        >{{ Translate('IDCS_STOP_RECORD') }}</el-button
                     >
+                        {{ Translate('IDCS_STOP_RECORD') }}
+                    </el-button>
                     <p
                         v-show="pageData.recordTime >= 0 && pageData.recordTime < pageData.maxRecordTime"
                         class="seconds"
@@ -129,8 +120,7 @@
                     :row-key="getRowKey"
                     :expand-row-key="pageData.expandRowKey"
                     highlight-current-row
-                    border
-                    stripe
+                    show-overflow-tooltip
                     @row-click="handleRowClick"
                     @expand-change="handleExpandChange"
                 >
@@ -163,7 +153,6 @@
             @confirm="confirmAddTrace"
             @close="pageData.isAddPop = false"
         />
-        <BaseNotification v-model:notifications="pageData.notification" />
     </div>
 </template>
 

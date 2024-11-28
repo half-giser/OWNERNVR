@@ -12,8 +12,8 @@
                 :row-key="getRowKey"
                 :expand-row-key="pageData.expandRowKey"
                 highlight-current-row
+                show-overflow-tooltip
                 :header-cell-style="{ 'border-right': '1px solid var(--table-thead-border)' }"
-                stripe
                 @expand-change="handleExpandChange"
             >
                 <!-- 通道号 -->
@@ -35,7 +35,7 @@
                     min-width="400"
                 >
                     <template #default="scope">
-                        <span>{{ Translate('IDCS_SCHEDULE_UPLOAD_PIC_TIMES').formatForLang(scope.row.timeCount) }}</span>
+                        {{ Translate('IDCS_SCHEDULE_UPLOAD_PIC_TIMES').formatForLang(scope.row.timeCount) }}
                     </template>
                 </el-table-column>
                 <!-- 清空 -->
@@ -117,12 +117,10 @@
                 />
             </el-form-item>
         </el-form>
-        <template #footer>
-            <div class="base-btn-box">
-                <el-button @click="addTimeItem">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="pageData.addSignTimeDialogOpen = false">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="addTimeItem">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="pageData.addSignTimeDialogOpen = false">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
     <ImageUploadAddTimePop
         v-model="pageData.addUploadTimePopOpen"

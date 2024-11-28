@@ -4,37 +4,42 @@
  * @Description:
 -->
 <template>
-    <div
-        v-show="notifications.length"
-        class="notification"
-        :class="containerClass"
+    <transition
+        enter-from-class="notification-from"
+        leave-to-class="notification-to"
     >
-        <div class="notification-title">
-            <div>{{ Translate('IDCS_INFO_TIP') }}</div>
-            <BaseImgSprite
-                file="close"
-                :chunk="2"
-                :index="0"
-                :hover-index="1"
-                :active-index="1"
-                class="remove-button"
-                @click="removeNotification"
-            />
+        <div
+            v-show="notifications.length"
+            class="notification"
+            :class="containerClass"
+        >
+            <div class="notification-title">
+                <div>{{ Translate('IDCS_INFO_TIP') }}</div>
+                <BaseImgSprite
+                    file="close"
+                    :chunk="2"
+                    :index="0"
+                    :hover-index="1"
+                    :active-index="1"
+                    class="remove-button"
+                    @click="removeNotification"
+                />
+            </div>
+            <div class="notification-content">
+                <el-scrollbar height="calc(100% - 30px)">
+                    <div
+                        v-for="(notification, index) in notifications"
+                        :key="index"
+                        class="notification-item"
+                        :class="{ selected: selectedIndex === index }"
+                        @click="selectedIndex = index"
+                    >
+                        {{ notification }}
+                    </div>
+                </el-scrollbar>
+            </div>
         </div>
-        <div class="notification-content">
-            <el-scrollbar height="calc(100% - 30px)">
-                <div
-                    v-for="(notification, index) in notifications"
-                    :key="index"
-                    class="notification-item"
-                    :class="{ selected: selectedIndex === index }"
-                    @click="selectedIndex = index"
-                >
-                    {{ notification }}
-                </div>
-            </el-scrollbar>
-        </div>
-    </div>
+    </transition>
 </template>
 
 <script lang="ts" setup>
@@ -54,7 +59,7 @@ const props = withDefaults(
         position?: string
     }>(),
     {
-        duration: 100000,
+        duration: 10000,
         position: 'right-bottom',
     },
 )
@@ -73,10 +78,6 @@ watch(
         if (val.length) {
             hideNotification()
         }
-    },
-    {
-        deep: true,
-        immediate: true,
     },
 )
 
@@ -105,6 +106,19 @@ onBeforeUnmount(() => {
 })
 </script>
 
+<style lang="scss">
+.notification-from {
+    transform: translate3d(100%, 0, 0);
+    transition: transform ease 0.2s;
+}
+
+.notification-to {
+    opacity: 0;
+    transform: none;
+    transition: opacity ease 0.2s;
+}
+</style>
+
 <style lang="scss" scoped>
 .notification {
     border: 1px solid var(--content-border);
@@ -114,11 +128,14 @@ onBeforeUnmount(() => {
     right: 0;
     z-index: 9999;
     width: 300px;
-    min-height: 90px;
     height: 272px;
+    transition:
+        transform ease 0.2s,
+        opacity ease 0.2s;
 
     &-item {
-        padding: 3px 8px;
+        padding: 5px 8px;
+        margin-right: 10px;
         font-size: 13px;
         word-wrap: break-word;
 
@@ -145,7 +162,7 @@ onBeforeUnmount(() => {
         height: 230px;
         min-height: 70px;
         overflow: hidden;
-        padding: 15px;
+        padding: 10px;
     }
 }
 

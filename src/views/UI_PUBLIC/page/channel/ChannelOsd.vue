@@ -9,14 +9,13 @@
             <div class="base-chl-box-player">
                 <BaseVideoPlayer
                     ref="playerRef"
-                    :split="1"
-                    @onready="onReady"
-                    @ontime="onTime"
+                    @ready="onReady"
+                    @time="onTime"
+                    @message="notify"
                 />
             </div>
             <el-form
-                ref="formRef"
-                :model="formData"
+                class="stripe"
                 :style="{
                     '--form-label-width': '160px',
                 }"
@@ -36,17 +35,11 @@
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                    <el-select
+                    <el-select-v2
                         v-model="selectedChlId"
+                        :options="chlOptions"
                         @change="handleChlSel"
-                    >
-                        <el-option
-                            v-for="(item, index) in chlList"
-                            :key="index"
-                            :value="item.id"
-                            :label="item.name || ' '"
-                        />
-                    </el-select>
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_CHANNEL_NAME')">
                     <el-input
@@ -64,18 +57,12 @@
                     {{ formData.supportTimeFormat ? timeFormatTip[formData.timeFormat] : '--' }}
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_WATER_MARK')">
-                    <el-select
+                    <el-select-v2
                         v-model="formData.remarkSwitch"
                         :disabled="formData.remarkDisabled"
+                        :options="switchOptions"
                         @change="handleChangeSwitch(formData.remarkSwitch, formData.id, 'remarkSwitch')"
-                    >
-                        <el-option
-                            v-for="item in switchOptions"
-                            :key="item.label"
-                            :value="item.value"
-                            :label="item.label"
-                        />
-                    </el-select>
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_WATER_MARK_CHAR')">
                     <el-input
@@ -94,8 +81,6 @@
             <div class="base-table-box">
                 <el-table
                     ref="tableRef"
-                    border
-                    stripe
                     :data="tableData"
                     show-overflow-tooltip
                     highlight-current-row
@@ -149,20 +134,14 @@
                             </el-dropdown>
                         </template>
                         <template #default="scope">
-                            <el-select
+                            <el-select-v2
                                 v-show="!scope.row.isSpeco"
                                 v-model="scope.row.displayName"
                                 :disabled="scope.row.disabled"
+                                :options="switchOptions"
                                 @focus="handleRowClick(scope.row)"
                                 @change="handleChangeSwitch(scope.row.displayName, scope.row.id, 'displayName')"
-                            >
-                                <el-option
-                                    v-for="item in switchOptions"
-                                    :key="item.label"
-                                    :value="item.value"
-                                    :label="item.label"
-                                />
-                            </el-select>
+                            />
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -186,20 +165,14 @@
                             </el-dropdown>
                         </template>
                         <template #default="scope">
-                            <el-select
+                            <el-select-v2
                                 v-show="!scope.row.isSpeco"
                                 v-model="scope.row.displayTime"
                                 :disabled="scope.row.disabled"
+                                :options="switchOptions"
                                 @focus="handleRowClick(scope.row)"
                                 @change="handleChangeSwitch(scope.row.displayTime, scope.row.id, 'displayTime')"
-                            >
-                                <el-option
-                                    v-for="item in switchOptions"
-                                    :key="item.label"
-                                    :value="item.value"
-                                    :label="item.label"
-                                />
-                            </el-select>
+                            />
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -280,19 +253,13 @@
                             </el-dropdown>
                         </template>
                         <template #default="scope">
-                            <el-select
+                            <el-select-v2
                                 v-model="scope.row.remarkSwitch"
                                 :disabled="scope.row.remarkDisabled"
+                                :options="switchOptions"
                                 @focus="handleRowClick(scope.row)"
                                 @change="handleChangeSwitch(scope.row.remarkSwitch, scope.row.id, 'remarkSwitch')"
-                            >
-                                <el-option
-                                    v-for="item in switchOptions"
-                                    :key="item.label"
-                                    :value="item.value"
-                                    :label="item.label"
-                                />
-                            </el-select>
+                            />
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -325,9 +292,10 @@
             </div>
             <div class="base-btn-box">
                 <el-button
-                    :disabled="btnOKDisabled"
+                    :disabled="!editRows.size()"
                     @click="save"
-                    >{{ Translate('IDCS_APPLY') }}
+                >
+                    {{ Translate('IDCS_APPLY') }}
                 </el-button>
             </div>
         </div>

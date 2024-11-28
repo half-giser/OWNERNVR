@@ -78,11 +78,11 @@ export default defineComponent({
             const res = await queryAIResourceDetail(sendXml)
             const $ = queryXml(res)
             if ($('status').text() === 'success') {
-                pageData.value.totalResourceOccupancy = Math.min(100, $('//content/totalResourceOccupancy').text().num())
+                pageData.value.totalResourceOccupancy = Math.min(100, $('content/totalResourceOccupancy').text().num())
 
                 if (pageData.value.totalResourceOccupancy <= 100) {
                     tableData.value = []
-                    $('//content/chl/item').forEach((element) => {
+                    $('content/chl/item').forEach((element) => {
                         const $item = queryXml(element.element)
                         const id = element.attr('id')
 
@@ -109,7 +109,7 @@ export default defineComponent({
                                 : '--'
 
                             tableData.value.push({
-                                id: id || '',
+                                id: id,
                                 name,
                                 eventType,
                                 eventTypeText,
@@ -133,7 +133,7 @@ export default defineComponent({
          * @description 删除AI资源
          * @param {AlarmAIResourceDto} row
          */
-        const deleteResource = async (row: AlarmAIResourceDto) => {
+        const deleteResource = (row: AlarmAIResourceDto) => {
             openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_S'),

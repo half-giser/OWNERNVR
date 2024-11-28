@@ -45,14 +45,14 @@ export default defineComponent({
             const result = await reboot(sendXml)
             const $ = queryXml(result)
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 pageData.value.isAuthPop = false
                 openLoading(LoadingTarget.FullScreen, Translate('IDCS_REBOOTING'))
                 timer = reconnect()
             } else {
                 closeLoading()
 
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_NO_AUTH:

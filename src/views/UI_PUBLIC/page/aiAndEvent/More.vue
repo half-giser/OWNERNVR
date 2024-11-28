@@ -5,32 +5,12 @@
 -->
 <template>
     <div>
-        <el-form
-            class="stripe"
-            :style="{
-                '--form-input-width': '430px',
-            }"
-            inline-message
-        >
-            <el-form-item
-                :label="Translate('IDCS_CHANNEL_NAME')"
-                label-width="108"
-            >
-                <el-select
-                    v-model="pageData.currChlId"
-                    class="base-ai-chl-select"
-                    :popper-class="pageData.chosenFunction === 'avd' ? 'base-ai-chl-option narrow' : 'base-ai-chl-option'"
-                    @change="handleChangeChannel"
-                >
-                    <el-option
-                        v-for="item in pageData.onlineChannelList"
-                        :key="item.id"
-                        :label="item.name"
-                        :value="item.id"
-                    />
-                </el-select>
-            </el-form-item>
-        </el-form>
+        <AlarmBaseChannelSelector
+            v-model="pageData.currChlId"
+            :list="pageData.onlineChannelList"
+            :height="pageData.chosenFunction === 'avd' ? 100 : 140"
+            @change="handleChangeChannel"
+        />
         <el-tabs
             :key="pageData.tabKey"
             v-model="pageData.chosenFunction"
@@ -43,7 +23,7 @@
                 name="fireDetection"
                 :label="Translate('IDCS_FIRE_POINT_DETECTION')"
             >
-                <FireDetection
+                <FireDetectionPanel
                     v-if="pageData.chosenFunction === 'fireDetection'"
                     :curr-chl-id="pageData.currChlId"
                     :chl-data="chlData"
@@ -58,7 +38,7 @@
                 name="videoStructure"
                 :label="Translate('IDCS_VSD_DETECTION')"
             >
-                <VideoStructure
+                <VideoStructurePanel
                     v-if="pageData.chosenFunction === 'videoStructure'"
                     :curr-chl-id="pageData.currChlId"
                     :chl-data="chlData"
@@ -72,7 +52,7 @@
                 name="passLine"
                 :label="Translate('IDCS_PASS_LINE_COUNT_DETECTION')"
             >
-                <PassLine
+                <PassLinePanel
                     v-if="pageData.chosenFunction === 'passLine'"
                     :curr-chl-id="pageData.currChlId"
                     :chl-data="chlData"
@@ -87,7 +67,7 @@
                 name="cdd"
                 :label="Translate('IDCS_CROWD_DENSITY_DETECTION')"
             >
-                <Cdd
+                <CddPanel
                     v-if="pageData.chosenFunction === 'cdd'"
                     :curr-chl-id="pageData.currChlId"
                     :chl-data="chlData"
@@ -101,7 +81,7 @@
                 name="temperatureDetection"
                 :label="Translate('IDCS_TEMPERATURE_DETECTION')"
             >
-                <TemperatureDetection
+                <TemperatureDetectionPanel
                     v-if="pageData.chosenFunction === 'temperatureDetection'"
                     :curr-chl-id="pageData.currChlId"
                     :chl-data="chlData"
@@ -115,7 +95,7 @@
                 name="objectLeft"
                 :label="Translate('IDCS_WATCH_DETECTION')"
             >
-                <ObjectLeft
+                <ObjectLeftPanel
                     v-if="pageData.chosenFunction === 'objectLeft'"
                     :curr-chl-id="pageData.currChlId"
                     :chl-data="chlData"
@@ -129,7 +109,7 @@
                 name="avd"
                 :label="Translate('IDCS_ABNORMAL_DISPOSE_WAY')"
             >
-                <AbnormalDispose
+                <AbnormalDisposePanel
                     v-if="pageData.chosenFunction === 'avd'"
                     :curr-chl-id="pageData.currChlId"
                     :chl-data="chlData"

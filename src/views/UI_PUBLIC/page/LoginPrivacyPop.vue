@@ -17,27 +17,26 @@
             >
             </textarea>
         </div>
-        <template #footer>
-            <div
-                class="base-btn-box"
-                span="2"
-            >
-                <div>
-                    <el-checkbox
-                        v-show="forceAllow"
-                        v-model="pageData.isAllowPrivacy"
-                        :label="Translate('IDCS_PRIVACY_ALLOW')"
-                    />
-                </div>
-                <div>
-                    <el-button
-                        :disabled="forceAllow && !pageData.isAllowPrivacy"
-                        @click="closePrivacy()"
-                        >{{ Translate('IDCS_OK') }}</el-button
-                    >
-                </div>
+        <div
+            class="base-btn-box"
+            span="2"
+        >
+            <div>
+                <el-checkbox
+                    v-show="forceAllow"
+                    v-model="pageData.isAllowPrivacy"
+                    :label="Translate('IDCS_PRIVACY_ALLOW')"
+                />
             </div>
-        </template>
+            <div>
+                <el-button
+                    :disabled="forceAllow && !pageData.isAllowPrivacy"
+                    @click="closePrivacy()"
+                >
+                    {{ Translate('IDCS_OK') }}
+                </el-button>
+            </div>
+        </div>
     </el-dialog>
 </template>
 

@@ -6,12 +6,10 @@
 <template>
     <div class="base-flex-box">
         <el-form
-            ref="highRecord"
             class="stripe"
             :style="{
                 '--form-input-width': '215px',
             }"
-            inline-message
         >
             <div class="base-subheading-box">{{ Translate('IDCS_HIGH_RECORD_PARAM') }}</div>
             <!-- <el-form-item
@@ -32,22 +30,16 @@
                 />
             </el-form-item>
             <el-form-item>
-                <el-select v-model="pageData.doubleStreamRecSwitch">
-                    <el-option
-                        v-for="item in pageData.chkDoubleStreamRec"
-                        :key="item.value"
-                        :value="item.value"
-                        :label="item.label"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="pageData.doubleStreamRecSwitch"
+                    :options="pageData.chkDoubleStreamRec"
+                />
             </el-form-item>
         </el-form>
         <div class="base-subheading-box msgbox">{{ Translate('IDCS_CHANNEL_RECORD_PARAM') }}</div>
         <div class="base-table-box">
             <el-table
                 ref="tableRef"
-                border
-                stripe
                 :data="tableData"
                 show-overflow-tooltip
                 highlight-current-row
@@ -82,14 +74,10 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select v-model="scope.row.per">
-                            <el-option
-                                v-for="item in pageData.perList"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            />
-                        </el-select>
+                        <el-select-v2
+                            v-model="scope.row.per"
+                            :options="pageData.perList"
+                        />
                     </template>
                 </el-table-column>
                 <!-- 警后录像时间 -->
@@ -116,14 +104,10 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select v-model="scope.row.post">
-                            <el-option
-                                v-for="item in pageData.postList"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            />
-                        </el-select>
+                        <el-select-v2
+                            v-model="scope.row.post"
+                            :options="pageData.postList"
+                        />
                     </template>
                 </el-table-column>
                 <!-- 断网补录 -->
@@ -151,18 +135,12 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select
+                        <el-select-v2
                             v-model="scope.row.ANRSwitch"
                             :disabled="!scope.row.manufacturerEnable"
+                            :options="pageData.switchOption"
                             :placeholder="Translate('IDCS_OFF')"
-                        >
-                            <el-option
-                                v-for="item in pageData.switchOption"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            />
-                        </el-select>
+                        />
                     </template>
                 </el-table-column>
                 <!-- 过期时间 -->
@@ -189,17 +167,11 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select
+                        <el-select-v2
                             v-model="scope.row.expirationDisplay"
+                            :options="pageData.expirationList"
                             @change="changeExpirationList(scope.row)"
-                        >
-                            <el-option
-                                v-for="item in pageData.expirationList"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            />
-                        </el-select>
+                        />
                     </template>
                 </el-table-column>
             </el-table>

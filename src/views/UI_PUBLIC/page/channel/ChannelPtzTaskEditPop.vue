@@ -8,7 +8,7 @@
         :title="Translate('IDCS_OPERATION')"
         width="500"
         @open="open"
-        @before-close="close"
+        @closed="formRef?.resetFields()"
     >
         <el-form
             ref="formRef"
@@ -19,30 +19,20 @@
             :rules="formRule"
         >
             <el-form-item :label="Translate('IDCS_FUNCTION')">
-                <el-select
+                <el-select-v2
                     v-model="formData.type"
+                    :options="pageData.typeOptions"
                     @change="changeType"
-                >
-                    <el-option
-                        v-for="item in pageData.typeOptions"
-                        :key="item.value"
-                        :value="item.value"
-                        :label="item.label"
-                    />
-                </el-select>
+                />
             </el-form-item>
             <el-form-item
                 :label="Translate('IDCS_NAME')"
                 prop="name"
             >
-                <el-select v-model="formData.name">
-                    <el-option
-                        v-for="item in pageData.nameOptions"
-                        :key="item.value"
-                        :value="item.value"
-                        :label="item.label"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="formData.name"
+                    :options="pageData.nameOptions"
+                />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_START_TIME')">
                 <el-time-picker
@@ -67,16 +57,15 @@
                 />
             </el-form-item>
         </el-form>
-        <template #footer>
-            <div class="base-btn-box">
-                <el-button
-                    :disabled="!formData.name"
-                    @click="verify"
-                    >{{ Translate('IDCS_OK') }}</el-button
-                >
-                <el-button @click="close()">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button
+                :disabled="!formData.name"
+                @click="verify"
+            >
+                {{ Translate('IDCS_OK') }}
+            </el-button>
+            <el-button @click="close()">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 

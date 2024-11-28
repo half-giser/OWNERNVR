@@ -8,10 +8,10 @@
         :title="Translate('IDCS_BACKUP')"
         :width="500"
         @open="open"
+        @closed="formRef?.resetFields()"
     >
         <el-form
             ref="formRef"
-            class=""
             :model="formData"
             :rules="formRule"
             :style="{
@@ -19,27 +19,19 @@
             }"
         >
             <el-form-item :label="Translate('IDCS_DESTINATION')">
-                <el-select v-model="formData.destination">
-                    <el-option
-                        v-for="item in pageData.destinationOptions"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="formData.destination"
+                    :options="pageData.destinationOptions"
+                />
             </el-form-item>
             <el-form-item
                 v-show="formData.destination === 'local'"
                 :label="Translate('IDCS_FORMAT')"
             >
-                <el-select v-model="formData.localFormat">
-                    <el-option
-                        v-for="item in pageData.localFormatOptions"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="formData.localFormat"
+                    :options="pageData.localFormatOptions"
+                />
             </el-form-item>
             <el-form-item
                 v-show="formData.destination === 'local' && mode === 'ocx'"
@@ -70,27 +62,23 @@
                 v-show="formData.destination === 'remote'"
                 :label="Translate('IDCS_DEVICE_NAME')"
             >
-                <el-select v-model="formData.remoteDeviceName">
-                    <el-option
-                        v-for="item in pageData.remoteDeviceOptions"
-                        :key="item.name"
-                        :label="item.name"
-                        :value="item.name"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="formData.remoteDeviceName"
+                    :options="pageData.remoteDeviceOptions"
+                    :props="{
+                        value: 'name',
+                        label: 'name',
+                    }"
+                />
             </el-form-item>
             <el-form-item
                 v-show="formData.destination === 'remote'"
                 :label="Translate('IDCS_FORMAT')"
             >
-                <el-select v-model="formData.remoteFormat">
-                    <el-option
-                        v-for="item in pageData.remoteFormatOptions"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="formData.remoteFormat"
+                    :options="pageData.remoteFormatOptions"
+                />
             </el-form-item>
         </el-form>
         <BackupRemoteEncryptPop
@@ -99,12 +87,10 @@
             @confirm="confirmCreateRecBackupTask"
             @close="pageData.isRemoteEncryptPop = false"
         />
-        <template #footer>
-            <div class="base-btn-box">
-                <el-button @click="confirm">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="close()">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="confirm">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="close()">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 

@@ -12,18 +12,16 @@
         <div>
             <div class="info">
                 <div class="title">{{ Translate('IDCS_BASIC_INFO') }}</div>
-                <div class="row">
-                    <label>{{ Translate('IDCS_SNAP_TIME') }}</label>
-                    <span>{{ displayTime(current.timestamp) }}</span>
-                    <label>{{ Translate('IDCS_SNAP_ADDRESS') }}</label>
-                    <span>{{ current.chlName }}</span>
-                </div>
-                <div class="row">
-                    <label>{{ Translate('IDCS_EVENT_TYPE') }}</label>
-                    <span>{{ displayEventType(current.eventType) }}</span>
-                    <label>{{ Translate('IDCS_TARGET_TYPE') }}</label>
-                    <span>{{ displayTargetType(current.targetType) }}</span>
-                </div>
+                <el-form>
+                    <el-form-item>
+                        <el-form-item :label="Translate('IDCS_SNAP_TIME')">{{ displayTime(current.timestamp) }}</el-form-item>
+                        <el-form-item :label="Translate('IDCS_SNAP_ADDRESS')">{{ current.chlName }}</el-form-item>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-form-item :label="Translate('IDCS_EVENT_TYPE')">{{ displayEventType(current.eventType) }}</el-form-item>
+                        <el-form-item :label="Translate('IDCS_TARGET_TYPE')">{{ displayTargetType(current.targetType) }}</el-form-item>
+                    </el-form-item>
+                </el-form>
             </div>
             <div class="snap">
                 <div>
@@ -65,39 +63,41 @@
                 </div>
             </div>
         </div>
-        <template #footer>
-            <div
-                class="base-btn-box"
-                span="2"
-            >
-                <div>
-                    <el-button
-                        v-show="isAddBtn"
-                        @click="add"
-                        >{{ Translate('IDCS_REGISTER') }}</el-button
-                    >
-                    <el-button
-                        v-show="showSearch"
-                        @click="search"
-                        >{{ Translate('IDCS_SEARCH') }}</el-button
-                    >
-                    <el-button @click="playRec">{{ Translate('IDCS_REPLAY') }}</el-button>
-                </div>
-                <div>
-                    <el-button
-                        :disabled="pageData.currentIndex <= 0"
-                        @click="previous"
-                        >{{ Translate('IDCS_PREVIOUS') }}</el-button
-                    >
-                    <el-button
-                        :disabled="pageData.currentIndex >= list.length - 1"
-                        @click="next"
-                        >{{ Translate('IDCS_NEXT') }}</el-button
-                    >
-                    <el-button @click="close">{{ Translate('IDCS_EXIT') }}</el-button>
-                </div>
+        <div
+            class="base-btn-box"
+            span="2"
+        >
+            <div>
+                <el-button
+                    v-show="isAddBtn"
+                    @click="add"
+                >
+                    {{ Translate('IDCS_REGISTER') }}
+                </el-button>
+                <el-button
+                    v-show="showSearch"
+                    @click="search"
+                >
+                    {{ Translate('IDCS_SEARCH') }}
+                </el-button>
+                <el-button @click="playRec">{{ Translate('IDCS_REPLAY') }}</el-button>
             </div>
-        </template>
+            <div>
+                <el-button
+                    :disabled="pageData.currentIndex <= 0"
+                    @click="previous"
+                >
+                    {{ Translate('IDCS_PREVIOUS') }}
+                </el-button>
+                <el-button
+                    :disabled="pageData.currentIndex >= list.length - 1"
+                    @click="next"
+                >
+                    {{ Translate('IDCS_NEXT') }}
+                </el-button>
+                <el-button @click="close">{{ Translate('IDCS_EXIT') }}</el-button>
+            </div>
+        </div>
     </el-dialog>
 </template>
 
@@ -107,7 +107,6 @@
 .info {
     border-bottom: 1px solid var(--input-border);
     margin: 10px 0;
-    padding-bottom: 10px;
 }
 
 .title {

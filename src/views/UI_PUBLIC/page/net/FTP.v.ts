@@ -4,7 +4,7 @@
  * @Description: FTP配置
  */
 import { NetFTPForm, type NetFTPList } from '@/types/apiType/net'
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormRules } from 'element-plus'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 
 export default defineComponent({
@@ -43,7 +43,7 @@ export default defineComponent({
             isSchedulePop: false,
         })
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new NetFTPForm())
         const formRule = ref<FormRules>({
             serverAddr: [
@@ -55,7 +55,7 @@ export default defineComponent({
                         }
                         callback()
                     },
-                    trigger: 'blur',
+                    trigger: 'manual',
                 },
             ],
             port: [
@@ -67,7 +67,7 @@ export default defineComponent({
                         }
                         callback()
                     },
-                    trigger: 'blur',
+                    trigger: 'manual',
                 },
             ],
             userName: [
@@ -79,7 +79,7 @@ export default defineComponent({
                         }
                         callback()
                     },
-                    trigger: 'blur',
+                    trigger: 'manual',
                 },
             ],
             password: [
@@ -91,7 +91,7 @@ export default defineComponent({
                         }
                         callback()
                     },
-                    trigger: 'blur',
+                    trigger: 'manual',
                 },
             ],
             maxSize: [
@@ -103,7 +103,7 @@ export default defineComponent({
                         }
                         callback()
                     },
-                    trigger: 'blur',
+                    trigger: 'manual',
                 },
             ],
             path: [
@@ -115,7 +115,7 @@ export default defineComponent({
                         }
                         callback()
                     },
-                    trigger: 'blur',
+                    trigger: 'manual',
                 },
             ],
         })
@@ -186,7 +186,7 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryFTPCfg()
             commLoadResponseHandler(result, ($) => {
-                const $content = queryXml($('//content')[0].element)
+                const $content = queryXml($('content')[0].element)
                 formData.value.switch = $content('switch').text().bool()
                 formData.value.serverAddr = $content('serverAddr').text()
                 formData.value.port = $content('port').text().num()
@@ -271,7 +271,7 @@ export default defineComponent({
                 const result = await testFTPCfg(getXmlData(true))
                 const $ = queryXml(result)
 
-                if ($('//status').text() === 'success') {
+                if ($('status').text() === 'success') {
                     openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_FTP_TEST_SUCCESS'),
@@ -302,7 +302,7 @@ export default defineComponent({
         /**
          * @description 验证
          */
-        const verify = async () => {
+        const verify = () => {
             // TODO: 未启用情况下 如果一些表单项为空，提交会报错. 原项目也是如此
             if (formData.value.switch) {
                 formRef.value!.validate((valid) => {

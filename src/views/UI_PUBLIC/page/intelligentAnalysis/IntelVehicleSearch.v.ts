@@ -234,8 +234,8 @@ export default defineComponent({
         }
 
         const getUniqueKey = (row: { imgId: string; frameTime: string }) => {
-            if (!row.imgId || !row.frameTime) {
-                return Math.floor(Math.random() * 1e8) + ''
+            if (!row || !row.imgId || !row.frameTime) {
+                return getNonce() + ''
             }
             return `${row.imgId}:${row.frameTime}`
         }
@@ -327,24 +327,31 @@ export default defineComponent({
             tableRef.value!.clearSelection()
             formData.value.pageIndex = pageIndex
             sliceTableData.value = tableData.value.slice((pageIndex - 1) * formData.value.pageSize, pageIndex * formData.value.pageSize)
-            for (let i = 0; i < sliceTableData.value.length; i++) {
-                const item = sliceTableData.value[i]
+            sliceTableData.value.forEach(async (item, i) => {
+                const key = getUniqueKey(item)
                 const flag = await getPic(item, false, i)
+
                 if (flag) {
                     const flag2 = await getPic(item, true, i)
                     if (flag2) {
-                        sliceTableData.value[i] = {
-                            ...sliceTableData.value[i],
-                            ...cachePic[getUniqueKey(item)],
-                        }
-                        continue
-                    } else {
-                        break
+                        const pic = cachePic[key]
+                        item.pic = pic.pic
+                        item.panorama = pic.panorama
+                        item.width = pic.width
+                        item.height = pic.height
+                        item.X1 = pic.X1
+                        item.Y1 = pic.Y1
+                        item.X2 = pic.X2
+                        item.Y2 = pic.Y2
+                        item.isDelSnap = pic.isDelSnap
+                        item.isNoData = pic.isNoData
+                        item.attribute = pic.attribute
+                        item.eventType = pic.eventType
+                        item.targetType = pic.targetType
+                        item.plateNumber = pic.plateNumber
                     }
-                } else {
-                    break
                 }
-            }
+            })
         }
 
         /**
@@ -404,23 +411,23 @@ export default defineComponent({
                     const result = await requestSmartTargetSnapImage(sendXml)
                     const $ = queryXml(result)
 
-                    if ($('//status').text() === 'success') {
-                        const content = $('//content').text()
+                    if ($('status').text() === 'success') {
+                        const content = $('content').text()
                         if (!content && times < REPEAR_REQUEST_IMG_TIMES) {
                             return getPic(row, isPanorama, index, times + 1)
                         }
-                        const width = $('//rect/ptWidth').text().num() || 1
-                        const height = $('//rect/ptHeight').text().num() || 1
-                        const leftTopX = $('//rect/leftTopX').text().num()
-                        const leftTopY = $('//rect/leftTopY').text().num()
-                        const rightBottomX = $('//rect/rightBottomX').text().num()
-                        const rightBottomY = $('//rect/rightBottomY').text().num()
+                        const width = $('rect/ptWidth').text().num() || 1
+                        const height = $('rect/ptHeight').text().num() || 1
+                        const leftTopX = $('rect/leftTopX').text().num()
+                        const leftTopY = $('rect/leftTopY').text().num()
+                        const rightBottomX = $('rect/rightBottomX').text().num()
+                        const rightBottomY = $('rect/rightBottomY').text().num()
                         const item = {
                             pic: cachePic[key] ? cachePic[key].pic : '',
                             panorama: cachePic[key] ? cachePic[key].panorama : '',
-                            eventType: $('//eventType').text(),
-                            targetType: $('//targetType').text(),
-                            plateNumber: $('//plateNumber').text() || '--',
+                            eventType: $('eventType').text(),
+                            targetType: $('targetType').text(),
+                            plateNumber: $('plateNumber').text() || '--',
                             width,
                             height,
                             X1: leftTopX / width,
@@ -432,20 +439,20 @@ export default defineComponent({
                             attribute: {} as Record<string, string>,
                         }
 
-                        $('//attribute').forEach((attribute) => {
+                        $('attribute').forEach((attribute) => {
                             item.attribute[attribute.attr('type')] = attribute.text()
                         })
 
                         if (isPanorama) {
-                            item.panorama = 'data:image/png;base64,' + content
+                            item.panorama = wrapBase64Img(content)
                         } else {
-                            item.pic = 'data:image/png;base64,' + content
+                            item.pic = wrapBase64Img(content)
                         }
 
                         cachePic[key] = item
                     } else {
                         cachePic[key] = cachePic[key] || new IntelSnapImgDto()
-                        const errorCode = $('//errorCode').text().num()
+                        const errorCode = $('errorCode').text().num()
                         switch (errorCode) {
                             case ErrorCode.HTTPS_CERT_EXIST:
                                 cachePic[key].isDelSnap = true
@@ -535,31 +542,31 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                tableData.value = $('//content/i').map((item) => {
+            if ($('status').text() === 'success') {
+                tableData.value = $('content/i').map((item) => {
                     const isDelSnap = item.attr('s') === 'd'
                     const split = item.text().split(',')
-                    const guid = parseInt(split[3], 16)
+                    const guid = hexToDec(split[3])
                     const chlId = getChlGuid16(split[3]).toUpperCase()
-                    const timestamp = parseInt(split[0], 16) * 1000
+                    const timestamp = hexToDec(split[0]) * 1000
 
                     return {
                         isDelSnap: isDelSnap,
                         isNoData: false,
-                        imgId: parseInt(split[2], 16) + '',
+                        imgId: hexToDec(split[2]) + '',
                         timestamp,
-                        frameTime: localToUtc(timestamp) + ':' + ('0000000' + parseInt(split[1], 16)).slice(-7),
+                        frameTime: localToUtc(timestamp) + ':' + ('0000000' + hexToDec(split[1])).slice(-7),
                         guid,
                         chlId,
                         chlName: chlMap[chlId],
-                        recStartTime: parseInt(split[4], 16) * 1000,
-                        recEndTime: parseInt(split[5], 16) * 1000,
+                        recStartTime: hexToDec(split[4]) * 1000,
+                        recEndTime: hexToDec(split[5]) * 1000,
                         pathGUID: split[6],
-                        sectionNo: parseInt(split[7], 16),
-                        fileIndex: parseInt(split[8], 16),
-                        bolckNo: parseInt(split[9], 16),
-                        offset: parseInt(split[10], 16),
-                        eventTypeID: parseInt(split[11], 16),
+                        sectionNo: hexToDec(split[7]),
+                        fileIndex: hexToDec(split[8]),
+                        bolckNo: hexToDec(split[9]),
+                        offset: hexToDec(split[10]),
+                        eventTypeID: hexToDec(split[11]),
                         direction: split[13],
                         plateNumber: '--',
                         pic: '',

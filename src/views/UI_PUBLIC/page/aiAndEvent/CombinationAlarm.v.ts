@@ -4,7 +4,7 @@
  * @Date: 2024-08-22 16:04:47
  */
 import { type AlarmCombinedDto, type AlarmCombinedItemDto, type AlarmCombinedFaceMatchDto, type AlarmPresetItem } from '@/types/apiType/aiAndEvent'
-import { cloneDeep, isEqual } from 'lodash-es'
+import { cloneDeep } from 'lodash-es'
 import AlarmBasePresetPop from './AlarmBasePresetPop.vue'
 import AlarmBaseSnapPop from './AlarmBaseSnapPop.vue'
 import AlarmBaseRecordPop from './AlarmBaseRecordPop.vue'
@@ -49,12 +49,9 @@ export default defineComponent({
             audioList: [] as SelectOption<string, string>[],
             // 视频弹出列表
             videoPopupChlList: [] as SelectOption<string, string>[],
-            // 应用是否禁用
-            applyDisabled: true,
 
             // 初始化
             totalCount: 0,
-            initComplated: false,
             CombinedALarmInfo: '',
 
             recordIsShow: false,
@@ -78,8 +75,8 @@ export default defineComponent({
 
         // 表格数据
         const tableData = ref<AlarmCombinedDto[]>([])
-        // 缓存表格初始数据，保存时对比变化了的行
-        let tableDataInit = [] as AlarmCombinedDto[]
+        // 编辑行
+        const editRows = useWatchEditRows<AlarmCombinedDto>()
 
         // 获取系统配置和基本信息，部分系统配置可用项
         const getSystemCaps = async () => {
@@ -94,15 +91,17 @@ export default defineComponent({
             pageData.value.audioList = await buildAudioList()
         }
 
-        const getChlData = async () => {
-            getChlList({ requireField: ['protocolType'] }).then((result) => {
+        const getChlData = () => {
+            getChlList({
+                requireField: ['protocolType'],
+            }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
                     // 视频弹出数据
                     pageData.value.videoPopupChlList.push({
                         value: '',
                         label: Translate('IDCS_OFF'),
                     })
-                    $('//content/item').forEach((item) => {
+                    $('content/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         const protocolType = $item('protocolType').text()
                         if (protocolType === 'RTSP') return
@@ -132,16 +131,16 @@ export default defineComponent({
         }
 
         const getData = async () => {
+            editRows.clear()
             openLoading()
-            pageData.value.initComplated = false
+
             const $faceGroup = await getFaceGroupData()
             const $faceMatch = await getFaceMatchData()
 
             const result = await queryCombinedAlarm()
             commLoadResponseHandler(result, ($) => {
                 closeLoading()
-                pageData.value.totalCount = $('//content/item').length
-                $('//content/item').forEach((item) => {
+                $('content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     const trigger = $item('trigger')
                     const $trigger = queryXml(trigger[0].element)
@@ -150,6 +149,8 @@ export default defineComponent({
                         id: item.attr('id'),
                         name: $item('param/name').text(),
                         status: '',
+                        statusTip: '',
+                        disabled: false,
                         combinedAlarm: {
                             switch: $item('param/switch').text().bool(),
                             item: [],
@@ -271,7 +272,7 @@ export default defineComponent({
                         }
                     })
                     tableData.value.push(row)
-                    tableDataInit.push(cloneDeep(row))
+                    editRows.listen(row)
                 })
             })
         }
@@ -479,16 +480,6 @@ export default defineComponent({
             })
         }
 
-        const getEditedRows = (table: AlarmCombinedDto[], tableInit: AlarmCombinedDto[]) => {
-            const editedRows = [] as AlarmCombinedDto[]
-            table.forEach((item, index) => {
-                if (!isEqual(item, tableInit[index])) {
-                    editedRows.push(item)
-                }
-            })
-            return editedRows
-        }
-
         const getSavaData = (row: AlarmCombinedDto) => {
             const sendXml = rawXml`
                 <content type='list'>
@@ -573,39 +564,39 @@ export default defineComponent({
         }
 
         const setData = async () => {
-            const editedRows = getEditedRows(tableData.value, tableDataInit)
-            let count = 0
-            if (editedRows.length) {
-                openLoading()
-                editedRows.forEach(async (item) => {
+            openLoading()
+
+            tableData.value.forEach((ele) => (ele.status = ''))
+
+            for (const item of editRows.toArray()) {
+                try {
                     const sendXml = getSavaData(item)
                     const result = await editCombinedAlarm(sendXml)
                     const $ = queryXml(result)
-                    const isSuccess = $('//status').text() === 'success'
-                    item.status = isSuccess ? 'success' : 'error'
-                    count++
-
-                    if (count >= editedRows.length) {
-                        // 更新表格初始对比值
-                        tableDataInit = cloneDeep(tableData.value)
-                        closeLoading()
-                        nextTick(() => {
-                            pageData.value.applyDisabled = true
-                        })
+                    if ($('status').text() === 'success') {
+                        item.status = 'success'
+                        editRows.remove(item)
+                    } else {
+                        item.status = 'error'
                     }
-                })
+                } catch {
+                    item.status = 'error'
+                }
             }
+
             const sendXml1 = getSaveFaceData()
             await editCombinedAlarmFaceMatch(sendXml1)
+
+            closeLoading()
         }
 
         const getSaveFaceData = () => {
-            const combinedId = [] as string[]
-            const groupId = [] as string[]
-            const peaCombinedId = [] as string[]
+            const combinedId: string[] = []
+            const groupId: string[] = []
+            const peaCombinedId: string[] = []
             const peaGroupId = [] as string[]
-            const tripwireCombinedId = [] as string[]
-            const tripwireGroupId = [] as string[]
+            const tripwireCombinedId: string[] = []
+            const tripwireGroupId: string[] = []
             tableData.value.forEach((item) => {
                 if (item.combinedAlarm.switch) {
                     item.combinedAlarm.item.forEach((ele) => {
@@ -684,28 +675,10 @@ export default defineComponent({
         }
 
         onMounted(async () => {
-            // 相关请求，获取前置数据
             await getSystemCaps() // 系统配置
             await getChlData() // 通道数据
-            await getData()
-
-            // 在tabledata初始化完成后开始监听tabledata的数据变化
-            if (tableData.value.length === pageData.value.totalCount) {
-                pageData.value.initComplated = true
-            }
+            getData()
         })
-
-        watch(
-            tableData,
-            () => {
-                if (pageData.value.initComplated) {
-                    pageData.value.applyDisabled = false
-                }
-            },
-            {
-                deep: true,
-            },
-        )
 
         return {
             AlarmBasePresetPop,
@@ -741,6 +714,7 @@ export default defineComponent({
             // 表头改变属性
             changeAllValue,
             setData,
+            editRows,
         }
     },
 })

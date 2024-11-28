@@ -12,8 +12,6 @@
                 :row-key="getRowKey"
                 :expand-row-key="pageData.expandRowKey"
                 highlight-current-row
-                border
-                stripe
                 @row-click="handleRowClick"
                 @expand-change="handleExpandChange"
             >
@@ -67,24 +65,28 @@
                                 <el-button
                                     :disabled="!formData.faceIndex.length"
                                     @click="editFace(scope.row.groupId)"
-                                    >{{ Translate('IDCS_CHANGE') }}</el-button
                                 >
+                                    {{ Translate('IDCS_CHANGE') }}
+                                </el-button>
                                 <!-- <el-button>{{ Translate('IDCS_COPY_TO') }}</el-button> -->
                                 <el-button
                                     :disabled="!formData.faceIndex.length"
                                     @click="deleteFace"
-                                    >{{ Translate('IDCS_DELETE') }}</el-button
                                 >
+                                    {{ Translate('IDCS_DELETE') }}
+                                </el-button>
                                 <el-button
                                     :disabled="!groupTableData.length"
                                     @click="deleteAllFace"
-                                    >{{ Translate('IDCS_CLEAR_ALL') }}</el-button
                                 >
+                                    {{ Translate('IDCS_CLEAR_ALL') }}
+                                </el-button>
                                 <el-button
                                     :disabled="!groupTableData.length"
                                     @click="selectAllFace"
-                                    >{{ Translate('IDCS_SELECT_ALL') }}</el-button
                                 >
+                                    {{ Translate('IDCS_SELECT_ALL') }}
+                                </el-button>
                                 <el-input
                                     v-model="formData.name"
                                     :placeholder="Translate('IDCS_SEARCH_TARGET_PERSON')"
@@ -122,7 +124,7 @@
                                             :src
                                         />
                                     </div>
-                                    <el-form class="stripe inline-message">
+                                    <el-form class="stripe">
                                         <el-form-item :label="Translate('IDCS_NAME_PERSON')">
                                             <el-input
                                                 :model-value="currentFace.name"
@@ -184,13 +186,13 @@
                 <el-button
                     :disabled="!tableData.length"
                     @click="addFace('')"
-                    >{{ Translate('IDCS_ADD_FACE') }}</el-button
                 >
+                    {{ Translate('IDCS_ADD_FACE') }}
+                </el-button>
                 <el-button @click="addGroup">{{ Translate('IDCS_ADD_GROUP') }}</el-button>
                 <el-button v-show="!pageData.isExportDisabled">{{ Translate('IDCS_EXPORT') }}</el-button>
             </div>
         </div>
-        <BaseNotification v-model:notifications="pageData.notifications" />
         <IntelFaceDBEditPop
             v-model="pageData.isEditPop"
             :data="pageData.editData"
@@ -203,12 +205,10 @@
                 <div>{{ Translate('IDCS_FILE_TYPE') }}: CSV+JPG</div>
                 <div class="text-error">{{ Translate('IDCS_EXPORT_UNENCRYPTED_TIP') }}</div>
             </div>
-            <template #footer>
-                <div class="base-btn-box">
-                    <el-button @click="confirmExportGroup">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="pageData.isExportTipPop = false">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </div>
-            </template>
+            <div class="base-btn-box">
+                <el-button @click="confirmExportGroup">{{ Translate('IDCS_OK') }}</el-button>
+                <el-button @click="pageData.isExportTipPop = false">{{ Translate('IDCS_CANCEL') }}</el-button>
+            </div>
         </el-dialog>
         <IntelFaceDBExportPop
             v-model="pageData.isExportPop"
@@ -238,7 +238,7 @@
 
     &-btns {
         width: 100%;
-        padding: 5px 10px 10px;
+        padding: 5px 15px 10px;
         box-sizing: border-box;
         display: flex;
         justify-content: flex-start;
@@ -252,43 +252,35 @@
     &-content {
         width: 100%;
         display: flex;
-        justify-content: space-between;
+        justify-content: space-around;
     }
 
     &-list {
-        width: 580px;
+        width: 100%;
         display: flex;
-        flex-shrink: 0;
         flex-direction: column;
-        border: 1px solid var(--content-border);
         justify-content: space-between;
-        margin: 0 10px;
+        margin: 0 15px;
 
         & > div:first-child {
             display: flex;
             flex-wrap: wrap;
-        }
-
-        & > div:last-child {
-            display: flex;
-            justify-content: flex-end;
-            padding: 2px 10px;
-            box-sizing: border-box;
-            height: 30px;
+            border: 1px solid var(--table-border);
+            height: 100%;
         }
     }
 
     &-info {
         width: 500px;
-        border: 1px solid var(--content-border);
-        margin-right: 10px;
+        border: 1px solid var(--table-border);
+        margin-right: 15px;
         flex-shrink: 0;
     }
 
     &-avatar {
         box-sizing: border-box;
         width: 100%;
-        height: 300px;
+        height: 200px;
         display: flex;
         flex-wrap: wrap;
 

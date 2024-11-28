@@ -64,7 +64,7 @@ export default defineComponent({
             thermalChlData = []
             multichannelIpcData = []
 
-            rowDatas.forEach((item: Record<string, object>) => {
+            rowDatas.forEach((item) => {
                 const isArray = Boolean(item.isArray)
                 const element = item.element as ChannelMultiChlIPCAddDto
                 if (isArray && ((element.addrType === 'ip' && element.ip !== '0.0.0.0') || (element.addrType !== 'ip' && element.domain))) {
@@ -83,12 +83,12 @@ export default defineComponent({
             const chlTypeMap: Record<string, string> = {}
             let curRequestNum = 0
             openLoading()
-            nonRTSPData.forEach((item: ChannelMultiChlIPCAddDto) => {
+            nonRTSPData.forEach((item) => {
                 createLanDeviceRequest(item).then((res) => {
                     const $ = queryXml(res)
                     curRequestNum++
                     if ($('status').text() === 'success') {
-                        const supportChlType = $('//content/industryProductType').text() // 值为"THERMAL_DOUBLE"，代表“热成像双目IPC”
+                        const supportChlType = $('content/industryProductType').text() // 值为"THERMAL_DOUBLE"，代表“热成像双目IPC”
                         if (supportChlType) chlTypeMap[item.ip] = supportChlType
                     } else {
                         chlTypeMap[item.ip] = 'NORMAL' // 返回“fail”，代表“普通单目IPC”
@@ -100,9 +100,9 @@ export default defineComponent({
                             normalChlData = []
                             thermalChlData = []
                             multichannelIpcData = []
-                            nonRTSPData.forEach((item: ChannelMultiChlIPCAddDto, index: number) => {
+                            nonRTSPData.forEach((item, index) => {
                                 const resArr: ChannelInfoDto[] = []
-                                allExistChlData.forEach((ele: ChannelInfoDto) => {
+                                allExistChlData.forEach((ele) => {
                                     if (ele.ip === item.ip) resArr.push(ele)
                                 })
                                 if (chlTypeMap[item.ip] === 'THERMAL_DOUBLE' || (!isNaN(Number(chlTypeMap[item.ip])) && Number(chlTypeMap[item.ip]) > 1)) {
@@ -208,27 +208,24 @@ export default defineComponent({
             `
             queryDevList(data).then((res) => {
                 const $ = queryXml(res)
-                const rowData: ChannelInfoDto[] = []
-                if ($('status').text() === 'success') {
-                    $('//content/item').forEach((ele) => {
-                        const eleXml = queryXml(ele.element)
-                        const channelInfo = new ChannelInfoDto()
-                        channelInfo.id = ele.attr('id')
-                        channelInfo.chlNum = eleXml('chlNum').text()
-                        channelInfo.name = eleXml('name').text()
-                        channelInfo.devID = eleXml('devID').text()
-                        channelInfo.ip = eleXml('ip').text()
-                        channelInfo.port = eleXml('port').text().num()
-                        channelInfo.poePort = eleXml('poePort').text()
-                        channelInfo.userName = eleXml('userName').text()
-                        channelInfo.password = eleXml('password').text()
-                        channelInfo.protocolType = eleXml('protocolType').text()
-                        channelInfo.addType = eleXml('addType').text()
-                        channelInfo.accessType = eleXml('AccessType').text() === '0' ? 'NORMAL' : 'THERMAL'
-                        channelInfo.chlIndex = eleXml('chlIndex').text() // 多通道IPC产品的子通道号
-                        rowData.push(channelInfo)
-                    })
-                }
+                const rowData = $('content/item').map((ele) => {
+                    const eleXml = queryXml(ele.element)
+                    const channelInfo = new ChannelInfoDto()
+                    channelInfo.id = ele.attr('id')
+                    channelInfo.chlNum = eleXml('chlNum').text()
+                    channelInfo.name = eleXml('name').text()
+                    channelInfo.devID = eleXml('devID').text()
+                    channelInfo.ip = eleXml('ip').text()
+                    channelInfo.port = eleXml('port').text().num()
+                    channelInfo.poePort = eleXml('poePort').text()
+                    channelInfo.userName = eleXml('userName').text()
+                    channelInfo.password = eleXml('password').text()
+                    channelInfo.protocolType = eleXml('protocolType').text()
+                    channelInfo.addType = eleXml('addType').text()
+                    channelInfo.accessType = eleXml('AccessType').text() === '0' ? 'NORMAL' : 'THERMAL'
+                    channelInfo.chlIndex = eleXml('chlIndex').text() // 多通道IPC产品的子通道号
+                    return channelInfo
+                })
                 cb(rowData)
             })
         }
@@ -308,7 +305,7 @@ export default defineComponent({
                 let manufacturerID = '1'
                 protocolList.some((ele) => {
                     // 解决中间有空格不相等的问题
-                    if (Trim(ele.displayName, 'g') === Trim(element.manufacturer, 'g')) {
+                    if (trimAllSpace(ele.displayName) === trimAllSpace(element.manufacturer)) {
                         manufacturerID = ele.index
                         return true
                     }
@@ -353,15 +350,6 @@ export default defineComponent({
             const chlIndex = numName.toString().length < 2 ? '0' + numName : numName
             const chlName = defalutName + ' ' + chlIndex
             return chlName
-        }
-
-        const Trim = (str: string, is_global: string): string => {
-            let result
-            result = str.replace(/(^\s+)|(\s+$)/g, '')
-            if (is_global.toLowerCase() === 'g') {
-                result = result.replace(/\s/g, '')
-            }
-            return result
         }
 
         ctx.expose({

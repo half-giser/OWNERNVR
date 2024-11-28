@@ -21,12 +21,11 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
         const { openMessageBox } = useMessageBox()
+        const { openNotify } = useNotification()
         const playerRef = ref<PlayerInstance>()
         const auth = useUserChlAuth(false)
 
         const pageData = ref({
-            // 通知列表
-            notification: [] as string[],
             // 当前表格选中索引
             tableIndex: 0,
             // 表格展开索引列表
@@ -45,6 +44,15 @@ export default defineComponent({
 
         const tableRef = ref<TableInstance>()
         const tableData = ref<ChannelPtzPresetChlDto[]>([])
+
+        const chlOptions = computed(() => {
+            return tableData.value.map((item, index) => {
+                return {
+                    label: item.chlName,
+                    value: index,
+                }
+            })
+        })
 
         const formData = ref({
             // 预置点名称
@@ -77,20 +85,11 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 if (isHttpsLogin()) {
-                    pageData.value.notification = [formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`)]
+                    openNotify(formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`))
                 }
             }
 
             if (mode.value === 'ocx') {
-                if (!plugin.IsInstallPlugin()) {
-                    plugin.SetPluginNotice('#layout2Content')
-                    return
-                }
-
-                if (!plugin.IsPluginAvailable()) {
-                    plugin.SetPluginNoResponse()
-                    plugin.ShowPluginNoResponse()
-                }
                 const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
@@ -128,8 +127,8 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                tableData.value[index].presets = $('//content/presets/item').map((item) => {
+            if ($('status').text() === 'success') {
+                tableData.value[index].presets = $('content/presets/item').map((item) => {
                     // const $item = queryXml(item.element)
                     return {
                         index: item.attr('index').num(),
@@ -137,7 +136,7 @@ export default defineComponent({
                     }
                 })
                 tableData.value[index].presetCount = tableData.value[index].presets.length
-                tableData.value[index].maxCount = $('//content/presets').attr('maxCount').num()
+                tableData.value[index].maxCount = $('content/presets').attr('maxCount').num()
             }
         }
 
@@ -157,8 +156,8 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                tableData.value = $('//content/item')
+            if ($('status').text() === 'success') {
+                tableData.value = $('content/item')
                     .filter((item) => {
                         const $item = queryXml(item.element)
                         return (auth.value.hasAll || auth.value.ptz[item.attr('id')]) && $item('chlType').text() !== 'recorder'
@@ -180,7 +179,7 @@ export default defineComponent({
          * @description 修改通道选项
          */
         const changeChl = () => {
-            tableRef.value?.setCurrentRow(tableData.value[pageData.value.tableIndex])
+            tableRef.value!.setCurrentRow(tableData.value[pageData.value.tableIndex])
             getPreset(tableData.value[pageData.value.tableIndex].chlId)
         }
 
@@ -201,9 +200,9 @@ export default defineComponent({
          * @param {ChannelPtzPresetChlDto} row
          * @param {boolean} expanded
          */
-        const handleExpandChange = async (row: ChannelPtzPresetChlDto, expanded: boolean) => {
+        const handleExpandChange = (row: ChannelPtzPresetChlDto, expanded: boolean) => {
             const index = tableData.value.findIndex((item) => item.chlId === row.chlId)
-            tableRef.value?.setCurrentRow(row)
+            tableRef.value!.setCurrentRow(row)
             if (index !== pageData.value.tableIndex) {
                 pageData.value.tableIndex = index
                 getPreset(tableData.value[pageData.value.tableIndex].chlId)
@@ -235,7 +234,12 @@ export default defineComponent({
 
         // 当前预置点选项
         const presetOptions = computed(() => {
-            return tableData.value[pageData.value.tableIndex]?.presets || []
+            return (
+                tableData.value[pageData.value.tableIndex]?.presets.map((item, value) => ({
+                    ...item,
+                    value,
+                })) || []
+            )
         })
 
         const defaultPreset = new ChannelPtzPresetDto()
@@ -353,7 +357,7 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
@@ -361,7 +365,7 @@ export default defineComponent({
                     tableData.value[pageData.value.tableIndex].presets[formData.value.presetIndex as number].name = formData.value.name
                 })
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 if (errorCode === ErrorCode.USER_ERROR_NAME_EXISTED) {
                     openMessageBox({
                         type: 'info',
@@ -443,6 +447,7 @@ export default defineComponent({
             handlePlayerReady,
             pageData,
             tableData,
+            chlOptions,
             formData,
             changeChl,
             handleRowClick,

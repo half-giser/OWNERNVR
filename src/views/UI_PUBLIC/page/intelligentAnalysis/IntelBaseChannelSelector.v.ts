@@ -48,9 +48,19 @@ export default defineComponent({
 
         /**
          * @description 选中值更改
+         * @param {SelectOption<string, string>[]} row
          */
         const handleCurrentChange = (row: SelectOption<string, string>[]) => {
             selected.value = row
+        }
+
+        /**
+         * @description 点击行 仅选中该行
+         * @param {SelectOption<string, string>} row
+         */
+        const handleRowClick = (row: SelectOption<string, string>) => {
+            tableRef.value!.clearSelection()
+            tableRef.value!.toggleRowSelection(row, true)
         }
 
         // 选项框回显的内容
@@ -68,7 +78,7 @@ export default defineComponent({
          * @description 重置
          */
         const reset = () => {
-            tableRef.value?.clearSelection()
+            tableRef.value!.clearSelection()
         }
 
         /**
@@ -98,7 +108,7 @@ export default defineComponent({
                 authList: '@spr,@bk',
             })
             const $ = queryXml(result)
-            tableData.value = $('//content/item').map((item) => {
+            tableData.value = $('content/item').map((item) => {
                 const $item = queryXml(item.element)
                 let text = $item('name').text()
                 const id = item.attr('id')
@@ -121,12 +131,12 @@ export default defineComponent({
                     if (tableData.value.length === prop.modelValue.length) {
                         if (selected.value.length) {
                             tableData.value.forEach((item) => {
-                                tableRef.value?.toggleRowSelection(item, prop.modelValue.includes(item.value))
+                                tableRef.value!.toggleRowSelection(item, prop.modelValue.includes(item.value))
                             })
                         }
                     } else {
                         tableData.value.forEach((item) => {
-                            tableRef.value?.toggleRowSelection(item, prop.modelValue.includes(item.value))
+                            tableRef.value!.toggleRowSelection(item, prop.modelValue.includes(item.value))
                         })
                     }
                 }
@@ -147,6 +157,7 @@ export default defineComponent({
             tableRef,
             tableData,
             handleCurrentChange,
+            handleRowClick,
             reset,
             confirm,
             content,

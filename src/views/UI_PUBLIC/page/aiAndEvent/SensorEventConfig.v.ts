@@ -4,7 +4,7 @@
  * @Date: 2024-08-23 10:58:27
  */
 import { type AlarmPresetItem, AlarmSensorEventDto } from '@/types/apiType/aiAndEvent'
-import { cloneDeep, isEqual } from 'lodash-es'
+import { cloneDeep } from 'lodash-es'
 import AlarmBasePresetPop from './AlarmBasePresetPop.vue'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import AlarmBaseSnapPop from './AlarmBaseSnapPop.vue'
@@ -48,28 +48,18 @@ export default defineComponent({
             audioList: [] as SelectOption<string, string>[],
             // 视频弹出列表
             videoPopupChlList: [] as SelectOption<string, string>[],
-            // 应用是否禁用
-            applyDisabled: true,
-
-            // 初始化时只请求一次相关列表数据
-            initData: false,
-            initComplated: false,
-
             recordIsShow: false,
             snapIsShow: false,
             alarmOutIsShow: false,
-
             // 当前打开dialog行的index
             triggerDialogIndex: 0,
-
             // 预置点名称配置
             isPresetPopOpen: false,
         })
 
         // 表格数据
         const tableData = ref<AlarmSensorEventDto[]>([])
-        // 缓存表格初始数据，保存时对比变化了的行
-        let tableDataInit = [] as AlarmSensorEventDto[]
+        const editRows = useWatchEditRows<AlarmSensorEventDto>()
 
         // 改变页码，刷新数据
         const changePagination = () => {
@@ -91,14 +81,14 @@ export default defineComponent({
         }
 
         // 获取chl通道数据
-        const getVideoPopupChlList = async () => {
+        const getVideoPopupChlList = () => {
             getChlList({}).then((result) => {
                 commLoadResponseHandler(result, ($) => {
                     pageData.value.videoPopupChlList.push({
                         value: '',
                         label: Translate('IDCS_OFF'),
                     })
-                    $('//content/item').forEach((item) => {
+                    $('content/item').forEach((item) => {
                         const $item = queryXml(item.element)
 
                         pageData.value.videoPopupChlList.push({
@@ -116,11 +106,8 @@ export default defineComponent({
                 defaultValue: '',
             })
 
-            // 初始化、改变页码、改变单页行数进行数据清空和btn禁用
-            tableData.value.length = 0
-            tableDataInit = []
-            pageData.value.initComplated = false
-            pageData.value.applyDisabled = true
+            editRows.clear()
+            tableData.value = []
 
             // 获取列表数据
             getChlList({
@@ -129,21 +116,24 @@ export default defineComponent({
                 nodeType: 'sensors',
             }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
-                    pageData.value.totalCount = $('//content').attr('total').num()
-                    $('//content/item').forEach(async (item) => {
+                    pageData.value.totalCount = $('content').attr('total').num()
+                    tableData.value = $('content/item').map((item) => {
                         const row = new AlarmSensorEventDto()
                         row.id = item.attr('id')
                         row.alarmInType = item.attr('alarmInType')
                         row.nodeIndex = item.attr('index')
                         row.status = 'loading'
-                        tableData.value.push(row)
+                        row.disabled = true
+                        return row
                     })
                     tableData.value.forEach(async (item) => {
                         await getDataById(item)
-                        if (tableDataInit.length === tableData.value.length) {
-                            // 数据获取完成，用于打开对tabledata的监听，判断applyBtn是否可用
-                            pageData.value.initComplated = true
+
+                        if (!tableData.value.some((row) => row === item)) {
+                            return
                         }
+
+                        editRows.listen(item)
                     })
                 })
             })
@@ -156,24 +146,23 @@ export default defineComponent({
                 </condition>
             `
             const result = await queryAlarmIn(sendXml)
-            rowData.status = '' // 请求完成，取消loading状态
+            rowData.status = ''
             commLoadResponseHandler(result, ($) => {
                 rowData.disabled = false
-                if (!pageData.value.initData && $('//content/param/holdTimeNote').length > 0) {
-                    $('//content/param/holdTimeNote')
+                if (!pageData.value.durationList.length && $('content/param/holdTimeNote').length) {
+                    pageData.value.durationList = $('content/param/holdTimeNote')
                         .text()
                         .split(',')
-                        .forEach((item) => {
+                        .map((item) => {
                             const itemNum = Number(item)
-                            pageData.value.durationList.push({
+                            return {
                                 value: item,
                                 label: getTranslateForSecond(itemNum),
-                            })
+                            }
                         })
-                    pageData.value.initData = true
                 }
 
-                const content = $('//content')[0]
+                const content = $('content')[0]
                 const $content = queryXml(content.element)
 
                 const index = $content('param/index').text().num() + 1
@@ -263,7 +252,7 @@ export default defineComponent({
                         },
                     })
                 })
-                tableDataInit.push(cloneDeep(rowData))
+                // tableDataInit.push(cloneDeep(rowData))
             })
         }
 
@@ -422,9 +411,13 @@ export default defineComponent({
         const changeSchedule = (row: AlarmSensorEventDto) => {
             if (row.schedule.value === 'scheduleMgr') {
                 pageData.value.scheduleManagePopOpen = true
-                row.schedule.value = row.oldSchedule
+                nextTick(() => {
+                    row.schedule.value = row.oldSchedule
+                })
             } else {
-                row.oldSchedule = row.schedule.value
+                nextTick(() => {
+                    row.oldSchedule = row.schedule.value
+                })
             }
         }
 
@@ -446,16 +439,6 @@ export default defineComponent({
                     ;(item as any)[field] = value
                 }
             })
-        }
-
-        const getEditedRows = (table: AlarmSensorEventDto[], tableInit: AlarmSensorEventDto[]) => {
-            const editedRows = [] as AlarmSensorEventDto[]
-            table.forEach((item, index) => {
-                if (!isEqual(item, tableInit[index])) {
-                    editedRows.push(item)
-                }
-            })
-            return editedRows
         }
 
         const getSavaData = (row: AlarmSensorEventDto) => {
@@ -529,47 +512,35 @@ export default defineComponent({
         }
 
         const setData = async () => {
-            const editedRows = getEditedRows(tableData.value, tableDataInit)
-            let count = 0
-            if (editedRows.length) {
-                openLoading()
-                editedRows.forEach(async (item) => {
+            openLoading()
+
+            tableData.value.forEach((ele) => (ele.status = ''))
+
+            for (const item of editRows.toArray()) {
+                try {
                     const sendXml = getSavaData(item)
                     const result = await editAlarmIn(sendXml)
                     const $ = queryXml(result)
-                    const isSuccess = $('//status').text() === 'success'
-                    item.status = isSuccess ? 'success' : 'error'
-                    count++
-                    if (count >= editedRows.length) {
-                        // 更新表格初始对比值
-                        tableDataInit = cloneDeep(tableData.value)
-                        closeLoading()
-                        nextTick(() => {
-                            pageData.value.applyDisabled = true
-                        })
+                    if ($('status').text() === 'success') {
+                        item.status = 'success'
+                        editRows.remove(item)
+                    } else {
+                        item.status = 'error'
                     }
-                })
+                } catch {
+                    item.status = 'error'
+                }
             }
+
+            closeLoading()
         }
 
         onMounted(async () => {
             // 相关请求，获取前置数据
             await getAudioData() // 声音数据
             await getVideoPopupChlList() // 通道数据
-            await getData()
+            getData()
         })
-
-        watch(
-            tableData,
-            () => {
-                if (pageData.value.initComplated) {
-                    pageData.value.applyDisabled = false
-                }
-            },
-            {
-                deep: true,
-            },
-        )
 
         return {
             AlarmBasePresetPop,
@@ -577,6 +548,7 @@ export default defineComponent({
             AlarmBaseRecordPop,
             AlarmBaseAlarmOutPop,
             ScheduleManagPop,
+            editRows,
             pageData,
             tableData,
             changePaginationSize,

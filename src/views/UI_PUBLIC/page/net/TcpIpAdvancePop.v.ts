@@ -4,7 +4,7 @@
  * @Description: TCP/IP高级配置弹窗
  */
 import { type NetTcpIpForm, NetTcpIpAdvanceForm } from '@/types/apiType/net'
-import type { FormInstance, FormRules } from 'element-plus'
+import type { FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -27,7 +27,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new NetTcpIpAdvanceForm())
         const formRule = ref<FormRules>({
             secondIp: [
@@ -97,7 +97,6 @@ export default defineComponent({
             pageData.value.secondIpIndex = -1
             pageData.value.ipList = []
 
-            formRef.value?.clearValidate()
             formData.value = new NetTcpIpAdvanceForm()
 
             if (prop.data.netConfig.curWorkMode === 'network_fault_tolerance') {
@@ -135,7 +134,7 @@ export default defineComponent({
          * @description 表单数据验证通过后 确认表单
          */
         const verify = () => {
-            formRef.value?.validate((valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     ctx.emit('confirm', formData.value, pageData.value.secondIpIndex)
                 }

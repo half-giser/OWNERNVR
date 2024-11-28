@@ -3,22 +3,21 @@
  * @Date: 2024-06-05 16:19:14
  * @Description: 消息通知组件
  */
-import { ElNotification } from 'element-plus'
-
-let current: null | ReturnType<typeof ElNotification> = null
-
 const useNotification = () => {
-    const openNotification = (opt: { title?: string; message: string }) => {
-        current && current.close()
-        current = ElNotification({
-            title: opt.title || '提示',
-            message: opt.message,
-            position: 'bottom-right',
-        })
-        return current
+    const layoutStore = useLayoutStore()
+
+    const openNotify = (message: string) => {
+        layoutStore.notifications.push(message)
     }
 
-    return openNotification
+    const closeNotify = () => {
+        layoutStore.notifications = []
+    }
+
+    return {
+        openNotify,
+        closeNotify,
+    }
 }
 
 export default useNotification

@@ -6,11 +6,7 @@
 <template>
     <div class="base-flex-box">
         <div class="base-table-box">
-            <el-table
-                :data="tableData"
-                border
-                stripe
-            >
+            <el-table :data="tableData">
                 <el-table-column
                     :label="Translate('IDCS_POE_NAME')"
                     prop="poeName"
@@ -35,14 +31,10 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select v-model="scope.row.switch">
-                            <el-option
-                                v-for="item in pageData.switchOptions"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            />
-                        </el-select>
+                        <el-select-v2
+                            v-model="scope.row.switch"
+                            :options="pageData.switchOptions"
+                        />
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -69,8 +61,9 @@
                 <el-button
                     :disabled="!tableData.length"
                     @click="setData"
-                    >{{ Translate('IDCS_APPLY') }}</el-button
                 >
+                    {{ Translate('IDCS_APPLY') }}
+                </el-button>
             </div>
         </div>
     </div>

@@ -120,10 +120,10 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                pageData.value.totalNum = $('//content/basicInfo/totalVehicleNum').text().num()
-                pageData.value.remainTotalNum = $('//content/basicInfo/remainSpaceNum').text().num()
-                tableData.value = $('//content/parkingSapce/item').map((item) => {
+            if ($('status').text() === 'success') {
+                pageData.value.totalNum = $('content/basicInfo/totalVehicleNum').text().num()
+                pageData.value.remainTotalNum = $('content/basicInfo/remainSpaceNum').text().num()
+                tableData.value = $('content/parkingSapce/item').map((item) => {
                     const $item = queryXml(item.element)
                     const groupSchedule = $item('groupSchedule').text()
                     const schedule = pageData.value.scheduleIdList.indexOf(groupSchedule) > -1 ? groupSchedule : DEFAULT_EMPTY_ID
@@ -248,14 +248,14 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
                 pageData.value.btnDisabled = true
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 let errorMsg = Translate('IDCS_SAVE_DATA_FAIL')
                 if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
                     errorMsg = Translate('IDCS_NO_PERMISSION')

@@ -8,8 +8,6 @@
         <div class="base-table-box">
             <el-table
                 :data="tableData"
-                border
-                stripe
                 show-overflow-tooltip
                 width="100%"
             >
@@ -71,13 +69,15 @@
                         <el-button
                             v-if="scope.row.status === 'ongoing'"
                             @click="pauseTask(scope.row)"
-                            >{{ Translate('IDCS_PAUSE') }}</el-button
                         >
+                            {{ Translate('IDCS_PAUSE') }}
+                        </el-button>
                         <el-button
                             v-else-if="scope.row.status === 'pause'"
                             @click="resumeTask(scope.row)"
-                            >{{ Translate('IDCS_RESUME') }}</el-button
                         >
+                            {{ Translate('IDCS_RESUME') }}
+                        </el-button>
                         <el-text v-else-if="scope.row.status === 'failed'">{{ Translate('IDCS_FAILED') }}</el-text>
                     </template>
                 </el-table-column>
@@ -104,7 +104,6 @@
             <BaseImgSprite file="caution" />
             <span>{{ Translate('IDCS_BACKUP_NOTICE').formatForLang(Translate('IDCS_BACKUP')) }}</span>
         </div>
-        <BasePluginNotice />
     </div>
 </template>
 

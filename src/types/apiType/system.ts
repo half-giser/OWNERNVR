@@ -198,8 +198,7 @@ export class SystemRestoreForm extends SystemUpgradeForm {}
  * @description 系统备份表单
  */
 export class SystemBackUpForm extends SystemUpgradeForm {
-    isIncludeNetworkConfig = false
-    isIncludeDataEncryptPwd = false
+    configSwitch: string[] = []
 }
 
 /**
@@ -214,7 +213,7 @@ export class SystemLogForm {
     subType = [] as string[]
 }
 
-/**
+/**d
  * @description 系统日志列表项
  */
 export class SystemLogList {
@@ -251,6 +250,7 @@ export interface SystemPosListChls {
  * @description POS 通道色彩选项
  */
 export class SystemPostColorData {
+    index = 0
     chlId = ''
     name = ''
     colorList = [] as string[]

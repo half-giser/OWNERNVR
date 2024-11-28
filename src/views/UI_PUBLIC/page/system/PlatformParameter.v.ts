@@ -4,7 +4,7 @@
  * @Description: 地标平台参数
  */
 
-import type { FormInstance, FormRules } from 'element-plus'
+import type { FormRules } from 'element-plus'
 import { SystemSHDBPlatformParameterForm } from '@/types/apiType/system'
 
 export default defineComponent({
@@ -12,7 +12,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
 
         const pageData = ref({
             // 获取到的地址
@@ -64,19 +64,20 @@ export default defineComponent({
             closeLoading()
             const $ = queryXml(res)
             if ($('status').text() === 'success') {
-                pageData.value.defaultServerAddress = $('//content/platformParam/serverAddr').attr('default') || '180.166.128.182'
-                pageData.value.serverAddress = $('//content/platformParam/serverAddr').text()
-                pageData.value.defaultPort = $('//content/platformParam/port').attr('default').num() || 5901
-                pageData.value.defaultResolution = $('//content/snapParam/resolution').attr('default') || 'CIF'
-                pageData.value.resolutionList = $('//content/snapParam/resolutionNote')
+                pageData.value.defaultServerAddress = $('content/platformParam/serverAddr').attr('default') || '180.166.128.182'
+                pageData.value.serverAddress = $('content/platformParam/serverAddr').text()
+                pageData.value.defaultPort = $('content/platformParam/port').attr('default').num() || 5901
+
+                pageData.value.defaultResolution = $('content/snapParam/resolution').attr('default') || 'CIF'
+                pageData.value.resolutionList = $('content/snapParam/resolutionNote')
                     .text()
                     .split(',')
                     .map((item) => ({
                         value: item.trim(),
                         label: item.trim(),
                     }))
-                pageData.value.defaultLevel = $('//content/snapParam/level').attr('default') || 'medium'
-                pageData.value.levelList = $('//content/snapParam/levelNote')
+                pageData.value.defaultLevel = $('content/snapParam/level').attr('default') || 'medium'
+                pageData.value.levelList = $('content/snapParam/levelNote')
                     .text()
                     .split(',')
                     .reverse()
@@ -84,9 +85,9 @@ export default defineComponent({
                         value: item.trim(),
                         label: Translate(`IDCS_${item.trim().toUpperCase()}`),
                     }))
-                pageData.value.defaultHoldTime = $('//content/snapParam/holdTime').attr('default') || '3'
-                pageData.value.unit = $('//content/snapParam/holdTime').attr('unit')
-                pageData.value.holdTimeList = $('//content/snapParam/holdTimeNote')
+                pageData.value.defaultHoldTime = $('content/snapParam/holdTime').attr('default') || '3'
+                pageData.value.unit = $('content/snapParam/holdTime').attr('unit')
+                pageData.value.holdTimeList = $('content/snapParam/holdTimeNote')
                     .text()
                     .split(',')
                     .map((item) => ({
@@ -94,12 +95,13 @@ export default defineComponent({
                         label: getTranslateForSecond(Number(item.trim())),
                     }))
 
-                formData.value.enable = $('//content/platformParam/switch').text().bool()
-                formData.value.proxyId = $('//content/platformParam/proxyId').text()
-                formData.value.port = $('//content/platformParam/port').text().num() || pageData.value.defaultPort
-                formData.value.resolution = $('//content/snapParam/resolution').text() || pageData.value.defaultResolution
-                formData.value.level = $('//content/snapParam/level').text() || pageData.value.defaultLevel
-                formData.value.holdTime = $('//content/snapParam/holdTime').text() || pageData.value.defaultHoldTime
+                formData.value.enable = $('content/platformParam/switch').text().bool()
+                formData.value.proxyId = $('content/platformParam/proxyId').text()
+                formData.value.port = $('content/platformParam/port').text().num() || pageData.value.defaultPort
+
+                formData.value.resolution = $('content/snapParam/resolution').text() || pageData.value.defaultResolution
+                formData.value.level = $('content/snapParam/level').text() || pageData.value.defaultLevel
+                formData.value.holdTime = $('content/snapParam/holdTime').text() || pageData.value.defaultHoldTime
                 formData.value.isDomain = true
 
                 setIpValue(pageData.value.serverAddress)
@@ -113,7 +115,6 @@ export default defineComponent({
             formData.value.resolution = pageData.value.defaultResolution
             formData.value.level = pageData.value.defaultLevel
             formData.value.holdTime = pageData.value.defaultHoldTime
-            formRef.value!.clearValidate()
         }
 
         const getSavaData = () => {

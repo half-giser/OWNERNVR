@@ -41,14 +41,10 @@
                             <div class="label">{{ item3.label }}</div>
                             <div class="btn-box">
                                 <template v-if="item3.value === 'brand'">
-                                    <el-select v-model="selected[item1.value][item3.value][0]">
-                                        <el-option
-                                            v-for="item4 in item3.children"
-                                            :key="item4.value"
-                                            :value="item4.value"
-                                            :label="item4.label"
-                                        />
-                                    </el-select>
+                                    <el-select-v2
+                                        v-model="selected[item1.value][item3.value][0]"
+                                        :options="item3.children"
+                                    />
                                 </template>
                                 <template v-else>
                                     <div
@@ -69,13 +65,11 @@
                     </div>
                 </div>
             </el-scrollbar>
-            <template #footer>
-                <div class="base-btn-box">
-                    <el-button @click="reset">{{ Translate('IDCS_RESET') }}</el-button>
-                    <el-button @click="confirm">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </div>
-            </template>
+            <div class="base-btn-box">
+                <el-button @click="reset">{{ Translate('IDCS_RESET') }}</el-button>
+                <el-button @click="confirm">{{ Translate('IDCS_OK') }}</el-button>
+                <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
+            </div>
         </el-dialog>
     </div>
 </template>

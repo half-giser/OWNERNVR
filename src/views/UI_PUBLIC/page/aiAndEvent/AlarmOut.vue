@@ -7,9 +7,8 @@
     <div class="base-flex-box">
         <div class="base-table-box">
             <el-table
-                stripe
-                border
                 :data="tableData"
+                :row-class-name="(data) => (data.row.disabled ? 'disabled' : '')"
             >
                 <!-- 状态列 -->
                 <el-table-column
@@ -37,6 +36,7 @@
                     <template #default="scope">
                         <el-input
                             v-model="scope.row.name"
+                            :disabled="scope.row.disabled"
                             @focus="nameFocus(scope.row.name)"
                             @blur="nameBlur(scope.row)"
                             @keyup.enter="enterBlur($event)"
@@ -58,21 +58,18 @@
                                         :key="opt.value"
                                         @click="changeAllValue(opt.value, 'delayTime')"
                                     >
-                                        {{ Translate(opt.label) }}
+                                        {{ opt.label }}
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select v-model="scope.row.delayTime">
-                            <el-option
-                                v-for="opt in pageData.delayList"
-                                :key="opt.value"
-                                :label="Translate(opt.label)"
-                                :value="opt.value"
-                            />
-                        </el-select>
+                        <el-select-v2
+                            v-model="scope.row.delayTime"
+                            :disabled="scope.row.disabled"
+                            :options="pageData.delayList"
+                        />
                     </template>
                 </el-table-column>
 
@@ -90,36 +87,24 @@
                                         :key="opt.value"
                                         @click="changeScheduleAll(opt.value)"
                                     >
-                                        {{ Translate(opt.label) }}
+                                        {{ opt.label }}
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select
+                        <el-select-v2
                             v-model="scope.row.scheduleId"
-                            :empty-values="[undefined, null]"
+                            :disabled="scope.row.disabled"
+                            :options="pageData.scheduleList"
                             @change="changeSchedule(scope.row)"
-                        >
-                            <el-option
-                                v-for="opt in pageData.scheduleList"
-                                :key="opt.value"
-                                :label="Translate(opt.label)"
-                                :value="opt.value"
-                            />
-                        </el-select>
+                        />
                     </template>
                 </el-table-column>
 
                 <!-- 类型 -->
-                <el-table-column
-                    :formatter="
-                        (row) => {
-                            return row.devDesc ? '--' : pageData.alarmoutTypeText[curAlarmoutType]
-                        }
-                    "
-                >
+                <el-table-column :formatter="displayAlarmOutType">
                     <template #header>
                         <el-dropdown>
                             <BaseTableDropdownLink>
@@ -132,7 +117,7 @@
                                         :key="opt.value"
                                         @click="changeType(opt.value)"
                                     >
-                                        {{ Translate(opt.label) }}
+                                        {{ opt.label }}
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
@@ -152,10 +137,11 @@
         </div>
         <div class="base-btn-box">
             <el-button
-                :disabled="pageData.applyDisabled"
+                :disabled="!editRows.size()"
                 @click="setData()"
-                >{{ Translate('IDCS_APPLY') }}</el-button
             >
+                {{ Translate('IDCS_APPLY') }}
+            </el-button>
         </div>
     </div>
     <!-- 排程管理弹窗 -->

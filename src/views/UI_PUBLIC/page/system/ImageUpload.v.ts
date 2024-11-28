@@ -33,6 +33,7 @@ export default defineComponent({
             // 添加时间项弹窗
             addUploadTimePopOpen: false,
         })
+
         /**
          * 处理右上侧添加事件
          * @param event
@@ -50,7 +51,7 @@ export default defineComponent({
          * @param {SystenSHDBImageUploadDto} row
          * @param {boolean} expanded
          */
-        const handleExpandChange = async (row: SystenSHDBImageUploadDto, expanded: boolean) => {
+        const handleExpandChange = (row: SystenSHDBImageUploadDto, expanded: boolean) => {
             tableRef.value!.setCurrentRow(row)
             if (expanded) {
                 if (!pageData.value.expandRowKey.includes(row.chlId)) {
@@ -86,9 +87,8 @@ export default defineComponent({
             openLoading()
             const result = await querySHDBNormalUploadCfg()
             closeLoading()
-            tableData.value = []
-            commLoadResponseHandler(result, async ($) => {
-                $('//content/item').forEach((item) => {
+            commLoadResponseHandler(result, ($) => {
+                tableData.value = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     const chlId = $item('chl').attr('id')
                     const timelist = $item('timeList/item').map((ele) => {
@@ -97,13 +97,13 @@ export default defineComponent({
                             label: timeMode.value === 12 ? _24turn12(ele.text()) : ele.text(),
                         }
                     })
-                    tableData.value.push({
+                    return {
                         chlId,
-                        chlNum: parseInt(chlId.substring(1, chlId.indexOf('-')), 16),
+                        chlNum: hexToDec(chlId.substring(1, chlId.indexOf('-'))),
                         name: $item('chl').text(),
                         timeCount: $item('timeList').attr('total').num(),
                         timelist,
-                    })
+                    }
                 })
             })
             orderChl()
@@ -266,7 +266,7 @@ export default defineComponent({
         // 挂载完成获取数据
         onMounted(async () => {
             await getTimeCfg()
-            await getData()
+            getData()
         })
 
         ctx.expose({

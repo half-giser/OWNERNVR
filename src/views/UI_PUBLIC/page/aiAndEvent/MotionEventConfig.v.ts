@@ -19,15 +19,13 @@ export default defineComponent({
         ScheduleManagPop,
     },
     setup() {
-        const chosedList = ref<any[]>([])
         const { Translate } = useLangStore()
-        const tableData = ref<AlarmEventDto[]>([])
-
         const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
         const userSession = useUserSessionStore()
         const router = useRouter()
         const openMessageBox = useMessageBox().openMessageBox
+
         const pageData = ref({
             pageIndex: 1,
             pageSize: 10,
@@ -43,9 +41,11 @@ export default defineComponent({
             snapIsShow: false,
             alarmOutIsShow: false,
             isPresetPopOpen: false,
-            applyDisable: true,
-            editRows: [] as AlarmEventDto[],
         })
+
+        const tableData = ref<AlarmEventDto[]>([])
+
+        const editRows = useWatchEditRows<AlarmEventDto>()
 
         const getScheduleList = async () => {
             pageData.value.scheduleList = await buildScheduleList({
@@ -62,15 +62,16 @@ export default defineComponent({
         }
 
         const buildTableData = () => {
-            tableData.value.length = 0
+            editRows.clear()
+            tableData.value = []
             getChlList({
                 pageIndex: pageData.value.pageIndex,
                 pageSize: pageData.value.pageSize,
                 isSupportMotion: true,
-            }).then(async (resb) => {
-                const $chl = queryXml(resb)
-                pageData.value.totalCount = $chl('//content').attr('total').num()
-                $chl('//content/item').forEach((item) => {
+            }).then((result) => {
+                const $chl = queryXml(result)
+                pageData.value.totalCount = $chl('content').attr('total').num()
+                tableData.value = $chl('content/item').map((item) => {
                     const $ele = queryXml(item.element)
                     const row = new AlarmEventDto()
                     row.id = item.attr('id')
@@ -78,12 +79,14 @@ export default defineComponent({
                     row.chlType = $ele('chlType').text()
                     row.name = $ele('name').text()
                     row.poeIndex = $ele('poeIndex').text()
-                    row.productModel = { value: $ele('productModel').text(), factoryName: $ele('productModel').attr('factoryName') }
+                    row.productModel = {
+                        value: $ele('productModel').text(),
+                        factoryName: $ele('productModel').attr('factoryName'),
+                    }
                     row.status = 'loading'
-                    tableData.value.push(row)
+                    return row
                 })
-                for (let i = 0; i < tableData.value.length; i++) {
-                    const row = tableData.value[i]
+                tableData.value.forEach(async (row) => {
                     const sendXml = rawXml`
                         <condition>
                             <chlId>${row.id}</chlId>
@@ -92,33 +95,40 @@ export default defineComponent({
                             <trigger/>
                         </requireField>
                     `
-                    const motion = await queryMotion(sendXml)
-                    const res = queryXml(motion)
+                    const result = await queryMotion(sendXml)
+                    const $ = queryXml(result)
+
+                    if (!tableData.value.some((item) => item === row)) {
+                        return
+                    }
+
                     row.status = ''
 
-                    if (res('status').text() === 'success') {
-                        row.rowDisable = false
+                    if ($('status').text() === 'success') {
+                        const $trigger = queryXml($('content/chl/trigger')[0].element)
+
+                        row.disabled = false
                         row.schedule = {
-                            value: res('//content/chl/trigger/triggerSchedule/schedule').attr('id') === '' ? ' ' : res('//content/chl/trigger/triggerSchedule/schedule').attr('id'),
-                            label: res('//content/chl/trigger/triggerSchedule/schedule').text(),
+                            value: $trigger('triggerSchedule/schedule').attr('id') || ' ',
+                            label: $trigger('triggerSchedule/schedule').text(),
                         }
                         row.oldSchedule = {
                             value: row.schedule.value,
                             label: row.schedule.label,
                         }
                         row.record = {
-                            switch: res('//content/chl/trigger/sysRec/switch').text().bool(),
-                            chls: res('//content/chl/trigger/sysRec/chls/item').map((item) => {
+                            switch: $trigger('sysRec/switch').text().bool(),
+                            chls: $trigger('sysRec/chls/item').map((item) => {
                                 return {
                                     value: item.attr('id'),
                                     label: item.text(),
                                 }
                             }),
                         }
-                        row.sysAudio = res('//content/chl/trigger/sysAudio').attr('id') || DEFAULT_EMPTY_ID
+                        row.sysAudio = $trigger('sysAudio').attr('id') || DEFAULT_EMPTY_ID
                         row.snap = {
-                            switch: res('//content/chl/trigger/sysSnap/switch').text().bool(),
-                            chls: res('//content/chl/trigger/sysSnap/chls/item').map((item) => {
+                            switch: $trigger('sysSnap/switch').text().bool(),
+                            chls: $trigger('sysSnap/chls/item').map((item) => {
                                 return {
                                     value: item.attr('id'),
                                     label: item.text(),
@@ -126,41 +136,43 @@ export default defineComponent({
                             }),
                         }
                         row.alarmOut = {
-                            switch: res('//content/chl/trigger/alarmOut/switch').text().bool(),
-                            alarmOuts: res('//content/chl/trigger/alarmOut/alarmOuts/item').map((item) => {
+                            switch: $trigger('alarmOut/switch').text().bool(),
+                            alarmOuts: $trigger('alarmOut/alarmOuts/item').map((item) => {
                                 return {
                                     value: item.attr('id'),
                                     label: item.text(),
                                 }
                             }),
                         }
-                        row.beeper = res('//content/chl/trigger/buzzerSwitch').text()
-                        row.email = res('//content/chl/trigger/emailSwitch').text()
-                        row.msgPush = res('//content/chl/trigger/msgPushSwitch').text()
-                        row.videoPopup = res('//content/chl/trigger/popVideoSwitch').text()
-                        row.preset.switch = res('//content/chl/trigger/preset/switch').text().bool()
-                        res('//content/chl/trigger/preset/presets/item').forEach((item) => {
+                        row.beeper = $trigger('buzzerSwitch').text()
+                        row.email = $trigger('emailSwitch').text()
+                        row.msgPush = $trigger('msgPushSwitch').text()
+                        row.videoPopup = $trigger('popVideoSwitch').text()
+                        row.preset.switch = $trigger('preset/switch').text().bool()
+                        row.preset.presets = $trigger('preset/presets/item').map((item) => {
                             const $item = queryXml(item.element)
-                            row.preset.presets.push({
+                            return {
                                 index: $item('index').text(),
                                 name: $item('name').text(),
                                 chl: {
                                     value: $item('chl').attr('id'),
                                     label: $item('chl').text(),
                                 },
-                            })
+                            }
                         })
                         // 设置的声音文件被删除时，显示为none
-                        const AudioData = pageData.value.audioList.filter((element) => {
+                        const audioList = pageData.value.audioList.filter((element) => {
                             return element.value === row.sysAudio
                         })
-                        if (!AudioData.length) {
+                        if (!audioList.length) {
                             row.sysAudio = DEFAULT_EMPTY_ID
                         }
+
+                        editRows.listen(row)
                     } else {
-                        row.rowDisable = true
+                        row.disabled = true
                     }
-                }
+                })
             })
         }
 
@@ -182,9 +194,8 @@ export default defineComponent({
                 return
             }
             tableData.value.forEach((item) => {
-                if (!item.rowDisable) {
+                if (!item.disabled) {
                     item.schedule = schedule
-                    addEditRow(item)
                 }
             })
         }
@@ -196,7 +207,6 @@ export default defineComponent({
                 row.schedule.label = row.oldSchedule.label
                 return
             }
-            addEditRow(row)
             row.oldSchedule.value = row.schedule.value
             row.oldSchedule.label = row.schedule.label
         }
@@ -207,7 +217,6 @@ export default defineComponent({
         }
 
         const switchRecord = (index: number) => {
-            addEditRow(tableData.value[index])
             const row = tableData.value[index].record
             if (row.switch) {
                 openRecord(index)
@@ -223,10 +232,9 @@ export default defineComponent({
         }
 
         const changeRecord = (index: number, data: SelectOption<string, string>[]) => {
-            if (tableData.value[index].rowDisable) {
+            if (tableData.value[index].disabled) {
                 return
             }
-            addEditRow(tableData.value[index])
             pageData.value.recordIsShow = false
             tableData.value[index].record = {
                 switch: !!data.length,
@@ -235,7 +243,6 @@ export default defineComponent({
         }
 
         const switchSnap = (index: number) => {
-            addEditRow(tableData.value[index])
             const row = tableData.value[index].snap
             if (row.switch) {
                 openSnap(index)
@@ -251,10 +258,9 @@ export default defineComponent({
         }
 
         const changeSnap = (index: number, data: SelectOption<string, string>[]) => {
-            if (tableData.value[index].rowDisable) {
+            if (tableData.value[index].disabled) {
                 return
             }
-            addEditRow(tableData.value[index])
             pageData.value.snapIsShow = false
             tableData.value[index].snap = {
                 switch: !!data.length,
@@ -263,7 +269,6 @@ export default defineComponent({
         }
 
         const switchAlarmOut = (index: number) => {
-            addEditRow(tableData.value[index])
             const row = tableData.value[index].alarmOut
             if (row.switch) {
                 openAlarmOut(index)
@@ -279,10 +284,9 @@ export default defineComponent({
         }
 
         const changeAlarmOut = (index: number, data: SelectOption<string, string>[]) => {
-            if (tableData.value[index].rowDisable) {
+            if (tableData.value[index].disabled) {
                 return
             }
-            addEditRow(tableData.value[index])
             pageData.value.alarmOutIsShow = false
             tableData.value[index].alarmOut = {
                 switch: !!data.length,
@@ -291,7 +295,6 @@ export default defineComponent({
         }
 
         const switchPreset = (index: number) => {
-            addEditRow(tableData.value[index])
             const row = tableData.value[index].preset
             if (row.switch) {
                 openPreset(index)
@@ -307,7 +310,6 @@ export default defineComponent({
         }
 
         const changePreset = (index: number, data: AlarmPresetItem[]) => {
-            addEditRow(tableData.value[index])
             pageData.value.isPresetPopOpen = false
             tableData.value[index].preset = {
                 switch: !!data.length,
@@ -318,8 +320,7 @@ export default defineComponent({
         // 系统音频
         const handleSysAudioChangeAll = (sysAudio: string) => {
             tableData.value.forEach((item) => {
-                if (!item.rowDisable) {
-                    addEditRow(item)
+                if (!item.disabled) {
                     item.sysAudio = sysAudio
                 }
             })
@@ -328,8 +329,7 @@ export default defineComponent({
         // 消息推送
         const handleMsgPushChangeAll = (msgPush: string) => {
             tableData.value.forEach((item) => {
-                if (!item.rowDisable) {
-                    addEditRow(item)
+                if (!item.disabled) {
                     item.msgPush = msgPush
                 }
             })
@@ -338,8 +338,7 @@ export default defineComponent({
         // 蜂鸣器
         const handleBeeperChangeAll = (beeper: string) => {
             tableData.value.forEach((item) => {
-                if (!item.rowDisable) {
-                    addEditRow(item)
+                if (!item.disabled) {
                     item.beeper = beeper
                 }
             })
@@ -348,8 +347,7 @@ export default defineComponent({
         // 视频弹出
         const handleVideoPopupChangeAll = (videoPopup: string) => {
             tableData.value.forEach((item) => {
-                if (!item.rowDisable) {
-                    addEditRow(item)
+                if (!item.disabled) {
                     item.videoPopup = videoPopup
                 }
             })
@@ -358,8 +356,7 @@ export default defineComponent({
         // 邮件
         const handleEmailChangeAll = (email: string) => {
             tableData.value.forEach((item) => {
-                if (!item.rowDisable) {
-                    addEditRow(item)
+                if (!item.disabled) {
                     item.email = email
                 }
             })
@@ -376,15 +373,6 @@ export default defineComponent({
                     message: Translate('IDCS_NO_AUTH'),
                 })
             }
-        }
-
-        const addEditRow = (row: AlarmEventDto) => {
-            // 若该行不存在于编辑行中，则添加
-            const isExist = pageData.value.editRows.some((item) => item.id === row.id)
-            if (!isExist) {
-                pageData.value.editRows.push(row)
-            }
-            pageData.value.applyDisable = false
         }
 
         const getSavaData = (rowData: AlarmEventDto) => {
@@ -444,29 +432,34 @@ export default defineComponent({
             return sendXml
         }
 
-        const setData = () => {
+        const setData = async () => {
             openLoading()
-            pageData.value.editRows.forEach((item: AlarmEventDto) => {
-                const sendXml = getSavaData(item)
-                editMotion(sendXml).then((resb) => {
-                    const res = queryXml(resb)
-                    if (res('status').text() === 'success') {
+
+            tableData.value.forEach((ele) => (ele.status = ''))
+
+            for (const item of editRows.toArray()) {
+                try {
+                    const sendXml = getSavaData(item)
+                    const result = await editMotion(sendXml)
+                    const $ = queryXml(result)
+                    if ($('status').text() === 'success') {
                         item.status = 'success'
+                        editRows.remove(item)
                     } else {
-                        item.status = 'error'
-                        const errorCode = res('errorCode').text().num()
+                        const errorCode = $('errorCode').text().num()
                         if (errorCode === ErrorCode.USER_ERROR_GET_CONFIG_INFO_FAIL) {
                             item.status = 'success'
+                            editRows.remove(item)
                         } else {
                             item.status = 'error'
                         }
                     }
-                    // buildTableData()
-                })
-            })
+                } catch {
+                    item.status = 'error'
+                }
+            }
+
             closeLoading()
-            pageData.value.editRows = []
-            pageData.value.applyDisable = true
         }
 
         onMounted(async () => {
@@ -478,10 +471,9 @@ export default defineComponent({
         return {
             changePagination,
             changePaginationSize,
-            chosedList,
             pageData,
             tableData,
-            openMessageBox,
+            editRows,
             handleScheduleChangeAll,
             handleScheduleChangeSingle,
             handleSchedulePopClose,
@@ -504,7 +496,6 @@ export default defineComponent({
             handleEmailChangeAll,
             handleMotionSetting,
             setData,
-            addEditRow,
             AlarmBasePresetPop,
             AlarmBaseSnapPop,
             AlarmBaseRecordPop,

@@ -3,7 +3,7 @@
  * @Date: 2024-06-20 17:25:20
  * @Description: 自动维护
  */
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormRules } from 'element-plus'
 import { SystemAutoMaintenanceForm } from '@/types/apiType/system'
 
 export default defineComponent({
@@ -12,7 +12,7 @@ export default defineComponent({
         const { openLoading, closeLoading } = useLoading()
         const dateTime = useDateTimeStore()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const pageData = ref({
             // 自动重启的文案
             autoRestartTip: '',
@@ -53,16 +53,16 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryAutoMaintenance()
             commLoadResponseHandler(result, ($) => {
-                formData.value.switch = $('//content/autoMaintenanceCfg/switch').text().bool()
-                const interval = $('//content/autoMaintenanceCfg/interval').text()
+                formData.value.switch = $('content/autoMaintenanceCfg/switch').text().bool()
+                const interval = $('content/autoMaintenanceCfg/interval').text()
                 if (interval !== '') {
                     formData.value.interval = interval.num()
                 }
-                const timeValue = $('//content/autoMaintenanceCfg/time').text().trim().split(':')
+                const timeValue = $('content/autoMaintenanceCfg/time').text().trim().split(':')
                 formData.value.time = new Date(2000, 0, 1, Number(timeValue[0]), Number(timeValue[1]))
 
                 if (formData.value.switch) {
-                    const spanTimeFormat = $('//content/autoMaintenanceNote').text().trim() + ':00'
+                    const spanTimeFormat = $('content/autoMaintenanceNote').text().trim() + ':00'
                     const currentTime = formatDate(spanTimeFormat, dateTime.dateTimeFormat)
                     pageData.value.autoRestartTip = Translate('IDCS_REBOOT_TIP').formatForLang(currentTime)
                 } else {
@@ -75,7 +75,7 @@ export default defineComponent({
          * @description 表单验证
          */
         const verify = () => {
-            formRef.value?.validate((valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     setData()
                 }

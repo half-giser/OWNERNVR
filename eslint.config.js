@@ -66,6 +66,7 @@ export default defineFlatConfig([
                     svg: 'always',
                 },
             ],
+            quotes: ['error', 'single', { avoidEscape: true }],
         },
     },
     {

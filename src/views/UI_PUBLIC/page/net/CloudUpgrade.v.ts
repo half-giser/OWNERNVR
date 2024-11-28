@@ -99,7 +99,7 @@ export default defineComponent({
             const result = await cloudUpgrade(sendXml)
             const $ = queryXml(result)
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 pageData.value.isCheckAuthPop = false
 
                 // 鉴权成功以后才显示下载进度
@@ -109,7 +109,7 @@ export default defineComponent({
             } else {
                 checkDownloadTimer.repeat()
 
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_PWD_ERR:
@@ -142,7 +142,7 @@ export default defineComponent({
          */
         const getData = async (isInterval = false) => {
             const result = await queryCloudUpgradeCfg()
-            const $content = queryXml(queryXml(result)('//content')[0].element)
+            const $content = queryXml(queryXml(result)('content')[0].element)
 
             if (!isInterval) {
                 formData.value.upgradeType = $content('cloudUpgrade/nvrItem/upgradeType').text()
@@ -171,7 +171,7 @@ export default defineComponent({
          */
         const getNat2Switch = async () => {
             const result = await queryP2PCfg()
-            return queryXml(result)('//content/switch[@index="1"]').text().bool()
+            return queryXml(result)('content/switch[@index="1"]').text().bool()
         }
 
         /**
@@ -181,8 +181,8 @@ export default defineComponent({
             try {
                 const result = await getPackageDownloadStatus()
                 const $ = queryXml(result)
-                if ($('//status').text() === 'success') {
-                    const $content = queryXml($('//content')[0].element)
+                if ($('status').text() === 'success') {
+                    const $content = queryXml($('content')[0].element)
                     const state = $content('state').text()
                     const downloadLen = $content('downloadLen').text().num()
                     const fileLen = $content('fileLen').text().num()
@@ -220,7 +220,7 @@ export default defineComponent({
                         message: Translate('IDCS_OCX_NET_DISCONNECT'),
                     }).finally(() => Logout())
                 }
-                return $('//content/state').text()
+                return $('content/state').text()
             } catch (e) {
                 // 请求失败提示网络断开
                 openMessageBox({
@@ -247,8 +247,8 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                const $content = queryXml($('//content')[0].element)
+            if ($('status').text() === 'success') {
+                const $content = queryXml($('content')[0].element)
 
                 pageData.value.isLatest = $content('isLatest').text().bool()
 

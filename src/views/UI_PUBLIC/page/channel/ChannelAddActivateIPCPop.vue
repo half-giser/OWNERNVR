@@ -7,7 +7,7 @@
     <el-dialog
         :title="Translate('IDCS_ACTIVATE')"
         width="600"
-        @opened="opened"
+        @closed="close"
     >
         <el-form
             ref="formRef"
@@ -21,7 +21,6 @@
                 <el-checkbox
                     v-model="useDefaultPwdSwitch"
                     :label="Translate('IDCS_USE_DEFAULT_PASSWORD')"
-                    @change="formRef?.clearValidate()"
                 />
             </el-form-item>
             <el-form-item
@@ -51,12 +50,10 @@
                 />
             </el-form-item>
         </el-form>
-        <template #footer>
-            <div class="base-btn-box">
-                <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 

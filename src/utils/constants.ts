@@ -370,14 +370,6 @@ export const protocolTrasMap: Record<string, string> = {
     DEFAULT: '默认探测器',
 }
 
-// export const formatMapping: Record<string, string> = {
-//     'year-month-day': 'yyyy/MM/dd',
-//     'month-day-year': 'MM/dd/yyyy',
-//     'day-month-year': 'dd/MM/yyyy',
-//     '24': 'HH:mm:ss',
-//     '12': 'hh:mm:ss A',
-// }
-
 export const DecoderDefaultPwdNEU = '123456'
 
 export const DecoderDefaultPwdTYCO = 'admin'
@@ -581,12 +573,6 @@ export const DEFAULT_MOMENT_MAPPING: Record<string, string> = {
     'day-month-year': 'DD/MM/YYYY',
     '24': 'HH:mm:ss',
     '12': 'hh:mm:ss A',
-
-    // "year-month-day": "yyyy/MM/dd",
-    // "month-day-year": "MM/dd/yyyy",
-    // "day-month-year": "dd/MM/yyyy",
-    // "24": "HH:mm",
-    // "12": "hh:mm tt"
 }
 
 export const REC_MODE_TYPE = {
@@ -664,20 +650,3 @@ export const DEFAULT_TIME_ZONE = [
     { timeZone: 'TOT-13', enableDst: false },
     { timeZone: 'SST-13SDT,M9.5.0/3,M4.1.0/4', enableDst: true },
 ]
-
-export const DEFAULT_ALARM_EVENT: Record<string, string> = {
-    cdd: 'IDCS_CROWD_DENSITY_DETECTION',
-    cpc: 'IDCS_PASS_LINE_COUNT_DETECTION',
-    ipd: 'IDCS_INVADE_DETECTION',
-    tripwire: 'IDCS_BEYOND_DETECTION',
-    osc: 'IDCS_WATCH_DETECTION',
-    avd: 'IDCS_ABNORMAL_DETECTION',
-    perimeter: 'IDCS_INVADE_DETECTION',
-    vfd: 'IDCS_FACE_DETECTION',
-    aoientry: 'IDCS_INVADE_DETECTION',
-    aoileave: 'IDCS_INVADE_DETECTION',
-    passlinecount: 'IDCS_PASS_LINE_COUNT_DETECTION',
-    vehicle: 'IDCS_PLATE_DETECTION',
-    fire: 'IDCS_FIRE_POINT_DETECTION',
-    vsd: 'IDCS_VSD_DETECTION',
-}

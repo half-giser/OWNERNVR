@@ -21,6 +21,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
+        const { openNotify } = useNotification()
         const auth = useUserChlAuth(false)
         const playerRef = ref<PlayerInstance>()
 
@@ -30,8 +31,6 @@ export default defineComponent({
         const DEFAULT_RECORD_TIME = 180
 
         const pageData = ref({
-            // 通知列表
-            notification: [] as string[],
             // 当前表格选中索引
             tableIndex: 0,
             // 表格展开索引列表
@@ -58,6 +57,15 @@ export default defineComponent({
 
         const tableRef = ref<TableInstance>()
         const tableData = ref<ChannelPtzTraceChlDto[]>([])
+
+        const chlOptions = computed(() => {
+            return tableData.value.map((item, index) => {
+                return {
+                    label: item.chlName,
+                    value: index,
+                }
+            })
+        })
 
         const formData = ref({
             // 轨迹名称
@@ -90,20 +98,11 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 if (isHttpsLogin()) {
-                    pageData.value.notification = [formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`)]
+                    openNotify(formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`))
                 }
             }
 
             if (mode.value === 'ocx') {
-                if (!plugin.IsInstallPlugin()) {
-                    plugin.SetPluginNotice('#layout2Content')
-                    return
-                }
-
-                if (!plugin.IsPluginAvailable()) {
-                    plugin.SetPluginNoResponse()
-                    plugin.ShowPluginNoResponse()
-                }
                 const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
@@ -142,14 +141,14 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                tableData.value[index].trace = $('//content/traces/item').map((item) => {
+            if ($('status').text() === 'success') {
+                tableData.value[index].trace = $('content/traces/item').map((item) => {
                     return {
                         index: item.attr('index').num(),
                         name: item.text(),
                     }
                 })
-                tableData.value[index].maxCount = $('//content/traces').attr('maxCount').num()
+                tableData.value[index].maxCount = $('content/traces').attr('maxCount').num()
                 tableData.value[index].traceCount = tableData.value[index].trace.length
             }
         }
@@ -170,8 +169,8 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                tableData.value = $('//content/item')
+            if ($('status').text() === 'success') {
+                tableData.value = $('content/item')
                     .filter((item) => {
                         const $item = queryXml(item.element)
                         return (auth.value.hasAll || auth.value.ptz[item.attr('id')]) && $item('chlType').text() !== 'recorder'
@@ -214,9 +213,9 @@ export default defineComponent({
          * @param {ChannelPtzTraceChlDto} row
          * @param {boolean} expanded
          */
-        const handleExpandChange = async (row: ChannelPtzTraceChlDto, expanded: boolean) => {
+        const handleExpandChange = (row: ChannelPtzTraceChlDto, expanded: boolean) => {
             const index = tableData.value.findIndex((item) => item.chlId === row.chlId)
-            tableRef.value?.setCurrentRow(row)
+            tableRef.value!.setCurrentRow(row)
             if (index !== pageData.value.tableIndex) {
                 pageData.value.tableIndex = index
                 getTrace(tableData.value[pageData.value.tableIndex].chlId)
@@ -248,7 +247,12 @@ export default defineComponent({
 
         // 当前轨迹选项
         const traceOptions = computed(() => {
-            return tableData.value[pageData.value.tableIndex]?.trace || []
+            return (
+                tableData.value[pageData.value.tableIndex]?.trace.map((item, value) => ({
+                    ...item,
+                    value,
+                })) || []
+            )
         })
 
         const defaultTrace = new ChannelPtzTraceDto()
@@ -340,7 +344,7 @@ export default defineComponent({
                 const result = await delLocalChlPtzTrace(sendXml)
                 const $ = queryXml(result)
 
-                if ($('//status').text() === 'success') {
+                if ($('status').text() === 'success') {
                     const sendXml = rawXml`
                        <content>
                             <chlId>${chlId}</chlId>
@@ -350,7 +354,7 @@ export default defineComponent({
                     const result = await deleteChlPtzTrace(sendXml)
                     const $ = queryXml(result)
 
-                    if ($('//status').text() === 'success') {
+                    if ($('status').text() === 'success') {
                         openMessageBox({
                             type: 'success',
                             message: Translate('IDCS_DELETE_SUCCESS'),
@@ -386,7 +390,7 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
@@ -394,7 +398,7 @@ export default defineComponent({
                     tableData.value[pageData.value.tableIndex].trace[formData.value.traceIndex as number].name = formData.value.name
                 })
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 if (errorCode === ErrorCode.USER_ERROR_NAME_EXISTED) {
                     openMessageBox({
                         type: 'info',
@@ -536,6 +540,7 @@ export default defineComponent({
             pageData,
             formData,
             tableData,
+            chlOptions,
             handlePlayerReady,
             changeChl,
             addTrace,

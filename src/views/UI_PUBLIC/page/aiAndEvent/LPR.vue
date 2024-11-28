@@ -4,33 +4,11 @@
  * @Date: 2024-09-09 09:56:14
 -->
 <template>
-    <!-- 通道名称及选择器 -->
-    <el-form
-        class="stripe"
-        :style="{
-            '--form-input-width': '430px',
-        }"
-        inline-message
-    >
-        <el-form-item
-            :label="Translate('IDCS_CHANNEL_NAME')"
-            label-width="108"
-        >
-            <el-select
-                v-model="pageData.curChl"
-                class="base-ai-chl-select"
-                popper-class="base-ai-chl-option"
-                @change="chlChange"
-            >
-                <el-option
-                    v-for="item in pageData.vehicleChlList"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                />
-            </el-select>
-        </el-form-item>
-    </el-form>
+    <AlarmBaseChannelSelector
+        v-model="pageData.curChl"
+        :list="pageData.vehicleChlList"
+        @change="chlChange"
+    />
     <el-tabs
         v-model="pageData.vehicleTab"
         class="base-ai-menu-tabs"
@@ -58,7 +36,7 @@
                         :label="Translate('IDCS_ENABLE')"
                     />
                 </div>
-                <div :style="{ position: 'relative' }">
+                <div class="base-ai-form">
                     <el-tabs
                         v-model="detectionPageData.detectionTab"
                         class="base-ai-tabs"
@@ -73,20 +51,26 @@
                                 <div class="player">
                                     <BaseVideoPlayer
                                         ref="playerRef"
-                                        type="live"
-                                        @onready="handlePlayerReady"
+                                        @ready="handlePlayerReady"
+                                        @message="notify"
                                     />
                                 </div>
                                 <div>
-                                    <div class="base-btn-box">
-                                        <el-checkbox
-                                            v-model="detectionPageData.isShowAllArea"
-                                            :style="{ flex: '1' }"
-                                            :label="Translate('IDCS_DISPLAY_ALL_AREA')"
-                                            @change="showAllArea"
-                                        />
-                                        <el-button @click="clearArea">{{ Translate('IDCS_CLEAR') }}</el-button>
-                                        <el-button @click="clearAllArea">{{ Translate('IDCS_FACE_CLEAR_ALL') }}</el-button>
+                                    <div
+                                        class="base-btn-box"
+                                        span="2"
+                                    >
+                                        <div>
+                                            <el-checkbox
+                                                v-model="detectionPageData.isShowAllArea"
+                                                :label="Translate('IDCS_DISPLAY_ALL_AREA')"
+                                                @change="showAllArea"
+                                            />
+                                        </div>
+                                        <div>
+                                            <el-button @click="clearArea">{{ Translate('IDCS_CLEAR') }}</el-button>
+                                            <el-button @click="clearAllArea">{{ Translate('IDCS_FACE_CLEAR_ALL') }}</el-button>
+                                        </div>
                                     </div>
                                     <span class="base-ai-tip">{{ detectionPageData.drawAreaTip }}</span>
                                 </div>
@@ -96,20 +80,15 @@
                                     :style="{
                                         '--form-input-width': '215px',
                                     }"
-                                    inline-message
                                 >
                                     <!-- 排程 -->
                                     <div class="base-ai-subheading">{{ Translate('IDCS_SCHEDULE') }}</div>
                                     <!-- 排程配置 -->
                                     <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
-                                        <el-select v-model="vehicleDetectionData.schedule">
-                                            <el-option
-                                                v-for="item in pageData.scheduleList"
-                                                :key="item.value"
-                                                :value="item.value"
-                                                :label="item.label"
-                                            />
-                                        </el-select>
+                                        <el-select-v2
+                                            v-model="vehicleDetectionData.schedule"
+                                            :options="pageData.scheduleList"
+                                        />
                                         <el-button @click="pageData.scheduleManagPopOpen = true">{{ Translate('IDCS_MANAGE') }}</el-button>
                                     </el-form-item>
                                     <!-- 区域 -->
@@ -150,32 +129,23 @@
                                             '--form-input-width': '130px',
                                         }"
                                     >
-                                        <el-select
+                                        <el-select-v2
                                             v-model="detectionPageData.continentValue"
                                             :disabled="detectionPageData.continentDisabled"
+                                            :options="detectionPageData.continentOption"
                                             @change="refreshArea"
-                                        >
-                                            <el-option
-                                                v-for="item in detectionPageData.continentOption"
-                                                :key="item.value"
-                                                :value="item.value"
-                                                :label="item.label"
-                                            />
-                                        </el-select>
-                                        <el-select
+                                        />
+                                        <el-select-v2
                                             v-model="vehicleDetectionData.plateSupportArea"
                                             :disabled="detectionPageData.plateAreaDisabled"
-                                        >
-                                            <el-option
-                                                v-for="item in detectionPageData.plateAreaOption"
-                                                :key="item.value"
-                                                :value="item.value"
-                                                :label="item.label"
-                                            />
-                                        </el-select>
+                                            :options="detectionPageData.plateAreaOption"
+                                        />
                                     </el-form-item>
                                     <el-form-item :label="Translate('IDCS_LICENSE_PLATE_EXPOSURE')">
-                                        <el-checkbox v-model="vehicleDetectionData.exposureChecked">{{ '  ' }}</el-checkbox>
+                                        <el-checkbox
+                                            v-model="vehicleDetectionData.exposureChecked"
+                                            label="  "
+                                        />
                                         <el-slider
                                             v-model="vehicleDetectionData.exposureValue"
                                             :show-tooltip="false"
@@ -227,12 +197,12 @@
                     <el-popover
                         v-model:visible="advancedVisible"
                         width="300"
-                        popper-class="no-padding popper"
+                        popper-class="no-padding keep-ocx"
                     >
                         <template #reference>
                             <div
                                 v-show="detectionPageData.isShowDirection"
-                                class="more_wrap"
+                                class="base-ai-advance-btn"
                             >
                                 <span>{{ Translate('IDCS_ADVANCED') }}</span>
                                 <BaseImgSprite
@@ -242,27 +212,19 @@
                                 />
                             </div>
                         </template>
-                        <div class="advanced_box">
+                        <div class="base-ai-advance-box">
                             <el-form
                                 class="stripe"
                                 :style="{
                                     '--form-input-width': '170px',
                                 }"
                                 label-width="80"
-                                inline-message
                             >
-                                <el-form-item
-                                    :label="Translate('IDCS_RECOGNITION_MODE')"
-                                    :style="{ padding: '20px 0' }"
-                                >
-                                    <el-select v-model="vehicleDetectionData.direction">
-                                        <el-option
-                                            v-for="item in detectionPageData.directionOption"
-                                            :key="item.value"
-                                            :label="item.label"
-                                            :value="item.value"
-                                        />
-                                    </el-select>
+                                <el-form-item :label="Translate('IDCS_RECOGNITION_MODE')">
+                                    <el-select-v2
+                                        v-model="vehicleDetectionData.direction"
+                                        :options="detectionPageData.directionOption"
+                                    />
                                 </el-form-item>
                             </el-form>
                             <div class="base-btn-box">
@@ -275,8 +237,9 @@
                     <el-button
                         :disabled="detectionPageData.applyDisabled"
                         @click="applyVehicleDetectionData"
-                        >{{ Translate('IDCS_APPLY') }}</el-button
                     >
+                        {{ Translate('IDCS_APPLY') }}
+                    </el-button>
                 </div>
             </div>
         </el-tab-pane>
@@ -303,7 +266,7 @@
                         />
                     </el-form-item>
                 </el-form>
-                <div :style="{ position: 'relative' }">
+                <div class="base-ai-form">
                     <el-tabs
                         v-model="comparePageData.compareTab"
                         class="base-ai-tabs"
@@ -316,7 +279,7 @@
                             :name="item.value"
                         >
                             <template #default>
-                                <SuccessfulRecognition
+                                <RecognitionPanel
                                     :curr-task-data="vehicleCompareData.task[index]"
                                     :group-data="vehicleGroupData"
                                     :schedule-list="pageData.scheduleList"
@@ -327,10 +290,10 @@
                         </el-tab-pane>
                     </el-tabs>
                     <!-- 增加/删除任务 -->
-                    <div class="taskBtn">
+                    <div class="base-ai-task-btn">
                         <span @click="addTask">+</span>
                         <span
-                            :class="{ removeDisabled: comparePageData.removeDisabled }"
+                            :class="{ disabled: comparePageData.removeDisabled }"
                             @click="removeTask"
                             >-</span
                         >
@@ -340,8 +303,9 @@
                     <el-button
                         :disabled="comparePageData.applyDisabled"
                         @click="applyVehicleCompareData"
-                        >{{ Translate('IDCS_APPLY') }}</el-button
                     >
+                        {{ Translate('IDCS_APPLY') }}
+                    </el-button>
                 </div>
             </div>
         </el-tab-pane>
@@ -359,7 +323,6 @@
             </template>
         </el-tab-pane>
     </el-tabs>
-    <BaseNotification v-model:notifications="pageData.notification" />
     <!-- 排程管理弹窗 -->
     <ScheduleManagPop
         v-model="pageData.scheduleManagPopOpen"
@@ -368,39 +331,3 @@
 </template>
 
 <script lang="ts" src="./LPR.v.ts"></script>
-
-<style lang="scss" scoped>
-// 高级设置
-.more_wrap {
-    position: absolute;
-    right: 20px;
-    top: 15px;
-    cursor: pointer;
-    z-index: 1;
-}
-
-.advanced_box {
-    background-color: var(--ai-advance-bg);
-    padding: 10px;
-
-    .el-checkbox {
-        display: block;
-    }
-}
-
-.taskBtn {
-    position: absolute;
-    right: 20px;
-    top: 3px;
-
-    span {
-        font-size: 20px;
-        padding: 0 5px;
-        cursor: pointer;
-    }
-
-    .removeDisabled {
-        color: var(--main-text-light);
-    }
-}
-</style>

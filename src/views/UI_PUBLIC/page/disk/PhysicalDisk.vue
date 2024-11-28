@@ -8,9 +8,8 @@
         <div class="base-table-box">
             <el-table
                 :data="tableData"
-                border
-                stripe
                 show-overflow-tooltip
+                highlight-current-row
             >
                 <el-table-column :label="Translate('IDCS_DISK')">
                     <template #default="scope">

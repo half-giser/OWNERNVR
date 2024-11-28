@@ -13,19 +13,14 @@
                 }"
             >
                 <el-form-item :label="Translate('IDCS_VIEW_WAY')">
-                    <el-select v-model="pageData.viewOption">
-                        <el-option
-                            v-for="item in pageData.viewOptions"
-                            :key="item.value"
-                            :label="item.label"
-                            :value="item.value"
-                            :disabled="disabledOption(item.value)"
-                        />
-                    </el-select>
+                    <el-select-v2
+                        v-model="pageData.viewOption"
+                        :options="viewOptions"
+                    />
                 </el-form-item>
             </el-form>
         </div>
-        <div class="list">
+        <el-scrollbar class="list">
             <div
                 v-show="pageData.viewOption === 'time'"
                 class="time-list"
@@ -36,7 +31,7 @@
                 >
                     <div class="time-date">{{ displayDate(item.startTime) }}</div>
                     <div class="list-box">
-                        <TimeSliceChlCard
+                        <TimeSliceItem
                             v-for="(chl, key) in item.chlList"
                             :key="key"
                             :mode="timeSliceCardMode"
@@ -54,7 +49,7 @@
                 v-show="pageData.viewOption === 'chl'"
                 class="list-box"
             >
-                <TimeSliceChlCard
+                <TimeSliceItem
                     v-for="(chl, key) in pageData.chlList"
                     :key="key"
                     :mode="chlCardMode"
@@ -66,13 +61,14 @@
                     @dblclick="handleOpen()"
                 />
             </div>
-        </div>
+        </el-scrollbar>
         <div class="base-btn-box padding">
             <el-button
                 :disabled="pageData.select === null"
                 @click="handleOpen"
-                >{{ Translate('IDCS_OPEN') }}</el-button
             >
+                {{ Translate('IDCS_OPEN') }}
+            </el-button>
         </div>
     </div>
 </template>
@@ -95,7 +91,6 @@
 .list {
     width: 100%;
     height: 100%;
-    overflow-y: scroll;
 
     &-box {
         padding: 0 20px;
@@ -123,7 +118,7 @@
             height: 1px;
             top: 16px;
             left: 100px;
-            background-color: var(--border-color6);
+            background-color: var(--subheading-bg);
             content: '';
             position: absolute;
         }

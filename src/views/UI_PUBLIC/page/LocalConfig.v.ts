@@ -3,19 +3,23 @@
  * @Date: 2024-09-19 14:43:09
  * @Description: 本地配置
  */
-import type { FormInstance, FormRules } from 'element-plus'
+import type { FormRules } from 'element-plus'
 import { SystemLocalConfig } from '@/types/apiType/system'
 
 export default defineComponent({
     setup() {
-        const Plugin = inject('Plugin') as PluginType
         const { Translate } = useLangStore()
         const { openMessageBox } = useMessageBox()
-        const pluginStore = usePluginStore()
 
-        // 播放器模式
-        const mode = computed(() => {
-            return pluginStore.currPluginMode
+        const plugin = usePluginHook({
+            onReady: (mode, plugin) => {
+                if (mode.value === 'ocx') {
+                    const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
+                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    pageData.value.disabled = false
+                    getData()
+                }
+            },
         })
 
         const pageData = ref({
@@ -23,9 +27,18 @@ export default defineComponent({
             disabled: true,
             // 抓图数量最大值
             maxSnap: 10,
+            snapOptions: Array(10)
+                .fill(1)
+                .map((item, index) => {
+                    const value = item + index
+                    return {
+                        label: value,
+                        value,
+                    }
+                }),
         })
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
 
         const formData = ref(new SystemLocalConfig())
 
@@ -39,6 +52,7 @@ export default defineComponent({
                         }
                         callback()
                     },
+                    trigger: 'manual',
                 },
             ],
             recSavePath: [
@@ -50,6 +64,7 @@ export default defineComponent({
                         }
                         callback()
                     },
+                    trigger: 'manual',
                 },
             ],
         })
@@ -59,13 +74,13 @@ export default defineComponent({
          */
         const getData = () => {
             try {
-                Plugin.AsynQueryInfo(Plugin.GetVideoPlugin(), OCX_XML_GetLocalCfg(), (result) => {
+                plugin.AsynQueryInfo(plugin.GetVideoPlugin(), OCX_XML_GetLocalCfg(), (result) => {
                     const doc = XMLStr2XMLDoc(result)
                     const $ = queryXml(doc)
-                    formData.value.snapCount = $('//snapCount').text().num()
-                    formData.value.liveSnapSavePath = $('//liveSnapSavePath').text()
-                    formData.value.recSavePath = $('//recSavePath').text()
-                    formData.value.recBackUpPath = $('//recBackUpPath').text()
+                    formData.value.snapCount = $('response/snapCount').text().num()
+                    formData.value.liveSnapSavePath = $('response/liveSnapSavePath').text()
+                    formData.value.recSavePath = $('response/recSavePath').text()
+                    formData.value.recBackUpPath = $('response/recBackUpPath').text()
                 })
             } catch {
                 openMessageBox({
@@ -92,7 +107,7 @@ export default defineComponent({
         const setData = () => {
             try {
                 const sendXML = OCX_XML_SetLocalCfg(formData.value.snapCount, formData.value.liveSnapSavePath, formData.value.recSavePath, formData.value.recBackUpPath)
-                Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
@@ -109,7 +124,7 @@ export default defineComponent({
          * @description 修改抓图保存路径
          */
         const changeSnapSavePath = () => {
-            Plugin.AsynQueryInfo(Plugin.GetVideoPlugin(), OCX_XML_OpenFileBrowser('FOLDER'), (result) => {
+            plugin.AsynQueryInfo(plugin.GetVideoPlugin(), OCX_XML_OpenFileBrowser('FOLDER'), (result) => {
                 const path = OCX_XML_OpenFileBrowser_getpath(result).trim()
                 if (path) {
                     formData.value.liveSnapSavePath = path
@@ -121,33 +136,13 @@ export default defineComponent({
          * @description 修改录像文件保存路径
          */
         const changeRecSavePath = () => {
-            Plugin.AsynQueryInfo(Plugin.GetVideoPlugin(), OCX_XML_OpenFileBrowser('FOLDER'), (result) => {
+            plugin.AsynQueryInfo(plugin.GetVideoPlugin(), OCX_XML_OpenFileBrowser('FOLDER'), (result) => {
                 const path = OCX_XML_OpenFileBrowser_getpath(result).trim()
                 if (path) {
                     formData.value.recSavePath = path
                 }
             })
         }
-
-        watch(
-            mode,
-            (newVal) => {
-                if (newVal === 'ocx' && !Plugin.IsPluginAvailable()) {
-                    Plugin.SetPluginNoResponse()
-                    Plugin.ShowPluginNoResponse()
-                }
-
-                if (newVal === 'ocx') {
-                    const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
-                    Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                    pageData.value.disabled = false
-                    getData()
-                }
-            },
-            {
-                immediate: true,
-            },
-        )
 
         return {
             pageData,

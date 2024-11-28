@@ -12,8 +12,6 @@
         @close="close"
     >
         <el-table
-            stripe
-            border
             :data="tableData"
             highlight-current-row
             height="240"
@@ -31,17 +29,11 @@
                 :label="Translate('IDCS_TYPE')"
             >
                 <template #default="scope">
-                    <el-select
+                    <el-select-v2
                         v-model="scope.row.alarmSourceType"
+                        :options="pageData.alarmSourceTypeList[scope.$index]"
                         @change="typeChange(scope.row, scope.$index)"
-                    >
-                        <el-option
-                            v-for="item in pageData.alarmSourceTypeList[scope.$index]"
-                            :key="item.value"
-                            :label="item.label"
-                            :value="item.value"
-                        />
-                    </el-select>
+                    />
                 </template>
             </el-table-column>
             <!-- 报警源 -->
@@ -50,18 +42,11 @@
                 :label="Translate('IDCS_ALARM_SOURCE')"
             >
                 <template #default="scope">
-                    <el-select
+                    <el-select-v2
                         v-model="scope.row.alarmSourceEntity.value"
-                        :empty-values="[undefined, null]"
+                        :options="pageData.alarmSourceEntityList[scope.$index]"
                         @change="entityChange(scope.row)"
-                    >
-                        <el-option
-                            v-for="item in pageData.alarmSourceEntityList[scope.$index]"
-                            :key="item.value"
-                            :label="item.label"
-                            :value="item.value"
-                        />
-                    </el-select>
+                    />
                 </template>
             </el-table-column>
             <!-- 操作 -->
@@ -105,12 +90,10 @@
                 </div>
             </div>
         </div>
-        <template #footer>
-            <div class="base-btn-box">
-                <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
         <CombinationAlarmFaceMatchPop
             v-model="pageData.isFaceMatchPopShow"
             :linked-entity="pageData.linkedEntity"

@@ -3,7 +3,7 @@
  * @Date: 2024-06-27 16:34:38
  * @Description: 系统升级-备份弹窗
  */
-import type { FormInstance, FormRules } from 'element-plus'
+import type { FormRules } from 'element-plus'
 import { SystemUpgradeBackUpForm } from '@/types/apiType/system'
 
 export default defineComponent({
@@ -13,10 +13,10 @@ export default defineComponent({
         },
     },
     setup(_prop, ctx) {
-        const Plugin = inject('Plugin') as PluginType
+        const plugin = usePlugin()
         const { Translate } = useLangStore()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
 
         const formData = ref(new SystemUpgradeBackUpForm())
 
@@ -40,7 +40,7 @@ export default defineComponent({
          */
         const chooseFile = () => {
             const sendXML = OCX_XML_OpenFileBrowser('SAVE_FILE', undefined, 'ConfigurationBackupFile')
-            Plugin.AsynQueryInfo(Plugin.GetVideoPlugin(), sendXML, (result) => {
+            plugin.AsynQueryInfo(plugin.GetVideoPlugin(), sendXML, (result) => {
                 const path = OCX_XML_OpenFileBrowser_getpath(result).trim()
                 if (path) {
                     formData.value.filePath = path
@@ -59,22 +59,12 @@ export default defineComponent({
             })
         }
 
-        /**
-         * @description 打开弹窗时清空表单
-         */
-        const opened = () => {
-            formRef.value?.clearValidate()
-            formData.value = new SystemUpgradeBackUpForm()
-            formRef.value?.clearValidate()
-        }
-
         return {
             chooseFile,
             formRef,
             formData,
             rules,
             verify,
-            opened,
         }
     },
 })

@@ -6,11 +6,7 @@
 <template>
     <div class="base-flex-box">
         <div class="base-table-box">
-            <el-table
-                stripe
-                border
-                :data="tableData"
-            >
+            <el-table :data="tableData">
                 <el-table-column
                     :label="Translate('IDCS_POS')"
                     prop="name"
@@ -36,14 +32,10 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select v-model="scope.row.switch">
-                            <el-option
-                                v-for="opt in pageData.switchOption"
-                                :key="opt.value"
-                                :label="opt.label"
-                                :value="opt.value"
-                            />
-                        </el-select>
+                        <el-select-v2
+                            v-model="scope.row.switch"
+                            :options="pageData.switchOption"
+                        />
                     </template>
                 </el-table-column>
                 <!-- 连接方式 -->
@@ -60,21 +52,17 @@
                                         :key="opt.value"
                                         @click="changeAllConnectionType(opt.value)"
                                     >
-                                        {{ Translate(opt.name) }}
+                                        {{ opt.label }}
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select v-model="scope.row.connectionType">
-                            <el-option
-                                v-for="opt in pageData.connectionTypeList"
-                                :key="opt.value"
-                                :label="Translate(opt.name)"
-                                :value="opt.value"
-                            />
-                        </el-select>
+                        <el-select-v2
+                            v-model="scope.row.connectionType"
+                            :options="pageData.connectionTypeList"
+                        />
                     </template>
                 </el-table-column>
                 <!-- 连接设置 -->
@@ -100,21 +88,17 @@
                                         :key="opt.value"
                                         @click="changeAllManufacturers(opt.value)"
                                     >
-                                        {{ Translate(opt.name) }}
+                                        {{ opt.label }}
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select v-model="scope.row.manufacturers">
-                            <el-option
-                                v-for="opt in pageData.manufacturersList"
-                                :key="opt.value"
-                                :label="Translate(opt.name)"
-                                :value="opt.value"
-                            />
-                        </el-select>
+                        <el-select-v2
+                            v-model="scope.row.manufacturers"
+                            :options="pageData.manufacturersList"
+                        />
                     </template>
                 </el-table-column>
                 <!-- 联动通道 -->
@@ -131,8 +115,9 @@
                             <el-button
                                 :disabled="!scope.row.triggerChl.switch"
                                 @click="setTriggerChannel(scope.$index)"
-                                >{{ Translate('IDCS_CONFIG') }}</el-button
                             >
+                                {{ Translate('IDCS_CONFIG') }}
+                            </el-button>
                         </div>
                     </template>
                 </el-table-column>
@@ -161,21 +146,17 @@
                                         :key="opt.value"
                                         @click="changeAllEncodeFormat(opt.value)"
                                     >
-                                        {{ opt.name }}
+                                        {{ opt.label }}
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select v-model="scope.row.encodeFormat">
-                            <el-option
-                                v-for="opt in pageData.encodeList"
-                                :key="opt.value"
-                                :value="opt.value"
-                                :label="opt.name"
-                            />
-                        </el-select>
+                        <el-select-v2
+                            v-model="scope.row.encodeFormat"
+                            :options="pageData.encodeList"
+                        />
                     </template>
                 </el-table-column>
             </el-table>
@@ -184,8 +165,9 @@
             <el-button
                 :disabled="pageData.submitDisabled"
                 @click="setData"
-                >{{ Translate('IDCS_APPLY') }}</el-button
             >
+                {{ Translate('IDCS_APPLY') }}
+            </el-button>
         </div>
         <PosConnectionSettingsPop
             v-model="pageData.isConnectionDialog"

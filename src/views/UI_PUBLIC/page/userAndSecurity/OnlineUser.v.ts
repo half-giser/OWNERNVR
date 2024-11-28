@@ -36,8 +36,8 @@ export default defineComponent({
             const result = await queryOnlineUserInfo()
 
             closeLoading()
-            commLoadResponseHandler(result, async ($) => {
-                tableData.value = $('//content/item').map((item) => {
+            commLoadResponseHandler(result, ($) => {
+                tableData.value = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         userName: $item('userName').text(),

@@ -3,7 +3,7 @@
  * @Date: 2024-07-11 08:56:40
  * @Description: 802.1x配置
  */
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormRules } from 'element-plus'
 import { Net8021xForm } from '@/types/apiType/net'
 
 export default defineComponent({
@@ -12,7 +12,7 @@ export default defineComponent({
         const { openLoading, closeLoading } = useLoading()
         const userSession = useUserSessionStore()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new Net8021xForm())
         const formRule = ref<FormRules>({
             userName: [

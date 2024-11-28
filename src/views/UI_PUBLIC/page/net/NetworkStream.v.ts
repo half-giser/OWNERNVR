@@ -4,15 +4,12 @@
  * @Description: 网络码流设置
  */
 import { type NetSubStreamList, type NetSubStreamResolutionList } from '@/types/apiType/net'
-import { cloneDeep } from 'lodash-es'
 
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
         const { openMessageBox } = useMessageBox()
-
-        let cacheTableData: NetSubStreamList[] = []
 
         // 码流类型与文本的映射
         const STREAM_TYPE_MAPPING: Record<string, string> = {
@@ -39,7 +36,6 @@ export default defineComponent({
 
         // 主码流帧率限制
         const MAIN_STREAM_LIMIT_FPS = 1
-        // const maxFpsMap = {}
 
         const pageData = ref({
             // 支持的音频数量
@@ -52,7 +48,7 @@ export default defineComponent({
             // 图像质量选项
             levelList: [] as SelectOption<string, string>[],
             // 视频编码类型选项
-            videoEcodeTypeList: [] as string[],
+            videoEcodeTypeList: [] as SelectOption<string, string>[],
             // 码流类型选项
             bitTypeList: [] as string[],
             // 最大帧率
@@ -68,17 +64,12 @@ export default defineComponent({
         })
 
         const tableData = ref<NetSubStreamList[]>([])
-
-        /**
-         * @description 当前通道类型是否禁用
-         * @param {Number} index
-         * @returns {Boolean}
-         */
-        const isChlTypeDisabled = (index: number) => {
-            const item = tableData.value[index]
-            if (item.chlType === 'recorder' || !item.resolution) return true
-            return false
-        }
+        const editRows = useWatchEditRows<NetSubStreamList>()
+        const virtualTableData = computed(() => {
+            return Array(tableData.value.length)
+                .fill(1)
+                .map((item, index) => item + index)
+        })
 
         /**
          * @description 显示码流文本
@@ -95,7 +86,8 @@ export default defineComponent({
          */
         const changeStreamType = (index: number) => {
             const item = tableData.value[index]
-            if (!item.subCaps.supEnct.includes(item.videoEncodeType)) {
+
+            if (!item.subCaps.supEnct.some((find) => find.value === item.videoEncodeType)) {
                 return
             }
             setDefaultVideoQuality(item)
@@ -106,8 +98,8 @@ export default defineComponent({
          * @param {String} key
          */
         const changeAllStreamType = (key: string) => {
-            tableData.value.forEach((item, index) => {
-                if (isChlTypeDisabled(index) || !item.subCaps.supEnct.includes(key)) {
+            tableData.value.forEach(async (item) => {
+                if (item.disabled || !item.subCaps.supEnct.some((find) => find.value === key)) {
                     return
                 }
                 item.videoEncodeType = key
@@ -131,7 +123,7 @@ export default defineComponent({
          * @description 更改分辨率
          * @param {Number} index
          */
-        const changeResolution = (index: number) => {
+        const changeResolution = async (index: number) => {
             const item = tableData.value[index]
             const find = item.subCaps.res.find((res) => res.value === item.resolution)
             if (find) {
@@ -168,6 +160,11 @@ export default defineComponent({
             return []
         }
 
+        const getFpsOptions = (index: number) => {
+            const maxFps = getMaxFps(index)
+            return arrayToOptions(maxFps)
+        }
+
         /**
          * @description 更改所有帧率
          * @param {Number} fps
@@ -190,7 +187,7 @@ export default defineComponent({
         // const getChannelList = async () => {
         //     const result = await getChlList({})
         //     commLoadResponseHandler(result, ($) => {
-        //         pageData.value.chlList = $('//content/item').map((item) => {
+        //         pageData.value.chlList = $('content/item').map((item) => {
         //             const $item = queryXml(item.element)
         //             return {
         //                 id: item.attr('id'),
@@ -213,7 +210,7 @@ export default defineComponent({
          */
         const isBitTypeDisabled = (index: number) => {
             const item = tableData.value[index]
-            return isChlTypeDisabled(index) || VIDEO_ENCODE_TYPE_ARRAY.includes(item.videoEncodeType)
+            return item.disabled || VIDEO_ENCODE_TYPE_ARRAY.includes(item.videoEncodeType)
         }
 
         /**
@@ -244,7 +241,7 @@ export default defineComponent({
          */
         const isLevelDisabled = (index: number) => {
             const item = tableData.value[index]
-            return isChlTypeDisabled(index) || item.bitType === 'CBR' || !item.bitType
+            return item.disabled || item.bitType === 'CBR' || !item.bitType
         }
 
         /**
@@ -273,7 +270,7 @@ export default defineComponent({
          */
         const isVideoQualityDisabled = (index: number) => {
             const item = tableData.value[index]
-            return isChlTypeDisabled(index) || VIDEO_ENCODE_TYPE_ARRAY.includes(item.videoEncodeType)
+            return item.disabled || VIDEO_ENCODE_TYPE_ARRAY.includes(item.videoEncodeType)
         }
 
         /**
@@ -325,7 +322,6 @@ export default defineComponent({
             if (bitRange) {
                 return `${bitRange.min}~${bitRange.max}Kbps`
             }
-            return '--'
         }
 
         /**
@@ -398,15 +394,15 @@ export default defineComponent({
          */
         const isGOPDisabled = (index: number) => {
             const item = tableData.value[index]
-            return isChlTypeDisabled(index) || VIDEO_ENCODE_TYPE_ARRAY.includes(item.videoEncodeType)
+            return item.disabled || VIDEO_ENCODE_TYPE_ARRAY.includes(item.videoEncodeType)
         }
 
         /**
          * @description 更改所有项GOP
          */
         const changeAllGOP = () => {
-            tableData.value.forEach((item, index) => {
-                if (isChlTypeDisabled(index)) {
+            tableData.value.forEach((item) => {
+                if (item.disabled) {
                     return
                 }
                 item.GOP = pageData.value.GOP
@@ -418,6 +414,8 @@ export default defineComponent({
          * @description 获取数据列表
          */
         const getData = async () => {
+            editRows.clear()
+
             const sendXml = rawXml`
                 <requireField>
                     <name/>
@@ -432,7 +430,7 @@ export default defineComponent({
             commLoadResponseHandler(result, ($) => {
                 const resolutionMap: Record<string, NetSubStreamResolutionList> = {}
 
-                tableData.value = $('//content/item').map((item, index) => {
+                tableData.value = $('content/item').map((item, index) => {
                     const $item = queryXml(item.element)
 
                     const chlId = item.attr('id')
@@ -443,6 +441,7 @@ export default defineComponent({
                         .map((res) => ({
                             fps: res.attr('fps').num(),
                             value: res.text(),
+                            label: res.text(),
                         }))
                         .toSorted((a, b) => {
                             const na = Number(a.value.split('x')[0])
@@ -487,7 +486,13 @@ export default defineComponent({
                         }
                     }
 
-                    const supEnct = $item('subCaps').length && $item('subCaps').attr('supEnct') ? $item('subCaps').attr('supEnct').split(',').sort() : []
+                    const supEnct = ($item('subCaps').attr('supEnct') ? $item('subCaps').attr('supEnct').split(',').sort() : []).map((item) => {
+                        return {
+                            value: item,
+                            label: STREAM_TYPE_MAPPING[item],
+                        }
+                    })
+
                     pageData.value.videoEcodeTypeList.push(...supEnct)
 
                     const bitTypeList = $item('subCaps').length && $item('subCaps').attr('bitType') ? $item('subCaps').attr('bitType').split(',') : []
@@ -499,10 +504,12 @@ export default defineComponent({
                     const resolution = $item('sub').attr('res')
                     const videoEncodeType = $item('sub').attr('enct')
 
+                    const chlType = $item('chlType').text()
+
                     return {
                         id: chlId,
                         name: chlName,
-                        chlType: $item('chlType').text(),
+                        chlType,
                         subCaps: {
                             supEnct,
                             bitType: bitTypeList,
@@ -539,6 +546,15 @@ export default defineComponent({
                         bitType,
                         level,
                         videoQuality: $item('sub').attr('QoI').num(),
+                        disabled: chlType === 'recorder' || !resolution,
+                        status: '',
+                        statusTip: '',
+                    }
+                })
+
+                tableData.value.forEach((item) => {
+                    if (!item.disabled) {
+                        editRows.listen(item)
                     }
                 })
 
@@ -552,8 +568,6 @@ export default defineComponent({
                 pageData.value.maxFps = Math.max(MAIN_STREAM_LIMIT_FPS, Math.max.apply([], tableData.value.map((item) => item.subCaps.res.map((item) => item.fps)).flat()))
 
                 pageData.value.resolutionList = Object.values(resolutionMap)
-
-                cacheTableData = cloneDeep(tableData.value)
             })
         }
 
@@ -561,34 +575,12 @@ export default defineComponent({
          * @description 更改修改行的数据
          */
         const setData = async () => {
-            const edits: NetSubStreamList[] = []
-            tableData.value.forEach((item, index) => {
-                if (isChlTypeDisabled(index)) {
-                    return
-                }
-                const params = ['videoEncodeType', 'streamType', 'GOP', 'resolution', 'frameRate', 'bitType', 'level', 'videoQuality']
-                params.some((param) => {
-                    if (item[param] !== cacheTableData[index][param]) {
-                        edits.push(item)
-                        return true
-                    }
-                    return false
-                })
-            })
-
-            if (!edits.length) {
-                openMessageBox({
-                    type: 'success',
-                    message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                })
-                return
-            }
-
             openLoading()
 
             const sendXml = rawXml`
                 <content>
-                    ${edits
+                    ${editRows
+                        .toArray()
                         .map((item) => {
                             const res = item.resolution
                             const fps = item.frameRate
@@ -611,12 +603,14 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
-                cacheTableData = cloneDeep(tableData.value)
+                editRows.toArray().forEach((item) => {
+                    editRows.remove(item)
+                })
             } else {
                 openMessageBox({
                     type: 'info',
@@ -625,29 +619,24 @@ export default defineComponent({
             }
         }
 
-        const handleRowClassName = (row: NetSubStreamList) => {
-            return row.chlType === 'recorder' || !row.resolution ? 'disabled' : ''
-        }
-
         onMounted(async () => {
             openLoading()
-
-            // await getChannelList()
             await getData()
-
             closeLoading()
         })
 
         return {
             pageData,
             tableData,
-            isChlTypeDisabled,
+            virtualTableData,
+            editRows,
             displayStreamType,
             changeStreamType,
             changeAllStreamType,
             changeResolution,
             changeAllResolution,
             getMaxFps,
+            getFpsOptions,
             changeAllFps,
             isBitTypeDisabled,
             changeBitType,
@@ -662,8 +651,8 @@ export default defineComponent({
             isGOPDisabled,
             setData,
             changeAllGOP,
+            arrayToOptions,
             handleResolutionVisibleChange,
-            handleRowClassName,
         }
     },
 })

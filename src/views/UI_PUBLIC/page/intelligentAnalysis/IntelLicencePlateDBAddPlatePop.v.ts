@@ -5,8 +5,7 @@
  */
 import { IntelPlateDBAddPlateForm, IntelPlateDBPlateInfo } from '@/types/apiType/intelligentAnalysis'
 import IntelLicenceDBEditPop from './IntelLicencePlateDBEditPop.vue'
-import { type FormInstance, type FormRules } from 'element-plus'
-import { type XMLQuery } from '@/utils/tools'
+import { type FormRules } from 'element-plus'
 import WebsocketImportPlate from '@/utils/websocket/websocketImportplate'
 
 export default defineComponent({
@@ -38,15 +37,10 @@ export default defineComponent({
         },
     },
     setup(prop, ctx) {
-        const Plugin = inject('Plugin') as PluginType
         const { Translate } = useLangStore()
         const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const userSession = useUserSessionStore()
-
-        const mode = computed(() => {
-            return Plugin.IsSupportH5() ? 'h5' : 'ocx'
-        })
 
         const groupMap: Record<string, string> = {}
 
@@ -79,7 +73,7 @@ export default defineComponent({
             fileData: [] as IntelPlateDBAddPlateForm[],
         })
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new IntelPlateDBAddPlateForm())
         const formRule = ref<FormRules>({
             plateNumber: [
@@ -115,6 +109,41 @@ export default defineComponent({
             register: Translate('IDCS_REGISTER'),
         }
 
+        const plugin = usePluginHook({
+            onMessage: ($) => {
+                if ($('statenotify[@type="UploadIPCAudioBase64"]').length) {
+                    const $item = queryXml($('statenotify')[0].element)
+                    if ($item('status').text() === 'success') {
+                        const fileBase64 = $item('base64').text()
+                        const filePath = $item('filePath').text()
+                        pageData.value.fileName = filePath.replace(/\\/g, '/').split('/').pop()!
+                        const file = base64ToFile(fileBase64, pageData.value.fileName)
+                        parseFiles(file)
+                    } else {
+                        openMessageBox({
+                            type: 'info',
+                            message: Translate('IDCS_OUT_FILE_SIZE'),
+                        })
+                        closeLoading()
+                    }
+                }
+                //网络断开
+                else if ($('statenotify[@type="FileNetTransport"]').length) {
+                    closeLoading()
+                    if ($('statenotify/errorCode').text().num() === ErrorCode.USER_ERROR_NODE_NET_DISCONNECT) {
+                        openMessageBox({
+                            type: 'info',
+                            message: Translate('IDCS_OCX_NET_DISCONNECT'),
+                        })
+                    }
+                }
+            },
+        })
+
+        const mode = computed(() => {
+            return plugin.IsSupportH5() ? 'h5' : 'ocx'
+        })
+
         // 回显标题
         const displayTitle = computed(() => {
             return TITLE_MAPPING[prop.type]
@@ -146,7 +175,7 @@ export default defineComponent({
 
             closeLoading()
 
-            pageData.value.groupList = $('//content/group/item').map((item) => {
+            pageData.value.groupList = $('content/group/item').map((item) => {
                 const $item = queryXml(item.element)
                 groupMap[$item('name').text()] = item.attr('id')
                 return {
@@ -216,7 +245,7 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
@@ -224,7 +253,7 @@ export default defineComponent({
                     ctx.emit('confirm')
                 })
             } else {
-                handleError($('//errorCode').text().num())
+                handleError($('errorCode').text().num())
             }
         }
 
@@ -253,7 +282,7 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
@@ -261,7 +290,7 @@ export default defineComponent({
                     ctx.emit('confirm')
                 })
             } else {
-                handleError($('//errorCode').text().num())
+                handleError($('errorCode').text().num())
             }
         }
 
@@ -272,7 +301,6 @@ export default defineComponent({
             pageData.value.tab = 'form'
             pageData.value.fileName = ''
             pageData.value.fileData = []
-            formRef.value?.clearValidate()
             formData.value = new IntelPlateDBAddPlateForm()
             if (prop.type === 'edit') {
                 formData.value.plateNumber = !prop.data.plateNumber || prop.data.plateNumber === '--' ? '' : prop.data.plateNumber
@@ -350,17 +378,17 @@ export default defineComponent({
          * @description OCX导入的回调
          */
         const handleOCXImport = () => {
-            if (Plugin.IsPluginAvailable()) {
+            if (plugin.IsPluginAvailable()) {
                 const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
-                Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
 
             const sendXML = OCX_XML_OpenFileBrowser('OPEN_FILE', 'csv')
-            Plugin.AsynQueryInfo(Plugin.GetVideoPlugin(), sendXML, (result) => {
+            plugin.AsynQueryInfo(plugin.GetVideoPlugin(), sendXML, (result) => {
                 const path = OCX_XML_OpenFileBrowser_getpath(result).trim()
                 if (path) {
                     const sendXML = OCX_XML_UploadIPCAudioBase64(path)
-                    Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                     openLoading()
                 }
             })
@@ -453,7 +481,7 @@ export default defineComponent({
                 }
                 const reader = new FileReader()
                 reader.readAsText(file)
-                reader.onloadend = async () => {
+                reader.onloadend = () => {
                     const separator = fileType === 'txt' ? '\t' : ','
                     try {
                         const map = formatDataFile(reader.result as string, separator)
@@ -502,39 +530,6 @@ export default defineComponent({
             const files = (e.target as HTMLInputElement).files
             if (files) {
                 parseFiles(files[0])
-            }
-        }
-
-        /**
-         * @description OCX通知回调
-         * @param {Function} $
-         */
-        const notify = ($: XMLQuery) => {
-            if ($('statenotify[@type="UploadIPCAudioBase64"]').length) {
-                const $item = queryXml($('statenotify')[0].element)
-                if ($item('status').text() === 'success') {
-                    const fileBase64 = $item('base64').text()
-                    const filePath = $item('filePath').text()
-                    pageData.value.fileName = filePath.replace(/\\/g, '/').split('/').pop()!
-                    const file = base64ToFile(fileBase64, pageData.value.fileName)
-                    parseFiles(file)
-                } else {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_OUT_FILE_SIZE'),
-                    })
-                    closeLoading()
-                }
-            }
-            //网络断开
-            else if ($('statenotify[@type="FileNetTransport"]').length) {
-                closeLoading()
-                if ($('statenotify/errorCode').text().num() === ErrorCode.USER_ERROR_NODE_NET_DISCONNECT) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_OCX_NET_DISCONNECT'),
-                    })
-                }
             }
         }
 
@@ -611,12 +606,7 @@ export default defineComponent({
             })
         }
 
-        onMounted(() => {
-            Plugin.VideoPluginNotifyEmitter.addListener(notify)
-        })
-
         onBeforeUnmount(() => {
-            Plugin.VideoPluginNotifyEmitter.removeListener(notify)
             if (ws) {
                 ws.destroy()
                 ws = null

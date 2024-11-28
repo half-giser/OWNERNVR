@@ -3,9 +3,6 @@
  * @Date: 2023-05-09 15:10:50
  * @Description: 改写原型方法
  */
-// import { parseDateToPersianCalendar } from '@/utils/tools'
-// import { useUserSessionStore } from '@/stores/userSession'
-
 export default {
     install: () => {
         // const userSessionStore = useUserSessionStore()

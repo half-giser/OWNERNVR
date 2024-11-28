@@ -7,13 +7,11 @@
     <div class="base-flex-box">
         <el-form
             ref="formRef"
-            class="form"
             :rules
             :model="formData"
             :style="{
                 '--form-input-width': '340px',
             }"
-            inline-message
         >
             <el-form-item
                 prop="name"
@@ -67,12 +65,7 @@
                         active: pageData.activeChannelTab === 'IDCS_LOCAL_RIGHT',
                     }"
                 >
-                    <el-table
-                        :data="channelAuthList"
-                        border
-                        stripe
-                        scrollbar-always-on
-                    >
+                    <el-table :data="channelAuthList">
                         <el-table-column
                             prop="name"
                             :label="Translate('IDCS_CHANNEL')"
@@ -102,17 +95,10 @@
                                 </el-dropdown>
                             </template>
                             <template #default="{ $index }">
-                                <el-select
+                                <el-select-v2
                                     v-model="channelAuthList[$index][item.value]"
-                                    :persistent="false"
-                                >
-                                    <el-option
-                                        v-for="value in pageData.channelOption"
-                                        :key="value.value"
-                                        :label="value.label"
-                                        :value="value.value"
-                                    />
-                                </el-select>
+                                    :options="pageData.channelOption"
+                                />
                             </template>
                         </el-table-column>
                     </el-table>
@@ -121,12 +107,7 @@
                     class="base-table-box"
                     :class="{ active: pageData.activeChannelTab === 'IDCS_REMOTE_RIGHT' }"
                 >
-                    <el-table
-                        :data="channelAuthList"
-                        border
-                        stripe
-                        scrollbar-always-on
-                    >
+                    <el-table :data="channelAuthList">
                         <el-table-column
                             prop="name"
                             :label="Translate('IDCS_CHANNEL')"
@@ -156,17 +137,10 @@
                                 </el-dropdown>
                             </template>
                             <template #default="{ $index }">
-                                <el-select
+                                <el-select-v2
                                     v-model="channelAuthList[$index][item.value]"
-                                    :persistent="false"
-                                >
-                                    <el-option
-                                        v-for="value in pageData.channelOption"
-                                        :key="value.value"
-                                        :label="value.label"
-                                        :value="value.value"
-                                    />
-                                </el-select>
+                                    :options="pageData.channelOption"
+                                />
                             </template>
                         </el-table-column>
                     </el-table>

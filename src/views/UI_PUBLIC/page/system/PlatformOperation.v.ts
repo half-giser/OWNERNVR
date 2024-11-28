@@ -262,16 +262,15 @@ export default defineComponent({
             openLoading()
             const result = await getChlList({})
             closeLoading()
-            tableData.value = []
-            commLoadResponseHandler(result, async ($) => {
-                $('//content/item').forEach((item) => {
+            commLoadResponseHandler(result, ($) => {
+                tableData.value = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     const chlId = item.attr('id')
-                    tableData.value.push({
+                    return {
                         chlId,
-                        chlNum: parseInt(chlId.substring(1, chlId.indexOf('-')), 16),
+                        chlNum: hexToDec(chlId.substring(1, chlId.indexOf('-'))),
                         name: $item('name').text(),
-                    })
+                    }
                 })
             })
         }
@@ -307,7 +306,7 @@ export default defineComponent({
             const selectedRowsIds = tableRef.value!.getSelectionRows().map((row: chlDataItem) => row.chlId)
             tableRef.value!.setCurrentRow(null)
             tableRef.value!.clearSelection()
-            tableData.value.forEach((row: chlDataItem) => {
+            tableData.value.forEach((row) => {
                 if (!selectedRowsIds.includes(row.chlId)) {
                     tableRef.value!.toggleRowSelection(row, true)
                 }
@@ -440,7 +439,7 @@ export default defineComponent({
 
         // 上传数据
         const uploadData = async () => {
-            let sendXml = ``
+            let sendXml = ''
             switch (formData.value.operationType) {
                 case 'testScreenshot':
                     sendXml = getTestScreenshotSaveData()
@@ -464,7 +463,7 @@ export default defineComponent({
             openLoading()
             const result = await editSHDBOperationCfg(sendXml)
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_PLATFORM_OPERATE_UPLOAD_MSG'),

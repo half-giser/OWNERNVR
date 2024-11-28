@@ -4,7 +4,7 @@
  * @Description: 报警服务器
  */
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormRules } from 'element-plus'
 import { AlarmServerForm } from '@/types/apiType/aiAndEvent'
 export default defineComponent({
     components: {
@@ -16,7 +16,7 @@ export default defineComponent({
         const openMessageBox = useMessageBox().openMessageBox
         const { openLoading, closeLoading } = useLoading()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new AlarmServerForm())
 
         const pageData = ref({
@@ -154,8 +154,8 @@ export default defineComponent({
 
         const getBasicCfg = async () => {
             const result = await queryBasicCfg()
-            const res = queryXml(result)
-            pageData.value.CustomerID = res('//content/CustomerID').text()
+            const $ = queryXml(result)
+            pageData.value.CustomerID = $('content/CustomerID').text()
             if (pageData.value.CustomerID === '6') {
                 pageData.value.supportAdditionalServerSetting = true
                 pageData.value.maxDeviceIdLength = 16
@@ -168,27 +168,27 @@ export default defineComponent({
 
         const getData = async () => {
             await getScheduleList()
-            queryAlarmServerParam().then(async (resb) => {
-                const res = queryXml(resb)
-                if (res('status').text() === 'success') {
-                    formData.value.enable = res('//content/switch').text().bool()
-                    formData.value.deviceId = res('//content/deviceId').text()
-                    formData.value.token = res('//content/token').text()
-                    formData.value.address = res('//content/address').text()
-                    formData.value.url = res('//content/url').text()
-                    formData.value.port = res('//content/port').text().num()
-                    formData.value.heartEnable = res('//content/heartbeat/switch').text().bool()
-                    formData.value.protocol = res('//content/dataFormat').text()
-                    pageData.value.protocolOptions = res('//types/dataFormat/enum').map((ele) => {
+            queryAlarmServerParam().then((result) => {
+                const $ = queryXml(result)
+                if ($('status').text() === 'success') {
+                    formData.value.enable = $('content/switch').text().bool()
+                    formData.value.deviceId = $('content/deviceId').text()
+                    formData.value.token = $('content/token').text()
+                    formData.value.address = $('content/address').text()
+                    formData.value.url = $('content/url').text()
+                    formData.value.port = $('content/port').text().num()
+                    formData.value.heartEnable = $('content/heartbeat/switch').text().bool()
+                    formData.value.protocol = $('content/dataFormat').text()
+                    pageData.value.protocolOptions = $('types/dataFormat/enum').map((ele) => {
                         return {
                             value: ele.text(),
                             label: ele.text(),
                         }
                     })
-                    formData.value.interval = res('//content/heartbeat/interval').text().num()
-                    formData.value.schedule = res('//content/alarmServerSchedule').text()
+                    formData.value.interval = $('content/heartbeat/interval').text().num()
+                    formData.value.schedule = $('content/alarmServerSchedule').text()
 
-                    const alarmServerAlarmTypeValue = res('//content/alarmServerAlarmTypes').text()
+                    const alarmServerAlarmTypeValue = $('content/alarmServerAlarmTypes').text()
                     pageData.value.linkedAlarmList = alarmServerAlarmTypeValue ? alarmServerAlarmTypeValue.split(',') : []
                     tableData.value = pageData.value.linkedAlarmList.map((item) => {
                         return {
@@ -207,7 +207,7 @@ export default defineComponent({
         const setFormByProtocol = () => {
             pageData.value.isProtocolXML = formData.value.protocol === 'XML'
             pageData.value.isArisanProtocol = formData.value.protocol === 'ARISAN'
-            pageData.value.isJSONProtocol = formData.value.protocol === 'JSON' || Trim(formData.value.protocol, 'g') === Trim('VIDEO GUARD', 'g')
+            pageData.value.isJSONProtocol = formData.value.protocol === 'JSON' || trimAllSpace(formData.value.protocol) === trimAllSpace('VIDEO GUARD')
             pageData.value.showAlarmTypeCfg = pageData.value.isProtocolXML ? true : false
             pageData.value.urlDisabled = pageData.value.isProtocolXML ? false : true
             pageData.value.heartEnableDisabled = pageData.value.isArisanProtocol ? true : false
@@ -245,17 +245,6 @@ export default defineComponent({
             const reg = /([\u4e00-\u9fa5]|[^a-zA-Z\d\.\-:\\/])/g
             const url = checkRule(value, reg)
             formData.value.url = url
-        }
-
-        // 去除字符串前后空格
-        const Trim = (str: string, is_global: string) => {
-            if (!str) return ''
-            let result
-            result = str.replace(/(^\s+)|(\s+$)/g, '')
-            if (is_global.toLowerCase() === 'g') {
-                result = result.replace(/\s/g, '')
-            }
-            return result
         }
 
         const getSavaData = (url: string) => {
@@ -302,10 +291,10 @@ export default defineComponent({
                 if (valid) {
                     if (url === 'testAlarmServerParam') {
                         openLoading()
-                        testAlarmServerParam(getSavaData(url)).then((resb) => {
+                        testAlarmServerParam(getSavaData(url)).then((result) => {
                             closeLoading()
-                            const res = queryXml(resb)
-                            if (res('status').text() === 'success') {
+                            const $ = queryXml(result)
+                            if ($('status').text() === 'success') {
                                 openMessageBox({
                                     type: 'success',
                                     message: Translate('IDCS_TEST_ALARM_SERVER_SUCCESS'),
@@ -321,17 +310,17 @@ export default defineComponent({
                     } else if (url === 'editAlarmServerParam') {
                         pageData.value.isTestAlarmServer = false
                         openLoading()
-                        editAlarmServerParam(getSavaData(url)).then((resb) => {
+                        editAlarmServerParam(getSavaData(url)).then((result) => {
                             closeLoading()
-                            const res = queryXml(resb)
-                            if (res('status').text() === 'success') {
+                            const $ = queryXml(result)
+                            if ($('status').text() === 'success') {
                                 openMessageBox({
                                     type: 'success',
                                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                                 })
                             } else {
                                 let msg = ''
-                                const errorCode = res('errorCode').text().num()
+                                const errorCode = $('errorCode').text().num()
                                 switch (errorCode) {
                                     case ErrorCode.USER_ERROR_FAIL:
                                         msg = Translate('IDCS_LOGIN_OVERTIME')

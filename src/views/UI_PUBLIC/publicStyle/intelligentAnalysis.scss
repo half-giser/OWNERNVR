@@ -172,12 +172,14 @@
 }
 
 .base-intel-pics-box {
-    box-sizing: border-box;
     height: 100%;
     width: 100%;
+    border: 1px solid var(--content-border);
+}
+
+.base-intel-pics-content {
     padding: 10px;
     display: flex;
     flex-wrap: wrap;
-    border: 1px solid var(--content-border);
-    overflow-y: scroll;
+    box-sizing: border-box;
 }

@@ -7,17 +7,20 @@
     <div
         ref="$player"
         class="PluginPlayer"
-    >
-        <BasePluginNotice />
-    </div>
+    ></div>
 </template>
 
 <script lang="ts" setup>
+import { type XMLQuery } from '@/utils/xmlParse'
+
 const pluginStore = usePluginStore()
 
 const prop = withDefaults(
     defineProps<{
-        isUpdatePos: boolean // 是否向插件发送位置数据
+        /**
+         * @property 是否向插件发送位置数据
+         */
+        isUpdatePos: boolean
     }>(),
     {
         isUpdatePos: true,
@@ -25,34 +28,40 @@ const prop = withDefaults(
 )
 
 const emits = defineEmits<{
-    (e: 'onready'): void
+    (e: 'ready'): void
+    (e: 'message', $: XMLQuery): void
 }>()
 
-const Plugin = inject('Plugin') as PluginType
+const plugin = usePlugin()
 const $player = ref<HTMLDivElement>()
 const ready = ref(false)
+
+usePluginHook({
+    player: $player,
+    onMessage: ($) => emits('message', $),
+})
 
 /**
  * @description 组件与OCX通信均就绪时回调
  */
 const handleReady = () => {
     if (ready.value && pluginStore.ready && pluginStore.currPluginMode === 'ocx') {
-        Plugin.SetPluginSize($player.value!)
-        emits('onready')
+        plugin.SetPluginSize($player.value!)
+        emits('ready')
     }
 }
 
 onMounted(() => {
     if (prop.isUpdatePos) {
-        Plugin.AddPluginMoveEvent($player.value!)
+        plugin.AddPluginMoveEvent($player.value!)
     }
     ready.value = true
     handleReady()
 })
 
 onBeforeUnmount(() => {
-    Plugin.CloseCurPlugin($player.value!)
-    Plugin.DisplayOCX(false)
+    plugin.CloseCurPlugin($player.value!)
+    plugin.DisplayOCX(false)
 })
 
 watch(
@@ -69,9 +78,9 @@ watch(
     () => prop.isUpdatePos,
     (newValue) => {
         if (newValue) {
-            Plugin.AddPluginMoveEvent($player.value!)
+            plugin.AddPluginMoveEvent($player.value!)
         } else {
-            Plugin.DisableUpdatePluginPos($player.value!)
+            plugin.DisableUpdatePluginPos($player.value!)
         }
     },
     {
@@ -80,7 +89,7 @@ watch(
 )
 
 defineExpose({
-    plugin: Plugin,
+    plugin,
 })
 </script>
 

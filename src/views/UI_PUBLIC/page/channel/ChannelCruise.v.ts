@@ -20,6 +20,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
+        const { openNotify } = useNotification()
         const { openMessageBox } = useMessageBox()
         const playerRef = ref<PlayerInstance>()
         const auth = useUserChlAuth(false)
@@ -32,8 +33,6 @@ export default defineComponent({
         let presetId = 0
 
         const pageData = ref({
-            // 通知列表
-            notification: [] as string[],
             // 速度
             speed: 4,
             // 当前表格选中索引
@@ -64,6 +63,15 @@ export default defineComponent({
         const tableRef = ref<TableInstance>()
         const tableData = ref<ChannelPtzCruiseChlDto[]>([])
 
+        const chlOptions = computed(() => {
+            return tableData.value.map((item, index) => {
+                return {
+                    label: item.chlName,
+                    value: index,
+                }
+            })
+        })
+
         const presetTableData = ref<ChannelPtzCruisePresetDto[]>([])
         const presetTableRef = ref<TableInstance>()
 
@@ -91,20 +99,11 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 if (isHttpsLogin()) {
-                    pageData.value.notification = [formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`)]
+                    openNotify(formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`))
                 }
             }
 
             if (mode.value === 'ocx') {
-                if (!plugin.IsInstallPlugin()) {
-                    plugin.SetPluginNotice('#layout2Content')
-                    return
-                }
-
-                if (!plugin.IsPluginAvailable()) {
-                    plugin.SetPluginNoResponse()
-                    plugin.ShowPluginNoResponse()
-                }
                 const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
@@ -279,7 +278,12 @@ export default defineComponent({
 
         // 当前巡航线选项
         const cruiseOptions = computed(() => {
-            return tableData.value[pageData.value.tableIndex]?.cruise || []
+            return (
+                tableData.value[pageData.value.tableIndex]?.cruise.map((item, value) => ({
+                    ...item,
+                    value,
+                })) || []
+            )
         })
 
         const defaultCruise = new ChannelPtzCruiseDto()
@@ -626,6 +630,7 @@ export default defineComponent({
             tableRef,
             pageData,
             tableData,
+            chlOptions,
             formData,
             cruiseOptions,
             playCruise,

@@ -10,7 +10,6 @@
         @close="close"
     >
         <el-form
-            ref="formRef"
             :style="{
                 '--form-label-width': '180px',
             }"
@@ -38,10 +37,9 @@
         <el-table
             ref="tableRef"
             height="260"
-            border
-            stripe
             :data="tableData"
             highlight-current-row
+            show-overflow-tooltip
             @row-click="handleRowClick"
             @select="handleSelect"
             @select-all="selectAllChl"
@@ -61,12 +59,10 @@
                 width="308"
             />
         </el-table>
-        <template #footer>
-            <div class="base-btn-box">
-                <el-button @click="addTime">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="addTime">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 

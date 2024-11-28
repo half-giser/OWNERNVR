@@ -287,6 +287,9 @@ export default defineComponent({
          * @description 渲染矩形框
          */
         const renderCanvas = () => {
+            if (!context) {
+                return
+            }
             context.ClearRect(0, 0, pageData.value.canvasWidth, pageData.value.canvasHeight)
             const X1 = current.value.X1 * pageData.value.canvasWidth
             const X2 = current.value.X2 * pageData.value.canvasWidth
@@ -323,7 +326,6 @@ export default defineComponent({
         const previous = () => {
             if (pageData.value.currentIndex > 0) {
                 pageData.value.currentIndex--
-                renderCanvas()
             }
         }
 
@@ -333,7 +335,6 @@ export default defineComponent({
         const next = () => {
             if (pageData.value.currentIndex < prop.list.length) {
                 pageData.value.currentIndex++
-                renderCanvas()
             }
         }
 
@@ -384,6 +385,13 @@ export default defineComponent({
         const search = () => {
             ctx.emit('search', current.value, pageData.value.currentIndex)
         }
+
+        watch(
+            () => current.value.panorama,
+            () => {
+                renderCanvas()
+            },
+        )
 
         return {
             open,

@@ -5,23 +5,25 @@
  */
 import { AlarmChlDto } from '@/types/apiType/aiAndEvent'
 import { type TabsPaneContext } from 'element-plus'
-import FireDetection from './FireDetections.vue'
-import TemperatureDetection from './TemperatureDetection.vue'
-import ObjectLeft from './ObjectLeft.vue'
-import PassLine from './PassLines.vue'
-import AbnormalDispose from './AbnormalDispose.vue'
-import Cdd from './Cdd.vue'
-import VideoStructure from './VideoStructure.vue'
+import AlarmBaseChannelSelector from './AlarmBaseChannelSelector.vue'
+import FireDetectionPanel from './FireDetectionPanel.vue'
+import TemperatureDetectionPanel from './TemperatureDetectionPanel.vue'
+import ObjectLeftPanel from './ObjectLeftPanel.vue'
+import PassLinePanel from './PassLinePanel.vue'
+import AbnormalDisposePanel from './AbnormalDisposePanel.vue'
+import CddPanel from './CddPanel.vue'
+import VideoStructurePanel from './VideoStructurePanel.vue'
 
 export default defineComponent({
     components: {
-        FireDetection,
-        VideoStructure,
-        PassLine,
-        TemperatureDetection,
-        ObjectLeft,
-        AbnormalDispose,
-        Cdd,
+        AlarmBaseChannelSelector,
+        FireDetectionPanel,
+        VideoStructurePanel,
+        PassLinePanel,
+        TemperatureDetectionPanel,
+        ObjectLeftPanel,
+        AbnormalDisposePanel,
+        CddPanel,
     },
     setup() {
         const systemCaps = useCababilityStore()
@@ -84,7 +86,7 @@ export default defineComponent({
         })
 
         // 切换通道
-        const handleChangeChannel = async () => {
+        const handleChangeChannel = () => {
             pageData.value.tabKey += 1
             initPage()
         }
@@ -100,9 +102,8 @@ export default defineComponent({
             const res = await queryOnlineChlList()
             const $ = queryXml(res)
             if ($('status').text() === 'success') {
-                $('//content/item').forEach((item) => {
-                    const id = item.attr('id')
-                    pageData.value.onlineChannelIdList.push(id ? id : '')
+                pageData.value.onlineChannelIdList = $('content/item').map((item) => {
+                    return item.attr('id')
                 })
             }
 
@@ -127,7 +128,7 @@ export default defineComponent({
             pageData.value.supportPlateMatch = systemCaps.supportPlateMatch
             pageData.value.showAIReourceDetail = systemCaps.showAIReourceDetail
 
-            const resb = await getChlList({
+            const result = await getChlList({
                 requireField: [
                     'ip',
                     'supportVfd',
@@ -152,9 +153,9 @@ export default defineComponent({
                     'supportVideoMetadata',
                 ],
             })
-            const res = queryXml(resb)
-            if (res('status').text() === 'success') {
-                res('//content/item').forEach((element) => {
+            const $ = queryXml(result)
+            if ($('status').text() === 'success') {
+                $('content/item').forEach((element) => {
                     const $item = queryXml(element.element)
                     const protocolType = $item('protocolType').text()
                     const factoryName = $item('productModel').attr('factoryName')
@@ -348,13 +349,14 @@ export default defineComponent({
 
         return {
             chlData,
-            FireDetection,
-            PassLine,
-            Cdd,
-            VideoStructure,
-            TemperatureDetection,
-            ObjectLeft,
-            AbnormalDispose,
+            AlarmBaseChannelSelector,
+            FireDetectionPanel,
+            PassLinePanel,
+            CddPanel,
+            VideoStructurePanel,
+            TemperatureDetectionPanel,
+            ObjectLeftPanel,
+            AbnormalDisposePanel,
             pageData,
             handleChangeChannel,
             handleTabClick,

@@ -3,7 +3,7 @@
  * @Date: 2024-08-22 10:15:51
  * @Description: 巡航线组 新增巡航线弹窗
  */
-import type { FormInstance, FormRules } from 'element-plus'
+import type { FormRules } from 'element-plus'
 import { type ChannelPtzCruiseDto } from '@/types/apiType/channel'
 
 export default defineComponent({
@@ -48,7 +48,7 @@ export default defineComponent({
             cruiseOptions: [] as SelectOption<string, string>[],
         })
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref({
             name: '' as string,
         })
@@ -79,8 +79,8 @@ export default defineComponent({
             const result = await queryChlCruiseList(sendXml)
             const $ = queryXml(result)
 
-            if ($('//status').text() === 'success') {
-                pageData.value.cruiseOptions = $('//content/cruises/item').map((item) => {
+            if ($('status').text() === 'success') {
+                pageData.value.cruiseOptions = $('content/cruises/item').map((item) => {
                     return {
                         value: item.attr('index'),
                         label: item.text(),
@@ -98,8 +98,6 @@ export default defineComponent({
          * @description 打开弹窗时，重置表单和选项数据
          */
         const open = () => {
-            formRef.value?.clearValidate()
-            formData.value.name = ''
             getData()
         }
 
@@ -135,7 +133,7 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
@@ -143,14 +141,14 @@ export default defineComponent({
                     ctx.emit('confirm')
                 })
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_NAME_EXISTED:
                         errorInfo = Translate('IDCS_PROMPT_CRUISE_NAME_EXIST')
                         break
                     case ErrorCode.USER_ERROR_OVER_LIMIT:
-                        errorInfo = $('//errorDescription').text() === 'Cruise' ? Translate('IDCS_CRUISE_MAX_NUM').formatForLang(prop.max) : Translate('IDCS_SAVE_DATA_FAIL')
+                        errorInfo = $('errorDescription').text() === 'Cruise' ? Translate('IDCS_CRUISE_MAX_NUM').formatForLang(prop.max) : Translate('IDCS_SAVE_DATA_FAIL')
                         break
                     default:
                         errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
@@ -167,7 +165,7 @@ export default defineComponent({
          * @description 验证表单
          */
         const verify = () => {
-            formRef.value?.validate((valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     setData()
                 }

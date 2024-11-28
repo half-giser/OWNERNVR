@@ -3,7 +3,6 @@
  * @Date: 2024-08-30 18:46:48
  * @Description: 人脸库
  */
-import { cloneDeep } from 'lodash-es'
 import { IntelFaceDBGroupList, IntelFaceDBFaceInfo } from '@/types/apiType/intelligentAnalysis'
 import { type TableInstance } from 'element-plus'
 import IntelBaseFaceItem from './IntelBaseFaceItem.vue'
@@ -24,6 +23,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
+        const { openNotify } = useNotification()
         const userSession = useUserSessionStore()
         const dateTime = useDateTimeStore()
         const router = useRouter()
@@ -36,8 +36,6 @@ export default defineComponent({
         const cacheFaceMap: Record<string, IntelFaceDBFaceInfo | undefined> = {}
 
         const pageData = ref({
-            // 通知内容数组
-            notifications: [] as string[],
             // 是否显示编辑分组弹窗
             isEditPop: false,
             // 编辑的分组数据
@@ -172,17 +170,16 @@ export default defineComponent({
             if (pageData.value.expandRowKey.length) {
                 const find = tableData.value.find((item) => item.groupId === pageData.value.expandRowKey[0])
                 if (find) {
-                    tableRef.value?.toggleRowExpansion(find, false)
+                    tableRef.value!.toggleRowExpansion(find, false)
                 }
                 pageData.value.expandRowKey = []
             }
             pageData.value.isEditPop = false
 
             await getGroupList()
-            for (let i = 0; i < tableData.value.length; i++) {
-                const item = tableData.value[i]
-                await getGroupFaceFeatureCount(item, i)
-            }
+            tableData.value.forEach((item) => {
+                getGroupFaceFeatureCount(item)
+            })
         }
 
         /**
@@ -227,7 +224,7 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
@@ -235,19 +232,18 @@ export default defineComponent({
                     if (pageData.value.expandRowKey.length) {
                         const find = tableData.value.find((item) => item.groupId === pageData.value.expandRowKey[0])
                         if (find) {
-                            tableRef.value?.toggleRowExpansion(find, false)
+                            tableRef.value!.toggleRowExpansion(find, false)
                         }
                         pageData.value.expandRowKey = []
                     }
 
                     await getGroupList()
-                    for (let i = 0; i < tableData.value.length; i++) {
-                        const item = tableData.value[i]
-                        await getGroupFaceFeatureCount(item, i)
-                    }
+                    tableData.value.forEach((item) => {
+                        getGroupFaceFeatureCount(item)
+                    })
                 })
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_NO_AUTH:
@@ -268,7 +264,7 @@ export default defineComponent({
          */
         const exportGroup = () => {
             if (isHttpsLogin()) {
-                pageData.value.notifications.push(formatHttpsTips(Translate('IDCS_FACE_LIB_FILE')))
+                openNotify(formatHttpsTips(Translate('IDCS_FACE_LIB_FILE')))
                 return
             }
 
@@ -334,7 +330,7 @@ export default defineComponent({
 
             closeLoading()
 
-            tableData.value = $('//content/item').map((item) => {
+            tableData.value = $('content/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
                     id: item.attr('id'),
@@ -352,7 +348,7 @@ export default defineComponent({
          * @param {IntelFaceDBGroupList} item
          * @param {number} index
          */
-        const getGroupFaceFeatureCount = async (item: IntelFaceDBGroupList, index: number) => {
+        const getGroupFaceFeatureCount = async (item: IntelFaceDBGroupList) => {
             const sendXml = rawXml`
                 <pageIndex>1</pageIndex>
                 <pageSize>${pageData.value.pageSize}</pageSize>
@@ -364,8 +360,10 @@ export default defineComponent({
             `
             const result = await queryFacePersonnalInfoList(sendXml)
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                tableData.value[index].count = $('//content').attr('total').num()
+            if ($('status').text() === 'success') {
+                item.count = $('content').attr('total').num()
+            } else {
+                item.count = 0
             }
         }
 
@@ -418,11 +416,11 @@ export default defineComponent({
                 `
                 const result = await queryFacePersonnalInfoList(sendXml)
                 const $ = queryXml(result)
-                if ($('//status').text() === 'success') {
+                if ($('status').text() === 'success') {
                     if (findIndex > -1 && !formData.value.name) {
-                        tableData.value[findIndex].count = $('//content').attr('total').num()
+                        tableData.value[findIndex].count = $('content').attr('total').num()
                     }
-                    allGroupTableData.value = $('//content/item').map((item) => {
+                    allGroupTableData.value = $('content/item').map((item) => {
                         const $item = queryXml(item.element)
                         const info = new IntelFaceDBFaceInfo()
                         info.id = item.attr('id')
@@ -436,8 +434,7 @@ export default defineComponent({
 
             groupTableData.value = allGroupTableData.value.slice((formData.value.pageIndex - 1) * 16, formData.value.pageIndex * 16)
 
-            for (let i = 0; i < groupTableData.value.length; i++) {
-                const item = groupTableData.value[i]
+            groupTableData.value.forEach(async (item, i) => {
                 const id = item.id
                 if (force || !cacheFaceMap[id]) {
                     const info = await getFaceInfo(id)
@@ -447,8 +444,23 @@ export default defineComponent({
                         cacheFaceMap[id].pic.push(pic)
                     }
                 }
-                groupTableData.value[i] = cloneDeep(cacheFaceMap[id])
-            }
+
+                if (item === groupTableData.value[i]) {
+                    const pic = cacheFaceMap[id]
+                    item.number = pic.number
+                    item.name = pic.name
+                    item.sex = pic.sex
+                    item.birthday = pic.birthday
+                    item.nativePlace = pic.nativePlace
+                    item.certificateType = pic.certificateType
+                    item.certificateNum = pic.certificateNum
+                    item.mobile = pic.mobile
+                    item.note = pic.note
+                    item.faceImgCount = pic.faceImgCount
+                    item.pic = pic.pic
+                    item.groupId = pic.groupId
+                }
+            })
         }
 
         /**
@@ -467,7 +479,7 @@ export default defineComponent({
             const result = await queryFacePersonnalInfoList(sendXml)
             const $ = queryXml(result)
 
-            const item = $('//content/item')[0]
+            const item = $('content/item')[0]
             const $item = queryXml(item.element)
             return {
                 id: item.attr('id'),
@@ -502,8 +514,8 @@ export default defineComponent({
             const result = await requestFacePersonnalInfoImage(sendXml)
             const $ = queryXml(result)
 
-            const pic = $('//content').text()
-            if (pic) return 'data:image/png;base64,' + pic
+            const pic = $('content').text()
+            if (pic) return wrapBase64Img(pic)
             return ''
         }
 
@@ -582,7 +594,7 @@ export default defineComponent({
 
                 closeLoading()
 
-                if ($('//status').text() === 'success') {
+                if ($('status').text() === 'success') {
                     clearCache(formData.value.faceIndex.map((index) => groupTableData.value[index].id))
 
                     if (formData.value.faceIndex.length === groupTableData.value.length) {
@@ -593,7 +605,7 @@ export default defineComponent({
 
                     getFace(1, group.groupId)
                 } else {
-                    const errorCode = $('//errorCode').text().num()
+                    const errorCode = $('errorCode').text().num()
                     let errorInfo = ''
                     switch (errorCode) {
                         case ErrorCode.USER_ERROR_NO_AUTH:
@@ -624,7 +636,7 @@ export default defineComponent({
             openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_NOTE_CLEAR_ALL_FACE'),
-            }).then(async () => {
+            }).then(() => {
                 const group = tableData.value.find((item) => item.groupId === pageData.value.expandRowKey[0])!
                 confirmDeleteAllFace(group)
             })
@@ -656,7 +668,7 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 formData.value.pageIndex = 1
                 formData.value.faceIndex = []
                 formData.value.infoFaceIndex = -1
@@ -666,7 +678,7 @@ export default defineComponent({
 
                 return true
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_NO_AUTH:
@@ -706,20 +718,18 @@ export default defineComponent({
         const confirmEditFace = async (ids: string[]) => {
             pageData.value.isEditFacePop = false
             clearCache(ids)
-            for (let i = 0; i < tableData.value.length; i++) {
-                const item = tableData.value[i]
-                if (tableData.value[i].groupId !== pageData.value.expandRowKey[0]) {
-                    await getGroupFaceFeatureCount(item, i)
-                } else {
-                    await searchFace(tableData.value[i].groupId)
+            tableData.value.forEach(async (item) => {
+                await getGroupFaceFeatureCount(item)
+                if (item.groupId === pageData.value.expandRowKey[0]) {
+                    await searchFace(item.groupId)
                 }
-            }
+            })
         }
 
         /**
          * @description 跳转人脸识别页面
          */
-        const handleFaceRecognition = async () => {
+        const handleFaceRecognition = () => {
             if (!userSession.hasAuth('alarmMgr')) {
                 openMessageBox({
                     type: 'info',
@@ -760,7 +770,7 @@ export default defineComponent({
         const handleExpandChange = async (row: IntelFaceDBGroupList, expanded: IntelFaceDBGroupList[]) => {
             if (expanded.length > 1) {
                 const find = tableData.value.find((item) => item.groupId === expanded[0].groupId)!
-                tableRef.value?.toggleRowExpansion(find, false)
+                tableRef.value!.toggleRowExpansion(find, false)
             }
 
             if (!expanded.length) {
@@ -769,7 +779,7 @@ export default defineComponent({
             }
 
             if (expanded.some((item) => item.groupId === row.groupId)) {
-                tableRef.value?.setCurrentRow(row)
+                tableRef.value!.setCurrentRow(row)
                 groupTableData.value = []
                 pageData.value.expandRowKey = [row.groupId]
 
@@ -784,10 +794,9 @@ export default defineComponent({
 
         onMounted(async () => {
             await getGroupList()
-            for (let i = 0; i < tableData.value.length; i++) {
-                const item = tableData.value[i]
-                await getGroupFaceFeatureCount(item, i)
-            }
+            tableData.value.forEach((item) => {
+                getGroupFaceFeatureCount(item)
+            })
         })
 
         onBeforeUnmount(() => {

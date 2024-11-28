@@ -8,6 +8,7 @@
         :title="Translate('IDCS_ADD_CRUISE')"
         width="600"
         @open="open"
+        @closed="reset"
     >
         <div>
             <el-form
@@ -99,13 +100,15 @@
                     <el-button
                         :disabled="!tableData.length || pageData.presetIndex === 0"
                         @click="moveUpPreset"
-                        >{{ Translate('IDCS_UP') }}</el-button
                     >
+                        {{ Translate('IDCS_UP') }}
+                    </el-button>
                     <el-button
                         :disabled="!tableData.length || pageData.presetIndex === tableData.length - 1"
                         @click="moveDownPreset"
-                        >{{ Translate('IDCS_DOWN') }}</el-button
                     >
+                        {{ Translate('IDCS_DOWN') }}
+                    </el-button>
                 </div>
             </div>
         </div>
@@ -117,12 +120,10 @@
             @confirm="confirmChangePreset"
             @close="pageData.isPresetPop = false"
         />
-        <template #footer>
-            <div class="base-btn-box">
-                <el-button @click="verify">{{ Translate('IDCS_ADD') }}</el-button>
-                <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="verify">{{ Translate('IDCS_ADD') }}</el-button>
+            <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 

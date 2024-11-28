@@ -9,7 +9,6 @@
             ref="formRef"
             class="stripe"
             :model="formData"
-            inline-message
             :style="{
                 '--form-input-width': '250px',
             }"
@@ -64,52 +63,35 @@
             <div class="base-subheading-box">{{ Translate('IDCS_SNAP_SETTING') }}</div>
             <!-- 分辨率 -->
             <el-form-item :label="Translate('IDCS_RESOLUTION_RATE')">
-                <el-select
+                <el-select-v2
                     v-model="formData.resolution"
                     :disabled="!formData.enable"
-                >
-                    <el-option
-                        v-for="item in pageData.resolutionList"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    />
-                </el-select>
+                    :options="pageData.resolutionList"
+                />
             </el-form-item>
             <!-- 画质 -->
             <el-form-item :label="Translate('IDCS_SNAP_QUALITY')">
-                <el-select
+                <el-select-v2
                     v-model="formData.level"
                     :disabled="!formData.enable"
-                >
-                    <el-option
-                        v-for="item in pageData.levelList"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    />
-                </el-select>
+                    :options="pageData.levelList"
+                />
             </el-form-item>
             <!-- 间隔时间 -->
             <el-form-item :label="Translate('IDCS_SNAP_TIMEINTERVAL')">
-                <el-select
+                <el-select-v2
                     v-model="formData.holdTime"
                     :disabled="!formData.enable"
-                >
-                    <el-option
-                        v-for="item in pageData.holdTimeList"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    />
-                </el-select>
+                    :options="pageData.holdTimeList"
+                />
             </el-form-item>
             <div class="base-btn-box">
                 <el-button
                     :disabled="!formData.enable"
                     @click="setDefault"
-                    >{{ Translate('IDCS_DEFAULT') }}</el-button
                 >
+                    {{ Translate('IDCS_DEFAULT') }}
+                </el-button>
                 <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>
             </div>
         </el-form>

@@ -4,7 +4,6 @@
  * @Description: 报警输出
  */
 import { AlarmOutDto } from '@/types/apiType/aiAndEvent'
-import { cloneDeep } from 'lodash-es'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 
 export default defineComponent({
@@ -30,14 +29,13 @@ export default defineComponent({
             localAlarmOutCount: 0,
             //排程管理弹窗
             scheduleManagePopOpen: false,
-            applyDisabled: true,
-            initComplated: false,
         })
 
         // 表格数据
         const tableData = ref<AlarmOutDto[]>([])
-        // 缓存表格初始数据，保存时对比变化了的行
-        let tableDataInit = [] as AlarmOutDto[]
+        // 编辑行
+        const editRows = useWatchEditRows<AlarmOutDto>()
+
         // 名称被修改时保存原始名称
         const originalName = ref('')
         // 当前告警输出的常开/常闭类型
@@ -52,45 +50,31 @@ export default defineComponent({
             buildTableData()
         })
 
-        watch(
-            tableData,
-            () => {
-                if (pageData.value.initComplated) {
-                    pageData.value.applyDisabled = false
-                }
-            },
-            {
-                deep: true,
-            },
-        )
-
         /**
          * @description: 获取表格数据
          * @return {*}
          */
         const buildTableData = () => {
-            pageData.value.initComplated = false
-            tableData.value.length = 0
+            editRows.clear()
+            tableData.value = []
+
             getChlList({
                 pageIndex: pageData.value.pageIndex,
                 pageSize: pageData.value.pageSize,
                 nodeType: 'alarmOuts',
-            }).then(async (result) => {
+            }).then((result) => {
                 const $chl = queryXml(result)
-                pageData.value.totalCount = $chl('//content').attr('total').num()
-                $chl('//content/item').forEach(async (item) => {
+                pageData.value.totalCount = $chl('content').attr('total').num()
+                tableData.value = $chl('content/item').map((item) => {
+                    const $item = queryXml(item.element)
                     const row = new AlarmOutDto()
                     row.id = item.attr('id')
-                    row.name = xmlParse('./name', item.element).text()
+                    row.name = $item('name').text()
                     row.status = 'loading'
-                    tableData.value.push(row)
+                    return row
                 })
 
-                let completeCount = 0
-
-                for (let i = 0; i < tableData.value.length; i++) {
-                    const row = tableData.value[i]
-
+                tableData.value.forEach(async (row) => {
                     const sendXml = rawXml`
                         <condition>
                             <alarmOutId>${row.id}</alarmOutId>
@@ -98,11 +82,16 @@ export default defineComponent({
                     `
                     const alarmParam = await queryAlarmOutParam(sendXml)
                     const $ = queryXml(alarmParam)
+
+                    if (!tableData.value.some((item) => item === row)) {
+                        return
+                    }
+
                     row.status = ''
 
                     // 从第一个数据中获取延迟时间下拉选项和类型下拉选项
                     if (!pageData.value.delayList.length) {
-                        pageData.value.delayList = $('//content/delayTimeNote')
+                        pageData.value.delayList = $('content/delayTimeNote')
                             .text()
                             .split(',')
                             .map((delayItem) => {
@@ -114,16 +103,15 @@ export default defineComponent({
                             })
                     }
 
-                    if ($('//status').text() === 'success') {
-                        // 查询成功的行取消禁用
+                    if ($('status').text() === 'success') {
                         row.disabled = false
-                        row.delayTime = $('//content/delayTime').text().num()
-                        const $schedule = $('//content/schedule')
+                        row.delayTime = $('content/delayTime').text().num()
+                        const $schedule = $('content/schedule')
                         row.scheduleId = $schedule.attr('id')
                         row.scheduleName = $schedule.text()
                         row.oldSchedule = $schedule.attr('id')
-                        row.index = $('//content/index').text()
-                        row.devDesc = $('//content/devDesc').text()
+                        row.index = $('content/index').text()
+                        row.devDesc = $('content/devDesc').text()
                         // devDescTemp不存在表示设备本地报警输出，本地报警输出才能设置报警类型
                         if (!row.devDesc) {
                             row.type = pageData.value.alarmoutTypeText[curAlarmoutType.value]
@@ -131,16 +119,10 @@ export default defineComponent({
                         } else {
                             row.type = '--'
                         }
-                        tableDataInit.push(cloneDeep(row))
-                    }
 
-                    completeCount++
-                    if (completeCount >= tableData.value.length) {
-                        nextTick(() => {
-                            pageData.value.initComplated = true
-                        })
+                        editRows.listen(row)
                     }
-                }
+                })
             })
         }
 
@@ -176,9 +158,13 @@ export default defineComponent({
         const changeSchedule = (row: AlarmOutDto) => {
             if (row.scheduleId === 'scheduleMgr') {
                 pageData.value.scheduleManagePopOpen = true
-                row.scheduleId = row.oldSchedule
+                nextTick(() => {
+                    row.scheduleId = row.oldSchedule
+                })
             } else {
-                row.oldSchedule = row.scheduleId
+                nextTick(() => {
+                    row.oldSchedule = row.scheduleId
+                })
             }
         }
 
@@ -189,8 +175,8 @@ export default defineComponent({
         const getAlarmOutType = async () => {
             const result = await queryBasicCfg()
             const $ = queryXml(result)
-            curAlarmoutType.value = $('//content/alarmoutType').text()
-            pageData.value.typeList = $('//types/alarmoutType/enum').map((typeItem) => {
+            curAlarmoutType.value = $('content/alarmoutType').text()
+            pageData.value.typeList = $('types/alarmoutType/enum').map((typeItem) => {
                 const value = typeItem.text()
                 return {
                     value: value,
@@ -238,8 +224,8 @@ export default defineComponent({
         }
 
         // 回车键失去焦点
-        const enterBlur = (event: { target: { blur: () => void } }) => {
-            event.target.blur()
+        const enterBlur = (event: Event) => {
+            ;(event.target as HTMLInputElement).blur()
         }
 
         /**
@@ -283,51 +269,53 @@ export default defineComponent({
          * @description: 保存数据
          * @return {*}
          */
-        const setData = () => {
-            const diffRows = getArrayDiffRows(tableData.value, tableDataInit, ['name', 'delayTime', 'scheduleId'])
+        const setData = async () => {
+            openLoading()
 
-            if (diffRows.length) {
-                let completeCount = 0
-                openLoading()
-                diffRows.forEach(async (row) => {
-                    const rowItem = row as AlarmOutDto
-                    const sendXml = rawXml`
-                        <content>
-                            <id>${rowItem.id}</id>
-                            <name><![CDATA[${rowItem.name}]]></name>
-                            <delayTime unit='s'>${rowItem.delayTime}</delayTime>
-                            <schedule id='${rowItem.scheduleId}'></schedule>
-                        </content>
-                    `
+            tableData.value.forEach((item) => (item.status = ''))
+
+            for (const rowItem of editRows.toArray()) {
+                const sendXml = rawXml`
+                    <content>
+                        <id>${rowItem.id}</id>
+                        <name><![CDATA[${rowItem.name}]]></name>
+                        <delayTime unit='s'>${rowItem.delayTime}</delayTime>
+                        <schedule id='${rowItem.scheduleId}'></schedule>
+                    </content>
+                `
+                try {
                     const result = await editAlarmOutParam(sendXml)
                     const $ = queryXml(result)
-                    const isSuccess = $('//status').text() === 'success'
-                    rowItem.status = isSuccess ? 'success' : 'error'
-                    completeCount++
-
-                    if (completeCount >= diffRows.length) {
-                        // 更新表格初始对比值
-                        tableDataInit = cloneDeep(tableData.value)
-                        closeLoading()
-                        nextTick(() => {
-                            pageData.value.applyDisabled = true
-                        })
+                    if ($('status').text() === 'success') {
+                        rowItem.status = 'success'
+                        editRows.remove(rowItem)
+                    } else {
+                        rowItem.status = 'error'
                     }
-                })
-            } else {
-                // 比对后无变化
-                pageData.value.applyDisabled = true
+                } catch {
+                    rowItem.status = 'error'
+                }
             }
+
+            closeLoading()
         }
 
         const displaySerialNum = (row: AlarmOutDto) => {
+            if (row.disabled) {
+                return ''
+            }
             return `${row.devDesc ? row.devDesc : Translate('IDCS_LOCAL')}-${row.index}`
+        }
+
+        const displayAlarmOutType = (row: AlarmOutDto) => {
+            return row.disabled ? '' : row.devDesc ? '--' : pageData.value.alarmoutTypeText[curAlarmoutType.value]
         }
 
         return {
             ScheduleManagPop,
             pageData,
             tableData,
+            editRows,
             curAlarmoutType,
             changePagination,
             changePaginationSize,
@@ -341,6 +329,7 @@ export default defineComponent({
             changeType,
             setData,
             displaySerialNum,
+            displayAlarmOutType,
         }
     },
 })

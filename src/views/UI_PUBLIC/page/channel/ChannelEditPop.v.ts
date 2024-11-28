@@ -3,7 +3,7 @@
  * @Date: 2024-05-09 17:18:09
  * @Description: 通道编辑 弹窗
  */
-import { type FormRules, type FormInstance } from 'element-plus'
+import { type FormRules } from 'element-plus'
 import { ChannelInfoDto } from '@/types/apiType/channel'
 
 export default defineComponent({
@@ -41,7 +41,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
         const { openMessageBox } = useMessageBox()
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const ipTitle = ref('')
         const showIpInput = ref(true)
         const ipPlaceholder = ref('')
@@ -68,12 +68,12 @@ export default defineComponent({
                 const $ = queryXml(res)
                 if ($('status').text() === 'success') {
                     editItem.value = new ChannelInfoDto()
-                    editItem.value.name = $('//content/name').text()
-                    editItem.value.port = $('//content/port').text().num()
-                    // editItem.value.manufacturer = res('//content/manufacturer').text()
+                    editItem.value.name = $('content/name').text()
+                    editItem.value.port = $('content/port').text().num()
+                    // editItem.value.manufacturer = $('content/manufacturer').text()
                     const filterPropertyList = filterProperty(props.protocolList, 'index')
-                    const factoryName = $('//content/productModel').attr('factoryName')
-                    const manufacturer = $('//content/manufacturer').text()
+                    const factoryName = $('content/productModel').attr('factoryName')
+                    const manufacturer = $('content/manufacturer').text()
                     if (factoryName) {
                         editItem.value.manufacturer = factoryName
                     } else if (manufacturer.indexOf('RTSP') !== -1) {
@@ -81,21 +81,21 @@ export default defineComponent({
                     } else {
                         editItem.value.manufacturer = props.manufacturerMap[manufacturer]
                     }
-                    editItem.value.productModel.innerText = $('//content/productModel').text()
-                    editItem.value.userName = $('//content/userName').text()
+                    editItem.value.productModel.innerText = $('content/productModel').text()
+                    editItem.value.userName = $('content/userName').text()
 
-                    if (!$('//content/ip').length || !$('//content/ip').text()) {
+                    if (!$('content/ip').text()) {
                         isAnolog.value = true
                         inputDisabled.value = true
                         ipDisabled.value = true
                         portDisabled.value = true
                     } else {
-                        const ipdomain = $('//content/ip').text()
+                        const ipdomain = $('content/ip').text()
                         isIp = checkIpV4(ipdomain)
                         isIpv6 = checkIpV6(ipdomain)
                         isDomain = !isIp && !isIpv6
 
-                        if ($('//content/protocolType').text() === 'RTSP') {
+                        if ($('content/protocolType').text() === 'RTSP') {
                             portDisabled.value = true
                             editItem.value.port = 0
                         }
@@ -114,7 +114,7 @@ export default defineComponent({
                         }
                         editItem.value.ip = ipdomain
 
-                        if ($('//content/addType').text() === 'poe') {
+                        if ($('content/addType').text() === 'poe') {
                             ipDisabled.value = true
                             portDisabled.value = true
                         }
@@ -235,8 +235,7 @@ export default defineComponent({
 
         const save = (notCheckName: boolean) => {
             notCheckNameFlag = notCheckName
-            if (!formRef) return false
-            formRef.value?.validate((valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     const sendXml = rawXml`
                         <content>
@@ -298,7 +297,6 @@ export default defineComponent({
         }
 
         const opened = () => {
-            if (formRef.value) formRef.value.resetFields()
             ipTitle.value = 'IPV4'
             showIpInput.value = true
             ipPlaceholder.value = ''

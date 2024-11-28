@@ -5,19 +5,11 @@
 -->
 <template>
     <div class="base-flex-box">
-        <ScheduleManagPop
-            v-model="pageData.scheduleManagePopOpen"
-            @close="handleSchedulePopClose"
-        />
         <div class="base-subheading-box">{{ Translate('IDCS_LIGHT') }}</div>
         <div class="base-table-box">
             <el-table
                 :data="tableData"
-                stripe
-                border
-                highlight-current-row
-                :row-class-name="(data) => (data.row.rowDisable ? 'disabled' : '')"
-                show-overflow-tooltip
+                :row-class-name="(data) => (data.row.disabled ? 'disabled' : '')"
             >
                 <el-table-column
                     label=" "
@@ -28,8 +20,9 @@
                     </template>
                 </el-table-column>
                 <el-table-column
-                    prop="name"
                     :label="Translate('IDCS_CHANNEL')"
+                    prop="name"
+                    show-overflow-tooltip
                 />
                 <!-- 启用 -->
                 <el-table-column>
@@ -52,19 +45,13 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select
+                        <el-select-v2
                             v-model="scope.row.enable"
                             :placeholder="Translate('IDCS_ON')"
-                            :disabled="scope.row.rowDisable"
+                            :disabled="scope.row.disabled"
+                            :options="pageData.enableList"
                             @change="handleEnabelChange(scope.row)"
-                        >
-                            <el-option
-                                v-for="item in pageData.enableList"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            />
-                        </el-select>
+                        />
                     </template>
                 </el-table-column>
                 <!-- 闪烁时间 -->
@@ -72,8 +59,7 @@
                     <template #default="scope">
                         <el-input
                             v-model="scope.row.durationTime"
-                            :disabled="scope.row.durationTimeDisable || scope.row.rowDisable"
-                            @change="handleDurationTimeChange(scope.row)"
+                            :disabled="scope.row.durationTimeDisable || scope.row.disabled"
                             @focus="handleDurationTimeFocus(scope.row)"
                             @blur="handleDurationTimeBlur(scope.row)"
                             @keydown.enter="handleDurationTimeKeydown(scope.row)"
@@ -101,18 +87,11 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select
+                        <el-select-v2
                             v-model="scope.row.frequencyType"
-                            :disabled="scope.row.frequencyTypeDisable || scope.row.rowDisable"
-                            @change="handleFrequencyTypeChange(scope.row)"
-                        >
-                            <el-option
-                                v-for="item in pageData.lightFrequencyList"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            />
-                        </el-select>
+                            :disabled="scope.row.frequencyTypeDisable || scope.row.disabled"
+                            :options="pageData.lightFrequencyList"
+                        />
                     </template>
                 </el-table-column>
             </el-table>
@@ -133,17 +112,11 @@
             }"
         >
             <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
-                <el-select
+                <el-select-v2
                     v-model="pageData.schedule"
+                    :options="pageData.scheduleList"
                     @change="handleScheduleChange()"
-                >
-                    <el-option
-                        v-for="item in pageData.scheduleList"
-                        :key="item.value"
-                        :value="item.value"
-                        :label="item.label"
-                    />
-                </el-select>
+                />
                 <el-button @click="popOpen()">
                     {{ Translate('IDCS_MANAGE') }}
                 </el-button>
@@ -152,11 +125,16 @@
         </el-form>
         <div class="base-btn-box padding">
             <el-button
-                :disabled="pageData.applyDisable"
+                :disabled="!editRows.size() && !pageData.scheduleChanged"
                 @click="setData()"
-                >{{ Translate('IDCS_APPLY') }}</el-button
             >
+                {{ Translate('IDCS_APPLY') }}
+            </el-button>
         </div>
+        <ScheduleManagPop
+            v-model="pageData.scheduleManagePopOpen"
+            @close="handleSchedulePopClose"
+        />
     </div>
 </template>
 

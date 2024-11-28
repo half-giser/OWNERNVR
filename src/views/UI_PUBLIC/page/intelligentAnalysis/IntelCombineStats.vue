@@ -75,11 +75,7 @@
                 v-show="pageData.chartType === 'table'"
                 class="base-table-box"
             >
-                <el-table
-                    border
-                    stripe
-                    :data="pageData.tableData.data"
-                >
+                <el-table :data="pageData.tableData.data">
                     <el-table-column
                         prop="chlName"
                         width="150"

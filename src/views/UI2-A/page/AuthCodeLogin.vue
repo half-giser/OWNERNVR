@@ -6,28 +6,20 @@
 <template>
     <div class="authCodeLogin">
         <div class="authCodeLogin-lang">
-            <el-select
+            <el-select-v2
                 v-model="pageData.langId"
+                :options="lang.langTypes.value"
+                :props="{
+                    label: 'name',
+                    value: 'id',
+                }"
                 @change="changeLang"
-            >
-                <el-option
-                    v-for="(item, key) in lang.langTypes.value"
-                    :key="key"
-                    :label="item.name"
-                    :value="item.id"
-                />
-            </el-select>
-            <el-select
+            />
+            <el-select-v2
                 v-show="pageData.calendarOptions.length"
                 v-model="formData.calendarType"
-            >
-                <el-option
-                    v-for="item in pageData.calendarOptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                />
-            </el-select>
+                :options="pageData.calendarOptions"
+            />
         </div>
         <div class="authCodeLogin-main">
             <div class="authCodeLogin-logo"></div>

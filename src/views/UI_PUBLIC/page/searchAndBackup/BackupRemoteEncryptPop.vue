@@ -8,6 +8,7 @@
         :title="Translate('IDCS_SELECT_ENCRYPTION')"
         :width="500"
         @opened="open"
+        @closed="formRef?.resetFields()"
     >
         <el-form
             ref="formRef"
@@ -60,12 +61,10 @@
                 />
             </el-form-item>
         </el-form>
-        <template #footer>
-            <div class="base-btn-box">
-                <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 

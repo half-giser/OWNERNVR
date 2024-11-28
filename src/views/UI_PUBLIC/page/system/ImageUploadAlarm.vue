@@ -7,27 +7,19 @@
     <div class="base-flex-box">
         <el-form
             class="stripe"
-            :model="pageData"
-            inline-message
             :style="{
                 '--form-input-width': '250px',
             }"
         >
             <el-form-item :label="Translate('IDCS_ALARM_TYPE')">
-                <el-select v-model="pageData.alarmType">
-                    <el-option
-                        v-for="item in pageData.alarmTypeList"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="pageData.alarmType"
+                    :options="pageData.alarmTypeList"
+                />
             </el-form-item>
         </el-form>
         <div class="base-table-box">
             <el-table
-                stripe
-                border
                 :data="tableData"
                 show-overflow-tooltip
             >
@@ -64,17 +56,11 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select
+                        <el-select-v2
                             v-model="scope.row.preTime"
                             :disabled="scope.row.rowDisable"
-                        >
-                            <el-option
-                                v-for="item in pageData.pretimeList"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            />
-                        </el-select>
+                            :options="pageData.pretimeList"
+                        />
                     </template>
                 </el-table-column>
                 <!-- 截图持续时间 -->
@@ -98,17 +84,11 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select
+                        <el-select-v2
                             v-model="scope.row.saveTime"
                             :disabled="scope.row.rowDisable"
-                        >
-                            <el-option
-                                v-for="item in pageData.saveTimeList"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            />
-                        </el-select>
+                            :options="pageData.saveTimeList"
+                        />
                     </template>
                 </el-table-column>
             </el-table>

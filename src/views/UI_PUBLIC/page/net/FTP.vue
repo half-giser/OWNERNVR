@@ -12,7 +12,6 @@
                 '--form-label-width': '200px',
                 '--form-input-width': '200px',
             }"
-            inline-message
             class="stripe"
             :rules="formRule"
             :model="formData"
@@ -123,8 +122,6 @@
         <div class="base-subheading-box">{{ Translate('IDCS_UPLOAD_SET') }}</div>
         <el-table
             height="100%"
-            stripe
-            border
             :data="tableData"
             :row-class-name="handleRowClassName"
         >
@@ -162,17 +159,11 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select
+                        <el-select-v2
                             v-model="scope.row.schedule"
                             :disabled="!formData.switch"
-                        >
-                            <el-option
-                                v-for="item in pageData.scheduleOptions"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            />
-                        </el-select>
+                            :options="pageData.scheduleOptions"
+                        />
                     </template>
                 </el-table-column>
             </el-table-column>
@@ -198,17 +189,11 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select
+                        <el-select-v2
                             v-model="scope.row.motion"
                             :disabled="!formData.switch"
-                        >
-                            <el-option
-                                v-for="item in pageData.switchOptions"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            />
-                        </el-select>
+                            :options="pageData.switchOptions"
+                        />
                     </template>
                 </el-table-column>
                 <!-- 智能 -->
@@ -232,17 +217,11 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select
+                        <el-select-v2
                             v-model="scope.row.inteligence"
+                            :options="pageData.switchOptions"
                             :disabled="!formData.switch"
-                        >
-                            <el-option
-                                v-for="item in pageData.switchOptions"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            />
-                        </el-select>
+                        />
                     </template>
                 </el-table-column>
                 <!-- 传感器 -->
@@ -266,17 +245,11 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select
+                        <el-select-v2
                             v-model="scope.row.sensor"
                             :disabled="!formData.switch"
-                        >
-                            <el-option
-                                v-for="item in pageData.switchOptions"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            />
-                        </el-select>
+                            :options="pageData.switchOptions"
+                        />
                     </template>
                 </el-table-column>
                 <!-- 码流类型 -->
@@ -300,17 +273,11 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select
+                        <el-select-v2
                             v-model="scope.row.streamType"
                             :disabled="!formData.switch"
-                        >
-                            <el-option
-                                v-for="item in pageData.streamTypeOptions"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            />
-                        </el-select>
+                            :options="pageData.streamTypeOptions"
+                        />
                     </template>
                 </el-table-column>
             </el-table-column>
@@ -336,17 +303,11 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select
+                        <el-select-v2
                             v-model="scope.row.ftpSnapSwitch"
                             :disabled="!formData.switch"
-                        >
-                            <el-option
-                                v-for="item in pageData.switchOptions"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            />
-                        </el-select>
+                            :options="pageData.switchOptions"
+                        />
                     </template>
                 </el-table-column>
             </el-table-column>
@@ -372,17 +333,11 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select
+                        <el-select-v2
                             v-model="scope.row.ftpAlarmInfoSwitch"
                             :disabled="!formData.switch"
-                        >
-                            <el-option
-                                v-for="item in pageData.switchOptions"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            />
-                        </el-select>
+                            :options="pageData.switchOptions"
+                        />
                     </template>
                 </el-table-column>
             </el-table-column>
@@ -391,13 +346,15 @@
             <el-button
                 :disabled="!formData.switch"
                 @click="manageSchedule"
-                >{{ Translate('IDCS_SCHEDULE_MANAGE') }}</el-button
             >
+                {{ Translate('IDCS_SCHEDULE_MANAGE') }}
+            </el-button>
             <el-button
                 :disabled="!formData.switch"
                 @click="test"
-                >{{ Translate('IDCS_TEST') }}</el-button
             >
+                {{ Translate('IDCS_TEST') }}
+            </el-button>
             <el-button @click="verify">{{ Translate('IDCS_APPLY') }}</el-button>
         </div>
         <ScheduleManagPop

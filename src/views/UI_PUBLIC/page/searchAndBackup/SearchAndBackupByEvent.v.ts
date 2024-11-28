@@ -18,7 +18,6 @@ export default defineComponent({
         BackupPosInfoPop,
     },
     setup() {
-        const Plugin = inject('Plugin') as PluginType
         const { Translate } = useLangStore()
         const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
@@ -37,9 +36,24 @@ export default defineComponent({
             POS: Translate('IDCS_POS'),
         }
 
+        const plugin = usePluginHook({
+            onReady: (mode, plugin) => {
+                if (mode.value === 'ocx') {
+                    const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Playback')
+                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                }
+            },
+            onDestroy: (mode, plugin) => {
+                if (mode.value === 'ocx') {
+                    const sendXML = OCX_XML_StopPreview('ALL')
+                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                }
+            },
+        })
+
         // 播放模式
         const mode = computed(() => {
-            return Plugin.IsSupportH5() ? 'h5' : 'ocx'
+            return plugin.IsSupportH5() ? 'h5' : 'ocx'
         })
 
         // 通道ID与通道名称的映射
@@ -181,7 +195,7 @@ export default defineComponent({
 
         // 通道全选
         const isChlAll = computed(() => {
-            return formData.value.chls.length >= maxChl.value
+            return !!formData.value.chls.length && formData.value.chls.length >= maxChl.value
         })
 
         // 事件全选
@@ -238,8 +252,8 @@ export default defineComponent({
 
             chlMap.value = {}
 
-            if ($('//status').text() === 'success') {
-                pageData.value.chlList = $('//content/item').map((item) => {
+            if ($('status').text() === 'success') {
+                pageData.value.chlList = $('content/item').map((item) => {
                     const id = item.attr('id')
 
                     // 新获取的通道列表若没有已选中的通道，移除该选中的通道
@@ -264,10 +278,10 @@ export default defineComponent({
         const backUp = () => {
             const selection = tableRef.value!.getSelectionRows() as PlaybackRecLogList[]
 
-            if ((mode.value === 'ocx' && Plugin.BackUpTask.isExeed(selection.length)) || selection.length > 100) {
+            if ((mode.value === 'ocx' && plugin.BackUpTask.isExeed(selection.length)) || selection.length > 100) {
                 openMessageBox({
                     type: 'info',
-                    message: Translate('IDCS_BACKUP_TASK_NUM_LIMIT').formatForLang(Plugin.BackUpTask.limit),
+                    message: Translate('IDCS_BACKUP_TASK_NUM_LIMIT').formatForLang(plugin.BackUpTask.limit),
                 })
                 return
             }
@@ -295,7 +309,7 @@ export default defineComponent({
                 if (mode.value === 'h5') {
                     pageData.value.isLocalBackUpPop = true
                 } else if (mode.value === 'ocx') {
-                    Plugin.BackUpTask.addTask(pageData.value.backupRecList, path, format)
+                    plugin.BackUpTask.addTask(pageData.value.backupRecList, path, format)
                     router.push({
                         path: '/search-and-backup/backup-state',
                     })
@@ -428,7 +442,7 @@ export default defineComponent({
 
             showMaxSearchLimitTips($)
 
-            $('//content/chl/item').forEach((item) => {
+            $('content/chl/item').forEach((item) => {
                 const $item = queryXml(item.element)
                 const chlId = item.attr('id')
                 const chlName = $item('name').text()
@@ -507,38 +521,12 @@ export default defineComponent({
             tableRef.value!.clearSelection()
         })
 
-        watch(
-            mode,
-            (newVal) => {
-                if (newVal !== 'h5' && !Plugin.IsPluginAvailable()) {
-                    Plugin.SetPluginNoResponse()
-                    Plugin.ShowPluginNoResponse()
-                }
-
-                if (newVal === 'ocx') {
-                    const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Playback')
-                    Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                }
-            },
-            {
-                immediate: true,
-            },
-        )
-
-        onMounted(async () => {
-            Plugin.SetPluginNotice('#layout2Main')
+        onMounted(() => {
             getChlsList()
 
             const date = new Date()
             formData.value.startTime = dayjs(date).hour(0).minute(0).second(0).format(dateTime.dateTimeFormat)
             formData.value.endTime = dayjs(date).hour(23).minute(59).second(59).format(dateTime.dateTimeFormat)
-        })
-
-        onBeforeUnmount(() => {
-            if (mode.value === 'ocx') {
-                const sendXML = OCX_XML_StopPreview('ALL')
-                Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-            }
         })
 
         return {

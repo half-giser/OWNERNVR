@@ -59,6 +59,10 @@
 
     &.panorama {
         width: 234px;
+
+        img {
+            object-fit: contain;
+        }
         // object-fit: cover;
 
         .snap-pic {
@@ -141,7 +145,6 @@
         left: 0;
         width: 100%;
         height: 100%;
-        object-fit: contain;
         display: block;
 
         &[src=''] {

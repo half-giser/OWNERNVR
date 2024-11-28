@@ -5,12 +5,12 @@
  */
 import dayjs from 'dayjs'
 import { type PlaybackTimeSliceChlList, type PlaybackTimeSliceList } from '@/types/apiType/playback'
-import TimeSliceChlCard from './TimeSliceChlCard.vue'
+import TimeSliceItem from './TimeSliceItem.vue'
 import WebsocketKeyframe, { type WebsocketKeyframeOnMessageParam } from '@/utils/websocket/websocketKeyframe'
 
 export default defineComponent({
     components: {
-        TimeSliceChlCard,
+        TimeSliceItem,
     },
     emits: {
         startTime(time: number) {
@@ -68,6 +68,21 @@ export default defineComponent({
             select: null as null | { chlId: string; chlName: string; startTime: number; taskId: string },
         })
 
+        const viewOptions = computed(() => {
+            return pageData.value.viewOptions.map((item) => {
+                let disabled = false
+                if (item.value !== 'chl') {
+                    if (pageData.value.timesliceCount > MAX_SHOW_COUNTS_BYTIME) {
+                        disabled = true
+                    }
+                }
+                return {
+                    ...item,
+                    disabled,
+                }
+            })
+        })
+
         // 时间切片的卡片样式
         const timeSliceCardMode = computed(() => {
             return pageData.value.timesliceCount > MAX_THUMBNAIL_SHOW_COUNTS ? 'icon' : 'thumbnail'
@@ -79,16 +94,6 @@ export default defineComponent({
         })
 
         /**
-         * @description 获取选项值是否被禁用
-         * @param {String} value
-         */
-        const disabledOption = (value: string) => {
-            if (value === 'chl') return false
-            if (pageData.value.timesliceCount > MAX_SHOW_COUNTS_BYTIME) return true
-            return false
-        }
-
-        /**
          * @description 获取通道列表
          */
         const getChlsList = async () => {
@@ -97,8 +102,8 @@ export default defineComponent({
 
             chlMap.value = {}
 
-            if ($('//status').text() === 'success') {
-                pageData.value.chlList = $('//content/item').map((item) => {
+            if ($('status').text() === 'success') {
+                pageData.value.chlList = $('content/item').map((item) => {
                     const id = item.attr('id')
 
                     chlMap.value[id] = item.text()
@@ -137,8 +142,8 @@ export default defineComponent({
             `
             const result = await queryRecSection(sendXml)
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                pageData.value.recTimeList = $('//content/item').map((item) => {
+            if ($('status').text() === 'success') {
+                pageData.value.recTimeList = $('content/item').map((item) => {
                     const index = item.text().num()
                     const utcTime = startTime.add(index, 'day')
                     return utcTime.valueOf()
@@ -160,8 +165,8 @@ export default defineComponent({
             const sendXml = `<condition>${items}</condition>`
             const result = await queryDateListRecChl(sendXml)
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                pageData.value.chlTimeSliceList = $('//content/item')
+            if ($('status').text() === 'success') {
+                pageData.value.chlTimeSliceList = $('content/item')
                     .map((item, index) => {
                         const startTime = item.attr('start').num() * 1000
                         const endTime = item.attr('end').num() * 1000
@@ -193,7 +198,7 @@ export default defineComponent({
                     })
                     .toReversed()
 
-                pageData.value.timesliceCount = $('//content/item/chl/item').length
+                pageData.value.timesliceCount = $('content/item/chl/item').length
             }
         }
 
@@ -280,8 +285,8 @@ export default defineComponent({
                 try {
                     const result = await snapChlPicture(sendXml)
                     const $ = queryXml(result)
-                    if ($('//status').text() === 'success') {
-                        const imgUrl = 'data:image/png;base64,' + $('//content/item').text()
+                    if ($('status').text() === 'success') {
+                        const imgUrl = wrapBase64Img($('content/item').text())
                         pageData.value.chlList[i].imgUrl = imgUrl
                     }
                 } catch {}
@@ -366,8 +371,8 @@ export default defineComponent({
             timeSliceCardMode,
             chlCardMode,
             displayTime,
-            disabledOption,
-            TimeSliceChlCard,
+            viewOptions,
+            TimeSliceItem,
         }
     },
 })

@@ -9,8 +9,8 @@ export default defineComponent({
     setup() {
         const { openLoading, closeLoading } = useLoading()
         const { Translate } = useLangStore()
+        const { openNotify } = useNotification()
         const playerRef = ref<PlayerInstance>()
-        const pluginStore = usePluginStore()
         const osType = getSystemInfo().platform
         const tableRef = ref<TableInstance>()
         const pageData = ref({
@@ -21,35 +21,26 @@ export default defineComponent({
             // 通道列表
             chlList: [] as ChannelWaterMarkDto[],
             customTextSetAll: '',
-            notification: [] as string[],
             initComplete: false,
             options: getSwitchOptions(),
             pageIndex: 1,
             pageSize: 10,
             totalCount: 0,
-            editRows: new Set() as Set<ChannelWaterMarkDto>,
             informationPop: false,
+        })
+        const editRows = useWatchEditRows<ChannelWaterMarkDto>()
+
+        const chlOptions = computed(() => {
+            return pageData.value.chlList.map((item) => {
+                return {
+                    label: item.chlName,
+                    value: item.chlId,
+                }
+            })
         })
 
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
-
-        let pageChangeTimes = 0
-
-        /**
-         * @description 请求数据前, 记录当前页码
-         */
-        const savePagination = () => {
-            pageChangeTimes++
-            return pageChangeTimes
-        }
-
-        /**
-         * @description 返回数据时，判断页码是否发生变化，若是，则停止之前的更新、获取、提交数据
-         */
-        const isPaginationChanged = (currentTimes: number) => {
-            return pageChangeTimes !== currentTimes
-        }
 
         // 播放模式
         const mode = computed(() => {
@@ -69,20 +60,11 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 if (isHttpsLogin()) {
-                    pageData.value.notification = [formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`)]
+                    openNotify(formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`))
                 }
             }
 
             if (mode.value === 'ocx') {
-                if (!plugin.IsInstallPlugin()) {
-                    plugin.SetPluginNotice('#layout2Content')
-                    return
-                }
-
-                if (!plugin.IsPluginAvailable()) {
-                    pluginStore.showPluginNoResponse = true
-                    plugin.ShowPluginNoResponse()
-                }
                 const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
@@ -140,7 +122,6 @@ export default defineComponent({
         }
 
         const handleSwitchChange = (value: string) => {
-            addEditRow(pageData.value.chlData)
             pageData.value.chlList.forEach((item) => {
                 if (item.chlId === pageData.value.currChlId) {
                     item.switch = value
@@ -152,14 +133,12 @@ export default defineComponent({
             if (pageData.value.currChlId === row.chlId) {
                 pageData.value.chlData.switch = row.switch
             }
-            addEditRow(pageData.value.chlData)
         }
 
         const handleSwitchChangeAll = (value: string) => {
             pageData.value.chlList.forEach((item) => {
                 if (!item.disabled) {
                     item.switch = value
-                    addEditRow(item)
                 }
 
                 if (pageData.value.currChlId === item.chlId) {
@@ -178,14 +157,12 @@ export default defineComponent({
                     item.customText = customText
                 }
             })
-            addEditRow(pageData.value.chlData)
         }
 
         const handleSetCustomTextAll = (customText: string) => {
             pageData.value.chlList.forEach((item) => {
                 if (!item.disabled) {
                     item.customText = customText
-                    addEditRow(item)
                 }
 
                 if (pageData.value.currChlId === item.chlId) {
@@ -200,8 +177,7 @@ export default defineComponent({
         }
 
         const getDataList = async () => {
-            const timer = savePagination()
-            pageData.value.editRows.clear()
+            editRows.clear()
             pageData.value.initComplete = false
             pageData.value.switchDisabled = true
 
@@ -216,8 +192,8 @@ export default defineComponent({
             const $ = queryXml(res)
             if ($('status').text() === 'success') {
                 pageData.value.chlList = []
-                pageData.value.totalCount = $('//content').attr('total').num()
-                pageData.value.chlList = $('//content/item').map((item) => {
+                pageData.value.totalCount = $('content').attr('total').num()
+                pageData.value.chlList = $('content/item').map((item) => {
                     const $ = queryXml(item.element)
                     return {
                         chlId: item.attr('id'),
@@ -235,17 +211,18 @@ export default defineComponent({
 
             closeLoading()
 
-            for (let i = 0; i < pageData.value.chlList.length; i++) {
-                const item = pageData.value.chlList[i]
+            pageData.value.chlList.forEach(async (item, i) => {
                 await getData(item)
 
-                if (isPaginationChanged(timer)) {
-                    break
+                if (!pageData.value.chlList.some((find) => find === item)) {
+                    return
                 }
 
+                editRows.listen(item)
+
                 if (i === 0) {
-                    pageData.value.currChlId = pageData.value.chlList[0].chlId
-                    tableRef.value!.setCurrentRow(pageData.value.chlList[0])
+                    pageData.value.currChlId = item.chlId
+                    tableRef.value!.setCurrentRow(item)
                     pageData.value.initComplete = true
                     pageData.value.chlData = item
                     if (pageData.value.chlData.disabled) {
@@ -254,7 +231,7 @@ export default defineComponent({
                         pageData.value.switchDisabled = false
                     }
                 }
-            }
+            })
         }
 
         const getData = async (item: ChannelWaterMarkDto) => {
@@ -267,8 +244,8 @@ export default defineComponent({
                 const res = await queryChlWaterMark(sendXml)
                 const $ = queryXml(res)
                 if ($('status').text() === 'success') {
-                    const waterMarkSwitch = $('//content/chl/watermark/switch').text()
-                    const customText = $('//content/chl/watermark/customText').text()
+                    const waterMarkSwitch = $('content/chl/watermark/switch').text()
+                    const customText = $('content/chl/watermark/customText').text()
                     item.disabled = false
                     item.status = ''
                     item.switch = waterMarkSwitch
@@ -298,25 +275,24 @@ export default defineComponent({
         const setData = async () => {
             openLoading()
 
-            for (let i = 0; i < pageData.value.chlList.length; i++) {
-                const item = pageData.value.chlList[i]
-                if (pageData.value.editRows.has(item)) {
-                    const sendXml = getSaveData(item)
-                    const res = await editChlWaterMark(sendXml)
-                    const $ = queryXml(res)
-                    if ($('status').text() === 'success') {
-                        item.status = 'success'
-                        pageData.value.editRows.delete(item)
-                    } else {
-                        item.status = 'error'
-                    }
+            pageData.value.chlList.forEach((item) => (item.status = ''))
+
+            for (const item of editRows.toArray()) {
+                const sendXml = getSaveData(item)
+                const res = await editChlWaterMark(sendXml)
+                const $ = queryXml(res)
+                if ($('status').text() === 'success') {
+                    item.status = 'success'
+                    editRows.remove(item)
+                } else {
+                    item.status = 'error'
                 }
             }
 
             closeLoading()
         }
 
-        const handleApply = async () => {
+        const handleApply = () => {
             setData()
         }
 
@@ -338,10 +314,6 @@ export default defineComponent({
             return pageData.value.chlList.find((element) => element.chlId === chlId)!
         }
 
-        const addEditRow = (row: ChannelWaterMarkDto) => {
-            pageData.value.editRows.add(getRowById(row.chlId))
-        }
-
         onMounted(() => {
             getDataList()
         })
@@ -359,6 +331,8 @@ export default defineComponent({
 
         return {
             pageData,
+            chlOptions,
+            editRows,
             handlePlayerReady,
             playerRef,
             tableRef,
@@ -373,7 +347,6 @@ export default defineComponent({
             handleApply,
             handleRowClick,
             getRowById,
-            addEditRow,
             getDataList,
         }
     },

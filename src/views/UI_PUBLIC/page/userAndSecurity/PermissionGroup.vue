@@ -48,12 +48,7 @@
                         class="base-table-box"
                         :class="{ active: pageData.activeChannelTab === 'IDCS_LOCAL_RIGHT' }"
                     >
-                        <el-table
-                            :data="channelAuthList"
-                            border
-                            stripe
-                            scrollbar-always-on
-                        >
+                        <el-table :data="channelAuthList">
                             <el-table-column
                                 :label="Translate('IDCS_CHANNEL')"
                                 show-overflow-tooltip
@@ -74,12 +69,7 @@
                         class="base-table-box"
                         :class="{ active: pageData.activeChannelTab === 'IDCS_REMOTE_RIGHT' }"
                     >
-                        <el-table
-                            :data="channelAuthList"
-                            border
-                            stripe
-                            scrollbar-always-on
-                        >
+                        <el-table :data="channelAuthList">
                             <el-table-column
                                 prop="name"
                                 :label="Translate('IDCS_CHANNEL')"
@@ -105,8 +95,6 @@
                 :data="authGroupList"
                 width="100%"
                 height="100%"
-                border
-                stripe
                 flexible
                 highlight-current-row
                 show-overflow-tooltip

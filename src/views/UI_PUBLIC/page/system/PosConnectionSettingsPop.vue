@@ -8,6 +8,7 @@
         :title="Translate('IDCS_CONNECTION_SETTINGS')"
         width="600"
         @open="open"
+        @closed="formRef?.resetFields()"
     >
         <el-form
             ref="formRef"
@@ -18,7 +19,6 @@
                 '--form-input-width': '200px',
                 '--form-label-width': '100px',
             }"
-            inline-message
         >
             <el-form-item
                 :label="Translate('IDCS_POS_IP')"
@@ -46,12 +46,10 @@
                 />
             </el-form-item>
         </el-form>
-        <template #footer>
-            <div class="base-btn-box">
-                <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 

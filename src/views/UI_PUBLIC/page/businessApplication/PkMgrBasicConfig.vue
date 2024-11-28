@@ -13,8 +13,6 @@
                 '--form-input-width': '300px',
                 '--form-label-width': '200px',
             }"
-            class="inline-message"
-            inline-message
         >
             <div class="limit">{{ Translate('IDCS_PARKING_LOT_MANAGE_TIPS').formatForLang(1) }}</div>
 

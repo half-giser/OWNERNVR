@@ -13,7 +13,6 @@
                 '--form-label-width': '200px',
                 '--form-input-width': '340px',
             }"
-            inline-message
             class="stripe"
         >
             <el-form-item :label="Translate('IDCS_SENDER_NAME')">
@@ -44,40 +43,26 @@
                 <el-button @click="setDefaultPort">{{ Translate('IDCS_USE_DEFAULT') }}</el-button>
             </el-form-item>
             <el-form-item :label="Translate('IDCS_SECURITY_LINK')">
-                <el-select
+                <el-select-v2
                     v-model="formData.ssl"
+                    :options="pageData.secureConnectOptions"
                     @change="changeSecurityConnection"
-                >
-                    <el-option
-                        v-for="item in pageData.secureConnectOptions"
-                        :key="item.value"
-                        :value="item.value"
-                        :label="item.label"
-                    />
-                </el-select>
+                />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_ATTACH_IMAGE')">
-                <el-select v-model="formData.attachImg">
-                    <el-option
-                        v-for="item in pageData.attachImgOptions"
-                        :key="item.value"
-                        :value="item.value"
-                        :label="item.label"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="formData.attachImg"
+                    :options="pageData.attachImgOptions"
+                />
             </el-form-item>
             <el-form-item
                 v-if="formData.attachImg === 2"
                 :label="Translate('IDCS_IMAGE_NUMBER')"
             >
-                <el-select v-model="formData.imageNumber">
-                    <el-option
-                        v-for="item in pageData.imageNumberOptions"
-                        :key="item"
-                        :value="item"
-                        :label="item"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="formData.imageNumber"
+                    :options="pageData.imageNumberOptions"
+                />
             </el-form-item>
             <el-form-item>
                 <el-checkbox

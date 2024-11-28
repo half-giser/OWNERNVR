@@ -3,7 +3,7 @@
  * @Date: 2024-07-09 18:39:25
  * @Description: 添加通道 - 编辑IPC IP弹窗
  */
-import { type FormRules, type FormInstance } from 'element-plus'
+import { type FormRules } from 'element-plus'
 import { ChannelAddEditIPCIpDto, type ChannelQuickAddDto, type ChannelDefaultPwdDto } from '@/types/apiType/channel'
 
 export default defineComponent({
@@ -27,7 +27,7 @@ export default defineComponent({
         const { openLoading, closeLoading } = useLoading()
         const userSessionStore = useUserSessionStore()
         const { openMessageBox } = useMessageBox()
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new ChannelAddEditIPCIpDto())
         const maskDisabled = ref(false)
         const gatewayDisabled = ref(false)
@@ -84,7 +84,7 @@ export default defineComponent({
         })
 
         const save = () => {
-            formRef.value?.validate((valid) => {
+            formRef.value!.validate((valid) => {
                 if (!valid) {
                     return
                 }
@@ -106,7 +106,7 @@ export default defineComponent({
                     closeLoading()
                     const $ = queryXml(res)
                     if ($('status').text() === 'success') {
-                        const errorCode = $('//content/item/errorCode').text().num()
+                        const errorCode = $('content/item/errorCode').text().num()
                         if (errorCode === 0) {
                             emit('close')
                         } else {
@@ -138,17 +138,17 @@ export default defineComponent({
         }
 
         const opened = () => {
-            formRef.value?.clearValidate()
-            formRef.value?.resetFields()
-            const newData = new ChannelAddEditIPCIpDto()
-            newData.mac = props.editItem.mac
-            newData.ip = props.editItem.ip
-            newData.mask = props.editItem.mask
-            newData.gateway = props.editItem.gateway
-            newData.userName = props.mapping[props.editItem.manufacturer].userName
-            formData.value = newData
+            formData.value.mac = props.editItem.mac
+            formData.value.ip = props.editItem.ip
+            formData.value.mask = props.editItem.mask
+            formData.value.gateway = props.editItem.gateway
+            formData.value.userName = props.mapping[props.editItem.manufacturer].userName
             maskDisabled.value = formData.value.mask === '0.0.0.0'
             gatewayDisabled.value = formData.value.gateway === '0.0.0.0'
+        }
+
+        const close = () => {
+            formRef.value!.resetFields()
         }
 
         return {
@@ -158,6 +158,7 @@ export default defineComponent({
             maskDisabled,
             gatewayDisabled,
             opened,
+            close,
             save,
         }
     },

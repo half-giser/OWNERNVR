@@ -5,7 +5,7 @@
 -->
 <template>
     <div class="snap">
-        <div class="snap-list">
+        <el-scrollbar class="snap-list">
             <template v-for="(item, index) in currentSnapList">
                 <!-- 人脸比对组件 -->
                 <LiveSnapFaceMatchItem
@@ -42,7 +42,7 @@
                     @play-rec="playRec(item)"
                 />
             </template>
-        </div>
+        </el-scrollbar>
         <div class="snap-btns">
             <div
                 v-for="(item, index) in pageData.menu"
@@ -100,7 +100,6 @@
 
     &-list {
         height: 100%;
-        overflow-y: scroll;
     }
 
     &-btns {

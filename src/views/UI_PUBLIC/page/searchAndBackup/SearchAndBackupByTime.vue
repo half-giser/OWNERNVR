@@ -69,7 +69,6 @@
                 <span>{{ Translate('IDCS_BACKUP_NOTICE').formatForLang(Translate('IDCS_BACKUP')) }}</span>
             </div>
         </div>
-        <BasePluginNotice />
         <BackupPop
             v-model="pageData.isBackUpPop"
             :mode="mode"
@@ -96,14 +95,14 @@
 
 .left {
     width: 260px;
-    height: 100%;
+    height: var(--content-height);
     flex-shrink: 0;
-    border-right: 1px solid var(--input-border);
     display: flex;
     flex-direction: column;
 
     .el-form {
         flex-shrink: 0;
+        margin-top: 10px;
         margin-bottom: 0 !important;
     }
 }
@@ -127,6 +126,7 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+    border-left: 1px solid var(--input-border);
 }
 
 .center {

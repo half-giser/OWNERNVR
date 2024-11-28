@@ -58,9 +58,9 @@ export const useDateTimeStore = defineStore('dateTime', () => {
         // try {
         const result = await queryTimeCfg()
         const $ = queryXml(result)
-        if ($('//status').text() === 'success') {
-            const time = $('//content/formatInfo/time').text()
-            const date = $('//content/formatInfo/date').text()
+        if ($('status').text() === 'success') {
+            const time = $('content/formatInfo/time').text()
+            const date = $('content/formatInfo/date').text()
             dateFormat.value = YMD_MAPPING[date]
             yearMonthFormat.value = YM_MAPPING[date]
             timeFormat.value = HMS_MAPPING[time]

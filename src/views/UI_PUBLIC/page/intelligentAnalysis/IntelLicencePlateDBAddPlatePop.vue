@@ -8,6 +8,7 @@
         :title="displayTitle"
         width="600"
         @open="open"
+        @closed="formRef?.resetFields()"
     >
         <div v-show="type === 'add' && !pageData.disabledTab">
             <el-button
@@ -65,14 +66,10 @@
                     :label="Translate('IDCS_ADD_FACE_GROUP')"
                     prop="groupId"
                 >
-                    <el-select v-model="formData.groupId">
-                        <el-option
-                            v-for="item in pageData.groupList"
-                            :key="item.value"
-                            :value="item.value"
-                            :label="item.label"
-                        />
-                    </el-select>
+                    <el-select-v2
+                        v-model="formData.groupId"
+                        :options="pageData.groupList"
+                    />
                     <el-button @click="addGroup">{{ Translate('IDCS_ADD_GROUP') }}</el-button>
                 </el-form-item>
             </el-form>
@@ -82,20 +79,15 @@
             class="import"
         >
             <el-form
-                class="inline-message"
                 :style="{
                     '--form-label-width': '100px',
                 }"
             >
                 <el-form-item :label="Translate('IDCS_ADD_FACE_GROUP')">
-                    <el-select v-model="formData.groupId">
-                        <el-option
-                            v-for="item in pageData.groupList"
-                            :key="item.value"
-                            :value="item.value"
-                            :label="item.label"
-                        />
-                    </el-select>
+                    <el-select-v2
+                        v-model="formData.groupId"
+                        :options="pageData.groupList"
+                    />
                     <el-button @click="addGroup">{{ Translate('IDCS_ADD_GROUP') }}</el-button>
                 </el-form-item>
             </el-form>
@@ -144,32 +136,16 @@
             @confirm="confirmAddGroup"
             @close="pageData.isAddPop = false"
         />
-        <template #footer>
-            <div class="base-btn-box">
-                <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="close()">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="close()">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 
 <script lang="ts" src="./IntelLicencePlateDBAddPlatePop.v.ts"></script>
 
 <style lang="scss" scoped>
-:deep(.el-button) {
-    &.is-link {
-        color: var(--primary);
-
-        &.el-button--default {
-            color: var(--main-text);
-        }
-
-        &:hover {
-            color: var(--primary);
-        }
-    }
-}
-
 .label-upload {
     width: 100%;
     height: 150px;

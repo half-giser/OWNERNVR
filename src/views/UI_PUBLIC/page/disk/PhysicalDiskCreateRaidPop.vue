@@ -8,13 +8,13 @@
         :title="Translate('IDCS_CREATE_RAID')"
         width="600"
         @open="open"
+        @closed="formRef?.resetFields()"
     >
         <div>
             <el-form
                 ref="formRef"
                 :model="formData"
                 :rules="rules"
-                label-width="150"
             >
                 <el-form-item
                     :label="Translate('IDCS_RAID_NAME')"
@@ -31,17 +31,11 @@
                     :label="Translate('IDCS_RAID_TYPE')"
                     prop="type"
                 >
-                    <el-select
+                    <el-select-v2
                         v-model="formData.type"
+                        :options="raidType"
                         @change="getRaidCapacity"
-                    >
-                        <el-option
-                            v-for="(item, key) in raidType"
-                            :key
-                            :value="item.value"
-                            :label="item.label"
-                        />
-                    </el-select>
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_PHYSICAL_DISK')">
                     <el-checkbox-group
@@ -68,7 +62,7 @@
                     <el-text v-else>{{ Translate('IDCS_NULL') }}</el-text>
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_RAID_SPACE')">
-                    <el-text>{{ formData.space }}</el-text>
+                    {{ formData.space }}
                 </el-form-item>
             </el-form>
             <BaseCheckAuthPop
@@ -77,15 +71,11 @@
                 @confirm="confirmCreateRaid"
             />
         </div>
-        <template #footer>
-            <div class="base-btn-box">
-                <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 
 <script lang="ts" src="./PhysicalDiskCreateRaidPop.v.ts"></script>
-
-<style lang="scss" scoped></style>

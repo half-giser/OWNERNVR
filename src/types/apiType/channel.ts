@@ -3,6 +3,7 @@
  * @Date: 2024-05-08 17:03:07
  * @Description: 通道
  */
+import { TableRowStatus } from './base'
 
 /**
  * @description 通道列表项
@@ -214,6 +215,7 @@ export class ChannelProtocolManageDto {
     id = ''
     enabled = false
     displayName = ''
+    label = ''
     resourcesPath: ChannelResourcesPathDto[] = []
 }
 
@@ -264,18 +266,9 @@ export class ChannelSignalDto {
 }
 
 /**
- * @description 通道行状态 基类
- */
-class ChannelRowStatus {
-    status = ''
-    statusTip = ''
-    disabled = true
-}
-
-/**
  * @description OSD配置 列表项
  */
-export class ChannelOsdDto extends ChannelRowStatus {
+export class ChannelOsdDto extends TableRowStatus {
     id = ''
     name = ''
     ip = ''
@@ -288,9 +281,6 @@ export class ChannelOsdDto extends ChannelRowStatus {
     remarkSwitch = true
     remarkNote = ''
     remarkDisabled = true
-    status = ''
-    disabled = true
-    statusInitToolTip = ''
     manufacturer = ''
     dateFormat = ''
     timeFormat = ''
@@ -316,7 +306,7 @@ export class ChannelOsdDto extends ChannelRowStatus {
 /**
  * @description 图像设置 列表项
  */
-export class ChannelImageDto extends ChannelRowStatus {
+export class ChannelImageDto extends TableRowStatus {
     id = ''
     name = ''
     chlType = ''
@@ -458,21 +448,21 @@ export class ChannelImageDto extends ChannelRowStatus {
     whitelightOffTime: string | undefined = undefined
     whitelightOffTimeDefault: string | undefined = undefined
 
-    configFileTypeEnum: string[] = []
-    shutterModeEnum: string[] = []
-    shutterValueEnum: string[] = []
-    whiteBalanceModeEnum: string[] = []
-    BLCModeArray: string[] = []
-    HWDRLevelArray: string[] = []
-    IRCutModeArray: string[] = []
-    IRCutConvSenArray: string[] = []
-    SmartIrArray: string[] = []
-    antiflickerModeArray: string[] = []
-    InfraredModeArray: string[] = []
-    exposureModeArray: string[] = []
-    exposureValueArray: string[] = []
-    gainModeEnum: string[] = []
-    paletteList: Record<string, string>[] = []
+    configFileTypeEnum: SelectOption<string, string>[] = []
+    shutterModeEnum: SelectOption<string, string>[] = []
+    shutterValueEnum: SelectOption<string, string>[] = []
+    whiteBalanceModeEnum: SelectOption<string, string>[] = []
+    BLCModeArray: SelectOption<string, string>[] = []
+    HWDRLevelArray: SelectOption<string, string>[] = []
+    IRCutModeArray: SelectOption<string, string>[] = []
+    IRCutConvSenArray: SelectOption<string, string>[] = []
+    SmartIrArray: SelectOption<string, string>[] = []
+    antiflickerModeArray: SelectOption<string, string>[] = []
+    InfraredModeArray: SelectOption<string, string>[] = []
+    exposureModeArray: SelectOption<string, string>[] = []
+    exposureValueArray: SelectOption<number, string>[] = []
+    gainModeEnum: SelectOption<string, string>[] = []
+    paletteList: SelectOption<string, string>[] = []
     activeTab = 'imageAdjust'
 }
 
@@ -494,9 +484,9 @@ export class ChannelLensCtrlDto {
     id = ''
     supportAz = false
     focusType = ''
-    focusTypeList: Record<string, string>[] = []
+    focusTypeList: SelectOption<string, string>[] = []
     timeInterval = ''
-    timeIntervalList: Record<string, string>[] = []
+    timeIntervalList: SelectOption<string, string>[] = []
     IrchangeFocus = false
     IrchangeFocusDisabled = false
 }
@@ -504,7 +494,7 @@ export class ChannelLensCtrlDto {
 /**
  * @description 视频遮罩 列表项
  */
-export class ChannelMaskDto extends ChannelRowStatus {
+export class ChannelMaskDto extends TableRowStatus {
     id = ''
     name = ''
     chlIndex = ''
@@ -529,7 +519,7 @@ export class ChannelPrivacyMaskDto {
 /**
  * @description 鱼眼
  */
-export class ChannelFisheyeDto extends ChannelRowStatus {
+export class ChannelFisheyeDto extends TableRowStatus {
     id = ''
     name = ''
     chlIndex = ''
@@ -546,7 +536,7 @@ export class ChannelFisheyeDto extends ChannelRowStatus {
 /**
  * @description 移动侦测
  */
-export class ChannelMotionDto extends ChannelRowStatus {
+export class ChannelMotionDto extends TableRowStatus {
     id = ''
     name = ''
     chlIndex = ''
@@ -556,7 +546,7 @@ export class ChannelMotionDto extends ChannelRowStatus {
     sensitivityMinValue = 1
     sensitivityMaxValue = 1
     holdTime = ''
-    holdTimeList: string[] = []
+    holdTimeList: SelectOption<string, string>[] = []
     supportSMD = false
     isOnvifChl = false
     objectFilterCar: boolean | undefined = undefined
@@ -688,7 +678,7 @@ export class ChannelPtzTaskForm {
 /**
  * @description 云台 智能跟踪 通道列表项
  */
-export class ChannelPtzSmartTrackDto extends ChannelRowStatus {
+export class ChannelPtzSmartTrackDto extends TableRowStatus {
     chlId = ''
     chlName = ''
     autoBackSwitch = false
@@ -699,7 +689,7 @@ export class ChannelPtzSmartTrackDto extends ChannelRowStatus {
 /**
  * @description 云台协议 通道列表项
  */
-export class ChannelPtzProtocolDto extends ChannelRowStatus {
+export class ChannelPtzProtocolDto extends TableRowStatus {
     [key: string]: any
     chlId = ''
     chlName = ''
@@ -717,7 +707,7 @@ export class ChannelPtzProtocolDto extends ChannelRowStatus {
 /**
  * @description 水印设置 通道列表项
  */
-export class ChannelWaterMarkDto extends ChannelRowStatus {
+export class ChannelWaterMarkDto extends TableRowStatus {
     chlId = ''
     chlName = ''
     chlIndex = ''
@@ -729,7 +719,7 @@ export class ChannelWaterMarkDto extends ChannelRowStatus {
 /**
  * @description LOGO设置 通道列表项
  */
-export class ChannelLogoSetDto extends ChannelRowStatus {
+export class ChannelLogoSetDto extends TableRowStatus {
     [key: string]: any
     chlId = ''
     chlName = ''

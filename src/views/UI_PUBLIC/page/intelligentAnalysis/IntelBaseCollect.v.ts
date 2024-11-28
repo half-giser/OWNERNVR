@@ -4,7 +4,7 @@
  * @Description: 智能分析 - 添加收藏
  */
 import { IntelSearchCollectList } from '@/types/apiType/intelligentAnalysis'
-import type { FormInstance, FormRules } from 'element-plus'
+import type { FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -42,7 +42,7 @@ export default defineComponent({
             isPop: false,
         })
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
 
         const formData = ref({
             name: '',
@@ -81,8 +81,6 @@ export default defineComponent({
          * @description 添加收藏
          */
         const addCollect = () => {
-            formRef.value?.clearValidate()
-            formData.value.name = ''
             pageData.value.isPop = true
         }
 
