@@ -4,7 +4,7 @@
  * @Description: 添加通道 - 设置通道默认密码弹窗
  */
 import { type ChannelDefaultPwdDto } from '@/types/apiType/channel'
-import { type FormRules, type FormInstance } from 'element-plus'
+import { type FormRules } from 'element-plus'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import type { UserCheckAuthForm } from '@/types/apiType/user'
 
@@ -25,46 +25,10 @@ export default defineComponent({
         const { openLoading, closeLoading } = useLoading()
         const userSessionStore = useUserSessionStore()
         const { openMessageBox } = useMessageBox()
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref({
             params: [] as Array<ChannelDefaultPwdDto>,
         })
-        const passwordInputRef = ref<Array<Element | globalThis.ComponentPublicInstance | null>>([])
-
-        const baseCheckAuthPopVisiable = ref(false)
-        const handleBaseCheckAuthPopClose = () => {
-            baseCheckAuthPopVisiable.value = false
-        }
-
-        const getData = () => {
-            openLoading()
-            queryDevDefaultPwd().then((res) => {
-                closeLoading()
-                const $ = queryXml(res)
-                if ($('status').text() === 'success') {
-                    formData.value.params = $('//content/item').map((ele) => {
-                        const eleXml = queryXml(ele.element)
-                        return {
-                            id: ele.attr('id'),
-                            userName: eleXml('userName').text(),
-                            password: '', // 协议修改之后密码不传输
-                            displayName: eleXml('displayName').text(),
-                            protocolType: eleXml('protocolType').text(),
-                            showInput: false,
-                        }
-                    })
-                }
-            })
-        }
-
-        const handlePwdViewChange = (index: number, rowData: ChannelDefaultPwdDto) => {
-            const flag = rowData.showInput
-            rowData.showInput = !rowData.showInput
-            if (!flag) {
-                const curPwdInput = passwordInputRef.value[index]
-                if (curPwdInput) (curPwdInput as HTMLInputElement).focus()
-            }
-        }
 
         const rules = ref<FormRules>({
             userName: [
@@ -81,8 +45,45 @@ export default defineComponent({
             ],
         })
 
+        const passwordInputRef = ref<Array<Element | globalThis.ComponentPublicInstance | null>>([])
+
+        const baseCheckAuthPopVisiable = ref(false)
+        const handleBaseCheckAuthPopClose = () => {
+            baseCheckAuthPopVisiable.value = false
+        }
+
+        const getData = () => {
+            openLoading()
+            queryDevDefaultPwd().then((res) => {
+                closeLoading()
+                const $ = queryXml(res)
+                if ($('status').text() === 'success') {
+                    formData.value.params = $('content/item').map((ele) => {
+                        const $item = queryXml(ele.element)
+                        return {
+                            id: ele.attr('id'),
+                            userName: $item('userName').text(),
+                            password: '', // 协议修改之后密码不传输
+                            displayName: $item('displayName').text(),
+                            protocolType: $item('protocolType').text(),
+                            showInput: false,
+                        }
+                    })
+                }
+            })
+        }
+
+        const handlePwdViewChange = (index: number, rowData: ChannelDefaultPwdDto) => {
+            const flag = rowData.showInput
+            rowData.showInput = !rowData.showInput
+            if (!flag) {
+                const curPwdInput = passwordInputRef.value[index]
+                if (curPwdInput) (curPwdInput as HTMLInputElement).focus()
+            }
+        }
+
         const save = () => {
-            formRef.value?.validate((valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     baseCheckAuthPopVisiable.value = true
                 }
@@ -112,14 +113,14 @@ export default defineComponent({
             editDevDefaultPwd(sendXml).then((res) => {
                 const $ = queryXml(res)
                 if ($('status').text() === 'success') {
-                    const defaultPwdData: ChannelDefaultPwdDto[] = $('//content/item').map((ele) => {
-                        const eleXml = queryXml(ele.element)
+                    const defaultPwdData = $('content/item').map((ele) => {
+                        const $item = queryXml(ele.element)
                         return {
                             id: ele.attr('id'),
-                            userName: eleXml('userName').text(),
-                            password: eleXml('password').text(),
-                            displayName: eleXml('displayName').text(),
-                            protocolType: eleXml('protocolType').text(),
+                            userName: $item('userName').text(),
+                            password: $item('password').text(),
+                            displayName: $item('displayName').text(),
+                            protocolType: $item('protocolType').text(),
                             showInput: false,
                         }
                     })
@@ -153,7 +154,6 @@ export default defineComponent({
         }
 
         const opened = () => {
-            formRef.value?.clearValidate()
             getData()
         }
 

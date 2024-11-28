@@ -82,7 +82,7 @@
     padding: 5px;
     border: 1px solid var(--panel-snap-border);
     box-sizing: border-box;
-    font-size: 12px;
+    // font-size: 12px;
 
     &.border {
         border-color: var(--panel-snap-history-border);
@@ -139,18 +139,28 @@
         line-height: 22px;
         margin: 0;
         margin-left: 10px;
+        padding: 0;
 
         li {
             list-style: none;
+
+            span:last-child {
+                margin-left: 10px;
+            }
         }
     }
 
     &-bottom {
         width: 100%;
-        margin-top: 20px;
+        margin-top: 10px;
         display: flex;
         justify-content: center;
         line-height: 16px;
+
+        span {
+            width: 50%;
+            text-align: center;
+        }
     }
 }
 </style>

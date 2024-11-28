@@ -3,7 +3,7 @@
  * @Date: 2024-09-20 09:10:22
  * @Description: P2P授权码登录
  */
-import type { FormInstance, FormRules } from 'element-plus'
+import type { FormRules } from 'element-plus'
 import { AuthCodeLoginForm } from '@/types/apiType/user'
 
 export default defineComponent({
@@ -49,7 +49,7 @@ export default defineComponent({
             536871081: 'IDCS_ACCESS_EXCEPTION_RETRY', // access exception
         }
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
 
         const formData = ref(new AuthCodeLoginForm())
 

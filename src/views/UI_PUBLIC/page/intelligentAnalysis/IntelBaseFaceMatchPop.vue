@@ -7,22 +7,21 @@
     <el-dialog
         :title="Translate('IDCS_FACE_DETAIL')"
         width="900"
+        @open="open"
     >
         <div>
             <div class="info">
                 <div class="title">{{ Translate('IDCS_BASIC_INFO') }}</div>
-                <div class="row">
-                    <label>{{ Translate('IDCS_SNAP_TIME') }}</label>
-                    <span>{{ displayDateTime(current.timestamp) }}</span>
-                    <label>{{ Translate('IDCS_SNAP_ADDRESS') }}</label>
-                    <span>{{ current.chlName }}</span>
-                </div>
-                <div class="row">
-                    <label>{{ Translate('IDCS_EVENT_TYPE') }}</label>
-                    <span>{{ displayEventType }}</span>
-                    <label>{{ Translate('IDCS_TARGET_TYPE') }}</label>
-                    <span>{{ displayTargetType }}</span>
-                </div>
+                <el-form>
+                    <el-form-item>
+                        <el-form-item :label="Translate('IDCS_SNAP_TIME')">{{ displayDateTime(current.timestamp) }}</el-form-item>
+                        <el-form-item :label="Translate('IDCS_SNAP_ADDRESS')">{{ current.chlName }}</el-form-item>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-form-item :label="Translate('IDCS_EVENT_TYPE')">{{ displayEventType }}</el-form-item>
+                        <el-form-item :label="Translate('IDCS_TARGET_TYPE')">{{ displayTargetType }}</el-form-item>
+                    </el-form-item>
+                </el-form>
             </div>
             <div class="img">
                 <div>
@@ -46,65 +45,59 @@
             </div>
             <div class="info">
                 <div class="title">{{ Translate('IDCS_PERSON_INFO') }}</div>
-                <div class="row">
-                    <label>{{ Translate('IDCS_NAME_PERSON') }}</label>
-                    <span>{{ current.name }}</span>
-                    <label>{{ Translate('IDCS_SEX') }}</label>
-                    <span>{{ displayGender }}</span>
-                </div>
-                <div class="row">
-                    <label>{{ Translate('IDCS_BIRTHDAY') }}</label>
-                    <span>{{ current.birthday }}</span>
-                    <label>{{ Translate('IDCS_ID_TYPE') }}</label>
-                    <span>{{ Translate('IDCS_ID_CARD') }}</span>
-                </div>
-                <div class="row">
-                    <label>{{ Translate('IDCS_ID_NUMBER') }}</label>
-                    <span>{{ current.certificateNum }}</span>
-                    <label>{{ Translate('IDCS_PHONE_NUMBER') }}</label>
-                    <span>{{ current.mobile }}</span>
-                </div>
-                <div class="row">
-                    <label>{{ Translate('IDCS_NUMBER') }}</label>
-                    <span>{{ current.number }}</span>
-                    <label>{{ Translate('IDCS_REMARK') }}</label>
-                    <span>{{ current.note }}</span>
-                </div>
-                <div class="row">
-                    <label>{{ Translate('IDCS_ADD_FACE_GROUP') }}</label>
-                    <span>{{ current.groupName }}</span>
-                </div>
+                <el-form>
+                    <el-form-item>
+                        <el-form-item :label="Translate('IDCS_NAME_PERSON')">{{ current.name }}</el-form-item>
+                        <el-form-item :label="Translate('IDCS_SEX')">{{ displayGender }}</el-form-item>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-form-item :label="Translate('IDCS_BIRTHDAY')">{{ current.birthday }}</el-form-item>
+                        <el-form-item :label="Translate('IDCS_ID_TYPE')">{{ Translate('IDCS_ID_CARD') }}</el-form-item>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-form-item :label="Translate('IDCS_ID_NUMBER')">{{ current.certificateNum }}</el-form-item>
+                        <el-form-item :label="Translate('IDCS_PHONE_NUMBER')">{{ current.mobile }}</el-form-item>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-form-item :label="Translate('IDCS_NUMBER')">{{ current.number }}</el-form-item>
+                        <el-form-item :label="Translate('IDCS_REMARK')">{{ current.note }}</el-form-item>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-form-item :label="Translate('IDCS_ADD_FACE_GROUP')">{{ current.groupName }}</el-form-item>
+                        <el-form-item />
+                    </el-form-item>
+                </el-form>
             </div>
             <IntelBasePanoramaPop
                 v-model="pageData.isSnapPop"
                 :data="current"
             />
         </div>
-        <template #footer>
-            <div
-                class="base-btn-box"
-                span="2"
-            >
-                <div>
-                    <el-button @click="showSnapShot">{{ Translate('IDCS_VIEW_SNAPSHOT') }}</el-button>
-                    <el-button @click="search">{{ Translate('IDCS_SEARCH') }}</el-button>
-                    <el-button @click="playRec">{{ Translate('IDCS_PLAYBACK_BY_SNAPIMAGE') }}</el-button>
-                </div>
-                <div>
-                    <el-button
-                        :disabled="pageData.currentIndex <= 0"
-                        @click="previous"
-                        >{{ Translate('IDCS_PREVIOUS') }}</el-button
-                    >
-                    <el-button
-                        :disabled="pageData.currentIndex >= list.length - 1"
-                        @click="next"
-                        >{{ Translate('IDCS_NEXT') }}</el-button
-                    >
-                    <el-button @click="close">{{ Translate('IDCS_EXIT') }}</el-button>
-                </div>
+        <div
+            class="base-btn-box"
+            span="2"
+        >
+            <div>
+                <el-button @click="showSnapShot">{{ Translate('IDCS_VIEW_SNAPSHOT') }}</el-button>
+                <el-button @click="search">{{ Translate('IDCS_SEARCH') }}</el-button>
+                <el-button @click="playRec">{{ Translate('IDCS_PLAYBACK_BY_SNAPIMAGE') }}</el-button>
             </div>
-        </template>
+            <div>
+                <el-button
+                    :disabled="pageData.currentIndex === 0"
+                    @click="previous"
+                >
+                    {{ Translate('IDCS_PREVIOUS') }}
+                </el-button>
+                <el-button
+                    :disabled="pageData.currentIndex >= list.length - 1"
+                    @click="next"
+                >
+                    {{ Translate('IDCS_NEXT') }}
+                </el-button>
+                <el-button @click="close">{{ Translate('IDCS_EXIT') }}</el-button>
+            </div>
+        </div>
     </el-dialog>
 </template>
 
@@ -112,8 +105,7 @@
 
 <style lang="scss" scoped>
 .info {
-    margin: 20px 0;
-    padding-bottom: 10px;
+    margin-bottom: 20px;
 
     &:first-child {
         border-bottom: 1px solid var(--input-border);
@@ -125,24 +117,6 @@
     height: 30px;
     line-height: 30px;
     padding-left: 15px;
-    // margin-left: 15px;
-}
-
-.row {
-    display: flex;
-    padding: 10px 0;
-
-    label {
-        width: 15%;
-
-        &::after {
-            content: ' : ';
-        }
-    }
-
-    span {
-        width: 35%;
-    }
 }
 
 .img {

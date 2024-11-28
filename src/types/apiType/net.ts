@@ -3,6 +3,7 @@
  * @Date: 2024-07-09 14:47:05
  * @Description: 网络
  */
+import { TableRowStatus } from './base'
 
 /**
  * @description TCP/IP配置表单
@@ -376,6 +377,7 @@ export class NetStreamChlList {
 export class NetSubStreamResList {
     fps = 0
     value = ''
+    label = ''
 }
 
 /**
@@ -400,13 +402,13 @@ export class NetSubStreamListBitRange {
 /**
  * @description 网络子码流列表项
  */
-export class NetSubStreamList {
+export class NetSubStreamList extends TableRowStatus {
     [key: string]: any
     id = ''
     name = ''
     chlType = ''
     subCaps = {
-        supEnct: [] as string[],
+        supEnct: [] as SelectOption<string, string>[],
         bitType: [] as string[],
         res: [] as NetSubStreamResList[],
     }

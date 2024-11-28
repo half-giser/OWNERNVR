@@ -5,7 +5,7 @@
  */
 import BackupRemoteEncryptPop from './BackupRemoteEncryptPop.vue'
 import type { PlaybackBackUpRecList } from '@/types/apiType/playback'
-import { type FormRules, type FormInstance } from 'element-plus'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     components: {
@@ -38,7 +38,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const { openMessageBox } = useMessageBox()
-        const Plugin = inject('Plugin') as PluginType
+        const plugin = usePlugin()
 
         const pageData = ref({
             // 目的地选项
@@ -76,7 +76,7 @@ export default defineComponent({
             isRemoteEncryptPop: false,
         })
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref({
             // 备份目的地
             destination: 'local',
@@ -117,7 +117,7 @@ export default defineComponent({
         const getExternalDisk = async () => {
             const result = await queryExternalDisks()
             const $ = queryXml(result)
-            pageData.value.remoteDeviceOptions = $('//content/item').map((item) => {
+            pageData.value.remoteDeviceOptions = $('content/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
                     name: item.attr('name'),
@@ -135,9 +135,9 @@ export default defineComponent({
             }
 
             try {
-                Plugin.AsynQueryInfo(Plugin.GetVideoPlugin(), OCX_XML_GetLocalCfg(), (result) => {
+                plugin.AsynQueryInfo(plugin.GetVideoPlugin(), OCX_XML_GetLocalCfg(), (result) => {
                     const $ = queryXml(XMLStr2XMLDoc(result))
-                    formData.value.localPath = $('//recBackUpPath').text()
+                    formData.value.localPath = $('response/recBackUpPath').text()
                 })
             } catch {
                 openMessageBox({
@@ -150,9 +150,7 @@ export default defineComponent({
         /**
          * @description 打开弹窗，初始化表单和数据
          */
-        const open = async () => {
-            formRef.value?.resetFields()
-            formRef.value?.clearValidate()
+        const open = () => {
             getExternalDisk()
             getLastRecBackUpPath()
         }
@@ -198,10 +196,10 @@ export default defineComponent({
             `
             const result = await createRecBackupTask(sendXml)
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 ctx.emit('confirm', 'remote', formData.value.remoteDeviceName, formData.value.remoteFormat)
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_DISK_SPACE_NO_ENOUGH:
@@ -211,7 +209,7 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_NO_PERMISSION')
                         break
                     case ErrorCode.USER_ERROR_OVER_LIMIT:
-                        const num = $('//errorDescription').text()
+                        const num = $('errorDescription').text()
                         errorInfo = Translate('IDCS_BACKUP_TASK_NUM_LIMIT').formatForLang(num)
                         break
                     default:
@@ -231,7 +229,7 @@ export default defineComponent({
          * @description OCX浏览文件夹
          */
         const openFolder = () => {
-            Plugin.AsynQueryInfo(Plugin.GetVideoPlugin(), OCX_XML_OpenFileBrowser('FOLDER'), (result) => {
+            plugin.AsynQueryInfo(plugin.GetVideoPlugin(), OCX_XML_OpenFileBrowser('FOLDER'), (result) => {
                 const path = OCX_XML_OpenFileBrowser_getpath(result).trim()
                 if (path) {
                     formData.value.localPath = path

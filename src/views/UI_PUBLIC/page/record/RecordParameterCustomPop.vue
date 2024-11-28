@@ -41,15 +41,12 @@
             <div
                 class="base-btn-box"
                 span="2"
-                :style="{ margin: '30px 0 10px' }"
             >
                 <span>{{ Translate('IDCS_KEEPVIDEO_HOLIDAY') }}</span>
                 <el-button @click="openAddDate">{{ Translate('IDCS_ADD') }}</el-button>
             </div>
             <el-table
                 :data="pageData.toAddDateList"
-                border
-                stripe
                 height="230"
                 highlight-current-row
             >
@@ -102,19 +99,15 @@
                     />
                 </el-form-item>
             </el-form>
-            <template #footer>
-                <div class="base-btn-box">
-                    <el-button @click="addDateToList">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="closeAddDate">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </div>
-            </template>
-        </el-dialog>
-        <template #footer>
             <div class="base-btn-box">
-                <el-button @click="apply">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
+                <el-button @click="addDateToList">{{ Translate('IDCS_OK') }}</el-button>
+                <el-button @click="closeAddDate">{{ Translate('IDCS_CANCEL') }}</el-button>
             </div>
-        </template>
+        </el-dialog>
+        <div class="base-btn-box">
+            <el-button @click="apply">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 
@@ -123,6 +116,10 @@
 <style lang="scss" scoped>
 .middleBox {
     border: 1px solid var(--content-border);
-    padding: 10px 5px 10px 6px;
+    padding: 10px;
+
+    .base-btn-box {
+        margin-bottom: 10px;
+    }
 }
 </style>

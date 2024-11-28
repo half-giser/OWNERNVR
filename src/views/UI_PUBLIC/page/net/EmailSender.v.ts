@@ -3,7 +3,7 @@
  * @Date: 2024-07-10 15:00:10
  * @Description: E-mail发送
  */
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormRules } from 'element-plus'
 import { NetEmailForm } from '@/types/apiType/net'
 import EmailSenderTestPop from './EmailSenderTestPop.vue'
 
@@ -21,7 +21,7 @@ export default defineComponent({
         const DEFAULT_SECURE_PORT = 465
         const DEFAULT_INSECURE_PORT = 25
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new NetEmailForm())
         const formRule = ref<FormRules>({
             address: [
@@ -117,7 +117,7 @@ export default defineComponent({
                 },
             ] as SelectOption<number, string>[],
             // 图片数量选项
-            imageNumberOptions: [4, 5, 6, 7, 8, 9, 10],
+            imageNumberOptions: arrayToOptions([4, 5, 6, 7, 8, 9, 10]),
             // 加密选项
             secureConnectOptions: [
                 {
@@ -147,15 +147,16 @@ export default defineComponent({
 
             const result = await queryEmailCfg()
             commLoadResponseHandler(result, ($) => {
-                formData.value.anonymousSwitch = $('//content/sender/anonymousSwitch').text().bool()
-                formData.value.name = $('//content/sender/name').text()
-                formData.value.address = $('//content/sender/address').text()
-                formData.value.userName = $('//content/sender/userName').text()
-                formData.value.server = $('//content/sender/smtp/server').text()
-                formData.value.port = $('//content/sender/smtp/port').text().num()
-                formData.value.attachImg = $('//content/sender/attachImg').text().num()
-                formData.value.imageNumber = $('//content/sender/imageNumber').text().num()
-                formData.value.ssl = $('//content/sender/smtp/ssl').text().bool() ? 'SSL' : 'NO'
+                const $sender = queryXml($('content/sender')[0].element)
+                formData.value.anonymousSwitch = $sender('anonymousSwitch').text().bool()
+                formData.value.name = $sender('name').text()
+                formData.value.address = $sender('address').text()
+                formData.value.userName = $sender('userName').text()
+                formData.value.server = $sender('smtp/server').text()
+                formData.value.port = $sender('smtp/port').text().num()
+                formData.value.attachImg = $sender('attachImg').text().num()
+                formData.value.imageNumber = $sender('imageNumber').text().num()
+                formData.value.ssl = $sender('smtp/ssl').text().bool() ? 'SSL' : 'NO'
             })
 
             closeLoading()

@@ -21,8 +21,9 @@
                     v-show="!isSupportH5"
                     :disabled="pageData.isUploadDisabled"
                     @click="handleOCXUpload"
-                    >{{ Translate('IDCS_BROWSE') }}</el-button
                 >
+                    {{ Translate('IDCS_BROWSE') }}
+                </el-button>
                 <label
                     v-show="isSupportH5"
                     class="el-button"
@@ -36,8 +37,9 @@
                 <el-button
                     :disabled="pageData.isUpgradeDisabled"
                     @click="handleUpgrade"
-                    >{{ Translate('IDCS_UPGRADE') }}</el-button
                 >
+                    {{ Translate('IDCS_UPGRADE') }}
+                </el-button>
                 <el-button
                     :disabled="pageData.isBackUpAndUpgradeDisabled"
                     @click="handleBackupAndUpgrade"
@@ -77,8 +79,6 @@
                 <span class="note">{{ pageData.upgradeNote }}</span>
             </el-form-item>
         </el-form>
-        <BasePluginNotice />
-        <BaseNotification v-model:notifications="pageData.notifications" />
         <BaseCheckAuthPop
             v-model="pageData.isCheckAuth"
             :tip="pageData.checkAuthTip"

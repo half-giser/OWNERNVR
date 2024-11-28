@@ -11,8 +11,6 @@
         @opened="opened"
     >
         <el-table
-            border
-            stripe
             :data="tableData"
             show-overflow-tooltip
             highlight-current-row
@@ -38,12 +36,10 @@
                 </template>
             </el-table-column>
         </el-table>
-        <template #footer>
-            <div class="base-btn-box">
-                <el-button @click="saveData">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="multiChlIPCCfgDialogVisiable = false">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="saveData">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="multiChlIPCCfgDialogVisiable = false">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 

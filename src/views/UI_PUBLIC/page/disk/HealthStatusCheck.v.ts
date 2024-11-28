@@ -93,7 +93,7 @@ export default defineComponent({
             const result = await queryDiskHealthDetailInfo(sendXml)
             const $ = queryXml(result)
 
-            tableData.value = $('//content/disk/item').map((item) => {
+            tableData.value = $('content/disk/item').map((item) => {
                 const $item = queryXml(item.element)
                 const id = item.attr('id')
                 const status = item.attr('status')
@@ -124,7 +124,7 @@ export default defineComponent({
 
             closeLoading()
 
-            pageData.value.diskList = $('//content/diskList/item').map((item) => {
+            pageData.value.diskList = $('content/diskList/item').map((item) => {
                 const $item = queryXml(item.element)
                 const healthStatus = $item('healthStatus').text()
                 return {

@@ -6,6 +6,7 @@
 import { type RouteLocationMatched } from 'vue-router'
 import ChangePasswordPop from '../ChangePasswordPop.vue'
 import { getMenu1 } from '@/router'
+import { type XMLQuery } from '@/utils/xmlParse'
 
 export default defineComponent({
     components: {
@@ -18,7 +19,7 @@ export default defineComponent({
         const systemCaps = useCababilityStore()
         const { openMessageBox } = useMessageBox()
         const { Translate } = useLangStore()
-        const Plugin = inject('Plugin') as PluginType
+        const plugin = usePlugin()
         const systemInfo = getSystemInfo()
         const layoutStore = useLayoutStore()
         const pluginStore = usePluginStore()
@@ -92,13 +93,13 @@ export default defineComponent({
         const showProductModel = async (cbk?: () => void) => {
             const result = await queryBasicCfg()
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                if (userSession.appType === 'P2P' && !isCorrectUI(result)) return
+            if ($('status').text() === 'success') {
+                if (userSession.appType === 'P2P' && !isCorrectUI($)) return
                 cbk && cbk()
                 if (![5].includes(systemCaps.CustomerID)) {
                     return
                 }
-                pageData.value.logoProductModel = $('//content/productModel').text()
+                pageData.value.logoProductModel = $('content/productModel').text()
             }
         }
 
@@ -110,8 +111,8 @@ export default defineComponent({
             let strength: keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING = 'weak'
             const result = await queryPasswordSecurity()
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                strength = ($('//content/pwdSecureSetting/pwdSecLevel').text() as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING & null) ?? 'weak'
+            if ($('status').text() === 'success') {
+                strength = ($('content/pwdSecureSetting/pwdSecLevel').text() as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING & null) ?? 'weak'
                 if (systemCaps.supportPwdSecurityConfig) {
                     strength = 'strong'
                 }
@@ -187,8 +188,8 @@ export default defineComponent({
          * @param $basicXml
          * @returns {boolean}
          */
-        const isCorrectUI = ($basicXml: XMLDocument | Element) => {
-            const devVersion = queryXml($basicXml)('//content/softwareVersion').text()
+        const isCorrectUI = ($: XMLQuery) => {
+            const devVersion = $('content/softwareVersion').text()
             const inputUI = import.meta.env.VITE_UI_TYPE.toLowerCase().replace(/i|-/g, '') // 输入栏UI
             let targetUI = '' // 设备UI
 
@@ -216,7 +217,7 @@ export default defineComponent({
         const checkIsDiskStatus = async () => {
             const result = await queryDiskStatus()
             const $ = queryXml(result)
-            const diskNum = $('//content/item').text().num()
+            const diskNum = $('content/item').text().num()
             if (diskNum === 0) {
                 openMessageBox({
                     type: 'info',
@@ -225,7 +226,7 @@ export default defineComponent({
                 return
             }
             let diskDamage = false //是否有磁盘损坏/未格式化
-            $('//content/item').forEach((item) => {
+            $('content/item').forEach((item) => {
                 const $item = queryXml(item.element)
                 const diskStatus = $item('/diskStatus').text()
                 if (diskStatus === 'bad' || diskStatus === 'read') {
@@ -240,7 +241,7 @@ export default defineComponent({
                     if (userSession.hasAuth('diskMgr')) {
                         if (systemCaps.supportRaid) {
                             queryDiskMode().then((result) => {
-                                const isUseRaid = queryXml(result)('//content/diskMode/isUseRaid').text().bool()
+                                const isUseRaid = queryXml(result)('content/diskMode/isUseRaid').text().bool()
                                 const routeUrl = isUseRaid ? '/config/disk/diskArray' : '/config/disk/management'
                                 router.push(routeUrl)
                             })
@@ -321,7 +322,7 @@ export default defineComponent({
                     userSession.loginCheck = 'notCheck'
                 }
             })
-            Plugin.TogglePageByPlugin()
+            plugin.TogglePageByPlugin()
         })
 
         return {

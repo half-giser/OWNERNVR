@@ -59,11 +59,11 @@ export default defineComponent({
 
             tableData.value = []
 
-            if ($('//status').text() === 'success') {
-                $disk('//content/item').forEach((item) => {
+            if ($('status').text() === 'success') {
+                $disk('content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     const diskId = item.attr('id')
-                    const diskStatus = $(`//content/item[@id="${diskId}"]/diskStatus`).text()
+                    const diskStatus = $(`content/item[@id="${diskId}"]/diskStatus`).text()
                     const diskInterfaceType = $item('diskInterfaceType').text()
                     const diskType = $item('diskType').text()
                     const diskList = prop.current.diskList.map((item) => item.id)
@@ -137,7 +137,7 @@ export default defineComponent({
                 const result = await editSetAndElementRelation(sendXml)
                 const $ = queryXml(result)
 
-                if ($('//status').text() === 'success') {
+                if ($('status').text() === 'success') {
                     ctx.emit('comfirm')
                 }
 

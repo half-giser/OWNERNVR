@@ -73,7 +73,7 @@ export default defineComponent({
         const getTimeCfg = async () => {
             const result = await queryTimeCfg()
             commLoadResponseHandler(result, ($) => {
-                const dateFormat = $('//content/formatInfo/date').text()
+                const dateFormat = $('content/formatInfo/date').text()
                 switch (dateFormat) {
                     case 'year-month-day':
                         pageData.value.dateFormat = 'YYYY/MM/DD'
@@ -94,7 +94,7 @@ export default defineComponent({
         /**
          * @description 打开弹窗时更新页面项
          */
-        const open = async () => {
+        const open = () => {
             if (prop.expirationType !== 'all') {
                 const expirationTime = prop.expirationData.singleExpirationUnit === 'd' ? Number(prop.expirationData?.expiration) * 24 : Number(prop.expirationData?.expiration)
                 pageData.value.expireTime = expirationTime
@@ -203,8 +203,8 @@ export default defineComponent({
             pageData.value.toAddDateList = []
         }
 
-        onMounted(async () => {
-            await getTimeCfg()
+        onMounted(() => {
+            getTimeCfg()
         })
 
         return {

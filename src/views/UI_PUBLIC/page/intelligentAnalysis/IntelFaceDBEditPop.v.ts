@@ -4,7 +4,7 @@
  * @Description: 人脸库- 新增/编辑分组
  */
 import { IntelFaceDBGroupList } from '@/types/apiType/intelligentAnalysis'
-import { type FormRules, type FormInstance } from 'element-plus'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -36,7 +36,7 @@ export default defineComponent({
         const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
 
         const formData = ref({
             groupName: '',
@@ -62,7 +62,6 @@ export default defineComponent({
          * @description 打开表单时 重置表单
          */
         const open = () => {
-            formRef.value?.clearValidate()
             if (prop.type === 'edit') {
                 formData.value.groupName = prop.data.name
                 formData.value.enableAlarmSwitch = prop.data.enableAlarmSwitch
@@ -96,7 +95,7 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
@@ -104,7 +103,7 @@ export default defineComponent({
                     ctx.emit('confirm')
                 })
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_NO_AUTH:
@@ -147,7 +146,7 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
@@ -155,7 +154,7 @@ export default defineComponent({
                     ctx.emit('confirm')
                 })
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_LIMIT_MAX_SUBSYSTEM_NUM:
@@ -185,7 +184,7 @@ export default defineComponent({
          * @description 验证表单通过后，创建/编辑分组
          */
         const verify = () => {
-            formRef.value?.validate(async (valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     if (prop.type === 'edit') {
                         editGroup()

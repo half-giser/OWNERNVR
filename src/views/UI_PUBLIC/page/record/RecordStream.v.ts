@@ -4,10 +4,10 @@
  * @Description: 事件录像码流
  */
 
-import RecordStreamTable from '@/views/UI_PUBLIC/page/record/RecordStreamTable.vue'
+import RecordBaseStreamTable from '@/views/UI_PUBLIC/page/record/RecordBaseStreamTable.vue'
 export default defineComponent({
     components: {
-        RecordStreamTable,
+        RecordBaseStreamTable,
     },
     setup() {
         const pageData = ref({
@@ -32,7 +32,7 @@ export default defineComponent({
 
         return {
             pageData,
-            RecordStreamTable,
+            RecordBaseStreamTable,
         }
     },
 })

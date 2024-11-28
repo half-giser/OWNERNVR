@@ -4,7 +4,7 @@
  * @Description: 云台-任务-编辑弹窗
  */
 import { type ChannelPtzTaskDto, ChannelPtzTaskForm } from '@/types/apiType/channel'
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -78,7 +78,7 @@ export default defineComponent({
             ],
         })
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new ChannelPtzTaskForm())
 
         const formRule = ref<FormRules>({
@@ -132,7 +132,7 @@ export default defineComponent({
             const result = await queryChlPresetList(sendXml)
             const $ = queryXml(result)
 
-            pageData.value.nameOptions = $('//content/presets/item').map((item) => {
+            pageData.value.nameOptions = $('content/presets/item').map((item) => {
                 return {
                     value: item.attr('index'),
                     label: item.text(),
@@ -152,7 +152,7 @@ export default defineComponent({
             `
             const result = await queryChlCruiseList(sendXml)
             const $ = queryXml(result)
-            pageData.value.nameOptions = $('//content/cruises/item').map((item) => {
+            pageData.value.nameOptions = $('content/cruises/item').map((item) => {
                 return {
                     value: item.attr('index'),
                     label: item.text(),
@@ -172,7 +172,7 @@ export default defineComponent({
             `
             const result = await queryLocalChlPtzTraceList(sendXml)
             const $ = queryXml(result)
-            pageData.value.nameOptions = $('//content/traces/item').map((item) => {
+            pageData.value.nameOptions = $('content/traces/item').map((item) => {
                 return {
                     value: item.attr('index'),
                     label: item.text(),
@@ -232,7 +232,7 @@ export default defineComponent({
          * @description 验证表单
          */
         const verify = () => {
-            formRef.value?.validate((valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     ctx.emit('confirm', formData.value)
                 }
@@ -243,7 +243,6 @@ export default defineComponent({
          * @description 打开弹窗时重置表单
          */
         const open = async () => {
-            formRef.value?.clearValidate()
             formData.value.startTime = prop.data.startTime
             formData.value.endTime = prop.data.endTime
             formData.value.type = prop.data.type

@@ -157,8 +157,8 @@ export default defineComponent({
                 requireField: ['protocolType', 'supportPtz', 'supportPTZGroupTraceTask', 'supportAccessControl'],
             })
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                pageData.value.cacheChlList = $('//content/item').map((item) => {
+            if ($('status').text() === 'success') {
+                pageData.value.cacheChlList = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     const result = {
                         id: item.attr('id'),
@@ -189,8 +189,8 @@ export default defineComponent({
                 isSupportTalkback: true,
             })
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                $('//content/item').forEach((item) => {
+            if ($('status').text() === 'success') {
+                $('content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     const id = item.attr('id')
                     const chlType = $item('productModel').attr('factoryName')
@@ -217,9 +217,9 @@ export default defineComponent({
             const result = await queryOnlineChlList()
             const $ = queryXml(result)
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 // 查询出所有在线的通道
-                pageData.value.onlineChlList = $('//content/item').map((item) => {
+                pageData.value.onlineChlList = $('content/item').map((item) => {
                     return item.attr('id')
                 })
             }
@@ -299,8 +299,8 @@ export default defineComponent({
             `
             const result = await queryChlGroupList(sendXml)
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                pageData.value.chlGroupList = $('//content/item').map((item) => {
+            if ($('status').text() === 'success') {
+                pageData.value.chlGroupList = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         id: item.attr('id'),
@@ -309,7 +309,7 @@ export default defineComponent({
                     }
                 })
             } else {
-                if ($('//errorCode').text().num() === ErrorCode.USER_ERROR_NO_AUTH) {
+                if ($('errorCode').text().num() === ErrorCode.USER_ERROR_NO_AUTH) {
                     openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_NO_PERMISSION'),
@@ -333,8 +333,8 @@ export default defineComponent({
             const result = await queryChlGroup(sendXml)
             const $ = queryXml(result)
 
-            if ($('//status').text() === 'success') {
-                pageData.value.chlListOfGroup = $('//content/chlList/item').map((item) => {
+            if ($('status').text() === 'success') {
+                pageData.value.chlListOfGroup = $('content/chlList/item').map((item) => {
                     return {
                         id: item.attr('id'),
                         value: item.text(),
@@ -433,7 +433,7 @@ export default defineComponent({
                     const result = await delChlGroup(sendXml)
                     const $ = queryXml(result)
                     closeLoading()
-                    if ($('//status').text() === 'success') {
+                    if ($('status').text() === 'success') {
                         openMessageBox({
                             type: 'success',
                             message: Translate('IDCS_DELETE_SUCCESS'),
@@ -481,8 +481,8 @@ export default defineComponent({
             const result = await queryCustomerView()
             const $ = queryXml(result)
 
-            if ($('//status').text() === 'success') {
-                pageData.value.customViewList = $('//content/item').map((item, index) => {
+            if ($('status').text() === 'success') {
+                pageData.value.customViewList = $('content/item').map((item, index) => {
                     const $item = queryXml(item.element)
                     return {
                         chlArr: $item('chls/item').map((chl) => ({
@@ -526,7 +526,7 @@ export default defineComponent({
             `
             const result = await queryDevList(sendXml)
             const $ = queryXml(result)
-            $('//content/item').forEach((item) => {
+            $('content/item').forEach((item) => {
                 const $item = queryXml(item.element)
                 const id = item.attr('id')
                 if (chlMap[id]) {

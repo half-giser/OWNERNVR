@@ -4,7 +4,7 @@
  * @Description: 网络端口
  */
 import { NetPortForm, NetPortUPnPDto, NetPortApiServerForm, NetPortRtspServerForm } from '@/types/apiType/net'
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     setup() {
@@ -20,7 +20,7 @@ export default defineComponent({
             Digest: Translate('IDCS_MD5'),
         }
 
-        const portFormRef = ref<FormInstance>()
+        const portFormRef = useFormRef()
         const portFormData = ref(new NetPortForm())
         const portFormRule = ref<FormRules>({
             httpPort: [
@@ -79,7 +79,7 @@ export default defineComponent({
 
         const apiServerFormData = ref(new NetPortApiServerForm())
 
-        const rtspServerFormRef = ref<FormInstance>()
+        const rtspServerFormRef = useFormRef()
         const rtspServerFormData = ref(new NetPortRtspServerForm())
         const rtspServerFormRule = ref<FormRules>({
             rtspPort: [
@@ -212,14 +212,14 @@ export default defineComponent({
         const getPortData = async () => {
             const result = await queryNetPortCfg()
             commLoadResponseHandler(result, ($) => {
-                portFormData.value.httpPort = $('//content/httpPort').text().num()
-                portFormData.value.httpsPort = $('//content/httpsPort').text().num()
-                portFormData.value.netPort = $('//content/netPort').text().num()
-                portFormData.value.posPort = $('//content/posPort').text().num()
-                // portFormData.value.rtspPort = $("//content/rtspPort").text().num()
-                portFormData.value.virtualHostEnabled = $('//content/virtualHostEnabled').text().bool()
+                portFormData.value.httpPort = $('content/httpPort').text().num()
+                portFormData.value.httpsPort = $('content/httpsPort').text().num()
+                portFormData.value.netPort = $('content/netPort').text().num()
+                portFormData.value.posPort = $('content/posPort').text().num()
+                // portFormData.value.rtspPort = $("//rtspPort").text().num()
+                portFormData.value.virtualHostEnabled = $('content/virtualHostEnabled').text().bool()
 
-                const reservedPort = $('//content/reservedPort').text().split(',')
+                const reservedPort = $('content/reservedPort').text().split(',')
                 pageData.value.reservedPort = []
                 pageData.value.reservedPortRange = []
                 reservedPort.forEach((item) => {
@@ -302,7 +302,7 @@ export default defineComponent({
             const result = await editNetPortCfg(sendXml)
             const $ = queryXml(result)
 
-            return $('//status').text() === 'success'
+            return $('status').text() === 'success'
         }
 
         /**
@@ -312,7 +312,7 @@ export default defineComponent({
             if (userSession.appType === 'P2P') {
                 const result = await queryWirelessNetworkCfg()
                 const $ = queryXml(result)
-                pageData.value.wirelessSwitch = $('//content/switch').text().bool()
+                pageData.value.wirelessSwitch = $('content/switch').text().bool()
             }
         }
 
@@ -323,10 +323,10 @@ export default defineComponent({
             const result = await queryUPnPCfg()
             const $ = queryXml(result)
             pageData.value.upnp = {
-                switch: $('//content/switch').text(),
-                mappingType: $('//content/mappingType').text(),
-                portsType: $('//content/ports').attr('type'),
-                ports: $('//content/ports/item').map((item) => {
+                switch: $('content/switch').text(),
+                mappingType: $('content/mappingType').text(),
+                portsType: $('content/ports').attr('type'),
+                ports: $('content/ports/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         portType: $item('portType').text(),
@@ -388,7 +388,7 @@ export default defineComponent({
             const result = await editUPnPCfg(sendXml)
             const $ = queryXml(result)
 
-            return $('//status').text() === 'success'
+            return $('status').text() === 'success'
         }
 
         /**
@@ -398,15 +398,15 @@ export default defineComponent({
             const result = await queryApiServer()
             const $ = queryXml(result)
 
-            if ($('//status').text() === 'success') {
-                pageData.value.apiVerificationOptions = $('//types/authenticationType/enum').map((item) => {
+            if ($('status').text() === 'success') {
+                pageData.value.apiVerificationOptions = $('types/authenticationType/enum').map((item) => {
                     return {
                         value: item.text(),
                         label: VERIFICATION_MAPPING[item.text()],
                     }
                 })
-                apiServerFormData.value.apiserverSwitch = $('//content/apiserverSwitch').text().bool()
-                apiServerFormData.value.authenticationType = $('//content/authenticationType').text()
+                apiServerFormData.value.apiserverSwitch = $('content/apiserverSwitch').text().bool()
+                apiServerFormData.value.authenticationType = $('content/authenticationType').text()
             }
         }
 
@@ -427,7 +427,7 @@ export default defineComponent({
             const result = await editApiServer(sendXml)
             const $ = queryXml(result)
 
-            return $('//status').text() === 'success'
+            return $('status').text() === 'success'
         }
 
         /**
@@ -451,17 +451,17 @@ export default defineComponent({
             const result = await queryRTSPServer()
             const $ = queryXml(result)
 
-            if ($('//status').text() === 'success') {
-                pageData.value.rtspAuthenticationOptions = $('//types/authenticationType/enum').map((item) => {
+            if ($('status').text() === 'success') {
+                pageData.value.rtspAuthenticationOptions = $('types/authenticationType/enum').map((item) => {
                     return {
                         value: item.text(),
                         label: VERIFICATION_MAPPING[item.text()],
                     }
                 })
-                rtspServerFormData.value.rtspServerSwitch = $('//content/rtspServerSwitch').text().bool()
-                rtspServerFormData.value.rtspAuthType = $('//content/rtspAuthType').text()
-                rtspServerFormData.value.rtspPort = $('//content/rtspPort').text().num()
-                rtspServerFormData.value.anonymousAccess = $('//content/anonymousAccess').text().bool()
+                rtspServerFormData.value.rtspServerSwitch = $('content/rtspServerSwitch').text().bool()
+                rtspServerFormData.value.rtspAuthType = $('content/rtspAuthType').text()
+                rtspServerFormData.value.rtspPort = $('content/rtspPort').text().num()
+                rtspServerFormData.value.anonymousAccess = $('content/anonymousAccess').text().bool()
             }
         }
 
@@ -484,7 +484,7 @@ export default defineComponent({
             const result = await editRTSPServer(sendXml)
             const $ = queryXml(result)
 
-            return $('//status').text() === 'success'
+            return $('status').text() === 'success'
         }
 
         /**
@@ -547,7 +547,7 @@ export default defineComponent({
             },
         )
 
-        onMounted(async () => {
+        onMounted(() => {
             getData()
         })
 

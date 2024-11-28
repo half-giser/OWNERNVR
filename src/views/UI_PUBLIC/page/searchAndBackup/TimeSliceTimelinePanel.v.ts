@@ -4,7 +4,7 @@
  * @Description: 时间切片-时间线界面
  */
 import dayjs from 'dayjs'
-import TimeSliceChlCard from './TimeSliceChlCard.vue'
+import TimeSliceItem from './TimeSliceItem.vue'
 import WebsocketKeyframe from '@/utils/websocket/websocketKeyframe'
 import { type WebsocketKeyframeOnMessageParam } from '@/utils/websocket/websocketKeyframe'
 import { type PlaybackChlTimeSliceList, type PlaybackRecList, type PlaybackBackUpRecList } from '@/types/apiType/playback'
@@ -15,7 +15,7 @@ import TimeSliceTimeRangePop from './TimeSliceTimeRangePop.vue'
 
 export default defineComponent({
     components: {
-        TimeSliceChlCard,
+        TimeSliceItem,
         TimeSliceTimeRangePop,
         BackupPop,
         BackupLocalPop,
@@ -63,7 +63,6 @@ export default defineComponent({
         },
     },
     setup(prop, ctx) {
-        const Plugin = inject('Plugin') as PluginType
         const { Translate } = useLangStore()
         const { openMessageBox } = useMessageBox()
         const router = useRouter()
@@ -211,9 +210,24 @@ export default defineComponent({
         const timelineRef = ref<TimelineInstance>()
         const playerRef = ref<PlayerInstance>()
 
+        const plugin = usePluginHook({
+            onReady: (mode, plugin) => {
+                if (mode.value === 'ocx') {
+                    const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Playback')
+                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                }
+            },
+            onDestroy: (mode, plugin) => {
+                if (mode.value === 'ocx') {
+                    const sendXML = OCX_XML_StopPreview('ALL')
+                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                }
+            },
+        })
+
         // 播放器模式
         const mode = computed(() => {
-            return Plugin.IsSupportH5() ? 'h5' : 'ocx'
+            return plugin.IsSupportH5() ? 'h5' : 'ocx'
         })
 
         /**
@@ -300,9 +314,9 @@ export default defineComponent({
             `
             const result = await queryRecDataSize(sendXml)
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 if (formData.value.startTime === startTime && formData.value.endTime === endTime) {
-                    const size = $('//content/dataSize').text().num()
+                    const size = $('content/dataSize').text().num()
                     formData.value.size = size
                 }
             } else {
@@ -544,7 +558,7 @@ export default defineComponent({
          * @param {number} endTime
          * @param {string} taskId
          */
-        const playTimeSlice = async (startTime: number, endTime: number, taskId: string) => {
+        const playTimeSlice = (startTime: number, endTime: number, taskId: string) => {
             timeSliceTimer.update(() => {
                 play(startTime)
                 pageData.value.activeTimeSlice = taskId
@@ -681,14 +695,14 @@ export default defineComponent({
             `
             const result = await queryChlRecLog(sendXml)
             const $ = queryXml(result)
-            if ($('//status').text() !== 'success') {
+            if ($('status').text() !== 'success') {
                 return
             }
 
             if (startTime !== timelineRef.value!.getMinTime() * 1000) {
                 return
             }
-            pageData.value.recList = $('//content/chl/item').map((item) => {
+            pageData.value.recList = $('content/chl/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
                     chlId: item.attr('id'),
@@ -785,10 +799,10 @@ export default defineComponent({
          * @description 备份
          */
         const backUp = () => {
-            if (mode.value === 'ocx' && Plugin.BackUpTask.isExeed(1)) {
+            if (mode.value === 'ocx' && plugin.BackUpTask.isExeed(1)) {
                 openMessageBox({
                     type: 'info',
-                    message: Translate('IDCS_BACKUP_TASK_NUM_LIMIT').formatForLang(Plugin.BackUpTask.limit),
+                    message: Translate('IDCS_BACKUP_TASK_NUM_LIMIT').formatForLang(plugin.BackUpTask.limit),
                 })
                 return
             }
@@ -817,7 +831,7 @@ export default defineComponent({
                 if (mode.value === 'h5') {
                     pageData.value.isLocalBackUpPop = true
                 } else if (mode.value === 'ocx') {
-                    Plugin.BackUpTask.addTask(pageData.value.backupRecList, path, format)
+                    plugin.BackUpTask.addTask(pageData.value.backupRecList, path, format)
                     router.push({
                         path: '/search-and-backup/backup-state',
                     })
@@ -846,36 +860,12 @@ export default defineComponent({
             pageData.value.isTimeRangePop = false
         }
 
-        watch(
-            mode,
-            (newVal) => {
-                if (newVal !== 'h5' && !Plugin.IsPluginAvailable()) {
-                    Plugin.SetPluginNoResponse()
-                    Plugin.ShowPluginNoResponse()
-                }
-
-                if (newVal === 'ocx') {
-                    const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Playback')
-                    Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                }
-            },
-            {
-                immediate: true,
-            },
-        )
-
         onMounted(() => {
-            Plugin.SetPluginNotice('#layout2Main')
             createWebsocket()
         })
 
         onBeforeUnmount(() => {
             keyframe?.destroy()
-
-            if (mode.value === 'ocx') {
-                const sendXML = OCX_XML_StopPreview('ALL')
-                Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-            }
         })
 
         return {
@@ -909,7 +899,7 @@ export default defineComponent({
             confirmBackUp,
             showTimeRange,
             confirmTimeRange,
-            TimeSliceChlCard,
+            TimeSliceItem,
             TimeSliceTimeRangePop,
             BackupPop,
             BackupLocalPop,

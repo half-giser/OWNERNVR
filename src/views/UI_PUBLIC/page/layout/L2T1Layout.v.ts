@@ -46,7 +46,7 @@ export default defineComponent({
             navList.value.push(getMenuItem(routes.find((o) => o.name === 'functionPanel') as any as RouteRecordRawExtends))
 
             if (route.meta.navs) {
-                ;(route.meta.navs as string[]).forEach((name: string) => {
+                ;(route.meta.navs as string[]).forEach((name) => {
                     const navRoute = routes.find((o) => o.name === name)
                     if (navRoute) {
                         navList.value.push(getMenuItem(navRoute as any as RouteRecordRawExtends))

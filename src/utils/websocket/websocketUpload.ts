@@ -6,8 +6,6 @@
 
 import WebsocketBase from './websocketBase'
 import { CMD_UPLOAD_FILE_OPEN, type CmdUploadFileOpenOption, CMD_UPLOAD_FILE_HEADER, CMD_UPLOAD_FILE_CLOSE } from './websocketCmd'
-import { dataToBuffer, appendBuffer, buildHeader } from '../tools'
-import { MD5_encrypt } from '../encrypt'
 
 interface WebsocketUploadOption {
     config: CmdUploadFileOpenOption
@@ -149,7 +147,7 @@ export default class WebsocketUpload {
         dataToBuffer(JSON.stringify(json)).then((jsonBuffer) => {
             // 包头buffer + jsonbuffer + 文件buffer
             const headerbuffer = buildHeader(json)
-            const temp = appendBuffer(headerbuffer, jsonBuffer)
+            const temp = appendBuffer(headerbuffer, jsonBuffer) as ArrayBuffer
             const combineBuffer = appendBuffer(temp, bufferSlice)
             this.ws!.send(combineBuffer)
         })

@@ -21,14 +21,14 @@
                     ref="playerRef"
                     :split="pageData.split"
                     :enable-pos="systemCaps.supportPOS"
-                    type="live"
-                    @onready="handlePlayerReady"
-                    @onselect="handlePlayerSelect"
-                    @onsuccess="handlePlayerSuccess"
-                    @onstop="handlePlayerStop"
-                    @onplay-status="handlePlayerStatus"
-                    @onerror="handlePlayerError"
-                    @onrecord-file="handlePlayerRecordFile"
+                    @ready="handlePlayerReady"
+                    @select="handlePlayerSelect"
+                    @success="handlePlayerSuccess"
+                    @stop="handlePlayerStop"
+                    @play-status="handlePlayerStatus"
+                    @error="handlePlayerError"
+                    @record-file="handlePlayerRecordFile"
+                    @message="notify"
                 />
             </div>
             <LiveScreenPanel
@@ -110,7 +110,6 @@
                 </template>
             </LiveAsidePanel>
         </div>
-        <BaseNotification v-model:notifications="pageData.notification" />
     </div>
 </template>
 

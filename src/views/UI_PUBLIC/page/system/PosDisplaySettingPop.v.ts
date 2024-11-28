@@ -453,8 +453,9 @@ export default defineComponent({
 
             displayPosition.value = { ...prop.data.displayPosition }
             drawingPosition.value = { ...prop.data.displayPosition }
-            colorTableList.value = (prop.colorData as SystemPostColorData[]).map((item) => {
+            colorTableList.value = (prop.colorData as SystemPostColorData[]).map((item, index) => {
                 return {
+                    index,
                     chlId: item.chlId,
                     name: item.name,
                     colorList: [...item.colorList],

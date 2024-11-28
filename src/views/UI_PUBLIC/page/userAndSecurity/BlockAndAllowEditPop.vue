@@ -8,11 +8,11 @@
         width="600"
         :title
         @open="handleOpen"
+        @closed="formRef?.resetFields()"
     >
         <el-form
             ref="formRef"
             class="stripe"
-            inline-message
             :rules
             :model="formData"
             :style="{
@@ -67,12 +67,10 @@
                 <BaseMacInput v-model="formData.mac" />
             </el-form-item>
         </el-form>
-        <template #footer>
-            <div class="base-btn-box">
-                <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="goBack">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="goBack">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 

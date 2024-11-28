@@ -10,63 +10,39 @@
         @open="open"
     >
         <div>
-            <div class="form">
-                <div>
-                    <label>{{ Translate('IDCS_POS_SOURCE') }}</label>
-                    <span>{{ pageData.name || item.chlName }}</span>
-                </div>
-                <div>
-                    <label>{{ Translate('IDCS_START_TIME') }}</label>
-                    <span>{{ displayDateTime(item.startTime) }}</span>
-                </div>
-                <div>
-                    <label>{{ Translate('IDCS_END_TIME') }}</label>
-                    <span>{{ displayDateTime(item.endTime) }}</span>
-                </div>
-                <div>
-                    <label>{{ Translate('IDCS_INFORMATION') }}</label>
-                </div>
+            <el-form>
+                <el-form-item :label="Translate('IDCS_POS_SOURCE')">
+                    {{ pageData.name || item.chlName }}
+                </el-form-item>
+                <el-form-item :label="Translate('IDCS_START_TIME')">
+                    {{ displayDateTime(item.startTime) }}
+                </el-form-item>
+                <el-form-item :label="Translate('IDCS_END_TIME')">
+                    {{ displayDateTime(item.endTime) }}
+                </el-form-item>
+                <el-form-item :label="Translate('IDCS_INFORMATION')" />
                 <div
                     v-clean-html="pageData.info"
                     class="textarea"
                 ></div>
-            </div>
+            </el-form>
         </div>
-        <template #footer>
-            <div class="base-btn-box">
-                <el-button @click="close()">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="close()">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 
 <script lang="ts" src="./BackupPosInfoPop.v.ts"></script>
 
 <style lang="scss" scoped>
-.form {
-    & > div {
-        padding: 0;
-        height: 30px;
-        line-height: 30px;
-        box-sizing: border-box;
-        display: flex;
-        align-items: center;
-        font-size: 15px;
-
-        label {
-            width: 150px;
-            flex-shrink: 0;
-        }
-
-        &.textarea {
-            display: block;
-            width: 100%;
-            height: 330px;
-            margin-top: 5px;
-            border: 1px solid var(--content-border);
-            box-sizing: border-box;
-            padding: 5px;
-        }
-    }
+.textarea {
+    display: block;
+    width: calc(100% - 20px);
+    height: 300px;
+    border: 1px solid var(--content-border);
+    box-sizing: border-box;
+    padding: 10px;
+    margin: 10px;
 }
 </style>

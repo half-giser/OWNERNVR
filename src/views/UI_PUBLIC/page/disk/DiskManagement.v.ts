@@ -83,7 +83,7 @@ export default defineComponent({
          */
         const getData = async () => {
             const storage = await queryStorageDevInfo()
-            const $storage = queryXml(queryXml(storage)('//content')[0].element)
+            const $storage = queryXml(queryXml(storage)('content')[0].element)
 
             const result = await queryDiskStatus()
             const $ = queryXml(result)
@@ -102,8 +102,8 @@ export default defineComponent({
                 }
 
                 const id = item.attr('id')
-                const diskStatus = $(`//content/item[@id="${id}"]/diskStatus`).text()
-                const diskEncryptStatus = $(`//content/item[@id="${id}"]/diskEncryptStatus`).text()
+                const diskStatus = $(`content/item[@id="${id}"]/diskStatus`).text()
+                const diskEncryptStatus = $(`content/item[@id="${id}"]/diskEncryptStatus`).text()
                 const recStartDate = formatDate($item('recStartDate').text(), dateTime.dateFormat, 'YYYY-MM-DD')
                 const recEndDate = formatDate($item('recEndDate').text(), dateTime.dateFormat, 'YYYY-MM-DD')
 
@@ -146,8 +146,8 @@ export default defineComponent({
                     const $item = queryXml(item.element)
                     const logicDiskId = $item('logicDiskId').text()
 
-                    const diskStatus = $(`//content/item[@id="${logicDiskId}"/diskStatus`).text()
-                    const diskEncryptStatus = $(`//content/item[@id="${logicDiskId}"]/diskEncryptStatus`).text()
+                    const diskStatus = $(`content/item[@id="${logicDiskId}"/diskStatus`).text()
+                    const diskEncryptStatus = $(`content/item[@id="${logicDiskId}"]/diskEncryptStatus`).text()
                     const recStartDate = formatDate($item('recStartDate').text(), dateTime.dateFormat, 'YYYY-MM-DD')
                     const recEndDate = formatDate($item('recEndDate').text(), dateTime.dateFormat, 'YYYY-MM-DD')
 
@@ -240,11 +240,11 @@ export default defineComponent({
 
                 closeLoading()
 
-                if ($('//status').text() === 'success') {
+                if ($('status').text() === 'success') {
                     pageData.value.isCheckAuth = false
                     getData()
                 } else {
-                    const errorCode = $('//errorCode').text().num()
+                    const errorCode = $('errorCode').text().num()
                     let errorInfo = ''
 
                     switch (errorCode) {
@@ -296,7 +296,7 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 pageData.value.isInputEncryptPwd = false
                 getData()
             } else {

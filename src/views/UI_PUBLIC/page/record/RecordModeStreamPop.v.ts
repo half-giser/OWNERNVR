@@ -5,11 +5,11 @@
  */
 import { type RecordModeDto, type RecordStreamTableExpose } from '@/types/apiType/record'
 import { defineComponent } from 'vue'
-import RecordStreamTable from './RecordStreamTable.vue'
+import RecordBaseStreamTable from './RecordBaseStreamTable.vue'
 import { cloneDeep } from 'lodash-es'
 export default defineComponent({
     components: {
-        RecordStreamTable,
+        RecordBaseStreamTable,
     },
     props: {
         advanceRecModeMap: {
@@ -123,11 +123,10 @@ export default defineComponent({
             onOpen,
             tabSeleced,
             setData,
-            RecordStreamTable,
+            RecordBaseStreamTable,
             handleCalculate,
             getBandwidth,
             getRecTime,
-            props,
         }
     },
 })

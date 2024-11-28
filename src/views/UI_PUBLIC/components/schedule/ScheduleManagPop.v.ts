@@ -51,7 +51,7 @@ export default defineComponent({
          * @description: 排程管理弹框打开事件
          * @return {*}
          */
-        const onOpen = async () => {
+        const onOpen = () => {
             queryList()
         }
 
@@ -67,9 +67,9 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() !== 'success') return
+            if ($('status').text() !== 'success') return
 
-            pageData.value.scheduleList = $('//content/item').map((item) => {
+            pageData.value.scheduleList = $('content/item').map((item) => {
                 return {
                     id: item.attr('id'),
                     name: item.text(),
@@ -126,18 +126,20 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 pageData.value.currentScheduleInfo = new ScheduleInfo()
-                pageData.value.currentScheduleInfo.id = $('//content/id').text()
-                pageData.value.currentScheduleInfo.name = $('//content/name').text()
+                pageData.value.currentScheduleInfo.id = $('content/id').text()
+                pageData.value.currentScheduleInfo.name = $('content/name').text()
 
                 pageData.value.dayEnum.forEach((day, index) => {
-                    pageData.value.currentScheduleInfo!.timespan[index] = $('//content/period/item')
+                    pageData.value.currentScheduleInfo!.timespan[index] = $('content/period/item')
                         .filter((item) => {
-                            return xmlParse('./day', item.element).text() === day
+                            return queryXml(item.element)('day').text() === day // xmlParse('./day', item.element).text() === day
                         })
                         .map((item) => {
-                            return [xmlParse('./start', item.element).text(), xmlParse('./end', item.element).text()]
+                            const $item = queryXml(item.element)
+                            return [$item('start').text(), $item('end').text()]
+                            // return [xmlParse('./start', item.element).text(), xmlParse('./end', item.element).text()]
                         })
                 })
                 return true
@@ -167,7 +169,7 @@ export default defineComponent({
          * @param {NameValueItem} row
          * @return {*}
          */
-        const deleteSchedule = async (row: NameValueItem) => {
+        const deleteSchedule = (row: NameValueItem) => {
             openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_SCHEDULE_S').formatForLang(replaceWithEntity(getShortString(row.name, 10))),

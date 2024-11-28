@@ -3,13 +3,13 @@
  * @Date: 2024-06-05 17:19:32
  * @Description: 添加通道 - 设置协议弹窗
  */
-import { ChannelProtocolManageDto, ChannelResourcesPathDto } from '@/types/apiType/channel'
-import type { FormInstance, TableInstance, FormRules } from 'element-plus'
+import { ChannelProtocolManageDto } from '@/types/apiType/channel'
+import type { TableInstance, FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
         manufacturerList: {
-            type: Array as PropType<Record<string, string>[]>,
+            type: Array as PropType<SelectOption<string, string>[]>,
             required: true,
         },
     },
@@ -22,11 +22,36 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
         const { openMessageBox } = useMessageBox()
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new ChannelProtocolManageDto())
         const protocolManageList = ref<ChannelProtocolManageDto[]>([])
         const currentProtocolLogo = ref('')
         const tableRef = ref<TableInstance>()
+
+        const pageData = ref({
+            enabledOptions: [
+                {
+                    value: false,
+                    label: Translate('IDCS_NIC_STATE_DISABLED'),
+                },
+                {
+                    value: true,
+                    label: Translate('IDCS_ENABLE'),
+                },
+            ],
+            protocolOptions: [
+                {
+                    label: 'RTSP',
+                    value: 'RTSP',
+                },
+            ],
+            transferProtocolOptions: [
+                {
+                    label: 'TCP',
+                    value: 'TCP',
+                },
+            ],
+        })
 
         let tempProtocolLogo: string = ''
         let manufacturerArray: string[] = []
@@ -36,7 +61,7 @@ export default defineComponent({
             if (formData.value.enabled) {
                 if (!(await verification())) return
             }
-            formData.value = protocolManageList.value.find((ele: ChannelProtocolManageDto) => ele.id === val) as ChannelProtocolManageDto
+            formData.value = protocolManageList.value.find((ele) => ele.id === val)!
             tempProtocolLogo = val
         }
 
@@ -46,24 +71,24 @@ export default defineComponent({
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() === 'success') {
-                    protocolManageList.value = []
-                    $('//content/item').forEach((ele) => {
-                        let eleXml = queryXml(ele.element)
-                        const newData = new ChannelProtocolManageDto()
-                        newData.id = ele.attr('id')
-                        newData.enabled = eleXml('enabled').text().bool()
-                        newData.displayName = eleXml('displayName').text()
-                        eleXml('resourcesPath/item').forEach((ele) => {
-                            eleXml = queryXml(ele.element)
-                            const resourcesPath = new ChannelResourcesPathDto()
-                            resourcesPath.streamType = eleXml('streamType').text()
-                            resourcesPath.protocol = eleXml('protocol').text()
-                            resourcesPath.transportProtocol = eleXml('transportProtocol').text()
-                            resourcesPath.port = eleXml('port').text().num()
-                            resourcesPath.path = eleXml('path').text()
-                            newData.resourcesPath.push(resourcesPath)
-                        })
-                        protocolManageList.value.push(newData)
+                    protocolManageList.value = $('content/item').map((ele) => {
+                        const $item = queryXml(ele.element)
+                        return {
+                            id: ele.attr('id'),
+                            enabled: $item('enabled').text().bool(),
+                            displayName: $item('displayName').text(),
+                            label: Translate('IDCS_CUSTOM_PROTOCOL') + ' ' + ele.attr('id'),
+                            resourcesPath: $item('resourcesPath/item').map((ele) => {
+                                const $path = queryXml(ele.element)
+                                return {
+                                    streamType: $path('streamType').text(),
+                                    protocol: $path('protocol').text(),
+                                    transportProtocol: $path('transportProtocol').text(),
+                                    port: $path('port').text().num(),
+                                    path: $path('path').text(),
+                                }
+                            }),
+                        }
                     })
                     formData.value = protocolManageList.value[0]
                     currentProtocolLogo.value = tempProtocolLogo = formData.value.id
@@ -109,7 +134,7 @@ export default defineComponent({
 
         const verification = async () => {
             displayNameList = []
-            protocolManageList.value.forEach((ele: ChannelProtocolManageDto) => {
+            protocolManageList.value.forEach((ele) => {
                 if (ele.enabled && ele.id !== tempProtocolLogo) displayNameList.push(ele.displayName)
             })
             if (!formRef) return false
@@ -221,8 +246,7 @@ export default defineComponent({
         }
 
         const opened = () => {
-            formRef.value?.clearValidate()
-            manufacturerArray = props.manufacturerList.map((ele) => ele.text)
+            manufacturerArray = props.manufacturerList.map((ele) => ele.label)
             getData()
         }
 
@@ -237,6 +261,7 @@ export default defineComponent({
             opened,
             currentProtocolLogo,
             handleDisplayNameInput,
+            pageData,
         }
     },
 })

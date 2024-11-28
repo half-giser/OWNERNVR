@@ -8,12 +8,10 @@
         <el-form
             ref="formRef"
             class="stripe"
-            inline-message
             :rules
             :model="formData"
             :style="{
                 '--form-input-width': '220px',
-                '--form-label-width': '150px',
             }"
         >
             <el-form-item>

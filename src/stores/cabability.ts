@@ -64,6 +64,7 @@ export const useCababilityStore = defineStore(
         const supportFishEye = ref(false)
         const chlSupSignalType = ref<string[]>([])
         const switchIpChlRange = ref<number[]>([])
+        const mainStreamLimitFps = ref(1)
 
         const CustomerID = ref(0)
         const AISwitch = ref<boolean | undefined>()
@@ -77,73 +78,74 @@ export const useCababilityStore = defineStore(
          */
         const updateCabability = async () => {
             const result = await querySystemCaps()
-            const $ = queryXml(result)
+            const $ = queryXml(queryXml(result)('content')[0].element)
 
-            IntelAndFaceConfigHide.value = $(`content/IntelAndFaceConfigHide`).text().bool()
-            supportFaceMatch.value = $(`content/supportFaceMatch`).text().bool() // 人脸识别：最初只有supportFaceMatch这一个字段来代表‘人脸侦测和人脸识别’的能力集。
-            supportPlateMatch.value = $(`content/supportPlateMatch`).text().bool()
-            supportWaterMark.value = $(`content/supportWaterMark`).text().bool()
-            showAIReourceDetail.value = $(`content/showAIReourceDetail`).text().bool()
-            localTargetDectMaxCount.value = $(`content/localTargetDectMaxCount`).text().num()
-            localFaceDectMaxCount.value = $(`content/localFaceDectMaxCount`).text().num()
-            faceMatchLimitMaxChlNum.value = $(`content/faceMatchLimitMaxChlNum`).text().num()
-            supportRaid.value = $(`content/supportRaid`).text().bool()
-            chlMaxCount.value = $(`content/chlMaxCount`).text().num()
-            previewMaxWinForOutputSetting.value = $(`content/previewMaxWin`).text().num() // NT2-3582：主/辅输出配置web端与设备端保持一致
-            previewMaxWin.value = $(`content/previewMaxWin`).text().num()
+            IntelAndFaceConfigHide.value = $('IntelAndFaceConfigHide').text().bool()
+            supportFaceMatch.value = $('supportFaceMatch').text().bool() // 人脸识别：最初只有supportFaceMatch这一个字段来代表‘人脸侦测和人脸识别’的能力集。
+            supportPlateMatch.value = $('supportPlateMatch').text().bool()
+            supportWaterMark.value = $('supportWaterMark').text().bool()
+            showAIReourceDetail.value = $('showAIReourceDetail').text().bool()
+            localTargetDectMaxCount.value = $('localTargetDectMaxCount').text().num()
+            localFaceDectMaxCount.value = $('localFaceDectMaxCount').text().num()
+            faceMatchLimitMaxChlNum.value = $('faceMatchLimitMaxChlNum').text().num()
+            supportRaid.value = $('supportRaid').text().bool()
+            chlMaxCount.value = $('chlMaxCount').text().num()
+            previewMaxWinForOutputSetting.value = $('previewMaxWin').text().num() // NT2-3582：主/辅输出配置web端与设备端保持一致
+            previewMaxWin.value = $('previewMaxWin').text().num()
             previewMaxWin.value = previewMaxWin.value > 36 ? 36 : previewMaxWin.value // 最多支持36路 NT2-825
 
-            sub1OutputMaxWin.value = $(`content/subOutputMaxWin`).text().num()
-            sub2OutputMaxWin.value = $(`content/sub2OutputMaxWin`).text().num()
-            sub3OutputMaxWin.value = $(`content/sub3OutputMaxWin`).text().num()
-            outputScreensCount.value = $(`content/outputScreens/item`).length // 1：主输出；2:主输出/辅输出
-            supportBootWorkMode.value = $(`content/supportBootWorkMode`).text().bool()
-            supportModifyPoeMode.value = $(`content/supportModifyPoeMode`).text().bool()
-            supportAlarmAudioConfig.value = $(`content/supportAlarmAudioConfig`).text().bool()
-            RecordSubResAdaptive.value = $(`content/RecordSubResAdaptive`).text().bool()
-            supportParkingLotLEDVisible.value = $(`content/supportParkingLotLEDVisible`).text().bool()
-            devSystemType.value = $(`content/devSystemType`).text().num()
-            supportRecDelete.value = $(`content/supportRecDelete`).text().bool() // 是否支持录像删除
-            supportANR.value = $(`content/supportANR`).text().bool() // 断网补录
-            showNatAccessType.value = $(`content/showNatAccessType`).text().bool()
-            showNatVisitAddress.value = $(`content/showNatVisitAddress`).text().bool()
-            showNatServerAddress.value = $(`content/showNatServerAddress`).text().bool()
-            showCloudUpgrade.value = $(`content/showCloudUpgrade`).text().bool()
-            supportPOS.value = $(`content/supportPOS`).text().bool()
-            supportsIPCActivation.value = $(`content/supportsIPCActivation`).text().bool() // TSSR-18907 去除IPC激活功能
-            supportPwdSecurityConfig.value = $(`content/supportPwdSecurityConfig`).text().bool()
-            supportLite.value = $(`content/supportLite`).text().bool()
-            supportZeroOprAdd.value = $(`content/supportZeroOprAdd`).text().bool()
-            supportHdmiVgaSeparate.value = $(`content/supportHdmiVgaSeparate`).text().bool() // 是否支持VGA异源输出
-            supportOriginalDisplay.value = $('content/supportOriginalDisplay').text().bool()
-            supportImageRotate.value = $('content/supportImageRotate').text().bool()
-            supportFTP.value = $('content/supportFTP').text().bool()
-            showVideoLossMessage.value = $('content/showVideoLossMessage').text().bool()
-            audioInNum.value = $('content/audioInNum').text().num()
-            supportPtzGroupAndTrace.value = $('content/supportPtzGroupAndTrace').text().bool()
-            supportTalk.value = $('content/supportTalk').text().bool()
-            analogChlCount.value = $(`content/analogChlCount`).text().num()
-            ipChlMaxCount.value = $(`content/ipChlMaxCount`).text().num()
-            switchableIpChlMaxCount.value = $(`content/switchableIpChlMaxCount`).text().num()
-            supportSHDB.value = $(`content/supportSHDB`).text().bool()
-            supportAlarmServerConfig.value = $('content/supportAlarmServerConfig').text().bool()
-            poeChlMaxCount.value = $(`content/poeChlMaxCount`).text().num()
-            playbackMaxWin.value = $('content/playbackMaxWin').text().num()
-            showNat.value = $(`content/showNat`).text().bool()
-            supportHttpsConfig.value = $(`content/supportHttpsConfig`).text().bool()
-            supportSnmp.value = $(`content/supportSnmp`).text().bool()
-            supportPlatform.value = $(`content/supportPlatform`).text().bool()
-            supportPoePowerManage.value = $(`content/supportPoePowerManage`).text().bool()
-            supportLogoSetting.value = $(`content/supportLogoSetting`).text().bool()
-            supportFishEye.value = $(`content/supportFishEye`).text().bool()
+            sub1OutputMaxWin.value = $('subOutputMaxWin').text().num()
+            sub2OutputMaxWin.value = $('sub2OutputMaxWin').text().num()
+            sub3OutputMaxWin.value = $('sub3OutputMaxWin').text().num()
+            outputScreensCount.value = $('outputScreens/item').length // 1：主输出；2:主输出/辅输出
+            supportBootWorkMode.value = $('supportBootWorkMode').text().bool()
+            supportModifyPoeMode.value = $('supportModifyPoeMode').text().bool()
+            supportAlarmAudioConfig.value = $('supportAlarmAudioConfig').text().bool()
+            RecordSubResAdaptive.value = $('RecordSubResAdaptive').text().bool()
+            supportParkingLotLEDVisible.value = $('supportParkingLotLEDVisible').text().bool()
+            devSystemType.value = $('devSystemType').text().num()
+            supportRecDelete.value = $('supportRecDelete').text().bool() // 是否支持录像删除
+            supportANR.value = $('supportANR').text().bool() // 断网补录
+            showNatAccessType.value = $('showNatAccessType').text().bool()
+            showNatVisitAddress.value = $('showNatVisitAddress').text().bool()
+            showNatServerAddress.value = $('showNatServerAddress').text().bool()
+            showCloudUpgrade.value = $('showCloudUpgrade').text().bool()
+            supportPOS.value = $('supportPOS').text().bool()
+            supportsIPCActivation.value = $('supportsIPCActivation').text().bool() // TSSR-18907 去除IPC激活功能
+            supportPwdSecurityConfig.value = $('supportPwdSecurityConfig').text().bool()
+            supportLite.value = $('supportLite').text().bool()
+            supportZeroOprAdd.value = $('supportZeroOprAdd').text().bool()
+            supportHdmiVgaSeparate.value = $('supportHdmiVgaSeparate').text().bool() // 是否支持VGA异源输出
+            supportOriginalDisplay.value = $('supportOriginalDisplay').text().bool()
+            supportImageRotate.value = $('supportImageRotate').text().bool()
+            supportFTP.value = $('supportFTP').text().bool()
+            showVideoLossMessage.value = $('showVideoLossMessage').text().bool()
+            audioInNum.value = $('audioInNum').text().num()
+            supportPtzGroupAndTrace.value = $('supportPtzGroupAndTrace').text().bool()
+            supportTalk.value = $('supportTalk').text().bool()
+            analogChlCount.value = $('analogChlCount').text().num()
+            ipChlMaxCount.value = $('ipChlMaxCount').text().num()
+            switchableIpChlMaxCount.value = $('switchableIpChlMaxCount').text().num()
+            supportSHDB.value = $('supportSHDB').text().bool()
+            supportAlarmServerConfig.value = $('supportAlarmServerConfig').text().bool()
+            poeChlMaxCount.value = $('poeChlMaxCount').text().num()
+            playbackMaxWin.value = $('playbackMaxWin').text().num()
+            showNat.value = $('showNat').text().bool()
+            supportHttpsConfig.value = $('supportHttpsConfig').text().bool()
+            supportSnmp.value = $('supportSnmp').text().bool()
+            supportPlatform.value = $('supportPlatform').text().bool()
+            supportPoePowerManage.value = $('supportPoePowerManage').text().bool()
+            supportLogoSetting.value = $('supportLogoSetting').text().bool()
+            supportFishEye.value = $('supportFishEye').text().bool()
 
-            chlSupSignalType.value = $('content/chlSupSignalType').text().split(':')
-            switchIpChlRange.value.push($('content/switchIpChlRange/start').text().num())
-            switchIpChlRange.value.push($('content/switchIpChlRange/end').text().num())
+            chlSupSignalType.value = $('chlSupSignalType').text().split(':')
+            switchIpChlRange.value.push($('switchIpChlRange/start').text().num())
+            switchIpChlRange.value.push($('switchIpChlRange/end').text().num())
+            mainStreamLimitFps.value = $('content/mainStreamLimitFps').text().num() || 1
 
-            $('content/FishEyeCaps/installType/enum').forEach((item) => {
+            $('FishEyeCaps/installType/enum').forEach((item) => {
                 const text = item.text()
-                fishEyeCap.value[text] = $(`content/FishEyeCaps/fishEyeMode/group[contains(@installType,'${text}')]/enum`).map((chl) => chl.text())
+                fishEyeCap.value[text] = $(`FishEyeCaps/fishEyeMode/group[contains(@installType,'${text}')]/enum`).map((chl) => chl.text())
             })
 
             return $
@@ -213,6 +215,7 @@ export const useCababilityStore = defineStore(
             chlSupSignalType,
             switchIpChlRange,
             productModel,
+            mainStreamLimitFps,
         }
     },
     {

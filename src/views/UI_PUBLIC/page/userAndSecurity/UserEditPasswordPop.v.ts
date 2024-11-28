@@ -5,7 +5,7 @@
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import { UserEditPasswordForm } from '@/types/apiType/userAndSecurity'
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormRules } from 'element-plus'
 import type { UserCheckAuthForm } from '@/types/apiType/user'
 
 export default defineComponent({
@@ -41,7 +41,7 @@ export default defineComponent({
         const systemCaps = useCababilityStore()
 
         const noticeMsg = ref('')
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new UserEditPasswordForm())
         // 要求的密码强度
         const passwordStrength = ref<keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING>('weak')
@@ -95,8 +95,8 @@ export default defineComponent({
             let strength: keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING = 'weak'
             const result = await queryPasswordSecurity()
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                strength = ($('//content/pwdSecureSetting/pwdSecLevel').text() as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING & null) ?? 'weak'
+            if ($('status').text() === 'success') {
+                strength = ($('content/pwdSecureSetting/pwdSecLevel').text() as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING & null) ?? 'weak'
                 if (systemCaps.supportPwdSecurityConfig) {
                     strength = 'strong'
                 }
@@ -116,7 +116,7 @@ export default defineComponent({
          * @description 表单验证
          */
         const verify = () => {
-            formRef.value!.validate(async (valid: boolean) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     isAuthDialog.value = true
                     // doUpdateUserPassword()
@@ -148,11 +148,11 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 isAuthDialog.value = false
                 ctx.emit('close')
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 let errorText = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_PWD_ERR:
@@ -174,14 +174,6 @@ export default defineComponent({
         }
 
         /**
-         * @description 打开弹窗时清空信息
-         */
-        const opened = () => {
-            formRef.value?.clearValidate()
-            formData.value = new UserEditPasswordForm()
-        }
-
-        /**
          * @description 关闭弹窗
          */
         const close = () => {
@@ -200,7 +192,6 @@ export default defineComponent({
             strength,
             close,
             rules,
-            opened,
             verify,
             isAuthDialog,
             doUpdateUserPassword,

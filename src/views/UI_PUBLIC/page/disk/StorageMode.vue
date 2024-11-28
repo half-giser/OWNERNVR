@@ -11,15 +11,11 @@
             }"
         >
             <el-form-item :label="Translate('IDCS_STORAGE_MODE')">
-                <el-select
+                <el-select-v2
                     disabled
-                    model-value="1"
-                >
-                    <el-option
-                        value="1"
-                        :label="Translate('IDCS_REEL_GROUP')"
-                    />
-                </el-select>
+                    :model-value="Translate('IDCS_REEL_GROUP')"
+                    :options="[]"
+                />
             </el-form-item>
         </el-form>
         <div class="group">
@@ -54,55 +50,59 @@
                 </div>
             </div>
             <div class="right">
-                <div class="disk-list">
-                    <p
-                        v-for="item in currentItem.diskList"
-                        :key="item.id"
-                    >
-                        <span>{{ item.text }}</span>
+                <el-scrollbar class="disk-list">
+                    <div class="wrapper">
+                        <p
+                            v-for="item in currentItem.diskList"
+                            :key="item.id"
+                        >
+                            <span>{{ item.text }}</span>
+                            <BaseImgSprite
+                                v-show="pageData.activeIndex !== 0"
+                                class="del"
+                                file="delItem"
+                                @click="deleteDisk(item.id)"
+                            />
+                        </p>
                         <BaseImgSprite
-                            v-show="pageData.activeIndex !== 0"
-                            class="del"
-                            file="delItem"
-                            @click="deleteDisk(item.id)"
+                            class="add"
+                            file="addItem"
+                            :index="0"
+                            :hover-index="0"
+                            :chunk="2"
+                            @click="addDisk"
                         />
-                    </p>
-                    <BaseImgSprite
-                        class="add"
-                        file="addItem"
-                        :index="0"
-                        :hover-index="0"
-                        :chunk="2"
-                        @click="addDisk"
-                    />
-                </div>
-                <div
+                    </div>
+                </el-scrollbar>
+                <el-scrollbar
                     class="chl-list"
                     :style="{ '--h': pageData.diskGroupList.length - 1 }"
                 >
-                    <p
-                        v-for="item in currentItem.chlList"
-                        :key="item.id"
-                    >
-                        <span>{{ item.text }}</span>
+                    <div class="wrapper">
+                        <p
+                            v-for="item in currentItem.chlList"
+                            :key="item.id"
+                        >
+                            <span>{{ item.text }}</span>
+                            <BaseImgSprite
+                                v-show="pageData.activeIndex !== 0"
+                                class="del"
+                                file="delItem"
+                                @click="deleteChl(item.id)"
+                            />
+                        </p>
                         <BaseImgSprite
-                            v-show="pageData.activeIndex !== 0"
-                            class="del"
-                            file="delItem"
-                            @click="deleteChl(item.id)"
+                            class="add"
+                            file="addItem"
+                            :index="0"
+                            :hover-index="0"
+                            :disabled-index="1"
+                            :disabled="!currentItem.diskList.length"
+                            :chunk="2"
+                            @click="addChl"
                         />
-                    </p>
-                    <BaseImgSprite
-                        class="add"
-                        file="addItem"
-                        :index="0"
-                        :hover-index="0"
-                        :disabled-index="1"
-                        :disabled="!currentItem.diskList.length"
-                        :chunk="2"
-                        @click="addChl"
-                    />
-                </div>
+                    </div>
+                </el-scrollbar>
             </div>
         </div>
         <StorageModeAddDiskPop
@@ -155,42 +155,42 @@
         font-size: 18px;
         text-align: center;
     }
+}
 
-    .group-item {
-        width: 100%;
-        height: 107px;
-        color: var(--main-text);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
+.group-item {
+    width: 100%;
+    height: 107px;
+    color: var(--main-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
 
-        & > p {
-            font-size: 30px;
+    & > p {
+        font-size: 30px;
+    }
+
+    & > div {
+        margin-left: 20px;
+        font-size: 18px;
+
+        p {
+            margin: 0;
         }
+    }
 
-        & > div {
-            margin-left: 20px;
-            font-size: 18px;
+    &:not(:last-child) {
+        border-bottom: 1px solid var(--content-border);
+    }
 
-            p {
-                margin: 0;
-            }
-        }
+    &.disabled {
+        color: var(--input-text-disabled);
+        cursor: unset;
+    }
 
-        &:not(:last-child) {
-            border-bottom: 1px solid var(--content-border);
-        }
-
-        &.disabled {
-            color: var(--input-text-disabled);
-            cursor: unset;
-        }
-
-        &.active {
-            background-color: var(--disk-group-bg-active);
-            color: var(--disk-group-text-active);
-        }
+    &.active {
+        background-color: var(--disk-group-bg-active);
+        color: var(--disk-group-text-active);
     }
 }
 
@@ -238,15 +238,14 @@
     font-size: 18px;
 }
 
-.disk-list,
-.chl-list {
+.wrapper {
     box-sizing: border-box;
     padding: 10px;
     display: flex;
     flex-wrap: wrap;
-    overflow-y: auto;
+    width: 100%;
 
-    & > p {
+    p {
         width: 150px;
         font-size: 15px;
         margin: 5px 10px;

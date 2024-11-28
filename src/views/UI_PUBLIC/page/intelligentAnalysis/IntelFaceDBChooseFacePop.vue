@@ -70,21 +70,21 @@
                 </div>
             </el-dialog>
         </div>
-        <template #footer>
-            <div class="base-btn-box">
-                <el-button
-                    v-show="pageData.type === 'snap'"
-                    @click="confirmSnap"
-                    >{{ Translate('IDCS_OK') }}</el-button
-                >
-                <el-button
-                    v-show="pageData.type === 'import'"
-                    @click="pageData.isDescPop = true"
-                    >{{ Translate('IDCS_INFORMATION_DESCRIPTION') }}</el-button
-                >
-                <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button
+                v-show="pageData.type === 'snap'"
+                @click="confirmSnap"
+            >
+                {{ Translate('IDCS_OK') }}
+            </el-button>
+            <el-button
+                v-show="pageData.type === 'import'"
+                @click="pageData.isDescPop = true"
+            >
+                {{ Translate('IDCS_INFORMATION_DESCRIPTION') }}
+            </el-button>
+            <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 

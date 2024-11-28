@@ -5,23 +5,16 @@
 -->
 <template>
     <el-form
-        ref="popVideoRef"
-        :model="formData"
         class="stripe"
         :style="{
             '--form-input-width': '215px',
         }"
-        inline-message
     >
         <el-form-item :label="Translate('IDCS_DELAY')">
-            <el-select v-model="formData.buzzerDuration">
-                <el-option
-                    v-for="item in pageData.buzzerDurationOption"
-                    :key="item.value"
-                    :value="item.value"
-                    :label="item.label"
-                />
-            </el-select>
+            <el-select-v2
+                v-model="formData.buzzerDuration"
+                :options="pageData.buzzerDurationOption"
+            />
         </el-form-item>
         <div class="base-btn-box">
             <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>

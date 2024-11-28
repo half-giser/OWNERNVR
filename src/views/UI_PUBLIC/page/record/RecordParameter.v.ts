@@ -66,7 +66,7 @@ export default defineComponent({
             const $dev = queryXml(result)
 
             commLoadResponseHandler(result, ($) => {
-                pageData.value.doubleStreamRecSwitch = $('//content/doubleStreamRecSwitch').text()
+                pageData.value.doubleStreamRecSwitch = $('content/doubleStreamRecSwitch').text()
                 switch (pageData.value.doubleStreamRecSwitch) {
                     case 'main':
                         break
@@ -76,10 +76,10 @@ export default defineComponent({
                         pageData.value.doubleStreamRecSwitch = 'double'
                 }
 
-                pageData.value.txtMSRecDuration = $('//content/mainStreamRecDuration').text()
-                pageData.value.chkLoopRec = $('//content/loopRecSwitch').text().bool()
+                pageData.value.txtMSRecDuration = $('content/mainStreamRecDuration').text()
+                pageData.value.chkLoopRec = $('content/loopRecSwitch').text().bool()
 
-                pageData.value.expirationList = $('//content/expirationNote')
+                pageData.value.expirationList = $('content/expirationNote')
                     .text()
                     .split(',')
                     .map((item) => {
@@ -88,7 +88,10 @@ export default defineComponent({
                             label: item === '0' ? Translate('IDCS_EXPIRE_OFF') : item === '1' ? '1 ' + Translate('IDCS_DAY_ALL') : item + ' ' + Translate('IDCS_DAYS'),
                         }
                     })
-                pageData.value.expirationList.push({ value: 'customization', label: Translate('IDCS_REPLAY_CUSTOMIZE') })
+                pageData.value.expirationList.push({
+                    value: 'customization',
+                    label: Translate('IDCS_REPLAY_CUSTOMIZE'),
+                })
             })
 
             return $dev
@@ -120,7 +123,7 @@ export default defineComponent({
             const $chl = queryXml(result)
 
             commLoadResponseHandler(result, ($) => {
-                pageData.value.perList = $('//content/item/preRecordTimeNote')
+                pageData.value.perList = $('content/item/preRecordTimeNote')
                     .text()
                     .split(',')
                     .map((item) => {
@@ -130,7 +133,7 @@ export default defineComponent({
                         }
                     })
 
-                pageData.value.postList = $('//content/item/delayedRecordTimeNote')
+                pageData.value.postList = $('content/item/delayedRecordTimeNote')
                     .text()
                     .split(',')
                     .map((item) => {
@@ -150,11 +153,11 @@ export default defineComponent({
             const $dev = await getDevRecParamData()
             const $chl = await getChlRecParamData()
 
-            if ($dev('//status').text() === 'success' && $chl('//status').text() === 'success') {
-                const expiration = $dev('//content/expiration').text()
-                const expirationUnit = $dev('//content/expiration').attr('unit')
+            if ($dev('status').text() === 'success' && $chl('status').text() === 'success') {
+                const expiration = $dev('content/expiration').text()
+                const expirationUnit = $dev('content/expiration').attr('unit')
 
-                tableData.value = $chl('//content/item').map((item, index) => {
+                tableData.value = $chl('content/item').map((item, index) => {
                     const $item = queryXml(item.element)
 
                     const id = item.attr('id')
@@ -178,7 +181,7 @@ export default defineComponent({
                         singleExpirationUnit: '',
                     }
                 })
-                $dev('//content/chlParam/item').forEach((item) => {
+                $dev('content/chlParam/item').forEach((item) => {
                     const $item = queryXml(item.element)
 
                     const singleExpirationUnit = $item('expiration').attr('unit') || 'd'
@@ -211,8 +214,8 @@ export default defineComponent({
 
                 originalData.value.chlRecData = cloneDeep(tableData.value)
                 originalData.value.streamRecSwitch = {
-                    doubleStreamSwitch: $dev('//content/doubleStreamRecSwitch').text(),
-                    loopRecSwitch: $dev('//content/loopRecSwitch').text(),
+                    doubleStreamSwitch: $dev('content/doubleStreamRecSwitch').text(),
+                    loopRecSwitch: $dev('content/loopRecSwitch').text(),
                 }
             }
         }
@@ -280,8 +283,8 @@ export default defineComponent({
 
         const setRecParamCfgData = async () => {
             // 判断修改过的选项
-            const chlChangeList = [] as RecordParamDto[]
-            const devChangeList = [] as RecordParamDto[]
+            const chlChangeList: RecordParamDto[] = []
+            const devChangeList: RecordParamDto[] = []
             tableData.value.forEach((item, index) => {
                 const element = originalData.value.chlRecData[index]
                 if (item.per !== element.per || item.post !== element.post || item.ANRSwitch !== element.ANRSwitch) {
@@ -334,7 +337,7 @@ export default defineComponent({
             }
         }
 
-        const setData = async () => {
+        const setData = () => {
             openLoading()
 
             if (originalData.value.streamRecSwitch.doubleStreamSwitch !== pageData.value.doubleStreamRecSwitch) {

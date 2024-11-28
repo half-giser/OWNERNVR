@@ -71,8 +71,9 @@
                     <el-button
                         :disabled="!privacyFormData.checked"
                         @click="handleNext"
-                        >{{ Translate('IDCS_OK') }}</el-button
                     >
+                        {{ Translate('IDCS_OK') }}
+                    </el-button>
                 </div>
             </div>
             <!-- 日期与时间 -->
@@ -84,14 +85,13 @@
                 <div class="box">
                     <el-form>
                         <el-form-item :label="Translate('IDCS_TIME_ZONE')">
-                            <el-select v-model="dateTimeFormData.timeZone">
-                                <el-option
-                                    v-for="(item, index) in pageData.timeZoneOption"
-                                    :key="item.timeZone"
-                                    :label="displayTimeZone(index)"
-                                    :value="item.timeZone"
-                                />
-                            </el-select>
+                            <el-select-v2
+                                v-model="dateTimeFormData.timeZone"
+                                :options="pageData.timeZoneOption"
+                                :props="{
+                                    value: 'timeZone',
+                                }"
+                            />
                         </el-form-item>
                         <el-form-item :label="Translate('IDCS_SYSTEM_TIME')">
                             <el-date-picker
@@ -105,64 +105,42 @@
                             />
                         </el-form-item>
                         <el-form-item :label="Translate('IDCS_DATE_FORMAT')">
-                            <el-select v-model="dateTimeFormData.dateFormat">
-                                <el-option
-                                    v-for="item in pageData.dateFormatOptions"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value"
-                                />
-                            </el-select>
+                            <el-select-v2
+                                v-model="dateTimeFormData.dateFormat"
+                                :options="pageData.dateFormatOptions"
+                            />
                         </el-form-item>
                         <el-form-item :label="Translate('IDCS_TIME_FORMAT')">
-                            <el-select v-model="dateTimeFormData.timeFormat">
-                                <el-option
-                                    v-for="item in pageData.timeFormatOptions"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value"
-                                />
-                            </el-select>
+                            <el-select-v2
+                                v-model="dateTimeFormData.timeFormat"
+                                :options="pageData.timeFormatOptions"
+                            />
                         </el-form-item>
                         <el-form-item :label="Translate('IDCS_DST')">
                             <el-checkbox
                                 v-model="dateTimeFormData.enableDST"
                                 :disabled="isDSTDisabled"
-                                >{{ Translate('IDCS_ENABLE') }}</el-checkbox
-                            >
+                                :label="Translate('IDCS_ENABLE')"
+                            />
                         </el-form-item>
                         <el-form-item :label="Translate('IDCS_SYNC_WAY')">
-                            <el-select v-model="dateTimeFormData.syncType">
-                                <el-option
-                                    v-for="item in pageData.syncTypeOptions"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value"
-                                />
-                            </el-select>
+                            <el-select-v2
+                                v-model="dateTimeFormData.syncType"
+                                :options="pageData.syncTypeOptions"
+                            />
                         </el-form-item>
                         <el-form-item :label="Translate('IDCS_TIME_SERVER')">
-                            <el-select
+                            <el-select-v2
                                 v-model="dateTimeFormData.timeServer"
+                                :options="pageData.timeServerOptions"
                                 filterable
-                            >
-                                <el-option
-                                    v-for="item in pageData.timeServerOptions"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value"
-                                />
-                            </el-select>
+                            />
                         </el-form-item>
                         <el-form-item :label="Translate('IDCS_VIDEO_FORMAT')">
-                            <el-select v-model="dateTimeFormData.videoType">
-                                <el-option
-                                    v-for="item in pageData.videoTypeOptions"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value"
-                                />
-                            </el-select>
+                            <el-select-v2
+                                v-model="dateTimeFormData.videoType"
+                                :options="pageData.videoTypeOptions"
+                            />
                         </el-form-item>
                     </el-form>
                 </div>
@@ -224,8 +202,9 @@
                     <el-button
                         v-show="steps.indexOf('user') > 0"
                         @click="handlePrev"
-                        >{{ Translate('IDCS_PREVIOUS_STEP') }}</el-button
                     >
+                        {{ Translate('IDCS_PREVIOUS_STEP') }}
+                    </el-button>
                     <el-button @click="handleNext">{{ Translate('IDCS_NEXT_STEP') }}</el-button>
                 </div>
             </div>
@@ -237,7 +216,6 @@
                 <div class="title">{{ Translate('IDCS_WIZARD') }}</div>
                 <div class="box">
                     <el-form
-                        class="inline-message"
                         :style="{
                             '--form-input-width': '340px',
                         }"
@@ -247,18 +225,16 @@
                                 v-if="!isDefeultQuestion"
                                 v-model="qaFormData.question"
                             />
-                            <el-select
+                            <el-select-v2
                                 v-else
                                 v-model="qaFormData.id"
+                                :options="pageData.questionOptions"
+                                :props="{
+                                    label: 'question',
+                                    value: 'id',
+                                }"
                                 @change="changeQuestion"
-                            >
-                                <el-option
-                                    v-for="item in pageData.questionOptions"
-                                    :key="item.id"
-                                    :label="item.question"
-                                    :value="item.id"
-                                />
-                            </el-select>
+                            />
                         </el-form-item>
                         <el-form-item :label="Translate('IDCS_ANSWER')">
                             <el-input v-model="qaFormData.answer" />
@@ -268,8 +244,7 @@
                     <div class="base-table-box">
                         <el-table
                             :data="qaTableData"
-                            border
-                            stripe
+                            show-overflow-tooltip
                         >
                             <el-table-column
                                 :label="Translate('IDCS_QUESTION')"
@@ -313,8 +288,8 @@
                 <div class="box">
                     <el-table
                         :data="diskTableData"
-                        border
-                        stripe
+                        show-overflow-tooltip
+                        highlight-current-row
                         height="100%"
                     >
                         <el-table-column
@@ -343,8 +318,9 @@
                                 <el-button
                                     :disabled="scope.row.diskStatus !== 'bad'"
                                     @click="formatCurrentDisk(scope.$index)"
-                                    >{{ Translate('IDCS_FORMATTING') }}</el-button
                                 >
+                                    {{ Translate('IDCS_FORMATTING') }}
+                                </el-button>
                             </template>
                         </el-table-column>
                     </el-table>

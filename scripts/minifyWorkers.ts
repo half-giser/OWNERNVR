@@ -19,8 +19,10 @@ export default function minifyWorkers(option: MinifyWorkerOption): Plugin {
         name: 'minify-workers',
         apply: 'build',
         async writeBundle() {
-            console.log(Chalk.green.bold('SUCCESS'), Chalk.blueBright(new Date().toLocaleString('zh-CN')), Chalk.white(`Minified begin`))
-            const files = await globby(option.src)
+            console.log(Chalk.green.bold('SUCCESS'), Chalk.blueBright(new Date().toLocaleString('zh-CN')), Chalk.white('Minified begin'))
+            const files = await globby(option.src, {
+                ignore: ['**/server.js'],
+            })
             for (let i = 0; i < files.length; i++) {
                 const file = files[i]
                 try {
@@ -43,7 +45,7 @@ export default function minifyWorkers(option: MinifyWorkerOption): Plugin {
                     console.error(e)
                 }
             }
-            console.log(Chalk.green.bold('SUCCESS'), Chalk.blueBright(new Date().toLocaleString('zh-CN')), Chalk.white(`Minified successfully`))
+            console.log(Chalk.green.bold('SUCCESS'), Chalk.blueBright(new Date().toLocaleString('zh-CN')), Chalk.white('Minified successfully'))
         },
     }
 }

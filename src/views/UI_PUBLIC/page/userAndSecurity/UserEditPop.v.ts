@@ -3,8 +3,8 @@
  * @Date: 2024-06-17 17:21:49
  * @Description: 编辑用户信息弹窗
  */
-import { UserEditForm, type UserAuthGroupOption } from '@/types/apiType/userAndSecurity'
-import { type FormInstance, type FormRules } from 'element-plus'
+import { UserEditForm } from '@/types/apiType/userAndSecurity'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -33,7 +33,7 @@ export default defineComponent({
         const { openMessageBox } = useMessageBox()
         const { closeLoading, openLoading } = useLoading()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new UserEditForm())
 
         const pageData = ref({
@@ -64,7 +64,7 @@ export default defineComponent({
             ],
         })
 
-        const authGroupOptions = ref<UserAuthGroupOption[]>([])
+        const authGroupOptions = ref<SelectOption<string, string>[]>([])
 
         /**
          * @description 回显用户信息
@@ -78,17 +78,17 @@ export default defineComponent({
             const result = await queryUser(sendXml)
             const $ = queryXml(result)
             if ($('status').text() === 'success') {
-                formData.value.enabled = $('//enabled').text().bool()
-                formData.value.userName = $('//userName').text()
-                formData.value.email = $('//email').text()
-                formData.value.authGroup = $('//authGroup').attr('id')
-                formData.value.allowModifyPassword = $('//modifyPassword').text().bool()
-                formData.value.authEffective = $('//authEffective').text().bool()
+                formData.value.enabled = $('content/enabled').text().bool()
+                formData.value.userName = $('content/userName').text()
+                formData.value.email = $('content/email').text()
+                formData.value.authGroup = $('content/authGroup').attr('id')
+                formData.value.allowModifyPassword = $('content/modifyPassword').text().bool()
+                formData.value.authEffective = $('content/authEffective').text().bool()
 
                 const authInfo = userSession.getAuthInfo()
                 const currentUserName = authInfo ? authInfo[0] : ''
                 const editUserName = formData.value.userName
-                const editUserType = $('//userType').text()
+                const editUserType = $('content/userType').text()
                 pageData.value.isAuthGroup = USER_TYPE_DEFAULT_ADMIN !== editUserType
                 pageData.value.isEnableDisabled = false
 
@@ -103,8 +103,8 @@ export default defineComponent({
                     pageData.value.isChangePasswordBtn = false
                     authGroupOptions.value = [
                         {
-                            id: '',
-                            name: 'Administrator',
+                            value: '',
+                            label: displayAuthGroup('Administrator'),
                         },
                     ]
                 } else {
@@ -162,8 +162,8 @@ export default defineComponent({
                 authGroupOptions.value = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
-                        id: item.attr('id'),
-                        name: $item('name').text(),
+                        value: item.attr('id'),
+                        label: displayAuthGroup($item('name').text()),
                     }
                 })
             })
@@ -221,14 +221,6 @@ export default defineComponent({
         }
 
         /**
-         * @description 清除表单
-         */
-        const clear = () => {
-            formRef.value?.clearValidate()
-            formData.value = new UserEditForm()
-        }
-
-        /**
          * @description 关闭弹窗
          */
         const goBack = () => {
@@ -255,8 +247,6 @@ export default defineComponent({
             verify,
             rules,
             goBack,
-            clear,
-            displayAuthGroup,
         }
     },
 })

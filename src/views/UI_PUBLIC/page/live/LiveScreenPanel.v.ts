@@ -3,12 +3,12 @@
  * @Date: 2024-07-29 16:08:14
  * @Description: 现场预览-底部菜单栏视图
  */
-import LiveScreenAlarmOut from './LiveScreenAlarmOut.vue'
+import LiveScreenAlarmOutPop from './LiveScreenAlarmOutPop.vue'
 import { type LiveSharedWinData } from '@/types/apiType/live'
 
 export default defineComponent({
     components: {
-        LiveScreenAlarmOut,
+        LiveScreenAlarmOutPop,
     },
     props: {
         /**
@@ -176,9 +176,9 @@ export default defineComponent({
             const result = await queryRecStatus()
             const $ = queryXml(result)
 
-            let remoteRecord = !!$('//content/item').length
+            let remoteRecord = !!$('content/item').length
 
-            $('//content/item').forEach((item) => {
+            $('content/item').forEach((item) => {
                 const $item = queryXml(item.element)
                 // 查看当前通道录像类型是否有手动录像
                 const recType = $item('recTypes/item').some((rec) => rec.text() === 'manual')
@@ -207,7 +207,7 @@ export default defineComponent({
             recordRemote,
             remoteRecordDisabled,
             isTalk,
-            LiveScreenAlarmOut,
+            LiveScreenAlarmOutPop,
             changeStreamType,
             mainStreamDisabled,
         }

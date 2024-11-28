@@ -229,7 +229,7 @@ const useRecType = (mode: Ref<string>) => {
     const getData = async () => {
         const result = await queryRecordDistributeInfo()
         const $ = queryXml(result)
-        recType.value = $('//content/recMode/mode').text()
+        recType.value = $('content/recMode/mode').text()
     }
 
     const stopWatch = watch(
@@ -262,13 +262,13 @@ const usePos = (mode: Ref<string>) => {
     const getData = async () => {
         const result = await queryPosList()
         const $ = queryXml(result)
-        if ($('//status').text() !== 'success') return
-        const $systemX = $('//content/itemType/coordinateSystem/X')
-        const $systemY = $('//content/itemType/coordinateSystem/Y')
+        if ($('status').text() !== 'success') return
+        const $systemX = $('content/itemType/coordinateSystem/X')
+        const $systemY = $('content/itemType/coordinateSystem/Y')
         const width = $systemX.attr('max').num() - $systemX.attr('min').num()
         const height = $systemY.attr('max').num() - $systemY.attr('min').num()
 
-        $('//channel/chl').forEach((ele) => {
+        $('channel/chl').forEach((ele) => {
             const chlId = ele.attr('id')
             const $ele = queryXml(ele.element)
             const previewDisplay = $ele('previewDisplay').text().bool()
@@ -286,9 +286,9 @@ const usePos = (mode: Ref<string>) => {
                 timeout: 10, // pos超时隐藏时间，默认10秒
             }
         })
-        $('//content/item').forEach((ele) => {
+        $('content/item').forEach((ele) => {
             const $ele = queryXml(ele.element)
-            const $position = `param/displaySetting/displayPosition/`
+            const $position = 'param/displaySetting/displayPosition/'
             const $triggerChls = $ele('trigger/triggerChl/chls/item')
             const timeout = $ele('param/displaySetting/common/timeOut').text()
             if ($triggerChls.length === 0) return
@@ -378,6 +378,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
+        const { openNotify } = useNotification()
 
         const systemCaps = useCababilityStore()
         const userSession = useUserSessionStore()
@@ -394,8 +395,6 @@ export default defineComponent({
             .map(() => ({ ...cloneWinData }))
 
         const pageData = ref({
-            // 通知数据
-            notification: [] as string[],
             // 分屏数
             split: layoutStore.liveLastSegNum || 1,
             // 当前选中窗口的数据
@@ -482,7 +481,7 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 if (isHttpsLogin()) {
-                    pageData.value.notification = [formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`)]
+                    openNotify(formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`))
                 }
 
                 if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
@@ -491,27 +490,15 @@ export default defineComponent({
             }
 
             if (mode.value === 'ocx') {
-                if (!plugin.IsInstallPlugin()) {
-                    plugin.SetPluginNotice('#layout2Content')
-                    return
-                }
-
-                if (!plugin.IsPluginAvailable()) {
-                    plugin.SetPluginNoResponse()
-                    plugin.ShowPluginNoResponse()
-                }
-
                 if (userSession.appType === 'STANDARD' && isHttpsLogin()) {
                     // 本地https访问时，提示不支持目标检测（依赖websocket与设备端的通信，仅支持http）
-                    pageData.value.notification = [formatHttpsTips(Translate('IDCS_TARGET_DETECTION'))]
+                    openNotify(formatHttpsTips(Translate('IDCS_TARGET_DETECTION')))
                 }
 
                 {
                     const sendXML = OCX_XML_SetPluginModel('Interactive', 'Live')
                     plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 }
-
-                plugin.VideoPluginNotifyEmitter.addListener(notify)
 
                 const sendXML = OCX_XML_SetProperty({
                     calendarType: userSession.calendarType,
@@ -534,9 +521,9 @@ export default defineComponent({
         const getDeviceOSDDisplayConfig = async () => {
             const result = await queryDevOsdDisplayCfg()
             const $ = queryXml(result)
-            const nameSwitch = $('//content/nameSwitch').text().bool()
-            const iconSwitch = $('//content/iconSwitch').text().bool()
-            const addressSwitch = $('//content/addressSwitch').text().bool()
+            const nameSwitch = $('content/nameSwitch').text().bool()
+            const iconSwitch = $('content/iconSwitch').text().bool()
+            const addressSwitch = $('content/addressSwitch').text().bool()
             const sendXML = OCX_XML_SetPropertyOSD(nameSwitch, iconSwitch, addressSwitch)
             plugin.GetVideoPlugin().ExecuteCmd(sendXML)
         }
@@ -1009,7 +996,7 @@ export default defineComponent({
             const date = formatDate(new Date(recordStartTime), 'YYYYMMDDHHmmss')
             download(new Blob([recordBuf]), `${chlName}_${date}.avi`)
             if (!localStorage.getItem(LocalCacheKey.KEY_LOCAL_AVI_NOT_ENCRYPTED)) {
-                pageData.value.notification.push(Translate('IDCS_AVI_UNENCRYPTED_TIP'))
+                openNotify(Translate('IDCS_AVI_UNENCRYPTED_TIP'))
                 localStorage.setItem(LocalCacheKey.KEY_LOCAL_AVI_NOT_ENCRYPTED, 'true')
             }
         }
@@ -1203,7 +1190,7 @@ export default defineComponent({
                 player.snap(pageData.value.winData.winIndex, `${chlName}_${date}`)
                 // NT-12559 首次本地抓图，提示图片数据未加密
                 if (!localStorage.getItem(LocalCacheKey.KEY_SNAP_PIC_NOT_ENCRYPTED)) {
-                    pageData.value.notification.push(Translate('IDCS_IMG_UNENCRYPTED_TIP'))
+                    openNotify(Translate('IDCS_IMG_UNENCRYPTED_TIP'))
                     localStorage.setItem(LocalCacheKey.KEY_SNAP_PIC_NOT_ENCRYPTED, 'true')
                 }
             } else if (mode.value === 'ocx') {
@@ -1335,7 +1322,7 @@ export default defineComponent({
                     `
                     const result = await queryNodeEncodeInfo(sendXml)
                     const $ = queryXml(result)
-                    const content = $('//content/item')
+                    const content = $('content/item')
 
                     let mainResolution = ''
                     if (content.length) {
@@ -1533,13 +1520,13 @@ export default defineComponent({
                         plugin.GetVideoPlugin().ExecuteCmd(pos(true, chlId, winIndex))
                         break
                     case 'offline':
-                        // pageData.value.notification.push(Translate("IDCS_NODE_NOT_ONLINE"))
+                        // openNotify(Translate("IDCS_NODE_NOT_ONLINE"))
                         break
                     case 'busy':
-                        pageData.value.notification.push(Translate('IDCS_DEVICE_BUSY'))
+                        openNotify(Translate('IDCS_DEVICE_BUSY'))
                         break
                     case 'noRight':
-                        pageData.value.notification.push(Translate('IDCS_CHL_NO_PLAY_REC_AUTH'))
+                        openNotify(Translate('IDCS_CHL_NO_PLAY_REC_AUTH'))
                         break
                 }
             }
@@ -1566,7 +1553,7 @@ export default defineComponent({
                     // 主码流预览失败超过上限，切换回子码流预览
                     if (errorCode === ErrorCode.USER_ERROR_CHANNEL_NO_OPEN_VIDEO) {
                         changeStreamType(2)
-                        pageData.value.notification.push(Translate('IDCS_OPEN_STREAM_FAIL'))
+                        openNotify(Translate('IDCS_OPEN_STREAM_FAIL'))
                     }
                 }
             }
@@ -1639,14 +1626,14 @@ export default defineComponent({
                 if ($('statenotify/status').text() === 'success') {
                     if (import.meta.env.VITE_UI_TYPE !== 'UI1-E') {
                         if (!localStorage.getItem(LocalCacheKey.KEY_SNAP_PIC_NOT_ENCRYPTED)) {
-                            pageData.value.notification.push(Translate('IDCS_IMG_UNENCRYPTED_TIP'))
+                            openNotify(Translate('IDCS_IMG_UNENCRYPTED_TIP'))
                             localStorage.setItem(LocalCacheKey.KEY_SNAP_PIC_NOT_ENCRYPTED, 'true')
                         }
                     }
-                    pageData.value.notification.push(Translate('IDCS_SNAP_SUCCESS_PATH') + $('statenotify/dir').text())
+                    openNotify(Translate('IDCS_SNAP_SUCCESS_PATH') + $('statenotify/dir').text())
                 } else {
                     const errorDescription = $('statenotify/errorDescription').text()
-                    pageData.value.notification.push(Translate('IDCS_SNAP_FAIL') + (errorDescription ? errorDescription : ''))
+                    openNotify(Translate('IDCS_SNAP_FAIL') + errorDescription)
                 }
             }
             // 通知手动录像结果
@@ -1654,11 +1641,11 @@ export default defineComponent({
                 if ($('statenotify/status').text() === 'success') {
                     if (import.meta.env.VITE_UI_TYPE !== 'UI1-E') {
                         if (!localStorage.getItem(LocalCacheKey.KEY_LOCAL_AVI_NOT_ENCRYPTED)) {
-                            pageData.value.notification.push(Translate('IDCS_AVI_UNENCRYPTED_TIP'))
+                            openNotify(Translate('IDCS_AVI_UNENCRYPTED_TIP'))
                             localStorage.setItem(LocalCacheKey.KEY_LOCAL_AVI_NOT_ENCRYPTED, 'true')
                         }
                     }
-                    pageData.value.notification.push(Translate('IDCS_REC_SUCCESS_PATH') + $('statenotify/dir').text())
+                    openNotify(Translate('IDCS_REC_SUCCESS_PATH') + $('statenotify/dir').text())
                 } else {
                     // 延迟100毫秒防止通知过快，导致之前操作状态未设置好
                     setTimeout(() => {
@@ -1667,7 +1654,7 @@ export default defineComponent({
                         }
 
                         const errorDescription = $('statenotify/errorDescription').text()
-                        pageData.value.notification.push(Translate('IDCS_REC_FAIL') + (errorDescription ? errorDescription : ''))
+                        openNotify(Translate('IDCS_REC_FAIL') + errorDescription)
                     }, 100)
                 }
             }
@@ -1697,7 +1684,7 @@ export default defineComponent({
                     if (pageData.value.winData.talk) {
                         pageData.value.winData.talk = false
                     }
-                    pageData.value.notification.push(errorInfo)
+                    openNotify(errorInfo)
                 }
             }
         }
@@ -1716,7 +1703,7 @@ export default defineComponent({
                 }
             }
 
-            plugin?.VideoPluginNotifyEmitter.removeListener(notify)
+            // plugin?.VideoPluginNotifyEmitter.removeListener(notify)
         })
 
         return {
@@ -1763,6 +1750,7 @@ export default defineComponent({
             updateSupportAz,
             isSnapPanel,
             isFishEyePanel,
+            notify,
             LiveChannelPanel,
             LiveScreenPanel,
             LiveControlPanel,

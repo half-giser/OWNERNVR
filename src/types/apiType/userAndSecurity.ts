@@ -245,7 +245,7 @@ export class UserPasswordSecurityForm {
  */
 export class UserBlackAllowListForm {
     switch = false
-    filterType: 'allow' | 'refuse' = 'refuse'
+    filterType = 'refuse'
 }
 
 // export type UserBlackAllowList = {
@@ -262,7 +262,7 @@ export class UserBlackAllowListForm {
  */
 export class UserEditBlackAllowListForm {
     switch = true // 是否启用
-    addressType: 'ip' | 'iprange' | 'mac' = 'ip' // 地址类型
+    addressType = 'ip' // 地址类型
     ip = '0.0.0.0' // IP地址
     startIp = '0.0.0.0' // 开始IP段
     endIp = '0.0.0.0' // 结束IP段

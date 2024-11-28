@@ -33,8 +33,9 @@
                 <el-button
                     link
                     @click="showAbout"
-                    >{{ Translate('IDCS_VIEW') }}</el-button
                 >
+                    {{ Translate('IDCS_VIEW') }}
+                </el-button>
             </el-form-item>
             <el-form-item
                 v-if="formData.showGDPR"
@@ -43,8 +44,9 @@
                 <el-button
                     link
                     @click="showPrivacy"
-                    >{{ Translate('IDCS_VIEW') }}</el-button
                 >
+                    {{ Translate('IDCS_VIEW') }}
+                </el-button>
             </el-form-item>
             <el-form-item v-show="formData.showApp">
                 {{ Translate('IDCS_DEVICE_SCAN_QRCODE_TIP') }}
@@ -146,11 +148,9 @@
                     {{ formData.PCUI }}
                 </el-form-item>
             </el-form>
-            <template #footer>
-                <div class="base-btn-box">
-                    <el-button @click="pageData.isShowAbout = false">{{ Translate('IDCS_OK') }}</el-button>
-                </div>
-            </template>
+            <div class="base-btn-box">
+                <el-button @click="pageData.isShowAbout = false">{{ Translate('IDCS_OK') }}</el-button>
+            </div>
         </el-dialog>
     </div>
 </template>

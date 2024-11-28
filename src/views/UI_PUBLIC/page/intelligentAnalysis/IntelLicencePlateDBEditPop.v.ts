@@ -4,7 +4,7 @@
  * @Description: 车牌库- 新增/编辑分组
  */
 import { IntelPlateDBGroupList } from '@/types/apiType/intelligentAnalysis'
-import { type FormRules, type FormInstance } from 'element-plus'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -36,7 +36,7 @@ export default defineComponent({
         const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
 
         const formData = ref({
             groupName: '',
@@ -61,7 +61,6 @@ export default defineComponent({
          * @description 打开弹窗时 重置表单
          */
         const open = () => {
-            formRef.value?.clearValidate()
             if (prop.type === 'edit') {
                 formData.value.groupName = prop.data.name
             } else {
@@ -89,10 +88,10 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 ctx.emit('confirm')
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
 
                 switch (errorCode) {
@@ -134,10 +133,10 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 ctx.emit('confirm')
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
 
                 switch (errorCode) {
@@ -160,7 +159,7 @@ export default defineComponent({
         }
 
         const verify = () => {
-            formRef.value?.validate(async (valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     if (prop.type === 'edit') {
                         editGroup()

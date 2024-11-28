@@ -4,7 +4,7 @@
  * @Description: 新增通道组
  */
 import { ChannelInfoDto, ChannelGroupDto } from '@/types/apiType/channel'
-import type { FormInstance, TableInstance, FormRules } from 'element-plus'
+import type { TableInstance, FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -30,13 +30,18 @@ export default defineComponent({
         const { openMessageBox } = useMessageBox()
         const router = useRouter()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new ChannelGroupDto())
         const tableRef = ref<TableInstance>()
         const baseLivePopRef = ref<LivePopInstance>()
         const tableData = ref<ChannelInfoDto[]>([])
         const selNum = ref(0)
-        const timeList = [5, 10, 20, 30, 60, 120, 300, 600]
+        const timeList = [5, 10, 20, 30, 60, 120, 300, 600].map((value) => {
+            return {
+                label: getTranslateForSecond(value),
+                value,
+            }
+        })
         const chlGroupCountLimit = 16 // 通道组个数上限
 
         const handleRowClick = (rowData: ChannelInfoDto) => {
@@ -157,19 +162,17 @@ export default defineComponent({
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() === 'success') {
-                    const chlList: ChannelInfoDto[] = []
-                    $('//content/item').forEach((ele) => {
-                        const eleXml = queryXml(ele.element)
+                    tableData.value = $('content/item').map((ele) => {
+                        const $item = queryXml(ele.element)
                         const newData = new ChannelInfoDto()
                         newData.id = ele.attr('id')
-                        newData.chlIndex = eleXml('chlIndex').text()
-                        newData.chlType = eleXml('chlType').text()
-                        newData.name = eleXml('name').text()
-                        newData.ip = eleXml('ip').text()
-                        newData.addType = eleXml('addType').text()
-                        chlList.push(newData)
+                        newData.chlIndex = $item('chlIndex').text()
+                        newData.chlType = $item('chlType').text()
+                        newData.name = $item('name').text()
+                        newData.ip = $item('ip').text()
+                        newData.addType = $item('addType').text()
+                        return newData
                     })
-                    tableData.value = chlList
                 }
             })
         }
@@ -194,7 +197,6 @@ export default defineComponent({
             handlePreview,
             save,
             handleCancel,
-            getTranslateForSecond,
             chlGroupCountLimit,
             formatInputMaxLength,
         }

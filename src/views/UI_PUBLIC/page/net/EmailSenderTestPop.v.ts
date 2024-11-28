@@ -3,7 +3,7 @@
  * @Date: 2024-07-10 16:50:11
  * @Description: Email测试发送弹窗
  */
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormRules } from 'element-plus'
 import { type NetEmailForm, NetEmailTestForm, type NetEmailReceiverDto } from '@/types/apiType/net'
 
 export default defineComponent({
@@ -37,7 +37,7 @@ export default defineComponent({
 
         const RECEIVER_MAX_COUNT = 16
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new NetEmailTestForm())
         const formRule = ref<FormRules>({
             address: [
@@ -78,7 +78,7 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryEmailCfg()
             const $ = queryXml(result)
-            pageData.value.list = $('//content/receiver/item').map((item) => {
+            pageData.value.list = $('content/receiver/item').map((item) => {
                 const $item = queryXml(item.element)
                 pageData.value.cacheAddress.push($item('address').text())
                 return {
@@ -105,7 +105,7 @@ export default defineComponent({
                 const result = await queryScheduleList()
                 commLoadResponseHandler(result, async ($) => {
                     let schedule = ''
-                    const find = $('//content/item').find((item) => item.text() === '24x7')
+                    const find = $('content/item').find((item) => item.text() === '24x7')
                     if (find) {
                         schedule = find.attr('id')
                     }
@@ -144,9 +144,6 @@ export default defineComponent({
          * @description 打开弹窗时刷新表单数据
          */
         const open = async () => {
-            formRef.value?.clearValidate()
-            formData.value = new NetEmailTestForm()
-
             if (!pageData.value.list.length) {
                 await getData()
             }
@@ -194,7 +191,7 @@ export default defineComponent({
                 const result = await testEmailCfg(sendXml)
                 const $ = queryXml(result)
 
-                if ($('//status').text() === 'success') {
+                if ($('status').text() === 'success') {
                     openMessageBox({
                         type: 'success',
                         message: Translate('IDCS_TEST_SUCCESS'),

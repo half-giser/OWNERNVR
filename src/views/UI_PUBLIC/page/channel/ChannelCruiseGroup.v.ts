@@ -19,6 +19,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
+        const { openNotify } = useNotification()
         const playerRef = ref<PlayerInstance>()
         const auth = useUserChlAuth(false)
 
@@ -26,8 +27,6 @@ export default defineComponent({
         const CRUISE_MAX_COUNT = 8
 
         const pageData = ref({
-            // 通知列表
-            notification: [] as string[],
             // 当前表格选中索引
             tableIndex: 0,
             // 表格展开索引列表
@@ -48,6 +47,15 @@ export default defineComponent({
 
         const tableRef = ref<TableInstance>()
         const tableData = ref<ChannelPtzCruiseGroupChlDto[]>([])
+
+        const chlOptions = computed(() => {
+            return tableData.value.map((item, index) => {
+                return {
+                    label: item.chlName,
+                    value: index,
+                }
+            })
+        })
 
         const cruiseTableRef = ref<TableInstance>()
 
@@ -75,20 +83,11 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 if (isHttpsLogin()) {
-                    pageData.value.notification = [formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`)]
+                    openNotify(formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`))
                 }
             }
 
             if (mode.value === 'ocx') {
-                if (!plugin.IsInstallPlugin()) {
-                    plugin.SetPluginNotice('#layout2Content')
-                    return
-                }
-
-                if (!plugin.IsPluginAvailable()) {
-                    plugin.SetPluginNoResponse()
-                    plugin.ShowPluginNoResponse()
-                }
                 const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
@@ -127,8 +126,8 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                tableData.value[index].cruise = $('//content/cruises/item').map((item) => {
+            if ($('status').text() === 'success') {
+                tableData.value[index].cruise = $('content/cruises/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         id: ++cruiseId,
@@ -136,7 +135,7 @@ export default defineComponent({
                         name: $item('name').text(),
                     }
                 })
-                // tableData.value[index].maxCount = $('//content/cruises').attr('maxCount').num()
+                // tableData.value[index].maxCount = $('content/cruises').attr('maxCount').num()
                 tableData.value[index].cruiseCount = tableData.value[index].cruise.length
             }
         }
@@ -157,8 +156,8 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                tableData.value = $('//content/item')
+            if ($('status').text() === 'success') {
+                tableData.value = $('content/item')
                     .filter((item) => {
                         const $item = queryXml(item.element)
                         return (auth.value.hasAll || auth.value.ptz[item.attr('id')]) && $item('chlType').text() !== 'recorder'
@@ -304,7 +303,7 @@ export default defineComponent({
          * @param {ChannelPtzCruiseGroupChlDto} row
          * @param {boolean} expanded
          */
-        const handleExpandChange = async (row: ChannelPtzCruiseGroupChlDto, expanded: boolean) => {
+        const handleExpandChange = (row: ChannelPtzCruiseGroupChlDto, expanded: boolean) => {
             const index = tableData.value.findIndex((item) => item.chlId === row.chlId)
             tableRef.value?.setCurrentRow(row)
             if (index !== pageData.value.tableIndex) {
@@ -370,6 +369,7 @@ export default defineComponent({
             playerRef,
             tableRef,
             tableData,
+            chlOptions,
             cruiseTableRef,
             pageData,
             mode,

@@ -6,6 +6,7 @@
  */
 import WebsocketPlugin from '@/utils/websocket/websocketPlugin'
 import { ClientPort, P2PClientPort, P2PACCESSTYPE, getPluginPath, PluginSizeModeMapping, type OCX_Plugin_Notice_Map } from '@/utils/ocx/ocxUtil'
+import { type XMLQuery } from '../xmlParse'
 
 type PluginStatus = 'Unloaded' | 'Loaded' | 'InitialComplete' | 'Connected' | 'Disconnected' | 'Reconnecting'
 
@@ -406,9 +407,6 @@ const useOCXPlugin = () => {
      * @description 标准用户名/密码登录
      */
     const _videoPluginLoginForStandard = () => {
-        // userInfoArr: string[]
-        // const username = userInfoArr[0]
-        // const password = userInfoArr[1]
         const id = ''
         const sendXML = OCX_XML_SetLoginInfo(userSession.serverIp, pluginStore.pluginPort, id)
         getVideoPlugin().ExecuteCmd(sendXML)
@@ -696,7 +694,9 @@ const useOCXPlugin = () => {
                 isInstallPlugin.value = false
                 // 将showPluginNoResponse置为空，避免更新插件并安装后页面弹出：插件无响应
                 pluginStore.showPluginNoResponse = false
-                userSession.appType === 'P2P' && setPluginNotice('body')
+                if (userSession.appType === 'P2P') {
+                    setPluginNotice('body')
+                }
                 return
             } else {
                 isPluginAvailable.value = true
@@ -879,7 +879,7 @@ const useOCXPlugin = () => {
         videoPlugin = null
     }
 
-    let isPluginNoResponse = false
+    let isPluginNoResponseFlag = false
 
     const setPluginNoResponse = () => {
         pluginStore.showPluginNoResponse = true
@@ -904,9 +904,9 @@ const useOCXPlugin = () => {
             return
         }
         if (getIsSupportH5() || !pluginStore.showPluginNoResponse) return
-        if (isPluginNoResponse) return
+        if (isPluginNoResponseFlag) return
 
-        isPluginNoResponse = true
+        isPluginNoResponseFlag = true
         openMessageBox({
             type: 'info',
             message: Translate('IDCS_PLUGIN_NO_RESPONSE_TIPS'),
@@ -915,7 +915,7 @@ const useOCXPlugin = () => {
                 Logout()
             })
             .finally(() => {
-                isPluginNoResponse = false
+                isPluginNoResponseFlag = false
             })
     }
 
@@ -1474,7 +1474,6 @@ const useOCXPlugin = () => {
         RetryStartChlView: retryStartChlView,
         SetPluginNotice: setPluginNotice,
         VideoPluginNotifyEmitter,
-        isPluginAvailable,
         pluginNoticeHtml,
         pluginDownloadUrl,
         pluginNoticeContainer,
@@ -1487,10 +1486,128 @@ const useOCXPlugin = () => {
  * @returns
  */
 export const usePlugin = () => {
-    if (plugin) {
-        return plugin
-    } else {
+    if (!plugin) {
         plugin = useOCXPlugin()
-        return plugin
     }
+    return plugin
+}
+
+interface PluginHookOptions {
+    player?: Ref<HTMLDivElement | undefined>
+    onReady?: (mode: ComputedRef<string>, plugin: ReturnType<typeof useOCXPlugin>) => void
+    onDestroy?: (mode: ComputedRef<string>, plugin: ReturnType<typeof useOCXPlugin>) => void
+    onMessage?: ($: XMLQuery) => void
+}
+
+/**
+ * @description 在组件中使用无视图plugin实例（只能在组件setup顶层使用）
+ * @param {Function} cbk
+ * @returns
+ */
+export const usePluginHook = (data: PluginHookOptions) => {
+    const plugin = usePlugin()
+    const pluginStore = usePluginStore()
+
+    const mode = computed(() => {
+        return pluginStore.currPluginMode === 'h5' ? 'h5' : 'ocx'
+    })
+
+    const ready = ref(false)
+
+    const readyState = computed(() => {
+        if (mode.value === 'h5') return ready.value
+        else return ready.value && pluginStore.ready
+    })
+
+    const findParentElement = (element: HTMLElement) => {
+        const parentElement = element.parentElement
+        if (!parentElement) {
+            return 'body'
+        }
+
+        if (parentElement.classList.contains('el-dialog__body')) {
+            return '#' + element.parentElement.id
+        }
+
+        if (parentElement.id === 'layout2Content') {
+            return '#layout2Content'
+        }
+
+        if (parentElement.id === 'layoutMainContent') {
+            return '#layoutMainContent'
+        }
+
+        if (parentElement.tagName === 'body') {
+            return 'body'
+        }
+
+        return findParentElement(parentElement)
+    }
+
+    const setPluginNotice = () => {
+        if (data.player?.value) {
+            const findElement = findParentElement(data.player.value)
+            plugin.SetPluginNotice(findElement)
+        } else {
+            const container = ['#layout2Content', '#layoutMainContent', 'body']
+            const findElement = container.find((item) => document.querySelector(item))!
+            plugin.SetPluginNotice(findElement)
+        }
+    }
+
+    watch(
+        mode,
+        (currentMode) => {
+            if (currentMode === 'ocx') {
+                if (!plugin.IsPluginAvailable()) {
+                    plugin.SetPluginNoResponse()
+                    plugin.ShowPluginNoResponse()
+                }
+            }
+        },
+        {
+            immediate: true,
+        },
+    )
+
+    watch(
+        readyState,
+        (val) => {
+            if (val) {
+                if (data.onReady) {
+                    data.onReady(mode, plugin)
+                }
+            }
+        },
+        {
+            immediate: true,
+        },
+    )
+
+    watchEffect(() => {
+        // && !plugin.IsInstallPlugin()
+        if (mode.value === 'ocx' && ready.value) {
+            setPluginNotice()
+        }
+    })
+
+    onMounted(() => {
+        if (data.onMessage) {
+            plugin.VideoPluginNotifyEmitter.addListener(data.onMessage)
+        }
+
+        ready.value = true
+    })
+
+    onBeforeUnmount(() => {
+        if (data.onMessage) {
+            plugin.VideoPluginNotifyEmitter.removeListener(data.onMessage)
+        }
+
+        if (data.onDestroy) {
+            data.onDestroy(mode, plugin)
+        }
+    })
+
+    return plugin
 }

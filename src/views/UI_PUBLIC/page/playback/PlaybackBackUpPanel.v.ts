@@ -23,7 +23,7 @@ export default defineComponent({
         },
     },
     setup(prop) {
-        const Plugin = inject('Plugin') as PluginType
+        const plugin = usePlugin()
         const { Translate } = useLangStore()
         const { openMessageBox } = useMessageBox()
 
@@ -36,7 +36,7 @@ export default defineComponent({
 
         // 本地任务列表（OCX）
         const localTableData = computed(() => {
-            return Plugin.BackUpTask.localTableData.value
+            return plugin.BackUpTask.localTableData.value
         })
         // 远程任务列表
         const remoteTableData = ref<PlaybackBackUpTaskList[]>([])
@@ -86,8 +86,8 @@ export default defineComponent({
             const result = await queryRecBackupTaskList()
             const $ = queryXml(result)
 
-            if ($('//status').text() === 'success') {
-                remoteTableData.value = $('//content/item').map((item) => {
+            if ($('status').text() === 'success') {
+                remoteTableData.value = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     const startTime = $item('startTime').text()
                     const endTime = $item('endTime').text()
@@ -131,7 +131,7 @@ export default defineComponent({
             if (row.destination === 'remote') {
                 editRecBackUpTask([row.taskId], 'pause')
             } else {
-                Plugin.BackUpTask.pauseTask(row)
+                plugin.BackUpTask.pauseTask(row)
             }
         }
 
@@ -143,7 +143,7 @@ export default defineComponent({
             if (row.destination === 'remote') {
                 editRecBackUpTask([row.taskId], 'resume')
             } else {
-                Plugin.BackUpTask.resumeTask(row)
+                plugin.BackUpTask.resumeTask(row)
             }
         }
 
@@ -159,7 +159,7 @@ export default defineComponent({
                 if (row.destination === 'remote') {
                     editRecBackUpTask([row.taskId], 'delete')
                 } else {
-                    Plugin.BackUpTask.deleteTask(row)
+                    plugin.BackUpTask.deleteTask(row)
                 }
             })
         }
@@ -176,7 +176,7 @@ export default defineComponent({
                     remoteTableData.value.map((item) => item.taskId),
                     'delete',
                 )
-                Plugin.BackUpTask.deleteAllTask()
+                plugin.BackUpTask.deleteAllTask()
             })
         }
 
@@ -188,7 +188,7 @@ export default defineComponent({
                 remoteTableData.value.map((item) => item.taskId),
                 'pause',
             )
-            Plugin.BackUpTask.pauseAllTask()
+            plugin.BackUpTask.pauseAllTask()
         }
 
         /**
@@ -200,7 +200,7 @@ export default defineComponent({
                 'resume',
             )
 
-            Plugin.BackUpTask.resumeAllTask()
+            plugin.BackUpTask.resumeAllTask()
         }
 
         watch(

@@ -24,15 +24,16 @@
                     :split="pageData.split"
                     :enable-pos="systemCaps.supportPOS"
                     type="record"
-                    @onready="handlePlayerReady"
-                    @ontime="handlePlayerTimeUpdate"
-                    @onselect="handlePlayerSelect"
-                    @onsuccess="handlePlayerSuccess"
-                    @onstop="handlePlayerStop"
-                    @onplay-status="handlePlayerStatus"
-                    @onerror="handlePlayerError"
-                    @ondblclickchange="handlePlayerDblclickChange"
-                    @onwinexchange="updateTimeline"
+                    @ready="handlePlayerReady"
+                    @time="handlePlayerTimeUpdate"
+                    @select="handlePlayerSelect"
+                    @success="handlePlayerSuccess"
+                    @stop="handlePlayerStop"
+                    @play-status="handlePlayerStatus"
+                    @error="handlePlayerError"
+                    @dblclickchange="handlePlayerDblclickChange"
+                    @winexchange="updateTimeline"
+                    @message="notify"
                 />
             </div>
             <div class="center-ctrl">
@@ -172,7 +173,6 @@
             :backup-list="pageData.backupRecList"
             @close="pageData.isLocalBackUpPop = false"
         />
-        <BaseNotification v-model:notifications="pageData.notification" />
     </div>
 </template>
 

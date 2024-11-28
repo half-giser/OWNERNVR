@@ -227,7 +227,12 @@
 
         th.el-table__cell {
             border-right-color: var(--table-thead-border);
-            border-bottom-color: var(--content-border);
+            border-bottom-color: var(--table-thead-border);
+        }
+
+        td.el-table__cell {
+            border-right-color: var(--table-tbody-border);
+            border-bottom-color: var(--table-tbody-border);
         }
 
         thead.is-group th.el-table__cell {
@@ -352,15 +357,6 @@
                     display: inline-block;
                 }
 
-                // &::after {
-                //     content: '<span></span>';
-                //     width: 1px;
-                //     margin: 2px 0px 0px -1px;
-                //     background-color: var(--table-split);
-                //     float: right;
-                //     line-height: 10px;
-                // }
-
                 &:last-of-type::after {
                     content: '';
                 }
@@ -370,20 +366,21 @@
         .el-form-item__content {
             display: flex;
             align-items: center;
+            line-height: 26px;
         }
     }
 
-    .ruleTable {
-        & tbody {
-            .el-table__cell {
-                padding: 0;
+    // .ruleTable {
+    //     & tbody {
+    //         .el-table__cell {
+    //             padding: 0;
 
-                .el-form-item {
-                    margin: 16px 0;
-                }
-            }
-        }
-    }
+    //             .el-form-item {
+    //                 margin: 16px 0;
+    //             }
+    //         }
+    //     }
+    // }
 
     .el-table__column-filter-trigger {
         margin-left: 10px;
@@ -409,6 +406,11 @@
 
             &__item {
                 color: var(--main-text);
+
+                &:hover,
+                &:not(.is-disabled):focus {
+                    color: var(--main-text-active);
+                }
             }
         }
 
@@ -421,7 +423,31 @@
     .el-form-item__error {
         white-space: nowrap;
         padding-top: 0;
-        top: calc(100% - 2px);
+        padding-inline: 10px;
+        position: absolute;
+        background-color: var(--color-white);
+        top: 3px;
+        left: var(--form-error-offset, var(--form-input-width));
+        display: flex;
+        align-items: center;
+        border: 1px solid var(--color-error);
+        color: var(--color-error);
+        margin-left: 10px;
+        height: 24px;
+        text-align: left;
+        pointer-events: none;
+
+        &::before {
+            content: '';
+            width: 16px;
+            height: 16px;
+            background-image: url('@/components/sprite/sprites.png');
+            background-position-x: var(--float-x);
+            background-position-y: var(--float-y);
+            display: inline-block;
+            margin-right: 5px;
+            flex-shrink: 0;
+        }
     }
 
     .el-popper {

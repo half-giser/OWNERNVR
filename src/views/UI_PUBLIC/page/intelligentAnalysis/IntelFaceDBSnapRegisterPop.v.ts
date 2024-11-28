@@ -3,7 +3,7 @@
  * @Date: 2024-07-29 16:10:39
  * @Description: 抓拍注册弹窗
  */
-import type { FormInstance, FormRules } from 'element-plus'
+import type { FormRules } from 'element-plus'
 import IntelFaceDBEditPop from './IntelFaceDBEditPop.vue'
 import { type IntelFaceDBGroupDto, IntelFaceDBSnapRegisterForm } from '@/types/apiType/intelligentAnalysis'
 
@@ -62,7 +62,7 @@ export default defineComponent({
             forceCreate: false,
         })
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new IntelFaceDBSnapRegisterForm())
         const formRule = ref<FormRules>({
             name: [
@@ -74,7 +74,7 @@ export default defineComponent({
                         }
                         callback()
                     },
-                    trigger: 'blur',
+                    trigger: 'manual',
                 },
             ],
         })
@@ -90,7 +90,7 @@ export default defineComponent({
 
             closeLoading()
 
-            pageData.value.faceDatabaseList = $('//content/item').map((item) => {
+            pageData.value.faceDatabaseList = $('content/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
                     id: item.attr('id'),
@@ -122,7 +122,7 @@ export default defineComponent({
          * @description 表单验证
          */
         const verify = () => {
-            formRef.value!.validate(async (valid) => {
+            formRef.value!.validate((valid) => {
                 if (!valid) {
                     return
                 }
@@ -139,7 +139,7 @@ export default defineComponent({
             const groupItemId = pageData.value.faceDatabaseList.find((item) => item.groupId === formData.value.groupId)!.id
             const sendXml = rawXml`
                 <content>
-                    ${ternary(pageData.value.forceCreate, `<force>true</force>`)}
+                    ${ternary(pageData.value.forceCreate, '<force>true</force>')}
                     <name>${formData.value.name}</name>
                     <sex>${formData.value.sex}</sex>
                     <birthday>${formatDate(formData.value.birthday, dateTime.dateFormat, 'YYYY-MM-DD')}</birthday>
@@ -166,7 +166,7 @@ export default defineComponent({
             closeLoading()
             pageData.value.forceCreate = false
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
@@ -174,7 +174,7 @@ export default defineComponent({
                     close()
                 })
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_WALL_HAVEDECODER:
@@ -199,8 +199,8 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_INVALID_PARAMETER')
                         break
                     case ErrorCode.USER_ERROR_NODE_ID_EXISTS:
-                        const name = $('//content/name').text()
-                        const similarity = $('//content/similarity').text() + '%'
+                        const name = $('content/name').text()
+                        const similarity = $('content/similarity').text() + '%'
                         openMessageBox({
                             type: 'question',
                             message: Translate('IDCS_TARGET_LIBRARY_FACE_HAS_EXIST').formatForLang(name, similarity),
@@ -246,8 +246,6 @@ export default defineComponent({
          * @description 打开弹窗时 初始化数据
          */
         const open = async () => {
-            formRef.value?.resetFields()
-            formRef.value?.clearValidate()
             if (!pageData.value.faceDatabaseList.length) {
                 await getFaceDatabaseList()
             }

@@ -25,8 +25,7 @@
         <div class="base-table-box">
             <el-table
                 :data="tableData"
-                border
-                stripe
+                show-overflow-tooltip
             >
                 <el-table-column
                     :label="Translate('IDCS_SERIAL_NUMBER')"

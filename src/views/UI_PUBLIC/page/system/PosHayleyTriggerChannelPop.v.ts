@@ -53,7 +53,7 @@ export default defineComponent({
             })
 
             commLoadResponseHandler(result, ($) => {
-                chlList.value = $('//content/item').map((item) => {
+                chlList.value = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         value: item.attr('id'),

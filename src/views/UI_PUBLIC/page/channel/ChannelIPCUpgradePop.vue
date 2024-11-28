@@ -10,22 +10,15 @@
         width="470"
         @opened="opened"
     >
-        <el-form
-            inline-message
-            class="inline-message"
-        >
+        <el-form>
             <el-form-item
                 v-show="type === 'multiple'"
                 :label="Translate('IDCS_PRODUCT_MODEL')"
             >
-                <el-select v-model="selectedProductModel">
-                    <el-option
-                        v-for="item in productModelOptionList"
-                        :key="item"
-                        :value="item"
-                        :label="item"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="selectedProductModel"
+                    :options="productModelOptionList"
+                />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_WEB_UPGRADE_S_1')">
                 <el-input
@@ -48,20 +41,20 @@
                 <el-button
                     v-else
                     @click="handleOcxBtnClick"
-                    >{{ Translate('IDCS_BROWSE') }}</el-button
                 >
+                    {{ Translate('IDCS_BROWSE') }}
+                </el-button>
             </el-form-item>
         </el-form>
-        <template #footer>
-            <div class="dialog-footer">
-                <el-button
-                    :disabled="btnOKDisabled"
-                    @click="save"
-                    >{{ Translate('IDCS_OK') }}</el-button
-                >
-                <el-button @click="ipcUpgradePopVisiable = false">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button
+                :disabled="btnOKDisabled"
+                @click="save"
+            >
+                {{ Translate('IDCS_OK') }}
+            </el-button>
+            <el-button @click="ipcUpgradePopVisiable = false">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 

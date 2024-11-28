@@ -161,45 +161,48 @@
             v-if="!onlyWasm && mode !== 'h5'"
             class="ocx"
         >
-            <BasePluginPlayer :is-update-pos="prop.ocxUpdatePos" />
+            <BasePluginPlayer
+                :is-update-pos="prop.ocxUpdatePos"
+                @message="emits('message', $event)"
+            />
         </div>
     </div>
 </template>
 
 <script lang="ts" setup>
 import VideoPlayer, { type TVTPlayerWinDataListItem, type TVTPlayerPosInfoItem } from '@/utils/wasmPlayer/tvtPlayer'
-import { downloadFromBase64, Uint8ArrayToStr } from '@/utils/tools'
-import { useLangStore } from '@/stores/lang'
 import type WebGLPlayer from '@/utils/wasmPlayer/webglPlayer'
 import { type WasmPlayerVideoFrame } from '@/utils/wasmPlayer/wasmPlayer'
-const Plugin = inject('Plugin') as PluginType
+import { type XMLQuery } from '@/utils/xmlParse'
+
+const plugin = usePlugin()
 
 const pluginStore = usePluginStore()
 
 const prop = withDefaults(
     defineProps<{
         /**
-         * @description 是否只显示WASM播放器
+         * @property 是否只显示WASM播放器
          */
         onlyWasm?: boolean
         /**
-         * @param 播放类型
+         * @property 播放类型
          */
         type?: 'record' | 'live'
         /**
-         * @param 初始分屏数. 只支持1/4分屏
+         * @property 初始分屏数. 只支持1/4分屏
          */
         split?: number
         /**
-         * @param 允许pos数据
+         * @property 允许pos数据
          */
         enablePos?: boolean
         /**
-         * @param 是否显示视频丢失logo
+         * @property 是否显示视频丢失logo
          */
         showVideoLoss?: boolean
         /**
-         * @param 是否向插件发送位置数据
+         * @property 是否向插件发送位置数据
          */
         ocxUpdatePos?: boolean
     }>(),
@@ -216,52 +219,56 @@ const emits = defineEmits<{
     /**
      * @description 组件初始化后执行. 回调函数必须是同步函数
      */
-    (e: 'onready'): void
+    (e: 'ready'): void
     /**
      * @description 播放器初始化成功后执行
      */
-    (e: 'onsuccess', winIndex: number, item: TVTPlayerWinDataListItem): void
+    (e: 'success', winIndex: number, item: TVTPlayerWinDataListItem): void
     /**
      * @description
      */
-    (e: 'onplayStatus', items: TVTPlayerWinDataListItem[]): void
+    (e: 'playStatus', items: TVTPlayerWinDataListItem[]): void
     /**
      * @description
      */
-    (e: 'ontime', winIndex: number, item: TVTPlayerWinDataListItem, showTimestamp: number): void
+    (e: 'time', winIndex: number, item: TVTPlayerWinDataListItem, showTimestamp: number): void
     /**
      * @description
      */
-    (e: 'onstop', winIndex: number, item: TVTPlayerWinDataListItem): void
+    (e: 'stop', winIndex: number, item: TVTPlayerWinDataListItem): void
     /**
      * @description
      */
-    (e: 'onplayComplete', winIndex: number, item: TVTPlayerWinDataListItem): void
+    (e: 'playComplete', winIndex: number, item: TVTPlayerWinDataListItem): void
     /**
      * @description
      */
-    (e: 'onrecordFile', recordBuf: ArrayBuffer, item: TVTPlayerWinDataListItem, recordStartTime: number): void
+    (e: 'recordFile', recordBuf: ArrayBuffer, item: TVTPlayerWinDataListItem, recordStartTime: number): void
     // onpos: () => void
     /**
      * @description 失败回调
      */
-    (e: 'onerror', winIndex: number, item: TVTPlayerWinDataListItem, reason?: string): void
+    (e: 'error', winIndex: number, item: TVTPlayerWinDataListItem, reason?: string): void
     /**
      * @description 选中视窗后回调
      */
-    (e: 'onselect', winIndex: number, item: TVTPlayerWinDataListItem): void
+    (e: 'select', winIndex: number, item: TVTPlayerWinDataListItem): void
     /**
      * @description 视窗位置交换后回调
      */
-    (e: 'onwinexchange', oldWinIndex: number, newWinIndex: number): void
+    (e: 'winexchange', oldWinIndex: number, newWinIndex: number): void
     /**
      * @description 双击分屏后分屏变化的回调
      */
-    (e: 'ondblclickchange', winIndex: number, newSplit: number): void
+    (e: 'dblclickchange', winIndex: number, newSplit: number): void
+    /**
+     * @description 接收OCX通知信息
+     */
+    (e: 'message', $: XMLQuery): void
     /**
      * @description 组件销毁时回调
      */
-    (e: 'ondestroy'): void
+    (e: 'destroy'): void
 }>()
 
 const $screen = ref<HTMLDivElement>()
@@ -1558,17 +1565,17 @@ const createVideoPlayer = () => {
         split: prop.split,
         enablePos: prop.enablePos,
         showVideoLoss: prop.showVideoLoss,
-        onsuccess: (winIndex, item) => emits('onsuccess', winIndex, item),
-        onplayStatus: (items) => emits('onplayStatus', items),
-        ontime: (winIndex, item, showTimestamp) => emits('ontime', winIndex, item, showTimestamp),
-        onstop: (winIndex, item) => emits('onstop', winIndex, item),
-        onplayComplete: (winIndex, item) => emits('onplayComplete', winIndex, item),
-        onrecordFile: (recordBuf, item, recordStartTime) => emits('onrecordFile', recordBuf, item, recordStartTime),
+        onsuccess: (winIndex, item) => emits('success', winIndex, item),
+        onplayStatus: (items) => emits('playStatus', items),
+        ontime: (winIndex, item, showTimestamp) => emits('time', winIndex, item, showTimestamp),
+        onstop: (winIndex, item) => emits('stop', winIndex, item),
+        onplayComplete: (winIndex, item) => emits('playComplete', winIndex, item),
+        onrecordFile: (recordBuf, item, recordStartTime) => emits('recordFile', recordBuf, item, recordStartTime),
         // onpos: () => void
-        onerror: (winIndex, item, reason) => emits('onerror', winIndex, item, reason),
-        onselect: (winIndex, item) => emits('onselect', winIndex, item),
-        onwinexchange: (oldWinIndex, newWinIndex) => emits('onwinexchange', oldWinIndex, newWinIndex),
-        ondblclickchange: (winIndex, newSplit) => emits('ondblclickchange', winIndex, newSplit),
+        onerror: (winIndex, item, reason) => emits('error', winIndex, item, reason),
+        onselect: (winIndex, item) => emits('select', winIndex, item),
+        onwinexchange: (oldWinIndex, newWinIndex) => emits('winexchange', oldWinIndex, newWinIndex),
+        ondblclickchange: (winIndex, newSplit) => emits('dblclickchange', winIndex, newSplit),
         screen: {
             getVideoCanvas,
             getWinIndexByPosition,
@@ -1639,7 +1646,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
     resizeObserver.disconnect()
     destroy()
-    emits('ondestroy')
+    emits('destroy')
 })
 
 /**
@@ -1649,11 +1656,11 @@ watch(
     readyState,
     (val) => {
         if (val) {
-            emits('onready')
+            emits('ready')
             if (mode.value === 'ocx') {
                 nextTick(() => {
-                    Plugin.DisplayOCX(true)
-                    Plugin.SetPluginSize(null, undefined, true)
+                    plugin.DisplayOCX(true)
+                    plugin.SetPluginSize(null, undefined, true)
                 })
             }
         }
@@ -1676,7 +1683,7 @@ const stopWatchSplit = watch(
 
 defineExpose({
     player,
-    plugin: Plugin,
+    plugin,
     mode,
     ready: readyState,
 })
@@ -1801,6 +1808,8 @@ defineExpose({
             &-tips {
                 font-size: 16px;
                 white-space: nowrap;
+                color: var(--color-white);
+                opacity: 0.8;
             }
 
             &-chl-name {

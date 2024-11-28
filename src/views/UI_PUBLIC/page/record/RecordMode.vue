@@ -13,17 +13,11 @@
             }"
         >
             <el-form-item :label="Translate('IDCS_MODE')">
-                <el-select
+                <el-select-v2
                     v-model="formData.mode"
+                    :options="pageData.recModeTypeList"
                     @change="setData(false)"
-                >
-                    <el-option
-                        v-for="item in pageData.recModeTypeList"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    />
-                </el-select>
+                />
             </el-form-item>
         </el-form>
         <div class="subcontent-box">
@@ -38,16 +32,14 @@
                     </div>
                 </div>
                 <el-table
-                    stripe
-                    border
                     :data="formData.recordScheduleList"
                     height="390"
-                    show-overflow-tooltip
                 >
                     <el-table-column
                         :label="Translate('IDCS_CHANNEL_NAME')"
                         prop="name"
                         min-width="190"
+                        show-overflow-tooltip
                     />
 
                     <!-- 传感器录像排程 -->
@@ -64,21 +56,17 @@
                                             :key="opt.value"
                                             @click="changeAllSchedule(opt.value, 'alarmRec')"
                                         >
-                                            {{ Translate(opt.label) }}
+                                            {{ opt.label }}
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
                             </el-dropdown>
                         </template>
                         <template #default="scope">
-                            <el-select v-model="scope.row.alarmRec">
-                                <el-option
-                                    v-for="opt in pageData.scheduleList"
-                                    :key="opt.value"
-                                    :label="Translate(opt.label)"
-                                    :value="opt.value"
-                                />
-                            </el-select>
+                            <el-select-v2
+                                v-model="scope.row.alarmRec"
+                                :options="pageData.scheduleList"
+                            />
                         </template>
                     </el-table-column>
 
@@ -96,21 +84,17 @@
                                             :key="opt.value"
                                             @click="changeAllSchedule(opt.value, 'motionRec')"
                                         >
-                                            {{ Translate(opt.label) }}
+                                            {{ opt.label }}
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
                             </el-dropdown>
                         </template>
                         <template #default="scope">
-                            <el-select v-model="scope.row.motionRec">
-                                <el-option
-                                    v-for="opt in pageData.scheduleList"
-                                    :key="opt.value"
-                                    :label="Translate(opt.label)"
-                                    :value="opt.value"
-                                />
-                            </el-select>
+                            <el-select-v2
+                                v-model="scope.row.motionRec"
+                                :options="pageData.scheduleList"
+                            />
                         </template>
                     </el-table-column>
 
@@ -128,21 +112,17 @@
                                             :key="opt.value"
                                             @click="changeAllSchedule(opt.value, 'intelligentRec')"
                                         >
-                                            {{ Translate(opt.label) }}
+                                            {{ opt.label }}
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
                             </el-dropdown>
                         </template>
                         <template #default="scope">
-                            <el-select v-model="scope.row.intelligentRec">
-                                <el-option
-                                    v-for="opt in pageData.scheduleList"
-                                    :key="opt.value"
-                                    :label="Translate(opt.label)"
-                                    :value="opt.value"
-                                />
-                            </el-select>
+                            <el-select-v2
+                                v-model="scope.row.intelligentRec"
+                                :options="pageData.scheduleList"
+                            />
                         </template>
                     </el-table-column>
 
@@ -160,21 +140,17 @@
                                             :key="opt.value"
                                             @click="changeAllSchedule(opt.value, 'posRec')"
                                         >
-                                            {{ Translate(opt.label) }}
+                                            {{ opt.label }}
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
                             </el-dropdown>
                         </template>
                         <template #default="scope">
-                            <el-select v-model="scope.row.posRec">
-                                <el-option
-                                    v-for="opt in pageData.scheduleList"
-                                    :key="opt.value"
-                                    :label="Translate(opt.label)"
-                                    :value="opt.value"
-                                />
-                            </el-select>
+                            <el-select-v2
+                                v-model="scope.row.posRec"
+                                :options="pageData.scheduleList"
+                            />
                         </template>
                     </el-table-column>
 
@@ -192,21 +168,17 @@
                                             :key="opt.value"
                                             @click="changeAllSchedule(opt.value, 'scheduleRec')"
                                         >
-                                            {{ Translate(opt.label) }}
+                                            {{ opt.label }}
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
                             </el-dropdown>
                         </template>
                         <template #default="scope">
-                            <el-select v-model="scope.row.scheduleRec">
-                                <el-option
-                                    v-for="opt in pageData.scheduleList"
-                                    :key="opt.value"
-                                    :label="Translate(opt.label)"
-                                    :value="opt.value"
-                                />
-                            </el-select>
+                            <el-select-v2
+                                v-model="scope.row.scheduleRec"
+                                :options="pageData.scheduleList"
+                            />
                         </template>
                     </el-table-column>
                 </el-table>
@@ -268,22 +240,19 @@
             }"
         >
             <el-form-item :label="Translate('IDCS_MANUAL_RECORD_OPTION')">
-                <el-select v-model="formData.urgencyRecDuration">
-                    <el-option
-                        v-for="item in pageData.urgencyRecDurationList"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="formData.urgencyRecDuration"
+                    :options="pageData.urgencyRecDurationList"
+                />
             </el-form-item>
         </el-form>
         <div class="base-btn-box">
             <el-button
                 :disabled="pageData.applyDisabled"
                 @click="setData(true)"
-                >{{ Translate('IDCS_APPLY') }}</el-button
             >
+                {{ Translate('IDCS_APPLY') }}
+            </el-button>
         </div>
         <!-- 高级模式事件选择弹窗 -->
         <RecordModeAdvancePop
@@ -313,11 +282,13 @@
 
 <style lang="scss" scoped>
 .subcontent-box {
-    padding: 0 0 30px 15px;
+    padding: 0 0 30px;
     font-size: 15px;
 
     .base-btn-box {
         margin-bottom: 10px;
+        padding: 0 15px;
+        box-sizing: border-box;
     }
 }
 

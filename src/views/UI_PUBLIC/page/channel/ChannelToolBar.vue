@@ -18,8 +18,9 @@
     <el-button
         v-if="isAddGroupBtn"
         @click="addChl"
-        >{{ Translate('IDCS_ADD_CHANNEL') }}</el-button
     >
+        {{ Translate('IDCS_ADD_CHANNEL') }}
+    </el-button>
     <BaseImgSprite
         v-else
         file="toolbar_add"

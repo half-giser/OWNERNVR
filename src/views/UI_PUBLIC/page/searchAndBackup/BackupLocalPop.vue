@@ -18,11 +18,9 @@
             <div class="chunk">{{ pageData.currentTask }} / {{ backupList.length }}</div>
             <p class="tip">{{ Translate('IDCS_BACKUP_HOLD_ON') }}</p>
         </div>
-        <template #footer>
-            <div class="base-btn-box">
-                <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 

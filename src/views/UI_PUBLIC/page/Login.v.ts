@@ -3,7 +3,7 @@
  * @Date: 2024-04-23 11:52:48
  * @Description: 登录界面
  */
-import { type FormRules, type FormInstance } from 'element-plus'
+import { type FormRules } from 'element-plus'
 import { LoginForm, LoginReqData } from '@/types/apiType/user'
 import LoginPrivacyPop from './LoginPrivacyPop.vue'
 
@@ -14,12 +14,12 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const langStore = useLangStore()
-        const Plugin = inject('Plugin') as PluginType
+        const plugin = usePlugin()
         const userSessionStore = useUserSessionStore()
         const router = useRouter()
 
         const pageData = ref({
-            langTypes: {} as Record<string, string>,
+            langTypes: [] as SelectOption<string, string>[],
             langType: langStore.langType,
             langId: langStore.langId,
             calendarOptions: [] as SelectOption<string, string>[],
@@ -42,10 +42,15 @@ export default defineComponent({
         })
 
         langStore.getLangTypes().then((res) => {
-            pageData.value.langTypes = unref(res)
+            pageData.value.langTypes = Object.entries(res.value).map((item) => {
+                return {
+                    label: item[1],
+                    value: item[0],
+                }
+            })
         })
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
 
         // 界面表单数据
         const formData = ref(new LoginForm())
@@ -57,24 +62,24 @@ export default defineComponent({
                 {
                     validator: (_rule, value: string, callback) => {
                         if (!value) {
-                            callback(new Error(Translate('IDCS_PROMPT_USERNAME_EMPTY')))
+                            pageData.value.errorMsg = Translate('IDCS_PROMPT_USERNAME_EMPTY')
                             return
                         }
                         callback()
                     },
-                    trigger: 'change',
+                    trigger: 'manual',
                 },
             ],
             password: [
                 {
                     validator: (_rule, value: string, callback) => {
                         if (value.length > 16) {
-                            callback(new Error(Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR')))
+                            pageData.value.errorMsg = Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR')
                             return
                         }
                         callback()
                     },
-                    trigger: 'change',
+                    trigger: 'manual',
                 },
             ],
         })
@@ -119,7 +124,7 @@ export default defineComponent({
         const fnReqLogin = async () => {
             const result = await reqLogin()
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 userSessionStore.updataByReqLogin(result)
                 const reqData = new LoginReqData()
                 const md5Pwd = MD5_encrypt(formData.value.password)
@@ -149,7 +154,7 @@ export default defineComponent({
             try {
                 const result = await doLogin(sendXml)
                 const $ = queryXml(result)
-                if ($('//status').text() === 'success') {
+                if ($('status').text() === 'success') {
                     // doLogin后更新用户会话信息
                     await userSessionStore.updateByLogin('STANDARD', result, reqData, formData.value)
                     pageData.value.btnDisabled = false
@@ -157,11 +162,11 @@ export default defineComponent({
                     if (import.meta.env.VITE_UI_TYPE === 'UI1-D' || import.meta.env.VITE_UI_TYPE === 'UI1-G') {
                         userSessionStore.defaultStreamType = pageData.value.quality
                     }
-                    Plugin.DisposePlugin()
-                    Plugin.TogglePageByPlugin()
-                    Plugin.StartV2Process()
+                    plugin.DisposePlugin()
+                    plugin.TogglePageByPlugin()
+                    plugin.StartV2Process()
                     router.push('/live')
-                } else if ($('//status').text() === 'fail') {
+                } else if ($('status').text() === 'fail') {
                     pageData.value.btnDisabled = false
                     formData.value.password = ''
                     const errorCode = $('errorCode').text().num()
@@ -210,8 +215,8 @@ export default defineComponent({
         const getIsShowPrivacy = async () => {
             const result = await queryShowPrivacyView()
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                if ($('//content/show').text().bool() && !localStorage.getItem(LocalCacheKey.KEY_PRIVACY)) {
+            if ($('status').text() === 'success') {
+                if ($('content/show').text().bool() && !localStorage.getItem(LocalCacheKey.KEY_PRIVACY)) {
                     pageData.value.isPrivacy = true
                 } else {
                     localStorage.setItem(LocalCacheKey.KEY_PRIVACY, 'true')
@@ -231,7 +236,7 @@ export default defineComponent({
          * @description 切换语言
          */
         const changeLang = async () => {
-            formRef.value!.clearValidate()
+            pageData.value.errorMsg = ''
             langStore.updateLangId(pageData.value.langId)
             const langType = LANG_TYPE_MAPPING[pageData.value.langId]
             if (langType) {

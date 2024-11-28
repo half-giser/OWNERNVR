@@ -28,8 +28,6 @@
 </template>
 
 <script lang="ts" setup>
-import { hexToDec, decToHex } from '@/utils/tools'
-
 type InvalidateMode = 'REPLACE' | 'PREVENT'
 type InputMode = 'IPv6' | 'MAC'
 

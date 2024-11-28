@@ -129,16 +129,16 @@ export default defineComponent({
             closeLoading()
 
             formData.value.faceIndex = []
-            listData.value = $('//content/i')
+            listData.value = $('content/i')
                 .map((item) => {
                     const textArr = item.text().split(',')
                     const chlId = getChlGuid16(textArr[4]).toUpperCase()
-                    const timestamp = parseInt(textArr[1], 16) * 1000
+                    const timestamp = hexToDec(textArr[1]) * 1000
                     return {
-                        faceFeatureId: parseInt(textArr[0], 16) + '',
+                        faceFeatureId: hexToDec(textArr[0]) + '',
                         timestamp,
-                        frameTime: localToUtc(timestamp) + ':' + ('0000000' + parseInt(textArr[2], 16)).slice(-7),
-                        imgId: parseInt(textArr[3], 16),
+                        frameTime: localToUtc(timestamp) + ':' + ('0000000' + hexToDec(textArr[2])).slice(-7),
+                        imgId: hexToDec(textArr[3]),
                         chlId,
                         chlName: chlMap[chlId],
                         pic: '',
@@ -160,11 +160,13 @@ export default defineComponent({
         const changeFacePage = async (pageIndex: number) => {
             formData.value.pageIndex = pageIndex
             filterListData.value = listData.value.slice((formData.value.pageIndex - 1) * formData.value.pageSize, formData.value.pageIndex * formData.value.pageSize)
-            for (let i = 0; i < filterListData.value.length; i++) {
-                const result = await getFacePic(filterListData.value[i])
-                filterListData.value[i].pic = result.pic
-                filterListData.value[i].featureStatus = result.featureStatus
-            }
+            filterListData.value.forEach(async (item) => {
+                const data = await getFacePic(item)
+                if (data) {
+                    item.pic = data.pic
+                    item.featureStatus = data.featureStatus
+                }
+            })
         }
 
         /**
@@ -196,13 +198,20 @@ export default defineComponent({
             )
         }
 
+        const getUniqueKey = (row: { imgId: number; frameTime: string }) => {
+            if (!row || !row.imgId || !row.frameTime) {
+                return getNonce() + ''
+            }
+            return `${row.imgId}:${row.frameTime}`
+        }
+
         /**
          * @description 请求图片Base64数据
          * @param {IntelFaceDBSnapFaceList} item
          * @returns {string}
          */
         const getFacePic = async (item: IntelFaceDBSnapFaceList) => {
-            const key = item.frameTime
+            const key = getUniqueKey(item)
             if (cachePic[key]) {
                 return cachePic[key]
             }
@@ -216,20 +225,19 @@ export default defineComponent({
             `
             const result = await requestChSnapFaceImage(sendXml)
             const $ = queryXml(result)
-            const pic = $('//content').text()
-            const featureStatus = $('//featureStatus').text().bool()
+            const pic = $('content').text()
+            const featureStatus = $('featureStatus').text().bool()
             if (pic) {
                 cachePic[key] = {
-                    pic: 'data:image/png;base64,' + pic,
+                    pic: wrapBase64Img(pic),
                     featureStatus,
                 }
-                return cachePic[key]
-            } else {
                 return {
-                    pic: '',
-                    featureStatus: false,
+                    pic: wrapBase64Img(pic),
+                    featureStatus,
                 }
             }
+            return null
         }
 
         /**
@@ -241,7 +249,7 @@ export default defineComponent({
                 authList: '@spr,@bk',
             })
             const $ = queryXml(result)
-            pageData.value.chlList = $('//content/item').map((item) => {
+            pageData.value.chlList = $('content/item').map((item) => {
                 const $item = queryXml(item.element)
                 chlMap[item.attr('id')] = $item('name').text()
                 return {

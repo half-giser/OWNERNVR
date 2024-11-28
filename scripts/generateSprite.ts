@@ -44,8 +44,8 @@ function generateSprite(option: GenerateSpriteOption) {
                 coordinates,
             }
             const ms = new MagicString(JSON.stringify(data))
-            ms.prepend(`const sprite:ImageSprite=`)
-            ms.append(`;export default sprite`)
+            ms.prepend('const sprite:ImageSprite=')
+            ms.append(';export default sprite')
             const text = ms.toString()
             await fs.writeFile(path.resolve(SPRITE_PNG_FILE_PATH), result.image)
             await fs.writeFile(path.resolve(SPRITE_JSON_FILE_PATH), text)

@@ -3,7 +3,7 @@
  * @Date: 2024-07-12 10:52:55
  * @Description: UPnP上报
  */
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormRules } from 'element-plus'
 import { NetUPnPReportForm } from '@/types/apiType/net'
 
 export default defineComponent({
@@ -12,7 +12,7 @@ export default defineComponent({
         const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new NetUPnPReportForm())
         const formRule = ref<FormRules>({
             serverAddr: {
@@ -47,12 +47,12 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryUPnPCfg()
             const $ = queryXml(result)
-            if ($('//content/reportPorts').length) {
-                pageData.value.upnpSwitch = $('//content/switch').text().bool()
-                formData.value.switch = $('//content/reportPorts/switch').text().bool()
-                formData.value.serverAddr = $('//content/reportPorts/serverAddr').text()
-                formData.value.port = $('//content/reportPorts/port').text().num()
-                formData.value.manId = $('//content/reportPorts/manId').text()
+            if ($('content/reportPorts').length) {
+                pageData.value.upnpSwitch = $('content/switch').text().bool()
+                formData.value.switch = $('content/reportPorts/switch').text().bool()
+                formData.value.serverAddr = $('content/reportPorts/serverAddr').text()
+                formData.value.port = $('content/reportPorts/port').text().num()
+                formData.value.manId = $('content/reportPorts/manId').text()
             }
         }
 
@@ -61,7 +61,7 @@ export default defineComponent({
          */
         const setData = () => {
             // TODO 在未启用、serverAddr和manId为空的情况下点击确认，会返回fail无效参数（原项目也存在这个问题）
-            formRef.value!.validate(async (valid: boolean) => {
+            formRef.value!.validate(async (valid) => {
                 if (!valid) {
                     return
                 }

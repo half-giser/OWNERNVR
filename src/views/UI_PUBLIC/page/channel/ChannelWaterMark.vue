@@ -9,42 +9,24 @@
             <div class="base-chl-box-player">
                 <BaseVideoPlayer
                     ref="playerRef"
-                    type="live"
-                    @onready="handlePlayerReady"
+                    @ready="handlePlayerReady"
                 />
             </div>
-            <el-form
-                :model="pageData"
-                :style="{
-                    '--form-label-width': '150px',
-                }"
-            >
+            <el-form>
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                    <el-select
+                    <el-select-v2
                         v-model="pageData.currChlId"
+                        :options="chlOptions"
                         @change="handleChlChange"
-                    >
-                        <el-option
-                            v-for="item in pageData.chlList"
-                            :key="item.chlId"
-                            :label="item.chlName"
-                            :value="item.chlId"
-                        />
-                    </el-select>
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_WATER_MARK')">
-                    <el-select
+                    <el-select-v2
                         v-model="pageData.chlData.switch"
                         :disabled="pageData.switchDisabled"
+                        :options="pageData.options"
                         @change="handleSwitchChange"
-                    >
-                        <el-option
-                            v-for="item in pageData.options"
-                            :key="item.value"
-                            :label="item.label"
-                            :value="item.value"
-                        />
-                    </el-select>
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_INFORMATION')">
                     <el-input
@@ -62,8 +44,6 @@
                 <el-table
                     ref="tableRef"
                     :data="pageData.chlList"
-                    border
-                    stripe
                     highlight-current-row
                     show-overflow-tooltip
                     :row-class-name="(data) => (data.row.disabled ? 'disabled' : '')"
@@ -104,19 +84,13 @@
                             </el-dropdown>
                         </template>
                         <template #default="scope">
-                            <el-select
+                            <el-select-v2
                                 v-model="scope.row.switch"
                                 :disabled="scope.row.disabled"
                                 :placeholder="Translate('IDCS_ON')"
+                                :options="pageData.options"
                                 @change="handleTableSwitchChange(scope.row)"
-                            >
-                                <el-option
-                                    v-for="item in pageData.options"
-                                    :key="item.value"
-                                    :value="item.value"
-                                    :label="item.label"
-                                />
-                            </el-select>
+                            />
                         </template>
                     </el-table-column>
                     <!-- 信息 -->
@@ -162,14 +136,13 @@
             </div>
             <div class="base-btn-box">
                 <el-button
-                    :disabled="!pageData.editRows.size"
+                    :disabled="!editRows.size()"
                     @click="handleApply"
                 >
                     {{ Translate('IDCS_APPLY') }}
                 </el-button>
             </div>
         </div>
-        <BaseNotification v-model:notifications="pageData.notification" />
     </div>
 </template>
 

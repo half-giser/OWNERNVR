@@ -1,5 +1,5 @@
 import { ChangePasswordForm } from '@/types/apiType/user'
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -32,7 +32,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new ChangePasswordForm())
         const errorMessage = ref('')
         const passwordErrorMessage = ref('')
@@ -118,7 +118,6 @@ export default defineComponent({
         const changePassword = () => {
             if (passwordErrorMessage.value) {
                 passwordErrorMessage.value = ''
-                formRef.value!.clearValidate()
             }
         }
 
@@ -171,20 +170,24 @@ export default defineComponent({
             }
         }
 
+        const handleForceOpen = () => {
+            openMessageBox({
+                type: 'question',
+                message: Translate('IDCS_PWD_STRONG_ERROR_TIPS'),
+            }).then(() => {
+                Logout()
+            })
+        }
+
         /**
          * @description 弹窗关闭前检测是否能关闭弹窗
          * @param {Function} done
          */
         const handleBeforeClose = (done: (cancel?: boolean) => void) => {
+            if (prop.forced) {
+                handleForceOpen()
+            }
             done(prop.forced)
-        }
-
-        /**
-         * @description 打开弹窗时重置表单
-         */
-        const opened = () => {
-            formData.value = new ChangePasswordForm()
-            formRef.value?.clearValidate()
         }
 
         /**
@@ -192,12 +195,7 @@ export default defineComponent({
          */
         const close = () => {
             if (prop.forced) {
-                openMessageBox({
-                    type: 'question',
-                    message: Translate('IDCS_PWD_STRONG_ERROR_TIPS'),
-                }).then(() => {
-                    Logout()
-                })
+                handleForceOpen()
             } else {
                 ctx.emit('close')
             }
@@ -210,7 +208,6 @@ export default defineComponent({
             strength,
             close,
             rules,
-            opened,
             verify,
             errorMessage,
             changePassword,

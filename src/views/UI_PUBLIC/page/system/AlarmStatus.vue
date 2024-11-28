@@ -9,7 +9,7 @@
             ref="tableRef"
             :data="tableList"
             height="100%"
-            stripe
+            :border="false"
             highlight-current-row
             :row-key="(item) => item.id"
             :current-row-key="pageData.activeIndex"
@@ -40,7 +40,7 @@
                         </div>
                         <span
                             :class="{
-                                alarm: scope.row.data.length > 0,
+                                'text-error': scope.row.data.length > 0,
                             }"
                             >{{ scope.row.data.length > 0 ? Translate('IDCS_ABNORMAL') : Translate('IDCS_NORMAL') }}</span
                         >

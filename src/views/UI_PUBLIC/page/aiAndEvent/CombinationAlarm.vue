@@ -7,8 +7,6 @@
     <div class="base-flex-box">
         <div class="base-table-box">
             <el-table
-                stripe
-                border
                 highlight-current-row
                 :data="tableData"
                 @current-change="changeCombinedALarmInfo"
@@ -136,14 +134,10 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select v-model="scope.row.sysAudio">
-                            <el-option
-                                v-for="item in pageData.audioList"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            />
-                        </el-select>
+                        <el-select-v2
+                            v-model="scope.row.sysAudio"
+                            :options="pageData.audioList"
+                        />
                     </template>
                 </el-table-column>
 
@@ -168,14 +162,10 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select v-model="scope.row.msgPush">
-                            <el-option
-                                v-for="item in pageData.switchList"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            />
-                        </el-select>
+                        <el-select-v2
+                            v-model="scope.row.msgPush"
+                            :options="pageData.switchList"
+                        />
                     </template>
                 </el-table-column>
 
@@ -247,14 +237,10 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select v-model="scope.row.beeper">
-                            <el-option
-                                v-for="item in pageData.switchList"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            />
-                        </el-select>
+                        <el-select-v2
+                            v-model="scope.row.beeper"
+                            :options="pageData.switchList"
+                        />
                     </template>
                 </el-table-column>
 
@@ -279,17 +265,10 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select
+                        <el-select-v2
                             v-model="scope.row.popVideo.chl.value"
-                            :empty-values="[undefined, null]"
-                        >
-                            <el-option
-                                v-for="item in pageData.videoPopupChlList"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            />
-                        </el-select>
+                            :options="pageData.videoPopupChlList"
+                        />
                     </template>
                 </el-table-column>
 
@@ -314,14 +293,10 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select v-model="scope.row.msgBoxPopup">
-                            <el-option
-                                v-for="item in pageData.switchList"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            />
-                        </el-select>
+                        <el-select-v2
+                            v-model="scope.row.msgBoxPopup"
+                            :options="pageData.switchList"
+                        />
                     </template>
                 </el-table-column>
 
@@ -344,14 +319,10 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <el-select v-model="scope.row.email">
-                            <el-option
-                                v-for="item in pageData.switchList"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            />
-                        </el-select>
+                        <el-select-v2
+                            v-model="scope.row.email"
+                            :options="pageData.switchList"
+                        />
                     </template>
                 </el-table-column>
             </el-table>
@@ -363,10 +334,11 @@
             <div>{{ pageData.CombinedALarmInfo }}</div>
             <div>
                 <el-button
-                    :disabled="pageData.applyDisabled"
+                    :disabled="!editRows.size()"
                     @click="setData()"
-                    >{{ Translate('IDCS_APPLY') }}</el-button
                 >
+                    {{ Translate('IDCS_APPLY') }}
+                </el-button>
             </div>
         </div>
         <!-- 预置点名称 -->

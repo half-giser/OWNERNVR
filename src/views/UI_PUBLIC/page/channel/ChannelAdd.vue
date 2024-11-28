@@ -29,8 +29,6 @@
             <el-table
                 v-show="activeTab === tabKeys.quickAdd"
                 ref="quickAddTableRef"
-                border
-                stripe
                 :data="quickAddTableData"
                 show-overflow-tooltip
                 highlight-current-row
@@ -118,8 +116,6 @@
             <el-table
                 v-show="activeTab === tabKeys.manualAdd"
                 ref="manualAddTableRef"
-                border
-                stripe
                 :data="manualAddFormData"
                 show-overflow-tooltip
             >
@@ -130,17 +126,11 @@
                 >
                     <template #default="scope">
                         <div class="base-cell-box">
-                            <el-select
+                            <el-select-v2
                                 v-model="scope.row.addrType"
+                                :options="manualAddTypeOptions"
                                 @change="cellChange($event, scope.$index, scope.row, 'addrType')"
-                            >
-                                <el-option
-                                    v-for="item in manualAddTypeOptions"
-                                    :key="item.value"
-                                    :label="item.text"
-                                    :value="item.value"
-                                />
-                            </el-select>
+                            />
                             <BaseIpInput
                                 v-show="scope.row.addrType === 'ip'"
                                 v-model="scope.row.ip"
@@ -199,17 +189,11 @@
                     min-width="300"
                 >
                     <template #default="scope">
-                        <el-select
+                        <el-select-v2
                             v-model="scope.row.manufacturer"
+                            :options="manufacturerList"
                             @change="cellChange($event, scope.$index, scope.row, 'manufacturer')"
-                        >
-                            <el-option
-                                v-for="item in manufacturerList"
-                                :key="item.value"
-                                :label="item.text"
-                                :value="item.value"
-                            />
-                        </el-select>
+                        />
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -232,8 +216,6 @@
             <el-table
                 v-show="activeTab === tabKeys.addRecorder"
                 ref="addRecorderTableRef"
-                border
-                stripe
                 :data="addRecorderTableData"
                 show-overflow-tooltip
                 highlight-current-row
@@ -289,14 +271,16 @@
                 <el-button
                     v-show="supportsIPCActivation && activeTab === tabKeys.quickAdd"
                     @click="handleActivate"
-                    >{{ Translate('IDCS_ACTIVATE') }}</el-button
                 >
+                    {{ Translate('IDCS_ACTIVATE') }}
+                </el-button>
                 <el-button @click="handleSetDefaultPwd">{{ Translate('IDCS_DEV_DEFAULT_PWD') }}</el-button>
                 <el-button
                     v-show="activeTab === tabKeys.addRecorder"
                     @click="handleManualAdd"
-                    >{{ Translate('IDCS_RECORD_MANUAL_ADD') }}</el-button
                 >
+                    {{ Translate('IDCS_RECORD_MANUAL_ADD') }}
+                </el-button>
                 <el-button @click="save">{{ Translate('IDCS_ADD') }}</el-button>
                 <el-button @click="handleCancel">{{ Translate('IDCS_CANCEL') }}</el-button>
             </div>

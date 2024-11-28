@@ -33,13 +33,13 @@ export default defineComponent({
 
         const pageData = ref({
             // 连接类型选项列表
-            connectionTypeList: [] as { name: string; value: string }[],
+            connectionTypeList: [] as SelectOption<string, string>[],
             // 开关选项列表
             switchOption: getSwitchOptions(),
             // 协议选项列表
-            manufacturersList: [] as { name: string; value: string }[],
+            manufacturersList: [] as SelectOption<string, string>[],
             // 编码选项列表
-            encodeList: [] as { name: string; value: string }[],
+            encodeList: [] as SelectOption<string, string>[],
             // 显示模式数据列表
             colorData: [] as SystemPostColorData[],
             // 显示位置的限制值
@@ -103,20 +103,21 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                pageData.value.tillNumberMax = $('//types/tillNumber').attr('max').num()
+            if ($('status').text() === 'success') {
+                pageData.value.tillNumberMax = $('types/tillNumber').attr('max').num()
 
-                pageData.value.connectionTypeList = $('//types/connectionType/enum').map((item) => {
+                pageData.value.connectionTypeList = $('types/connectionType/enum').map((item) => {
                     return {
                         value: item.text(),
-                        name: CONNECTION_TYPE_MAPPING[item.text()],
+                        label: CONNECTION_TYPE_MAPPING[item.text()],
                     }
                 })
 
-                pageData.value.colorData = $('//channel/chl').map((item) => {
+                pageData.value.colorData = $('channel/chl').map((item, index) => {
                     const $item = queryXml(item.element)
 
                     return {
+                        index,
                         chlId: item.attr('id'),
                         name: item.attr('name'),
                         colorList: $item('color/item').map((color) => color.text()),
@@ -125,7 +126,7 @@ export default defineComponent({
                     }
                 })
 
-                const displaysetString = '//content/itemType/param/displaySetting/displayPosition/'
+                const displaysetString = 'content/itemType/param/displaySetting/displayPosition/'
                 pageData.value.displaysetList.xmin = $(`${displaysetString}coordinateSystem/X`).attr('min').num()
                 pageData.value.displaysetList.xmax = $(`${displaysetString}coordinateSystem/X`).attr('max').num()
                 pageData.value.displaysetList.ymin = $(`${displaysetString}coordinateSystem/Y`).attr('min').num()
@@ -133,20 +134,20 @@ export default defineComponent({
                 pageData.value.displaysetList.wmin = $(`${displaysetString}width`).attr('min').num()
                 pageData.value.displaysetList.hmin = $(`${displaysetString}height`).attr('min').num()
 
-                pageData.value.manufacturersList = $('//types/manufacturers/enum').map((item) => {
+                pageData.value.manufacturersList = $('types/manufacturers/enum').map((item) => {
                     const value = item.text()
                     return {
                         value,
-                        name: value === 'General' ? Translate('IDCS_PROTOCOL_TYPE') : value,
+                        label: value === 'General' ? Translate('IDCS_PROTOCOL_TYPE') : value,
                     }
                 })
 
-                pageData.value.encodeList = $('//types/encodeFormat/enum').map((item) => ({
+                pageData.value.encodeList = $('types/encodeFormat/enum').map((item) => ({
                     value: item.text(),
-                    name: item.text(),
+                    label: item.text(),
                 }))
 
-                const data: SystemPosList[] = $('//content/item').map((item) => {
+                const data: SystemPosList[] = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     const manufacturers = $item('param/manufacturers').text()
                     const connectionType = $item('param/connectionType').text()
@@ -317,7 +318,7 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
@@ -576,7 +577,7 @@ export default defineComponent({
                 requireField: ['device'],
             })
             commLoadResponseHandler(result, ($) => {
-                pageData.value.chlList = $('//content/item').map((item) => {
+                pageData.value.chlList = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         value: item.attr('id'),

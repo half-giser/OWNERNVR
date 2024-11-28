@@ -4,10 +4,12 @@
  * @Description: AI/事件
  */
 
+import { TableRowStatus } from './base'
+
 /**
  * @description 报警输出
  */
-export class AlarmOutDto {
+export class AlarmOutDto extends TableRowStatus {
     id = '' //告警输出ID
     name = '' //告警输出名称
     index = '' //告警输出在设备上的序号
@@ -18,8 +20,6 @@ export class AlarmOutDto {
     scheduleName = '' //排程名称
     oldSchedule = '' //记录打开排程管理弹窗前的名称
     type = '' //常开常闭类型--本机报警输出在有效
-    status = '' //行状态: loading, success, error
-    disabled = true //是否禁用
 }
 
 /**
@@ -29,9 +29,6 @@ export class AlarmEmailReceiverDto {
     address = ''
     addressShow = ''
     schedule = ''
-    delDisabled = false
-    rowDisabled = false
-    rowClicked = false
 }
 
 /**
@@ -69,17 +66,15 @@ export class AlarmPushForm {
 /**
  * @description 事件通知——闪灯
  */
-export class AlarmWhiteLightDto {
+export class AlarmWhiteLightDto extends TableRowStatus {
     id = ''
     name = ''
     enable = ''
     durationTime: number | null = null
     frequencyType = ''
     enableDisable = true
-    rowDisable = false
     durationTimeDisable = false
     frequencyTypeDisable = false
-    status = '' //行状态: loading, success, error
 }
 
 /**
@@ -99,17 +94,9 @@ export class AlarmServerForm {
 }
 
 /**
- * @description 事件通知——报警服务器-报警类型
- */
-// export class AlarmTypeInfoDto {
-//     id = ''
-//     value = ''
-// }
-
-/**
  * @description 移动侦测、前端掉线、视频丢失的通用表格数据类型
  */
-export class AlarmEventDto {
+export class AlarmEventDto extends TableRowStatus {
     id = ''
     addType = ''
     chlType = ''
@@ -118,7 +105,6 @@ export class AlarmEventDto {
         value: '',
         factoryName: '',
     }
-    status = '' //行状态: loading, success, error
     name = ''
     schedule = {
         value: '',
@@ -153,8 +139,6 @@ export class AlarmEventDto {
         value: '',
         label: '',
     }
-
-    rowDisable = true
 }
 
 /**
@@ -258,7 +242,6 @@ export class AlarmExceptionDto {
     beeper = ''
     msgBoxPopup = ''
     email = 'false'
-    rowDisable = true
     emailDisable = true
 }
 
@@ -285,12 +268,10 @@ export class ChlList {
 /**
  * @description 传感器的table项
  */
-export class AlarmSensorEventDto {
+export class AlarmSensorEventDto extends TableRowStatus {
     id = ''
-    status = '' //行状态: loading, success, error
     alarmInType = ''
     nodeIndex = ''
-    disabled = true
     isEditable = false
     serialNum = '' // 序号
     name = '' // 名称
@@ -373,10 +354,9 @@ export class AlarmPresetList {
 /**
  * @description: 组合报警
  */
-export class AlarmCombinedDto {
+export class AlarmCombinedDto extends TableRowStatus {
     id = ''
     name = ''
-    status = '' //行状态: loading, success, error
     combinedAlarm = {
         switch: false,
         item: [] as AlarmCombinedItemDto[],
@@ -447,6 +427,11 @@ export class AlarmFaceChlDto {
     faceMatchLimitMaxChlNum = 0
 }
 
+export class AlarmMutexDto {
+    object = ''
+    status = false
+}
+
 /**
  * @description 人脸侦测——参数配置表单项
  */
@@ -456,12 +441,13 @@ export class AlarmFaceDetectionDto {
     holdTime = ''
     holdTimeList = [] as SelectOption<string, string>[]
     regionInfo = [] as Region[]
-    mutexList = [] as { object: string; status: boolean }[]
-    mutexListEx = [] as { object: string; status: boolean }[]
+    mutexList: AlarmMutexDto[] = []
+    mutexListEx: AlarmMutexDto[] = []
     saveFacePicture = ''
     saveSourcePicture = ''
     snapInterval = ''
-    captureCycle = ''
+    captureCycle = 3
+    captureCycleChecked = true
     minFaceFrame = 3
     minRegionInfo = [] as Region[]
     maxFaceFrame = 50
@@ -580,8 +566,8 @@ export class AlarmPeaDto {
     regulation = false
     boundaryInfo = [] as { point: { X: number; Y: number; isClosed?: boolean }[]; maxCount: number; configured: boolean }[]
     regionInfo = [] as { X1: number; Y1: number; X2: number; Y2: number }[]
-    mutexList = [] as { object: string; status: boolean }[]
-    mutexListEx = [] as { object: string; status: boolean }[]
+    mutexList = [] as AlarmMutexDto[]
+    mutexListEx = [] as AlarmMutexDto[]
     // 目标类型只支持人
     pea_onlyPreson = false
     // 只支持人的灵敏度
@@ -629,8 +615,8 @@ export class AlarmTripwireDto {
     holdTime = 0
     holdTimeList = [] as SelectOption<number, string>[]
     // mutex
-    mutexList = [] as { object: string; status: boolean }[]
-    mutexListEx = [] as { object: string; status: boolean }[]
+    mutexList = [] as AlarmMutexDto[]
+    mutexListEx = [] as AlarmMutexDto[]
     // 目标类型只支持人
     tripwire_onlyPreson = false
     // 只支持人的灵敏度
@@ -695,8 +681,8 @@ export class AlarmPassLinesDto {
     // 用于对比
     passLineOriginalEnable = false
     // mutex
-    passLineMutexList = [] as { object: string; status: boolean }[]
-    passLineMutexListEx = [] as { object: string; status: boolean }[]
+    passLineMutexList = [] as AlarmMutexDto[]
+    passLineMutexListEx = [] as AlarmMutexDto[]
     // 排程
     passLineSchedule = ''
     // 持续时间
@@ -724,8 +710,8 @@ export class AlarmPassLinesDto {
     cpcDetectionEnable = false
     // 用于对比
     cpcOriginalEnable = false
-    cpcMutexList = [] as { object: string; status: boolean }[]
-    cpcMutexListEx = [] as { object: string; status: boolean }[]
+    cpcMutexList = [] as AlarmMutexDto[]
+    cpcMutexListEx = [] as AlarmMutexDto[]
     cpcLineInfo = new AlarmPassLinesRegion()
     regionInfo = new AlarmPassLinesRegion()
     // 排程
@@ -776,9 +762,13 @@ export class AlarmPassLinesEmailDto {
         reportHour: 0,
         reportMin: 0,
     }
-    receiverData = [] as { address: string; schedule: string; rowClicked: boolean }[]
+    receiverData = [] as AlarmPassLinesEmailReceiverDto[]
 }
 
+export class AlarmPassLinesEmailReceiverDto {
+    address = ''
+    schedule = ''
+}
 export class AlarmPassLinesRegion {
     X1 = 0
     Y1 = 0
@@ -843,7 +833,7 @@ export class AlarmVehicleDetectionDto {
     plateAbsenceCheceked = false
     regionInfo = [] as Region[]
     maskAreaInfo = {} as Record<number, { X: number; Y: number; isClosed: boolean }[]>
-    mutexList = [] as { object: string; status: boolean }[]
+    mutexList = [] as AlarmMutexDto[]
     plateSize = {
         minWidth: 0,
         maxWidth: 0,
@@ -919,7 +909,7 @@ export class AlarmObjectLeftDto {
     areaMaxCount = 0
     regulation = false
     boundary = [] as AlarmObjectLeftBoundaryDto[]
-    mutexList = [] as { object: string; status: boolean }[]
+    mutexList = [] as AlarmMutexDto[]
     maxNameLength = 0
     record = [] as SelectOption<string, string>[]
     alarmOut = [] as SelectOption<string, string>[]
@@ -965,7 +955,7 @@ export class AlarmVideoStructureDto {
     intervalCheckMax = 1
     detectAreaInfo = {} as Record<number, { X: number; Y: number; isClosed: boolean }[]>
     maskAreaInfo = {} as Record<number, { X: number; Y: number; isClosed: boolean }[]>
-    mutexList = [] as { object: string; status: boolean }[]
+    mutexList = [] as AlarmMutexDto[]
     countOSD = {
         switch: false,
         X: 0,
@@ -1034,7 +1024,7 @@ export class AlarmCddDto {
     // 报警阈值
     triggerAlarmLevel = 0
     // mutex
-    mutexList = [] as { object: string; status: boolean }[]
+    mutexList = [] as AlarmMutexDto[]
 }
 
 /**
@@ -1047,8 +1037,8 @@ export class AlarmFireDetectionDto {
     holdTime = 0
     holdTimeList = [] as SelectOption<number, string>[]
     // mutex
-    mutexList = [] as { object: string; status: boolean }[]
-    mutexListEx = [] as { object: string; status: boolean }[]
+    mutexList = [] as AlarmMutexDto[]
+    mutexListEx = [] as AlarmMutexDto[]
     trigger = [] as string[]
     triggerList = [] as string[]
     // 音频联动

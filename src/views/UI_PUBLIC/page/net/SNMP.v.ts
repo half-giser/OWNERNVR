@@ -4,14 +4,14 @@
  * @Description: SNMP配置
  */
 import { NetSNMPForm } from '@/types/apiType/net'
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new NetSNMPForm())
         const formRule = ref<FormRules>({
             snmpPort: [
@@ -23,7 +23,7 @@ export default defineComponent({
                         }
                         callback()
                     },
-                    trigger: 'change',
+                    trigger: 'manual',
                 },
             ],
             readCommunity: [
@@ -35,7 +35,7 @@ export default defineComponent({
                         }
                         callback()
                     },
-                    trigger: 'change',
+                    trigger: 'manual',
                 },
             ],
             writeCommunity: [
@@ -47,7 +47,7 @@ export default defineComponent({
                         }
                         callback()
                     },
-                    trigger: 'change',
+                    trigger: 'manual',
                 },
             ],
             trapAddress: [
@@ -66,7 +66,7 @@ export default defineComponent({
                         }
                         callback()
                     },
-                    trigger: 'change',
+                    trigger: 'manual',
                 },
             ],
             trapPort: [
@@ -78,7 +78,7 @@ export default defineComponent({
                         }
                         callback()
                     },
-                    trigger: 'change',
+                    trigger: 'manual',
                 },
             ],
         })
@@ -89,7 +89,7 @@ export default defineComponent({
         const getData = async () => {
             const result = await querySNMPCfg()
             commLoadResponseHandler(result, ($) => {
-                const $content = queryXml($('//content')[0].element)
+                const $content = queryXml($('content/content')[0].element)
                 formData.value.snmpv1Switch = $content('snmpv1Switch').text().bool()
                 formData.value.snmpv2Switch = $content('snmpv2Switch').text().bool()
                 formData.value.snmpPort = $content('snmpPort').text().num()
@@ -143,10 +143,6 @@ export default defineComponent({
         const formatCommunity = (value: string) => {
             return value.replace(/[^A-z|\d!@#$%^&*(){}\|:"`<>?~_\\'./\-\s\[\];,=+]/g, '')
         }
-
-        watch(disabled, () => {
-            formRef.value?.clearValidate()
-        })
 
         onMounted(() => {
             getData()

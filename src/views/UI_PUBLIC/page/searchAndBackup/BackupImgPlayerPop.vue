@@ -11,20 +11,17 @@
         @close="close"
     >
         <div>
-            <div class="form">
-                <div>
-                    <label>{{ Translate('IDCS_IP_CHANNEL_NAME') }}</label>
-                    <span>{{ item.chlName }}</span>
-                </div>
-                <div>
-                    <label>{{ Translate('IDCS_TIME') }}</label>
-                    <span>{{ displayDateTime(item.captureTimeStamp) }}</span>
-                </div>
-                <div>
-                    <label>{{ Translate('IDCS_CREATE_USER') }}</label>
-                    <span>{{ item.creator }}</span>
-                </div>
-            </div>
+            <el-form>
+                <el-form-item :label="Translate('IDCS_IP_CHANNEL_NAME')">
+                    {{ item.chlName }}
+                </el-form-item>
+                <el-form-item :label="Translate('IDCS_TIME')">
+                    {{ displayDateTime(item.captureTimeStamp) }}
+                </el-form-item>
+                <el-form-item :label="Translate('IDCS_CREATE_USER')">
+                    {{ item.creator }}
+                </el-form-item>
+            </el-form>
             <img
                 class="pic"
                 :src="getImg()"
@@ -95,37 +92,15 @@
                 </el-tooltip>
             </div>
         </div>
-        <template #footer>
-            <div class="base-btn-box">
-                <el-button @click="close()">{{ Translate('IDCS_CLOSE') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="close()">{{ Translate('IDCS_CLOSE') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 
 <script lang="ts" src="./BackupImgPlayerPop.v.ts"></script>
 
 <style lang="scss" scoped>
-.form {
-    padding: 0 10px;
-    margin-bottom: 10px;
-
-    & > div {
-        padding: 0;
-        height: 30px;
-        line-height: 30px;
-        box-sizing: border-box;
-        display: flex;
-        align-items: center;
-        font-size: 15px;
-
-        label {
-            width: 150px;
-            flex-shrink: 0;
-        }
-    }
-}
-
 .pic {
     width: 100%;
     height: 381px;

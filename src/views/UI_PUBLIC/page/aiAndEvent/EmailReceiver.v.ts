@@ -5,7 +5,7 @@
  */
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { AlarmEmailReceiverDto } from '@/types/apiType/aiAndEvent'
-import { type FormInstance, type FormRules, type TableInstance } from 'element-plus'
+import { type FormRules, type TableInstance } from 'element-plus'
 
 export default defineComponent({
     components: {
@@ -52,7 +52,7 @@ export default defineComponent({
         })
 
         // 表单实例
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const pageData = ref({
             // 发件人
             sender: '',
@@ -68,6 +68,7 @@ export default defineComponent({
             scheduleList: [] as [] as SelectOption<string, string>[],
             //排程管理弹窗显示状态
             scheduleManagePopOpen: false,
+            currentRow: new AlarmEmailReceiverDto(),
         })
 
         const checkExist = (address: string) => {
@@ -94,7 +95,7 @@ export default defineComponent({
         }
 
         const formatAddress = (rowData: AlarmEmailReceiverDto) => {
-            if (rowData.rowClicked) {
+            if (rowData === pageData.value.currentRow) {
                 return rowData.address
             }
             return hideEmailAddress(rowData.address)
@@ -108,12 +109,12 @@ export default defineComponent({
         const getData = async () => {
             openLoading()
             await getScheduleList()
-            queryEmailCfg().then((resb) => {
+            queryEmailCfg().then((result) => {
                 closeLoading()
-                const res = queryXml(resb)
-                if (res('status').text() === 'success') {
-                    pageData.value.sender = res('//content/sender/address').text()
-                    res('//content/receiver/item').forEach((ele) => {
+                const $ = queryXml(result)
+                if ($('status').text() === 'success') {
+                    pageData.value.sender = $('content/sender/address').text()
+                    $('content/receiver/item').forEach((ele) => {
                         const eleXml = queryXml(ele.element)
                         const emailReceiver = new AlarmEmailReceiverDto()
                         if (!eleXml('schedule').attr('id')) {
@@ -134,26 +135,7 @@ export default defineComponent({
 
         // 原代码中显示了地址后无法隐藏，这里改为再次点击隐藏
         const handleRowClick = (row: AlarmEmailReceiverDto) => {
-            row.rowClicked = !row.rowClicked
-            // // 原代码逻辑：若未被点击，则显示
-            // if (!row.rowClicked) {
-            //     row.rowClicked = !row.rowClicked
-            // }
-            tableData.value.forEach((item) => {
-                if (item !== row) {
-                    item.rowClicked = false
-                }
-            })
-        }
-
-        const handleScheduleChange = (row: AlarmEmailReceiverDto) => {
-            tableRef.value?.setCurrentRow(row)
-            row.rowClicked = true
-            tableData.value.forEach((item) => {
-                if (item !== row) {
-                    item.rowClicked = false
-                }
-            })
+            pageData.value.currentRow = row
         }
 
         const handleScheduleChangeAll = (value: string) => {
@@ -256,7 +238,6 @@ export default defineComponent({
             getIconStatus,
             maskShow,
             handleSenderEdit,
-            handleScheduleChange,
             handleScheduleChangeAll,
             handleScheduleManage,
             handleApply,

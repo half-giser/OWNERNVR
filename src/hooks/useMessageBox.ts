@@ -17,6 +17,7 @@ export default () => {
         alarm: 3,
         question: 4,
     }
+
     const CancelBtnMap: Record<MessageTipBoxOption['type'], boolean> = {
         success: false,
         error: false,
@@ -24,6 +25,7 @@ export default () => {
         alarm: false,
         question: true,
     }
+
     const TitleMap: Record<MessageTipBoxOption['type'], string> = {
         success: Translate('IDCS_SUCCESS_TIP'),
         error: Translate('IDCS_INFO_TIP'),
@@ -31,6 +33,7 @@ export default () => {
         alarm: Translate('IDCS_INFO_TIP'),
         question: Translate('IDCS_INFO_TIP'),
     }
+
     const openMessageBox = (option: MessageTipBoxOption) => {
         const optionObj = {
             // type: 'success', // 弹框类型：成功/失败/信息/警告/问题
@@ -75,5 +78,8 @@ export default () => {
             })
     }
 
-    return { openMessageBox, count: layoutStore.messageBoxCount }
+    return {
+        openMessageBox,
+        count: layoutStore.messageBoxCount,
+    }
 }

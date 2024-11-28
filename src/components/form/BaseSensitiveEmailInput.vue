@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts" setup>
-import { formatInputMaxLength } from '@/utils/tools'
+import { formatInputMaxLength } from '@/utils/formats'
 
 const prop = withDefaults(
     defineProps<{

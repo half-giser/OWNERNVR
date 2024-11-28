@@ -40,27 +40,19 @@
                 </div>
             </div>
             <el-form-item :label="Translate('IDCS_FOCUS_MODE')">
-                <el-select v-model="formData.focusType">
-                    <el-option
-                        v-for="item in pageData.focusOptions"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="formData.focusType"
+                    :options="pageData.focusOptions"
+                />
             </el-form-item>
             <el-form-item
                 v-show="formData.focusType === 'auto'"
                 :label="Translate('IDCS_FOCUS_TIME')"
             >
-                <el-select v-model="formData.focusTime">
-                    <el-option
-                        v-for="item in pageData.timeIntervalOptions"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="formData.focusTime"
+                    :options="pageData.timeIntervalOptions"
+                />
             </el-form-item>
             <div
                 v-show="formData.focusType === 'manual'"
@@ -97,8 +89,9 @@
                     class="lens-onekeyfocus"
                     @mousedown="addCmd('OneKeyFocus')"
                     @mouseup="addCmd('Stop')"
-                    >{{ Translate('IDCS_ONE_KEY_FOCUS') }}</el-button
                 >
+                    {{ Translate('IDCS_ONE_KEY_FOCUS') }}
+                </el-button>
             </div>
             <el-form-item>
                 <el-text class="text-error">{{ Translate('IDCS_FOCUS_MODEL_TIP') }}</el-text>
@@ -111,8 +104,20 @@
                     :label="Translate('IDCS_AUTO_FOCUS_TIP')"
                 />
             </el-form-item>
-            <div class="base-btn-box">
-                <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>
+            <div
+                class="base-btn-box"
+                span="2"
+            >
+                <div>
+                    <BaseFloatError
+                        v-model:message="pageData.errorMessage"
+                        :type="pageData.errorMessageType"
+                        :teleported="false"
+                    />
+                </div>
+                <div>
+                    <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>
+                </div>
             </div>
         </el-form>
     </div>

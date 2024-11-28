@@ -7,10 +7,9 @@
     <div class="base-flex-box">
         <el-table
             :data="tableData"
-            border
-            stripe
             height="100%"
             show-overflow-tooltip
+            highlight-current-row
         >
             <el-table-column
                 :label="Translate('IDCS_SERIAL_NUMBER')"

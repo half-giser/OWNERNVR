@@ -5,7 +5,7 @@
  */
 import { NetPlatformAccessForm, type NetPlatformSipList, NetPlatformSipCodeList } from '@/types/apiType/net'
 import PlatformAccessCodeIdPop from './PlatformAccessCodeIdPop.vue'
-import type { FormInstance, FormRules } from 'element-plus'
+import type { FormRules } from 'element-plus'
 
 export default defineComponent({
     components: {
@@ -36,7 +36,7 @@ export default defineComponent({
             reservedPort: [] as number[],
         })
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new NetPlatformAccessForm())
         const formRules = ref<FormRules>({
             serverAddr: [
@@ -270,14 +270,14 @@ export default defineComponent({
             closeLoading()
 
             commLoadResponseHandler(reulst, ($) => {
-                formData.value.accessType = $('//content').attr('current')
+                formData.value.accessType = $('content').attr('current')
 
                 // 老版本升级之后可能会找不到current属性,默认为"NVMS5000"
                 if (!formData.value.accessType) {
                     formData.value.accessType = 'NVMS5000'
                 }
 
-                $('//content/item').forEach((item) => {
+                $('content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     if (item.attr('id') === 'NVMS5000') {
                         formData.value.nwms5000Switch = $item('switch').text().bool()
@@ -295,9 +295,9 @@ export default defineComponent({
                         formData.value.sipId = $item('sipServerInfo').attr('id')
                     }
                 })
-                $('//types/platformType/enum').forEach((item) => {
+                $('types/platformType/enum').forEach((item) => {
                     if (item.text() === 'GB28181') {
-                        if ($('//content/item[@id="GB28181"]').length) {
+                        if ($('content/item[@id="GB28181"]').length) {
                             pageData.value.platformTypeList.push({
                                 label: ACCESS_TYPE_MAPPING.GB28181,
                                 value: item.text(),
@@ -311,12 +311,12 @@ export default defineComponent({
                     }
                 })
 
-                if ($('//content/item/sipChl').length) {
+                if ($('content/item/sipChl').length) {
                     tableData.value.push({
                         value: 'chl',
-                        type: $('//content/item/sipChl').attr('type'),
+                        type: $('content/item/sipChl').attr('type'),
                         label: Translate('IDCS_CHANNEL'),
-                        list: $('//content/item/sipChl/item').map((item) => {
+                        list: $('content/item/sipChl/item').map((item) => {
                             return {
                                 id: item.attr('id'),
                                 gbId: item.attr('gbId'),
@@ -327,9 +327,9 @@ export default defineComponent({
 
                     tableData.value.push({
                         value: 'alarm',
-                        type: $('//content/item/sipSensor').attr('type'),
+                        type: $('content/item/sipSensor').attr('type'),
                         label: Translate('IDCS_ALARM_IN'),
-                        list: $('//content/item/sipSensor/item').map((item) => {
+                        list: $('content/item/sipSensor/item').map((item) => {
                             return {
                                 id: item.attr('id'),
                                 gbId: item.attr('gbId'),
@@ -339,7 +339,7 @@ export default defineComponent({
                     })
                 }
 
-                const reservedPort = $('//content').attr('reservedPort')
+                const reservedPort = $('content').attr('reservedPort')
                 if (reservedPort) {
                     pageData.value.reservedPort = reservedPort
                         .split(',')
@@ -387,7 +387,7 @@ export default defineComponent({
          * @description 验证表单通过后 更新数据
          */
         const verify = () => {
-            formRef.value?.validate((valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     setData()
                 }

@@ -27,7 +27,6 @@
 
 import featureTree from './featureTree'
 import type { RouteMeta, RouteRecordRaw } from 'vue-router'
-// import { camel2Kebab } from '../../utils/tools'
 
 export const camel2Kebab = (name: string) => {
     const arr = name.split('')
@@ -46,7 +45,7 @@ export const camel2Kebab = (name: string) => {
 
 //视图集合
 const viewComponents: Record<string, any> = {}
-const puglicPages = import.meta.glob(['@public/page/**/*.vue', '!**/IntelBase*.vue', '!**/AlarmBase*.vue', '!**/*Pop.vue', '!**/live/*.vue', '!**/playback/*.vue'])
+const puglicPages = import.meta.glob(['@public/page/**/*.vue', '!**/{Intel,Alarm,Record}Base*.vue', '!**/*Pop.vue', '!**/*Item.vue', '!**/!(Function)Panel.vue'])
 const uiPages = import.meta.glob('@ui/page/**/*.vue')
 
 // let uiPages: Record<string, any> = {} // import.meta.glob(import.meta.env.VITE_UI)

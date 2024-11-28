@@ -35,11 +35,11 @@
                         v-if="pageData.mounted"
                         ref="playerRef"
                         type="record"
-                        :split="1"
                         :enable-pos="systemCaps.supportPOS"
-                        @onready="handleReady"
-                        @ontime="handleTime"
-                        @onsuccess="handleSuccess"
+                        @ready="handleReady"
+                        @time="handleTime"
+                        @success="handleSuccess"
+                        @message="ocxNotify"
                     />
                 </div>
             </div>
@@ -99,11 +99,9 @@
                 </el-tooltip>
             </div>
         </div>
-        <template #footer>
-            <div class="base-btn-box">
-                <el-button @click="close">{{ Translate('IDCS_CLOSE') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="close">{{ Translate('IDCS_CLOSE') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 
@@ -228,7 +226,6 @@ const handleReady = () => {
             }),
         )
         playerRef.value!.plugin.GetVideoPlugin().ExecuteCmd(OCX_XML_SetRecPlayMode('SYNC'))
-        playerRef.value!.plugin.VideoPluginNotifyEmitter.addListener(ocxNotify)
         play()
     }
 }
@@ -421,7 +418,6 @@ const beforeClose = () => {
     if (mode.value === 'ocx') {
         stop()
     }
-    playerRef.value!.plugin.VideoPluginNotifyEmitter.removeListener(ocxNotify)
     pageData.value.mounted = false
 }
 
@@ -458,7 +454,7 @@ const changeChannel = (index: number) => {
 const getChannelList = async () => {
     getChlList({}).then((result) => {
         commLoadResponseHandler(result, ($) => {
-            $('//content/item').forEach((item) => {
+            $('content/item').forEach((item) => {
                 const $item = queryXml(item.element)
                 chlMapping[item.attr('id')] = {
                     chlType: $item('chlType').text(),
@@ -524,10 +520,6 @@ const ocxNotify = ($: XMLQuery) => {
 
 onMounted(() => {
     getChannelList()
-})
-
-onBeforeUnmount(() => {
-    playerRef.value?.plugin.VideoPluginNotifyEmitter.removeListener(ocxNotify)
 })
 </script>
 

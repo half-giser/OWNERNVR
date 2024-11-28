@@ -130,13 +130,13 @@ export default defineComponent({
                         const captureImg = queryXml(result1)('content').text()
                         const scenesImg = queryXml(result2)('content').text()
                         if (captureImg) {
-                            pageData.value.captureImg = 'data:image/png;base64,' + captureImg
+                            pageData.value.captureImg = wrapBase64Img(captureImg)
                         } else {
                             pageData.value.captureImg = ''
                         }
 
                         if (scenesImg) {
-                            pageData.value.scenesImg = 'data:image/png;base64,' + scenesImg
+                            pageData.value.scenesImg = wrapBase64Img(scenesImg)
                         } else {
                             pageData.value.scenesImg = ''
                         }

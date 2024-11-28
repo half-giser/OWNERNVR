@@ -12,8 +12,6 @@
         @open="filterChlsSource()"
     >
         <el-table
-            stripe
-            border
             show-overflow-tooltip
             height="287"
             :data="pageData.filterChlsSourceList"
@@ -29,16 +27,14 @@
                 </template>
             </el-table-column>
         </el-table>
-        <template #footer>
-            <div class="base-btn-box collapse">
-                <el-button @click="addItem">
-                    {{ Translate('IDCS_OK') }}
-                </el-button>
-                <el-button @click="pageData.showAddDialog = false">
-                    {{ Translate('IDCS_CANCEL') }}
-                </el-button>
-            </div>
-        </template>
+        <div class="base-btn-box collapse">
+            <el-button @click="addItem">
+                {{ Translate('IDCS_OK') }}
+            </el-button>
+            <el-button @click="pageData.showAddDialog = false">
+                {{ Translate('IDCS_CANCEL') }}
+            </el-button>
+        </div>
     </el-dialog>
     <!-- 配置弹窗 -->
     <el-dialog
@@ -47,8 +43,6 @@
         width="520"
     >
         <el-table
-            stripe
-            border
             show-overflow-tooltip
             height="287"
             :data="cfgTableData"
@@ -73,23 +67,19 @@
                 prop="value"
             />
         </el-table>
-        <template #footer>
-            <div class="tips_text_pop">{{ Translate('IDCS_CLOSE_GUARD_TIP') }}</div>
-            <div class="base-btn-box collapse">
-                <el-button @click="cfgItem">
-                    {{ Translate('IDCS_OK') }}
-                </el-button>
-                <el-button @click="pageData.showCfgDialog = false">
-                    {{ Translate('IDCS_CANCEL') }}
-                </el-button>
-            </div>
-        </template>
+        <div class="tips_text_pop">{{ Translate('IDCS_CLOSE_GUARD_TIP') }}</div>
+        <div class="base-btn-box collapse">
+            <el-button @click="cfgItem">
+                {{ Translate('IDCS_OK') }}
+            </el-button>
+            <el-button @click="pageData.showCfgDialog = false">
+                {{ Translate('IDCS_CANCEL') }}
+            </el-button>
+        </div>
     </el-dialog>
     <div class="base-flex-box">
         <div class="base-subheading-box">{{ Translate('IDCS_CONTRL_MODEL') }}</div>
         <el-form
-            ref="formRef"
-            :model="formData"
             :style="{
                 '--form-label-width': '172px',
                 '--form-input-width': '250px',
@@ -109,17 +99,15 @@
                 :label="Translate('IDCS_INPUT_SOURCE')"
                 label-width="fit-content"
             >
-                <el-select
+                <el-select-v2
                     v-model="formData.inputSource"
+                    :props="{
+                        value: 'id',
+                        label: 'value',
+                    }"
+                    :options="pageData.sensorSourcelist"
                     @change="pageData.applyDisable = false"
-                >
-                    <el-option
-                        v-for="item in pageData.sensorSourcelist"
-                        :key="item.id"
-                        :label="item.value"
-                        :value="item.id"
-                    />
-                </el-select>
+                />
             </el-form-item>
         </el-form>
         <div class="base-subheading-box subTitle2">
@@ -147,8 +135,6 @@
             <el-table
                 :data="tableData"
                 class="table"
-                stripe
-                border
                 highlight-current-row
                 show-overflow-tooltip
             >
@@ -174,8 +160,6 @@
                             </template>
                             <div class="cfg_table">
                                 <el-table
-                                    stripe
-                                    border
                                     show-overflow-tooltip
                                     height="250"
                                     :data="pageData.totalDefenseParamList"

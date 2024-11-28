@@ -56,20 +56,21 @@ const handleDblClick = () => {
 li {
     list-style: none;
     margin: 0;
-    padding: 5px 10px;
+    padding: 0 10px;
     border: 1px solid transparent;
     cursor: pointer;
     font-size: 13px;
     display: flex;
     align-items: center;
-    line-height: 20px;
+    line-height: 30px;
 
     :deep(.Sprite) {
         margin-right: 8px;
     }
 
     :deep(.el-checkbox) {
-        height: 20px;
+        height: 30px;
+        width: 100%;
     }
 
     &:hover,

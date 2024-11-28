@@ -10,7 +10,6 @@
                 '--form-label-width': '250px',
                 '--form-input-width': '340px',
             }"
-            inline-message
         >
             <el-form-item>
                 <el-checkbox
@@ -27,7 +26,6 @@
                 '--form-label-width': '250px',
                 '--form-input-width': '340px',
             }"
-            inline-message
         >
             <div class="base-subheading-box">
                 {{ Translate('IDCS_CERT_DETAILS') }}
@@ -40,8 +38,9 @@
                 <el-button
                     :disabled="pageData.isDeleteCertDisabled"
                     @click="deleteCertificate"
-                    >{{ Translate('IDCS_DELETE') }}</el-button
                 >
+                    {{ Translate('IDCS_DELETE') }}
+                </el-button>
             </el-form-item>
             <el-form-item :label="Translate('IDCS_DETAIL_INFO')">
                 <el-input
@@ -59,7 +58,6 @@
                 '--form-label-width': '250px',
                 '--form-input-width': '340px',
             }"
-            inline-message
         >
             <div class="base-subheading-box">
                 {{ Translate('IDCS_CERT_INSTALLATION') }}
@@ -85,7 +83,6 @@
                 '--form-label-width': '250px',
                 '--form-input-width': '340px',
             }"
-            inline-message
         >
             <el-form-item :label="Translate('IDCS_CERT_DETAILS')">
                 <el-button @click="createCertificate">{{ Translate('IDCS_CREATE') }}</el-button>
@@ -98,7 +95,6 @@
                 '--form-label-width': '250px',
                 '--form-input-width': '340px',
             }"
-            inline-message
         >
             <el-form-item :label="Translate('IDCS_INSTALL_SIGNED_CERT')">
                 <el-input
@@ -108,8 +104,9 @@
                 <el-button
                     v-show="!isSupportH5"
                     @click="handleOCXImport"
-                    >{{ Translate('IDCS_BROWSE') }}</el-button
                 >
+                    {{ Translate('IDCS_BROWSE') }}
+                </el-button>
                 <label
                     v-show="isSupportH5"
                     class="el-button"
@@ -124,8 +121,9 @@
                 <el-button
                     :disabled="pageData.isImportCertDirectDisabled"
                     @click="inputCertPassword"
-                    >{{ Translate('IDCS_IMPORT') }}</el-button
                 >
+                    {{ Translate('IDCS_IMPORT') }}
+                </el-button>
                 <input
                     id="h5BrowerImport2"
                     type="file"
@@ -143,14 +141,14 @@
                 '--form-label-width': '250px',
                 '--form-input-width': '340px',
             }"
-            inline-message
         >
             <el-form-item :label="Translate('IDCS_CREATE_CERT_REQUEST')">
                 <el-button
                     :disabled="pageData.isCreateCertReqDisabled"
                     @click="createCertificate"
-                    >{{ Translate('IDCS_CREATE') }}</el-button
                 >
+                    {{ Translate('IDCS_CREATE') }}
+                </el-button>
                 <el-text>{{ reqCertFormData.reqFileName || Translate('IDCS_NO_FILES') }}</el-text>
             </el-form-item>
             <!-- 导出证书请求 -->
@@ -164,21 +162,24 @@
                     v-show="!isSupportH5"
                     :disabled="pageData.isBrowseExportCertReqDisabled"
                     @click="browseExportCertificateRequest"
-                    >{{ Translate('IDCS_BROWSE') }}</el-button
                 >
+                    {{ Translate('IDCS_BROWSE') }}
+                </el-button>
                 <el-button
                     :disabled="pageData.isExportCertReqDisabled"
                     @click="exportCertificateRequest"
-                    >{{ Translate('IDCS_EXPORT') }}</el-button
                 >
+                    {{ Translate('IDCS_EXPORT') }}
+                </el-button>
             </el-form-item>
             <!-- 删除证书请求 -->
             <el-form-item :label="Translate('IDCS_CERT_REQ_DELETION')">
                 <el-button
                     :disabled="pageData.isDeleteCertReqDisabled"
                     @click="deleteCertificateRequest"
-                    >{{ Translate('IDCS_DELETE') }}</el-button
                 >
+                    {{ Translate('IDCS_DELETE') }}
+                </el-button>
             </el-form-item>
             <!-- 导入证书请求 -->
             <el-form-item :label="Translate('IDCS_INSTALL_GENERATED_CERT')">
@@ -189,8 +190,9 @@
                 <el-button
                     v-show="!isSupportH5"
                     @click="handleOCXImport"
-                    >{{ Translate('IDCS_BROWSE') }}</el-button
                 >
+                    {{ Translate('IDCS_BROWSE') }}
+                </el-button>
                 <label
                     v-show="isSupportH5"
                     class="el-button"
@@ -202,8 +204,9 @@
                 <el-button
                     :disabled="pageData.isImportCertReqDisabled"
                     @click="importCertFile()"
-                    >{{ Translate('IDCS_IMPORT') }}</el-button
                 >
+                    {{ Translate('IDCS_IMPORT') }}
+                </el-button>
                 <input
                     id="h5BrowerImport3"
                     type="file"
@@ -222,8 +225,6 @@
         >
             <el-button @click="setNetPortConfig">{{ Translate('IDCS_APPLY') }}</el-button>
         </div>
-        <BasePluginNotice />
-        <BaseNotification v-model:notifications="pageData.notifications" />
         <HttpsCertPasswordPop
             v-model="pageData.isCertPasswordPop"
             @confirm="importCertFile"

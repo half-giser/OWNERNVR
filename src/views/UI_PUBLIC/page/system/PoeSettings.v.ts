@@ -42,11 +42,11 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryPoePower()
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                pageData.value.totalPower = $('//content/totalPower').text() || '0.00'
-                pageData.value.remainPower = $('//content/remainPower').text() || '0.00'
+            if ($('status').text() === 'success') {
+                pageData.value.totalPower = $('content/totalPower').text() || '0.00'
+                pageData.value.remainPower = $('content/remainPower').text() || '0.00'
                 if (!tableData.value.length) {
-                    tableData.value = $('//content/poePort/item').map((item, index) => {
+                    tableData.value = $('content/poePort/item').map((item, index) => {
                         const $item = queryXml(item.element)
                         const id = item.attr('index')
                         const poeName = index < 10 ? '0' + index : '' + index
@@ -59,7 +59,7 @@ export default defineComponent({
                         }
                     })
                 } else {
-                    $('//content/poePort/item').forEach((item) => {
+                    $('content/poePort/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         const index = indexMapping[item.attr('index')]
                         tableData.value[index].power = $item('power').text() + 'W'

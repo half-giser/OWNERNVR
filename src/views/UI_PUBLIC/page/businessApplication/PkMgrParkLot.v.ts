@@ -184,10 +184,10 @@ export default defineComponent({
         const getParkingLotConfig = async () => {
             const result = await queryParkingLotConfig()
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                pageData.value.parkName = $('//content/basicInfo/name').text() || Translate('IDCS_PARKING_LOT')
-                pageData.value.total = $('//content/basicInfo/totalVehicleNum').text()
-                pageData.value.rest = $('//content/basicInfo/remainSpaceNum').text()
+            if ($('status').text() === 'success') {
+                pageData.value.parkName = $('content/basicInfo/name').text() || Translate('IDCS_PARKING_LOT')
+                pageData.value.total = $('content/basicInfo/totalVehicleNum').text()
+                pageData.value.rest = $('content/basicInfo/remainSpaceNum').text()
             }
         }
 
@@ -230,8 +230,8 @@ export default defineComponent({
             `
             const result = await searchGateSnap(sendXml)
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                tableData.value = $('//content/item').map((item) => {
+            if ($('status').text() === 'success') {
+                tableData.value = $('content/item').map((item) => {
                     listIndex++
 
                     const $item = queryXml(item.element)
@@ -396,8 +396,8 @@ export default defineComponent({
             `
             const result = await openGate(sendXml)
             const $ = queryXml(result)
-            if ($('//status').text() === 'fail') {
-                const errorCode = $('//errorCode').text().num()
+            if ($('status').text() === 'fail') {
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_INVALID_PARAM:
@@ -442,12 +442,12 @@ export default defineComponent({
             `
             const result = await requestSmartTargetSnapImage(sendXml)
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                const img = $('//content').text()
+            if ($('status').text() === 'success') {
+                const img = $('content').text()
                 return {
-                    master: $('//owner').text() || '--',
-                    phoneNum: $('//ownerPhone').text() || '--',
-                    img: img ? 'data:image/png;base64,' + img : '',
+                    master: $('owner').text() || '--',
+                    phoneNum: $('ownerPhone').text() || '--',
+                    img: img ? wrapBase64Img(img) : '',
                 }
             } else {
                 return {
@@ -483,24 +483,23 @@ export default defineComponent({
             await getParkingLotConfig()
             await getParkSnapConfig()
             createWebsoket()
-            for (let i = 0; i < tableData.value.length; i++) {
-                const item = tableData.value[i]
+            tableData.value.forEach(async (item) => {
                 if (item.isHistory) {
                     if (item.isEnter) {
                         const data = await getParkImg(item.enterChlId, item.enterFrameTime, item.eventType, item.enterVehicleId)
-                        tableData.value[i].master = data.master
-                        tableData.value[i].phoneNum = data.phoneNum
-                        tableData.value[i].enterImg = data.img
+                        item.master = data.master
+                        item.phoneNum = data.phoneNum
+                        item.enterImg = data.img
                     }
 
                     if (item.isExit) {
                         const data = await getParkImg(item.exitChlId, item.exitFrameTime, item.eventType, item.exitVehicleId)
-                        tableData.value[i].master = data.master
-                        tableData.value[i].phoneNum = data.phoneNum
-                        tableData.value[i].enterImg = data.img
+                        item.master = data.master
+                        item.phoneNum = data.phoneNum
+                        item.enterImg = data.img
                     }
                 }
-            }
+            })
         })
 
         onBeforeUnmount(() => {

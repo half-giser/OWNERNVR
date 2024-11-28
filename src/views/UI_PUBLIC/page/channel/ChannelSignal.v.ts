@@ -4,7 +4,7 @@
  * @Description: 通道 - 信号接入配置
  */
 
-import { type ChannelSignalDto } from '@/types/apiType/channel'
+import { ChannelSignalDto } from '@/types/apiType/channel'
 
 export default defineComponent({
     setup() {
@@ -13,9 +13,8 @@ export default defineComponent({
         const { openMessageBox } = useMessageBox()
         const cababilityStore = useCababilityStore()
 
-        const tableData = ref<ChannelSignalDto[]>([])
-        const chlSupSignalTypeList = ref<Record<string, string>[]>([])
-        const btnOkDisabled = ref(true)
+        const tableData = ref<ChannelSignalDto[]>([new ChannelSignalDto()])
+        const editWatcher = useWatchEditData(tableData)
 
         let supportLite = cababilityStore.supportLite
         let switchableIpChlMaxCount = cababilityStore.switchableIpChlMaxCount
@@ -44,10 +43,11 @@ export default defineComponent({
                 value: 'IP',
             },
         ]
+
+        const chlSupSignalTypeList = ref<SelectOption<string, string>[]>([])
         const switchOptions = getBoolSwitchOptions()
 
         const handleAnalogIpChange = (rowData: ChannelSignalDto) => {
-            btnOkDisabled.value = false
             const count = tableData.value.filter((item) => item.signal === 'D').length
             if (rowData.analogIp === 'IP') {
                 if ((switchIpChlRange[0] && rowData.id < switchIpChlRange[0] - 1) || (switchIpChlRange[1] && rowData.id > switchIpChlRange[1] - 1)) {
@@ -160,7 +160,6 @@ export default defineComponent({
             } else {
                 ipChlMaxCount.value = ipChlMaxCountOriginal
             }
-            btnOkDisabled.value = false
         }
 
         const handleSignalChangeAll = (val: string) => {
@@ -168,7 +167,6 @@ export default defineComponent({
             tableData.value.forEach((ele) => {
                 if (ele.signal !== 'D') {
                     ele.signal = val
-                    btnOkDisabled.value = false
                 }
             })
         }
@@ -178,7 +176,6 @@ export default defineComponent({
             tableData.value.forEach((ele) => {
                 ele.lite = val
             })
-            btnOkDisabled.value = false
         }
 
         const getChlListData = () => {
@@ -186,9 +183,9 @@ export default defineComponent({
             getChlList({}).then((res) => {
                 closeLoading()
                 commLoadResponseHandler(res, ($) => {
-                    $('//content/item').forEach((ele) => {
-                        const eleXml = queryXml(ele.element)
-                        if (eleXml('chlType').text() === 'digital') chls.push(parseInt(ele.attr('id').slice(7, 9), 16))
+                    $('content/item').forEach((ele) => {
+                        const $item = queryXml(ele.element)
+                        if ($item('chlType').text() === 'digital') chls.push(hexToDec(ele.attr('id').slice(7, 9)))
                     })
                 })
             })
@@ -196,6 +193,7 @@ export default defineComponent({
 
         const getData = () => {
             openLoading()
+            editWatcher.reset()
             queryBasicCfg().then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
@@ -207,15 +205,22 @@ export default defineComponent({
                     } else {
                         chlSupSignalTypeList.value.push({
                             value: ele,
-                            text: signalTrasMap[ele],
+                            label: signalTrasMap[ele],
                         })
                     }
                 })
-                if (supportCvi)
+                if (supportCvi) {
                     chlSupSignalTypeList.value.push({
                         value: 'CVI',
-                        text: signalTrasMap.CVI,
+                        label: '',
+                        options: [
+                            {
+                                value: 'CVI',
+                                label: signalTrasMap.CVI,
+                            },
+                        ],
                     })
+                }
 
                 if ($('status').text() === 'success') {
                     const analogChlCount = cababilityStore.analogChlCount
@@ -249,6 +254,7 @@ export default defineComponent({
                                 showSignal: channelSignalTypeList[i] === 'D' ? false : true,
                             }
                         })
+                    editWatcher.listen()
                 }
             })
         }
@@ -288,7 +294,7 @@ export default defineComponent({
             openLoading()
             editBasicCfg(data).then(() => {
                 closeLoading()
-                btnOkDisabled.value = true
+                editWatcher.update()
             })
         }
 
@@ -311,7 +317,7 @@ export default defineComponent({
         return {
             tableData,
             ipChlMaxCount,
-            btnOkDisabled,
+            editWatcher,
             supportLite,
             switchableIpChlMaxCount,
             chlSupSignalTypeList,

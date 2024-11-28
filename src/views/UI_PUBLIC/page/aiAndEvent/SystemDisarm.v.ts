@@ -76,10 +76,10 @@ export default defineComponent({
 
         // 获取在线的通道列表
         const getOnlineChlList = async () => {
-            const onlineChls = await queryOnlineChlList()
-            const res = queryXml(onlineChls)
-            if (res('status').text() === 'success') {
-                res('//content/item').forEach((item) => {
+            const result = await queryOnlineChlList()
+            const $ = queryXml(result)
+            if ($('status').text() === 'success') {
+                $('content/item').forEach((item) => {
                     pageData.value.onlineChlList.push(item.attr('id'))
                 })
             }
@@ -87,12 +87,12 @@ export default defineComponent({
 
         // 获取所有的通道
         const getChlListAll = async () => {
-            const chllist = await getChlList({
+            const result = await getChlList({
                 requireField: ['protocolType', 'supportManualAudioAlarmOut', 'supportManualWhiteLightAlarmOut'],
             })
-            const res = queryXml(chllist)
-            if (res('status').text() === 'success') {
-                res('//content/item').forEach((item) => {
+            const $ = queryXml(result)
+            if ($('status').text() === 'success') {
+                $('content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     const chlId = item.attr('id')
                     const chlName = $item('name').text()
@@ -106,7 +106,7 @@ export default defineComponent({
                         supportManualAudio: supportManualAudio,
                         supportManualWhiteLight: supportManualWhiteLight,
                     }
-                    pageData.value.onlineChlList.forEach((id: string) => {
+                    pageData.value.onlineChlList.forEach((id) => {
                         // 过滤不在线通道
                         if (chlId === id) {
                             pageData.value.chlAndsensorSourceList.push({
@@ -126,13 +126,13 @@ export default defineComponent({
 
         // 获取传感器源列表
         const getSensorSourceList = async () => {
-            const chllist = await getChlList({
+            const result = await getChlList({
                 nodeType: 'sensors',
             })
-            const res = queryXml(chllist)
-            if (res('status').text() === 'success') {
+            const $ = queryXml(result)
+            if ($('status').text() === 'success') {
                 let virtualMaxIdx = Number.POSITIVE_INFINITY // alarmInType==virtual节点的最大index
-                res('//content/item').forEach((item) => {
+                $('content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     let name = $item('name').text()
                     const devId = $item('devID').text()
@@ -189,13 +189,13 @@ export default defineComponent({
         }
 
         const buildData = () => {
-            querySystemDisArmParam().then(async (resb) => {
-                const res = queryXml(resb)
-                if (res('status').text() === 'success') {
-                    pageData.value.defenseSwitch = res('//content/defenseSwitch').text().bool()
-                    pageData.value.remoteSwitch = res('//content/remoteSwitch').text().bool()
-                    formData.value.sensorSwitch = res('//content/sensorSwitch').text().bool()
-                    formData.value.inputSource = res('//content/inputSourceSensor').text()
+            querySystemDisArmParam().then((result) => {
+                const $ = queryXml(result)
+                if ($('status').text() === 'success') {
+                    pageData.value.defenseSwitch = $('content/defenseSwitch').text().bool()
+                    pageData.value.remoteSwitch = $('content/remoteSwitch').text().bool()
+                    formData.value.sensorSwitch = $('content/sensorSwitch').text().bool()
+                    formData.value.inputSource = $('content/inputSourceSensor').text()
                     formData.value.inputSource =
                         formData.value.inputSource && formData.value.inputSource !== DEFAULT_EMPTY_ID
                             ? formData.value.inputSource
@@ -203,7 +203,7 @@ export default defineComponent({
                               ? pageData.value.sensorSourcelist[0].id
                               : ''
                     pageData.value.defenseParamList = []
-                    res('//types/defenseType/enum').forEach((item) => {
+                    $('types/defenseType/enum').forEach((item) => {
                         const defenseType = item.text()
                         if (defenseType !== 'nodeAudioSwitch' && defenseType !== 'nodeLightSwitch') {
                             pageData.value.defenseParamList.push({
@@ -213,7 +213,7 @@ export default defineComponent({
                         }
                     })
                     pageData.value.totalDefenseParamList = getTotalDefenseParamList(pageData.value.hasSupportManualAudioChl, pageData.value.hasSupportManualWhiteLightChl)
-                    res('//content/defenseSwitchParam/item').forEach((item) => {
+                    $('content/defenseSwitchParam/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         const row = new AlarmSystemDisarmDto()
                         const chlId = item.attr('id')
@@ -299,16 +299,16 @@ export default defineComponent({
         const setData = () => {
             const sendXml = getSaveData()
             openLoading()
-            editSystemDisArmParam(sendXml).then((resb) => {
+            editSystemDisArmParam(sendXml).then((result) => {
                 closeLoading()
-                const res = queryXml(resb)
-                if (res('status').text() === 'success') {
+                const $ = queryXml(result)
+                if ($('status').text() === 'success') {
                     openMessageBox({
                         type: 'success',
                         message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                     })
                 } else {
-                    const errorCode = res('errorcode').text().num()
+                    const errorCode = $('errorcode').text().num()
                     if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
                         openMessageBox({
                             type: 'info',
@@ -436,14 +436,14 @@ export default defineComponent({
         // 添加通道或传感器
         const addItem = () => {
             if (pageData.value.selectedChlsSourceList.length > 0) {
-                pageData.value.selectedChlsSourceList.forEach((item: { id: string; value: string; nodeType: string; supportManualAudio: boolean; supportManualWhiteLight: boolean }) => {
+                pageData.value.selectedChlsSourceList.forEach((item) => {
                     const row = new AlarmSystemDisarmDto()
                     const ipcDefenseParamList = getIpcDefenseParamList(item.supportManualAudio, item.supportManualWhiteLight)
                     let disarmItemsStr = ''
                     if (ipcDefenseParamList.length === pageData.value.defenseParamList.length) {
                         disarmItemsStr = Translate('IDCS_FULL')
                     } else {
-                        pageData.value.defenseParamList.forEach((ele: { id: string; value: string }, idx: number) => {
+                        pageData.value.defenseParamList.forEach((ele, idx) => {
                             const splicer = idx < pageData.value.defenseParamList.length - 1 ? ', ' : ''
                             disarmItemsStr += defenseParamMap[ele.id] + splicer
                         })
@@ -475,7 +475,7 @@ export default defineComponent({
             pageData.value.triggerDialogIndex = index
             pageData.value.selectedCfgList = []
             cfgTableData.value = []
-            tableData.value[pageData.value.triggerDialogIndex].disarmItems.forEach((item: { id: string; value: string }) => {
+            tableData.value[pageData.value.triggerDialogIndex].disarmItems.forEach((item) => {
                 const selected = tableData.value[pageData.value.triggerDialogIndex].disarmItemsList.some((ele: { id: string; value: string }) => {
                     return ele.id === item.id
                 })
@@ -513,14 +513,14 @@ export default defineComponent({
 
         // 点击按钮，保存所有撤防联动项配置
         const disarmCfgAll = () => {
-            tableData.value.forEach((item: AlarmSystemDisarmDto) => {
-                item.disarmItemsList = pageData.value.selectedCfgList.filter((ele: { id: string; value: string }) => {
-                    return item.disarmItems.some((ele2: { id: string; value: string }) => {
+            tableData.value.forEach((item) => {
+                item.disarmItemsList = pageData.value.selectedCfgList.filter((ele) => {
+                    return item.disarmItems.some((ele2) => {
                         return ele.id === ele2.id
                     })
                 })
                 item.disarmItemsStr = ''
-                item.disarmItemsList.forEach((ele: { id: string; value: string }, idx: number) => {
+                item.disarmItemsList.forEach((ele, idx: number) => {
                     const splicer = idx < item.disarmItemsList.length - 1 ? ', ' : ''
                     item.disarmItemsStr += defenseParamMap[ele.id] + splicer
                 })
@@ -542,7 +542,7 @@ export default defineComponent({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_S'),
             }).then(() => {
-                tableData.value.forEach((item: AlarmSystemDisarmDto) => {
+                tableData.value.forEach((item) => {
                     if (item.id === row.id) {
                         tableData.value.splice(tableData.value.indexOf(item), 1)
                     }

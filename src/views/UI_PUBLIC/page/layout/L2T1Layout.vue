@@ -301,5 +301,6 @@
 #layout2Content {
     position: relative;
     padding: 10px;
+    min-height: calc(var(--content-height) + 20px);
 }
 </style>

@@ -6,8 +6,6 @@
 <template>
     <div class="base-flex-box">
         <el-form
-            :model="formData"
-            inline-message
             class="stripe"
             :style="{
                 '--form-input-width': '200px',
@@ -21,25 +19,17 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_MAP_TYPE')">
-                <el-select
+                <el-select-v2
                     v-model="formData.mappingType"
                     :disabled="!formData.switch || pageData.wirelessSwitch"
+                    :options="pageData.mapTypeOptions"
                     @change="changeMappingType"
-                >
-                    <el-option
-                        v-for="item in pageData.mapTypeOptions"
-                        :key="item.value"
-                        :value="item.value"
-                        :label="item.label"
-                    />
-                </el-select>
+                />
             </el-form-item>
         </el-form>
         <div class="base-table-box">
             <el-table
                 :data="tableData"
-                border
-                stripe
                 :row-class-name="handleRowClassName"
             >
                 <el-table-column :label="Translate('IDCS_PORT_TYPE')">
@@ -76,13 +66,15 @@
             <el-button
                 :disabled="pageData.wirelessSwitch || pageData.pppoeSwitch"
                 @click="setData"
-                >{{ Translate('IDCS_APPLY') }}</el-button
             >
+                {{ Translate('IDCS_APPLY') }}
+            </el-button>
             <el-button
                 :disabled="pageData.wirelessSwitch || pageData.pppoeSwitch || !formData.switch"
                 @click="getData"
-                >{{ pageData.btnName }}</el-button
             >
+                {{ pageData.btnName }}
+            </el-button>
         </div>
     </div>
 </template>

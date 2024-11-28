@@ -7,9 +7,8 @@
     <div class="base-flex-box">
         <div class="base-table-box">
             <el-table
-                stripe
-                border
                 :data="tableData"
+                show-overflow-tooltip
             >
                 <el-table-column :label="Translate('IDCS_NETWORK_CARD')">
                     <template #default="scope">
@@ -18,7 +17,7 @@
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_ARP_GUARD')">
                     <template #default="scope">
-                        <el-checkbox v-model="tableData[scope.$index].arpSwitch" />
+                        <el-checkbox v-model="scope.row.arpSwitch" />
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -31,8 +30,8 @@
                 >
                     <template #default="scope">
                         <el-checkbox
-                            v-model="tableData[scope.$index].autoGetGatewayMac"
-                            :disabled="!tableData[scope.$index].arpSwitch"
+                            v-model="scope.row.autoGetGatewayMac"
+                            :disabled="!scope.row.arpSwitch"
                             @change="handleChangeAutoGetGatewayMac(scope.row, scope.$index)"
                         />
                     </template>
@@ -43,8 +42,8 @@
                 >
                     <template #default="scope">
                         <BaseMacInput
-                            v-model="tableData[scope.$index].getGatewayMac"
-                            :disabled="!tableData[scope.$index].arpSwitch || tableData[scope.$index].autoGetGatewayMac"
+                            v-model="scope.row.getGatewayMac"
+                            :disabled="!scope.row.arpSwitch || scope.row.autoGetGatewayMac"
                             @change="handleChangeMannualGatewayMac(scope.row, scope.$index)"
                         />
                     </template>
@@ -52,8 +51,8 @@
                 <el-table-column :label="Translate('IDCS_DETECTION_DEFENSE')">
                     <template #default="scope">
                         <el-checkbox
-                            v-model="tableData[scope.$index].preventDetection"
-                            :disabled="!tableData[scope.$index].arpSwitch"
+                            v-model="scope.row.preventDetection"
+                            :disabled="!scope.row.arpSwitch"
                         />
                     </template>
                 </el-table-column>
@@ -63,8 +62,9 @@
             <el-button
                 :disabled="pageData.submitDisabled"
                 @click="setData"
-                >{{ Translate('IDCS_APPLY') }}</el-button
             >
+                {{ Translate('IDCS_APPLY') }}
+            </el-button>
         </div>
     </div>
 </template>

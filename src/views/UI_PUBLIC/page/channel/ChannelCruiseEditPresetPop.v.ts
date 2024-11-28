@@ -3,7 +3,7 @@
  * @Date: 2024-08-21 17:52:33
  * @Description: 云台-巡航线-新增/编辑预置点弹窗
  */
-import type { FormInstance, FormRules } from 'element-plus'
+import type { FormRules } from 'element-plus'
 import { ChannelPtzCruisePresetDto, ChannelPtzCruisePresetForm } from '@/types/apiType/channel'
 
 export default defineComponent({
@@ -43,14 +43,19 @@ export default defineComponent({
 
         const pageData = ref({
             // 持续时间选项
-            timeOptions: [5, 10, 15, 20, 25, 30, 60, 120, 180],
+            timeOptions: [5, 10, 15, 20, 25, 30, 60, 120, 180].map((value) => {
+                return {
+                    label: getTranslateForSecond(value),
+                    value,
+                }
+            }),
             // 速度选项
-            speedOptions: [1, 2, 3, 4, 5, 6, 7, 8],
+            speedOptions: arrayToOptions([1, 2, 3, 4, 5, 6, 7, 8]),
             // 预置点选项
             nameOptions: [] as SelectOption<number, string>[],
         })
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new ChannelPtzCruisePresetForm())
         const formRule = ref<FormRules>({
             name: [
@@ -71,7 +76,6 @@ export default defineComponent({
          * @description 打开弹窗时重置表单
          */
         const open = () => {
-            formRef.value?.clearValidate()
             getList()
 
             if (prop.type === 'add') {
@@ -133,7 +137,6 @@ export default defineComponent({
             formData,
             formRule,
             open,
-            getTranslateForSecond,
             confirm,
             close,
         }

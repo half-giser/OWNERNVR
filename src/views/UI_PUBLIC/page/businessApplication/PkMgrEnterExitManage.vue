@@ -10,8 +10,6 @@
                 class="tableView"
                 :data="tableData"
                 show-overflow-tooltip
-                stripe
-                border
             >
                 <el-table-column
                     type="index"
@@ -28,17 +26,10 @@
                     :label="Translate('IDCS_DIRECTION')"
                 >
                     <template #default="scope">
-                        <el-select
+                        <el-select-v2
                             v-model="scope.row.direction"
-                            collapse-tags-tooltip
-                        >
-                            <el-option
-                                v-for="item in pageData.directionList"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            />
-                        </el-select>
+                            :options="pageData.directionList"
+                        />
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -70,18 +61,11 @@
                     :label="Translate('IDCS_RELATION_LED_SCREEN')"
                 >
                     <template #default="scope">
-                        <el-select
+                        <el-select-v2
                             v-model="scope.row.LEDScreenType"
-                            collapse-tags-tooltip
+                            :options="pageData.screenList"
                             :disabled="!scope.row.LEDScreenTypeValid"
-                        >
-                            <el-option
-                                v-for="item in pageData.screenList"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            />
-                        </el-select>
+                        />
                     </template>
                 </el-table-column>
             </el-table>
@@ -90,8 +74,9 @@
             <el-button
                 :disabled="pageData.btnDisabled"
                 @click="apply()"
-                >{{ Translate('IDCS_APPLY') }}</el-button
             >
+                {{ Translate('IDCS_APPLY') }}
+            </el-button>
         </div>
     </div>
 </template>

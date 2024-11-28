@@ -45,7 +45,12 @@ export default defineComponent({
             // 时间服务器选项
             timeServerOptions: [] as SelectOption<string, string>[],
             // 时区选项
-            timeZoneOption: DEFAULT_TIME_ZONE,
+            timeZoneOption: DEFAULT_TIME_ZONE.map((item, index) => {
+                return {
+                    ...item,
+                    label: Translate('IDCS_TIME_ZONE_' + (index + 1)),
+                }
+            }),
             // 系统时间最小值
             serverTimeStart: new Date(2010, 0, 1),
             // 系统时间最大值
@@ -122,43 +127,43 @@ export default defineComponent({
             const result = await queryTimeCfg()
             const $ = queryXml(result)
 
-            pageData.value.syncTypeOptions = $('//types/synchronizeType/enum').map((item) => {
+            pageData.value.syncTypeOptions = $('types/synchronizeType/enum').map((item) => {
                 return {
                     value: item.text(),
                     label: SYNC_TYPE_MAPPING[item.text()],
                 }
             })
 
-            formData.value.dateFormat = $('//content/formatInfo/date').text()
-            pageData.value.dateFormatOptions = $('//types/dateFormat/enum').map((item) => {
+            formData.value.dateFormat = $('content/formatInfo/date').text()
+            pageData.value.dateFormatOptions = $('types/dateFormat/enum').map((item) => {
                 return {
                     value: item.text(),
                     label: DATE_FORMAT_MAPPING[item.text()],
                 }
             })
 
-            formData.value.timeFormat = $('//content/formatInfo/time').text()
-            pageData.value.timeFormatOptions = $('//types/timeFormat/enum').map((item) => {
+            formData.value.timeFormat = $('content/formatInfo/time').text()
+            pageData.value.timeFormatOptions = $('types/timeFormat/enum').map((item) => {
                 return {
                     value: item.text(),
                     label: TIME_FORMAT_MAPPING[item.text()],
                 }
             })
 
-            formData.value.syncType = $('//content/synchronizeInfo/type').text()
+            formData.value.syncType = $('content/synchronizeInfo/type').text()
 
-            formData.value.timeServer = $('//content/synchronizeInfo/ntpServer').text().trim()
-            pageData.value.timeServerOptions = $('//types/ntpServerType/enum').map((item) => {
+            formData.value.timeServer = $('content/synchronizeInfo/ntpServer').text().trim()
+            pageData.value.timeServerOptions = $('types/ntpServerType/enum').map((item) => {
                 return {
                     value: item.text(),
                     label: item.text(),
                 }
             })
 
-            formData.value.timeZone = $('//content/timezoneInfo/timeZone').text()
-            formData.value.enableDST = $('//content/timezoneInfo/daylightSwitch').text().bool()
+            formData.value.timeZone = $('content/timezoneInfo/timeZone').text()
+            formData.value.enableDST = $('content/timezoneInfo/daylightSwitch').text().bool()
 
-            let currentDate = dayjs($('//content/synchronizeInfo/currentTime').text().trim(), formatSystemTime.value).toDate()
+            let currentDate = dayjs($('content/synchronizeInfo/currentTime').text().trim(), formatSystemTime.value).toDate()
             if (currentDate < pageData.value.serverTimeStart) {
                 currentDate = pageData.value.serverTimeStart
             } else if (currentDate > pageData.value.serverTimeEnd) {
@@ -228,15 +233,6 @@ export default defineComponent({
         })
 
         /**
-         * @description 时区文本显示
-         * @param {number} index
-         * @returns {string}
-         */
-        const displayTimeZone = (index: number) => {
-            return Translate('IDCS_TIME_ZONE_' + (index + 1))
-        }
-
-        /**
          * @description 日历组件选择时间
          */
         const handleSystemTimeChange = () => {
@@ -282,7 +278,6 @@ export default defineComponent({
             setData,
             handleIsSyncChange,
             pendingSystemTimeChange,
-            displayTimeZone,
             handleSystemTimeChange,
             handleSyncTypeChange,
         }

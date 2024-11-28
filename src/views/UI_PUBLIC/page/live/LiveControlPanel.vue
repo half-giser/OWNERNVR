@@ -167,51 +167,34 @@
                 }"
             >
                 <el-form-item :label="Translate('IDCS_RESOLUTION_RATE')">
-                    <el-select
+                    <el-select-v2
                         v-model="streamFormData.resolution"
                         :disabled="streamOptionDisabled"
+                        :options="pageData.resolutionOptions"
                         @change="changeResolution"
-                    >
-                        <el-option
-                            v-for="item in pageData.resolutionOptions"
-                            :key="item.value"
-                            :value="item.value"
-                            :label="item.label"
-                        />
-                    </el-select>
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_FRAME_RATE')">
-                    <el-select
+                    <el-select-v2
                         v-model="streamFormData.frameRate"
                         :disabled="streamOptionDisabled"
-                    >
-                        <el-option
-                            v-for="frameRate in pageData.maxFps"
-                            :key="frameRate"
-                            :label="frameRate"
-                            :value="frameRate"
-                        />
-                    </el-select>
+                        :options="fpsOptions"
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_VIDEO_QUALITY')">
-                    <el-select
+                    <el-select-v2
                         v-model="streamFormData.quality"
                         :disabled="streamOptionDisabled || streamQualityDisabled"
-                    >
-                        <el-option
-                            v-for="item in displayQualityOptions"
-                            :key="item.value"
-                            :label="item.label"
-                            :value="item.value"
-                        />
-                    </el-select>
+                        :options="displayQualityOptions"
+                    />
                 </el-form-item>
                 <div class="base-btn-box">
                     <el-button
                         :disabled="pageData.isRTSP"
                         @click="setStreamData"
-                        >{{ Translate('IDCS_APPLY') }}</el-button
                     >
+                        {{ Translate('IDCS_APPLY') }}
+                    </el-button>
                 </div>
             </el-form>
         </div>

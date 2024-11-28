@@ -4,7 +4,7 @@
  * @Description: 新增轨迹弹窗
  */
 import { type ChannelPtzTraceDto } from '@/types/apiType/channel'
-import type { FormInstance, FormRules } from 'element-plus'
+import type { FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -43,7 +43,7 @@ export default defineComponent({
         const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref({
             name: '',
         })
@@ -72,9 +72,6 @@ export default defineComponent({
          * @description 打开弹窗时，重置表单和选项数据
          */
         const open = () => {
-            formRef.value?.clearValidate()
-            formRef.value?.resetFields()
-
             const traceIndex = prop.trace.map((item) => item.index)
             const traceOptions = Array(prop.max)
                 .fill(0)
@@ -109,7 +106,7 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
@@ -117,7 +114,7 @@ export default defineComponent({
                     ctx.emit('confirm')
                 })
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_NAME_EXISTED:
@@ -138,7 +135,7 @@ export default defineComponent({
          * @description 验证表单
          */
         const verify = () => {
-            formRef.value?.validate((valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     setData()
                 }

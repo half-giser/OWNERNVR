@@ -12,14 +12,10 @@
             }"
         >
             <el-form-item :label="Translate('IDCS_UPGRADE_OPTIONS')">
-                <el-select v-model="formData.upgradeType">
-                    <el-option
-                        v-for="item in pageData.upgradeOptions"
-                        :key="item.value"
-                        :value="item.value"
-                        :label="item.label"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="formData.upgradeType"
+                    :options="pageData.upgradeOptions"
+                />
             </el-form-item>
             <el-form-item>
                 <el-form-item :label="Translate('IDCS_ONLINE_UPGRADE_CURRENT_VER')">
@@ -54,13 +50,15 @@
                 <el-button
                     :disabled="!pageData.isUpdateNotify || pageData.isLatest || pageData.isDownloading"
                     @click="upgrade"
-                    >{{ Translate('IDCS_UPGRADE') }}</el-button
                 >
+                    {{ Translate('IDCS_UPGRADE') }}
+                </el-button>
                 <el-button
                     :disabled="!pageData.isUpdateNotify || pageData.isDownloading"
                     @click="getVersion"
-                    >{{ Translate('IDCS_ONLINE_UPGRADE_CHECK') }}</el-button
                 >
+                    {{ Translate('IDCS_ONLINE_UPGRADE_CHECK') }}
+                </el-button>
                 <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>
             </div>
         </el-form>

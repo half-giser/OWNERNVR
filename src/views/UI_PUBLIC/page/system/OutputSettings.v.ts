@@ -4,7 +4,7 @@
  * @Description: 输出配置
  */
 import { type XmlResult } from '@/utils/xmlParse'
-import OutputSplitTemplate from './OutputSplitTemplate.vue'
+import OutputTemplateItem from './OutputTemplateItem.vue'
 import OutputAddViewPop, { type ChlsDto, type ChlGroupData } from './OutputAddViewPop.vue'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import ChannelGroupEditPop from '../channel/ChannelGroupEditPop.vue'
@@ -62,7 +62,7 @@ interface DecoderCardMap {
 export default defineComponent({
     components: {
         BaseCheckAuthPop,
-        OutputSplitTemplate,
+        OutputTemplateItem,
         OutputAddViewPop,
         ChannelGroupEditPop,
         ChannelGroupAddPop,
@@ -100,7 +100,12 @@ export default defineComponent({
             // 当前通道列表选中的通道
             activeChl: '',
             // 轮询时间选项 （秒）
-            dwellTimeOptions: [5, 10, 15, 20, 30, 40, 60],
+            dwellTimeOptions: [5, 10, 15, 20, 30, 40, 60].map((value) => {
+                return {
+                    value,
+                    label: getTranslateForSecond(value),
+                }
+            }),
             // 是否轮询复选框
             dwellCheckbox: false,
             // 轮询开关
@@ -235,15 +240,6 @@ export default defineComponent({
                 return value.timeInterval
             } else return 0
         })
-
-        /**
-         * @description 轮询选项的文本显示
-         * @param {number} value
-         * @returns {string}
-         */
-        const displayDwellTimeLabel = (value: number) => {
-            return getTranslateForSecond(value)
-        }
 
         /**
          * @description 根据通道id与通道名的映射，回显窗口的通道名
@@ -602,7 +598,7 @@ export default defineComponent({
             closeLoading()
 
             if ($('status').text() === 'success') {
-                cacheChlListOfGroup[id] = $('//chlList/item').map((item) => {
+                cacheChlListOfGroup[id] = $('content/chlList/item').map((item) => {
                     return {
                         id: item.attr('id'),
                         value: item.text(),
@@ -685,7 +681,7 @@ export default defineComponent({
             const $ = queryXml(result)
 
             // 解码卡排序
-            const decoderResXml = $('//decoderContent/decoder')
+            const decoderResXml = $('content/decoderContent/decoder')
             decoderResXml.sort((a, b) => {
                 return a.attr('id').num() - b.attr('id').num()
             })
@@ -851,9 +847,9 @@ export default defineComponent({
         const getSystemWorkMode = async () => {
             const result = await querySystemWorkMode()
             const $ = queryXml(result)
-            const supportAI = $('//supportAI').text().bool()
-            const is3535A = $('//openSubOutput').length > 0
-            const openSubOutput = $('//openSubOutput').text().bool()
+            const supportAI = $('content/supportAI').text().bool()
+            const is3535A = $('content/openSubOutput').length > 0
+            const openSubOutput = $('content/openSubOutput').text().bool()
             // 只有3535A且支持AI的机型才会有辅输出开关
             if (supportAI && is3535A) {
                 pageData.value.isConfigSwitch = true
@@ -1163,6 +1159,25 @@ export default defineComponent({
             }
         }
 
+        const hdmiInOptions = computed(() => {
+            if (pageData.value.tabId === 0) {
+                return []
+            }
+            return [
+                {
+                    value: 0,
+                    label: Translate('IDCS_NULL'),
+                },
+            ].concat(
+                Object.keys(decoderCardMap.value[pageData.value.tabId].decoderDwellData).map((key) => {
+                    return {
+                        value: Number(key) + 1,
+                        label: `${Translate('IDCS_OUTPUT')}${Number(key) + 1}`,
+                    }
+                }),
+            )
+        })
+
         onMounted(async () => {
             openLoading()
             await getChlsList()
@@ -1190,7 +1205,6 @@ export default defineComponent({
             activeViewItem,
             getChlGroupList,
             addView,
-            displayDwellTimeLabel,
             changeSplit,
             collectView,
             clearSplitData,
@@ -1220,9 +1234,10 @@ export default defineComponent({
             outputType,
             closeEditChlGroup,
             closeAddChlGroup,
+            hdmiInOptions,
 
             BaseCheckAuthPop,
-            OutputSplitTemplate,
+            OutputTemplateItem,
             OutputAddViewPop,
             ChannelGroupEditPop,
             ChannelGroupAddPop,

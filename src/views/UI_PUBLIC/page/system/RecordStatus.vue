@@ -6,8 +6,6 @@
 <template>
     <div class="base-flex-box">
         <el-table
-            stripe
-            border
             :data="tableData"
             height="100%"
             show-overflow-tooltip

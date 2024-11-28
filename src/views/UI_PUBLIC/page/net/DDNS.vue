@@ -9,7 +9,6 @@
             ref="formRef"
             :model="formData"
             :rules="formRule"
-            inline-message
             class="stripe"
             :style="{
                 '--form-input-width': '340px',
@@ -22,18 +21,16 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_DDNS_SERVER_TYPE')">
-                <el-select
+                <el-select-v2
                     v-model="formData.serverType"
+                    :options="pageData.serverTypeOptions"
                     :disabled="!formData.switch"
+                    :props="{
+                        label: 'display',
+                        value: 'serverType',
+                    }"
                     @change="changeServerType"
-                >
-                    <el-option
-                        v-for="item in pageData.serverTypeOptions"
-                        :key="item.serverType"
-                        :label="item.display"
-                        :value="item.serverType"
-                    />
-                </el-select>
+                />
             </el-form-item>
             <el-form-item
                 :label="Translate('IDCS_SERVER_ADDRESS')"
@@ -107,14 +104,16 @@
                     v-show="current.isRegisterBtn"
                     :disabled="!formData.switch"
                     @click="test"
-                    >{{ Translate('IDCS_REGISTER') }}</el-button
                 >
+                    {{ Translate('IDCS_REGISTER') }}
+                </el-button>
                 <el-button
                     v-show="current.isTestBtn"
                     :disabled="!formData.switch"
                     @click="test"
-                    >{{ Translate('IDCS_TEST') }}</el-button
                 >
+                    {{ Translate('IDCS_TEST') }}
+                </el-button>
                 <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>
             </div>
         </el-form>

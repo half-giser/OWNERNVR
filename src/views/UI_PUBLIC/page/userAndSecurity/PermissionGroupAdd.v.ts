@@ -5,7 +5,7 @@
  */
 import { UserPermissionSystemAuthList, UserPermissionChannelAuthList } from '@/types/apiType/userAndSecurity'
 import { UserPermissionGroupAddForm } from '@/types/apiType/userAndSecurity'
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormRules } from 'element-plus'
 import type { XMLQuery } from '@/utils/xmlParse'
 import PermissionGroupInfoPop from './PermissionGroupInfoPop.vue'
 
@@ -21,7 +21,7 @@ export default defineComponent({
         const router = useRouter()
         const systemCaps = useCababilityStore()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new UserPermissionGroupAddForm())
 
         const rules = ref<FormRules>({
@@ -82,7 +82,7 @@ export default defineComponent({
                 commLoadResponseHandler(result, ($) => {
                     getSystemAuth($)
                     getChannelAuth($, true)
-                    getAuthGroupName($('//content/name').text())
+                    getAuthGroupName($('content/name').text())
                 })
             }
             // 从新建入口进来，所有选项默认为false
@@ -110,7 +110,7 @@ export default defineComponent({
             const result = await queryAuthGroupList(sendXml)
             const $ = queryXml(result)
 
-            const nameList = $('//content/item').map((item) => {
+            const nameList = $('content/item').map((item) => {
                 const $item = queryXml(item.element)
                 return $item('name').text()
             })
@@ -130,8 +130,8 @@ export default defineComponent({
          * @param {Function} $doc
          */
         const getSystemAuth = ($doc: XMLQuery) => {
-            const $ = queryXml($doc('//content/systemAuth')[0].element)
-            Object.keys(systemAuthList.value).forEach((classify: string) => {
+            const $ = queryXml($doc('content/systemAuth')[0].element)
+            Object.keys(systemAuthList.value).forEach((classify) => {
                 Object.keys(systemAuthList.value[classify].value).forEach((key) => {
                     systemAuthList.value[classify].value[key].value = $(key).text().bool()
                 })
@@ -148,7 +148,7 @@ export default defineComponent({
          */
         const getChannelAuth = ($: XMLQuery, isQueryFromGroupID: boolean) => {
             if (isQueryFromGroupID) {
-                channelAuthList.value = $('//content/chlAuth/item').map((item) => {
+                channelAuthList.value = $('content/chlAuth/item').map((item) => {
                     const arrayItem = new UserPermissionChannelAuthList()
                     const $item = queryXml(item.element)
                     arrayItem.id = item.attr('id')
@@ -156,21 +156,21 @@ export default defineComponent({
                     const auth = $item('auth').text()
                     DEFAULT_CHANNEL_AUTH_LIST.forEach((key) => {
                         if (auth.includes(key)) {
-                            arrayItem[key] = Translate('IDCS_ON')
+                            arrayItem[key] = 'true'
                         } else {
-                            arrayItem[key] = Translate('IDCS_OFF')
+                            arrayItem[key] = 'false'
                         }
                     })
                     return arrayItem
                 })
             } else {
-                channelAuthList.value = $('//content/item').map((item) => {
+                channelAuthList.value = $('content/item').map((item) => {
                     const arrayItem = new UserPermissionChannelAuthList()
                     const $item = queryXml(item.element)
                     arrayItem.id = item.attr('id')
                     arrayItem.name = $item('name').text()
                     DEFAULT_CHANNEL_AUTH_LIST.forEach((key) => {
-                        arrayItem[key] = Translate('IDCS_OFF')
+                        arrayItem[key] = 'false'
                     })
                     return arrayItem
                 })
@@ -192,7 +192,7 @@ export default defineComponent({
          * @description 验证表单，通过后打开授权弹窗
          */
         const verify = () => {
-            formRef.value?.validate((valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     doCreateAuthGroup()
                 }
@@ -218,7 +218,7 @@ export default defineComponent({
                             .map((item) => {
                                 return rawXml`
                                     <item id="${item.id}">
-                                        ${wrapCDATA(DEFAULT_CHANNEL_AUTH_LIST.filter((key) => item[key] === Translate('IDCS_ON')).join(','))}
+                                        ${wrapCDATA(DEFAULT_CHANNEL_AUTH_LIST.filter((key) => item[key] === 'true').join(','))}
                                     </item>
                                 `
                             })
@@ -242,10 +242,10 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 goBack()
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_NAME_EXISTED:

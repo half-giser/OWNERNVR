@@ -10,8 +10,7 @@
                 <div class="player">
                     <BaseVideoPlayer
                         ref="playerRef"
-                        :split="1"
-                        @onready="onReady"
+                        @ready="onReady"
                     />
                 </div>
                 <el-form
@@ -22,38 +21,26 @@
                     }"
                 >
                     <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                        <el-select v-model="pageData.activeChannelIndex">
-                            <el-option
-                                v-for="(item, index) in channelList"
-                                :key="index"
-                                :value="index"
-                                :label="item.name"
-                            />
-                        </el-select>
+                        <el-select-v2
+                            v-model="pageData.activeChannelIndex"
+                            :options="chlOptions"
+                        />
                     </el-form-item>
                     <el-form-item
                         v-if="channelList[pageData.activeChannelIndex]"
                         :label="Translate('IDCS_PREVIEW')"
                     >
-                        <el-select
+                        <el-select-v2
                             v-model="channelList[pageData.activeChannelIndex].switch"
+                            :options="pageData.channelOptions"
                             @change="pageData.buttonDisabled = false"
-                        >
-                            <el-option
-                                v-for="item in pageData.channelOptions"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="Translate(item.label)"
-                            />
-                        </el-select>
+                        />
                     </el-form-item>
                 </el-form>
             </div>
             <div class="right base-table-box">
                 <el-table
                     :data="channelList"
-                    border
-                    stripe
                     flexible
                     show-overflow-tooltip
                     :row-class-name="(item) => (item.rowIndex === pageData.activeChannelIndex ? 'active' : '')"
@@ -83,17 +70,11 @@
                             </el-dropdown>
                         </template>
                         <template #default="{ $index }">
-                            <el-select
+                            <el-select-v2
                                 v-model="channelList[$index].switch"
+                                :options="pageData.channelOptions"
                                 @change="pageData.buttonDisabled = false"
-                            >
-                                <el-option
-                                    v-for="value in pageData.channelOptions"
-                                    :key="value.value"
-                                    :label="value.label"
-                                    :value="value.value"
-                                />
-                            </el-select>
+                            />
                         </template>
                     </el-table-column>
                 </el-table>
@@ -103,8 +84,9 @@
             <el-button
                 :disabled="pageData.buttonDisabled"
                 @click="setData"
-                >{{ Translate('IDCS_APPLY') }}</el-button
             >
+                {{ Translate('IDCS_APPLY') }}
+            </el-button>
         </div>
     </div>
 </template>

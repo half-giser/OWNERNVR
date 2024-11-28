@@ -3,7 +3,7 @@
  * @Date: 2024-05-22 17:18:32
  * @Description: 添加通道 - 激活IPC弹窗
  */
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormRules } from 'element-plus'
 import { type ChannelQuickAddDto } from '@/types/apiType/channel'
 
 export default defineComponent({
@@ -22,7 +22,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
         const userSessionStore = useUserSessionStore()
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref({
             password: '',
             confirmPassword: '',
@@ -65,14 +65,13 @@ export default defineComponent({
             ],
         })
 
-        const opened = () => {
-            formRef.value?.clearValidate()
-            formRef.value?.resetFields()
+        const close = () => {
+            formRef.value!.resetFields()
             useDefaultPwdSwitch.value = false
         }
 
         const save = () => {
-            formRef.value?.validate((valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     const sendXml = rawXml`
                         <content>
@@ -109,7 +108,7 @@ export default defineComponent({
             formData,
             useDefaultPwdSwitch,
             rules,
-            opened,
+            close,
             save,
         }
     },

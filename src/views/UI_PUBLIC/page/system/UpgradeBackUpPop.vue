@@ -8,7 +8,7 @@
         :title="Translate('IDCS_BACKUP')"
         width="450"
         :show-close="false"
-        @opened="opened"
+        @closed="formRef?.resetFields()"
     >
         <el-form
             ref="formRef"
@@ -17,7 +17,6 @@
             :style="{
                 '--form-input-width': '250px',
             }"
-            class="form"
         >
             <el-form-item
                 :label="Translate('IDCS_PATH')"
@@ -36,11 +35,9 @@
                 </el-button>
             </el-form-item>
         </el-form>
-        <template #footer>
-            <div class="base-btn-box">
-                <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 

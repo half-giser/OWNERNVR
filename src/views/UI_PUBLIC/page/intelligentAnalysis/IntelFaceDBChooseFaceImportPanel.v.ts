@@ -4,7 +4,6 @@
  * @Description: 智能分析 - 选择人脸 - 从外部导入
  */
 import { type IntelFaceDBImportImgDto, IntelFaceDBImportFaceDto } from '@/types/apiType/intelligentAnalysis'
-import { type XMLQuery } from '@/utils/tools'
 
 export default defineComponent({
     props: {
@@ -36,33 +35,76 @@ export default defineComponent({
         },
     },
     setup(prop, ctx) {
-        const Plugin = inject('Plugin') as PluginType
         const { Translate } = useLangStore()
         const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
 
         const DEFAULT_BIRTHDAY = formatDate(new Date(), 'YYYY/MM/DD')
 
-        const mode = computed(() => {
-            return Plugin.IsSupportH5() || prop.type === 'h5-only' ? 'h5' : 'ocx'
-        })
-
-        watch(
-            mode,
-            (newVal) => {
-                // if (newVal !== 'h5' && !Plugin.IsPluginAvailable) {
-                //     pluginStore.showPluginNoResponse = true
-                //     Plugin.ShowPluginNoResponse()
-                // }
-                if (newVal === 'ocx' && prop.type === 'both') {
+        const plugin = usePluginHook({
+            onReady: (mode, plugin) => {
+                if (mode.value === 'ocx' && prop.type === 'both') {
                     const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
-                    Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 }
             },
-            {
-                immediate: true,
+            onMessage: ($) => {
+                if ($('statenotify[@type="UploadIPCAudioBase64"]').length) {
+                    const $item = queryXml($('statenotify')[0].element)
+                    if ($item('status').text() === 'success') {
+                        const fileBase64 = $item('base64').text()
+                        // const fileSize = $item('filesize').text()
+                        const filePath = $item('filePath').text()
+                        const fileName = filePath.replace(/\\/g, '/').split('/').pop()!
+                        const file = base64ToFile(fileBase64, fileName)
+                        ocxData.uploadFileList.push(file)
+                    } else {
+                        const errorCode = $item('errorCode').text().num()
+                        switch (errorCode) {
+                            case ErrorCode.USER_ERROR_KEYBOARDINDEX_ERROR:
+                                closeLoading()
+                                resetOCXData()
+                                openMessageBox({
+                                    type: 'info',
+                                    message: Translate('IDCS_ADD_FACE_FAIL') + ',' + Translate('IDCS_PICTURE_SIZE_LIMIT_TIP'),
+                                })
+                                return
+                            case ErrorCode.USER_ERROR_SPECIAL_CHAR_2:
+                                closeLoading()
+                                resetOCXData()
+                                openMessageBox({
+                                    type: 'info',
+                                    message: Translate('IDCS_FILE_NOT_AVAILABLE'),
+                                })
+                                return
+                        }
+                    }
+
+                    if (ocxData.fileIndex === ocxData.fileList.length - 1) {
+                        closeLoading()
+                        parseFiles(ocxData.uploadFileList)
+                    } else {
+                        ocxData.fileIndex++
+                        uploadOCXFile()
+                    }
+                }
+                //网络断开
+                else if ($('statenotify[@type="FileNetTransport"]').length) {
+                    closeLoading()
+                    resetOCXData()
+                    if ($('statenotify/errorCode').text().num() === ErrorCode.USER_ERROR_NODE_NET_DISCONNECT) {
+                        openMessageBox({
+                            type: 'info',
+                            message: Translate('IDCS_OCX_NET_DISCONNECT'),
+                        })
+                    }
+                }
             },
-        )
+        })
+
+        const mode = computed(() => {
+            return plugin.IsSupportH5() || prop.type === 'h5-only' ? 'h5' : 'ocx'
+        })
 
         // 性别key值与value值的映射
         const SEX_MAPPING: Record<number, string> = {
@@ -163,7 +205,7 @@ export default defineComponent({
                 }
                 const reader = new FileReader()
                 reader.readAsText(file)
-                reader.onloadend = async () => {
+                reader.onloadend = () => {
                     const separator = fileType === 'txt' ? '\t' : ','
                     try {
                         const map = formatDataFile(reader.result as string, separator)
@@ -314,7 +356,7 @@ export default defineComponent({
          */
         const handleOCXImport = () => {
             const sendXML = OCX_XML_OpenFileBrowser('OPEN_FILE', '', '', true, '*.csv,*.txt,*.jpg,*.jpeg')
-            Plugin.AsynQueryInfo(Plugin.GetVideoPlugin(), sendXML, (result) => {
+            plugin.AsynQueryInfo(plugin.GetVideoPlugin(), sendXML, (result) => {
                 const path = OCX_XML_OpenFileBrowser_getpath(result).trim()
                 if (path) {
                     const fileList = path.split('|')
@@ -336,7 +378,7 @@ export default defineComponent({
         const uploadOCXFile = () => {
             const filePath = ocxData.fileList[ocxData.fileIndex]
             const sendXML = OCX_XML_UploadIPCAudioBase64(filePath)
-            Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+            plugin.GetVideoPlugin().ExecuteCmd(sendXML)
         }
 
         /**
@@ -347,75 +389,6 @@ export default defineComponent({
             ocxData.fileIndex = 0
             ocxData.uploadFileList = []
         }
-
-        /**
-         * @description OCX通知回调
-         * @param {Function} $
-         */
-        const notify = ($: XMLQuery) => {
-            if ($('statenotify[@type="UploadIPCAudioBase64"]').length) {
-                const $item = queryXml($('statenotify')[0].element)
-                if ($item('status').text() === 'success') {
-                    const fileBase64 = $item('base64').text()
-                    // const fileSize = $item('filesize').text()
-                    const filePath = $item('filePath').text()
-                    const fileName = filePath.replace(/\\/g, '/').split('/').pop()!
-                    const file = base64ToFile(fileBase64, fileName)
-                    ocxData.uploadFileList.push(file)
-                } else {
-                    const errorCode = $item('errorCode').text().num()
-                    switch (errorCode) {
-                        case ErrorCode.USER_ERROR_KEYBOARDINDEX_ERROR:
-                            closeLoading()
-                            resetOCXData()
-                            openMessageBox({
-                                type: 'info',
-                                message: Translate('IDCS_ADD_FACE_FAIL') + ',' + Translate('IDCS_PICTURE_SIZE_LIMIT_TIP'),
-                            })
-                            return
-                        case ErrorCode.USER_ERROR_SPECIAL_CHAR_2:
-                            closeLoading()
-                            resetOCXData()
-                            openMessageBox({
-                                type: 'info',
-                                message: Translate('IDCS_FILE_NOT_AVAILABLE'),
-                            })
-                            return
-                    }
-                }
-
-                if (ocxData.fileIndex === ocxData.fileList.length - 1) {
-                    closeLoading()
-                    parseFiles(ocxData.uploadFileList)
-                } else {
-                    ocxData.fileIndex++
-                    uploadOCXFile()
-                }
-            }
-            //网络断开
-            else if ($('statenotify[@type="FileNetTransport"]').length) {
-                closeLoading()
-                resetOCXData()
-                if ($('statenotify/errorCode').text().num() === ErrorCode.USER_ERROR_NODE_NET_DISCONNECT) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_OCX_NET_DISCONNECT'),
-                    })
-                }
-            }
-        }
-
-        onMounted(() => {
-            if (prop.type === 'both') {
-                Plugin.VideoPluginNotifyEmitter.addListener(notify)
-            }
-        })
-
-        onBeforeUnmount(() => {
-            if (prop.type === 'both') {
-                Plugin.VideoPluginNotifyEmitter.removeListener(notify)
-            }
-        })
 
         return {
             mode,

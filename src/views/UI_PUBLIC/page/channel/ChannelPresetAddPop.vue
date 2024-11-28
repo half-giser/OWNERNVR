@@ -8,6 +8,7 @@
         :title="Translate('IDCS_ADD_PRESET')"
         width="500"
         @open="open"
+        @closed="formRef?.resetFields()"
     >
         <el-form
             ref="formRef"
@@ -15,14 +16,10 @@
             :model="formData"
         >
             <el-form-item :label="Translate('IDCS_PRESET')">
-                <el-select v-model="formData.index">
-                    <el-option
-                        v-for="item in pageData.presetOptions"
-                        :key="item"
-                        :value="item"
-                        :label="item"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="formData.index"
+                    :options="pageData.presetOptions"
+                />
             </el-form-item>
             <el-form-item
                 :label="Translate('IDCS_PRESET_NAME')"
@@ -35,16 +32,15 @@
                 />
             </el-form-item>
         </el-form>
-        <template #footer>
-            <div class="base-btn-box">
-                <el-button
-                    :disabled="!pageData.presetOptions.length"
-                    @click="verify"
-                    >{{ Translate('IDCS_OK') }}</el-button
-                >
-                <el-button @click="close()">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button
+                :disabled="!pageData.presetOptions.length"
+                @click="verify"
+            >
+                {{ Translate('IDCS_OK') }}
+            </el-button>
+            <el-button @click="close()">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 

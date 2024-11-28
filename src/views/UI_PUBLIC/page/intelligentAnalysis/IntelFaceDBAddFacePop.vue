@@ -10,7 +10,7 @@
         @open="open"
     >
         <div>
-            <el-form ref="formRef">
+            <el-form>
                 <el-form-item>
                     <el-form-item :label="Translate('IDCS_NAME_PERSON')">
                         <el-input
@@ -20,14 +20,10 @@
                         />
                     </el-form-item>
                     <el-form-item :label="Translate('IDCS_SEX')">
-                        <el-select v-model="formData[0].sex">
-                            <el-option
-                                v-for="item in pageData.genderOptions"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            />
-                        </el-select>
+                        <el-select-v2
+                            v-model="formData[0].sex"
+                            :options="pageData.genderOptions"
+                        />
                     </el-form-item>
                 </el-form-item>
                 <el-form-item>
@@ -40,14 +36,10 @@
                         />
                     </el-form-item>
                     <el-form-item :label="Translate('IDCS_ID_TYPE')">
-                        <el-select v-model="formData[pageData.formIndex].certificateType">
-                            <el-option
-                                v-for="item in pageData.idTypeOptions"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            />
-                        </el-select>
+                        <el-select-v2
+                            v-model="formData[pageData.formIndex].certificateType"
+                            :options="pageData.idTypeOptions"
+                        />
                     </el-form-item>
                 </el-form-item>
                 <el-form-item>
@@ -58,7 +50,7 @@
                         />
                     </el-form-item>
                     <el-form-item :label="Translate('IDCS_PHONE_NUMBER')">
-                        <BaseNumberInput
+                        <el-input
                             v-model="formData[pageData.formIndex].mobile"
                             :parser="formatDigit"
                             :formatter="formatDigit"
@@ -68,12 +60,11 @@
                 </el-form-item>
                 <el-form-item>
                     <el-form-item :label="Translate('IDCS_NUMBER')">
-                        <BaseNumberInput
+                        <el-input
                             v-model="formData[pageData.formIndex].number"
-                            :min="1"
-                            :max="999999999999999"
-                            :controls="false"
-                            :value-on-clear="null"
+                            :parser="formatDigit"
+                            :formatter="formatDigit"
+                            maxlength="15"
                         />
                     </el-form-item>
                     <el-form-item :label="Translate('IDCS_REMARK')">
@@ -81,14 +72,14 @@
                     </el-form-item>
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_ADD_FACE_GROUP')">
-                    <el-select v-model="formData[pageData.formIndex].groupId">
-                        <el-option
-                            v-for="item in pageData.groupList"
-                            :key="item.groupId"
-                            :label="item.name"
-                            :value="item.groupId"
-                        />
-                    </el-select>
+                    <el-select-v2
+                        v-model="formData[pageData.formIndex].groupId"
+                        :props="{
+                            value: 'groupId',
+                            label: 'name',
+                        }"
+                        :options="pageData.groupList"
+                    />
                 </el-form-item>
             </el-form>
             <div class="swiper">
@@ -136,29 +127,28 @@
                 @close="pageData.isChooseFacePop = false"
             />
         </div>
-        <template #footer>
-            <div
-                class="base-btn-box"
-                span="2"
-            >
-                <div>{{ progress }}</div>
-                <div>
-                    <el-button @click="chooseFace">{{ Translate('IDCS_SELECT_FACE') }}</el-button>
-                    <el-button
-                        :disabled="!formData[0].pic"
-                        @click="setCurrentData"
-                        >{{ Translate('IDCS_ENTRY_FACE') }}</el-button
-                    >
-                    <el-button
-                        :disabled="pageData.formType !== 'import' && totalCount - successCount >= 1"
-                        @click="setAllData"
-                        >{{ Translate('IDCS_FACE_ENTRY_ALL') }}</el-button
-                    >
-                    <el-button @click="close()">{{ Translate('IDCS_CLOSE') }}</el-button>
-                    <!-- <el-button @click="close()">{{ Translate('IDCS_DELETE') }}</el-button> -->
-                </div>
+        <div
+            class="base-btn-box"
+            span="2"
+        >
+            <div>{{ progress }}</div>
+            <div>
+                <el-button @click="chooseFace">{{ Translate('IDCS_SELECT_FACE') }}</el-button>
+                <el-button
+                    :disabled="!formData[0].pic"
+                    @click="setCurrentData"
+                >
+                    {{ Translate('IDCS_ENTRY_FACE') }}
+                </el-button>
+                <el-button
+                    :disabled="pageData.formType !== 'import' && totalCount - successCount >= 1"
+                    @click="setAllData"
+                >
+                    {{ Translate('IDCS_FACE_ENTRY_ALL') }}
+                </el-button>
+                <el-button @click="close()">{{ Translate('IDCS_CLOSE') }}</el-button>
             </div>
-        </template>
+        </div>
     </el-dialog>
 </template>
 

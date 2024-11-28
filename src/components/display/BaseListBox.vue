@@ -7,7 +7,6 @@
     <el-scrollbar
         class="BaseListBox"
         :class="{ border }"
-        always
     >
         <ul>
             <slot></slot>
@@ -33,7 +32,6 @@ withDefaults(
 .BaseListBox {
     width: 100%;
     height: calc(100% - 80px);
-    // overflow-y: scroll;
 
     &.border {
         border: 1px solid var(--content-border);

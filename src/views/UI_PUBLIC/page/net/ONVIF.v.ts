@@ -51,7 +51,7 @@ export default defineComponent({
             const result = await queryOnvifCfg()
             const $ = queryXml(result)
             if ($('status').text() === 'success') {
-                formData.value.switch = $('//switch').text().bool()
+                formData.value.switch = $('content/switch').text().bool()
             }
         }
 
@@ -63,7 +63,7 @@ export default defineComponent({
             const result = await queryRTSPServer()
             const $ = queryXml(result)
             if ($('status').text() === 'success') {
-                return $('//rtspServerSwitch').text().bool()
+                return $('content/rtspServerSwitch').text().bool()
             }
             return false
         }
@@ -169,7 +169,7 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <switch>${formData.value.switch}</switch>
-                    ${ternary(isAutoOpenRtsp, `<autoOpenRtsp>true</autoOpenRtsp>`, '')}
+                    ${ternary(isAutoOpenRtsp, '<autoOpenRtsp>true</autoOpenRtsp>', '')}
                 </content>
             `
             await editOnvifCfg(sendXml)

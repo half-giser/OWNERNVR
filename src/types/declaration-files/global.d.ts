@@ -40,41 +40,6 @@ declare global {
     }
 
     /**
-     * el-tree自定义类型
-     */
-    // interface Tree {
-    //     id: string
-    //     value?: string | number | boolean | object
-    //     label: string
-    //     children?: Tree[]
-    //     isLeaf: boolean
-    //     status?: number
-    //     disabled?: boolean
-    //     pId?: string
-    // }
-
-    /**
-     * 日期选择器单元格数据类型
-     */
-    // interface DateCell {
-    //     column: number
-    //     customClass: string
-    //     disabled: boolean
-    //     end: boolean
-    //     inRange: boolean
-    //     row: number
-    //     selected: Dayjs
-    //     isCurrent: boolean
-    //     isSelected: boolean
-    //     start: boolean
-    //     text: number
-    //     timestamp: number
-    //     date: Date
-    //     dayjs: Dayjs
-    //     type: 'normal' | 'today' | 'week' | 'next-month' | 'prev-month'
-    // }
-
-    /**
      * 系统信息
      */
     interface SystemInfo {
@@ -92,37 +57,7 @@ declare global {
         version: string
         majorVersion: number
     }
-    /**
-     * 资源树下拉选中资源返回数据类型
-     */
-    // type ValType = String | Number | Boolean | Object | Array<String | Number | Boolean | Object>
 
-    // type ElMessageType = 'success' | 'warning' | 'error' | 'info'
-
-    // type ElTagType = 'success' | 'warning' | 'info' | 'danger'
-
-    // interface ElTableFilterItem {
-    //     value: any
-    //     text: any
-    // }
-
-    // interface Date {
-    //     format(template: string): string
-    // }
-
-    /**
-     * 事件信息
-     */
-    // interface ChlRecEvent {
-    //     chlName: string
-    //     event: string
-    //     eventDisplay?: string
-    //     startTime: string
-    //     endTime: string
-    //     dataSource: string
-    //     duration: string
-    //     size: string
-    // }
     /**
      * 全局变量
      */
@@ -187,17 +122,11 @@ declare global {
 
     interface HTMLDivElement extends DocumentExtends {}
 
-    /**
-     * 通用下拉列表Item类型
-     */
-    // interface SelectItem {
-    //     value: any
-    //     label: any
-    // }
-
     interface SelectOption<T, K> {
         value: T
         label: K
+        disabled?: boolean
+        options?: SelectOption<T, K>[]
     }
 
     interface ImageSpriteProperties {

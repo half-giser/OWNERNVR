@@ -9,48 +9,32 @@
             <div class="base-chl-box-player">
                 <BaseVideoPlayer
                     ref="playerRef"
-                    :split="1"
-                    @onready="onReady"
+                    @ready="onReady"
                 />
             </div>
             <el-form
                 ref="formRef"
-                :model="formData"
                 :style="{
                     '--form-label-width': '160px',
                 }"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                    <el-select
+                    <el-select-v2
                         v-model="selectedChlId"
+                        :options="chlOptions"
                         @change="handleChlSel"
-                    >
-                        <el-option
-                            v-for="(item, index) in tableData"
-                            :key="index"
-                            :value="item.id"
-                            :label="item.name || ' '"
-                            :title="item.name"
-                        />
-                    </el-select>
+                    />
                 </el-form-item>
                 <el-form-item
                     v-show="formData.isSupportThermal"
                     :label="Translate('IDCS_COLOR_CODE')"
                 >
-                    <el-select
+                    <el-select-v2
                         v-model="formData.paletteCode"
                         :disabled="formData.disabled"
+                        :options="formData.paletteList"
                         @change="handlePaletteCode()"
-                    >
-                        <el-option
-                            v-for="(item, index) in formData.paletteList"
-                            :key="index"
-                            :value="item.value"
-                            :label="item.text"
-                            :title="item.name"
-                        />
-                    </el-select>
+                    />
                 </el-form-item>
                 <el-form-item
                     v-show="!formData.isSupportThermal"
@@ -141,13 +125,15 @@
                     <el-button
                         :disabled="formData.disabled || formData.isSupportThermal"
                         @click="handleAdvanced"
-                        >{{ Translate('IDCS_ADVANCED') }}</el-button
                     >
+                        {{ Translate('IDCS_ADVANCED') }}
+                    </el-button>
                     <el-button
                         :disabled="formData.disabled"
                         @click="handleRestoreVal"
-                        >{{ Translate('IDCS_RESTORE_VALUE') }}</el-button
                     >
+                        {{ Translate('IDCS_RESTORE_VALUE') }}
+                    </el-button>
                 </div>
             </div>
         </div>
@@ -155,8 +141,6 @@
             <div class="base-table-box">
                 <el-table
                     ref="tableRef"
-                    border
-                    stripe
                     :data="tableData"
                     show-overflow-tooltip
                     highlight-current-row
@@ -269,24 +253,17 @@
                                         >
                                             <el-form
                                                 ref="imageAdjustFormRef"
-                                                :model="scope.row"
                                                 :style="{
                                                     '--form-label-width': '200px',
                                                 }"
                                             >
                                                 <el-form-item :label="Translate('IDCS_CONFIG_FILE')">
-                                                    <el-select
+                                                    <el-select-v2
                                                         v-model="scope.row.cfgFile"
                                                         :disabled="scope.row.configFileTypeEnum.length === 0"
+                                                        :options="scope.row.configFileTypeEnum"
                                                         @change="handleCfgFileChange"
-                                                    >
-                                                        <el-option
-                                                            v-for="item in scope.row.configFileTypeEnum"
-                                                            :key="item"
-                                                            :value="item"
-                                                            :label="configFileTypeMap[item]"
-                                                        />
-                                                    </el-select>
+                                                    />
                                                 </el-form-item>
                                                 <el-divider />
                                                 <el-form-item>
@@ -430,59 +407,37 @@
                                                     </div>
                                                 </el-form-item>
                                                 <el-form-item :label="Translate('IDCS_BACKLIGHT_COMPENSATION')">
-                                                    <el-select
+                                                    <el-select-v2
                                                         v-if="scope.row.BLCMode === undefined || scope.row.chlType === 'analog'"
-                                                        value="OFF"
+                                                        model-value="OFF"
+                                                        :options="[]"
                                                         disabled
-                                                    >
-                                                        <el-option
-                                                            value="OFF"
-                                                            label="OFF"
-                                                        />
-                                                    </el-select>
-                                                    <el-select
+                                                    />
+                                                    <el-select-v2
                                                         v-else
                                                         v-model="scope.row.BLCMode"
+                                                        :options="scope.row.BLCModeArray"
                                                         @change="setAZData()"
-                                                    >
-                                                        <el-option
-                                                            v-for="(item, index) in scope.row.BLCModeArray"
-                                                            :key="index"
-                                                            :value="item"
-                                                            :label="BLCMode[item]"
-                                                        />
-                                                    </el-select>
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item
                                                     v-if="scope.row.BLCMode === 'HWDR'"
                                                     :label="Translate('IDCS_GRADE')"
                                                 >
-                                                    <el-select
+                                                    <el-select-v2
                                                         v-model="scope.row.HWDRLevel"
                                                         :disabled="scope.row.HWDRLevel === undefined"
+                                                        :options="scope.row.HWDRLevelArray"
                                                         @change="setAZData()"
-                                                    >
-                                                        <el-option
-                                                            v-for="(item, index) in scope.row.HWDRLevelArray"
-                                                            :key="index"
-                                                            :value="item"
-                                                            :label="HWDRLevel[item]"
-                                                        />
-                                                    </el-select>
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item :label="Translate('IDCS_WB')">
-                                                    <el-select
+                                                    <el-select-v2
                                                         v-model="scope.row.whiteBalanceMode"
                                                         :disabled="scope.row.whiteBalanceMode === undefined"
+                                                        :options="scope.row.whiteBalanceModeEnum"
                                                         @change="setAZData()"
-                                                    >
-                                                        <el-option
-                                                            v-for="(item, index) in scope.row.whiteBalanceModeEnum"
-                                                            :key="index"
-                                                            :value="item"
-                                                            :label="whiteBalanceMode[item]"
-                                                        />
-                                                    </el-select>
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item
                                                     v-if="scope.row.whiteBalanceMode === 'manual'"
@@ -521,69 +476,45 @@
                                                     </div>
                                                 </el-form-item>
                                                 <el-form-item :label="Translate('IDCS_ANTI_FLICKER')">
-                                                    <el-select
+                                                    <el-select-v2
                                                         v-model="scope.row.antiflicker"
                                                         :disabled="scope.row.antiflicker === undefined"
+                                                        :options="scope.row.antiflickerModeArray"
                                                         @change="setAZData()"
-                                                    >
-                                                        <el-option
-                                                            v-for="(item, index) in scope.row.antiflickerModeArray"
-                                                            :key="index"
-                                                            :value="item"
-                                                            :label="antiFlickerMap[item]"
-                                                        />
-                                                    </el-select>
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item
                                                     v-if="scope.row.exposureModeArray.length > 0"
                                                     :label="Translate('IDCS_EXPOSURE_MODE')"
                                                 >
-                                                    <el-select
+                                                    <el-select-v2
                                                         v-model="scope.row.exposureMode"
                                                         :disabled="scope.row.exposureMode === undefined"
+                                                        :options="scope.row.exposureModeArray"
                                                         @change="handleExposureModeChange"
-                                                    >
-                                                        <el-option
-                                                            v-for="(item, index) in scope.row.exposureModeArray"
-                                                            :key="index"
-                                                            :value="item"
-                                                            :label="exposureModeMap[item]"
-                                                        />
-                                                    </el-select>
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item
                                                     v-if="scope.row.exposureMode === 'manual'"
                                                     :label="Translate('IDCS_EXPOSURE_VALUE')"
                                                 >
-                                                    <el-select
+                                                    <el-select-v2
                                                         v-model="scope.row.exposureModeValue"
                                                         :disabled="scope.row.exposureModeValue === undefined"
+                                                        :options="scope.row.exposureValueArray"
                                                         @change="setAZData()"
-                                                    >
-                                                        <el-option
-                                                            v-for="(item, index) in scope.row.exposureValueArray"
-                                                            :key="index"
-                                                            :value="Math.floor(scope.row.exposureModeMaxValue / (item === '1' ? 1 : parseInt(item.split('/')[1])))"
-                                                            :label="item"
-                                                        />
-                                                    </el-select>
+                                                    />
                                                 </el-form-item>
                                                 <!-- 1、NT2-3947 当有ShowGainMode字段且为false时，为4.2.1版本的ipc，认为不支持隐藏增益模式，，隐藏增益模式下拉框，否则认为是支持；2、协议返回增益模式的枚举只有一个，则为5.2版本的ipc，隐藏增益模式下拉框-->
                                                 <el-form-item
                                                     v-if="scope.row.ShowGainMode && scope.row.gainModeEnum.length > 1"
                                                     :label="Translate('IDCS_GAIN_MODE')"
                                                 >
-                                                    <el-select
+                                                    <el-select-v2
                                                         v-model="scope.row.gainMode"
+                                                        :options="scope.row.gainModeEnum"
                                                         :disabled="scope.row.BLCMode === 'HWDR' || (scope.row.BLCMode !== 'HWDR' && scope.row.gainMode === undefined)"
-                                                    >
-                                                        <el-option
-                                                            v-for="(item, index) in scope.row.gainModeEnum"
-                                                            :key="index"
-                                                            :value="index.toString()"
-                                                            :label="exposureModeMap[item]"
-                                                        />
-                                                    </el-select>
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item
                                                     v-if="scope.row.gainMode === '1'"
@@ -625,17 +556,11 @@
                                                     v-if="scope.row.isSupportHallway"
                                                     :label="Translate('IDCS_CORRIDOR_MODE')"
                                                 >
-                                                    <el-select
+                                                    <el-select-v2
                                                         v-model="scope.row.imageRotate"
+                                                        :options="pageData.imgRotateOptions"
                                                         @change="setAZData()"
-                                                    >
-                                                        <el-option
-                                                            v-for="(item, index) in [0, 90, 180, 270]"
-                                                            :key="index"
-                                                            :value="item"
-                                                            :label="item"
-                                                        />
-                                                    </el-select>
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item :label="Translate('IDCS_MIRROR')">
                                                     <el-radio-group
@@ -644,14 +569,11 @@
                                                         @change="setAZData()"
                                                     >
                                                         <el-radio
-                                                            :value="true"
+                                                            v-for="item in pageData.switchOptions"
+                                                            :key="item.label"
+                                                            :value="item.value"
+                                                            :label="item.label"
                                                             :disabled="scope.row.mirrorSwitch === undefined"
-                                                            :label="Translate('IDCS_ON')"
-                                                        />
-                                                        <el-radio
-                                                            :value="false"
-                                                            :disabled="scope.row.mirrorSwitch === undefined"
-                                                            :label="Translate('IDCS_OFF')"
                                                         />
                                                     </el-radio-group>
                                                     <el-radio-group
@@ -659,14 +581,11 @@
                                                         v-model="defaultRadioVal"
                                                     >
                                                         <el-radio
-                                                            :value="true"
+                                                            v-for="item in pageData.switchOptions"
+                                                            :key="item.label"
+                                                            :value="item.value"
+                                                            :label="item.label"
                                                             :disabled="scope.row.mirrorSwitch === undefined"
-                                                            :label="Translate('IDCS_ON')"
-                                                        />
-                                                        <el-radio
-                                                            :value="false"
-                                                            :disabled="scope.row.mirrorSwitch === undefined"
-                                                            :label="Translate('IDCS_OFF')"
                                                         />
                                                     </el-radio-group>
                                                 </el-form-item>
@@ -677,14 +596,11 @@
                                                         @change="setAZData()"
                                                     >
                                                         <el-radio
-                                                            :value="true"
+                                                            v-for="item in pageData.switchOptions"
+                                                            :key="item.label"
+                                                            :value="item.value"
+                                                            :label="item.label"
                                                             :disabled="scope.row.flipSwitch === undefined"
-                                                            :label="Translate('IDCS_ON')"
-                                                        />
-                                                        <el-radio
-                                                            :value="false"
-                                                            :disabled="scope.row.flipSwitch === undefined"
-                                                            :label="Translate('IDCS_OFF')"
                                                         />
                                                     </el-radio-group>
                                                     <el-radio-group
@@ -692,14 +608,11 @@
                                                         v-model="defaultRadioVal"
                                                     >
                                                         <el-radio
-                                                            :value="true"
+                                                            v-for="item in pageData.switchOptions"
+                                                            :key="item.label"
+                                                            :value="item.value"
+                                                            :label="item.label"
                                                             :disabled="scope.row.flipSwitch === undefined"
-                                                            :label="Translate('IDCS_ON')"
-                                                        />
-                                                        <el-radio
-                                                            :value="false"
-                                                            :disabled="scope.row.flipSwitch === undefined"
-                                                            :label="Translate('IDCS_OFF')"
                                                         />
                                                     </el-radio-group>
                                                 </el-form-item>
@@ -707,106 +620,44 @@
                                                     v-if="scope.row.HFR !== undefined"
                                                     :label="Translate('IDCS_HFR')"
                                                 >
-                                                    <el-select
+                                                    <el-select-v2
                                                         v-model="scope.row.HFR"
+                                                        :options="pageData.switchOptions"
                                                         @change="setAZData()"
-                                                    >
-                                                        <el-option
-                                                            :value="true"
-                                                            :label="Translate('IDCS_ON')"
-                                                        />
-                                                        <el-option
-                                                            :value="false"
-                                                            :label="Translate('IDCS_OFF')"
-                                                        />
-                                                    </el-select>
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item :label="Translate('IDCS_DN_MODE')">
-                                                    <el-select
+                                                    <el-select-v2
                                                         v-if="scope.row.isSupportIRCutMode && scope.row.IRCutMode !== undefined"
                                                         v-model="scope.row.IRCutMode"
                                                         :disabled="!scope.row.isSupportIRCutMode"
+                                                        :options="scope.row.IRCutModeArray.length ? scope.row.IRCutModeArray : pageData.icCutModeOptions"
                                                         @change="setAZData()"
-                                                    >
-                                                        <template v-if="scope.row.IRCutModeArray.length > 0">
-                                                            <template
-                                                                v-for="(item, index) in scope.row.IRCutModeArray"
-                                                                :key="index"
-                                                            >
-                                                                <el-option
-                                                                    v-if="DayNightModeMap[item] !== undefined"
-                                                                    :value="item"
-                                                                    :label="DayNightModeMap[item]"
-                                                                />
-                                                            </template>
-                                                        </template>
-                                                        <template v-else>
-                                                            <el-option
-                                                                v-for="(item, index) in ['auto', 'day', 'night', 'time']"
-                                                                :key="index"
-                                                                :value="item"
-                                                                :label="DayNightModeMap[item]"
-                                                            />
-                                                        </template>
-                                                    </el-select>
-                                                    <el-select
+                                                    />
+                                                    <el-select-v2
                                                         v-else-if="scope.row.isSupportIRCutMode"
                                                         v-model="defaultIRCutMode"
                                                         :disabled="!scope.row.isSupportIRCutMode"
+                                                        :options="scope.row.IRCutModeArray.length ? scope.row.IRCutModeArray : pageData.icCutModeOptions"
                                                         @change="handleIRCutModeChange"
-                                                    >
-                                                        <template v-if="scope.row.IRCutModeArray.length > 0">
-                                                            <template
-                                                                v-for="(item, index) in scope.row.IRCutModeArray"
-                                                                :key="index"
-                                                            >
-                                                                <el-option
-                                                                    v-if="DayNightModeMap[item] !== undefined"
-                                                                    :value="item"
-                                                                    :label="DayNightModeMap[item]"
-                                                                />
-                                                            </template>
-                                                        </template>
-                                                        <template v-else>
-                                                            <el-option
-                                                                v-for="(item, index) in ['auto', 'day', 'night', 'time']"
-                                                                :key="index"
-                                                                :value="item"
-                                                                :label="DayNightModeMap[item]"
-                                                            />
-                                                        </template>
-                                                    </el-select>
-                                                    <el-select
+                                                    />
+                                                    <el-select-v2
                                                         v-else
+                                                        model-value=""
                                                         disabled
+                                                        :options="[]"
                                                     />
                                                 </el-form-item>
                                                 <el-form-item
                                                     v-if="scope.row.isSupportIRCutMode && scope.row.IRCutMode === 'auto' && scope.row.IRCutConvSen2 !== undefined"
                                                     :label="Translate('IDCS_DN_SEN')"
                                                 >
-                                                    <el-select
+                                                    <el-select-v2
                                                         v-model="scope.row.IRCutConvSen"
                                                         :disabled="!scope.row.isSupportIRCutMode"
+                                                        :options="scope.row.IRCutConvSenArray.length ? scope.row.IRCutConvSenArray : pageData.irCutConvSenOptions"
                                                         @change="setAZData()"
-                                                    >
-                                                        <div v-if="scope.row.IRCutConvSenArray.length !== 0">
-                                                            <el-option
-                                                                v-for="(item, index) in scope.row.IRCutConvSenArray"
-                                                                :key="index"
-                                                                :value="item"
-                                                                :label="SensortyMap[item]"
-                                                            />
-                                                        </div>
-                                                        <div v-if="scope.row.IRCutConvSenArray.length === 0">
-                                                            <el-option
-                                                                v-for="(item, index) in ['high', 'mid', 'low']"
-                                                                :key="index"
-                                                                :value="item"
-                                                                :label="SensortyMap[item]"
-                                                            />
-                                                        </div>
-                                                    </el-select>
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item
                                                     v-if="scope.row.isSupportIRCutMode && scope.row.IRCutMode === 'time' && scope.row.IRCutDayTime !== undefined"
@@ -836,53 +687,27 @@
                                                     v-if="scope.row.smartIrMode || scope.row.smartIrSwitch !== undefined"
                                                     :label="Translate('IDCS_SMART_IR')"
                                                 >
-                                                    <el-select
+                                                    <el-select-v2
                                                         v-if="scope.row.smartIrMode"
                                                         v-model="scope.row.smartIrMode"
-                                                    >
-                                                        <el-option
-                                                            v-for="(item, index) in scope.row.SmartIrArray"
-                                                            :key="index"
-                                                            :value="item"
-                                                            :label="SmartIRMap[item]"
-                                                        />
-                                                    </el-select>
-                                                    <el-select
+                                                        :options="scope.row.SmartIrArray"
+                                                    />
+                                                    <el-select-v2
                                                         v-else
                                                         v-model="scope.row.smartIrSwitch"
+                                                        :options="pageData.switchOptions"
                                                         @change="setAZData()"
-                                                    >
-                                                        <el-option
-                                                            :value="true"
-                                                            :label="Translate('IDCS_ON')"
-                                                        />
-                                                        <el-option
-                                                            :value="false"
-                                                            :label="Translate('IDCS_OFF')"
-                                                        />
-                                                    </el-select>
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item
                                                     v-if="(scope.row.smartIrMode || scope.row.smartIrSwitch !== undefined) && scope.row.smartIrSwitch"
                                                     :label="Translate('IDCS_GRADE')"
                                                 >
-                                                    <el-select
+                                                    <el-select-v2
                                                         v-model="scope.row.smartIrLevel"
+                                                        :options="pageData.smartIrLevelOptions"
                                                         @change="setAZData()"
-                                                    >
-                                                        <el-option
-                                                            value="2"
-                                                            :label="Translate('IDCS_DN_SEN_HIGH')"
-                                                        />
-                                                        <el-option
-                                                            value="1"
-                                                            :label="Translate('IDCS_DN_SEN_MID')"
-                                                        />
-                                                        <el-option
-                                                            value="0"
-                                                            :label="Translate('IDCS_DN_SEN_LOW')"
-                                                        />
-                                                    </el-select>
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item
                                                     v-if="(scope.row.smartIrMode || scope.row.smartIrSwitch !== undefined) && scope.row.smartIrMode === 'manual'"
@@ -919,105 +744,63 @@
                                                     </div>
                                                 </el-form-item>
                                                 <el-form-item :label="Translate('IDCS_SHUTTER_MODE')">
-                                                    <el-select
+                                                    <el-select-v2
                                                         v-model="scope.row.shutterMode"
                                                         :disabled="scope.row.shutterMode === undefined"
+                                                        :options="scope.row.shutterModeEnum"
                                                         @change="setAZData()"
-                                                    >
-                                                        <el-option
-                                                            v-for="(item, index) in scope.row.shutterModeEnum"
-                                                            :key="index"
-                                                            :value="index.toString()"
-                                                            :label="exposureModeMap[item]"
-                                                        />
-                                                    </el-select>
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item
                                                     v-if="scope.row.shutterMode !== undefined && scope.row.shutterMode !== '0'"
                                                     :label="Translate('IDCS_SHUTTER')"
                                                 >
-                                                    <el-select
+                                                    <el-select-v2
                                                         v-model="scope.row.shutterValue"
                                                         :disabled="scope.row.shutterMode === undefined"
+                                                        :options="scope.row.shutterValueEnum"
                                                         @change="setAZData()"
-                                                    >
-                                                        <el-option
-                                                            v-for="(item, index) in scope.row.shutterValueEnum"
-                                                            :key="index"
-                                                            :value="index.toString()"
-                                                            :label="item"
-                                                        />
-                                                    </el-select>
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item
                                                     v-if="scope.row.shutterMode !== undefined && scope.row.shutterMode !== '1' && scope.row.shutterUpLimit !== undefined"
                                                     :label="Translate('IDCS_SHUTTER_UPPER_LIMIT')"
                                                 >
-                                                    <el-select
+                                                    <el-select-v2
                                                         v-model="scope.row.shutterUpLimit"
                                                         :disabled="scope.row.shutterMode === undefined"
+                                                        :options="scope.row.shutterValueEnum"
                                                         @change="handleShutterUpLimitChange"
-                                                    >
-                                                        <el-option
-                                                            v-for="(item, index) in scope.row.shutterValueEnum"
-                                                            :key="index"
-                                                            :value="index.toString()"
-                                                            :label="item"
-                                                        />
-                                                    </el-select>
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item
                                                     v-if="scope.row.shutterMode !== undefined && scope.row.shutterMode !== '1' && scope.row.shutterLowLimit !== undefined"
                                                     :label="Translate('IDCS_SHUTTER_LOWER_LIMIT')"
                                                 >
-                                                    <el-select
+                                                    <el-select-v2
                                                         v-model="scope.row.shutterLowLimit"
                                                         :disabled="scope.row.shutterMode === undefined"
+                                                        :options="scope.row.shutterValueEnum"
                                                         @change="handleShutterLowLimitChange"
-                                                    >
-                                                        <el-option
-                                                            v-for="(item, index) in scope.row.shutterValueEnum"
-                                                            :key="index"
-                                                            :value="index.toString()"
-                                                            :label="item"
-                                                        />
-                                                    </el-select>
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item :label="Translate('IDCS_INFRARE_MODE')">
-                                                    <el-select
+                                                    <el-select-v2
                                                         v-model="scope.row.InfraredMode"
                                                         :disabled="scope.row.InfraredMode === undefined"
+                                                        :options="scope.row.InfraredModeArray"
                                                         @change="setAZData()"
-                                                    >
-                                                        <el-option
-                                                            v-for="(item, index) in scope.row.InfraredModeArray"
-                                                            :key="index"
-                                                            :value="item"
-                                                            :label="infraredModeMap[item]"
-                                                        />
-                                                    </el-select>
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item
                                                     v-if="scope.row.whitelightMode"
                                                     :label="Translate('IDCS_WHITE_LIGHT')"
                                                 >
-                                                    <el-select
+                                                    <el-select-v2
                                                         v-model="scope.row.whitelightMode"
+                                                        :options="pageData.whitelightModeOptions"
                                                         @change="setAZData()"
-                                                    >
-                                                        <el-option
-                                                            value="off"
-                                                            :label="Translate('IDCS_OFF')"
-                                                        />
-                                                        <el-option
-                                                            value="manual"
-                                                            :label="Translate('IDCS_MANUAL')"
-                                                        />
-                                                        <el-option
-                                                            value="auto"
-                                                            :label="Translate('IDCS_AUTO')"
-                                                        />
-                                                    </el-select>
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item
                                                     v-if="scope.row.whitelightMode && scope.row.whitelightMode === 'manual'"
@@ -1067,44 +850,27 @@
                                             class="page_content_item"
                                         >
                                             <el-form
-                                                :model="scope.row"
                                                 :style="{
                                                     '--form-label-width': '150px',
                                                 }"
                                             >
                                                 <el-form-item :label="Translate('IDCS_SCHEDULE')">
-                                                    <el-select
+                                                    <el-select-v2
                                                         v-model="scope.row.scheduleInfo.scheduleType"
                                                         :disabled="!scope.row.supportSchedule"
-                                                    >
-                                                        <el-option
-                                                            value="full"
-                                                            :label="Translate('IDCS_FULL_TIME')"
-                                                        />
-                                                        <el-option
-                                                            v-for="item in filteredScheduleInfoEnum(scope.row.scheduleInfo.scheduleInfoEnum, false)"
-                                                            :key="item"
-                                                            :value="item"
-                                                            :label="scheduleMap[item]"
-                                                        />
-                                                    </el-select>
+                                                        :options="filteredScheduleInfoEnum(scope.row.scheduleInfo.scheduleInfoEnum, false)"
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item
                                                     v-if="scope.row.scheduleInfo.scheduleType !== 'time'"
                                                     :label="Translate('IDCS_CONFIG_FILE')"
                                                 >
-                                                    <el-select
+                                                    <el-select-v2
                                                         v-model="scope.row.scheduleInfo.program"
                                                         :disabled="!scope.row.supportSchedule"
+                                                        :options="filteredScheduleInfoEnum(scope.row.scheduleInfo.scheduleInfoEnum, true)"
                                                         @change="handleProgramChange(scope.row)"
-                                                    >
-                                                        <el-option
-                                                            v-for="item in filteredScheduleInfoEnum(scope.row.scheduleInfo.scheduleInfoEnum, true)"
-                                                            :key="item"
-                                                            :value="item"
-                                                            :label="scheduleMap[item]"
-                                                        />
-                                                    </el-select>
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item
                                                     v-if="scope.row.scheduleInfo.scheduleType === 'time'"
@@ -1213,32 +979,18 @@
                                                     </div>
                                                 </div>
                                                 <el-form-item :label="Translate('IDCS_FOCUS_MODE')">
-                                                    <el-select
+                                                    <el-select-v2
                                                         v-if="curLensCtrl.focusTypeList.length"
                                                         v-model="curLensCtrl.focusType"
                                                         :disabled="!curLensCtrl.supportAz"
-                                                    >
-                                                        <el-option
-                                                            v-for="item in curLensCtrl.focusTypeList"
-                                                            :key="item.value"
-                                                            :value="item.value"
-                                                            :label="item.text"
-                                                        />
-                                                    </el-select>
-                                                    <el-select
+                                                        :options="curLensCtrl.focusTypeList"
+                                                    />
+                                                    <el-select-v2
                                                         v-else
                                                         v-model="defaultFocusMode"
                                                         disabled
-                                                    >
-                                                        <el-option
-                                                            value="manual"
-                                                            :label="Translate('IDCS_MANUAL_FOCUS')"
-                                                        />
-                                                        <el-option
-                                                            value="auto"
-                                                            :label="Translate('IDCS_AUTO_FOCUS')"
-                                                        />
-                                                    </el-select>
+                                                        :options="pageData.focusModeOptions"
+                                                    />
                                                 </el-form-item>
                                                 <div
                                                     v-if="!curLensCtrl.supportAz || (curLensCtrl.supportAz && curLensCtrl.focusType !== 'auto')"
@@ -1301,17 +1053,11 @@
                                                     v-else-if="curLensCtrl.supportAz || (curLensCtrl.supportAz && curLensCtrl.focusType === 'auto')"
                                                     :label="Translate('IDCS_FOCUS_TIME')"
                                                 >
-                                                    <el-select
+                                                    <el-select-v2
                                                         v-model="curLensCtrl.timeInterval"
                                                         :disabled="!curLensCtrl.supportAz"
-                                                    >
-                                                        <el-option
-                                                            v-for="item in curLensCtrl.timeIntervalList"
-                                                            :key="item.value"
-                                                            :value="item.value"
-                                                            :label="item.text"
-                                                        />
-                                                    </el-select>
+                                                        :options="curLensCtrl.timeIntervalList"
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item>
                                                     <el-text class="row_focus_model_tip">{{ Translate('IDCS_FOCUS_MODEL_TIP') }}</el-text>
@@ -1335,8 +1081,9 @@
                                                     <el-button
                                                         :disabled="!curLensCtrl.supportAz"
                                                         @click="saveLensCtrlData"
-                                                        >{{ Translate('IDCS_SAVE') }}</el-button
                                                     >
+                                                        {{ Translate('IDCS_SAVE') }}
+                                                    </el-button>
                                                 </div>
                                             </div>
                                         </div>
@@ -1503,6 +1250,7 @@
 }
 
 .row_scene_control {
+    display: flex;
     width: 100%;
     align-items: center;
     padding: 10px 15px;

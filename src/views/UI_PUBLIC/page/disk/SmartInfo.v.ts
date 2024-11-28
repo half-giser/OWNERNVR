@@ -132,7 +132,7 @@ export default defineComponent({
             const result = await queryStorageDevInfo()
             const $ = queryXml(result)
 
-            pageData.value.diskList = $('//content/diskList/item')
+            pageData.value.diskList = $('content/diskList/item')
                 .filter((item) => {
                     const $item = queryXml(item.element)
                     // 移动U盘不显示
@@ -141,9 +141,10 @@ export default defineComponent({
                     }
                     return true
                 })
-                .map((item) => {
+                .map((item, index) => {
                     const $item = queryXml(item.element)
                     return {
+                        index,
                         id: item.attr('id'),
                         diskNum: DISK_TYPE_MAPPING[$item('diskInterfaceType').text()] + $item('slotIndex').text(),
                         serialNum: $item('serialNum').text(),
@@ -164,8 +165,8 @@ export default defineComponent({
             const result = await queryDiskSmartInfo(sendXml)
             const $ = queryXml(result)
 
-            if ($('//status').text() === 'success') {
-                tableData.value = $('//content/smartItems/item').map((item) => {
+            if ($('status').text() === 'success') {
+                tableData.value = $('content/smartItems/item').map((item) => {
                     const $item = queryXml(item.element)
                     let id = item.attr('id').num().toString(16)
                     id = `${id.length === 1 ? '0x0' : '0x'}${id}`
@@ -180,9 +181,9 @@ export default defineComponent({
                     }
                 })
 
-                pageData.value.diskPowerOnHours = $('//content/powerOnDays').text()
-                pageData.value.diskTemperature = $('//content/temperature').text()
-                pageData.value.diskStatus = DISK_STATUS_MAPPING[$('//content/diskStatus').text()]
+                pageData.value.diskPowerOnHours = $('content/powerOnDays').text()
+                pageData.value.diskTemperature = $('content/temperature').text()
+                pageData.value.diskStatus = DISK_STATUS_MAPPING[$('content/diskStatus').text()]
             }
         }
 

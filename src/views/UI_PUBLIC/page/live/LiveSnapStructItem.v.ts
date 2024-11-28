@@ -47,8 +47,9 @@ export default defineComponent({
          * @param {String} src
          * @returns {String}
          */
-        const displayBase64Img = (src?: null | string) => {
-            return 'data:image/png;base64,' + String(src)
+        const displayBase64Img = (src: null | string) => {
+            if (!src) return ''
+            return wrapBase64Img(src)
         }
 
         /**
@@ -78,7 +79,7 @@ export default defineComponent({
         const getInfoListItem = (icon: string, value: string) => {
             return {
                 icon,
-                value: !value || value === '--' ? Translate('IDCS_UNCONTRAST') : value,
+                value: !value || value === '--' ? Translate('IDCS_UNCONTRAST') : Translate(value),
             }
         }
 
@@ -87,9 +88,9 @@ export default defineComponent({
             const targetType = prop.data.info.target_type
             if (targetType === 'person') {
                 const type = prop.data.info.person_info
-                return DEFAULT_BODY_STRUCT_MAPPING.slice(0, 4).map((item) => {
+                return DEFAULT_BODY_STRUCT_MAPPING.slice(0, 5).map((item) => {
                     const value = type[item.type]
-                    return getInfoListItem(item.type, String(value))
+                    return getInfoListItem(item.type, item.map[Number(value)])
                 })
             }
 
@@ -100,15 +101,14 @@ export default defineComponent({
                 }).map((item) => {
                     let value = item.map ? item.map[Number(type[item.type])] : type[item.type]
                     if (item.type === 'brand' && !value) value = Translate('IDCS_MAINTENSIGN_ITEM_OTHERSYS')
-                    return getInfoListItem('vehicle_' + item.type, String(value))
+                    return getInfoListItem('vehicle_' + item.type, item.map[Number(value)])
                 })
             }
 
             if (targetType === 'non_vehicle') {
                 const type = prop.data.info.bike_info
                 return DEFAULT_NON_VEHICLE_STRUCT_MAPPING.map((item) => {
-                    const value = item.map[Number(type[item.type])]
-                    return getInfoListItem('nonVehicle_' + item.type, value)
+                    return getInfoListItem('nonVehicle_' + item.type, item.map[Number(type[item.type])])
                 })
             }
             return []

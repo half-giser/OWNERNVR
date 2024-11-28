@@ -14,7 +14,6 @@
                 '--form-label-width': '200px',
                 '--form-input-width': '250px',
             }"
-            inline-message
         >
             <div class="base-subheading-box">{{ Translate('IDCS_PORT') }}</div>
             <el-form-item
@@ -73,7 +72,6 @@
                 '--form-label-width': '200px',
                 '--form-input-width': '250px',
             }"
-            inline-message
         >
             <div class="base-subheading-box">{{ Translate('IDCS_API_SERVER') }}</div>
             <el-form-item>
@@ -85,17 +83,11 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_ENCRYPTION_TYPE')">
-                <el-select
+                <el-select-v2
                     v-model="apiServerFormData.authenticationType"
                     :disabled="!apiServerFormData.apiserverSwitch || pageData.wirelessSwitch"
-                >
-                    <el-option
-                        v-for="item in pageData.apiVerificationOptions"
-                        :key="item.value"
-                        :value="item.value"
-                        :label="item.label"
-                    />
-                </el-select>
+                    :options="pageData.apiVerificationOptions"
+                />
             </el-form-item>
         </el-form>
         <!-- RTSP -->
@@ -107,7 +99,6 @@
                 '--form-label-width': '200px',
                 '--form-input-width': '250px',
             }"
-            inline-message
         >
             <div
                 v-show="!pageData.isAppServer"
@@ -127,21 +118,14 @@
                 v-show="!pageData.isAppServer"
                 :label="Translate('IDCS_ENCRYPTION_TYPE')"
             >
-                <el-select
+                <el-select-v2
                     v-model="rtspServerFormData.rtspAuthType"
                     :disabled="!rtspServerFormData.rtspServerSwitch || pageData.wirelessSwitch"
-                >
-                    <el-option
-                        v-for="item in pageData.rtspAuthenticationOptions"
-                        :key="item.value"
-                        :value="item.value"
-                        :label="item.label"
-                    />
-                </el-select>
+                    :options="pageData.rtspAuthenticationOptions"
+                />
             </el-form-item>
             <el-form-item
                 prop="rtspPort"
-                :model="rtspServerFormData"
                 :label="Translate('IDCS_RTSP_PORT')"
             >
                 <BaseNumberInput

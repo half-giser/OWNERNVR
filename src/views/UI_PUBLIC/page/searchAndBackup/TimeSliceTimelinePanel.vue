@@ -12,8 +12,7 @@
                     ref="playerRef"
                     only-wasm
                     type="record"
-                    :split="1"
-                    @ontime="handlePlayerTimeUpdate"
+                    @time="handlePlayerTimeUpdate"
                 />
             </div>
             <div class="control-bar">
@@ -112,7 +111,7 @@
                     </el-radio-group>
                 </div>
             </div>
-            <div class="right-bottom">
+            <el-scrollbar class="right-bottom">
                 <div class="right-type">
                     <el-form
                         :style="{
@@ -120,18 +119,12 @@
                         }"
                     >
                         <el-form-item :label="Translate('IDCS_PICTURE')">
-                            <el-select
+                            <el-select-v2
                                 v-model="pageData.sliceType"
                                 :disabled="modeItem.disabled"
+                                :options="modeItem.options"
                                 @change="changeSliceType"
-                            >
-                                <el-option
-                                    v-for="item in modeItem.options"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value"
-                                />
-                            </el-select>
+                            />
                         </el-form-item>
                     </el-form>
                     <div class="count">
@@ -141,7 +134,7 @@
                     </div>
                 </div>
                 <div class="list-box">
-                    <TimeSliceChlCard
+                    <TimeSliceItem
                         v-for="item in pageData.timeSliceList"
                         :key="item.taskId"
                         mode="thumbnail"
@@ -153,16 +146,16 @@
                         @dblclick="changeTimeSlice(item.startTime)"
                     />
                 </div>
-            </div>
+            </el-scrollbar>
             <div class="base-btn-box padding">
                 <el-button
                     :disabled="formData.size === 0"
                     @click="backUp"
-                    >{{ Translate('IDCS_BACKUP') }}</el-button
                 >
+                    {{ Translate('IDCS_BACKUP') }}
+                </el-button>
             </div>
         </div>
-        <BasePluginNotice />
         <BackupPop
             v-model="pageData.isBackUpPop"
             :mode="mode"
@@ -293,7 +286,6 @@
 
     &-bottom {
         height: 100%;
-        overflow-y: scroll;
     }
 
     &-type {

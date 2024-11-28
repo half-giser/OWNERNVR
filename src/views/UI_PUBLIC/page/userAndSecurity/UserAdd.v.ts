@@ -4,8 +4,8 @@
  * @Description: 新增用户
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import { UserAddForm, type UserAuthGroupOption } from '@/types/apiType/userAndSecurity'
-import { type FormInstance, type FormRules } from 'element-plus'
+import { UserAddForm } from '@/types/apiType/userAndSecurity'
+import { type FormRules } from 'element-plus'
 import type { UserCheckAuthForm } from '@/types/apiType/user'
 
 export default defineComponent({
@@ -19,8 +19,8 @@ export default defineComponent({
         const userSession = useUserSessionStore()
         const router = useRouter()
 
-        const formRef = ref<FormInstance>()
         const formData = ref(new UserAddForm())
+        const formRef = useFormRef()
 
         // 要求的密码强度
         const passwordStrength = ref<keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING>('weak')
@@ -30,7 +30,7 @@ export default defineComponent({
         // 显示隐藏权限弹窗
         const isAuthDialog = ref(false)
 
-        const authGroupOptions = ref<UserAuthGroupOption[]>([])
+        const authGroupOptions = ref<SelectOption<string, string>[]>([])
         const { openMessageBox } = useMessageBox()
 
         // 密码强度提示信息
@@ -45,8 +45,8 @@ export default defineComponent({
             let strength: keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING = 'weak'
             const result = await queryPasswordSecurity()
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                strength = ($('//content/pwdSecureSetting/pwdSecLevel').text() as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING & null) ?? 'weak'
+            if ($('status').text() === 'success') {
+                strength = ($('content/pwdSecureSetting/pwdSecLevel').text() as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING & null) ?? 'weak'
                 if (systemCaps.supportPwdSecurityConfig) {
                     strength = 'strong'
                 }
@@ -66,15 +66,15 @@ export default defineComponent({
             `
             const result = await queryAuthGroupList(sendXml)
             commLoadResponseHandler(result, ($) => {
-                authGroupOptions.value = $('//content/item').map((item) => {
+                authGroupOptions.value = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
-                        id: item.attr('id'),
-                        name: $item('name').text(),
+                        value: item.attr('id'),
+                        label: displayAuthGroup($item('name').text()),
                     }
                 })
                 if (authGroupOptions.value.length) {
-                    formData.value.authGroup = authGroupOptions.value[0].id
+                    formData.value.authGroup = authGroupOptions.value[0].value
                 }
             })
         }
@@ -130,10 +130,10 @@ export default defineComponent({
             confirmPassword: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if (!value) {
-                            callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
-                            return
-                        }
+                        // if (!value) {
+                        //     callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
+                        //     return
+                        // }
 
                         if (value !== formData.value.password) {
                             callback(new Error(Translate('IDCS_PWD_MISMATCH_TIPS')))
@@ -200,12 +200,12 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 isAuthDialog.value = false
                 goBack()
             } else {
                 let errorInfo = ''
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_NAME_EXISTED:
                         errorInfo = Translate('IDCS_USER_EXISTED_TIPS')
@@ -260,7 +260,6 @@ export default defineComponent({
             noticeMsg,
             formatInputMaxLength,
             formatInputUserName,
-            displayAuthGroup,
             BaseCheckAuthPop,
         }
     },

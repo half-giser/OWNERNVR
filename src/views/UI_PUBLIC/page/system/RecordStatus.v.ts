@@ -61,15 +61,14 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryRecStatus()
             commLoadResponseHandler(result, ($) => {
-                tableData.value = []
-                $('//content/item').forEach((item) => {
+                tableData.value = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     const recType: string[] = []
                     $item('recTypes/item').forEach((recTypeItem) => {
                         const text = recTypeItem.text()
                         if (text) recType.push(text.trim())
                     })
-                    tableData.value.push({
+                    return {
                         name: $item('chl').text(),
                         resolution: $item('resolution').text(),
                         frameRate: $item('frameRate').text(),
@@ -79,7 +78,7 @@ export default defineComponent({
                         recStatus: $item('recStatus').text(),
                         streamType: $item('streamType').text(),
                         recTypes: recType,
-                    })
+                    }
                 })
             })
         }

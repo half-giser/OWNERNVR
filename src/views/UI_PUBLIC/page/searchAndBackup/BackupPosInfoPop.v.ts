@@ -52,10 +52,10 @@ export default defineComponent({
             `
             const result = await queryPosBillList(sendXml)
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                pageData.value.name = $('//content/pos').text()
+            if ($('status').text() === 'success') {
+                pageData.value.name = $('content/pos').text()
                 // TODO 需要测试数据做测试
-                pageData.value.info = base64Decode($('//content/posInfo').text())
+                pageData.value.info = base64Decode($('content/posInfo').text())
             }
         }
 

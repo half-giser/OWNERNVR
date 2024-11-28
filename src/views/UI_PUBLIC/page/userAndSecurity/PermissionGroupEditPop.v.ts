@@ -77,7 +77,7 @@ export default defineComponent({
             commLoadResponseHandler(result, ($) => {
                 getSystemAuth($)
                 getChannelAuth($)
-                formData.value.name = $('//content/name').text()
+                formData.value.name = $('content/name').text()
             })
         }
 
@@ -86,7 +86,7 @@ export default defineComponent({
          * @param {Function} $doc
          */
         const getSystemAuth = ($doc: XMLQuery) => {
-            const $ = queryXml($doc('//content/systemAuth')[0].element)
+            const $ = queryXml($doc('content/systemAuth')[0].element)
             Object.keys(systemAuthList.value).forEach((classify) => {
                 Object.keys(systemAuthList.value[classify].value).forEach((key) => {
                     systemAuthList.value[classify].value[key].value = $(key).text().bool()
@@ -103,7 +103,7 @@ export default defineComponent({
          * @param {boolean} isQueryFromGroupID
          */
         const getChannelAuth = ($: XMLQuery) => {
-            channelAuthList.value = $('//content/chlAuth/item').map((item) => {
+            channelAuthList.value = $('content/chlAuth/item').map((item) => {
                 const arrayItem = new UserPermissionChannelAuthList()
                 const $item = queryXml(item.element)
                 arrayItem.id = item.attr('id')
@@ -111,9 +111,9 @@ export default defineComponent({
                 const auth = $item('auth').text()
                 DEFAULT_CHANNEL_AUTH_LIST.forEach((key) => {
                     if (auth.includes(key)) {
-                        arrayItem[key] = Translate('IDCS_ON')
+                        arrayItem[key] = 'true'
                     } else {
-                        arrayItem[key] = Translate('IDCS_OFF')
+                        arrayItem[key] = 'false'
                     }
                 })
                 return arrayItem
@@ -154,7 +154,7 @@ export default defineComponent({
                                 return rawXml`
                                     <item id="${item.id}">
                                         <name>${wrapCDATA(item.name)}</name>
-                                        <auth>${wrapCDATA(DEFAULT_CHANNEL_AUTH_LIST.filter((key) => item[key] === Translate('IDCS_ON')).join(','))}</auth>
+                                        <auth>${wrapCDATA(DEFAULT_CHANNEL_AUTH_LIST.filter((key) => item[key] === 'true').join(','))}</auth>
                                     </item>
                                 `
                             })
@@ -178,10 +178,10 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 ctx.emit('confirm')
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_GET_CONFIG_INFO_FAIL:

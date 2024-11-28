@@ -36,14 +36,14 @@ export const useLangStore = defineStore(
             const $ = queryXml(result)
 
             const langTypesTemp: Record<string, string> = {}
-            $('//content/item').forEach((item) => {
+            $('content/item').forEach((item) => {
                 langTypesTemp[item.attr('id')] = queryXml(item.element)('name').text()
             })
             langTypes.value = langTypesTemp
 
             if (!langId.value || langId.value === 'null' || langId.value === 'undefined') {
                 const $ = queryXml(result)
-                const devLandId = $('//content').attr('currentLangType')
+                const devLandId = $('content').attr('currentLangType')
                 langType.value = navigator.language.toLowerCase()
                 langId.value = LANG_MAPPING[langType.value]
                 if (!langId.value) {
@@ -59,7 +59,7 @@ export const useLangStore = defineStore(
                     langId.value = devLandId
                 }
 
-                rtlLangList.value = $('//content/item[@alignRight="true"]').map((item) => {
+                rtlLangList.value = $('content/item[@alignRight="true"]').map((item) => {
                     return item.attr('id')
                 })
                 if (!rtlLangList.value.length) {
@@ -86,7 +86,7 @@ export const useLangStore = defineStore(
             const result = await getLangContent(data)
             const $ = queryXml(result)
             const langItemsTemp: Record<string, string> = {}
-            $('//content/langItems/item').forEach((item) => {
+            $('content/langItems/item').forEach((item) => {
                 langItemsTemp[item.attr('id')] = item.text()
             })
             langItems.value = langItemsTemp

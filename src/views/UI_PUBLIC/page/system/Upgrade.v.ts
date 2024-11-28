@@ -6,7 +6,6 @@
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import BaseInputEncryptPwdPop from '../../components/auth/BaseInputEncryptPwdPop.vue'
 import UpgradeBackUpPop from './UpgradeBackUpPop.vue'
-import { type XMLQuery } from '@/utils/xmlParse'
 import type WebsocketPlugin from '@/utils/websocket/websocketPlugin'
 import WebsocketUpload from '@/utils/websocket/websocketUpload'
 import WebsocketDownload from '@/utils/websocket/websocketDownload'
@@ -24,8 +23,8 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading, closeAllLoading, LoadingTarget } = useLoading()
+        const { openNotify } = useNotification()
         const systemCaps = useCababilityStore()
-        const Plugin = inject('Plugin') as PluginType
         const userSession = useUserSessionStore()
         // 用户鉴权表单数据
         const userCheckAuthForm = new UserCheckAuthForm()
@@ -35,7 +34,6 @@ export default defineComponent({
         let file: File
 
         const pageData = ref({
-            notifications: [] as string[],
             isUploadDisabled: false,
             isUpgradeDisabled: true,
             isBackUpAndUpgradeDisabled: true,
@@ -84,73 +82,83 @@ export default defineComponent({
             uploadReboot: Translate('IDCS_UPLOAD_REBOOT'),
         }
 
-        const isSupportH5 = computed(() => {
-            return Plugin.IsSupportH5()
-        })
-
         let clickFlag = false
         let uploadTimer: NodeJS.Timeout | 0 = 0
 
-        /**
-         * @description OCX通知回调
-         * @param {Function} $
-         */
-        const notify = ($: XMLQuery) => {
-            // 升级进度/备份进度
-            if ($("statenotify[@type='FileNetTransportProgress']").length) {
-                const progress = $('statenotify/progress').text()
-                pageData.value.isCheckAuth = false
-                if ($('statenotify/action').text() === 'Export') {
-                    if (progress === '100%' && clickFlag) {
-                        upgrade()
-                        clickFlag = false
-                    }
-                    closeAllLoading()
-                } else {
-                    if (progress === '100%') {
-                        pageData.value.upgradeNote = TRANS_MAPPING.uploadReboot
-                        openLoading(LoadingTarget.FullScreen, TRANS_MAPPING.uploadReboot)
-                        //发送升级指令，但不一定会收到应答，需要延时检测重启
-                        uploadTimer = reconnect()
-                    } else {
+        const plugin = usePluginHook({
+            onReady: (mode, plugin) => {
+                if (mode.value === 'ocx') {
+                    const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
+                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                }
+
+                if (mode.value === 'h5' && isHttpsLogin()) {
+                    // 无插件https访问时，提示不支持升级
+                    openNotify(formatHttpsTips(Translate('IDCS_UPGRADE')))
+                    pageData.value.isUploadDisabled = true
+                }
+            },
+            onMessage: ($) => {
+                // 升级进度/备份进度
+                if ($("statenotify[@type='FileNetTransportProgress']").length) {
+                    const progress = $('statenotify/progress').text()
+                    pageData.value.isCheckAuth = false
+                    if ($('statenotify/action').text() === 'Export') {
+                        if (progress === '100%' && clickFlag) {
+                            upgrade()
+                            clickFlag = false
+                        }
                         closeAllLoading()
-                        pageData.value.upgradeNote = TRANS_MAPPING.uploading + '&nbsp;&nbsp;' + progress
+                    } else {
+                        if (progress === '100%') {
+                            pageData.value.upgradeNote = TRANS_MAPPING.uploadReboot
+                            openLoading(LoadingTarget.FullScreen, TRANS_MAPPING.uploadReboot)
+                            //发送升级指令，但不一定会收到应答，需要延时检测重启
+                            uploadTimer = reconnect()
+                        } else {
+                            closeAllLoading()
+                            pageData.value.upgradeNote = TRANS_MAPPING.uploading + '&nbsp;&nbsp;' + progress
+                        }
                     }
                 }
-            }
-            //网络断开
-            else if ($("statenotify[@type='FileNetTransport']").length) {
-                closeAllLoading()
-                if ($('statenotify/errorCode').length) {
-                    const errorCode = $('statenotify/errorCode').text().num()
-                    handleErrorMsg(errorCode)
-                }
-            }
-            // 升级文件校验
-            else if ($("statenotify[@type='UploadUpgradeCheckFileBase64']").length) {
-                const fileHeadBase64 = $('statenotify/base64').text()
-                // 若插件返回的升级包校验头内容为空，说明插件读取升级包失败。（可能是由于升级包文件被占用,另一web客户端正在升级）NVRUSS78-226
-                if (!fileHeadBase64) {
+                //网络断开
+                else if ($("statenotify[@type='FileNetTransport']").length) {
                     closeAllLoading()
-                    showMessage(Translate('IDCS_DEVICE_NOT_ALLOW_UPGRADE'))
-                    return
-                }
-                const sendXml = rawXml`
-                    <content>
-                        <filehead>${fileHeadBase64}</filehead>
-                    </content>
-                `
-                queryUpgradeFileHead(sendXml).then((result) => {
-                    const $$ = queryXml(result)
-                    const errorCode = $$('/content/errorCode').text().num()
-                    if ($$('//status').text() === 'success') {
-                        if (errorCode !== 0) handleErrorMsg(errorCode)
+                    if ($('statenotify/errorCode').length) {
+                        const errorCode = $('statenotify/errorCode').text().num()
+                        handleErrorMsg(errorCode)
                     }
-                    // 若errorCode为0，即正常低升高版本
-                    if (errorCode === 0) upgrade(true)
-                })
-            }
-        }
+                }
+                // 升级文件校验
+                else if ($("statenotify[@type='UploadUpgradeCheckFileBase64']").length) {
+                    const fileHeadBase64 = $('statenotify/base64').text()
+                    // 若插件返回的升级包校验头内容为空，说明插件读取升级包失败。（可能是由于升级包文件被占用,另一web客户端正在升级）NVRUSS78-226
+                    if (!fileHeadBase64) {
+                        closeAllLoading()
+                        showMessage(Translate('IDCS_DEVICE_NOT_ALLOW_UPGRADE'))
+                        return
+                    }
+                    const sendXml = rawXml`
+                        <content>
+                            <filehead>${fileHeadBase64}</filehead>
+                        </content>
+                    `
+                    queryUpgradeFileHead(sendXml).then((result) => {
+                        const $$ = queryXml(result)
+                        const errorCode = $$('errorCode').text().num()
+                        if ($$('status').text() === 'success') {
+                            if (errorCode !== 0) handleErrorMsg(errorCode)
+                        }
+                        // 若errorCode为0，即正常低升高版本
+                        if (errorCode === 0) upgrade(true)
+                    })
+                }
+            },
+        })
+
+        const isSupportH5 = computed(() => {
+            return plugin.IsSupportH5()
+        })
 
         /**
          * @description 获取系统信息
@@ -158,9 +166,9 @@ export default defineComponent({
         const getSystemStatus = async () => {
             const result = await queryDoubleSystemInfo()
             const $ = queryXml(result)
-            pageData.value.currentRunningSystem = $('//content/curRunSystem').text()
-            pageData.value.systemList[0].value = SYSTEM_STATUS_MAPPING[$('//content/mainSystemStatus').text()]
-            pageData.value.systemList[1].value = SYSTEM_STATUS_MAPPING[$('//content/backupSystemStatus').text()]
+            pageData.value.currentRunningSystem = $('content/curRunSystem').text()
+            pageData.value.systemList[0].value = SYSTEM_STATUS_MAPPING[$('content/mainSystemStatus').text()]
+            pageData.value.systemList[1].value = SYSTEM_STATUS_MAPPING[$('content/backupSystemStatus').text()]
         }
 
         /**
@@ -169,7 +177,7 @@ export default defineComponent({
         const handleOCXUpload = () => {
             pageData.value.upgradeNote = ''
             const sendXML = systemCaps.devSystemType === 1 ? OCX_XML_OpenFileBrowser('OPEN_FILE', 'pkg') : OCX_XML_OpenFileBrowser('OPEN_FILE', 'fls')
-            Plugin.AsynQueryInfo(Plugin.GetVideoPlugin() as WebsocketPlugin, sendXML, (result) => {
+            plugin.AsynQueryInfo(plugin.GetVideoPlugin() as WebsocketPlugin, sendXML, (result) => {
                 const path = OCX_XML_OpenFileBrowser_getpath(result).trim()
                 if (path) {
                     formData.value.filePath = path
@@ -286,7 +294,7 @@ export default defineComponent({
             const $ = queryXml(result)
 
             closeLoading()
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 pageData.value.isCheckAuth = false
                 if (isSupportH5.value) {
                     new WebsocketDownload({
@@ -302,7 +310,7 @@ export default defineComponent({
                     pageData.value.isUpgradeBackUp = true
                 }
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 handleErrorMsg(errorCode)
             }
         }
@@ -322,7 +330,7 @@ export default defineComponent({
             }
             openLoading()
             const sendXML = OCX_XML_FileNetTransport('Export', param)
-            Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+            plugin.GetVideoPlugin().ExecuteCmd(sendXML)
         }
 
         /**
@@ -387,11 +395,11 @@ export default defineComponent({
                         token: userSession.token,
                     }
                     const sendXML = OCX_XML_FileNetTransport('Upgrade', param)
-                    Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 } else {
                     openLoading()
                     const sendXML = OCX_XML_CheckUpgradeFile('ImportUpgradeCheckFile', 5120, formData.value.filePath)
-                    Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
                 }
             }
         }
@@ -475,42 +483,12 @@ export default defineComponent({
             }
         }
 
-        watch(
-            isSupportH5,
-            (newVal) => {
-                if (!newVal && !Plugin.IsPluginAvailable()) {
-                    Plugin.SetPluginNoResponse()
-                    Plugin.ShowPluginNoResponse()
-                }
-
-                if (newVal && isHttpsLogin()) {
-                    // 无插件https访问时，提示不支持升级
-                    pageData.value.notifications.push(formatHttpsTips(Translate('IDCS_UPGRADE')))
-                    pageData.value.isUploadDisabled = true
-                }
-
-                if (!newVal) {
-                    // 设置OCX模式
-                    const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
-                    Plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                }
-            },
-            {
-                immediate: true,
-            },
-        )
-
         onMounted(() => {
-            Plugin.VideoPluginNotifyEmitter.addListener(notify)
-            Plugin.SetPluginNotice('#layout2Content')
-
             getSystemStatus()
         })
 
         onBeforeUnmount(() => {
             clearTimeout(uploadTimer)
-
-            Plugin.VideoPluginNotifyEmitter.removeListener(notify)
         })
 
         return {

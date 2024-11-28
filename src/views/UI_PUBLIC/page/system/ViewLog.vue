@@ -53,8 +53,6 @@
         </el-form>
         <div class="base-table-box">
             <el-table
-                stripe
-                border
                 highlight-current-row
                 show-overflow-tooltip
                 :data="tableList"

@@ -9,7 +9,6 @@
             ref="formRef"
             :model="formData"
             :rules="rules"
-            class="ruleForm"
             :style="{
                 '--form-label-width': '200px',
                 '--form-input-width': '220px',
@@ -26,21 +25,15 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_STAY_TIME')">
-                <el-select v-model="formData.dwellTime">
-                    <el-option
-                        v-for="item in timeList"
-                        :key="item"
-                        :value="item"
-                        :label="getTranslateForSecond(item)"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="formData.dwellTime"
+                    :options="timeList"
+                />
             </el-form-item>
         </el-form>
         <div class="base-table-box">
             <el-table
                 ref="tableRef"
-                border
-                stripe
                 :data="tableData"
                 show-overflow-tooltip
                 highlight-current-row

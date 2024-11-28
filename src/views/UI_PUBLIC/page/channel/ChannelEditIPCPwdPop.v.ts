@@ -4,7 +4,7 @@
  * @Description: 通道 - 编辑IPC密码弹窗
  */
 import { type ChannelInfoDto } from '@/types/apiType/channel'
-import { type TableInstance, type FormInstance, type FormRules } from 'element-plus'
+import { type TableInstance, type FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -28,9 +28,9 @@ export default defineComponent({
         const userSessionStore = useUserSessionStore()
         const { openMessageBox } = useMessageBox()
         const tableRef = ref<TableInstance>()
-        const tableData = ref([] as Array<ChannelInfoDto>)
-        const formRef = ref<FormInstance>()
-        const formData = ref({} as Record<string, string>)
+        const tableData = ref<Array<ChannelInfoDto>>([])
+        const formRef = useFormRef()
+        const formData = ref<Record<string, string>>({})
 
         const rules = ref<FormRules>({
             password: [
@@ -65,7 +65,6 @@ export default defineComponent({
         }
 
         const opened = () => {
-            if (formRef.value) formRef.value.resetFields()
             formData.value = {}
             tableData.value = props.editData.filter((ele) => {
                 return ele.isOnline && ele.protocolType === 'TVT_IPCAMERA' && ele.addType !== 'poe'
@@ -104,7 +103,7 @@ export default defineComponent({
         }
 
         const save = () => {
-            formRef.value?.validate(async (valid) => {
+            formRef.value!.validate(async (valid) => {
                 if (valid) {
                     const rows = tableRef.value!.getSelectionRows()
                     if (!rows.length) return

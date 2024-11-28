@@ -69,7 +69,7 @@ export default defineComponent({
 
             let hasRebuildArray = false
 
-            tableData.value = $('//content/raidList/item').map((item) => {
+            tableData.value = $('content/raidList/item').map((item) => {
                 const $item = queryXml(item.element)
 
                 if ($item('raidState').text() === 'rebuild') {
@@ -84,7 +84,7 @@ export default defineComponent({
                     physicalDisk: $item('physicalDisks').text(),
                     raidState: $item('raidState').text(),
                     raidType: $item('raidType').text(),
-                    spareHard: $('//content/spareHard').text(),
+                    spareHard: $('content/spareHard').text(),
                     task: '',
                 }
             })
@@ -119,7 +119,7 @@ export default defineComponent({
             openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_NOTE_DELETE_RAID').formatForLang(row.name),
-            }).then(async () => {
+            }).then(() => {
                 pageData.value.isCheckAuth = true
                 pageData.value.activeIndex = index
             })
@@ -149,11 +149,11 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 refreshData()
                 pageData.value.isCheckAuth = false
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_PWD_ERR:
@@ -183,7 +183,7 @@ export default defineComponent({
             const $ = queryXml(result)
 
             let hasRebuildArray = false
-            $('//content/item').forEach((item) => {
+            $('content/item').forEach((item) => {
                 const $item = queryXml(item.element)
                 const raid = item.attr('id')
                 const raidState = $item('raidState').text()

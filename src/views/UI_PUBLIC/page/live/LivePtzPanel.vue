@@ -86,26 +86,26 @@
                     @click="changeMenu(pageData.activeMenu + 1)"
                 />
             </div>
-            <LivePtzPreset
+            <LivePtzPresetPanel
                 v-show="pageData.activeMenu === 0"
                 :enabled="hasAuth"
                 :chl-id="chlId"
                 :chl-name="winData.chlName"
                 :speed="pageData.speed"
             />
-            <LivePtzCruise
+            <LivePtzCruisePanel
                 v-show="pageData.activeMenu === 1"
                 :enabled="hasAuth"
                 :chl-id="chlId"
                 :chl-name="winData.chlName"
                 :speed="pageData.speed"
             />
-            <LivePtzGroup
+            <LivePtzGroupPanel
                 v-show="pageData.activeMenu === 2"
                 :enabled="hasAuth"
                 :chl-id="chlId"
             />
-            <LivePtzTrace
+            <LivePtzTracePanel
                 v-show="pageData.activeMenu === 3"
                 :enabled="hasAuth"
                 :chl-id="chlId"

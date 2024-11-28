@@ -8,8 +8,9 @@ import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import { type AlarmFaceChlDto, AlarmFaceDetectionDto, AlarmFaceMatchDto, type AlarmFaceGroupDto, AlarmFaceRecognitionDto, type AlarmRecognitionTaskDto } from '@/types/apiType/aiAndEvent'
 import { type TabPaneName, type CheckboxValueType } from 'element-plus'
 import CanvasVfd from '@/utils/canvas/canvasVfd'
-import SuccessfulRecognition from './SuccessfulRecognition.vue'
-import { type XmlResult } from '@/utils/xmlParse'
+import RecognitionPanel from './RecognitionPanel.vue'
+import { type XMLQuery } from '@/utils/xmlParse'
+import AlarmBaseChannelSelector from './AlarmBaseChannelSelector.vue'
 import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
 import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
 import AlarmBaseTriggerSelector from './AlarmBaseTriggerSelector.vue'
@@ -18,8 +19,9 @@ import AlarmBaseResourceData from './AlarmBaseResourceData.vue'
 
 export default defineComponent({
     components: {
-        SuccessfulRecognition,
+        RecognitionPanel,
         ScheduleManagPop,
+        AlarmBaseChannelSelector,
         AlarmBaseRecordSelector,
         AlarmBaseAlarmOutSelector,
         AlarmBaseTriggerSelector,
@@ -30,11 +32,10 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
+        const { openNotify } = useNotification()
         const router = useRouter()
-        const pluginStore = usePluginStore()
         const systemCaps = useCababilityStore()
         const osType = getSystemInfo().platform
-        const Plugin = inject('Plugin') as PluginType
 
         const playerRef = ref<PlayerInstance>()
         // 高级设置
@@ -65,8 +66,6 @@ export default defineComponent({
         const supportAlarmAudioConfig = systemCaps.supportAlarmAudioConfig
         const AISwitch = systemCaps.AISwitch
 
-        const closeTip = getAlarmEventList()
-
         // 通道列表，存储通道的相关数据
         const chlList: Record<string, AlarmFaceChlDto> = {}
 
@@ -93,12 +92,6 @@ export default defineComponent({
             // 存储是否可用
             isSavePicDisabled: false,
             snapList: [] as SelectOption<string, string>[],
-            // 抓图次数是否选中
-            isSnapNumberChecked: false,
-            // 抓图次数
-            snapNumber: '',
-            // 抓图次数是否可用
-            isSnapNumberDisabled: false,
             // 人脸曝光
             faceExpDisabled: false,
             // 初始化，后判断应用是否可用
@@ -128,7 +121,7 @@ export default defineComponent({
         // 整体的通用界面数据
         const pageData = ref({
             curChl: '',
-            faceChlList: [] as Record<string, string>[],
+            faceChlList: [] as { id: string; name: string }[],
             // 当前选择的tab项
             faceTab: 'faceDetection',
             faceDetectionDisabled: false,
@@ -141,8 +134,6 @@ export default defineComponent({
             // 排程
             scheduleList: [] as SelectOption<string, string>[],
             scheduleManagPopOpen: false,
-            // 通知列表
-            notification: [] as string[],
             // 声音列表
             voiceList: [] as SelectOption<string, string>[],
             notChlSupport: false,
@@ -175,7 +166,7 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 if (isHttpsLogin()) {
-                    pageData.value.notification = [formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`)]
+                    openNotify(formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`))
                 }
                 const canvas = player.getDrawbordCanvas(0)
                 vfdDrawer = new CanvasVfd({
@@ -187,15 +178,6 @@ export default defineComponent({
             }
 
             if (mode.value === 'ocx') {
-                if (!plugin.IsInstallPlugin()) {
-                    plugin.SetPluginNotice('#layout2Content')
-                    return
-                }
-
-                if (!plugin.IsPluginAvailable()) {
-                    pluginStore.showPluginNoResponse = true
-                    plugin.ShowPluginNoResponse()
-                }
                 const sendXML = OCX_XML_SetPluginModel(osType === 'mac' ? 'VfdConfig' : 'ReadOnly', 'Live')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
@@ -279,14 +261,14 @@ export default defineComponent({
             // 获取在线通道列表
             const result = await queryOnlineChlList()
             const $ = await commLoadResponseHandler(result)
-            const onlineChlList = $('//content/item').map((item) => {
+            const onlineChlList = $('content/item').map((item) => {
                 return item.attr('id')
             })
             getChlList({
                 requireField: ['ip', 'supportVfd', 'supportAudioAlarmOut', 'supportFire', 'supportWhiteLightAlarmOut', 'supportTemperature'],
             }).then((result) => {
-                commLoadResponseHandler(result, async ($) => {
-                    $('//content/item').forEach((item) => {
+                commLoadResponseHandler(result, ($) => {
+                    $('content/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         const protocolType = $item('protocolType').text()
                         const factoryName = $item('productModel').attr('factoryName')
@@ -328,8 +310,8 @@ export default defineComponent({
                                 faceMatchLimitMaxChlNum,
                             }
                             pageData.value.faceChlList.push({
-                                value: curChlId,
-                                label: name,
+                                id: curChlId,
+                                name: name,
                             })
                         }
                     })
@@ -340,7 +322,7 @@ export default defineComponent({
                         }
                         delete history.state.chlId
                     }
-                    if (!pageData.value.curChl) pageData.value.curChl = pageData.value.faceChlList[0].value
+                    if (!pageData.value.curChl) pageData.value.curChl = pageData.value.faceChlList[0].id
                     handleCurrChlData(chlList[pageData.value.curChl])
                     // 在获取到通道数据后再请求通道的侦测数据
                     await getFaceDetectionData()
@@ -387,6 +369,7 @@ export default defineComponent({
             // 更换通道时清空上一个通道的数据
             faceDetectionData.value = new AlarmFaceDetectionDto()
             faceCompareData.value = new AlarmFaceRecognitionDto()
+            taskTabs.value = []
             faceGroupData.value = []
             haveUseNameId = []
             detectionPageData.value.initComplated = false
@@ -424,10 +407,12 @@ export default defineComponent({
                     </requireField>
                 `
                 const result = await queryVfd(sendXml)
-                commLoadResponseHandler(result, async ($) => {
-                    const param = $('//content/chl/param')
-                    const $param = queryXml(param[0].element)
+                commLoadResponseHandler(result, ($) => {
+                    const $param = queryXml($('content/chl/param')[0].element)
+                    const $trigger = queryXml($('content/chl/trigger')[0].element)
+
                     const enabledSwitch = $param('switch').text().bool()
+
                     let holdTimeArr = $param('holdTimeNote').text().split(',')
                     const holdTime = $param('holdTime').text()
                     if (!holdTimeArr.includes(holdTime)) {
@@ -441,66 +426,49 @@ export default defineComponent({
                             label,
                         }
                     })
-                    const regionInfo = $param('regionInfo/item').map((item) => {
-                        const $item = queryXml(item.element)
-                        return {
-                            X1: $item('X1').text().num(),
-                            Y1: $item('Y1').text().num(),
-                            X2: $item('X2').text().num(),
-                            Y2: $item('Y2').text().num(),
-                        }
-                    })
-                    const mutexList = $param('mutexList/item').map((item) => {
-                        const $item = queryXml(item.element)
-                        return {
-                            object: $item('object').text(),
-                            status: $item('status').text().bool(),
-                        }
-                    })
-                    const mutexListEx = $param('mutexListEx/item').map((item) => {
-                        const $item = queryXml(item.element)
-                        return {
-                            object: $item('object').text(),
-                            status: $item('status').text().bool(),
-                        }
-                    })
-                    const trigger = $('//content/chl/trigger')
-                    const $trigger = queryXml(trigger[0].element)
-                    const record = $trigger('sysRec/chls/item').map((item) => {
-                        return {
-                            value: item.attr('id'),
-                            label: item.text(),
-                        }
-                    })
-                    const alarmOut = $trigger('alarmOut/alarmOuts/item').map((item) => {
-                        return {
-                            value: item.attr('id'),
-                            label: item.text(),
-                        }
-                    })
-                    const preset = $trigger('preset/presets/item').map((item) => {
-                        const $item = queryXml(item.element)
-                        return {
-                            index: $item('index').text(),
-                            name: $item('name').text(),
-                            chl: {
-                                value: $item('chl').attr('id'),
-                                label: $item('chl').text(),
-                            },
-                        }
-                    })
+
+                    // true自定义可输入1-65534，false显示“无限制”，值为65535
+                    // 防止返回值是65535时，是“无限制”状态，值取默认值3
+                    let captureCycle = $param('senceMode/customize/captureCycle').text().num()
+                    let captureCycleChecked = true
+                    if (captureCycle === 65535) {
+                        captureCycleChecked = false
+                        captureCycle = 3
+                    }
+
                     faceDetectionData.value = {
                         enabledSwitch,
                         originalSwitch: enabledSwitch,
                         holdTime,
                         holdTimeList,
-                        regionInfo,
-                        mutexList,
-                        mutexListEx,
+                        regionInfo: $param('regionInfo/item').map((item) => {
+                            const $item = queryXml(item.element)
+                            return {
+                                X1: $item('X1').text().num(),
+                                Y1: $item('Y1').text().num(),
+                                X2: $item('X2').text().num(),
+                                Y2: $item('Y2').text().num(),
+                            }
+                        }),
+                        mutexList: $param('mutexList/item').map((item) => {
+                            const $item = queryXml(item.element)
+                            return {
+                                object: $item('object').text(),
+                                status: $item('status').text().bool(),
+                            }
+                        }),
+                        mutexListEx: $param('mutexListEx/item').map((item) => {
+                            const $item = queryXml(item.element)
+                            return {
+                                object: $item('object').text(),
+                                status: $item('status').text().bool(),
+                            }
+                        }),
                         saveFacePicture: $param('saveFacePicture').text(),
                         saveSourcePicture: $param('saveSourcePicture').text(),
                         snapInterval: $param('senceMode/customize/intervalTime').text(),
-                        captureCycle: $param('senceMode/customize/captureCycle').text(),
+                        captureCycle,
+                        captureCycleChecked,
                         minFaceFrame: $param('minFaceFrame').text().num(),
                         minRegionInfo: [],
                         maxFaceFrame: $param('maxFaceFrame').text().num(),
@@ -509,10 +477,30 @@ export default defineComponent({
                         triggerWhiteLight: $param('triggerWhiteLight').text(),
                         faceExpSwitch: $param('faceExp/switch').text().bool(),
                         faceExpStrength: $param('senceMode/customize/faceExpStrength').text().num(),
-                        schedule: $('//content/chl').attr('scheduleGuid'),
-                        record,
-                        alarmOut,
-                        preset,
+                        schedule: $('content/chl').attr('scheduleGuid'),
+                        record: $trigger('sysRec/chls/item').map((item) => {
+                            return {
+                                value: item.attr('id'),
+                                label: item.text(),
+                            }
+                        }),
+                        alarmOut: $trigger('alarmOut/alarmOuts/item').map((item) => {
+                            return {
+                                value: item.attr('id'),
+                                label: item.text(),
+                            }
+                        }),
+                        preset: $trigger('preset/presets/item').map((item) => {
+                            const $item = queryXml(item.element)
+                            return {
+                                index: $item('index').text(),
+                                name: $item('name').text(),
+                                chl: {
+                                    value: $item('chl').attr('id'),
+                                    label: $item('chl').text(),
+                                },
+                            }
+                        }),
                         trigger: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch'].filter((item) => {
                             return $trigger(item).text().bool()
                         }),
@@ -527,7 +515,7 @@ export default defineComponent({
                 `
                 const result = await queryBackFaceMatch(sendXml)
                 const $ = queryXml(result)
-                $('//content/param/chls/item').forEach((item) => {
+                $('content/param/chls/item').forEach((item) => {
                     if (item.attr('guid') === pageData.value.curChl) {
                         const $item = queryXml(item.element)
                         const enabledSwitch = $item('switch').text().bool()
@@ -567,15 +555,6 @@ export default defineComponent({
                     detectionPageData.value.isSavePicDisabled = true
                 }
 
-                if (faceDetectionData.value.snapInterval === '') {
-                    detectionPageData.value.isSnapNumberChecked = false
-                } else {
-                    const checked = faceDetectionData.value.captureCycle !== '65535' // true自定义可输入1-65534，false显示“无限制”，值为65535
-                    if (!checked) faceDetectionData.value.captureCycle = '3' // 防止返回值是65535时，是“无限制”状态，值取默认值3
-                    detectionPageData.value.snapNumber = checked ? faceDetectionData.value.captureCycle : Translate('IDCS_NO_LIMITED')
-                    detectionPageData.value.isSnapNumberDisabled = !checked
-                    detectionPageData.value.isSnapNumberChecked = checked
-                }
                 // 先判断人脸曝光是否为空，确定是否禁用，再赋给其默认值50
                 detectionPageData.value.faceExpDisabled = faceDetectionData.value.faceExpStrength === 0
                 faceDetectionData.value.faceExpStrength = faceDetectionData.value.faceExpStrength || 50
@@ -657,23 +636,14 @@ export default defineComponent({
             faceDetectionData.value.saveFacePicture = value ? 'true' : 'false'
         }
 
-        // 抓图次数
-        const snapNumberCheckChange = (value: CheckboxValueType) => {
-            // 全部采用!value确保CheckboxValueType为boolean
-            if (!value) faceDetectionData.value.captureCycle = '3'
-            detectionPageData.value.snapNumber = !value ? Translate('IDCS_NO_LIMITED') : faceDetectionData.value.captureCycle
-            detectionPageData.value.isSnapNumberDisabled = !value
-        }
-
         // 人脸最大小值范围
         const minFaceBlur = () => {
-            const min = Number(faceDetectionData.value.minFaceFrame)
-            const max = Number(faceDetectionData.value.maxFaceFrame)
+            const min = faceDetectionData.value.minFaceFrame
+            const max = faceDetectionData.value.maxFaceFrame
             if (min > max) {
                 faceDetectionData.value.minFaceFrame = faceDetectionData.value.maxFaceFrame
             }
-            if (min < 3) faceDetectionData.value.minFaceFrame = 3
-            if (min > 50) faceDetectionData.value.minFaceFrame = 50
+
             if (detectionPageData.value.isDispalyRangeChecked) {
                 // 绘制最小框
                 const minRegionInfo = calcRegionInfo(faceDetectionData.value.minFaceFrame)
@@ -684,13 +654,12 @@ export default defineComponent({
         }
 
         const maxFaceBlur = () => {
-            const min = Number(faceDetectionData.value.minFaceFrame)
-            const max = Number(faceDetectionData.value.maxFaceFrame)
+            const min = faceDetectionData.value.minFaceFrame
+            const max = faceDetectionData.value.maxFaceFrame
             if (max < min) {
                 faceDetectionData.value.maxFaceFrame = faceDetectionData.value.minFaceFrame
             }
-            if (max < 3) faceDetectionData.value.maxFaceFrame = 3
-            if (max > 50) faceDetectionData.value.maxFaceFrame = 50
+
             if (detectionPageData.value.isDispalyRangeChecked) {
                 // 绘制最大框
                 const maxRegionInfo = calcRegionInfo(faceDetectionData.value.maxFaceFrame)
@@ -737,7 +706,7 @@ export default defineComponent({
             faceDetectionData.value.regionInfo = [{ X1: 0, Y1: 0, X2: 0, Y2: 0 }]
         }
 
-        const faceTabChange = async (name: TabPaneName) => {
+        const faceTabChange = (name: TabPaneName) => {
             if (name === 'faceDetection') {
                 play()
             } else if (name === 'faceLibrary') {
@@ -780,66 +749,19 @@ export default defineComponent({
             getChlData()
         }
 
-        // 获取互斥通道名称
-        const getMutexChlNameObj = () => {
-            let normalChlName = ''
-            let thermalChlName = ''
-            const sameIPChlList = []
-            const chlData = chlList[pageData.value.curChl]
-            for (const item in chlList) {
-                if (chlList[item].ip === chlData.ip) {
-                    sameIPChlList.push(chlList[item])
-                }
-            }
-
-            if (sameIPChlList.length > 1) {
-                sameIPChlList.forEach((chl) => {
-                    if (chl.accessType === '1') {
-                        thermalChlName = chl.name === chlData.name ? '' : chl.name
-                    } else {
-                        normalChlName = chl.name === chlData.name ? '' : chl.name
-                    }
-                })
-            }
-            return {
-                normalChlName,
-                thermalChlName,
-            }
-        }
-
         // 提交人脸侦测数据
         const applyFaceDetectionData = () => {
-            let isSwitchChange = false
-            const switchChangeTypeArr: string[] = []
-            if (faceDetectionData.value.enabledSwitch && faceDetectionData.value.enabledSwitch !== faceDetectionData.value.originalSwitch) {
-                isSwitchChange = true
-            }
-            const mutexChlNameObj = getMutexChlNameObj()
-            faceDetectionData.value.mutexList.forEach((item) => {
-                if (item.status) {
-                    const prefixName = mutexChlNameObj.normalChlName ? joinSpaceForLang(Translate('IDCS_CHANNEL') + ':' + mutexChlNameObj.normalChlName) : ''
-                    const showInfo = prefixName ? prefixName + closeTip[item.object].toLowerCase() : closeTip[item.object]
-                    switchChangeTypeArr.push(showInfo)
-                }
-            })
-            faceDetectionData.value.mutexListEx.forEach((item) => {
-                if (item.status) {
-                    const prefixName = mutexChlNameObj.thermalChlName ? joinSpaceForLang(Translate('IDCS_CHANNEL') + ':' + mutexChlNameObj.thermalChlName) : ''
-                    const showInfo = prefixName ? prefixName + closeTip[item.object].toLowerCase() : closeTip[item.object]
-                    switchChangeTypeArr.push(showInfo)
-                }
-            })
-            if (isSwitchChange && switchChangeTypeArr.length) {
-                const switchChangeType = switchChangeTypeArr.join(',')
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_SIMPLE_FACE_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + chlList[pageData.value.curChl].name, switchChangeType),
-                }).then(() => {
-                    chlList[pageData.value.curChl].supportVfd ? setFaceDetectionData() : setFaceDetectionBackUpData()
-                })
-            } else {
+            checkMutexChl({
+                tips: 'IDCS_SIMPLE_FACE_DETECT_TIPS',
+                isChange: faceDetectionData.value.enabledSwitch && faceDetectionData.value.enabledSwitch !== faceDetectionData.value.originalSwitch,
+                mutexList: faceDetectionData.value.mutexList,
+                mutexListEx: faceDetectionData.value.mutexListEx,
+                chlList: Object.values(chlList),
+                chlIp: chlList[pageData.value.curChl].ip,
+                chlName: chlList[pageData.value.curChl].name,
+            }).then(() => {
                 chlList[pageData.value.curChl].supportVfd ? setFaceDetectionData() : setFaceDetectionBackUpData()
-            }
+            })
         }
 
         const getFaceDetectionSaveData = () => {
@@ -859,7 +781,7 @@ export default defineComponent({
                                     <Mode>customize</Mode>
                                     <customize>
                                         <intervalTime>${faceDetectionData.value.snapInterval}</intervalTime>
-                                        <captureCycle>${!detectionPageData.value.isSnapNumberChecked ? '65535' : faceDetectionData.value.captureCycle}</captureCycle>
+                                        <captureCycle>${!faceDetectionData.value.captureCycleChecked ? 65535 : faceDetectionData.value.captureCycle}</captureCycle>
                                     </customize>
                                 </senceMode>
                             `
@@ -986,7 +908,10 @@ export default defineComponent({
             }
             const nameId = defaultNameId.find((item) => !haveUseNameId.includes(item))!
             haveUseNameId.push(nameId)
-            taskTabs.value.push({ value: 'hit' + nameId, label: Translate('IDCS_SUCCESSFUL_RECOGNITION') + nameId })
+            taskTabs.value.push({
+                value: 'hit' + nameId,
+                label: Translate('IDCS_SUCCESSFUL_RECOGNITION') + nameId,
+            })
             comparePageData.value.compareTab = 'hit' + nameId
             comparePageData.value.removeDisabled = false
             faceCompareData.value.task.push({
@@ -999,7 +924,12 @@ export default defineComponent({
                 hintword: '',
                 sysAudio: DEFAULT_EMPTY_ID,
                 schedule: DEFAULT_EMPTY_ID,
-                record: [{ value: pageData.value.curChl, label: chlList[pageData.value.curChl].name }], //添加的任务默认联动本通道
+                record: [
+                    {
+                        value: pageData.value.curChl,
+                        label: chlList[pageData.value.curChl].name,
+                    },
+                ], //添加的任务默认联动本通道
                 alarmOut: [],
                 snap: [],
                 preset: [],
@@ -1044,7 +974,7 @@ export default defineComponent({
         const getFaceGroupData = async () => {
             const result = await queryFacePersonnalInfoGroupList()
             commLoadResponseHandler(result, ($) => {
-                $('//content/item').forEach((item) => {
+                $('content/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     const guid = item.attr('id')
                     let name = $item('name').text()
@@ -1081,27 +1011,26 @@ export default defineComponent({
             `
             const result = await queryFaceMatchConfig(sendXml)
             commLoadResponseHandler(result, ($) => {
-                const hitEnable = $('//content/chl/hitEnable').text().bool()
-                const notHitEnable = $('//content/chl/notHitEnable').text().bool()
-                const liveDisplaySwitch = $('//content/chl/liveDisplaySwitch').text().bool()
-                const groupInfo = [] as AlarmFaceGroupDto[]
-                $('//content/chl/groupId/item').forEach((item) => {
+                const hitEnable = $('content/chl/hitEnable').text().bool()
+                const notHitEnable = $('content/chl/notHitEnable').text().bool()
+                const liveDisplaySwitch = $('content/chl/liveDisplaySwitch').text().bool()
+                const groupInfo = $('content/chl/groupId/item').map((item) => {
                     const $item = queryXml(item.element)
                     const guid = item.attr('guid')
                     const similarity = $item('similarity').text().num()
                     const name = faceGroupNameMap[guid]
-                    groupInfo.push({
+                    return {
                         guid: guid,
                         name: name,
                         similarity: similarity,
-                    })
+                    }
                 })
                 faceGroupTable.value = cloneDeep(groupInfo)
                 faceMatchData.value = {
                     hitEnable: hitEnable,
                     notHitEnable: notHitEnable,
                     liveDisplaySwitch: !liveDisplaySwitch,
-                    groupInfo: groupInfo,
+                    groupInfo,
                     editFlag: false,
                 }
             })
@@ -1169,8 +1098,8 @@ export default defineComponent({
             const $ = queryXml(result)
             closeLoading()
 
-            if ($('//status').text() !== 'success') {
-                const errorCode = $('//errorCode').text().num()
+            if ($('status').text() !== 'success') {
+                const errorCode = $('errorCode').text().num()
                 if (errorCode === ErrorCode.USER_ERROR_LIMITED_PLATFORM_VERSION_MISMATCH) {
                     openMessageBox({
                         type: 'info',
@@ -1206,14 +1135,14 @@ export default defineComponent({
             const result = await queryFaceMatchAlarmParam(sendXml)
             commLoadResponseHandler(result, ($) => {
                 faceCompareData.value.voiceList = [{ value: '', label: Translate('IDCS_NULL') }]
-                $('//content/voiceItem/item').forEach((item) => {
+                $('content/voiceItem/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     faceCompareData.value.voiceList.push({
                         value: $item('filePath').text(),
                         label: $item('name').text(),
                     })
                 })
-                faceCompareData.value.task = $('//content/chl/task/item').map((item) => {
+                faceCompareData.value.task = $('content/chl/task/item').map((item) => {
                     const $item = queryXml(item.element)
                     const nameId = $item('param/nameId').text().num()
                     haveUseNameId.push(nameId)
@@ -1395,9 +1324,9 @@ export default defineComponent({
             }
         }
 
-        const LiveNotify2Js = ($: (path: string) => XmlResult) => {
+        const notify = ($: XMLQuery) => {
             if ($("statenotify[@type='VfdArea']").length) {
-                faceDetectionData.value.regionInfo = $('/statenotify/item').map((item) => {
+                faceDetectionData.value.regionInfo = $('statenotify/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         X1: $item('X1').text().num(),
@@ -1410,9 +1339,6 @@ export default defineComponent({
         }
 
         onMounted(async () => {
-            if (mode.value !== 'h5') {
-                Plugin.VideoPluginNotifyEmitter.addListener(LiveNotify2Js)
-            }
             getSnapOptions()
             openLoading()
 
@@ -1426,7 +1352,6 @@ export default defineComponent({
 
         onBeforeUnmount(() => {
             if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
-                Plugin.VideoPluginNotifyEmitter.removeListener(LiveNotify2Js)
                 // 切到其他AI事件页面时清除一下插件显示的（线条/点/矩形/多边形）数据
                 const sendAreaXML = OCX_XML_SetVfdAreaAction('NONE', 'vfdArea')
                 plugin.GetVideoPlugin().ExecuteCmd(sendAreaXML)
@@ -1486,7 +1411,7 @@ export default defineComponent({
 
         return {
             // 识别成功界面
-            SuccessfulRecognition,
+            RecognitionPanel,
             ScheduleManagPop,
             chlList,
             detectionPageData,
@@ -1500,6 +1425,7 @@ export default defineComponent({
             showAIReourceDetail,
             // getAIResourceData,
             playerRef,
+            notify,
             // tab项
             faceTabChange,
             detectionTabChange,
@@ -1510,8 +1436,6 @@ export default defineComponent({
             // 存储
             saveSourcePicChange,
             saveFacePicChange,
-            // 抓拍次数的checkbox
-            snapNumberCheckChange,
             // 人脸最大小范围
             minFaceBlur,
             maxFaceBlur,
@@ -1553,6 +1477,7 @@ export default defineComponent({
             handleAIResourceDel,
             faceCompareData,
 
+            AlarmBaseChannelSelector,
             AlarmBaseRecordSelector,
             AlarmBaseAlarmOutSelector,
             AlarmBaseTriggerSelector,

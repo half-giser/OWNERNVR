@@ -7,7 +7,7 @@
     <el-dialog
         width="960"
         :title="Translate('IDCS_SCHEDULE')"
-        :destroy-on-close="true"
+        destroy-on-close
         @open="onOpen"
     >
         <div class="base-btn-box">
@@ -28,8 +28,6 @@
             <div>
                 <el-table
                     ref="scheduleTable"
-                    stripe
-                    border
                     :data="pageData.scheduleList"
                     highlight-current-row
                     width="305"
@@ -78,20 +76,17 @@
                 </el-table>
             </div>
         </div>
-        <Teleport to="body">
-            <!-- 排程编辑弹窗 -->
-            <ScheduleEditPop
-                v-model="pageData.scheduleEditPopOpen"
-                :schedule-dtail="pageData.editScheduleInfo"
-                :day-enum="pageData.dayEnum"
-                @close="editPopClose"
-            />
-        </Teleport>
-        <template #footer>
-            <div class="base-btn-box">
-                <el-button @click="$emit('close')">{{ Translate('IDCS_CLOSE') }}</el-button>
-            </div>
-        </template>
+        <!-- 排程编辑弹窗 -->
+        <ScheduleEditPop
+            v-model="pageData.scheduleEditPopOpen"
+            :schedule-dtail="pageData.editScheduleInfo"
+            :day-enum="pageData.dayEnum"
+            append-to-body
+            @close="editPopClose"
+        />
+        <div class="base-btn-box">
+            <el-button @click="$emit('close')">{{ Translate('IDCS_CLOSE') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 

@@ -96,7 +96,12 @@ export default defineComponent({
             // 时间服务器选项
             timeServerOptions: [] as SelectOption<string, string>[],
             // 时区选项
-            timeZoneOption: TIME_ZONE,
+            timeZoneOption: TIME_ZONE.map((item, index) => {
+                return {
+                    ...item,
+                    label: Translate('IDCS_TIME_ZONE_' + (index + 1)),
+                }
+            }),
             // 视频制式选项
             videoTypeOptions: [] as SelectOption<string, string>[],
             // 问题选项（UI2-A）
@@ -304,7 +309,7 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 openMessageBox({
                     type: 'question',
                     message: Translate('IDCS_REBOOTING'),
@@ -312,7 +317,7 @@ export default defineComponent({
                     openLoading(LoadingTarget.FullScreen, Translate('IDCS_REBOOTING'))
                 })
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 if (errorCode === 536871054) {
                     //设备已初始化完成,跳转登录页面
                     openMessageBox({
@@ -337,7 +342,7 @@ export default defineComponent({
             closeLoading()
 
             // 检查设备是否已经激活
-            const activated = $('//content/activated').text().bool()
+            const activated = $('content/activated').text().bool()
             if (activated) {
                 // 设备已初始化完成,跳转登录页面
                 openMessageBox({
@@ -349,12 +354,12 @@ export default defineComponent({
                 return
             }
 
-            pubkey = $('//content/key').text()
+            pubkey = $('content/key').text()
 
-            userFormData.value.userName = $('//content/userName').text()
+            userFormData.value.userName = $('content/userName').text()
 
-            pageData.value.questionMaxCount = $('//content/maxQuestionNum').text().num() || 7
-            pageData.value.questionOptions = $('//content/question').map((item) => {
+            pageData.value.questionMaxCount = $('content/maxQuestionNum').text().num() || 7
+            pageData.value.questionOptions = $('content/question').map((item) => {
                 return {
                     id: item.attr('index'),
                     question: item.text(),
@@ -363,9 +368,9 @@ export default defineComponent({
             })
             qaFormData.value.id = pageData.value.questionOptions[0]?.id || ''
 
-            stepList.languageAndRegion = !$('//content/showLanguage').length || $('//content/showLanguage').text().bool()
-            stepList.privacy = !$('//content/showPrivacyStatement').length || $('//content/showPrivacyStatement').text().bool()
-            stepList.dateAndTimezone = !$('//content/showDateTime').length || $('//content/showDateTime').text().bool()
+            stepList.languageAndRegion = !$('content/showLanguage').length || $('content/showLanguage').text().bool()
+            stepList.privacy = !$('content/showPrivacyStatement').length || $('content/showPrivacyStatement').text().bool()
+            stepList.dateAndTimezone = !$('content/showDateTime').length || $('content/showDateTime').text().bool()
 
             steps.value = Object.keys(stepList).filter((item) => stepList[item])
         }
@@ -394,18 +399,18 @@ export default defineComponent({
         const getRegionList = async () => {
             const result = await queryRegionList()
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                pageData.value.regionList = $('//content/item').map((item) => {
+            if ($('status').text() === 'success') {
+                pageData.value.regionList = $('content/item').map((item) => {
                     return {
                         id: item.attr('id'),
                         code: item.attr('localityCode'),
                         name: item.text(),
                     }
                 })
-                langFormData.value.regionId = $('//content/defaultItem').text()
+                langFormData.value.regionId = $('content/defaultItem').text()
                 langFormData.value.regionCode = pageData.value.regionList.find((item) => item.id === langFormData.value.regionId)!.code
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 if (errorCode === ErrorCode.USER_ERROR_FAIL) {
                     getActivationStatus()
                 }
@@ -434,29 +439,29 @@ export default defineComponent({
             `
             const result = await queryDefaultInitData(sendXml)
             const $ = queryXml(result)
-            dateTimeFormData.value.timeZone = $('//content/timeCfg/timezoneInfo/timeZone').text()
-            dateTimeFormData.value.enableDST = $('//content/timeCfg/timezoneInfo/daylightSwitch').text().bool()
-            dateTimeFormData.value.dateFormat = $('//content/timeCfg/formatInfo/data').text()
-            dateTimeFormData.value.timeFormat = $('//content/timeCfg/formatInfo/time').text()
+            dateTimeFormData.value.timeZone = $('content/timeCfg/timezoneInfo/timeZone').text()
+            dateTimeFormData.value.enableDST = $('content/timeCfg/timezoneInfo/daylightSwitch').text().bool()
+            dateTimeFormData.value.dateFormat = $('content/timeCfg/formatInfo/data').text()
+            dateTimeFormData.value.timeFormat = $('content/timeCfg/formatInfo/time').text()
 
             // NVR145-112 优先取initDataNtpServer
-            const timeServer = $('//content/timeCfg/synchronizeInfo/ntpServer').text()
+            const timeServer = $('content/timeCfg/synchronizeInfo/ntpServer').text()
             if (timeServer) {
                 dateTimeFormData.value.timeServer = timeServer
             }
 
-            const syncType = $('//content/timeCfg/synchronizeInfo/synchronizeInfo').text()
+            const syncType = $('content/timeCfg/synchronizeInfo/synchronizeInfo').text()
             if (syncType) {
-                dateTimeFormData.value.syncType = $('//content/timeCfg/synchronizeInfo/synchronizeInfo').text()
+                dateTimeFormData.value.syncType = $('content/timeCfg/synchronizeInfo/synchronizeInfo').text()
             }
 
-            pageData.value.videoTypeOptions = $('//types/videoType/enum').map((item) => {
+            pageData.value.videoTypeOptions = $('types/videoType/enum').map((item) => {
                 return {
                     value: item.text(),
                     label: item.text(),
                 }
             })
-            dateTimeFormData.value.videoType = $('//content/basicCfg/videoType').text()
+            dateTimeFormData.value.videoType = $('content/basicCfg/videoType').text()
         }
 
         let interval: NodeJS.Timeout | number = 0
@@ -484,42 +489,42 @@ export default defineComponent({
             const result = await queryTimeCfg(false)
             const $ = queryXml(result)
 
-            if ($('//status').text() === 'success') {
-                pageData.value.syncTypeOptions = $('//types/synchronizeType/enum').map((item) => {
+            if ($('status').text() === 'success') {
+                pageData.value.syncTypeOptions = $('types/synchronizeType/enum').map((item) => {
                     return {
                         value: item.text(),
                         label: SYNC_TYPE_MAPPING[item.text()],
                     }
                 })
 
-                dateTimeFormData.value.dateFormat = $('//content/formatInfo/date').text()
-                pageData.value.dateFormatOptions = $('//types/dateFormat/enum').map((item) => {
+                dateTimeFormData.value.dateFormat = $('content/formatInfo/date').text()
+                pageData.value.dateFormatOptions = $('types/dateFormat/enum').map((item) => {
                     return {
                         value: item.text(),
                         label: DATE_FORMAT_MAPPING[item.text()],
                     }
                 })
 
-                dateTimeFormData.value.timeFormat = $('//content/formatInfo/time').text()
-                pageData.value.timeFormatOptions = $('//types/timeFormat/enum').map((item) => {
+                dateTimeFormData.value.timeFormat = $('content/formatInfo/time').text()
+                pageData.value.timeFormatOptions = $('types/timeFormat/enum').map((item) => {
                     return {
                         value: item.text(),
                         label: TIME_FORMAT_MAPPING[item.text()],
                     }
                 })
 
-                dateTimeFormData.value.syncType = $('//content/synchronizeInfo/type').text()
+                dateTimeFormData.value.syncType = $('content/synchronizeInfo/type').text()
 
-                dateTimeFormData.value.timeServer = $('//content/synchronizeInfo/ntpServer').text().trim()
-                pageData.value.timeServerOptions = $('//types/ntpServerType/enum').map((item) => {
+                dateTimeFormData.value.timeServer = $('content/synchronizeInfo/ntpServer').text().trim()
+                pageData.value.timeServerOptions = $('types/ntpServerType/enum').map((item) => {
                     return {
                         value: item.text(),
                         label: item.text(),
                     }
                 })
 
-                dateTimeFormData.value.timeZone = $('//content/timezoneInfo/timeZone').text()
-                dateTimeFormData.value.enableDST = $('//content/timezoneInfo/daylightSwitch').text().bool()
+                dateTimeFormData.value.timeZone = $('content/timezoneInfo/timeZone').text()
+                dateTimeFormData.value.enableDST = $('content/timezoneInfo/daylightSwitch').text().bool()
 
                 nextTick(() => {
                     dateTimeFormData.value.systemTime = dayjs(Date.now()).format(formatSystemTime.value)
@@ -528,7 +533,7 @@ export default defineComponent({
                     clock()
                 })
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 if (errorCode === ErrorCode.USER_ERROR_FAIL) {
                     getActivationStatus()
                 }
@@ -576,15 +581,6 @@ export default defineComponent({
         }
 
         /**
-         * @description 时区文本显示
-         * @param {number} index
-         * @returns {string}
-         */
-        const displayTimeZone = (index: number) => {
-            return Translate('IDCS_TIME_ZONE_' + (index + 1))
-        }
-
-        /**
          * @description 密码强度提示
          */
         const getPasswordNoticeMsg = () => {
@@ -597,11 +593,11 @@ export default defineComponent({
         const getPasswordSecurityStrength = async () => {
             const result = await queryPasswordSecurity(false)
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                pageData.value.passwordStrength = ($('//content/pwdSecureSetting/pwdSecLevel').text() as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING & null) ?? 'weak'
+            if ($('status').text() === 'success') {
+                pageData.value.passwordStrength = ($('content/pwdSecureSetting/pwdSecLevel').text() as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING & null) ?? 'weak'
                 getPasswordNoticeMsg()
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 if (errorCode === ErrorCode.USER_ERROR_FAIL) {
                     getActivationStatus()
                 }
@@ -733,9 +729,9 @@ export default defineComponent({
          */
         const getDiskData = async () => {
             const storage = await queryStorageDevInfo(false)
-            const $storage = queryXml(queryXml(storage)('//content')[0].element)
+            const $storage = queryXml(queryXml(storage)('content')[0].element)
 
-            const errorCode = $storage('//errorCode').text().num()
+            const errorCode = $storage('errorCode').text().num()
             if (errorCode === ErrorCode.USER_ERROR_FAIL) {
                 getActivationStatus()
                 return
@@ -743,12 +739,12 @@ export default defineComponent({
 
             const result = await queryDiskStatus(false)
             const $ = queryXml(result)
-            $storage('//content/diskList/item').map((item) => {
+            $storage('content/diskList/item').map((item) => {
                 const $item = queryXml(item.element)
 
                 const diskId = item.attr('id')
-                const diskStatus = $(`//content/item[@id="${diskId}"]/diskStatus`).text()
-                const diskEncryptStatus = $(`//content/item[@id="${diskId}"]/diskEncryptStatus`).text()
+                const diskStatus = $(`content/item[@id="${diskId}"]/diskStatus`).text()
+                const diskEncryptStatus = $(`content/item[@id="${diskId}"]/diskEncryptStatus`).text()
                 const diskInterfaceType = $item('diskInterfaceType').text()
 
                 let combinedStatus = ''
@@ -873,7 +869,6 @@ export default defineComponent({
             changeLangType,
             changeRegion,
             isDSTDisabled,
-            displayTimeZone,
             handleSystemTimeChange,
             pendingSystemTimeChange,
             formatSystemTime,

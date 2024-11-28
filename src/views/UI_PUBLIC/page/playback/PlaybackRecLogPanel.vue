@@ -26,8 +26,6 @@
             </template>
             <el-table
                 :data="filterTableData"
-                border
-                stripe
                 show-overflow-tooltip
                 :height="400"
             >
@@ -51,7 +49,7 @@
                     <template #header>
                         <el-popover
                             v-model:visible="pageData.eventVisible"
-                            popper-class="popper no-padding"
+                            popper-class="keep-ocx no-padding"
                             width="fit-content"
                         >
                             <template #reference>

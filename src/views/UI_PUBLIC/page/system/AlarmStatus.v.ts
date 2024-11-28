@@ -96,7 +96,7 @@ export default defineComponent({
             const result = await queryFacePersonnalInfoGroupList()
             const $ = queryXml(result)
             // const data: Record<number, string> = {}
-            $('//content/item').forEach((item) => {
+            $('content/item').forEach((item) => {
                 const $item = queryXml(item.element)
                 const groupId = $item('groupId').text().num()
                 const name = $item('name').text()
@@ -119,8 +119,8 @@ export default defineComponent({
             const result = await queryPlateLibrary()
             const $ = queryXml(result)
 
-            if ($('//status').text() === 'success') {
-                $('//content/group/item').forEach((item) => {
+            if ($('status').text() === 'success') {
+                $('content/group/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     PLATE_LIBRARY_NAME[item.attr('id')] = $item('name').text()
                 })
@@ -290,7 +290,7 @@ export default defineComponent({
          * @param {number} index
          */
         const getAlaramInData = ($: XMLQuery, index: number) => {
-            const alarmInData = $('//content/alarmIns/item').map((item) => {
+            const alarmInData = $('content/alarmIns/item').map((item) => {
                 const $item = queryXml(item.element)
                 const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat)
                 const rec = $item('triggerRecChls/item').map((chl) => ({
@@ -371,7 +371,7 @@ export default defineComponent({
          * @param {number} index
          */
         const getAlarmOutData = ($: XMLQuery, index: number) => {
-            const alarmOutData = $('//content/alarmOuts/item').map((item) => {
+            const alarmOutData = $('content/alarmOuts/item').map((item) => {
                 const $item = queryXml(item.element)
                 const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat)
                 return {
@@ -401,7 +401,7 @@ export default defineComponent({
          * @param {number} index
          */
         const getMotionData = ($: XMLQuery, index: number) => {
-            const motionData = $('//content/motions/item').map((item) => {
+            const motionData = $('content/motions/item').map((item) => {
                 const $item = queryXml(item.element)
                 const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat)
                 const rec = $item('triggerRecChls/item').map((chl) => ({
@@ -484,7 +484,7 @@ export default defineComponent({
          * @param {number} index
          */
         const getIntelligentsData = ($: XMLQuery, index: number) => {
-            const intelligentsData = $('//content/intelligents/item').map((item) => {
+            const intelligentsData = $('content/intelligents/item').map((item) => {
                 const $item = queryXml(item.element)
                 const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat)
                 const rec = $item('triggerRecChls/item').map((chl) => ({
@@ -568,10 +568,10 @@ export default defineComponent({
         const getAbnormalData = ($: XMLQuery, index: number) => {
             const data: SystemAlarmStatusListData[] = []
 
-            const abnormalData = $('//content/abnormals/item').map((item) => {
+            const abnormalData = $('content/abnormals/item').map((item) => {
                 const $item = queryXml(item.element)
 
-                const abnormalType = $item('abnormalType').text() || ''
+                const abnormalType = $item('abnormalType').text()
                 const diskType = $item('alarmNode').attr('diskType').num()
                 const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat)
                 const serialNO = $item('alarmNode').attr('serialNO')
@@ -607,7 +607,7 @@ export default defineComponent({
                 switch (abnormalType) {
                     case 'diskRWError':
                         const text1 = Translate(ABNORMAL_TYPE_MAPPING[abnormalType])
-                        const text2 = serialNO ? '--' + Translate('IDCS_DISK_IO_ERROR_D_D').formatForLang($item('alarmNode').text() || '', serialNO) : ''
+                        const text2 = serialNO ? '--' + Translate('IDCS_DISK_IO_ERROR_D_D').formatForLang($item('alarmNode').text(), serialNO) : ''
                         abnormalTypeText = text1 + text2
                         break
                     case 'networkBreak':
@@ -673,7 +673,7 @@ export default defineComponent({
                     ],
                 }
             })
-            const frontEndOfflineData = $('//content/frontEndOffline/item').map((item) => {
+            const frontEndOfflineData = $('content/frontEndOffline/item').map((item) => {
                 const $item = queryXml(item.element)
                 const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat)
                 const ip = $item('alarmNode').attr('ip')
@@ -756,7 +756,7 @@ export default defineComponent({
                     ],
                 }
             })
-            const videoLossData = $('//content/videoLoss/item').map((item) => {
+            const videoLossData = $('content/videoLoss/item').map((item) => {
                 const $item = queryXml(item.element)
                 const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat)
 
@@ -837,7 +837,7 @@ export default defineComponent({
          * @param {number} index
          */
         const getFaceMatchAlaramsData = ($: XMLQuery, index: number) => {
-            const faceMatchAlarmsData = $('//content/faceMatchAlarms/item').map((item) => {
+            const faceMatchAlarmsData = $('content/faceMatchAlarms/item').map((item) => {
                 const $item = queryXml(item.element)
                 const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat)
                 const rec = $item('triggerRecChls/item').map((chl) => ({
@@ -850,16 +850,16 @@ export default defineComponent({
                     id: $item('sourceFacePersonnalInfoGroup').attr('id'),
                     alarmTime,
                     rec: [],
-                    img: 'data:image/png;base64,' + $item('faceImgData').text(),
+                    img: wrapBase64Img($item('faceImgData').text()),
                     data: [
                         {
                             key: '',
-                            value: $item('eventHint').text() || '',
+                            value: $item('eventHint').text(),
                             span: 2,
                         },
                         {
                             key: 'IDCS_ALARM_SOURCE',
-                            value: $item('sourceChl').text() || '',
+                            value: $item('sourceChl').text(),
                             span: 2,
                         },
                         {
@@ -929,7 +929,7 @@ export default defineComponent({
          * @param {number} index
          */
         const getCombinedAlarmsData = ($: XMLQuery, index: number) => {
-            const combinedAlarmsData = $('//content/combinedAlarms/item').map((item) => {
+            const combinedAlarmsData = $('content/combinedAlarms/item').map((item) => {
                 const $item = queryXml(item.element)
                 const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat)
                 const rec = $item('triggerRecChls/item').map((chl) => ({
@@ -1006,7 +1006,7 @@ export default defineComponent({
          * @param {number} index
          */
         const getVehiclePlateMatchAlarmsData = ($: XMLQuery, index: number) => {
-            const vehiclePlateMatchAlarmsData = $('//content/vehiclePlateMatchAlarms/item').map((item) => {
+            const vehiclePlateMatchAlarmsData = $('content/vehiclePlateMatchAlarms/item').map((item) => {
                 const $item = queryXml(item.element)
                 const alarmTime = utcToLocal($item('alarmTime').text(), dateTime.dateTimeFormat)
                 const rec = $item('triggerRecChls/item').map((chl) => ({
@@ -1019,16 +1019,16 @@ export default defineComponent({
                     id: $item('sourcePlateGroup').attr('id'),
                     alarmTime,
                     rec: [],
-                    img: 'data:image/png;base64,' + $item('plateImgData').text(),
+                    img: wrapBase64Img($item('plateImgData').text()),
                     data: [
                         {
                             key: '',
-                            value: $item('eventHint').text() || '',
+                            value: $item('eventHint').text(),
                             span: 2,
                         },
                         {
                             key: 'IDCS_ALARM_SOURCE',
-                            value: $item('sourceChl').text() || '',
+                            value: $item('sourceChl').text(),
                             span: 2,
                         },
                         {

@@ -34,7 +34,7 @@ export const getXmlWrapData = (data: string, url = '', refresh = false) => {
     if (userSessionStore.appType === 'P2P') {
         return rawXml`${xmlHeader}
             <cmd type="NVMS_NAT_CMD">
-                <request version="1.0" systemType="NVMS-9000" clientType="WEB-NAT" url="${url}" flag="1" ${refresh ? `refresh="true"` : ''}>
+                <request version="1.0" systemType="NVMS-9000" clientType="WEB-NAT" url="${url}" flag="1" ${refresh ? 'refresh="true"' : ''}>
                     ${tokenXml}
                     ${data}
                 </request>
@@ -42,7 +42,7 @@ export const getXmlWrapData = (data: string, url = '', refresh = false) => {
         `
     } else {
         return rawXml`${xmlHeader}
-            <request version="1.0" systemType="NVMS-9000" clientType="WEB" ${refresh ? `refresh="true"` : ''}>
+            <request version="1.0" systemType="NVMS-9000" clientType="WEB" ${refresh ? 'refresh="true"' : ''}>
                 ${tokenXml}
                 ${data}
             </request>`

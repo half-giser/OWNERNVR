@@ -62,9 +62,6 @@
                     >
                         <el-table
                             :data="channelAuthList"
-                            border
-                            stripe
-                            scrollbar-always-on
                             class="fill"
                         >
                             <el-table-column
@@ -89,9 +86,6 @@
                     >
                         <el-table
                             :data="channelAuthList"
-                            border
-                            stripe
-                            scrollbar-always-on
                             class="fill"
                         >
                             <el-table-column
@@ -119,8 +113,6 @@
                 :data="userList"
                 width="100%"
                 height="100%"
-                border
-                stripe
                 flexible
                 highlight-current-row
                 show-overflow-tooltip

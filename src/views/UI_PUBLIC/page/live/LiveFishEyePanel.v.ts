@@ -216,11 +216,11 @@ export default defineComponent({
                 `
                 const result = await queryIPChlORChlFishEye(sendXml)
                 const $ = queryXml(result)
-                const supportMode = $('//content/chl').attr('supportMode')
+                const supportMode = $('content/chl').attr('supportMode')
 
                 fishEyeMap.value[chlId] = {
                     supportMode: supportMode === 'support' || supportMode === 'manualSupport',
-                    installType: $('//content/chl/installType').text() || 'Top',
+                    installType: $('content/chl/installType').text() || 'Top',
                     fishEyeMode: NO_ADJUST_VALUE,
                 }
             }

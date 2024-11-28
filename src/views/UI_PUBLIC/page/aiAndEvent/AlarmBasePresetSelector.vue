@@ -9,8 +9,6 @@
             <span>{{ Translate('IDCS_TRIGGER_ALARM_PRESET') }}</span>
         </div>
         <el-table
-            stripe
-            border
             height="367"
             :data="pageData.chlList"
         >
@@ -24,18 +22,12 @@
                 :label="Translate('IDCS_PRESET_NAME')"
             >
                 <template #default="scope">
-                    <el-select
+                    <el-select-v2
                         :model-value="selected[scope.row.value]"
+                        :options="pageData.presetList[scope.row.value]"
                         @visible-change="getPresetList(scope.row)"
                         @update:model-value="change(scope.row, $event)"
-                    >
-                        <el-option
-                            v-for="item in pageData.presetList[scope.row.value]"
-                            :key="item.value"
-                            :label="item.label"
-                            :value="item.value"
-                        />
-                    </el-select>
+                    />
                 </template>
             </el-table-column>
         </el-table>

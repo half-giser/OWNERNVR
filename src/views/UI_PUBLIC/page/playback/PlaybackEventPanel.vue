@@ -44,7 +44,9 @@
                         <div
                             v-for="(item, index) in pageData.events"
                             :key="index"
-                            :class="{ active: index === pageData.activeEventIndex }"
+                            :class="{
+                                active: index === pageData.activeEventIndex,
+                            }"
                             @click="pageData.activeEventIndex = index"
                         >
                             <div
@@ -70,13 +72,15 @@
                         <el-button
                             class="event-btn"
                             @click="changeEventList"
-                            >{{ Translate('IDCS_OK') }}</el-button
                         >
+                            {{ Translate('IDCS_OK') }}
+                        </el-button>
                         <el-button
                             class="event-btn"
                             @click="closeEventPop"
-                            >{{ Translate('IDCS_CLOSE') }}</el-button
                         >
+                            {{ Translate('IDCS_CLOSE') }}
+                        </el-button>
                     </div>
                 </div>
             </el-popover>

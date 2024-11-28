@@ -147,7 +147,7 @@ export default defineComponent({
                 authList: '@lp',
             })
             const $ = queryXml(result)
-            const chlIdList = $('//content/item').map((item) => ({
+            const chlIdList = $('content/item').map((item) => ({
                 channel_id: item.attr('id'),
                 face_detect: {
                     info: true,
@@ -280,7 +280,7 @@ export default defineComponent({
                         birthday: data.info.birth_date,
                         certificateNum: data.info.certificate_number,
                         mobile: data.info.mobile_phone_number,
-                        pic: 'data:image/png;base64,' + data.repo_pic,
+                        pic: data.repo_pic ? wrapBase64Img(data.repo_pic) : '',
                     }
                     router.push({
                         path: '/intelligent-analysis/search/search-face',
@@ -293,7 +293,7 @@ export default defineComponent({
                         chlId: data.chlId,
                         imgId: data.info.face_id,
                         frameTime: data.frame_time,
-                        pic: 'data:image/png;base64,' + data.snap_pic,
+                        pic: data.snap_pic ? wrapBase64Img(data.snap_pic) : '',
                     }
                     router.push({
                         path: '/intelligent-analysis/search/search-face',
@@ -376,8 +376,8 @@ export default defineComponent({
 
                 return {
                     imgId: item.info.face_id,
-                    pic: item.snap_pic ? 'data:image/png;base64,' + item.snap_pic : '',
-                    panorama: item.scene_pic ? 'data:image/png;base64,' + item.scene_pic : '',
+                    pic: item.snap_pic ? wrapBase64Img(item.snap_pic) : '',
+                    panorama: item.scene_pic ? wrapBase64Img(item.scene_pic) : '',
                     width,
                     height,
                     X1,
@@ -405,7 +405,7 @@ export default defineComponent({
          */
         const register = (value: WebsocketSnapOnSuccessSnap) => {
             if (value.type === 'face_detect') {
-                pageData.value.registerPic = 'data:image/png;base64,' + value.snap_pic!
+                pageData.value.registerPic = wrapBase64Img(value.snap_pic!)
                 pageData.value.isRegisterPop = true
             } else if (value.type === 'vehicle_plate') {
                 pageData.value.addPlateNum = value.info.plate!
@@ -446,8 +446,8 @@ export default defineComponent({
 
                 return {
                     imgId: item.info.face_id,
-                    pic: item.snap_pic ? 'data:image/png;base64,' + item.snap_pic : '',
-                    match: item.repo_pic ? 'data:image/png;base64,' + item.repo_pic : '',
+                    pic: item.snap_pic ? wrapBase64Img(item.snap_pic) : '',
+                    match: item.repo_pic ? wrapBase64Img(item.repo_pic) : '',
                     timestamp: item.detect_time,
                     frameTime: item.frame_time,
                     chlId: item.chlId,
@@ -469,7 +469,7 @@ export default defineComponent({
                     note: item.info.remarks || '',
                     groupName: item.info.group_name,
 
-                    panorama: item.scene_pic ? 'data:image/png;base64,' + item.scene_pic : '',
+                    panorama: item.scene_pic ? wrapBase64Img(item.scene_pic) : '',
                     width,
                     height,
                     X1,

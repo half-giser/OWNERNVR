@@ -35,19 +35,21 @@
             <el-button @click="searchData">{{ Translate('IDCS_SEARCH') }}</el-button>
         </div>
         <div class="choose">
-            <div class="choose-list">
-                <IntelBaseFaceItem
-                    v-for="(item, index) in filterListData"
-                    :key="item.frameTime"
-                    :src="item.pic || ''"
-                    :model-value="formData.faceIndex.includes(index + (formData.pageIndex - 1) * formData.pageSize)"
-                    :disabled="!item.pic"
-                    :icon="item.featureStatus && !multiple ? 'identity' : ''"
-                    @update:model-value="selectFace(index + (formData.pageIndex - 1) * formData.pageSize)"
-                >
-                    {{ displayDateTime(item.timestamp) }}<br />{{ item.chlName }}
-                </IntelBaseFaceItem>
-            </div>
+            <el-scrollbar class="choose-list">
+                <div class="choose-wrapper">
+                    <IntelBaseFaceItem
+                        v-for="(item, index) in filterListData"
+                        :key="item.frameTime"
+                        :src="item.pic || ''"
+                        :model-value="formData.faceIndex.includes(index + (formData.pageIndex - 1) * formData.pageSize)"
+                        :disabled="!item.pic"
+                        :icon="item.featureStatus && !multiple ? 'identity' : ''"
+                        @update:model-value="selectFace(index + (formData.pageIndex - 1) * formData.pageSize)"
+                    >
+                        {{ displayDateTime(item.timestamp) }}<br />{{ item.chlName }}
+                    </IntelBaseFaceItem>
+                </div>
+            </el-scrollbar>
             <div
                 class="base-btn-box padding"
                 span="2"
@@ -102,18 +104,20 @@
 
 .choose {
     width: 100%;
-    height: 365px;
+    height: 375px;
     border: 1px solid var(--content-border);
     margin-top: 10px;
 
     &-list {
-        height: 320px;
+        height: 330px;
+        border-bottom: 1px solid var(--content-border);
+        box-sizing: border-box;
+    }
+
+    &-wrapper {
+        padding: 10px 0;
         display: flex;
         flex-wrap: wrap;
-        border-bottom: 1px solid var(--content-border);
-        overflow-y: auto;
-        box-sizing: border-box;
-        padding: 10px 0;
     }
 }
 </style>

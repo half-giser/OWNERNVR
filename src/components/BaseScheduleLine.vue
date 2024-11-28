@@ -230,7 +230,7 @@ const timeNumArrSortedAndMerge = (timeNumArr: Array<[number, number]>) => {
 
 const checkAndInsertTimeNumSpan = (timeSpan: [number, number]) => {
     if (timeSpan[0] > timeSpan[1]) {
-        throw `checkAndInsertTimeNumSpan: start time > end time`
+        throw 'checkAndInsertTimeNumSpan: start time > end time'
     }
     selectedTimeSpans.value.push([timeSpan[0], timeSpan[1]])
 }
@@ -241,7 +241,7 @@ const checkAndInsertTimeNumSpan = (timeSpan: [number, number]) => {
  */
 const delTimeNumSpan = (timeSpan: [number, number]) => {
     if (timeSpan[0] > timeSpan[1]) {
-        throw `checkAndInsertTimeNumSpan: start time > end time`
+        throw 'checkAndInsertTimeNumSpan: start time > end time'
     }
 
     const timeNumArr = selectedTimeSpans.value
@@ -357,9 +357,8 @@ const addTimeSpan = (timeSpan: [string, string] | [number, number]) => {
  * @returns 示例：[['00:30','02:00'],['05:18','18:30']]
  */
 const getValue: () => [string, string][] = () => {
-    const result = [] as [string, string][]
-    selectedTimeSpans.value.forEach((item) => {
-        result.push([numToTimeStr(item[0]), numToTimeStr(item[1])])
+    const result = selectedTimeSpans.value.map((item) => {
+        return [numToTimeStr(item[0]), numToTimeStr(item[1])] as [string, string]
     })
     return result
 }

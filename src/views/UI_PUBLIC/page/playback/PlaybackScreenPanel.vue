@@ -25,7 +25,7 @@
                     trigger="hover"
                     :width="pageData.ocxSeg.length * 45 + 22"
                     :disabled="winData.isDwellPlay"
-                    popper-class="popper"
+                    popper-class="keep-ocx"
                 >
                     <template #reference>
                         <BaseImgSprite

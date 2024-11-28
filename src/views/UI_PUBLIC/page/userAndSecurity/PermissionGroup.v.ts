@@ -56,17 +56,17 @@ export default defineComponent({
             const result = await queryAuthGroupList('')
 
             commLoadResponseHandler(result, ($) => {
-                authGroupList.value = $('//content/item').map((item) => {
+                authGroupList.value = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
-                        id: item.attr('id') as string,
+                        id: item.attr('id'),
                         name: $item('name').text(),
                         isDefault: $item('isDefault').text().bool(),
                         enableEdit: $item('enableEdit').text().bool(),
                         chlAuth: $item('chlAuth/item').map((chlItem) => {
                             const $chlItem = queryXml(chlItem.element)
                             return {
-                                id: chlItem.attr('id') as string,
+                                id: chlItem.attr('id'),
                                 name: $chlItem('name').text(),
                                 auth: $chlItem('auth').text(),
                             }
@@ -114,7 +114,7 @@ export default defineComponent({
         const getSystemAuth = () => {
             if (!currentAuthGroup.value) return
             const currentItem = currentAuthGroup.value.systemAuth
-            Object.keys(systemAuthList.value).forEach((classify: string) => {
+            Object.keys(systemAuthList.value).forEach((classify) => {
                 Object.keys(systemAuthList.value[classify].value).forEach((key) => {
                     systemAuthList.value[classify].value[key].value = currentItem[key] || false
                 })
@@ -147,7 +147,7 @@ export default defineComponent({
          * @description 清除所有左侧权限信息
          */
         const resetAuth = () => {
-            Object.keys(systemAuthList.value).forEach((classify: string) => {
+            Object.keys(systemAuthList.value).forEach((classify) => {
                 Object.keys(systemAuthList.value[classify].value).forEach((key) => {
                     systemAuthList.value[classify].value[key].value = false
                 })
@@ -159,7 +159,7 @@ export default defineComponent({
          * @description 处理高亮选中的权限组，显示左侧信息
          * @param {UserAuthGroupList} row
          */
-        const handleChangeAuthGroup = async (row: UserAuthGroupList) => {
+        const handleChangeAuthGroup = (row: UserAuthGroupList) => {
             pageData.value.activeAuthGroup = authGroupList.value.findIndex((item) => item.id === row.id)
 
             if (currentAuthGroup.value) {
@@ -210,14 +210,14 @@ export default defineComponent({
 
                 closeLoading()
 
-                if ($('//status').text() === 'success') {
+                if ($('status').text() === 'success') {
                     openMessageBox({
                         type: 'success',
                         message: Translate('IDCS_DELETE_SUCCESS'),
                     })
                     getAuthGroup()
                 } else {
-                    const errorCode = $('//errorCode').text().num()
+                    const errorCode = $('errorCode').text().num()
                     let errorInfo = ''
                     switch (errorCode) {
                         case ErrorCode.USER_ERROR_EXISTED_CHILD_NODE:
@@ -285,11 +285,11 @@ export default defineComponent({
             return name
         }
 
-        onMounted(() => {
+        onMounted(async () => {
             if (!systemCaps.supportFaceMatch && !systemCaps.supportPlateMatch) {
                 systemAuthList.value.configurations.value.facePersonnalInfoMgr.hidden = true
             }
-            getAuthGroup()
+            await getAuthGroup()
         })
 
         return {

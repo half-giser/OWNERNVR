@@ -3,8 +3,9 @@
  * @Date: 2024-10-25 09:17:39
  * @Description: Element Plus的默认值设置
  */
-import { ElDialog, ElInputNumber, ElPagination, ElForm, ElTooltip, ElSelect, ElTable, ElDropdown, ElPopover, ElDatePicker, ElSlider } from 'element-plus'
+import { ElDialog, ElInputNumber, ElPagination, ElForm, ElTooltip, ElSelectV2, ElTable, ElDropdown, ElPopover, ElDatePicker, ElSlider, ElScrollbar } from 'element-plus'
 import { type PropType } from 'vue'
+import sprites from '../components/sprite/sprites'
 
 ElPagination.props.layout = {
     type: String,
@@ -75,19 +76,59 @@ ElTooltip.props.showAfter = {
     default: 500,
 }
 
-ElSelect.props.placeholder = {
+// ElSelect.props.placeholder = {
+//     type: String,
+//     default: ' ',
+// }
+
+// ElSelect.props.noDataText = {
+//     type: String,
+//     default: '',
+// }
+
+// ElSelect.props.emptyValues = {
+//     type: Array,
+//     default: () => [null, undefined],
+// }
+
+ElSelectV2.props.placeholder = {
     type: String,
     default: ' ',
 }
 
-ElSelect.props.noDataText = {
+ElSelectV2.props.noDataText = {
     type: String,
     default: '',
+}
+
+ElSelectV2.props.emptyValues = {
+    type: Array,
+    default: () => [null, undefined],
+}
+
+ElSelectV2.props.persistent = {
+    type: Boolean,
+    default: false,
 }
 
 ElTable.props.emptyText = {
     type: String,
     default: ' ',
+}
+
+ElTable.props.scrollbarAlwaysOn = {
+    type: Boolean,
+    default: true,
+}
+
+ElTable.props.stripe = {
+    type: Boolean,
+    default: true,
+}
+
+ElTable.props.border = {
+    type: Boolean,
+    default: true,
 }
 
 ElDropdown.props.trigger = {
@@ -119,3 +160,11 @@ ElSlider.props.showInputControls = {
     type: Boolean,
     default: false,
 }
+
+ElScrollbar.props.always = {
+    type: Boolean,
+    default: true,
+}
+
+document.body.style.setProperty('--float-x', `-${sprites.coordinates.floatTip[0]}px`)
+document.body.style.setProperty('--float-y', `-${sprites.coordinates.floatTip[1]}px`)

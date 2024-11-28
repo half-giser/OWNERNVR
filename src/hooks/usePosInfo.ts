@@ -19,13 +19,13 @@ export const usePosInfo = (mode: Ref<string>) => {
     const getData = async () => {
         const result = await queryPosList()
         const $ = queryXml(result)
-        if ($('//status').text() !== 'success') return
-        const $systemX = $('//content/itemType/coordinateSystem/X')
-        const $systemY = $('//content/itemType/coordinateSystem/Y')
+        if ($('status').text() !== 'success') return
+        const $systemX = $('content/itemType/coordinateSystem/X')
+        const $systemY = $('content/itemType/coordinateSystem/Y')
         const width = $systemX.attr('max').num() - $systemX.attr('min').num()
         const height = $systemY.attr('max').num() - $systemY.attr('min').num()
 
-        $('//channel/chl').forEach((ele) => {
+        $('channel/chl').forEach((ele) => {
             const chlId = ele.attr('id')
             const $ele = queryXml(ele.element)
             const previewDisplay = $ele('previewDisplay').text().bool()
@@ -43,9 +43,9 @@ export const usePosInfo = (mode: Ref<string>) => {
                 timeout: 10, // pos超时隐藏时间，默认10秒
             }
         })
-        $('//content/item').forEach((ele) => {
+        $('content/item').forEach((ele) => {
             const $ele = queryXml(ele.element)
-            const $position = `param/displaySetting/displayPosition/`
+            const $position = 'param/displaySetting/displayPosition/'
             const $triggerChls = $ele('trigger/triggerChl/chls/item')
             const timeout = $ele('param/displaySetting/common/timeOut').text()
             if (!$triggerChls.length) return

@@ -3,7 +3,6 @@
  * @Date: 2024-08-12 13:46:24
  * @Description: 备份图像弹窗
  */
-import { type FormInstance } from 'element-plus'
 import { type PlaybackSearchImgList } from '@/types/apiType/playback'
 
 export default defineComponent({
@@ -42,7 +41,6 @@ export default defineComponent({
             remoteDeviceOptions: [] as { name: string; remainSize: string }[],
         })
 
-        const formRef = ref<FormInstance>()
         const formData = ref({
             // 备份目的地
             destination: 'local',
@@ -56,7 +54,7 @@ export default defineComponent({
         const getExternalDisk = async () => {
             const result = await queryExternalDisks()
             const $ = queryXml(result)
-            pageData.value.remoteDeviceOptions = $('//content/item').map((item) => {
+            pageData.value.remoteDeviceOptions = $('content/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
                     name: item.attr('name'),
@@ -109,7 +107,7 @@ export default defineComponent({
             `
             const result = await backupPicture(sendXml)
             const $ = queryXml(result)
-            if ($('//status').text() !== 'success') {
+            if ($('status').text() !== 'success') {
                 openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_SAVE_FAIL'),
@@ -192,14 +190,13 @@ export default defineComponent({
         /**
          * @description 打开弹窗，初始化表单和数据
          */
-        const open = async () => {
-            formRef.value?.resetFields()
-            formRef.value?.clearValidate()
+        const open = () => {
+            formData.value.destination = 'local'
+            formData.value.remoteDeviceName = ''
             getExternalDisk()
         }
 
         return {
-            formRef,
             pageData,
             formData,
             open,

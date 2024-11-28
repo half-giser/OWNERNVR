@@ -3,7 +3,7 @@
  * @Date: 2024-08-06 20:36:48
  * @Description: 回放-远程备份任务 加密弹窗
  */
-import type { FormInstance, FormRules } from 'element-plus'
+import type { FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -27,7 +27,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref({
             encrypt: 'encrypted',
             password: '',
@@ -49,7 +49,7 @@ export default defineComponent({
 
                         callback()
                     },
-                    trigger: 'blur',
+                    trigger: 'manual',
                 },
             ],
             confirmPassword: [
@@ -72,7 +72,7 @@ export default defineComponent({
 
                         callback()
                     },
-                    trigger: 'blur',
+                    trigger: 'manual',
                 },
             ],
         })
@@ -108,8 +108,6 @@ export default defineComponent({
          * @description 打开弹窗时，重置表单
          */
         const open = () => {
-            formRef.value?.clearValidate()
-            formRef.value?.resetFields()
             if (prop.encrypt === false) {
                 formData.value.encrypt = 'unencrypted'
             } else {

@@ -6,8 +6,6 @@
 <template>
     <div class="base-flex-box">
         <el-table
-            stripe
-            border
             height="100%"
             :data="tableData"
             highlight-current-row

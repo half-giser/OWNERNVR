@@ -10,10 +10,7 @@
         @open="open"
     >
         <div class="edit">
-            <el-form
-                ref="formRef"
-                class="stripe"
-            >
+            <el-form class="stripe">
                 <el-form-item :label="Translate('IDCS_NAME_PERSON')">
                     <el-input
                         v-model="formData.name"
@@ -24,17 +21,11 @@
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_SEX')">
-                    <el-select
+                    <el-select-v2
                         v-model="formData.sex"
                         :disabled
-                    >
-                        <el-option
-                            v-for="item in pageData.genderOptions"
-                            :key="item.value"
-                            :label="item.label"
-                            :value="item.value"
-                        />
-                    </el-select>
+                        :options="pageData.genderOptions"
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_BIRTHDAY')">
                     <el-date-picker
@@ -46,17 +37,11 @@
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_ID_TYPE')">
-                    <el-select
+                    <el-select-v2
                         v-model="formData.certificateType"
                         :disabled
-                    >
-                        <el-option
-                            v-for="item in pageData.idTypeOptions"
-                            :key="item.value"
-                            :label="item.label"
-                            :value="item.value"
-                        />
-                    </el-select>
+                        :options="pageData.idTypeOptions"
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_ID_NUMBER')">
                     <el-input
@@ -90,14 +75,14 @@
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_ADD_FACE_GROUP')">
-                    <el-select v-model="formData.groupId">
-                        <el-option
-                            v-for="item in pageData.groupList"
-                            :key="item.groupId"
-                            :label="item.name"
-                            :value="item.groupId"
-                        />
-                    </el-select>
+                    <el-select-v2
+                        v-model="formData.groupId"
+                        :options="pageData.groupList"
+                        :props="{
+                            label: 'name',
+                            value: 'groupId',
+                        }"
+                    />
                 </el-form-item>
             </el-form>
             <div class="pics">
@@ -113,8 +98,9 @@
                     <el-button
                         :disabled="disabled"
                         @click="chooseFace"
-                        >{{ Translate('IDCS_ADD') }}</el-button
                     >
+                        {{ Translate('IDCS_ADD') }}
+                    </el-button>
                 </div>
             </div>
             <IntelFaceDBChooseFacePop
@@ -124,12 +110,10 @@
                 @close="pageData.isChooseFacePop = false"
             />
         </div>
-        <template #footer>
-            <div class="base-btn-box">
-                <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="close()">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="close()">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 
@@ -147,10 +131,14 @@
     .pics {
         margin-left: 10px;
         width: 100%;
-        height: 100%;
+        height: 378px;
         border: 1px solid var(--content-border);
         padding: 10px;
         box-sizing: border-box;
+
+        &-list {
+            height: 315px;
+        }
     }
 }
 </style>

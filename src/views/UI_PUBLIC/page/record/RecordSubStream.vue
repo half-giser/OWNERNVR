@@ -8,26 +8,27 @@
         <div class="base-table-box">
             <el-table
                 ref="tableRef"
-                border
-                stripe
-                :data="tableData"
+                :data="virtualTableData"
                 show-overflow-tooltip
                 highlight-current-row
-                :row-class-name="disabledRow"
+                :row-class-name="(data) => (tableData[data.rowIndex].disabled ? 'disabled' : '')"
             >
                 <!-- 通道名称 -->
                 <el-table-column
                     :label="Translate('IDCS_CHANNEL_NAME')"
                     min-width="240"
-                    prop="name"
-                />
+                >
+                    <template #default="scope">
+                        {{ tableData[scope.$index].name }}
+                    </template>
+                </el-table-column>
                 <!-- 码流类型 -->
                 <el-table-column
                     :label="Translate('IDCS_CODE_STREAM_TYPE')"
                     min-width="100"
                 >
                     <template #default="scope">
-                        {{ STREAM_TYPE_MAPPING[scope.row.streamType] }}
+                        {{ STREAM_TYPE_MAPPING[tableData[scope.$index].streamType] }}
                     </template>
                 </el-table-column>
                 <!-- 视频编码 -->
@@ -55,21 +56,15 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <div v-if="RecordSubResAdaptive">{{ STREAM_TYPE_MAPPING[scope.row.videoEncodeType] || '--' }}</div>
-                        <div v-else-if="pageData.isRowNonExistent[scope.row.index]?.videoEncodeType">{{ '--' }}</div>
-                        <el-select
+                        <div v-if="RecordSubResAdaptive">{{ STREAM_TYPE_MAPPING[tableData[scope.$index].videoEncodeType] || '--' }}</div>
+                        <div v-else-if="pageData.isRowNonExistent[tableData[scope.$index].index]?.videoEncodeType">{{ '--' }}</div>
+                        <el-select-v2
                             v-else
-                            v-model="scope.row.videoEncodeType"
-                            :disabled="pageData.isRowDisabled[scope.row.index]"
-                            @change="changeVideoEncodeType(scope.row)"
-                        >
-                            <el-option
-                                v-for="item in pageData.videoEncodeTypeList[scope.row.index]"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            />
-                        </el-select>
+                            v-model="tableData[scope.$index].videoEncodeType"
+                            :disabled="tableData[scope.$index].disabled"
+                            :options="pageData.videoEncodeTypeList[tableData[scope.$index].index]"
+                            @change="changeVideoEncodeType(tableData[scope.$index])"
+                        />
                     </template>
                 </el-table-column>
                 <!-- 分辨率 -->
@@ -83,7 +78,6 @@
                             v-else
                             v-model:visible="pageData.resolutionHeaderVisble"
                             width="430"
-                            popper-class="no-padding"
                         >
                             <template #reference>
                                 <BaseTableDropdownLink>
@@ -98,29 +92,19 @@
                                     :show-header="false"
                                     :row-key="getRowKey"
                                     :expand-row-keys="pageData.expands"
-                                    stripe
+                                    :border="false"
                                     @expand-change="handleExpandChange($event, pageData.expands)"
                                 >
                                     <el-table-column width="220">
                                         <template #default="scope">
-                                            <el-select
+                                            <el-select-v2
                                                 v-model="scope.row.res"
-                                                :teleported="false"
-                                            >
-                                                <el-option
-                                                    v-for="item in scope.row.resGroup"
-                                                    :key="item"
-                                                    :label="item"
-                                                    :value="item"
-                                                    @click="keepDropDownOpen(scope.row)"
-                                                />
-                                            </el-select>
+                                                :options="arrayToOptions(scope.row.resGroup)"
+                                                @visible-change="handleResolutionVisibleChange"
+                                            />
                                         </template>
                                     </el-table-column>
-                                    <el-table-column
-                                        width="188"
-                                        type="expand"
-                                    >
+                                    <el-table-column type="expand">
                                         <template #default="scope">
                                             <div class="chl-box">
                                                 <div
@@ -149,21 +133,15 @@
                         </el-popover>
                     </template>
                     <template #default="scope">
-                        <div v-if="RecordSubResAdaptive">{{ scope.row.resolution || '--' }}</div>
-                        <div v-else-if="pageData.isRowNonExistent[scope.row.index]?.resolution">{{ '--' }}</div>
-                        <el-select
+                        <div v-if="RecordSubResAdaptive">{{ tableData[scope.$index].resolution || '--' }}</div>
+                        <div v-else-if="pageData.isRowNonExistent[tableData[scope.$index].index]?.resolution">{{ '--' }}</div>
+                        <el-select-v2
                             v-else
-                            v-model="scope.row.resolution"
-                            :disabled="pageData.isRowDisabled[scope.row.index]"
-                            @change="changeResolution(scope.row, scope.row.resolution)"
-                        >
-                            <el-option
-                                v-for="item in pageData.resolutionList[scope.row.index]"
-                                :key="item"
-                                :label="item"
-                                :value="item"
-                            />
-                        </el-select>
+                            v-model="tableData[scope.$index].resolution"
+                            :disabled="tableData[scope.$index].disabled"
+                            :options="arrayToOptions(pageData.resolutionList[tableData[scope.$index].index])"
+                            @change="changeResolution(tableData[scope.$index], tableData[scope.$index].resolution)"
+                        />
                     </template>
                 </el-table-column>
                 <!-- 帧率 -->
@@ -194,21 +172,15 @@
                         </el-dropdown>
                     </template>
                     <template #default="scope">
-                        <div v-if="RecordSubResAdaptive">{{ scope.row.frameRate || '--' }}</div>
-                        <div v-else-if="pageData.isRowNonExistent[scope.row.index]?.frameRate">{{ '--' }}</div>
-                        <el-select
+                        <div v-if="RecordSubResAdaptive">{{ tableData[scope.$index].frameRate || '--' }}</div>
+                        <div v-else-if="pageData.isRowNonExistent[tableData[scope.$index].index]?.frameRate">{{ '--' }}</div>
+                        <el-select-v2
                             v-else
-                            v-model="scope.row.frameRate"
-                            :disabled="pageData.isRowDisabled[scope.row.index]"
-                            @change="changeVideoEncodeType(scope.row)"
-                        >
-                            <el-option
-                                v-for="item in pageData.frameRateList[scope.row.index]"
-                                :key="item"
-                                :label="item"
-                                :value="item"
-                            />
-                        </el-select>
+                            v-model="tableData[scope.$index].frameRate"
+                            :disabled="tableData[scope.$index].disabled"
+                            :options="arrayToOptions(pageData.frameRateList[tableData[scope.$index].index])"
+                            @change="changeVideoEncodeType(tableData[scope.$index])"
+                        />
                     </template>
                 </el-table-column>
                 <!-- 码率上限 -->
@@ -237,21 +209,15 @@
                     </template>
                     <template #default="scope">
                         <!-- 在码率上限中不可修改情况下，有数据的行不可选项也要设置为-- -->
-                        <div v-if="RecordSubResAdaptive && pageData.isVideoQualityDisabled[scope.row.index]">{{ '--' }}</div>
-                        <div v-else-if="RecordSubResAdaptive">{{ scope.row.videoQuality ? `${scope.row.videoQuality}Kbps` : '--' }}</div>
-                        <div v-else-if="pageData.isRowNonExistent[scope.row.index]?.videoQuality">{{ '--' }}</div>
-                        <el-select
+                        <div v-if="RecordSubResAdaptive && pageData.isVideoQualityDisabled[tableData[scope.$index].index]">{{ '--' }}</div>
+                        <div v-else-if="RecordSubResAdaptive">{{ tableData[scope.$index].videoQuality ? `${tableData[scope.$index].videoQuality}Kbps` : '--' }}</div>
+                        <div v-else-if="pageData.isRowNonExistent[tableData[scope.$index].index]?.videoQuality">{{ '--' }}</div>
+                        <el-select-v2
                             v-else
-                            v-model="scope.row.videoQuality"
-                            :disabled="pageData.isRowDisabled[scope.row.index] || pageData.isVideoQualityDisabled[scope.row.index]"
-                        >
-                            <el-option
-                                v-for="item in pageData.videoQualityItemList[scope.row.index]"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            />
-                        </el-select>
+                            v-model="tableData[scope.$index].videoQuality"
+                            :disabled="tableData[scope.$index].disabled || pageData.isVideoQualityDisabled[tableData[scope.$index].index]"
+                            :options="pageData.videoQualityItemList[tableData[scope.$index].index]"
+                        />
                     </template>
                 </el-table-column>
             </el-table>
@@ -259,9 +225,11 @@
         <div class="base-btn-box">
             <el-button
                 v-show="!RecordSubResAdaptive"
+                :disabled="!editRows.size()"
                 @click="setData"
-                >{{ Translate('IDCS_APPLY') }}</el-button
             >
+                {{ Translate('IDCS_APPLY') }}
+            </el-button>
         </div>
     </div>
 </template>

@@ -5,7 +5,7 @@
  */
 import { DiskRaidList, DiskRaidRebuildForm } from '@/types/apiType/disk'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormRules } from 'element-plus'
 import type { UserCheckAuthForm } from '@/types/apiType/user'
 
 export default defineComponent({
@@ -39,7 +39,7 @@ export default defineComponent({
             isCheckAuth: false,
         })
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new DiskRaidRebuildForm())
         const rules = ref<FormRules>({
             diskId: [
@@ -67,7 +67,7 @@ export default defineComponent({
 
             closeLoading()
 
-            pageData.value.physicalDiskList = $('//content/physicalDisk/item')
+            pageData.value.physicalDiskList = $('content/physicalDisk/item')
                 .filter((item) => {
                     return queryXml(item.element)('type').text() === 'normal'
                 })
@@ -116,8 +116,8 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                const errorCode = $('//errorCode').text().num()
+            if ($('status').text() === 'success') {
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
 
                 switch (errorCode) {

@@ -42,16 +42,15 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryChlStatus()
             commLoadResponseHandler(result, ($) => {
-                tableData.value = []
-                $('//content/item').forEach((item) => {
+                tableData.value = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
-                    tableData.value.push({
+                    return {
                         name: $item('chl').text(),
                         online: $item('online').text().bool(),
                         motionStatus: $item('motionStatus').text(),
                         intelligentStatus: $item('intelligentStatus').text(),
                         recStatus: $item('recStatus').text(),
-                    })
+                    }
                 })
             })
         }

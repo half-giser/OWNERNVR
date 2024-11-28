@@ -11,7 +11,6 @@
                 '--form-label-width': '200px',
                 '--form-input-width': '200px',
             }"
-            inline-message
         >
             <el-form-item>
                 <el-checkbox

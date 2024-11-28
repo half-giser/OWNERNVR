@@ -165,7 +165,7 @@ export default defineComponent({
                 authList: '@spr,@bk',
             })
             const $ = queryXml(result)
-            pageData.value.chlList = $('//content/item').map((item) => {
+            pageData.value.chlList = $('content/item').map((item) => {
                 const $item = queryXml(item.element)
                 chlMap[item.attr('id')] = $item('name').text()
                 return {
@@ -182,8 +182,8 @@ export default defineComponent({
         const getFaceGroupList = async () => {
             const result = await queryFacePersonnalInfoGroupList()
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                pageData.value.faceGroupList = $('//content/item').map((item) => {
+            if ($('status').text() === 'success') {
+                pageData.value.faceGroupList = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     let name = $item('name').text()
                     const groupId = $item('groupId').text()
@@ -225,7 +225,7 @@ export default defineComponent({
             `
             const result = await queryFacePersonnalInfoList(sendXml)
             const $ = queryXml(result)
-            pageData.value.faceGroupList[index].members = $('//content/item').map((item) => {
+            pageData.value.faceGroupList[index].members = $('content/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
                     id: item.attr('id'),
@@ -378,16 +378,16 @@ export default defineComponent({
                 })
             })
 
-            $('//content/i')
+            $('content/i')
                 .map((item) => {
                     const textArr = item.text().split(',')
                     const chlId = getChlGuid16(textArr[4]).toUpperCase()
-                    const timestamp = parseInt(textArr[1], 16) * 1000
+                    const timestamp = hexToDec(textArr[1]) * 1000
                     return {
-                        faceFeatureId: parseInt(textArr[0], 16) + '',
+                        faceFeatureId: hexToDec(textArr[0]) + '',
                         timestamp,
-                        frameTime: localToUtc(timestamp) + ':' + ('0000000' + parseInt(textArr[2], 16)).slice(-7),
-                        imgId: parseInt(textArr[3], 16),
+                        frameTime: localToUtc(timestamp) + ':' + ('0000000' + hexToDec(textArr[2])).slice(-7),
+                        imgId: hexToDec(textArr[3]),
                         chlId,
                         chlName: chlMap[chlId],
                     }
@@ -398,7 +398,7 @@ export default defineComponent({
                     // obj.imgId = parseInt(textArr[3], 16)
                     // obj.chlId = getChlGuid16(textArr[4]).toUpperCase()
                     // obj.similarity = parseInt(textArr[5], 16)
-                    // const randomNum = Math.round(Math.random() * $('//content/i').length)
+                    // const randomNum = Math.round(Math.random() * $('content/i').length)
                     // const random = ('000000000' + randomNum).slice(-10)
                     // const sim = ('000' + obj.similarity).slice(-3)
                     // obj.random = sim + obj.calTime + random

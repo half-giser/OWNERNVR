@@ -36,18 +36,20 @@
             </el-form-item>
         </el-form>
         <div class="choose">
-            <div class="choose-list">
-                <IntelBaseFaceItem
-                    v-for="(item, index) in filterListData"
-                    :key="item.id"
-                    :src="item.pic[0] || ''"
-                    :model-value="formData.faceIndex.includes(index + (formData.pageIndex - 1) * formData.pageSize)"
-                    :disabled="!item.pic[0]"
-                    @update:model-value="selectFace(index + (formData.pageIndex - 1) * formData.pageSize)"
-                >
-                    {{ item.name }}
-                </IntelBaseFaceItem>
-            </div>
+            <el-scrollbar class="choose-list">
+                <div class="choose-wrapper">
+                    <IntelBaseFaceItem
+                        v-for="(item, index) in filterListData"
+                        :key="item.id"
+                        :src="item.pic[0] || ''"
+                        :model-value="formData.faceIndex.includes(index + (formData.pageIndex - 1) * formData.pageSize)"
+                        :disabled="!item.pic[0]"
+                        @update:model-value="selectFace(index + (formData.pageIndex - 1) * formData.pageSize)"
+                    >
+                        {{ item.name }}
+                    </IntelBaseFaceItem>
+                </div>
+            </el-scrollbar>
             <div
                 class="base-btn-box padding"
                 span="2"
@@ -108,18 +110,20 @@
 
 .choose {
     width: 100%;
-    height: 365px;
+    height: 375px;
     border: 1px solid var(--content-border);
-    margin-top: 10px;
+    margin-top: 13px;
 
     &-list {
-        height: 320px;
+        height: 330px;
+        border-bottom: 1px solid var(--content-border);
+        box-sizing: border-box;
+    }
+
+    &-wrapper {
+        padding: 10px 0;
         display: flex;
         flex-wrap: wrap;
-        border-bottom: 1px solid var(--content-border);
-        overflow-y: auto;
-        box-sizing: border-box;
-        padding: 10px 0;
     }
 }
 </style>

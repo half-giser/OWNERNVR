@@ -12,8 +12,6 @@
                 :row-key="getRowKey"
                 :expand-row-key="pageData.expandRowKey"
                 highlight-current-row
-                border
-                stripe
                 @row-click="handleRowClick"
                 @expand-change="handleExpandChange"
             >
@@ -58,7 +56,7 @@
                             v-if="pageData.expandRowKey.includes(scope.row.id)"
                             class="expand"
                         >
-                            <div class="base-btn-box padding form">
+                            <div class="base-btn-box form">
                                 <el-input
                                     v-model="formData.name"
                                     class="search"
@@ -72,13 +70,12 @@
                             <el-table
                                 :data="groupTableData"
                                 highlight-current-row
-                                border
-                                stripe
                                 height="300"
+                                @row-click="handleExpandRowClick"
                             >
                                 <el-table-column :label="Translate('IDCS_LICENSE_PLATE_NUM')">
                                     <template #default="data">
-                                        {{ hideSensitiveInfo(data.row.plateNumber, 'medium') }}
+                                        {{ displayPlateNumber(data.row) }}
                                     </template>
                                 </el-table-column>
                                 <el-table-column
@@ -87,12 +84,12 @@
                                 />
                                 <el-table-column :label="Translate('IDCS_VEHICLE_OWNER')">
                                     <template #default="data">
-                                        {{ hideSensitiveInfo(data.row.owner, 'medium', 'name') }}
+                                        {{ displayOwner(data.row) }}
                                     </template>
                                 </el-table-column>
                                 <el-table-column :label="Translate('IDCS_PHONE_NUMBER')">
                                     <template #default="data">
-                                        {{ hideSensitiveInfo(data.row.ownerPhone, 'medium') }}
+                                        {{ displayPhone(data.row) }}
                                     </template>
                                 </el-table-column>
                                 <el-table-column :label="Translate('IDCS_EDIT')">
@@ -118,7 +115,7 @@
                                     </template>
                                 </el-table-column>
                             </el-table>
-                            <div class="base-btn-box padding">
+                            <div class="base-pagination-box">
                                 <el-pagination
                                     v-model:current-page="formData.pageIndex"
                                     v-model:page-size="formData.pageSize"
@@ -144,15 +141,17 @@
                 <el-button
                     :disabled="!tableData.length"
                     @click="addPlate('')"
-                    >{{ Translate('IDCS_ADD_LICENSE_PLATE') }}</el-button
                 >
+                    {{ Translate('IDCS_ADD_LICENSE_PLATE') }}
+                </el-button>
                 <el-button @click="addGroup">{{ Translate('IDCS_ADD_GROUP') }}</el-button>
                 <el-button
                     v-show="!pageData.isExportDisabled"
                     :disabled="!tableData.length"
                     @click="exportGroup"
-                    >{{ Translate('IDCS_EXPORT') }}</el-button
                 >
+                    {{ Translate('IDCS_EXPORT') }}
+                </el-button>
             </div>
         </div>
         <IntelLicencePlateDBExportPop
@@ -185,12 +184,12 @@
     margin-bottom: 10px;
 }
 
+.expand {
+    padding: 15px;
+}
+
 .search {
     margin-right: 10px;
     width: 200px;
-}
-
-.el-table :deep(.cell) {
-    width: 100%;
 }
 </style>

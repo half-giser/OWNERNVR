@@ -8,6 +8,7 @@
         :title="Translate('IDCS_ADD_CRUISE')"
         width="500"
         @open="open"
+        @closed="formRef?.resetFields()"
     >
         <el-form
             ref="formRef"
@@ -15,22 +16,16 @@
             :model="formData"
         >
             <el-form-item prop="name">
-                <el-select v-model="formData.name">
-                    <el-option
-                        v-for="item in pageData.cruiseOptions"
-                        :key="item.value"
-                        :value="item.value"
-                        :label="item.label"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="formData.name"
+                    :options="pageData.cruiseOptions"
+                />
             </el-form-item>
         </el-form>
-        <template #footer>
-            <div class="base-btn-box">
-                <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="close()">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="close()">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 

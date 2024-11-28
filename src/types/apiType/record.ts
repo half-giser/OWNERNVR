@@ -3,6 +3,7 @@
  * @Date: 2024-07-03 16:14:27
  * @Description: 录像与回放
  */
+import { TableRowStatus } from './base'
 
 /**
  * @description 录像-模式配置
@@ -76,7 +77,7 @@ export class RecordSubStreamQualityCaps {
 /**
  * @description 录像子码流列表
  */
-export class RecordSubStreamList {
+export class RecordSubStreamList extends TableRowStatus {
     id = ''
     index = 0
     name = ''
@@ -124,7 +125,7 @@ export class RecordSubStreamNoneDto {
 /**
  * @description 录像码流信息
  */
-export class RecordStreamInfoDto {
+export class RecordStreamInfoDto extends TableRowStatus {
     id = ''
     name = ''
     streamType = ''
@@ -141,10 +142,10 @@ export class RecordStreamInfoDto {
     chlType = ''
     mainCaps = {
         // 可选的编码类型
-        supEnct: [] as string[],
+        supEnct: [] as SelectOption<string, string>[],
         // 可选的码率
         bitType: [] as string[],
-        res: [] as { fps: string; value: string }[],
+        res: [] as { fps: string; value: string; label: string }[],
     }
     main = {
         enct: '',
@@ -188,16 +189,14 @@ export class RecordStreamInfoDto {
         level: '',
     }
     mainStreamQualityCaps: { enct: string; res: string; digitalDefault: string; analogDefault: string; value: string[] }[] = []
-    levelNote: string[] = []
+    levelNote: SelectOption<string, string>[] = []
     bitType = ''
     supportAudio = false
     // 码率可选范围
-    qualitys = [] as SelectOption<string, string>[]
+    qualitys: SelectOption<string, string>[] = []
     // 帧率可选范围
-    frameRates = [] as SelectOption<string, string>[]
-    resolutions = [] as SelectOption<string, string>[]
-    // 元素禁用
-    rowDisable = false
+    frameRates: SelectOption<string, string>[] = []
+    resolutions: SelectOption<string, string>[] = []
     videoEncodeTypeDisable = false
     resolutionDisable = false
     frameRateDisable = false

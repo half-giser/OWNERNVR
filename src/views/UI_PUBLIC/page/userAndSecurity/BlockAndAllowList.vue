@@ -30,8 +30,6 @@
         </el-form>
         <div class="base-table-box">
             <el-table
-                border
-                stripe
                 flexible
                 :data="tableData"
             >
@@ -79,13 +77,15 @@
             <el-button
                 :disabled="!formData.switch"
                 @click="handleAddIp"
-                >{{ Translate('IDCS_ADD_IP') }}</el-button
             >
+                {{ Translate('IDCS_ADD_IP') }}
+            </el-button>
             <el-button
                 :disabled="!formData.switch"
                 @click="handleAddMac"
-                >{{ Translate('IDCS_ADD_MAC') }}</el-button
             >
+                {{ Translate('IDCS_ADD_MAC') }}
+            </el-button>
             <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>
         </div>
         <BlockAndAllowEditPop

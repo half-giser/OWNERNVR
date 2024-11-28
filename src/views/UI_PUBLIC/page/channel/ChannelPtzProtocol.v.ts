@@ -10,10 +10,10 @@ export default defineComponent({
     setup(_prop, ctx) {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
+        const { openNotify } = useNotification()
         const playerRef = ref<PlayerInstance>()
 
         const pageData = ref({
-            notification: [] as string[],
             // 云台选项
             ptzOptions: getBoolSwitchOptions(),
             // 云台索引
@@ -26,9 +26,16 @@ export default defineComponent({
 
         const tableRef = ref<TableInstance>()
         const tableData = ref<ChannelPtzProtocolDto[]>([])
+        const editRows = useWatchEditRows<ChannelPtzProtocolDto>()
 
-        // 编辑行索引
-        const editRows = ref(new Set<number>())
+        const chlOptions = computed(() => {
+            return tableData.value.map((item, index) => {
+                return {
+                    label: item.chlName,
+                    value: index,
+                }
+            })
+        })
 
         // 播放模式
         const mode = computed(() => {
@@ -45,23 +52,6 @@ export default defineComponent({
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
 
-        let pageChangeTimes = 0
-
-        /**
-         * @description 请求数据前, 记录当前页码
-         */
-        const savePagination = () => {
-            pageChangeTimes++
-            return pageChangeTimes
-        }
-
-        /**
-         * @description 返回数据时，判断页码是否发生变化，若是，则停止之前的更新、获取、提交数据
-         */
-        const isPaginationChanged = (currentTimes: number) => {
-            return pageChangeTimes !== currentTimes
-        }
-
         /**
          * @description 播放器就绪时回调
          */
@@ -71,20 +61,11 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 if (isHttpsLogin()) {
-                    pageData.value.notification = [formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`)]
+                    openNotify(formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`))
                 }
             }
 
             if (mode.value === 'ocx') {
-                if (!plugin.IsInstallPlugin()) {
-                    plugin.SetPluginNotice('#layout2Content')
-                    return
-                }
-
-                if (!plugin.IsPluginAvailable()) {
-                    plugin.SetPluginNoResponse()
-                    plugin.ShowPluginNoResponse()
-                }
                 const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
                 plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
@@ -95,10 +76,9 @@ export default defineComponent({
          * @param {boolean} bool
          */
         const changeAllPtz = (bool: boolean) => {
-            tableData.value.forEach((item, index) => {
+            tableData.value.forEach((item) => {
                 if (!item.disabled) {
                     item.ptz = bool
-                    addEditRow(index)
                 }
             })
         }
@@ -124,38 +104,37 @@ export default defineComponent({
         const setData = async () => {
             openLoading()
 
-            for (let i = 0; i < tableData.value.length; i++) {
-                if (editRows.value.has(i)) {
-                    const item = tableData.value[i]
-                    // const row = tableData.value[editsIndex[i]]
-                    const sendXml = rawXml`
-                        <types>
-                            <baudRate>${wrapEnums(item.baudRateOptions)}</baudRate>
-                            <protocol>${wrapEnums(item.protocolOptions)}</protocol>
-                        </types>
-                        <content>
-                            <chl id="${item.chlId}">
-                                <baudRate type="baudRate">${item.baudRate}</baudRate>
-                                <protocol type="protocol">${item.protocol}</protocol>
-                                <address min="${item.addressMin}" max="${item.addressMax}">${item.address}</address>
-                                <ptz>${item.ptz}</ptz>
-                            </chl>
-                        </content>
-                    `
-                    try {
-                        const result = await editPtzProtocol(sendXml)
-                        const $ = queryXml(result)
-                        if ($('//status').text() === 'success') {
-                            item.status = 'success'
-                            editRows.value.delete(i)
-                        } else {
-                            item.status = 'error'
-                        }
-                    } catch {
+            tableData.value.forEach((item) => (item.status = ''))
+
+            for (const item of editRows.toArray()) {
+                const sendXml = rawXml`
+                    <types>
+                        <baudRate>${wrapEnums(item.baudRateOptions)}</baudRate>
+                        <protocol>${wrapEnums(item.protocolOptions)}</protocol>
+                    </types>
+                    <content>
+                        <chl id="${item.chlId}">
+                            <baudRate type="baudRate">${item.baudRate}</baudRate>
+                            <protocol type="protocol">${item.protocol}</protocol>
+                            <address min="${item.addressMin}" max="${item.addressMax}">${item.address}</address>
+                            <ptz>${item.ptz}</ptz>
+                        </chl>
+                    </content>
+                `
+                try {
+                    const result = await editPtzProtocol(sendXml)
+                    const $ = queryXml(result)
+                    if ($('status').text() === 'success') {
+                        item.status = 'success'
+                        editRows.remove(item)
+                    } else {
                         item.status = 'error'
                     }
+                } catch {
+                    item.status = 'error'
                 }
             }
+
             closeLoading()
         }
 
@@ -163,24 +142,24 @@ export default defineComponent({
          * @description 获取数据
          */
         const getData = async () => {
-            const timer = savePagination()
-
-            editRows.value.clear()
+            editRows.clear()
 
             await getList()
 
-            for (let i = 0; i < tableData.value.length; i++) {
-                await getConfig(tableData.value[i].chlId, i)
+            tableData.value.forEach(async (item, i) => {
+                await getConfig(item.chlId, i)
 
-                if (isPaginationChanged(timer)) {
-                    break
+                if (!tableData.value.some((find) => find === item)) {
+                    return
                 }
+
+                editRows.listen(item)
 
                 if (i === 0) {
                     pageData.value.tableIndex = i
-                    tableRef.value?.setCurrentRow(tableData.value[i])
+                    tableRef.value!.setCurrentRow(item)
                 }
-            }
+            })
         }
 
         /**
@@ -199,8 +178,8 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                tableData.value = $('//content/item').map((item) => {
+            if ($('status').text() === 'success') {
+                tableData.value = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     const rowData = new ChannelPtzProtocolDto()
                     rowData.disabled = true
@@ -209,7 +188,7 @@ export default defineComponent({
                     rowData.chlName = $item('name').text()
                     return rowData
                 })
-                pageData.value.total = $('//content').attr('total').num()
+                pageData.value.total = $('content').attr('total').num()
             }
         }
 
@@ -229,20 +208,20 @@ export default defineComponent({
                 `
                 const result = await queryPtzProtocol(sendXml)
                 const $ = queryXml(result)
-                if ($('//status').text() === 'success') {
-                    item.baudRate = $('//content/chl/baudRate').text()
-                    item.protocol = $('//content/chl/protocol').text()
-                    item.address = $('//content/chl/address').text().num()
-                    item.addressMin = $('//content/chl/address').attr('min').num()
-                    item.addressMax = $('//content/chl/address').attr('max').num()
-                    item.ptz = $('//content/chl/ptz').text().bool()
-                    item.baudRateOptions = $('//types/baudRate/enum').map((item) => {
+                if ($('status').text() === 'success') {
+                    item.baudRate = $('content/chl/baudRate').text()
+                    item.protocol = $('content/chl/protocol').text()
+                    item.address = $('content/chl/address').text().num()
+                    item.addressMin = $('content/chl/address').attr('min').num()
+                    item.addressMax = $('content/chl/address').attr('max').num()
+                    item.ptz = $('content/chl/ptz').text().bool()
+                    item.baudRateOptions = $('types/baudRate/enum').map((item) => {
                         return {
                             value: item.text(),
                             label: item.text(),
                         }
                     })
-                    item.protocolOptions = $('//types/protocol/enum').map((item) => {
+                    item.protocolOptions = $('types/protocol/enum').map((item) => {
                         return {
                             value: item.text(),
                             label: item.text(),
@@ -263,14 +242,7 @@ export default defineComponent({
          * @description 修改通道选项
          */
         const changeChl = () => {
-            tableRef.value?.setCurrentRow(tableData.value[pageData.value.tableIndex])
-        }
-
-        /**
-         * @description 记录修改行的索引
-         */
-        const addEditRow = (index: number) => {
-            editRows.value.add(index)
+            tableRef.value!.setCurrentRow(tableData.value[pageData.value.tableIndex])
         }
 
         /**
@@ -322,13 +294,13 @@ export default defineComponent({
             handlePlayerReady,
             pageData,
             tableData,
+            chlOptions,
             changeChl,
             setData,
             getData,
             handleRowClick,
             changeAllPtz,
             editRows,
-            addEditRow,
         }
     },
 })

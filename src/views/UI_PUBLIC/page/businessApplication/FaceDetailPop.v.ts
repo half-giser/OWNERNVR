@@ -156,8 +156,8 @@ export default defineComponent({
             `
             const result = await requestChSnapFaceImage(sendXml)
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                return 'data:image/png;base64,' + $('//content').text()
+            if ($('status').text() === 'success') {
+                return wrapBase64Img($('content').text())
             } else {
                 return ''
             }
@@ -180,7 +180,7 @@ export default defineComponent({
                 certificateNum: data.certificateNum,
                 mobile: data.mobile,
                 birthday: data.birthday,
-                pic: 'data:image/png;base64,' + pic,
+                pic: wrapBase64Img(pic),
                 date: dayjs(current.value.date, 'YYYY-MM-DD').valueOf(),
             }
             router.push({
@@ -204,7 +204,7 @@ export default defineComponent({
             `
             const result = await queryFacePersonnalInfoList(sendXml)
             const $ = queryXml(result)
-            const item = $('//content/item')[0]
+            const item = $('content/item')[0]
             const $item = queryXml(item.element)
 
             return {
@@ -248,8 +248,8 @@ export default defineComponent({
             `
             const result = await requestFacePersonnalInfoImage(sendXml)
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                return $('//content').text()
+            if ($('status').text() === 'success') {
+                return $('content').text()
             } else return ''
         }
 

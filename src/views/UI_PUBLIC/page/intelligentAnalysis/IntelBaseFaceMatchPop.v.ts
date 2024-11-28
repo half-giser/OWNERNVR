@@ -108,6 +108,13 @@ export default defineComponent({
         }
 
         /**
+         * @description 开启弹窗
+         */
+        const open = () => {
+            pageData.value.currentIndex = prop.index
+        }
+
+        /**
          * @description 关闭弹窗
          */
         const close = () => {
@@ -128,12 +135,12 @@ export default defineComponent({
 
         // 回显事件类型文本
         const displayEventType = computed(() => {
-            return EVENT_TYPE_MAPPING[current.value.eventType] || ''
+            return EVENT_TYPE_MAPPING[current.value.eventType] || '--'
         })
 
         // 回显目标类型文本
         const displayTargetType = computed(() => {
-            return TARGET_TYPE_MAPPING[current.value.targetType] || ''
+            return TARGET_TYPE_MAPPING[current.value.targetType] || '--'
         })
 
         /**
@@ -160,6 +167,7 @@ export default defineComponent({
         return {
             pageData,
             previous,
+            open,
             next,
             close,
             current,

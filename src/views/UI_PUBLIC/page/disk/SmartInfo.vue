@@ -6,25 +6,21 @@
 <template>
     <div class="base-flex-box">
         <el-form
-            class="form"
-            inline-message
             label-width="250"
             :style="{
                 '--form-input-width': '340px',
             }"
         >
             <el-form-item :label="Translate('IDCS_DISK')">
-                <el-select
+                <el-select-v2
                     v-model="pageData.diskIndex"
+                    :options="pageData.diskList"
+                    :props="{
+                        value: 'index',
+                        label: 'diskNum',
+                    }"
                     @change="getDetail"
-                >
-                    <el-option
-                        v-for="(item, key) in pageData.diskList"
-                        :key
-                        :value="key"
-                        :label="item.diskNum"
-                    />
-                </el-select>
+                />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_DISK_SERIAL_NUMBER')">
                 {{ diskSerialNum }}
@@ -45,9 +41,8 @@
         <div class="base-table-box">
             <el-table
                 :data="tableData"
-                border
-                stripe
                 show-overflow-tooltip
+                highlight-current-row
             >
                 <el-table-column
                     :label="Translate('IDCS_DISK_SMART_ID')"

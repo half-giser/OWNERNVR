@@ -9,51 +9,40 @@
             <div class="base-chl-box-player">
                 <BaseVideoPlayer
                     ref="playerRef"
-                    type="live"
-                    @onready="handlePlayerReady"
+                    @ready="handlePlayerReady"
                 />
             </div>
             <el-form
                 :style="{
                     '--form-label-width': '150px',
                 }"
-                class="inline-message"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                    <el-select
+                    <el-select-v2
                         v-if="tableData.length"
                         v-model="pageData.tableIndex"
+                        :options="chlOptions"
                         @change="changeChl"
-                    >
-                        <el-option
-                            v-for="(item, index) in tableData"
-                            :key="item.chlId"
-                            :value="index"
-                            :label="item.chlName"
-                        />
-                    </el-select>
-                    <el-select
+                    />
+                    <el-select-v2
                         v-else
+                        model-value=""
+                        :options="[]"
                         disabled
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_LOGO')">
-                    <el-select
+                    <el-select-v2
                         v-if="tableData[pageData.tableIndex]"
                         v-model="tableData[pageData.tableIndex].switch"
                         :disabled="tableData[pageData.tableIndex].disabled"
-                        @change="addEditRow(pageData.tableIndex)"
-                    >
-                        <el-option
-                            v-for="item in pageData.switchOptions"
-                            :key="item.value"
-                            :value="item.value"
-                            :label="item.label"
-                        />
-                    </el-select>
-                    <el-select
+                        :options="pageData.switchOptions"
+                    />
+                    <el-select-v2
                         v-else
+                        model-value=""
                         disabled
+                        :options="[]"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_TRANSPARENCY')">
@@ -64,7 +53,6 @@
                         :max="tableData[pageData.tableIndex].maxOpacity"
                         :disabled="tableData[pageData.tableIndex].disabled"
                         show-input
-                        @change="addEditRow(pageData.tableIndex)"
                     />
                     <el-slider
                         v-else
@@ -79,8 +67,6 @@
                 <el-table
                     ref="tableRef"
                     :data="tableData"
-                    border
-                    stripe
                     highlight-current-row
                     :row-class-name="(data) => (data.row.disabled ? 'disabled' : '')"
                     @row-click="handleRowClick"
@@ -121,19 +107,11 @@
                             </el-dropdown>
                         </template>
                         <template #default="scope">
-                            <el-select
+                            <el-select-v2
                                 v-model="scope.row.switch"
                                 :disabled="scope.row.disabled"
-                                :placeholder="Translate('IDCS_ON')"
-                                @change="addEditRow(scope.$index)"
-                            >
-                                <el-option
-                                    v-for="item in pageData.switchOptions"
-                                    :key="item.value"
-                                    :value="item.value"
-                                    :label="item.label"
-                                />
-                            </el-select>
+                                :options="pageData.switchOptions"
+                            />
                         </template>
                     </el-table-column>
                     <!-- 透明度 -->
@@ -145,7 +123,6 @@
                                 :min="scope.row.minOpacity"
                                 :max="scope.row.maxOpacity"
                                 @keydown.enter="handleKeydownEnter($event)"
-                                @change="addEditRow(scope.$index)"
                             />
                         </template>
                     </el-table-column>
@@ -162,7 +139,7 @@
             </div>
             <div class="base-btn-box">
                 <el-button
-                    :disabled="!editRows.size"
+                    :disabled="!editRows.size()"
                     @click="setData"
                 >
                     {{ Translate('IDCS_APPLY') }}

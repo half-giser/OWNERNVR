@@ -6,28 +6,16 @@
 <template>
     <div class="login">
         <div class="login-lang">
-            <el-select
+            <el-select-v2
                 v-model="pageData.langId"
+                :options="pageData.langTypes"
                 @change="changeLang"
-            >
-                <el-option
-                    v-for="(value, key) in pageData.langTypes"
-                    :key="key"
-                    :label="value"
-                    :value="key"
-                />
-            </el-select>
-            <el-select
+            />
+            <el-select-v2
                 v-show="pageData.calendarOptions.length"
                 v-model="formData.calendarType"
-            >
-                <el-option
-                    v-for="item in pageData.calendarOptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                />
-            </el-select>
+                :options="pageData.calendarOptions"
+            />
         </div>
         <div class="login-main">
             <div class="login-logo"></div>

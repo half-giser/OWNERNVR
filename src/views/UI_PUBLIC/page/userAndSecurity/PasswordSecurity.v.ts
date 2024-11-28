@@ -47,11 +47,11 @@ export default defineComponent({
             const $ = queryXml(result)
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                formData.value.passwordStrength = $('//content/pwdSecureSetting/pwdSecLevel').text()
-                formData.value.expirationTime = $('//content/pwdSecureSetting/expiration').text()
+            if ($('status').text() === 'success') {
+                formData.value.passwordStrength = $('content/pwdSecureSetting/pwdSecLevel').text()
+                formData.value.expirationTime = $('content/pwdSecureSetting/expiration').text()
 
-                pageData.value.passwordStrengthOptions = $('//types/userPasswordAllowLevel/enum').map((item) => {
+                pageData.value.passwordStrengthOptions = $('types/userPasswordAllowLevel/enum').map((item) => {
                     const text = item.text()
                     return {
                         value: text,
@@ -59,7 +59,7 @@ export default defineComponent({
                     }
                 })
 
-                pageData.value.expirationTimeOptions = $('//types/userPasswordExpirationTime/enum').map((item) => {
+                pageData.value.expirationTimeOptions = $('types/userPasswordExpirationTime/enum').map((item) => {
                     const text = item.text()
                     return {
                         value: text,
@@ -88,7 +88,7 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),

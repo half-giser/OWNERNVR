@@ -7,14 +7,13 @@
     <div>
         <el-form
             ref="formRef"
-            class="form stripe"
+            class="stripe"
             :rules
             :model="formData"
             :style="{
                 '--form-input-width': '340px',
                 '--form-label-width': '200px',
             }"
-            inline-message
         >
             <el-form-item
                 prop="userName"
@@ -66,14 +65,10 @@
                 <BaseSensitiveEmailInput v-model="formData.email" />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_RIGHT_GROUP')">
-                <el-select v-model="formData.authGroup">
-                    <el-option
-                        v-for="item in authGroupOptions"
-                        :key="item.id"
-                        :label="displayAuthGroup(item.name)"
-                        :value="item.id"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="formData.authGroup"
+                    :options="authGroupOptions"
+                />
             </el-form-item>
             <div class="notice">{{ noticeMsg }}</div>
             <div class="base-btn-box">

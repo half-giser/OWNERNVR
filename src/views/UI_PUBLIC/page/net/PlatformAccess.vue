@@ -9,7 +9,6 @@
             ref="formRef"
             :rules="formRules"
             :model="formData"
-            inline-message
             :style="{
                 '--form-label-width': '200px',
                 '--form-input-width': '250px',
@@ -17,14 +16,10 @@
             class="stripe"
         >
             <el-form-item :label="Translate('IDCS_ACCESS_TYPE')">
-                <el-select v-model="formData.accessType">
-                    <el-option
-                        v-for="item in pageData.platformTypeList"
-                        :key="item.value"
-                        :value="item.value"
-                        :label="item.label"
-                    />
-                </el-select>
+                <el-select-v2
+                    v-model="formData.accessType"
+                    :options="pageData.platformTypeList"
+                />
             </el-form-item>
             <template v-if="formData.accessType === 'NVMS5000'">
                 <el-form-item>
@@ -192,16 +187,12 @@
             <el-table
                 :show-header="false"
                 :data="tableData"
-                stripe
-                border
             >
                 <el-table-column prop="label" />
                 <el-table-column type="expand">
                     <template #default="scope">
                         <el-table
                             :data="scope.row.list"
-                            stripe
-                            border
                             class="expand-table"
                             :row-class-name="handleRowClassName"
                         >

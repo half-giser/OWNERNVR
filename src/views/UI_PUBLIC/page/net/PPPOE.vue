@@ -13,7 +13,6 @@
                 '--form-input-width': '340px',
                 '--form-label-width': '250px',
             }"
-            inline-message
             class="stripe"
         >
             <el-form-item>
@@ -55,8 +54,9 @@
                 <el-button
                     :disabled="pageData.wirelessSwitch"
                     @click="setData"
-                    >{{ Translate('IDCS_APPLY') }}</el-button
                 >
+                    {{ Translate('IDCS_APPLY') }}
+                </el-button>
             </div>
         </el-form>
     </div>

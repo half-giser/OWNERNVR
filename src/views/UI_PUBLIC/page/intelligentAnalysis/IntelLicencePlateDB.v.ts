@@ -47,6 +47,8 @@ export default defineComponent({
             exportMap: {} as Record<string, string>,
             // 导出数据总条数
             exportTotal: 0,
+            // 当前选中的车牌列表行
+            currentPlateRow: new IntelPlateDBPlateInfo(),
         })
 
         const formData = ref({
@@ -107,7 +109,7 @@ export default defineComponent({
             if (pageData.value.expandRowKey.length) {
                 const find = tableData.value.find((item) => item.id === pageData.value.expandRowKey[0])
                 if (find) {
-                    tableRef.value?.toggleRowExpansion(find, false)
+                    tableRef.value!.toggleRowExpansion(find, false)
                 }
                 pageData.value.expandRowKey = []
             }
@@ -143,11 +145,11 @@ export default defineComponent({
 
                     closeLoading()
 
-                    if ($('//status').text() === 'success') {
+                    if ($('status').text() === 'success') {
                         if (pageData.value.expandRowKey.length) {
                             const find = tableData.value.find((item) => item.id === pageData.value.expandRowKey[0])
                             if (find) {
-                                tableRef.value?.toggleRowExpansion(find, false)
+                                tableRef.value!.toggleRowExpansion(find, false)
                             }
                             pageData.value.expandRowKey = []
                         }
@@ -162,7 +164,7 @@ export default defineComponent({
                     if (pageData.value.expandRowKey.length) {
                         const find = tableData.value.find((item) => item.id === pageData.value.expandRowKey[0])
                         if (find) {
-                            tableRef.value?.toggleRowExpansion(find, false)
+                            tableRef.value!.toggleRowExpansion(find, false)
                         }
                         pageData.value.expandRowKey = []
                     }
@@ -203,7 +205,7 @@ export default defineComponent({
         /**
          * @description 跳转车牌识别页面
          */
-        const handleVehicleRecognition = async () => {
+        const handleVehicleRecognition = () => {
             if (!userSession.hasAuth('alarmMgr')) {
                 openMessageBox({
                     type: 'info',
@@ -290,10 +292,10 @@ export default defineComponent({
 
                 closeLoading()
 
-                if ($('//status').text() === 'success') {
+                if ($('status').text() === 'success') {
                     searchPlate(row.groupId, true)
                 } else {
-                    const errorCode = $('//errorCode').text().num()
+                    const errorCode = $('errorCode').text().num()
                     if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
                         openMessageBox({
                             type: 'info',
@@ -366,8 +368,8 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
-                groupTableData.value = $('//content/plate/item').map((item) => {
+            if ($('status').text() === 'success') {
+                groupTableData.value = $('content/plate/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         id: item.attr('id'),
@@ -379,7 +381,7 @@ export default defineComponent({
                         ownerFaceId: $item('ownerFaceId').text(),
                     }
                 })
-                formData.value.total = $('//content/plate').attr('total').num()
+                formData.value.total = $('content/plate').attr('total').num()
             }
         }
 
@@ -394,7 +396,7 @@ export default defineComponent({
 
             closeLoading()
 
-            tableData.value = $('//content/group/item').map((item) => {
+            tableData.value = $('content/group/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
                     id: item.attr('id'),
@@ -402,6 +404,50 @@ export default defineComponent({
                     plateNum: $item('plateNum').text().num(),
                 }
             })
+        }
+
+        /**
+         * @description 点击车牌列表项回调
+         * @param row
+         */
+        const handleExpandRowClick = (row: IntelPlateDBPlateInfo) => {
+            pageData.value.currentPlateRow = row
+        }
+
+        /**
+         * @description 选中该行时 显示车牌号码 否则隐藏
+         * @param {IntelPlateDBPlateInfo} row
+         * @returns {string}
+         */
+        const displayPlateNumber = (row: IntelPlateDBPlateInfo) => {
+            if (row === pageData.value.currentPlateRow) {
+                return row.plateNumber
+            }
+            return hideSensitiveInfo(row.plateNumber, 'medium')
+        }
+
+        /**
+         * @description 选中改行时 显示手机号码 否则隐藏
+         * @param {IntelPlateDBPlateInfo} row
+         * @returns {string}
+         */
+        const displayPhone = (row: IntelPlateDBPlateInfo) => {
+            if (row === pageData.value.currentPlateRow) {
+                return row.ownerPhone
+            }
+            return hideSensitiveInfo(row.ownerPhone, 'medium')
+        }
+
+        /**
+         * @description 选中改行时 显示车主信息 否则隐藏
+         * @param {IntelPlateDBPlateInfo} row
+         * @returns {string}
+         */
+        const displayOwner = (row: IntelPlateDBPlateInfo) => {
+            if (row === pageData.value.currentPlateRow) {
+                return row.owner
+            }
+            return hideSensitiveInfo(row.ownerPhone, 'medium', 'name')
         }
 
         /**
@@ -420,10 +466,10 @@ export default defineComponent({
          * @param {IntelPlateDBGroupList} row
          * @param {boolean} expanded
          */
-        const handleExpandChange = async (row: IntelPlateDBGroupList, expanded: IntelPlateDBGroupList[]) => {
+        const handleExpandChange = (row: IntelPlateDBGroupList, expanded: IntelPlateDBGroupList[]) => {
             if (expanded.length > 1) {
                 const find = tableData.value.find((item) => item.id === expanded[0].id)!
-                tableRef.value?.toggleRowExpansion(find, false)
+                tableRef.value!.toggleRowExpansion(find, false)
             }
 
             if (!expanded.length) {
@@ -432,7 +478,7 @@ export default defineComponent({
             }
 
             if (expanded.some((item) => item.id === row.id)) {
-                tableRef.value?.setCurrentRow(row)
+                tableRef.value!.setCurrentRow(row)
                 groupTableData.value = []
                 pageData.value.expandRowKey = [row.id]
 
@@ -445,7 +491,7 @@ export default defineComponent({
             return row.id
         }
 
-        onMounted(async () => {
+        onMounted(() => {
             getGroupList()
         })
 
@@ -469,13 +515,16 @@ export default defineComponent({
             deletePlate,
             tableRef,
             tableData,
+            handleExpandRowClick,
             handleRowClick,
             handleExpandChange,
             getRowKey,
             groupTableData,
             changePlatePage,
             changePlatePageSize,
-            hideSensitiveInfo,
+            displayPlateNumber,
+            displayOwner,
+            displayPhone,
             handleNameFocus,
             searchPlate,
             handleVehicleRecognition,

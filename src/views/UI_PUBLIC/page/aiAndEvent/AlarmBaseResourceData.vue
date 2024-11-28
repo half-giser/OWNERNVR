@@ -22,8 +22,6 @@
         >
             <el-table
                 :data="tableData"
-                stripe
-                border
                 height="250"
                 highlight-current-row
                 show-overflow-tooltip

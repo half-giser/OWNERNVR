@@ -34,6 +34,7 @@
             :title="Translate('IDCS_ADD_TO_FAVORITE')"
             width="300"
             append-to-body
+            @closed="formRef?.resetFields()"
         >
             <el-form
                 ref="formRef"
@@ -54,12 +55,10 @@
                     />
                 </el-form-item>
             </el-form>
-            <template #footer>
-                <div class="base-btn-box">
-                    <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
-                    <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
-                </div>
-            </template>
+            <div class="base-btn-box">
+                <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
+                <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
+            </div>
         </el-dialog>
     </div>
 </template>

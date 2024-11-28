@@ -345,7 +345,7 @@ export default defineComponent({
         /**
          * @description 获取时间格式化配置
          */
-        const getTimeConfig = async () => {
+        const getTimeConfig = () => {
             formData.value.startTime = dayjs(new Date().setHours(-48, 0, 0, 0))
                 .calendar('gregory')
                 .format(dateTime.dateTimeFormat)
@@ -400,9 +400,9 @@ export default defineComponent({
             closeLoading()
 
             commLoadResponseHandler(result, ($) => {
-                pageData.value.totalCount = $('//content').attr('total').num()
+                pageData.value.totalCount = $('content').attr('total').num()
 
-                const data = $('//content/item').map((item, index) => {
+                const data = $('content/item').map((item, index) => {
                     const $item = queryXml(item.element)
                     const clientType = $item('clientType').text()
                     const logType = $item('logType').text()
@@ -519,7 +519,7 @@ export default defineComponent({
             try {
                 const result = await exportLog(sendXML)
                 const $ = queryXml(result)
-                const content = $('//content').text()
+                const content = $('content').text()
 
                 download(new Blob([content]), 'log_' + dayjs(new Date()).format('YYYYMMDDHHmmss') + '.txt')
                 closeLoading()

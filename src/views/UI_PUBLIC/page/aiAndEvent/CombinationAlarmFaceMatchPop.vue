@@ -15,20 +15,15 @@
             <div class="box">
                 <div class="box_title">{{ Translate('IDCS_FACE_MATCH_SELECT_CHL') }}</div>
                 <el-form
-                    ref="formRef"
                     :style="{
                         '--form-label-width': '150px',
                     }"
                 >
                     <el-form-item :label="Translate('IDCD_RULE')">
-                        <el-select v-model="pageData.rule">
-                            <el-option
-                                v-for="item in pageData.ruleOptions"
-                                :key="item.value"
-                                :value="item.value"
-                                :label="item.label"
-                            />
-                        </el-select>
+                        <el-select-v2
+                            v-model="pageData.rule"
+                            :options="pageData.ruleOptions"
+                        />
                     </el-form-item>
                     <el-form-item :label="Translate('IDCS_FEATURE_LIBRARY')">
                         <div class="faceData">
@@ -50,30 +45,21 @@
             <div class="box">
                 <div class="box_title">{{ Translate('IDCS_MATCH_START_AND_END') }}</div>
                 <el-form
-                    ref="formRef"
                     :style="{
                         '--form-label-width': '220px',
                     }"
                 >
                     <el-form-item :label="Translate('IDCS_PREALARM_BEFORE')">
-                        <el-select v-model="pageData.duration">
-                            <el-option
-                                v-for="value in pageData.durationOptions"
-                                :key="value"
-                                :value="value"
-                                :label="getTranslateForSecond(value)"
-                            />
-                        </el-select>
+                        <el-select-v2
+                            v-model="pageData.duration"
+                            :options="pageData.durationOptions"
+                        />
                     </el-form-item>
                     <el-form-item :label="Translate('IDCS_PREALARM_AFTER')">
-                        <el-select v-model="pageData.delay">
-                            <el-option
-                                v-for="value in pageData.durationOptions"
-                                :key="value"
-                                :value="value"
-                                :label="getTranslateForSecond(value)"
-                            />
-                        </el-select>
+                        <el-select-v2
+                            v-model="pageData.delay"
+                            :options="pageData.durationOptions"
+                        />
                     </el-form-item>
                 </el-form>
             </div>
@@ -93,12 +79,10 @@
                 <el-input v-model="pageData.displayText" />
             </el-form-item>
         </el-form>
-        <template #footer>
-            <div class="base-btn-box">
-                <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 
@@ -137,8 +121,4 @@
 .faceCheckBox {
     width: 120px;
 }
-// 除第一个，其他的会加左右margin拉开距离，这里去掉
-// #n9web .el-form .el-checkbox + * {
-//     margin: 0;
-// }
 </style>

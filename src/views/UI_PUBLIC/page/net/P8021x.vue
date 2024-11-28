@@ -13,8 +13,7 @@
                 '--form-label-width': '200px',
                 '--form-input-width': '200px',
             }"
-            inline-message
-            class="form stripe"
+            class="stripe"
         >
             <el-form-item>
                 <el-checkbox

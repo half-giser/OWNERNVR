@@ -165,8 +165,8 @@ export default defineComponent({
             const result = await faceImgStatistic_v2(sendXml)
             const $ = queryXml(result)
             closeLoading()
-            if ($('//status').text() === 'success') {
-                tableData.value = $('//content/timeStatistic/item').map((item) => {
+            if ($('status').text() === 'success') {
+                tableData.value = $('content/timeStatistic/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         imageTotalNum: $item('imageTotalNum').text().num(),
@@ -189,7 +189,7 @@ export default defineComponent({
                 })
                 showMaxSearchLimitTips($)
             } else {
-                if ($('//errorCode').text().num() === ErrorCode.USER_ERROR_JSU_HAVEACSSYSTEM) {
+                if ($('errorCode').text().num() === ErrorCode.USER_ERROR_JSU_HAVEACSSYSTEM) {
                     openMessageBox({
                         type: 'info',
                         message: Translate('IDCS_SELECT_EVENT_TIP'),
@@ -337,7 +337,7 @@ export default defineComponent({
             downloadExcel(csvHead, csvBody, xlsName, csvTitle)
         }
 
-        onMounted(async () => {
+        onMounted(() => {
             pageData.value.barData = getBarData()
         })
 

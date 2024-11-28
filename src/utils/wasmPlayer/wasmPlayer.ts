@@ -907,7 +907,7 @@ export default class WasmPlayer {
      * @param {boolean} finished 是否已结束
      */
     private onRecordData(data: ArrayBuffer, finished: boolean) {
-        this.recordBuf = appendBuffer(this.recordBuf, data)
+        this.recordBuf = appendBuffer(this.recordBuf, data) as ArrayBuffer
         if (finished) {
             this.onrecordFile && this.onrecordFile(this.recordBuf)
             this.recordBuf = null

@@ -3,7 +3,7 @@
  * @Date: 2024-06-07 15:00:44
  * @Description: 加密密码弹窗
  */
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormRules } from 'element-plus'
 import { UserInputEncryptPwdForm } from '@/types/apiType/user'
 
 export default defineComponent({
@@ -54,7 +54,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new UserInputEncryptPwdForm())
         const isShowPassord = ref(false)
 
@@ -64,24 +64,16 @@ export default defineComponent({
                 {
                     required: true,
                     message: Translate('IDCS_PROMPT_PASSWORD_EMPTY'),
-                    trigger: 'blur',
+                    trigger: 'manual',
                 },
             ],
         })
 
         /**
-         * @description 重置表单数据
-         */
-        const reset = () => {
-            formData.value = new UserInputEncryptPwdForm()
-            formRef.value?.clearValidate()
-        }
-
-        /**
          * @description 认证表单数据
          */
         const verify = () => {
-            formRef.value!.validate(async (valid: boolean) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     let password = ''
                     if (prop.encrypt === 'md5') {
@@ -106,7 +98,6 @@ export default defineComponent({
             formData,
             isShowPassord,
             rules,
-            reset,
             verify,
             close,
         }

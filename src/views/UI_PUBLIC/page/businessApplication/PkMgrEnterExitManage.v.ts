@@ -50,7 +50,7 @@ export default defineComponent({
 
             closeLoading()
 
-            tableData.value = $('//content/entryLeaveConfig/item').map((item) => {
+            tableData.value = $('content/entryLeaveConfig/item').map((item) => {
                 const $item = queryXml(item.element)
                 return {
                     id: item.attr('id'),
@@ -65,14 +65,14 @@ export default defineComponent({
                 }
             })
 
-            pageData.value.screenList = $('//types/LEDScreenType/enum').map((item) => {
+            pageData.value.screenList = $('types/LEDScreenType/enum').map((item) => {
                 return {
                     value: item.text(),
                     label: SCREEN_MAPPING[item.text()],
                 }
             })
 
-            pageData.value.directionList = $('//types/directionType/enum').map((item) => {
+            pageData.value.directionList = $('types/directionType/enum').map((item) => {
                 return {
                     value: item.text(),
                     label: DIRECTION_MAPPING[item.text()],
@@ -96,7 +96,7 @@ export default defineComponent({
             const result = await queryOnlineChlList()
             const $ = queryXml(result)
 
-            pageData.value.onlineChlList = $('//content/item').map((item) => item.attr('id'))
+            pageData.value.onlineChlList = $('content/item').map((item) => item.attr('id'))
             chlStatusRefreshTimer.repeat()
         }
 
@@ -131,13 +131,13 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 let errorMsg = Translate('IDCS_SAVE_DATA_FAIL')
                 if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
                     errorMsg = Translate('IDCS_NO_PERMISSION')

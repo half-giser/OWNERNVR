@@ -4,7 +4,7 @@
  * @Description: 云台-巡航线-新增弹窗
  */
 import { type ChannelPtzCruiseDto, type ChannelPtzCruisePresetDto } from '@/types/apiType/channel'
-import type { FormInstance, FormRules, TableInstance } from 'element-plus'
+import type { FormRules, TableInstance } from 'element-plus'
 import ChannelCruiseEditPresetPop from './ChannelCruiseEditPresetPop.vue'
 
 export default defineComponent({
@@ -60,7 +60,7 @@ export default defineComponent({
             presetType: 'add',
         })
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref({
             name: '',
         })
@@ -92,11 +92,6 @@ export default defineComponent({
          * @description 打开弹窗时，重置表单和选项数据
          */
         const open = () => {
-            formRef.value?.clearValidate()
-            formRef.value?.resetFields()
-
-            tableData.value = []
-
             const cruiseIndex = prop.cruise.map((item) => item.index)
             const cruiseOptions = Array(prop.max)
                 .fill(0)
@@ -111,6 +106,11 @@ export default defineComponent({
             } else {
                 formData.value.name = ''
             }
+        }
+
+        const reset = () => {
+            tableData.value = []
+            formRef.value!.resetFields()
         }
 
         /**
@@ -171,7 +171,7 @@ export default defineComponent({
          * @description 验证表单
          */
         const verify = () => {
-            formRef.value?.validate((valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     setData()
                 }
@@ -285,6 +285,7 @@ export default defineComponent({
             open,
             verify,
             close,
+            reset,
             addPreset,
             editPreset,
             handleRowClick,

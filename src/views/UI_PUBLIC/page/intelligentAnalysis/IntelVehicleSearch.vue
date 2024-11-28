@@ -84,10 +84,9 @@
                     <div class="player">
                         <BaseVideoPlayer
                             ref="playerRef"
-                            :split="1"
                             type="record"
                             only-wasm
-                            @ontime="handlePlayerTimeUpdate"
+                            @time="handlePlayerTimeUpdate"
                         />
                     </div>
                     <div class="control-bar">
@@ -163,34 +162,34 @@
                     >
                 </div>
             </div>
-            <div
+            <el-scrollbar
                 v-show="pageData.chartType === 'list'"
                 class="base-intel-pics-box"
             >
-                <IntelBaseSnapItem
-                    v-for="(item, index) in sliceTableData"
-                    :key="getUniqueKey(item)"
-                    :model-value="selectionIds.includes(getUniqueKey(item))"
-                    :src="pageData.listType === 'snap' ? item.pic : item.panorama"
-                    :play="playerData.playId === getUniqueKey(item)"
-                    :type="pageData.listType"
-                    :disabled="item.isDelSnap || item.isNoData || !item.pic || !item.panorama"
-                    :error-text="item.isDelSnap ? Translate('IDCS_DELETED') : item.isNoData ? Translate('IDCS_NO_RECORD_DATA') : ''"
-                    @update:model-value="handleSelect(index, $event)"
-                    @click="play(item)"
-                    @detail="showDetail(index)"
-                >
-                    {{ displayDateTime(item.timestamp) }}<br />{{ item.chlName }}
-                </IntelBaseSnapItem>
-            </div>
+                <div class="base-intel-pics-content">
+                    <IntelBaseSnapItem
+                        v-for="(item, index) in sliceTableData"
+                        :key="getUniqueKey(item)"
+                        :model-value="selectionIds.includes(getUniqueKey(item))"
+                        :src="pageData.listType === 'snap' ? item.pic : item.panorama"
+                        :play="playerData.playId === getUniqueKey(item)"
+                        :type="pageData.listType"
+                        :disabled="item.isDelSnap || item.isNoData || !item.pic || !item.panorama"
+                        :error-text="item.isDelSnap ? Translate('IDCS_DELETED') : item.isNoData ? Translate('IDCS_NO_RECORD_DATA') : ''"
+                        @update:model-value="handleSelect(index, $event)"
+                        @click="play(item)"
+                        @detail="showDetail(index)"
+                    >
+                        {{ displayDateTime(item.timestamp) }}<br />{{ item.chlName }}
+                    </IntelBaseSnapItem>
+                </div>
+            </el-scrollbar>
             <div
                 v-show="pageData.chartType === 'table'"
                 class="base-table-box"
             >
                 <el-table
                     ref="tableRef"
-                    border
-                    stripe
                     show-overflow-tooltip
                     :data="sliceTableData"
                     @row-click="handleTableRowClick"
@@ -236,7 +235,7 @@
                                 :index="0"
                                 :hover-index="1"
                                 :chunk="4"
-                                @click="showDetail(scope.$index)"
+                                @click.stop="showDetail(scope.$index)"
                             />
                         </template>
                     </el-table-column>
@@ -248,10 +247,14 @@
                 span="2"
             >
                 <div>
-                    <el-checkbox v-model="pageData.isBackUpPic">
-                        {{ Translate('IDCS_BACKUP_PICTURE') }}{{ sliceTableData.length && isSupportCSV ? ` (${Translate('IDCS_LICENSE_PLATE_NUM_LIST')})` : '' }}
-                    </el-checkbox>
-                    <el-checkbox v-model="pageData.isBackUpVideo">{{ Translate('IDCS_BACKUP_RECORD') }}</el-checkbox>
+                    <el-checkbox
+                        v-model="pageData.isBackUpPic"
+                        :label="`${Translate('IDCS_BACKUP_PICTURE')}${sliceTableData.length && isSupportCSV ? ` (${Translate('IDCS_LICENSE_PLATE_NUM_LIST')})` : ''}`"
+                    />
+                    <el-checkbox
+                        v-model="pageData.isBackUpVideo"
+                        :label="Translate('IDCS_BACKUP_RECORD')"
+                    />
                 </div>
                 <el-pagination
                     v-model:current-page="formData.pageIndex"
@@ -265,8 +268,9 @@
                 <el-button
                     :disabled="!selectionIds.length || (!pageData.isBackUpPic && !pageData.isBackUpVideo)"
                     @click="backUp"
-                    >{{ Translate('IDCS_BACKUP') }}</el-button
                 >
+                    {{ Translate('IDCS_BACKUP') }}
+                </el-button>
             </div>
         </div>
         <IntelBaseSnapPop

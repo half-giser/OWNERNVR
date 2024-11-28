@@ -4,7 +4,7 @@
  * @Description: 创建磁盘阵列弹窗
  */
 import { type DiskPhysicalList, DiskCreateRaidForm } from '@/types/apiType/disk'
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormRules } from 'element-plus'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import type { UserCheckAuthForm } from '@/types/apiType/user'
 
@@ -41,7 +41,7 @@ export default defineComponent({
         const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
 
         const formData = ref(new DiskCreateRaidForm())
 
@@ -170,7 +170,7 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
@@ -178,7 +178,7 @@ export default defineComponent({
                     ctx.emit('confirm')
                 })
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_PWD_ERR:
@@ -209,7 +209,6 @@ export default defineComponent({
          * @description 打开弹窗时更新表单
          */
         const open = () => {
-            formRef.value?.clearValidate()
             formData.value = new DiskCreateRaidForm()
             formData.value.diskId = prop.list.filter((item) => item.switch).map((item) => item.id)
             getRaidCapacity()
@@ -237,7 +236,7 @@ export default defineComponent({
             `
             const result = await queryCreateRaidCapacity(sendXml)
             const $ = queryXml(result)
-            formData.value.space = Math.floor($('//content/capacity').text().num() / 1024) + ' GB'
+            formData.value.space = Math.floor($('content/capacity').text().num() / 1024) + ' GB'
         }
 
         return {

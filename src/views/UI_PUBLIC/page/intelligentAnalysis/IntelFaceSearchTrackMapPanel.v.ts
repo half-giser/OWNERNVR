@@ -115,7 +115,7 @@ export default defineComponent({
                 authList: '@spr,@bk',
             })
             const $ = queryXml(result)
-            pageData.value.chlOptions = $('//content/item').map((item) => {
+            pageData.value.chlOptions = $('content/item').map((item) => {
                 const $item = queryXml(item.element)
                 const text = $item('name').text()
                 const id = item.attr('id')
@@ -412,9 +412,9 @@ export default defineComponent({
         const getEMap = async () => {
             const result = await queryEMap()
             const $ = queryXml(result)
-            const content = $('//content/mapImageFile').text()
+            const content = $('content/mapImageFile').text()
             if (content) {
-                pageData.value.emap = 'data:image/png;base64,' + content
+                pageData.value.emap = wrapBase64Img(content)
             }
         }
 
@@ -424,12 +424,12 @@ export default defineComponent({
         const getEMapParam = async () => {
             const result = await queryEMapParam()
             const $ = queryXml(result)
-            if ($('//status').text() === 'success') {
-                pageData.value.colorOptions = $('//types/color/enum').map((item) => item.text())
-                pageData.value.fontColor = $('//content/fontColor').text()
-                pageData.value.lineColor = $('//content/lineColor').text()
+            if ($('status').text() === 'success') {
+                pageData.value.colorOptions = $('types/color/enum').map((item) => item.text())
+                pageData.value.fontColor = $('content/fontColor').text()
+                pageData.value.lineColor = $('content/lineColor').text()
 
-                pageData.value.points = $('//content/hotPointList/item').map((item) => {
+                pageData.value.points = $('content/hotPointList/item').map((item) => {
                     const $item = queryXml(item.element)
                     const chlId = item.attr('hotPointId')
                     return {

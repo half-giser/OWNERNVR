@@ -6,25 +6,24 @@
 <template>
     <el-dialog
         :title="Translate('IDCS_SET_DEV_DEFAULT_PWD')"
-        width="600"
+        width="700"
         @opened="opened"
+        @closed="formRef?.resetFields()"
     >
         <el-form
             ref="formRef"
             :model="formData"
         >
             <el-table
-                border
-                stripe
                 :data="formData.params"
-                show-overflow-tooltip
                 height="300"
-                class="ruleTable"
+                flexible
             >
                 <el-table-column
                     prop="displayName"
                     :label="Translate('IDCS_PROTOCOL')"
                     width="130"
+                    show-overflow-tooltip
                 />
                 <el-table-column
                     :label="Translate('IDCS_USERNAME')"
@@ -47,7 +46,7 @@
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_PASSWORD')"
-                    width="170"
+                    width="240"
                 >
                     <template #default="scope">
                         <span
@@ -72,13 +71,38 @@
             @confirm="setData"
             @close="baseCheckAuthPopVisiable = false"
         />
-        <template #footer>
-            <div class="base-btn-box">
-                <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
-                <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
-            </div>
-        </template>
+        <div class="base-btn-box">
+            <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
+            <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
+        </div>
     </el-dialog>
 </template>
 
 <script lang="ts" src="./ChannelAddSetDefaultPwdPop.v.ts"></script>
+
+<style lang="scss" scoped>
+.el-table {
+    overflow: unset;
+
+    :deep(.el-table__cell) {
+        position: unset;
+    }
+
+    :deep(.cell):has(.el-form-item) {
+        overflow: unset;
+        z-index: 1;
+    }
+
+    .el-form-item {
+        margin-bottom: 0;
+    }
+
+    :deep(.el-form-item__error) {
+        width: fit-content;
+        max-width: 235px;
+        text-align: left;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+}
+</style>

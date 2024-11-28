@@ -9,61 +9,50 @@
             <div class="base-chl-box-player">
                 <BaseVideoPlayer
                     ref="playerRef"
-                    :split="1"
-                    @onready="onReady"
+                    @ready="onReady"
+                    @message="notify"
                 />
             </div>
             <div class="base-btn-box">
                 <el-button
                     :disabled="formData.disabled"
                     @click="editStatus = !editStatus"
-                    >{{ editStatus ? Translate('IDCS_STOP_DRAW') : Translate('IDCS_DRAW_AREA') }}</el-button
                 >
+                    {{ editStatus ? Translate('IDCS_STOP_DRAW') : Translate('IDCS_DRAW_AREA') }}
+                </el-button>
                 <el-button
                     :disabled="formData.disabled"
                     @click="handleClearArea"
-                    >{{ Translate('IDCS_CLEAR_AREA') }}</el-button
                 >
+                    {{ Translate('IDCS_CLEAR_AREA') }}
+                </el-button>
             </div>
             <el-form
-                ref="formRef"
-                :model="formData"
                 :style="{
                     '--form-label-width': '160px',
                 }"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                    <el-select
+                    <el-select-v2
                         v-model="selectedChlId"
+                        :options="chlOptions"
                         @change="handleChlSel"
-                    >
-                        <el-option
-                            v-for="(item, index) in tableData"
-                            :key="index"
-                            :value="item.id"
-                            :label="item.name || ' '"
-                        />
-                    </el-select>
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_VIDEO_MASK')">
-                    <el-select
+                    <el-select-v2
                         v-if="formData.isSpeco"
-                        :disabled="formData.disabled"
-                        @change="handleChangeSwitch"
+                        model-value=""
+                        :options="[]"
+                        disabled
                     />
-                    <el-select
+                    <el-select-v2
                         v-else
                         v-model="formData.switch"
                         :disabled="formData.disabled"
+                        :options="switchOptions"
                         @change="handleChangeSwitch"
-                    >
-                        <el-option
-                            v-for="item in switchOptions"
-                            :key="item.value"
-                            :value="item.value"
-                            :label="item.label"
-                        />
-                    </el-select>
+                    />
                 </el-form-item>
             </el-form>
         </div>
@@ -71,8 +60,6 @@
             <div class="base-table-box">
                 <el-table
                     ref="tableRef"
-                    border
-                    stripe
                     :data="tableData"
                     show-overflow-tooltip
                     highlight-current-row
@@ -117,20 +104,14 @@
                             </el-dropdown>
                         </template>
                         <template #default="scope">
-                            <el-select
+                            <el-select-v2
                                 v-if="!scope.row.isSpeco"
                                 v-model="scope.row.switch"
                                 :disabled="scope.row.disabled"
+                                :options="switchOptions"
                                 @focus="handleRowClick(scope.row)"
                                 @change="handleChangeSwitch()"
-                            >
-                                <el-option
-                                    v-for="item in switchOptions"
-                                    :key="item.value"
-                                    :value="item.value"
-                                    :label="item.label"
-                                />
-                            </el-select>
+                            />
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -154,9 +135,10 @@
             </div>
             <div class="base-btn-box">
                 <el-button
-                    :disabled="btnOKDisabled"
+                    :disabled="!editRows.size()"
                     @click="save"
-                    >{{ Translate('IDCS_APPLY') }}
+                >
+                    {{ Translate('IDCS_APPLY') }}
                 </el-button>
             </div>
         </div>

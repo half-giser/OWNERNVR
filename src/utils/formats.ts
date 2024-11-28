@@ -115,6 +115,15 @@ export const getLimitStr = (str: string, limit: number) => {
 }
 
 /**
+ * @description 移除字符串中所有空格
+ * @param {string} str
+ * @returns {string}
+ */
+export const trimAllSpace = (str: string) => {
+    return str.replace(/\s/g, '')
+}
+
+/**
  * @description 截取字符串
  * @param {string} str
  * @param {number} len

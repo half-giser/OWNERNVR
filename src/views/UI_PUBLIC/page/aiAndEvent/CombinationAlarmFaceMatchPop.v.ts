@@ -35,7 +35,12 @@ export default defineComponent({
             faceDataIds: [] as string[],
             // 人脸库数据列表
             faceList: [] as SelectOption<string, string>[],
-            durationOptions: [5, 1, 3],
+            durationOptions: [5, 1, 3].map((value) => {
+                return {
+                    value,
+                    label: getTranslateForSecond(value),
+                }
+            }),
             ruleOptions: [
                 {
                     label: Translate('IDCS_SUCCESSFUL_RECOGNITION'),
@@ -51,6 +56,7 @@ export default defineComponent({
                 },
             ],
         })
+
         const open = async () => {
             pageData.value.faceDataIds = []
             pageData.value.faceList = []
@@ -114,7 +120,6 @@ export default defineComponent({
             open,
             save,
             close,
-            getTranslateForSecond,
         }
     },
 })

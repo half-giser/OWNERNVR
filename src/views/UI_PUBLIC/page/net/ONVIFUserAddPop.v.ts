@@ -3,7 +3,7 @@
  * @Date: 2024-08-15 20:09:41
  * @Description: OVNIF 新增/编辑用户弹窗
  */
-import type { FormInstance, FormRules } from 'element-plus'
+import type { FormRules } from 'element-plus'
 import { NetOnvifUserForm, NetOnvifUserList } from '@/types/apiType/net'
 
 export default defineComponent({
@@ -37,7 +37,7 @@ export default defineComponent({
         const { openLoading, closeLoading } = useLoading()
         const userSession = useUserSessionStore()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new NetOnvifUserForm())
         const formRule = ref<FormRules>({
             userName: [
@@ -119,7 +119,6 @@ export default defineComponent({
          * @description 打开弹窗时 重置表单
          */
         const open = () => {
-            formRef.value?.clearValidate()
             formData.value = new NetOnvifUserForm()
             if (prop.type === 'edit') {
                 formData.value.userName = prop.userData.userName
@@ -170,7 +169,7 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
@@ -178,7 +177,7 @@ export default defineComponent({
                     ctx.emit('confirm')
                 })
             } else {
-                handleError($('//errorCode').text().num())
+                handleError($('errorCode').text().num())
             }
         }
 
@@ -201,7 +200,7 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
@@ -209,7 +208,7 @@ export default defineComponent({
                     ctx.emit('confirm')
                 })
             } else {
-                handleError($('//errorCode').text().num())
+                handleError($('errorCode').text().num())
             }
         }
 
@@ -217,7 +216,7 @@ export default defineComponent({
          * @description 验证表单通过后 创建或者编辑用户
          */
         const verify = () => {
-            formRef.value?.validate((valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     if (prop.type === 'add') {
                         addUser()

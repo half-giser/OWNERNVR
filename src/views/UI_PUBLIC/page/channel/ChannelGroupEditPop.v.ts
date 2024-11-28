@@ -6,7 +6,7 @@
 
 import { ChannelGroupDto } from '@/types/apiType/channel'
 import { cloneDeep } from 'lodash-es'
-import { type FormRules, type FormInstance } from 'element-plus'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -27,9 +27,14 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
         const { openMessageBox } = useMessageBox()
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new ChannelGroupDto())
-        const timeList = [5, 10, 20, 30, 60, 120, 300, 600]
+        const timeList = [5, 10, 20, 30, 60, 120, 300, 600].map((value) => {
+            return {
+                label: getTranslateForSecond(value),
+                value,
+            }
+        })
 
         const rules = ref<FormRules>({
             name: [
@@ -53,7 +58,6 @@ export default defineComponent({
         })
 
         const opened = () => {
-            if (formRef.value) formRef.value.resetFields()
             formData.value = cloneDeep(props.editItem)
         }
 
@@ -105,7 +109,6 @@ export default defineComponent({
             rules,
             opened,
             save,
-            getTranslateForSecond,
             formatInputMaxLength,
         }
     },

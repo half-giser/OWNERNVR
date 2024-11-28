@@ -3,7 +3,7 @@
  * @Date: 2024-06-25 20:56:27
  * @Description: 收藏视图
  */
-import { type FormInstance, type FormRules } from 'element-plus'
+import { type FormRules } from 'element-plus'
 import { SystemOutputSettingAddViewForm } from '@/types/apiType/system'
 import { type PropType } from 'vue'
 
@@ -37,7 +37,7 @@ export default defineComponent({
         const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
 
-        const formRef = ref<FormInstance>()
+        const formRef = useFormRef()
         const formData = ref(new SystemOutputSettingAddViewForm())
 
         const rules = ref<FormRules>({
@@ -59,7 +59,7 @@ export default defineComponent({
          * @description 验证表单
          */
         const verify = () => {
-            formRef.value!.validate(async (valid) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     setData()
                 }
@@ -88,10 +88,10 @@ export default defineComponent({
 
             closeLoading()
 
-            if ($('//status').text() === 'success') {
+            if ($('status').text() === 'success') {
                 ctx.emit('close')
             } else {
-                const errorCode = $('//errorCode').text().num()
+                const errorCode = $('errorCode').text().num()
                 if (errorCode === ErrorCode.USER_ERROR_NAME_EXISTED) {
                     openMessageBox({
                         type: 'info',
@@ -99,11 +99,6 @@ export default defineComponent({
                     })
                 }
             }
-        }
-
-        const open = () => {
-            formRef.value?.clearValidate()
-            formData.value.name = ''
         }
 
         const close = () => {
@@ -115,7 +110,6 @@ export default defineComponent({
             formRef,
             rules,
             verify,
-            open,
             close,
         }
     },

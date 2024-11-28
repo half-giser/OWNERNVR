@@ -150,15 +150,15 @@ export default defineComponent({
                 abnormal: false,
                 isRelative: false,
             }
-            if ($('//status').text() === 'success') {
-                obj.master = $('//owner').text() || obj.master
-                obj.phoneNum = $('//ownerPhone').text() || obj.phoneNum
-                const resDirection = $('//directionType').text()
-                const gateName = $('//gateName').text()
-                const openType = $('//openGateType').text()
-                const apiTime = $('//time').text()
+            if ($('status').text() === 'success') {
+                obj.master = $('owner').text() || obj.master
+                obj.phoneNum = $('ownerPhone').text() || obj.phoneNum
+                const resDirection = $('directionType').text()
+                const gateName = $('gateName').text()
+                const openType = $('openGateType').text()
+                const apiTime = $('time').text()
                 const time = apiTime ? dayjs.utc(apiTime.slice(0, apiTime.length - 8), 'YYYY-MM-DD HH:mm:ss').valueOf() : 0
-                const img = $('//content').text()
+                const img = $('content').text()
                 if (resDirection === 'in') {
                     obj.enterChl = gateName
                     obj.enterType = openType
@@ -352,8 +352,8 @@ export default defineComponent({
             `
             const result = await openGate(sendXml)
             const $ = queryXml(result)
-            if ($('//status').text() === 'fail') {
-                const errorCode = $('//errorCode').text().num()
+            if ($('status').text() === 'fail') {
+                const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_INVALID_PARAM:

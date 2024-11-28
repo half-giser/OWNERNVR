@@ -27,8 +27,6 @@
             </template>
             <el-table
                 :data="tableData"
-                border
-                stripe
                 height="400"
                 show-overflow-tooltip
             >
@@ -84,13 +82,15 @@
                         <el-button
                             v-if="scope.row.status === 'ongoing'"
                             @click="pauseTask(scope.row)"
-                            >{{ Translate('IDCS_PAUSE') }}</el-button
                         >
+                            {{ Translate('IDCS_PAUSE') }}
+                        </el-button>
                         <el-button
                             v-else-if="scope.row.status === 'pause'"
                             @click="resumeTask(scope.row)"
-                            >{{ Translate('IDCS_RESUME') }}</el-button
                         >
+                            {{ Translate('IDCS_RESUME') }}
+                        </el-button>
                         <el-text v-else-if="scope.row.status === 'failed'">{{ Translate('IDCS_FAILED') }}</el-text>
                     </template>
                 </el-table-column>

@@ -9,41 +9,27 @@
             <div class="base-chl-box-player">
                 <BaseVideoPlayer
                     ref="playerRef"
-                    type="live"
-                    @onready="handlePlayerReady"
+                    @ready="handlePlayerReady"
                 />
             </div>
             <el-form
                 :style="{
                     '--form-label-width': '100px',
                 }"
-                class="inline-message"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                    <el-select
+                    <el-select-v2
                         v-model="pageData.tableIndex"
+                        :options="chlOptions"
                         @change="changeChl"
-                    >
-                        <el-option
-                            v-for="(item, index) in tableData"
-                            :key="item.chlId"
-                            :value="index"
-                            :label="item.chlName"
-                        />
-                    </el-select>
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_CRUISE')">
-                    <el-select
+                    <el-select-v2
                         v-model="formData.cruiseIndex"
-                        value-on-clear=""
-                    >
-                        <el-option
-                            v-for="(item, index) in cruiseOptions"
-                            :key="`${pageData.tableIndex}_${item.index}`"
-                            :label="item.index"
-                            :value="index"
-                        />
-                    </el-select>
+                        :options="cruiseOptions"
+                        :props="{ label: 'index' }"
+                    />
                     <el-tooltip :content="Translate('IDCS_START_CRUISE')">
                         <BaseImgSprite
                             class="base-chl-icon-btn"
@@ -161,20 +147,23 @@
                     <el-button
                         :disabled="!cruiseOptions.length"
                         @click="addPreset"
-                        >{{ Translate('IDCS_ADD_PRESET') }}</el-button
                     >
+                        {{ Translate('IDCS_ADD_PRESET') }}
+                    </el-button>
                 </div>
                 <div>
                     <el-button
                         :disabled="!presetTableData.length || pageData.presetIndex === 0"
                         @click="moveUpPreset"
-                        >{{ Translate('IDCS_UP') }}</el-button
                     >
+                        {{ Translate('IDCS_UP') }}
+                    </el-button>
                     <el-button
                         :disabled="!presetTableData.length || pageData.presetIndex === presetTableData.length - 1"
                         @click="moveDownPreset"
-                        >{{ Translate('IDCS_DOWN') }}</el-button
                     >
+                        {{ Translate('IDCS_DOWN') }}
+                    </el-button>
                 </div>
             </div>
         </div>
@@ -229,7 +218,6 @@
             @confirm="confirmAddCruise"
             @close="pageData.isAddPop = false"
         />
-        <BaseNotification v-model:notifications="pageData.notification" />
     </div>
 </template>
 
