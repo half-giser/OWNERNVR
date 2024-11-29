@@ -24,7 +24,8 @@
     "up": "npx npm-check-updates -u",
     "prepare": "husky install",
     "license": "node --import=./scripts/register.js ./scripts/licenseChecker.ts",
-    "generate": "node --import=./scripts/register.js ./scripts/generate.ts"
+    "generate": "node --import=./scripts/register.js ./scripts/generate.ts",
+    "clean": "node --import=./scripts/register.js ./scripts/cleanTempFiles.ts"
   },
   "dependencies": {
     "@bassist/progress": "^0.2.2",
