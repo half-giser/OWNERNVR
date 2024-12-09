@@ -9,24 +9,24 @@ import http from './api'
  * @description 查询录像模式配置信息
  * @returns
  */
-export const queryRecordDistributeInfo = () => http.fetch('queryRecordDistributeInfo', getXmlWrapData(''))
+export const queryRecordDistributeInfo = () => http.fetch('queryRecordDistributeInfo', '')
 
 /**
  * @description 设置录像模式配置信息
  * @param {string} data
  * @returns
  */
-export const editRecordDistributeInfo = (data: string) => http.fetch('editRecordDistributeInfo', getXmlWrapData(data))
+export const editRecordDistributeInfo = (data: string) => http.fetch('editRecordDistributeInfo', data)
 
 /**
  * @description 获取通道的录像排程配置
  * @returns
  */
-export const queryRecordScheduleList = () => http.fetch('queryRecordScheduleList', getXmlWrapData(''))
+export const queryRecordScheduleList = () => http.fetch('queryRecordScheduleList', '')
 
 /**
  * @description 设置通道的录像排程配置
  * @param {string} data
  * @returns
  */
-export const editRecordScheduleList = (data: string) => http.fetch('editRecordScheduleList', getXmlWrapData(data))
+export const editRecordScheduleList = (data: string) => http.fetch('editRecordScheduleList', data)

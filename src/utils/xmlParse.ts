@@ -149,22 +149,23 @@ export const compressXml = (xml: string) => {
  * @returns {Boolean}
  */
 export const checkXml = (xml: string) => {
-    if (import.meta.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
         const xmlDoc = XMLStr2XMLDoc(xml)
-        if (xmlDoc.getElementsByTagName('parsererror')) {
+        if (xmlDoc.getElementsByTagName('parsererror').length) {
             console.error('xml parsererror')
             console.error(xmlDoc)
         }
+        return xml
     }
+    return xml
 }
 
 export const compileXml = (xml: string) => {
     const xmlDoc = XMLStr2XMLDoc(xml)
 
-    if (xmlDoc.getElementsByTagName('parsererror')) {
-        if (import.meta.env.NODE_ENV === 'development') {
+    if (xmlDoc.getElementsByTagName('parsererror').length) {
+        if (import.meta.env.DEV) {
             console.error(xmlDoc)
-            return ''
         }
         return xml
     }
@@ -190,9 +191,5 @@ export const compileXml = (xml: string) => {
  * @return {string}
  */
 export const rawXml = (strings: TemplateStringsArray, ...values: (string | number | boolean)[]) => {
-    // const result = String.raw({ raw: strings }, ...(values || []))
-    // if (import.meta.env.NODE_ENV === 'development') {
-    //     checkXml(result)
-    // }
     return String.raw({ raw: strings }, ...(values || []))
 }
