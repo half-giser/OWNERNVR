@@ -727,8 +727,11 @@ const setCanvasSize = () => {
     const width = $container.value!.offsetWidth
     const height = $container.value!.offsetHeight
     $canvas.value!.width = width
+
+    const scrollHeight = Math.max(chlList.length * 28, height - 40)
+    $recordCanvas.value!.style.height = scrollHeight + 'px'
     $recordCanvas.value!.width = width
-    $recordCanvas.value!.height = chlList.length * 28 < height - 40 ? height - 40 : chlList.length * 28
+    $recordCanvas.value!.height = scrollHeight
 }
 
 /**
@@ -1289,6 +1292,7 @@ const setDstDayTime = (currentDayStartTime: string) => {
 const updateChlList = (newChlList: ChlList[], newAutoPointer: boolean, pageType: 'live' | 'record') => {
     chlList = newChlList
     autoPointer = newAutoPointer
+    setCanvasSize()
     if (pageType === 'record') {
         const records = chlList.map((item) => item.records).flat()
         if (newChlList.length && records.length) {
@@ -1357,19 +1361,12 @@ onMounted(() => {
     if (prop.colorsMap) {
         colorMap = prop.colorsMap
     }
-    const width = $container.value!.offsetWidth
-    const height = $container.value!.offsetHeight
-    $canvas.value!.width = width
-    $canvas.value!.height = 40 // 时间轴画布高固定为40
-    ctx = $canvas.value!.getContext('2d')!
-    canvasWidth = width
-    canvasHeight = 40
 
-    $recordCanvas.value!.style.width = '100%'
-    $recordCanvas.value!.style.height = height - 40 + 'px'
-    $recordCanvas.value!.width = width
-    $recordCanvas.value!.height = chlList.length * 28 < height - 40 ? height - 40 : chlList.length * 28
+    ctx = $canvas.value!.getContext('2d')!
     recordCtx = $recordCanvas.value!.getContext('2d')!
+
+    $canvas.value!.height = 40 // 时间轴画布高固定为40
+    setCanvasSize()
 
     setMode({ mode: 'day' })
     resize.observe($container.value!)
@@ -1434,7 +1431,7 @@ defineExpose<TimelineInstance>({
 .container {
     position: relative;
     width: 100%;
-    min-height: calc(100% - 40px);
+    height: calc(100% - 40px);
     overflow: hidden auto;
     vertical-align: top;
 }
@@ -1444,5 +1441,6 @@ defineExpose<TimelineInstance>({
     height: 100%;
     margin: 0;
     padding: 0;
+    display: block;
 }
 </style>
