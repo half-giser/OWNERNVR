@@ -6,6 +6,7 @@ public/
 dist/
 script/
 index.html
+.temp/
 
 *.ts
 *.js
