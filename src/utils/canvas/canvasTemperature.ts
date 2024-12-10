@@ -3,21 +3,8 @@
  * @Date: 2024-05-31 17:18:13
  * @Description: 打点绘制闭合多边形、点、线，支持业务：温度检测
  */
-import CanvasBase, { type CanvasBaseLineStyleOption, type CanvasBasePoint } from './canvasBase'
-
-interface CanvasTemperatureArea {
-    X1: number
-    Y1: number
-    X2: number
-    Y2: number
-}
-
-interface CanvasTemperatureRect {
-    x: number
-    y: number
-    width: number
-    height: number
-}
+import CanvasBase from './canvasBase'
+import type { CanvasBaseLineStyleOption, CanvasBasePoint, CanvasBaseArea, CanvasBaseRect } from './canvasBase'
 
 interface CanvasTemperatureOSDInfo {
     X: number
@@ -65,9 +52,9 @@ interface CanvasTemperatureOption {
     max?: number
     min?: number
     regulation?: boolean // 增加画矩形逻辑 regulation为true则为画矩形，false为画多边形
-    area?: CanvasTemperatureArea
+    area?: CanvasBaseArea
     imgSrc?: string
-    onchange?: (area: CanvasTemperatureArea | CanvasBasePoint[], osdInfo?: CanvasTemperatureOSDInfo) => void
+    onchange?: (area: CanvasBaseArea | CanvasBasePoint[], osdInfo?: CanvasTemperatureOSDInfo) => void
     closePath?: (pointList: CanvasBasePoint[]) => void
     forceClosePath?: (bool: boolean) => void
     clearCurrentArea?: (pointList: CanvasBasePoint[]) => void
@@ -82,7 +69,7 @@ export default class CanvasPolygon {
     private readonly DEFAULT_OSD_INFO: CanvasTemperatureOSDInfo = { X: 0, Y: 0, osdFormat: '' } // 默认osd信息
     private readonly RELATIVE_WIDTH = 10000 // 万分比宽度
     private readonly RELATIVE_HEIGHT = 10000 // 万分比高度
-    private readonly DEFAULT_AREA: CanvasTemperatureArea = { X1: 0, Y1: 0, X2: 0, Y2: 0 }
+    private readonly DEFAULT_AREA: CanvasBaseArea = { X1: 0, Y1: 0, X2: 0, Y2: 0 }
     private lineStyle: CanvasBaseLineStyleOption
     private enable = true
     private isClosed = false // 多边形是否已闭合，若为true则不能继续绘制
@@ -98,9 +85,9 @@ export default class CanvasPolygon {
     // private dragFlag = false
     private regulation = false
     // private passline = {}
-    private area: CanvasTemperatureArea
+    private area: CanvasBaseArea
     private osdInfo: CanvasTemperatureOSDInfo
-    private osdRect: CanvasTemperatureRect = {
+    private osdRect: CanvasBaseRect = {
         // osd所在矩形区域 {x,y,width,height}
         x: 0,
         y: 0,
@@ -175,7 +162,7 @@ export default class CanvasPolygon {
     }
 
     // 设置警戒区域（矩形）
-    setArea(area: CanvasTemperatureArea) {
+    setArea(area: CanvasBaseArea) {
         this.area = area
         this.init()
     }
@@ -199,7 +186,7 @@ export default class CanvasPolygon {
     }
 
     // 获取初始区域坐标点
-    getRealAreaItemByRelative({ X1, Y1, X2, Y2 }: CanvasTemperatureArea) {
+    getRealAreaItemByRelative({ X1, Y1, X2, Y2 }: CanvasBaseArea) {
         return {
             X1: this.getRealSizeByRelative(X1, 'x'),
             Y1: this.getRealSizeByRelative(Y1, 'y'),
@@ -209,7 +196,7 @@ export default class CanvasPolygon {
     }
 
     // 获取绘制区域坐标点
-    getRelativeAreaItemByReal({ X1, Y1, X2, Y2 }: CanvasTemperatureArea) {
+    getRelativeAreaItemByReal({ X1, Y1, X2, Y2 }: CanvasBaseArea) {
         return {
             X1: this.getRelativeSizeByReal(X1, 'x'),
             Y1: this.getRelativeSizeByReal(Y1, 'y'),

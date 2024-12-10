@@ -6,7 +6,6 @@
 import { type ChannelInfoDto } from '@/types/apiType/channel'
 import WebsocketState from '@/utils/websocket/websocketState'
 import WebsocketUpload from '@/utils/websocket/websocketUpload'
-import { type UploadFile, type UploadInstance, type UploadRawFile, genFileId } from 'element-plus'
 import { getRandomGUID } from '@/utils/websocket/websocketCmd'
 
 export default defineComponent({
@@ -17,7 +16,6 @@ export default defineComponent({
         const productModelOptionList = ref<SelectOption<string, string>[]>([])
         const selectedProductModel = ref('')
         const type = ref<'single' | 'multiple'>('single') // 单个：single, 批量：multiple
-        const upload = ref<UploadInstance>()
         const fileName = ref('')
         const btnOKDisabled = ref(true)
 
@@ -36,10 +34,10 @@ export default defineComponent({
         let contextMap: Record<string, ChannelInfoDto> = {}
         let uploadData: ChannelInfoDto[] = [] // 选中升级的通道
         let handleIndex = 0 // 已升级成功（失败）个数
-        let file: UploadRawFile | undefined = undefined
-        const taskGUIDMap = {} as Record<string, ChannelInfoDto[]> // 插件上传IPC升级包任务ID-上传通道数组
+        let file: File | undefined = undefined
+        const taskGUIDMap: Record<string, ChannelInfoDto[]> = {} // 插件上传IPC升级包任务ID-上传通道数组
 
-        const plugin = usePluginHook({
+        const plugin = setupPlugin({
             onMessage: ($) => {
                 //升级进度
                 if ($("statenotify[@type='FileNetTransportProgress']").length) {
@@ -84,7 +82,6 @@ export default defineComponent({
         }
 
         const opened = () => {
-            upload.value?.clearFiles()
             file = undefined
             fileName.value = ''
             btnOKDisabled.value = true
@@ -188,22 +185,18 @@ export default defineComponent({
             destory()
         }
 
-        const handleChange = (uploadFile: UploadFile) => {
-            file = uploadFile.raw
-            fileName.value = file!.name
-            btnOKDisabled.value = false
-        }
-
-        const handleExceed = (files: Array<File>) => {
-            upload.value!.clearFiles()
-            const file = files[0] as UploadRawFile
-            file.uid = genFileId()
-            upload.value!.handleStart(file)
+        const handleChange = (e: Event) => {
+            const files = (e.target as HTMLInputElement).files
+            if (files && files.length) {
+                file = files[0]
+                fileName.value = file.name
+                btnOKDisabled.value = false
+            }
         }
 
         const handleOcxBtnClick = () => {
             const sendXML = OCX_XML_OpenFileBrowser('OPEN_FILE')
-            plugin.AsynQueryInfo(plugin.GetVideoPlugin(), sendXML, (result) => {
+            plugin.AsynQueryInfo(sendXML, (result) => {
                 const path = OCX_XML_OpenFileBrowser_getpath(result).trim()
                 if (path) {
                     fileName.value = path
@@ -256,7 +249,7 @@ export default defineComponent({
                     taskGUID: taskGUID,
                 }
                 const sendXML = OCX_XML_FileNetTransport('UpgradeIPC', param)
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
             ipcUpgradePopVisiable.value = false
         }
@@ -272,11 +265,9 @@ export default defineComponent({
             selectedProductModel,
             ipcUpgradePopVisiable,
             type,
-            upload,
             file,
             fileName,
             handleChange,
-            handleExceed,
             btnOKDisabled,
             isSupportH5,
             handleOcxBtnClick,

@@ -15,7 +15,7 @@ export default defineComponent({
         const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
         // “RecordSubResAdaptive” 为true时:录像子码流界面仅显示不可编辑，为false时录像子码流可以编辑
-        const RecordSubResAdaptive = false // systemCaps.RecordSubResAdaptive
+        const RecordSubResAdaptive = systemCaps.RecordSubResAdaptive
 
         const mainStreamLimitFps = systemCaps.mainStreamLimitFps // 主码流帧率限制
         let poeModeNode = 0
@@ -198,7 +198,7 @@ export default defineComponent({
             `
             const result = await queryNodeEncodeInfo(sendXML)
 
-            const unionList = [] as string[]
+            const unionList: string[] = []
             let videoQualityListFlag = 0
 
             let maxFrameRate = 0
@@ -207,10 +207,10 @@ export default defineComponent({
                 tableData.value = $('content/item').map((item, index) => {
                     const $item = queryXml(item.element)
 
-                    const subCaps = {
-                        supEnct: [] as string[],
-                        bitType: [] as string[],
-                        res: [] as { fps: string; value: string }[],
+                    const subCaps: RecordSubStreamList['subCaps'] = {
+                        supEnct: [],
+                        bitType: [],
+                        res: [],
                     }
                     // aux1Caps 视频编码能力参数
                     if ($item('aux1Caps') && $item('aux1Caps').attr('supEnct') && $item('aux1Caps/res')[0]) {
@@ -255,7 +255,7 @@ export default defineComponent({
                     // 分辨率单个行选项列表
                     pageData.value.resolutionList[index] = subCaps.res.map((item) => item.value)
 
-                    const subStreamQualityCaps = [] as RecordSubStreamQualityCaps[]
+                    const subStreamQualityCaps: RecordSubStreamQualityCaps[] = []
                     // 码率上限总选项
                     $item('subStreamQualityCaps/item').forEach((item) => {
                         subStreamQualityCaps.push({
@@ -480,7 +480,7 @@ export default defineComponent({
                 </content>
             `
             const result = await editNodeEncodeInfo(sendXML)
-            commSaveResponseHadler(result)
+            commSaveResponseHandler(result)
         }
 
         const setData = () => {
@@ -603,7 +603,7 @@ export default defineComponent({
                 return item.chlType !== 'recorder' && !item.disabled
             })
 
-            const resolutionMapping = {} as Record<string, SelectOption<string, string>[]>
+            const resolutionMapping: Record<string, SelectOption<string, string>[]> = {}
             pageData.value.resolutionGroups = []
 
             rowDatas.forEach((item) => {

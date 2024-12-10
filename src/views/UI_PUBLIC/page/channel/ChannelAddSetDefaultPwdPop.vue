@@ -28,6 +28,7 @@
                 <el-table-column
                     :label="Translate('IDCS_USERNAME')"
                     min-width="240"
+                    class-name="cell-with-form-rule"
                 >
                     <template #default="scope">
                         <el-form-item
@@ -79,30 +80,3 @@
 </template>
 
 <script lang="ts" src="./ChannelAddSetDefaultPwdPop.v.ts"></script>
-
-<style lang="scss" scoped>
-.el-table {
-    overflow: unset;
-
-    :deep(.el-table__cell) {
-        position: unset;
-    }
-
-    :deep(.cell):has(.el-form-item) {
-        overflow: unset;
-        z-index: 1;
-    }
-
-    .el-form-item {
-        margin-bottom: 0;
-    }
-
-    :deep(.el-form-item__error) {
-        width: fit-content;
-        max-width: 235px;
-        text-align: left;
-        text-overflow: ellipsis;
-        overflow: hidden;
-    }
-}
-</style>

@@ -25,25 +25,18 @@
                     v-model="fileName"
                     readonly
                 />
-                <el-upload
-                    v-if="isSupportH5"
-                    ref="upload"
-                    :limit="1"
-                    :on-exceed="handleExceed"
-                    :auto-upload="false"
-                    :show-file-list="false"
-                    :on-change="handleChange"
-                >
-                    <template #trigger>
-                        <el-button>{{ Translate('IDCS_BROWSE') }}</el-button>
-                    </template>
-                </el-upload>
-                <el-button
-                    v-else
-                    @click="handleOcxBtnClick"
+                <label
+                    class="el-button"
+                    for="h5Import"
                 >
                     {{ Translate('IDCS_BROWSE') }}
-                </el-button>
+                </label>
+                <input
+                    id="h5Import"
+                    type="file"
+                    hidden
+                    @change="handleChange"
+                />
             </el-form-item>
         </el-form>
         <div class="base-btn-box">

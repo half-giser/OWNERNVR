@@ -4,11 +4,11 @@
  * @Description: 系统撤防
  */
 import { AlarmSystemDisarmDto } from '@/types/apiType/aiAndEvent'
+import { type TableInstance } from 'element-plus'
 import { cloneDeep } from 'lodash-es'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        // const systemCaps = useCababilityStore()
         const openMessageBox = useMessageBox().openMessageBox
         const { openLoading, closeLoading } = useLoading()
 
@@ -32,25 +32,32 @@ export default defineComponent({
             inputSource: '',
         })
 
+        interface ChlAndsensorSourceList {
+            id: string
+            value: string
+            nodeType: string
+            supportManualAudio: boolean
+            supportManualWhiteLight: boolean
+        }
+
+        const addTableRef = ref<TableInstance>()
+        const cfgTableRef = ref<TableInstance>()
+        const popTableRef = ref<TableInstance>()
+
+        // 通道map
+        const chlsMap: Record<string, { id: string; name: string; chlType: string; supportManualAudio: boolean; supportManualWhiteLight: boolean }> = {}
+        // 传感器map
+        const sensorsMap: Record<string, { id: string; name: string; supportManualAudio: boolean; supportManualWhiteLight: boolean }> = {}
+
         const pageData = ref({
-            // 通道map
-            chlsMap: {} as Record<string, { id: string; name: string; chlType: string; supportManualAudio: boolean; supportManualWhiteLight: boolean }>,
-            // 传感器map
-            sensorsMap: {} as Record<string, { id: string; name: string; supportManualAudio: boolean; supportManualWhiteLight: boolean }>,
             // 源传感器列表
             sensorSourcelist: [] as { id: string; value: string; supportManualAudio: boolean; supportManualWhiteLight: boolean }[],
             // 当前在线的通道列表
             onlineChlList: [] as string[],
             // 通道和传感器源列表
-            chlAndsensorSourceList: [] as { id: string; value: string; nodeType: string; supportManualAudio: boolean; supportManualWhiteLight: boolean }[],
+            chlAndsensorSourceList: [] as ChlAndsensorSourceList[],
             // 撤防联动项通用列表，从后端获取，不包含手动声光报警输出和手动白光报警输出
             defenseParamList: [] as { id: string; value: string }[],
-            // 添加撤防通道或传感器时的可选列表
-            filterChlsSourceList: [] as { id: string; value: string; nodeType: string; supportManualAudio: boolean; supportManualWhiteLight: boolean }[],
-            // 添加撤防通道或传感器时的已选择列表
-            selectedChlsSourceList: [] as { id: string; value: string; nodeType: string; supportManualAudio: boolean; supportManualWhiteLight: boolean }[],
-            // 撤防联动项配置框中的已选择列表
-            selectedCfgList: [] as { id: string; value: string }[],
             // 总的撤防联动项列表
             totalDefenseParamList: [] as { id: string; value: string }[],
 
@@ -59,20 +66,16 @@ export default defineComponent({
 
             defenseSwitch: false,
             remoteSwitch: false,
-            applyDisable: true,
 
             showAddDialog: false,
             showCfgDialog: false,
             // 打开撤防选择框时选择行的索引
             triggerDialogIndex: 0,
-            // 撤防选择是否全选
-            isSelectAll: false,
-            addDialogTitle: Translate('IDCS_CHANNEL') + '/' + Translate('IDCS_SENSOR'),
             popoverVisible: false,
         })
 
-        const tableData = ref([] as AlarmSystemDisarmDto[])
-        const cfgTableData = ref([] as { id: string; value: string; selected: boolean }[])
+        const tableData = ref<AlarmSystemDisarmDto[]>([])
+        const cfgTableData = ref<{ id: string; value: string }[]>([])
 
         // 获取在线的通道列表
         const getOnlineChlList = async () => {
@@ -99,25 +102,23 @@ export default defineComponent({
                     const chlType = $item('chlType').text()
                     const supportManualAudio = $item('supportManualAudioAlarmOut').text().bool()
                     const supportManualWhiteLight = $item('supportManualWhiteLightAlarmOut').text().bool()
-                    pageData.value.chlsMap[chlId] = {
+                    chlsMap[chlId] = {
                         id: chlId,
                         name: chlName,
                         chlType: chlType,
                         supportManualAudio: supportManualAudio,
                         supportManualWhiteLight: supportManualWhiteLight,
                     }
-                    pageData.value.onlineChlList.forEach((id) => {
-                        // 过滤不在线通道
-                        if (chlId === id) {
-                            pageData.value.chlAndsensorSourceList.push({
-                                id: chlId,
-                                value: chlName,
-                                nodeType: 'channel',
-                                supportManualAudio: supportManualAudio,
-                                supportManualWhiteLight: supportManualWhiteLight,
-                            })
-                        }
-                    })
+                    // 过滤不在线通道
+                    if (pageData.value.onlineChlList.includes(chlId)) {
+                        pageData.value.chlAndsensorSourceList.push({
+                            id: chlId,
+                            value: chlName,
+                            nodeType: 'channel',
+                            supportManualAudio: supportManualAudio,
+                            supportManualWhiteLight: supportManualWhiteLight,
+                        })
+                    }
                     if (supportManualAudio) pageData.value.hasSupportManualAudioChl = true
                     if (supportManualWhiteLight) pageData.value.hasSupportManualWhiteLightChl = true
                 })
@@ -143,7 +144,7 @@ export default defineComponent({
                     if (devDesc) {
                         name = devDesc + '_' + name
                     }
-                    pageData.value.sensorsMap[sensorId] = {
+                    sensorsMap[sensorId] = {
                         id: sensorId,
                         name: name,
                         supportManualAudio: false,
@@ -188,7 +189,7 @@ export default defineComponent({
             }
         }
 
-        const buildData = () => {
+        const getData = () => {
             querySystemDisArmParam().then((result) => {
                 const $ = queryXml(result)
                 if ($('status').text() === 'success') {
@@ -241,21 +242,13 @@ export default defineComponent({
                             disarmItemsStr = Translate('IDCS_NULL')
                         }
                         row.id = chlId
-                        row.chlName =
-                            nodeType === 'channel'
-                                ? pageData.value.chlsMap[chlId]
-                                    ? pageData.value.chlsMap[chlId].name
-                                    : ''
-                                : pageData.value.sensorsMap[chlId]
-                                  ? pageData.value.sensorsMap[chlId].name
-                                  : ''
+                        row.chlName = nodeType === 'channel' ? (chlsMap[chlId] ? chlsMap[chlId].name : '') : sensorsMap[chlId] ? sensorsMap[chlId].name : ''
                         row.disarmItemsStr = disarmItemsStr
                         row.disarmItemsList = disarmItemsList
                         row.disarmItems = ipcDefenseParamList
                         row.nodeType = nodeType
                         tableData.value.push(row)
                     })
-                    filterChlsSource()
                 }
             })
         }
@@ -317,7 +310,6 @@ export default defineComponent({
                     }
                 }
             })
-            pageData.value.applyDisable = true
         }
 
         // 获取该通道或传感器的能力，是否支持手动声光报警输出或者手动白光报警输出，后续用于判断是否显示手动声光报警输出或者手动白光报警输出
@@ -325,11 +317,11 @@ export default defineComponent({
             let supportManualAudio = false
             let supportManualWhiteLight = false
             if (nodeType === 'channel') {
-                supportManualAudio = pageData.value.chlsMap[chlId] ? pageData.value.chlsMap[chlId].supportManualAudio : false
-                supportManualWhiteLight = pageData.value.chlsMap[chlId] ? pageData.value.chlsMap[chlId].supportManualWhiteLight : false
+                supportManualAudio = chlsMap[chlId] ? chlsMap[chlId].supportManualAudio : false
+                supportManualWhiteLight = chlsMap[chlId] ? chlsMap[chlId].supportManualWhiteLight : false
             } else {
-                supportManualAudio = pageData.value.sensorsMap[chlId] ? pageData.value.sensorsMap[chlId].supportManualAudio : false
-                supportManualWhiteLight = pageData.value.sensorsMap[chlId] ? pageData.value.sensorsMap[chlId].supportManualWhiteLight : false
+                supportManualAudio = sensorsMap[chlId] ? sensorsMap[chlId].supportManualAudio : false
+                supportManualWhiteLight = sensorsMap[chlId] ? sensorsMap[chlId].supportManualWhiteLight : false
             }
             return capField === 'supportManualAudioAlarmOut' ? supportManualAudio : supportManualWhiteLight
         }
@@ -372,17 +364,10 @@ export default defineComponent({
             return totalDefenseParamList
         }
 
-        // 重新获取可添加的通道列表
-        const filterChlsSource = () => {
-            pageData.value.filterChlsSourceList = cloneDeep(pageData.value.chlAndsensorSourceList)
-            for (let i = 0; i < tableData.value.length; i++) {
-                for (let j = 0; j < pageData.value.filterChlsSourceList.length; j++) {
-                    if (pageData.value.filterChlsSourceList[j] && pageData.value.filterChlsSourceList[j].id === tableData.value[i].id) {
-                        pageData.value.filterChlsSourceList.splice(j, 1)
-                    }
-                }
-            }
-        }
+        const filterChlsSourceList = computed(() => {
+            const added = tableData.value.map((item) => item.id)
+            return pageData.value.chlAndsensorSourceList.filter((item) => !added.includes(item.id))
+        })
 
         // 撤防项包含当前选择的传感器源时，应用时必须删除。
         const filterConfiguredDefParaList = () => {
@@ -404,7 +389,6 @@ export default defineComponent({
                     }).then(() => {
                         tableData.value.splice(flagIdx, 1)
                         setData()
-                        filterChlsSource()
                     })
                 } else {
                     setData()
@@ -435,8 +419,9 @@ export default defineComponent({
 
         // 添加通道或传感器
         const addItem = () => {
-            if (pageData.value.selectedChlsSourceList.length > 0) {
-                pageData.value.selectedChlsSourceList.forEach((item) => {
+            const selection = addTableRef.value!.getSelectionRows() as ChlAndsensorSourceList[]
+            if (selection.length) {
+                selection.forEach((item) => {
                     const row = new AlarmSystemDisarmDto()
                     const ipcDefenseParamList = getIpcDefenseParamList(item.supportManualAudio, item.supportManualWhiteLight)
                     let disarmItemsStr = ''
@@ -449,14 +434,7 @@ export default defineComponent({
                         })
                     }
                     row.id = item.id
-                    row.chlName =
-                        item.nodeType === 'channel'
-                            ? pageData.value.chlsMap[item.id]
-                                ? pageData.value.chlsMap[item.id].name
-                                : ''
-                            : pageData.value.sensorsMap[item.id]
-                              ? pageData.value.sensorsMap[item.id].name
-                              : ''
+                    row.chlName = item.nodeType === 'channel' ? (chlsMap[item.id] ? chlsMap[item.id].name : '') : sensorsMap[item.id] ? sensorsMap[item.id].name : ''
                     row.nodeType = item.nodeType
                     row.disarmItemsList = pageData.value.defenseParamList
                     row.disarmItemsStr = disarmItemsStr
@@ -465,62 +443,53 @@ export default defineComponent({
                 })
             }
             pageData.value.showAddDialog = false
-            filterChlsSource()
-            pageData.value.applyDisable = false
         }
 
         // 打开撤防联动项配置框
         const disarmCfg = (index: number) => {
-            cfgTableData.value = []
             pageData.value.triggerDialogIndex = index
-            pageData.value.selectedCfgList = []
-            cfgTableData.value = []
-            tableData.value[pageData.value.triggerDialogIndex].disarmItems.forEach((item) => {
-                const selected = tableData.value[pageData.value.triggerDialogIndex].disarmItemsList.some((ele: { id: string; value: string }) => {
-                    return ele.id === item.id
-                })
-                if (selected) {
-                    pageData.value.selectedCfgList.push(item)
-                }
-                cfgTableData.value.push({
-                    id: item.id,
-                    value: item.value,
-                    selected: selected,
-                })
-            })
-            pageData.value.isSelectAll = cfgTableData.value.length === pageData.value.selectedCfgList.length
+            cfgTableData.value = tableData.value[pageData.value.triggerDialogIndex].disarmItems
+            pageData.value.triggerDialogIndex = index
             pageData.value.showCfgDialog = true
+        }
+
+        const openCfgDialog = () => {
+            cfgTableData.value.forEach((item) => {
+                const selected = tableData.value[pageData.value.triggerDialogIndex].disarmItemsList.some((dItem) => dItem.id === item.id)
+                cfgTableRef.value!.toggleRowSelection(item, selected)
+            })
         }
 
         // 点击确定按钮，单个保存撤防联动项配置
         const cfgItem = () => {
-            tableData.value[pageData.value.triggerDialogIndex].disarmItemsList = pageData.value.selectedCfgList
-            tableData.value[pageData.value.triggerDialogIndex].disarmItemsStr = ''
-            tableData.value[pageData.value.triggerDialogIndex].disarmItemsList.forEach((item, idx) => {
-                const splicer = idx < tableData.value[pageData.value.triggerDialogIndex].disarmItemsList.length - 1 ? ', ' : ''
-                tableData.value[pageData.value.triggerDialogIndex].disarmItemsStr += defenseParamMap[item.id] + splicer
+            const rowData = tableData.value[pageData.value.triggerDialogIndex]
+            rowData.disarmItemsList = cfgTableRef.value!.getSelectionRows()
+            rowData.disarmItemsStr = ''
+            rowData.disarmItemsList.forEach((item, idx) => {
+                const splicer = idx < rowData.disarmItemsList.length - 1 ? ', ' : ''
+                rowData.disarmItemsStr += defenseParamMap[item.id] + splicer
             })
-            if (tableData.value[pageData.value.triggerDialogIndex].disarmItemsList.length === tableData.value[pageData.value.triggerDialogIndex].disarmItems.length) {
-                tableData.value[pageData.value.triggerDialogIndex].disarmItemsStr = Translate('IDCS_FULL')
+            if (rowData.disarmItemsList.length === rowData.disarmItems.length) {
+                rowData.disarmItemsStr = Translate('IDCS_FULL')
             }
 
-            if (!tableData.value[pageData.value.triggerDialogIndex].disarmItemsList.length) {
-                tableData.value[pageData.value.triggerDialogIndex].disarmItemsStr = Translate('IDCS_NULL')
+            if (!rowData.disarmItemsList.length) {
+                rowData.disarmItemsStr = Translate('IDCS_NULL')
             }
             pageData.value.showCfgDialog = false
-            pageData.value.applyDisable = false
         }
 
         // 点击按钮，保存所有撤防联动项配置
         const disarmCfgAll = () => {
+            const selection = popTableRef.value!.getSelectionRows() as { id: string; value: string }[]
             tableData.value.forEach((item) => {
-                item.disarmItemsList = pageData.value.selectedCfgList.filter((ele) => {
+                item.disarmItemsList = selection.filter((ele) => {
                     return item.disarmItems.some((ele2) => {
                         return ele.id === ele2.id
                     })
                 })
                 item.disarmItemsStr = ''
-                item.disarmItemsList.forEach((ele, idx: number) => {
+                item.disarmItemsList.forEach((ele, idx) => {
                     const splicer = idx < item.disarmItemsList.length - 1 ? ', ' : ''
                     item.disarmItemsStr += defenseParamMap[ele.id] + splicer
                 })
@@ -533,7 +502,6 @@ export default defineComponent({
                 }
             })
             pageData.value.popoverVisible = false
-            pageData.value.applyDisable = false
         }
 
         // 删除单个撤防项
@@ -548,8 +516,6 @@ export default defineComponent({
                     }
                 })
             })
-            filterChlsSource()
-            pageData.value.applyDisable = false
         }
 
         // 删除所有撤防项
@@ -559,60 +525,26 @@ export default defineComponent({
                 message: Translate('IDCS_DELETE_ALL_ITEMS'),
             }).then(() => {
                 tableData.value = []
-                pageData.value.filterChlsSourceList = pageData.value.chlAndsensorSourceList
             })
-            // filterChlsSource()
-            pageData.value.applyDisable = false
-        }
-
-        // 撤防联动项选择框中选择通道或传感器
-        const handleSelectedAdd = (rows: { id: string; value: string; nodeType: string; supportManualAudio: boolean; supportManualWhiteLight: boolean }[]) => {
-            pageData.value.selectedChlsSourceList = rows
-        }
-
-        // 下拉菜单选择撤防联动项
-        const handleSelectedDropDown = (rows: { id: string; value: string }[]) => {
-            pageData.value.selectedCfgList = rows
-        }
-
-        // 撤防联动项配置框中全选或全不选
-        const handleSelectCfgAll = () => {
-            if (!pageData.value.isSelectAll) {
-                pageData.value.selectedCfgList = []
-                cfgTableData.value.forEach((item) => {
-                    item.selected = false
-                })
-            } else {
-                pageData.value.selectedCfgList = cfgTableData.value
-                cfgTableData.value.forEach((item) => {
-                    item.selected = true
-                })
-            }
-        }
-
-        // 撤防联动项配置框中选择单个项
-        const handleSelectedCfg = (row: { id: string; value: string; selected: boolean }) => {
-            if (row.selected) {
-                pageData.value.selectedCfgList.push(row)
-            } else {
-                pageData.value.selectedCfgList = pageData.value.selectedCfgList.filter((item) => item.id !== row.id)
-            }
-            pageData.value.isSelectAll = cfgTableData.value.length === pageData.value.selectedCfgList.length
         }
 
         onMounted(async () => {
             await getOnlineChlList()
             await getChlListAll()
             await getSensorSourceList()
-            buildData()
+            getData()
         })
 
         return {
             formData,
             pageData,
             tableData,
+            openCfgDialog,
+            addTableRef,
+            cfgTableRef,
+            popTableRef,
             cfgTableData,
-            filterChlsSource,
+            filterChlsSourceList,
             setdisarmAll,
             addItem,
             disarmCfg,
@@ -621,10 +553,6 @@ export default defineComponent({
             deleteItem,
             deleteItemAll,
             filterConfiguredDefParaList,
-            handleSelectedAdd,
-            handleSelectedDropDown,
-            handleSelectCfgAll,
-            handleSelectedCfg,
         }
     },
 })

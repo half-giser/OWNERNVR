@@ -28,7 +28,7 @@
         <div class="base-btn-box">
             <el-button
                 :disabled="!pushFormData.chkEnable"
-                @click="testMobile"
+                @click="testData"
             >
                 {{ Translate('IDCS_TEST') }}
             </el-button>
@@ -39,7 +39,7 @@
     <!-- 排程管理弹窗 -->
     <ScheduleManagPop
         v-model="pageData.scheduleManagPopOpen"
-        @close="handleSchedulePopClose"
+        @close="closeSchedulePop"
     />
 </template>
 

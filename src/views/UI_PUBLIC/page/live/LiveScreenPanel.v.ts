@@ -207,7 +207,6 @@ export default defineComponent({
             recordRemote,
             remoteRecordDisabled,
             isTalk,
-            LiveScreenAlarmOutPop,
             changeStreamType,
             mainStreamDisabled,
         }

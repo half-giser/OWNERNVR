@@ -264,7 +264,7 @@ export default defineComponent({
          */
         const exportGroup = () => {
             if (isHttpsLogin()) {
-                openNotify(formatHttpsTips(Translate('IDCS_FACE_LIB_FILE')))
+                openNotify(formatHttpsTips(Translate('IDCS_FACE_LIB_FILE')), true)
                 return
             }
 
@@ -837,11 +837,6 @@ export default defineComponent({
             hideSensitiveInfo,
             editFace,
             confirmEditFace,
-            IntelBaseFaceItem,
-            IntelFaceDBEditPop,
-            IntelFaceDBExportPop,
-            IntelFaceDBAddFacePop,
-            IntelFaceDBEditFacePop,
         }
     },
 })

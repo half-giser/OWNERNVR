@@ -32,15 +32,15 @@ export default defineComponent({
             totalCount: 0,
             enableList: getSwitchOptions(),
             supportAudio: false,
-            scheduleList: [] as [] as SelectOption<string, string>[],
-            scheduleManagePopOpen: false,
+            scheduleList: [] as SelectOption<string, string>[],
+            isSchedulePop: false,
             audioList: [] as SelectOption<string, string>[],
             // 打开穿梭框时选择行的索引
             triggerDialogIndex: 0,
-            recordIsShow: false,
-            snapIsShow: false,
-            alarmOutIsShow: false,
-            isPresetPopOpen: false,
+            isRecordPop: false,
+            isSnapPop: false,
+            isAlarmOutPop: false,
+            isPresetPop: false,
         })
 
         const tableData = ref<AlarmEventDto[]>([])
@@ -61,7 +61,7 @@ export default defineComponent({
             }
         }
 
-        const buildTableData = () => {
+        const getData = () => {
             editRows.clear()
             tableData.value = []
             getChlList({
@@ -177,7 +177,7 @@ export default defineComponent({
         }
 
         const changePagination = () => {
-            buildTableData()
+            getData()
         }
 
         const changePaginationSize = () => {
@@ -185,12 +185,12 @@ export default defineComponent({
             if (pageData.value.pageIndex > totalPage) {
                 pageData.value.pageIndex = totalPage
             }
-            buildTableData()
+            getData()
         }
 
-        const handleScheduleChangeAll = (schedule: { value: string; label: string }) => {
+        const changeAllSchedule = (schedule: { value: string; label: string }) => {
             if (schedule.value === 'scheduleMgr') {
-                pageData.value.scheduleManagePopOpen = true
+                pageData.value.isSchedulePop = true
                 return
             }
             tableData.value.forEach((item) => {
@@ -200,19 +200,22 @@ export default defineComponent({
             })
         }
 
-        const handleScheduleChangeSingle = (row: AlarmEventDto) => {
+        const changeSchedule = (row: AlarmEventDto) => {
             if (row.schedule.value === 'scheduleMgr') {
-                pageData.value.scheduleManagePopOpen = true
-                row.schedule.value = row.oldSchedule.value
-                row.schedule.label = row.oldSchedule.label
+                pageData.value.isSchedulePop = true
+                nextTick(() => {
+                    row.schedule.value = row.oldSchedule.value
+                    row.schedule.label = row.oldSchedule.label
+                })
                 return
+            } else {
+                row.oldSchedule.value = row.schedule.value
+                row.oldSchedule.label = row.schedule.label
             }
-            row.oldSchedule.value = row.schedule.value
-            row.oldSchedule.label = row.schedule.label
         }
 
-        const handleSchedulePopClose = async () => {
-            pageData.value.scheduleManagePopOpen = false
+        const closeSchedulePop = async () => {
+            pageData.value.isSchedulePop = false
             await getScheduleList()
         }
 
@@ -228,14 +231,14 @@ export default defineComponent({
         const openRecord = (index: number) => {
             tableData.value[index].record.switch = true
             pageData.value.triggerDialogIndex = index
-            pageData.value.recordIsShow = true
+            pageData.value.isRecordPop = true
         }
 
         const changeRecord = (index: number, data: SelectOption<string, string>[]) => {
             if (tableData.value[index].disabled) {
                 return
             }
-            pageData.value.recordIsShow = false
+            pageData.value.isRecordPop = false
             tableData.value[index].record = {
                 switch: !!data.length,
                 chls: cloneDeep(data),
@@ -254,14 +257,14 @@ export default defineComponent({
         const openSnap = (index: number) => {
             tableData.value[index].snap.switch = true
             pageData.value.triggerDialogIndex = index
-            pageData.value.snapIsShow = true
+            pageData.value.isSnapPop = true
         }
 
         const changeSnap = (index: number, data: SelectOption<string, string>[]) => {
             if (tableData.value[index].disabled) {
                 return
             }
-            pageData.value.snapIsShow = false
+            pageData.value.isSnapPop = false
             tableData.value[index].snap = {
                 switch: !!data.length,
                 chls: cloneDeep(data),
@@ -280,14 +283,14 @@ export default defineComponent({
         const openAlarmOut = (index: number) => {
             tableData.value[index].alarmOut.switch = true
             pageData.value.triggerDialogIndex = index
-            pageData.value.alarmOutIsShow = true
+            pageData.value.isAlarmOutPop = true
         }
 
         const changeAlarmOut = (index: number, data: SelectOption<string, string>[]) => {
             if (tableData.value[index].disabled) {
                 return
             }
-            pageData.value.alarmOutIsShow = false
+            pageData.value.isAlarmOutPop = false
             tableData.value[index].alarmOut = {
                 switch: !!data.length,
                 alarmOuts: cloneDeep(data),
@@ -306,11 +309,11 @@ export default defineComponent({
         const openPreset = (index: number) => {
             tableData.value[index].alarmOut.switch = true
             pageData.value.triggerDialogIndex = index
-            pageData.value.isPresetPopOpen = true
+            pageData.value.isPresetPop = true
         }
 
         const changePreset = (index: number, data: AlarmPresetItem[]) => {
-            pageData.value.isPresetPopOpen = false
+            pageData.value.isPresetPop = false
             tableData.value[index].preset = {
                 switch: !!data.length,
                 presets: cloneDeep(data),
@@ -318,7 +321,7 @@ export default defineComponent({
         }
 
         // 系统音频
-        const handleSysAudioChangeAll = (sysAudio: string) => {
+        const changeAllAudio = (sysAudio: string) => {
             tableData.value.forEach((item) => {
                 if (!item.disabled) {
                     item.sysAudio = sysAudio
@@ -327,7 +330,7 @@ export default defineComponent({
         }
 
         // 消息推送
-        const handleMsgPushChangeAll = (msgPush: string) => {
+        const changeAllMsgPush = (msgPush: string) => {
             tableData.value.forEach((item) => {
                 if (!item.disabled) {
                     item.msgPush = msgPush
@@ -336,7 +339,7 @@ export default defineComponent({
         }
 
         // 蜂鸣器
-        const handleBeeperChangeAll = (beeper: string) => {
+        const changeAllBeeper = (beeper: string) => {
             tableData.value.forEach((item) => {
                 if (!item.disabled) {
                     item.beeper = beeper
@@ -345,7 +348,7 @@ export default defineComponent({
         }
 
         // 视频弹出
-        const handleVideoPopupChangeAll = (videoPopup: string) => {
+        const changeAllVideoPopUp = (videoPopup: string) => {
             tableData.value.forEach((item) => {
                 if (!item.disabled) {
                     item.videoPopup = videoPopup
@@ -354,7 +357,7 @@ export default defineComponent({
         }
 
         // 邮件
-        const handleEmailChangeAll = (email: string) => {
+        const changeAllEmail = (email: string) => {
             tableData.value.forEach((item) => {
                 if (!item.disabled) {
                     item.email = email
@@ -465,7 +468,7 @@ export default defineComponent({
         onMounted(async () => {
             await getScheduleList()
             await getAudioList()
-            buildTableData()
+            getData()
         })
 
         return {
@@ -474,9 +477,9 @@ export default defineComponent({
             pageData,
             tableData,
             editRows,
-            handleScheduleChangeAll,
-            handleScheduleChangeSingle,
-            handleSchedulePopClose,
+            changeAllSchedule,
+            changeSchedule,
+            closeSchedulePop,
             switchRecord,
             openRecord,
             changeRecord,
@@ -489,18 +492,13 @@ export default defineComponent({
             switchPreset,
             openPreset,
             changePreset,
-            handleSysAudioChangeAll,
-            handleMsgPushChangeAll,
-            handleBeeperChangeAll,
-            handleVideoPopupChangeAll,
-            handleEmailChangeAll,
+            changeAllAudio,
+            changeAllMsgPush,
+            changeAllBeeper,
+            changeAllVideoPopUp,
+            changeAllEmail,
             handleMotionSetting,
             setData,
-            AlarmBasePresetPop,
-            AlarmBaseSnapPop,
-            AlarmBaseRecordPop,
-            AlarmBaseAlarmOutPop,
-            ScheduleManagPop,
         }
     },
 })

@@ -264,17 +264,16 @@ export default defineComponent({
             }
         }
 
-        // 播放模式
-        const mode = computed(() => {
-            if (!playerRef.value) {
-                return ''
-            }
-            return playerRef.value.mode
-        })
-
-        // 播放器已就绪
         const ready = computed(() => {
             return playerRef.value?.ready || false
+        })
+
+        // 播放模式
+        const mode = computed(() => {
+            if (!ready.value) {
+                return ''
+            }
+            return playerRef.value!.mode
         })
 
         const calendar = useCalendar()
@@ -311,7 +310,7 @@ export default defineComponent({
          * @param {String} sendXML
          */
         const cmd = (sendXML: string) => {
-            plugin?.GetVideoPlugin()?.ExecuteCmd(sendXML)
+            plugin?.ExecuteCmd(sendXML)
         }
 
         /**
@@ -359,7 +358,6 @@ export default defineComponent({
          * @param {Array} chls
          */
         const handleChlSearch = async (chls: PlaybackChlList[]) => {
-            stop()
             pageData.value.chls = chls
             pageData.value.startTime = dayjs(calendar.current.value).toDate()
             await getRecSection(pageData.value.chls.map((item) => item.id))
@@ -391,7 +389,9 @@ export default defineComponent({
             plugin = playerRef.value!.plugin
 
             if (mode.value === 'h5') {
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 //设置插件为回放交互模式
                 cmd(OCX_XML_SetPluginModel('Interactive', 'Playback'))
 
@@ -612,7 +612,9 @@ export default defineComponent({
                         // },
                     })
                 })
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 ocxCacheWinMap.update(pageData.value.chls)
                 pageData.value.playStatus = 'play'
                 cmd(OCX_XML_StopPreview('ALL'))
@@ -764,7 +766,7 @@ export default defineComponent({
             if (removeChl.length) {
                 chlRef.value?.removeChls(
                     removeChl.map((item) => {
-                        openNotify(`${item.value}: ${Translate('IDCS_NO_REC_DATA')}`)
+                        // openNotify(`${item.value}: ${Translate('IDCS_NO_REC_DATA')}`)
                         return item.id
                     }),
                 )
@@ -802,7 +804,6 @@ export default defineComponent({
             }
             const timeline = timelineRef.value
             const sortChlList = sortTimelineChlList()
-            console.trace('updateTimeline', sortChlList)
             timeline.updateChlList(sortChlList, false, 'record')
         }
 
@@ -823,9 +824,11 @@ export default defineComponent({
                     openNotify(Translate('IDCS_IMG_UNENCRYPTED_TIP'))
                     localStorage.setItem(LocalCacheKey.KEY_SNAP_PIC_NOT_ENCRYPTED, 'true')
                 }
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_TakePhotoByWinIndex(pageData.value.winData.winIndex)
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -845,7 +848,9 @@ export default defineComponent({
                 }
                 player.setPollingState(false, index)
                 player.stop(index)
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 pageData.value.winData.PLAY_STATUS = 'stop'
                 fisheyeRef.value?.exitAdjust(pageData.value.winData.chlID)
 
@@ -867,11 +872,13 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 player.zoomOut(player.getSelectedWinIndex())
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 fisheyeRef.value?.exitAdjust(pageData.value.winData.chlID)
 
                 const sendXML = OCX_XML_MagnifyImg()
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -885,11 +892,13 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 player.zoomIn(player.getSelectedWinIndex())
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 fisheyeRef.value?.exitAdjust(pageData.value.winData.chlID)
 
                 const sendXML = OCX_XML_MinifyImg()
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -901,12 +910,16 @@ export default defineComponent({
             if (!ready.value) {
                 return
             }
+
             pageData.value.winData.original = bool
+
             if (mode.value === 'h5') {
                 player.displayOriginal(player.getSelectedWinIndex(), bool)
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_OriginalDisplaySwitch(pageData.value.winData.winIndex, bool)
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -925,7 +938,9 @@ export default defineComponent({
                 const winIndex = player.getSelectedWinIndex()
                 player.setVolume(player.getSelectedWinIndex(), volume)
                 pageData.value.audioWinIndex = winIndex
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 cmd(OCX_XML_SetVolume(volume))
                 pageData.value.audioWinIndex = pageData.value.winData.winIndex
             }
@@ -950,7 +965,9 @@ export default defineComponent({
                     pageData.value.audioWinIndex = -1
                     player.closeAudio(winIndex)
                 }
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 if (!pageData.value.winData.chlID) {
                     openNotify(Translate('IDCS_OPERATE_CLOSE_WIN'))
                     return
@@ -985,7 +1002,9 @@ export default defineComponent({
             pageData.value.osd = bool
             if (mode.value === 'h5') {
                 player.toggleOSD(bool)
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 cmd(OCX_XML_OSDSwitch(bool ? 'ON' : 'OFF'))
             }
         }
@@ -1001,7 +1020,9 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 player.togglePos(bool)
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 ocxCacheWinMap.winMap.forEach((chlId, index) => {
                     if (chlId) {
                         cmd(pos(bool, chlId, index))
@@ -1023,7 +1044,9 @@ export default defineComponent({
             pageData.value.watermark = bool
             if (mode.value === 'h5') {
                 player.toggleWatermark(bool)
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 cmd(OCX_XML_WaterMarkSwitch(bool))
             }
         }
@@ -1038,7 +1061,9 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 player.fullscreen()
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 cmd(OCX_XML_FullScreen())
             }
         }
@@ -1054,7 +1079,9 @@ export default defineComponent({
             pageData.value.playStatus = 'pause'
             if (mode.value === 'h5') {
                 player.pauseAll()
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 cmd(OCX_XML_SetPlayStatus('FORWARDS_PAUSE'))
             }
         }
@@ -1099,7 +1126,9 @@ export default defineComponent({
             pageData.value.playStatus = 'play'
             if (mode.value === 'h5') {
                 player.resumeAll()
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 cmd(OCX_XML_SetPlayStatus('FORWARDS'))
                 changeStreamType(pageData.value.split <= 4 ? 1 : 0)
             }
@@ -1115,7 +1144,9 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 player.stopAll()
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 cmd(OCX_XML_StopPreview('ALL'))
                 pageData.value.playStatus = 'stop'
                 pageData.value.isFullScreen = false
@@ -1135,12 +1166,15 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 player.setSplit(split)
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 pageData.value.isFullScreen = false
                 pageData.value.fullScreenIndex = -1
                 fisheyeRef.value?.exitAdjust(pageData.value.winData.chlID)
                 cmd(OCX_XML_SetScreenMode(split))
             }
+
             pageData.value.split = split
         }
 
@@ -1159,7 +1193,9 @@ export default defineComponent({
                 const endTime = endTimeStamp.value / 1000
                 const distTime = currentTime + seconds
                 seek(Math.min(endTime, Math.max(startTime, distTime)))
-            } else {
+            }
+
+            if (mode.value === 'ocx') {
                 fisheyeRef.value?.exitAdjust(pageData.value.winData.chlID)
                 cmd(OCX_XML_Skip(seconds))
             }
@@ -1176,7 +1212,9 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 player.seek(timestamp)
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 playAll(timestamp)
             }
         }
@@ -1195,7 +1233,9 @@ export default defineComponent({
                     setAudio(false)
                 }
                 player.setSpeed(speed)
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 cmd(OCX_XML_SetPlaySpeed(speed))
             }
         }
@@ -1223,7 +1263,9 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 player.nextFrame()
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 cmd(OCX_XML_RecNextFrame())
             }
         }
@@ -1257,7 +1299,9 @@ export default defineComponent({
                     volume: pageData.value.volume, // 当前音量
                     isDblClickSplit: true, // 切换主子码流时，如果当前分屏winIndex不是0分屏（这种场景出现的原因：多通道播放时，双击其中一个通道放大，就会切换为一分屏，但是当前的一分屏可能是0分屏以外的分屏），如果此时切换主子码流，播放器则认为是播放了0分屏以外的通道，就会自动增加分屏，此时就会将分屏会自动切割为四分屏-MAX_SPLIT，isDblClickSplit为true则认为当前是双击分屏操作，不会自动切割分屏。
                 })
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 pageData.value.winData.streamType = type
                 if (type === 1) {
                     pageData.value.mainStreamTypeChl = pageData.value.winData.chlID
@@ -1280,7 +1324,7 @@ export default defineComponent({
 
             if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_SetFishEyeMode(installType, fishEyeMode)
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -1432,10 +1476,13 @@ export default defineComponent({
             if (type === 'local') {
                 if (mode.value === 'h5') {
                     pageData.value.isLocalBackUpPop = true
-                } else if (mode.value === 'ocx') {
+                }
+
+                if (mode.value === 'ocx') {
                     plugin.BackUpTask.addTask(pageData.value.backupRecList, path, format)
                     pageData.value.isBackUpList = true
                 }
+
                 pageData.value.isBackUpPop = false
             } else {
                 pageData.value.isBackUpPop = false
@@ -1590,7 +1637,9 @@ export default defineComponent({
                                         closeImg(index)
                                         // player.stop(index)
                                     })
-                            } else if (mode.value === 'ocx') {
+                            }
+
+                            if (mode.value === 'ocx') {
                                 const ids = filterChls.map((item) => item.id)
                                 const indexes = ocxCacheWinMap.getIndexes(ids)
                                 ocxCacheWinMap.remove(ids)
@@ -1636,9 +1685,12 @@ export default defineComponent({
                                         // },
                                     })
                                 })
-                            } else if (mode.value === 'ocx') {
+                            }
+
+                            if (mode.value === 'ocx') {
                                 playAll(timestamp)
                             }
+
                             renderTimeline()
                             return
                         }
@@ -1731,16 +1783,6 @@ export default defineComponent({
             updateTimeline,
             changeFishEyeMode,
             isFishEyePanel,
-            PlaybackChannelPanel,
-            PlaybackEventPanel,
-            PlaybackAsidePanel,
-            PlaybackControlPanel,
-            PlaybackScreenPanel,
-            PlaybackBackUpPanel,
-            PlaybackRecLogPanel,
-            BackupPop,
-            BackupLocalPop,
-            PlaybackFisheyePanel,
         }
     },
 })

@@ -145,7 +145,7 @@ export default defineComponent({
             const sendXml = getSavaData()
             openLoading()
             const result = await editSHDBParam(sendXml)
-            commSaveResponseHadler(result)
+            commSaveResponseHandler(result)
             closeLoading()
         }
 

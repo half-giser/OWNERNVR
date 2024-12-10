@@ -3,6 +3,7 @@
  * @Date: 2024-06-21 18:15:30
  * @Description: 系统
  */
+import { TableRowStatus } from './base'
 
 /**
  * @description 网络状态列表
@@ -42,7 +43,7 @@ export class SystemChannelStatusList {
 /**
  * @description 磁盘状态列表
  */
-export class SystemDiskStatusList {
+export class SystemDiskStatusList extends TableRowStatus {
     id = ''
     diskNum = ''
     raidType = ''
@@ -56,9 +57,6 @@ export class SystemDiskStatusList {
     recTime = ''
     group = ''
     detail = []
-    gridRowStatus = 'loading'
-    gridRowDisabled = true
-    gridRowStatusInitTooltip = ''
     sortIndex = 0
 }
 
@@ -70,7 +68,12 @@ export interface SystemAlarmStatusListData {
         text: string
     }[]
     alarmTime: string
-    data: { key: string; value: string; span: number; hide?: boolean }[]
+    data: {
+        key: string
+        value: string
+        span: number
+        hide?: boolean
+    }[]
 }
 
 /**
@@ -80,7 +83,7 @@ export class SystemAlarmStatusList {
     id = ''
     type = ''
     // status = 0
-    data = [] as SystemAlarmStatusListData[]
+    data: SystemAlarmStatusListData[] = []
     index = 0
 }
 
@@ -89,7 +92,7 @@ export class SystemAlarmStatusList {
  */
 export class SystemAutoMaintenanceForm {
     switch = false
-    interval = undefined as number | undefined
+    interval: number | undefined = undefined
     time = new Date(2000, 0, 1, 0, 0)
 }
 
@@ -210,7 +213,7 @@ export class SystemLogForm {
     pageSize = 20
     startTime = ''
     endTime = ''
-    subType = [] as string[]
+    subType: string[] = []
 }
 
 /**d
@@ -225,7 +228,7 @@ export class SystemLogList {
     mainType = ''
     content = ''
     chl = { id: '', text: '' }
-    triggerRecChls = [] as { id: string; text: string }[]
+    triggerRecChls: { id: string; text: string }[] = []
     index = 0
 }
 
@@ -253,7 +256,7 @@ export class SystemPostColorData {
     index = 0
     chlId = ''
     name = ''
-    colorList = [] as string[]
+    colorList: string[] = []
     printMode = ''
     previewDisplay = false
 }
@@ -275,7 +278,7 @@ export class SystemPostDisplaySet {
  */
 export class SystemPosConnectionForm {
     ip = ''
-    port = undefined as number | undefined
+    port: number | undefined = undefined
     switch = false
 }
 
@@ -434,7 +437,7 @@ export class SystenSHDBImageUploadDto {
     chlNum = 0
     name = ''
     timeCount = 0
-    timelist = [] as SelectOption<string, string>[]
+    timelist: SelectOption<string, string>[] = []
 }
 
 /**

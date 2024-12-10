@@ -12,7 +12,7 @@ export default defineComponent({
         },
         linkedObj: {
             type: Object as PropType<Record<string, AlarmCombinedFaceMatchDto>>,
-            required: true,
+            required: false,
         },
     },
     emits: {
@@ -61,7 +61,7 @@ export default defineComponent({
             pageData.value.faceDataIds = []
             pageData.value.faceList = []
 
-            if (prop.linkedObj.obj) {
+            if (prop.linkedObj?.obj) {
                 const obj = prop.linkedObj.obj
                 pageData.value.rule = obj.rule
                 pageData.value.duration = -obj.duration
@@ -84,8 +84,8 @@ export default defineComponent({
         }
 
         const save = () => {
-            const groupId = [] as string[]
-            const faceDataBase = [] as string[]
+            const groupId: string[] = []
+            const faceDataBase: string[] = []
             pageData.value.faceList.forEach((item) => {
                 if (pageData.value.faceDataIds.includes(item.value)) {
                     groupId.push(item.value)

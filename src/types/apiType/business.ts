@@ -83,7 +83,7 @@ export class BusinessFaceGroupList {
     name = ''
     property = ''
     groupId = ''
-    members = [] as { id: string; name: string }[]
+    members: { id: string; name: string }[] = []
 }
 
 /**
@@ -106,7 +106,7 @@ export class BusinessFaceDetailList {
     day = ''
     type = ''
     alarm = false
-    detail = [] as BusinessFaceResultList[]
+    detail: BusinessFaceResultList[] = []
 }
 
 /**
@@ -117,27 +117,27 @@ export class BusinessFaceList {
     name = ''
     groupId = ''
     groupName = ''
-    searchData = {} as Record<string, BusinessFaceResultList[]>
-    detail = [] as BusinessFaceDetailList[]
+    searchData: Record<string, BusinessFaceResultList[]> = {}
+    detail: BusinessFaceDetailList[] = []
 }
 
 /**
  * @description 人脸搜索表单 （基类）
  */
 export class BusinessFaceForm {
-    dateRange = [0, 0] as [number, number]
+    dateRange: [number, number] = [0, 0]
     pageSize = 100
     currentPage = 1
     startTime = '09:00:00'
     endTime = '18:00:00'
-    chls = [] as SelectOption<string, string>[]
-    faceGroup = [] as BusinessFaceGroupList[]
+    chls: SelectOption<string, string>[] = []
+    faceGroup: BusinessFaceGroupList[] = []
     // weekdays = [1, 2, 3, 4, 5]
     advanced = false
     isName = false
     name = ''
     isType = false
-    type = [] as string[]
+    type: string[] = []
 }
 
 /**

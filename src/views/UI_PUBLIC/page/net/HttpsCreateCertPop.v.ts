@@ -116,7 +116,7 @@ export default defineComponent({
                 </content>
             `
             const result = await createCert(sendXml)
-            commSaveResponseHadler(result, () => {
+            commSaveResponseHandler(result, () => {
                 ctx.emit('confirm')
             })
             closeLoading()
@@ -141,7 +141,7 @@ export default defineComponent({
                 </content>
             `
             const result = await createCertReq(sendXml)
-            commSaveResponseHadler(result, () => {
+            commSaveResponseHandler(result, () => {
                 ctx.emit('confirm')
             })
             closeLoading()

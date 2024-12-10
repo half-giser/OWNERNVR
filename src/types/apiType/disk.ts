@@ -91,8 +91,8 @@ export class StorageModeDiskGroupListDatum {
  */
 export class StorageModeDiskGroupList {
     id = ''
-    diskList = [] as StorageModeDiskGroupListDatum[]
-    chlList = [] as StorageModeDiskGroupListDatum[]
+    diskList: StorageModeDiskGroupListDatum[] = []
+    chlList: StorageModeDiskGroupListDatum[] = []
     diskCount = 0
     totalSize = ''
 }
@@ -138,7 +138,7 @@ export class DiskCreateRaidForm {
     name = ''
     type = 'RAID_TYPE_5' // 同步设备端，默认选择raid5
     space = ''
-    diskId = [] as string[]
+    diskId: string[] = []
 }
 
 /**

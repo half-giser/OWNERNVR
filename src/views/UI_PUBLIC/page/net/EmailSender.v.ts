@@ -258,7 +258,7 @@ export default defineComponent({
             `
             const result = await editEmailCfg(sendXml)
             closeLoading()
-            commSaveResponseHadler(result)
+            commSaveResponseHandler(result)
         }
 
         /**
@@ -287,7 +287,6 @@ export default defineComponent({
             handleUserNameFocus,
             handleUserNameBlur,
             formatSTMPServer,
-            EmailSenderTestPop,
         }
     },
 })

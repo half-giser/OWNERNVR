@@ -47,8 +47,9 @@
                         <span
                             class="status"
                             :class="[scope.row.isOnline ? 'text-online' : 'text-offline']"
-                            >{{ scope.row.ip === '' ? '' : scope.row.isOnline ? Translate('IDCS_ONLINE') : Translate('IDCS_OFFLINE') }}</span
                         >
+                            {{ scope.row.ip === '' ? '' : scope.row.isOnline ? Translate('IDCS_ONLINE') : Translate('IDCS_OFFLINE') }}
+                        </span>
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -204,16 +205,10 @@
                 />
             </el-table>
         </div>
-        <div
-            class="base-btn-box"
-            span="start"
-        >
+        <div class="base-btn-box flex-start">
             <div v-show="ipNumVisable">{{ Translate('IDCS_IP_NUM') }} {{ ipNum }}</div>
         </div>
-        <div
-            class="base-btn-box collapse"
-            span="start"
-        >
+        <div class="base-btn-box flex-start collapse">
             {{ txtBrandwidth }}
         </div>
         <ChannelEditPop

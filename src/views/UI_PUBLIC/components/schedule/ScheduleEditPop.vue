@@ -18,10 +18,7 @@
                 '--form-input-width': '200px',
             }"
         >
-            <div
-                class="base-btn-box form"
-                span="2"
-            >
+            <div class="base-btn-box space-between form">
                 <div>
                     <el-form-item
                         :label="Translate('IDCS_SCHEDULE_NAME')"

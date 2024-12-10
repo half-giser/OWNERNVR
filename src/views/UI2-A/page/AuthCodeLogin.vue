@@ -64,8 +64,9 @@
                                     link
                                     :disabled="pageData.authCodeDisabled"
                                     @click="getAuthCode"
-                                    >{{ Translate('IDCS_OBTAIN') }}</el-button
                                 >
+                                    {{ Translate('IDCS_OBTAIN') }}
+                                </el-button>
                                 <div
                                     v-show="pageData.expireTime > 0"
                                     class="authCodeLogin-expiretime"

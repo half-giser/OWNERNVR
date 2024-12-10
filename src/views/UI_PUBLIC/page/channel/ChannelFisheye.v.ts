@@ -11,12 +11,11 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
         const { openMessageBox } = useMessageBox()
-        const osType = getSystemInfo().platform
 
         const playerRef = ref<PlayerInstance>()
         const formData = ref(new ChannelFisheyeDto())
         const tableRef = ref<TableInstance>()
-        const tableData = ref([] as ChannelFisheyeDto[])
+        const tableData = ref<ChannelFisheyeDto[]>([])
         const pageIndex = ref(1)
         const pageSize = ref(10)
         const pageTotal = ref(0)
@@ -379,16 +378,16 @@ export default defineComponent({
             }
         }
 
-        // 播放模式
-        const mode = computed(() => {
-            if (!playerRef.value) {
-                return ''
-            }
-            return playerRef.value.mode
-        })
-
         const ready = computed(() => {
             return playerRef.value?.ready || false
+        })
+
+        // 播放模式
+        const mode = computed(() => {
+            if (!ready.value) {
+                return ''
+            }
+            return playerRef.value!.mode
         })
 
         let player: PlayerInstance['player']
@@ -399,8 +398,8 @@ export default defineComponent({
             plugin = playerRef.value!.plugin
 
             if (mode.value === 'ocx') {
-                const sendXML = OCX_XML_SetPluginModel(osType === 'mac' ? 'VedioMaskConfig' : 'ReadOnly', 'Live')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -409,18 +408,18 @@ export default defineComponent({
          */
         const play = () => {
             if (!selectedChlId.value) return
-            if (!ready.value) return
+
             const rowData = getRowById(selectedChlId.value)!
+
             if (mode.value === 'h5') {
                 player.play({
                     chlID: rowData.id,
                     streamType: 2,
                 })
-            } else {
-                if (osType === 'mac') {
-                } else {
-                    plugin.RetryStartChlView(rowData.id, rowData.name)
-                }
+            }
+
+            if (mode.value === 'ocx') {
+                plugin.RetryStartChlView(rowData.id, rowData.name)
             }
         }
 
@@ -440,9 +439,9 @@ export default defineComponent({
         })
 
         onBeforeUnmount(() => {
-            if (mode.value === 'ocx' && ready.value) {
+            if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_StopPreview('ALL')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         })
 

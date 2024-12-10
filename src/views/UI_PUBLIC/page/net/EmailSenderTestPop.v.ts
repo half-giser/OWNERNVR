@@ -133,7 +133,7 @@ export default defineComponent({
                         </content>
                     `
                     const $$ = await editEmailCfg(sendXml)
-                    commSaveResponseHadler($$)
+                    commSaveResponseHandler($$)
 
                     closeLoading()
                 })

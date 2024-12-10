@@ -50,7 +50,7 @@ export default defineComponent({
 
         const formRef = useFormRef()
         const formData = ref({
-            name: '' as string,
+            name: '',
         })
         const formRule = ref<FormRules>({
             name: [

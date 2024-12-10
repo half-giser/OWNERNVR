@@ -33,8 +33,9 @@
                 <el-text
                     v-show="pageData.recordTime < pageData.maxRecordTime && pageData.recordTime >= 0"
                     class="seconds"
-                    >{{ pageData.recordTime }} s</el-text
                 >
+                    {{ pageData.recordTime }} s
+                </el-text>
             </div>
             <div>
                 <el-tooltip :content="Translate('IDCS_ADD')">

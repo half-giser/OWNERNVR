@@ -163,7 +163,6 @@ export default defineComponent({
                         userSessionStore.defaultStreamType = pageData.value.quality
                     }
                     plugin.DisposePlugin()
-                    plugin.TogglePageByPlugin()
                     plugin.StartV2Process()
                     router.push('/live')
                 } else if ($('status').text() === 'fail') {
@@ -298,7 +297,6 @@ export default defineComponent({
             rules,
             changeLang,
             closePrivacy,
-            LoginPrivacyPop,
         }
     },
 })

@@ -7,10 +7,7 @@
     <div class="base-flex-box">
         <div class="base-subheading-box">{{ Translate('IDCS_LIGHT') }}</div>
         <div class="base-table-box">
-            <el-table
-                :data="tableData"
-                :row-class-name="(data) => (data.row.disabled ? 'disabled' : '')"
-            >
+            <el-table :data="tableData">
                 <el-table-column
                     label=" "
                     width="50"
@@ -35,8 +32,8 @@
                                 <el-dropdown-menu>
                                     <el-dropdown-item
                                         v-for="item in pageData.enableList"
-                                        :key="item.value"
-                                        @click="handleEnabelChangeAll(item.value)"
+                                        :key="item.label"
+                                        @click="changeAllEnable(item.value)"
                                     >
                                         {{ item.label }}
                                     </el-dropdown-item>
@@ -50,19 +47,18 @@
                             :placeholder="Translate('IDCS_ON')"
                             :disabled="scope.row.disabled"
                             :options="pageData.enableList"
-                            @change="handleEnabelChange(scope.row)"
                         />
                     </template>
                 </el-table-column>
                 <!-- 闪烁时间 -->
                 <el-table-column :label="Translate('IDCS_FLASHING_TIME')">
                     <template #default="scope">
-                        <el-input
+                        <BaseNumberInput
                             v-model="scope.row.durationTime"
-                            :disabled="scope.row.durationTimeDisable || scope.row.disabled"
-                            @focus="handleDurationTimeFocus(scope.row)"
-                            @blur="handleDurationTimeBlur(scope.row)"
-                            @keydown.enter="handleDurationTimeKeydown(scope.row)"
+                            :disabled="!scope.row.enable"
+                            :min="1"
+                            :max="60"
+                            @keydown.enter="blurDurationTime($event)"
                         />
                     </template>
                 </el-table-column>
@@ -78,7 +74,7 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.lightFrequencyList"
                                         :key="item.value"
-                                        @click="handleFrequencyTypeChangeAll(item.value)"
+                                        @click="changeAllFrequencyType(item.value)"
                                     >
                                         {{ item.label }}
                                     </el-dropdown-item>
@@ -89,7 +85,7 @@
                     <template #default="scope">
                         <el-select-v2
                             v-model="scope.row.frequencyType"
-                            :disabled="scope.row.frequencyTypeDisable || scope.row.disabled"
+                            :disabled="!scope.row.enable"
                             :options="pageData.lightFrequencyList"
                         />
                     </template>
@@ -97,7 +93,7 @@
             </el-table>
         </div>
         <div class="base-pagination-box">
-            <el-pagination
+            <BasePagination
                 v-model:current-page="pageData.pageIndex"
                 v-model:page-size="pageData.pageSize"
                 :total="pageData.totalCount"
@@ -115,9 +111,9 @@
                 <el-select-v2
                     v-model="pageData.schedule"
                     :options="pageData.scheduleList"
-                    @change="handleScheduleChange()"
+                    @change="changeSchedule()"
                 />
-                <el-button @click="popOpen()">
+                <el-button @click="openSchedulePop()">
                     {{ Translate('IDCS_MANAGE') }}
                 </el-button>
             </el-form-item>
@@ -132,8 +128,8 @@
             </el-button>
         </div>
         <ScheduleManagPop
-            v-model="pageData.scheduleManagePopOpen"
-            @close="handleSchedulePopClose"
+            v-model="pageData.isSchedulePop"
+            @close="closeSchedulePop"
         />
     </div>
 </template>

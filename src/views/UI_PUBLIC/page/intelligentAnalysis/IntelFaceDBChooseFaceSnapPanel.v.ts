@@ -311,7 +311,6 @@ export default defineComponent({
             displayDateTime,
             listData,
             filterListData,
-            IntelBaseFaceItem,
         }
     },
 })

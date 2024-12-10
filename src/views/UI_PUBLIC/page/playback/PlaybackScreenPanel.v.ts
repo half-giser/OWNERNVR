@@ -130,6 +130,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
+        const { openNotify } = useNotification()
 
         const WASM_SEG = [1, 4].map((split) => ({
             split,
@@ -362,7 +363,7 @@ export default defineComponent({
 
         // 禁用备份按钮
         const backUpDisabled = computed(() => {
-            return disabled.value || prop.clipRange.length !== 2 || prop.clipRange[0] === prop.clipRange[1]
+            return disabled.value || prop.clipRange.length !== 2 || prop.clipRange[0] >= prop.clipRange[1]
         })
 
         /**
@@ -374,11 +375,7 @@ export default defineComponent({
             }
 
             if (backUpDisabled.value) {
-                ElMessage({
-                    type: 'info',
-                    message: Translate('IDCS_SELECT_BACKUP_START_END_TIME'),
-                    grouping: true,
-                })
+                openNotify(Translate('IDCS_SELECT_BACKUP_START_END_TIME'), true)
                 return
             }
             ctx.emit('backUp')

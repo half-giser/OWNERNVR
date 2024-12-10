@@ -9,7 +9,7 @@
             <el-table
                 highlight-current-row
                 :data="tableData"
-                @current-change="changeCombinedALarmInfo"
+                @current-change="changeCombinedAlarmInfo"
             >
                 <!-- 状态列 -->
                 <el-table-column
@@ -30,9 +30,9 @@
                         <el-input
                             v-model="scope.row.name"
                             maxlength="32"
-                            @focus="nameFocus(scope.row.name)"
-                            @blur="nameBlur(scope.row)"
-                            @keyup.enter="enterBlur($event)"
+                            @focus="focusName(scope.row.name)"
+                            @blur="blurName(scope.row)"
+                            @keyup.enter="keydownEnterName($event)"
                         />
                     </template>
                 </el-table-column>
@@ -46,7 +46,7 @@
                         <div class="base-cell-box">
                             <el-checkbox
                                 v-model="scope.row.combinedAlarm.switch"
-                                @change="combinedAlarmCheckChange(scope.row)"
+                                @change="switchCombinedAlarm(scope.row)"
                             />
                             <el-button
                                 :disabled="!scope.row.combinedAlarm.switch"
@@ -62,7 +62,7 @@
                 <el-table-column width="180">
                     <template #header>
                         <AlarmBaseRecordPop
-                            :visible="pageData.recordIsShow"
+                            :visible="pageData.isRecordPop"
                             :data="tableData"
                             :index="pageData.triggerDialogIndex"
                             @confirm="changeRecord"
@@ -88,7 +88,7 @@
                 <el-table-column width="180">
                     <template #header>
                         <AlarmBaseSnapPop
-                            :visible="pageData.snapIsShow"
+                            :visible="pageData.isSnapPop"
                             :data="tableData"
                             :index="pageData.triggerDialogIndex"
                             @confirm="changeSnap"
@@ -173,7 +173,7 @@
                 <el-table-column width="180">
                     <template #header>
                         <AlarmBaseAlarmOutPop
-                            :visible="pageData.alarmOutIsShow"
+                            :visible="pageData.isAlarmOutPop"
                             :data="tableData"
                             :index="pageData.triggerDialogIndex"
                             @confirm="changeAlarmOut"
@@ -327,34 +327,29 @@
                 </el-table-column>
             </el-table>
         </div>
-        <div
-            class="base-btn-box"
-            span="2"
-        >
+        <div class="base-btn-box space-between">
             <div>{{ pageData.CombinedALarmInfo }}</div>
-            <div>
-                <el-button
-                    :disabled="!editRows.size()"
-                    @click="setData()"
-                >
-                    {{ Translate('IDCS_APPLY') }}
-                </el-button>
-            </div>
+            <el-button
+                :disabled="!editRows.size()"
+                @click="setData()"
+            >
+                {{ Translate('IDCS_APPLY') }}
+            </el-button>
         </div>
         <!-- 预置点名称 -->
         <AlarmBasePresetPop
-            v-model="pageData.isPresetPopOpen"
+            v-model="pageData.isPresetPop"
             :data="tableData"
             :index="pageData.triggerDialogIndex"
             @confirm="changePreset"
         />
         <CombinationAlarmPop
-            v-model="pageData.isCombinedAlarmPopOpen"
+            v-model="pageData.isCombinedAlarmPop"
             :linked-id="pageData.combinedAlarmLinkedId"
             :linked-list="pageData.combinedAlarmLinkedList"
             :curr-row-face-obj="pageData.currRowFaceObj"
-            @confirm="handleCombinedAlarmLinkedList"
-            @close="combinedAlarmClose"
+            @confirm="confirmCombinedAlarm"
+            @close="closeCombinedAlarmPop"
         />
     </div>
 </template>

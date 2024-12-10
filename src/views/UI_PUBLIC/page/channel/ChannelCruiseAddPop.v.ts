@@ -295,7 +295,6 @@ export default defineComponent({
             moveUpPreset,
             moveDownPreset,
             formatInputMaxLength,
-            ChannelCruiseEditPresetPop,
         }
     },
 })

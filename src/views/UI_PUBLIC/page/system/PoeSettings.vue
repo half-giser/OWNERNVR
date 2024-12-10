@@ -43,10 +43,7 @@
                 />
             </el-table>
         </div>
-        <div
-            class="base-btn-box"
-            span="2"
-        >
+        <div class="base-btn-box space-between">
             <div class="sum">
                 <div>
                     <span>{{ Translate('IDCS_TOTAL_POWER') }}: </span>
@@ -57,14 +54,12 @@
                     <span>{{ pageData.remainPower }}W</span>
                 </div>
             </div>
-            <div>
-                <el-button
-                    :disabled="!tableData.length"
-                    @click="setData"
-                >
-                    {{ Translate('IDCS_APPLY') }}
-                </el-button>
-            </div>
+            <el-button
+                :disabled="!tableData.length"
+                @click="setData"
+            >
+                {{ Translate('IDCS_APPLY') }}
+            </el-button>
         </div>
     </div>
 </template>

@@ -15,8 +15,8 @@
             ></div>
         </transition>
         <BaseNotification
-            :notifications="layoutStore.notifications"
-            @update:notifications="layoutStore.notifications = $event"
+            :model-value="layoutStore.notifications"
+            @update:model-value="layoutStore.notifications = $event"
         />
         <BasePluginNotice />
     </div>
@@ -33,8 +33,7 @@ const langStore = useLangStore()
 const session = useUserSessionStore()
 const dateTime = useDateTimeStore()
 
-const Plugin = usePlugin()
-provide('Plugin', Plugin)
+usePlugin()
 
 /**
  * @description 如果未激活，跳转开机向导，否则，根据登录状态，跳转登录或现场预览
@@ -66,10 +65,15 @@ const hanedleActivationStatus = async (checkActivationStatus: boolean) => {
 }
 
 if (session.appType === 'STANDARD') {
-    queryActivationStatus().then((result) => {
-        const checkActivationStatus = queryXml(result)('content/activated').text().bool()
-        hanedleActivationStatus(checkActivationStatus)
-    })
+    // 标准登录此处请求语言翻译和时间日期配置，P2P登录则延后至插件连接成功后请求
+    langStore
+        .getLangTypes()
+        .then(() => langStore.getLangItems())
+        .then(() => queryActivationStatus())
+        .then((result) => {
+            const checkActivationStatus = queryXml(result)('content/activated').text().bool()
+            hanedleActivationStatus(checkActivationStatus)
+        })
 } else {
     session.getP2PSessionInfo()
 }
@@ -111,32 +115,32 @@ body {
     transition: opacity 0.5s ease 0.5s;
 }
 
-.page-view {
-    &-enter-from {
-        opacity: 0;
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100vw;
-    }
+// .page-view {
+//     &-enter-from {
+//         opacity: 0;
+//         position: absolute;
+//         top: 0;
+//         left: 0;
+//         width: 100vw;
+//     }
 
-    &-leave-to {
-        opacity: 0;
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        z-index: 1;
-    }
+//     &-leave-to {
+//         opacity: 0;
+//         position: absolute;
+//         top: 0;
+//         left: 0;
+//         width: 100vw;
+//         z-index: 1;
+//     }
 
-    &-enter-active {
-        width: 100vw;
-        transition: opacity 0.3s linear;
-    }
+//     &-enter-active {
+//         width: 100vw;
+//         transition: opacity 0.3s linear;
+//     }
 
-    &-leave-active {
-        width: 100vw;
-        transition: opacity 0.3s linear;
-    }
-}
+//     &-leave-active {
+//         width: 100vw;
+//         transition: opacity 0.3s linear;
+//     }
+// }
 </style>

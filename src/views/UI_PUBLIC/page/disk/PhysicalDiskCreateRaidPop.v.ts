@@ -247,7 +247,6 @@ export default defineComponent({
             formData,
             formRef,
             rules,
-            BaseCheckAuthPop,
             diskOptions,
             hotDisks,
             getRaidCapacity,

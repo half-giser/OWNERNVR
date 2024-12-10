@@ -52,12 +52,12 @@ const play = () => {
     if (!playerRef.value || !playerRef.value.ready) return
     if (playerRef.value.mode === 'ocx') {
         let sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
-        playerRef.value.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+        playerRef.value.plugin.ExecuteCmd(sendXML)
         sendXML = OCX_XML_SetProperty({
             calendarType: userSessionStore.calendarType,
             supportRecStatus: false,
         })
-        playerRef.value.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+        playerRef.value.plugin.ExecuteCmd(sendXML)
         playerRef.value!.plugin.RetryStartChlView(chlId, chlName)
     } else {
         playerRef.value.player.play({
@@ -84,7 +84,7 @@ const close = () => {
     if (playerRef.value && playerRef.value.ready) {
         if (playerRef.value.mode === 'ocx') {
             const sendXML = OCX_XML_StopPreview('CURRENT')
-            playerRef.value.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+            playerRef.value.plugin.ExecuteCmd(sendXML)
         }
     }
     playerOpened.value = false

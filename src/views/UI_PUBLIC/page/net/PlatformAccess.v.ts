@@ -445,7 +445,7 @@ export default defineComponent({
 
             const result = await editPlatformCfg(sendXml)
             closeLoading()
-            commSaveResponseHadler(result)
+            commSaveResponseHandler(result)
         }
 
         // 编码ID列表
@@ -496,7 +496,6 @@ export default defineComponent({
             editCodeId,
             confirmEditCodeId,
             verify,
-            PlatformAccessCodeIdPop,
             sipCodeList,
             handlePasswordFocus,
             changeNWMS5000Switch,

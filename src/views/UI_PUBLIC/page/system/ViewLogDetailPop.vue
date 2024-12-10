@@ -29,7 +29,12 @@
             </el-form-item>
             <el-form-item :label="Translate('IDCS_DETAIL_INFO')" />
             <el-form-item v-show="isContentPlainText">
-                <div class="text-area">{{ item.content }}</div>
+                <el-scrollbar
+                    class="text-area"
+                    height="100"
+                >
+                    {{ item.content }}
+                </el-scrollbar>
             </el-form-item>
             <div
                 v-show="!isContentPlainText"
@@ -126,8 +131,6 @@
 }
 
 .text-area {
-    width: 100%;
-    height: 100px;
-    overflow-y: auto;
+    padding-right: 10px;
 }
 </style>

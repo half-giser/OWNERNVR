@@ -9,7 +9,6 @@
             <el-table
                 :data="tableData"
                 highlight-current-row
-                :row-class-name="(data) => (data.row.disabled ? 'disabled' : '')"
             >
                 <!-- 状态列 -->
                 <el-table-column
@@ -39,9 +38,9 @@
                             v-model="scope.row.name"
                             maxlength="32"
                             :disabled="scope.row.disabled"
-                            @focus="nameFocus(scope.row.name)"
-                            @blur="nameBlur(scope.row)"
-                            @keyup.enter="enterBlur($event)"
+                            @focus="focusName(scope.row.name)"
+                            @blur="blurName(scope.row)"
+                            @keyup.enter="blurInput"
                         />
                     </template>
                 </el-table-column>
@@ -59,7 +58,8 @@
                                         v-for="item in pageData.scheduleList"
                                         :key="item.value"
                                         @click="changeScheduleAll(item.value)"
-                                        >{{ item.label }}
+                                    >
+                                        {{ item.label }}
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
@@ -146,7 +146,8 @@
                                         v-for="item in pageData.durationList"
                                         :key="item.value"
                                         @click="changeAllValue(item.value, 'holdTime')"
-                                        >{{ item.label }}
+                                    >
+                                        {{ item.label }}
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
@@ -165,7 +166,7 @@
                 <el-table-column width="180">
                     <template #header>
                         <AlarmBaseRecordPop
-                            :visible="pageData.recordIsShow"
+                            :visible="pageData.isRecordPop"
                             :data="tableData"
                             :index="pageData.triggerDialogIndex"
                             @confirm="changeRecord"
@@ -192,7 +193,7 @@
                 <el-table-column width="180">
                     <template #header>
                         <AlarmBaseSnapPop
-                            :visible="pageData.snapIsShow"
+                            :visible="pageData.isSnapPop"
                             :data="tableData"
                             :index="pageData.triggerDialogIndex"
                             @confirm="changeSnap"
@@ -280,7 +281,7 @@
                 <el-table-column width="180">
                     <template #header>
                         <AlarmBaseAlarmOutPop
-                            :visible="pageData.alarmOutIsShow"
+                            :visible="pageData.isAlarmOutPop"
                             :data="tableData"
                             :index="pageData.triggerDialogIndex"
                             @confirm="changeAlarmOut"
@@ -439,7 +440,7 @@
             </el-table>
         </div>
         <div class="base-pagination-box">
-            <el-pagination
+            <BasePagination
                 v-model:current-page="pageData.pageIndex"
                 v-model:page-size="pageData.pageSize"
                 :total="pageData.totalCount"
@@ -457,15 +458,15 @@
         </div>
         <!-- 预置点名称 -->
         <AlarmBasePresetPop
-            v-model="pageData.isPresetPopOpen"
+            v-model="pageData.isPresetPop"
             :data="tableData"
             :index="pageData.triggerDialogIndex"
             @confirm="changePreset"
         />
         <!-- 排程管理弹窗 -->
         <ScheduleManagPop
-            v-model="pageData.scheduleManagePopOpen"
-            @close="pageData.scheduleManagePopOpen = false"
+            v-model="pageData.isSchedulePop"
+            @close="pageData.isSchedulePop = false"
         />
     </div>
 </template>

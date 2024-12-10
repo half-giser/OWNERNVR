@@ -7,14 +7,12 @@ import { cloneDeep } from 'lodash-es'
 import type { SystemPosList, SystemPosListChls, SystemPostColorData, SystemPosConnectionForm, SystemPosDisplaySetting } from '@/types/apiType/system'
 import { SystemPostDisplaySet } from '@/types/apiType/system'
 import PosConnectionSettingsPop from './PosConnectionSettingsPop.vue'
-// import PosTriggerChannelPop from './PosTriggerChannelPop.vue'
 import PosHayleyTriggerChannelPop from './PosHayleyTriggerChannelPop.vue'
 import PosDisplaySettingPop from './PosDisplaySettingPop.vue'
 
 export default defineComponent({
     components: {
         PosConnectionSettingsPop,
-        // PosTriggerChannelPop,
         PosHayleyTriggerChannelPop,
         PosDisplaySettingPop,
     },
@@ -62,15 +60,13 @@ export default defineComponent({
             tillNumberMax: Infinity,
             // hayley联动通道设置弹窗
             isHayleyTriggerChannleDialog: false,
-            mounted: false,
-            // 是否禁用提交
-            submitDisabled: true,
             // 通道列表
             chlList: [] as SelectOption<string, string>[],
         })
 
         // 表格数据
         const tableData = ref<SystemPosList[]>([])
+        const watchEdit = useWatchEditData(tableData)
 
         // 已经选择的联动通道的通道ID
         const linkChls = computed(() => {
@@ -127,12 +123,13 @@ export default defineComponent({
                 })
 
                 const displaysetString = 'content/itemType/param/displaySetting/displayPosition/'
-                pageData.value.displaysetList.xmin = $(`${displaysetString}coordinateSystem/X`).attr('min').num()
-                pageData.value.displaysetList.xmax = $(`${displaysetString}coordinateSystem/X`).attr('max').num()
-                pageData.value.displaysetList.ymin = $(`${displaysetString}coordinateSystem/Y`).attr('min').num()
-                pageData.value.displaysetList.ymax = $(`${displaysetString}coordinateSystem/Y`).attr('max').num()
-                pageData.value.displaysetList.wmin = $(`${displaysetString}width`).attr('min').num()
-                pageData.value.displaysetList.hmin = $(`${displaysetString}height`).attr('min').num()
+                const displaysetList = pageData.value.displaysetList
+                displaysetList.xmin = $(`${displaysetString}coordinateSystem/X`).attr('min').num()
+                displaysetList.xmax = $(`${displaysetString}coordinateSystem/X`).attr('max').num()
+                displaysetList.ymin = $(`${displaysetString}coordinateSystem/Y`).attr('min').num()
+                displaysetList.ymax = $(`${displaysetString}coordinateSystem/Y`).attr('max').num()
+                displaysetList.wmin = $(`${displaysetString}width`).attr('min').num()
+                displaysetList.hmin = $(`${displaysetString}height`).attr('min').num()
 
                 pageData.value.manufacturersList = $('types/manufacturers/enum').map((item) => {
                     const value = item.text()
@@ -147,7 +144,7 @@ export default defineComponent({
                     label: item.text(),
                 }))
 
-                const data: SystemPosList[] = $('content/item').map((item) => {
+                tableData.value = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
                     const manufacturers = $item('param/manufacturers').text()
                     const connectionType = $item('param/connectionType').text()
@@ -204,11 +201,8 @@ export default defineComponent({
                         },
                     }
                 })
-                tableData.value = data
 
-                nextTick(() => {
-                    pageData.value.mounted = true
-                })
+                watchEdit.listen()
             }
         }
 
@@ -323,6 +317,7 @@ export default defineComponent({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
+                watchEdit.update()
             } else {
                 openMessageBox({
                     type: 'info',
@@ -587,19 +582,6 @@ export default defineComponent({
             })
         }
 
-        const stopWatchTableData = watch(
-            tableData,
-            () => {
-                if (pageData.value.mounted) {
-                    pageData.value.submitDisabled = false
-                    stopWatchTableData()
-                }
-            },
-            {
-                deep: true,
-            },
-        )
-
         onMounted(() => {
             getData()
             getChannelList()
@@ -608,6 +590,7 @@ export default defineComponent({
         return {
             pageData,
             tableData,
+            watchEdit,
             linkChls,
             filterChlList,
             changeAllSwitch,
@@ -624,10 +607,6 @@ export default defineComponent({
             setTriggerChannel,
             confirmSetTriggerChannel,
             confirmSetDisplay,
-            PosConnectionSettingsPop,
-            // PosTriggerChannelPop,
-            PosHayleyTriggerChannelPop,
-            PosDisplaySettingPop,
         }
     },
 })

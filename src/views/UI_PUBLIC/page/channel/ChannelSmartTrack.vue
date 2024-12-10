@@ -67,7 +67,6 @@
                 <el-table
                     :data="tableData"
                     highlight-current-row
-                    :row-class-name="(data) => (data.row.disabled ? 'disabled' : '')"
                     @row-click="handleRowClick"
                 >
                     <!-- 状态列 -->

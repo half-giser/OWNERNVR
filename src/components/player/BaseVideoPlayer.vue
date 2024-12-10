@@ -132,8 +132,9 @@
                     :key="posKey"
                     :style="{ color: posItem.color }"
                     class="pos-item"
-                    >{{ posItem.text }}</span
                 >
+                    {{ posItem.text }}
+                </span>
             </div>
             <div
                 class="chlip"

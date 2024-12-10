@@ -163,7 +163,6 @@ export default defineComponent({
             formData,
             setData,
             confirmSetData,
-            BaseCheckAuthPop,
         }
     },
 })

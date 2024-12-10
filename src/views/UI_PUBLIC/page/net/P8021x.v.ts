@@ -85,7 +85,7 @@ export default defineComponent({
                     </content>
                 `
                 const result = await edit802xCfg(sendXml)
-                commSaveResponseHadler(result)
+                commSaveResponseHandler(result)
 
                 closeLoading()
             })

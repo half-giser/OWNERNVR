@@ -144,7 +144,7 @@ export default defineComponent({
             openLoading()
             editSHDBEventUploadCfg(sendXml).then((res) => {
                 closeLoading()
-                commSaveResponseHadler(res)
+                commSaveResponseHandler(res)
             })
         }
 

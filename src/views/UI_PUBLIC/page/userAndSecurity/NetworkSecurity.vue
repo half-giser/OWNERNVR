@@ -60,7 +60,7 @@
         </div>
         <div class="base-btn-box">
             <el-button
-                :disabled="pageData.submitDisabled"
+                :disabled="watchEdit.disabled.value"
                 @click="setData"
             >
                 {{ Translate('IDCS_APPLY') }}

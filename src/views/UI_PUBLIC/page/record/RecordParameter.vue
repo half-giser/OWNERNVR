@@ -176,16 +176,11 @@
                 </el-table-column>
             </el-table>
         </div>
-        <div
-            class="base-btn-box"
-            span="2"
-        >
+        <div class="base-btn-box space-between">
             <div>
                 <span v-show="supportANR">{{ Translate('IDCS_OFFLINE_RECORDING_TIPS') }}</span>
             </div>
-            <div>
-                <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>
-            </div>
+            <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>
         </div>
         <RecordParameterCustomPop
             v-model="pageData.isSetCustomization"

@@ -15,36 +15,36 @@
                 </div>
                 <el-form
                     class="form stripe"
-                    label-width="100"
                     :class="{
                         '--form-input-width': '200px',
+                        '--form-label-width': '100px',
                     }"
                 >
                     <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                         <el-select-v2
                             v-model="pageData.activeChannelIndex"
                             :options="chlOptions"
+                            @change="changeChl"
                         />
                     </el-form-item>
                     <el-form-item
-                        v-if="channelList[pageData.activeChannelIndex]"
+                        v-if="tableData[pageData.activeChannelIndex]"
                         :label="Translate('IDCS_PREVIEW')"
                     >
                         <el-select-v2
-                            v-model="channelList[pageData.activeChannelIndex].switch"
+                            v-model="tableData[pageData.activeChannelIndex].switch"
                             :options="pageData.channelOptions"
-                            @change="pageData.buttonDisabled = false"
                         />
                     </el-form-item>
                 </el-form>
             </div>
             <div class="right base-table-box">
                 <el-table
-                    :data="channelList"
-                    flexible
+                    ref="tableRef"
+                    :data="tableData"
                     show-overflow-tooltip
-                    :row-class-name="(item) => (item.rowIndex === pageData.activeChannelIndex ? 'active' : '')"
-                    @cell-click="handleChangeUser"
+                    highlight-current-row
+                    @row-click="handleChangeUser"
                 >
                     <el-table-column
                         :label="Translate('IDCS_CHANNEL_NAME')"
@@ -69,11 +69,10 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="{ $index }">
+                        <template #default="scope">
                             <el-select-v2
-                                v-model="channelList[$index].switch"
+                                v-model="scope.row.switch"
                                 :options="pageData.channelOptions"
-                                @change="pageData.buttonDisabled = false"
                             />
                         </template>
                     </el-table-column>
@@ -82,7 +81,7 @@
         </div>
         <div class="base-btn-box">
             <el-button
-                :disabled="pageData.buttonDisabled"
+                :disabled="watchEdit.disabled.value"
                 @click="setData"
             >
                 {{ Translate('IDCS_APPLY') }}

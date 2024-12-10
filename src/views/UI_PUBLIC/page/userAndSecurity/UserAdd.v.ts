@@ -260,7 +260,6 @@ export default defineComponent({
             noticeMsg,
             formatInputMaxLength,
             formatInputUserName,
-            BaseCheckAuthPop,
         }
     },
 })

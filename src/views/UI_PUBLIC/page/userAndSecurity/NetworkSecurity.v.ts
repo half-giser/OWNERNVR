@@ -11,11 +11,7 @@ export default defineComponent({
         const { openLoading, closeLoading } = useLoading()
 
         const tableData = ref<UserNetworkSecurityForm[]>([])
-
-        const pageData = ref({
-            submitDisabled: true,
-            mounted: false,
-        })
+        const watchEdit = useWatchEdit(tableData)
 
         /**
          * @description 获取数据
@@ -43,9 +39,7 @@ export default defineComponent({
                         getGatewayMac: autoGetGatewayMac ? gatewayMac : manualInputGatewayMac,
                     }
                 })
-                nextTick(() => {
-                    pageData.value.mounted = true
-                })
+                watchEdit.update()
             })
         }
 
@@ -78,7 +72,8 @@ export default defineComponent({
             const result = await editArpCfg(sendXml)
 
             closeLoading()
-            commSaveResponseHadler(result)
+            commSaveResponseHandler(result)
+            watchEdit.update()
         }
 
         /**
@@ -122,19 +117,6 @@ export default defineComponent({
             tableData.value[index].manualInputGatewayMac = row.getGatewayMac
         }
 
-        const stopTableDataWatch = watch(
-            tableData,
-            () => {
-                if (pageData.value.mounted) {
-                    pageData.value.submitDisabled = false
-                    stopTableDataWatch()
-                }
-            },
-            {
-                deep: true,
-            },
-        )
-
         onMounted(() => {
             getData()
         })
@@ -142,7 +124,7 @@ export default defineComponent({
         return {
             tableData,
             setData,
-            pageData,
+            watchEdit,
             formatNetworkCardName,
             handleChangeAutoGetGatewayMac,
             handleChangeMannualGatewayMac,

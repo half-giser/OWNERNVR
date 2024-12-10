@@ -4,23 +4,16 @@
  * @Description: 人数统计画线：可拖动单箭头 + 可拖动矩形框
  */
 
-import CanvasBase, { type CanvasBaseLineStyleOption } from './canvasBase'
-
-interface CanvasCpcInfoOption {
-    X1: number
-    X2: number
-    Y1: number
-    Y2: number
-}
+import CanvasBase, { type CanvasBaseLineStyleOption, type CanvasBaseArea } from './canvasBase'
 
 interface CanvasCpcOption {
     el: HTMLCanvasElement
     regionlineStyle?: CanvasBaseLineStyleOption
     arrowlineStyle?: CanvasBaseLineStyleOption
     enable: boolean
-    regionInfo?: Partial<CanvasCpcInfoOption>
-    arrowlineInfo?: Partial<CanvasCpcInfoOption>
-    onchange?: (regionInfo: CanvasCpcInfoOption, arrowlineInfo: CanvasCpcInfoOption) => void
+    regionInfo?: Partial<CanvasBaseArea>
+    arrowlineInfo?: Partial<CanvasBaseArea>
+    onchange?: (regionInfo: CanvasBaseArea, arrowlineInfo: CanvasBaseArea) => void
 }
 
 export default class CanvasCpc {
@@ -31,8 +24,8 @@ export default class CanvasCpc {
     private readonly RELATIVE_HEIGHT = 10000 // 万分比高度
     private readonly DEFAULT_REGION_INFO = { X1: 0, Y1: 0, X2: 0, Y2: 0 }
     private readonly DEFAULT_LINE_INFO = { X1: 0, Y1: 0, X2: 0, Y2: 0 }
-    private regionInfo: CanvasCpcInfoOption
-    private arrowlineInfo: CanvasCpcInfoOption
+    private regionInfo: CanvasBaseArea
+    private arrowlineInfo: CanvasBaseArea
     private regionlineStyle: CanvasBaseLineStyleOption
     private arrowlineStyle: CanvasBaseLineStyleOption
     private ctx: CanvasBase
@@ -105,13 +98,13 @@ export default class CanvasCpc {
     }
 
     // 设置警戒区域
-    setRegionInfo(regionInfo: CanvasCpcInfoOption) {
+    setRegionInfo(regionInfo: CanvasBaseArea) {
         this.regionInfo = regionInfo
         this.init()
     }
 
     // 设置箭头线区域
-    setLineInfo(arrowlineInfo: CanvasCpcInfoOption) {
+    setLineInfo(arrowlineInfo: CanvasBaseArea) {
         this.arrowlineInfo = arrowlineInfo
         this.init()
     }
@@ -277,7 +270,7 @@ export default class CanvasCpc {
         }
     }
 
-    getRealItemByRelative(relativeItem: CanvasCpcInfoOption) {
+    getRealItemByRelative(relativeItem: CanvasBaseArea) {
         return {
             X1: this.getRealSizeByRelative(relativeItem.X1, 'x'),
             Y1: this.getRealSizeByRelative(relativeItem.Y1, 'y'),
@@ -286,7 +279,7 @@ export default class CanvasCpc {
         }
     }
 
-    getRelativeItemByReal(realItem: CanvasCpcInfoOption) {
+    getRelativeItemByReal(realItem: CanvasBaseArea) {
         return {
             X1: this.getRelativeSizeByReal(realItem.X1, 'x'),
             Y1: this.getRelativeSizeByReal(realItem.Y1, 'y'),

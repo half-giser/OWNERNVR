@@ -3,7 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-13 09:23:25
  */
-import { AlarmIpcAudioForm, AlarmAudioAlarmOutDto, AlarmAudioDevice, type AlarmLocalAudioDto } from '@/types/apiType/aiAndEvent'
+import { AlarmAudioAlarmOutDto, AlarmAudioDevice, type AlarmLocalAudioDto } from '@/types/apiType/aiAndEvent'
 import AudioUploadPop from './AudioUploadPop.vue'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import { type TableInstance } from 'element-plus'
@@ -22,10 +22,6 @@ export default defineComponent({
 
         const plugin = usePlugin()
         const localTableRef = ref<TableInstance>()
-
-        const ipcAudioFormData = ref(new AlarmIpcAudioForm())
-        const audioAlarmOutData: Record<string, AlarmAudioAlarmOutDto> = {}
-        const audioDeviceData: Record<string, AlarmAudioDevice> = {}
 
         const AUDIO_INPUT_MAPPING: Record<string, string> = {
             MIC: Translate('IDCS_DEVICE_MIC_BUILT_IN'),
@@ -52,87 +48,71 @@ export default defineComponent({
             },
         ]
 
-        const audioAlarmPageData = ref({
-            chlAlarmOutList: [] as SelectOption<string, string>[],
-            chlDisabled: false,
-            audioCheckDisabled: false,
-            voiceDisabled: false,
-            addAudioDisabled: false,
-            deleteAudioDisabled: false,
-            listenAudioDisabled: false,
-            numberDisabled: false,
-            volumeDisabled: false,
-            languageDisbaled: false,
-            audioFilesSizeTips: '',
-            audioFormatTips: '',
-            audioTypeList: [] as SelectOption<string, string>[],
-            langList: [] as SelectOption<string, string>[],
-            queryFailTipsShow: false,
-            firstId: '',
-        })
+        const alarmOutList = ref<AlarmAudioAlarmOutDto[]>([new AlarmAudioAlarmOutDto()])
+        const editAlarmOutRows = useWatchEditRows<AlarmAudioAlarmOutDto>()
 
-        const audioDevicePageData = ref({
-            resFailShow: false,
-            chlAudioDevList: [] as SelectOption<string, string>[],
-            deviceEnableDisabled: false,
-            deviceAudioInputDisabled: false,
-            micOrLinVolumeDisabled: false,
-            loudSpeakerDisabled: false,
-            deviceAudioOutputDisabled: false,
-            outputVolumeDisabled: false,
-            audioEncodeDisabled: false,
-            audioInputList: [] as SelectOption<string, string>[],
-            loudSpeakerList: [] as SelectOption<string, string>[],
-            audioOutputList: [] as SelectOption<string, string>[],
-            audioEncodeList: [] as SelectOption<string, string>[],
-            firstId: '',
-            micMaxValue: 100,
-        })
+        const deviceList = ref<AlarmAudioDevice[]>([new AlarmAudioDevice()])
+        const editDeviceRows = useWatchEditRows<AlarmAudioDevice>()
+
+        const localList = ref<AlarmLocalAudioDto[]>([])
 
         const pageData = ref({
+            alarmOutIndex: 0,
+            deviceIndex: 0,
             audioTab: 'ipcAudio',
+            ipcAudioTab: 'audioAlarm',
             supportAlarmAudioConfig: systemCaps.supportAlarmAudioConfig,
-            btnApplyDisabled: false,
             isImportAudioDialog: false,
             scheduleManagPopOpen: false,
             audioSchedule: '',
-            originAudioSchedule: '',
+            isScheduleChanged: false,
             audioScheduleList: [] as SelectOption<string, string>[],
-            localTableData: [] as AlarmLocalAudioDto[],
         })
 
-        // 获取语音播报信息
+        const btnDisabled = computed(() => {
+            return !editAlarmOutRows.size() && !editDeviceRows.size() && !pageData.value.isScheduleChanged
+        })
+
+        /**
+         * @description 获取语音播报通道列表
+         */
         const getAudioAlarmData = () => {
             getChlList({
                 isSupportAudioAlarmOut: true,
             }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
-                    if ($('content').attr('total') === '0') {
-                        audioAlarmPageData.value.chlDisabled = true
-                        changeAudioAlarmDataDisabled(true)
-
-                        ipcAudioFormData.value.audioChecked = true
-                    } else {
-                        $('content/item').forEach((item) => {
-                            const $item = queryXml(item.element)
-                            const id = item.attr('id')
-                            const name = $item('name').text()
-                            audioAlarmPageData.value.chlAlarmOutList.push({
-                                value: id,
-                                label: name,
-                            })
-                            getAudioAlarmDataById(id, name)
-                        })
-                        audioAlarmPageData.value.firstId = audioAlarmPageData.value.chlAlarmOutList[0].value
+                    if ($('content').attr('total').num() === 0) {
+                        return
                     }
+
+                    alarmOutList.value = $('content/item').map((item, index) => {
+                        const $item = queryXml(item.element)
+                        const row = new AlarmAudioAlarmOutDto()
+                        row.id = item.attr('id')
+                        row.name = $item('name').text()
+                        row.index = index
+                        return row
+                    })
+
+                    alarmOutList.value.forEach(async (item) => {
+                        await getAudioAlarmItem(item)
+
+                        if (!item.disabled) {
+                            editAlarmOutRows.listen(item)
+                        }
+                    })
                 })
             })
         }
 
-        const getAudioAlarmDataById = async (id: string, name: string) => {
+        /**
+         * @description 获取语音播报信息
+         * @param {AlarmAudioAlarmOutDto} item
+         */
+        const getAudioAlarmItem = async (item: AlarmAudioAlarmOutDto) => {
             const sendXml = rawXml`
                 <condition>
-                    <chlId>${id}</chlId>
+                    <chlId>${item.id}</chlId>
                 </condition>
                 <requireField>
                     <param></param>
@@ -141,21 +121,23 @@ export default defineComponent({
             const result = await queryAudioAlarmOutCfg(sendXml)
             const $ = queryXml(result)
 
-            const rowData = new AlarmAudioAlarmOutDto()
-            rowData.id = id
-            rowData.name = name
-
             if ($('status').text() === 'success') {
+                const $param = queryXml($('content/chl/param')[0].element)
+
+                item.disabled = false
+                item.editFlag = false
+
                 let customeAudioNum = 0 //保存已上传自定义声音的数量
-                const audioTypeList = $('types/audioAlarmType/enum').map((item) => {
+                item.audioTypeList = $('types/audioAlarmType/enum').map((item) => {
                     if (item.text().num() >= 100) {
                         customeAudioNum++
                     }
                     return {
-                        value: item.text(),
+                        value: item.text().num(),
                         label: item.attr('value'),
                     }
                 })
+                item.customeAudioNum = customeAudioNum
 
                 const langArr = [] as SelectOption<string, string>[]
                 $('types/audioLanguageType/enum').forEach((item) => {
@@ -172,231 +154,52 @@ export default defineComponent({
                         })
                     }
                 })
+                item.langArr = langArr
 
-                const $param = queryXml($('content/chl/param')[0].element)
-
-                audioAlarmOutData[id] = {
-                    ...rowData,
-                    successFlag: true,
-                    editFlag: false,
-                    audioTypeList: audioTypeList,
-                    customeAudioNum: customeAudioNum,
-                    langArr: langArr,
-                    audioSwitch: $param('switch').text(),
-                    audioType: $param('audioType').text(),
-                    alarmTimes: $param('alarmTimes').text().num(),
-                    audioVolume: $param('audioVolume').text().num(),
-                    languageType: $param('languageType').text(),
-                    audioFormat: $param('audioParamLimit/audioFormat').text(),
-                    sampleRate: $param('audioParamLimit/sampleRate').text(),
-                    audioChannel: $param('audioParamLimit/audioChannel').text(),
-                    audioDepth: $param('audioParamLimit/audioDepth').text(),
-                    audioFileLimitSize: $param('audioParamLimit/audioFileSize').text().split(' ').pop()!,
-                }
-            } else {
-                audioAlarmOutData[id] = rowData
-            }
-
-            if (audioAlarmPageData.value.firstId === id) {
-                ipcAudioFormData.value.audioChl = id
-                handleAudioAlarmOutData(audioAlarmOutData[id])
+                item.audioSwitch = $param('switch').text().bool()
+                item.audioType = $param('audioType').text().num()
+                item.alarmTimes = $param('alarmTimes').text() ? $param('alarmTimes').text().num() : undefined
+                item.audioVolume = $param('audioVolume').text() ? $param('audioVolume').text().num() : undefined
+                item.languageType = $param('languageType').text()
+                item.audioFormat = $param('audioParamLimit/audioFormat').text()
+                item.sampleRate = $param('audioParamLimit/sampleRate').text()
+                item.audioChannel = $param('audioParamLimit/audioChannel').text()
+                item.audioDepth = $param('audioParamLimit/audioDepth').text()
+                item.audioFileLimitSize = $param('audioParamLimit/audioFileSize').text().split(' ').pop()!
             }
         }
 
-        // 处理语音播报的数据，在初始化和通道改变时调用
-        const handleAudioAlarmOutData = (data: AlarmAudioAlarmOutDto) => {
-            pageData.value.btnApplyDisabled = true
-            if (data && data.successFlag) {
-                const audioFormat = '*.' + data.audioFormat + ',' + data.audioDepth + ',' + data.sampleRate + ',' + data.audioChannel
-                audioAlarmPageData.value.audioFilesSizeTips = Translate('IDCS_FILE_SIZE_LIMIT_TIP').formatForLang(data.audioFileLimitSize, 1)
-                audioAlarmPageData.value.audioFormatTips = Translate('IDCS_FILE_FORMAT_LIMIT_TIP').formatForLang('', audioFormat)
-
-                audioAlarmPageData.value.audioTypeList = data.audioTypeList.map((item) => {
-                    return {
-                        value: item.value,
-                        label: item.label,
-                    }
-                })
-                audioAlarmPageData.value.langList = data.langArr.map((item) => {
-                    return {
-                        value: item.value,
-                        label: item.label,
-                    }
-                })
-
-                if (Number(data.audioType) >= 100) {
-                    audioAlarmPageData.value.deleteAudioDisabled = false
-                    audioAlarmPageData.value.languageDisbaled = true
-                } else {
-                    audioAlarmPageData.value.deleteAudioDisabled = true
-                    audioAlarmPageData.value.languageDisbaled = false
-                }
-
-                audioAlarmPageData.value.listenAudioDisabled = false
-                audioAlarmPageData.value.addAudioDisabled = false
-
-                if (data.audioSwitch) {
-                    ipcAudioFormData.value.audioChecked = data.audioSwitch === 'true'
-                    audioAlarmPageData.value.audioCheckDisabled = false
-                } else {
-                    ipcAudioFormData.value.audioChecked = true
-                    audioAlarmPageData.value.audioCheckDisabled = true
-                }
-
-                if (data.audioType) {
-                    ipcAudioFormData.value.voice = data.audioType
-                    audioAlarmPageData.value.voiceDisabled = false
-                } else {
-                    audioAlarmPageData.value.voiceDisabled = true
-                    ipcAudioFormData.value.voice = ''
-                }
-
-                if (data.alarmTimes) {
-                    ipcAudioFormData.value.number = data.alarmTimes
-                    audioAlarmPageData.value.numberDisabled = false
-                } else {
-                    audioAlarmPageData.value.numberDisabled = true
-                    ipcAudioFormData.value.number = undefined
-                }
-
-                if (data.audioVolume) {
-                    ipcAudioFormData.value.volume = data.audioVolume
-                    audioAlarmPageData.value.volumeDisabled = false
-                } else {
-                    audioAlarmPageData.value.volumeDisabled = true
-                    ipcAudioFormData.value.volume = undefined
-                }
-
-                if (data.languageType) {
-                    ipcAudioFormData.value.language = data.languageType
-                    if (Number(data.audioType) >= 100) {
-                        audioAlarmPageData.value.languageDisbaled = true
-                    } else {
-                        audioAlarmPageData.value.languageDisbaled = false
-                    }
-                } else {
-                    audioAlarmPageData.value.languageDisbaled = true
-                    ipcAudioFormData.value.language = ''
-                }
-
-                setEnableList(data)
-                audioAlarmPageData.value.queryFailTipsShow = false
-            } else {
-                audioAlarmPageData.value.queryFailTipsShow = true
-                audioAlarmPageData.value.langList = []
-                audioAlarmPageData.value.langList.push({
-                    value: 'en-us',
-                    label: Translate('IDCS_en_US'),
-                })
-                ipcAudioFormData.value.audioChecked = true
-                ipcAudioFormData.value.voice = ''
-                ipcAudioFormData.value.number = undefined
-                ipcAudioFormData.value.volume = undefined
-                ipcAudioFormData.value.language = ''
-                changeAudioAlarmDataDisabled(true)
-                ipcAudioFormData.value.audioChecked = true
+        /**
+         * @description 更改声音回调
+         */
+        const changeAudioVolume = () => {
+            if (alarmOutList.value[pageData.value.alarmOutIndex].id === deviceList.value[pageData.value.deviceIndex].id) {
+                deviceList.value[pageData.value.deviceIndex].audioOutVolume = alarmOutList.value[pageData.value.alarmOutIndex].audioVolume!
             }
         }
 
-        // 声音按钮若可勾选时，取消启用需要置灰语音、次数、音量、语言
-        const setEnableList = (data: AlarmAudioAlarmOutDto) => {
-            const audioCheckEnable = data.audioSwitch && data.audioSwitch === 'false' ? true : false
-
-            if (data.audioType) audioAlarmPageData.value.voiceDisabled = audioCheckEnable
-            if (data.alarmTimes) audioAlarmPageData.value.numberDisabled = audioCheckEnable
-            if (data.audioVolume) audioAlarmPageData.value.volumeDisabled = audioCheckEnable
-            if (data.languageType && Number(data.audioType) < 100) audioAlarmPageData.value.languageDisbaled = audioCheckEnable
-            if (data.successFlag) {
-                audioAlarmPageData.value.addAudioDisabled = audioCheckEnable
-                audioAlarmPageData.value.listenAudioDisabled = audioCheckEnable
-            }
-            if (Number(data.audioType) >= 100) audioAlarmPageData.value.deleteAudioDisabled = audioCheckEnable
-        }
-
-        // 在声音启用改变的时候设置其他项
-        const changeAudioAlarmDataDisabled = (enable: boolean) => {
-            audioAlarmPageData.value.audioCheckDisabled = enable
-            audioAlarmPageData.value.voiceDisabled = enable
-            audioAlarmPageData.value.addAudioDisabled = enable
-            audioAlarmPageData.value.deleteAudioDisabled = enable
-            audioAlarmPageData.value.listenAudioDisabled = enable
-            audioAlarmPageData.value.numberDisabled = enable
-            audioAlarmPageData.value.volumeDisabled = enable
-            audioAlarmPageData.value.languageDisbaled = enable
-        }
-
-        const changeChl = () => {
-            handleAudioAlarmOutData(audioAlarmOutData[ipcAudioFormData.value.audioChl])
-        }
-
-        const changeAudioCheck = () => {
-            audioAlarmOutData[ipcAudioFormData.value.audioChl].audioSwitch = ipcAudioFormData.value.audioChecked ? 'true' : 'false'
-            setEnableList(audioAlarmOutData[ipcAudioFormData.value.audioChl])
-            audioAlarmOutData[ipcAudioFormData.value.audioChl].editFlag = true
-            pageData.value.btnApplyDisabled = false
-        }
-
-        const changeVioce = () => {
-            if (Number(ipcAudioFormData.value.voice) >= 100) {
-                // 自定义的音频（>=100）可以删除，语言类型禁用
-                audioAlarmPageData.value.deleteAudioDisabled = false
-                audioAlarmPageData.value.languageDisbaled = true
-                ipcAudioFormData.value.language = ''
-            } else {
-                audioAlarmPageData.value.deleteAudioDisabled = true
-                audioAlarmPageData.value.languageDisbaled = false
-                audioAlarmOutData[ipcAudioFormData.value.audioChl].languageType = audioAlarmPageData.value.langList[0].value
-                ipcAudioFormData.value.language = audioAlarmPageData.value.langList[0].value
-            }
-            audioAlarmOutData[ipcAudioFormData.value.audioChl].audioType = String(ipcAudioFormData.value.voice)
-            audioAlarmOutData[ipcAudioFormData.value.audioChl].editFlag = true
-            pageData.value.btnApplyDisabled = false
-        }
-
-        const blurNumber = () => {
-            audioAlarmOutData[ipcAudioFormData.value.audioChl].alarmTimes = ipcAudioFormData.value.number as number
-            audioAlarmOutData[ipcAudioFormData.value.audioChl].editFlag = true
-            pageData.value.btnApplyDisabled = false
-        }
-
-        const blurVolume = () => {
-            audioAlarmOutData[ipcAudioFormData.value.audioChl].audioVolume = ipcAudioFormData.value.volume as number
-            if (audioDeviceData[ipcAudioFormData.value.audioChl] && audioDeviceData[ipcAudioFormData.value.audioChl].audioOutEnabled) {
-                audioDeviceData[ipcAudioFormData.value.audioChl].audioOutVolume = Number(ipcAudioFormData.value.volume)
-                if (ipcAudioFormData.value.deviceChl === ipcAudioFormData.value.audioChl) {
-                    ipcAudioFormData.value.outputVolume = Number(ipcAudioFormData.value.volume)
-                }
-            }
-            audioAlarmOutData[ipcAudioFormData.value.audioChl].editFlag = true
-            pageData.value.btnApplyDisabled = false
-        }
-
-        const changeLanguage = () => {
-            audioAlarmOutData[ipcAudioFormData.value.audioChl].languageType = ipcAudioFormData.value.language
-            audioAlarmOutData[ipcAudioFormData.value.audioChl].editFlag = true
-            pageData.value.btnApplyDisabled = false
-        }
-
-        const handleClickAddAudio = () => {
-            if (plugin.IsSupportH5() && isHttpsLogin()) {
-                openNotify(Translate('IDCS_NOT_SUPPORTED').formatForLang('https', Translate('IDCS_UPLOAD_VOICE')) + '!')
-                return false
-            }
-            return true
-        }
-
+        /**
+         * @description 打开新增音频弹窗
+         */
         const addAudio = () => {
-            const canAdd = handleClickAddAudio()
-            if (canAdd) pageData.value.isImportAudioDialog = true
+            if (plugin.IsSupportH5() && isHttpsLogin()) {
+                openNotify(formatHttpsTips(Translate('IDCS_UPLOAD_VOICE')), true)
+                return
+            }
+            pageData.value.isImportAudioDialog = true
         }
 
+        /**
+         * @description 删除自定义音频
+         */
         const deleteAudio = async () => {
+            const item = alarmOutList.value[pageData.value.alarmOutIndex]
             const sendXml = rawXml`
                 <content>
-                    <chl id='${ipcAudioFormData.value.audioChl}'>
+                    <chl id='${item.id}'>
                     <param>
                         <deleteAudioAlarm>
-                        <id>${ipcAudioFormData.value.voice}</id>
+                        <id>${item.audioType}</id>
                         </deleteAudioAlarm>
                     </param>
                     </chl>
@@ -406,18 +209,10 @@ export default defineComponent({
             const $ = queryXml(result)
 
             if ($('status').text() === 'success') {
-                const chlId = ipcAudioFormData.value.audioChl
-                audioAlarmPageData.value.audioTypeList = audioAlarmPageData.value.audioTypeList.filter((item) => item.value !== ipcAudioFormData.value.voice)
-                audioAlarmPageData.value.deleteAudioDisabled = true
-                audioAlarmPageData.value.languageDisbaled = false
-                audioAlarmOutData[chlId].languageType = audioAlarmPageData.value.langList[0].value
-                ipcAudioFormData.value.language = audioAlarmPageData.value.langList[0].value
-                ipcAudioFormData.value.voice = '1'
-                audioAlarmOutData[chlId].audioType = '1'
-                audioAlarmOutData[chlId].editFlag = true
-                audioAlarmOutData[chlId].customeAudioNum--
-
-                pageData.value.btnApplyDisabled = false
+                item.audioTypeList = item.audioTypeList.filter((typeItem) => typeItem.value !== item.audioType)
+                item.audioType = 1
+                item.languageType = item.langArr[0].value
+                item.customeAudioNum--
             } else {
                 openMessageBox({
                     type: 'error',
@@ -426,13 +221,17 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 试听
+         */
         const listenAudio = async () => {
+            const item = alarmOutList.value[pageData.value.alarmOutIndex]
             const sendXml = rawXml`
                 <content>
-                    <chl id='${ipcAudioFormData.value.audioChl}'>
+                    <chl id='${item.id}'>
                     <param>
                         <auditionAudioAlarm>
-                        <audioType>${ipcAudioFormData.value.voice}</audioType>
+                            <audioType>${item.audioType}</audioType>
                         </auditionAudioAlarm>
                     </param>
                     </chl>
@@ -443,7 +242,7 @@ export default defineComponent({
 
             if ($('status').text() !== 'success') {
                 const errorCode = $('errorCode').text().num()
-                let msg = audioAlarmOutData[ipcAudioFormData.value.audioChl].name + Translate('IDCS_AUDITION_FAILED')
+                let msg = item.name + Translate('IDCS_AUDITION_FAILED')
                 if (errorCode === ErrorCode.USER_ERROR_GET_CONFIG_INFO_FAIL) msg += Translate('IDCS_GET_CFG_FAIL')
                 openMessageBox({
                     type: 'info',
@@ -452,62 +251,97 @@ export default defineComponent({
             }
         }
 
-        const handleAddVoiceList = (audioId: string, fileName: string) => {
-            audioAlarmPageData.value.audioTypeList.push({
+        /**
+         * @description 确认新增音频
+         * @param {number} audioId
+         * @param {string} fileName
+         */
+        const confirmAddAudio = (audioId: number, fileName: string) => {
+            alarmOutList.value[pageData.value.alarmOutIndex].audioTypeList.push({
                 value: audioId,
                 label: fileName,
             })
-            audioAlarmOutData[ipcAudioFormData.value.audioChl].customeAudioNum++
+            alarmOutList.value[pageData.value.alarmOutIndex].customeAudioNum++
         }
 
+        /**
+         * @description 关闭新增音频弹窗
+         */
+        const closeAddAudio = () => {
+            if (pageData.value.audioTab === 'nvrAudio') {
+                getLocalTableData()
+            }
+            pageData.value.isImportAudioDialog = false
+        }
+
+        /**
+         * @description 保存语音播报信息
+         */
         const setAudioAlarmData = async () => {
-            if (audioAlarmOutData[ipcAudioFormData.value.audioChl].successFlag && audioAlarmOutData[ipcAudioFormData.value.audioChl].editFlag) {
-                const sendXml = rawXml`
-                    <content>
-                        <chl id='${ipcAudioFormData.value.audioChl}'>
-                        <param>
-                            <name><![CDATA[${audioAlarmOutData[ipcAudioFormData.value.audioChl].name}]]></name>
-                            <switch>${ipcAudioFormData.value.audioChecked}</switch>
-                            <audioType>${ipcAudioFormData.value.voice}</audioType>
-                            <alarmTimes>${ipcAudioFormData.value.number || 0}</alarmTimes>
-                            <audioVolume>${ipcAudioFormData.value.volume || 0}</audioVolume>
-                            <languageType>${Number(ipcAudioFormData.value.voice) >= 100 ? 'customize' : ipcAudioFormData.value.language}</languageType>
-                        </param>
-                        </chl>
-                    </content>
-                `
-                await editAudioAlarmOutCfg(sendXml)
-                audioAlarmOutData[ipcAudioFormData.value.audioChl].editFlag = false
+            const editRows = editAlarmOutRows.toArray()
+            for (let i = 0; i < editRows.length; i++) {
+                try {
+                    const item = editRows[i]
+                    const sendXml = rawXml`
+                        <content>
+                            <chl id='${item.id}'>
+                            <param>
+                                <name><![CDATA[${item.name}]]></name>
+                                <switch>${item.audioSwitch}</switch>
+                                <audioType>${item.audioType}</audioType>
+                                <alarmTimes>${item.alarmTimes || ''}</alarmTimes>
+                                <audioVolume>${item.audioVolume || ''}</audioVolume>
+                                <languageType>${item.audioType >= 100 ? 'customize' : item.languageType}</languageType>
+                            </param>
+                            </chl>
+                        </content>
+                    `
+                    await editAudioAlarmOutCfg(sendXml)
+                    editAlarmOutRows.remove(item)
+                } catch {}
             }
         }
 
-        // 摄像机声音（ipc）—— 声音设备相关方法
-
+        /**
+         * @description 获取摄像机声音通道列表
+         */
         const getAudioDeviceData = () => {
             getChlList({
                 isSupportAudioDev: true,
             }).then((result) => {
                 commLoadResponseHandler(result, ($) => {
-                    changeAudioDeviceDataDisabled(true) // "声音设备"配置默认全置灰
-                    $('content/item').forEach((item) => {
+                    if (!$('content/item').length) {
+                        return
+                    }
+
+                    deviceList.value = $('content/item').map((item, index) => {
                         const $item = queryXml(item.element)
-                        const id = item.attr('id')
-                        const name = $item('name').text()
-                        audioDevicePageData.value.chlAudioDevList.push({
-                            value: id,
-                            label: name,
-                        })
-                        getAudioDeviceDataById(id, name)
+                        const row = new AlarmAudioDevice()
+                        row.id = item.attr('id')
+                        row.name = $item('name').text()
+                        row.index = index
+                        return row
                     })
-                    audioDevicePageData.value.firstId = audioDevicePageData.value.chlAudioDevList[0] && audioDevicePageData.value.chlAudioDevList[0].value
+
+                    deviceList.value.forEach(async (item) => {
+                        await getAudioDeviceItem(item)
+
+                        if (!item.disabled) {
+                            editDeviceRows.listen(item)
+                        }
+                    })
                 })
             })
         }
 
-        const getAudioDeviceDataById = async (id: string, name: string) => {
+        /**
+         * @description 获取摄像机声音数据
+         * @param {AlarmAudioDevice} item
+         */
+        const getAudioDeviceItem = async (item: AlarmAudioDevice) => {
             const sendXml = rawXml`
                 <condition>
-                    <chlId>${id}</chlId>
+                    <chlId>${item.id}</chlId>
                 </condition>
                 <requireField>
                     <param></param>
@@ -516,201 +350,81 @@ export default defineComponent({
             const result = await queryAudioStreamConfig(sendXml)
             const $ = queryXml(result)
 
-            const rowData = new AlarmAudioDevice()
-            rowData.id = id
-            rowData.name = name
-
             if ($('status').text() === 'success') {
                 const $param = queryXml($('content/chl/param')[0].element)
 
-                audioDeviceData[id] = {
-                    ...rowData,
-                    successFlag: true,
-                    editFlag: false,
-                    audioEncodeType: $('types/audioEncode/enum').map((item) => {
-                        return {
-                            value: item.text(),
-                            label: item.text(),
-                        }
-                    }),
-                    audioInputType: $('types/audioInput/enum').map((item) => {
-                        return {
-                            value: item.text(),
-                            label: AUDIO_INPUT_MAPPING[item.text()],
-                        }
-                    }),
-                    audioOutputType: $('types/audioOutput/enum').map((item) => {
-                        return {
-                            value: item.text(),
-                            label: AUDIO_OUTPUT_MAPPING[item.text()],
-                        }
-                    }),
-                    audioInSwitch: $param('audioInSwitch').text(),
-                    audioEncode: $param('audioEncode').text(),
-                    audioInput: $param('audioInput').text(),
-                    loudSpeaker: $param('loudSpeaker').text(),
-                    audioOutput: $param('audioOutput').text(),
-                    micInVolume: $param('volume/micInVolume').text().num(),
-                    linInVolume: $param('volume/linInVolume').text().num(),
-                    audioOutVolume: $param('volume/audioOutVolume').text().num(),
-                    micMaxValue: $param('volume/micInVolume').attr('max') ? $param('volume/micInVolume').attr('max').num() : 100,
-                    linMaxValue: $param('volume/linInVolume').attr('max') ? $param('volume/linInVolume').attr('max').num() : 100,
-                    audioOutMaxValue: $param('volume/audioOutVolume').attr('max') ? $param('volume/audioOutVolume').attr('max').num() : 100,
-                    micOrLinEnabled: $param('volume/micInVolume').length > 0 || $param('volume/volume/linInVolume').length > 0,
-                    audioOutEnabled: $param('volume/audioOutVolume').length > 0,
-                }
-            } else {
-                audioDeviceData[id] = rowData
-            }
+                item.disabled = false
 
-            if (audioDevicePageData.value.firstId === id) {
-                ipcAudioFormData.value.deviceChl = id
-                handleAudioDeviceData(audioDeviceData[id])
+                item.audioEncodeType = $('types/audioEncode/enum').map((item) => {
+                    return {
+                        value: item.text(),
+                        label: item.text(),
+                    }
+                })
+                item.audioInputType = $('types/audioInput/enum').map((item) => {
+                    return {
+                        value: item.text(),
+                        label: AUDIO_INPUT_MAPPING[item.text()],
+                    }
+                })
+                item.audioOutputType = $('types/audioOutput/enum').map((item) => {
+                    return {
+                        value: item.text(),
+                        label: AUDIO_OUTPUT_MAPPING[item.text()],
+                    }
+                })
+                item.audioInSwitch = $param('audioInSwitch').text().bool()
+                item.audioEncode = $param('audioEncode').text()
+                item.audioInput = $param('audioInput').text()
+                item.loudSpeaker = $param('loudSpeaker').text()
+                item.audioOutput = $param('audioOutput').text()
+                item.micInVolume = $param('volume/micInVolume').text().num()
+                item.linInVolume = $param('volume/linInVolume').text().num()
+                item.audioOutVolume = $param('volume/audioOutVolume').text().num()
+                item.micMaxValue = $param('volume/micInVolume').attr('max') ? $param('volume/micInVolume').attr('max').num() : 100
+                item.linMaxValue = $param('volume/linInVolume').attr('max') ? $param('volume/linInVolume').attr('max').num() : 100
+                item.audioOutMaxValue = $param('volume/audioOutVolume').attr('max') ? $param('volume/audioOutVolume').attr('max').num() : 100
+                item.micOrLinEnabled = $param('volume/micInVolume').length > 0 || $param('volume/volume/linInVolume').length > 0
+                item.audioOutEnabled = $param('volume/audioOutVolume').length > 0
             }
         }
 
-        const handleAudioDeviceData = (data: AlarmAudioDevice) => {
-            pageData.value.btnApplyDisabled = true
-            ipcAudioFormData.value.deviceEnable = data.audioInSwitch ? data.audioInSwitch === 'true' : true
-
-            if (data.successFlag) {
-                audioDevicePageData.value.micMaxValue = data.audioInput === 'MIC' ? data.micMaxValue : data.linMaxValue
-                ipcAudioFormData.value.micOrLinVolume = data.audioInput === 'MIC' ? data.micInVolume : data.linInVolume
-
-                audioDevicePageData.value.audioInputList = data.audioInputType
-                audioDevicePageData.value.loudSpeakerList = data.audioOutputType
-                audioDevicePageData.value.audioOutputList = data.audioOutputType
-                audioDevicePageData.value.audioEncodeList = data.audioEncodeType
-
-                audioDevicePageData.value.resFailShow = false
-
-                ipcAudioFormData.value.deviceAudioInput = data.audioInput
-                ipcAudioFormData.value.loudSpeaker = data.loudSpeaker
-                ipcAudioFormData.value.deviceAudioOutput = data.audioOutput
-                ipcAudioFormData.value.audioEncode = data.audioEncode
-                ipcAudioFormData.value.outputVolume = data.audioOutVolume
-            } else {
-                ipcAudioFormData.value.deviceAudioInput = ''
-                ipcAudioFormData.value.micOrLinVolume = 0
-                ipcAudioFormData.value.loudSpeaker = ''
-                ipcAudioFormData.value.deviceAudioOutput = ''
-                ipcAudioFormData.value.outputVolume = 0
-                ipcAudioFormData.value.audioEncode = ''
-                audioDevicePageData.value.resFailShow = true
-            }
-
-            deviceDataEnable(data)
-
-            if (!ipcAudioFormData.value.deviceEnable) {
-                changeAudioDeviceDataDisabled(true)
-            }
-        }
-
-        const deviceDataEnable = (data: AlarmAudioDevice) => {
-            if (!data.successFlag || !data.audioInSwitch) {
-                audioDevicePageData.value.deviceEnableDisabled = true
-            } else {
-                audioDevicePageData.value.deviceEnableDisabled = false
-            }
-
-            audioDevicePageData.value.deviceAudioInputDisabled = !data.audioInput ? true : false
-            audioDevicePageData.value.micOrLinVolumeDisabled = !data.micOrLinEnabled ? true : false
-            audioDevicePageData.value.loudSpeakerDisabled = !data.loudSpeaker ? true : false
-            audioDevicePageData.value.deviceAudioOutputDisabled = !data.audioOutput ? true : false
-            audioDevicePageData.value.outputVolumeDisabled = !data.audioOutEnabled ? true : false
-            audioDevicePageData.value.audioEncodeDisabled = !data.audioEncode ? true : false
-        }
-
-        const changeAudioDeviceDataDisabled = (enable: boolean) => {
-            audioDevicePageData.value.deviceAudioInputDisabled = enable
-            audioDevicePageData.value.micOrLinVolumeDisabled = enable
-            audioDevicePageData.value.loudSpeakerDisabled = enable
-            audioDevicePageData.value.deviceAudioOutputDisabled = enable
-            audioDevicePageData.value.outputVolumeDisabled = enable
-            audioDevicePageData.value.audioEncodeDisabled = enable
-        }
-
-        const hasEdited = () => {
-            audioDeviceData[ipcAudioFormData.value.deviceChl].editFlag = true
-            pageData.value.btnApplyDisabled = false
-        }
-
-        // form项改变触发事件
-        const chagneDeviceChl = () => {
-            handleAudioDeviceData(audioDeviceData[ipcAudioFormData.value.deviceChl])
-        }
-
-        const changeDeviceEnable = () => {
-            audioDeviceData[ipcAudioFormData.value.deviceChl].audioInSwitch = ipcAudioFormData.value.deviceEnable ? 'true' : 'false'
-            if (ipcAudioFormData.value.deviceEnable) {
-                deviceDataEnable(audioDeviceData[ipcAudioFormData.value.deviceChl])
-            } else {
-                changeAudioDeviceDataDisabled(true)
-            }
-            hasEdited()
-        }
-
-        const chagneAudioInput = () => {
-            audioDeviceData[ipcAudioFormData.value.deviceChl].audioInput = ipcAudioFormData.value.deviceAudioInput
-            hasEdited()
-        }
-
-        const changeMicOrLinVolume = () => {
-            if (audioDeviceData[ipcAudioFormData.value.deviceChl].audioInput === 'MIC') {
-                audioDeviceData[ipcAudioFormData.value.deviceChl].micInVolume = ipcAudioFormData.value.micOrLinVolume
-            } else {
-                audioDeviceData[ipcAudioFormData.value.deviceChl].linInVolume = ipcAudioFormData.value.micOrLinVolume
-            }
-            hasEdited()
-        }
-
-        const changeLoudSpeaker = () => {
-            audioDeviceData[ipcAudioFormData.value.deviceChl].loudSpeaker = ipcAudioFormData.value.loudSpeaker
-            hasEdited()
-        }
-
-        const chagneAudioOutput = () => {
-            audioDeviceData[ipcAudioFormData.value.deviceChl].audioOutput = ipcAudioFormData.value.deviceAudioOutput
-            hasEdited()
-        }
-
-        const changeOutputVolume = () => {
-            audioDeviceData[ipcAudioFormData.value.deviceChl].audioOutVolume = ipcAudioFormData.value.outputVolume
-            hasEdited()
-        }
-
-        const changeAudioEncode = () => {
-            audioDeviceData[ipcAudioFormData.value.deviceChl].audioEncode = ipcAudioFormData.value.audioEncode
-            hasEdited()
-        }
-
+        /**
+         * @description 保存摄像机声音数据
+         */
         const setAudiDeviceData = async () => {
-            if (audioDeviceData[ipcAudioFormData.value.deviceChl].successFlag && audioDeviceData[ipcAudioFormData.value.deviceChl].editFlag) {
-                openLoading()
-                const sendXml = rawXml`
-                    <content>
-                        <chl id='${ipcAudioFormData.value.deviceChl}'>
-                            <param>
-                                ${ternary(ipcAudioFormData.value.deviceEnable, `<audioInSwitch>${ipcAudioFormData.value.deviceEnable}</audioInSwitch>`)}
-                                ${ternary(ipcAudioFormData.value.deviceAudioInput, `<audioInput>${ipcAudioFormData.value.deviceAudioInput}</audioInput>`)}
-                                ${ternary(ipcAudioFormData.value.deviceAudioOutput, `<audioOutput>${ipcAudioFormData.value.deviceAudioOutput}</audioOutput>`)}
-                                ${ternary(ipcAudioFormData.value.loudSpeaker, `<loudSpeaker>${ipcAudioFormData.value.loudSpeaker}</loudSpeaker>`)}
-                                ${ternary(ipcAudioFormData.value.audioEncode, `<audioEncode>${ipcAudioFormData.value.audioEncode}</audioEncode>`)}
-                                <volume>
-                                    ${ternary(audioDeviceData[ipcAudioFormData.value.deviceChl].micInVolume >= 0, `<micInVolume>${audioDeviceData[ipcAudioFormData.value.deviceChl].micInVolume}</micInVolume>`)}
-                                    ${ternary(audioDeviceData[ipcAudioFormData.value.deviceChl].linInVolume >= 0, `<linInVolume>${audioDeviceData[ipcAudioFormData.value.deviceChl].linInVolume}</linInVolume>`)}
-                                    ${ternary(ipcAudioFormData.value.outputVolume >= 0, `<audioOutVolume>${ipcAudioFormData.value.outputVolume}</audioOutVolume>`)}
-                                </volume>
-                            </param>
-                        </chl>
-                    </content>
-                `
-                await editAudioStreamConfig(sendXml)
-                closeLoading()
-                audioDeviceData[ipcAudioFormData.value.deviceChl].editFlag = false
+            const editRows = editDeviceRows.toArray()
+
+            for (let i = 0; i < editRows.length; i++) {
+                const item = editRows[i]
+                try {
+                    const sendXml = rawXml`
+                        <content>
+                            <chl id='${item.id}'>
+                                <param>
+                                    ${ternary(item.audioInSwitch, `<audioInSwitch>${item.audioInSwitch}</audioInSwitch>`)}
+                                    ${ternary(item.audioInput, `<audioInput>${item.audioInput}</audioInput>`)}
+                                    ${ternary(item.audioOutput, `<audioOutput>${item.audioOutput}</audioOutput>`)}
+                                    ${ternary(item.loudSpeaker, `<loudSpeaker>${item.loudSpeaker}</loudSpeaker>`)}
+                                    ${ternary(item.audioEncode, `<audioEncode>${item.audioEncode}</audioEncode>`)}
+                                    <volume>
+                                        ${ternary(item.micInVolume >= 0, `<micInVolume>${item.micInVolume}</micInVolume>`)}
+                                        ${ternary(item.linInVolume >= 0, `<linInVolume>${item.linInVolume}</linInVolume>`)}
+                                        ${ternary(item.audioOutVolume >= 0, `<audioOutVolume>${item.audioOutVolume}</audioOutVolume>`)}
+                                    </volume>
+                                </param>
+                            </chl>
+                        </content>
+                    `
+                    await editAudioStreamConfig(sendXml)
+                    editDeviceRows.remove(item)
+                } catch {}
             }
         }
 
+        /**
+         * @description 获取排程数据
+         */
         const getScheduleData = async () => {
             pageData.value.audioScheduleList = await buildScheduleList()
 
@@ -720,20 +434,24 @@ export default defineComponent({
                 // 判断返回的排程是否存在，若不存在设为空ID
                 if (scheduleId) {
                     pageData.value.audioSchedule = scheduleId
-                    pageData.value.originAudioSchedule = scheduleId
                 } else {
                     const scheduleName = $('content/triggerChannelAudioSchedule').text()
                     const find = pageData.value.audioScheduleList.find((item) => item.label === scheduleName)
                     if (find) {
                         pageData.value.audioSchedule = find.value
-                        pageData.value.originAudioSchedule = find.value
                     }
                 }
             })
         }
 
+        /**
+         * @description 保存排程设置
+         */
         const setScheduleData = async () => {
-            openLoading()
+            if (!pageData.value.isScheduleChanged) {
+                return
+            }
+
             // <triggerChannelAudioSchedule id='${pageData.value.audioSchedule}'>${audioName}</triggerChannelAudioSchedule>
             // 这里删掉了原代码中传的audioName，因为在audioName = <无>的情况下会导致解析错误
             const sendXml = rawXml`
@@ -742,9 +460,7 @@ export default defineComponent({
                 </content>
             `
             await editEventNotifyParam(sendXml)
-            // commSaveResponseHadler(result)
-            pageData.value.btnApplyDisabled = true
-            closeLoading()
+            pageData.value.isScheduleChanged = false
         }
 
         // 获取本地声音报警数据
@@ -752,7 +468,7 @@ export default defineComponent({
             const result = await queryAlarmAudioCfg()
 
             commLoadResponseHandler(result, ($) => {
-                pageData.value.localTableData = $('content/audioList/item').map((item) => {
+                localList.value = $('content/audioList/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         id: item.attr('id'),
@@ -765,16 +481,18 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description 选中改行
+         * @param {AlarmLocalAudioDto} rowData
+         */
         const handleRowClick = (rowData: AlarmLocalAudioDto) => {
             localTableRef.value!.clearSelection()
             localTableRef.value!.toggleRowSelection(rowData, true)
         }
 
-        const addLocalAudio = () => {
-            const canAdd = handleClickAddAudio()
-            if (canAdd) pageData.value.isImportAudioDialog = true
-        }
-
+        /**
+         * @description 删除本地音频
+         */
         const deleteLocalAudio = async () => {
             const selectedId = (localTableRef.value!.getSelectionRows() as AlarmLocalAudioDto[]).map((item) => item.id)
 
@@ -786,21 +504,24 @@ export default defineComponent({
                 `
 
                 const result = await deleteAlarmAudio(sendXml)
-                commSaveResponseHadler(result)
+                commSaveResponseHandler(result)
             }
         }
 
+        /**
+         * @description 保存数据
+         */
         const setData = async () => {
             openLoading()
             await setAudioAlarmData()
             await setAudiDeviceData()
-            if (pageData.value.audioSchedule !== pageData.value.originAudioSchedule) {
-                await setScheduleData()
-            }
-            pageData.value.btnApplyDisabled = true
+            await setScheduleData()
             closeLoading()
         }
 
+        /**
+         * @description 关闭排程弹窗 更新排程数据
+         */
         const handleSchedulePopClose = async () => {
             pageData.value.scheduleManagPopOpen = false
             await getScheduleData()
@@ -812,6 +533,7 @@ export default defineComponent({
             await getScheduleData()
             await getAudioAlarmData()
             await getAudioDeviceData()
+
             if (pageData.value.supportAlarmAudioConfig) {
                 await getLocalTableData()
             }
@@ -820,38 +542,23 @@ export default defineComponent({
         })
 
         return {
-            AudioUploadPop,
-            ScheduleManagPop,
             localTableRef,
             pageTabs,
-            ipcAudioFormData,
-            audioAlarmOutData,
-            audioAlarmPageData,
-            audioDevicePageData,
+            alarmOutList,
+            deviceList,
+            localList,
             pageData,
-            changeChl,
-            changeAudioCheck,
-            changeVioce,
-            blurNumber,
-            blurVolume,
-            changeLanguage,
             addAudio,
             deleteAudio,
             listenAudio,
-            handleAddVoiceList,
-            chagneDeviceChl,
-            changeDeviceEnable,
-            chagneAudioInput,
-            changeMicOrLinVolume,
-            changeLoudSpeaker,
-            chagneAudioOutput,
-            changeOutputVolume,
-            changeAudioEncode,
+            confirmAddAudio,
+            closeAddAudio,
             handleRowClick,
-            addLocalAudio,
             deleteLocalAudio,
             setData,
             handleSchedulePopClose,
+            changeAudioVolume,
+            btnDisabled,
         }
     },
 })

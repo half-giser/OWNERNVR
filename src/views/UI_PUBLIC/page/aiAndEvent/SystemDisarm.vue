@@ -9,25 +9,24 @@
         v-model="pageData.showAddDialog"
         :title="Translate('IDCS_ADD')"
         width="520"
-        @open="filterChlsSource()"
     >
         <el-table
+            ref="addTableRef"
             show-overflow-tooltip
             height="287"
-            :data="pageData.filterChlsSourceList"
-            @selection-change="handleSelectedAdd"
+            :data="filterChlsSourceList"
         >
             <el-table-column
                 type="selection"
                 width="55"
             />
-            <el-table-column :label="pageData.addDialogTitle">
+            <el-table-column :label="`${Translate('IDCS_CHANNEL')}/${Translate('IDCS_SENSOR')}`">
                 <template #default="scope">
                     {{ scope.row.value }}
                 </template>
             </el-table-column>
         </el-table>
-        <div class="base-btn-box collapse">
+        <div class="base-btn-box">
             <el-button @click="addItem">
                 {{ Translate('IDCS_OK') }}
             </el-button>
@@ -41,27 +40,18 @@
         v-model="pageData.showCfgDialog"
         :title="Translate('IDCS_RECOVER_LINK_ITEM')"
         width="520"
+        @open="openCfgDialog"
     >
         <el-table
+            ref="cfgTableRef"
             show-overflow-tooltip
             height="287"
             :data="cfgTableData"
-            @select-all="handleSelectCfgAll"
         >
-            <el-table-column width="55">
-                <template #header>
-                    <el-checkbox
-                        v-model="pageData.isSelectAll"
-                        @change="handleSelectCfgAll"
-                    />
-                </template>
-                <template #default="scope">
-                    <el-checkbox
-                        v-model="scope.row.selected"
-                        @change="handleSelectedCfg(scope.row)"
-                    />
-                </template>
-            </el-table-column>
+            <el-table-column
+                type="selection"
+                width="55"
+            />
             <el-table-column
                 :label="Translate('IDCS_RECOVER_LINK_ITEM')"
                 prop="value"
@@ -89,7 +79,6 @@
                 <el-checkbox
                     v-model="formData.sensorSwitch"
                     :label="Translate('IDCS_ALARM_SWITCH')"
-                    @change="pageData.applyDisable = false"
                 />
             </el-form-item>
             <el-form-item>
@@ -106,7 +95,6 @@
                         label: 'value',
                     }"
                     :options="pageData.sensorSourcelist"
-                    @change="pageData.applyDisable = false"
                 />
             </el-form-item>
         </el-form>
@@ -120,14 +108,9 @@
                 <el-button @click="setdisarmAll">{{ pageData.defenseSwitch ? Translate('IDCS_RECOVER_GUARD') : Translate('IDCS_CLOSE_GUARD') }}</el-button>
             </el-form-item>
             <el-form-item>
-                <div
-                    class="base-btn-box"
-                    span="2"
-                >
+                <div class="base-btn-box space-between">
                     <div>{{ Translate('IDCS_RECOVER_GUARD_CHANNEL') }}</div>
-                    <div>
-                        <el-button @click="pageData.showAddDialog = true">{{ Translate('IDCS_ADD') }}</el-button>
-                    </div>
+                    <el-button @click="pageData.showAddDialog = true">{{ Translate('IDCS_ADD') }}</el-button>
                 </div>
             </el-form-item>
         </el-form>
@@ -160,10 +143,10 @@
                             </template>
                             <div class="cfg_table">
                                 <el-table
+                                    ref="popTableRef"
                                     show-overflow-tooltip
                                     height="250"
                                     :data="pageData.totalDefenseParamList"
-                                    @selection-change="handleSelectedDropDown"
                                 >
                                     <el-table-column
                                         type="selection"
@@ -214,17 +197,11 @@
                 </el-table-column>
             </el-table>
         </div>
-        <div
-            class="base-btn-box"
-            span="start"
-        >
+        <div class="base-btn-box flex-start">
             <span class="tips_text">{{ Translate('IDCS_CLOSE_GUARD_TIP') }}</span>
         </div>
         <div class="base-btn-box collapse">
-            <el-button
-                :disabled="pageData.applyDisable"
-                @click="filterConfiguredDefParaList"
-            >
+            <el-button @click="filterConfiguredDefParaList">
                 {{ Translate('IDCS_APPLY') }}
             </el-button>
         </div>
@@ -253,5 +230,6 @@
     font-size: 14px;
     color: var(--main-text-light);
     margin-bottom: 5px;
+    margin-top: 5px;
 }
 </style>

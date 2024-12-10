@@ -38,10 +38,7 @@
                     :label="item.label"
                 />
             </el-checkbox-group>
-            <div
-                class="base-btn-box"
-                span="2"
-            >
+            <div class="base-btn-box space-between">
                 <span>{{ Translate('IDCS_KEEPVIDEO_HOLIDAY') }}</span>
                 <el-button @click="openAddDate">{{ Translate('IDCS_ADD') }}</el-button>
             </div>

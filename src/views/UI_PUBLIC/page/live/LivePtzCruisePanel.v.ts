@@ -208,7 +208,6 @@ export default defineComponent({
             addCruise,
             confirmAddCruise,
             playCurrentCruise,
-            ChannelCruiseAddPop,
         }
     },
 })

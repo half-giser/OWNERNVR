@@ -21,7 +21,7 @@ export default defineComponent({
 
         const pageData = ref({
             protocolOptions: [] as SelectOption<string, string>[],
-            scheduleManagePopOpen: false,
+            isSchedulePop: false,
             scheduleList: [] as SelectOption<string, string>[],
             showAlarmTypeCfg: true,
             showAlarmTransfer: false,
@@ -235,9 +235,6 @@ export default defineComponent({
         const checkAddress = (value: string) => {
             const reg1 = /([\u4e00-\u9fa5]|[^a-zA-Z\d\.\-:\\/])/g
             const address = checkRule(value, reg1)
-            // if(value.length == 60){
-
-            // }
             formData.value.address = address
         }
 
@@ -342,26 +339,26 @@ export default defineComponent({
             })
         }
 
-        const testAlarmServer = () => {
+        const testData = () => {
             setData('testAlarmServerParam')
         }
 
-        const applyAlarmSever = () => {
+        const applyData = () => {
             setData('editAlarmServerParam')
         }
 
-        const handleProtocolChange = () => {
+        const changeProtocol = () => {
             setFormByProtocol()
         }
 
-        const handleSchedulePopClose = async () => {
-            pageData.value.scheduleManagePopOpen = false
+        const closeSchedulePop = async () => {
+            pageData.value.isSchedulePop = false
             await getScheduleList()
         }
 
         onMounted(async () => {
             await getBasicCfg()
-            await getData()
+            getData()
         })
 
         watch(
@@ -381,11 +378,10 @@ export default defineComponent({
             rules,
             tableData,
             setAlarmTypes,
-            testAlarmServer,
-            applyAlarmSever,
-            handleProtocolChange,
-            ScheduleManagPop,
-            handleSchedulePopClose,
+            testData,
+            applyData,
+            changeProtocol,
+            closeSchedulePop,
             checkAddress,
             checkUrl,
         }

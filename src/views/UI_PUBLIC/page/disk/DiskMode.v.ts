@@ -114,7 +114,6 @@ export default defineComponent({
             setData,
             changeDiskMode,
             confirm,
-            BaseCheckAuthPop,
         }
     },
 })

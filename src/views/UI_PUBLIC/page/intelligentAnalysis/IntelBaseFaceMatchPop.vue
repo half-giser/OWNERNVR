@@ -73,10 +73,7 @@
                 :data="current"
             />
         </div>
-        <div
-            class="base-btn-box"
-            span="2"
-        >
+        <div class="base-btn-box space-between">
             <div>
                 <el-button @click="showSnapShot">{{ Translate('IDCS_VIEW_SNAPSHOT') }}</el-button>
                 <el-button @click="search">{{ Translate('IDCS_SEARCH') }}</el-button>

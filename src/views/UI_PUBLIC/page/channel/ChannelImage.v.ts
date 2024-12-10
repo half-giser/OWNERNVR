@@ -12,7 +12,6 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
         const { openMessageBox } = useMessageBox()
-        const osType = getSystemInfo().platform
 
         const playerRef = ref<PlayerInstance>()
         const formData = ref(new ChannelImageDto())
@@ -43,6 +42,21 @@ export default defineComponent({
         let tmpDayTime = ''
         let tmpNightTime = ''
         let curAzChlId = ''
+
+        const ready = computed(() => {
+            return playerRef.value?.ready || false
+        })
+
+        // 播放模式
+        const mode = computed(() => {
+            if (!ready.value) {
+                return ''
+            }
+            return playerRef.value!.mode
+        })
+
+        let player: PlayerInstance['player']
+        let plugin: PlayerInstance['plugin']
 
         const tabKeys = {
             imageAdjust: 'imageAdjust',
@@ -390,8 +404,8 @@ export default defineComponent({
                 .catch(() => {})
         }
 
-        const handleKeydownEnter = (event: any) => {
-            event.target.blur()
+        const handleKeydownEnter = (event: Event) => {
+            ;(event.target as HTMLElement).blur()
         }
 
         const handleExpandChange = (row: ChannelImageDto, expandedRows: ChannelImageDto[]) => {
@@ -1362,31 +1376,41 @@ export default defineComponent({
         }
 
         const onReady = () => {
-            if (playerRef.value?.mode === 'ocx') {
+            player = playerRef.value!.player
+            plugin = playerRef.value!.plugin
+
+            if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
-                playerRef.value?.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
-            play()
         }
+
+        const stopWatchFirstPlay = watchEffect(() => {
+            if (ready.value && tableData.value.length) {
+                nextTick(() => {
+                    play()
+                })
+                stopWatchFirstPlay()
+            }
+        })
 
         const play = () => {
             if (!selectedChlId.value) return
-            if (!playerRef.value || !playerRef.value.ready) return
             const rowData = getRowById(selectedChlId.value)
-            if (playerRef.value.mode === 'h5') {
-                playerRef.value.player.play({
+
+            if (mode.value === 'h5') {
+                player.play({
                     chlID: rowData.id,
                     streamType: 2,
                 })
-            } else {
-                if (osType === 'mac') {
-                } else {
-                    playerRef.value.plugin.RetryStartChlView(rowData.id, rowData.name)
-                }
+            }
+
+            if (mode.value === 'ocx') {
+                plugin.RetryStartChlView(rowData.id, rowData.name)
             }
         }
 
-        watch(selectedChlId, play)
+        watch(selectedChlId, () => play())
 
         watch(
             expandedRowKeys,
@@ -1416,9 +1440,9 @@ export default defineComponent({
         })
 
         onBeforeUnmount(() => {
-            if (playerRef.value?.mode === 'ocx' && playerRef.value?.ready) {
+            if (plugin?.IsPluginAvailable() && mode.value === 'ocx') {
                 const sendXML = OCX_XML_StopPreview('ALL')
-                playerRef.value?.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         })
 

@@ -88,6 +88,7 @@
         height: 100%;
         padding: 10px;
         background-color: var(--qrcode-bg);
+        box-sizing: border-box;
 
         img {
             width: 100%;
@@ -119,7 +120,6 @@
 
     &-text {
         margin-top: 10px;
-        text-align: center;
         font-family: Consolas, Menlo, monospace;
     }
 }

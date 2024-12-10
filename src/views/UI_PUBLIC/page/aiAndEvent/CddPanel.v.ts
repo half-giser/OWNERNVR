@@ -4,7 +4,6 @@
  * @Description: 人群密度检测
  */
 import { type AlarmChlDto, AlarmCddDto } from '@/types/apiType/aiAndEvent'
-import { type TabsPaneContext } from 'element-plus'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { type XMLQuery } from '@/utils/xmlParse'
 import CanvasVfd from '@/utils/canvas/canvasVfd'
@@ -46,11 +45,8 @@ export default defineComponent({
     },
     setup(props) {
         const { openLoading, closeLoading } = useLoading()
-        const { openNotify } = useNotification()
-        const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
         const playerRef = ref<PlayerInstance>()
-        const osType = getSystemInfo().platform
 
         let cddDrawer: CanvasVfd
 
@@ -61,9 +57,7 @@ export default defineComponent({
             // notSupportTipShow: false,
             // 请求数据失败显示提示
             requireDataFail: false,
-            // apply按钮是否可用
-            applyDisable: true,
-            scheduleManagePopOpen: false,
+            isSchedulePop: false,
             scheduleList: [] as SelectOption<string, string>[],
             // 选择的功能:param、trigger
             fuction: 'param',
@@ -71,52 +65,55 @@ export default defineComponent({
             // showDrawAvailable: false,
             // 是否允许绘制 老代码写死允许画图
             // isDrawAvailable: true,
-            initComplete: false,
             drawInitCount: 0,
         })
 
         const formData = ref(new AlarmCddDto())
+        const watchEdit = useWatchEditData(formData)
 
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
-
-        // 播放模式
-        const mode = computed(() => {
-            if (!playerRef.value) {
-                return ''
-            }
-            return playerRef.value.mode
-        })
 
         const ready = computed(() => {
             return playerRef.value?.ready || false
         })
 
+        // 播放模式
+        const mode = computed(() => {
+            if (!ready.value) {
+                return ''
+            }
+            return playerRef.value!.mode
+        })
+
+        /**
+         * @description 播放器就绪时回调
+         */
         const handlePlayerReady = () => {
             player = playerRef.value!.player
             plugin = playerRef.value!.plugin
 
             if (mode.value === 'h5') {
                 if (playerRef.value) {
-                    const canvas = playerRef.value.player.getDrawbordCanvas(0)
+                    const canvas = player.getDrawbordCanvas(0)
                     cddDrawer = new CanvasVfd({
                         el: canvas,
-                        onchange: cddAreaChange,
+                        onchange: (data) => {
+                            formData.value.regionInfo = [data]
+                        },
                     })
-                }
-
-                if (isHttpsLogin()) {
-                    openNotify(formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`))
                 }
             }
 
             if (mode.value === 'ocx') {
-                const sendXML = OCX_XML_SetPluginModel(osType === 'mac' ? 'FireConfig' : 'ReadOnly', 'Live')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
-        //播放视频
+        /**
+         * @description 播放视频
+         */
         const play = () => {
             const { id, name } = props.chlData
             if (mode.value === 'h5') {
@@ -124,54 +121,54 @@ export default defineComponent({
                     chlID: id,
                     streamType: 2,
                 })
-            } else if (mode.value === 'ocx') {
-                if (osType === 'mac') {
-                    // const sendXML = OCX_XML_Preview({
-                    //     winIndexList: [0],
-                    //     chlIdList: [props.chlData.id],
-                    //     chlNameList: [props.chlData.name],
-                    //     streamType: 'sub',
-                    //     chlIndexList: [props.chlData.id],
-                    //     chlTypeList: [props.chlData.chlType],
-                    // })
-                    // plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                } else {
-                    plugin.RetryStartChlView(id, name)
-                }
+            }
+
+            if (mode.value === 'ocx') {
+                plugin.RetryStartChlView(id, name)
             }
         }
 
         // 首次加载成功 播放视频
         const stopWatchFirstPlay = watchEffect(() => {
-            if (ready.value && pageData.value.initComplete) {
+            if (ready.value && watchEdit.ready.value) {
                 nextTick(() => {
                     play()
-                    setOcxData()
+
+                    if (mode.value === 'h5') {
+                        cddDrawer.setEnable(true)
+                    }
+
+                    if (mode.value === 'ocx') {
+                        const sendXML = OCX_XML_SetCddAreaAction('EDIT_ON')
+                        plugin.ExecuteCmd(sendXML)
+                    }
+
+                    setArea()
                 })
                 stopWatchFirstPlay()
             }
         })
 
-        // 关闭排程管理后刷新排程列表
-        const handleSchedulePopClose = async () => {
-            pageData.value.scheduleManagePopOpen = false
+        /**
+         * @description 关闭排程管理后刷新排程列表
+         */
+        const closeSchedulePop = async () => {
+            pageData.value.isSchedulePop = false
             await getScheduleList()
         }
 
-        // 对sheduleList进行处理
+        /**
+         * @description 获取排程列表
+         */
         const getScheduleList = async () => {
             pageData.value.scheduleList = await buildScheduleList()
         }
 
-        // tab点击事件
-        const handleFunctionTabClick = async (pane: TabsPaneContext) => {
-            pageData.value.fuction = pane.props.name?.toString() ? pane.props.name?.toString() : ''
-            if (pageData.value.fuction === 'param') {
-                setOcxData()
-            }
-        }
-
-        // 格式化持续时间
+        /**
+         * @description 格式化持续时间
+         * @param {string[]} holdTimeList
+         * @returns {SelectOption<string, string>[]}
+         */
         const formatHoldTime = (holdTimeList: string[]) => {
             const timeList = holdTimeList.map((ele) => {
                 const value = Number(ele)
@@ -185,7 +182,12 @@ export default defineComponent({
             return timeList
         }
 
+        /**
+         * @description 获取人群密度检测表单数据
+         */
         const getData = async () => {
+            openLoading()
+
             const sendXml = rawXml`
                 <condition>
                     <chlId>${props.currChlId}</chlId>
@@ -194,9 +196,10 @@ export default defineComponent({
                     <param/>
                     <trigger/>
                 </requireField>`
-            openLoading()
             const res = await queryCdd(sendXml)
+
             closeLoading()
+
             const $ = queryXml(res)
             if ($('status').text() === 'success') {
                 const $param = queryXml($('content/chl/param')[0].element)
@@ -270,11 +273,16 @@ export default defineComponent({
                     }),
                     sysAudio: $trigger('sysAudio').attr('id') === '' ? $trigger('sysAudio').attr('id') : '',
                 }
+
+                watchEdit.listen()
             } else {
                 pageData.value.requireDataFail = true
             }
         }
 
+        /**
+         * @description 保存数据
+         */
         const saveData = async () => {
             const sendXml = rawXml`
                 <content>
@@ -333,20 +341,24 @@ export default defineComponent({
                     </chl>
                 </content>
             `
+
             openLoading()
-            const res = await editCdd(sendXml)
+
+            const result = await editCdd(sendXml)
+            const $ = queryXml(result)
+
             closeLoading()
-            const $ = queryXml(res)
+
             if ($('status').text() === 'success') {
                 // NT-9292 开关为开把originalSwitch置为true避免多次弹出互斥提示
                 if (formData.value.detectionEnable) {
                     formData.value.originalEnable = true
                 }
-                pageData.value.applyDisable = true
+                watchEdit.update()
             }
         }
 
-        const handleApply = async () => {
+        const applyData = async () => {
             checkMutexChl({
                 isChange: formData.value.detectionEnable && formData.value.detectionEnable !== formData.value.originalEnable,
                 tips: 'IDCS_SIMPLE_CROWD_DETECT_TIPS',
@@ -357,32 +369,15 @@ export default defineComponent({
             })
         }
 
-        // 初始化页面数据
-        const initPageData = async () => {
-            await getScheduleList()
-            await getData()
-            nextTick(() => {
-                pageData.value.initComplete = true
-                if (mode.value === 'h5') {
-                    cddDrawer.setEnable(true)
-                } else {
-                    const sendXML = OCX_XML_SetCddAreaAction('EDIT_ON')
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                }
-            })
-        }
-
-        const cddAreaChange = (data: { X1: number; X2: number; Y1: number; Y2: number }) => {
-            formData.value.regionInfo = [data]
-        }
-
-        const setOcxData = () => {
+        const setArea = () => {
             if (formData.value.regionInfo.length) {
                 if (mode.value === 'h5') {
                     cddDrawer.setArea(formData.value.regionInfo[0])
-                } else {
+                }
+
+                if (mode.value === 'ocx') {
                     const sendXML = OCX_XML_SetCddArea(formData.value.regionInfo[0])
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.ExecuteCmd(sendXML)
                 }
             }
         }
@@ -390,10 +385,13 @@ export default defineComponent({
         const clearArea = () => {
             if (mode.value === 'h5') {
                 cddDrawer.clear()
-            } else {
-                const sendXML = OCX_XML_SetCddAreaAction('NONE')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
+
+            if (mode.value === 'ocx') {
+                const sendXML = OCX_XML_SetCddAreaAction('NONE')
+                plugin.ExecuteCmd(sendXML)
+            }
+
             formData.value.regionInfo[0] = { X1: 0, X2: 0, Y1: 0, Y2: 0 }
         }
 
@@ -411,51 +409,31 @@ export default defineComponent({
             }
         }
 
-        watch(
-            formData,
-            () => {
-                if (pageData.value.initComplete) {
-                    pageData.value.applyDisable = false
-                }
-            },
-            {
-                deep: true,
-            },
-        )
-
-        onMounted(() => {
-            initPageData()
+        onMounted(async () => {
+            await getScheduleList()
+            getData()
         })
 
         onBeforeUnmount(() => {
-            if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
+            if (plugin?.IsPluginAvailable() && mode.value === 'ocx') {
                 const sendAreaXML = OCX_XML_SetCddAreaAction('NONE')
-                plugin.GetVideoPlugin().ExecuteCmd(sendAreaXML)
+                plugin.ExecuteCmd(sendAreaXML)
 
                 const sendXML = OCX_XML_StopPreview('ALL')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-            }
-
-            if (mode.value === 'h5') {
-                player.destroy()
+                plugin.ExecuteCmd(sendXML)
             }
         })
 
         return {
             pageData,
             formData,
+            watchEdit,
             playerRef,
             handlePlayerReady,
-            handleSchedulePopClose,
-            handleFunctionTabClick,
-            handleApply,
+            closeSchedulePop,
+            applyData,
             clearArea,
             notify,
-            ScheduleManagPop,
-            AlarmBaseRecordSelector,
-            AlarmBaseAlarmOutSelector,
-            AlarmBaseTriggerSelector,
-            AlarmBasePresetSelector,
         }
     },
 })

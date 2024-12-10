@@ -306,7 +306,6 @@ export default defineComponent({
             handleDeleteAuthGroup,
             handleConfirmEditAuthGroup,
             handleSaveAsAuthGroup,
-            PermissionGroupEditPop,
         }
     },
 })

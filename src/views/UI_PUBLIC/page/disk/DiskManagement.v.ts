@@ -323,8 +323,6 @@ export default defineComponent({
             confirmFormatDisk,
             handleUnlockDisk,
             confirmUnlockDisk,
-            BaseCheckAuthPop,
-            BaseInputEncryptPwdPop,
         }
     },
 })

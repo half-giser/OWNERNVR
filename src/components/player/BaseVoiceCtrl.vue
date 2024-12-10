@@ -23,7 +23,7 @@
                 :min="0"
                 :max="100"
                 :disabled="prop.mute || disabled"
-                @change="handleChangevolume($event as number)"
+                @change="handleChangevolume"
             />
         </div>
     </div>
@@ -73,8 +73,8 @@ const iconFile = computed(() => {
 /**
  * @description 更改音量回调
  */
-const handleChangevolume = (event: number) => {
-    emits('update:volume', event)
+const handleChangevolume = () => {
+    emits('update:volume', sliderValue.value)
 }
 
 /**

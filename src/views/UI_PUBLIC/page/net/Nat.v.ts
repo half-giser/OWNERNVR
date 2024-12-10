@@ -125,7 +125,7 @@ export default defineComponent({
                 </content>
             `
             const result = await editP2PCfg(sendXml)
-            commSaveResponseHadler(result)
+            commSaveResponseHandler(result)
 
             closeLoading()
             getData()

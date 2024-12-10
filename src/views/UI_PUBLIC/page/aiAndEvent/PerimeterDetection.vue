@@ -8,13 +8,12 @@
         <AlarmBaseChannelSelector
             v-model="pageData.currChlId"
             :list="pageData.onlineChannelList"
-            @change="handleChangeChannel"
+            @change="changeChannel"
         />
         <el-tabs
-            :key="pageData.tabKey"
+            :key="pageData.currChlId"
             v-model="pageData.chosenFunction"
             class="base-ai-menu-tabs"
-            @tab-click="handleTabClick"
         >
             <!-- tripwire -->
             <el-tab-pane

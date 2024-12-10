@@ -15,13 +15,13 @@
             v-if="taskData.ruleType === 'hit'"
             :label="Translate('IDCS_FACE_LIBRARY_GROUP')"
         >
-            <el-button @click="pageData.groupPopOpen = true">{{ Translate('IDCS_MORE') }}</el-button>
+            <el-button @click="pageData.isGroupPop = true">{{ Translate('IDCS_MORE') }}</el-button>
             <el-checkbox
                 v-model="pageData.selectAll"
                 :label="Translate('IDCS_ALL')"
-                @change="selectAllCheckChange"
+                @change="toggleSelectAll"
             />
-            <span>{{ pageData.groupName }}</span>
+            <span>{{ groupName }}</span>
         </el-form-item>
         <!-- 排程配置 -->
         <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
@@ -29,7 +29,7 @@
                 v-model="taskData.schedule"
                 :options="scheduleList"
             />
-            <el-button @click="pageData.scheduleManagPopOpen = true">{{ Translate('IDCS_MANAGE') }}</el-button>
+            <el-button @click="pageData.isSchedulePop = true">{{ Translate('IDCS_MANAGE') }}</el-button>
         </el-form-item>
         <!-- 文字提示 -->
         <el-form-item :label="Translate('IDCS_TEXT_PROMPT')">
@@ -69,41 +69,20 @@
         <AlarmBasePresetSelector v-model="taskData.preset" />
     </div>
     <!-- 人脸分组 -->
-    <el-dialog
-        v-model="pageData.groupPopOpen"
+    <BaseTableSelectPop
+        v-model="pageData.isGroupPop"
         :title="Translate('IDCS_SELECT_GROUP')"
-        width="320"
-        @open="openGroupPop"
-        @close="closeGroupPop"
-    >
-        <el-table
-            ref="groupTableRef"
-            :data="groupData"
-            highlight-current-row
-            height="300"
-            @row-click="handleRowClick"
-            @selection-change="groupSelect"
-        >
-            <el-table-column
-                type="selection"
-                prop="guid"
-                width="50"
-            />
-            <el-table-column
-                :label="Translate('IDCS_GROUP_NAME')"
-                prop="name"
-                width="228"
-            />
-        </el-table>
-        <div class="base-btn-box">
-            <el-button @click="saveGroup">{{ Translate('IDCS_OK') }}</el-button>
-            <el-button @click="closeGroupPop">{{ Translate('IDCS_CANCEL') }}</el-button>
-        </div>
-    </el-dialog>
+        :data="groupData"
+        :current="pageData.groupSelection"
+        :label-title="Translate('IDCS_GROUP_NAME')"
+        value="guid"
+        label="name"
+        @confirm="saveGroup"
+    />
     <!-- 排程管理 -->
     <ScheduleManagPop
-        v-model="pageData.scheduleManagPopOpen"
-        @close="pageData.scheduleManagPopOpen = false"
+        v-model="pageData.isSchedulePop"
+        @close="pageData.isSchedulePop = false"
     />
 </template>
 

@@ -51,10 +51,10 @@ export default defineComponent({
             ],
         })
 
-        const plugin = usePluginHook({
+        const plugin = setupPlugin({
             onReady: (mode, plugin) => {
                 if (mode.value === 'h5' && isHttpsLogin()) {
-                    openNotify(formatHttpsTips(Translate('IDCS_BACKUP_AND_RESTORE_SET')))
+                    openNotify(formatHttpsTips(Translate('IDCS_BACKUP_AND_RESTORE_SET')), true)
                     pageData.value.isUploadDisabled = true
                 } else {
                     pageData.value.isUploadDisabled = false
@@ -62,7 +62,7 @@ export default defineComponent({
 
                 if (mode.value === 'ocx') {
                     const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.ExecuteCmd(sendXML)
                     if (!exportFormData.value.filePath) {
                         pageData.value.isExportDisabled = true
                     }
@@ -158,7 +158,7 @@ export default defineComponent({
          */
         const handleOCXUpload = () => {
             const sendXML = OCX_XML_OpenFileBrowser('OPEN_FILE')
-            plugin.AsynQueryInfo(plugin.GetVideoPlugin(), sendXML, (result) => {
+            plugin.AsynQueryInfo(sendXML, (result) => {
                 const path = OCX_XML_OpenFileBrowser_getpath(result).trim()
                 if (path) {
                     importFormData.value.filePath = path
@@ -185,7 +185,7 @@ export default defineComponent({
         const handleBrowse = () => {
             pageData.value.exportNote = ''
             const sendXML = OCX_XML_OpenFileBrowser('SAVE_FILE', '', 'ConfigurationBackupFile')
-            plugin.AsynQueryInfo(plugin.GetVideoPlugin(), sendXML, (result) => {
+            plugin.AsynQueryInfo(sendXML, (result) => {
                 const path = OCX_XML_OpenFileBrowser_getpath(result).trim()
                 if (path) {
                     exportFormData.value.filePath = path
@@ -289,7 +289,7 @@ export default defineComponent({
                 }
                 const sendXML = OCX_XML_FileNetTransport('Import', param)
                 openLoading()
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -351,7 +351,7 @@ export default defineComponent({
                         secPassword: userInputEncryptPwdForm.password,
                     }
                     const sendXML = OCX_XML_FileNetTransport('Export', param)
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.ExecuteCmd(sendXML)
                 }
             } else {
                 closeLoading()
@@ -431,8 +431,6 @@ export default defineComponent({
             confirmInputEncryptPwd,
             handleBrowse,
             handleExport,
-            BaseCheckAuthPop,
-            BaseInputEncryptPwdPop,
         }
     },
 })

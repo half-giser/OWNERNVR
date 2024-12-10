@@ -4,7 +4,6 @@
  * @Description: AI 事件——更多——异常侦测
  */
 import { AlarmAbnormalDisposeDto, type AlarmChlDto } from '@/types/apiType/aiAndEvent'
-import { type TabPaneName } from 'element-plus'
 import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
 import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
 import AlarmBaseTriggerSelector from './AlarmBaseTriggerSelector.vue'
@@ -41,16 +40,15 @@ export default defineComponent({
         },
     },
     setup(prop) {
-        const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
-        const { openNotify } = useNotification()
         const systemCaps = useCababilityStore()
-        const osType = getSystemInfo().platform
 
         // 系统配置
         const supportAlarmAudioConfig = systemCaps.supportAlarmAudioConfig
+
         // 异常侦测表单数据
-        const abnormalDisposeData = ref(new AlarmAbnormalDisposeDto())
+        const formData = ref(new AlarmAbnormalDisposeDto())
+        const watchEdit = useWatchEditData(formData)
 
         // 播放器
         const playerRef = ref<PlayerInstance>()
@@ -59,21 +57,18 @@ export default defineComponent({
         const pageData = ref({
             tab: 'param',
             enableList: getSwitchOptions(),
-            // 初始化，后判断应用是否可用
-            initComplated: false,
-            applyDisabled: true,
-        })
-
-        // 播放模式
-        const mode = computed(() => {
-            if (!playerRef.value) {
-                return ''
-            }
-            return playerRef.value.mode
         })
 
         const ready = computed(() => {
             return playerRef.value?.ready || false
+        })
+
+        // 播放模式
+        const mode = computed(() => {
+            if (!ready.value) {
+                return ''
+            }
+            return playerRef.value!.mode
         })
 
         let player: PlayerInstance['player']
@@ -86,15 +81,9 @@ export default defineComponent({
             player = playerRef.value!.player
             plugin = playerRef.value!.plugin
 
-            if (mode.value === 'h5') {
-                if (isHttpsLogin()) {
-                    openNotify(formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`))
-                }
-            }
-
             if (mode.value === 'ocx') {
-                const sendXML = OCX_XML_SetPluginModel(osType === 'mac' ? 'AvdConfig' : 'ReadOnly', 'Live')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -103,30 +92,25 @@ export default defineComponent({
          */
         const play = () => {
             const chlData = prop.chlData
+
             if (mode.value === 'h5') {
                 player.play({
                     chlID: prop.currChlId,
                     streamType: 2,
                 })
-            } else if (mode.value === 'ocx') {
-                if (osType === 'mac') {
-                    // const sendXML = OCX_XML_Preview({
-                    //     winIndexList: [0],
-                    //     chlIdList: [chlData.id],
-                    //     chlNameList: [chlData.name],
-                    //     streamType: 'sub',
-                    //     // chl没有index属性
-                    //     chlIndexList: ['0'],
-                    //     chlTypeList: [chlData.chlType],
-                    // })
-                    // plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                } else {
-                    plugin.RetryStartChlView(prop.currChlId, chlData.name)
-                }
+            }
+
+            if (mode.value === 'ocx') {
+                plugin.RetryStartChlView(prop.currChlId, chlData.name)
             }
         }
 
-        const getAbnormalDisposeData = async () => {
+        /**
+         * @description 获取异常侦测表单数据
+         */
+        const getData = async () => {
+            openLoading()
+
             const sendXml = rawXml`
                 <condition>
                     <chlId>${prop.currChlId}</chlId>
@@ -136,9 +120,10 @@ export default defineComponent({
                     <trigger/>
                 </requireField>
             `
-            openLoading()
             const result = await queryAvd(sendXml)
+
             closeLoading()
+
             commLoadResponseHandler(result, ($) => {
                 const $trigger = queryXml($('content/chl/trigger')[0].element)
                 const $param = queryXml($('content/chl/param')[0].element)
@@ -150,7 +135,7 @@ export default defineComponent({
                     holdTimeArr = holdTimeArr.sort((a, b) => Number(a) - Number(b))
                 }
 
-                abnormalDisposeData.value = {
+                formData.value = {
                     holdTime,
                     holdTimeList: holdTimeArr.map((item) => {
                         const label = getTranslateForSecond(Number(item))
@@ -191,16 +176,9 @@ export default defineComponent({
                     }),
                     sysAudio: $('sysAudio').attr('id'),
                 }
-            }).then(() => {
-                pageData.value.initComplated = true
-            })
-        }
 
-        // tab切换
-        const tabChange = (name: TabPaneName) => {
-            if (name === 'param') {
-                play()
-            }
+                watchEdit.listen()
+            })
         }
 
         // 首次加载成功 播放视频
@@ -211,21 +189,25 @@ export default defineComponent({
             }
         })
 
-        const getAbnormalDisposeSaveData = () => {
+        /**
+         * @description 生成提交XML
+         * @returns {string}
+         */
+        const getSaveData = () => {
             const sendXml = rawXml`
                 <content>
                     <chl id='${prop.currChlId}'>
                         <param>
-                            <holdTime unit='s'>${abnormalDisposeData.value.holdTime}</holdTime>
-                            <sensitivity>${abnormalDisposeData.value.sensitivity}</sensitivity>
-                            ${abnormalDisposeData.value.sceneChangeSwitch ? `<sceneChangeSwitch >${abnormalDisposeData.value.sceneChangeSwitch}</sceneChangeSwitch>` : ''}
-                            ${abnormalDisposeData.value.clarityAbnormalSwitch ? `<clarityAbnormalSwitch >${abnormalDisposeData.value.clarityAbnormalSwitch}</clarityAbnormalSwitch>` : ''}
-                            ${abnormalDisposeData.value.colorAbnormalSwitch ? `<colorAbnormalSwitch >${abnormalDisposeData.value.colorAbnormalSwitch}</colorAbnormalSwitch>` : ''}
+                            <holdTime unit='s'>${formData.value.holdTime}</holdTime>
+                            <sensitivity>${formData.value.sensitivity}</sensitivity>
+                            ${formData.value.sceneChangeSwitch ? `<sceneChangeSwitch >${formData.value.sceneChangeSwitch}</sceneChangeSwitch>` : ''}
+                            ${formData.value.clarityAbnormalSwitch ? `<clarityAbnormalSwitch >${formData.value.clarityAbnormalSwitch}</clarityAbnormalSwitch>` : ''}
+                            ${formData.value.colorAbnormalSwitch ? `<colorAbnormalSwitch >${formData.value.colorAbnormalSwitch}</colorAbnormalSwitch>` : ''}
                         </param>
                         <trigger>
                             <sysRec>
                                 <chls type='list'>
-                                    ${abnormalDisposeData.value.record
+                                    ${formData.value.record
                                         .map((item) => {
                                             return `<item id='${item.value}'><![CDATA[${item.label}]]></item>`
                                         })
@@ -234,7 +216,7 @@ export default defineComponent({
                             </sysRec>
                             <alarmOut>
                                 <alarmOuts type='list'>
-                                    ${abnormalDisposeData.value.alarmOut
+                                    ${formData.value.alarmOut
                                         .map((item) => {
                                             return `<item id='${item.value}'><![CDATA[${item.label}]]></item>`
                                         })
@@ -243,7 +225,7 @@ export default defineComponent({
                             </alarmOut>
                             <preset>
                                 <presets type='list'>
-                                    ${abnormalDisposeData.value.preset
+                                    ${formData.value.preset
                                         .map((item) => {
                                             return rawXml`
                                                 <item>
@@ -255,12 +237,12 @@ export default defineComponent({
                                         .join('')}
                                 </presets>
                             </preset>
-                            <snapSwitch>${abnormalDisposeData.value.trigger.includes('snapSwitch')}</snapSwitch>
-                            <msgPushSwitch>${abnormalDisposeData.value.trigger.includes('msgPushSwitch')}</msgPushSwitch>
-                            <buzzerSwitch>${abnormalDisposeData.value.trigger.includes('buzzerSwitch')}</buzzerSwitch>
-                            <popVideoSwitch>${abnormalDisposeData.value.trigger.includes('popVideoSwitch')}</popVideoSwitch>
-                            <emailSwitch>${abnormalDisposeData.value.trigger.includes('emailSwitch')}</emailSwitch>
-                            <sysAudio id='${abnormalDisposeData.value.sysAudio}'></sysAudio>
+                            <snapSwitch>${formData.value.trigger.includes('snapSwitch')}</snapSwitch>
+                            <msgPushSwitch>${formData.value.trigger.includes('msgPushSwitch')}</msgPushSwitch>
+                            <buzzerSwitch>${formData.value.trigger.includes('buzzerSwitch')}</buzzerSwitch>
+                            <popVideoSwitch>${formData.value.trigger.includes('popVideoSwitch')}</popVideoSwitch>
+                            <emailSwitch>${formData.value.trigger.includes('emailSwitch')}</emailSwitch>
+                            <sysAudio id='${formData.value.sysAudio}'></sysAudio>
                         </trigger>
                     </chl>
                 </content>
@@ -269,55 +251,39 @@ export default defineComponent({
             return sendXml
         }
 
-        const applyAbnormalDisposeData = async () => {
-            const sendXml = getAbnormalDisposeSaveData()
+        /**
+         * @description 保存数据
+         */
+        const setData = async () => {
             openLoading()
+            const sendXml = getSaveData()
             const result = await editAvd(sendXml)
             closeLoading()
             const $ = queryXml(result)
             if ($('status').text() === 'success') {
-                pageData.value.applyDisabled = true
+                watchEdit.update()
             }
         }
 
         onMounted(() => {
-            getAbnormalDisposeData()
+            getData()
         })
 
         onBeforeUnmount(() => {
-            if (plugin?.IsPluginAvailable()) {
+            if (plugin?.IsPluginAvailable() && mode.value === 'ocx') {
                 const sendXML = OCX_XML_StopPreview('ALL')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         })
-
-        watch(
-            abnormalDisposeData,
-            () => {
-                if (pageData.value.initComplated) {
-                    pageData.value.applyDisabled = false
-                }
-            },
-            {
-                deep: true,
-            },
-        )
 
         return {
             supportAlarmAudioConfig,
             playerRef,
-            abnormalDisposeData,
+            formData,
             pageData,
-            // 播放器就绪
             handlePlayerReady,
-            // tab项切换（参数设置，联动方式）
-            tabChange,
-            // 提交异常侦测数据
-            applyAbnormalDisposeData,
-            AlarmBaseRecordSelector,
-            AlarmBaseAlarmOutSelector,
-            AlarmBaseTriggerSelector,
-            AlarmBasePresetSelector,
+            setData,
+            watchEdit,
         }
     },
 })

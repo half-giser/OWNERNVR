@@ -3,11 +3,11 @@
  * @Date: 2024-09-11 15:00:19
  * @Description: 过线检测
  */
-import { type AlarmChlDto, type AlarmPassLinesRegion, AlarmPassLinesEmailDto, AlarmPassLinesDto } from '@/types/apiType/aiAndEvent'
-import { type TabsPaneContext } from 'element-plus'
+import { type AlarmChlDto, AlarmPassLinesEmailDto, AlarmPassLinesDto } from '@/types/apiType/aiAndEvent'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import CanvasPassline from '@/utils/canvas/canvasPassline'
 import CanvasCpc from '@/utils/canvas/canvasCpc'
+import { type CanvasBaseArea } from '@/utils/canvas/canvasBase'
 import PassLineEmailPop from './PassLineEmailPop.vue'
 import { cloneDeep } from 'lodash-es'
 import { type XMLQuery } from '@/utils/xmlParse'
@@ -50,11 +50,9 @@ export default defineComponent({
         type CanvasPasslineDirection = 'none' | 'rightortop' | 'leftorbotton'
         const { openLoading, closeLoading } = useLoading()
         const openMessageBox = useMessageBox().openMessageBox
-        const { openNotify } = useNotification()
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
         const playerRef = ref<PlayerInstance>()
-        const osType = getSystemInfo().platform
         let passLineDrawer: CanvasPassline
         let cpcDrawer: CanvasCpc
 
@@ -86,7 +84,7 @@ export default defineComponent({
             // 请求数据失败显示提示
             requireDataFail: false,
             // 排程管理
-            scheduleManagePopOpen: false,
+            isSchedulePop: false,
             scheduleList: [] as SelectOption<string, string>[],
             // 选择的功能:param、target
             fuction: 'param',
@@ -119,9 +117,6 @@ export default defineComponent({
                 reportMin: 0,
             },
             receiverData: [] as AlarmPassLinesEmailDto['receiverData'],
-            // passLine
-            // apply按钮是否可用
-            applyDisable: true,
             weekOption: [
                 {
                     value: '0',
@@ -153,7 +148,7 @@ export default defineComponent({
                 },
             ] as SelectOption<string, string>[],
             monthOption: [] as SelectOption<string, string>[],
-            initComplete: false,
+            // initComplete: false,
             drawInitCount: 0,
             openCount: 0,
             // 更多弹窗数据
@@ -163,20 +158,21 @@ export default defineComponent({
         })
 
         const formData = ref(new AlarmPassLinesDto())
+        const watchEdit = useWatchEditData(formData)
 
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
 
-        // 播放模式
-        const mode = computed(() => {
-            if (!playerRef.value) {
-                return ''
-            }
-            return playerRef.value.mode
-        })
-
         const ready = computed(() => {
             return playerRef.value?.ready || false
+        })
+
+        // 播放模式
+        const mode = computed(() => {
+            if (!ready.value) {
+                return ''
+            }
+            return playerRef.value!.mode
         })
 
         const handlePlayerReady = () => {
@@ -185,90 +181,60 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 if (playerRef.value) {
-                    const canvas = playerRef.value.player.getDrawbordCanvas(0)
+                    const canvas = player.getDrawbordCanvas(0)
                     if (props.chlData.supportPassLine) {
                         passLineDrawer = new CanvasPassline({
                             el: canvas,
                             enableOSD: true,
                             enableShowAll: false,
-                            onchange: passlineDrawChange,
+                            onchange: changePassLine,
                         })
                     } else if (props.chlData.supportCpc) {
                         cpcDrawer = new CanvasCpc({
                             el: canvas,
                             enable: false,
-                            onchange: cpcDrawChange,
+                            onchange: changeCpc,
                         })
                     }
-                }
-
-                if (isHttpsLogin()) {
-                    openNotify(formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`))
                 }
             }
 
             if (mode.value === 'ocx') {
-                const sendXML = OCX_XML_SetPluginModel(osType === 'mac' ? 'TripwireConfig' : 'ReadOnly', 'Live')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
         //播放视频
         const play = () => {
             const { id, name } = props.chlData
+
             if (mode.value === 'h5') {
                 player.play({
                     chlID: id,
                     streamType: 2,
                 })
-            } else if (mode.value === 'ocx') {
-                if (osType === 'mac') {
-                    // const sendXML = OCX_XML_Preview({
-                    //     winIndexList: [0],
-                    //     chlIdList: [props.chlData['id']],
-                    //     chlNameList: [props.chlData['name']],
-                    //     streamType: 'sub',
-                    //     chlIndexList: [props.chlData['id']],
-                    //     chlTypeList: [props.chlData['chlType']],
-                    // })
-                    // plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                } else {
-                    plugin.RetryStartChlView(id, name)
-                }
+            }
+
+            if (mode.value === 'ocx') {
+                plugin.RetryStartChlView(id, name)
             }
         }
 
         // 首次加载成功 播放视频
         const stopWatchFirstPlay = watchEffect(() => {
-            if (ready.value && props.chlData && pageData.value.initComplete) {
+            if (ready.value && props.chlData && watchEdit.ready.value) {
                 nextTick(() => {
                     play()
-                    if (props.chlData.supportPassLine) {
-                        if (mode.value === 'h5') {
-                            passLineDrawer.setEnable('line', true)
-                            passLineDrawer.setEnable('osd', formData.value.countOSD.switch)
-                            passLineDrawer.setOSD(formData.value.countOSD)
-                            passLineSetOcxData()
-                        } else if (mode.value === 'ocx') {
-                            const sendXML1 = OCX_XML_SetTripwireLineAction('EDIT_ON')
-                            plugin.GetVideoPlugin().ExecuteCmd(sendXML1)
-
-                            const sendXML2 = OCX_XML_SetTripwireLineInfo(formData.value.countOSD)
-                            plugin.GetVideoPlugin().ExecuteCmd(sendXML2)
-
-                            passLineSetOcxData()
-                        }
-                    } else if (props.chlData.supportCpc) {
-                        cpcDrawSetOcxData()
-                    }
+                    changeTab()
                 })
                 stopWatchFirstPlay()
             }
         })
 
         // 关闭排程管理后刷新排程列表
-        const handleSchedulePopClose = async () => {
-            pageData.value.scheduleManagePopOpen = false
+        const closeSchedulePop = async () => {
+            pageData.value.isSchedulePop = false
             await getScheduleList()
         }
 
@@ -394,7 +360,7 @@ export default defineComponent({
         }
 
         // 关闭更多弹窗，将数据传到pageData
-        const handleMorePopClose = (e: AlarmPassLinesEmailDto) => {
+        const closeMorePop = (e: AlarmPassLinesEmailDto) => {
             const data = cloneDeep(e)
             formData.value.saveSourcePicture = data.saveSourcePicture
             formData.value.saveTargetPicture = data.saveTargetPicture
@@ -404,32 +370,33 @@ export default defineComponent({
         }
 
         // tab点击事件
-        const handleFunctionTabClick = (pane: TabsPaneContext) => {
-            pageData.value.fuction = pane.props.name?.toString() ? pane.props.name?.toString() : ''
+        const changeTab = () => {
             if (pageData.value.fuction === 'param') {
                 if (props.chlData.supportPassLine) {
                     if (mode.value === 'h5') {
-                        passLineSetOcxData()
+                        setPassLineOcxData()
                         passLineDrawer.setEnable('line', true)
                         passLineDrawer.setEnable('osd', formData.value.countOSD.switch)
                         passLineDrawer.setOSD(formData.value.countOSD)
-                    } else if (mode.value === 'ocx') {
+                    }
+
+                    if (mode.value === 'ocx') {
                         setTimeout(() => {
                             const alarmLine = pageData.value.chosenSurfaceIndex
                             const plugin = playerRef.value!.plugin
 
                             const sendXML1 = OCX_XML_SetTripwireLine(formData.value.lineInfo[alarmLine])
-                            plugin.GetVideoPlugin().ExecuteCmd(sendXML1)
+                            plugin.ExecuteCmd(sendXML1)
 
                             const sendXML2 = OCX_XML_SetTripwireLineAction('EDIT_ON')
-                            plugin.GetVideoPlugin().ExecuteCmd(sendXML2)
+                            plugin.ExecuteCmd(sendXML2)
 
                             const sendXML3 = OCX_XML_SetTripwireLineInfo(formData.value.countOSD)
-                            plugin.GetVideoPlugin().ExecuteCmd(sendXML3)
+                            plugin.ExecuteCmd(sendXML3)
                         }, 100)
                     }
                 } else if (props.chlData.supportCpc) {
-                    cpcDrawSetOcxData()
+                    setCpcOcxData()
                     cpcDrawer.setEnable(true)
                 }
             } else if (pageData.value.fuction === 'target') {
@@ -439,15 +406,18 @@ export default defineComponent({
                         passLineDrawer.setEnable('line', false)
                         passLineDrawer.setEnable('osd', false)
                         passLineDrawer.setOSD(formData.value.countOSD)
-                    } else if (mode.value === 'ocx') {
+                    }
+
+                    if (mode.value === 'ocx') {
                         setTimeout(() => {
-                            const plugin = playerRef.value!.plugin
                             const sendXML1 = OCX_XML_SetTripwireLineAction('NONE')
-                            plugin.GetVideoPlugin().ExecuteCmd(sendXML1)
+                            plugin.ExecuteCmd(sendXML1)
+
                             const sendXML2 = OCX_XML_SetTripwireLineAction('EDIT_OFF')
-                            plugin.GetVideoPlugin().ExecuteCmd(sendXML2)
+                            plugin.ExecuteCmd(sendXML2)
+
                             const sendXML3 = OCX_XML_SetTripwireLineInfo(formData.value.countOSD)
-                            plugin.GetVideoPlugin().ExecuteCmd(sendXML3)
+                            plugin.ExecuteCmd(sendXML3)
                         }, 100)
                     }
                 } else if (props.chlData.supportCpc) {
@@ -459,7 +429,9 @@ export default defineComponent({
 
         // 获取数据
         const getData = async (manualResetSwitch?: boolean) => {
+            watchEdit.reset()
             openLoading()
+
             if (props.chlData.supportPassLine) {
                 const sendXml = rawXml`
                     <condition>
@@ -476,10 +448,7 @@ export default defineComponent({
                     const $param = queryXml($('content/chl/param')[0].element)
 
                     let enabledSwitch = $param('switch').text().bool()
-                    if (manualResetSwitch) {
-                        // 手动重置时, 再次判断开关取值
-                        const applyDisabled = manualResetSwitch === enabledSwitch
-                        pageData.value.applyDisable = applyDisabled
+                    if (typeof manualResetSwitch === 'boolean') {
                         enabledSwitch = manualResetSwitch
                     }
                     formData.value.passLineDetectionEnable = enabledSwitch
@@ -514,7 +483,7 @@ export default defineComponent({
 
                     formData.value.lineInfo = $param('line/item').map((element) => {
                         const $item = queryXml(element.element)
-                        const direction: CanvasPasslineDirection = $item('direction').text() as CanvasPasslineDirection
+                        const direction = $item('direction').text() as CanvasPasslineDirection
                         const startX = $item('startPoint/X').text().num()
                         const startY = $item('startPoint/Y').text().num()
                         const endX = $item('endPoint/X').text().num()
@@ -572,15 +541,6 @@ export default defineComponent({
                         Y: $param('countOSD/Y').text().num(),
                         osdFormat: $param('countOSD/osdFormat').text(),
                     }
-                    if (formData.value.countOSD.switch) {
-                        if (mode.value === 'ocx') {
-                            const sendXML = OCX_XML_SetTripwireLineInfo(formData.value.countOSD)
-                            plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                        } else {
-                            passLineDrawer.setEnable('osd', formData.value.countOSD.switch)
-                            passLineDrawer.setOSD(formData.value.countOSD)
-                        }
-                    }
 
                     formData.value.triggerAudio = $param('triggerAudio').text().bool()
                     formData.value.triggerWhiteLight = $param('triggerWhiteLight').text().bool()
@@ -596,7 +556,8 @@ export default defineComponent({
                             label: directionTypeTip[itemValue],
                         }
                     })
-                    pageData.value.applyDisable = true
+
+                    watchEdit.listen()
                 } else {
                     pageData.value.requireDataFail = true
                 }
@@ -674,7 +635,8 @@ export default defineComponent({
                         X2: $param('lineInfo/item/X2').text().num(),
                         Y2: $param('lineInfo/item/Y2').text().num(),
                     }
-                    pageData.value.applyDisable = true
+
+                    watchEdit.listen()
                 } else {
                     pageData.value.requireDataFail = true
                 }
@@ -769,8 +731,8 @@ export default defineComponent({
                 setEmailCfg()
                 setTimingSendEmail()
                 setScheduleGuid()
-                passLineRefreshInitPage()
-                pageData.value.applyDisable = true
+                refreshInitPage()
+                watchEdit.update()
             }
         }
 
@@ -818,12 +780,11 @@ export default defineComponent({
                 if (formData.value.cpcDetectionEnable) {
                     formData.value.cpcOriginalEnable = true
                 }
-                pageData.value.applyDisable = true
             }
         }
 
         // 保存
-        const handleApply = () => {
+        const applyData = () => {
             if (props.chlData.supportPassLine) {
                 checkMutexChl({
                     isChange: formData.value.passLineDetectionEnable && formData.value.passLineDetectionEnable !== formData.value.passLineOriginalEnable,
@@ -852,7 +813,7 @@ export default defineComponent({
         }
 
         // passLine手动重置请求
-        const passLineManualResetData = async () => {
+        const resetPassLineData = async () => {
             const sendXml = rawXml`
                 <content>
                     <chl id="${props.currChlId}">
@@ -880,7 +841,7 @@ export default defineComponent({
         }
 
         // cpc手动重置请求
-        const cpcManualResetData = async () => {
+        const resetCpcData = async () => {
             const sendXml = rawXml`
                 <content>
                     <chl id="${props.currChlId}"></chl>
@@ -901,20 +862,20 @@ export default defineComponent({
         }
 
         // 执行手动重置
-        const handleReset = () => {
+        const resetData = () => {
             if (props.chlData.supportPassLine) {
                 openMessageBox({
                     type: 'question',
                     message: Translate('IDCS_RESET_TIP'),
                 }).then(() => {
-                    passLineManualResetData()
+                    resetPassLineData()
                 })
             } else if (props.chlData.supportCpc) {
                 openMessageBox({
                     type: 'question',
                     message: Translate('IDCS_RESET_TIP'),
                 }).then(() => {
-                    cpcManualResetData()
+                    resetCpcData()
                 })
             }
         }
@@ -934,60 +895,32 @@ export default defineComponent({
                 })
 
             await getScheduleList()
-            const pageTimer = setTimeout(async () => {
-                // 临时方案-NVRUSS44-79（页面快速切换时。。。）
-                const plugin = playerRef.value!.plugin
-                await getData()
-                passLineRefreshInitPage()
-                if (props.chlData.supportPassLine) {
-                    if (mode.value === 'h5') {
-                        passLineDrawer.setEnable('line', true)
-                        if (formData.value.countOSD.switch) {
-                            passLineDrawer.setEnable('osd', formData.value.countOSD.switch)
-                            passLineDrawer.setOSD(formData.value.countOSD)
-                        }
-                    } else {
-                        const sendXML1 = OCX_XML_SetTripwireLineAction('EDIT_ON')
-                        plugin.GetVideoPlugin().ExecuteCmd(sendXML1)
-                        if (formData.value.countOSD.switch) {
-                            const sendXML2 = OCX_XML_SetTripwireLineInfo(formData.value.countOSD)
-                            plugin.GetVideoPlugin().ExecuteCmd(sendXML2)
-                        }
-                    }
-                    passLineSetOcxData()
-                } else if (props.chlData.supportCpc) {
-                    // cpcDrawer.setEnable(true)
-                    cpcDrawSetOcxData()
-                }
-                clearTimeout(pageTimer)
-
-                nextTick(() => {
-                    pageData.value.initComplete = true
-                })
-            }, 250)
+            await getData()
+            refreshInitPage()
         }
 
         // passLine选择警戒线
-        const handleLineChange = () => {
+        const changeLine = () => {
             pageData.value.direction = formData.value.lineInfo[pageData.value.chosenSurfaceIndex].direction
-            passLineSetOcxData()
+            setPassLineOcxData()
         }
 
         // passLine选择方向
-        const handleDirectionChange = () => {
+        const changeDirection = () => {
             formData.value.lineInfo[pageData.value.chosenSurfaceIndex].direction = pageData.value.direction
-            passLineSetOcxData()
+            setPassLineOcxData()
         }
 
         // passLine OSD变化
-        const handleOSDChange = () => {
+        const changeOSD = () => {
             if (mode.value === 'h5') {
                 passLineDrawer.setEnable('osd', formData.value.countOSD.switch)
                 passLineDrawer.setOSD(formData.value.countOSD)
-            } else {
-                const plugin = playerRef.value!.plugin
+            }
+
+            if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_SetTripwireLineInfo(formData.value.countOSD)
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -1006,7 +939,7 @@ export default defineComponent({
         }
 
         // passLine绘图变化
-        const passlineDrawChange = (
+        const changePassLine = (
             passline: {
                 startX: number
                 startY: number
@@ -1031,12 +964,12 @@ export default defineComponent({
             formData.value.countOSD.X = osdInfo.X
             formData.value.countOSD.Y = osdInfo.Y
             // if (pageData.value.isShowAllArea) {
-            //     passLineShowAllArea(true)
+            //     showAllPassLineArea(true)
             // }
         }
 
         // passLine绘图
-        const passLineSetOcxData = () => {
+        const setPassLineOcxData = () => {
             const alarmLine = pageData.value.chosenSurfaceIndex
             const plugin = playerRef.value!.plugin
             if (formData.value.lineInfo.length) {
@@ -1049,35 +982,39 @@ export default defineComponent({
                         endX: formData.value.lineInfo[alarmLine].endPoint.X,
                         endY: formData.value.lineInfo[alarmLine].endPoint.Y,
                     })
-                } else {
+                }
+
+                if (mode.value === 'ocx') {
                     const sendXML = OCX_XML_SetTripwireLine(formData.value.lineInfo[alarmLine])
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.ExecuteCmd(sendXML)
                 }
             }
 
             if (formData.value.countOSD.switch) {
-                if (mode.value !== 'h5') {
-                    const sendXML = OCX_XML_SetTripwireLineInfo(formData.value.countOSD)
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                } else {
+                if (mode.value === 'h5') {
                     passLineDrawer.setEnable('osd', true)
                     passLineDrawer.setOSD(formData.value.countOSD)
+                }
+
+                if (mode.value === 'ocx') {
+                    const sendXML = OCX_XML_SetTripwireLineInfo(formData.value.countOSD)
+                    plugin.ExecuteCmd(sendXML)
                 }
             }
 
             if (pageData.value.isShowAllArea) {
-                passLineShowAllArea(true)
+                showAllPassLineArea(true)
             }
         }
 
         // 执行是否显示全部区域
-        const handlePassLineShowAllAreaChange = () => {
+        const togglePassLineShowAllArea = () => {
             // passLineDrawer && passLineDrawer.setEnableShowAll(pageData.value.isShowAllArea)
-            passLineShowAllArea(pageData.value.isShowAllArea)
+            showAllPassLineArea(pageData.value.isShowAllArea)
         }
 
         // passLine显示全部区域
-        const passLineShowAllArea = (isShowAllArea: boolean) => {
+        const showAllPassLineArea = (isShowAllArea: boolean) => {
             passLineDrawer && passLineDrawer.setEnableShowAll(isShowAllArea)
             if (isShowAllArea) {
                 const lineInfoList = formData.value.lineInfo
@@ -1085,35 +1022,40 @@ export default defineComponent({
                 if (mode.value === 'h5') {
                     passLineDrawer.setCurrentSurfaceOrAlarmLine(currentAlarmLine)
                     passLineDrawer.drawAllPassline(lineInfoList, currentAlarmLine)
-                } else {
-                    console.log('ocx show all alarm area')
+                }
+
+                if (mode.value === 'ocx') {
+                    // console.log('ocx show all alarm area')
                 }
             } else {
-                if (mode.value !== 'h5') {
-                    console.log('ocx not show all alarm area')
+                if (mode.value === 'ocx') {
+                    // console.log('ocx not show all alarm area')
                 }
-                passLineSetOcxData()
+                setPassLineOcxData()
             }
         }
 
         // passLine清空当前区域
-        const passLineClearArea = () => {
+        const clearArea = () => {
             if (mode.value === 'h5') {
                 passLineDrawer.clear()
-            } else {
-                const sendXML = OCX_XML_SetTripwireLineAction('NONE')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
+
+            if (mode.value === 'ocx') {
+                const sendXML = OCX_XML_SetTripwireLineAction('NONE')
+                plugin.ExecuteCmd(sendXML)
+            }
+
             const currentAlarmLine = pageData.value.chosenSurfaceIndex
             formData.value.lineInfo[currentAlarmLine].startPoint = { X: 0, Y: 0 }
             formData.value.lineInfo[currentAlarmLine].endPoint = { X: 0, Y: 0 }
             if (pageData.value.isShowAllArea) {
-                passLineShowAllArea(true)
+                showAllPassLineArea(true)
             }
         }
 
         // passLine清空所有区域
-        const passLineClearAllArea = () => {
+        const clearAllArea = () => {
             const plugin = playerRef.value!.plugin
 
             const lineInfoList = formData.value.lineInfo
@@ -1121,20 +1063,23 @@ export default defineComponent({
                 lineInfo.startPoint = { X: 0, Y: 0 }
                 lineInfo.endPoint = { X: 0, Y: 0 }
             })
+
             if (mode.value === 'h5') {
                 passLineDrawer && passLineDrawer.clear()
-            } else {
+            }
+
+            if (mode.value === 'ocx') {
                 const sendXML1 = OCX_XML_SetAllArea({ lineInfoList: [] }, 'WarningLine', 'TYPE_TRIPWIRE_LINE', undefined, pageData.value.isShowAllArea)
                 if (sendXML1) {
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML1)
+                    plugin.ExecuteCmd(sendXML1)
                 }
                 const sendXML = OCX_XML_SetTripwireLineAction('NONE')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
         // passLine刷新
-        const passLineRefreshInitPage = () => {
+        const refreshInitPage = () => {
             const lineInfoList = formData.value.lineInfo
             lineInfoList.forEach((lineInfo) => {
                 if (lineInfo && !lineInfo.startPoint.X && !lineInfo.startPoint.Y && !lineInfo.endPoint.X && !lineInfo.endPoint.Y) {
@@ -1154,29 +1099,32 @@ export default defineComponent({
         }
 
         // CPC绘图变化
-        const cpcDrawChange = (regionInfo: AlarmPassLinesRegion, arrowlineInfo: AlarmPassLinesRegion) => {
+        const changeCpc = (regionInfo: CanvasBaseArea, arrowlineInfo: CanvasBaseArea) => {
             formData.value.regionInfo = regionInfo
             formData.value.cpcLineInfo = arrowlineInfo
         }
 
         // CPC绘图
-        const cpcDrawSetOcxData = () => {
+        const setCpcOcxData = () => {
             if (mode.value === 'h5') {
                 cpcDrawer.setRegionInfo(formData.value.regionInfo)
                 cpcDrawer.setLineInfo(formData.value.cpcLineInfo)
-            } else {
+            }
+
+            if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_SetCpcArea(formData.value.regionInfo, formData.value.cpcLineInfo)
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
         // CPC开启绘图
-        // const handleCpcDrawAvailableChange = () => {
+        // const toggleCpcDrawAvailable = () => {
         //     if (mode.value === 'h5') {
         //         cpcDrawer.setEnable(pageData.value.isCpcDrawAvailable)
-        //     } else if (mode.value === 'ocx') {
+        //     }
+        //     if (mode.value === 'ocx') {
         //         const sendXML = OCX_XML_SetCpcAreaAction(pageData.value.isCpcDrawAvailable ? 'EDIT_ON' : 'EDIT_OFF')
-        //         plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+        //         plugin.ExecuteCmd(sendXML)
         //     }
         // }
 
@@ -1184,11 +1132,19 @@ export default defineComponent({
         const clearCpcArea = () => {
             if (mode.value === 'h5') {
                 cpcDrawer.clear()
-            } else if (mode.value === 'ocx') {
-                const sendXML = OCX_XML_SetCpcAreaAction('NONE')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
-            formData.value.regionInfo = { X1: 0, Y1: 0, X2: 0, Y2: 0 }
+
+            if (mode.value === 'ocx') {
+                const sendXML = OCX_XML_SetCpcAreaAction('NONE')
+                plugin.ExecuteCmd(sendXML)
+            }
+
+            formData.value.regionInfo = {
+                X1: 0,
+                Y1: 0,
+                X2: 0,
+                Y2: 0,
+            }
         }
 
         const notify = ($: XMLQuery) => {
@@ -1231,34 +1187,18 @@ export default defineComponent({
             }
         }
 
-        watch(
-            formData,
-            () => {
-                if (pageData.value.initComplete) {
-                    pageData.value.applyDisable = false
-                }
-            },
-            {
-                deep: true,
-            },
-        )
-
         onMounted(() => {
             initPageData()
         })
 
         onBeforeUnmount(() => {
-            if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
+            if (plugin?.IsPluginAvailable() && mode.value === 'ocx') {
                 // 切到其他AI事件页面时清除一下插件显示的（线条/点/矩形/多边形）数据
                 const sendAreaXML = OCX_XML_SetTripwireLineAction('NONE')
-                plugin.GetVideoPlugin().ExecuteCmd(sendAreaXML)
+                plugin.ExecuteCmd(sendAreaXML)
 
                 const sendXML = OCX_XML_StopPreview('ALL')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-            }
-
-            if (mode.value === 'h5') {
-                player.destroy()
+                plugin.ExecuteCmd(sendXML)
             }
         })
 
@@ -1266,24 +1206,23 @@ export default defineComponent({
             playerRef,
             notify,
             pageData,
+            watchEdit,
             formData,
             handlePlayerReady,
-            handleSchedulePopClose,
-            handleFunctionTabClick,
-            handlePassLineShowAllAreaChange,
-            passLineClearArea,
-            passLineClearAllArea,
-            // handleCpcDrawAvailableChange,
-            handleLineChange,
-            handleDirectionChange,
-            handleOSDChange,
-            handleReset,
+            closeSchedulePop,
+            changeTab,
+            togglePassLineShowAllArea,
+            clearArea,
+            clearAllArea,
+            // toggleCpcDrawAvailable,
+            changeLine,
+            changeDirection,
+            changeOSD,
+            resetData,
             handleMoreClick,
-            handleMorePopClose,
+            closeMorePop,
             clearCpcArea,
-            handleApply,
-            ScheduleManagPop,
-            PassLineEmailPop,
+            applyData,
         }
     },
 })

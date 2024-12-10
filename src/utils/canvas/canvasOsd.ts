@@ -3,7 +3,7 @@
  * @Date: 2024-05-31 16:36:04
  * @Description: canvas绘制osd配置
  */
-import CanvasBase from './canvasBase'
+import CanvasBase, { type CanvasBaseRect } from './canvasBase'
 
 export interface CanvasOSDOptionNameConfig {
     value: string // 通道名
@@ -27,13 +27,6 @@ export interface CanvasOSDOptionTimeConfig {
     YMinValue: number
     YMaxValue: number
     timestamp: number
-}
-
-interface CanvasOSDRect {
-    x: number
-    y: number
-    width: number
-    height: number
 }
 
 interface CanvasOSDOption {
@@ -89,14 +82,14 @@ export default class CanvasOSD {
     private readonly cavWidth: number
     private readonly cavHeight: number
     // 通道名矩形区域
-    private nameRect: CanvasOSDRect = {
+    private nameRect: CanvasBaseRect = {
         x: 0,
         y: 0,
         width: 0,
         height: 0,
     }
     // 时间矩形区域
-    private timeRect: CanvasOSDRect = {
+    private timeRect: CanvasBaseRect = {
         x: 0,
         y: 0,
         width: 0,

@@ -6,7 +6,6 @@
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import BaseInputEncryptPwdPop from '../../components/auth/BaseInputEncryptPwdPop.vue'
 import UpgradeBackUpPop from './UpgradeBackUpPop.vue'
-import type WebsocketPlugin from '@/utils/websocket/websocketPlugin'
 import WebsocketUpload from '@/utils/websocket/websocketUpload'
 import WebsocketDownload from '@/utils/websocket/websocketDownload'
 import { type CmdUploadFileOpenOption } from '@/utils/websocket/websocketCmd'
@@ -85,11 +84,11 @@ export default defineComponent({
         let clickFlag = false
         let uploadTimer: NodeJS.Timeout | 0 = 0
 
-        const plugin = usePluginHook({
+        const plugin = setupPlugin({
             onReady: (mode, plugin) => {
                 if (mode.value === 'ocx') {
                     const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.ExecuteCmd(sendXML)
                 }
 
                 if (mode.value === 'h5' && isHttpsLogin()) {
@@ -177,7 +176,7 @@ export default defineComponent({
         const handleOCXUpload = () => {
             pageData.value.upgradeNote = ''
             const sendXML = systemCaps.devSystemType === 1 ? OCX_XML_OpenFileBrowser('OPEN_FILE', 'pkg') : OCX_XML_OpenFileBrowser('OPEN_FILE', 'fls')
-            plugin.AsynQueryInfo(plugin.GetVideoPlugin() as WebsocketPlugin, sendXML, (result) => {
+            plugin.AsynQueryInfo(sendXML, (result) => {
                 const path = OCX_XML_OpenFileBrowser_getpath(result).trim()
                 if (path) {
                     formData.value.filePath = path
@@ -330,7 +329,7 @@ export default defineComponent({
             }
             openLoading()
             const sendXML = OCX_XML_FileNetTransport('Export', param)
-            plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+            plugin.ExecuteCmd(sendXML)
         }
 
         /**
@@ -395,11 +394,11 @@ export default defineComponent({
                         token: userSession.token,
                     }
                     const sendXML = OCX_XML_FileNetTransport('Upgrade', param)
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.ExecuteCmd(sendXML)
                 } else {
                     openLoading()
                     const sendXML = OCX_XML_CheckUpgradeFile('ImportUpgradeCheckFile', 5120, formData.value.filePath)
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.ExecuteCmd(sendXML)
                 }
             }
         }
@@ -503,9 +502,6 @@ export default defineComponent({
             confirmBackUpAndUpgrade,
             closeBackUpAndUpgrade,
             confirmOCXBackUp,
-            BaseCheckAuthPop,
-            BaseInputEncryptPwdPop,
-            UpgradeBackUpPop,
         }
     },
 })

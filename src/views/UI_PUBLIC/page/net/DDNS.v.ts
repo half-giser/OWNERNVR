@@ -295,7 +295,7 @@ export default defineComponent({
             const result = await editDDNSCfg(getSetDataXml())
 
             closeLoading()
-            commSaveResponseHadler(result)
+            commSaveResponseHandler(result)
 
             const findIndex = pageData.value.serverTypeOptions.findIndex((item) => item.serverType === formData.value.serverType)
             if (findIndex >= 0) {

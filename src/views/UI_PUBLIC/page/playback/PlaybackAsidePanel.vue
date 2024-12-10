@@ -29,18 +29,17 @@
                         active: pageData.activeMenu === index,
                         disabled: !getMenuEnable(item.value),
                     }"
+                    :title="item.label"
                     @click="changeCtrlMenu(index)"
                 >
-                    <el-tooltip :content="item.label">
-                        <BaseImgSprite
-                            :file="item.file"
-                            :index="pageData.activeMenu === index ? 1 : 0"
-                            :hover-index="1"
-                            :disabled-index="3"
-                            :disabled="!getMenuEnable(item.value)"
-                            :chunk="4"
-                        />
-                    </el-tooltip>
+                    <BaseImgSprite
+                        :file="item.file"
+                        :index="pageData.activeMenu === index ? 1 : 0"
+                        :hover-index="1"
+                        :disabled-index="3"
+                        :disabled="!getMenuEnable(item.value)"
+                        :chunk="4"
+                    />
                 </div>
             </div>
             <div class="right-bottom">

@@ -39,15 +39,12 @@ export default defineComponent({
             scheduleList: [] as SelectOption<string, string>[],
             // 排程Id列表
             scheduleIdList: [] as string[],
-            // 是否获取数据成功
-            mounted: false,
-            // 是否可提交
-            btnDisabled: true,
             // 显示排程管理弹窗
             isSchedulePop: false,
         })
 
         const tableData = ref<PkMgrSpaceManageList[]>([])
+        const watchEdit = useWatchEditData(tableData)
 
         /**
          * @description 批量编辑排程
@@ -55,7 +52,7 @@ export default defineComponent({
          */
         const changeAllSchedule = (groupSchedule: string) => {
             if (groupSchedule === 'scheduleMgr') {
-                manageSchedule()
+                openSchedulePop()
             } else {
                 tableData.value.forEach((ele) => {
                     ele.groupSchedule = groupSchedule
@@ -70,8 +67,10 @@ export default defineComponent({
          */
         const changeSingleSchedule = (rowData: PkMgrSpaceManageList) => {
             if (rowData.groupSchedule === 'scheduleMgr') {
-                manageSchedule()
-                rowData.groupSchedule = rowData.oldGroupSchedule
+                openSchedulePop()
+                nextTick(() => {
+                    rowData.groupSchedule = rowData.oldGroupSchedule
+                })
             } else {
                 rowData.oldGroupSchedule = rowData.groupSchedule
             }
@@ -80,14 +79,14 @@ export default defineComponent({
         /**
          * @description 打开排程管理弹窗
          */
-        const manageSchedule = () => {
+        const openSchedulePop = () => {
             pageData.value.isSchedulePop = true
         }
 
         /**
          * @description 修改并关闭排程管理弹窗
          */
-        const confirmManageSchedule = async () => {
+        const confirmSchedule = async () => {
             pageData.value.isSchedulePop = false
             await getScheduleList()
             tableData.value.forEach((item) => {
@@ -115,6 +114,7 @@ export default defineComponent({
          */
         const getData = async () => {
             openLoading()
+
             const result = await queryParkingLotConfig()
             const $ = queryXml(result)
 
@@ -138,6 +138,7 @@ export default defineComponent({
                         linkEmail: $item('linkEmail').text(),
                     }
                 })
+                watchEdit.listen()
             }
         }
 
@@ -253,7 +254,7 @@ export default defineComponent({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
-                pageData.value.btnDisabled = true
+                watchEdit.update()
             } else {
                 const errorCode = $('errorCode').text().num()
                 let errorMsg = Translate('IDCS_SAVE_DATA_FAIL')
@@ -269,32 +270,17 @@ export default defineComponent({
 
         onMounted(async () => {
             await getScheduleList()
-            await getData()
-            nextTick(() => {
-                pageData.value.mounted = true
-            })
+            getData()
         })
-
-        watch(
-            tableData,
-            () => {
-                if (pageData.value.mounted) {
-                    pageData.value.btnDisabled = false
-                }
-            },
-            {
-                deep: true,
-            },
-        )
 
         return {
             pageData,
             tableData,
+            watchEdit,
             changeAllSchedule,
             changeSingleSchedule,
             apply,
-            confirmManageSchedule,
-            ScheduleManagPop,
+            confirmSchedule,
         }
     },
 })

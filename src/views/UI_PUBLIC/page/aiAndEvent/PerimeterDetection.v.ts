@@ -3,7 +3,6 @@
  * @Date: 2024-08-27 15:43:32
  * @Description: 周界防范/人车检测
  */
-import { type TabsPaneContext } from 'element-plus'
 import { AlarmChlDto } from '@/types/apiType/aiAndEvent'
 import AlarmBaseChannelSelector from './AlarmBaseChannelSelector.vue'
 import TripwirePanel from './TripwirePanel.vue'
@@ -70,11 +69,9 @@ export default defineComponent({
             // notSupportTipShow: false,
             // AI详情弹窗
             aiResourcePopOpen: false,
-            // apply按钮是否可用
-            applyDisable: true,
 
             // 排程管理
-            scheduleManagePopOpen: false,
+            isSchedulePop: false,
             scheduleList: [] as SelectOption<string, string>[],
 
             // record数据源
@@ -306,16 +303,9 @@ export default defineComponent({
         }
 
         // 切换通道操作
-        const handleChangeChannel = () => {
+        const changeChannel = () => {
             // pageData.value.chlData = pageData.value.chlCaps[pageData.value.currChlId]
-            pageData.value.tabKey += 1
             initPageData()
-        }
-
-        // 大tab点击事件,切换功能 Tripwire/Pea
-        const handleTabClick = (pane: TabsPaneContext) => {
-            pageData.value.chosenFunction = pane.props.name?.toString() ? pane.props.name?.toString() : ''
-            pageData.value.tabKey += 1
         }
 
         // 切换通道及初始化时判断tab是否可用，若不可用则切换到可用的tab，都不可用再显示提示
@@ -348,12 +338,8 @@ export default defineComponent({
 
         return {
             pageData,
-            handleChangeChannel,
-            handleTabClick,
+            changeChannel,
             chlData,
-            AlarmBaseChannelSelector,
-            TripwirePanel,
-            PeaPanel,
         }
     },
 })

@@ -5,7 +5,6 @@
  */
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import { type AlarmRecognitionTaskDto } from '@/types/apiType/aiAndEvent'
-import { type TableInstance, type CheckboxValueType } from 'element-plus'
 import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
 import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
 import AlarmBaseTriggerSelector from './AlarmBaseTriggerSelector.vue'
@@ -63,78 +62,51 @@ export default defineComponent({
             trigger: [],
         }
 
-        const groupTableRef = ref<TableInstance>()
-
         const supportAlarmAudioConfig = systemCaps.supportAlarmAudioConfig
 
         const pageData = ref({
             // 分组弹窗
-            groupPopOpen: false,
+            isGroupPop: false,
             groupSelection: [] as { guid: string; name: string }[],
             // 分组的checkbox
             selectAll: false,
-            // 分组选中名称拼接
-            groupName: '',
             // 排程弹窗
-            scheduleManagPopOpen: false,
+            isSchedulePop: false,
         })
 
         // 初始化数据
         const initData = () => {
             pageData.value.selectAll = taskData.groupId.length > 0 && taskData.groupId.length === prop.groupData.length
-            handleGroupName()
         }
 
-        // 生成分组选中的数据名称
-        const handleGroupName = () => {
-            pageData.value.groupName = ''
-            prop.groupData.forEach((item) => {
-                if (taskData.groupId.includes(item.guid)) {
-                    pageData.value.groupName += item.name + '; '
-                }
-            })
-        }
+        // 分组选中名称拼接
+        const groupName = computed(() => {
+            return prop.groupData
+                .filter((item) => taskData.groupId.includes(item.guid))
+                .map((item) => item.name)
+                .join('; ')
+        })
 
         // 分组全选checkbox
-        const selectAllCheckChange = (value: CheckboxValueType) => {
-            if (value) {
+        const toggleSelectAll = () => {
+            if (pageData.value.selectAll) {
+                pageData.value.groupSelection = prop.groupData.map((item) => item)
                 taskData.groupId = prop.groupData.map((item) => item.guid)
             } else {
+                pageData.value.groupSelection = []
                 taskData.groupId = []
             }
-            handleGroupName()
         }
 
         // 分组弹窗打开/关闭
         const openGroupPop = () => {
-            prop.groupData.forEach((item) => {
-                if (taskData.groupId.includes(item.guid)) {
-                    groupTableRef.value!.toggleRowSelection(item, true)
-                }
-            })
+            pageData.value.isGroupPop = true
         }
 
-        const closeGroupPop = () => {
-            groupTableRef.value!.clearSelection()
-            pageData.value.groupPopOpen = false
-        }
-
-        // 分支选中
-        const groupSelect = (selection: []) => {
-            pageData.value.groupSelection = selection
-        }
-
-        // 单行点击
-        const handleRowClick = (rowData: { guid: string; name: string }) => {
-            groupTableRef.value!.clearSelection()
-            groupTableRef.value!.toggleRowSelection(rowData, true)
-        }
-
-        const saveGroup = () => {
+        const saveGroup = (rowData: { guid: string; name: string }[]) => {
+            pageData.value.groupSelection = rowData
             taskData.groupId = pageData.value.groupSelection.map((item) => item.guid)
-            closeGroupPop()
             pageData.value.selectAll = taskData.groupId.length > 0 && taskData.groupId.length === prop.groupData.length
-            handleGroupName()
         }
 
         watch(taskData, () => {
@@ -146,24 +118,13 @@ export default defineComponent({
         })
 
         return {
-            ScheduleManagPop,
-            groupTableRef,
             supportAlarmAudioConfig,
             taskData,
             pageData,
-            // 分组全选checkbox
-            selectAllCheckChange,
-            // 分组弹框
-            groupSelect,
-            handleRowClick,
+            groupName,
+            toggleSelectAll,
             openGroupPop,
-            closeGroupPop,
             saveGroup,
-            AlarmBaseRecordSelector,
-            AlarmBaseAlarmOutSelector,
-            AlarmBaseTriggerSelector,
-            AlarmBasePresetSelector,
-            AlarmBaseSnapSelector,
         }
     },
 })

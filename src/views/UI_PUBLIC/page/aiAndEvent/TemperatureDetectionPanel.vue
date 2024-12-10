@@ -5,12 +5,9 @@
 -->
 <template>
     <div>
-        <div
-            class="base-btn-box padding collapse"
-            span="start"
-        >
+        <div class="base-btn-box flex-start padding collapse">
             <el-checkbox
-                v-model="tempDetectionData.enabledSwitch"
+                v-model="formData.enabledSwitch"
                 :label="Translate('IDCS_ENABLE')"
             />
         </div>
@@ -18,7 +15,6 @@
             <el-tabs
                 v-model="pageData.tab"
                 class="base-ai-tabs"
-                @tab-change="tempTabChange"
             >
                 <!-- 参数设置 -->
                 <el-tab-pane
@@ -35,17 +31,12 @@
                             />
                         </div>
                         <div>
-                            <div
-                                class="base-btn-box"
-                                span="2"
-                            >
-                                <div>
-                                    <el-checkbox
-                                        v-model="pageData.isShowAllArea"
-                                        :label="Translate('IDCS_DISPLAY_ALL_AREA')"
-                                        @change="showAllArea"
-                                    />
-                                </div>
+                            <div class="base-btn-box space-between">
+                                <el-checkbox
+                                    v-model="pageData.isShowAllArea"
+                                    :label="Translate('IDCS_DISPLAY_ALL_AREA')"
+                                    @change="showAllArea"
+                                />
                                 <div>
                                     <el-button @click="clearArea">{{ Translate('IDCS_CLEAR') }}</el-button>
                                     <el-button @click="clearAllArea">{{ Translate('IDCS_FACE_CLEAR_ALL') }}</el-button>
@@ -65,7 +56,7 @@
                             <!-- 排程配置 -->
                             <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
                                 <el-select-v2
-                                    v-model="tempDetectionData.schedule"
+                                    v-model="formData.schedule"
                                     :options="pageData.scheduleList"
                                 />
                                 <el-button @click="pageData.scheduleManagPopOpen = true">{{ Translate('IDCS_MANAGE') }}</el-button>
@@ -75,8 +66,8 @@
                             <!-- 持续时间 -->
                             <el-form-item :label="Translate('IDCS_DURATION')">
                                 <el-select-v2
-                                    v-model="tempDetectionData.holdTime"
-                                    :options="tempDetectionData.holdTimeList"
+                                    v-model="formData.holdTime"
+                                    :options="formData.holdTimeList"
                                 />
                                 <div class="divTip">
                                     <BaseFloatError
@@ -89,7 +80,7 @@
                         <div class="base-table-box">
                             <el-table
                                 ref="boundaryTableRef"
-                                :data="tempDetectionData.boundaryData"
+                                :data="formData.boundaryData"
                                 highlight-current-row
                                 width="100%"
                                 height="280"
@@ -120,7 +111,7 @@
                                             v-model="scope.row.ruleName"
                                             :formatter="formatInputMaxLength"
                                             :parser="formatInputMaxLength"
-                                            @keyup.enter="enterBlur($event)"
+                                            @keyup.enter="blurInput"
                                         />
                                     </template>
                                 </el-table-column>
@@ -152,7 +143,7 @@
                                             @input="inputValue"
                                             @focus="focusValue(scope.row.emissivity)"
                                             @blur="blurValue(0.01, 1)"
-                                            @keyup.enter="enterBlur"
+                                            @keyup.enter="blurInput"
                                         />
                                     </template>
                                 </el-table-column>
@@ -169,7 +160,7 @@
                                             @input="inputValue"
                                             @focus="focusValue(scope.row.distance)"
                                             @blur="blurValue(0, 10000)"
-                                            @keyup.enter="enterBlur"
+                                            @keyup.enter="blurInput"
                                         />
                                     </template>
                                 </el-table-column>
@@ -186,7 +177,7 @@
                                             @input="inputValue"
                                             @focus="focusValue(scope.row.reflectTemper)"
                                             @blur="blurValue(-30, 60)"
-                                            @keyup.enter="enterBlur"
+                                            @keyup.enter="blurInput"
                                         />
                                     </template>
                                 </el-table-column>
@@ -215,7 +206,7 @@
                                             @input="inputValue"
                                             @focus="focusValue(scope.row.alarmTemper)"
                                             @blur="blurValue(-50, 550)"
-                                            @keyup.enter="enterBlur"
+                                            @keyup.enter="blurInput"
                                         />
                                     </template>
                                 </el-table-column>
@@ -236,7 +227,7 @@
                     >
                         <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">
                             <el-select-v2
-                                v-model="tempDetectionData.sysAudio"
+                                v-model="formData.sysAudio"
                                 :options="pageData.voiceList"
                             />
                         </el-form-item>
@@ -244,25 +235,25 @@
                     <div class="base-ai-linkage-content">
                         <!-- 常规联动 -->
                         <AlarmBaseTriggerSelector
-                            v-model="tempDetectionData.trigger"
+                            v-model="formData.trigger"
                             :include="pageData.triggerList"
                         />
                         <!-- 录像 -->
-                        <AlarmBaseRecordSelector v-model="tempDetectionData.record" />
+                        <AlarmBaseRecordSelector v-model="formData.record" />
                         <!-- 报警输出 -->
-                        <AlarmBaseAlarmOutSelector v-model="tempDetectionData.alarmOut" />
+                        <AlarmBaseAlarmOutSelector v-model="formData.alarmOut" />
                         <!-- 抓图 -->
-                        <AlarmBaseSnapSelector v-model="tempDetectionData.snap" />
+                        <AlarmBaseSnapSelector v-model="formData.snap" />
                         <!-- 联动预置点 -->
-                        <AlarmBasePresetSelector v-model="tempDetectionData.preset" />
+                        <AlarmBasePresetSelector v-model="formData.preset" />
                     </div>
                 </el-tab-pane>
             </el-tabs>
         </div>
         <div class="base-btn-box fixed">
             <el-button
-                :disabled="pageData.applyDisabled"
-                @click="applyTempDetectionData"
+                :disabled="watchEdit.disabled.value"
+                @click="setData"
             >
                 {{ Translate('IDCS_APPLY') }}
             </el-button>

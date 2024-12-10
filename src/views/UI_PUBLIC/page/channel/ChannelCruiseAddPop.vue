@@ -89,13 +89,8 @@
                     </template>
                 </el-table-column>
             </el-table>
-            <div
-                class="base-btn-box"
-                span="2"
-            >
-                <div>
-                    <el-button @click="addPreset">{{ Translate('IDCS_ADD_PRESET') }}</el-button>
-                </div>
+            <div class="base-btn-box space-between">
+                <el-button @click="addPreset">{{ Translate('IDCS_ADD_PRESET') }}</el-button>
                 <div>
                     <el-button
                         :disabled="!tableData.length || pageData.presetIndex === 0"

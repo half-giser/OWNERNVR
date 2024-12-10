@@ -35,7 +35,7 @@ export default defineComponent({
             totalCount: 0,
             // 排程列表
             scheduleList: [] as SelectOption<string, string>[],
-            scheduleManagePopOpen: false,
+            isSchedulePop: false,
             // 类型
             typeList: getAlwaysOptions(),
             // 启用、推送、蜂鸣器、消息框弹出、email
@@ -48,13 +48,13 @@ export default defineComponent({
             audioList: [] as SelectOption<string, string>[],
             // 视频弹出列表
             videoPopupChlList: [] as SelectOption<string, string>[],
-            recordIsShow: false,
-            snapIsShow: false,
-            alarmOutIsShow: false,
+            isRecordPop: false,
+            isSnapPop: false,
+            isAlarmOutPop: false,
             // 当前打开dialog行的index
             triggerDialogIndex: 0,
             // 预置点名称配置
-            isPresetPopOpen: false,
+            isPresetPop: false,
         })
 
         // 表格数据
@@ -257,11 +257,11 @@ export default defineComponent({
         }
 
         // 名称修改时的处理
-        const nameFocus = (name: string) => {
+        const focusName = (name: string) => {
             originalName.value = name
         }
 
-        const nameBlur = (row: AlarmSensorEventDto) => {
+        const blurName = (row: AlarmSensorEventDto) => {
             const name = row.name
             if (!checkChlName(name)) {
                 openMessageBox({
@@ -292,8 +292,8 @@ export default defineComponent({
         }
 
         // 回车键失去焦点
-        const enterBlur = (event: { target: { blur: () => void } }) => {
-            event.target.blur()
+        const blurInput = (event: Event) => {
+            ;(event.target as HTMLElement).blur()
         }
 
         const switchRecord = (index: number) => {
@@ -308,14 +308,14 @@ export default defineComponent({
         const openRecord = (index: number) => {
             tableData.value[index].record.switch = true
             pageData.value.triggerDialogIndex = index
-            pageData.value.recordIsShow = true
+            pageData.value.isRecordPop = true
         }
 
         const changeRecord = (index: number, data: SelectOption<string, string>[]) => {
             if (tableData.value[index].disabled) {
                 return
             }
-            pageData.value.recordIsShow = false
+            pageData.value.isRecordPop = false
             tableData.value[index].record = {
                 switch: !!data.length,
                 chls: cloneDeep(data),
@@ -334,14 +334,14 @@ export default defineComponent({
         const openSnap = (index: number) => {
             tableData.value[index].snap.switch = true
             pageData.value.triggerDialogIndex = index
-            pageData.value.snapIsShow = true
+            pageData.value.isSnapPop = true
         }
 
         const changeSnap = (index: number, data: SelectOption<string, string>[]) => {
             if (tableData.value[index].disabled) {
                 return
             }
-            pageData.value.snapIsShow = false
+            pageData.value.isSnapPop = false
             tableData.value[index].snap = {
                 switch: !!data.length,
                 chls: cloneDeep(data),
@@ -360,14 +360,14 @@ export default defineComponent({
         const openAlarmOut = (index: number) => {
             tableData.value[index].alarmOut.switch = true
             pageData.value.triggerDialogIndex = index
-            pageData.value.alarmOutIsShow = true
+            pageData.value.isAlarmOutPop = true
         }
 
         const changeAlarmOut = (index: number, data: SelectOption<string, string>[]) => {
             if (tableData.value[index].disabled) {
                 return
             }
-            pageData.value.alarmOutIsShow = false
+            pageData.value.isAlarmOutPop = false
             tableData.value[index].alarmOut = {
                 switch: !!data.length,
                 alarmOuts: cloneDeep(data),
@@ -386,11 +386,11 @@ export default defineComponent({
         const openPreset = (index: number) => {
             tableData.value[index].alarmOut.switch = true
             pageData.value.triggerDialogIndex = index
-            pageData.value.isPresetPopOpen = true
+            pageData.value.isPresetPop = true
         }
 
         const changePreset = (index: number, data: AlarmPresetItem[]) => {
-            pageData.value.isPresetPopOpen = false
+            pageData.value.isPresetPop = false
             tableData.value[index].preset = {
                 switch: !!data.length,
                 presets: cloneDeep(data),
@@ -399,7 +399,7 @@ export default defineComponent({
 
         const changeScheduleAll = (value: string) => {
             if (value === 'scheduleMgr') {
-                pageData.value.scheduleManagePopOpen = true
+                pageData.value.isSchedulePop = true
             } else {
                 tableData.value.forEach((item) => {
                     item.schedule.value = value
@@ -410,7 +410,7 @@ export default defineComponent({
 
         const changeSchedule = (row: AlarmSensorEventDto) => {
             if (row.schedule.value === 'scheduleMgr') {
-                pageData.value.scheduleManagePopOpen = true
+                pageData.value.isSchedulePop = true
                 nextTick(() => {
                     row.schedule.value = row.oldSchedule
                 })
@@ -543,20 +543,15 @@ export default defineComponent({
         })
 
         return {
-            AlarmBasePresetPop,
-            AlarmBaseSnapPop,
-            AlarmBaseRecordPop,
-            AlarmBaseAlarmOutPop,
-            ScheduleManagPop,
             editRows,
             pageData,
             tableData,
             changePaginationSize,
             changePagination,
             // 名称修改
-            nameFocus,
-            nameBlur,
-            enterBlur,
+            focusName,
+            blurName,
+            blurInput,
             // 排程
             changeScheduleAll,
             changeSchedule,

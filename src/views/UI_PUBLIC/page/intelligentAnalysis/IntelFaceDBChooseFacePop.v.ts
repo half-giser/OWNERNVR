@@ -130,8 +130,6 @@ export default defineComponent({
             chooseSnap,
             confirmSnap,
             importImg,
-            IntelFaceDBChooseFaceSnapPanel,
-            IntelFaceDBChooseFaceImportPanel,
         }
     },
 })

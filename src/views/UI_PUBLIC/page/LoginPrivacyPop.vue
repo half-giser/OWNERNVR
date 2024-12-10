@@ -17,10 +17,7 @@
             >
             </textarea>
         </div>
-        <div
-            class="base-btn-box"
-            span="2"
-        >
+        <div class="base-btn-box space-between">
             <div>
                 <el-checkbox
                     v-show="forceAllow"
@@ -28,14 +25,12 @@
                     :label="Translate('IDCS_PRIVACY_ALLOW')"
                 />
             </div>
-            <div>
-                <el-button
-                    :disabled="forceAllow && !pageData.isAllowPrivacy"
-                    @click="closePrivacy()"
-                >
-                    {{ Translate('IDCS_OK') }}
-                </el-button>
-            </div>
+            <el-button
+                :disabled="forceAllow && !pageData.isAllowPrivacy"
+                @click="closePrivacy()"
+            >
+                {{ Translate('IDCS_OK') }}
+            </el-button>
         </div>
     </el-dialog>
 </template>

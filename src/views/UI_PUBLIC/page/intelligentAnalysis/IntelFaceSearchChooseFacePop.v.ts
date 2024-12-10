@@ -257,10 +257,6 @@ export default defineComponent({
         })
 
         return {
-            IntelFaceDBChooseFaceFacePanel,
-            IntelFaceDBChooseFaceSnapPanel,
-            IntelFaceDBChooseFaceImportPanel,
-            IntelBaseFaceItem,
             pageData,
             confirmGroup,
             confirm,

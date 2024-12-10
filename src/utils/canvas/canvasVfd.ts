@@ -3,14 +3,7 @@
  * @Date: 2024-05-31 17:19:50
  * @Description: 支持业务：人脸识别侦测: 警戒区域 + 最大值&最小值;车牌识别侦测: 警戒区域 + 最大值&最小值;人群密度检测: 警戒区域
  */
-import CanvasBase, { type CanvasBaseLineStyleOption } from './canvasBase'
-
-interface CanvasVfdArea {
-    X1: number
-    Y1: number
-    X2: number
-    Y2: number
-}
+import CanvasBase, { type CanvasBaseLineStyleOption, type CanvasBaseArea } from './canvasBase'
 
 /**
  * @param {Object} option
@@ -28,10 +21,10 @@ interface CanvasVfdOption {
     lineStyle?: CanvasBaseLineStyleOption
     enable?: boolean
     showRange?: boolean
-    area?: CanvasVfdArea
-    rangeMin?: CanvasVfdArea
-    rangeMax?: CanvasVfdArea
-    onchange: (area: CanvasVfdArea) => void
+    area?: CanvasBaseArea
+    rangeMin?: CanvasBaseArea
+    rangeMax?: CanvasBaseArea
+    onchange: (area: CanvasBaseArea) => void
 }
 
 export default class CanvasVfd {
@@ -52,9 +45,9 @@ export default class CanvasVfd {
     private lineStyle: CanvasBaseLineStyleOption
     private enable: boolean
     private showRange: boolean
-    area: CanvasVfdArea
-    rangeMin: CanvasVfdArea
-    rangeMax: CanvasVfdArea
+    area: CanvasBaseArea
+    rangeMin: CanvasBaseArea
+    rangeMax: CanvasBaseArea
     private readonly onchange: CanvasVfdOption['onchange']
     private onMouseDown?: (e: MouseEvent) => void
 
@@ -132,19 +125,19 @@ export default class CanvasVfd {
     }
 
     // 设置警戒区域
-    setArea(area: CanvasVfdArea) {
+    setArea(area: CanvasBaseArea) {
         this.area = area
         this.init()
     }
 
     // 设置最大值
-    setRangeMax(rangeMax: CanvasVfdArea) {
+    setRangeMax(rangeMax: CanvasBaseArea) {
         this.rangeMax = rangeMax
         this.init()
     }
 
     // 设置最小值
-    setRangeMin(rangeMin: CanvasVfdArea) {
+    setRangeMin(rangeMin: CanvasBaseArea) {
         this.rangeMin = rangeMin
         this.init()
     }
@@ -237,7 +230,7 @@ export default class CanvasVfd {
         }
     }
 
-    getRealItemByRelative({ X1, Y1, X2, Y2 }: CanvasVfdArea) {
+    getRealItemByRelative({ X1, Y1, X2, Y2 }: CanvasBaseArea) {
         return {
             X1: this.getRealSizeByRelative(X1, 'x'),
             Y1: this.getRealSizeByRelative(Y1, 'y'),
@@ -246,7 +239,7 @@ export default class CanvasVfd {
         }
     }
 
-    getRelativeItemByReal({ X1, Y1, X2, Y2 }: CanvasVfdArea) {
+    getRelativeItemByReal({ X1, Y1, X2, Y2 }: CanvasBaseArea) {
         return {
             X1: this.getRelativeSizeByReal(X1, 'x'),
             Y1: this.getRelativeSizeByReal(Y1, 'y'),

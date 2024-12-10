@@ -394,7 +394,6 @@ export default defineComponent({
             addPlate,
             close,
             open,
-            IntelLicencePlateDBAddPlatePop,
         }
     },
 })

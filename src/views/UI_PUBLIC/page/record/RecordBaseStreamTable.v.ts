@@ -83,8 +83,14 @@ export default defineComponent({
 
         const recordStreams = [
             // 录像码流
-            { value: 'main', label: Translate('IDCS_MAIN_STREAM') },
-            { value: 'sub', label: Translate('IDCS_SUB_STREAM') },
+            {
+                value: 'main',
+                label: Translate('IDCS_MAIN_STREAM'),
+            },
+            {
+                value: 'sub',
+                label: Translate('IDCS_SUB_STREAM'),
+            },
         ]
 
         const DevRecParamCfgModule = {
@@ -94,13 +100,12 @@ export default defineComponent({
 
         // 事件录像码流参数
         const RecStreamModule = ref({
-            recType: '' as string,
-            recType1: '' as string,
+            recType: '',
+            recType1: '',
             loopRecSwitch: false,
         })
 
         const pageData = ref({
-            pop: false,
             videoEncodeTypeUnionList: [] as SelectOption<string, string>[],
             resolutionGroups: [] as ResolutionGroupReturnsType[],
             bitTypeUnionList: [] as string[],
@@ -478,7 +483,7 @@ export default defineComponent({
                 if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
                     pageData.value.PredictVisible = true
                     pageData.value.CalculateVisible = true
-                    queryRemainRecTimeF()
+                    getRemainRecTime()
                 }
                 pageData.value.levelDropDisable = pageData.value.isAllCBR
                 pageData.value.firstInit = false
@@ -492,7 +497,7 @@ export default defineComponent({
         }
 
         // 查询和显示当前录制状态下剩余的录制时间
-        const queryRemainRecTimeF = () => {
+        const getRemainRecTime = () => {
             let recType = ''
             if (props.mode === 'event') {
                 recType = RecStreamModule.value.recType === 'ae' ? 'auto' : 'manually'
@@ -569,7 +574,7 @@ export default defineComponent({
             await getSystemCaps()
             await getChlListData()
             await getNetCfgModule()
-            await getData()
+            getData()
         }
 
         // 设置videoQuality
@@ -674,7 +679,7 @@ export default defineComponent({
                 const ids = rowData.chls.data.map((element) => {
                     return element.value
                 })
-                const changeRows = [] as RecordStreamInfoDto[]
+                const changeRows: RecordStreamInfoDto[] = []
                 // 获取tableData中的被修改的数据,设置编辑状态，更新数据
                 tableData.value.forEach((element) => {
                     if (element.chlType !== 'recorder' && !element.disabled && !element.resolutionDisable) {
@@ -959,7 +964,7 @@ export default defineComponent({
 
         // 获取单个设备的帧率范围
         const getFrameRateSingleList = (rowData: RecordStreamInfoDto): SelectOption<string, string>[] => {
-            const frameRates = [] as SelectOption<string, string>[]
+            const frameRates: SelectOption<string, string>[] = []
             rowData.mainCaps.res.forEach((obj) => {
                 if (obj.value === rowData.resolution) {
                     const maxFrameRate = Number(obj.fps)
@@ -994,7 +999,6 @@ export default defineComponent({
             })
             const resolutionMapping: Record<string, SelectOption<string, string>[]> = {}
             const resolutionGroups: ResolutionGroupReturnsType[] = []
-            console.log(tableData, rowDatas)
             rowDatas.forEach((rowData) => {
                 const resolutionList: string[] = []
                 rowData.mainCaps.res.forEach((element) => {
@@ -1087,9 +1091,15 @@ export default defineComponent({
                             const tmp = element.value
                             tmp.forEach((element) => {
                                 if (pageData.value.poeModeNode && pageData.value.poeModeNode === '10' && Number(element) <= 6144) {
-                                    rowData.qualitys.push({ value: element, label: element + 'Kbps' })
+                                    rowData.qualitys.push({
+                                        value: element,
+                                        label: element + 'Kbps',
+                                    })
                                 } else if (!pageData.value.poeModeNode || pageData.value.poeModeNode === '100') {
-                                    rowData.qualitys.push({ value: element, label: element + 'Kbps' })
+                                    rowData.qualitys.push({
+                                        value: element,
+                                        label: element + 'Kbps',
+                                    })
                                 }
                             })
                         }
@@ -1103,8 +1113,11 @@ export default defineComponent({
             let resolution: string | number = options.resolution
             const videoEncodeType = options.videoEncodeType
             if (typeof resolution === 'string') {
-                const resParts: any[] = resolution.split('x').map((res) => Number(res))
-                const resolutionObj = { width: resParts[0] * 1, height: resParts[1] * 1 }
+                const resParts = resolution.split('x').map((res) => Number(res))
+                const resolutionObj = {
+                    width: resParts[0],
+                    height: resParts[1],
+                }
                 resolution = resolutionObj.width * resolutionObj.height
             }
 
@@ -1146,7 +1159,7 @@ export default defineComponent({
                 return null
             }
 
-            return { min: min, max: max }
+            return { min, max }
         }
 
         //分辨率选项根据大小排序
@@ -1159,7 +1172,7 @@ export default defineComponent({
         // 更新单个设备的可选帧率
         const updateFrameRates = (rowData: RecordStreamInfoDto, maxFrameRate: number, chlId: string, frameRate: string) => {
             const minFrameRate = pageData.value.mainStreamLimitFps > maxFrameRate ? maxFrameRate : pageData.value.mainStreamLimitFps
-            const tmp = [] as SelectOption<string, string>[]
+            const tmp: SelectOption<string, string>[] = []
             for (let i = maxFrameRate; i >= minFrameRate; i--) {
                 tmp.push({
                     value: i + '',
@@ -1192,7 +1205,7 @@ export default defineComponent({
 
         // 计算
         const handleCalculate = () => {
-            queryRemainRecTimeF()
+            getRemainRecTime()
         }
 
         // 编辑请求数据
@@ -1297,12 +1310,11 @@ export default defineComponent({
         }
 
         ctx.expose({
-            queryRemainRecTimeF,
+            getRemainRecTime,
             setData,
         })
 
         onMounted(() => {
-            pageData.value.pop = props.pop
             fetchData()
         })
 

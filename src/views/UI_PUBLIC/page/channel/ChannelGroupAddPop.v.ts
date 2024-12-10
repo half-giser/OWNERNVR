@@ -17,8 +17,6 @@ export default defineComponent({
         },
     },
     setup() {
-        return {
-            ChannelGroupAdd,
-        }
+        return {}
     },
 })

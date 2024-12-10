@@ -288,7 +288,7 @@ export default defineComponent({
                 </content>
             `
             const result = await editCloudUpgradeCfg(sendXml)
-            commSaveResponseHadler(result)
+            commSaveResponseHandler(result)
             getData()
 
             closeLoading()
@@ -346,7 +346,6 @@ export default defineComponent({
         return {
             pageData,
             formData,
-            BaseCheckAuthPop,
             upgrade,
             confirmUpgrade,
             getVersion,

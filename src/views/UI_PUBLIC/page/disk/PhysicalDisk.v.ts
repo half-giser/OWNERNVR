@@ -184,8 +184,6 @@ export default defineComponent({
             createRaid,
             confirmCreateRaid,
             confirmTransformDisk,
-            BaseCheckAuthPop,
-            PhysicalDiskCreateRaidPop,
         }
     },
 })

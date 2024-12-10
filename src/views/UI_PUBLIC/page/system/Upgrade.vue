@@ -43,8 +43,9 @@
                 <el-button
                     :disabled="pageData.isBackUpAndUpgradeDisabled"
                     @click="handleBackupAndUpgrade"
-                    >{{ Translate('IDCS_BACKUP_AND_UPGRADE') }}</el-button
                 >
+                    {{ Translate('IDCS_BACKUP_AND_UPGRADE') }}
+                </el-button>
                 <input
                     id="h5BrowerImport"
                     type="file"

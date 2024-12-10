@@ -230,8 +230,6 @@ export default defineComponent({
             displayRaidState,
             displayRaidType,
             confirmDeleteRaid,
-            BaseCheckAuthPop,
-            RaidRebuildPop,
         }
     },
 })

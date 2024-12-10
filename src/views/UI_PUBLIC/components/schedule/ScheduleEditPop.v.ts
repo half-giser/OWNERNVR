@@ -165,7 +165,7 @@ export default defineComponent({
                 openLoading()
                 const result = await saveFun(sendXml)
                 closeLoading()
-                commSaveResponseHadler(result, () => {
+                commSaveResponseHandler(result, () => {
                     ctx.emit('close', true)
                 })
             })

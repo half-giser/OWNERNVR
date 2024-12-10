@@ -152,8 +152,9 @@
                                         v-for="item in pageData.scheduleOptions"
                                         :key="item.value"
                                         @click="changeAllSwitch('schedule', item.value)"
-                                        >{{ item.label }}</el-dropdown-item
                                     >
+                                        {{ item.label }}
+                                    </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
                         </el-dropdown>

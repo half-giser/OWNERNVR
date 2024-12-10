@@ -946,18 +946,6 @@ export default defineComponent({
             addPlate,
             getUniqueKey,
             cacheKey,
-            IntelBaseChannelSelector,
-            IntelBaseDateTimeSelector,
-            IntelBaseEventSelector,
-            IntelBaseProfileSelector,
-            IntelBaseAttributeSelector,
-            IntelBaseCollect,
-            IntelBaseSnapItem,
-            IntelBaseSnapPop,
-            IntelBaseVehicleDirectionSelector,
-            IntelLicencePlateDBAddPlatePop,
-            BackupPop,
-            BackupLocalPop,
         }
     },
 })

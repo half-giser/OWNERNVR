@@ -171,7 +171,7 @@
             </el-table>
         </div>
         <div class="base-pagination-box">
-            <el-pagination
+            <BasePagination
                 :current-page="formData.pageIndex"
                 :page-size="formData.pageSize"
                 :total="pageData.totalCount"
@@ -229,7 +229,7 @@
 
 <style lang="scss" scoped>
 .img-mgr {
-    padding: 5px 10px;
+    padding: 10px;
 }
 
 .form {

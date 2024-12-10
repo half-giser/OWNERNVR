@@ -5,8 +5,8 @@
  */
 import { AlarmObjectLeftDto, type AlarmChlDto } from '@/types/apiType/aiAndEvent'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
-import { type TabPaneName } from 'element-plus'
 import CanvasPolygon from '@/utils/canvas/canvasPolygon'
+import { type CanvasBasePoint, type CanvasBaseArea } from '@/utils/canvas/canvasBase'
 import { type XMLQuery } from '@/utils/xmlParse'
 import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
 import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
@@ -48,13 +48,13 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
-        const { openNotify } = useNotification()
         const systemCaps = useCababilityStore()
-        const osType = getSystemInfo().platform
         // 系统配置
         const supportAlarmAudioConfig = systemCaps.supportAlarmAudioConfig
+
         // 温度检测数据
-        const objectLeftData = ref(new AlarmObjectLeftDto())
+        const formData = ref(new AlarmObjectLeftDto())
+        const watchEdit = useWatchEditData(formData)
 
         // 播放器
         const playerRef = ref<PlayerInstance>()
@@ -76,25 +76,21 @@ export default defineComponent({
             scheduleList: [] as SelectOption<string, string>[],
             scheduleManagPopOpen: false,
             warnArea: 0,
-            areaName: '',
             configuredArea: [] as boolean[],
             // 声音列表
             voiceList: prop.voiceList,
-            // 初始化，后判断应用是否可用
-            initComplated: false,
-            applyDisabled: true,
-        })
-
-        // 播放模式
-        const mode = computed(() => {
-            if (!playerRef.value) {
-                return ''
-            }
-            return playerRef.value.mode
         })
 
         const ready = computed(() => {
             return playerRef.value?.ready || false
+        })
+
+        // 播放模式
+        const mode = computed(() => {
+            if (!ready.value) {
+                return ''
+            }
+            return playerRef.value!.mode
         })
 
         let player: PlayerInstance['player']
@@ -112,13 +108,10 @@ export default defineComponent({
             plugin = playerRef.value!.plugin
 
             if (mode.value === 'h5') {
-                if (isHttpsLogin()) {
-                    openNotify(formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`))
-                }
                 const canvas = player.getDrawbordCanvas(0)
                 objDrawer = new CanvasPolygon({
                     el: canvas,
-                    onchange: areaChange,
+                    onchange: changeArea,
                     closePath: closePath,
                     forceClosePath: forceClosePath,
                     clearCurrentArea: clearCurrentArea,
@@ -126,22 +119,22 @@ export default defineComponent({
             }
 
             if (mode.value === 'ocx') {
-                const sendXML = OCX_XML_SetPluginModel(osType === 'mac' ? 'OscConfig' : 'ReadOnly', 'Live')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
         // objDrawer初始化时绑定以下函数
-        const areaChange = (points: { X: number; Y: number; isClosed?: boolean }[] | { X1: number; Y1: number; X2: number; Y2: number }) => {
-            objectLeftData.value.boundary[pageData.value.warnArea].points = points as { X: number; Y: number; isClosed: boolean }[]
+        const changeArea = (points: CanvasBasePoint[] | CanvasBaseArea) => {
+            formData.value.boundary[pageData.value.warnArea].points = points as CanvasBasePoint[]
             if (pageData.value.isShowAllArea) {
                 showAllArea()
             }
         }
 
-        const closePath = (points: { X: number; Y: number; isClosed?: boolean }[]) => {
+        const closePath = (points: CanvasBasePoint[]) => {
             points.forEach((item) => (item.isClosed = true))
-            objectLeftData.value.boundary[pageData.value.warnArea].points = points
+            formData.value.boundary[pageData.value.warnArea].points = points
         }
 
         const forceClosePath = (canBeClosed: boolean) => {
@@ -158,13 +151,16 @@ export default defineComponent({
                 type: 'question',
                 message: Translate('IDCS_DRAW_CLEAR_TIP'),
             }).then(() => {
-                if (!objectLeftData.value.boundary.length) return
-                objectLeftData.value.boundary[pageData.value.warnArea].points = []
+                if (!formData.value.boundary.length) return
+                formData.value.boundary[pageData.value.warnArea].points = []
+
                 if (mode.value === 'h5') {
                     objDrawer.clear()
-                } else {
+                }
+
+                if (mode.value === 'ocx') {
                     const sendXML = OCX_XML_SetOscAreaAction('NONE')
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.ExecuteCmd(sendXML)
                 }
 
                 if (pageData.value.isShowAllArea) {
@@ -178,41 +174,34 @@ export default defineComponent({
          */
         const play = () => {
             const chlData = prop.chlData
+
             if (mode.value === 'h5') {
                 player.play({
                     chlID: prop.currChlId,
                     streamType: 2,
                 })
-            } else if (mode.value === 'ocx') {
-                if (osType === 'mac') {
-                    // const sendXML = OCX_XML_Preview({
-                    //     winIndexList: [0],
-                    //     chlIdList: [chlData.id],
-                    //     chlNameList: [chlData.name],
-                    //     streamType: 'sub',
-                    //     // chl没有index属性
-                    //     chlIndexList: ['0'],
-                    //     chlTypeList: [chlData.chlType],
-                    // })
-                    // plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                } else {
-                    plugin.RetryStartChlView(prop.currChlId, chlData.name)
-                }
             }
-            // 设置视频区域可编辑
-            // 界面内切换tab，调用play时初始化区域
-            setTimeout(() => {
-                setAreaView()
-            }, 0)
+
+            if (mode.value === 'ocx') {
+                plugin.RetryStartChlView(prop.currChlId, chlData.name)
+            }
+
             if (mode.value === 'h5') {
                 objDrawer.setEnable(true)
-            } else {
-                const sendXML = OCX_XML_SetOscAreaAction('EDIT_ON')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
+
+            if (mode.value === 'ocx') {
+                const sendXML = OCX_XML_SetOscAreaAction('EDIT_ON')
+                plugin.ExecuteCmd(sendXML)
+            }
+
+            // 设置视频区域可编辑
+            // 界面内切换tab，调用play时初始化区域
+            setAreaView()
         }
 
         const getObjectLeftData = async () => {
+            openLoading()
             const sendXml = rawXml`
                 <condition>
                     <chlId>${prop.currChlId}</chlId>
@@ -222,7 +211,6 @@ export default defineComponent({
                     <trigger/>
                 </requireField>
             `
-            openLoading()
             const result = await queryOsc(sendXml)
             closeLoading()
             commLoadResponseHandler(result, ($) => {
@@ -236,7 +224,7 @@ export default defineComponent({
                     holdTimeArr = holdTimeArr.sort((a, b) => Number(a) - Number(b))
                 }
 
-                objectLeftData.value = {
+                formData.value = {
                     enabledSwitch: $param('switch').text().bool(),
                     originalSwitch: $param('switch').text().bool(),
                     holdTime,
@@ -307,24 +295,14 @@ export default defineComponent({
                         return $trigger(item).text().bool()
                     }),
                 }
-            }).then(() => {
-                pageData.value.initComplated = true
-                handleObjectLeftData()
+                refreshInitPage()
+                watchEdit.listen()
             })
-        }
-
-        const handleObjectLeftData = () => {
-            pageData.value.areaName = objectLeftData.value.boundary[pageData.value.warnArea].areaName
-
-            // 初始化样式
-            refreshInitPage()
-            // 绘制
-            setAreaView()
         }
 
         // 检测和屏蔽区域的样式初始化
         const refreshInitPage = () => {
-            objectLeftData.value.boundary.forEach((item, index) => {
+            formData.value.boundary.forEach((item, index) => {
                 if (item.points && item.points.length) {
                     pageData.value.configuredArea[index] = true
                 } else {
@@ -332,7 +310,7 @@ export default defineComponent({
                 }
             })
             // 是否显示全部区域切换按钮和清除全部按钮（区域数量大于等于2时才显示）
-            if (objectLeftData.value.boundary && objectLeftData.value.boundary.length > 1) {
+            if (formData.value.boundary && formData.value.boundary.length > 1) {
                 pageData.value.isShowAllAreaCheckBox = true
                 pageData.value.isShowAllClearBtn = true
             } else {
@@ -341,34 +319,29 @@ export default defineComponent({
             }
         }
 
-        // tab项切换
-        const tabChange = (name: TabPaneName) => {
-            if (name === 'param') {
-                play()
-            }
-        }
-
         // 视频区域
         const showAllArea = () => {
             objDrawer && objDrawer.setEnableShowAll(pageData.value.isShowAllArea)
             if (pageData.value.isShowAllArea) {
-                const detectAreaInfo = {} as Record<number, { X: number; Y: number; isClosed?: boolean }[]>
-                objectLeftData.value.boundary.forEach((item, index) => {
+                const detectAreaInfo: Record<number, CanvasBasePoint[]> = {}
+                formData.value.boundary.forEach((item, index) => {
                     detectAreaInfo[index] = item.points
                 })
                 if (mode.value === 'h5') {
                     const index = pageData.value.warnArea
                     objDrawer.setCurrAreaIndex(index, 'detectionArea')
                     objDrawer.drawAllPolygon(detectAreaInfo, {}, 'detectionArea', index, true)
-                } else {
-                    // todo,非h5情况下的全部显示没有写
-                    console.log('ocx show all alarm area')
+                }
+
+                if (mode.value === 'ocx') {
+                    // 非h5情况下的全部显示没有写
+                    // console.log('ocx show all alarm area')
                 }
             } else {
-                // TODO
-                if (mode.value !== 'h5') {
-                    console.log('ocx not show all alarm area')
+                if (mode.value === 'ocx') {
+                    // console.log('ocx not show all alarm area')
                 }
+
                 setAreaView()
             }
         }
@@ -376,26 +349,32 @@ export default defineComponent({
         const clearArea = () => {
             if (mode.value === 'h5') {
                 objDrawer.clear()
-            } else {
-                const sendXML = OCX_XML_SetOscAreaAction('NONE')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
-            if (!objectLeftData.value.boundary.length) return
-            objectLeftData.value.boundary[pageData.value.warnArea].points = []
+
+            if (mode.value === 'ocx') {
+                const sendXML = OCX_XML_SetOscAreaAction('NONE')
+                plugin.ExecuteCmd(sendXML)
+            }
+
+            if (!formData.value.boundary.length) return
+            formData.value.boundary[pageData.value.warnArea].points = []
             if (pageData.value.isShowAllArea) {
                 showAllArea()
             }
         }
 
         const clearAllArea = () => {
-            objectLeftData.value.boundary.forEach((item) => {
+            formData.value.boundary.forEach((item) => {
                 item.points = []
             })
+
             if (mode.value === 'h5') {
                 objDrawer && objDrawer.clear()
-            } else {
+            }
+
+            if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_SetOscAreaAction('NONE')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
 
             if (pageData.value.isShowAllArea) {
@@ -404,20 +383,22 @@ export default defineComponent({
         }
 
         // 警戒区域切换
-        const warnAreaChange = () => {
+        const changeWarnArea = () => {
             setOtherAreaClosed()
             setAreaView()
         }
 
         // 设置区域图形
         const setAreaView = () => {
-            if (objectLeftData.value.boundary && objectLeftData.value.boundary.length > 0 && objectLeftData.value.boundary[pageData.value.warnArea]) {
+            if (formData.value.boundary && formData.value.boundary.length > 0 && formData.value.boundary[pageData.value.warnArea]) {
                 if (mode.value === 'h5') {
                     objDrawer.setCurrAreaIndex(pageData.value.warnArea, 'detectionArea')
-                    objDrawer.setPointList(objectLeftData.value.boundary[pageData.value.warnArea].points, true)
-                } else {
-                    const sendXML = OCX_XML_SetOscArea(objectLeftData.value.boundary[pageData.value.warnArea].points, objectLeftData.value.regulation)
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    objDrawer.setPointList(formData.value.boundary[pageData.value.warnArea].points, true)
+                }
+
+                if (mode.value === 'ocx') {
+                    const sendXML = OCX_XML_SetOscArea(formData.value.boundary[pageData.value.warnArea].points, formData.value.regulation)
+                    plugin.ExecuteCmd(sendXML)
                 }
             }
 
@@ -436,8 +417,8 @@ export default defineComponent({
         const setOtherAreaClosed = () => {
             if (mode.value === 'h5') {
                 // 画点-区域
-                if (objectLeftData.value.boundary && objectLeftData.value.boundary.length > 0) {
-                    objectLeftData.value.boundary.forEach((item) => {
+                if (formData.value.boundary && formData.value.boundary.length > 0) {
+                    formData.value.boundary.forEach((item) => {
                         if (item.points.length >= 3 && objDrawer.judgeAreaCanBeClosed(item.points)) {
                             setClosed(item.points)
                         }
@@ -447,19 +428,18 @@ export default defineComponent({
         }
 
         // 名称输入限制
-        const areaNameInput = (value: string) => {
-            pageData.value.areaName = cutStringByByte(value, objectLeftData.value.maxNameLength)
-            objectLeftData.value.boundary[pageData.value.warnArea].areaName = pageData.value.areaName
+        const formatAreaName = (value: string) => {
+            return cutStringByByte(value, formData.value.maxNameLength)
         }
 
         // 回车键失去焦点
-        const enterBlur = (event: { target: { blur: () => void } }) => {
-            event.target.blur()
+        const blurInput = (event: Event) => {
+            ;(event.target as HTMLInputElement).blur()
         }
 
         // 检测区域合法性(物品遗留看护AI事件中：区域为多边形)
         const verification = () => {
-            for (const item of objectLeftData.value.boundary) {
+            for (const item of formData.value.boundary) {
                 const count = item.points.length
                 if (count > 0 && count < 4) {
                     openMessageBox({
@@ -481,20 +461,20 @@ export default defineComponent({
         const getObjectLeftSaveData = () => {
             const sendXml = rawXml`
                 <content>
-                    <chl id='${prop.currChlId}' scheduleGuid='${objectLeftData.value.schedule}'>
+                    <chl id='${prop.currChlId}' scheduleGuid='${formData.value.schedule}'>
                         <param>
-                            <switch>${objectLeftData.value.enabledSwitch}</switch>
-                            <holdTime unit='s'>${objectLeftData.value.holdTime}</holdTime>
-                            <oscType>${objectLeftData.value.oscType}</oscType>
-                            <boundary type='list' count='${objectLeftData.value.boundary.length}'>
+                            <switch>${formData.value.enabledSwitch}</switch>
+                            <holdTime unit='s'>${formData.value.holdTime}</holdTime>
+                            <oscType>${formData.value.oscType}</oscType>
+                            <boundary type='list' count='${formData.value.boundary.length}'>
                                 <itemType>
                                     <point type='list'/>
                                 </itemType>
-                                ${objectLeftData.value.boundary
+                                ${formData.value.boundary
                                     .map((item) => {
                                         return rawXml`
                                             <item>
-                                                <name maxLen='${objectLeftData.value.maxNameLength}'><![CDATA[${item.areaName}]]></name>
+                                                <name maxLen='${formData.value.maxNameLength}'><![CDATA[${item.areaName}]]></name>
                                                 <point type='list' maxCount='6' count='${item.points.length}'>
                                                     ${item.points
                                                         .map((ele) => {
@@ -515,7 +495,7 @@ export default defineComponent({
                         <trigger>
                             <sysRec>
                                 <chls type='list'>
-                                    ${objectLeftData.value.record
+                                    ${formData.value.record
                                         .map((item) => {
                                             return `<item id='${item.value}'><![CDATA[${item.label}]]></item>`
                                         })
@@ -524,7 +504,7 @@ export default defineComponent({
                             </sysRec>
                             <alarmOut>
                                 <alarmOuts type='list'>
-                                    ${objectLeftData.value.alarmOut
+                                    ${formData.value.alarmOut
                                         .map((item) => {
                                             return `<item id='${item.value}'><![CDATA[${item.label}]]></item>`
                                         })
@@ -533,7 +513,7 @@ export default defineComponent({
                             </alarmOut>
                             <preset>
                                 <presets type='list'>
-                                    ${objectLeftData.value.preset
+                                    ${formData.value.preset
                                         .map((item) => {
                                             return rawXml`
                                                 <item>
@@ -545,12 +525,12 @@ export default defineComponent({
                                         .join('')}
                                 </presets>
                             </preset>
-                            <snapSwitch>${objectLeftData.value.trigger.includes('snapSwitch')}</snapSwitch>
-                            <msgPushSwitch>${objectLeftData.value.trigger.includes('msgPushSwitch')}</msgPushSwitch>
-                            <buzzerSwitch>${objectLeftData.value.trigger.includes('buzzerSwitch')}</buzzerSwitch>
-                            <popVideoSwitch>${objectLeftData.value.trigger.includes('popVideoSwitch')}</popVideoSwitch>
-                            <emailSwitch>${objectLeftData.value.trigger.includes('emailSwitch')}</emailSwitch>
-                            <sysAudio id='${objectLeftData.value.sysAudio}'></sysAudio>
+                            <snapSwitch>${formData.value.trigger.includes('snapSwitch')}</snapSwitch>
+                            <msgPushSwitch>${formData.value.trigger.includes('msgPushSwitch')}</msgPushSwitch>
+                            <buzzerSwitch>${formData.value.trigger.includes('buzzerSwitch')}</buzzerSwitch>
+                            <popVideoSwitch>${formData.value.trigger.includes('popVideoSwitch')}</popVideoSwitch>
+                            <emailSwitch>${formData.value.trigger.includes('emailSwitch')}</emailSwitch>
+                            <sysAudio id='${formData.value.sysAudio}'></sysAudio>
                         </trigger>
                     </chl>
                 </content>
@@ -560,29 +540,29 @@ export default defineComponent({
         }
 
         const setObjectLeftData = async () => {
-            const sendXml = getObjectLeftSaveData()
             openLoading()
+            const sendXml = getObjectLeftSaveData()
             const result = await editOsc(sendXml)
             closeLoading()
             const $ = queryXml(result)
             if ($('status').text() === 'success') {
-                if (objectLeftData.value.enabledSwitch) {
-                    objectLeftData.value.originalSwitch = true
+                if (formData.value.enabledSwitch) {
+                    formData.value.originalSwitch = true
                 }
                 // 保存成功后刷新视频区域，四个点时区域没有闭合但保存后也可以闭合（四点已经可以画面）
                 setAreaView()
                 refreshInitPage()
-                pageData.value.applyDisabled = true
+                watchEdit.update()
             }
         }
 
         const applyObjectLeftData = () => {
             if (!verification()) return
             checkMutexChl({
-                isChange: objectLeftData.value.enabledSwitch && objectLeftData.value.enabledSwitch !== objectLeftData.value.originalSwitch,
+                isChange: formData.value.enabledSwitch && formData.value.enabledSwitch !== formData.value.originalSwitch,
                 chlName: prop.chlData.name,
                 tips: 'IDCS_SIMPLE_WATCH_DETECT_TIPS',
-                mutexList: objectLeftData.value.mutexList,
+                mutexList: formData.value.mutexList,
             }).then(() => {
                 setObjectLeftData()
             })
@@ -590,7 +570,7 @@ export default defineComponent({
 
         // 首次加载成功 播放视频
         const stopWatchFirstPlay = watchEffect(() => {
-            if (ready.value) {
+            if (ready.value && watchEdit.ready.value) {
                 nextTick(() => play())
                 stopWatchFirstPlay()
             }
@@ -601,7 +581,7 @@ export default defineComponent({
             if ($("statenotify[@type='OscArea']").length) {
                 // 绘制点线
                 if ($('statenotify/points').length) {
-                    objectLeftData.value.boundary[pageData.value.warnArea].points = $('statenotify/points/item').map((item) => {
+                    formData.value.boundary[pageData.value.warnArea].points = $('statenotify/points/item').map((item) => {
                         return {
                             X: item.attr('X').num(),
                             Y: item.attr('Y').num(),
@@ -626,17 +606,17 @@ export default defineComponent({
         }
         onMounted(async () => {
             pageData.value.scheduleList = await buildScheduleList()
-            await getObjectLeftData()
+            getObjectLeftData()
         })
 
         onBeforeUnmount(() => {
-            if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
+            if (plugin?.IsPluginAvailable() && mode.value === 'ocx') {
                 // 切到其他AI事件页面时清除一下插件显示的（线条/点/矩形/多边形）数据
                 const sendMinXML = OCX_XML_SetOscAreaAction('NONE')
-                plugin.GetVideoPlugin().ExecuteCmd(sendMinXML)
+                plugin.ExecuteCmd(sendMinXML)
 
                 const sendXML = OCX_XML_StopPreview('ALL')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
 
             if (mode.value === 'h5') {
@@ -644,43 +624,25 @@ export default defineComponent({
             }
         })
 
-        watch(
-            objectLeftData,
-            () => {
-                if (pageData.value.initComplated) {
-                    pageData.value.applyDisabled = false
-                }
-            },
-            {
-                deep: true,
-            },
-        )
-
         return {
-            ScheduleManagPop,
             supportAlarmAudioConfig,
             playerRef,
             notify,
-            objectLeftData,
+            formData,
+            watchEdit,
             pageData,
             // 播放器就绪
             handlePlayerReady,
-            // tab项切换（参数设置，联动方式）
-            tabChange,
             // 视频区域
             showAllArea,
             clearArea,
             clearAllArea,
             // 警戒区域切换
-            warnAreaChange,
-            areaNameInput,
-            enterBlur,
+            changeWarnArea,
+            formatAreaName,
+            blurInput,
             // 提交物品遗留与看护数据
             applyObjectLeftData,
-            AlarmBaseRecordSelector,
-            AlarmBaseAlarmOutSelector,
-            AlarmBaseTriggerSelector,
-            AlarmBasePresetSelector,
         }
     },
 })

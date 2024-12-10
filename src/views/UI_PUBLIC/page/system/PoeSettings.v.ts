@@ -82,7 +82,7 @@ export default defineComponent({
                 </content>
             `
             const result = await editPoePower(sendXml)
-            commSaveResponseHadler(result)
+            commSaveResponseHandler(result)
         }
 
         onMounted(async () => {

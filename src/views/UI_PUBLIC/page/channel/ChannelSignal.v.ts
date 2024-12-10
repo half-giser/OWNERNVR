@@ -14,7 +14,7 @@ export default defineComponent({
         const cababilityStore = useCababilityStore()
 
         const tableData = ref<ChannelSignalDto[]>([new ChannelSignalDto()])
-        const editWatcher = useWatchEditData(tableData)
+        const watchEdit = useWatchEditData(tableData)
 
         let supportLite = cababilityStore.supportLite
         let switchableIpChlMaxCount = cababilityStore.switchableIpChlMaxCount
@@ -193,7 +193,7 @@ export default defineComponent({
 
         const getData = () => {
             openLoading()
-            editWatcher.reset()
+            watchEdit.reset()
             queryBasicCfg().then((res) => {
                 closeLoading()
                 const $ = queryXml(res)
@@ -254,7 +254,7 @@ export default defineComponent({
                                 showSignal: channelSignalTypeList[i] === 'D' ? false : true,
                             }
                         })
-                    editWatcher.listen()
+                    watchEdit.listen()
                 }
             })
         }
@@ -294,7 +294,7 @@ export default defineComponent({
             openLoading()
             editBasicCfg(data).then(() => {
                 closeLoading()
-                editWatcher.update()
+                watchEdit.update()
             })
         }
 
@@ -317,7 +317,7 @@ export default defineComponent({
         return {
             tableData,
             ipChlMaxCount,
-            editWatcher,
+            watchEdit,
             supportLite,
             switchableIpChlMaxCount,
             chlSupSignalTypeList,

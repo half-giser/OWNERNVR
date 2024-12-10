@@ -104,10 +104,7 @@
                     :label="Translate('IDCS_AUTO_FOCUS_TIP')"
                 />
             </el-form-item>
-            <div
-                class="base-btn-box"
-                span="2"
-            >
+            <div class="base-btn-box space-between">
                 <div>
                     <BaseFloatError
                         v-model:message="pageData.errorMessage"
@@ -115,9 +112,7 @@
                         :teleported="false"
                     />
                 </div>
-                <div>
-                    <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>
-                </div>
+                <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>
             </div>
         </el-form>
     </div>

@@ -12,10 +12,9 @@
             @change="handleChangeChannel"
         />
         <el-tabs
-            :key="pageData.tabKey"
+            :key="pageData.currChlId"
             v-model="pageData.chosenFunction"
             class="base-ai-menu-tabs"
-            @tab-click="handleTabClick"
         >
             <!-- fireDetection -->
             <el-tab-pane

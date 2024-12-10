@@ -6,13 +6,13 @@
 <template>
     <AlarmBaseChannelSelector
         v-model="pageData.curChl"
-        :list="pageData.vehicleChlList"
+        :list="pageData.chlList"
         @change="chlChange"
     />
     <el-tabs
         v-model="pageData.vehicleTab"
         class="base-ai-menu-tabs"
-        @tab-change="vehicleTabChange"
+        @tab-change="changeTab"
     >
         <div
             v-if="pageData.notChlSupport"
@@ -27,10 +27,7 @@
             :disabled="pageData.vehicleDetectionDisabled"
         >
             <div>
-                <div
-                    class="base-btn-box padding collapse"
-                    span="start"
-                >
+                <div class="base-btn-box flex-start padding collapse">
                     <el-checkbox
                         v-model="vehicleDetectionData.enabledSwitch"
                         :label="Translate('IDCS_ENABLE')"
@@ -56,17 +53,12 @@
                                     />
                                 </div>
                                 <div>
-                                    <div
-                                        class="base-btn-box"
-                                        span="2"
-                                    >
-                                        <div>
-                                            <el-checkbox
-                                                v-model="detectionPageData.isShowAllArea"
-                                                :label="Translate('IDCS_DISPLAY_ALL_AREA')"
-                                                @change="showAllArea"
-                                            />
-                                        </div>
+                                    <div class="base-btn-box space-between">
+                                        <el-checkbox
+                                            v-model="detectionPageData.isShowAllArea"
+                                            :label="Translate('IDCS_DISPLAY_ALL_AREA')"
+                                            @change="showAllArea"
+                                        />
                                         <div>
                                             <el-button @click="clearArea">{{ Translate('IDCS_CLEAR') }}</el-button>
                                             <el-button @click="clearAllArea">{{ Translate('IDCS_FACE_CLEAR_ALL') }}</el-button>
@@ -168,7 +160,7 @@
                                         <BaseNumberInput
                                             v-model="vehicleDetectionData.plateSize.minWidth"
                                             :min="vehicleDetectionData.plateSize.min"
-                                            :max="vehicleDetectionData.plateSize.max"
+                                            :max="Math.min(vehicleDetectionData.plateSize.max, vehicleDetectionData.plateSize.maxWidth)"
                                             @blur="minVehicleBlur"
                                         />
                                         <el-text>%</el-text>
@@ -176,7 +168,7 @@
                                     <el-form-item :label="Translate('IDCS_MAX')">
                                         <BaseNumberInput
                                             v-model="vehicleDetectionData.plateSize.maxWidth"
-                                            :min="vehicleDetectionData.plateSize.min"
+                                            :min="Math.max(vehicleDetectionData.plateSize.min, vehicleDetectionData.plateSize.minWidth)"
                                             :max="vehicleDetectionData.plateSize.max"
                                             @blur="maxVehicleBlur"
                                         />
@@ -235,7 +227,7 @@
                 </div>
                 <div class="base-btn-box fixed">
                     <el-button
-                        :disabled="detectionPageData.applyDisabled"
+                        :disabled="watchDetection.disabled.value"
                         @click="applyVehicleDetectionData"
                     >
                         {{ Translate('IDCS_APPLY') }}
@@ -295,13 +287,14 @@
                         <span
                             :class="{ disabled: comparePageData.removeDisabled }"
                             @click="removeTask"
-                            >-</span
                         >
+                            -
+                        </span>
                     </div>
                 </div>
                 <div class="base-btn-box fixed">
                     <el-button
-                        :disabled="comparePageData.applyDisabled"
+                        :disabled="watchCompare.disabled.value"
                         @click="applyVehicleCompareData"
                     >
                         {{ Translate('IDCS_APPLY') }}

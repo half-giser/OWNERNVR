@@ -116,7 +116,8 @@ export const OCX_XML_Initial = (model: string, notifyFunName: string, viewType: 
 export const OCX_XML_Initial_P2P = (model?: string, notifyFunName?: string, viewType?: string, screenNum?: number) => {
     const p2pVersion = useUserSessionStore().p2pVersion
     return wrapXml(rawXml`
-        ${viewType === TIMESLIDER_PLUGIN ? '<cmd type="Initial" target="dateCtrl">' : '<cmd type="Initial">' + viewType ? `<viewType>${viewType}</viewType>` : ''}
+        ${viewType === TIMESLIDER_PLUGIN ? '<cmd type="Initial" target="dateCtrl">' : '<cmd type="Initial">'}
+            ${viewType ? `<viewType>${viewType}</viewType>` : ''}
             ${model ? `<setModel>${model}</setModel>` : ''}
             <natSvc>
                 ${p2pVersion === '1.0' ? `<item ver="${p2pVersion}" ip="${natIp}" port="${natPort}" />` : `<item ver="${p2pVersion}" ip="${natIp_2_0}" port="${natPort_2_0}" />`}
@@ -1852,7 +1853,7 @@ export const OCX_XML_SetAllVsdArea = (regulation: boolean, regionInfo: { X: numb
  * @returns {string}
  */
 export const OCX_XML_GetMaxMinXml = (points: { X1: number; X2: number; Y1: number; Y2: number }, type: string) => {
-    return `<item type="${type}">
+    return rawXml`<item type="${type}">
         <X1>${points.X1}</X1>
         <X2>${points.X2}</X2>
         <Y1>${points.Y1}</Y1>
@@ -1877,7 +1878,7 @@ interface OcxXmlSetAllAreaAreaInfoOption {
 }
 export const OCX_XML_SetAllArea = (
     areaInfo: OcxXmlSetAllAreaAreaInfoOption,
-    areaType: 'IrregularPolygon' | 'IrregularPolygon' | 'Rectangle' | 'WarningLine',
+    areaType: 'IrregularPolygon' | 'Rectangle' | 'WarningLine',
     eventType: keyof typeof AIEventTypeMap,
     maxMinXml?: string,
     isShowAll?: boolean,

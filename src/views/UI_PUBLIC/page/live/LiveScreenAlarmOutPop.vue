@@ -63,8 +63,9 @@
                                             v-for="item in pageData.delayList"
                                             :key="item.value"
                                             @click="changeAllDelay(item.value)"
-                                            >{{ item.label }}</el-dropdown-item
                                         >
+                                            {{ item.label }}
+                                        </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
                             </el-dropdown>

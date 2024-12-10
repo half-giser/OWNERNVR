@@ -35,7 +35,7 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.audioList"
                                         :key="item.value"
-                                        @click="handleSysAudioChangeAll(item.value)"
+                                        @click="changeAllAudio(item.value)"
                                     >
                                         {{ item.label }}
                                     </el-dropdown-item>
@@ -62,7 +62,7 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.enableList"
                                         :key="item.value"
-                                        @click="handleMsgPushChangeAll(item.value)"
+                                        @click="changeAllMsgPush(item.value)"
                                     >
                                         {{ item.label }}
                                     </el-dropdown-item>
@@ -81,7 +81,7 @@
                 <el-table-column width="215">
                     <template #header>
                         <AlarmBaseAlarmOutPop
-                            :visible="pageData.alarmOutIsShow"
+                            :visible="pageData.isAlarmOutPop"
                             :data="tableData"
                             :index="pageData.triggerDialogIndex"
                             @confirm="changeAlarmOut"
@@ -114,7 +114,7 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.enableList"
                                         :key="item.value"
-                                        @click="handleBeeperChangeAll(item.value)"
+                                        @click="changeAllBeeper(item.value)"
                                     >
                                         {{ item.label }}
                                     </el-dropdown-item>
@@ -141,7 +141,7 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.enableList"
                                         :key="item.value"
-                                        @click="handleMsgBoxPopupChangeAll(item.value)"
+                                        @click="changeAllMsgPopUp(item.value)"
                                     >
                                         {{ item.label }}
                                     </el-dropdown-item>
@@ -166,7 +166,7 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.enableList"
                                         :key="item.value"
-                                        @click="handleEmailChangeAll(item.value)"
+                                        @click="changeAllEmail(item.value)"
                                     >
                                         {{ item.label }}
                                     </el-dropdown-item>
@@ -184,21 +184,16 @@
                 </el-table-column>
             </el-table>
         </div>
-        <div
-            class="base-btn-box"
-            span="2"
-        >
+        <div class="base-btn-box space-between">
             <div class="tips_text">
                 {{ Translate('IDCS_DISK_FAILURE_TIPS').formatForLang(Translate('IDCS_DISK_FAILURE')) }}
             </div>
-            <div>
-                <el-button
-                    :disabled="editData.disabled.value"
-                    @click="setData"
-                >
-                    {{ Translate('IDCS_APPLY') }}
-                </el-button>
-            </div>
+            <el-button
+                :disabled="watchEdit.disabled.value"
+                @click="setData"
+            >
+                {{ Translate('IDCS_APPLY') }}
+            </el-button>
         </div>
     </div>
 </template>

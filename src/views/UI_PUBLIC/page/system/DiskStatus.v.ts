@@ -13,7 +13,6 @@ export default defineComponent({
 
         // 状态值与显示文案的映射
         const TRANS_MAPPING: Record<string, string> = {
-            loadingTip: Translate('IDCS_DEVC_REQUESTING_DATA'),
             bad: Translate('IDCS_NOT_AVAILABLE'),
             local: Translate('IDCS_LOCAL'),
             net: Translate('IDCS_REMOTE'),
@@ -134,9 +133,9 @@ export default defineComponent({
                     group: '',
                     recTime: recStartDate === recEndDate ? recStartDate : recStartDate + '~' + recEndDate,
                     detail: [],
-                    gridRowStatus: 'loading',
-                    gridRowDisabled: true,
-                    gridRowStatusInitTooltip: TRANS_MAPPING.loadingTip,
+                    status: 'loading',
+                    disabled: true,
+                    statusTip: '',
                     sortIndex: enclosureIndex * 1000 + $item('slotIndex').text().num(),
                 })
             })
@@ -189,9 +188,9 @@ export default defineComponent({
                         group: '',
                         recTime: recStartDate === recEndDate ? recStartDate : recStartDate + '~' + recEndDate,
                         detail: [],
-                        gridRowStatus: 'loading',
-                        gridRowDisabled: true,
-                        gridRowStatusInitTooltip: TRANS_MAPPING.loadingTip,
+                        status: 'loading',
+                        disabled: true,
+                        statusTip: '',
                         sortIndex: enclosureIndex * 1000,
                     })
                 })
@@ -204,11 +203,10 @@ export default defineComponent({
 
             tableData.value = rowData
 
+            closeLoading()
+
             // 请求显示设置数据
-            const task = tableData.value.map((item, index) => getDetail(item.id, index))
-            Promise.all(task).then(() => {
-                closeLoading()
-            })
+            tableData.value.map((item, index) => getDetail(item.id, index))
         }
 
         /**
@@ -234,9 +232,9 @@ export default defineComponent({
                 }
                 tableData.value[index].source = TRANS_MAPPING[$('content/source').text()]
                 tableData.value[index].group = groupName
-                tableData.value[index].gridRowDisabled = false
+                tableData.value[index].disabled = false
             }
-            tableData.value[index].gridRowStatus = ''
+            tableData.value[index].status = ''
         }
 
         /**

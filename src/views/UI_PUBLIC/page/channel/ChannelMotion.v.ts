@@ -15,12 +15,11 @@ export default defineComponent({
         const { openMessageBox } = useMessageBox()
         const userSessionStore = useUserSessionStore()
         const router = useRouter()
-        const osType = getSystemInfo().platform
 
         const playerRef = ref<PlayerInstance>()
         const formData = ref(new ChannelMotionDto())
         const tableRef = ref<TableInstance>()
-        const tableData = ref([] as ChannelMotionDto[])
+        const tableData = ref<ChannelMotionDto[]>([])
         const pageIndex = ref(1)
         const pageSize = ref(10)
         const pageTotal = ref(0)
@@ -29,6 +28,21 @@ export default defineComponent({
         const switchOptions = getBoolSwitchOptions()
         let motionDrawer: CanvasMotion
         let motionAlarmList: string[] = []
+
+        const ready = computed(() => {
+            return playerRef.value?.ready || false
+        })
+
+        // 播放模式
+        const mode = computed(() => {
+            if (!ready.value) {
+                return ''
+            }
+            return playerRef.value!.mode
+        })
+
+        let player: PlayerInstance['player']
+        let plugin: PlayerInstance['plugin']
 
         const REFRESH_INTERVAL = 3000
         const alarmStatusTimer = useRefreshTimer(() => {
@@ -302,33 +316,44 @@ export default defineComponent({
 
         const handleSelAll = () => {
             const rowData = getRowById(selectedChlId.value)!
+
             if (rowData.disabled) return
+
             if (mode.value === 'h5') {
                 motionDrawer?.selectAll()
-            } else {
-                const sendXML = OCX_XML_SetMotionAreaAction('ALL')
-                playerRef.value?.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
+
+            if (mode.value === 'ocx') {
+                const sendXML = OCX_XML_SetMotionAreaAction('ALL')
+                plugin.ExecuteCmd(sendXML)
+            }
+
             motionAreaChange()
         }
 
         const handleSelReverse = () => {
             if (mode.value === 'h5') {
                 motionDrawer?.reverse()
-            } else {
-                const sendXML = OCX_XML_SetMotionAreaAction('INVERSE')
-                playerRef.value?.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
+
+            if (mode.value === 'ocx') {
+                const sendXML = OCX_XML_SetMotionAreaAction('INVERSE')
+                plugin.ExecuteCmd(sendXML)
+            }
+
             motionAreaChange()
         }
 
         const handleClear = () => {
             if (mode.value === 'h5') {
                 motionDrawer?.clear()
-            } else {
-                const sendXML = OCX_XML_SetMotionAreaAction('NONE')
-                playerRef.value?.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
             }
+
+            if (mode.value === 'ocx') {
+                const sendXML = OCX_XML_SetMotionAreaAction('NONE')
+                plugin.ExecuteCmd(sendXML)
+            }
+
             motionAreaChange()
         }
 
@@ -340,9 +365,11 @@ export default defineComponent({
                 arr.forEach((ele) => {
                     areaInfo.push(ele.join(''))
                 })
-            } else {
+            }
+
+            if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_GetMotionArea()
-                plugin.AsynQueryInfo(plugin.GetVideoPlugin(), sendXML, (result: string) => {
+                plugin.AsynQueryInfo(sendXML, (result) => {
                     const $ = queryXml(XMLStr2XMLDoc(result))
                     $('response/areaInfo/item').forEach((ele) => {
                         areaInfo.push(ele.text())
@@ -350,21 +377,6 @@ export default defineComponent({
                 })
             }
         }
-
-        // 播放模式
-        const mode = computed(() => {
-            if (!playerRef.value) {
-                return ''
-            }
-            return playerRef.value.mode
-        })
-
-        const ready = computed(() => {
-            return playerRef.value?.ready || false
-        })
-
-        let player: PlayerInstance['player']
-        let plugin: PlayerInstance['plugin']
 
         const onReady = () => {
             player = playerRef.value!.player
@@ -375,9 +387,11 @@ export default defineComponent({
                     el: player.getDrawbordCanvas(0) as HTMLCanvasElement,
                     onchange: motionAreaChange,
                 })
-            } else {
-                const sendXML = OCX_XML_SetPluginModel(osType === 'mac' ? 'MotionConfig' : 'ReadOnly', 'Live')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+            }
+
+            if (mode.value === 'ocx') {
+                const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -386,18 +400,18 @@ export default defineComponent({
          */
         const play = () => {
             if (!selectedChlId.value) return
-            if (!ready.value) return
+
             const rowData = getRowById(selectedChlId.value)!
+
             if (mode.value === 'h5') {
                 player.play({
                     chlID: rowData.id,
                     streamType: 2,
                 })
-            } else {
-                if (osType === 'mac') {
-                } else {
-                    plugin.RetryStartChlView(rowData.id, rowData.name)
-                }
+            }
+
+            if (mode.value === 'ocx') {
+                plugin.RetryStartChlView(rowData.id, rowData.name)
             }
 
             if (rowData.column) {
@@ -406,11 +420,14 @@ export default defineComponent({
                     row: rowData.row,
                     areaInfo: rowData.areaInfo,
                 }
+
                 if (mode.value === 'h5') {
                     motionDrawer?.setOption(motion)
-                } else {
+                }
+
+                if (mode.value === 'ocx') {
                     const sendXML = OCX_XML_SetMotionArea(motion)
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.ExecuteCmd(sendXML)
                 }
             }
         }
@@ -435,13 +452,13 @@ export default defineComponent({
         })
 
         onBeforeUnmount(() => {
-            if (ready.value) {
-                if (mode.value === 'ocx') {
-                    const sendXML = OCX_XML_StopPreview('ALL')
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                } else {
-                    motionDrawer?.destroy()
-                }
+            if (mode.value === 'ocx') {
+                const sendXML = OCX_XML_StopPreview('ALL')
+                plugin.ExecuteCmd(sendXML)
+            }
+
+            if (mode.value === 'h5') {
+                motionDrawer?.destroy()
             }
         })
 

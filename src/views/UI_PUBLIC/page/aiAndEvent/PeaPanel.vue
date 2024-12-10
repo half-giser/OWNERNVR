@@ -6,81 +6,72 @@
 <template>
     <div>
         <!-- <div
-            v-if="peaData.notSupportTipShow"
+            v-if="pageData.notSupportTipShow"
             class="base-ai-not-support-box"
         >
             {{ Translate('IDCS_CURRENT_INTEL_EVENT_UNSUPORT') }}
         </div> -->
         <div
-            v-if="peaData.requireDataFail"
+            v-if="pageData.requireDataFail"
             class="base-ai-not-support-box"
         >
             {{ Translate('IDCS_QUERY_DATA_FAIL') }}
         </div>
-        <div v-if="!peaData.requireDataFail">
+        <div v-if="!pageData.requireDataFail">
             <!-- nvr/ipc检测开启及ai按钮 -->
-            <div
-                class="base-btn-box padding collapse"
-                span="2"
-            >
-                <div>
-                    <el-checkbox
-                        v-model="peaData.areaCfgData[peaData.activityType].detectionEnable"
-                        :label="peaData.detectionTypeText"
-                    />
-                </div>
+            <div class="base-btn-box space-between padding collapse">
+                <el-checkbox
+                    v-model="formData[pageData.activityType].detectionEnable"
+                    :label="pageData.detectionTypeText"
+                />
                 <AlarmBaseResourceData
                     :event="areaType"
                     :chl-id="currChlId"
-                    :enable="peaData.areaCfgData[peaData.activityType].detectionEnable && !chlData.supportTripwire"
-                    @error="peaData.areaCfgData[peaData.activityType].detectionEnable = false"
+                    :enable="formData[pageData.activityType].detectionEnable && !chlData.supportTripwire"
+                    @error="formData[pageData.activityType].detectionEnable = false"
                 />
             </div>
             <!-- 只存在一个播放器，因此放于tab区域外 -->
             <div
-                v-show="peaData.peaFunction !== 'pea_trigger'"
+                v-show="pageData.peaFunction !== 'pea_trigger'"
                 class="base-ai-param-box-left fixed"
             >
                 <div class="player">
                     <BaseVideoPlayer
-                        ref="peaplayerRef"
-                        @ready="peahandlePlayerReady"
+                        ref="playerRef"
+                        @ready="handlePlayerReady"
                         @message="notify"
                     />
                 </div>
-                <div v-show="peaData.peaFunction === 'pea_param'">
-                    <div
-                        class="base-btn-box"
-                        span="2"
-                    >
+                <div v-show="pageData.peaFunction === 'pea_param'">
+                    <div class="base-btn-box space-between">
                         <div>
                             <el-checkbox
-                                v-show="peaData.showAllAreaVisible"
-                                v-model="peaData.isShowAllArea"
+                                v-show="pageData.showAllAreaVisible"
+                                v-model="pageData.isShowAllArea"
                                 :label="Translate('IDCS_DISPLAY_ALL_AREA')"
-                                @change="handlePeaShowAllAreaChange"
+                                @change="toggleShowAllArea"
                             />
                         </div>
-
                         <div>
-                            <el-button @click="peaClearCurrentAreaBtn">{{ Translate('IDCS_CLEAR') }}</el-button>
+                            <el-button @click="clearArea">{{ Translate('IDCS_CLEAR') }}</el-button>
                             <el-button
-                                v-if="peaData.clearAllVisible"
-                                @click="clearAllPeaArea"
+                                v-if="pageData.clearAllVisible"
+                                @click="clearAllArea"
                             >
                                 {{ Translate('IDCS_FACE_CLEAR_ALL') }}
                             </el-button>
                         </div>
                     </div>
-                    <div class="base-ai-tip">{{ peaData.areaCfgData[peaData.activityType].regulation ? Translate('IDCS_DRAW_RECT_TIP') : Translate('IDCS_DRAW_AREA_TIP').formatForLang(6) }}</div>
+                    <div class="base-ai-tip">{{ formData[pageData.activityType].regulation ? Translate('IDCS_DRAW_RECT_TIP') : Translate('IDCS_DRAW_AREA_TIP').formatForLang(6) }}</div>
                 </div>
             </div>
             <div class="base-ai-form">
                 <!-- 三种功能 -->
                 <el-tabs
-                    v-model="peaData.peaFunction"
+                    v-model="pageData.peaFunction"
                     class="base-ai-tabs"
-                    @tab-click="handlePeaFunctionTabClick"
+                    @tab-change="changeTab"
                 >
                     <!-- 参数设置 -->
                     <el-tab-pane
@@ -101,11 +92,11 @@
                                     <!-- 排程 -->
                                     <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
                                         <el-select-v2
-                                            v-model="peaData.schedule"
-                                            :options="peaData.scheduleList"
-                                            @change="peaData.applyDisable = false"
+                                            v-model="pageData.schedule"
+                                            :options="pageData.scheduleList"
+                                            @change="watchEdit.disabled.value = false"
                                         />
-                                        <el-button @click="peaData.scheduleManagePopOpen = true">
+                                        <el-button @click="pageData.isSchedulePop = true">
                                             {{ Translate('IDCS_MANAGE') }}
                                         </el-button>
                                     </el-form-item>
@@ -115,37 +106,37 @@
                                     <!-- 区域活动 -->
                                     <el-form-item :label="Translate('IDCS_AREA_ACTIVE')">
                                         <el-select-v2
-                                            v-model="peaData.areaActive"
-                                            :disabled="peaData.areaActiveDisable"
-                                            :options="peaData.areaActiveList"
-                                            @change="handleAreaActiveChange"
+                                            v-model="pageData.areaActive"
+                                            :disabled="pageData.areaActiveDisable"
+                                            :options="pageData.areaActiveList"
+                                            @change="changeAreaActive"
                                         />
                                     </el-form-item>
                                     <!-- 方向 -->
                                     <el-form-item :label="Translate('IDCS_DIRECTION')">
                                         <el-select-v2
-                                            v-model="peaData.direction"
-                                            :disabled="peaData.directionDisable"
-                                            :options="peaData.directionList"
-                                            @change="handlePeaDirectionChange"
+                                            v-model="pageData.direction"
+                                            :disabled="pageData.directionDisable"
+                                            :options="pageData.directionList"
+                                            @change="changeDirection"
                                         />
                                     </el-form-item>
                                     <!-- 持续时间 -->
                                     <el-form-item :label="Translate('IDCS_DURATION')">
                                         <el-select-v2
-                                            v-model="peaData.areaCfgData[peaData.activityType].holdTime"
-                                            :options="peaData.areaCfgData[peaData.activityType].holdTimeList"
+                                            v-model="formData[pageData.activityType].holdTime"
+                                            :options="formData[pageData.activityType].holdTimeList"
                                         />
                                     </el-form-item>
                                     <!-- 警戒区域 -->
                                     <el-form-item :label="Translate('IDCS_WARN_AREA')">
                                         <el-radio-group
-                                            v-model="peaData.chosenWarnAreaIndex"
+                                            v-model="pageData.chosenWarnAreaIndex"
                                             class="small-btn"
-                                            @change="handleWarnAreaChange()"
+                                            @change="changeWarnArea()"
                                         >
                                             <el-radio-button
-                                                v-for="(_item, index) in peaData.areaCfgData[peaData.activityType].boundaryInfo"
+                                                v-for="(_item, index) in formData[pageData.activityType].boundaryInfo"
                                                 :key="index"
                                                 :value="index"
                                                 :label="index + 1"
@@ -154,18 +145,18 @@
                                     </el-form-item>
                                     <!-- 只支持人的灵敏度 -->
                                     <el-form-item
-                                        v-if="peaData.areaCfgData[peaData.activityType].pea_onlyPreson"
+                                        v-if="formData[pageData.activityType].pea_onlyPreson"
                                         :label="Translate('IDCS_SENSITIVITY')"
                                         :style="{
                                             '--form-input-width': '285px',
                                         }"
                                     >
                                         <el-slider
-                                            v-model="peaData.areaCfgData[peaData.activityType].onlyPersonSensitivity"
+                                            v-model="formData[pageData.activityType].onlyPersonSensitivity"
                                             show-input
                                         />
                                     </el-form-item>
-                                    <el-form-item v-if="peaData.areaCfgData[peaData.activityType].pea_onlyPreson">
+                                    <el-form-item v-if="formData[pageData.activityType].pea_onlyPreson">
                                         {{ Translate('IDCS_DETECTION_ONLY_ONE_OBJECT').formatForLang(Translate('IDCS_BEYOND_DETECTION'), Translate('IDCS_DETECTION_PERSON')) }}
                                     </el-form-item>
                                     <!-- 云台 -->
@@ -175,23 +166,17 @@
                                         </div>
                                         <ChannelPtzCtrlPanel
                                             :chl-id="currChlId || ''"
-                                            @speed="setPeaSpeed"
+                                            @speed="setSpeed"
                                         />
-                                        <div
-                                            class="base-btn-box padding"
-                                            span="start"
-                                        >
+                                        <div class="base-btn-box flex-start padding">
                                             <el-button @click="editLockStatus">
-                                                {{ peaData.lockStatus ? Translate('IDCS_UNLOCK') : Translate('IDCS_LOCKED') }}
+                                                {{ pageData.lockStatus ? Translate('IDCS_UNLOCK') : Translate('IDCS_LOCKED') }}
                                             </el-button>
                                             <span>{{ Translate('IDCS_LOCK_PTZ_TIP') }}</span>
                                         </div>
-                                        <div
-                                            class="base-btn-box padding collapse"
-                                            span="start"
-                                        >
+                                        <div class="base-btn-box flex-start padding collapse">
                                             <el-checkbox
-                                                v-model="peaData.areaCfgData[peaData.activityType].autoTrack"
+                                                v-model="formData[pageData.activityType].autoTrack"
                                                 :label="Translate('IDCS_TRIGGER_TRACK')"
                                             />
                                         </div>
@@ -199,18 +184,10 @@
                                 </el-form>
                             </div>
                         </div>
-                        <div class="base-btn-box fixed">
-                            <el-button
-                                :disabled="peaData.applyDisable"
-                                @click="handlePeaApply"
-                            >
-                                {{ Translate('IDCS_APPLY') }}
-                            </el-button>
-                        </div>
                     </el-tab-pane>
                     <!-- 检测目标 -->
                     <el-tab-pane
-                        v-if="!peaData.areaCfgData[peaData.activityType].pea_onlyPreson"
+                        v-if="!formData[pageData.activityType].pea_onlyPreson"
                         :label="Translate('IDCS_DETECTION_TARGET')"
                         name="pea_target"
                     >
@@ -229,14 +206,14 @@
                                     <el-form-item>
                                         <template #label>
                                             <el-checkbox
-                                                v-model="peaData.areaCfgData[peaData.activityType].person"
+                                                v-model="formData[pageData.activityType].person"
                                                 :label="Translate('IDCS_DETECTION_PERSON')"
                                             />
                                         </template>
                                         <template #default>
                                             <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                             <el-slider
-                                                v-model="peaData.areaCfgData[peaData.activityType].personSensitivity"
+                                                v-model="formData[pageData.activityType].personSensitivity"
                                                 show-input
                                             />
                                         </template>
@@ -245,14 +222,14 @@
                                     <el-form-item>
                                         <template #label>
                                             <el-checkbox
-                                                v-model="peaData.areaCfgData[peaData.activityType].car"
+                                                v-model="formData[pageData.activityType].car"
                                                 :label="Translate('IDCS_DETECTION_VEHICLE')"
                                             />
                                         </template>
                                         <template #default>
                                             <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                             <el-slider
-                                                v-model="peaData.areaCfgData[peaData.activityType].carSensitivity"
+                                                v-model="formData[pageData.activityType].carSensitivity"
                                                 show-input
                                             />
                                         </template>
@@ -261,14 +238,14 @@
                                     <el-form-item>
                                         <template #label>
                                             <el-checkbox
-                                                v-model="peaData.areaCfgData[peaData.activityType].motorcycle"
+                                                v-model="formData[pageData.activityType].motorcycle"
                                                 :label="Translate('IDCS_NON_VEHICLE')"
                                             />
                                         </template>
                                         <template #default>
                                             <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                             <el-slider
-                                                v-model="peaData.areaCfgData[peaData.activityType].motorSensitivity"
+                                                v-model="formData[pageData.activityType].motorSensitivity"
                                                 show-input
                                             />
                                         </template>
@@ -276,25 +253,16 @@
                                 </el-form>
                             </div>
                         </div>
-
-                        <div class="base-btn-box fixed">
-                            <el-button
-                                :disabled="peaData.applyDisable"
-                                @click="handlePeaApply"
-                            >
-                                {{ Translate('IDCS_APPLY') }}
-                            </el-button>
-                        </div>
                     </el-tab-pane>
                     <!-- 联动方式 -->
                     <el-tab-pane
                         :label="Translate('IDCS_LINKAGE_MODE')"
                         name="pea_trigger"
                     >
-                        <el-form v-if="peaData.supportAlarmAudioConfig">
+                        <el-form v-if="pageData.supportAlarmAudioConfig">
                             <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">
                                 <el-select-v2
-                                    v-model="peaData.areaCfgData[peaData.activityType].sysAudio"
+                                    v-model="formData[pageData.activityType].sysAudio"
                                     :options="voiceList"
                                 />
                             </el-form-item>
@@ -302,35 +270,35 @@
                         <div class="base-ai-linkage-content">
                             <!-- 常规联动 -->
                             <AlarmBaseTriggerSelector
-                                v-model="peaData.areaCfgData[peaData.activityType].trigger"
-                                :include="peaData.areaCfgData[peaData.activityType].triggerList"
+                                v-model="formData[pageData.activityType].trigger"
+                                :include="formData[pageData.activityType].triggerList"
                             />
                             <!-- record -->
-                            <AlarmBaseRecordSelector v-model="peaData.areaCfgData[peaData.activityType].recordChls" />
+                            <AlarmBaseRecordSelector v-model="formData[pageData.activityType].recordChls" />
                             <!-- alarm -->
-                            <AlarmBaseAlarmOutSelector v-model="peaData.areaCfgData[peaData.activityType].alarmOutChls" />
+                            <AlarmBaseAlarmOutSelector v-model="formData[pageData.activityType].alarmOutChls" />
                             <!-- preset -->
-                            <AlarmBasePresetSelector v-model="peaData.areaCfgData[peaData.activityType].presets" />
-                        </div>
-                        <div class="base-btn-box fixed">
-                            <el-button
-                                :disabled="peaData.applyDisable"
-                                @click="handlePeaApply"
-                            >
-                                {{ Translate('IDCS_APPLY') }}
-                            </el-button>
+                            <AlarmBasePresetSelector v-model="formData[pageData.activityType].presets" />
                         </div>
                     </el-tab-pane>
                 </el-tabs>
+                <div class="base-btn-box fixed">
+                    <el-button
+                        :disabled="watchEdit.disabled.value"
+                        @click="applyData"
+                    >
+                        {{ Translate('IDCS_APPLY') }}
+                    </el-button>
+                </div>
                 <!-- 更多按钮 -->
                 <el-popover
-                    v-model:visible="peaData.moreDropDown"
+                    v-model:visible="pageData.moreDropDown"
                     width="300"
                     popper-class="no-padding keep-ocx"
                 >
                     <template #reference>
                         <div
-                            v-show="peaData.areaCfgData[peaData.activityType].pictureAvailable"
+                            v-show="formData[pageData.activityType].pictureAvailable"
                             class="base-ai-advance-btn"
                         >
                             <span>{{ Translate('IDCS_ADVANCED') }}</span>
@@ -346,23 +314,23 @@
                             {{ Translate('IDCS_VIDEO_SAVE_PIC') }}
                         </div>
                         <el-checkbox
-                            v-model="peaData.areaCfgData[peaData.activityType].saveTargetPicture"
+                            v-model="formData[pageData.activityType].saveTargetPicture"
                             :label="Translate('IDCS_SMART_SAVE_SOURCE_PIC')"
                         />
                         <el-checkbox
-                            v-model="peaData.areaCfgData[peaData.activityType].saveSourcePicture"
+                            v-model="formData[pageData.activityType].saveSourcePicture"
                             :label="Translate('IDCS_SMART_SAVE_TARGET_PIC')"
                         />
                         <div class="base-btn-box">
-                            <el-button @click="peaData.moreDropDown = false">{{ Translate('IDCS_CLOSE') }}</el-button>
+                            <el-button @click="pageData.moreDropDown = false">{{ Translate('IDCS_CLOSE') }}</el-button>
                         </div>
                     </div>
                 </el-popover>
             </div>
         </div>
         <ScheduleManagPop
-            v-model="peaData.scheduleManagePopOpen"
-            @close="handleSchedulePopClose"
+            v-model="pageData.isSchedulePop"
+            @close="closeSchedulePop"
         />
     </div>
 </template>

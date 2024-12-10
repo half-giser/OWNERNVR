@@ -53,10 +53,7 @@
             </el-form-item>
             <el-form-item>{{ noticeMsg }}</el-form-item>
         </el-form>
-        <div
-            class="base-btn-box"
-            :span="2"
-        >
+        <div class="base-btn-box space-between">
             <div>
                 <BaseFloatError
                     v-model:message="errorMessage"

@@ -118,10 +118,7 @@
                 min-width="220"
             />
         </el-table>
-        <div
-            class="base-btn-box"
-            span="2"
-        >
+        <div class="base-btn-box space-between">
             <div>
                 {{ Translate('IDCS_SELECT_CHANNEL_COUNT').formatForLang(selNum, formData.recorderList.length) }}
             </div>

@@ -7,20 +7,21 @@
 import WebsocketPlugin from '@/utils/websocket/websocketPlugin'
 import { ClientPort, P2PClientPort, P2PACCESSTYPE, getPluginPath, PluginSizeModeMapping, type OCX_Plugin_Notice_Map } from '@/utils/ocx/ocxUtil'
 import { type XMLQuery } from '../xmlParse'
+import { generateAsyncRoutes } from '../../router'
 
 type PluginStatus = 'Unloaded' | 'Loaded' | 'InitialComplete' | 'Connected' | 'Disconnected' | 'Reconnecting'
 
-type EmbedPlugin = HTMLEmbedElement & {
-    queryInfoMap: Record<number, (str: string) => void>
-    QueryInfo: (str: string) => string
-    ExecuteCmd: (str: string) => void
-    Destroy: () => void
-    LiveNotify2Js: (strXMLFormat: string) => Promise<void>
-}
+// type EmbedPlugin = HTMLEmbedElement & {
+//     queryInfoMap: Record<number, (str: string) => void>
+//     QueryInfo: (str: string) => string
+//     ExecuteCmd: (str: string) => void
+//     Destroy: () => void
+//     LiveNotify2Js: (strXMLFormat: string) => Promise<void>
+// }
 
-let plugin: ReturnType<typeof useOCXPlugin> | null = null
+let plugin: ReturnType<typeof getSingletonPlugin> | null = null
 
-const useOCXPlugin = () => {
+const getSingletonPlugin = () => {
     const pluginStore = usePluginStore()
     const { Translate, getLangTypes, getLangItems, langItems } = useLangStore()
     const { openMessageBox } = useMessageBox()
@@ -116,44 +117,45 @@ const useOCXPlugin = () => {
     }
 
     /**
+     * @deprecated NVR2.2+所支持的浏览器均支持WebSocket
      * @description 检测当前浏览器是否支持插件（websocket)
      * @returns {boolean}
      */
-    const checkSupportWebsocket = () => {
-        const browserVersion = browserInfo.majorVersion
-        const browserType = browserInfo.type
-        // 若满足下列浏览器和对应的版本号，则需要升级浏览器（低版本不支持websocket）
-        if (browserType === 'ie' && browserVersion < 10) {
-            isPluginAvailable.value = false
-            pluginNoticeHtml.value = 'IDCS_IE_VERSION_WARNING'
-            return false
-        } else if (browserType === 'chrome' && browserVersion < 57) {
-            isPluginAvailable.value = false
-            pluginNoticeHtml.value = 'IDCS_CHROME_VERSION_WARNING'
-            return false
-        } else if (browserType === 'firefox' && browserVersion < 53) {
-            isPluginAvailable.value = false
-            pluginNoticeHtml.value = 'IDCS_FIREFOX_VERSION_WARNING'
-            return false
-        } else if (browserType === 'opera' && browserVersion < 44) {
-            isPluginAvailable.value = false
-            pluginNoticeHtml.value = 'IDCS_OPERA_VERSION_WARNING'
-            return false
-        } else if (browserType === 'safari' && browserVersion < 11) {
-            isPluginAvailable.value = false
-            pluginNoticeHtml.value = 'IDCS_SAFARI_VERSION_WARNING'
-            return false
-        } else if ((browserType === 'edge' || browserType === 'lowEdge') && browserVersion < 16) {
-            isPluginAvailable.value = false
-            pluginNoticeHtml.value = 'IDCS_EDGE_VERSION_WARNING'
-            return false
-        } else if (!['ie', 'chrome', 'firefox', 'opera', 'safari', 'edge', 'lowEdge'].includes(browserInfo.type)) {
-            isPluginAvailable.value = false
-            pluginNoticeHtml.value = 'IDCS_OTHER_VERSION_WARNING'
-            return false
-        }
-        return true
-    }
+    // const checkSupportWebsocket = () => {
+    //     const browserVersion = browserInfo.majorVersion
+    //     const browserType = browserInfo.type
+    //     // 若满足下列浏览器和对应的版本号，则需要升级浏览器（低版本不支持websocket）
+    //     if (browserType === 'ie' && browserVersion < 10) {
+    //         isPluginAvailable.value = false
+    //         pluginNoticeHtml.value = 'IDCS_IE_VERSION_WARNING'
+    //         return false
+    //     } else if (browserType === 'chrome' && browserVersion < 57) {
+    //         isPluginAvailable.value = false
+    //         pluginNoticeHtml.value = 'IDCS_CHROME_VERSION_WARNING'
+    //         return false
+    //     } else if (browserType === 'firefox' && browserVersion < 53) {
+    //         isPluginAvailable.value = false
+    //         pluginNoticeHtml.value = 'IDCS_FIREFOX_VERSION_WARNING'
+    //         return false
+    //     } else if (browserType === 'opera' && browserVersion < 44) {
+    //         isPluginAvailable.value = false
+    //         pluginNoticeHtml.value = 'IDCS_OPERA_VERSION_WARNING'
+    //         return false
+    //     } else if (browserType === 'safari' && browserVersion < 11) {
+    //         isPluginAvailable.value = false
+    //         pluginNoticeHtml.value = 'IDCS_SAFARI_VERSION_WARNING'
+    //         return false
+    //     } else if ((browserType === 'edge' || browserType === 'lowEdge') && browserVersion < 16) {
+    //         isPluginAvailable.value = false
+    //         pluginNoticeHtml.value = 'IDCS_EDGE_VERSION_WARNING'
+    //         return false
+    //     } else if (!['ie', 'chrome', 'firefox', 'opera', 'safari', 'edge', 'lowEdge'].includes(browserInfo.type)) {
+    //         isPluginAvailable.value = false
+    //         pluginNoticeHtml.value = 'IDCS_OTHER_VERSION_WARNING'
+    //         return false
+    //     }
+    //     return true
+    // }
 
     /**
      * @description 视频插件通知回调
@@ -254,7 +256,8 @@ const useOCXPlugin = () => {
                                 if (userInfoArr) {
                                     setCookie('lastSN', userInfoArr[2], 36500)
                                 }
-                                userSession.updateByLogin('P2P', result)
+                                await userSession.updateByLogin('P2P', result)
+                                generateAsyncRoutes()
                                 router.replace('/live')
                             } else {
                                 Logout()
@@ -282,6 +285,7 @@ const useOCXPlugin = () => {
                             if (curRoutUrl.includes('authCodeLogin')) {
                                 execLoginTypeCallback(P2PACCESSTYPE.P2P_AUTHCODE_LOGIN, authCodeIndex)
                             } else {
+                                layoutStore.isInitial = true
                                 // router.replace('/live')
                                 router.push('/authCodeLogin')
                             }
@@ -509,12 +513,14 @@ const useOCXPlugin = () => {
             }
             this.queue.push(cmd)
             if (this.queue.length === 1 && !this.lock) {
-                setTimeout(this.execute, 10)
+                setTimeout(() => {
+                    this.execute()
+                }, 10)
             }
             return cmd
         },
         execute() {
-            if (this.queue.length === 0 || this.lock) {
+            if (!this.queue.length || this.lock) {
                 return
             }
             this.lock = true
@@ -584,10 +590,10 @@ const useOCXPlugin = () => {
         isInstallPlugin.value = false
         pluginStore.currPluginMode = null
 
-        if (!checkSupportWebsocket()) {
-            setPluginNotice('body')
-            return
-        }
+        // if (!checkSupportWebsocket()) {
+        //     setPluginNotice('body')
+        //     return
+        // }
         const connPlugin = new WebsocketPlugin({
             wsType: 'pluginMainProcess',
             port: userSession.appType === 'STANDARD' ? ClientPort : P2PClientPort,
@@ -720,28 +726,17 @@ const useOCXPlugin = () => {
     }
 
     /**
-     * @description 根据是否选择插件切换不同的页面
-     */
-    const togglePageByPlugin = () => {
-        let currPluginMode = pluginStore.currPluginMode
-        // 如果当前浏览器不支持H5，获取的插件模式为'h5'时，需要进行转换为'ocx'
-        if (userSession.appType === 'STANDARD' && 'WebAssembly' in window) {
-            // currPluginMode = currPluginMode // || 'h5'
-        } else {
-            currPluginMode = 'ocx'
-        }
-        pluginStore.currPluginMode = currPluginMode
-    }
-
-    /**
      * @description 插件异步查询信息
      * @param pluginObj
      * @param sendXML
      * @param callback
      */
-    const asynQueryInfo = (pluginObj: WebsocketPlugin | EmbedPlugin | typeof FakePluginForWasm, sendXML: string, callback?: (str: string) => void) => {
-        pluginObj.QueryInfo(sendXML, (strXMLFormat: string) => {
-            callback && callback(strXMLFormat)
+    const asynQueryInfo = (sendXML: string, callback?: (str: string) => void) => {
+        return new Promise((resolve) => {
+            getVideoPlugin().QueryInfo(sendXML, (strXMLFormat) => {
+                callback && callback(strXMLFormat)
+                resolve(strXMLFormat)
+            })
         })
     }
 
@@ -760,6 +755,15 @@ const useOCXPlugin = () => {
         }
 
         return videoPlugin ? videoPlugin : FakePluginForWasm
+    }
+
+    /**
+     * @description 向插件发送命令
+     * @param {string} cmd
+     * @returns
+     */
+    const executeCmd = (cmd: string) => {
+        return getVideoPlugin().ExecuteCmd(cmd)
     }
 
     /**
@@ -1427,9 +1431,11 @@ const useOCXPlugin = () => {
             // siteDictionary.js 在根目录下
             const script = document.createElement('script')
             script.onload = () => {
+                userSession.p2pSessionId = null
                 startV2Process()
             }
             script.src = '/siteDictionary.js'
+            document.body.appendChild(script)
         }
     })
 
@@ -1470,7 +1476,6 @@ const useOCXPlugin = () => {
         IsInstallPlugin: getIsInstallPlugin,
         IsPluginAvailable: getIsPluginAvailable,
         IsSupportH5: getIsSupportH5,
-        TogglePageByPlugin: togglePageByPlugin,
         RetryStartChlView: retryStartChlView,
         SetPluginNotice: setPluginNotice,
         VideoPluginNotifyEmitter,
@@ -1478,6 +1483,7 @@ const useOCXPlugin = () => {
         pluginDownloadUrl,
         pluginNoticeContainer,
         BackUpTask: backupTask,
+        ExecuteCmd: executeCmd,
     }
 }
 
@@ -1487,24 +1493,24 @@ const useOCXPlugin = () => {
  */
 export const usePlugin = () => {
     if (!plugin) {
-        plugin = useOCXPlugin()
+        plugin = getSingletonPlugin()
     }
     return plugin
 }
 
 interface PluginHookOptions {
     player?: Ref<HTMLDivElement | undefined>
-    onReady?: (mode: ComputedRef<string>, plugin: ReturnType<typeof useOCXPlugin>) => void
-    onDestroy?: (mode: ComputedRef<string>, plugin: ReturnType<typeof useOCXPlugin>) => void
+    onReady?: (mode: ComputedRef<string>, plugin: ReturnType<typeof getSingletonPlugin>) => void
+    onDestroy?: (mode: ComputedRef<string>, plugin: ReturnType<typeof getSingletonPlugin>) => void
     onMessage?: ($: XMLQuery) => void
 }
 
 /**
- * @description 在组件中使用无视图plugin实例（只能在组件setup顶层使用）
+ * @description 在组件中引入无视图的plugin实例，此方法包含组件生命周期内对插件的一些通用的操作（只能在组件setup顶层使用）
  * @param {Function} cbk
  * @returns
  */
-export const usePluginHook = (data: PluginHookOptions) => {
+export const setupPlugin = (data: PluginHookOptions) => {
     const plugin = usePlugin()
     const pluginStore = usePluginStore()
 

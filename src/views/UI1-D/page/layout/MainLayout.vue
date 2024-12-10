@@ -75,8 +75,9 @@
                         <a
                             class="divLocalCfg effective"
                             @click="showLocalConfig"
-                            >{{ Translate('IDCS_LOCAL_CONFIG') }}</a
                         >
+                            {{ Translate('IDCS_LOCAL_CONFIG') }}
+                        </a>
                     </div>
                 </div>
             </div>

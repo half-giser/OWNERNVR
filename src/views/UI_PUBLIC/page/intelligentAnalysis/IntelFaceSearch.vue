@@ -360,8 +360,7 @@
             </div>
             <div
                 v-show="pageData.isSupportBackUp && !isTrackVisible"
-                class="base-btn-box"
-                span="2"
+                class="base-btn-box space-between"
             >
                 <div>
                     <el-checkbox
@@ -373,7 +372,7 @@
                         :label="Translate('IDCS_BACKUP_RECORD')"
                     />
                 </div>
-                <el-pagination
+                <BasePagination
                     v-model:current-page="formData.pageIndex"
                     v-model:page-size="formData.pageSize"
                     :page-sizes="[formData.pageSize]"
@@ -472,8 +471,8 @@
             <el-checkbox
                 v-show="isIdentityVisible"
                 v-model="formData.identityFlag"
-                >{{ Translate('IDCS_IDENTITY_SNAPSHOT') }}</el-checkbox
-            >
+                :label="Translate('IDCS_IDENTITY_SNAPSHOT')"
+            />
         </BaseTableSelectPop>
         <IntelFaceDBSnapRegisterPop
             v-model="pageData.isRegisterPop"

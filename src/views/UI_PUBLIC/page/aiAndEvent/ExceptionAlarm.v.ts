@@ -38,11 +38,11 @@ export default defineComponent({
             audioList: [] as SelectOption<string, string>[],
             // 打开穿梭框时选择行的索引
             triggerDialogIndex: 0,
-            alarmOutIsShow: false,
+            isAlarmOutPop: false,
         })
 
         const tableData = ref<AlarmExceptionDto[]>([])
-        const editData = useWatchEditData(tableData)
+        const watchEdit = useWatchEditData(tableData)
 
         const getAudioList = async () => {
             pageData.value.supportAudio = systemCaps.supportAlarmAudioConfig
@@ -51,10 +51,7 @@ export default defineComponent({
             }
         }
 
-        const buildTableData = () => {
-            editData.reset()
-            tableData.value = []
-
+        const getData = () => {
             openLoading()
 
             queryAbnormalTrigger().then((result) => {
@@ -78,7 +75,7 @@ export default defineComponent({
                         row.eventType = $item('abnormalType').text()
                         row.sysAudio = $item('sysAudio').attr('id') || DEFAULT_EMPTY_ID
                         // 设置的声音文件被删除时，显示为none
-                        const audioData = pageData.value.audioList.filter((element: { value: string; label: string }) => {
+                        const audioData = pageData.value.audioList.filter((element) => {
                             return element.value === row.sysAudio
                         })
                         if (!audioData.length) {
@@ -101,7 +98,7 @@ export default defineComponent({
                         row.msgBoxPopup = $item('popMsgSwitch').text()
                         tableData.value.push(row)
                     })
-                    editData.listen()
+                    watchEdit.listen()
                 }
             })
             closeLoading()
@@ -123,11 +120,11 @@ export default defineComponent({
         const openAlarmOut = (index: number) => {
             tableData.value[index].alarmOut.switch = true
             pageData.value.triggerDialogIndex = index
-            pageData.value.alarmOutIsShow = true
+            pageData.value.isAlarmOutPop = true
         }
 
         const changeAlarmOut = (index: number, data: SelectOption<string, string>[]) => {
-            pageData.value.alarmOutIsShow = false
+            pageData.value.isAlarmOutPop = false
             tableData.value[index].alarmOut = {
                 switch: !!data.length,
                 alarmOuts: cloneDeep(data),
@@ -135,35 +132,35 @@ export default defineComponent({
         }
 
         // 系统音频
-        const handleSysAudioChangeAll = (sysAudio: string) => {
+        const changeAllAudio = (sysAudio: string) => {
             tableData.value.forEach((item) => {
                 item.sysAudio = sysAudio
             })
         }
 
         // 消息推送
-        const handleMsgPushChangeAll = (msgPush: string) => {
+        const changeAllMsgPush = (msgPush: string) => {
             tableData.value.forEach((item) => {
                 item.msgPush = msgPush
             })
         }
 
         // 蜂鸣器
-        const handleBeeperChangeAll = (beeper: string) => {
+        const changeAllBeeper = (beeper: string) => {
             tableData.value.forEach((item) => {
                 item.beeper = beeper
             })
         }
 
         // 消息框弹出
-        const handleMsgBoxPopupChangeAll = (msgBoxPopup: string) => {
+        const changeAllMsgPopUp = (msgBoxPopup: string) => {
             tableData.value.forEach((item) => {
                 item.msgBoxPopup = msgBoxPopup
             })
         }
 
         // 邮件
-        const handleEmailChangeAll = (email: string) => {
+        const changeAllEmail = (email: string) => {
             tableData.value.forEach((item) => {
                 if (!item.emailDisable) {
                     item.email = email
@@ -222,32 +219,30 @@ export default defineComponent({
             openLoading()
             const sendXml = getSavaData()
             const result = await editAbnormalTrigger(sendXml)
-            commSaveResponseHadler(result)
+            commSaveResponseHandler(result)
             closeLoading()
-            editData.update()
+            watchEdit.update()
         }
 
         onMounted(async () => {
             await getAudioList()
-            buildTableData()
+            getData()
         })
 
         return {
             pageData,
             tableData,
-            editData,
+            watchEdit,
             formatEventType,
             openAlarmOut,
             changeAlarmOut,
-            handleSysAudioChangeAll,
-            handleMsgPushChangeAll,
-            handleBeeperChangeAll,
-            handleMsgBoxPopupChangeAll,
-            handleEmailChangeAll,
+            changeAllAudio,
+            changeAllMsgPush,
+            changeAllBeeper,
+            changeAllMsgPopUp,
+            changeAllEmail,
             setData,
             switchAlarmOut,
-            AlarmBasePresetPop,
-            AlarmBaseAlarmOutPop,
         }
     },
 })

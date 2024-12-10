@@ -20,8 +20,8 @@ export class NetTcpIpForm {
     ipGroupSwitch = false
     ipGroupMode = ''
     ipDefaultBond = ''
-    bonds = [] as NetTcpIpBondsList[]
-    nicConfigs = [] as NetTcpIpNicConfigList[]
+    bonds: NetTcpIpBondsList[] = []
+    nicConfigs: NetTcpIpNicConfigList[] = []
 }
 
 /**
@@ -106,7 +106,7 @@ export class NetTcpIpAdvanceForm {
     secondIpSwitch = false
     secondIp = ''
     secondMask = ''
-    mtu = [] as number[]
+    mtu: number[] = []
 }
 
 /**
@@ -139,7 +139,7 @@ export class NetPortUPnPDto {
     switch = ''
     mappingType = ''
     portsType = ''
-    ports = [] as NetPortUPnPPortDto[]
+    ports: NetPortUPnPPortDto[] = []
 }
 
 /**
@@ -178,7 +178,7 @@ export class NetDDNSForm {
     userName = ''
     password = ''
     domainName = ''
-    heartbeatTime = undefined as number | undefined
+    heartbeatTime: number | undefined = undefined
     switch = false
 }
 
@@ -192,12 +192,12 @@ export class NetDDNSServerTypeList {
     userName = ''
     password = ''
     domainName = ''
-    heartbeatTime = undefined as number | undefined
+    heartbeatTime: number | undefined = undefined
     defaultServerAddr = ''
-    defaultHeartBeatTime = undefined as number | undefined
+    defaultHeartBeatTime: number | undefined = undefined
     suffix = ''
-    requireParam = [] as string[]
-    hideParam = [] as string[]
+    requireParam: string[] = []
+    hideParam: string[] = []
     defaultDomainName = ''
     isRegisterBtn = true
     isTestBtn = false
@@ -294,7 +294,7 @@ export class NetHTTPSPrivateCertForm {
     organizationName = ''
     organizationalUnitName = ''
     email = ''
-    validityPeriod = undefined as number | undefined
+    validityPeriod: number | undefined = undefined
     password = ''
 }
 
@@ -388,7 +388,7 @@ export class NetSubStreamQualityCapsList {
     res = ''
     digitalDefault = 0
     analogDefault = 0
-    value = [] as string[]
+    value: string[] = []
 }
 
 /**
@@ -413,7 +413,7 @@ export class NetSubStreamList extends TableRowStatus {
         res: [] as NetSubStreamResList[],
     }
     videoEncodeType = ''
-    subStreamQualityCaps = [] as NetSubStreamQualityCapsList[]
+    subStreamQualityCaps: NetSubStreamQualityCapsList[] = []
     streamType = ''
     GOP = 0
     resolution = ''
@@ -421,7 +421,7 @@ export class NetSubStreamList extends TableRowStatus {
     bitType = ''
     level = ''
     videoQuality = 0
-    // bitRange = null as null | NetSubStreamListBitRange
+    // bitRange: null | NetSubStreamListBitRange = null
     // audio = ''
 }
 
@@ -431,8 +431,8 @@ export class NetSubStreamList extends TableRowStatus {
 export class NetSubStreamResolutionList {
     key = ''
     value = ''
-    resolution = [] as NetSubStreamResList[]
-    chlsList = [] as { chlId: string; chlName: string; chlIndex: number }[]
+    resolution: NetSubStreamResList[] = []
+    chlsList: { chlId: string; chlName: string; chlIndex: number }[] = []
 }
 
 /**
@@ -490,7 +490,7 @@ export class NetPlatformSipList {
     value = ''
     type = ''
     label = ''
-    list = [] as NetPlatformSipCodeList[]
+    list: NetPlatformSipCodeList[] = []
 }
 
 /**

@@ -146,7 +146,8 @@ const offsetWidth = 40
 // // 时间轴实际绘制总长度
 let timelineWidth = 0 // this.canvasWidth - this.offsetWidth * 2
 // 定时器对象
-let timer: NodeJS.Timeout | number = 0
+const clock = useClock(() => {})
+// const timer: NodeJS.Timeout | number = 0
 // 随鼠标移动的指针x方向位置
 let movePointerX = -1
 // 随鼠标移动的指针y方向位置
@@ -1103,9 +1104,9 @@ const drawMovingWithMousePointer = (x: number, y: number) => {
  * @param {Number} speed 速度, 0.5, 1, 2, 3...
  */
 const play = (step = 1, speed = 1) => {
-    clearInterval(timer)
-    // NOTICE 定时器的时间不可靠
-    timer = setInterval(() => {
+    clock.stop()
+    clock.setDelay(1000 / speed)
+    clock.setCallback(() => {
         pointerTime = pointerTime + step
         // 如果当前指针时间超出当前可视区范围，则将起始点时间设为当前指针时间
         if (pointerTime > startTime + totalTimeOfView) {
@@ -1114,17 +1115,18 @@ const play = (step = 1, speed = 1) => {
 
         // 如果指针到达最大时间长度，清除定时器
         if (Math.floor(pointerTime) === maxTime - 1) {
-            clearInterval(timer)
+            clock.stop()
         }
         init()
-    }, 1000 / speed)
+    })
+    clock.repeat()
 }
 
 /**
  * @description 指针停止运动
  */
 const stop = () => {
-    clearInterval(timer)
+    clock.stop()
 }
 
 /**
@@ -1229,55 +1231,31 @@ const playBack = (second: number) => {
 
 /**
  * @description 设置夏令时的时间配置
- * this.oneDayHours 夏令时开始那一天为23小时, 夏令时结束那一天为25小时
- * this.dstStartHour 表示夏令时在几时开始（一般为凌晨两点）
- * this.dstEndHour 表示夏令时在几时结束（一般为凌晨两点）
- * @param {String} currentDayStartTime 当天时间字符串 2023/10/29 00:00:00
+ * oneDayHours 夏令时开始那一天为23小时, 夏令时结束那一天为25小时
+ * dstStartHour 表示夏令时在几时开始（一般为凌晨两点）
+ * dstEndHour 表示夏令时在几时结束（一般为凌晨两点）
+ * @param {String} currentDayStartTime 当天时间字符串 2023-10-29 00:00:00
  */
 const setDstDayTime = (currentDayStartTime: string) => {
     const timeDay = currentDayStartTime.split(' ')[0]
-    const timeHourList = [
-        '00:00:00',
-        '01:00:00',
-        '02:00:00',
-        '03:00:00',
-        '04:00:00',
-        '05:00:00',
-        '06:00:00',
-        '07:00:00',
-        '08:00:00',
-        '09:00:00',
-        '10:00:00',
-        '11:00:00',
-        '12:00:00',
-        '13:00:00',
-        '14:00:00',
-        '15:00:00',
-        '16:00:00',
-        '17:00:00',
-        '18:00:00',
-        '19:00:00',
-        '20:00:00',
-        '21:00:00',
-        '22:00:00',
-        '23:00:00',
-    ]
     oneDayHours = 24
     dstStartHour = 0
     dstEndHour = 0
-    for (let i = 1; i < timeHourList.length; i++) {
-        const timeStrPre = timeDay + ' ' + timeHourList[i - 1]
-        const timeStrNext = timeDay + ' ' + timeHourList[i + 1]
-        const timeStrCur = timeDay + ' ' + timeHourList[i]
+
+    for (let i = 1; i < 24; i++) {
+        const timeStrPre = `${timeDay} ${('0' + (i - 1)).slice(-2)}:00:00`
+        const timeStrNext = `${timeDay} ${('0' + (i + 1)).slice(-2)}:00:00`
+        const timeStrCur = `${timeDay} ${('0' + i).slice(-2)}:00:00`
+
+        // 夏令时开始时间（当天为23小时）
         if (isDST(timeStrCur) && !isDST(timeStrPre) && isDST(timeStrNext)) {
-            // timeStrCur为夏令时开始时间（当天为23小时）
             oneDayHours = 23
             dstStartHour = i
             break
         }
 
+        // 夏令时结束时间（当天为25小时）
         if (!isDST(timeStrCur) && isDST(timeStrPre) && !isDST(timeStrNext)) {
-            // timeStrCur为夏令时结束时间（当天为25小时）
             oneDayHours = 25
             dstEndHour = i
             break

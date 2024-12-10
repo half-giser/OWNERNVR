@@ -82,7 +82,7 @@
                     v-model="formData.protocol"
                     :disabled="!formData.enable"
                     :options="pageData.protocolOptions"
-                    @change="handleProtocolChange()"
+                    @change="changeProtocol()"
                 />
             </el-form-item>
             <br />
@@ -119,7 +119,7 @@
                 <el-button
                     class="btn"
                     :disabled="!formData.enable"
-                    @click="pageData.scheduleManagePopOpen = true"
+                    @click="pageData.isSchedulePop = true"
                 >
                     {{ Translate('IDCS_MANAGE') }}
                 </el-button>
@@ -163,15 +163,15 @@
         >
             <el-button
                 :disabled="!formData.enable"
-                @click="testAlarmServer()"
+                @click="testData()"
             >
                 {{ Translate('IDCS_TEST') }}
             </el-button>
-            <el-button @click="applyAlarmSever()">{{ Translate('IDCS_APPLY') }}</el-button>
+            <el-button @click="applyData()">{{ Translate('IDCS_APPLY') }}</el-button>
         </div>
         <ScheduleManagPop
-            v-model="pageData.scheduleManagePopOpen"
-            @close="handleSchedulePopClose"
+            v-model="pageData.isSchedulePop"
+            @close="closeSchedulePop"
         />
         <BaseTransferDialog
             v-model="pageData.showAlarmTransfer"

@@ -15,7 +15,7 @@
             :data="tableData"
             highlight-current-row
             height="240"
-            @current-change="rowChange"
+            @current-change="changeRow"
         >
             <!-- 序号 -->
             <el-table-column
@@ -32,7 +32,7 @@
                     <el-select-v2
                         v-model="scope.row.alarmSourceType"
                         :options="pageData.alarmSourceTypeList[scope.$index]"
-                        @change="typeChange(scope.row, scope.$index)"
+                        @change="changeType(scope.row, scope.$index)"
                     />
                 </template>
             </el-table-column>
@@ -45,7 +45,7 @@
                     <el-select-v2
                         v-model="scope.row.alarmSourceEntity.value"
                         :options="pageData.alarmSourceEntityList[scope.$index]"
-                        @change="entityChange(scope.row)"
+                        @change="changeEntity(scope.row)"
                     />
                 </template>
             </el-table-column>
@@ -62,18 +62,17 @@
                         :index="0"
                         :hover-index="1"
                         :active-index="1"
-                        @click="handleEdit(scope.row.alarmSourceEntity.value)"
+                        @click="editFaceMatch(scope.row.alarmSourceEntity.value)"
                     />
                 </template>
             </el-table-column>
         </el-table>
         <div class="detect-box">
-            <div
-                v-if="pageData.isDetectShow"
-                class="detect"
-            >
-                <span class="detectText">{{ `${pageData.detectEntity} ${pageData.detectType} ${Translate('IDCS_DISABLE')}` }}</span>
-                <el-button @click="clickChangeDetect">{{ pageData.detectBtn.label }}</el-button>
+            <div class="detect">
+                <template v-if="pageData.isDetectShow">
+                    <span class="detectText">{{ `${pageData.detectEntity} ${pageData.detectType} ${Translate('IDCS_DISABLE')}` }}</span>
+                    <el-button @click="changeDetect">{{ pageData.detectBtn.label }}</el-button>
+                </template>
             </div>
             <span>{{ Translate('IDCS_CONDITION_TIP') }}</span>
             <div class="description">
@@ -113,6 +112,10 @@
 
 .detect {
     margin: 5px 0;
+    display: flex;
+    height: 26px;
+    align-items: center;
+    width: 100%;
 }
 
 .detectText {

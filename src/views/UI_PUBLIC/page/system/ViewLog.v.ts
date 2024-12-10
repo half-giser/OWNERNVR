@@ -677,7 +677,6 @@ export default defineComponent({
             handleChangeRow,
             changeLogDetail,
             closeLogDetail,
-            ViewLogDetailPop,
         }
     },
 })

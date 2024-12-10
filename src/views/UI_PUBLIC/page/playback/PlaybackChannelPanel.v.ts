@@ -449,8 +449,6 @@ export default defineComponent({
             setWinFromChlGroup,
             search,
             play,
-            ChannelGroupEditPop,
-            ChannelGroupAddPop,
         }
     },
 })

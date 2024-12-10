@@ -112,10 +112,7 @@
                 </template>
             </el-table-column>
         </el-table>
-        <div
-            class="base-btn-box collapse"
-            span="start"
-        >
+        <div class="base-btn-box flex-start collapse">
             {{ Translate('IDCS_CHANGE_PROTOCOL_TIP') }}
         </div>
         <div class="base-btn-box">

@@ -33,8 +33,9 @@
                             disabled: getMenuDisabled(menu3),
                         }"
                         @click.stop="goToPath(menu3)"
-                        >{{ Translate(menu3.meta.lk || '') }}</span
                     >
+                        {{ Translate(menu3.meta.lk || '') }}
+                    </span>
                 </div>
             </div>
             <div class="rest"></div>

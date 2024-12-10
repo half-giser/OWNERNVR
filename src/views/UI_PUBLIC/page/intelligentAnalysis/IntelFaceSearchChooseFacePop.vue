@@ -84,13 +84,8 @@
                                 />
                             </div>
                         </el-scrollbar>
-                        <div
-                            class="base-btn-box padding"
-                            span="2"
-                        >
-                            <div>
-                                <span>{{ currentSelected }}</span>
-                            </div>
+                        <div class="base-btn-box flex-start padding">
+                            {{ currentSelected }}
                         </div>
                     </div>
                     <div

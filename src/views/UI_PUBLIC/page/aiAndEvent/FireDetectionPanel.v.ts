@@ -4,7 +4,6 @@
  * @Description: 火点检测
  */
 import { type AlarmChlDto, AlarmFireDetectionDto } from '@/types/apiType/aiAndEvent'
-import { type TabsPaneContext } from 'element-plus'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
 import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
@@ -54,12 +53,10 @@ export default defineComponent({
     setup(props) {
         const { openLoading, closeLoading } = useLoading()
         const openMessageBox = useMessageBox().openMessageBox
-        const { openNotify } = useNotification()
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
 
         const playerRef = ref<PlayerInstance>()
-        const osType = getSystemInfo().platform
 
         const pageData = ref({
             // 是否支持声音设置
@@ -68,79 +65,61 @@ export default defineComponent({
             // notSupportTipShow: false,
             // 请求数据失败显示提示
             requireDataFail: false,
-            // apply按钮是否可用
-            applyDisable: true,
-            scheduleManagePopOpen: false,
+            isSchedulePop: false,
             scheduleList: [] as SelectOption<string, string>[],
             isSwitchChange: false,
             // 选择的功能:param、trigger
             fuction: 'param',
-            // 播放器相关
-            initComplete: false,
             drawInitCount: 0,
         })
 
         const formData = ref(new AlarmFireDetectionDto())
+        const watchEdit = useWatchEditData(formData)
 
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
 
-        // 播放模式
-        const mode = computed(() => {
-            if (!playerRef.value) {
-                return ''
-            }
-            return playerRef.value.mode
-        })
-
         const ready = computed(() => {
             return playerRef.value?.ready || false
+        })
+
+        // 播放模式
+        const mode = computed(() => {
+            if (!ready.value) {
+                return ''
+            }
+            return playerRef.value!.mode
         })
 
         const handlePlayerReady = () => {
             player = playerRef.value!.player
             plugin = playerRef.value!.plugin
 
-            if (mode.value === 'h5') {
-                if (isHttpsLogin()) {
-                    openNotify(formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`))
-                }
-            }
-
             if (mode.value === 'ocx') {
-                const sendXML = OCX_XML_SetPluginModel(osType === 'mac' ? 'FireConfig' : 'ReadOnly', 'Live')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
         //播放视频
         const play = () => {
             const { id, name } = props.chlData
+
             if (mode.value === 'h5') {
                 player.play({
                     chlID: id,
                     streamType: 2,
                 })
-            } else if (mode.value === 'ocx') {
-                if (osType === 'mac') {
-                    // const sendXML = OCX_XML_Preview({
-                    //     winIndexList: [0],
-                    //     chlIdList: [props.chlData.id],
-                    //     chlNameList: [props.chlData.name],
-                    //     streamType: 'sub',
-                    //     chlIndexList: [props.chlData.id],
-                    //     chlTypeList: [props.chlData.chlType],
-                    // })
-                    // plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                } else {
-                    plugin.RetryStartChlView(id, name)
-                }
+            }
+
+            if (mode.value === 'ocx') {
+                plugin.RetryStartChlView(id, name)
             }
         }
 
         // 首次加载成功 播放视频
         const stopWatchFirstPlay = watchEffect(() => {
-            if (ready.value && pageData.value.initComplete) {
+            if (ready.value && watchEdit.ready.value) {
                 nextTick(() => {
                     play()
                 })
@@ -149,19 +128,14 @@ export default defineComponent({
         })
 
         // 关闭排程管理后刷新排程列表
-        const handleSchedulePopClose = async () => {
-            pageData.value.scheduleManagePopOpen = false
+        const closeSchedulePop = async () => {
+            pageData.value.isSchedulePop = false
             await getScheduleList()
         }
 
         // 对sheduleList进行处理
         const getScheduleList = async () => {
             pageData.value.scheduleList = await buildScheduleList()
-        }
-
-        // tab点击事件
-        const handleFunctionTabClick = async (pane: TabsPaneContext) => {
-            pageData.value.fuction = pane.props.name?.toString() ? pane.props.name?.toString() : ''
         }
 
         // 格式化持续时间
@@ -180,6 +154,8 @@ export default defineComponent({
 
         // 获取火点数据
         const getData = async () => {
+            openLoading()
+
             const sendXml = rawXml` 
                 <condition>
                     <chlId>${props.currChlId}</chlId>
@@ -189,10 +165,11 @@ export default defineComponent({
                     <trigger/>
                 </requireField>
             `
-            openLoading()
-            const res = await querySmartFireConfig(sendXml)
+            const result = await querySmartFireConfig(sendXml)
+            const $ = queryXml(result)
+
             closeLoading()
-            const $ = queryXml(res)
+
             if ($('status').text() === 'success') {
                 const $param = queryXml($('content/chl/param')[0].element)
                 const $trigger = queryXml($('content/chl/trigger')[0].element)
@@ -278,7 +255,7 @@ export default defineComponent({
                     }
                 }
 
-                pageData.value.applyDisable = true
+                watchEdit.listen()
             } else {
                 pageData.value.requireDataFail = true
             }
@@ -346,11 +323,11 @@ export default defineComponent({
                     // 开关为开把originalSwitch置为true避免多次弹出互斥提示
                     formData.value.originalEnable = true
                 }
-                pageData.value.applyDisable = true
                 openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
+                watchEdit.update()
             } else {
                 openMessageBox({
                     type: 'info',
@@ -360,7 +337,7 @@ export default defineComponent({
         }
 
         // 应用
-        const handleApply = () => {
+        const applyData = () => {
             checkMutexChl({
                 tips: 'IDCS_FIRE_POINT_DETECT_TIPS',
                 isChange: formData.value.detectionEnable && formData.value.detectionEnable !== formData.value.originalEnable,
@@ -378,53 +355,28 @@ export default defineComponent({
         const initPageData = async () => {
             pageData.value.supportAlarmAudioConfig = systemCaps.supportAlarmAudioConfig
             await getScheduleList()
-            await getData()
-            nextTick(() => {
-                pageData.value.initComplete = true
-            })
+            getData()
         }
-
-        watch(
-            formData,
-            () => {
-                if (pageData.value.initComplete) {
-                    pageData.value.applyDisable = false
-                }
-            },
-            {
-                deep: true,
-            },
-        )
 
         onMounted(() => {
             initPageData()
         })
 
         onBeforeUnmount(() => {
-            if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
+            if (plugin?.IsPluginAvailable() && mode.value === 'ocx') {
                 const sendXML = OCX_XML_StopPreview('ALL')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-            }
-
-            if (mode.value === 'h5') {
-                player.destroy()
+                plugin.ExecuteCmd(sendXML)
             }
         })
 
         return {
             pageData,
             formData,
+            watchEdit,
             playerRef,
             handlePlayerReady,
-            handleSchedulePopClose,
-            handleFunctionTabClick,
-            handleApply,
-            ScheduleManagPop,
-            AlarmBaseRecordSelector,
-            AlarmBaseAlarmOutSelector,
-            AlarmBaseTriggerSelector,
-            AlarmBasePresetSelector,
-            AlarmBaseSnapSelector,
+            closeSchedulePop,
+            applyData,
         }
     },
 })

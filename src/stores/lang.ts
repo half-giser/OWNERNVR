@@ -220,19 +220,19 @@ export const useLangStore = defineStore(
                     //     placeholder: '',
                     //     noData: '',
                     // },
-                    pagination: {
-                        goto: '', // "前往",
-                        pagesize: '',
-                        total: Translate('IDCS_TOTAL') + ' {total}',
-                        pageClassifier: '', // "页",
-                        page: '', // "页",
-                        prev: '', // "上一页",
-                        next: '', // "下一页",
-                        currentPage: '{pager}', //"第 {pager} 页",
-                        prevPages: '', // "向前 {pager} 页",
-                        nextPages: '', // "向后 {pager} 页",
-                        deprecationWarning: '', // "你使用了一些已被废弃的用法，请参考 el-pagination 的官方文档"
-                    },
+                    // pagination: {
+                    //     goto: '', // "前往",
+                    //     pagesize: '',
+                    //     total: Translate('IDCS_TOTAL') + ' {total}',
+                    //     pageClassifier: '', // "页",
+                    //     page: '', // "页",
+                    //     prev: '', // "上一页",
+                    //     next: '', // "下一页",
+                    //     currentPage: '{pager}', //"第 {pager} 页",
+                    //     prevPages: '', // "向前 {pager} 页",
+                    //     nextPages: '', // "向后 {pager} 页",
+                    //     deprecationWarning: '', // "你使用了一些已被废弃的用法，请参考 el-pagination 的官方文档"
+                    // },
                     messagebox: {
                         title: Translate('IDCS_INFO_TIP'),
                         confirm: Translate('IDCS_OK'),

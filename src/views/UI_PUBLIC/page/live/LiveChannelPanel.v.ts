@@ -603,8 +603,6 @@ export default defineComponent({
             getChlIconStatus,
             chlGroupElement,
             mousedownChlGroupPosition,
-            ChannelGroupEditPop,
-            ChannelGroupAddPop,
         }
     },
 })

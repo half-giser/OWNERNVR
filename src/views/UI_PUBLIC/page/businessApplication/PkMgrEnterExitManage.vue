@@ -72,7 +72,7 @@
         </div>
         <div class="base-btn-box padding">
             <el-button
-                :disabled="pageData.btnDisabled"
+                :disabled="watchEdit.disabled.value"
                 @click="apply()"
             >
                 {{ Translate('IDCS_APPLY') }}

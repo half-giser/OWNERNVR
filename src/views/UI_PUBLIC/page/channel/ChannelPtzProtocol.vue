@@ -96,7 +96,6 @@
                     highlight-current-row
                     flexible
                     show-overflow-tooltip
-                    :row-class-name="(data) => (data.row.disabled ? 'disabled' : '')"
                     @row-click="handleRowClick"
                 >
                     <!-- 状态列 -->
@@ -175,7 +174,7 @@
                 </el-table>
             </div>
             <div class="base-pagination-box">
-                <el-pagination
+                <BasePagination
                     v-model:current-page="pageData.pageIndex"
                     v-model:page-size="pageData.pageSize"
                     :total="pageData.total"
@@ -183,21 +182,16 @@
                     @current-change="getData"
                 />
             </div>
-            <div
-                class="base-btn-box"
-                span="2"
-            >
+            <div class="base-btn-box space-between">
                 <div class="text-error">
                     {{ Translate('IDCS_PTZOPEN_AND_PROTOCOLSET_RULE') }}
                 </div>
-                <div>
-                    <el-button
-                        :disabled="!editRows.size()"
-                        @click="setData"
-                    >
-                        {{ Translate('IDCS_APPLY') }}
-                    </el-button>
-                </div>
+                <el-button
+                    :disabled="!editRows.size()"
+                    @click="setData"
+                >
+                    {{ Translate('IDCS_APPLY') }}
+                </el-button>
             </div>
         </div>
     </div>

@@ -21,7 +21,7 @@ export default defineComponent({
         },
         currRowFaceObj: {
             type: Object as PropType<Record<string, Record<string, AlarmCombinedFaceMatchDto>>>,
-            required: true,
+            required: false,
         },
     },
     emits: {
@@ -279,10 +279,10 @@ export default defineComponent({
                 pageData.value.alarmSourceEntityList[index] = getEntityMap(item.alarmSourceType)
             })
 
-            pageData.value.faceMatchObj = prop.currRowFaceObj || {}
+            pageData.value.faceMatchObj = prop?.currRowFaceObj || {}
 
             changeDescription()
-            tableData.value[1] && CheckDetect(tableData.value[1])
+            tableData.value[1] && checkDetect(tableData.value[1])
         }
 
         // 类型的映射对象转换为选择器数组列表
@@ -320,12 +320,12 @@ export default defineComponent({
             return mapList
         }
 
-        const rowChange = (row: AlarmCombinedItemDto) => {
+        const changeRow = (row: AlarmCombinedItemDto) => {
             changeDescription()
-            CheckDetect(row)
+            checkDetect(row)
         }
 
-        const typeChange = (row: AlarmCombinedItemDto, index: number) => {
+        const changeType = (row: AlarmCombinedItemDto, index: number) => {
             let optionMap = supportFaceMatch ? COMBINED_ALARM_TYPES_MAPPING : IntelAndFaceConfigHide ? COMMON_ALARM_TYPES_MAPPING : NO_FACE_ALARM_TYPES_MAPPING
             const type = row.alarmSourceType
 
@@ -350,10 +350,10 @@ export default defineComponent({
             }
 
             changeDescription()
-            CheckDetect(row)
+            checkDetect(row)
         }
 
-        const entityChange = (row: AlarmCombinedItemDto) => {
+        const changeEntity = (row: AlarmCombinedItemDto) => {
             const entityList = getEntityMap(row.alarmSourceType)
             entityList.some((item) => {
                 if (item.value === row.alarmSourceEntity.value) {
@@ -362,7 +362,7 @@ export default defineComponent({
                 }
             })
             changeDescription()
-            CheckDetect(row)
+            checkDetect(row)
         }
 
         const changeDescription = () => {
@@ -406,7 +406,7 @@ export default defineComponent({
             })
         }
 
-        const CheckDetect = async (row: AlarmCombinedItemDto) => {
+        const checkDetect = async (row: AlarmCombinedItemDto) => {
             const id = row.alarmSourceEntity.value
             // 在没有报警源时不进行后续处理
             if (!id) return false
@@ -507,7 +507,7 @@ export default defineComponent({
         }
 
         // 跳转到相应页面
-        const clickChangeDetect = () => {
+        const changeDetect = () => {
             const urlMap: Record<string, string> = {
                 Motion: '/config/channel/settings/motion',
                 Sensor: '/config/alarm/sensor',
@@ -551,7 +551,7 @@ export default defineComponent({
             }
         }
 
-        const handleEdit = (entity: string) => {
+        const editFaceMatch = (entity: string) => {
             pageData.value.linkedEntity = entity
             pageData.value.linkedObj = pageData.value.faceMatchObj[entity]
             pageData.value.isFaceMatchPopShow = true
@@ -578,7 +578,7 @@ export default defineComponent({
             })
             if (isAlarmSourceNull) return false
 
-            const sameSource = [] as string[]
+            const sameSource: string[] = []
             for (let i = 0; i < tableData.value.length; i++) {
                 if (i === 0) {
                     sameSource[i] = tableData.value[i].alarmSourceEntity.value
@@ -623,15 +623,14 @@ export default defineComponent({
         })
 
         return {
-            CombinationAlarmFaceMatchPop,
             tableData,
             pageData,
             open,
-            rowChange,
-            typeChange,
-            entityChange,
-            clickChangeDetect,
-            handleEdit,
+            changeRow,
+            changeType,
+            changeEntity,
+            changeDetect,
+            editFaceMatch,
             handleFaceMatchLinkedObj,
             save,
             close,

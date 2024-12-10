@@ -11,7 +11,7 @@
         @open="open"
     >
         <el-table
-            height="350px"
+            height="350"
             :data="chlList"
         >
             <el-table-column

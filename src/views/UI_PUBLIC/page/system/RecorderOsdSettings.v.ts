@@ -47,7 +47,7 @@ export default defineComponent({
             `
             const result = await editDevOsdDisplayCfg(sendXml)
 
-            commSaveResponseHadler(result)
+            commSaveResponseHandler(result)
             closeLoading()
         }
 

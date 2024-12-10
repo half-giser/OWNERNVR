@@ -19,7 +19,7 @@ export default defineComponent({
         const systemCaps = useCababilityStore()
         const { openMessageBox } = useMessageBox()
         const { Translate } = useLangStore()
-        const plugin = usePlugin()
+        // const plugin = usePlugin()
         const systemInfo = getSystemInfo()
         const layoutStore = useLayoutStore()
         const pluginStore = usePluginStore()
@@ -322,7 +322,6 @@ export default defineComponent({
                     userSession.loginCheck = 'notCheck'
                 }
             })
-            plugin.TogglePageByPlugin()
         })
 
         return {
@@ -340,7 +339,6 @@ export default defineComponent({
             closeChangePwdPop,
             showChangePwdPop,
             handleDownloadPlugin,
-            ChangePasswordPop,
         }
     },
 })

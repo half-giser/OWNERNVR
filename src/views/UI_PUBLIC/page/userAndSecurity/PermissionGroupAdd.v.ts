@@ -296,7 +296,6 @@ export default defineComponent({
             goBack,
             verify,
             changeAllChannelAuth,
-            PermissionGroupInfoPop,
         }
     },
 })

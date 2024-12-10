@@ -50,9 +50,9 @@
                     min-width="140"
                 >
                     <template #default="scope">
-                        <span :class="[scope.row.activateStatus === 'UNACTIVATED' ? 'text-offline' : '']">{{
-                            scope.row.activateStatus === 'ACTIVATED' ? Translate('IDCS_ACTIVATED') : scope.row.activateStatus === 'UNACTIVATED' ? Translate('IDCS_UN_ACTIVATED') : '--'
-                        }}</span>
+                        <span :class="[scope.row.activateStatus === 'UNACTIVATED' ? 'text-offline' : '']">
+                            {{ scope.row.activateStatus === 'ACTIVATED' ? Translate('IDCS_ACTIVATED') : scope.row.activateStatus === 'UNACTIVATED' ? Translate('IDCS_UN_ACTIVATED') : '--' }}
+                        </span>
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -254,16 +254,10 @@
                 />
             </el-table>
         </div>
-        <div
-            class="base-btn-box"
-            span="start"
-        >
+        <div class="base-btn-box flex-start">
             <span v-show="activeTab === tabKeys.quickAdd">{{ Translate('IDCS_SELECT_CHANNEL_COUNT').formatForLang(selNum, total) }}</span>
         </div>
-        <div
-            class="base-btn-box collapse"
-            span="2"
-        >
+        <div class="base-btn-box space-between collapse">
             <div>
                 {{ txtBandwidth }}
             </div>

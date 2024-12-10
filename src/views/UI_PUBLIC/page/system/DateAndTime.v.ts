@@ -222,7 +222,7 @@ export default defineComponent({
             pageData.value.isSystemTimeChanged = false
             dateTime.getTimeConfig(true)
             getData()
-            commSaveResponseHadler(result)
+            commSaveResponseHandler(result)
         }
 
         // 禁用夏令时勾选

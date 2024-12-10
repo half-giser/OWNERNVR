@@ -36,7 +36,7 @@ const plugin = usePlugin()
 const $player = ref<HTMLDivElement>()
 const ready = ref(false)
 
-usePluginHook({
+setupPlugin({
     player: $player,
     onMessage: ($) => emits('message', $),
 })

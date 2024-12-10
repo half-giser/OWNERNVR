@@ -8,10 +8,7 @@ import { type TableInstance } from 'element-plus'
 export default defineComponent({
     setup() {
         const { openLoading, closeLoading } = useLoading()
-        const { Translate } = useLangStore()
-        const { openNotify } = useNotification()
         const playerRef = ref<PlayerInstance>()
-        const osType = getSystemInfo().platform
         const tableRef = ref<TableInstance>()
         const pageData = ref({
             currChlId: '',
@@ -42,56 +39,41 @@ export default defineComponent({
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
 
-        // 播放模式
-        const mode = computed(() => {
-            if (!playerRef.value) {
-                return ''
-            }
-            return playerRef.value.mode
-        })
-
         const ready = computed(() => {
             return playerRef.value?.ready || false
+        })
+
+        // 播放模式
+        const mode = computed(() => {
+            if (!ready.value) {
+                return ''
+            }
+            return playerRef.value!.mode
         })
 
         const handlePlayerReady = () => {
             player = playerRef.value!.player
             plugin = playerRef.value!.plugin
 
-            if (mode.value === 'h5') {
-                if (isHttpsLogin()) {
-                    openNotify(formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`))
-                }
-            }
-
             if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
         //播放视频
         const play = () => {
             const { chlName } = pageData.value.chlData
+
             if (mode.value === 'h5') {
                 player.play({
                     chlID: pageData.value.currChlId,
                     streamType: 2,
                 })
-            } else if (mode.value === 'ocx') {
-                if (osType === 'mac') {
-                    // const sendXML = OCX_XML_Preview({
-                    //     winIndexList: [0],
-                    //     chlIdList: [pageData.value.chlData['chlId']],
-                    //     chlNameList: [pageData.value.chlData['chlName']],
-                    //     streamType: 'sub',
-                    //     chlIndexList: ['1'],
-                    //     chlTypeList: [pageData.value.chlData['chlType']],
-                    // })
-                    // plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                } else {
-                    plugin.RetryStartChlView(pageData.value.currChlId, chlName)
-                }
+            }
+
+            if (mode.value === 'ocx') {
+                plugin.RetryStartChlView(pageData.value.currChlId, chlName)
             }
         }
 
@@ -319,13 +301,9 @@ export default defineComponent({
         })
 
         onBeforeUnmount(() => {
-            if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
+            if (plugin?.IsPluginAvailable() && mode.value === 'ocx') {
                 const sendXML = OCX_XML_StopPreview('ALL')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-            }
-
-            if (mode.value === 'h5') {
-                player.destroy()
+                plugin.ExecuteCmd(sendXML)
             }
         })
 

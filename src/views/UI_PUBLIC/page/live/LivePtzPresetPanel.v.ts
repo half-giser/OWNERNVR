@@ -178,7 +178,7 @@ export default defineComponent({
             `
             const result = await editChlPresetPosition(sendXml)
 
-            commSaveResponseHadler(result)
+            commSaveResponseHandler(result)
         }
 
         /**
@@ -221,7 +221,6 @@ export default defineComponent({
             deletePreset,
             callPreset,
             savePreset,
-            ChannelPresetAddPop,
         }
     },
 })

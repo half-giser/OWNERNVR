@@ -196,7 +196,7 @@
             </el-table>
         </div>
         <div class="base-btn-box padding">
-            <el-pagination
+            <BasePagination
                 v-model:current-page="formData.currentPage"
                 v-model:page-size="formData.pageSize"
                 :total="tableData.length"

@@ -64,7 +64,7 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.scheduleList"
                                         :key="item.value"
-                                        @click="handleScheduleChangeAll(item.value)"
+                                        @click="changeAllSchedule(item.value)"
                                     >
                                         {{ item.label }}
                                     </el-dropdown-item>
@@ -90,7 +90,7 @@
                             </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
-                                    <el-dropdown-item @click="handleDelReceiverAll()">{{ Translate('IDCS_DELETE_ALL') }}</el-dropdown-item>
+                                    <el-dropdown-item @click="delAllReceiver()">{{ Translate('IDCS_DELETE_ALL') }}</el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
                         </el-dropdown>
@@ -102,15 +102,12 @@
                             :index="0"
                             :hover-index="1"
                             :active-index="1"
-                            @click="handleDelReceiver(scope.row)"
+                            @click="delReceiver(scope.row)"
                         />
                     </template>
                 </el-table-column>
             </el-table>
-            <div
-                class="base-btn-box"
-                span="2"
-            >
+            <div class="base-btn-box space-between">
                 <div>
                     <span>{{ Translate('IDCS_SENDER') }} :</span>
                     <span class="sender">{{ formatSender(pageData.sender) }}</span>
@@ -119,25 +116,25 @@
                         :index="getIconStatus()"
                         :hover-index="getIconStatus()"
                         :chunk="4"
-                        @click="maskShow()"
+                        @click="toggleMask()"
                     />
                 </div>
                 <div>
-                    <el-button @click="handleSenderEdit()">
+                    <el-button @click="editSender()">
                         {{ Translate('IDCS_SENDER_EDIT') }}
                     </el-button>
-                    <el-button @click="handleScheduleManage()">
+                    <el-button @click="pageData.isSchedulePop = true">
                         {{ Translate('IDCS_SCHEDULE_MANAGE') }}
                     </el-button>
-                    <el-button @click="handleApply()">
+                    <el-button @click="setData()">
                         {{ Translate('IDCS_APPLY') }}
                     </el-button>
                 </div>
             </div>
         </div>
         <ScheduleManagPop
-            v-model="pageData.scheduleManagePopOpen"
-            @close="handleSchedulePopClose"
+            v-model="pageData.isSchedulePop"
+            @close="closeSchedulePop"
         />
     </div>
 </template>

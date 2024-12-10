@@ -9,9 +9,8 @@
         leave-to-class="notification-to"
     >
         <div
-            v-show="notifications.length"
+            v-show="modelValue.length"
             class="notification"
-            :class="containerClass"
         >
             <div class="notification-title">
                 <div>{{ Translate('IDCS_INFO_TIP') }}</div>
@@ -22,13 +21,13 @@
                     :hover-index="1"
                     :active-index="1"
                     class="remove-button"
-                    @click="removeNotification"
+                    @click="hideNotification"
                 />
             </div>
             <div class="notification-content">
                 <el-scrollbar height="calc(100% - 30px)">
                     <div
-                        v-for="(notification, index) in notifications"
+                        v-for="(notification, index) in modelValue"
                         :key="index"
                         class="notification-item"
                         :class="{ selected: selectedIndex === index }"
@@ -48,61 +47,51 @@ const props = withDefaults(
         /**
          * @property 通知文本
          */
-        notifications: string[]
+        modelValue: string[]
         /**
          * @property 弹窗持续时间
          */
         duration?: number
-        /**
-         * @property 弹窗位置
-         */
-        position?: string
     }>(),
     {
         duration: 10000,
-        position: 'right-bottom',
     },
 )
 
 const emit = defineEmits<{
-    (e: 'update:notifications', notification: string[]): void
+    (e: 'update:modelValue', notification: string[]): void
 }>()
+
+const router = useRouter()
 
 const selectedIndex = ref(0)
 let timer: NodeJS.Timeout | number = 0
 
 watch(
-    () => props.notifications,
+    () => props.modelValue,
     (val) => {
         clearTimeout(timer)
         if (val.length) {
-            hideNotification()
+            timer = setTimeout(() => hideNotification(), props.duration)
         }
     },
 )
 
-const containerClass = computed(() => `position-${props.position}`)
-
 /**
- * @description 定时关闭弹窗
+ * @description 关闭弹窗
  */
 const hideNotification = () => {
     clearTimeout(timer)
-    timer = setTimeout(() => {
-        removeNotification()
-        selectedIndex.value = 0
-    }, props.duration)
-}
-
-/**
- * @description 移除通知 关闭弹窗
- */
-const removeNotification = () => {
-    emit('update:notifications', [])
+    emit('update:modelValue', [])
+    selectedIndex.value = 0
 }
 
 onBeforeUnmount(() => {
     clearTimeout(timer)
+})
+
+router.beforeEach(() => {
+    hideNotification()
 })
 </script>
 
@@ -135,7 +124,6 @@ onBeforeUnmount(() => {
 
     &-item {
         padding: 5px 8px;
-        margin-right: 10px;
         font-size: 13px;
         word-wrap: break-word;
 
@@ -164,25 +152,5 @@ onBeforeUnmount(() => {
         overflow: hidden;
         padding: 10px;
     }
-}
-
-.position-left-bottom {
-    bottom: 20px;
-    left: 20px;
-}
-
-.position-left-top {
-    top: 20px;
-    left: 20px;
-}
-
-.position-right-bottom {
-    bottom: 0;
-    right: 0;
-}
-
-.position-right-top {
-    top: 20px;
-    right: 20px;
 }
 </style>

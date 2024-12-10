@@ -63,10 +63,7 @@
                 </div>
             </div>
         </div>
-        <div
-            class="base-btn-box"
-            span="2"
-        >
+        <div class="base-btn-box space-between">
             <div>
                 <el-button
                     v-show="isAddBtn"

@@ -123,9 +123,11 @@ export default defineComponent({
                 schedule: '',
             },
         })
+
         const handleTimePickerChange = () => {
-            pageData.value.data.sendEmailData.reportHour = Number(pageData.value.time.split(':')[0])
-            pageData.value.data.sendEmailData.reportMin = Number(pageData.value.time.split(':')[1])
+            const time = pageData.value.time.split(':')[0]
+            pageData.value.data.sendEmailData.reportHour = Number(time[0])
+            pageData.value.data.sendEmailData.reportMin = Number(time[1])
         }
 
         // 原代码中显示了地址后无法隐藏，这里改为再次点击隐藏
@@ -146,7 +148,7 @@ export default defineComponent({
         }
 
         // 删除收件人
-        const handleDelReceiver = (row: AlarmPassLinesEmailReceiverDto) => {
+        const delReceiver = (row: AlarmPassLinesEmailReceiverDto) => {
             openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_EMAIL_RECEIVER_S').formatForLang(row.address),
@@ -157,7 +159,7 @@ export default defineComponent({
         }
 
         // 新增收件人
-        const handleAddReceiver = () => {
+        const addReceiver = () => {
             // 规则验证
             formRef.value!.validate((valid) => {
                 if (valid) {
@@ -183,10 +185,7 @@ export default defineComponent({
             pageData.value.data.saveSourcePicture = props.emailData.saveSourcePicture
             pageData.value.data.sendEmailData = props.emailData.sendEmailData
             pageData.value.data.receiverData = props.emailData.receiverData
-            pageData.value.time =
-                (props.emailData.sendEmailData.reportHour > 10 ? props.emailData.sendEmailData.reportHour : '0' + props.emailData.sendEmailData.reportHour) +
-                ':' +
-                (props.emailData.sendEmailData.reportMin > 10 ? props.emailData.sendEmailData.reportMin : '0' + props.emailData.sendEmailData.reportMin)
+            pageData.value.time = `${('0' + props.emailData.sendEmailData.reportHour).slice(-2)}:${('0' + props.emailData.sendEmailData.reportMin).slice(-2)}`
             pageData.value.scheduleList = props.scheduleList
             pageData.value.currentRow = {
                 schedule: '',
@@ -227,8 +226,8 @@ export default defineComponent({
             handleRowClick,
             formatAddress,
             formatSchedule,
-            handleDelReceiver,
-            handleAddReceiver,
+            delReceiver,
+            addReceiver,
         }
     },
 })

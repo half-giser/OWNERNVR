@@ -5,10 +5,7 @@
 -->
 <template>
     <div class="feature">
-        <div
-            class="base-btn-box"
-            span="2"
-        >
+        <div class="base-btn-box space-between">
             <div>
                 <span class="group-title">{{ Translate('IDCS_ADD_FACE_GROUP') }}</span>
                 <el-checkbox
@@ -18,9 +15,7 @@
                 />
                 <el-text class="group-list text-ellipsis">{{ formData.faceGroup.map((item) => item.name).join(';') }}</el-text>
             </div>
-            <div>
-                <el-button @click="changeGroup">{{ Translate('IDCS_CONFIGURATION') }}</el-button>
-            </div>
+            <el-button @click="changeGroup">{{ Translate('IDCS_CONFIGURATION') }}</el-button>
         </div>
         <el-form
             :style="{
@@ -50,22 +45,17 @@
                     </IntelBaseFaceItem>
                 </div>
             </el-scrollbar>
-            <div
-                class="base-btn-box padding"
-                span="2"
-            >
+            <div class="base-btn-box space-between padding">
                 <div>
                     <span v-show="multiple">{{ Translate('IDCS_SELECTED_NUM_D').formatForLang(formData.faceIndex.length) }}</span>
                 </div>
-                <div>
-                    <el-pagination
-                        v-model:current-page="formData.pageIndex"
-                        v-model:page-size="formData.pageSize"
-                        :page-sizes="[formData.pageSize]"
-                        :total="listData.length"
-                        @current-change="changePage"
-                    />
-                </div>
+                <BasePagination
+                    v-model:current-page="formData.pageIndex"
+                    v-model:page-size="formData.pageSize"
+                    :page-sizes="[formData.pageSize]"
+                    :total="listData.length"
+                    @current-change="changePage"
+                />
             </div>
         </div>
         <BaseTableSelectPop

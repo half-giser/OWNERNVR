@@ -11,11 +11,11 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openMessageBox } = useMessageBox()
 
-        const plugin = usePluginHook({
+        const plugin = setupPlugin({
             onReady: (mode, plugin) => {
                 if (mode.value === 'ocx') {
                     const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.ExecuteCmd(sendXML)
                     pageData.value.disabled = false
                     getData()
                 }
@@ -74,7 +74,7 @@ export default defineComponent({
          */
         const getData = () => {
             try {
-                plugin.AsynQueryInfo(plugin.GetVideoPlugin(), OCX_XML_GetLocalCfg(), (result) => {
+                plugin.AsynQueryInfo(OCX_XML_GetLocalCfg(), (result) => {
                     const doc = XMLStr2XMLDoc(result)
                     const $ = queryXml(doc)
                     formData.value.snapCount = $('response/snapCount').text().num()
@@ -107,7 +107,7 @@ export default defineComponent({
         const setData = () => {
             try {
                 const sendXML = OCX_XML_SetLocalCfg(formData.value.snapCount, formData.value.liveSnapSavePath, formData.value.recSavePath, formData.value.recBackUpPath)
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
                 openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
@@ -124,7 +124,7 @@ export default defineComponent({
          * @description 修改抓图保存路径
          */
         const changeSnapSavePath = () => {
-            plugin.AsynQueryInfo(plugin.GetVideoPlugin(), OCX_XML_OpenFileBrowser('FOLDER'), (result) => {
+            plugin.AsynQueryInfo(OCX_XML_OpenFileBrowser('FOLDER'), (result) => {
                 const path = OCX_XML_OpenFileBrowser_getpath(result).trim()
                 if (path) {
                     formData.value.liveSnapSavePath = path
@@ -136,7 +136,7 @@ export default defineComponent({
          * @description 修改录像文件保存路径
          */
         const changeRecSavePath = () => {
-            plugin.AsynQueryInfo(plugin.GetVideoPlugin(), OCX_XML_OpenFileBrowser('FOLDER'), (result) => {
+            plugin.AsynQueryInfo(OCX_XML_OpenFileBrowser('FOLDER'), (result) => {
                 const path = OCX_XML_OpenFileBrowser_getpath(result).trim()
                 if (path) {
                     formData.value.recSavePath = path

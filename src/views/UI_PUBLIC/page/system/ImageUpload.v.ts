@@ -260,7 +260,7 @@ export default defineComponent({
             openLoading()
             const result = await editSHDBNormalUploadCfg(sendXml)
             closeLoading()
-            commSaveResponseHadler(result)
+            commSaveResponseHandler(result)
         }
 
         // 挂载完成获取数据
@@ -274,7 +274,6 @@ export default defineComponent({
         })
 
         return {
-            ImageUploadAddTimePop,
             pageData,
             tableRef,
             tableData,

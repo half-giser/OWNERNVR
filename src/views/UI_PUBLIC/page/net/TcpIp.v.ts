@@ -765,7 +765,7 @@ export default defineComponent({
             closeLoading()
 
             if ($('status').text() === 'success') {
-                commSaveResponseHadler(result)
+                commSaveResponseHandler(result)
             } else {
                 const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
@@ -900,7 +900,6 @@ export default defineComponent({
             poeEnabled,
             handleChangePoeMode,
             setData,
-            TcpIpAdvancePop,
         }
     },
 })

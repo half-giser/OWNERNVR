@@ -54,7 +54,7 @@ export default () => {
         layoutStore.messageBoxCount++
         return ElMessageBox({
             title: optionObj.title,
-            message: h('div', { class: 'Mgs_box' }, [
+            message: h('div', { class: 'Msg' }, [
                 h(BaseImgSprite, { class: 'Msg_Icon', chunk: 5, file: 'msg_type', index: IconMap[optionObj.type] }),
                 h('div', { class: 'Msg_Content', innerHTML: optionObj.message }),
             ]),

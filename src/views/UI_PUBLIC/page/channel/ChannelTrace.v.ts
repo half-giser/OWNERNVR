@@ -21,7 +21,6 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
-        const { openNotify } = useNotification()
         const auth = useUserChlAuth(false)
         const playerRef = ref<PlayerInstance>()
 
@@ -74,16 +73,16 @@ export default defineComponent({
             traceIndex: '' as string | number,
         })
 
-        // 播放模式
-        const mode = computed(() => {
-            if (!playerRef.value) {
-                return ''
-            }
-            return playerRef.value.mode
-        })
-
         const ready = computed(() => {
             return playerRef.value?.ready || false
+        })
+
+        // 播放模式
+        const mode = computed(() => {
+            if (!ready.value) {
+                return ''
+            }
+            return playerRef.value!.mode
         })
 
         let player: PlayerInstance['player']
@@ -96,15 +95,9 @@ export default defineComponent({
             player = playerRef.value!.player
             plugin = playerRef.value!.plugin
 
-            if (mode.value === 'h5') {
-                if (isHttpsLogin()) {
-                    openNotify(formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`))
-                }
-            }
-
             if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -113,12 +106,15 @@ export default defineComponent({
          */
         const play = () => {
             const { chlId, chlName } = tableData.value[pageData.value.tableIndex]
+
             if (mode.value === 'h5') {
                 player.play({
                     chlID: chlId,
                     streamType: 2,
                 })
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 plugin.RetryStartChlView(chlId, chlName)
             }
         }
@@ -528,9 +524,9 @@ export default defineComponent({
         onBeforeUnmount(() => {
             resetRecord()
             cancelRecord()
-            if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
+            if (plugin?.IsPluginAvailable() && mode.value === 'ocx') {
                 const sendXML = OCX_XML_StopPreview('ALL')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         })
 
@@ -556,10 +552,6 @@ export default defineComponent({
             playTrace,
             stopTrace,
             formatInputMaxLength,
-            ChannelPtzCtrlPanel,
-            ChannelTraceAddPop,
-            ChannelPtzTableExpandPanel,
-            ChannelPtzTableExpandItem,
         }
     },
 })

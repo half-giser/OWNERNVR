@@ -372,7 +372,6 @@ export default defineComponent({
             chlCardMode,
             displayTime,
             viewOptions,
-            TimeSliceItem,
         }
     },
 })

@@ -296,10 +296,6 @@ export default defineComponent({
             decreaseSpeed,
             increaseSpeed,
             changeMenu,
-            LivePtzCruisePanel,
-            LivePtzGroupPanel,
-            LivePtzPresetPanel,
-            LivePtzTracePanel,
         }
     },
 })

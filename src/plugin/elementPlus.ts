@@ -3,25 +3,25 @@
  * @Date: 2024-10-25 09:17:39
  * @Description: Element Plus的默认值设置
  */
-import { ElDialog, ElInputNumber, ElPagination, ElForm, ElTooltip, ElSelectV2, ElTable, ElDropdown, ElPopover, ElDatePicker, ElSlider, ElScrollbar } from 'element-plus'
+import { ElDialog, ElInputNumber, ElForm, ElTooltip, ElSelectV2, ElTable, ElDropdown, ElPopover, ElDatePicker, ElSlider, ElScrollbar } from 'element-plus'
 import { type PropType } from 'vue'
 import sprites from '../components/sprite/sprites'
 
-ElPagination.props.layout = {
-    type: String,
-    default: 'jumper, prev, pager, next, sizes, total',
-}
+// ElPagination.props.layout = {
+//     type: String,
+//     default: 'jumper, prev, pager, next, sizes, total',
+// }
 
-ElPagination.props.pageSizes = {
-    type: Array as PropType<number[]>,
-    default: () => [10, 20, 30],
-    required: false,
-}
+// ElPagination.props.pageSizes = {
+//     type: Array as PropType<number[]>,
+//     default: () => [10, 20, 30],
+//     required: false,
+// }
 
-ElPagination.props.size = {
-    type: String,
-    default: 'small',
-}
+// ElPagination.props.size = {
+//     type: String,
+//     default: 'small',
+// }
 
 ElInputNumber.props.controls = {
     type: Boolean,
@@ -129,6 +129,18 @@ ElTable.props.stripe = {
 ElTable.props.border = {
     type: Boolean,
     default: true,
+}
+
+ElTable.props.rowClassName = {
+    type: Function,
+    default: (data: any) => {
+        if (typeof data.row === 'object' && typeof data.row.disabled === 'boolean' && typeof data.row.status === 'string') {
+            if (data.row.disabled) {
+                return 'disabled'
+            }
+        }
+        return ''
+    },
 }
 
 ElDropdown.props.trigger = {

@@ -40,7 +40,7 @@
                 </el-form-item>
             </el-form>
             <div class="base-btn-box collapse">
-                <el-button @click="handleAddReceiver">
+                <el-button @click="addReceiver">
                     {{ Translate('IDCS_OK') }}
                 </el-button>
                 <el-button @click="pageData.popOpen = false">
@@ -157,7 +157,7 @@
                                     :active-index="1"
                                     :disabled-index="3"
                                     :disabled="!pageData.data.sendEmailData.enableSwitch"
-                                    @click="handleDelReceiver(scope.row)"
+                                    @click="delReceiver(scope.row)"
                                 />
                             </template>
                         </el-table-column>
@@ -173,10 +173,7 @@
                 <span class="title">{{ Translate('IDCS_RECIPIENT') }}</span>
             </div>
         </el-form>
-        <div
-            class="base-btn-box"
-            span="start"
-        >
+        <div class="base-btn-box flex-start">
             {{ Translate('IDCS_TIMING_SEND_EMAIL_TIP') }}
         </div>
         <div class="base-btn-box collapse">

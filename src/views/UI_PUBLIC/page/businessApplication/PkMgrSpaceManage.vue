@@ -6,14 +6,12 @@
 <template>
     <div class="base-flex-box">
         <div class="base-table-box">
-            <el-table
-                :data="tableData"
-                show-overflow-tooltip
-            >
+            <el-table :data="tableData">
                 <el-table-column
                     type="index"
                     width="70"
                     :label="Translate('IDCS_SERIAL_NUMBER')"
+                    show-overflow-tooltip
                 />
                 <el-table-column
                     prop="groupName"
@@ -38,7 +36,7 @@
                     <template #default="scope">
                         <BaseNumberInput
                             v-model="scope.row.groupTotalNum"
-                            :min="1"
+                            :min="0"
                             :max="10000"
                             :disabled="scope.row.parkingType !== 'usingGroup'"
                         />
@@ -94,23 +92,18 @@
                 </el-table-column>
             </el-table>
         </div>
-        <div
-            class="base-btn-box padding"
-            span="2"
-        >
+        <div class="base-btn-box space-between padding">
             <div class="tips">{{ Translate('IDCS_VEHICLE_NUM_TIPS') }}</div>
-            <div>
-                <el-button
-                    :disabled="pageData.btnDisabled"
-                    @click="apply()"
-                >
-                    {{ Translate('IDCS_APPLY') }}
-                </el-button>
-            </div>
+            <el-button
+                :disabled="watchEdit.disabled.value"
+                @click="apply()"
+            >
+                {{ Translate('IDCS_APPLY') }}
+            </el-button>
         </div>
         <ScheduleManagPop
             v-model="pageData.isSchedulePop"
-            @close="confirmManageSchedule"
+            @close="confirmSchedule"
         />
     </div>
 </template>

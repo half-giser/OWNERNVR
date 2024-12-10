@@ -28,6 +28,8 @@ export default defineComponent({
         }
 
         const formData = ref(new RecordDistributeInfoDto())
+        const watchEdit = useWatchEditData(formData)
+
         const pageData = ref({
             //录像模式下拉列表
             recModeTypeList: [] as SelectOption<string, string>[],
@@ -44,10 +46,6 @@ export default defineComponent({
 
             //当前生效的高级模式选项（只支持一个）
             advanceModeCurrent: null as RecordModeDto | null,
-            // 应用按钮是否禁用
-            applyDisabled: true,
-            // 页面初始化完成
-            initComplated: false,
             // 记录上一次选择的自动模式ID，取消时回退用
             autoModeIdOld: '',
             // 高级模式详细信息
@@ -161,10 +159,10 @@ export default defineComponent({
         /**
          * 缓存初始化查询时的列表数据，保存时对比变化了的行
          */
-        let recordScheduleListInit = [] as RecordScheduleDto[]
+        let recordScheduleListInit: RecordScheduleDto[] = []
 
         //高级录像模式列表转MAP
-        const advanceRecModeMap = {} as Record<string, RecordModeDto>
+        const advanceRecModeMap: Record<string, RecordModeDto> = {}
         pageData.value.advanceRecModes.forEach((item) => {
             advanceRecModeMap[item.id] = item
         })
@@ -173,25 +171,15 @@ export default defineComponent({
             genIconMap(recAutoModeList.value)
             await getRecModeData()
             await initChlScheduldTb()
-            pageData.value.initComplated = true
+            watchEdit.listen()
         })
-
-        watch(
-            formData,
-            () => {
-                if (pageData.value.initComplated) pageData.value.applyDisabled = false
-            },
-            {
-                deep: true,
-            },
-        )
 
         watch(
             () => {
                 return formData.value.autoModeId
             },
-            (newValue: string, oldValue: string) => {
-                if (!pageData.value.initComplated) return
+            (newValue, oldValue) => {
+                if (!watchEdit.ready.value) return
                 const isBack = pageData.value.autoModeIdOld === newValue
                 pageData.value.autoModeIdOld = oldValue
 
@@ -229,9 +217,9 @@ export default defineComponent({
             })
         }
 
-        const changeAllSchedule = (value: string, field: string) => {
+        const changeAllSchedule = (value: string, field: keyof RecordScheduleDto) => {
             formData.value.recordScheduleList.forEach((item) => {
-                ;(item as any)[field] = value
+                item[field] = value
             })
         }
 
@@ -355,13 +343,18 @@ export default defineComponent({
             events.sort((a, b) => {
                 return advanceRecModeMap[a].index - advanceRecModeMap[b].index
             })
-            const advanceModeCurrent = {} as RecordModeDto
-            advanceModeCurrent.id = events.join('_')
-            advanceModeCurrent.text = events
-                .map((item) => {
-                    return advanceRecModeMap[item].text
-                })
-                .join('+')
+
+            const advanceModeCurrent: RecordModeDto = {
+                id: events.join('_'),
+                text: events
+                    .map((item) => {
+                        return advanceRecModeMap[item].text
+                    })
+                    .join('+'),
+                type: '',
+                events: [],
+                index: 0,
+            }
 
             if (autoModeIsIntensive) {
                 advanceModeCurrent.id = `${REC_MODE_TYPE.INTENSIVE}_${advanceModeCurrent.id}`
@@ -550,23 +543,21 @@ export default defineComponent({
             const requestList = [setRecModeInfo()]
 
             if (formData.value.mode === 'manually') {
-                const diffRows = getArrayDiffRows(formData.value.recordScheduleList, recordScheduleListInit)
-                if (diffRows.length) requestList.push(setRecScheduleInfo(diffRows as RecordScheduleDto[]))
+                const diffRows = getArrayDiffRows(formData.value.recordScheduleList, recordScheduleListInit) as RecordScheduleDto[]
+                if (diffRows.length) requestList.push(setRecScheduleInfo(diffRows))
             }
             const resultList = await Promise.all(requestList)
 
             closeLoading()
-            if (isPopMessage) commMutiSaveResponseHadler(resultList)
+            if (isPopMessage) commMutiSaveResponseHandler(resultList)
         }
 
         return {
             formData,
             pageData,
+            watchEdit,
             recAutoModeList,
             advanceRecModeMap,
-            RecordModeAdvancePop,
-            RecordModeStreamPop,
-            ScheduleManagPop,
             supportPOS,
             changeAllSchedule,
             advancePopConfirm,

@@ -57,7 +57,7 @@
                                     {{ Translate('IDCS_EVENT_TYPE') }}
                                 </BaseTableDropdownLink>
                             </template>
-                            <el-scrollbar height="300px">
+                            <el-scrollbar height="300">
                                 <div class="base-subheading-box">{{ Translate('IDCS_EVENT') }}</div>
                                 <el-checkbox-group
                                     v-model="pageData.event"

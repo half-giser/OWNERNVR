@@ -11,7 +11,7 @@
         <div
             v-if="!!message"
             class="tip_wrap"
-            :style="{ 'border-color': index === 1 ? 'var(--float-ok)' : 'var(--float-error)' }"
+            :class="index === 1 ? 'ok' : 'error'"
             @click="handleClick"
         >
             <BaseImgSprite
@@ -19,10 +19,7 @@
                 :chunk="5"
                 :index="index"
             />
-            <span
-                class="tip_msg"
-                :style="{ color: index === 1 ? 'var(--float-ok)' : 'var(--float-error)' }"
-            >
+            <span class="tip_msg">
                 {{ message }}
             </span>
         </div>
@@ -89,6 +86,16 @@ const handleClick = () => {
 
     .tip_msg {
         margin-left: 3px;
+    }
+
+    &.ok {
+        border-color: var(--float-ok);
+        color: var(--float-ok);
+    }
+
+    &.error {
+        border-color: var(--float-error);
+        color: var(--float-error);
     }
 }
 </style>
