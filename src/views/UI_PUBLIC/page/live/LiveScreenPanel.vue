@@ -52,25 +52,23 @@
                 </el-popover>
             </template>
             <!-- OSD按钮 -->
-            <el-tooltip :content="osd ? Translate('IDCS_OSD_CLOSE') : Translate('IDCS_OSD_OPEN')">
-                <BaseImgSprite
-                    file="OSD"
-                    :index="osd ? 2 : 0"
-                    :hover-index="1"
-                    :chunk="4"
-                    @click="$emit('update:osd', !osd)"
-                />
-            </el-tooltip>
+            <BaseImgSprite
+                file="OSD"
+                :title="osd ? Translate('IDCS_OSD_CLOSE') : Translate('IDCS_OSD_OPEN')"
+                :index="osd ? 2 : 0"
+                :hover-index="1"
+                :chunk="4"
+                @click="$emit('update:osd', !osd)"
+            />
             <!-- 全屏按钮 -->
-            <el-tooltip :content="Translate('IDCS_FULLSCREEN')">
-                <BaseImgSprite
-                    file="full_screen"
-                    :index="0"
-                    :hover-index="1"
-                    :chunk="4"
-                    @click="$emit('fullscreen')"
-                />
-            </el-tooltip>
+            <BaseImgSprite
+                file="full_screen"
+                :title="Translate('IDCS_FULLSCREEN')"
+                :index="0"
+                :hover-index="1"
+                :chunk="4"
+                @click="$emit('fullscreen')"
+            />
             <!-- 码流切换按钮 -->
             <el-radio-group
                 v-show="mode === 'ocx'"
@@ -89,49 +87,45 @@
         <div class="ctrl-right">
             <LiveScreenAlarmOutPop />
             <!-- 关闭/开启图像 -->
-            <el-tooltip :content="preview ? Translate('IDCS_CLOSE_ALL_IMAGE') : Translate('IDCS_PREVIEW_ALL')">
-                <BaseImgSprite
-                    :file="preview ? 'close_all_chl' : 'open_all_chl'"
-                    :index="0"
-                    :hover-index="1"
-                    :chunk="4"
-                    @click="$emit('update:preview', !preview)"
-                />
-            </el-tooltip>
+            <BaseImgSprite
+                :file="preview ? 'close_all_chl' : 'open_all_chl'"
+                :title="preview ? Translate('IDCS_CLOSE_ALL_IMAGE') : Translate('IDCS_PREVIEW_ALL')"
+                :index="0"
+                :hover-index="1"
+                :chunk="4"
+                @click="$emit('update:preview', !preview)"
+            />
             <!-- 本地录像 -->
-            <el-tooltip :content="clientRecord ? Translate('IDCS_CLIENT_RECORD_ALL_OFF') : Translate('IDCS_CLIENT_RECORD_ALL_ON')">
-                <BaseImgSprite
-                    :file="clientRecord ? 'stop_rec_all_chl' : 'start_rec_all_chl'"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="4"
-                    @click="$emit('update:clientRecord', !clientRecord)"
-                />
-            </el-tooltip>
+            <BaseImgSprite
+                :file="clientRecord ? 'stop_rec_all_chl' : 'start_rec_all_chl'"
+                :title="clientRecord ? Translate('IDCS_CLIENT_RECORD_ALL_OFF') : Translate('IDCS_CLIENT_RECORD_ALL_ON')"
+                :index="0"
+                :hover-index="1"
+                :disabled-index="3"
+                :chunk="4"
+                @click="$emit('update:clientRecord', !clientRecord)"
+            />
             <!-- 远程录像 -->
-            <el-tooltip :content="remoteRecord ? Translate('IDCS_REMOTE_MANUAL_RECORD_ALL_OFF') : Translate('IDCS_REMOTE_MANUAL_RECORD_ALL_ON')">
-                <BaseImgSprite
-                    :file="remoteRecord ? 'stop_remote_rec_all_chl' : 'start_remote_rec_all_chl'"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :disabled="remoteRecordDisabled"
-                    :chunk="4"
-                    @click="recordRemote(!remoteRecord)"
-                />
-            </el-tooltip>
+            <BaseImgSprite
+                :file="remoteRecord ? 'stop_remote_rec_all_chl' : 'start_remote_rec_all_chl'"
+                :title="remoteRecord ? Translate('IDCS_REMOTE_MANUAL_RECORD_ALL_OFF') : Translate('IDCS_REMOTE_MANUAL_RECORD_ALL_ON')"
+                :index="0"
+                :hover-index="1"
+                :disabled-index="3"
+                :disabled="remoteRecordDisabled"
+                :chunk="4"
+                @click="recordRemote(!remoteRecord)"
+            />
             <!-- 对讲 -->
-            <el-tooltip :content="talk ? Translate('IDCS_TALKBACK_OFF') : Translate('IDCS_TALKBACK_ON')">
-                <BaseImgSprite
-                    v-show="isTalk"
-                    :file="talk ? 'stop_talk' : 'start_talk'"
-                    :index="0"
-                    :hover-index="1"
-                    :chunk="4"
-                    @click="$emit('update:talk', !talk)"
-                />
-            </el-tooltip>
+            <BaseImgSprite
+                v-show="isTalk"
+                :file="talk ? 'stop_talk' : 'start_talk'"
+                :title="talk ? Translate('IDCS_TALKBACK_OFF') : Translate('IDCS_TALKBACK_ON')"
+                :index="0"
+                :hover-index="1"
+                :chunk="4"
+                @click="$emit('update:talk', !talk)"
+            />
         </div>
     </div>
 </template>
