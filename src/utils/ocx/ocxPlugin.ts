@@ -117,7 +117,7 @@ const getSingletonPlugin = () => {
     }
 
     /**
-     * @deprecated NVR2.2+所支持的浏览器均支持WebSocket
+     * NVR2.2+所支持的浏览器均支持WebSocket
      * @description 检测当前浏览器是否支持插件（websocket)
      * @returns {boolean}
      */
@@ -667,7 +667,13 @@ const getSingletonPlugin = () => {
                 pluginStore.ready = false
                 pluginStore.currPluginMode = null
                 if (pluginStore.manuaClosePlugin) return
-                showPluginNoResponse()
+                // 开发环境 热模块更新时，会关闭插件再重新启动
+                if (import.meta.env.DEV) {
+                    console.log('ocx closed on hmr')
+                } else {
+                    setPluginNoResponse()
+                    showPluginNoResponse()
+                }
             },
         })
     }
@@ -1437,10 +1443,6 @@ const getSingletonPlugin = () => {
             script.src = '/siteDictionary.js'
             document.body.appendChild(script)
         }
-    })
-
-    onBeforeUnmount(() => {
-        disposePlugin()
     })
 
     document.addEventListener('visibilitychange', pageVisibleChangeHandle, false)

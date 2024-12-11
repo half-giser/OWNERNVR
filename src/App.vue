@@ -32,8 +32,7 @@ const layoutStore = useLayoutStore()
 const langStore = useLangStore()
 const session = useUserSessionStore()
 const dateTime = useDateTimeStore()
-
-usePlugin()
+const plugin = usePlugin()
 
 /**
  * @description 如果未激活，跳转开机向导，否则，根据登录状态，跳转登录或现场预览
@@ -93,6 +92,10 @@ watch(
         immediate: true,
     },
 )
+
+onBeforeUnmount(() => {
+    plugin.DisposePlugin()
+})
 </script>
 
 <style lang="scss">

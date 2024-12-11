@@ -348,7 +348,7 @@ export default defineComponent({
          */
         const getAuthCode = () => {
             openLoading()
-            pluginStore.manuaClosePlugin = false
+            pluginStore.manuaClosePlugin = true
             pageData.value.errorMsg = ''
             userSession.p2pSessionId = null
             Plugin.DisposePlugin()
