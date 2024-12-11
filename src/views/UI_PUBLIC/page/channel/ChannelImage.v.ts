@@ -30,8 +30,8 @@ export default defineComponent({
         const defaultRadioVal = false
         const defaultFocusMode = 'auto'
         const chlNameMaxLen = 40 // 通道名最大长度
-        const floatErrorTo = ref('#divTip')
         const floatErrorMessage = ref('')
+        const floatLensMessage = ref('')
         const floatErrorType = ref('ok')
 
         const timeMode = ref(24)
@@ -270,9 +270,13 @@ export default defineComponent({
             })
         })
 
-        const showFloatError = (to: string, message: string, type = 'error') => {
-            floatErrorMessage.value = message
-            floatErrorTo.value = to
+        const showFloatError = (to: 'setting' | 'lens', message: string, type = 'error') => {
+            if (to === 'setting') {
+                floatErrorMessage.value = message
+            } else {
+                floatLensMessage.value = message
+            }
+
             floatErrorType.value = type
         }
 
@@ -621,7 +625,7 @@ export default defineComponent({
             editChlVideoParam(data).then((res) => {
                 const $ = queryXml(res)
                 if ($('status').text() === 'success') {
-                    showFloatError('#divTip', Translate('IDCS_SAVE_DATA_SUCCESS'), 'ok')
+                    showFloatError('setting', Translate('IDCS_SAVE_DATA_SUCCESS'), 'ok')
                 } else {
                     const rebootParam = $('rebootParam').text()
                     if (rebootParam) {
@@ -633,7 +637,7 @@ export default defineComponent({
                         let msg = Translate('IDCS_SAVE_DATA_FAIL')
                         if (errorCode === ErrorCode.USER_ERROR_NODE_NET_OFFLINE || errorCode === ErrorCode.USER_ERROR_GET_CONFIG_INFO_FAIL)
                             msg = Translate('IDCS_IP_CHANNEL_OFFLINE').formatForLang(rowData.name)
-                        showFloatError('#divTip', msg)
+                        showFloatError('setting', msg)
                     }
                 }
             })
@@ -728,6 +732,10 @@ export default defineComponent({
             queryChlVideoParam(data).then((res) => {
                 const $ = queryXml(res)
                 const rowData = getRowById(chlId)
+                if (!rowData) {
+                    return
+                }
+
                 if ($('status').text() === 'success') {
                     const $chl = queryXml($('content/chl')[0].element)
 
@@ -1034,7 +1042,7 @@ export default defineComponent({
                     })
                     rowData.exposureModeArray = $('types/autoExposureMode/enum').map((ele) => {
                         return {
-                            value: exposureModeKeyMap[ele.text()],
+                            value: ele.text(),
                             label: exposureModeMap[ele.text()],
                         }
                     })
@@ -1101,7 +1109,7 @@ export default defineComponent({
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() === 'success') {
-                    showFloatError('#divTip', Translate('IDCS_SAVE_DATA_SUCCESS'), 'ok')
+                    showFloatError('setting', Translate('IDCS_SAVE_DATA_SUCCESS'), 'ok')
                 } else {
                     const rebootParam = $('rebootParam').text()
                     if (rebootParam) {
@@ -1115,7 +1123,7 @@ export default defineComponent({
                             // 通道离线（节点不存在）
                             msg += Translate('IDCS_IP_CHANNEL_OFFLINE').formatForLang(rowData.name)
                         }
-                        showFloatError('#divTip', msg)
+                        showFloatError('setting', msg)
                     }
                 }
             })
@@ -1281,13 +1289,13 @@ export default defineComponent({
                 .then((res) => {
                     const $ = queryXml(res)
                     if ($('status').text() === 'success' || $('errorCode').text() === '0') {
-                        showFloatError('#divLensTip', Translate('IDCS_SAVE_DATA_SUCCESS'), 'ok')
+                        showFloatError('lens', Translate('IDCS_SAVE_DATA_SUCCESS'), 'ok')
                     } else {
-                        showFloatError('#divLensTip', Translate('IDCS_SAVE_DATA_FAIL'))
+                        showFloatError('lens', Translate('IDCS_SAVE_DATA_FAIL'))
                     }
                 })
                 .catch(() => {
-                    showFloatError('#divLensTip', Translate('IDCS_SAVE_DATA_FAIL'))
+                    showFloatError('lens', Translate('IDCS_SAVE_DATA_FAIL'))
                 })
         }
 
@@ -1492,9 +1500,9 @@ export default defineComponent({
             handleIRCutModeChange,
             setAZData,
             onReady,
-            floatErrorTo,
-            floatErrorMessage,
             floatErrorType,
+            floatErrorMessage,
+            floatLensMessage,
         }
     },
 })

@@ -116,7 +116,12 @@
             </el-form>
             <div class="base-btn-box space-between">
                 <div>
-                    <div id="divTip"></div>
+                    <div id="divTip">
+                        <BaseFloatError
+                            v-model:message="floatErrorMessage"
+                            :type="floatErrorType"
+                        />
+                    </div>
                 </div>
                 <div>
                     <el-button
@@ -1066,7 +1071,12 @@
                                             </el-form>
                                             <div class="base-btn-box space-between">
                                                 <div>
-                                                    <div id="divLensTip"></div>
+                                                    <div id="divLensTip">
+                                                        <BaseFloatError
+                                                            v-model:message="floatLensMessage"
+                                                            :type="floatErrorType"
+                                                        />
+                                                    </div>
                                                 </div>
                                                 <div>
                                                     <el-button
@@ -1105,11 +1115,6 @@
                 />
             </div>
         </div>
-        <BaseFloatError
-            v-model:message="floatErrorMessage"
-            :to="floatErrorTo"
-            :type="floatErrorType"
-        />
     </div>
 </template>
 
