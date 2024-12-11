@@ -19,9 +19,15 @@
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select-v2
+                        v-if="tableData.length"
                         v-model="pageData.tableIndex"
                         :options="chlOptions"
                         @change="changeChl"
+                    />
+                    <el-select-v2
+                        v-else
+                        model-value=""
+                        :options="[]"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_CRUISE')">

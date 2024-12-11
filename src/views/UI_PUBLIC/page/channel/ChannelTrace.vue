@@ -12,7 +12,10 @@
                     @ready="handlePlayerReady"
                 />
             </div>
-            <ChannelPtzCtrlPanel :chl-id="tableData[pageData.tableIndex]?.chlId || ''" />
+            <ChannelPtzCtrlPanel
+                :chl-id="tableData[pageData.tableIndex]?.chlId || ''"
+                :disabled="!tableData.length"
+            />
             <el-form
                 :style="{
                     '--form-label-width': '100px',
@@ -20,10 +23,16 @@
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select-v2
+                        v-if="tableData.length"
                         v-model="pageData.tableIndex"
                         :height="170"
                         :options="chlOptions"
                         @change="changeChl"
+                    />
+                    <el-select-v2
+                        v-else
+                        model-value=""
+                        :options="[]"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_PTZ_TRACE')">
@@ -81,7 +90,12 @@
                     </el-tooltip>
                 </el-form-item>
                 <div class="base-btn-box">
-                    <el-button @click="addTrace(pageData.tableIndex)">{{ Translate('IDCS_ADD') }}</el-button>
+                    <el-button
+                        :disabled="!tableData.length"
+                        @click="addTrace(pageData.tableIndex)"
+                    >
+                        {{ Translate('IDCS_ADD') }}
+                    </el-button>
                     <el-button
                         :disabled="!traceOptions.length"
                         @click="deleteTrace(pageData.tableIndex, Number(formData.traceIndex))"

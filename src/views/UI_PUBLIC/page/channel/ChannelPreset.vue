@@ -14,6 +14,7 @@
             </div>
             <ChannelPtzCtrlPanel
                 :chl-id="tableData[pageData.tableIndex]?.chlId || ''"
+                :disabled="!tableData.length"
                 @speed="setSpeed"
             />
             <el-form
@@ -23,10 +24,16 @@
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select-v2
+                        v-if="chlOptions.length"
                         v-model="pageData.tableIndex"
                         :height="170"
                         :options="chlOptions"
                         @change="changeChl"
+                    />
+                    <el-select-v2
+                        v-else
+                        model-value=""
+                        :options="[]"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_PRESET')">
@@ -60,7 +67,12 @@
                     </el-tooltip>
                 </el-form-item>
                 <div class="base-btn-box">
-                    <el-button @click="addPreset(pageData.tableIndex)">{{ Translate('IDCS_ADD') }}</el-button>
+                    <el-button
+                        :disabled="!tableData.length"
+                        @click="addPreset(pageData.tableIndex)"
+                    >
+                        {{ Translate('IDCS_ADD') }}
+                    </el-button>
                     <el-button
                         :disabled="!presetOptions.length"
                         @click="deletePreset(pageData.tableIndex, Number(formData.presetIndex))"

@@ -12,6 +12,13 @@ export default defineComponent({
             type: String,
             required: true,
         },
+        /**
+         * @property {boolean} 禁用
+         */
+        disabled: {
+            type: Boolean,
+            default: false,
+        },
     },
     emits: {
         speed(speedValue: number) {
@@ -140,7 +147,7 @@ export default defineComponent({
          * @param {CmdItem} cmd
          */
         const addCmd = (cmd: CmdItem) => {
-            if (!prop.chlId) {
+            if (!prop.chlId || prop.disabled) {
                 return
             }
 
@@ -168,7 +175,7 @@ export default defineComponent({
          * @description 执行命令
          */
         const executeCmd = () => {
-            if (!prop.chlId) {
+            if (!prop.chlId || prop.disabled) {
                 return
             }
 
