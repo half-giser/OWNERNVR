@@ -48,6 +48,7 @@
                         v-model="formData.holdTime"
                         :disabled="formData.disabled || formData.holdTime === ''"
                         :options="formData.holdTimeList"
+                        :height="170"
                     />
                 </el-form-item>
                 <el-form-item
