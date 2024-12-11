@@ -676,7 +676,7 @@ export class AlarmPassLinesDto {
     // 是否启用自动重置
     autoReset = true
     // 重置时间模式 day/week/month
-    countTimeType = 'day'
+    countTimeType = ''
     // 重置模式列表
     countCycleTypeList: SelectOption<string, string>[] = []
     // SD卡原图存储
