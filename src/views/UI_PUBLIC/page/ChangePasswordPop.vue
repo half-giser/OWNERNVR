@@ -55,10 +55,7 @@
         </el-form>
         <div class="base-btn-box space-between">
             <div>
-                <BaseFloatError
-                    v-model:message="errorMessage"
-                    :teleported="false"
-                />
+                <BaseFloatError v-model:message="errorMessage" />
             </div>
             <div>
                 <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>

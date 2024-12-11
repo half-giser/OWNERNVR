@@ -70,10 +70,7 @@
                                     :options="formData.holdTimeList"
                                 />
                                 <div class="divTip">
-                                    <BaseFloatError
-                                        v-model:message="pageData.errorMessage"
-                                        :teleported="false"
-                                    />
+                                    <BaseFloatError v-model:message="pageData.errorMessage" />
                                 </div>
                             </el-form-item>
                         </el-form>

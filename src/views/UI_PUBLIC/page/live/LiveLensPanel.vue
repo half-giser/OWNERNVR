@@ -109,7 +109,6 @@
                     <BaseFloatError
                         v-model:message="pageData.errorMessage"
                         :type="pageData.errorMessageType"
-                        :teleported="false"
                     />
                 </div>
                 <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>

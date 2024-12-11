@@ -4,40 +4,31 @@
  * @Description: 成功/错误浮动提示框
 -->
 <template>
-    <teleport
-        :disabled="!teleported"
-        :to
+    <div
+        v-if="!!message"
+        class="tip_wrap"
+        :class="index === 1 ? 'ok' : 'error'"
+        @click="handleClick"
     >
-        <div
-            v-if="!!message"
-            class="tip_wrap"
-            :class="index === 1 ? 'ok' : 'error'"
-            @click="handleClick"
-        >
-            <BaseImgSprite
-                file="floatTip"
-                :chunk="5"
-                :index="index"
-            />
-            <span class="tip_msg">
-                {{ message }}
-            </span>
-        </div>
-    </teleport>
+        <BaseImgSprite
+            file="floatTip"
+            :chunk="5"
+            :index="index"
+        />
+        <span class="tip_msg">
+            {{ message }}
+        </span>
+    </div>
 </template>
 
 <script lang="ts" setup>
 const props = withDefaults(
     defineProps<{
-        teleported?: boolean
         type?: string
-        to?: string
         message: string
     }>(),
     {
-        teleported: true,
         type: 'error',
-        to: 'body',
         message: '',
     },
 )
