@@ -180,22 +180,20 @@ export default defineComponent({
             plugin = playerRef.value!.plugin
 
             if (mode.value === 'h5') {
-                if (playerRef.value) {
-                    const canvas = player.getDrawbordCanvas(0)
-                    if (props.chlData.supportPassLine) {
-                        passLineDrawer = new CanvasPassline({
-                            el: canvas,
-                            enableOSD: true,
-                            enableShowAll: false,
-                            onchange: changePassLine,
-                        })
-                    } else if (props.chlData.supportCpc) {
-                        cpcDrawer = new CanvasCpc({
-                            el: canvas,
-                            enable: false,
-                            onchange: changeCpc,
-                        })
-                    }
+                const canvas = player.getDrawbordCanvas(0)
+                if (props.chlData.supportPassLine) {
+                    passLineDrawer = new CanvasPassline({
+                        el: canvas,
+                        enableOSD: true,
+                        enableShowAll: false,
+                        onchange: changePassLine,
+                    })
+                } else if (props.chlData.supportCpc) {
+                    cpcDrawer = new CanvasCpc({
+                        el: canvas,
+                        enable: false,
+                        onchange: changeCpc,
+                    })
                 }
             }
 
@@ -208,6 +206,8 @@ export default defineComponent({
         //播放视频
         const play = () => {
             const { id, name } = props.chlData
+
+            console.log(mode.value)
 
             if (mode.value === 'h5') {
                 player.play({
@@ -223,6 +223,7 @@ export default defineComponent({
 
         // 首次加载成功 播放视频
         const stopWatchFirstPlay = watchEffect(() => {
+            console.log(ready.value, props.chlData, watchEdit.ready.value)
             if (ready.value && props.chlData && watchEdit.ready.value) {
                 nextTick(() => {
                     play()
@@ -240,7 +241,9 @@ export default defineComponent({
 
         // 对sheduleList进行处理
         const getScheduleList = async () => {
+            openLoading()
             pageData.value.scheduleList = await buildScheduleList()
+            closeLoading()
         }
 
         // 获取收件人配置

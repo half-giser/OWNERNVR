@@ -211,7 +211,7 @@
                                             />
                                         </template>
                                         <template #default>
-                                            <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
+                                            <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                             <el-slider
                                                 v-model="formData[pageData.activityType].personSensitivity"
                                                 show-input
@@ -227,7 +227,7 @@
                                             />
                                         </template>
                                         <template #default>
-                                            <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
+                                            <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                             <el-slider
                                                 v-model="formData[pageData.activityType].carSensitivity"
                                                 show-input
@@ -243,7 +243,7 @@
                                             />
                                         </template>
                                         <template #default>
-                                            <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
+                                            <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                             <el-slider
                                                 v-model="formData[pageData.activityType].motorSensitivity"
                                                 show-input
@@ -336,9 +336,3 @@
 </template>
 
 <script lang="ts" src="./PeaPanel.v.ts"></script>
-
-<style lang="scss" scoped>
-.slider-text {
-    margin-right: 15px;
-}
-</style>

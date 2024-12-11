@@ -196,7 +196,7 @@
                                         />
                                     </template>
                                     <template #default>
-                                        <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
+                                        <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                         <el-slider
                                             v-model="formData.objectFilter.personSensitivity"
                                             show-input
@@ -212,7 +212,7 @@
                                         />
                                     </template>
                                     <template #default>
-                                        <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
+                                        <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                         <el-slider
                                             v-model="formData.objectFilter.carSensitivity"
                                             show-input
@@ -228,7 +228,7 @@
                                         />
                                     </template>
                                     <template #default>
-                                        <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
+                                        <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                         <el-slider
                                             v-model="formData.objectFilter.motorSensitivity"
                                             show-input
@@ -327,9 +327,3 @@
 </template>
 
 <script lang="ts" src="./TripwirePanel.v.ts"></script>
-
-<style lang="scss" scoped>
-.slider-text {
-    margin-right: 15px;
-}
-</style>

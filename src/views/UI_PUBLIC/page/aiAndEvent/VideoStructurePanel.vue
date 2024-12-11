@@ -233,7 +233,7 @@
                                     />
                                 </template>
                                 <template #default>
-                                    <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
+                                    <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                     <el-slider
                                         v-model="formData.objectFilter.personSensitivity"
                                         show-input
@@ -249,7 +249,7 @@
                                     />
                                 </template>
                                 <template #default>
-                                    <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
+                                    <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                     <el-slider
                                         v-model="formData.objectFilter.carSensitivity"
                                         show-input
@@ -266,7 +266,7 @@
                                     />
                                 </template>
                                 <template #default>
-                                    <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
+                                    <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                     <el-slider
                                         v-model="formData.objectFilter.motorSensitivity"
                                         show-input
@@ -409,10 +409,6 @@
 <script lang="ts" src="./VideoStructurePanel.v.ts"></script>
 
 <style lang="scss" scoped>
-.slider-text {
-    margin-right: 15px;
-}
-
 .timeSet .el-select {
     margin-right: 30px;
 }

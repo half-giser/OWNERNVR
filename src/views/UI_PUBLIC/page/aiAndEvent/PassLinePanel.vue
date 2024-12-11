@@ -72,7 +72,7 @@
                                 v-if="pageData.showCpcDrawAvailable"
                                 v-model="pageData.isCpcDrawAvailable"
                                 :label="Translate('IDCS_DRAW_WARN_SURFACE')"
-                                @change="handleCpcDrawAvailableChange"
+                                @change="toggleCpcDrawAvailable"
                             />
                         </div> -->
                         <el-button @click="clearCpcArea">{{ Translate('IDCS_CLEAR') }}</el-button>
@@ -322,7 +322,7 @@
                                             />
                                         </template>
                                         <template #default>
-                                            <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
+                                            <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                             <el-slider
                                                 v-model="formData.objectFilter.personSensitivity"
                                                 show-input
@@ -338,7 +338,7 @@
                                             />
                                         </template>
                                         <template #default>
-                                            <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
+                                            <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                             <el-slider
                                                 v-model="formData.objectFilter.carSensitivity"
                                                 show-input
@@ -354,7 +354,7 @@
                                             />
                                         </template>
                                         <template #default>
-                                            <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
+                                            <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                             <el-slider
                                                 v-model="formData.objectFilter.motorSensitivity"
                                                 show-input
@@ -403,9 +403,3 @@
 </template>
 
 <script lang="ts" src="./PassLinePanel.v.ts"></script>
-
-<style lang="scss" scoped>
-.slider-text {
-    margin-right: 15px;
-}
-</style>

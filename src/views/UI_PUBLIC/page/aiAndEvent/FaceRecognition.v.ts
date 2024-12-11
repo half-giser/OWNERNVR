@@ -341,7 +341,6 @@ export default defineComponent({
 
             changeDisplayRange(false)
             play()
-            console.log(mode.value)
         }
 
         const getVfdData = async () => {
