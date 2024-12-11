@@ -1552,7 +1552,7 @@ export const OCX_XML_SetMaskAreaAction = (action: 'EDIT_ON' | 'EDIT_OFF' | 'NONE
  * @param chls
  * @returns {string}
  */
-export const OCX_XML_SetRecStatus = (chls: { id: number; recType: string }[]) => {
+export const OCX_XML_SetRecStatus = (chls: { id: string; recType: string }[]) => {
     return wrapXml(rawXml`
         <cmd type="SetRecStatus">
             ${chls.map((item) => `<chl id="${item.id}" recType="${item.recType}" />`).join('')}
