@@ -46,7 +46,20 @@ const useStateSubscribe = (
         type: string[]
         isRecording: boolean
     }
+
     const recordStatusMap = ref<Record<string, RecordStatusItem>>({})
+
+    const ready = computed(() => {
+        return playerRef.value?.ready || false
+    })
+
+    const mode = computed(() => {
+        if (!ready.value) {
+            return ''
+        }
+
+        return playerRef.value?.mode
+    })
 
     /**
      * @description 订阅状态
@@ -59,7 +72,7 @@ const useStateSubscribe = (
             },
             onmessage(data: any) {
                 handleChlState(data.channel_state_info)
-                handleAlarmInfo(data.alarm_state_info)
+                handleAlarmState(data.alarm_state_info)
             },
         })
     }
@@ -85,12 +98,14 @@ const useStateSubscribe = (
         }
 
         const chlOnlineList = chlRef.value?.getOnlineChlList() || []
+        const recordList: RecordState[] = []
 
         // 火点检测/温度检测录像类型映射转换
         const recordTypeMap: Record<string, string> = {
             smart_fire_point: 'fire_point',
             smart_temperature: 'temperature',
         }
+
         chlStateInfo.forEach((item) => {
             const isOnline = item.connect_state
             const chlId = item.channel_id
@@ -105,7 +120,11 @@ const useStateSubscribe = (
             })
             const findChlIndex = chlOnlineList.indexOf(chlId)
             if (isOnline) {
-                handleRecordStatus(chlId, tempRecordTypes, isRecording)
+                recordList.push({
+                    id: chlId,
+                    recType: tempRecordTypes,
+                    isRecording,
+                })
                 if (findChlIndex === -1) {
                     chlOnlineList.push(chlId)
                 }
@@ -115,6 +134,8 @@ const useStateSubscribe = (
                 }
             }
         })
+
+        handleRecordState(recordList)
         chlRef.value?.setOnlineChlList(chlOnlineList)
     }
 
@@ -135,7 +156,7 @@ const useStateSubscribe = (
      * @description 处理报警信息
      * @param {AlarmState[]} alarmInfo
      */
-    const handleAlarmInfo = (alarmInfo?: AlarmState[]) => {
+    const handleAlarmState = (alarmInfo?: AlarmState[]) => {
         if (!alarmInfo || !alarmInfo.length) {
             return
         }
@@ -150,7 +171,10 @@ const useStateSubscribe = (
             const chlList = chlRef.value?.getChlMap() || {}
             const find = chlList[chlId]
             if (find) {
-                playerRef.value?.player.setAlarmStatus(chlId, alarmType, isAlarming)
+                if (mode.value === 'h5') {
+                    playerRef.value?.player.setAlarmStatus(chlId, alarmType, isAlarming)
+                }
+
                 // 缓存每个通道报警状态
                 if (!alarmStatusMap.value[chlId]) {
                     alarmStatusMap.value[chlId] = {}
@@ -160,48 +184,60 @@ const useStateSubscribe = (
         })
     }
 
+    interface RecordState {
+        id: string
+        recType: string[]
+        isRecording: boolean
+    }
+
     /**
      * @description 根据通道录像状态更新录像osd
      * @param {string} chlId
      * @param {Array} recordTypes
      * @param {Boolean} isRecording
      */
-    const handleRecordStatus = (chlId: string, recordTypes: string[], isRecording: boolean) => {
-        playerRef.value?.player.setRecordStatus(chlId, recordTypes, isRecording)
-        recordStatusMap.value[chlId] = {
-            type: recordTypes,
-            isRecording,
-        }
-        handleManualRecBtnStatus(chlId, recordTypes, isRecording)
-    }
+    const handleRecordState = (recordInfo: RecordState[]) => {
+        recordInfo.forEach((item) => {
+            if (mode.value === 'h5') {
+                playerRef.value?.player.setRecordStatus(item.id, item.recType, item.isRecording)
+            }
 
-    /**
-     * @description 更新手动录像操作按钮的状态
-     * @param {string} chlId
-     * @param {Array} recordTypes
-     * @param {Boolean} isRecording
-     */
-    const handleManualRecBtnStatus = (chlId: string, recordTypes: string[], isRecording: boolean) => {
-        const currentRemoteRecBtnStatus = isRecording && recordTypes.length > 0 && recordTypes.includes('manual')
-        recordCallback(chlId, currentRemoteRecBtnStatus)
+            recordStatusMap.value[item.id] = {
+                type: item.recType,
+                isRecording: item.isRecording,
+            }
 
-        const resultArr: string[] = []
+            const currentRemoteRecBtnStatus = item.isRecording && item.recType.length > 0 && item.recType.includes('manual')
+            recordCallback(item.id, currentRemoteRecBtnStatus)
+        })
+
+        const recordingChls: string[] = []
+        const cmdParms: { id: string; recType: string }[] = []
+
         Object.entries(recordStatusMap.value).forEach(([chlId, item]) => {
             if (item.type.includes('manual') && item.isRecording) {
-                resultArr.push(chlId)
+                recordingChls.push(chlId)
             }
+            cmdParms.push({
+                id: chlId,
+                recType: item.isRecording ? item.type.join(',') : 'noStatus',
+            })
         })
-        const isActiveRemoteRecBtn = false // 底部菜单.IsActiveAllRemoteRec()
-        if (isActiveRemoteRecBtn && resultArr.length) {
-            return
+
+        if (mode.value === 'ocx') {
+            const sendXML = OCX_XML_SetRecStatus(cmdParms)
+            playerRef.value?.plugin.ExecuteCmd(sendXML)
         }
+
         const onlineChlCount = (chlRef.value?.getOnlineChlList() || []).length
-        const allRemoteRecBtnStatus = !!resultArr.length && onlineChlCount === resultArr.length
-        recordRemoteCallback(allRemoteRecBtnStatus)
+        recordRemoteCallback(!!onlineChlCount && !!recordingChls.length)
     }
 
-    onMounted(() => {
-        createStateSubscribe()
+    const stopWatch = watchEffect(() => {
+        if (ready.value) {
+            createStateSubscribe()
+            stopWatch()
+        }
     })
 
     onBeforeUnmount(() => {
@@ -509,11 +545,12 @@ export default defineComponent({
                     productModel: systemCaps.productModel,
                 })
                 plugin.ExecuteCmd(sendXML)
-                // 视频预览默认铺满显示，设置走廊模式旋转时，需要选择“原始比例”显示
-                if (systemCaps.supportOriginalDisplay) {
-                    pageData.value.winData.original = true
-                }
             }
+
+            // 视频预览默认铺满显示，设置走廊模式旋转时，需要选择“原始比例”显示
+            displayOriginal(true)
+
+            toggleOSD(true)
         }
 
         /**
@@ -685,15 +722,20 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 const winIndex = player.getSelectedWinIndex()
-                stopPollingChlGroup(winIndex)
 
                 // 当前点击的通道与正在选中播放的窗口相同
                 if (chlID === pageData.value.winData.chlID) {
                     return
                 }
 
+                stopPollingChlGroup(winIndex)
+
                 // 点击的通道正处于播放状态
                 if (pageData.value.playingList.includes(chlID)) {
+                    if (pageData.value.playingList.length === 1) {
+                        return
+                    }
+
                     const winData = player.getWinData()
                     const find = winData.find((item) => item.CHANNEL_INFO?.chlID === chlID && !item.isPolling)
 
@@ -732,15 +774,20 @@ export default defineComponent({
                 const currentChlID = pageData.value.winData.chlID
                 const currentChlWinIndex = pageData.value.winData.winIndex
 
-                stopPollingChlGroup(currentChlWinIndex)
-
                 // 当前点击的通道与正在选中播放的窗口相同
                 if (chlID === pageData.value.winData.chlID) {
                     return
                 }
 
+                stopPollingChlGroup(currentChlWinIndex)
+
                 // 点击的通道正处于播放状态
                 if (pageData.value.playingList.includes(chlID)) {
+                    console.log(pageData.value.playingList)
+                    if (pageData.value.playingList.length === 1) {
+                        return
+                    }
+
                     const find = cacheWinMap.find((item) => item.chlID === chlID && !item.isPolling)
                     if (find) {
                         const findIndex = find.winIndex
@@ -899,17 +946,8 @@ export default defineComponent({
                 pageData.value.playingList.push(chlId)
             }
 
-            const alaramStatus = stateSubscribe.alarmStatusMap.value[chlId]
-            if (alaramStatus) {
-                Object.entries(alaramStatus).forEach(([type, bool]) => {
-                    playerRef.value!.player.setAlarmStatus(chlId, type, bool)
-                })
-            }
-
-            const recordStatus = stateSubscribe.recordStatusMap.value[chlId]
-            if (recordStatus) {
-                playerRef.value!.player.setRecordStatus(chlId, recordStatus.type, recordStatus.isRecording)
-            }
+            setAlarmStatus(chlId)
+            setRecStatus(chlId)
         }
 
         // UI1-D UI1-G 选择高画质登录
@@ -1158,6 +1196,49 @@ export default defineComponent({
 
             if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_OSDSwitch(bool ? 'ON' : 'OFF')
+                plugin.ExecuteCmd(sendXML)
+
+                if (bool) {
+                    setRecStatus()
+                }
+            }
+        }
+
+        /**
+         * @description 设置报警状态OSD
+         * @param {string} chlId h5模式需传chlId，ocx不需要
+         */
+        const setAlarmStatus = (chlId = '') => {
+            if (mode.value === 'h5') {
+                const alaramStatus = stateSubscribe.alarmStatusMap.value[chlId]
+                if (alaramStatus) {
+                    Object.entries(alaramStatus).forEach(([type, bool]) => {
+                        playerRef.value!.player.setAlarmStatus(chlId, type, bool)
+                    })
+                }
+            }
+        }
+
+        /**
+         * @description 设置录像状态OSD
+         * @param {string} chlId h5模式需传chlId，ocx不需要
+         */
+        const setRecStatus = (chlId = '') => {
+            if (mode.value === 'h5') {
+                const recordStatus = stateSubscribe.recordStatusMap.value[chlId]
+                if (recordStatus) {
+                    playerRef.value!.player.setRecordStatus(chlId, recordStatus.type, recordStatus.isRecording)
+                }
+            }
+
+            if (mode.value === 'ocx') {
+                const cmdParms = Object.entries(stateSubscribe.recordStatusMap.value).map((item) => {
+                    return {
+                        id: item[0],
+                        recType: item[1].isRecording ? item[1].type.join(',') : 'noStatus',
+                    }
+                })
+                const sendXML = OCX_XML_SetRecStatus(cmdParms)
                 plugin.ExecuteCmd(sendXML)
             }
         }
@@ -1566,6 +1647,7 @@ export default defineComponent({
 
                         //设置通道是否显示POS信息
                         plugin.ExecuteCmd(pos(true, chlId, winIndex))
+                        setRecStatus()
                         break
                     case 'offline':
                         // openNotify(Translate("IDCS_NODE_NOT_ONLINE"))
@@ -1743,12 +1825,15 @@ export default defineComponent({
 
             stopPollingChlGroup()
 
-            if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
+            if (plugin?.IsPluginAvailable() && mode.value === 'ocx') {
                 // 离开时切换为一分屏，防止safari上其余用到插件的地方出现多分屏
                 {
                     const sendXML = OCX_XML_SetScreenMode(1)
                     plugin.ExecuteCmd(sendXML)
                 }
+
+                // 离开时关闭osd信息，防止pc其他带视频的地方显示两个通道名
+                toggleOSD(false)
             }
         })
 
