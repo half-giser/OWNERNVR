@@ -58,7 +58,7 @@ const getSingletonPlugin = () => {
     // 回调函数
     let reconCallBack = () => {} // 重连回调函数
     let p2pLoginTypeCallback: ((loginType: string, authCodeIndex: string) => void) | null = null
-    let loginErrorCallback: (code?: number, desc?: string) => void = () => {}
+    let loginErrorCallback: ((code?: number, desc?: string) => void) | null = null
 
     const systemInfo = getSystemInfo()
     const browserInfo = getBrowserInfo()
@@ -832,8 +832,12 @@ const getSingletonPlugin = () => {
      * @description 设置登录失败回调
      * @param {Function} callback
      */
-    const setLoginErrorCallback = (callback: (errorCode?: number, errorDescription?: string) => void) => {
-        loginErrorCallback = callback
+    const setLoginErrorCallback = (callback?: (errorCode?: number, errorDescription?: string) => void) => {
+        if (typeof callback === 'function') {
+            loginErrorCallback = callback
+        } else {
+            loginErrorCallback = null
+        }
     }
 
     /**

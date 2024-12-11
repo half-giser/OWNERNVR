@@ -8,6 +8,7 @@ import type { AxiosRequestConfig } from 'axios'
 import http from './api'
 import router from '../router'
 import { removeAsyncRoutes } from '../router'
+import progress from '@bassist/progress'
 
 /**
  * @description 预登录
@@ -37,6 +38,8 @@ export const doLogout = () => http.fetch('doLogout', '', {}, false)
  * @returns
  */
 export const Logout = async () => {
+    progress.start()
+
     const userSession = useUserSessionStore()
     const pluginStore = usePluginStore()
     if (router.currentRoute.value.name === 'login') return

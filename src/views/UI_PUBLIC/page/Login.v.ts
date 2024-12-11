@@ -6,6 +6,7 @@
 import { type FormRules } from 'element-plus'
 import { LoginForm, LoginReqData } from '@/types/apiType/user'
 import LoginPrivacyPop from './LoginPrivacyPop.vue'
+import progress from '@bassist/progress'
 
 export default defineComponent({
     components: {
@@ -122,21 +123,27 @@ export default defineComponent({
          * @description 登录
          */
         const fnReqLogin = async () => {
-            const result = await reqLogin()
-            const $ = queryXml(result)
-            if ($('status').text() === 'success') {
-                userSessionStore.updataByReqLogin(result)
-                const reqData = new LoginReqData()
-                const md5Pwd = MD5_encrypt(formData.value.password)
-                reqData.userName = formData.value.userName
-                const nonce = userSessionStore.nonce ? userSessionStore.nonce : ''
-                reqData.password = sha512_encrypt(md5Pwd + '#' + nonce)
-                reqData.passwordMd5 = md5Pwd
-                fnDoLogin(reqData)
-            } else {
-                const errorCode = $('errorCode').text()
-                console.log(errorCode)
-                pageData.value.btnDisabled = false
+            progress.start()
+            try {
+                const result = await reqLogin()
+                const $ = queryXml(result)
+                if ($('status').text() === 'success') {
+                    userSessionStore.updataByReqLogin(result)
+                    const reqData = new LoginReqData()
+                    const md5Pwd = MD5_encrypt(formData.value.password)
+                    reqData.userName = formData.value.userName
+                    const nonce = userSessionStore.nonce ? userSessionStore.nonce : ''
+                    reqData.password = sha512_encrypt(md5Pwd + '#' + nonce)
+                    reqData.passwordMd5 = md5Pwd
+                    fnDoLogin(reqData)
+                } else {
+                    const errorCode = $('errorCode').text()
+                    console.log(errorCode)
+                    pageData.value.btnDisabled = false
+                    progress.done()
+                }
+            } catch {
+                progress.done()
             }
         }
 
@@ -165,7 +172,8 @@ export default defineComponent({
                     plugin.DisposePlugin()
                     plugin.StartV2Process()
                     router.push('/live')
-                } else if ($('status').text() === 'fail') {
+                } else {
+                    progress.done()
                     pageData.value.btnDisabled = false
                     formData.value.password = ''
                     const errorCode = $('errorCode').text().num()
@@ -204,6 +212,7 @@ export default defineComponent({
                     }
                 }
             } catch (e) {
+                progress.done()
                 pageData.value.btnDisabled = false
             }
         }
