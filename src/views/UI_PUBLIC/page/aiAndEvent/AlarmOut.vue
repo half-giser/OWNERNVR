@@ -6,10 +6,7 @@
 <template>
     <div class="base-flex-box">
         <div class="base-table-box">
-            <el-table
-                :data="tableData"
-                :row-class-name="(data) => (data.row.disabled ? 'disabled' : '')"
-            >
+            <el-table :data="tableData">
                 <!-- 状态列 -->
                 <el-table-column
                     label=" "
@@ -37,9 +34,9 @@
                         <el-input
                             v-model="scope.row.name"
                             :disabled="scope.row.disabled"
-                            @focus="nameFocus(scope.row.name)"
-                            @blur="nameBlur(scope.row)"
-                            @keyup.enter="enterBlur($event)"
+                            @focus="focusName(scope.row.name)"
+                            @blur="blurName(scope.row)"
+                            @keyup.enter="blurInput"
                         />
                     </template>
                 </el-table-column>
@@ -127,7 +124,7 @@
             </el-table>
         </div>
         <div class="base-pagination-box">
-            <el-pagination
+            <BasePagination
                 v-model:current-page="pageData.pageIndex"
                 v-model:page-size="pageData.pageSize"
                 :total="pageData.totalCount"
@@ -146,8 +143,8 @@
     </div>
     <!-- 排程管理弹窗 -->
     <ScheduleManagPop
-        v-model="pageData.scheduleManagePopOpen"
-        @close="pageData.scheduleManagePopOpen = false"
+        v-model="pageData.isSchedulePop"
+        @close="pageData.isSchedulePop = false"
     />
 </template>
 

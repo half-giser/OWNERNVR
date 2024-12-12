@@ -130,27 +130,17 @@
                 </el-table-column>
             </el-table>
         </div>
-        <div
-            class="base-btn-box"
-            span="start"
-        >
-            <div v-if="switchableIpChlMaxCount !== 0">
-                <span>{{ Translate('IDCS_IP_NUM') }}: {{ ipChlMaxCount }}</span>
-            </div>
+        <div class="base-btn-box flex-start">
+            <span v-if="switchableIpChlMaxCount !== 0">{{ Translate('IDCS_IP_NUM') }}: {{ ipChlMaxCount }}</span>
         </div>
-        <div
-            class="base-btn-box collapse"
-            span="2"
-        >
+        <div class="base-btn-box space-between collapse">
             <div>{{ Translate('IDCS_SIGNAL_TIPS') }}</div>
-            <div>
-                <el-button
-                    :disabled="editWatcher.disabled.value"
-                    @click="save()"
-                >
-                    {{ Translate('IDCS_APPLY') }}
-                </el-button>
-            </div>
+            <el-button
+                :disabled="watchEdit.disabled.value"
+                @click="save()"
+            >
+                {{ Translate('IDCS_APPLY') }}
+            </el-button>
         </div>
     </div>
 </template>

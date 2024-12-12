@@ -19,10 +19,7 @@
         </div>
         <div v-if="!pageData.requireDataFail">
             <!-- 检测开启-->
-            <div
-                class="base-btn-box padding collapse"
-                span="2"
-            >
+            <div class="base-btn-box flex-start padding collapse">
                 <el-checkbox
                     v-model="formData.detectionEnable"
                     :label="Translate('IDCS_ENABLE')"
@@ -31,14 +28,12 @@
             <!-- 两种功能 -->
             <el-tabs
                 v-model="pageData.fuction"
-                class="base-ai-tabs function-tabs"
-                @tab-click="handleFunctionTabClick"
+                class="base-ai-tabs"
             >
                 <!-- 参数设置 -->
                 <el-tab-pane
                     :label="Translate('IDCS_PARAM_SETTING')"
                     name="param"
-                    class="tripwire_param"
                 >
                     <div class="base-ai-param-box">
                         <div class="base-ai-param-box-left">
@@ -50,17 +45,14 @@
                                 />
                             </div>
                             <div v-if="pageData.fuction === 'param'">
-                                <div
-                                    class="base-btn-box"
-                                    span="2"
-                                >
+                                <div class="base-btn-box">
                                     <!-- <div>
                                         <el-checkbox
                                             v-show="pageData.showDrawAvailable"
                                             v-model="pageData.isDrawAvailable"
+                                            :label="Translate('IDCS_DRAW_WARN_SURFACE')"
                                             @change="handleDrawAvailableChange"
-                                            >{{ Translate('IDCS_DRAW_WARN_SURFACE') }}</el-checkbox
-                                        >
+                                        />
                                     </div> -->
                                     <div>
                                         <el-button @click="clearArea">{{ Translate('IDCS_CLEAR') }}</el-button>
@@ -82,7 +74,7 @@
                                         v-model="formData.schedule"
                                         :options="pageData.scheduleList"
                                     />
-                                    <el-button @click="pageData.scheduleManagePopOpen = true">
+                                    <el-button @click="pageData.isSchedulePop = true">
                                         {{ Translate('IDCS_MANAGE') }}
                                     </el-button>
                                 </el-form-item>
@@ -111,20 +103,11 @@
                             </el-form>
                         </div>
                     </div>
-                    <div class="base-btn-box fixed">
-                        <el-button
-                            :disabled="pageData.applyDisable"
-                            @click="handleApply"
-                        >
-                            {{ Translate('IDCS_APPLY') }}
-                        </el-button>
-                    </div>
                 </el-tab-pane>
                 <!-- 联动方式 -->
                 <el-tab-pane
                     :label="Translate('IDCS_LINKAGE_MODE')"
                     name="trigger"
-                    class="tripwire_trigger"
                 >
                     <div>
                         <!-- 音频 -->
@@ -151,21 +134,21 @@
                             <!-- preset -->
                             <AlarmBasePresetSelector v-model="formData.preset" />
                         </div>
-                        <div class="base-btn-box fixed">
-                            <el-button
-                                :disabled="pageData.applyDisable"
-                                @click="handleApply"
-                            >
-                                {{ Translate('IDCS_APPLY') }}
-                            </el-button>
-                        </div>
                     </div>
                 </el-tab-pane>
             </el-tabs>
+            <div class="base-btn-box fixed">
+                <el-button
+                    :disabled="watchEdit.disabled.value"
+                    @click="applyData"
+                >
+                    {{ Translate('IDCS_APPLY') }}
+                </el-button>
+            </div>
         </div>
         <ScheduleManagPop
-            v-model="pageData.scheduleManagePopOpen"
-            @close="handleSchedulePopClose"
+            v-model="pageData.isSchedulePop"
+            @close="closeSchedulePop"
         />
     </div>
 </template>

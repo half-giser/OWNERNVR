@@ -564,7 +564,7 @@ export class ChannelPtzPresetChlDto {
     chlName = ''
     presetCount = 0
     maxCount = Infinity
-    presets = [] as ChannelPtzPresetDto[]
+    presets: ChannelPtzPresetDto[] = []
 }
 
 /**
@@ -583,7 +583,7 @@ export class ChannelPtzTraceChlDto {
     chlName = ''
     traceCount = 0
     maxCount = Infinity
-    trace = [] as ChannelPtzTraceDto[]
+    trace: ChannelPtzTraceDto[] = []
 }
 
 /**
@@ -599,7 +599,7 @@ export class ChannelPtzCruiseChlDto {
     chlName = ''
     cruiseCount = 0
     maxCount = Infinity
-    cruise = [] as ChannelPtzCruiseDto[]
+    cruise: ChannelPtzCruiseDto[] = []
 }
 
 /**
@@ -633,7 +633,7 @@ export class ChannelPtzCruiseGroupChlDto {
     chlName = ''
     cruiseCount = 0
     maxCount = Infinity
-    cruise = [] as ChannelPtzCruiseGroupCruiseDto[]
+    cruise: ChannelPtzCruiseGroupCruiseDto[] = []
 }
 
 /**
@@ -695,8 +695,8 @@ export class ChannelPtzProtocolDto extends TableRowStatus {
     chlName = ''
     baudRate = ''
     protocol = ''
-    baudRateOptions = [] as SelectOption<string, string>[]
-    protocolOptions = [] as SelectOption<string, string>[]
+    baudRateOptions: SelectOption<string, string>[] = []
+    protocolOptions: SelectOption<string, string>[] = []
     // status = 'loading'
     address = 1
     addressMin = 1

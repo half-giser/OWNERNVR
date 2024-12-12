@@ -245,7 +245,7 @@ export default defineComponent({
                             ${ternary(!isAnolog.value && !portDisabled.value, `<ip>${isIp || isIpv6 ? editItem.value.ip : ''}</ip>`)}
                             ${ternary(!isAnolog.value && !portDisabled.value && isDomain, `<domain>${wrapCDATA(editItem.value.ip)}</domain>`)}
                             ${ternary(!isAnolog.value && !portDisabled.value, `<port>${editItem.value.port}</port>`)}
-                            ${ternary(!isAnolog.value && editPwdSwitch.value, `<password ${getSecurityVer()}>${wrapCDATA(AES_encrypt(editItem.value.password, userSessionStore.sesionKey))}`)}
+                            ${ternary(!isAnolog.value && editPwdSwitch.value, `<password ${getSecurityVer()}>${wrapCDATA(AES_encrypt(editItem.value.password, userSessionStore.sesionKey))}</password>`)}
                             ${ternary(!isAnolog.value, `<userName>${editItem.value.userName}</userName>`)}
                         </content>
                     `

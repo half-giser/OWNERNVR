@@ -9,7 +9,6 @@
             <el-table
                 :data="tableData"
                 highlight-current-row
-                :row-class-name="(data) => (data.row.disabled ? 'disabled' : '')"
             >
                 <!-- 状态列 -->
                 <el-table-column
@@ -39,7 +38,7 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.scheduleList"
                                         :key="item.value"
-                                        @click="handleScheduleChangeAll(item)"
+                                        @click="changeAllSchedule(item)"
                                     >
                                         {{ item.label }}
                                     </el-dropdown-item>
@@ -52,7 +51,7 @@
                             v-model="scope.row.schedule.value"
                             :disabled="scope.row.disabled"
                             :options="pageData.scheduleList"
-                            @change="handleScheduleChangeSingle(scope.row)"
+                            @change="changeSchedule(scope.row)"
                         />
                     </template>
                 </el-table-column>
@@ -60,7 +59,7 @@
                 <el-table-column width="180">
                     <template #header>
                         <AlarmBaseRecordPop
-                            :visible="pageData.recordIsShow"
+                            :visible="pageData.isRecordPop"
                             :data="tableData"
                             :index="pageData.triggerDialogIndex"
                             @confirm="changeRecord"
@@ -86,7 +85,7 @@
                 <el-table-column width="180">
                     <template #header>
                         <AlarmBaseSnapPop
-                            :visible="pageData.snapIsShow"
+                            :visible="pageData.isSnapPop"
                             :data="tableData"
                             :index="pageData.triggerDialogIndex"
                             @confirm="changeSnap"
@@ -123,7 +122,7 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.audioList"
                                         :key="item.value"
-                                        @click="handleSysAudioChangeAll(item.value)"
+                                        @click="changeAllAudio(item.value)"
                                     >
                                         {{ item.label }}
                                     </el-dropdown-item>
@@ -151,7 +150,7 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.enableList"
                                         :key="item.value"
-                                        @click="handleMsgPushChangeAll(item.value)"
+                                        @click="changeAllMsgPush(item.value)"
                                     >
                                         {{ item.label }}
                                     </el-dropdown-item>
@@ -171,7 +170,7 @@
                 <el-table-column width="180">
                     <template #header>
                         <AlarmBaseAlarmOutPop
-                            :visible="pageData.alarmOutIsShow"
+                            :visible="pageData.isAlarmOutPop"
                             :data="tableData"
                             :index="pageData.triggerDialogIndex"
                             @confirm="changeAlarmOut"
@@ -226,7 +225,7 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.enableList"
                                         :key="item.value"
-                                        @click="handleBeeperChangeAll(item.value)"
+                                        @click="changeAllBeeper(item.value)"
                                     >
                                         {{ item.label }}
                                     </el-dropdown-item>
@@ -254,7 +253,7 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.enableList"
                                         :key="item.value"
-                                        @click="handleVideoPopupChangeAll(item.value)"
+                                        @click="changeAllVideoPopUp(item.value)"
                                     >
                                         {{ item.label }}
                                     </el-dropdown-item>
@@ -280,7 +279,7 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.enableList"
                                         :key="item.value"
-                                        @click="handleEmailChangeAll(item.value)"
+                                        @click="changeAllEmail(item.value)"
                                     >
                                         {{ item.label }}
                                     </el-dropdown-item>
@@ -299,7 +298,7 @@
             </el-table>
         </div>
         <div class="base-pagination-box">
-            <el-pagination
+            <BasePagination
                 v-model:current-page="pageData.pageIndex"
                 v-model:page-size="pageData.pageSize"
                 :total="pageData.totalCount"
@@ -319,14 +318,14 @@
             </el-button>
         </div>
         <AlarmBasePresetPop
-            v-model="pageData.isPresetPopOpen"
+            v-model="pageData.isPresetPop"
             :data="tableData"
             :index="pageData.triggerDialogIndex"
             @confirm="changePreset"
         />
         <ScheduleManagPop
-            v-model="pageData.scheduleManagePopOpen"
-            @close="handleSchedulePopClose"
+            v-model="pageData.isSchedulePop"
+            @close="closeSchedulePop"
         />
     </div>
 </template>

@@ -294,7 +294,7 @@ export default defineComponent({
             openLoading()
 
             const result = await editFTPCfg(getXmlData())
-            commSaveResponseHadler(result)
+            commSaveResponseHandler(result)
 
             closeLoading()
         }
@@ -365,7 +365,6 @@ export default defineComponent({
             formatDir,
             changeSwitch,
             handleRowClassName,
-            ScheduleManagPop,
         }
     },
 })

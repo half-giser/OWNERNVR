@@ -259,7 +259,7 @@ export default defineComponent({
                 await startChlPtzTrace(sendXml)
 
                 pageData.value.recordTime = DEFAULT_RECORD_TIME - 1
-                timer.update(() => {
+                timer.setCallback(() => {
                     pageData.value.recordTime--
                     if (pageData.value.recordTime < 0) {
                         stopRecord(index)
@@ -376,7 +376,6 @@ export default defineComponent({
             startRecord,
             stopRecord,
             changeActive,
-            ChannelTraceAddPop,
         }
     },
 })

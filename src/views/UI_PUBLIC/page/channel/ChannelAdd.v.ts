@@ -66,8 +66,8 @@ export default defineComponent({
         const setProtocolPopVisiable = ref(false)
         const multiChlIPCAddRef = ref<channelAddMultiChlIPCAddPop>()
 
-        let rtspMapping = [] as Array<string>
-        const tempManualProtocolData = [] as Array<string>
+        let rtspMapping: Array<string> = []
+        const tempManualProtocolData: Array<string> = []
 
         // 手动添加
         const manualAddTypeOptions = ref([
@@ -724,12 +724,6 @@ export default defineComponent({
             closeSetProtocolPop,
             nameList,
             multiChlIPCAddRef,
-            ChannelAddActivateIPCPop,
-            ChannelAddSetDefaultPwdPop,
-            ChannelAddEditIPCIpPop,
-            ChannelAddToAddRecorderPop,
-            ChannelAddSetProtocolPop,
-            ChannelAddMultiChlIPCAdd,
         }
     },
 })

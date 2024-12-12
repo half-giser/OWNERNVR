@@ -56,8 +56,9 @@
                             v-for="item in hotDisks"
                             :key="item.id"
                             class="hot-disk"
-                            >{{ item.slotIndex }}</el-text
                         >
+                            {{ item.slotIndex }}
+                        </el-text>
                     </template>
                     <el-text v-else>{{ Translate('IDCS_NULL') }}</el-text>
                 </el-form-item>

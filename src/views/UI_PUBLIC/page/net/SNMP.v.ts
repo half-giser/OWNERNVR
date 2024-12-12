@@ -124,7 +124,7 @@ export default defineComponent({
                     </content>
                 `
                 const result = await editSNMPCfg(sendXml)
-                commSaveResponseHadler(result)
+                commSaveResponseHandler(result)
 
                 closeLoading()
             })

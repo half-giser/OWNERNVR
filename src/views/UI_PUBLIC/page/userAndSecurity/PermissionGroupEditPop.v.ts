@@ -246,7 +246,6 @@ export default defineComponent({
             changeAllChannelAuth,
             handleOpen,
             displayAuthGroup,
-            PermissionGroupInfoPop,
         }
     },
 })

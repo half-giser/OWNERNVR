@@ -1074,7 +1074,7 @@ export default class TVTPlayer {
             this.screen.setPosBaseSize({ width, height })
             const posInfo: Record<string, TVTPlayerPosInfoItem> = {}
             $('channel/chl').forEach((ele) => {
-                const chlId = ele.attr('id') as string
+                const chlId = ele.attr('id')
                 const $ele = queryXml(ele.element)
                 const previewDisplay = $ele('previewDisplay').text().bool()
                 const printMode = $ele('printMode').text()
@@ -1144,9 +1144,9 @@ export default class TVTPlayer {
         const { Translate } = useLangStore()
         const { openNotify } = useNotification()
         if (this.type === 'live') {
-            openNotify(formatHttpsTips(Translate('IDCS_LIVE_PREVIEW')))
+            openNotify(formatHttpsTips(Translate('IDCS_LIVE_PREVIEW')), true)
         } else if (this.type === 'record') {
-            openNotify(formatHttpsTips(Translate('IDCS_REPLAY')))
+            openNotify(formatHttpsTips(Translate('IDCS_REPLAY')), true)
         }
     }
 

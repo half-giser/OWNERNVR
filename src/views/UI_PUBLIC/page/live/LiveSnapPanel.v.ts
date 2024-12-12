@@ -508,13 +508,6 @@ export default defineComponent({
             handleSnapSearch,
             handleMatchSnapRec,
             handleMatchSnapSearch,
-            LiveSnapFaceMatchItem,
-            LiveSnapItem,
-            LiveSnapStructItem,
-            IntelFaceDBSnapRegisterPop,
-            IntelLicencePlateDBAddPlatePop,
-            IntelBaseFaceMatchPop,
-            IntelBaseSnapPop,
         }
     },
 })

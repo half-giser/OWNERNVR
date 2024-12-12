@@ -31,18 +31,17 @@
                     :class="{
                         active: pageData.activeChlMenu === index,
                     }"
+                    :title="item.label"
                     @click="changeChlMenu(index)"
                     @dblclick="changeChlMenu(index)"
                 >
-                    <el-tooltip :content="item.label">
-                        <BaseImgSprite
-                            :file="item.file"
-                            :index="pageData.activeChlMenu === index ? 1 : 0"
-                            :hover-index="1"
-                            :disabled-index="3"
-                            :chunk="4"
-                        />
-                    </el-tooltip>
+                    <BaseImgSprite
+                        :file="item.file"
+                        :index="pageData.activeChlMenu === index ? 1 : 0"
+                        :hover-index="1"
+                        :disabled-index="3"
+                        :chunk="4"
+                    />
                 </div>
             </div>
             <div class="left-bottom">
@@ -60,11 +59,13 @@
                         <BaseImgSprite
                             class="left-chl-search"
                             file="toolbar_search"
+                            :title="Translate('IDCS_SEARCH')"
                             @click="searchChl"
                         />
                         <BaseImgSprite
                             class="left-chl-search"
                             file="toolbar_refresh"
+                            :title="Translate('IDCS_REFRESH')"
                             @click="refreshChl"
                         />
                     </div>

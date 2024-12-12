@@ -13,14 +13,9 @@
                 />
             </el-form-item>
         </el-form>
-        <div
-            class="base-btn-box add-user"
-            span="2"
-        >
+        <div class="base-btn-box space-between add-user">
             <div>{{ Translate('IDCS_USER_LIST') }}</div>
-            <div>
-                <el-button @click="addUser">{{ Translate('IDCS_ADD') }}</el-button>
-            </div>
+            <el-button @click="addUser">{{ Translate('IDCS_ADD') }}</el-button>
         </div>
         <div class="base-table-box">
             <el-table

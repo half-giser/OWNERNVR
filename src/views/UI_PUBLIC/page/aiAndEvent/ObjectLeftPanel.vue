@@ -5,12 +5,9 @@
 -->
 <template>
     <div>
-        <div
-            class="base-btn-box padding collapse"
-            span="start"
-        >
+        <div class="base-btn-box flex-start padding collapse">
             <el-checkbox
-                v-model="objectLeftData.enabledSwitch"
+                v-model="formData.enabledSwitch"
                 :label="Translate('IDCS_ENABLE')"
             />
         </div>
@@ -18,7 +15,6 @@
             <el-tabs
                 v-model="pageData.tab"
                 class="base-ai-tabs"
-                @tab-change="tabChange"
             >
                 <!-- 参数设置 -->
                 <el-tab-pane
@@ -35,10 +31,7 @@
                             />
                         </div>
                         <div>
-                            <div
-                                class="base-btn-box"
-                                span="2"
-                            >
+                            <div class="base-btn-box space-between">
                                 <div>
                                     <el-checkbox
                                         v-show="pageData.isShowAllAreaCheckBox"
@@ -71,7 +64,7 @@
                             <!-- 排程配置 -->
                             <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
                                 <el-select-v2
-                                    v-model="objectLeftData.schedule"
+                                    v-model="formData.schedule"
                                     :options="pageData.scheduleList"
                                 />
                                 <el-button @click="pageData.scheduleManagPopOpen = true">{{ Translate('IDCS_MANAGE') }}</el-button>
@@ -81,15 +74,15 @@
                             <!-- 持续时间 -->
                             <el-form-item :label="Translate('IDCS_DURATION')">
                                 <el-select-v2
-                                    v-model="objectLeftData.holdTime"
-                                    :options="objectLeftData.holdTimeList"
+                                    v-model="formData.holdTime"
+                                    :options="formData.holdTimeList"
                                 />
                             </el-form-item>
                             <!-- 类型 -->
                             <el-form-item :label="Translate('IDCS_TYPE')">
                                 <el-select-v2
-                                    v-model="objectLeftData.oscType"
-                                    :options="objectLeftData.oscTypeList"
+                                    v-model="formData.oscType"
+                                    :options="formData.oscTypeList"
                                 />
                             </el-form-item>
                             <!-- 警戒区域 -->
@@ -97,10 +90,10 @@
                                 <el-radio-group
                                     v-model="pageData.warnArea"
                                     class="small-btn"
-                                    @change="warnAreaChange"
+                                    @change="changeWarnArea"
                                 >
                                     <el-radio-button
-                                        v-for="index in objectLeftData.areaMaxCount"
+                                        v-for="index in formData.areaMaxCount"
                                         :key="index - 1"
                                         :label="index"
                                         :value="index - 1"
@@ -110,9 +103,15 @@
                             <!-- 区域名称 -->
                             <el-form-item :label="Translate('IDCS_AREA_NAME')">
                                 <el-input
-                                    v-model="pageData.areaName"
-                                    @input="areaNameInput"
-                                    @keyup.enter="enterBlur($event)"
+                                    v-if="formData.boundary.length"
+                                    v-model="formData.boundary[pageData.warnArea].areaName"
+                                    :formatter="formatAreaName"
+                                    :parser="formatAreaName"
+                                    @keyup.enter="blurInput"
+                                />
+                                <el-input
+                                    v-else
+                                    disabled
                                 />
                             </el-form-item>
                         </el-form>
@@ -131,27 +130,27 @@
                     >
                         <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">
                             <el-select-v2
-                                v-model="objectLeftData.sysAudio"
+                                v-model="formData.sysAudio"
                                 :options="pageData.voiceList"
                             />
                         </el-form-item>
                     </el-form>
                     <div class="base-ai-linkage-content">
                         <!-- 常规联动 -->
-                        <AlarmBaseTriggerSelector v-model="objectLeftData.trigger" />
+                        <AlarmBaseTriggerSelector v-model="formData.trigger" />
                         <!-- 录像 -->
-                        <AlarmBaseRecordSelector v-model="objectLeftData.record" />
+                        <AlarmBaseRecordSelector v-model="formData.record" />
                         <!-- 报警输出 -->
-                        <AlarmBaseAlarmOutSelector v-model="objectLeftData.alarmOut" />
+                        <AlarmBaseAlarmOutSelector v-model="formData.alarmOut" />
                         <!-- 联动预置点 -->
-                        <AlarmBasePresetSelector v-model="objectLeftData.preset" />
+                        <AlarmBasePresetSelector v-model="formData.preset" />
                     </div>
                 </el-tab-pane>
             </el-tabs>
         </div>
         <div class="base-btn-box fixed">
             <el-button
-                :disabled="pageData.applyDisabled"
+                :disabled="watchEdit.disabled.value"
                 @click="applyObjectLeftData"
             >
                 {{ Translate('IDCS_APPLY') }}

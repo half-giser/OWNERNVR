@@ -290,8 +290,6 @@ export default defineComponent({
             deleteDisk,
             changeDiskGroup,
             currentItem,
-            StorageModeAddDiskPop,
-            StorageModeAddChlPop,
         }
     },
 })

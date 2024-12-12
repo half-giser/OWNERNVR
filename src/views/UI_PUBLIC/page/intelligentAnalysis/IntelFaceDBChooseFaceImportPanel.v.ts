@@ -41,11 +41,11 @@ export default defineComponent({
 
         const DEFAULT_BIRTHDAY = formatDate(new Date(), 'YYYY/MM/DD')
 
-        const plugin = usePluginHook({
+        const plugin = setupPlugin({
             onReady: (mode, plugin) => {
                 if (mode.value === 'ocx' && prop.type === 'both') {
                     const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.ExecuteCmd(sendXML)
                 }
             },
             onMessage: ($) => {
@@ -356,7 +356,7 @@ export default defineComponent({
          */
         const handleOCXImport = () => {
             const sendXML = OCX_XML_OpenFileBrowser('OPEN_FILE', '', '', true, '*.csv,*.txt,*.jpg,*.jpeg')
-            plugin.AsynQueryInfo(plugin.GetVideoPlugin(), sendXML, (result) => {
+            plugin.AsynQueryInfo(sendXML, (result) => {
                 const path = OCX_XML_OpenFileBrowser_getpath(result).trim()
                 if (path) {
                     const fileList = path.split('|')
@@ -378,7 +378,7 @@ export default defineComponent({
         const uploadOCXFile = () => {
             const filePath = ocxData.fileList[ocxData.fileIndex]
             const sendXML = OCX_XML_UploadIPCAudioBase64(filePath)
-            plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+            plugin.ExecuteCmd(sendXML)
         }
 
         /**

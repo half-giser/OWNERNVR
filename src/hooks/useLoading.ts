@@ -3,8 +3,9 @@
  * @Date: 2024-05-30 08:58:30
  * @Description: Loading
  */
+
 interface LoadingItem {
-    inst: any
+    inst: ReturnType<typeof ElLoading.service>
     count: number
 }
 
@@ -59,7 +60,7 @@ const useLoading = () => {
             })
             layoutStore.loadingCount = 1
             // 将其他局部loading的count都加到全屏loading的count，后面打开关闭任何loading都是对全局loading计数
-            loadingInstMap.forEach((value: LoadingItem) => {
+            loadingInstMap.forEach((value) => {
                 layoutStore.loadingCount += value.count
             })
             closeAllPartLoading()
@@ -83,7 +84,7 @@ const useLoading = () => {
      * @description
      */
     const closeAllPartLoading = () => {
-        loadingInstMap.forEach((value: LoadingItem) => {
+        loadingInstMap.forEach((value) => {
             closeInst(value.inst)
         })
         loadingInstMap.clear()
@@ -105,7 +106,7 @@ const useLoading = () => {
         }
 
         if (loadingInstMap.has(target)) {
-            const item = loadingInstMap.get(target) as LoadingItem
+            const item = loadingInstMap.get(target)!
             item.count--
             if (!item.count) {
                 closeInst(item.inst)
@@ -133,7 +134,7 @@ const useLoading = () => {
      * @description
      * @param inst
      */
-    const closeInst = (inst: any) => {
+    const closeInst = (inst: ReturnType<typeof ElLoading.service>) => {
         nextTick(() => {
             // Loading should be closed asynchronously
             inst.close()

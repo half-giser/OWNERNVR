@@ -16,48 +16,44 @@
                 @dblclick="playCurrentCruise(index)"
             >
                 <span class="ptz-cruise-text text-ellipsis">{{ item.name }}</span>
-                <el-tooltip :content="Translate('IDCS_DELETE')">
-                    <BaseImgSprite
-                        file="delete (2)"
-                        :index="0"
-                        :disabled-index="1"
-                        :chunk="2"
-                        :disabled="!enabled"
-                        @click.stop="deleteCruise(item.index, item.name)"
-                    />
-                </el-tooltip>
+                <BaseImgSprite
+                    file="delete (2)"
+                    :title="Translate('IDCS_DELETE')"
+                    :index="0"
+                    :disabled-index="1"
+                    :chunk="2"
+                    :disabled="!enabled"
+                    @click.stop="deleteCruise(item.index, item.name)"
+                />
             </BaseListBoxItem>
         </BaseListBox>
         <div class="ptz-cruise-btns">
-            <el-tooltip :content="Translate('IDCS_ADD')">
-                <BaseImgSprite
-                    file="preset_Add"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="0"
-                    :disabled="!enabled"
-                    :chunk="4"
-                    @click="addCruise"
-                />
-            </el-tooltip>
-            <el-tooltip :content="Translate('IDCS_START_CRUISE')">
-                <BaseImgSprite
-                    file="start_cruise"
-                    :index="0"
-                    :hover-index="1"
-                    :chunk="4"
-                    @click="playCruise"
-                />
-            </el-tooltip>
-            <el-tooltip :content="Translate('IDCS_STOP_CRUISE')">
-                <BaseImgSprite
-                    file="stop_cruise"
-                    :index="0"
-                    :hover-index="1"
-                    :chunk="4"
-                    @click="stopCruise"
-                />
-            </el-tooltip>
+            <BaseImgSprite
+                file="preset_Add"
+                :title="Translate('IDCS_ADD')"
+                :index="0"
+                :hover-index="1"
+                :disabled-index="0"
+                :disabled="!enabled"
+                :chunk="4"
+                @click="addCruise"
+            />
+            <BaseImgSprite
+                file="start_cruise"
+                :title="Translate('IDCS_START_CRUISE')"
+                :index="0"
+                :hover-index="1"
+                :chunk="4"
+                @click="playCruise"
+            />
+            <BaseImgSprite
+                file="stop_cruise"
+                :title="Translate('IDCS_STOP_CRUISE')"
+                :index="0"
+                :hover-index="1"
+                :chunk="4"
+                @click="stopCruise"
+            />
         </div>
         <ChannelCruiseAddPop
             v-model="pageData.isAddPop"

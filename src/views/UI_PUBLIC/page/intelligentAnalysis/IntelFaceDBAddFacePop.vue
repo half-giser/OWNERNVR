@@ -127,10 +127,7 @@
                 @close="pageData.isChooseFacePop = false"
             />
         </div>
-        <div
-            class="base-btn-box"
-            span="2"
-        >
+        <div class="base-btn-box space-between">
             <div>{{ progress }}</div>
             <div>
                 <el-button @click="chooseFace">{{ Translate('IDCS_SELECT_FACE') }}</el-button>

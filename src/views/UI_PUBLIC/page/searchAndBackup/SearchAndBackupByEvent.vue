@@ -195,29 +195,24 @@
                     </el-table>
                 </div>
                 <div class="base-pagination-box">
-                    <el-pagination
+                    <BasePagination
                         v-model:current-page="pageData.currentPage"
                         v-model:page-size="pageData.pageSize"
                         :total="tableData.length"
                         :page-sizes="[20, 30, 50]"
                     />
                 </div>
-                <div
-                    class="base-btn-box"
-                    span="2"
-                >
+                <div class="base-btn-box space-between">
                     <div>
                         <BaseImgSprite file="caution" />
                         <span>{{ Translate('IDCS_BACKUP_NOTICE').formatForLang(Translate('IDCS_BACKUP')) }}</span>
                     </div>
-                    <div>
-                        <el-button
-                            :disabled="!pageData.selectedRecList.length"
-                            @click="backUp"
-                        >
-                            {{ Translate('IDCS_BACKUP') }}
-                        </el-button>
-                    </div>
+                    <el-button
+                        :disabled="!pageData.selectedRecList.length"
+                        @click="backUp"
+                    >
+                        {{ Translate('IDCS_BACKUP') }}
+                    </el-button>
                 </div>
             </div>
         </div>

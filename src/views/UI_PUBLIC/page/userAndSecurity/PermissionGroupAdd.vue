@@ -147,13 +147,8 @@
                 </div>
             </div>
         </div>
-        <div
-            class="base-btn-box"
-            span="2"
-        >
-            <div>
-                <el-button @click="pageData.isShowInfo = true">{{ Translate('IDCS_DESCRIPTION') }}</el-button>
-            </div>
+        <div class="base-btn-box space-between">
+            <el-button @click="pageData.isShowInfo = true">{{ Translate('IDCS_DESCRIPTION') }}</el-button>
             <div>
                 <el-button @click="verify">{{ Translate('IDCS_ADD') }}</el-button>
                 <el-button @click="goBack">{{ Translate('IDCS_CANCEL') }}</el-button>

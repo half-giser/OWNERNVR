@@ -71,7 +71,7 @@ export default defineComponent({
             if (!chlList.value.length) {
                 await getData()
             }
-            const selectedList = (prop.chls as SystemPosListChls[]).map((item) => item.value)
+            const selectedList = prop.chls.map((item) => item.value)
 
             // 需把源数据的通道从选中通道移除掉
             tableData.value = chlList.value
@@ -86,7 +86,7 @@ export default defineComponent({
                     if (index > -1) {
                         return {
                             ...item,
-                            till: (prop.chls as SystemPosListChls[])[index].till,
+                            till: prop.chls[index].till,
                         }
                     }
                     return item

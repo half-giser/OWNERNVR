@@ -266,7 +266,6 @@ export default defineComponent({
             confirmAddGroup,
             verify,
             formatDigit,
-            IntelFaceDBEditPop,
         }
     },
 })

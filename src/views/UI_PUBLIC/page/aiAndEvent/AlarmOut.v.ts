@@ -28,7 +28,7 @@ export default defineComponent({
             } as Record<string, string>,
             localAlarmOutCount: 0,
             //排程管理弹窗
-            scheduleManagePopOpen: false,
+            isSchedulePop: false,
         })
 
         // 表格数据
@@ -47,14 +47,14 @@ export default defineComponent({
                 defaultValue: '',
             })
             await getAlarmOutType()
-            buildTableData()
+            getData()
         })
 
         /**
          * @description: 获取表格数据
          * @return {*}
          */
-        const buildTableData = () => {
+        const getData = () => {
             editRows.clear()
             tableData.value = []
 
@@ -130,7 +130,7 @@ export default defineComponent({
          * @description 改变页码，刷新数据
          */
         const changePagination = () => {
-            buildTableData()
+            getData()
         }
 
         /**
@@ -141,12 +141,12 @@ export default defineComponent({
             if (pageData.value.pageIndex > totalPage) {
                 pageData.value.pageIndex = totalPage
             }
-            buildTableData()
+            getData()
         }
 
         const changeScheduleAll = (value: string) => {
             if (value === 'scheduleMgr') {
-                pageData.value.scheduleManagePopOpen = true
+                pageData.value.isSchedulePop = true
             } else {
                 tableData.value.forEach((item) => {
                     item.scheduleId = value
@@ -157,7 +157,7 @@ export default defineComponent({
 
         const changeSchedule = (row: AlarmOutDto) => {
             if (row.scheduleId === 'scheduleMgr') {
-                pageData.value.scheduleManagePopOpen = true
+                pageData.value.isSchedulePop = true
                 nextTick(() => {
                     row.scheduleId = row.oldSchedule
                 })
@@ -188,12 +188,12 @@ export default defineComponent({
         /**
          * @description 名称被修改时校验是否合法
          */
-        const nameFocus = (name: string) => {
+        const focusName = (name: string) => {
             originalName.value = name
         }
 
         // 失去焦点时检查名称是否合法
-        const nameBlur = (row: AlarmOutDto) => {
+        const blurName = (row: AlarmOutDto) => {
             const name = row.name
             if (!checkChlName(name)) {
                 openMessageBox({
@@ -224,7 +224,7 @@ export default defineComponent({
         }
 
         // 回车键失去焦点
-        const enterBlur = (event: Event) => {
+        const blurInput = (event: Event) => {
             ;(event.target as HTMLInputElement).blur()
         }
 
@@ -259,7 +259,7 @@ export default defineComponent({
                 `
                 const result = await editBasicCfg(sendXml)
                 closeLoading()
-                commSaveResponseHadler(result, () => {
+                commSaveResponseHandler(result, () => {
                     curAlarmoutType.value = value
                 })
             })
@@ -312,7 +312,6 @@ export default defineComponent({
         }
 
         return {
-            ScheduleManagPop,
             pageData,
             tableData,
             editRows,
@@ -320,9 +319,9 @@ export default defineComponent({
             changePagination,
             changePaginationSize,
             changeAllValue,
-            nameFocus,
-            nameBlur,
-            enterBlur,
+            focusName,
+            blurName,
+            blurInput,
             // 排程
             changeScheduleAll,
             changeSchedule,

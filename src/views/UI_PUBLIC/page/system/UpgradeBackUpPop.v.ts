@@ -40,7 +40,7 @@ export default defineComponent({
          */
         const chooseFile = () => {
             const sendXML = OCX_XML_OpenFileBrowser('SAVE_FILE', undefined, 'ConfigurationBackupFile')
-            plugin.AsynQueryInfo(plugin.GetVideoPlugin(), sendXML, (result) => {
+            plugin.AsynQueryInfo(sendXML, (result) => {
                 const path = OCX_XML_OpenFileBrowser_getpath(result).trim()
                 if (path) {
                     formData.value.filePath = path

@@ -49,7 +49,7 @@ export class LiveCustomViewChlList {
  * @description 现场预览 自定义视图列表项
  */
 export class LiveCustomViewList {
-    chlArr = [] as LiveCustomViewChlList[]
+    chlArr: LiveCustomViewChlList[] = []
     historyPlay = ''
     segNum = 0
     value = ''
@@ -107,7 +107,7 @@ export class LiveLensForm {
  * @description 现场预览 窗口数据
  */
 export class LiveSharedWinData {
-    PLAY_STATUS = 'stop' as 'play' | 'stop' | 'error'
+    PLAY_STATUS: 'play' | 'stop' | 'error' = 'stop'
     winIndex = 0
     seeking = false
     original = false

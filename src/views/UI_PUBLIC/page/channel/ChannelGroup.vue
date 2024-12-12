@@ -78,7 +78,7 @@
             </el-table>
         </div>
         <div class="base-pagination-box">
-            <el-pagination
+            <BasePagination
                 v-model:current-page="pageIndex"
                 v-model:page-size="pageSize"
                 :total="pageTotal"

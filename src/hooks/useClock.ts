@@ -4,12 +4,13 @@
  * @Description: 实现setInterval的效果，但定时更精准
  * 使用此hook，可避免定时器在组件注销时没有清除、或没有正确清除定时器而导致内存溢出的问题
  */
-export const useClock = (callback = () => {}, delay = 1000) => {
+export const useClock = (callback = () => {}, currentDelay = 1000) => {
     let past = 0
     let tick = 0
     let timer: NodeJS.Timeout | number = 0
     let destroyed = false
     let cbk = callback
+    let delay = currentDelay
 
     /**
      * @description 销毁
@@ -61,7 +62,7 @@ export const useClock = (callback = () => {}, delay = 1000) => {
      * @description 更新回调
      * @param {Function} callback
      */
-    const update = (callback: () => any) => {
+    const setCallback = (callback: () => any) => {
         cbk = callback
     }
 
@@ -82,6 +83,14 @@ export const useClock = (callback = () => {}, delay = 1000) => {
         }, delay - delta)
     }
 
+    /**
+     * @description 更新delay
+     * @param {number} currentDelay 单位：毫秒
+     */
+    const setDelay = (currentDelay: number) => {
+        delay = currentDelay
+    }
+
     onBeforeUnmount(() => {
         destroy()
     })
@@ -90,6 +99,7 @@ export const useClock = (callback = () => {}, delay = 1000) => {
         destroy,
         stop,
         repeat,
-        update,
+        setCallback,
+        setDelay,
     }
 }

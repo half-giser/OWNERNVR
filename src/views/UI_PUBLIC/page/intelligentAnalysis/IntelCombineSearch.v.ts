@@ -848,18 +848,6 @@ export default defineComponent({
             isSupportCSV,
             getUniqueKey,
             cacheKey: LocalCacheKey.KEY_COMBINE_SEARCH_COLLECTION,
-            IntelBaseChannelSelector,
-            IntelBaseDateTimeSelector,
-            IntelBaseEventSelector,
-            IntelBaseProfileSelector,
-            IntelBaseAttributeSelector,
-            IntelBaseCollect,
-            IntelBaseSnapItem,
-            IntelBaseSnapPop,
-            BackupPop,
-            BackupLocalPop,
-            IntelLicencePlateDBAddPlatePop,
-            IntelFaceDBSnapRegisterPop,
         }
     },
 })

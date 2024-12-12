@@ -211,8 +211,7 @@
             </div>
             <div
                 v-show="pageData.isSupportBackUp"
-                class="base-btn-box"
-                span="2"
+                class="base-btn-box space-between"
             >
                 <div>
                     <el-checkbox
@@ -224,7 +223,7 @@
                         :label="Translate('IDCS_BACKUP_RECORD')"
                     />
                 </div>
-                <el-pagination
+                <BasePagination
                     v-model:current-page="formData.pageIndex"
                     v-model:page-size="formData.pageSize"
                     :page-sizes="[formData.pageSize]"

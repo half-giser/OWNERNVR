@@ -16,46 +16,42 @@
                 @dblclick="playCurrentCruiseGroup(item.index)"
             >
                 <span class="ptz-group-text text-ellipsis">{{ item.name }}</span>
-                <el-tooltip :content="Translate('IDCS_DELETE')">
-                    <BaseImgSprite
-                        file="delete (2)"
-                        :index="0"
-                        :disabled-index="1"
-                        :chunk="2"
-                        :disabled="!enabled"
-                        @click.stop="deleteCruiseGroup(item.index, item.name)"
-                    />
-                </el-tooltip>
+                <BaseImgSprite
+                    file="delete (2)"
+                    :title="Translate('IDCS_DELETE')"
+                    :index="0"
+                    :disabled-index="1"
+                    :chunk="2"
+                    :disabled="!enabled"
+                    @click.stop="deleteCruiseGroup(item.index, item.name)"
+                />
             </BaseListBoxItem>
         </BaseListBox>
         <div class="ptz-group-btns">
-            <el-tooltip :content="Translate('IDCS_ADD')">
-                <BaseImgSprite
-                    file="preset_Add"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="0"
-                    :chunk="4"
-                    :disabled="!enabled"
-                    @click="addCruiseGroup"
-                />
-            </el-tooltip>
-            <el-tooltip :content="Translate('IDCS_START')">
-                <BaseImgSprite
-                    file="start_cruise"
-                    :index="0"
-                    :hover-index="1"
-                    :chunk="4"
-                />
-            </el-tooltip>
-            <el-tooltip :content="Translate('IDCS_PAUSE')">
-                <BaseImgSprite
-                    file="stop_cruise"
-                    :index="0"
-                    :hover-index="1"
-                    :chunk="4"
-                />
-            </el-tooltip>
+            <BaseImgSprite
+                file="preset_Add"
+                :title="Translate('IDCS_ADD')"
+                :index="0"
+                :hover-index="1"
+                :disabled-index="0"
+                :chunk="4"
+                :disabled="!enabled"
+                @click="addCruiseGroup"
+            />
+            <BaseImgSprite
+                file="start_cruise"
+                :title="Translate('IDCS_START')"
+                :index="0"
+                :hover-index="1"
+                :chunk="4"
+            />
+            <BaseImgSprite
+                file="stop_cruise"
+                :title="Translate('IDCS_PAUSE')"
+                :index="0"
+                :hover-index="1"
+                :chunk="4"
+            />
         </div>
         <ChannelCruiseGroupAddPop
             v-model="pageData.isAddPop"

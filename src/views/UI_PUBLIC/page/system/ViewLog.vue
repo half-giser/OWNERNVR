@@ -117,7 +117,7 @@
                                 :index="0"
                                 :hover-index="1"
                                 :chunk="4"
-                                @click="showLogDetail(scope.row)"
+                                @click="showLogDetail(scope.$index)"
                             />
                         </div>
                     </template>
@@ -140,7 +140,7 @@
             </el-table>
         </div>
         <div class="base-pagination-box">
-            <el-pagination
+            <BasePagination
                 v-model:current-page="formData.currentPage"
                 v-model:page-size="formData.pageSize"
                 :total="pageData.totalCount"

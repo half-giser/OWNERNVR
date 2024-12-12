@@ -209,7 +209,6 @@ export default defineComponent({
             playCurrentCruiseGroup,
             stopCruiseGroup,
             confirmAddCruiseGroup,
-            ChannelCruiseGroupAddPop,
         }
     },
 })

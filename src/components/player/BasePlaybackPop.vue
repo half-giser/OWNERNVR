@@ -219,13 +219,13 @@ const handleReady = () => {
     }
 
     if (mode.value === 'ocx') {
-        playerRef.value!.plugin.GetVideoPlugin().ExecuteCmd(OCX_XML_SetPluginModel('ReadOnly', 'Playback'))
-        playerRef.value!.plugin.GetVideoPlugin().ExecuteCmd(
+        playerRef.value!.plugin.ExecuteCmd(OCX_XML_SetPluginModel('ReadOnly', 'Playback'))
+        playerRef.value!.plugin.ExecuteCmd(
             OCX_XML_SetProperty({
                 calendarType: userSession.calendarType,
             }),
         )
-        playerRef.value!.plugin.GetVideoPlugin().ExecuteCmd(OCX_XML_SetRecPlayMode('SYNC'))
+        playerRef.value!.plugin.ExecuteCmd(OCX_XML_SetRecPlayMode('SYNC'))
         play()
     }
 }
@@ -270,7 +270,7 @@ const play = () => {
             localToUtc(current.value.startTime, 'YYYY-MM-DD HH:mm:ss'),
             localToUtc(current.value.endTime, 'YYYY-MM-DD HH:mm:ss'),
         )
-        playerRef.value!.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+        playerRef.value!.plugin.ExecuteCmd(sendXML)
         seek(startTimeStamp.value)
     }
 }
@@ -290,7 +290,7 @@ const pause = () => {
 
     if (playerRef.value?.mode === 'ocx') {
         const sendXML = OCX_XML_SetPlayStatus('FORWARDS_PAUSE', 0)
-        playerRef.value.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+        playerRef.value.plugin.ExecuteCmd(sendXML)
         pageData.value.paused = true
     }
 }
@@ -315,7 +315,7 @@ const pause = () => {
 //             play()
 //         } else {
 //             const sendXML = OCX_XML_SetPlayStatus('FORWARDS', 0)
-//             playerRef.value.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+//             playerRef.value.plugin.ExecuteCmd(sendXML)
 //             pageData.value.paused = false
 //         }
 //     }
@@ -338,7 +338,7 @@ const stop = () => {
 
     if (mode.value === 'ocx') {
         const sendXML = OCX_XML_SetPlayStatus('STOP')
-        playerRef.value!.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+        playerRef.value!.plugin.ExecuteCmd(sendXML)
         pageData.value.progress = startTimeStamp.value
         pageData.value.paused = true
         pageData.value.stop = true
@@ -362,7 +362,7 @@ const seek = (timestamp: number) => {
                 time: Math.floor(timestamp),
             },
         ])
-        playerRef.value!.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+        playerRef.value!.plugin.ExecuteCmd(sendXML)
         pageData.value.paused = false
     }
 }
@@ -482,7 +482,7 @@ const ocxNotify = ($: XMLQuery) => {
     if ($('statenotify[@type="connectstate"]').length) {
         if ($('statenotify').text() === 'success') {
             const sendXML = OCX_XML_SetRecPlayMode('SYNC')
-            playerRef.value!.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+            playerRef.value!.plugin.ExecuteCmd(sendXML)
             play()
         }
     }
@@ -512,7 +512,7 @@ const ocxNotify = ($: XMLQuery) => {
         if (status.trim() === 'success') {
             if (systemCaps.supportPOS) {
                 //设置通道是否显示POS信息
-                playerRef.value!.plugin.GetVideoPlugin().ExecuteCmd(posInfo(true, chlId, winIndex))
+                playerRef.value!.plugin.ExecuteCmd(posInfo(true, chlId, winIndex))
             }
         }
     }
@@ -527,7 +527,7 @@ onMounted(() => {
 export class PlaybackPopList {
     chlId = ''
     chlName = ''
-    eventList = [] as string[]
+    eventList: string[] = []
     startTime = 0 // 时间戳 （毫秒）
     endTime = 0 // 时间戳 （毫秒）
 }

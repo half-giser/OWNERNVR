@@ -25,6 +25,7 @@ export default defineComponent({
         }
 
         const tableData = ref<PkMgrEnterExitManageList[]>([])
+        const watchEdit = useWatchEditData(tableData)
 
         const pageData = ref({
             // 方向-List
@@ -33,10 +34,6 @@ export default defineComponent({
             screenList: [] as SelectOption<string, string>[],
             // 在线通道列表
             onlineChlList: [] as string[],
-            // 是否获取数据成功
-            mounted: false,
-            // 是否可提交
-            btnDisabled: true,
         })
 
         /**
@@ -79,9 +76,7 @@ export default defineComponent({
                 }
             })
 
-            nextTick(() => {
-                pageData.value.mounted = true
-            })
+            watchEdit.listen()
         }
 
         // 通道树状态刷新定时器
@@ -136,6 +131,7 @@ export default defineComponent({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
+                watchEdit.update()
             } else {
                 const errorCode = $('errorCode').text().num()
                 let errorMsg = Translate('IDCS_SAVE_DATA_FAIL')
@@ -158,18 +154,6 @@ export default defineComponent({
             return pageData.value.onlineChlList.includes(id) ? 'text-online' : 'text-offline'
         }
 
-        watch(
-            tableData,
-            () => {
-                if (pageData.value.mounted) {
-                    pageData.value.btnDisabled = false
-                }
-            },
-            {
-                deep: true,
-            },
-        )
-
         onMounted(async () => {
             await getData()
             chlStatusRefreshTimer.repeat(true)
@@ -178,6 +162,7 @@ export default defineComponent({
         return {
             pageData,
             tableData,
+            watchEdit,
             apply,
             getChlStatus,
         }

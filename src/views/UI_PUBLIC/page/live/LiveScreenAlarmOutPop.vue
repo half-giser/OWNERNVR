@@ -12,16 +12,13 @@
             popper-class="no-padding"
         >
             <template #reference>
-                <div>
-                    <el-tooltip :content="Translate('IDCS_MANUAL_ALARM')">
-                        <BaseImgSprite
-                            file="manual_trigger_alarm"
-                            :index="pageData.isAlarmPop ? 2 : 0"
-                            :hover-index="1"
-                            :chunk="4"
-                        />
-                    </el-tooltip>
-                </div>
+                <BaseImgSprite
+                    file="manual_trigger_alarm"
+                    :title="Translate('IDCS_MANUAL_ALARM')"
+                    :index="pageData.isAlarmPop ? 2 : 0"
+                    :hover-index="1"
+                    :chunk="4"
+                />
             </template>
             <div>
                 <el-table
@@ -63,8 +60,9 @@
                                             v-for="item in pageData.delayList"
                                             :key="item.value"
                                             @click="changeAllDelay(item.value)"
-                                            >{{ item.label }}</el-dropdown-item
                                         >
+                                            {{ item.label }}
+                                        </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
                             </el-dropdown>

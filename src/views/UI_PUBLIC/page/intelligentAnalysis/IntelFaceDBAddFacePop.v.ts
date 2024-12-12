@@ -480,8 +480,6 @@ export default defineComponent({
             picList,
             swiperSize,
             formatDigit,
-            IntelFaceDBChooseFacePop,
-            IntelBaseFaceItem,
         }
     },
 })

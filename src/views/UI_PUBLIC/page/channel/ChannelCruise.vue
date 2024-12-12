@@ -19,9 +19,15 @@
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select-v2
+                        v-if="tableData.length"
                         v-model="pageData.tableIndex"
                         :options="chlOptions"
                         @change="changeChl"
+                    />
+                    <el-select-v2
+                        v-else
+                        model-value=""
+                        :options="[]"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_CRUISE')">
@@ -139,18 +145,13 @@
                     </el-table-column>
                 </el-table>
             </div>
-            <div
-                class="base-btn-box"
-                span="2"
-            >
-                <div>
-                    <el-button
-                        :disabled="!cruiseOptions.length"
-                        @click="addPreset"
-                    >
-                        {{ Translate('IDCS_ADD_PRESET') }}
-                    </el-button>
-                </div>
+            <div class="base-btn-box space-between">
+                <el-button
+                    :disabled="!cruiseOptions.length"
+                    @click="addPreset"
+                >
+                    {{ Translate('IDCS_ADD_PRESET') }}
+                </el-button>
                 <div>
                     <el-button
                         :disabled="!presetTableData.length || pageData.presetIndex === 0"

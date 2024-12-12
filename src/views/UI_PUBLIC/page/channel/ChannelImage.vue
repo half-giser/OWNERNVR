@@ -114,12 +114,14 @@
                     </div>
                 </el-form-item>
             </el-form>
-            <div
-                class="base-btn-box"
-                span="2"
-            >
+            <div class="base-btn-box space-between">
                 <div>
-                    <div id="divTip"></div>
+                    <div id="divTip">
+                        <BaseFloatError
+                            v-model:message="floatErrorMessage"
+                            :type="floatErrorType"
+                        />
+                    </div>
                 </div>
                 <div>
                     <el-button
@@ -146,7 +148,6 @@
                     highlight-current-row
                     :row-key="(row) => row.id"
                     :expand-row-keys="expandedRowKeys"
-                    :row-class-name="(data) => (data.row.disabled ? 'disabled' : '')"
                     @row-click="handleRowClick"
                     @expand-change="handleExpandChange"
                 >
@@ -897,8 +898,7 @@
                                                 </el-form-item>
                                                 <div
                                                     v-if="scope.row.scheduleInfo.scheduleType === 'time'"
-                                                    class="base-btn-box"
-                                                    span="center"
+                                                    class="base-btn-box center"
                                                 >
                                                     <BaseScheduleLine
                                                         id="scheduleLineId"
@@ -910,8 +910,7 @@
                                                 </div>
                                                 <div
                                                     v-if="scope.row.scheduleInfo.scheduleType === 'time'"
-                                                    class="base-btn-box"
-                                                    span="center"
+                                                    class="base-btn-box center"
                                                 >
                                                     <div class="legend-icon"></div>
                                                     <span class="legend-text">{{ Translate('IDCS_DN_DAY') }}</span>
@@ -1070,12 +1069,14 @@
                                                     />
                                                 </el-form-item>
                                             </el-form>
-                                            <div
-                                                class="base-btn-box"
-                                                span="2"
-                                            >
+                                            <div class="base-btn-box space-between">
                                                 <div>
-                                                    <div id="divLensTip"></div>
+                                                    <div id="divLensTip">
+                                                        <BaseFloatError
+                                                            v-model:message="floatLensMessage"
+                                                            :type="floatErrorType"
+                                                        />
+                                                    </div>
                                                 </div>
                                                 <div>
                                                     <el-button
@@ -1089,17 +1090,14 @@
                                         </div>
                                     </el-scrollbar>
                                 </div>
-                                <div
-                                    class="base-btn-box"
-                                    span="center"
-                                >
+                                <div class="base-btn-box center">
                                     <el-radio-group v-model="scope.row.activeTab">
                                         <el-radio-button
                                             v-for="item in tabs"
                                             :key="item.key"
                                             :value="item.key"
-                                            >{{ Translate(item.text) }}</el-radio-button
-                                        >
+                                            :label="Translate(item.text)"
+                                        />
                                     </el-radio-group>
                                 </div>
                             </div>
@@ -1108,7 +1106,7 @@
                 </el-table>
             </div>
             <div class="base-pagination-box">
-                <el-pagination
+                <BasePagination
                     v-model:current-page="pageIndex"
                     v-model:page-size="pageSize"
                     :total="pageTotal"
@@ -1117,11 +1115,6 @@
                 />
             </div>
         </div>
-        <BaseFloatError
-            v-model:message="floatErrorMessage"
-            :to="floatErrorTo"
-            :type="floatErrorType"
-        />
     </div>
 </template>
 

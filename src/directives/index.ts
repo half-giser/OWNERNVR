@@ -4,10 +4,8 @@
  * @Description: 注册所有的自定义指令（在main.js中引入并调用）
  */
 import { type App } from 'vue'
-// import { regNumericalRange } from './numericalRange'
 import { dompurify } from './dompurify'
 
 export const regAllDirective = (app: App<Element>) => {
-    // regNumericalRange(app)
     dompurify(app)
 }

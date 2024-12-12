@@ -31,6 +31,7 @@ export default defineComponent({
     },
     setup(props, ctx) {
         const { Translate } = useLangStore()
+
         const recordStreamTableRef = ref<RecordStreamTableExpose>()
         const pageData = ref({
             mainTitle: '',
@@ -48,10 +49,7 @@ export default defineComponent({
             key: '',
         })
 
-        onMounted(() => {})
-
-        const onOpen = () => {
-            pageData.value.key = props.autoModeId
+        const open = () => {
             pageData.value.initComplete = false
             if (!props.autoModeId) return
             const events = props.autoModeId!.split('_')
@@ -86,7 +84,7 @@ export default defineComponent({
             pageData.value.initComplete = true
         }
 
-        const tabSeleced = (key: string) => {
+        const changeTab = (key: string) => {
             if (key === REC_MODE_TYPE.INTENSIVE) {
                 pageData.value.currenMode = 'timing'
             } else {
@@ -105,25 +103,20 @@ export default defineComponent({
         }
 
         const handleCalculate = () => {
-            if (recordStreamTableRef.value) {
-                recordStreamTableRef.value.queryRemainRecTimeF()
-            }
+            recordStreamTableRef.value?.getRemainRecTime()
         }
 
         const setData = () => {
-            if (recordStreamTableRef.value) {
-                recordStreamTableRef.value.setData()
-            }
+            recordStreamTableRef.value?.setData()
             ctx.emit('close', true)
         }
 
         return {
             recordStreamTableRef,
             pageData,
-            onOpen,
-            tabSeleced,
+            open,
+            changeTab,
             setData,
-            RecordBaseStreamTable,
             handleCalculate,
             getBandwidth,
             getRecTime,

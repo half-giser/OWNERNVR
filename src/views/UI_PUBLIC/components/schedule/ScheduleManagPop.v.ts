@@ -187,7 +187,7 @@ export default defineComponent({
                 const result = await delSchedule(sendXml)
                 closeLoading()
 
-                commSaveResponseHadler(result, () => {
+                commSaveResponseHandler(result, () => {
                     queryList()
                 })
             })
@@ -214,7 +214,6 @@ export default defineComponent({
             deleteSchedule,
             openScheduleEditPop,
             editPopClose,
-            ScheduleEditPop,
         }
     },
 })

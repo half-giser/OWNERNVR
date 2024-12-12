@@ -9,7 +9,7 @@
         :class="[`mode_${mode}`, active && 'active', size]"
     >
         <div
-            v-show="mode === 'thumbnail' && time"
+            v-if="mode === 'thumbnail' && time"
             class="item-time"
         >
             {{ time }}
@@ -25,15 +25,17 @@
             />
             <img :src="pic" />
         </div>
-        <div class="item-text">
-            <BaseImgSprite
-                v-show="mode === 'icon'"
-                file="chl_s"
-                :index="0"
-                :chunk="2"
-            />
-            <span>{{ chlName }}</span>
-        </div>
+        <el-tooltip :content="chlName">
+            <div class="item-text text-ellipsis">
+                <BaseImgSprite
+                    v-show="mode === 'icon'"
+                    file="chl_s"
+                    :index="0"
+                    :chunk="2"
+                />
+                <span class="text-ellipsis">{{ chlName }}</span>
+            </div>
+        </el-tooltip>
     </div>
 </template>
 
@@ -70,9 +72,11 @@
         }
 
         .item-text {
+            display: flex;
             text-align: left;
             height: 40px;
             line-height: 40px;
+            align-items: center;
 
             span:last-child {
                 padding-left: 5px;
@@ -89,7 +93,7 @@
             height: 58px;
 
             &-404 {
-                transform: translate3d(-50%, -50%, 0) scale(0.4) !important;
+                transform: translate3d(-50%, -50%, 0) scale(0.4);
             }
         }
     }
@@ -104,7 +108,7 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate3d(-50%, -50%, 0) scale(0.6) !important;
+            transform: translate3d(-50%, -50%, 0) scale(0.6);
             pointer-events: none;
         }
 

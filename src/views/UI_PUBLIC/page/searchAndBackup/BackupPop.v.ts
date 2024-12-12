@@ -135,7 +135,7 @@ export default defineComponent({
             }
 
             try {
-                plugin.AsynQueryInfo(plugin.GetVideoPlugin(), OCX_XML_GetLocalCfg(), (result) => {
+                plugin.AsynQueryInfo(OCX_XML_GetLocalCfg(), (result) => {
                     const $ = queryXml(XMLStr2XMLDoc(result))
                     formData.value.localPath = $('response/recBackUpPath').text()
                 })
@@ -229,7 +229,7 @@ export default defineComponent({
          * @description OCX浏览文件夹
          */
         const openFolder = () => {
-            plugin.AsynQueryInfo(plugin.GetVideoPlugin(), OCX_XML_OpenFileBrowser('FOLDER'), (result) => {
+            plugin.AsynQueryInfo(OCX_XML_OpenFileBrowser('FOLDER'), (result) => {
                 const path = OCX_XML_OpenFileBrowser_getpath(result).trim()
                 if (path) {
                     formData.value.localPath = path
@@ -254,7 +254,6 @@ export default defineComponent({
             confirmCreateRecBackupTask,
             openFolder,
             formRule,
-            BackupRemoteEncryptPop,
         }
     },
 })

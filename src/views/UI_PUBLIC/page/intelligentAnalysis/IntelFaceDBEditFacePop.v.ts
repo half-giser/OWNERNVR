@@ -306,8 +306,6 @@ export default defineComponent({
             close,
             formatDigit,
             formatName,
-            IntelFaceDBChooseFacePop,
-            IntelBaseFaceItem,
         }
     },
 })

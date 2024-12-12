@@ -17,12 +17,12 @@ export default defineComponent({
             pageIndex: 1,
             pageSize: 10,
             totalCount: 0,
-            scheduleManagePopOpen: false,
+            isSchedulePop: false,
             schedule: '',
             scheduleName: '',
             scheduleChanged: false,
             scheduleList: [] as SelectOption<string, string>[],
-            enableList: getSwitchOptions(),
+            enableList: getBoolSwitchOptions(),
             lightFrequencyList: [] as SelectOption<string, string>[],
         })
 
@@ -30,7 +30,7 @@ export default defineComponent({
         // 编辑行
         const editRows = useWatchEditRows<AlarmWhiteLightDto>()
 
-        const buildTableData = () => {
+        const getData = () => {
             editRows.clear()
             tableData.value = []
 
@@ -75,15 +75,11 @@ export default defineComponent({
                                 }
                             })
                         }
-                        row.enable = $('content/chl/param/lightSwitch').text()
+                        row.enable = $('content/chl/param/lightSwitch').text().bool()
                         row.durationTime = $('content/chl/param/durationTime').text().num()
                         row.frequencyType = $('content/chl/param/frequencyType').text()
-                        setRowDisable(row)
-                        row.disabled = false
+                        row.disabled = !!$('content/chl/param/lightSwitch').text()
                         editRows.listen(row)
-                    } else {
-                        row.enableDisable = true
-                        row.disabled = true
                     }
                 })
             })
@@ -163,7 +159,7 @@ export default defineComponent({
         }
 
         const changePagination = () => {
-            buildTableData()
+            getData()
         }
 
         const changePaginationSize = () => {
@@ -171,7 +167,7 @@ export default defineComponent({
             if (pageData.value.pageIndex > totalPage) {
                 pageData.value.pageIndex = totalPage
             }
-            buildTableData()
+            getData()
         }
 
         const getLightFrequencyLang = (value: string) => {
@@ -187,90 +183,43 @@ export default defineComponent({
             }
         }
 
-        const handleEnabelChange = (row: AlarmWhiteLightDto) => {
-            setRowDisable(row)
-        }
-
-        const handleEnabelChangeAll = (value: string) => {
+        const handleEnabelChangeAll = (value: boolean) => {
             tableData.value.forEach((row) => {
                 if (row.enable) {
                     row.enable = value
-                    setRowDisable(row)
                 }
             })
         }
 
-        const handleFrequencyTypeChangeAll = (value: string) => {
+        const changeAllFrequencyType = (value: string) => {
             tableData.value.forEach((row) => {
-                if (!row.disabled && !(row.enable && row.enable === 'false')) {
+                if (!row.disabled && row.enable) {
                     row.frequencyType = value
                 }
             })
         }
 
-        const handleDurationTimeFocus = (row: AlarmWhiteLightDto) => {
-            if (row.durationTime) {
-                if (row.durationTime <= 1) {
-                    row.durationTime = 1
-                } else if (row.durationTime >= 60) {
-                    row.durationTime = 60
-                }
-            }
+        const blurDurationTime = (e: Event) => {
+            ;(e.target as HTMLInputElement).blur()
         }
 
-        const handleDurationTimeBlur = (row: AlarmWhiteLightDto) => {
-            if (!row.durationTime) {
-                row.durationTime = 1
-            }
-
-            if (row.durationTime <= 1) {
-                row.durationTime = 1
-            } else if (row.durationTime >= 60) {
-                row.durationTime = 60
-            }
-        }
-
-        const handleDurationTimeKeydown = (row: AlarmWhiteLightDto) => {
-            handleDurationTimeBlur(row)
-        }
-
-        const handleScheduleChange = () => {
+        const changeSchedule = () => {
             pageData.value.scheduleChanged = true
             pageData.value.scheduleName = pageData.value.schedule === DEFAULT_EMPTY_ID ? '' : pageData.value.scheduleList.find((item) => item.value === pageData.value.schedule)!.label
         }
 
-        const setRowDisable = (rowData: AlarmWhiteLightDto) => {
-            const disabled = rowData.enable === 'false'
-            if (rowData.enable === '') {
-                rowData.disabled = true
-                rowData.enableDisable = true
-                rowData.durationTimeDisable = true
-                rowData.frequencyTypeDisable = true
-            } else {
-                rowData.enableDisable = false
-            }
-
-            if (disabled) {
-                rowData.durationTimeDisable = true
-                rowData.frequencyTypeDisable = true
-            } else {
-                rowData.durationTimeDisable = false
-                rowData.frequencyTypeDisable = false
-            }
+        const openSchedulePop = () => {
+            pageData.value.isSchedulePop = true
         }
 
-        const popOpen = () => {
-            pageData.value.scheduleManagePopOpen = true
-        }
-
-        const handleSchedulePopClose = async () => {
-            pageData.value.scheduleManagePopOpen = false
+        const closeSchedulePop = async () => {
+            pageData.value.isSchedulePop = false
             await getScheduleList()
         }
 
         onMounted(async () => {
             await getSchedule()
-            buildTableData()
+            getData()
         })
 
         return {
@@ -279,17 +228,13 @@ export default defineComponent({
             editRows,
             changePagination,
             changePaginationSize,
-            handleEnabelChange,
             handleEnabelChangeAll,
-            handleFrequencyTypeChangeAll,
-            handleDurationTimeFocus,
-            handleDurationTimeBlur,
-            handleDurationTimeKeydown,
-            handleScheduleChange,
-            popOpen,
+            changeAllFrequencyType,
+            blurDurationTime,
+            changeSchedule,
+            openSchedulePop,
+            closeSchedulePop,
             setData,
-            ScheduleManagPop,
-            handleSchedulePopClose,
         }
     },
 })

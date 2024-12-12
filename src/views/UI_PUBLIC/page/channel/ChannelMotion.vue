@@ -48,6 +48,7 @@
                         v-model="formData.holdTime"
                         :disabled="formData.disabled || formData.holdTime === ''"
                         :options="formData.holdTimeList"
+                        :height="170"
                     />
                 </el-form-item>
                 <el-form-item
@@ -79,7 +80,6 @@
                     :data="tableData"
                     show-overflow-tooltip
                     highlight-current-row
-                    :row-class-name="(data) => (data.row.disabled ? 'disabled' : '')"
                     @row-click="handleRowClick"
                 >
                     <el-table-column
@@ -176,7 +176,7 @@
                 </el-table>
             </div>
             <div class="base-pagination-box">
-                <el-pagination
+                <BasePagination
                     v-model:current-page="pageIndex"
                     v-model:page-size="pageSize"
                     :total="pageTotal"

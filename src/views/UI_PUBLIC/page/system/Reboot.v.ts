@@ -79,7 +79,6 @@ export default defineComponent({
             verify,
             confirm,
             pageData,
-            BaseCheckAuthPop,
         }
     },
 })

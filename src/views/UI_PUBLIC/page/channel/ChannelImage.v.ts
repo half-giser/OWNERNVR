@@ -12,7 +12,6 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
         const { openMessageBox } = useMessageBox()
-        const osType = getSystemInfo().platform
 
         const playerRef = ref<PlayerInstance>()
         const formData = ref(new ChannelImageDto())
@@ -31,8 +30,8 @@ export default defineComponent({
         const defaultRadioVal = false
         const defaultFocusMode = 'auto'
         const chlNameMaxLen = 40 // 通道名最大长度
-        const floatErrorTo = ref('#divTip')
         const floatErrorMessage = ref('')
+        const floatLensMessage = ref('')
         const floatErrorType = ref('ok')
 
         const timeMode = ref(24)
@@ -43,6 +42,21 @@ export default defineComponent({
         let tmpDayTime = ''
         let tmpNightTime = ''
         let curAzChlId = ''
+
+        const ready = computed(() => {
+            return playerRef.value?.ready || false
+        })
+
+        // 播放模式
+        const mode = computed(() => {
+            if (!ready.value) {
+                return ''
+            }
+            return playerRef.value!.mode
+        })
+
+        let player: PlayerInstance['player']
+        let plugin: PlayerInstance['plugin']
 
         const tabKeys = {
             imageAdjust: 'imageAdjust',
@@ -256,9 +270,13 @@ export default defineComponent({
             })
         })
 
-        const showFloatError = (to: string, message: string, type = 'error') => {
-            floatErrorMessage.value = message
-            floatErrorTo.value = to
+        const showFloatError = (to: 'setting' | 'lens', message: string, type = 'error') => {
+            if (to === 'setting') {
+                floatErrorMessage.value = message
+            } else {
+                floatLensMessage.value = message
+            }
+
             floatErrorType.value = type
         }
 
@@ -390,8 +408,8 @@ export default defineComponent({
                 .catch(() => {})
         }
 
-        const handleKeydownEnter = (event: any) => {
-            event.target.blur()
+        const handleKeydownEnter = (event: Event) => {
+            ;(event.target as HTMLElement).blur()
         }
 
         const handleExpandChange = (row: ChannelImageDto, expandedRows: ChannelImageDto[]) => {
@@ -607,7 +625,7 @@ export default defineComponent({
             editChlVideoParam(data).then((res) => {
                 const $ = queryXml(res)
                 if ($('status').text() === 'success') {
-                    showFloatError('#divTip', Translate('IDCS_SAVE_DATA_SUCCESS'), 'ok')
+                    showFloatError('setting', Translate('IDCS_SAVE_DATA_SUCCESS'), 'ok')
                 } else {
                     const rebootParam = $('rebootParam').text()
                     if (rebootParam) {
@@ -619,7 +637,7 @@ export default defineComponent({
                         let msg = Translate('IDCS_SAVE_DATA_FAIL')
                         if (errorCode === ErrorCode.USER_ERROR_NODE_NET_OFFLINE || errorCode === ErrorCode.USER_ERROR_GET_CONFIG_INFO_FAIL)
                             msg = Translate('IDCS_IP_CHANNEL_OFFLINE').formatForLang(rowData.name)
-                        showFloatError('#divTip', msg)
+                        showFloatError('setting', msg)
                     }
                 }
             })
@@ -714,6 +732,10 @@ export default defineComponent({
             queryChlVideoParam(data).then((res) => {
                 const $ = queryXml(res)
                 const rowData = getRowById(chlId)
+                if (!rowData) {
+                    return
+                }
+
                 if ($('status').text() === 'success') {
                     const $chl = queryXml($('content/chl')[0].element)
 
@@ -1020,7 +1042,7 @@ export default defineComponent({
                     })
                     rowData.exposureModeArray = $('types/autoExposureMode/enum').map((ele) => {
                         return {
-                            value: exposureModeKeyMap[ele.text()],
+                            value: ele.text(),
                             label: exposureModeMap[ele.text()],
                         }
                     })
@@ -1087,7 +1109,7 @@ export default defineComponent({
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() === 'success') {
-                    showFloatError('#divTip', Translate('IDCS_SAVE_DATA_SUCCESS'), 'ok')
+                    showFloatError('setting', Translate('IDCS_SAVE_DATA_SUCCESS'), 'ok')
                 } else {
                     const rebootParam = $('rebootParam').text()
                     if (rebootParam) {
@@ -1101,7 +1123,7 @@ export default defineComponent({
                             // 通道离线（节点不存在）
                             msg += Translate('IDCS_IP_CHANNEL_OFFLINE').formatForLang(rowData.name)
                         }
-                        showFloatError('#divTip', msg)
+                        showFloatError('setting', msg)
                     }
                 }
             })
@@ -1267,13 +1289,13 @@ export default defineComponent({
                 .then((res) => {
                     const $ = queryXml(res)
                     if ($('status').text() === 'success' || $('errorCode').text() === '0') {
-                        showFloatError('#divLensTip', Translate('IDCS_SAVE_DATA_SUCCESS'), 'ok')
+                        showFloatError('lens', Translate('IDCS_SAVE_DATA_SUCCESS'), 'ok')
                     } else {
-                        showFloatError('#divLensTip', Translate('IDCS_SAVE_DATA_FAIL'))
+                        showFloatError('lens', Translate('IDCS_SAVE_DATA_FAIL'))
                     }
                 })
                 .catch(() => {
-                    showFloatError('#divLensTip', Translate('IDCS_SAVE_DATA_FAIL'))
+                    showFloatError('lens', Translate('IDCS_SAVE_DATA_FAIL'))
                 })
         }
 
@@ -1362,31 +1384,41 @@ export default defineComponent({
         }
 
         const onReady = () => {
-            if (playerRef.value?.mode === 'ocx') {
+            player = playerRef.value!.player
+            plugin = playerRef.value!.plugin
+
+            if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
-                playerRef.value?.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
-            play()
         }
+
+        const stopWatchFirstPlay = watchEffect(() => {
+            if (ready.value && tableData.value.length) {
+                nextTick(() => {
+                    play()
+                })
+                stopWatchFirstPlay()
+            }
+        })
 
         const play = () => {
             if (!selectedChlId.value) return
-            if (!playerRef.value || !playerRef.value.ready) return
             const rowData = getRowById(selectedChlId.value)
-            if (playerRef.value.mode === 'h5') {
-                playerRef.value.player.play({
+
+            if (mode.value === 'h5') {
+                player.play({
                     chlID: rowData.id,
                     streamType: 2,
                 })
-            } else {
-                if (osType === 'mac') {
-                } else {
-                    playerRef.value.plugin.RetryStartChlView(rowData.id, rowData.name)
-                }
+            }
+
+            if (mode.value === 'ocx') {
+                plugin.RetryStartChlView(rowData.id, rowData.name)
             }
         }
 
-        watch(selectedChlId, play)
+        watch(selectedChlId, () => play())
 
         watch(
             expandedRowKeys,
@@ -1416,9 +1448,9 @@ export default defineComponent({
         })
 
         onBeforeUnmount(() => {
-            if (playerRef.value?.mode === 'ocx' && playerRef.value?.ready) {
+            if (plugin?.IsPluginAvailable() && mode.value === 'ocx') {
                 const sendXML = OCX_XML_StopPreview('ALL')
-                playerRef.value?.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         })
 
@@ -1468,9 +1500,9 @@ export default defineComponent({
             handleIRCutModeChange,
             setAZData,
             onReady,
-            floatErrorTo,
-            floatErrorMessage,
             floatErrorType,
+            floatErrorMessage,
+            floatLensMessage,
         }
     },
 })

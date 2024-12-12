@@ -10,7 +10,6 @@
                 ref="tableRef"
                 :data="virtualTableData"
                 show-overflow-tooltip
-                highlight-current-row
                 :row-class-name="(data) => (tableData[data.rowIndex].disabled ? 'disabled' : '')"
             >
                 <!-- 通道名称 -->

@@ -352,9 +352,6 @@ export default defineComponent({
             changeType,
             changeAttribute,
             exportChart,
-            IntelBaseChannelSelector,
-            IntelBaseEventSelector,
-            IntelBaseAttributeSelector,
         }
     },
 })

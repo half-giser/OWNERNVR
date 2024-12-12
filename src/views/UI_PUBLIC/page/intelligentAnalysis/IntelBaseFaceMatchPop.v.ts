@@ -178,7 +178,6 @@ export default defineComponent({
             displayGender,
             displayEventType,
             displayTargetType,
-            IntelBasePanoramaPop,
         }
     },
 })

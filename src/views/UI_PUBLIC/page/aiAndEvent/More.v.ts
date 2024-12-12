@@ -4,7 +4,6 @@
  * @Description: 更多功能页面的框架
  */
 import { AlarmChlDto } from '@/types/apiType/aiAndEvent'
-import { type TabsPaneContext } from 'element-plus'
 import AlarmBaseChannelSelector from './AlarmBaseChannelSelector.vue'
 import FireDetectionPanel from './FireDetectionPanel.vue'
 import TemperatureDetectionPanel from './TemperatureDetectionPanel.vue'
@@ -77,8 +76,6 @@ export default defineComponent({
             boundaryChlCapsObj: [],
             // 保存所有支持更多分类的通道
             moreChlCapsObj: [],
-            // tabkey
-            tabKey: 0,
         })
 
         const chlData = computed(() => {
@@ -87,14 +84,7 @@ export default defineComponent({
 
         // 切换通道
         const handleChangeChannel = () => {
-            pageData.value.tabKey += 1
             initPage()
-        }
-
-        // 大tab点击事件,切换功能
-        const handleTabClick = (pane: TabsPaneContext) => {
-            pageData.value.chosenFunction = pane.props.name?.toString() ? pane.props.name?.toString() : ''
-            pageData.value.tabKey += 1
         }
 
         // 获取在线通道
@@ -337,7 +327,6 @@ export default defineComponent({
 
         const initPage = () => {
             isTabDisabled()
-            pageData.value.tabKey += 1
         }
 
         onMounted(async () => {
@@ -349,17 +338,8 @@ export default defineComponent({
 
         return {
             chlData,
-            AlarmBaseChannelSelector,
-            FireDetectionPanel,
-            PassLinePanel,
-            CddPanel,
-            VideoStructurePanel,
-            TemperatureDetectionPanel,
-            ObjectLeftPanel,
-            AbnormalDisposePanel,
             pageData,
             handleChangeChannel,
-            handleTabClick,
         }
     },
 })

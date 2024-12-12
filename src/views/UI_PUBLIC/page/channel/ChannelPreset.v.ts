@@ -21,7 +21,6 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
         const { openMessageBox } = useMessageBox()
-        const { openNotify } = useNotification()
         const playerRef = ref<PlayerInstance>()
         const auth = useUserChlAuth(false)
 
@@ -61,16 +60,16 @@ export default defineComponent({
             presetIndex: '' as string | number,
         })
 
-        // 播放模式
-        const mode = computed(() => {
-            if (!playerRef.value) {
-                return ''
-            }
-            return playerRef.value.mode
-        })
-
         const ready = computed(() => {
             return playerRef.value?.ready || false
+        })
+
+        // 播放模式
+        const mode = computed(() => {
+            if (!ready.value) {
+                return ''
+            }
+            return playerRef.value!.mode
         })
 
         let player: PlayerInstance['player']
@@ -83,15 +82,9 @@ export default defineComponent({
             player = playerRef.value!.player
             plugin = playerRef.value!.plugin
 
-            if (mode.value === 'h5') {
-                if (isHttpsLogin()) {
-                    openNotify(formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`))
-                }
-            }
-
             if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -100,12 +93,15 @@ export default defineComponent({
          */
         const play = () => {
             const { chlId, chlName } = tableData.value[pageData.value.tableIndex]
+
             if (mode.value === 'h5') {
                 player.play({
                     chlID: chlId,
                     streamType: 2,
                 })
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 plugin.RetryStartChlView(chlId, chlName)
             }
         }
@@ -328,7 +324,7 @@ export default defineComponent({
                 const result = await delChlPreset(sendXml)
 
                 closeLoading()
-                commSaveResponseHadler(result, () => {
+                commSaveResponseHandler(result, () => {
                     tableData.value[chlIndex].presets.splice(presetIndex, 1)
                     tableData.value[chlIndex].presetCount--
                 })
@@ -395,7 +391,7 @@ export default defineComponent({
             const result = await editChlPresetPosition(sendXml)
 
             closeLoading()
-            commSaveResponseHadler(result)
+            commSaveResponseHandler(result)
         }
 
         /**
@@ -435,9 +431,9 @@ export default defineComponent({
         })
 
         onBeforeUnmount(() => {
-            if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
+            if (plugin?.IsPluginAvailable() && mode.value === 'ocx') {
                 const sendXML = OCX_XML_StopPreview('ALL')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         })
 
@@ -461,10 +457,6 @@ export default defineComponent({
             deletePreset,
             setSpeed,
             formatInputMaxLength,
-            ChannelPtzCtrlPanel,
-            ChannelPresetAddPop,
-            ChannelPtzTableExpandPanel,
-            ChannelPtzTableExpandItem,
         }
     },
 })

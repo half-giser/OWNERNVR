@@ -3,18 +3,21 @@
  * @Date: 2024-04-16 13:47:54
  * @Description:
  */
-import { defineConfig, loadEnv, type PluginOption } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
+import { type AcceptedPlugin } from 'postcss'
 import Vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import { envDir, sourceDir, manualChunks, getSourceDir } from './scripts/build'
-// import ElementPlus from 'unplugin-element-plus/vite'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import GenerateSprite from './scripts/generateSprite'
 import MinifyXmlTemplateStrings from './scripts/minifyXmlTemplateStrings'
 import MinifyWorkers from './scripts/minifyWorkers'
+import BasicSSL from '@vitejs/plugin-basic-ssl'
 import PostCssVariableCompress from 'postcss-variable-compress'
+import PostCssPresetEnv from 'postcss-preset-env'
+import CssNano from 'cssnano'
 import { visualizer as Visualizer } from 'rollup-plugin-visualizer'
 import optimizeDepsIncludes from './scripts/optimizeDeps'
 import { STATS_FILE_PATH, TYPE_AUTO_IMPORT_FILE_PATH, TYPE_COMPONENTS_FILE_PATH } from './scripts/filePaths'
@@ -28,22 +31,6 @@ export default defineConfig(({ mode }) => {
     console.log(env.VITE_UI_TYPE)
 
     const { VITE_APP_IP, VITE_UI_TYPE } = env
-
-    const devPlugin: PluginOption[] = [
-        Visualizer({
-            open: false,
-            gzipSize: true,
-            brotliSize: true,
-            filename: STATS_FILE_PATH,
-        }),
-    ]
-
-    const buildPlugin: PluginOption[] = [
-        MinifyWorkers({
-            src: `dist/${VITE_UI_TYPE}/**/*.js`,
-            ui: VITE_UI_TYPE,
-        }),
-    ]
 
     return {
         // envDir,
@@ -74,6 +61,7 @@ export default defineConfig(({ mode }) => {
                     },
                 },
             },
+            https: env.VITE_APP_HTTPS === 'true' ? {} : false,
         },
         resolve: {
             alias: {
@@ -92,7 +80,20 @@ export default defineConfig(({ mode }) => {
                 },
             },
             postcss: {
-                plugins: process.env.NODE_ENV === 'development' ? [] : [PostCssVariableCompress([(name: string) => !name.startsWith('--el')])],
+                plugins: ([] as AcceptedPlugin[]).concat(
+                    process.env.NODE_ENV === 'development'
+                        ? []
+                        : [
+                              PostCssVariableCompress([(name: string) => !name.startsWith('--el')]),
+                              CssNano({
+                                  preset: 'default',
+                              }),
+                              PostCssPresetEnv({
+                                  // 此处配置为:has的最低支持版本
+                                  browsers: ['Chrome >= 105', 'Firefox >= 121', 'Edge >= 105', 'Safari >= 15.4'],
+                              }),
+                          ],
+                ),
             },
         },
         plugins: [
@@ -100,19 +101,16 @@ export default defineConfig(({ mode }) => {
                 src: `sprite/${VITE_UI_TYPE}-sprite/sprite/*.png`,
             }),
             MinifyXmlTemplateStrings(),
-            Vue(),
-            // 全局导入将会删除
-            // ElementPlus({}),
+            Vue({
+                features: {
+                    optionsAPI: false,
+                },
+            }),
             /**
              * 自动导入 API ，不用每次都 import
              */
             AutoImport({
                 imports: [
-                    // {
-                    //     from: 'vue',
-                    //     imports: ['App'],
-                    //     type: true,
-                    // },
                     'vue',
                     'vue-router',
                     'pinia',
@@ -147,7 +145,6 @@ export default defineConfig(({ mode }) => {
                 defaultExportByFilename: false,
                 dirs: [
                     // 添加需要自动导入的模块
-                    // './src/views/UI_PUBLIC/page/**/*.vue',
                     './src/hooks',
                     './src/api',
                     './src/stores',
@@ -162,7 +159,8 @@ export default defineConfig(({ mode }) => {
             Components({
                 resolvers: [ElementPlusResolver()],
                 dts: TYPE_COMPONENTS_FILE_PATH,
-                dirs: ['./src/components/'],
+                globs: ['**/Base*.vue', '**/{Intel,Alarm,Record}Base*.vue', '**/*Pop.vue', '**/*Item.vue', '**/!(Function)Panel.vue'],
+                // dirs: ['./src/components/'],
                 deep: true,
             }),
             createHtmlPlugin({
@@ -175,15 +173,43 @@ export default defineConfig(({ mode }) => {
                     },
                 },
             }),
-        ].concat(split[0] === 'dev' ? devPlugin : buildPlugin),
-        // components: [
-        // ],
+        ].concat(
+            split[0] === 'dev'
+                ? [
+                      Visualizer({
+                          open: false,
+                          gzipSize: true,
+                          brotliSize: true,
+                          filename: STATS_FILE_PATH,
+                      }),
+                  ].concat(
+                      env.VITE_APP_HTTPS === 'true'
+                          ? [
+                                BasicSSL({
+                                    /** name of certification */
+                                    name: 'test',
+                                    /** custom trust domains */
+                                    domains: ['*.custom.com'],
+                                    /** custom certification directory */
+                                    certDir: './.temp',
+                                }),
+                            ]
+                          : [],
+                  )
+                : [
+                      MinifyWorkers({
+                          src: `dist/${VITE_UI_TYPE}/**/*.js`,
+                          ui: VITE_UI_TYPE,
+                      }),
+                  ],
+        ),
         build: {
             outDir: `dist/${env.VITE_UI_TYPE}`,
             assetsInlineLimit: 0,
             cssCodeSplit: false,
             minify: 'esbuild',
-            target: 'esnext',
+            // target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari14']
+            target: ['chrome105', 'edge105', 'firefox121', 'safari15.4'],
             // 设置 source map 选项
             sourcemap: false,
             chunkSizeWarningLimit: 1024,

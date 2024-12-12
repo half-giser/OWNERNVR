@@ -107,7 +107,7 @@
                                         </IntelBaseFaceItem>
                                     </div>
                                     <div class="base-pagination-box">
-                                        <el-pagination
+                                        <BasePagination
                                             v-model:current-page="formData.pageIndex"
                                             v-model:page-size="pageData.pageSize"
                                             :page-sizes="[pageData.pageSize]"
@@ -175,13 +175,8 @@
                 </el-table-column>
             </el-table>
         </div>
-        <div
-            class="base-btn-box padding"
-            span="2"
-        >
-            <div>
-                <el-button @click="handleFaceRecognition">{{ Translate('IDCS_FACE_RECOGNITION') }}</el-button>
-            </div>
+        <div class="base-btn-box space-between padding">
+            <el-button @click="handleFaceRecognition">{{ Translate('IDCS_FACE_RECOGNITION') }}</el-button>
             <div>
                 <el-button
                     :disabled="!tableData.length"

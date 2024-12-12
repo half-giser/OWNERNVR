@@ -49,7 +49,7 @@ export default defineComponent({
         }
 
         // 测试按钮，向手机发送测试推送信息
-        const testMobile = async () => {
+        const testData = async () => {
             const result = await testMobilePush()
             const $ = queryXml(result)
             if ($('status').text() === 'success') {
@@ -73,10 +73,10 @@ export default defineComponent({
                 </content>
             `
             const result = await editEventNotifyParam(sendXml)
-            commSaveResponseHadler(result)
+            commSaveResponseHandler(result)
         }
 
-        const handleSchedulePopClose = () => {
+        const closeSchedulePop = () => {
             pageData.value.scheduleManagPopOpen = false
             getScheduleData()
         }
@@ -92,9 +92,9 @@ export default defineComponent({
         return {
             pushFormData,
             pageData,
-            testMobile,
+            testData,
             setData,
-            handleSchedulePopClose,
+            closeSchedulePop,
         }
     },
 })

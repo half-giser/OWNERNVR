@@ -8,7 +8,7 @@
         width="1270"
         :title="pageData.mainTitle"
         destroy-on-close
-        @open="onOpen"
+        @open="open"
         @close="$emit('close', false)"
     >
         <el-menu
@@ -16,7 +16,7 @@
             :default-active="pageData.tabs.length > 0 ? pageData.tabs[0].value : ''"
             class="el-menu-demo"
             mode="horizontal"
-            @select="tabSeleced"
+            @select="changeTab"
         >
             <el-menu-item
                 v-for="item in pageData.tabs"
@@ -31,15 +31,12 @@
             v-model="pageData.initComplete"
             :mode="pageData.currenMode"
             :pop="true"
-            :initkey="pageData.key"
+            :initkey="autoModeId"
             class="streamTable"
             @bandwidth="getBandwidth"
             @rec-time="getRecTime"
         />
-        <div
-            class="base-btn-box"
-            span="2"
-        >
+        <div class="base-btn-box space-between">
             <div>
                 <span class="row_bandwidth">{{ pageData.txtBandwidth }}</span>
                 <span class="detailBtn"></span>

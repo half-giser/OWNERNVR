@@ -31,23 +31,18 @@
                         <div>{{ displayTime(item2.timestamp) }}</div>
                     </div>
                 </div>
-                <div
-                    class="base-btn-box"
-                    span="2"
-                >
+                <div class="base-btn-box space-between">
                     <div>{{ current?.date || '' }}</div>
-                    <div>
-                        <el-button
-                            :disabled="!current.date"
-                            @click="search"
-                        >
-                            <BaseImgSprite
-                                file="toolbar_search"
-                                :index="0"
-                                :chunk="1"
-                            />
-                        </el-button>
-                    </div>
+                    <el-button
+                        :disabled="!current.date"
+                        @click="search"
+                    >
+                        <BaseImgSprite
+                            file="toolbar_search"
+                            :index="0"
+                            :chunk="1"
+                        />
+                    </el-button>
                 </div>
             </div>
             <div class="right">
@@ -73,8 +68,9 @@
                                 :class="{
                                     'text-error': scope.row.alarm,
                                 }"
-                                >{{ scope.row.type }}</span
                             >
+                                {{ scope.row.type }}
+                            </span>
                         </template>
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_ATTENDANCE_DETAIL')">

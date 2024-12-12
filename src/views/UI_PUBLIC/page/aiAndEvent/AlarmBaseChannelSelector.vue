@@ -25,7 +25,7 @@
                         />
                     </div>
                 </template>
-                <el-scrollbar :height>
+                <el-scrollbar :max-height="height">
                     <div class="alarm-chl-list">
                         <div
                             v-for="item in list"
@@ -45,53 +45,7 @@
     </el-form>
 </template>
 
-<script lang="ts">
-export default defineComponent({
-    props: {
-        height: {
-            type: Number,
-            default: 140,
-        },
-        list: {
-            type: Array as PropType<{ id: string; name: string }[]>,
-            default: () => [],
-        },
-        modelValue: {
-            type: String,
-            required: true,
-        },
-    },
-    emits: {
-        'update:modelValue'(value: string) {
-            return typeof value === 'string'
-        },
-        change(value: string) {
-            return typeof value === 'string'
-        },
-    },
-    setup(prop, { emit }) {
-        const pageData = ref({
-            isPop: false,
-        })
-
-        const change = (value: string) => {
-            emit('update:modelValue', value)
-            emit('change', value)
-            pageData.value.isPop = false
-        }
-
-        const content = computed(() => {
-            return prop.list.find((item) => item.id === prop.modelValue)?.name || ''
-        })
-
-        return {
-            pageData,
-            change,
-            content,
-        }
-    },
-})
-</script>
+<script lang="ts" src="./AlarmBaseChannelSelector.v.ts"></script>
 
 <style lang="scss" scoped>
 .alarm-chl {

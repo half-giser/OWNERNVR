@@ -63,6 +63,13 @@ export default defineComponent({
             type: String,
             required: true,
         },
+        /**
+         * @property POS关键字
+         */
+        posKeyword: {
+            type: String,
+            default: '',
+        },
     },
     emits: {
         play(row: PlaybackRecLogList) {
@@ -265,7 +272,7 @@ export default defineComponent({
                         <itemType type='recType'/>
                         ${prop.eventList.map((event) => `<item>${event}</item>`).join('')}
                     </recType>
-                    ${prop.eventList.includes('POS') ? '<keyword></keyword>' : ''}
+                    ${prop.eventList.includes('POS') ? `<keyword>${prop.posKeyword}</keyword>` : ''}
                     ${prop.chls.length ? `<chl>${chls}</chl>` : ''}
                 </condition>
             `

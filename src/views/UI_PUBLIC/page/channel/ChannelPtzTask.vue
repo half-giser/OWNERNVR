@@ -22,15 +22,22 @@
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select-v2
+                        v-if="tableData.length"
                         v-model="pageData.tableIndex"
                         :options="chlOptions"
                         @change="changeChl"
+                    />
+                    <el-select-v2
+                        v-else
+                        model-value=""
+                        :options="[]"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_FUNCTION')">
                     <el-select-v2
                         v-model="formData.type"
                         :options="pageData.typeOptions"
+                        :disabled="!tableData.length"
                         @change="changeType"
                     />
                 </el-form-item>
@@ -41,6 +48,7 @@
                     <el-select-v2
                         v-model="formData.name"
                         :options="pageData.nameOptions"
+                        :disabled="!tableData.length"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_START_TIME')">
@@ -50,6 +58,7 @@
                         value-format="HH:mm"
                         editable
                         popper-class="base-chl-timepicker"
+                        :disabled="!tableData.length"
                     />
                 </el-form-item>
                 <el-form-item
@@ -62,6 +71,7 @@
                         value-format="HH:mm"
                         editable
                         popper-class="base-chl-timepicker"
+                        :disabled="!tableData.length"
                     />
                 </el-form-item>
                 <div class="base-btn-box">

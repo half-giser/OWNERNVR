@@ -36,7 +36,7 @@ const plugin = usePlugin()
 const $player = ref<HTMLDivElement>()
 const ready = ref(false)
 
-usePluginHook({
+setupPlugin({
     player: $player,
     onMessage: ($) => emits('message', $),
 })
@@ -44,35 +44,25 @@ usePluginHook({
 /**
  * @description 组件与OCX通信均就绪时回调
  */
-const handleReady = () => {
+const stopWatchReady = watchEffect(() => {
     if (ready.value && pluginStore.ready && pluginStore.currPluginMode === 'ocx') {
         plugin.SetPluginSize($player.value!)
         emits('ready')
+        stopWatchReady()
     }
-}
+})
 
 onMounted(() => {
     if (prop.isUpdatePos) {
         plugin.AddPluginMoveEvent($player.value!)
     }
     ready.value = true
-    handleReady()
 })
 
 onBeforeUnmount(() => {
     plugin.CloseCurPlugin($player.value!)
     plugin.DisplayOCX(false)
 })
-
-watch(
-    () => pluginStore.ready,
-    () => {
-        handleReady()
-    },
-    {
-        immediate: true,
-    },
-)
 
 watch(
     () => prop.isUpdatePos,

@@ -244,10 +244,6 @@ export default defineComponent({
             handleExpandChange,
             handleAddChl,
             handleDelChl,
-            ChannelGroupEditPop,
-            ChannelGroupAddChlPop,
-            ChannelPtzTableExpandPanel,
-            ChannelPtzTableExpandItem,
         }
     },
 })

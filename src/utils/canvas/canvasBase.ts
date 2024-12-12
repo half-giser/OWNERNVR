@@ -9,6 +9,20 @@ export interface CanvasBasePoint {
     isClosed?: boolean
 }
 
+export interface CanvasBaseArea {
+    X1: number
+    X2: number
+    Y1: number
+    Y2: number
+}
+
+export interface CanvasBaseRect {
+    x: number
+    y: number
+    width: number
+    height: number
+}
+
 export interface CanvasBaseLineStyleOption {
     lineWidth: number
     strokeStyle: string | CanvasGradient | CanvasPattern

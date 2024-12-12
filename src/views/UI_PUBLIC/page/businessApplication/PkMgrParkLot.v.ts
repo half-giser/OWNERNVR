@@ -95,7 +95,7 @@ export default defineComponent({
             if (pageData.value.total && pageData.value.rest) {
                 return pageData.value.rest + '/' + pageData.value.total
             }
-            return '&nbsp;'
+            return '\u200b'
         })
 
         /**
@@ -524,7 +524,6 @@ export default defineComponent({
             handleOpenGate,
             handleUpdatePlate,
             formData,
-            PKMgrParkLotPop,
         }
     },
 })

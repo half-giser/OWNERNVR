@@ -12,7 +12,6 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const { openLoading, closeLoading } = useLoading()
-        const osType = getSystemInfo().platform
 
         const playerRef = ref<PlayerInstance>()
         const formData = ref(new ChannelMaskDto())
@@ -26,6 +25,21 @@ export default defineComponent({
         const editStatus = ref(false)
         const switchOptions = getSwitchOptions()
         let maskDrawer: CanvasMask | undefined = undefined
+
+        const ready = computed(() => {
+            return playerRef.value?.ready || false
+        })
+
+        // 播放模式
+        const mode = computed(() => {
+            if (!ready.value) {
+                return ''
+            }
+            return playerRef.value!.mode
+        })
+
+        let player: PlayerInstance['player']
+        let plugin: PlayerInstance['plugin']
 
         const colorMap: Record<string, string> = {
             black: Translate('IDCS_BLACK'),
@@ -72,32 +86,31 @@ export default defineComponent({
 
         const changeEditStatus = () => {
             if (!selectedChlId.value) return
-            if (!playerRef.value || !playerRef.value.ready) return
-            if (playerRef.value.mode === 'h5') {
+
+            if (mode.value === 'h5') {
                 maskDrawer?.setEnable(editStatus.value)
-            } else {
-                if (osType === 'mac') {
-                } else {
-                    const sendXML = OCX_XML_MaskAreaSetSwitch(editStatus.value ? 'EDIT_ON' : 'EDIT_OFF')
-                    playerRef.value?.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                }
+            }
+
+            if (mode.value === 'ocx') {
+                const sendXML = OCX_XML_MaskAreaSetSwitch(editStatus.value ? 'EDIT_ON' : 'EDIT_OFF')
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
         const handleClearArea = () => {
-            if (!playerRef.value || !playerRef.value.ready) return
-            if (playerRef.value.mode === 'h5') {
+            if (mode.value === 'h5') {
                 maskDrawer?.clear()
                 maskDrawer?.setEnable(false)
-            } else {
-                if (osType === 'mac') {
-                } else {
-                    let sendXML = OCX_XML_MaskAreaSetSwitch('NONE')
-                    playerRef.value?.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                    sendXML = OCX_XML_MaskAreaSetSwitch('EDIT_OFF')
-                    playerRef.value?.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                }
             }
+
+            if (mode.value === 'ocx') {
+                const sendXML1 = OCX_XML_MaskAreaSetSwitch('NONE')
+                plugin.ExecuteCmd(sendXML1)
+
+                const sendXML2 = OCX_XML_MaskAreaSetSwitch('EDIT_OFF')
+                plugin.ExecuteCmd(sendXML2)
+            }
+
             editStatus.value = false
             const rowData = getRowById(selectedChlId.value)!
             if (rowData.mask.length) {
@@ -278,29 +291,26 @@ export default defineComponent({
         const notify = ($: XMLQuery) => {
             if ($("statenotify[@type='MaskArea']").length) {
                 const preRowData = getRowById(selectedChlId.value)!
-                if (osType === 'mac') {
-                } else {
-                    if (!preRowData.mask.length) {
-                        for (let i = 0; i < 4; i++) {
-                            preRowData.mask.push(new ChannelPrivacyMaskDto())
-                        }
+                if (!preRowData.mask.length) {
+                    for (let i = 0; i < 4; i++) {
+                        preRowData.mask.push(new ChannelPrivacyMaskDto())
                     }
-                    const rectangles = $('statenotify/item/rectangle')
-                    preRowData.mask.forEach((ele, index) => {
-                        const rectExist = rectangles[index] !== undefined
-                        if (rectExist) {
-                            const $rect = queryXml(rectangles[index].element)
-                            ele.switch = true
-                            ele.X = $rect('X').text().num()
-                            ele.Y = $rect('Y').text().num()
-                            ele.width = $rect('width').text().num()
-                            ele.height = $rect('height').text().num()
-                        } else {
-                            ele.switch = false
-                            ele.X = ele.Y = ele.width = ele.height = 0
-                        }
-                    })
                 }
+                const rectangles = $('statenotify/item/rectangle')
+                preRowData.mask.forEach((ele, index) => {
+                    const rectExist = rectangles[index] !== undefined
+                    if (rectExist) {
+                        const $rect = queryXml(rectangles[index].element)
+                        ele.switch = true
+                        ele.X = $rect('X').text().num()
+                        ele.Y = $rect('Y').text().num()
+                        ele.width = $rect('width').text().num()
+                        ele.height = $rect('height').text().num()
+                    } else {
+                        ele.switch = false
+                        ele.X = ele.Y = ele.width = ele.height = 0
+                    }
+                })
             }
         }
 
@@ -337,31 +347,16 @@ export default defineComponent({
                     height: ele.switch ? ele.height : 0,
                 })
             })
+
             if (mode.value === 'h5') {
                 maskDrawer?.setArea(masks)
-            } else {
-                if (osType === 'mac') {
-                } else {
-                    const sendXML = OCX_XML_SetMaskArea(masks)
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                }
+            }
+
+            if (mode.value === 'ocx') {
+                const sendXML = OCX_XML_SetMaskArea(masks)
+                plugin.ExecuteCmd(sendXML)
             }
         }
-
-        // 播放模式
-        const mode = computed(() => {
-            if (!playerRef.value) {
-                return ''
-            }
-            return playerRef.value.mode
-        })
-
-        const ready = computed(() => {
-            return playerRef.value?.ready || false
-        })
-
-        let player: PlayerInstance['player']
-        let plugin: PlayerInstance['plugin']
 
         const onReady = () => {
             player = playerRef.value!.player
@@ -372,9 +367,11 @@ export default defineComponent({
                     el: player.getDrawbordCanvas(0) as HTMLCanvasElement,
                     onchange: handleMaskChange,
                 })
-            } else {
-                const sendXML = OCX_XML_SetPluginModel(osType === 'mac' ? 'VedioMaskConfig' : 'ReadOnly', 'Live')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+            }
+
+            if (mode.value === 'ocx') {
+                const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -391,16 +388,16 @@ export default defineComponent({
                     streamType: 2,
                 })
                 maskDrawer && maskDrawer.clear()
-            } else {
-                if (osType === 'mac') {
-                } else {
-                    plugin.RetryStartChlView(rowData.id, rowData.name, () => {
-                        let sendXML = OCX_XML_MaskAreaSetSwitch('NONE') // todo 只下发none会有问题，可以编辑
-                        plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                        sendXML = OCX_XML_MaskAreaSetSwitch('EDIT_OFF')
-                        plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                    })
-                }
+            }
+
+            if (mode.value === 'ocx') {
+                plugin.RetryStartChlView(rowData.id, rowData.name, () => {
+                    const sendXML1 = OCX_XML_MaskAreaSetSwitch('NONE') // todo 只下发none会有问题，可以编辑
+                    plugin.ExecuteCmd(sendXML1)
+
+                    const sendXML2 = OCX_XML_MaskAreaSetSwitch('EDIT_OFF')
+                    plugin.ExecuteCmd(sendXML2)
+                })
             }
             setOcxData(rowData)
         }
@@ -425,14 +422,14 @@ export default defineComponent({
         })
 
         onBeforeUnmount(() => {
-            if (ready.value) {
-                if (mode.value === 'ocx') {
-                    const sendXML = OCX_XML_StopPreview('ALL')
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                } else {
-                    maskDrawer?.destroy()
-                    maskDrawer = undefined
-                }
+            if (mode.value === 'ocx') {
+                const sendXML = OCX_XML_StopPreview('ALL')
+                plugin.ExecuteCmd(sendXML)
+            }
+
+            if (mode.value === 'h5') {
+                maskDrawer?.destroy()
+                maskDrawer = undefined
             }
         })
 

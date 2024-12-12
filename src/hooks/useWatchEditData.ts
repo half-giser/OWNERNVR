@@ -4,15 +4,15 @@
  * @Description: 监听表单发生变化
  */
 export const useWatchEditData = (obj: Ref<any>) => {
-    const disabled = ref(false)
-    const mounted = ref(false)
+    const disabled = ref(true)
+    const ready = ref(false)
 
     /**
      * @description 开始侦听数据的变化
      */
     const listen = () => {
         nextTick(() => {
-            mounted.value = true
+            ready.value = true
         })
     }
 
@@ -20,7 +20,7 @@ export const useWatchEditData = (obj: Ref<any>) => {
      * @description 在获取数据前重置侦听
      */
     const reset = () => {
-        mounted.value = false
+        ready.value = false
         disabled.value = true
     }
 
@@ -36,7 +36,7 @@ export const useWatchEditData = (obj: Ref<any>) => {
     watch(
         obj,
         () => {
-            if (mounted.value) {
+            if (ready.value) {
                 disabled.value = false
             }
         },
@@ -49,6 +49,7 @@ export const useWatchEditData = (obj: Ref<any>) => {
         listen,
         reset,
         disabled,
+        ready,
         update,
     }
 }

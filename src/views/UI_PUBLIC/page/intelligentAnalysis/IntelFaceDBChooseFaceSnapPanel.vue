@@ -5,23 +5,16 @@
 -->
 <template>
     <div class="snap">
-        <div
-            class="base-btn-box"
-            span="2"
-        >
-            <div>
-                <BaseDateRange
-                    :model-value="formData.dateRange"
-                    :type="pageData.dateRangeType"
-                    @change="changeDateRange"
-                />
-            </div>
-            <div>
-                <BaseDateTab
-                    :model-value="formData.dateRange"
-                    @change="changeDateRange"
-                />
-            </div>
+        <div class="base-btn-box space-between">
+            <BaseDateRange
+                :model-value="formData.dateRange"
+                :type="pageData.dateRangeType"
+                @change="changeDateRange"
+            />
+            <BaseDateTab
+                :model-value="formData.dateRange"
+                @change="changeDateRange"
+            />
         </div>
         <div class="chl">
             <span class="chl-title">{{ Translate('IDCS_CHANNEL') }}</span>
@@ -50,22 +43,17 @@
                     </IntelBaseFaceItem>
                 </div>
             </el-scrollbar>
-            <div
-                class="base-btn-box padding"
-                span="2"
-            >
+            <div class="base-btn-box space-between padding">
                 <div>
                     <span v-show="multiple">{{ Translate('IDCS_SELECTED_NUM_D').formatForLang(formData.faceIndex.length) }}</span>
                 </div>
-                <div>
-                    <el-pagination
-                        v-model:current-page="formData.pageIndex"
-                        v-model:page-size="formData.pageSize"
-                        :page-sizes="[formData.pageSize]"
-                        :total="listData.length"
-                        @current-change="changeFacePage"
-                    />
-                </div>
+                <BasePagination
+                    v-model:current-page="formData.pageIndex"
+                    v-model:page-size="formData.pageSize"
+                    :page-sizes="[formData.pageSize]"
+                    :total="listData.length"
+                    @current-change="changeFacePage"
+                />
             </div>
         </div>
         <BaseTableSelectPop

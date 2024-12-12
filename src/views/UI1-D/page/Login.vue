@@ -53,10 +53,7 @@
                         :label="Translate(item.label)"
                     />
                 </el-radio-group>
-                <div
-                    class="login-btns"
-                    span="center"
-                >
+                <div class="login-btns">
                     <el-button
                         class="login-submit"
                         size="large"

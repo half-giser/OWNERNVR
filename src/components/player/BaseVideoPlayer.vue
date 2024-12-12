@@ -57,7 +57,10 @@
                 <canvas class="play-canvas"></canvas>
             </div>
             <div class="overlay">
-                <div class="osd">
+                <div
+                    v-show="item.isOsd"
+                    class="osd"
+                >
                     <BaseImgSprite
                         class="osd-icon"
                         file="inteligenceState"
@@ -132,13 +135,14 @@
                     :key="posKey"
                     :style="{ color: posItem.color }"
                     class="pos-item"
-                    >{{ posItem.text }}</span
                 >
+                    {{ posItem.text }}
+                </span>
             </div>
             <div
                 class="chlip"
                 :class="{
-                    hide: !item.isChlIp,
+                    hide: !item.isChlIp || !item.isOsd,
                     invisible: !item.isChlIpVisible,
                 }"
             >
@@ -335,6 +339,7 @@ const pageData = ref(
             isZoom3D: false, // 3D功能开关
             isZoomIcon: true,
             zoomIconData: zoomList[0],
+            isOsd: false,
             isAudioIcon: false,
             isPtzIcon: false,
             isInteligenceIcon: false,
@@ -1092,13 +1097,7 @@ const toggleRecordStatus = (winIndex: number, recordTypes: string[], bool: boole
  */
 const toggleOSD = (bool: boolean) => {
     pageData.value.forEach((item) => {
-        item.isInteligenceIcon = bool
-        item.isMotionIcon = bool
-        item.isRecordIcon = bool
-        item.isZoomIcon = bool
-        item.isPtzIcon = bool
-        item.isAudioIcon = bool
-        item.isChlIp = bool
+        item.isOsd = bool
     })
 }
 

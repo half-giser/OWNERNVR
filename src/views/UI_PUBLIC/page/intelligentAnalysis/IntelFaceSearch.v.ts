@@ -1520,15 +1520,6 @@ export default defineComponent({
             getUniqueKey,
             register,
             matchList,
-            BackupPop,
-            BackupLocalPop,
-            // sliceTableDataWithDateColsSpan,
-            IntelBaseSnapItem,
-            IntelBaseSnapPop,
-            IntelFaceDBSnapRegisterPop,
-            IntelBaseFaceMatchPop,
-            IntelFaceSearchChooseFacePop,
-            IntelFaceSearchTrackMapPanel,
         }
     },
 })

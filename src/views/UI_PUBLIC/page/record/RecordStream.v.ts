@@ -10,11 +10,13 @@ export default defineComponent({
         RecordBaseStreamTable,
     },
     setup() {
+        const route = useRoute()
+
         const pageData = ref({
             mode: '',
             init: false,
         })
-        const route = useRoute()
+
         const updateMode = () => {
             pageData.value.mode = route.path
             // 对mode进行处理，获取最后一个/后面的字符串
@@ -32,7 +34,6 @@ export default defineComponent({
 
         return {
             pageData,
-            RecordBaseStreamTable,
         }
     },
 })

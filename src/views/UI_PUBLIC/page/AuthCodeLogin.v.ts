@@ -5,6 +5,7 @@
  */
 import type { FormRules } from 'element-plus'
 import { AuthCodeLoginForm } from '@/types/apiType/user'
+import progress from '@bassist/progress'
 
 export default defineComponent({
     setup() {
@@ -154,6 +155,7 @@ export default defineComponent({
                     break
             }
             clearAuInfo()
+            progress.done()
             pageData.value.errorMsg = errorMsg
             pageData.value.btnDisabled = false
         }
@@ -348,7 +350,7 @@ export default defineComponent({
          */
         const getAuthCode = () => {
             openLoading()
-            pluginStore.manuaClosePlugin = false
+            pluginStore.manuaClosePlugin = true
             pageData.value.errorMsg = ''
             userSession.p2pSessionId = null
             Plugin.DisposePlugin()
@@ -371,6 +373,7 @@ export default defineComponent({
                 handlerErrorCode(536870941)
                 return
             }
+            progress.start()
             pageData.value.btnDisabled = true
             pageData.value.errorMsg = ''
             userSession.calendarType = formData.value.calendarType
@@ -390,6 +393,7 @@ export default defineComponent({
 
         onBeforeUnmount(() => {
             Plugin.SetLoginTypeCallback()
+            Plugin.SetLoginErrorCallback()
             userSession.refreshLoginPage = false
         })
 
@@ -400,7 +404,6 @@ export default defineComponent({
             changeLang,
             formData,
             rules,
-            handleLogin,
             expireTime,
             formRef,
             verify,

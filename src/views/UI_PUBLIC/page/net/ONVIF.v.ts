@@ -222,7 +222,6 @@ export default defineComponent({
             addUser,
             editUser,
             confirmUser,
-            ONVIFUserAddPop,
         }
     },
 })

@@ -22,10 +22,7 @@
                 </el-radio-group>
             </el-form-item>
             <el-form-item>{{ pageData.factoryResetTip }}</el-form-item>
-            <div
-                class="base-btn-box padding"
-                span="start"
-            >
+            <div class="base-btn-box flex-start padding">
                 <el-button @click="verify">{{ Translate('IDCS_RECOVERY_DEFAULT_SET') }}</el-button>
             </div>
         </el-form>

@@ -6,10 +6,26 @@
 const useNotification = () => {
     const layoutStore = useLayoutStore()
 
-    const openNotify = (message: string) => {
-        layoutStore.notifications.push(message)
+    /**
+     * @description 显示通知
+     * @param {string} message 消息
+     * @param {boolean} cleanOldMessage 是否清空之前的消息
+     */
+    const openNotify = (message: string | string[], cleanUpHistory = false) => {
+        if (cleanUpHistory) {
+            closeNotify()
+        }
+
+        if (typeof message === 'string') {
+            layoutStore.notifications.push(message)
+        } else {
+            layoutStore.notifications.push(...message)
+        }
     }
 
+    /**
+     * @description 关闭通知框，并清空消息
+     */
     const closeNotify = () => {
         layoutStore.notifications = []
     }

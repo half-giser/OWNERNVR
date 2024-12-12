@@ -46,7 +46,20 @@ const useStateSubscribe = (
         type: string[]
         isRecording: boolean
     }
+
     const recordStatusMap = ref<Record<string, RecordStatusItem>>({})
+
+    const ready = computed(() => {
+        return playerRef.value?.ready || false
+    })
+
+    const mode = computed(() => {
+        if (!ready.value) {
+            return ''
+        }
+
+        return playerRef.value?.mode
+    })
 
     /**
      * @description 订阅状态
@@ -59,7 +72,7 @@ const useStateSubscribe = (
             },
             onmessage(data: any) {
                 handleChlState(data.channel_state_info)
-                handleAlarmInfo(data.alarm_state_info)
+                handleAlarmState(data.alarm_state_info)
             },
         })
     }
@@ -85,12 +98,14 @@ const useStateSubscribe = (
         }
 
         const chlOnlineList = chlRef.value?.getOnlineChlList() || []
+        const recordList: RecordState[] = []
 
         // 火点检测/温度检测录像类型映射转换
         const recordTypeMap: Record<string, string> = {
             smart_fire_point: 'fire_point',
             smart_temperature: 'temperature',
         }
+
         chlStateInfo.forEach((item) => {
             const isOnline = item.connect_state
             const chlId = item.channel_id
@@ -105,7 +120,11 @@ const useStateSubscribe = (
             })
             const findChlIndex = chlOnlineList.indexOf(chlId)
             if (isOnline) {
-                handleRecordStatus(chlId, tempRecordTypes, isRecording)
+                recordList.push({
+                    id: chlId,
+                    recType: tempRecordTypes,
+                    isRecording,
+                })
                 if (findChlIndex === -1) {
                     chlOnlineList.push(chlId)
                 }
@@ -115,6 +134,8 @@ const useStateSubscribe = (
                 }
             }
         })
+
+        handleRecordState(recordList)
         chlRef.value?.setOnlineChlList(chlOnlineList)
     }
 
@@ -135,7 +156,7 @@ const useStateSubscribe = (
      * @description 处理报警信息
      * @param {AlarmState[]} alarmInfo
      */
-    const handleAlarmInfo = (alarmInfo?: AlarmState[]) => {
+    const handleAlarmState = (alarmInfo?: AlarmState[]) => {
         if (!alarmInfo || !alarmInfo.length) {
             return
         }
@@ -150,7 +171,10 @@ const useStateSubscribe = (
             const chlList = chlRef.value?.getChlMap() || {}
             const find = chlList[chlId]
             if (find) {
-                playerRef.value?.player.setAlarmStatus(chlId, alarmType, isAlarming)
+                if (mode.value === 'h5') {
+                    playerRef.value?.player.setAlarmStatus(chlId, alarmType, isAlarming)
+                }
+
                 // 缓存每个通道报警状态
                 if (!alarmStatusMap.value[chlId]) {
                     alarmStatusMap.value[chlId] = {}
@@ -160,48 +184,60 @@ const useStateSubscribe = (
         })
     }
 
+    interface RecordState {
+        id: string
+        recType: string[]
+        isRecording: boolean
+    }
+
     /**
      * @description 根据通道录像状态更新录像osd
      * @param {string} chlId
      * @param {Array} recordTypes
      * @param {Boolean} isRecording
      */
-    const handleRecordStatus = (chlId: string, recordTypes: string[], isRecording: boolean) => {
-        playerRef.value?.player.setRecordStatus(chlId, recordTypes, isRecording)
-        recordStatusMap.value[chlId] = {
-            type: recordTypes,
-            isRecording,
-        }
-        handleManualRecBtnStatus(chlId, recordTypes, isRecording)
-    }
+    const handleRecordState = (recordInfo: RecordState[]) => {
+        recordInfo.forEach((item) => {
+            if (mode.value === 'h5') {
+                playerRef.value?.player.setRecordStatus(item.id, item.recType, item.isRecording)
+            }
 
-    /**
-     * @description 更新手动录像操作按钮的状态
-     * @param {string} chlId
-     * @param {Array} recordTypes
-     * @param {Boolean} isRecording
-     */
-    const handleManualRecBtnStatus = (chlId: string, recordTypes: string[], isRecording: boolean) => {
-        const currentRemoteRecBtnStatus = isRecording && recordTypes.length > 0 && recordTypes.includes('manual')
-        recordCallback(chlId, currentRemoteRecBtnStatus)
+            recordStatusMap.value[item.id] = {
+                type: item.recType,
+                isRecording: item.isRecording,
+            }
 
-        const resultArr: string[] = []
+            const currentRemoteRecBtnStatus = item.isRecording && item.recType.length > 0 && item.recType.includes('manual')
+            recordCallback(item.id, currentRemoteRecBtnStatus)
+        })
+
+        const recordingChls: string[] = []
+        const cmdParms: { id: string; recType: string }[] = []
+
         Object.entries(recordStatusMap.value).forEach(([chlId, item]) => {
             if (item.type.includes('manual') && item.isRecording) {
-                resultArr.push(chlId)
+                recordingChls.push(chlId)
             }
+            cmdParms.push({
+                id: chlId,
+                recType: item.isRecording ? item.type.join(',') : 'noStatus',
+            })
         })
-        const isActiveRemoteRecBtn = false // 底部菜单.IsActiveAllRemoteRec()
-        if (isActiveRemoteRecBtn && resultArr.length) {
-            return
+
+        if (mode.value === 'ocx') {
+            const sendXML = OCX_XML_SetRecStatus(cmdParms)
+            playerRef.value?.plugin.ExecuteCmd(sendXML)
         }
+
         const onlineChlCount = (chlRef.value?.getOnlineChlList() || []).length
-        const allRemoteRecBtnStatus = !!resultArr.length && onlineChlCount === resultArr.length
-        recordRemoteCallback(allRemoteRecBtnStatus)
+        recordRemoteCallback(!!onlineChlCount && !!recordingChls.length)
     }
 
-    onMounted(() => {
-        createStateSubscribe()
+    const stopWatch = watchEffect(() => {
+        if (ready.value) {
+            createStateSubscribe()
+            stopWatch()
+        }
     })
 
     onBeforeUnmount(() => {
@@ -424,15 +460,16 @@ export default defineComponent({
         })
 
         // 播放模式
-        const mode = computed(() => {
-            if (!playerRef.value) {
-                return ''
-            }
-            return playerRef.value.mode
-        })
-
         const ready = computed(() => {
             return playerRef.value?.ready || false
+        })
+
+        // 播放模式
+        const mode = computed(() => {
+            if (!ready.value) {
+                return ''
+            }
+            return playerRef.value!.mode
         })
 
         const recType = useRecType(mode)
@@ -481,7 +518,7 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 if (isHttpsLogin()) {
-                    openNotify(formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`))
+                    openNotify(formatHttpsTips(`${Translate('IDCS_LIVE_PREVIEW')}/${Translate('IDCS_TARGET_DETECTION')}`), true)
                 }
 
                 if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
@@ -492,12 +529,12 @@ export default defineComponent({
             if (mode.value === 'ocx') {
                 if (userSession.appType === 'STANDARD' && isHttpsLogin()) {
                     // 本地https访问时，提示不支持目标检测（依赖websocket与设备端的通信，仅支持http）
-                    openNotify(formatHttpsTips(Translate('IDCS_TARGET_DETECTION')))
+                    openNotify(formatHttpsTips(Translate('IDCS_TARGET_DETECTION')), true)
                 }
 
                 {
                     const sendXML = OCX_XML_SetPluginModel('Interactive', 'Live')
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.ExecuteCmd(sendXML)
                 }
 
                 const sendXML = OCX_XML_SetProperty({
@@ -507,12 +544,13 @@ export default defineComponent({
                     showVideoLossMessage: systemCaps.showVideoLossMessage,
                     productModel: systemCaps.productModel,
                 })
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
-                // 视频预览默认铺满显示，设置走廊模式旋转时，需要选择“原始比例”显示
-                if (systemCaps.supportOriginalDisplay) {
-                    pageData.value.winData.original = true
-                }
+                plugin.ExecuteCmd(sendXML)
             }
+
+            // 视频预览默认铺满显示，设置走廊模式旋转时，需要选择“原始比例”显示
+            displayOriginal(true)
+
+            toggleOSD(true)
         }
 
         /**
@@ -525,7 +563,7 @@ export default defineComponent({
             const iconSwitch = $('content/iconSwitch').text().bool()
             const addressSwitch = $('content/addressSwitch').text().bool()
             const sendXML = OCX_XML_SetPropertyOSD(nameSwitch, iconSwitch, addressSwitch)
-            plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+            plugin.ExecuteCmd(sendXML)
         }
 
         /**
@@ -534,7 +572,7 @@ export default defineComponent({
          * @param {Object} winData
          */
         const updateWinData = (index: number, winData: TVTPlayerWinDataListItem) => {
-            if (playerRef.value && index === playerRef.value.player.getSelectedWinIndex()) {
+            if (playerRef.value && index === player?.getSelectedWinIndex()) {
                 pageData.value.winData = {
                     PLAY_STATUS: winData.PLAY_STATUS,
                     winIndex: winData.winIndex,
@@ -563,6 +601,11 @@ export default defineComponent({
         const stopInitialPlay = watchEffect(() => {
             if (Object.keys(pageData.value.chlMap).length && ready.value) {
                 nextTick(() => {
+                    if (isHttpsLogin() && mode.value === 'h5') {
+                        stopInitialPlay()
+                        return
+                    }
+
                     if (layoutStore.liveLastChlList.length) {
                         const curerntOnlineList = chlRef.value?.getOnlineChlList() || []
                         const onlineList = layoutStore.liveLastChlList.filter((item) => {
@@ -610,9 +653,11 @@ export default defineComponent({
             if (mode.value === 'h5') {
                 player.stopAll()
                 player.setSplit(segNum)
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_SetScreenMode(segNum, type)
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
 
             nextTick(() => {
@@ -641,11 +686,13 @@ export default defineComponent({
                     }
                     player.play(params)
                 })
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 chlList.forEach((chlID, index) => {
                     {
                         const sendXML = OCX_XML_SelectScreen(index)
-                        plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                        plugin.ExecuteCmd(sendXML)
                     }
 
                     {
@@ -654,10 +701,10 @@ export default defineComponent({
                                 chlIp: pageData.value.chlMap[chlID].chlIp,
                                 poeSwitch: pageData.value.chlMap[chlID].poeSwitch,
                             })
-                            plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                            plugin.ExecuteCmd(sendXML)
                         } else {
                             const sendXML = OCX_XML_SetViewChannelID(chlID, pageData.value.chlMap[chlID].value)
-                            plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                            plugin.ExecuteCmd(sendXML)
                         }
                     }
                 })
@@ -675,15 +722,20 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 const winIndex = player.getSelectedWinIndex()
-                stopPollingChlGroup(winIndex)
 
                 // 当前点击的通道与正在选中播放的窗口相同
                 if (chlID === pageData.value.winData.chlID) {
                     return
                 }
 
+                stopPollingChlGroup(winIndex)
+
                 // 点击的通道正处于播放状态
                 if (pageData.value.playingList.includes(chlID)) {
+                    if (pageData.value.playingList.length === 1) {
+                        return
+                    }
+
                     const winData = player.getWinData()
                     const find = winData.find((item) => item.CHANNEL_INFO?.chlID === chlID && !item.isPolling)
 
@@ -716,40 +768,47 @@ export default defineComponent({
                     audioStatus: false,
                     volume: pageData.value.volume,
                 })
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 const currentChlID = pageData.value.winData.chlID
                 const currentChlWinIndex = pageData.value.winData.winIndex
-
-                stopPollingChlGroup(currentChlWinIndex)
 
                 // 当前点击的通道与正在选中播放的窗口相同
                 if (chlID === pageData.value.winData.chlID) {
                     return
                 }
 
+                stopPollingChlGroup(currentChlWinIndex)
+
                 // 点击的通道正处于播放状态
                 if (pageData.value.playingList.includes(chlID)) {
+                    console.log(pageData.value.playingList)
+                    if (pageData.value.playingList.length === 1) {
+                        return
+                    }
+
                     const find = cacheWinMap.find((item) => item.chlID === chlID && !item.isPolling)
                     if (find) {
                         const findIndex = find.winIndex
                         {
                             const sendXML = OCX_XML_SelectScreen(findIndex)
-                            plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                            plugin.ExecuteCmd(sendXML)
                         }
 
                         {
                             const sendXML = OCX_XML_SetViewChannelID(currentChlID, pageData.value.chlMap[currentChlID].value)
-                            plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                            plugin.ExecuteCmd(sendXML)
                         }
 
                         {
                             const sendXML = OCX_XML_SelectScreen(currentChlWinIndex)
-                            plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                            plugin.ExecuteCmd(sendXML)
                         }
 
                         {
                             const sendXML = OCX_XML_SetViewChannelID(chlID, pageData.value.chlMap[chlID].value)
-                            plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                            plugin.ExecuteCmd(sendXML)
                         }
                     }
 
@@ -757,7 +816,7 @@ export default defineComponent({
                 }
 
                 const sendXML = OCX_XML_SetViewChannelID(chlID, pageData.value.chlMap[chlID].value)
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -781,19 +840,18 @@ export default defineComponent({
 
                 const startPollingChlGroup = () => {
                     const chl = chlList[currentIndex % chlList.length]
-                    if (playerRef.value) {
-                        playerRef.value.player.play({
-                            chlID: chl.id,
-                            winIndex,
-                            streamType: 2,
-                            isSelect: false,
-                            callback: () => startPollingChlGroup,
-                            audioStatus: false,
-                            isPolling: true,
-                            volume: pageData.value.volume,
-                        })
-                        playerRef.value.player.screen.setPollIndex(winIndex)
-                    }
+                    player.play({
+                        chlID: chl.id,
+                        winIndex,
+                        streamType: 2,
+                        isSelect: false,
+                        callback: () => startPollingChlGroup,
+                        audioStatus: false,
+                        isPolling: true,
+                        volume: pageData.value.volume,
+                    })
+                    player.screen.setPollIndex(winIndex)
+
                     chlGroupTimer[winIndex] = setTimeout(() => {
                         currentIndex++
                         startPollingChlGroup()
@@ -801,9 +859,11 @@ export default defineComponent({
                 }
 
                 startPollingChlGroup()
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_CallChlGroup(chlList, groupId, dwellTime)
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -822,7 +882,9 @@ export default defineComponent({
                     clearTimeout(chlGroupTimer[index])
                     chlGroupTimer[index] = 0
                 }
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 let sendXML = ''
                 if (index === -1) {
                     sendXML = OCX_XML_StopPreview('ALL')
@@ -831,7 +893,7 @@ export default defineComponent({
                 } else {
                     sendXML = OCX_XML_StopPreview(index)
                 }
-                plugin?.GetVideoPlugin()?.ExecuteCmd(sendXML)
+                plugin?.ExecuteCmd(sendXML)
             }
         }
 
@@ -848,11 +910,14 @@ export default defineComponent({
             stopPollingChlGroup()
 
             pageData.value.split = segNum
+
             if (mode.value === 'h5') {
                 player.setSplit(segNum)
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_SetScreenMode(segNum, segNum === 10 ? 2 : 1)
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
 
             playChls(arr.map((item) => item.chlId))
@@ -881,17 +946,8 @@ export default defineComponent({
                 pageData.value.playingList.push(chlId)
             }
 
-            const alaramStatus = stateSubscribe.alarmStatusMap.value[chlId]
-            if (alaramStatus) {
-                Object.entries(alaramStatus).forEach(([type, bool]) => {
-                    playerRef.value!.player.setAlarmStatus(chlId, type, bool)
-                })
-            }
-
-            const recordStatus = stateSubscribe.recordStatusMap.value[chlId]
-            if (recordStatus) {
-                playerRef.value!.player.setRecordStatus(chlId, recordStatus.type, recordStatus.isRecording)
-            }
+            setAlarmStatus(chlId)
+            setRecStatus(chlId)
         }
 
         // UI1-D UI1-G 选择高画质登录
@@ -1017,10 +1073,12 @@ export default defineComponent({
                 } else {
                     player.stopAllRecord()
                 }
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 pageData.value.winData.localRecording = bool
                 const sendXML = OCX_XML_AllRecSwitch(bool ? 'ON' : 'OFF')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -1057,7 +1115,9 @@ export default defineComponent({
                     player.setPollingState(false)
                     player.stopAll()
                 }
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 if (bool) {
                     const chlIds = (chlRef.value?.getOnlineChlList() || []).slice(0, pageData.value.split)
                     const chlNames = chlIds.map((item) => pageData.value.chlMap[item].value)
@@ -1069,14 +1129,14 @@ export default defineComponent({
                             }
                         })
                         const sendXML = OCX_XML_SetAllViewChannelId(chlIds, chlNames, chlPoe)
-                        plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                        plugin.ExecuteCmd(sendXML)
                     } else {
                         const sendXML = OCX_XML_SetAllViewChannelId(chlIds, chlNames)
-                        plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                        plugin.ExecuteCmd(sendXML)
                     }
                 } else {
                     const sendXML = OCX_XML_StopPreview('ALL')
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.ExecuteCmd(sendXML)
                 }
             }
             pageData.value.allPreview = bool
@@ -1098,7 +1158,7 @@ export default defineComponent({
                     setAudio(false)
                 }
                 const sendXML = OCX_XML_TalkSwitch(bool ? 'ON' : 'OFF')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
             pageData.value.allTalk = bool
         }
@@ -1114,7 +1174,7 @@ export default defineComponent({
 
             if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_SetStreamType('ALL', type)
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
             pageData.value.winData.streamType = type
         }
@@ -1127,12 +1187,59 @@ export default defineComponent({
             if (!ready.value) {
                 return
             }
+
             pageData.value.osd = bool
+
             if (mode.value === 'h5') {
                 player.toggleOSD(bool)
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_OSDSwitch(bool ? 'ON' : 'OFF')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
+
+                if (bool) {
+                    setRecStatus()
+                }
+            }
+        }
+
+        /**
+         * @description 设置报警状态OSD
+         * @param {string} chlId h5模式需传chlId，ocx不需要
+         */
+        const setAlarmStatus = (chlId = '') => {
+            if (mode.value === 'h5') {
+                const alaramStatus = stateSubscribe.alarmStatusMap.value[chlId]
+                if (alaramStatus) {
+                    Object.entries(alaramStatus).forEach(([type, bool]) => {
+                        playerRef.value!.player.setAlarmStatus(chlId, type, bool)
+                    })
+                }
+            }
+        }
+
+        /**
+         * @description 设置录像状态OSD
+         * @param {string} chlId h5模式需传chlId，ocx不需要
+         */
+        const setRecStatus = (chlId = '') => {
+            if (mode.value === 'h5') {
+                const recordStatus = stateSubscribe.recordStatusMap.value[chlId]
+                if (recordStatus) {
+                    playerRef.value!.player.setRecordStatus(chlId, recordStatus.type, recordStatus.isRecording)
+                }
+            }
+
+            if (mode.value === 'ocx') {
+                const cmdParms = Object.entries(stateSubscribe.recordStatusMap.value).map((item) => {
+                    return {
+                        id: item[0],
+                        recType: item[1].isRecording ? item[1].type.join(',') : 'noStatus',
+                    }
+                })
+                const sendXML = OCX_XML_SetRecStatus(cmdParms)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -1146,9 +1253,11 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 player.fullscreen()
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_FullScreen()
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -1193,9 +1302,11 @@ export default defineComponent({
                     openNotify(Translate('IDCS_IMG_UNENCRYPTED_TIP'))
                     localStorage.setItem(LocalCacheKey.KEY_SNAP_PIC_NOT_ENCRYPTED, 'true')
                 }
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_TakePhotoByWinIndex(pageData.value.winData.winIndex)
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -1213,7 +1324,9 @@ export default defineComponent({
 
                 player.setPollingState(false, winIndex)
                 player.stop(winIndex)
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 stopPollingChlGroup(pageData.value.winData.winIndex)
                 pageData.value.winData.PLAY_STATUS = 'stop'
             }
@@ -1229,11 +1342,13 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 player.zoomOut(player.getSelectedWinIndex())
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 fisheyeRef.value?.exitAdjust(pageData.value.winData.chlID)
 
                 const sendXML = OCX_XML_MagnifyImg()
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -1247,11 +1362,13 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 player.zoomIn(player.getSelectedWinIndex())
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 fisheyeRef.value?.exitAdjust(pageData.value.winData.chlID)
 
                 const sendXML = OCX_XML_MinifyImg()
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -1266,9 +1383,11 @@ export default defineComponent({
             pageData.value.winData.original = bool
             if (mode.value === 'h5') {
                 player.displayOriginal(player.getSelectedWinIndex(), bool)
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_OriginalDisplaySwitch(pageData.value.winData.winIndex, bool)
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -1283,9 +1402,11 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 player.zoom3D(player.getSelectedWinIndex(), bool)
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_3DSwitch(bool)
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
             pageData.value.winData.magnify3D = bool
         }
@@ -1306,7 +1427,9 @@ export default defineComponent({
                     supportPtz: pageData.value.chlMap[pageData.value.winData.chlID].supportPtz,
                     volume: pageData.value.volume,
                 })
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 if (streamType === 1) {
                     openLoading(document.querySelector('.right-content') as HTMLElement)
 
@@ -1332,12 +1455,12 @@ export default defineComponent({
                         }
                     }
                     const sendXML = OCX_XML_SetStreamType(pageData.value.winData.winIndex, streamType, mainResolution.replace(/[x|X|*]/g, 'x'))
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.ExecuteCmd(sendXML)
 
                     closeLoading(document.querySelector('.right-content') as HTMLElement)
                 } else {
                     const sendXML = OCX_XML_SetStreamType(pageData.value.winData.winIndex, streamType)
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.ExecuteCmd(sendXML)
                 }
             }
         }
@@ -1359,9 +1482,11 @@ export default defineComponent({
                 } else {
                     player.stopRecord(player.getSelectedWinIndex())
                 }
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_RecSwitch(bool ? 'ON' : 'OFF')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -1386,9 +1511,11 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 player.setVolume(player.getSelectedWinIndex(), volume)
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_SetVolume(volume)
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -1408,7 +1535,9 @@ export default defineComponent({
                 } else {
                     player.closeAudio(player.getSelectedWinIndex())
                 }
-            } else if (mode.value === 'ocx') {
+            }
+
+            if (mode.value === 'ocx') {
                 if (userAuth.value.audio[pageData.value.winData.chlID] === false) {
                     openMessageBox({
                         type: 'info',
@@ -1426,10 +1555,10 @@ export default defineComponent({
                     }
 
                     const sendXML = OCX_XML_SetVolume(pageData.value.volume)
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.ExecuteCmd(sendXML)
                 } else {
                     const sendXML = OCX_XML_SetVolume(0)
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.ExecuteCmd(sendXML)
                 }
             }
         }
@@ -1451,7 +1580,7 @@ export default defineComponent({
                     setAudio(false)
                 }
                 const sendXML = OCX_XML_TalkSwitch(bool ? 'ON' : 'OFF', pageData.value.winData.chlID)
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -1467,7 +1596,7 @@ export default defineComponent({
 
             if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_SetFishEyeMode(installType, fishEyeMode)
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -1517,7 +1646,8 @@ export default defineComponent({
                         }
 
                         //设置通道是否显示POS信息
-                        plugin.GetVideoPlugin().ExecuteCmd(pos(true, chlId, winIndex))
+                        plugin.ExecuteCmd(pos(true, chlId, winIndex))
+                        setRecStatus()
                         break
                     case 'offline':
                         // openNotify(Translate("IDCS_NODE_NOT_ONLINE"))
@@ -1695,15 +1825,16 @@ export default defineComponent({
 
             stopPollingChlGroup()
 
-            if (plugin?.IsPluginAvailable() && mode.value === 'ocx' && ready.value) {
+            if (plugin?.IsPluginAvailable() && mode.value === 'ocx') {
                 // 离开时切换为一分屏，防止safari上其余用到插件的地方出现多分屏
                 {
                     const sendXML = OCX_XML_SetScreenMode(1)
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.ExecuteCmd(sendXML)
                 }
-            }
 
-            // plugin?.VideoPluginNotifyEmitter.removeListener(notify)
+                // 离开时关闭osd信息，防止pc其他带视频的地方显示两个通道名
+                toggleOSD(false)
+            }
         })
 
         return {
@@ -1751,14 +1882,6 @@ export default defineComponent({
             isSnapPanel,
             isFishEyePanel,
             notify,
-            LiveChannelPanel,
-            LiveScreenPanel,
-            LiveControlPanel,
-            LiveAsidePanel,
-            LiveLensPanel,
-            LivePtzPanel,
-            LiveSnapPanel,
-            LiveFishEyePanel,
         }
     },
 })

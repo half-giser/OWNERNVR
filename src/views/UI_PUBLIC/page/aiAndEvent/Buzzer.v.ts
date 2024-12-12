@@ -40,7 +40,7 @@ export default defineComponent({
                 </content>
             `
             const result = await editEventNotifyParam(sendXml)
-            commSaveResponseHadler(result)
+            commSaveResponseHandler(result)
 
             closeLoading()
         }

@@ -85,7 +85,7 @@ export default defineComponent({
                 const result = await editPPPoECfg(sendXml)
 
                 closeLoading()
-                commSaveResponseHadler(result)
+                commSaveResponseHandler(result)
             })
         }
 

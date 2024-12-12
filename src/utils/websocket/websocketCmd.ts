@@ -11,12 +11,12 @@ export const getWebsocketOpenUrl = () => {
     const host = window.location.host
     const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
     const userSession = useUserSessionStore()
-    if (import.meta.env.NODE_ENV === 'production') {
+    if (import.meta.env.PROD) {
         // 正式环境
         return `${wsProtocol}://${host}/requestWebsocketConnection?sessionID=${userSession.sessionId}`
     } else {
         // 调试模式
-        return `ws://${import.meta.env.VITE_APP_IP}/requestWebsocketConnection?sessionID=${userSession.sessionId}`
+        return `${wsProtocol}://${import.meta.env.VITE_APP_IP}/requestWebsocketConnection?sessionID=${userSession.sessionId}`
     }
 }
 

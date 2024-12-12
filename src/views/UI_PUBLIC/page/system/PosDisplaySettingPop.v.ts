@@ -299,7 +299,7 @@ export default defineComponent({
         const handlePlayerReady = () => {
             if (playerRef.value?.mode === 'ocx') {
                 const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
-                playerRef.value.plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                playerRef.value.plugin.ExecuteCmd(sendXML)
             }
 
             if (playerRef.value?.mode === 'h5') {
@@ -360,13 +360,14 @@ export default defineComponent({
                     RGB: colorTableList.value[pageData.value.colorTableIndex].colorList[index % colorTableList.value[pageData.value.colorTableIndex].colorList.length].replace(/RGB/, ''),
                 }
             })
+
             if (playerRef.value?.mode === 'h5') {
                 posDrawer.setPosList(ocxData)
             }
 
             if (playerRef.value?.mode === 'ocx') {
                 const sendXml = OCX_XML_SETPosColor(ocxData)
-                playerRef.value.plugin.GetVideoPlugin().ExecuteCmd(sendXml)
+                playerRef.value.plugin.ExecuteCmd(sendXml)
             }
         }
 
@@ -453,7 +454,7 @@ export default defineComponent({
 
             displayPosition.value = { ...prop.data.displayPosition }
             drawingPosition.value = { ...prop.data.displayPosition }
-            colorTableList.value = (prop.colorData as SystemPostColorData[]).map((item, index) => {
+            colorTableList.value = prop.colorData.map((item, index) => {
                 return {
                     index,
                     chlId: item.chlId,
@@ -486,8 +487,6 @@ export default defineComponent({
             changeColor,
             formatChar,
             handleCanvasMouseDown,
-            handleCanvasMouseMove,
-            handleCanvasMouseUp,
             verify,
             close,
             play,

@@ -55,17 +55,17 @@ export default defineComponent({
 
         const formData = ref(new PlaybackSearchImgForm())
 
-        const plugin = usePluginHook({
+        const plugin = setupPlugin({
             onReady: (mode, plugin) => {
                 if (mode.value === 'ocx') {
                     const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Playback')
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.ExecuteCmd(sendXML)
                 }
             },
             onDestroy: (mode, plugin) => {
                 if (mode.value === 'ocx') {
                     const sendXML = OCX_XML_StopPreview('ALL')
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.ExecuteCmd(sendXML)
                 }
             },
         })
@@ -440,8 +440,6 @@ export default defineComponent({
             handlePlayerNext,
             changePageIndex,
             changePageSize,
-            BackupImgPop,
-            BackupImgPlayerPop,
         }
     },
 })

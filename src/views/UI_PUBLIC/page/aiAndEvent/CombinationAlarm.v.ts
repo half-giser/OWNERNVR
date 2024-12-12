@@ -54,17 +54,17 @@ export default defineComponent({
             totalCount: 0,
             CombinedALarmInfo: '',
 
-            recordIsShow: false,
-            snapIsShow: false,
-            alarmOutIsShow: false,
+            isRecordPop: false,
+            isSnapPop: false,
+            isAlarmOutPop: false,
 
             // 当前打开dialog行的index
             triggerDialogIndex: 0,
 
             // 预置点名称配置
-            isPresetPopOpen: false,
+            isPresetPop: false,
 
-            isCombinedAlarmPopOpen: false,
+            isCombinedAlarmPop: false,
             combinedAlarmLinkedId: '',
             combinedAlarmLinkedList: [] as AlarmCombinedItemDto[],
             currRowFaceObj: {} as Record<string, Record<string, AlarmCombinedFaceMatchDto>>,
@@ -278,11 +278,11 @@ export default defineComponent({
         }
 
         // 名称修改时的处理
-        const nameFocus = (name: string) => {
+        const focusName = (name: string) => {
             originalName.value = name
         }
 
-        const nameBlur = (row: AlarmCombinedDto) => {
+        const blurName = (row: AlarmCombinedDto) => {
             const name = row.name
             if (!checkChlName(name)) {
                 openMessageBox({
@@ -313,7 +313,7 @@ export default defineComponent({
         }
 
         // 回车键失去焦点
-        const enterBlur = (event: Event) => {
+        const keydownEnterName = (event: Event) => {
             ;(event.target as HTMLElement).blur()
         }
 
@@ -322,10 +322,10 @@ export default defineComponent({
             pageData.value.combinedAlarmLinkedId = row.id
             pageData.value.combinedAlarmLinkedList = row.combinedAlarm.item
             pageData.value.currRowFaceObj = pageData.value.faceObj[row.id]
-            pageData.value.isCombinedAlarmPopOpen = true
+            pageData.value.isCombinedAlarmPop = true
         }
 
-        const handleCombinedAlarmLinkedList = (currId: string, combinedAlarmItems: AlarmCombinedItemDto[], entity: string, obj: AlarmCombinedFaceMatchDto) => {
+        const confirmCombinedAlarm = (currId: string, combinedAlarmItems: AlarmCombinedItemDto[], entity: string, obj: AlarmCombinedFaceMatchDto) => {
             tableData.value.some((item) => {
                 if (item.id === currId) {
                     item.combinedAlarm.item = combinedAlarmItems
@@ -338,23 +338,23 @@ export default defineComponent({
             })
         }
 
-        const combinedAlarmClose = (id: string) => {
-            pageData.value.isCombinedAlarmPopOpen = false
+        const closeCombinedAlarmPop = (id: string) => {
+            pageData.value.isCombinedAlarmPop = false
             tableData.value.forEach((item) => {
                 if (item.id === id) {
-                    changeCombinedALarmInfo(item)
+                    changeCombinedAlarmInfo(item)
                     if (!item.combinedAlarm.item.length) item.combinedAlarm.switch = false
                 }
             })
         }
 
-        const combinedAlarmCheckChange = (row: AlarmCombinedDto) => {
+        const switchCombinedAlarm = (row: AlarmCombinedDto) => {
             if (row.combinedAlarm.switch) {
                 openCombinedAlarmPop(row)
             } else {
                 row.combinedAlarm.item = []
             }
-            changeCombinedALarmInfo(row)
+            changeCombinedAlarmInfo(row)
         }
 
         const switchRecord = (index: number) => {
@@ -369,11 +369,11 @@ export default defineComponent({
         const openRecord = (index: number) => {
             tableData.value[index].record.switch = true
             pageData.value.triggerDialogIndex = index
-            pageData.value.recordIsShow = true
+            pageData.value.isRecordPop = true
         }
 
         const changeRecord = (index: number, data: SelectOption<string, string>[]) => {
-            pageData.value.recordIsShow = false
+            pageData.value.isRecordPop = false
             tableData.value[index].record = {
                 switch: !!data.length,
                 chls: cloneDeep(data),
@@ -392,11 +392,11 @@ export default defineComponent({
         const openSnap = (index: number) => {
             tableData.value[index].snap.switch = true
             pageData.value.triggerDialogIndex = index
-            pageData.value.snapIsShow = true
+            pageData.value.isSnapPop = true
         }
 
         const changeSnap = (index: number, data: SelectOption<string, string>[]) => {
-            pageData.value.snapIsShow = false
+            pageData.value.isSnapPop = false
             tableData.value[index].snap = {
                 switch: !!data.length,
                 chls: cloneDeep(data),
@@ -415,11 +415,11 @@ export default defineComponent({
         const openAlarmOut = (index: number) => {
             tableData.value[index].alarmOut.switch = true
             pageData.value.triggerDialogIndex = index
-            pageData.value.alarmOutIsShow = true
+            pageData.value.isAlarmOutPop = true
         }
 
         const changeAlarmOut = (index: number, data: SelectOption<string, string>[]) => {
-            pageData.value.alarmOutIsShow = false
+            pageData.value.isAlarmOutPop = false
             tableData.value[index].alarmOut = {
                 switch: !!data.length,
                 alarmOuts: cloneDeep(data),
@@ -438,18 +438,18 @@ export default defineComponent({
         const openPreset = (index: number) => {
             tableData.value[index].alarmOut.switch = true
             pageData.value.triggerDialogIndex = index
-            pageData.value.isPresetPopOpen = true
+            pageData.value.isPresetPop = true
         }
 
         const changePreset = (index: number, data: AlarmPresetItem[]) => {
-            pageData.value.isPresetPopOpen = false
+            pageData.value.isPresetPop = false
             tableData.value[index].preset = {
                 switch: !!data.length,
                 presets: cloneDeep(data),
             }
         }
 
-        const changeCombinedALarmInfo = (row: AlarmCombinedDto) => {
+        const changeCombinedAlarmInfo = (row: AlarmCombinedDto) => {
             let info = ''
             row.combinedAlarm.item.forEach((item, index) => {
                 if (index === 0) {
@@ -594,7 +594,7 @@ export default defineComponent({
             const combinedId: string[] = []
             const groupId: string[] = []
             const peaCombinedId: string[] = []
-            const peaGroupId = [] as string[]
+            const peaGroupId: string[] = []
             const tripwireCombinedId: string[] = []
             const tripwireGroupId: string[] = []
             tableData.value.forEach((item) => {
@@ -681,24 +681,16 @@ export default defineComponent({
         })
 
         return {
-            AlarmBasePresetPop,
-            AlarmBaseSnapPop,
-            AlarmBaseRecordPop,
-            AlarmBaseAlarmOutPop,
-            CombinationAlarmPop,
             pageData,
             tableData,
-            // 组合报警提示
-            changeCombinedALarmInfo,
-            // 名称修改
-            nameFocus,
-            nameBlur,
-            enterBlur,
-            // 组合报警
+            changeCombinedAlarmInfo,
+            focusName,
+            blurName,
+            keydownEnterName,
             openCombinedAlarmPop,
-            handleCombinedAlarmLinkedList,
-            combinedAlarmClose,
-            combinedAlarmCheckChange,
+            confirmCombinedAlarm,
+            closeCombinedAlarmPop,
+            switchCombinedAlarm,
             switchRecord,
             openRecord,
             changeRecord,

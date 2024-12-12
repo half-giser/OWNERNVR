@@ -93,11 +93,11 @@ export default defineComponent({
         })
         let reqFile: File
 
-        const plugin = usePluginHook({
+        const plugin = setupPlugin({
             onReady: (mode, plugin) => {
                 if (mode.value === 'ocx') {
                     const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.ExecuteCmd(sendXML)
                 }
             },
             onMessage: ($) => {
@@ -110,7 +110,7 @@ export default defineComponent({
                             importCert().then((result) => {
                                 const $res = queryXml(result)
                                 if ($res('status').text() === 'success') {
-                                    commSaveResponseHadler(result)
+                                    commSaveResponseHandler(result)
                                     getCertificate()
                                 } else {
                                     closeLoading()
@@ -313,7 +313,7 @@ export default defineComponent({
          */
         const handleOCXImport = () => {
             const sendXML = OCX_XML_OpenFileBrowser('OPEN_FILE', 'crt/*')
-            plugin.AsynQueryInfo(plugin.GetVideoPlugin(), sendXML, (result) => {
+            plugin.AsynQueryInfo(sendXML, (result) => {
                 const path = OCX_XML_OpenFileBrowser_getpath(result).trim()
 
                 if (path) {
@@ -343,7 +343,7 @@ export default defineComponent({
         const preventH5Import = () => {
             if (isSupportH5.value && isHttpsLogin()) {
                 // 无插件https访问时，提示不支持证书安装
-                openNotify(formatHttpsTips(Translate('IDCS_CERT_INSTALLATION')))
+                openNotify(formatHttpsTips(Translate('IDCS_CERT_INSTALLATION')), true)
                 return false
             }
         }
@@ -428,7 +428,7 @@ export default defineComponent({
                     checkPassword: param?.password || undefined,
                 }
                 const sendXML = OCX_XML_FileNetTransport('ImportCert', params)
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -437,7 +437,7 @@ export default defineComponent({
          */
         const browseExportCertificateRequest = () => {
             const sendXML = OCX_XML_OpenFileBrowser('SAVE_FILE', undefined, 'downloadCertReq.csr')
-            plugin.AsynQueryInfo(plugin.GetVideoPlugin(), sendXML, (result) => {
+            plugin.AsynQueryInfo(sendXML, (result) => {
                 const path = OCX_XML_OpenFileBrowser_getpath(result).trim()
                 if (path) {
                     reqCertFormData.value.exportFileName = path
@@ -455,7 +455,7 @@ export default defineComponent({
             pageData.value.isExportCertReqDisabled = true
             if (isSupportH5.value) {
                 if (isHttpsLogin()) {
-                    openNotify(formatHttpsTips(Translate('IDCS_EXPORT_CERT_FILE')))
+                    openNotify(formatHttpsTips(Translate('IDCS_EXPORT_CERT_FILE')), true)
                     return
                 }
                 new WebsocketDownload({
@@ -481,7 +481,7 @@ export default defineComponent({
                     version: '500',
                 }
                 const sendXML = OCX_XML_FileNetTransport('ExportCert', param)
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -551,8 +551,6 @@ export default defineComponent({
             preventH5Import,
             inputCertPassword,
             importCertFile,
-            HttpsCertPasswordPop,
-            HttpsCreateCertPop,
         }
     },
 })

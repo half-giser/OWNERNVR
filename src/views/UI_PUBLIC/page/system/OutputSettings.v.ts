@@ -1235,12 +1235,6 @@ export default defineComponent({
             closeEditChlGroup,
             closeAddChlGroup,
             hdmiInOptions,
-
-            BaseCheckAuthPop,
-            OutputTemplateItem,
-            OutputAddViewPop,
-            ChannelGroupEditPop,
-            ChannelGroupAddPop,
         }
     },
 })

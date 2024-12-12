@@ -111,7 +111,6 @@ export default defineComponent({
             formData,
             verify,
             confirm,
-            BaseCheckAuthPop,
         }
     },
 })

@@ -16,7 +16,6 @@ export default defineComponent({
         AlarmBaseAlarmOutPop,
     },
     setup() {
-        const chosedList = ref<any[]>([])
         const { Translate } = useLangStore()
 
         const { openLoading, closeLoading } = useLoading()
@@ -29,10 +28,10 @@ export default defineComponent({
             audioList: [] as SelectOption<string, string>[],
             // 打开穿梭框时选择行的索引
             triggerDialogIndex: 0,
-            snapIsShow: false,
-            alarmOutIsShow: false,
+            isSnapPop: false,
+            isAlarmOutPop: false,
             filterChlIds: [] as string[],
-            isPresetPopOpen: false,
+            isPresetPop: false,
             videoPopupList: [] as SelectOption<string, string>[],
         })
 
@@ -61,7 +60,7 @@ export default defineComponent({
             })
         }
 
-        const buildTableData = () => {
+        const getData = () => {
             editRows.clear()
             tableData.value = []
 
@@ -155,7 +154,7 @@ export default defineComponent({
         }
 
         const changePagination = () => {
-            buildTableData()
+            getData()
         }
 
         const changePaginationSize = () => {
@@ -163,7 +162,7 @@ export default defineComponent({
             if (pageData.value.pageIndex > totalPage) {
                 pageData.value.pageIndex = totalPage
             }
-            buildTableData()
+            getData()
         }
 
         const switchSnap = (index: number) => {
@@ -178,14 +177,14 @@ export default defineComponent({
         const openSnap = (index: number) => {
             tableData.value[index].snap.switch = true
             pageData.value.triggerDialogIndex = index
-            pageData.value.snapIsShow = true
+            pageData.value.isSnapPop = true
         }
 
         const changeSnap = (index: number, data: SelectOption<string, string>[]) => {
             if (tableData.value[index].disabled) {
                 return
             }
-            pageData.value.snapIsShow = false
+            pageData.value.isSnapPop = false
             tableData.value[index].snap = {
                 switch: !!data.length,
                 chls: cloneDeep(data),
@@ -204,14 +203,14 @@ export default defineComponent({
         const openAlarmOut = (index: number) => {
             tableData.value[index].alarmOut.switch = true
             pageData.value.triggerDialogIndex = index
-            pageData.value.alarmOutIsShow = true
+            pageData.value.isAlarmOutPop = true
         }
 
         const changeAlarmOut = (index: number, data: SelectOption<string, string>[]) => {
             if (tableData.value[index].disabled) {
                 return
             }
-            pageData.value.alarmOutIsShow = false
+            pageData.value.isAlarmOutPop = false
             tableData.value[index].alarmOut = {
                 switch: !!data.length,
                 alarmOuts: cloneDeep(data),
@@ -230,11 +229,11 @@ export default defineComponent({
         const openPreset = (index: number) => {
             tableData.value[index].alarmOut.switch = true
             pageData.value.triggerDialogIndex = index
-            pageData.value.isPresetPopOpen = true
+            pageData.value.isPresetPop = true
         }
 
         const changePreset = (index: number, data: AlarmPresetItem[]) => {
-            pageData.value.isPresetPopOpen = false
+            pageData.value.isPresetPop = false
             tableData.value[index].preset = {
                 switch: !!data.length,
                 presets: cloneDeep(data),
@@ -242,16 +241,16 @@ export default defineComponent({
         }
 
         // 系统音频
-        const handleSysAudioChangeAll = (sysAudio: string) => {
-            tableData.value.forEach((item) => {
-                if (!item.disabled) {
-                    item.sysAudio = sysAudio
-                }
-            })
-        }
+        // const changeAllAudio = (sysAudio: string) => {
+        //     tableData.value.forEach((item) => {
+        //         if (!item.disabled) {
+        //             item.sysAudio = sysAudio
+        //         }
+        //     })
+        // }
 
         // 消息推送
-        const handleMsgPushChangeAll = (msgPush: string) => {
+        const changeAllMsgPush = (msgPush: string) => {
             tableData.value.forEach((item) => {
                 if (!item.disabled) {
                     item.msgPush = msgPush
@@ -260,7 +259,7 @@ export default defineComponent({
         }
 
         // ftpSnap 未传值
-        // const handleFtpSnapChangeAll = (ftpSnap: string) => {
+        // const changeAllFtpSnap = (ftpSnap: string) => {
         //     tableData.value.forEach((item) => {
         //         if (!item.disabled) {
         //             item.ftpSnap = ftpSnap
@@ -269,7 +268,7 @@ export default defineComponent({
         // }
 
         // 蜂鸣器
-        const handleBeeperChangeAll = (beeper: string) => {
+        const changeAllBeeper = (beeper: string) => {
             tableData.value.forEach((item) => {
                 if (!item.disabled) {
                     item.beeper = beeper
@@ -278,7 +277,7 @@ export default defineComponent({
         }
 
         // 视频弹出
-        const handleVideoPopupChangeAll = (videoPopup: string) => {
+        const changeAllVideoPopUp = (videoPopup: string) => {
             tableData.value.forEach((row) => {
                 const values = row.videoPopupList.map((item) => item.value)
                 if (!row.disabled) {
@@ -294,7 +293,7 @@ export default defineComponent({
         }
 
         // 消息框弹出
-        const handleMsgBoxPopupChangeAll = (msgBoxPopup: string) => {
+        const changeAllMsgPopUp = (msgBoxPopup: string) => {
             tableData.value.forEach((item) => {
                 if (!item.disabled) {
                     item.msgBoxPopup = msgBoxPopup
@@ -303,7 +302,7 @@ export default defineComponent({
         }
 
         // 邮件
-        const handleEmailChangeAll = (email: string) => {
+        const changeAllEmail = (email: string) => {
             tableData.value.forEach((item) => {
                 if (!item.disabled) {
                     item.email = email
@@ -407,13 +406,12 @@ export default defineComponent({
 
         onMounted(async () => {
             await getVideoPopupList()
-            buildTableData()
+            getData()
         })
 
         return {
             changePagination,
             changePaginationSize,
-            chosedList,
             pageData,
             tableData,
             editRows,
@@ -426,16 +424,13 @@ export default defineComponent({
             switchPreset,
             openPreset,
             changePreset,
-            handleSysAudioChangeAll,
-            handleMsgPushChangeAll,
-            handleBeeperChangeAll,
-            handleVideoPopupChangeAll,
-            handleMsgBoxPopupChangeAll,
-            handleEmailChangeAll,
+            // changeAllAudio,
+            changeAllMsgPush,
+            changeAllBeeper,
+            changeAllVideoPopUp,
+            changeAllMsgPopUp,
+            changeAllEmail,
             setData,
-            AlarmBasePresetPop,
-            AlarmBaseSnapPop,
-            AlarmBaseAlarmOutPop,
         }
     },
 })

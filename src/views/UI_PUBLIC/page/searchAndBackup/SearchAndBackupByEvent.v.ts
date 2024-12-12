@@ -36,17 +36,17 @@ export default defineComponent({
             POS: Translate('IDCS_POS'),
         }
 
-        const plugin = usePluginHook({
+        const plugin = setupPlugin({
             onReady: (mode, plugin) => {
                 if (mode.value === 'ocx') {
                     const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Playback')
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.ExecuteCmd(sendXML)
                 }
             },
             onDestroy: (mode, plugin) => {
                 if (mode.value === 'ocx') {
                     const sendXML = OCX_XML_StopPreview('ALL')
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.ExecuteCmd(sendXML)
                 }
             },
         })
@@ -308,7 +308,9 @@ export default defineComponent({
             if (type === 'local') {
                 if (mode.value === 'h5') {
                     pageData.value.isLocalBackUpPop = true
-                } else if (mode.value === 'ocx') {
+                }
+
+                if (mode.value === 'ocx') {
                     plugin.BackUpTask.addTask(pageData.value.backupRecList, path, format)
                     router.push({
                         path: '/search-and-backup/backup-state',
@@ -555,9 +557,6 @@ export default defineComponent({
             filterTableData,
             handleRecChange,
             showPosInfo,
-            BackupPop,
-            BackupLocalPop,
-            BackupPosInfoPop,
         }
     },
 })

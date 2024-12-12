@@ -20,12 +20,12 @@
                 </div>
                 <!-- 今日入场车辆数 -->
                 <div class="count">
-                    <div>{{ pageData.enterCount || '&nbsp;' }}</div>
+                    <div>{{ pageData.enterCount || 0 }}</div>
                     <div>{{ Translate('IDCS_TODAY_VEHICLE_IN_NUM') }}</div>
                 </div>
                 <!-- 今日出场车辆数 -->
                 <div class="count">
-                    <div>{{ pageData.exitCount || '&nbsp;' }}</div>
+                    <div>{{ pageData.exitCount || 0 }}</div>
                     <div>{{ Translate('IDCS_TODAY_VEHICLE_OUT_NUM') }}</div>
                 </div>
                 <div class="back">
@@ -106,22 +106,17 @@
                     </div>
                 </div>
             </div>
-            <div
-                class="base-btn-box padding"
-                span="2"
-            >
+            <div class="base-btn-box space-between padding">
                 <div>{{ Translate('IDCS_MORE_VEHICLE_RECORD') }}</div>
-                <div>
-                    <el-tooltip :content="Translate('IDCS_VEHICLE_RECORD_REARCH')">
-                        <BaseImgSprite
-                            file="park_record"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
-                            @click="search"
-                        />
-                    </el-tooltip>
-                </div>
+                <el-tooltip :content="Translate('IDCS_VEHICLE_RECORD_REARCH')">
+                    <BaseImgSprite
+                        file="park_record"
+                        :index="0"
+                        :hover-index="1"
+                        :chunk="4"
+                        @click="search"
+                    />
+                </el-tooltip>
             </div>
             <div class="base-table-box">
                 <el-table :data="tableData">

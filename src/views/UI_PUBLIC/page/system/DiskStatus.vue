@@ -9,7 +9,6 @@
             height="100%"
             :data="tableData"
             highlight-current-row
-            :row-class-name="(data) => (data.row.gridRowDisabled ? 'disabled' : '')"
             show-overflow-tooltip
         >
             <el-table-column
@@ -17,7 +16,7 @@
                 width="50"
             >
                 <template #default="scope">
-                    <BaseTableRowStatus :icon="scope.row.gridRowStatus" />
+                    <BaseTableRowStatus :icon="scope.row.status" />
                 </template>
             </el-table-column>
             <el-table-column

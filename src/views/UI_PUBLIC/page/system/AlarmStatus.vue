@@ -42,8 +42,9 @@
                             :class="{
                                 'text-error': scope.row.data.length > 0,
                             }"
-                            >{{ scope.row.data.length > 0 ? Translate('IDCS_ABNORMAL') : Translate('IDCS_NORMAL') }}</span
                         >
+                            {{ scope.row.data.length > 0 ? Translate('IDCS_ABNORMAL') : Translate('IDCS_NORMAL') }}
+                        </span>
                     </div>
                 </template>
             </el-table-column>
@@ -88,10 +89,10 @@
                             v-show="scope.row.data.length"
                             class="base-pagination-box"
                         >
-                            <el-pagination
+                            <BasePagination
                                 v-model:current-page="scope.row.index"
                                 :page-size="1"
-                                layout="prev, pager, next, total, jumper"
+                                layout="prev, pager, next"
                                 :total="scope.row.data.length"
                             />
                         </div>

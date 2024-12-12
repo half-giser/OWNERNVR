@@ -65,9 +65,9 @@ export default defineComponent({
             // 排程
             schedule: '',
             // 排程列表
-            scheduleList: [] as [] as SelectOption<string, string>[],
+            scheduleList: [] as SelectOption<string, string>[],
             //排程管理弹窗显示状态
-            scheduleManagePopOpen: false,
+            isSchedulePop: false,
             currentRow: new AlarmEmailReceiverDto(),
         })
 
@@ -83,7 +83,7 @@ export default defineComponent({
             return 2
         }
 
-        const maskShow = () => {
+        const toggleMask = () => {
             pageData.value.senderShow = !pageData.value.senderShow
         }
 
@@ -138,13 +138,13 @@ export default defineComponent({
             pageData.value.currentRow = row
         }
 
-        const handleScheduleChangeAll = (value: string) => {
+        const changeAllSchedule = (value: string) => {
             tableData.value.forEach((item) => {
                 item.schedule = value
             })
         }
 
-        const handleDelReceiver = (row: AlarmEmailReceiverDto) => {
+        const delReceiver = (row: AlarmEmailReceiverDto) => {
             openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_EMAIL_RECEIVER_S').formatForLang(row.address),
@@ -154,7 +154,7 @@ export default defineComponent({
             })
         }
 
-        const handleDelReceiverAll = () => {
+        const delAllReceiver = () => {
             openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_ALL_ITEMS'),
@@ -178,7 +178,7 @@ export default defineComponent({
             })
         }
 
-        const handleSenderEdit = () => {
+        const editSender = () => {
             if (userSession.hasAuth('net')) {
                 router.push('/config/net/email')
             } else {
@@ -189,11 +189,7 @@ export default defineComponent({
             }
         }
 
-        const handleScheduleManage = () => {
-            pageData.value.scheduleManagePopOpen = true
-        }
-
-        const handleApply = () => {
+        const setData = () => {
             const sendXml = rawXml`
                 <content>   
                     <receiver type="list">
@@ -213,12 +209,12 @@ export default defineComponent({
             openLoading()
             editEmailCfg(sendXml).then((res) => {
                 closeLoading()
-                commSaveResponseHadler(res)
+                commSaveResponseHandler(res)
             })
         }
 
-        const handleSchedulePopClose = async () => {
-            pageData.value.scheduleManagePopOpen = false
+        const closeSchedulePop = async () => {
+            pageData.value.isSchedulePop = false
             await getScheduleList()
         }
 
@@ -232,20 +228,18 @@ export default defineComponent({
             tableRef,
             formRef,
             rules,
-            handleDelReceiver,
-            handleDelReceiverAll,
+            delReceiver,
+            delAllReceiver,
             addRecipient,
             getIconStatus,
-            maskShow,
-            handleSenderEdit,
-            handleScheduleChangeAll,
-            handleScheduleManage,
-            handleApply,
+            toggleMask,
+            editSender,
+            changeAllSchedule,
+            setData,
             formatSender,
             formatAddress,
             handleRowClick,
-            ScheduleManagPop,
-            handleSchedulePopClose,
+            closeSchedulePop,
         }
     },
 })

@@ -13,23 +13,16 @@
         </div>
         <div v-if="!pageData.requireDataFail">
             <!-- 检测开启及ai按钮 -->
-            <div
-                class="base-btn-box collapse padding"
-                span="2"
-            >
-                <div>
-                    <el-checkbox
-                        v-model="formData.detectionEnable"
-                        :label="Translate('IDCS_ENABLE')"
-                    />
-                </div>
-                <div></div>
+            <div class="base-btn-box flex-start collapse padding">
+                <el-checkbox
+                    v-model="formData.detectionEnable"
+                    :label="Translate('IDCS_ENABLE')"
+                />
             </div>
             <!-- 两种功能 -->
             <el-tabs
                 v-model="pageData.fuction"
                 class="base-ai-tabs"
-                @tab-click="handleFunctionTabClick"
             >
                 <!-- 参数设置 -->
                 <el-tab-pane
@@ -60,7 +53,7 @@
                                         v-model="formData.schedule"
                                         :options="pageData.scheduleList"
                                     />
-                                    <el-button @click="pageData.scheduleManagePopOpen = true">
+                                    <el-button @click="pageData.isSchedulePop = true">
                                         {{ Translate('IDCS_MANAGE') }}
                                     </el-button>
                                 </el-form-item>
@@ -76,14 +69,6 @@
                                 </el-form-item>
                             </el-form>
                         </div>
-                    </div>
-                    <div class="base-btn-box fixed">
-                        <el-button
-                            :disabled="pageData.applyDisable"
-                            @click="handleApply"
-                        >
-                            {{ Translate('IDCS_APPLY') }}
-                        </el-button>
                     </div>
                 </el-tab-pane>
                 <!-- 联动方式 -->
@@ -121,21 +106,21 @@
                             <!-- preset -->
                             <AlarmBasePresetSelector v-model="formData.preset" />
                         </div>
-                        <div class="base-btn-box fixed">
-                            <el-button
-                                :disabled="pageData.applyDisable"
-                                @click="handleApply"
-                            >
-                                {{ Translate('IDCS_APPLY') }}
-                            </el-button>
-                        </div>
                     </div>
                 </el-tab-pane>
             </el-tabs>
+            <div class="base-btn-box fixed">
+                <el-button
+                    :disabled="watchEdit.disabled.value"
+                    @click="applyData"
+                >
+                    {{ Translate('IDCS_APPLY') }}
+                </el-button>
+            </div>
         </div>
         <ScheduleManagPop
-            v-model="pageData.scheduleManagePopOpen"
-            @close="handleSchedulePopClose"
+            v-model="pageData.isSchedulePop"
+            @close="closeSchedulePop"
         />
     </div>
 </template>

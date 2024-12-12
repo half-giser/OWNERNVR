@@ -282,7 +282,7 @@ export default defineComponent({
                         // 用id区分属于哪一解码卡的输出
                         decoderCardMap[id] = {
                             onlineStatus: false,
-                        } as { [index: number]: string; onlineStatus: boolean }
+                        }
                     }
                     decoderCardMap[id][outputIndex] = '1920x1080' // 兼容解码卡未配置的情况，默认分辨率为
                     if (!decoderEnum[id][outputIndex]) {
@@ -386,7 +386,7 @@ export default defineComponent({
             const result = await editBasicCfg(sendXml)
 
             closeLoading()
-            commSaveResponseHadler(result)
+            commSaveResponseHandler(result)
         }
 
         onMounted(() => {

@@ -53,7 +53,7 @@ export class IntelFaceDBFaceInfo {
     note = ''
     // createTime = ''
     faceImgCount = 0
-    pic = [] as string[]
+    pic: string[] = []
     groupId = ''
 }
 
@@ -188,17 +188,17 @@ export class IntelPersonStatsList {
     imageTotalNum = 0
     imageTotalInNum = 0
     imageTotalOutNum = 0
-    chl = [] as IntelPersonStatsChlList[]
-    // groups = [] as IntelPersonStatsGroupList[]
+    chl: IntelPersonStatsChlList[] = []
+    // groups: IntelPersonStatsGroupList[] = []
 }
 
 /**
  * @description 人员统计 搜索表单
  */
 export class IntelPersonStatsForm {
-    chl = [] as string[]
-    event = [] as string[]
-    dateRange = [0, 0] as [number, number]
+    chl: string[] = []
+    event: string[] = []
+    dateRange: [number, number] = [0, 0]
 }
 
 /**
@@ -220,17 +220,17 @@ export class IntelVehicleStatsList {
     imageTotalNum = 0
     imageTotalInNum = 0
     imageTotalOutNum = 0
-    chl = [] as IntelVehicleStatsChlList[]
+    chl: IntelVehicleStatsChlList[] = []
 }
 
 /**
  * @description 车辆统计 搜索表单
  */
 export class IntelVehicleStatsForm {
-    chl = [] as string[]
-    event = [] as string[]
-    dateRange = [0, 0] as [number, number]
-    attribute = [] as string[]
+    chl: string[] = []
+    event: string[] = []
+    dateRange: [number, number] = [0, 0]
+    attribute: string[] = []
     deduplicate = false
 }
 
@@ -255,18 +255,18 @@ export class IntelCombineStatsList {
     imageTotalNum = 0
     imageTotalInNum = 0
     imageTotalOutNum = 0
-    chl = [] as IntelCombineStatsChlList[]
+    chl: IntelCombineStatsChlList[] = []
 }
 
 /**
  * @description 组合统计 搜索表单
  */
 export class IntelCombineStatsForm {
-    chl = [] as string[]
-    event = [] as string[]
-    dateRange = [0, 0] as [number, number]
-    vehicleAttribute = [] as string[]
-    personAttribute = [] as string[]
+    chl: string[] = []
+    event: string[] = []
+    dateRange: [number, number] = [0, 0]
+    vehicleAttribute: string[] = []
+    personAttribute: string[] = []
     deduplicate = false
 }
 
@@ -274,14 +274,14 @@ export class IntelCombineStatsForm {
  * @description 智能搜索 收藏 列表项
  */
 export class IntelSearchCollectList {
-    name = '' as string
-    dateRange = [0, 0] as [number, number]
-    chl = [] as string[]
-    event = [] as string[]
-    attribute = [] as string[][] // ['车辆选项', '人脸选项']
-    profile = {} as Record<string, Record<string, number[]>>
-    direction = [] as number[]
-    plateNumber = '' as string
+    name: string = ''
+    dateRange: [number, number] = [0, 0]
+    chl: string[] = []
+    event: string[] = []
+    attribute: string[][] = [] // ['车辆选项', '人脸选项']
+    profile: Record<string, Record<string, number[]>> = {}
+    direction: number[] = []
+    plateNumber: string = ''
 }
 
 /**
@@ -301,7 +301,7 @@ export class IntelSnapImgDto {
     Y2 = 0
     isDelSnap = false
     isNoData = false
-    attribute = {} as Record<string, string | number>
+    attribute: Record<string, string | number> = {}
 }
 
 /**
@@ -328,10 +328,10 @@ export class IntelSearchList extends IntelSnapImgDto {
  * @description 人体搜索 表单
  */
 export class IntelSearchBodyForm {
-    dateRange = [0, 0] as [number, number]
-    chl = [] as string[]
-    event = [] as string[]
-    attribute = {} as Record<string, Record<string, number[]>>
+    dateRange: [number, number] = [0, 0]
+    chl: string[] = []
+    event: string[] = []
+    attribute: Record<string, Record<string, number[]>> = {}
     pageSize = 40
     pageIndex = 0
 }
@@ -340,14 +340,14 @@ export class IntelSearchBodyForm {
  * @description 车辆搜索 表单
  */
 export class IntelSearchVehicleForm {
-    dateRange = [0, 0] as [number, number]
-    chl = [] as string[]
-    event = [] as string[]
-    attribute = {} as Record<string, Record<string, number[]>>
+    dateRange: [number, number] = [0, 0]
+    chl: string[] = []
+    event: string[] = []
+    attribute: Record<string, Record<string, number[]>> = {}
     pageSize = 40
     pageIndex = 0
-    target = [] as string[]
-    direction = [] as number[]
+    target: string[] = []
+    direction: number[] = []
     plateNumber = ''
     searchType = 'event'
 }
@@ -356,13 +356,13 @@ export class IntelSearchVehicleForm {
  * @description 组合搜索 表单
  */
 export class IntelSearchCombineForm {
-    dateRange = [0, 0] as [number, number]
-    chl = [] as string[]
-    event = [] as string[]
-    attribute = {} as Record<string, Record<string, number[]>>
+    dateRange: [number, number] = [0, 0]
+    chl: string[] = []
+    event: string[] = []
+    attribute: Record<string, Record<string, number[]>> = {}
     pageSize = 40
     pageIndex = 0
-    target = [[], []] as string[][]
+    target: string[][] = [[], []]
     plateNumber = ''
 }
 
@@ -382,7 +382,7 @@ export class IntelFaceImgDto {
     isDelSnap = false
     isNoData = false
     identity = false
-    attribute = {} as Record<string, string | number>
+    attribute: Record<string, string | number> = {}
 }
 
 /**
@@ -428,7 +428,7 @@ export class IntelSnapPopList {
     eventType = ''
     targetType = ''
     plateNumber = ''
-    attribute = {} as Record<string, string | number>
+    attribute: Record<string, string | number> = {}
 }
 
 /**

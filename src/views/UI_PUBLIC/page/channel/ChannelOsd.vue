@@ -84,7 +84,6 @@
                     :data="tableData"
                     show-overflow-tooltip
                     highlight-current-row
-                    :row-class-name="(data) => (data.row.disabled ? 'disabled' : '')"
                     @row-click="handleRowClick"
                 >
                     <el-table-column
@@ -190,8 +189,9 @@
                                             v-for="(item, index) in dateFormatOptions"
                                             :key="index"
                                             @click="changeDateFormatAll(item.value)"
-                                            >{{ item.text }}</el-dropdown-item
                                         >
+                                            {{ item.text }}
+                                        </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
                             </el-dropdown>
@@ -215,8 +215,9 @@
                                             v-for="(value, key) in timeFormatTip"
                                             :key="key"
                                             @click="changeTimeFormatAll(key)"
-                                            >{{ value }}</el-dropdown-item
                                         >
+                                            {{ value }}
+                                        </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
                             </el-dropdown>
@@ -282,7 +283,7 @@
                 </el-table>
             </div>
             <div class="base-pagination-box">
-                <el-pagination
+                <BasePagination
                     v-model:current-page="pageIndex"
                     v-model:page-size="pageSize"
                     :total="pageTotal"

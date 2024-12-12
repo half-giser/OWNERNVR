@@ -109,7 +109,7 @@ export default defineComponent({
             register: Translate('IDCS_REGISTER'),
         }
 
-        const plugin = usePluginHook({
+        const plugin = setupPlugin({
             onMessage: ($) => {
                 if ($('statenotify[@type="UploadIPCAudioBase64"]').length) {
                     const $item = queryXml($('statenotify')[0].element)
@@ -380,15 +380,15 @@ export default defineComponent({
         const handleOCXImport = () => {
             if (plugin.IsPluginAvailable()) {
                 const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
-                plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                plugin.ExecuteCmd(sendXML)
             }
 
             const sendXML = OCX_XML_OpenFileBrowser('OPEN_FILE', 'csv')
-            plugin.AsynQueryInfo(plugin.GetVideoPlugin(), sendXML, (result) => {
+            plugin.AsynQueryInfo(sendXML, (result) => {
                 const path = OCX_XML_OpenFileBrowser_getpath(result).trim()
                 if (path) {
                     const sendXML = OCX_XML_UploadIPCAudioBase64(path)
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.ExecuteCmd(sendXML)
                     openLoading()
                 }
             })
@@ -631,7 +631,6 @@ export default defineComponent({
             confirmAddGroup,
             mode,
             displayTitle,
-            IntelLicenceDBEditPop,
         }
     },
 })

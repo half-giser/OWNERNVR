@@ -19,5 +19,5 @@ export class ScheduleInfo {
     id = '' // id
     name = '' // 名称
     // 排程时间段，第一层数组7个元素，代表天，0代表周日，第二层数组n个元素，代表一天的时间段，第三层数组代表单个时间段[startTime, endTime]
-    timespan = [] as [string, string][][]
+    timespan: [string, string][][] = []
 }

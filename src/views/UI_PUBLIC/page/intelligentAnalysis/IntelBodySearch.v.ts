@@ -782,15 +782,6 @@ export default defineComponent({
             auth,
             getUniqueKey,
             cacheKey: LocalCacheKey.KEY_BODY_SEARCH_COLLECTION,
-            IntelBaseChannelSelector,
-            IntelBaseDateTimeSelector,
-            IntelBaseEventSelector,
-            IntelBaseProfileSelector,
-            IntelBaseCollect,
-            IntelBaseSnapItem,
-            IntelBaseSnapPop,
-            BackupPop,
-            BackupLocalPop,
         }
     },
 })

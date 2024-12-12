@@ -4,7 +4,7 @@
  * @Description: 加载全局样式
  */
 
-import '@/views/UI_PUBLIC/publicStyle/common.scss'
-import '@/views/UI_PUBLIC/publicStyle/element.scss'
 import '@/views/UI_PUBLIC/publicStyle/global.scss'
+import '@/views/UI_PUBLIC/publicStyle/element.scss'
+import '@/views/UI_PUBLIC/publicStyle/common.scss'
 import '@ui/publicStyle/global.scss'

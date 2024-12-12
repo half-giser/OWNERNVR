@@ -12,17 +12,14 @@
             placement="top-end"
         >
             <template #reference>
-                <div>
-                    <el-tooltip :content="Translate('IDCS_EVENT_LIST')">
-                        <BaseImgSprite
-                            file="list"
-                            :index="0"
-                            :hover-index="1"
-                            :disabled-index="3"
-                            :chunk="4"
-                        />
-                    </el-tooltip>
-                </div>
+                <BaseImgSprite
+                    file="list"
+                    :title="Translate('IDCS_EVENT_LIST')"
+                    :index="0"
+                    :hover-index="1"
+                    :disabled-index="3"
+                    :chunk="4"
+                />
             </template>
             <el-table
                 :data="filterTableData"
@@ -57,7 +54,7 @@
                                     {{ Translate('IDCS_EVENT_TYPE') }}
                                 </BaseTableDropdownLink>
                             </template>
-                            <el-scrollbar height="300px">
+                            <el-scrollbar height="300">
                                 <div class="base-subheading-box">{{ Translate('IDCS_EVENT') }}</div>
                                 <el-checkbox-group
                                     v-model="pageData.event"

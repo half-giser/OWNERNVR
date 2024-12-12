@@ -49,8 +49,9 @@
                                 v-for="item in pageData.chartOptions"
                                 :key="item.value"
                                 @click="changeType(item.value)"
-                                >{{ item.label }}</el-dropdown-item
                             >
+                                {{ item.label }}
+                            </el-dropdown-item>
                         </el-dropdown-menu>
                     </template>
                 </el-dropdown>
@@ -94,10 +95,7 @@
                     </el-table-column>
                 </el-table>
             </div>
-            <div
-                class="base-btn-box"
-                span="2"
-            >
+            <div class="base-btn-box space-between">
                 <div>
                     <el-checkbox
                         v-show="['plateDetection', 'plateMatchWhiteList', 'plateMatchStranger'].includes(formData.event[0] || '')"
@@ -105,9 +103,7 @@
                         :label="Translate('IDCS_REMOVE_DUPLICATE_LICENSE_PLATE')"
                     />
                 </div>
-                <div>
-                    <el-button @click="exportChart">{{ Translate('IDCS_EXPORT') }}</el-button>
-                </div>
+                <el-button @click="exportChart">{{ Translate('IDCS_EXPORT') }}</el-button>
             </div>
         </div>
     </div>

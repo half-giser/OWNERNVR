@@ -11,7 +11,6 @@ import { createPersistedState } from 'pinia-plugin-persistedstate'
 import './plugin/elementPlus'
 import i18nPlugin from './plugin/i18n'
 import typeEnhance from './plugin/typeEnhance'
-import loadingPlugin from './plugin/loading'
 import './plugin/css'
 import datePlugin from './plugin/date'
 import { regAllDirective } from './directives'
@@ -20,8 +19,6 @@ export const app = createApp(App)
 
 // 注册自定义指令
 regAllDirective(app)
-
-// app.use(cssPlugin)
 
 // 创建 Pinia 实例
 const pinia = createPinia()
@@ -37,14 +34,7 @@ app.use(pinia) // 启用Pinia
 const lang = useLangStore()
 const session = useUserSessionStore()
 
-// 标准登录此处请求语言翻译和时间日期配置，P2P登录则延后至插件连接成功后请求
-if (session.appType === 'STANDARD') {
-    await lang.getLangTypes()
-    await lang.getLangItems()
-}
-
 app.use(i18nPlugin, lang)
-app.use(loadingPlugin)
 app.use(datePlugin)
 
 // 加载自定义插件

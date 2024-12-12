@@ -528,9 +528,6 @@ export default defineComponent({
             handleNameFocus,
             searchPlate,
             handleVehicleRecognition,
-            IntelLicencePlateDBEditPop,
-            IntelLicencePlateDBExportPop,
-            IntelLicencePlateDBAddPlatePop,
         }
     },
 })

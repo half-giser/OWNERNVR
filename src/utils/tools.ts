@@ -115,7 +115,7 @@ export const getBrowserInfo = (): BrowserInfo => {
     }
 
     if (browserInfo.version) {
-        browserInfo.majorVersion = (browserInfo.version as any).split('.')[0] * 1
+        browserInfo.majorVersion = Number(browserInfo.version.split('.')[0])
     }
     return browserInfo
 }
@@ -375,11 +375,11 @@ export const wrapCDATA = (str: string) => {
  * @description XML包裹ENUM值
  * @returns {string}
  */
-export const wrapEnums = (array: string[] | SelectOption<any, any>[]) => {
+export const wrapEnums = <T extends number | string | boolean, K>(array: string[] | SelectOption<T, K>[]) => {
     if (array.length && typeof array[0] === 'string') {
         return array.map((item) => `<enum>${item}</enum>`).join('')
     } else {
-        return array.map((item) => `<enum>${String((item as SelectOption<any, any>).value)}</enum>`).join('')
+        return array.map((item) => `<enum>${(item as SelectOption<T, K>).value}</enum>`).join('')
     }
 }
 
@@ -591,7 +591,7 @@ export const commLoadResponseHandler = ($response: any, successHandler?: (result
  * @param {Function} successHandler 成功回调
  * @param {Function} failedHandler 失败回调
  */
-export const commSaveResponseHadler = ($response: ApiResult, successHandler?: (result: (path: string) => XmlResult) => void, failedHandler?: (result: (path: string) => XmlResult) => void) => {
+export const commSaveResponseHandler = ($response: ApiResult, successHandler?: (result: (path: string) => XmlResult) => void, failedHandler?: (result: (path: string) => XmlResult) => void) => {
     return new Promise((resolve: ($: (path: string) => XmlResult) => void, reject: ($: (path: string) => XmlResult) => void) => {
         const Translate = useLangStore().Translate
         const openMessageBox = useMessageBox().openMessageBox
@@ -623,7 +623,7 @@ export const commSaveResponseHadler = ($response: ApiResult, successHandler?: (r
  * @param failedHandler 失败回调
  * @returns 结果的promise对象
  */
-export const commMutiSaveResponseHadler = (
+export const commMutiSaveResponseHandler = (
     responseList: ApiResult[],
     successHandler?: (result: ((path: string) => XmlResult)[]) => void,
     failedHandler?: (result: ((path: string) => XmlResult)[]) => void,

@@ -113,7 +113,6 @@ export default defineComponent({
             formData,
             showPrivacy,
             showAbout,
-            LoginPrivacyPop,
         }
     },
 })

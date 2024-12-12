@@ -7,65 +7,60 @@
     <div class="ctrl">
         <div class="ctrl-btns">
             <!-- 抓拍 -->
-            <el-tooltip :content="Translate('IDCS_SNAP')">
-                <BaseImgSprite
-                    file="capture"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="4"
-                    :disabled="disabled"
-                    @click="snap"
-                />
-            </el-tooltip>
+            <BaseImgSprite
+                file="capture"
+                :title="Translate('IDCS_SNAP')"
+                :index="0"
+                :hover-index="1"
+                :disabled-index="3"
+                :chunk="4"
+                :disabled="disabled"
+                @click="snap"
+            />
             <!-- 关闭图像 -->
-            <el-tooltip :content="Translate('IDCS_CLOSE_IMAGE')">
-                <BaseImgSprite
-                    file="close_chl"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="4"
-                    :disabled="disabled"
-                    @click="closeImg"
-                />
-            </el-tooltip>
+            <BaseImgSprite
+                file="close_chl"
+                :title="Translate('IDCS_CLOSE_IMAGE')"
+                :index="0"
+                :hover-index="1"
+                :disabled-index="3"
+                :chunk="4"
+                :disabled="disabled"
+                @click="closeImg"
+            />
             <!-- 放大 -->
-            <el-tooltip :content="Translate('IDCS_ZOOM_IN')">
-                <BaseImgSprite
-                    file="magnify"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :disabled
-                    :chunk="4"
-                    @click="zoomIn"
-                />
-            </el-tooltip>
+            <BaseImgSprite
+                file="magnify"
+                :title="Translate('IDCS_ZOOM_IN')"
+                :index="0"
+                :hover-index="1"
+                :disabled-index="3"
+                :disabled
+                :chunk="4"
+                @click="zoomIn"
+            />
             <!-- 缩小 -->
-            <el-tooltip :content="Translate('IDCS_ZOOM_OUT')">
-                <BaseImgSprite
-                    file="minify"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :disabled
-                    :chunk="4"
-                    @click="zoomOut"
-                />
-            </el-tooltip>
+            <BaseImgSprite
+                file="minify"
+                :title="Translate('IDCS_ZOOM_OUT')"
+                :index="0"
+                :hover-index="1"
+                :disabled-index="3"
+                :disabled
+                :chunk="4"
+                @click="zoomOut"
+            />
             <!-- 原始比例 -->
-            <el-tooltip :content="Translate('IDCS_ORIGINAL_DISPLAY')">
-                <BaseImgSprite
-                    :file="winData.original ? 'originalDisplaying' : 'originalDisplay'"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="4"
-                    :disabled="originalDisplayDisabled"
-                    @click="originalDisplay"
-                />
-            </el-tooltip>
+            <BaseImgSprite
+                :file="winData.original ? 'originalDisplaying' : 'originalDisplay'"
+                :title="Translate('IDCS_ORIGINAL_DISPLAY')"
+                :index="0"
+                :hover-index="1"
+                :disabled-index="3"
+                :chunk="4"
+                :disabled="originalDisplayDisabled"
+                @click="originalDisplay"
+            />
         </div>
         <!-- 音量控制 -->
         <div class="voice">

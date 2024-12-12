@@ -70,6 +70,13 @@ export default defineComponent({
             type: String,
             required: true,
         },
+        /**
+         * @property 是否有POS事件
+         */
+        hasPosEvent: {
+            type: Boolean,
+            required: true,
+        },
     },
     emits: {
         'update:split': (num: number, type: number) => {
@@ -130,6 +137,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
+        const { openNotify } = useNotification()
 
         const WASM_SEG = [1, 4].map((split) => ({
             split,
@@ -154,6 +162,8 @@ export default defineComponent({
             speedList: [1 / 32, 1 / 16, 1 / 8, 1 / 4, 1 / 2, 1, 2, 4, 8, 16, 32],
             // 速度值索引
             speedIndex: 5,
+            // 是否显示POS按钮
+            isPosBtn: systemCaps.supportPOS,
         })
 
         // 没有播放视图时，禁用操作按钮
@@ -326,7 +336,7 @@ export default defineComponent({
 
         // 是否禁用POS
         const posDisabled = computed(() => {
-            return !systemCaps.supportPOS || disabled.value
+            return !prop.hasPosEvent || disabled.value
         })
 
         /**
@@ -362,7 +372,7 @@ export default defineComponent({
 
         // 禁用备份按钮
         const backUpDisabled = computed(() => {
-            return disabled.value || prop.clipRange.length !== 2 || prop.clipRange[0] === prop.clipRange[1]
+            return disabled.value || prop.clipRange.length !== 2 || prop.clipRange[0] >= prop.clipRange[1]
         })
 
         /**
@@ -374,11 +384,7 @@ export default defineComponent({
             }
 
             if (backUpDisabled.value) {
-                ElMessage({
-                    type: 'info',
-                    message: Translate('IDCS_SELECT_BACKUP_START_END_TIME'),
-                    grouping: true,
-                })
+                openNotify(Translate('IDCS_SELECT_BACKUP_START_END_TIME'), true)
                 return
             }
             ctx.emit('backUp')

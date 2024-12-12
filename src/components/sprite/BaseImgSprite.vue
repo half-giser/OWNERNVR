@@ -12,7 +12,6 @@
             backgroundPositionX,
             backgroundPositionY,
             backgroundSize: `${sprites.properties.width}px ${sprites.properties.height}px`,
-            transform: `scale(${prop.scale})`,
         }"
         :class="{
             hover: isHoverClass,
@@ -38,7 +37,7 @@ const prop = withDefaults(
         /**
          * @property 缩放值
          */
-        scale?: number
+        // scale?: number
         /**
          * @property 分块 (由于雪碧大图可能由雪碧小图生成，此值对雪碧小图分块. 这里假定了小雪碧图都是水平平均分块的形式，如果不是这种模式，需特殊处理)
          */
@@ -65,7 +64,7 @@ const prop = withDefaults(
         disabled?: boolean
     }>(),
     {
-        scale: 1,
+        // scale: 1,
         chunk: 1,
         index: 0,
         hoverIndex: -1,

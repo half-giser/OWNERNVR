@@ -3,17 +3,9 @@
  * @Date: 2023-05-04 22:08:40
  * @Description: HTTP请求工具类
  */
-
-/* axios配置入口文件 */
 import axios, { type AxiosRequestConfig } from 'axios'
-import { ElMessage } from 'element-plus'
-import dayjs from 'dayjs'
 
 export const xmlHeader = '<?xml version="1.0" encoding="UTF-8" ?>'
-//公共错误上次处理时间
-let commonErrorLastTime = dayjs().valueOf()
-let isErrorMessageBox = false
-
 export type ApiResult = Element | XMLDocument
 
 /**
@@ -23,7 +15,7 @@ export type ApiResult = Element | XMLDocument
  * @param {boolean} refresh
  * @returns {string}
  */
-export const getXmlWrapData = (data: string, url = '', refresh = false) => {
+const getXmlWrapData = (data: string, url = '', refresh = false) => {
     const userSessionStore = useUserSessionStore()
 
     let tokenXml = ''
@@ -32,20 +24,27 @@ export const getXmlWrapData = (data: string, url = '', refresh = false) => {
     }
 
     if (userSessionStore.appType === 'P2P') {
-        return rawXml`${xmlHeader}
-            <cmd type="NVMS_NAT_CMD">
-                <request version="1.0" systemType="NVMS-9000" clientType="WEB-NAT" url="${url}" flag="1" ${refresh ? 'refresh="true"' : ''}>
+        return (
+            xmlHeader +
+            checkXml(rawXml`
+                <cmd type="NVMS_NAT_CMD">
+                    <request version="1.0" systemType="NVMS-9000" clientType="WEB-NAT" url="${url}" flag="1" ${refresh ? 'refresh="true"' : ''}>
+                        ${tokenXml}
+                        ${data}
+                    </request>
+                </cmd>
+            `)
+        )
+    } else {
+        return (
+            xmlHeader +
+            checkXml(rawXml`
+                <request version="1.0" systemType="NVMS-9000" clientType="WEB" ${refresh ? 'refresh="true"' : ''}>
                     ${tokenXml}
                     ${data}
                 </request>
-            </cmd>
-        `
-    } else {
-        return rawXml`${xmlHeader}
-            <request version="1.0" systemType="NVMS-9000" clientType="WEB" ${refresh ? 'refresh="true"' : ''}>
-                ${tokenXml}
-                ${data}
-            </request>`
+            `)
+        )
     }
 }
 
@@ -54,19 +53,16 @@ export const getXmlWrapData = (data: string, url = '', refresh = false) => {
  * @param {string} message
  */
 const handleUserErrorRedirectToLogin = (message: string) => {
-    const { openMessageBox } = useMessageBox()
+    const { openMessageBox, count } = useMessageBox()
     const layoutStore = useLayoutStore()
     if (!layoutStore.isInitial) {
-        isErrorMessageBox = false
         Logout()
     } else {
-        if (!isErrorMessageBox) {
-            isErrorMessageBox = true
+        if (!count) {
             openMessageBox({
                 type: 'info',
                 message: message,
             }).finally(() => {
-                isErrorMessageBox = false
                 Logout()
             })
         }
@@ -101,7 +97,7 @@ class Request {
                     ...this.config,
                     ...config,
                     url,
-                    data: compressXml(data),
+                    data: compressXml(getXmlWrapData(data)),
                     baseURL: this.BASE_URL,
                 }).then(
                     (response) => {
@@ -129,7 +125,7 @@ class Request {
             } else {
                 const plugin = usePlugin()
                 plugin.P2pCmdSender.add({
-                    cmd: compressXml(data),
+                    cmd: getXmlWrapData(data, url),
                     resolve: (xmlDoc) => {
                         const $ = queryXml(xmlDoc)
                         if ($('//status').text() === ApiStatus.fail) {
@@ -171,31 +167,6 @@ class Request {
                 break
             case ErrorCode.USER_ERROR_INVALID_PARAM:
                 handleUserErrorRedirectToLogin(Translate('IDCS_USER_ERROR_INVALID_PARAM'))
-                break
-            case ErrorCode.USER_ERROR_FAIL:
-                //Session无效相关错误处理，2秒内不重复处理，防止多个API并发调用时，弹出多次会话超时提示
-                if (dayjs().valueOf() - commonErrorLastTime > 2000) {
-                    ElMessage({
-                        type: 'error',
-                        message: Translate('IDCS_LOGIN_OVERTIME'),
-                        grouping: true,
-                    })
-                    Logout()
-                    commonErrorLastTime = dayjs().valueOf()
-                }
-                break
-            case ErrorCode.USER_SESSION_TIMEOUT:
-            case ErrorCode.USER_SESSION_NOTFOUND:
-                //Session无效相关错误处理，2秒内不重复处理，防止多个API并发调用时，弹出多次会话超时提示
-                if (dayjs().valueOf() - commonErrorLastTime > 2000) {
-                    ElMessage({
-                        type: 'error',
-                        message: Translate('IDCS_LOGIN_OVERTIME'),
-                        grouping: true,
-                    })
-                    // Logout()
-                    commonErrorLastTime = dayjs().valueOf()
-                }
                 break
             default:
                 isStopHandle = false

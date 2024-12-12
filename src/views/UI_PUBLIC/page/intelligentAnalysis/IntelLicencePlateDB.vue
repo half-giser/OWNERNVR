@@ -116,7 +116,7 @@
                                 </el-table-column>
                             </el-table>
                             <div class="base-pagination-box">
-                                <el-pagination
+                                <BasePagination
                                     v-model:current-page="formData.pageIndex"
                                     v-model:page-size="formData.pageSize"
                                     :page-sizes="[15, 20, 30]"
@@ -130,13 +130,8 @@
                 </el-table-column>
             </el-table>
         </div>
-        <div
-            class="base-btn-box padding"
-            span="2"
-        >
-            <div>
-                <el-button @click="handleVehicleRecognition">{{ Translate('IDCS_VEHICLE_DETECTION') }}</el-button>
-            </div>
+        <div class="base-btn-box space-between padding">
+            <el-button @click="handleVehicleRecognition">{{ Translate('IDCS_VEHICLE_DETECTION') }}</el-button>
             <div>
                 <el-button
                     :disabled="!tableData.length"

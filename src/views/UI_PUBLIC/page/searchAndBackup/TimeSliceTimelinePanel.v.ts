@@ -210,17 +210,17 @@ export default defineComponent({
         const timelineRef = ref<TimelineInstance>()
         const playerRef = ref<PlayerInstance>()
 
-        const plugin = usePluginHook({
+        const plugin = setupPlugin({
             onReady: (mode, plugin) => {
                 if (mode.value === 'ocx') {
                     const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Playback')
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.ExecuteCmd(sendXML)
                 }
             },
             onDestroy: (mode, plugin) => {
                 if (mode.value === 'ocx') {
                     const sendXML = OCX_XML_StopPreview('ALL')
-                    plugin.GetVideoPlugin().ExecuteCmd(sendXML)
+                    plugin.ExecuteCmd(sendXML)
                 }
             },
         })
@@ -830,7 +830,9 @@ export default defineComponent({
             if (type === 'local') {
                 if (mode.value === 'h5') {
                     pageData.value.isLocalBackUpPop = true
-                } else if (mode.value === 'ocx') {
+                }
+
+                if (mode.value === 'ocx') {
                     plugin.BackUpTask.addTask(pageData.value.backupRecList, path, format)
                     router.push({
                         path: '/search-and-backup/backup-state',
@@ -899,10 +901,6 @@ export default defineComponent({
             confirmBackUp,
             showTimeRange,
             confirmTimeRange,
-            TimeSliceItem,
-            TimeSliceTimeRangePop,
-            BackupPop,
-            BackupLocalPop,
         }
     },
 })

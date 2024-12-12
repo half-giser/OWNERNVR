@@ -21,7 +21,7 @@ export const useFormRef = () => {
             formRef.value!.fields.forEach((item) => {
                 const selector = item.$el?.querySelector('.el-form-item__error')
                 if (selector) {
-                    selector.classList.remove('fadeOut')
+                    selector.classList.remove('base-fade-out')
                 }
             })
 
@@ -38,7 +38,7 @@ export const useFormRef = () => {
                         timer = setTimeout(() => {
                             const selector = field.$el?.querySelector('.el-form-item__error')
                             if (selector) {
-                                selector.classList.add('fadeOut')
+                                selector.classList.add('base-fade-out')
                                 selector.addEventListener('animationend', () => {
                                     formRef.value!.clearValidate(field.prop)
                                 })

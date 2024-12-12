@@ -28,7 +28,7 @@ export default defineComponent({
             },
         })
 
-        const oldExpirationArr = [] as string[]
+        const oldExpirationArr: string[] = []
 
         const pageData = ref({
             doubleStreamRecSwitch: '',
@@ -323,12 +323,12 @@ export default defineComponent({
             }
 
             if (devResult && chlResult) {
-                commSaveResponseHadler(chlResult)
+                commSaveResponseHandler(chlResult)
             } else if (devResult) {
-                commSaveResponseHadler(devResult)
+                commSaveResponseHandler(devResult)
             } else if (chlResult) {
                 // 只有chlResult才会走到这里
-                commSaveResponseHadler(chlResult)
+                commSaveResponseHandler(chlResult)
             } else {
                 openMessageBox({
                     type: 'info',
@@ -479,7 +479,6 @@ export default defineComponent({
         })
 
         return {
-            RecordParameterCustomPop,
             supportANR,
             tableData,
             pageData,

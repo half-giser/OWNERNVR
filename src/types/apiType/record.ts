@@ -11,10 +11,10 @@ import { TableRowStatus } from './base'
 export class RecordDistributeInfoDto {
     mode = '' // 录像模式类型
     autoMode = '' // 自动录像模式
-    autoModeEvents = [] as string[] // 自动录像模式事件列表
+    autoModeEvents: string[] = [] // 自动录像模式事件列表
     autoModeId = '' //自动模式Radio列表中选择的ID
     urgencyRecDuration = 0 // 手动录像时长
-    recordScheduleList = [] as RecordScheduleDto[]
+    recordScheduleList: RecordScheduleDto[] = []
 }
 
 /**
@@ -71,7 +71,7 @@ export class RecordSubStreamQualityCaps {
     res = ''
     digitalDefault = ''
     analogDefault = ''
-    value = [] as string[]
+    value: string[] = []
 }
 
 /**
@@ -96,8 +96,8 @@ export class RecordSubStreamList extends TableRowStatus {
     level = ''
     videoQuality = ''
     videoEncodeType = ''
-    subStreamQualityCaps = [] as RecordSubStreamQualityCaps[]
-    qualitys = [] as string[]
+    subStreamQualityCaps: RecordSubStreamQualityCaps[] = []
+    qualitys: string[] = []
 }
 
 /**
@@ -105,7 +105,7 @@ export class RecordSubStreamList extends TableRowStatus {
  */
 export class RecordSubStreamResolutionDto {
     res = ''
-    resGroup = [] as string[]
+    resGroup: string[] = []
     chls = {
         expand: false,
         data: [] as SelectOption<string, string>[],
@@ -138,7 +138,7 @@ export class RecordStreamInfoDto extends TableRowStatus {
     bitRange: { min: number; max: number } | null = { min: 0, max: 0 }
     audio = ''
     recordStream = ''
-    GOP = undefined as number | undefined
+    GOP: number | undefined = undefined
     chlType = ''
     mainCaps = {
         // 可选的编码类型
@@ -214,5 +214,5 @@ export class RecordStreamInfoDto extends TableRowStatus {
 
 export interface RecordStreamTableExpose {
     setData: () => void
-    queryRemainRecTimeF: () => void
+    getRemainRecTime: () => void
 }

@@ -18,15 +18,19 @@
         >
             <el-form-item :label="Translate('IDCS_PATH')">
                 <el-input v-model="pageData.uploadFileName" />
-                <el-upload
-                    class="audioUpload"
-                    :accept="pageData.uploadAccept"
-                    :show-file-list="false"
-                    :auto-upload="false"
-                    :on-change="uploadFile"
+                <label
+                    for="upload-audio"
+                    class="el-button"
                 >
-                    <el-button>{{ Translate('IDCS_BROWSE') }}</el-button>
-                </el-upload>
+                    {{ Translate('IDCS_BROWSE') }}
+                </label>
+                <input
+                    id="upload-audio"
+                    type="file"
+                    hidden
+                    :accept="pageData.uploadAccept"
+                    @change="uploadFile"
+                />
             </el-form-item>
         </el-form>
         <div class="tips">

@@ -4,7 +4,6 @@
  * @Description: 事件通知——声音——ipc/local添加语音文件弹窗
  */
 import { AlarmAudioAlarmOutDto } from '@/types/apiType/aiAndEvent'
-import { type UploadRawFile, type UploadFile } from 'element-plus'
 
 export default defineComponent({
     props: {
@@ -23,8 +22,8 @@ export default defineComponent({
         },
     },
     emits: {
-        apply(audioId: string, fileName: string) {
-            return typeof audioId === 'string' && typeof fileName === 'string'
+        apply(audioId: number, fileName: string) {
+            return typeof audioId === 'number' && typeof fileName === 'string'
         },
         close() {
             return true
@@ -46,7 +45,7 @@ export default defineComponent({
             btnApplyDisabled: true,
         })
 
-        let rawFile: UploadRawFile | undefined = undefined
+        let rawFile: File | undefined = undefined
 
         const open = () => {
             pageData.value.title = prop.type === 'ipcAudio' ? Translate('IDCS_LOAD_WAV') : Translate('IDCS_LOAD_MP3')
@@ -71,24 +70,28 @@ export default defineComponent({
             }
         }
 
-        const uploadFile = (uploadFile: UploadFile) => {
-            if (prop.type === 'nvrAudio' && uploadFile.name.indexOf('.mp3') === -1) {
+        const uploadFile = (e: Event) => {
+            const files = (e.target as HTMLInputElement).files
+            if (!files?.length) {
+                return
+            }
+
+            if (prop.type === 'nvrAudio' && files[0].name.indexOf('.mp3') === -1) {
                 // 过滤非mp3文件
                 openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_SELECT_MP3_FILE'),
                 })
                 return
-            } else if (prop.type === 'ipcAudio' && uploadFile.name.indexOf('.wav') === -1) {
+            } else if (prop.type === 'ipcAudio' && files[0].name.indexOf('.wav') === -1) {
                 openMessageBox({
                     type: 'info',
                     message: Translate('IDCS_NO_CHOOSE_TDB_FILE').formatForLang('wav'),
                 })
                 return
             }
-            rawFile = uploadFile.raw
-            // pageData.value.uploadFile = uploadFile
-            pageData.value.uploadFileName = uploadFile.name
+            rawFile = files[0]
+            pageData.value.uploadFileName = files[0].name
             pageData.value.btnApplyDisabled = false
         }
 
@@ -101,8 +104,8 @@ export default defineComponent({
             fileToBase64(blob, async (data: string) => {
                 const fileSize = base64FileSize(data)
                 if (prop.type === 'ipcAudio') {
-                    let audioFileLimitSize = prop.ipcRowData.audioFileLimitSize
-                    audioFileLimitSize = (Number(audioFileLimitSize) / 1024).toFixed(2)
+                    // let audioFileLimitSize = prop.ipcRowData.audioFileLimitSize
+                    const audioFileLimitSize = (Number(prop.ipcRowData.audioFileLimitSize) / 1024).toFixed(2)
                     if (fileSize > audioFileLimitSize) {
                         showMsg(Translate('IDCS_OUT_FILE_SIZE'))
                         return
@@ -125,7 +128,7 @@ export default defineComponent({
 
                     if ($('status').text() === 'success') {
                         ctx.emit('close')
-                        const audioId = $('content/param/id').text()
+                        const audioId = $('content/param/id').text().num()
                         ctx.emit('apply', audioId, pageData.value.uploadFileName)
                     } else {
                         const errorCode = $('errorCode').text().num()

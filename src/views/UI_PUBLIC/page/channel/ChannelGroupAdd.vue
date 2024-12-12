@@ -76,12 +76,9 @@
                 </el-table-column>
             </el-table>
         </div>
-        <div
-            class="base-btn-box"
-            span="2"
-        >
+        <div class="base-btn-box space-between">
             <div>
-                <span>{{ Translate('IDCS_SELECT_CHANNEL_COUNT').formatForLang(selNum, chlGroupCountLimit) }}</span>
+                {{ Translate('IDCS_SELECT_CHANNEL_COUNT').formatForLang(selNum, chlGroupCountLimit) }}
             </div>
             <div>
                 <el-button @click="save()">{{ Translate('IDCS_OK') }}</el-button>

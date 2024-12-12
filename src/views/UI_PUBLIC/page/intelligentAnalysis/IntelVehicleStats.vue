@@ -52,10 +52,7 @@
                     :tooltip="pageData.barData.tooltip"
                 />
             </div>
-            <div
-                class="base-btn-box"
-                span="2"
-            >
+            <div class="base-btn-box space-between">
                 <div>
                     <el-checkbox
                         v-show="['plateDetection', 'plateMatchWhiteList', 'plateMatchStranger'].includes(formData.event[0] || '')"
@@ -63,9 +60,7 @@
                         :label="Translate('IDCS_REMOVE_DUPLICATE_LICENSE_PLATE')"
                     />
                 </div>
-                <div>
-                    <el-button @click="exportChart">{{ Translate('IDCS_EXPORT') }}</el-button>
-                </div>
+                <el-button @click="exportChart">{{ Translate('IDCS_EXPORT') }}</el-button>
             </div>
         </div>
     </div>

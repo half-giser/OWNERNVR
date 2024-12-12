@@ -12,17 +12,16 @@
                 v-show="pageData.supportMenu.includes(item.value)"
                 :key="item.value"
             >
-                <el-tooltip :content="item.label">
-                    <BaseImgSprite
-                        :file="item.file"
-                        :index="pageData.installType === item.value ? 2 : 0"
-                        :hover-index="1"
-                        :disabled-index="3"
-                        :disabled="!supportFishEye"
-                        :chunk="4"
-                        @click="changeInstallType(item.value)"
-                    />
-                </el-tooltip>
+                <BaseImgSprite
+                    :file="item.file"
+                    :title="item.label"
+                    :index="pageData.installType === item.value ? 2 : 0"
+                    :hover-index="1"
+                    :disabled-index="3"
+                    :disabled="!supportFishEye"
+                    :chunk="4"
+                    @click="changeInstallType(item.value)"
+                />
             </div>
         </div>
         <h2>{{ Translate('IDCS_FISHEYE_DISPLAY') }}</h2>
@@ -37,17 +36,16 @@
                 v-show="pageData.supportMenu.includes(`${item.value}_${child.value}`)"
                 :key="child.value"
             >
-                <el-tooltip :content="child.label">
-                    <BaseImgSprite
-                        :file="child.file"
-                        :index="pageData.fishEyeMode === child.value ? 2 : 0"
-                        :hover-index="1"
-                        :disabled-index="3"
-                        :chunk="4"
-                        :disabled="!supportFishEye"
-                        @click="changeFishEyeMode(child.value)"
-                    />
-                </el-tooltip>
+                <BaseImgSprite
+                    :file="child.file"
+                    :title="child.label"
+                    :index="pageData.fishEyeMode === child.value ? 2 : 0"
+                    :hover-index="1"
+                    :disabled-index="3"
+                    :chunk="4"
+                    :disabled="!supportFishEye"
+                    @click="changeFishEyeMode(child.value)"
+                />
             </div>
         </div>
     </div>

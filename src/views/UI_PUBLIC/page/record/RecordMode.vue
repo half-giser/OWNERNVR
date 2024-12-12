@@ -22,10 +22,7 @@
         </el-form>
         <div class="subcontent-box">
             <div v-show="formData.mode === 'manually'">
-                <div
-                    class="base-btn-box"
-                    span="2"
-                >
+                <div class="base-btn-box space-between">
                     <span class="chlRecScheduleTb">{{ Translate('IDCS_SCHEDULE_OF_RECORD_SET') }}</span>
                     <div>
                         <el-button @click="pageData.scheduleManagPopOpen = true">{{ Translate('IDCS_SCHEDULE_MANAGE') }}</el-button>
@@ -224,10 +221,7 @@
                         :label="item.text"
                     />
                 </el-radio-group>
-                <div
-                    class="base-btn-box"
-                    span="start"
-                >
+                <div class="base-btn-box flex-start">
                     <el-button @click="pageData.advancePopOpen = true">{{ Translate('IDCS_ADVANCED') }}</el-button>
                 </div>
             </div>
@@ -248,7 +242,7 @@
         </el-form>
         <div class="base-btn-box">
             <el-button
-                :disabled="pageData.applyDisabled"
+                :disabled="watchEdit.disabled.value"
                 @click="setData(true)"
             >
                 {{ Translate('IDCS_APPLY') }}

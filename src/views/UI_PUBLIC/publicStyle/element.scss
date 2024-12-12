@@ -51,21 +51,21 @@
         & + .el-button {
             margin-left: 5px;
         }
-    }
 
-    .el-button--primary {
-        --el-button-border-color: var(--btn-border);
-        --el-button-bg-color: var(--btn-bg);
-        --el-button-text-color: var(--btn-text);
-        --el-button-disabled-text-color: var(--btn-text);
-        --el-button-disabled-bg-color: var(--btn-bg-disabled);
-        --el-button-disabled-border-color: var(--btn-border-disabled);
-        --el-button-hover-text-color: var(--btn-text);
-        --el-button-hover-bg-color: var(--btn-bg-hover);
-        --el-button-hover-border-color: var(--btn-border-hover);
-        --el-button-active-text-color: var(--btn-text);
-        --el-button-active-border-color: var(--btn-border-hover);
-        --el-button-active-bg-color: var(--btn-bg-hover);
+        &--primary {
+            --el-button-border-color: var(--btn-border);
+            --el-button-bg-color: var(--btn-bg);
+            --el-button-text-color: var(--btn-text);
+            --el-button-disabled-text-color: var(--btn-text);
+            --el-button-disabled-bg-color: var(--btn-bg-disabled);
+            --el-button-disabled-border-color: var(--btn-border-disabled);
+            --el-button-hover-text-color: var(--btn-text);
+            --el-button-hover-bg-color: var(--btn-bg-hover);
+            --el-button-hover-border-color: var(--btn-border-hover);
+            --el-button-active-text-color: var(--btn-text);
+            --el-button-active-border-color: var(--btn-border-hover);
+            --el-button-active-bg-color: var(--btn-bg-hover);
+        }
     }
 
     .el-select {
@@ -73,13 +73,11 @@
         --el-border-color-hover: var(--primary);
         --el-disabled-border-color: var(--input-border-disabled);
 
-        .el-select__wrapper {
+        &__wrapper {
             &.is-disabled {
                 background-color: var(--input-bg-disabled);
             }
-        }
 
-        &__wrapper {
             min-height: 26px;
             padding-block: 0;
         }
@@ -139,7 +137,7 @@
             }
         }
 
-        & + .el-radio-button .el-radio-button__inner {
+        & + & &__inner {
             border-left: none;
         }
     }
@@ -148,23 +146,6 @@
         background-color: var(--radio-btn-bg-active);
         color: var(--radio-btn-text-active);
     }
-
-    // .el-button--danger {
-    //     --el-button-text-color: var(--btn-text);
-    //     --el-button-bg-color: var(--danger--06);
-    //     --el-button-border-color: var(--el-color-danger);
-    //     --el-button-outline-color: var(--el-color-danger-light-5);
-    //     --el-button-active-color: var(--el-color-danger-dark-2);
-    //     --el-button-hover-text-color: var(--btn-text);
-    //     --el-button-hover-link-text-color: var(--el-color-danger-light-5);
-    //     --el-button-hover-bg-color: var(--danger--05);
-    //     --el-button-hover-border-color: var(--el-color-danger-light-3);
-    //     --el-button-active-bg-color: var(--danger--07);
-    //     --el-button-active-border-color: var(--el-color-danger-dark-2);
-    //     --el-button-disabled-text-color: var(--btn-text);
-    //     --el-button-disabled-bg-color: var(--danger--03);
-    //     --el-button-disabled-border-color: var(--el-color-danger-light-5);
-    // }
 
     .el-input,
     .el-textarea {
@@ -189,19 +170,21 @@
         --el-checkbox-disabled-checked-input-border-color: var(--input-border-disabled);
         --el-checkbox-disabled-input-fill: var(--input-bg-disabled);
         --el-checkbox-disabled-checked-input-fill: var(--input-bg-disabled);
-        // .el-checkbox__input {
-        //     &.is-disabled {
-        //         .el-checkbox__inner {
-        //             box-shadow: 0 0 1px;
-        //         }
-        //     }
-        // }
+
+        &__label {
+            padding-left: 5px;
+        }
     }
 
     .el-radio {
         --el-radio-checked-text-color: var(--primary);
         --el-radio-input-border: var(--el-border-width) var(--el-border-style) var(--input-border);
         --el-radio-input-border-color-hover: var(--primary);
+        --el-radio-text-color: var(--main-text);
+
+        &__label {
+            padding-left: 5px;
+        }
     }
 
     .el-overlay {
@@ -217,8 +200,16 @@
         --el-table-current-row-bg-color: var(--primary);
         --el-table-expanded-cell-bg-color: var(--main-bg);
 
-        &__body-wrapper {
-            background-color: var(--main-bg);
+        &__body {
+            &-wrapper {
+                background-color: var(--main-bg);
+            }
+
+            .el-form-item__content {
+                display: flex;
+                align-items: center;
+                line-height: 26px;
+            }
         }
 
         .cell {
@@ -287,88 +278,28 @@
                 }
             }
         }
+
+        &--striped .el-table__body tr.el-table__row--striped td.el-table__cell {
+            background: var(--table-stripe);
+        }
+
+        &--enable-row-hover .el-table__body tr:hover > td.el-table__cell {
+            background-color: var(--table-bg-hover);
+        }
     }
 
-    .el-table--striped .el-table__body tr.el-table__row--striped td.el-table__cell {
-        background: var(--table-stripe);
-    }
+    // .el-pagination {
+    //     --el-pagination-bg-color: var(--main-bg);
+    //     --el-pagination-button-disabled-bg-color: var(--main-bg);
+    //     --el-pagination-button-color: var(--main-text);
+    //     --el-pagination-button-disabled-color: var(--input-text-disabled);
 
-    .el-table--enable-row-hover .el-table__body tr:hover > td.el-table__cell {
-        background-color: var(--table-bg-hover);
-    }
-
-    // .el-icon {
-    //     width: 1.3em;
-    //     height: 1.3em;
-
-    //     // svg {
-    //     //     width: 1.3em;
-    //     //     height: 1.3em;
-    //     //     fill: var(--input-text);
-    //     //     color: var(--input-text);
-    //     // }
-
-    //     // &:hover {
-    //     //     svg {
-    //     //         fill: var(--primary);
-    //     //         color: var(--input-text);
-    //     //     }
-    //     // }
-
-    //     // &.disabled {
-    //     //     cursor: default;
-
-    //     //     svg {
-    //     //         fill: var(--input-text-disabled);
-    //     //         color: var(--input-text);
-    //     //     }
-    //     // }
+    //     &__sizes,
+    //     &__total,
+    //     &__jump {
+    //         color: var(--main-text);
+    //     }
     // }
-
-    .el-pagination {
-        --el-pagination-bg-color: var(--main-bg);
-        --el-pagination-button-disabled-bg-color: var(--main-bg);
-        --el-pagination-button-color: var(--main-text);
-        --el-pagination-button-disabled-color: var(--input-text-disabled);
-
-        &__sizes,
-        &__total,
-        &__jump {
-            color: var(--main-text);
-        }
-    }
-
-    .table-icon-column {
-        .el-icon {
-            cursor: pointer;
-            margin: 0 5px;
-            padding: 0 10px;
-
-            &.disabled {
-                cursor: default;
-            }
-        }
-    }
-
-    .el-table__body {
-        & thead {
-            & .el-table__cell {
-                & .cell {
-                    display: inline-block;
-                }
-
-                &:last-of-type::after {
-                    content: '';
-                }
-            }
-        }
-
-        .el-form-item__content {
-            display: flex;
-            align-items: center;
-            line-height: 26px;
-        }
-    }
 
     // .ruleTable {
     //     & tbody {
@@ -382,12 +313,40 @@
     //     }
     // }
 
-    .el-table__column-filter-trigger {
-        margin-left: 10px;
-    }
+    .el-form-item {
+        &__label {
+            color: var(--main-text);
+        }
 
-    .el-form-item__label {
-        color: var(--main-text);
+        &__error {
+            white-space: nowrap;
+            padding-top: 0;
+            padding-inline: 10px;
+            position: absolute;
+            background-color: var(--color-white);
+            top: 3px;
+            left: var(--form-error-offset, var(--form-input-width));
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--color-error);
+            color: var(--color-error);
+            margin-left: 10px;
+            height: 24px;
+            text-align: left;
+            pointer-events: none;
+
+            &::before {
+                content: '';
+                width: 16px;
+                height: 16px;
+                background-image: url('@/components/sprite/sprites.png');
+                background-position-x: var(--float-x);
+                background-position-y: var(--float-y);
+                display: inline-block;
+                margin-right: 5px;
+                flex-shrink: 0;
+            }
+        }
     }
 
     .el-dropdown {
@@ -395,10 +354,6 @@
 
         .el-dropdown-link {
             cursor: pointer;
-
-            .Sprite.ddn {
-                margin-left: 5px;
-            }
         }
 
         &-menu {
@@ -417,36 +372,6 @@
         &__popper {
             --el-dropdown-menuItem-hover-fill: var(--primary);
             --el-dropdown-menuItem-hover-color: var(--color-white);
-        }
-    }
-
-    .el-form-item__error {
-        white-space: nowrap;
-        padding-top: 0;
-        padding-inline: 10px;
-        position: absolute;
-        background-color: var(--color-white);
-        top: 3px;
-        left: var(--form-error-offset, var(--form-input-width));
-        display: flex;
-        align-items: center;
-        border: 1px solid var(--color-error);
-        color: var(--color-error);
-        margin-left: 10px;
-        height: 24px;
-        text-align: left;
-        pointer-events: none;
-
-        &::before {
-            content: '';
-            width: 16px;
-            height: 16px;
-            background-image: url('@/components/sprite/sprites.png');
-            background-position-x: var(--float-x);
-            background-position-y: var(--float-y);
-            display: inline-block;
-            margin-right: 5px;
-            flex-shrink: 0;
         }
     }
 
@@ -493,10 +418,6 @@
         }
     }
 
-    .el-row {
-        align-items: center;
-    }
-
     .el-calendar {
         --el-calendar-border: 1px solid var(--calendar-border);
         --el-calendar-cell-width: unset;
@@ -538,21 +459,20 @@
                 background-color: var(--calendar-bg-today);
             }
 
-            // 日历为5行时
-            &:has(tr:nth-child(5)) {
-                .el-calendar-day {
-                    div {
-                        padding: 3px 0;
-                    }
-                }
+            tbody {
+                display: flex;
+                flex-direction: column;
+                width: 250px;
+                height: 120px;
             }
 
-            // 日历为6行时
-            &:has(tr:nth-child(6)) {
-                .el-calendar-day {
-                    div {
-                        padding: 1px 0;
-                    }
+            &__row {
+                width: 100%;
+                flex: 1;
+                display: flex;
+
+                td {
+                    width: 36px;
                 }
             }
         }
@@ -562,9 +482,14 @@
             padding: 0;
             text-align: center;
             position: relative;
+            height: 100%;
 
             div {
-                padding: 6px 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100%;
+                width: 100%;
 
                 &.active {
                     background-color: var(--primary);
@@ -607,6 +532,10 @@
 
             .el-checkbox__inner {
                 border-radius: var(--el-checkbox-border-radius);
+            }
+
+            .el-checkbox__label {
+                padding-left: 18px;
             }
         }
 

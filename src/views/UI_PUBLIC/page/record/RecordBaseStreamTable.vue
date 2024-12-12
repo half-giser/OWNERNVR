@@ -9,14 +9,13 @@
             <el-table
                 :data="virtualTableData"
                 class="RecordStreamList"
-                show-overflow-tooltip
                 :row-class-name="(data) => (tableData[data.rowIndex].disabled ? 'disabled' : '')"
-                highlight-current-row
             >
                 <!-- 通道名 -->
                 <el-table-column
                     :label="Translate('IDCS_CHANNEL_NAME')"
                     min-width="220"
+                    show-overflow-tooltip
                 >
                     <template #default="scope">
                         {{ tableData[scope.$index].name }}
@@ -26,6 +25,7 @@
                 <el-table-column
                     :label="Translate('IDCS_CODE_STREAM_TYPE')"
                     width="120"
+                    show-overflow-tooltip
                 >
                     <template #default="scope">
                         {{ formatDisplayStreamType(tableData[scope.$index]) }}
@@ -273,6 +273,7 @@
                 <el-table-column
                     :label="Translate('IDCS_RATE_RECOMMEND_RANGE')"
                     width="205"
+                    show-overflow-tooltip
                 >
                     <template #default="scope">
                         <span :disabled="tableData[scope.$index].bitRangeDisable">{{ formatDisplayBitRange(tableData[scope.$index]) }}</span>
@@ -394,9 +395,8 @@
             </el-table>
         </div>
         <div
-            v-if="!pageData.pop"
-            class="base-btn-box"
-            span="2"
+            v-if="!pop"
+            class="base-btn-box space-between"
         >
             <div>
                 <span class="row_bandwidth">{{ pageData.txtBandwidth }}</span>
@@ -412,14 +412,12 @@
                     {{ Translate('IDCS_CALCULATE') }}
                 </el-button>
             </div>
-            <div>
-                <el-button
-                    :disabled="!editRows.size()"
-                    @click="setData"
-                >
-                    {{ Translate('IDCS_APPLY') }}
-                </el-button>
-            </div>
+            <el-button
+                :disabled="!editRows.size()"
+                @click="setData"
+            >
+                {{ Translate('IDCS_APPLY') }}
+            </el-button>
         </div>
     </div>
 </template>

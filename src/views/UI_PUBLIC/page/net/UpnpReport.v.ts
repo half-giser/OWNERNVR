@@ -78,7 +78,7 @@ export default defineComponent({
                     </content>
                 `
                 const result = await editUPnPCfg(sendXml)
-                commSaveResponseHadler(result)
+                commSaveResponseHandler(result)
 
                 closeLoading()
             })

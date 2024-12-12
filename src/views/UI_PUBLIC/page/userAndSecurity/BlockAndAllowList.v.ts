@@ -156,7 +156,7 @@ export default defineComponent({
             const result = await editBlackAndWhiteList(sendXml)
 
             closeLoading()
-            commSaveResponseHadler(result)
+            commSaveResponseHandler(result)
         }
 
         /**
@@ -192,7 +192,6 @@ export default defineComponent({
             formatIpMacAddress,
             setData,
             handleConfirmEdit,
-            BlockAndAllowEditPop,
         }
     },
 })

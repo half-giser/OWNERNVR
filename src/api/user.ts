@@ -8,12 +8,13 @@ import type { AxiosRequestConfig } from 'axios'
 import http from './api'
 import router from '../router'
 import { removeAsyncRoutes } from '../router'
+import progress from '@bassist/progress'
 
 /**
  * @description 预登录
  * @returns
  */
-export const reqLogin = () => http.fetch('reqLogin', getXmlWrapData(''))
+export const reqLogin = () => http.fetch('reqLogin', '')
 
 /**
  * @description 登录
@@ -22,7 +23,7 @@ export const reqLogin = () => http.fetch('reqLogin', getXmlWrapData(''))
  * @param checkCommonErrorSwitch
  * @returns
  */
-export const doLogin = (data: string, config?: AxiosRequestConfig, checkCommonErrorSwitch = true) => http.fetch('doLogin', getXmlWrapData(data), config, checkCommonErrorSwitch)
+export const doLogin = (data: string, config?: AxiosRequestConfig, checkCommonErrorSwitch = true) => http.fetch('doLogin', data, config, checkCommonErrorSwitch)
 
 /**
  * @description 退出登录
@@ -30,13 +31,15 @@ export const doLogin = (data: string, config?: AxiosRequestConfig, checkCommonEr
  * @param config
  * @returns
  */
-export const doLogout = () => http.fetch('doLogout', getXmlWrapData(''), {}, false)
+export const doLogout = () => http.fetch('doLogout', '', {}, false)
 
 /**
  * @description 登出处理
  * @returns
  */
 export const Logout = async () => {
+    progress.start()
+
     const userSession = useUserSessionStore()
     const pluginStore = usePluginStore()
     if (router.currentRoute.value.name === 'login') return
@@ -57,4 +60,4 @@ export const Logout = async () => {
  * @description 查询隐私政策
  * @returns
  */
-export const queryShowPrivacyView = () => http.fetch('queryShowPrivacyView', getXmlWrapData(''))
+export const queryShowPrivacyView = () => http.fetch('queryShowPrivacyView', '')

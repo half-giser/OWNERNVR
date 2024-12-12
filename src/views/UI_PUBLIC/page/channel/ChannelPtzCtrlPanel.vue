@@ -4,7 +4,12 @@
  * @Description: 云台-控制台
 -->
 <template>
-    <div class="ctrl">
+    <div
+        class="ctrl"
+        :class="{
+            disabled: !chlId || disabled,
+        }"
+    >
         <div class="steer">
             <BaseImgSprite
                 v-for="item in pageData.steer"
@@ -13,6 +18,8 @@
                 :index="0"
                 :hover-index="1"
                 :chunk="4"
+                :disabled-index="3"
+                :disabled="!chlId || disabled"
                 @mousedown="addCmd(item)"
                 @mouseup="stopCmd()"
             />
@@ -24,6 +31,8 @@
                     :index="0"
                     :hover-index="1"
                     :chunk="4"
+                    :disabled-index="3"
+                    :disabled="!chlId || disabled"
                     @click="decreaseSpeed()"
                 />
                 <el-slider
@@ -31,6 +40,8 @@
                     :min="pageData.minSpeed"
                     :max="pageData.maxSpeed"
                     :step="1"
+                    :disabled="!chlId || disabled"
+                    :show-tooltip="!chlId || disabled ? false : true"
                     placement="bottom"
                 />
                 <BaseImgSprite
@@ -38,6 +49,8 @@
                     :index="0"
                     :hover-index="1"
                     :chunk="4"
+                    :disabled-index="3"
+                    :disabled="!chlId || disabled"
                     @click="increaseSpeed()"
                 />
             </div>
@@ -51,6 +64,8 @@
                     :index="0"
                     :hover-index="1"
                     :chunk="4"
+                    :disabled-index="3"
+                    :disabled="!chlId || disabled"
                     @mousedown="addCmd(item.control[0])"
                     @mouseup="stopCmd()"
                 />
@@ -60,6 +75,8 @@
                     :index="0"
                     :hover-index="1"
                     :chunk="4"
+                    :disabled-index="3"
+                    :disabled="!chlId || disabled"
                     @mousedown="addCmd(item.control[1])"
                     @mouseup="stopCmd()"
                 />
@@ -78,6 +95,12 @@
     align-items: center;
     box-sizing: border-box;
     padding: 10px;
+
+    &.disabled {
+        .row {
+            color: var(--main-text-light);
+        }
+    }
 }
 
 .steer {

@@ -287,7 +287,7 @@ export default defineComponent({
                 csvTitle.colspan = 5
             }
             const label = stats.calLabel()
-            const csvBody = [] as string[][]
+            const csvBody: string[][] = []
             const defaultValue = Array(csvTitle.colspan - 2).fill('0')
             label.forEach((labelItem, index) => {
                 const item = tableData.value[index]
@@ -322,8 +322,6 @@ export default defineComponent({
             changeEvent,
             changeType,
             exportChart,
-            IntelBaseChannelSelector,
-            IntelBaseEventSelector,
         }
     },
 })

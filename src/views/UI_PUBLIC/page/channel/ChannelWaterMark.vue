@@ -46,7 +46,6 @@
                     :data="pageData.chlList"
                     highlight-current-row
                     show-overflow-tooltip
-                    :row-class-name="(data) => (data.row.disabled ? 'disabled' : '')"
                     @row-click="handleRowClick"
                 >
                     <!-- 状态列 -->
@@ -126,7 +125,7 @@
                 </el-table>
             </div>
             <div class="base-pagination-box">
-                <el-pagination
+                <BasePagination
                     v-model:current-page="pageData.pageIndex"
                     v-model:page-size="pageData.pageSize"
                     :total="pageData.totalCount"

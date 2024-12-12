@@ -195,7 +195,6 @@ export default defineComponent({
             verify,
             isAuthDialog,
             doUpdateUserPassword,
-            BaseCheckAuthPop,
         }
     },
 })

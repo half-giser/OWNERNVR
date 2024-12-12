@@ -352,8 +352,6 @@ export default defineComponent({
             handleDeleteUser,
             handleConfirmEditUser,
             handleEditUserPassword,
-            UserEditPop,
-            UserEditPasswordPop,
         }
     },
 })

@@ -471,7 +471,6 @@ export default defineComponent({
             confirmChangeFaceGroup,
             showDetail,
             sliceTableData,
-            FaceDetailPop,
         }
     },
 })

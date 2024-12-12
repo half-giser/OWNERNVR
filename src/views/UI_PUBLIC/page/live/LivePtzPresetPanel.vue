@@ -16,50 +16,46 @@
                 @click="pageData.active = index"
             >
                 <span class="ptz-preset-text text-ellipsis">{{ item.name }}</span>
-                <el-tooltip :content="Translate('IDCS_CALL')">
-                    <BaseImgSprite
-                        file="call"
-                        :index="0"
-                        :chunk="2"
-                        @click.stop="callPreset(item.index, index)"
-                    />
-                </el-tooltip>
+                <BaseImgSprite
+                    file="call"
+                    :title="Translate('IDCS_CALL')"
+                    :index="0"
+                    :chunk="2"
+                    @click.stop="callPreset(item.index, index)"
+                />
             </BaseListBoxItem>
         </BaseListBox>
         <div class="ptz-preset-btns">
-            <el-tooltip :content="Translate('IDCS_ADD')">
-                <BaseImgSprite
-                    file="preset_Add"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="0"
-                    :chunk="4"
-                    :disabled="!enabled"
-                    @click="addPreset"
-                />
-            </el-tooltip>
-            <el-tooltip :content="Translate('IDCS_DELETE')">
-                <BaseImgSprite
-                    file="preset_Delete"
-                    :index="0"
-                    :hover-index="1"
-                    :chunk="4"
-                    :disabled-index="0"
-                    :disabled="!enabled"
-                    @click="deletePreset"
-                />
-            </el-tooltip>
-            <el-tooltip :content="Translate('IDCS_SAVE_POSITION')">
-                <BaseImgSprite
-                    file="preset_SavePosition"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="0"
-                    :chunk="4"
-                    :disabled="!enabled"
-                    @click="savePreset"
-                />
-            </el-tooltip>
+            <BaseImgSprite
+                file="preset_Add"
+                :title="Translate('IDCS_ADD')"
+                :index="0"
+                :hover-index="1"
+                :disabled-index="0"
+                :chunk="4"
+                :disabled="!enabled"
+                @click="addPreset"
+            />
+            <BaseImgSprite
+                file="preset_Delete"
+                :title="Translate('IDCS_DELETE')"
+                :index="0"
+                :hover-index="1"
+                :chunk="4"
+                :disabled-index="0"
+                :disabled="!enabled"
+                @click="deletePreset"
+            />
+            <BaseImgSprite
+                file="preset_SavePosition"
+                :title="Translate('IDCS_SAVE_POSITION')"
+                :index="0"
+                :hover-index="1"
+                :disabled-index="0"
+                :chunk="4"
+                :disabled="!enabled"
+                @click="savePreset"
+            />
         </div>
         <ChannelPresetAddPop
             v-model="pageData.isAddPop"

@@ -28,14 +28,14 @@ export default defineComponent({
         const plugin = usePlugin()
         const pluginStore = usePluginStore()
 
-        const tableData = ref([] as ChannelInfoDto[])
+        const tableData = ref<ChannelInfoDto[]>([])
         const channelEditPopVisable = ref(false)
         const editRowData = ref(new ChannelInfoDto())
-        const protocolList = ref([] as Record<string, string>[])
+        const protocolList = ref<Record<string, string>[]>([])
         const txtBrandwidth = ref('')
         const ipNum = ref('')
         const ipNumVisable = ref(false)
-        const editNameMapping = ref({} as Record<string, string>)
+        const editNameMapping = ref<Record<string, string>>({})
         const baseLivePopRef = ref<LivePopInstance>()
         const channelIPCUpgradePopRef = ref<ChannelIPCUpgradeExpose>()
 
@@ -190,7 +190,7 @@ export default defineComponent({
 
         const openUpgradePop = (type: 'single' | 'multiple', data: ChannelInfoDto[]) => {
             if (plugin.IsSupportH5() && isHttpsLogin()) {
-                openNotify(formatHttpsTips(Translate('IDCS_IPC_UPGRADE')))
+                openNotify(formatHttpsTips(Translate('IDCS_IPC_UPGRADE')), true)
                 return
             }
             openMessageBox({
@@ -478,9 +478,6 @@ export default defineComponent({
             mute,
             baseLivePopRef,
             channelIPCUpgradePopRef,
-            ChannelEditPop,
-            ChannelEditIPCPwdPop,
-            ChannelIPCUpgradePop,
         }
     },
 })

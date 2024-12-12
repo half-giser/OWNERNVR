@@ -6,13 +6,13 @@
 <template>
     <AlarmBaseChannelSelector
         v-model="pageData.curChl"
-        :list="pageData.faceChlList"
-        @change="chlChange"
+        :list="pageData.chlList"
+        @change="changeChl"
     />
     <el-tabs
         v-model="pageData.faceTab"
         class="base-ai-menu-tabs"
-        @tab-change="faceTabChange"
+        @tab-change="changeTab"
     >
         <div
             v-if="pageData.notChlSupport"
@@ -27,21 +27,16 @@
             :disabled="pageData.faceDetectionDisabled"
         >
             <div>
-                <div
-                    class="base-btn-box padding collapse"
-                    span="2"
-                >
-                    <div>
-                        <el-checkbox
-                            v-model="faceDetectionData.enabledSwitch"
-                            :label="detectionPageData.deviceInfo"
-                        />
-                    </div>
+                <div class="base-btn-box space-between padding collapse">
+                    <el-checkbox
+                        v-model="faceDetectionData.enabledSwitch"
+                        :label="detectionPageData.deviceInfo"
+                    />
                     <AlarmBaseResourceData
                         v-if="showAIReourceDetail"
                         :chl-id="pageData.curChl"
                         event="faceDetect"
-                        :enable="faceDetectionData.enabledSwitch && !chlList[pageData.curChl].supportVfd"
+                        :enable="faceDetectionData.enabledSwitch && !chlData.supportVfd"
                         @error="handleAIResourceError"
                         @change="handleAIResourceDel"
                     />
@@ -50,7 +45,7 @@
                     <el-tabs
                         v-model="detectionPageData.detectionTab"
                         class="base-ai-tabs"
-                        @tab-change="detectionTabChange"
+                        @tab-change="changeDetectionTab"
                     >
                         <!-- 参数设置 -->
                         <el-tab-pane
@@ -66,7 +61,7 @@
                                         @message="notify"
                                     />
                                 </div>
-                                <div v-show="detectionPageData.isPlayerBottomShow">
+                                <div v-show="faceDetectionData.supportVfd">
                                     <div class="base-btn-box">
                                         <el-button @click="clearDrawArea">{{ Translate('IDCS_CLEAR') }}</el-button>
                                     </div>
@@ -89,7 +84,7 @@
                                         />
                                         <el-button @click="pageData.scheduleManagPopOpen = true">{{ Translate('IDCS_MANAGE') }}</el-button>
                                     </el-form-item>
-                                    <template v-if="detectionPageData.isParamRightShow">
+                                    <template v-if="faceDetectionData.supportVfd">
                                         <!-- 规则 -->
                                         <div class="base-ai-subheading">{{ Translate('IDCD_RULE') }}</div>
                                         <!-- 持续时间 -->
@@ -146,17 +141,17 @@
                                             <BaseNumberInput
                                                 v-model="faceDetectionData.minFaceFrame"
                                                 :min="3"
-                                                :max="50"
-                                                @blur="minFaceBlur"
+                                                :max="Math.min(50, faceDetectionData.maxFaceFrame)"
+                                                @blur="blurMinFaceFrame"
                                             />
                                             <span>%</span>
                                         </el-form-item>
                                         <el-form-item :label="Translate('IDCS_MAX')">
                                             <BaseNumberInput
                                                 v-model="faceDetectionData.maxFaceFrame"
-                                                :min="3"
+                                                :min="Math.max(faceDetectionData.minFaceFrame, 3)"
                                                 :max="50"
-                                                @blur="maxFaceBlur"
+                                                @blur="blurMaxFaceFrame"
                                             />
                                             <span>%</span>
                                         </el-form-item>
@@ -164,7 +159,7 @@
                                             <el-checkbox
                                                 v-model="detectionPageData.isDispalyRangeChecked"
                                                 :label="Translate('IDCS_DISPLAY_RANGE_BOX')"
-                                                @change="dispalyRangeChange"
+                                                @change="changeDisplayRange"
                                             />
                                         </el-form-item>
                                     </template>
@@ -173,7 +168,7 @@
                         </el-tab-pane>
                         <!-- 联动方式 -->
                         <el-tab-pane
-                            v-if="detectionPageData.isLinkageShow"
+                            v-if="faceDetectionData.supportVfd"
                             :label="Translate('IDCS_LINKAGE_MODE')"
                             name="linkage"
                         >
@@ -209,13 +204,13 @@
                     </el-tabs>
                     <!-- 高级设置 -->
                     <el-popover
-                        v-model:visible="advancedVisible"
+                        v-model:visible="pageData.isAdvance"
                         width="300"
                         popper-class="no-padding keep-ocx"
                     >
                         <template #reference>
                             <div
-                                v-show="detectionPageData.isMoreWrapShow"
+                                v-show="faceDetectionData.supportVfd"
                                 class="base-ai-advance-btn"
                             >
                                 <span>{{ Translate('IDCS_ADVANCED') }}</span>
@@ -231,26 +226,24 @@
                                 {{ Translate('IDCS_VIDEO_SAVE_PIC') }}
                             </div>
                             <el-checkbox
-                                v-model="detectionPageData.isSaveSourcePicChecked"
-                                :disabled="detectionPageData.isSavePicDisabled"
+                                v-model="faceDetectionData.saveSourcePicture"
+                                :disabled="faceDetectionData.saveSourcePicture === undefined"
                                 :label="Translate('IDCS_SMART_SAVE_SOURCE_PIC')"
-                                @change="saveSourcePicChange"
                             />
                             <el-checkbox
-                                v-model="detectionPageData.isSaveFacePicChecked"
-                                :disabled="detectionPageData.isSavePicDisabled"
+                                v-model="faceDetectionData.saveFacePicture"
+                                :disabled="faceDetectionData.saveFacePicture === undefined"
                                 :label="Translate('IDCS_SMART_SAVE_TARGET_PIC')"
-                                @change="saveFacePicChange"
                             />
                             <div class="base-btn-box">
-                                <el-button @click="advancedVisible = false">{{ Translate('IDCS_CLOSE') }}</el-button>
+                                <el-button @click="pageData.isAdvance = false">{{ Translate('IDCS_CLOSE') }}</el-button>
                             </div>
                         </div>
                     </el-popover>
                 </div>
                 <div class="base-btn-box fixed">
                     <el-button
-                        :disabled="detectionPageData.applyDisabled"
+                        :disabled="watchDetection.disabled.value"
                         @click="applyFaceDetectionData"
                     >
                         {{ Translate('IDCS_APPLY') }}
@@ -266,10 +259,7 @@
             :disabled="pageData.faceCompareDisabled"
         >
             <div>
-                <div
-                    class="base-btn-box collapse padding"
-                    span="2"
-                >
+                <div class="base-btn-box space-between collapse padding">
                     <div>
                         <el-text class="checkbox-label">{{ Translate('IDCS_ENABLE') }}</el-text>
                         <el-checkbox
@@ -302,7 +292,7 @@
                         >
                             <div class="table-box">
                                 <el-table
-                                    :data="faceGroupTable"
+                                    :data="faceMatchData.groupInfo"
                                     height="300"
                                     highlight-current-row
                                 >
@@ -337,7 +327,7 @@
                                                     </el-form-item>
                                                 </el-form>
                                                 <div class="base-btn-box">
-                                                    <el-button @click="similarityChangeAll">{{ Translate('IDCS_OK') }}</el-button>
+                                                    <el-button @click="changeAllSimilarity">{{ Translate('IDCS_OK') }}</el-button>
                                                     <el-button @click="comparePageData.isSimilarityPop = false">{{ Translate('IDCS_CANCEL') }}</el-button>
                                                 </div>
                                             </el-popover>
@@ -347,8 +337,7 @@
                                                 v-model="scope.row.similarity"
                                                 :min="1"
                                                 :max="100"
-                                                @blur="similarityInputBlur($event, scope.$index)"
-                                                @keyup.enter="enterBlur($event)"
+                                                @keyup.enter="blurInput"
                                             />
                                         </template>
                                     </el-table-column>
@@ -389,7 +378,7 @@
                 </div>
                 <div class="base-btn-box fixed">
                     <el-button
-                        :disabled="comparePageData.applyDisabled"
+                        :disabled="watchCompare.disabled.value && watchMatch.disabled.value"
                         @click="applyFaceCompareData"
                     >
                         {{ Translate('IDCS_APPLY') }}
@@ -397,7 +386,7 @@
                 </div>
             </div>
         </el-tab-pane>
-        <!-- 人脸库跳转 -->
+        <!-- 人脸库跳转 NLYH-64：非AI模式下，不支持人脸比对，可根据是否支持人脸比对supportFaceMatch来隐藏人脸识别和人脸库  -->
         <el-tab-pane
             v-if="pageData.isFaceLibraryShow"
             name="faceLibrary"

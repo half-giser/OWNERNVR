@@ -97,7 +97,7 @@ export default defineComponent({
                 </content>
             `
             const result = await editAutoMaintenance(sendXml)
-            commSaveResponseHadler(result, () => {
+            commSaveResponseHandler(result, () => {
                 getData()
             })
             closeLoading()

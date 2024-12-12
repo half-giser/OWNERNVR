@@ -5,6 +5,7 @@
  */
 
 import { TableRowStatus } from './base'
+import type { CanvasBasePoint, CanvasBaseArea } from '@/utils/canvas/canvasBase'
 
 /**
  * @description 报警输出
@@ -13,8 +14,8 @@ export class AlarmOutDto extends TableRowStatus {
     id = '' //告警输出ID
     name = '' //告警输出名称
     index = '' //告警输出在设备上的序号
-    devDesc = undefined as string | undefined //告警输出所在设备的描述，如果为undefined表示本机，否则表示通道的名称
-    devID = undefined as string | undefined //告警输出所在设备的ID，如果为undefined表示本机，否则表示通道的ID
+    devDesc: string | undefined = undefined //告警输出所在设备的描述，如果为undefined表示本机，否则表示通道的名称
+    devID: string | undefined = undefined //告警输出所在设备的ID，如果为undefined表示本机，否则表示通道的ID
     delayTime = 0 //延迟时间
     scheduleId = '' //排程ID
     scheduleName = '' //排程名称
@@ -69,12 +70,12 @@ export class AlarmPushForm {
 export class AlarmWhiteLightDto extends TableRowStatus {
     id = ''
     name = ''
-    enable = ''
-    durationTime: number | null = null
+    enable = false
+    durationTime: number | undefined = undefined
     frequencyType = ''
-    enableDisable = true
-    durationTimeDisable = false
-    frequencyTypeDisable = false
+    // enableDisable = true
+    // durationTimeDisable = false
+    // frequencyTypeDisable = false
 }
 
 /**
@@ -127,12 +128,15 @@ export class AlarmEventDto extends TableRowStatus {
     }
     preset = {
         switch: false,
-        presets: [] as { index: string; name: string; chl: { value: string; label: string } }[],
+        presets: [] as { index: string; name: string; chl: SelectOption<string, string> }[],
     }
     beeper = ''
     videoPopup = ''
-    videoPopupInfo = { switch: false, chl: { value: '', label: '' } as { value: string; label: string } }
-    videoPopupList = [] as SelectOption<string, string>[]
+    videoPopupInfo = {
+        switch: false,
+        chl: { value: '', label: '' } as SelectOption<string, string>,
+    }
+    videoPopupList: SelectOption<string, string>[] = []
     msgBoxPopup = ''
     email = ''
     oldSchedule = {
@@ -142,45 +146,20 @@ export class AlarmEventDto extends TableRowStatus {
 }
 
 /**
- * @description IPC声音表单
- */
-export class AlarmIpcAudioForm {
-    ipcRadio = 'audioAlarm' // 摄像机选择项——语音播报/声音设备
-
-    // 语音播报
-    audioChl = '' // 通道
-    audioChecked = false // 声音是否启用
-    voice = '' // 语音
-    number = undefined as number | undefined // 次数
-    volume = undefined as number | undefined // 音量
-    language = '' // 语言
-
-    // 声音设备
-    deviceChl = '' // 通道
-    deviceEnable = false // 声音设备
-    deviceAudioInput = '' // 音频输入设备
-    micOrLinVolume = 0 // 音频输入音量
-    loudSpeaker = '' // 扬声器（内置）
-    deviceAudioOutput = '' // LOUT（外置）
-    outputVolume = 0 // 音频输出音量
-    audioEncode = '' // 音频输入编码
-}
-
-/**
  * @description IPC声音报警输出项
  */
-export class AlarmAudioAlarmOutDto {
-    successFlag = false
+export class AlarmAudioAlarmOutDto extends TableRowStatus {
     editFlag = false
+    index = 0
     id = ''
     name = ''
-    audioTypeList = [] as SelectOption<string, string>[]
+    audioTypeList: SelectOption<number, string>[] = [{ label: '', value: 0 }]
     customeAudioNum = 0
-    langArr = [] as SelectOption<string, string>[]
-    audioSwitch = ''
-    audioType = ''
-    alarmTimes = 1
-    audioVolume = 0
+    langArr: SelectOption<string, string>[] = []
+    audioSwitch = false
+    audioType = 0
+    alarmTimes: number | undefined = undefined
+    audioVolume: number | undefined = undefined
     languageType = ''
     audioFormat = ''
     sampleRate = ''
@@ -192,15 +171,15 @@ export class AlarmAudioAlarmOutDto {
 /**
  * @description IPC声音设备项
  */
-export class AlarmAudioDevice {
-    successFlag = false
+export class AlarmAudioDevice extends TableRowStatus {
     editFlag = false
+    index = 0
     id = ''
     name = ''
-    audioEncodeType = [] as SelectOption<string, string>[]
-    audioInputType = [] as SelectOption<string, string>[]
-    audioOutputType = [] as SelectOption<string, string>[]
-    audioInSwitch = ''
+    audioEncodeType: SelectOption<string, string>[] = []
+    audioInputType: SelectOption<string, string>[] = []
+    audioOutputType: SelectOption<string, string>[] = []
+    audioInSwitch = false
     audioEncode = ''
     audioInput = ''
     loudSpeaker = ''
@@ -238,7 +217,7 @@ export class AlarmExceptionDto {
         switch: false,
         alarmOuts: [] as SelectOption<string, string>[],
     }
-    alarmOutList = [] as string[]
+    alarmOutList: string[] = []
     beeper = ''
     msgBoxPopup = ''
     email = 'false'
@@ -252,9 +231,9 @@ export class AlarmSystemDisarmDto {
     id = ''
     chlName = ''
     // 已选择的撤防联动项列表
-    disarmItemsList = [] as { id: string; value: string }[]
+    disarmItemsList: { id: string; value: string }[] = []
     // 可选择的撤防联动项列表
-    disarmItems = [] as { id: string; value: string }[]
+    disarmItems: { id: string; value: string }[] = []
     disarmItemsStr = ''
     nodeType = ''
 }
@@ -346,7 +325,7 @@ export class AlarmPresetList {
         value: '',
         label: '',
     }
-    presetList = [] as SelectOption<string, string>[]
+    presetList: SelectOption<string, string>[] = []
     // 在点击select获取option数据，阻止重复获取请求
     isGetPresetList = false
 }
@@ -404,10 +383,10 @@ export class AlarmCombinedFaceMatchDto {
     rule = ''
     duration = 5
     delay = 5
-    groupId = [] as string[]
+    groupId: string[] = []
     noShowDisplay = 'false'
     displayText = ''
-    faceDataBase = [] as string[]
+    faceDataBase: string[] = []
 }
 
 /**
@@ -436,39 +415,33 @@ export class AlarmMutexDto {
  * @description 人脸侦测——参数配置表单项
  */
 export class AlarmFaceDetectionDto {
+    supportVfd = false
     enabledSwitch = false
     originalSwitch = false
     holdTime = ''
-    holdTimeList = [] as SelectOption<string, string>[]
-    regionInfo = [] as Region[]
+    holdTimeList: SelectOption<string, string>[] = []
+    regionInfo: CanvasBaseArea[] = []
     mutexList: AlarmMutexDto[] = []
     mutexListEx: AlarmMutexDto[] = []
-    saveFacePicture = ''
-    saveSourcePicture = ''
+    saveFacePicture: boolean | undefined = undefined
+    saveSourcePicture: boolean | undefined = undefined
     snapInterval = ''
     captureCycle = 3
     captureCycleChecked = true
     minFaceFrame = 3
-    minRegionInfo = [] as Region[]
+    minRegionInfo: CanvasBaseArea[] = []
     maxFaceFrame = 50
-    maxRegionInfo = [] as Region[]
+    maxRegionInfo: CanvasBaseArea[] = []
     triggerAudio = ''
     triggerWhiteLight = ''
     faceExpSwitch = false
     faceExpStrength = 50
     schedule = ''
-    record = [] as SelectOption<string, string>[]
-    alarmOut = [] as SelectOption<string, string>[]
-    preset = [] as AlarmPresetItem[]
-    trigger = [] as string[]
+    record: SelectOption<string, string>[] = []
+    alarmOut: SelectOption<string, string>[] = []
+    preset: AlarmPresetItem[] = []
+    trigger: string[] = []
     sysAudio = ''
-}
-
-export class Region {
-    X1 = 0
-    Y1 = 0
-    X2 = 0
-    Y2 = 0
 }
 
 /**
@@ -478,7 +451,7 @@ export class AlarmFaceMatchDto {
     hitEnable = false
     notHitEnable = false
     liveDisplaySwitch = false
-    groupInfo = [] as AlarmFaceGroupDto[]
+    groupInfo: AlarmFaceGroupDto[] = []
     editFlag = false
 }
 
@@ -534,7 +507,7 @@ export class AlarmChlDto {
 export class AlarmAIResourceDto {
     id = ''
     name = ''
-    eventType = [] as string[]
+    eventType: string[] = []
     eventTypeText = ''
     percent = ''
     decodeResource = '--'
@@ -561,13 +534,13 @@ export class AlarmPeaDto {
     // 持续时间
     holdTime = 0
     // 持续时间列表
-    holdTimeList = [] as { value: number; label: string }[]
+    holdTimeList: SelectOption<number, string>[] = []
     // 区别联咏ipc标志
     regulation = false
-    boundaryInfo = [] as { point: { X: number; Y: number; isClosed?: boolean }[]; maxCount: number; configured: boolean }[]
-    regionInfo = [] as { X1: number; Y1: number; X2: number; Y2: number }[]
-    mutexList = [] as AlarmMutexDto[]
-    mutexListEx = [] as AlarmMutexDto[]
+    boundaryInfo: { point: CanvasBasePoint[]; maxCount: number; configured: boolean }[] = []
+    regionInfo: CanvasBaseArea[] = []
+    mutexList: AlarmMutexDto[] = []
+    mutexListEx: AlarmMutexDto[] = []
     // 目标类型只支持人
     pea_onlyPreson = false
     // 只支持人的灵敏度
@@ -589,13 +562,13 @@ export class AlarmPeaDto {
     lightSuport = false
     sysAudio = ''
     recordSwitch = false
-    recordChls = [] as SelectOption<string, string>[]
+    recordChls: SelectOption<string, string>[] = []
     alarmOutSwitch = false
-    alarmOutChls = [] as SelectOption<string, string>[]
+    alarmOutChls: SelectOption<string, string>[] = []
     presetSwitch = false
-    presets = [] as AlarmPresetItem[]
-    trigger = [] as string[]
-    triggerList = [] as string[]
+    presets: AlarmPresetItem[] = []
+    trigger: string[] = []
+    triggerList: string[] = []
 }
 
 export type CanvasPasslineDirection = 'none' | 'rightortop' | 'leftorbotton'
@@ -604,19 +577,19 @@ export type CanvasPasslineDirection = 'none' | 'rightortop' | 'leftorbotton'
  * @description 越界
  */
 export class AlarmTripwireDto {
-    lineInfo = [] as { direction: CanvasPasslineDirection; startPoint: { X: number; Y: number }; endPoint: { X: number; Y: number }; configured: boolean }[]
+    lineInfo: { direction: CanvasPasslineDirection; startPoint: { X: number; Y: number }; endPoint: { X: number; Y: number }; configured: boolean }[] = []
     // 方向
-    direction = '' as CanvasPasslineDirection
+    direction: CanvasPasslineDirection = 'none'
     // 方向列表
-    directionList = [] as SelectOption<string, string>[]
+    directionList: SelectOption<string, string>[] = []
     // 排程
     tripwire_schedule = ''
     // 持续时间
     holdTime = 0
-    holdTimeList = [] as SelectOption<number, string>[]
+    holdTimeList: SelectOption<number, string>[] = []
     // mutex
-    mutexList = [] as AlarmMutexDto[]
-    mutexListEx = [] as AlarmMutexDto[]
+    mutexList: AlarmMutexDto[] = []
+    mutexListEx: AlarmMutexDto[] = []
     // 目标类型只支持人
     tripwire_onlyPreson = false
     // 只支持人的灵敏度
@@ -650,11 +623,11 @@ export class AlarmTripwireDto {
     // 白光联动
     lightSuport = false
     sysAudio = ''
-    record = [] as SelectOption<string, string>[]
-    trigger = [] as string[]
+    record: SelectOption<string, string>[] = []
+    trigger: string[] = []
     triggerList = ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch']
-    alarmOut = [] as SelectOption<string, string>[]
-    preset = [] as AlarmPresetItem[]
+    alarmOut: SelectOption<string, string>[] = []
+    preset: AlarmPresetItem[] = []
 }
 
 /**
@@ -666,28 +639,33 @@ export class AlarmPassLinesDto {
         day: {
             date: '0',
             dateTime: '00:00:00',
-        } as { date: string; dateTime: string },
+        },
         week: {
             date: '0',
             dateTime: '00:00:00',
-        } as { date: string; dateTime: string },
+        },
         month: {
             date: '1',
             dateTime: '00:00:00',
-        } as { date: string; dateTime: string },
-    } as Record<string, { date: string; dateTime: string }>
+        },
+    }
     // 是否启用侦测
     passLineDetectionEnable = false
     // 用于对比
     passLineOriginalEnable = false
     // mutex
-    passLineMutexList = [] as AlarmMutexDto[]
-    passLineMutexListEx = [] as AlarmMutexDto[]
+    passLineMutexList: AlarmMutexDto[] = []
+    passLineMutexListEx: AlarmMutexDto[] = []
     // 排程
     passLineSchedule = ''
     // 持续时间
     passLineholdTime = 0
-    lineInfo = [] as { direction: CanvasPasslineDirection; startPoint: { X: number; Y: number }; endPoint: { X: number; Y: number }; configured: boolean }[]
+    lineInfo: {
+        direction: CanvasPasslineDirection
+        startPoint: { X: number; Y: number }
+        endPoint: { X: number; Y: number }
+        configured: boolean
+    }[] = []
     // OSD
     countOSD = {
         switch: false,
@@ -698,9 +676,9 @@ export class AlarmPassLinesDto {
     // 是否启用自动重置
     autoReset = true
     // 重置时间模式 day/week/month
-    countTimeType = 'day'
+    countTimeType = ''
     // 重置模式列表
-    countCycleTypeList = [] as SelectOption<string, string>[]
+    countCycleTypeList: SelectOption<string, string>[] = []
     // SD卡原图存储
     saveTargetPicture = false
     // SD卡目标图存储
@@ -710,21 +688,31 @@ export class AlarmPassLinesDto {
     cpcDetectionEnable = false
     // 用于对比
     cpcOriginalEnable = false
-    cpcMutexList = [] as AlarmMutexDto[]
-    cpcMutexListEx = [] as AlarmMutexDto[]
-    cpcLineInfo = new AlarmPassLinesRegion()
-    regionInfo = new AlarmPassLinesRegion()
+    cpcMutexList: AlarmMutexDto[] = []
+    cpcMutexListEx: AlarmMutexDto[] = []
+    cpcLineInfo: CanvasBaseArea = {
+        X1: 0,
+        Y1: 0,
+        X2: 0,
+        Y2: 0,
+    }
+    regionInfo: CanvasBaseArea = {
+        X1: 0,
+        Y1: 0,
+        X2: 0,
+        Y2: 0,
+    }
     // 排程
     cpcSchedule = ''
     // 持续时间
     holdTime = 0
-    holdTimeList = [] as SelectOption<number, string>[]
+    holdTimeList: SelectOption<number, string>[] = []
     // 灵敏度
     detectSensitivity = 0
-    detectSensitivityList = [] as SelectOption<number, string>[]
+    detectSensitivityList: SelectOption<number, string>[] = []
     // 统计周期
     statisticalPeriod = ' '
-    statisticalPeriodList = [] as SelectOption<string, string>[]
+    statisticalPeriodList: SelectOption<string, string>[] = []
     // 进入阈值
     crossInAlarmNumValue = 0
     // 离开阈值
@@ -762,26 +750,20 @@ export class AlarmPassLinesEmailDto {
         reportHour: 0,
         reportMin: 0,
     }
-    receiverData = [] as AlarmPassLinesEmailReceiverDto[]
+    receiverData: AlarmPassLinesEmailReceiverDto[] = []
 }
 
 export class AlarmPassLinesEmailReceiverDto {
     address = ''
     schedule = ''
 }
-export class AlarmPassLinesRegion {
-    X1 = 0
-    Y1 = 0
-    X2 = 0
-    Y2 = 0
-}
 
 /**
  * @description 人脸识别——识别成功/陌生人
  */
 export class AlarmFaceRecognitionDto {
-    voiceList = [] as SelectOption<string, string>[]
-    task = [] as AlarmRecognitionTaskDto[]
+    voiceList: SelectOption<string, string>[] = []
+    task: AlarmRecognitionTaskDto[] = []
     editFlag = false
 }
 
@@ -794,14 +776,14 @@ export class AlarmRecognitionTaskDto {
     ruleType = ''
     nameId = 0
     pluseSwitch = false
-    groupId = [] as string[]
+    groupId: string[] = []
     hintword = ''
     schedule = ''
-    record = [] as SelectOption<string, string>[]
-    alarmOut = [] as SelectOption<string, string>[]
-    snap = [] as SelectOption<string, string>[]
-    preset = [] as AlarmPresetItem[]
-    trigger = [] as string[]
+    record: SelectOption<string, string>[] = []
+    alarmOut: SelectOption<string, string>[] = []
+    snap: SelectOption<string, string>[] = []
+    preset: AlarmPresetItem[] = []
+    trigger: string[] = []
     sysAudio = ''
 }
 
@@ -831,17 +813,17 @@ export class AlarmVehicleDetectionDto {
     exposureChecked = false
     exposureValue = 0
     plateAbsenceCheceked = false
-    regionInfo = [] as Region[]
-    maskAreaInfo = {} as Record<number, { X: number; Y: number; isClosed: boolean }[]>
-    mutexList = [] as AlarmMutexDto[]
+    regionInfo: CanvasBaseArea[] = []
+    maskAreaInfo: Record<number, CanvasBasePoint[]> = {}
+    mutexList: AlarmMutexDto[] = []
     plateSize = {
         minWidth: 0,
-        maxWidth: 0,
+        maxWidth: 1,
         min: 1,
         max: 50,
     }
-    minRegionInfo = [] as Region[]
-    maxRegionInfo = [] as Region[]
+    minRegionInfo: CanvasBaseArea[] = []
+    maxRegionInfo: CanvasBaseArea[] = []
 }
 
 /**
@@ -850,7 +832,7 @@ export class AlarmVehicleDetectionDto {
 export class AlarmVehicleRecognitionDto {
     hitEnable = false
     notHitEnable = false
-    task = [] as AlarmRecognitionTaskDto[]
+    task: AlarmRecognitionTaskDto[] = []
     editFlag = false
 }
 
@@ -860,17 +842,17 @@ export class AlarmVehicleRecognitionDto {
 export class AlarmTemperatureDetectionDto {
     enabledSwitch = false
     holdTime = ''
-    holdTimeList = [] as SelectOption<string, string>[]
+    holdTimeList: SelectOption<string, string>[] = []
     schedule = ''
     triggerAudio = ''
     triggerWhiteLight = ''
-    record = [] as SelectOption<string, string>[]
-    alarmOut = [] as SelectOption<string, string>[]
-    snap = [] as SelectOption<string, string>[]
-    preset = [] as AlarmPresetItem[]
-    trigger = [] as string[]
+    record: SelectOption<string, string>[] = []
+    alarmOut: SelectOption<string, string>[] = []
+    snap: SelectOption<string, string>[] = []
+    preset: AlarmPresetItem[] = []
+    trigger: string[] = []
     sysAudio = ''
-    boundaryData = [] as AlarmTemperatureDetectionBoundryDto[]
+    boundaryData: AlarmTemperatureDetectionBoundryDto[] = []
 }
 
 /**
@@ -892,7 +874,7 @@ export class AlarmTemperatureDetectionBoundryDto {
     alarmTemper = 0
     alarmTemperDefault = 0
     maxCount = 0
-    points = [] as { X: number; Y: number; isClosed?: boolean }[]
+    points: CanvasBasePoint[] = []
 }
 
 /**
@@ -902,25 +884,25 @@ export class AlarmObjectLeftDto {
     enabledSwitch = false
     originalSwitch = false
     holdTime = ''
-    holdTimeList = [] as SelectOption<string, string>[]
+    holdTimeList: SelectOption<string, string>[] = []
     schedule = ''
-    oscTypeList = [] as SelectOption<string, string>[]
+    oscTypeList: SelectOption<string, string>[] = []
     oscType = ''
     areaMaxCount = 0
     regulation = false
-    boundary = [] as AlarmObjectLeftBoundaryDto[]
-    mutexList = [] as AlarmMutexDto[]
+    boundary: AlarmObjectLeftBoundaryDto[] = []
+    mutexList: AlarmMutexDto[] = []
     maxNameLength = 0
-    record = [] as SelectOption<string, string>[]
-    alarmOut = [] as SelectOption<string, string>[]
-    preset = [] as AlarmPresetItem[]
-    trigger = [] as string[]
+    record: SelectOption<string, string>[] = []
+    alarmOut: SelectOption<string, string>[] = []
+    preset: AlarmPresetItem[] = []
+    trigger: string[] = []
     sysAudio = ''
 }
 
 export class AlarmObjectLeftBoundaryDto {
     areaName = ''
-    points = [] as { X: number; Y: number; isClosed?: boolean }[]
+    points: CanvasBasePoint[] = []
 }
 
 /**
@@ -928,16 +910,23 @@ export class AlarmObjectLeftBoundaryDto {
  **/
 export class AlarmAbnormalDisposeDto {
     holdTime = ''
-    holdTimeList = [] as SelectOption<string, string>[]
+    holdTimeList: SelectOption<string, string>[] = []
     sceneChangeSwitch = ''
     clarityAbnormalSwitch = ''
     colorAbnormalSwitch = ''
     sensitivity = 0
-    record = [] as SelectOption<string, string>[]
-    alarmOut = [] as SelectOption<string, string>[]
-    preset = [] as AlarmPresetItem[]
-    trigger = [] as string[]
+    record: SelectOption<string, string>[] = []
+    alarmOut: SelectOption<string, string>[] = []
+    preset: AlarmPresetItem[] = []
+    trigger: string[] = []
     sysAudio = ''
+}
+
+export class AlarmVideoStructureCfgDto {
+    index = ''
+    value = false
+    tagName = ''
+    label = ''
 }
 
 /**
@@ -947,15 +936,15 @@ export class AlarmVideoStructureDto {
     enabledSwitch = false
     originalSwitch = false
     schedule = ''
-    saveSourcePicture = ''
-    saveTargetPicture = ''
+    saveSourcePicture = false
+    saveTargetPicture = false
     algoChkModel = ''
     intervalCheck = 1
     intervalCheckMin = 1
     intervalCheckMax = 1
-    detectAreaInfo = {} as Record<number, { X: number; Y: number; isClosed: boolean }[]>
-    maskAreaInfo = {} as Record<number, { X: number; Y: number; isClosed: boolean }[]>
-    mutexList = [] as AlarmMutexDto[]
+    detectAreaInfo: Record<number, CanvasBasePoint[]> = {}
+    maskAreaInfo: Record<number, CanvasBasePoint[]> = {}
+    mutexList: AlarmMutexDto[] = []
     countOSD = {
         switch: false,
         X: 0,
@@ -994,9 +983,9 @@ export class AlarmVideoStructureDto {
         motorSensitivity: 1,
     }
     osdType = ''
-    osdPersonCfgList = [] as { index: string; value: string; tagName: string }[]
-    osdCarCfgList = [] as { index: string; value: string; tagName: string }[]
-    osdBikeCfgList = [] as { index: string; value: string; tagName: string }[]
+    osdPersonCfgList: AlarmVideoStructureCfgDto[] = []
+    osdCarCfgList: AlarmVideoStructureCfgDto[] = []
+    osdBikeCfgList: AlarmVideoStructureCfgDto[] = []
 }
 
 /**
@@ -1010,21 +999,21 @@ export class AlarmCddDto {
     schedule = ''
     // 持续时间
     holdTime = 0
-    holdTimeList = [] as SelectOption<number, string>[]
+    holdTimeList: SelectOption<number, string>[] = []
     // 刷新频率
     refreshFrequency = 0
-    refreshFrequencyList = [] as SelectOption<number, string>[]
-    regionInfo = [] as { X1: number; X2: number; Y1: number; Y2: number }[]
+    refreshFrequencyList: SelectOption<number, string>[] = []
+    regionInfo: CanvasBaseArea[] = []
     // 常规联动选项
-    trigger = [] as string[]
+    trigger: string[] = []
     sysAudio = ''
-    record = [] as SelectOption<string, string>[]
-    alarmOut = [] as SelectOption<string, string>[]
-    preset = [] as AlarmPresetItem[]
+    record: SelectOption<string, string>[] = []
+    alarmOut: SelectOption<string, string>[] = []
+    preset: AlarmPresetItem[] = []
     // 报警阈值
     triggerAlarmLevel = 0
     // mutex
-    mutexList = [] as AlarmMutexDto[]
+    mutexList: AlarmMutexDto[] = []
 }
 
 /**
@@ -1035,12 +1024,12 @@ export class AlarmFireDetectionDto {
     schedule = ''
     // 持续时间
     holdTime = 0
-    holdTimeList = [] as SelectOption<number, string>[]
+    holdTimeList: SelectOption<number, string>[] = []
     // mutex
-    mutexList = [] as AlarmMutexDto[]
-    mutexListEx = [] as AlarmMutexDto[]
-    trigger = [] as string[]
-    triggerList = [] as string[]
+    mutexList: AlarmMutexDto[] = []
+    mutexListEx: AlarmMutexDto[] = []
+    trigger: string[] = []
+    triggerList: string[] = []
     // 音频联动
     audioSuport = false
     // 白光联动
@@ -1050,10 +1039,10 @@ export class AlarmFireDetectionDto {
     // 用于对比
     originalEnable = false
     sysAudio = ''
-    record = [] as SelectOption<string, string>[]
-    alarmOut = [] as SelectOption<string, string>[]
-    snap = [] as SelectOption<string, string>[]
-    preset = [] as AlarmPresetItem[]
+    record: SelectOption<string, string>[] = []
+    alarmOut: SelectOption<string, string>[] = []
+    snap: SelectOption<string, string>[] = []
+    preset: AlarmPresetItem[] = []
 }
 
 export class AlarmSnapPopDto {

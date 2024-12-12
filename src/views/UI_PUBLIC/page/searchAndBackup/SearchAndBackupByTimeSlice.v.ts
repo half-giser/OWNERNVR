@@ -86,8 +86,6 @@ export default defineComponent({
             handleChlChange,
             handleSliceChange,
             changeMode,
-            TimeSliceTopPanel,
-            TimeSliceTimelinePanel,
         }
     },
 })

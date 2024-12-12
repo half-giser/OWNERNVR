@@ -27,7 +27,7 @@ export class PlaybackChannelGroupList {
 export class PlaybackEventList {
     value = ''
     name = ''
-    children = [] as string[]
+    children: string[] = []
     color = ''
 }
 
@@ -79,14 +79,14 @@ export class PlaybackRecLogList {
 export class PlaybackRecList {
     chlId = ''
     chlName = ''
-    records = [] as {
+    records: {
         startTime: number
         endTime: number
         event: string
         size: string
         duration: string
         recSubType: string
-    }[]
+    }[] = []
     timeZone = ''
 }
 
@@ -96,7 +96,7 @@ export class PlaybackRecList {
 export class PlaybackBackUpRecList {
     chlId = ''
     chlName = ''
-    events = [] as string[]
+    events: string[] = []
     startTime = 0
     endTime = 0
     streamType = 1 // 码流类型 0主码流 1子码流
@@ -131,7 +131,7 @@ export class PlaybackSearchImgForm {
 export class PlaybackTimeSliceList {
     startTime = 0
     endTime = 0
-    chlList = [] as PlaybackTimeSliceChlList[]
+    chlList: PlaybackTimeSliceChlList[] = []
 }
 
 /**

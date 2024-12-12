@@ -19,22 +19,17 @@
         </div>
         <div v-if="!pageData.requireDataFail">
             <!-- 检测开启 -->
-            <div
-                class="base-btn-box padding collapse"
-                span="2"
-            >
-                <div v-if="chlData.supportPassLine">
-                    <el-checkbox
-                        v-model="formData.passLineDetectionEnable"
-                        :label="Translate('IDCS_ENABLE')"
-                    />
-                </div>
-                <div v-if="chlData.supportCpc">
-                    <el-checkbox
-                        v-model="formData.cpcDetectionEnable"
-                        :label="Translate('IDCS_ENABLE')"
-                    />
-                </div>
+            <div class="base-btn-box flex-start padding collapse">
+                <el-checkbox
+                    v-if="chlData.supportPassLine"
+                    v-model="formData.passLineDetectionEnable"
+                    :label="Translate('IDCS_ENABLE')"
+                />
+                <el-checkbox
+                    v-if="chlData.supportCpc"
+                    v-model="formData.cpcDetectionEnable"
+                    :label="Translate('IDCS_ENABLE')"
+                />
             </div>
 
             <!-- 只存在一个播放器，因此放于tab区域外 -->
@@ -48,23 +43,20 @@
                 </div>
                 <!-- passLine设置 -->
                 <div v-if="pageData.fuction === 'param' && chlData.supportPassLine">
-                    <div
-                        class="base-btn-box"
-                        span="2"
-                    >
+                    <div class="base-btn-box space-between">
                         <div>
                             <el-checkbox
                                 v-if="pageData.showAllAreaVisible"
                                 v-model="pageData.isShowAllArea"
                                 :label="Translate('IDCS_DISPLAY_ALL_AREA')"
-                                @change="handlePassLineShowAllAreaChange"
+                                @change="togglePassLineShowAllArea"
                             />
                         </div>
                         <div>
-                            <el-button @click="passLineClearArea">{{ Translate('IDCS_CLEAR') }}</el-button>
+                            <el-button @click="clearArea">{{ Translate('IDCS_CLEAR') }}</el-button>
                             <el-button
                                 v-if="pageData.clearAllVisible"
-                                @click="passLineClearAllArea"
+                                @click="clearAllArea"
                             >
                                 {{ Translate('IDCS_FACE_CLEAR_ALL') }}
                             </el-button>
@@ -74,21 +66,16 @@
                 </div>
                 <!-- cpc设置 -->
                 <div v-if="pageData.fuction === 'param' && chlData.supportCpc">
-                    <div
-                        class="base-btn-box"
-                        span="2"
-                    >
-                        <div>
-                            <!-- <el-checkbox
+                    <div class="base-btn-box">
+                        <!-- <div>
+                            <el-checkbox
                                 v-if="pageData.showCpcDrawAvailable"
                                 v-model="pageData.isCpcDrawAvailable"
                                 :label="Translate('IDCS_DRAW_WARN_SURFACE')"
-                                @change="handleCpcDrawAvailableChange"
-                            /> -->
-                        </div>
-                        <div>
-                            <el-button @click="clearCpcArea">{{ Translate('IDCS_CLEAR') }}</el-button>
-                        </div>
+                                @change="toggleCpcDrawAvailable"
+                            />
+                        </div> -->
+                        <el-button @click="clearCpcArea">{{ Translate('IDCS_CLEAR') }}</el-button>
                     </div>
                     <span class="base-ai-tip">{{ Translate('IDCS_DRAW_RECT_TIP') }}</span>
                 </div>
@@ -98,7 +85,7 @@
                 <el-tabs
                     v-model="pageData.fuction"
                     class="base-ai-tabs"
-                    @tab-click="handleFunctionTabClick"
+                    @tab-change="changeTab"
                 >
                     <!-- 参数设置 -->
                     <el-tab-pane
@@ -124,7 +111,7 @@
                                             v-model="formData.passLineSchedule"
                                             :options="pageData.scheduleList"
                                         />
-                                        <el-button @click="pageData.scheduleManagePopOpen = true">
+                                        <el-button @click="pageData.isSchedulePop = true">
                                             {{ Translate('IDCS_MANAGE') }}
                                         </el-button>
                                     </el-form-item>
@@ -136,7 +123,7 @@
                                         <el-radio-group
                                             v-model="pageData.chosenSurfaceIndex"
                                             class="small-btn"
-                                            @change="handleLineChange"
+                                            @change="changeLine"
                                         >
                                             <el-radio-button
                                                 v-for="(_item, index) in formData.lineInfo"
@@ -151,7 +138,7 @@
                                         <el-select-v2
                                             v-model="pageData.direction"
                                             :options="pageData.directionList"
-                                            @change="handleDirectionChange"
+                                            @change="changeDirection"
                                         />
                                     </el-form-item>
                                     <div class="base-ai-subheading">
@@ -163,7 +150,7 @@
                                             <el-checkbox
                                                 v-model="formData.countOSD.switch"
                                                 :label="Translate('IDCS_STATIST_OSD')"
-                                                @change="handleOSDChange"
+                                                @change="changeOSD"
                                             />
                                         </template>
                                     </el-form-item>
@@ -230,7 +217,7 @@
                                     </el-form-item>
                                     <!-- 手动重置 -->
                                     <el-form-item :label="Translate('IDCS_MANUAL_RESET')">
-                                        <el-button @click="handleReset">
+                                        <el-button @click="resetData">
                                             {{ Translate('IDCS_RESET') }}
                                         </el-button>
                                     </el-form-item>
@@ -256,7 +243,7 @@
                                             v-model="formData.cpcSchedule"
                                             :options="pageData.scheduleList"
                                         />
-                                        <el-button @click="pageData.scheduleManagePopOpen = true">
+                                        <el-button @click="pageData.isSchedulePop = true">
                                             {{ Translate('IDCS_MANAGE') }}
                                         </el-button>
                                     </el-form-item>
@@ -301,20 +288,12 @@
                                     </div>
                                     <!-- 手动重置 -->
                                     <el-form-item :label="Translate('IDCS_MANUAL_RESET')">
-                                        <el-button @click="handleReset">
+                                        <el-button @click="resetData">
                                             {{ Translate('IDCS_RESET') }}
                                         </el-button>
                                     </el-form-item>
                                 </el-form>
                             </div>
-                        </div>
-                        <div class="base-btn-box fixed">
-                            <el-button
-                                :disabled="pageData.applyDisable"
-                                @click="handleApply"
-                            >
-                                {{ Translate('IDCS_APPLY') }}
-                            </el-button>
                         </div>
                     </el-tab-pane>
                     <!-- 检测目标 -->
@@ -343,7 +322,7 @@
                                             />
                                         </template>
                                         <template #default>
-                                            <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
+                                            <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                             <el-slider
                                                 v-model="formData.objectFilter.personSensitivity"
                                                 show-input
@@ -359,7 +338,7 @@
                                             />
                                         </template>
                                         <template #default>
-                                            <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
+                                            <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                             <el-slider
                                                 v-model="formData.objectFilter.carSensitivity"
                                                 show-input
@@ -375,7 +354,7 @@
                                             />
                                         </template>
                                         <template #default>
-                                            <span class="slider-text">{{ Translate('IDCS_SENSITIVITY') }}</span>
+                                            <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
                                             <el-slider
                                                 v-model="formData.objectFilter.motorSensitivity"
                                                 show-input
@@ -385,16 +364,16 @@
                                 </el-form>
                             </div>
                         </div>
-                        <div class="base-btn-box fixed">
-                            <el-button
-                                :disabled="pageData.applyDisable"
-                                @click="handleApply"
-                            >
-                                {{ Translate('IDCS_APPLY') }}
-                            </el-button>
-                        </div>
                     </el-tab-pane>
                 </el-tabs>
+                <div class="base-btn-box fixed">
+                    <el-button
+                        :disabled="watchEdit.disabled.value"
+                        @click="applyData"
+                    >
+                        {{ Translate('IDCS_APPLY') }}
+                    </el-button>
+                </div>
                 <!-- 更多按钮 -->
                 <div
                     v-if="chlData.supportPassLine"
@@ -411,22 +390,16 @@
             </div>
         </div>
         <ScheduleManagPop
-            v-model="pageData.scheduleManagePopOpen"
-            @close="handleSchedulePopClose"
+            v-model="pageData.isSchedulePop"
+            @close="closeSchedulePop"
         />
         <PassLineEmailPop
             v-model="pageData.morePopOpen"
             :schedule-list="pageData.scheduleList"
             :email-data="pageData.emailData"
-            @close="handleMorePopClose"
+            @close="closeMorePop"
         />
     </div>
 </template>
 
 <script lang="ts" src="./PassLinePanel.v.ts"></script>
-
-<style lang="scss" scoped>
-.slider-text {
-    margin-right: 15px;
-}
-</style>

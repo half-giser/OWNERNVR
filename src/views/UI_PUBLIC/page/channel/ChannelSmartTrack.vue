@@ -12,7 +12,7 @@
                     @ready="handlePlayerReady"
                 />
             </div>
-            <el-form v-if="tableData.length">
+            <el-form>
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select-v2
                         v-if="tableData.length"
@@ -29,7 +29,7 @@
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_AUTO_TRACK_MODE')">
                     <el-select-v2
-                        v-if="tableData[pageData.tableIndex]"
+                        v-if="tableData.length"
                         v-model="tableData[pageData.tableIndex].ptzControlMode"
                         :disabled="tableData[pageData.tableIndex].disabled"
                         :options="pageData.trackModeOptions"
@@ -42,7 +42,7 @@
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_HOMING_AFTER_TARGET_STATIONARY')">
-                    <template v-if="tableData[pageData.tableIndex]">
+                    <template v-if="tableData.length">
                         <el-checkbox
                             v-model="tableData[pageData.tableIndex].autoBackSwitch"
                             :disabled="tableData[pageData.tableIndex].disabled"
@@ -53,12 +53,13 @@
                             :min="0"
                             :max="100"
                         />
+                        <el-text class="time">{{ tableData[pageData.tableIndex].autoBackTime }}(s)</el-text>
                     </template>
                     <template v-else>
                         <el-checkbox disabled />
                         <el-slider disabled />
+                        <el-text class="time">0(s)</el-text>
                     </template>
-                    <el-text class="time">{{ tableData[pageData.tableIndex].autoBackTime }}(s)</el-text>
                 </el-form-item>
             </el-form>
         </div>
@@ -67,7 +68,6 @@
                 <el-table
                     :data="tableData"
                     highlight-current-row
-                    :row-class-name="(data) => (data.row.disabled ? 'disabled' : '')"
                     @row-click="handleRowClick"
                 >
                     <!-- 状态列 -->
