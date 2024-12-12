@@ -47,6 +47,7 @@
                     :watermark="pageData.watermark"
                     :playing-list="playingListNum"
                     :clip-range="pageData.timelineClipRange"
+                    :has-pos-event="pageData.hasPosEvent"
                     @fullscreen="fullScreen"
                     @update:split="setSplit"
                     @update:osd="toggleOSD"
@@ -78,6 +79,7 @@
                     :chl="pageData.winData.chlID"
                     :play-status="pageData.playStatus"
                     :chls="pageData.chls"
+                    :pos-keyword="pageData.posKeyword"
                     @callback="handleRecLogCallback"
                     @play="handleRecLogPlay"
                     @download="handleRecLogDownload"
@@ -232,6 +234,7 @@
         font-size: 24px;
         font-weight: normal;
         cursor: pointer;
+        font-family: consolas, sans-serif;
     }
 }
 

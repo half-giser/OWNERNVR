@@ -14,15 +14,13 @@
                 class="item"
                 @click="changeEvent(item.value)"
             >
-                <el-tooltip :content="item.name">
-                    <BaseImgSprite
-                        :file="pageData.eventList.includes(item.value) ? item.checked : item.unchecked"
-                        :index="0"
-                        :chunk="4"
-                    />
-                </el-tooltip>
+                <BaseImgSprite
+                    :file="pageData.eventList.includes(item.value) ? item.checked : item.unchecked"
+                    :title="item.name"
+                    :index="0"
+                    :chunk="4"
+                />
             </div>
-
             <el-popover
                 v-model:visible="pageData.isEventPop"
                 placement="right"
@@ -85,6 +83,13 @@
                 </div>
             </el-popover>
         </div>
+        <el-input
+            v-show="pageData.isPosInput"
+            v-model="pageData.posKeyword"
+            :disabled="!pageData.eventList.includes('POS')"
+            :placeholder="Translate('IDCS_POS_KEY')"
+            class="pos"
+        />
     </fieldset>
 </template>
 
@@ -106,6 +111,10 @@ fieldset {
 
 .item {
     margin: 0 5px;
+}
+
+.pos {
+    margin-top: 10px;
 }
 
 .btn {

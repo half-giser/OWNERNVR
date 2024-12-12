@@ -52,175 +52,129 @@
                 </el-popover>
             </template>
             <!-- OSD按钮 -->
-            <el-tooltip
-                :content="osd ? Translate('IDCS_OSD_CLOSE') : Translate('IDCS_OSD_OPEN')"
-                placement="bottom"
-            >
-                <BaseImgSprite
-                    file="OSD"
-                    :index="osd ? 2 : 0"
-                    :hover-index="1"
-                    :chunk="4"
-                    @click="$emit('update:osd', !osd)"
-                />
-            </el-tooltip>
+            <BaseImgSprite
+                file="OSD"
+                :title="osd ? Translate('IDCS_OSD_CLOSE') : Translate('IDCS_OSD_OPEN')"
+                :index="osd ? 2 : 0"
+                :hover-index="1"
+                :chunk="4"
+                @click="$emit('update:osd', !osd)"
+            />
             <!-- 全屏按钮 -->
-            <el-tooltip
-                :content="Translate('IDCS_FULLSCREEN')"
-                placement="bottom"
-            >
-                <BaseImgSprite
-                    file="full_screen"
-                    :index="0"
-                    :hover-index="1"
-                    :chunk="4"
-                    @click="$emit('fullscreen')"
-                />
-            </el-tooltip>
+            <BaseImgSprite
+                file="full_screen"
+                :title="Translate('IDCS_FULLSCREEN')"
+                :index="0"
+                :hover-index="1"
+                :chunk="4"
+                @click="$emit('fullscreen')"
+            />
         </div>
         <div class="ctrl-center">
             <!-- 停止播放 -->
-            <el-tooltip
-                :content="Translate('IDCS_STOP')"
-                placement="bottom"
-            >
-                <BaseImgSprite
-                    file="stop (3)"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="4"
-                    :disabled
-                    @click="stop"
-                />
-            </el-tooltip>
+            <BaseImgSprite
+                file="stop (3)"
+                :title="Translate('IDCS_STOP')"
+                :index="0"
+                :hover-index="1"
+                :disabled-index="3"
+                :chunk="4"
+                :disabled
+                @click="stop"
+            />
             <!-- 倒放 -->
-            <template v-if="mode === 'ocx'">
-                <el-tooltip
-                    :content="Translate('IDCS_PLAY_FORWARD')"
-                    placement="bottom"
-                >
-                    <BaseImgSprite
-                        v-show="['stop', 'pause', 'play'].includes(playStatus)"
-                        file="bkPlay"
-                        :index="0"
-                        :hover-index="1"
-                        :disabled-index="3"
-                        :chunk="4"
-                        :disabled
-                        @click="backwards"
-                    />
-                </el-tooltip>
-            </template>
+            <BaseImgSprite
+                v-if="mode === 'ocx'"
+                v-show="['stop', 'pause', 'play'].includes(playStatus)"
+                file="bkPlay"
+                :title="Translate('IDCS_PLAY_FORWARD')"
+                :index="0"
+                :hover-index="1"
+                :disabled-index="3"
+                :chunk="4"
+                :disabled
+                @click="backwards"
+            />
             <!-- 暂停播放 -->
-            <el-tooltip
-                :content="Translate('IDCS_PAUSE')"
-                placement="bottom"
-            >
-                <BaseImgSprite
-                    v-show="playStatus === 'play' || playStatus === 'backwards'"
-                    file="pause"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="4"
-                    :disabled
-                    @click="pause"
-                />
-            </el-tooltip>
+            <BaseImgSprite
+                v-show="playStatus === 'play' || playStatus === 'backwards'"
+                file="pause"
+                :title="Translate('IDCS_PAUSE')"
+                :index="0"
+                :hover-index="1"
+                :disabled-index="3"
+                :chunk="4"
+                :disabled
+                @click="pause"
+            />
             <!-- 播放 -->
-            <el-tooltip
-                :content="Translate('IDCS_PLAY_FORWARD')"
-                placement="bottom"
-            >
-                <BaseImgSprite
-                    v-show="['stop', 'pause', 'backwards'].includes(playStatus)"
-                    file="fwPlay"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="4"
-                    :disabled
-                    @click="resume"
-                />
-            </el-tooltip>
+            <BaseImgSprite
+                v-show="['stop', 'pause', 'backwards'].includes(playStatus)"
+                file="fwPlay"
+                :title="Translate('IDCS_PLAY_FORWARD')"
+                :index="0"
+                :hover-index="1"
+                :disabled-index="3"
+                :chunk="4"
+                :disabled
+                @click="resume"
+            />
             <!-- 慢进 -->
-            <el-tooltip
-                :content="Translate('IDCS_PLAY_FAST_REWIND')"
-                placement="bottom"
-            >
-                <BaseImgSprite
-                    file="bkSpeed"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="4"
-                    :disabled="rewindDisabled"
-                    @click="rewind"
-                />
-            </el-tooltip>
+            <BaseImgSprite
+                file="bkSpeed"
+                :title="Translate('IDCS_PLAY_FAST_REWIND')"
+                :index="0"
+                :hover-index="1"
+                :disabled-index="3"
+                :chunk="4"
+                :disabled="rewindDisabled"
+                @click="rewind"
+            />
             <!-- 快进 -->
-            <el-tooltip
-                :content="Translate('IDCS_PLAY_FAST_FORWARD')"
-                placement="bottom"
-            >
-                <BaseImgSprite
-                    file="fwSpeed"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="4"
-                    :disabled="forwardDisabled"
-                    @click="forward"
-                />
-            </el-tooltip>
+            <BaseImgSprite
+                file="fwSpeed"
+                :title="Translate('IDCS_PLAY_FAST_FORWARD')"
+                :index="0"
+                :hover-index="1"
+                :disabled-index="3"
+                :chunk="4"
+                :disabled="forwardDisabled"
+                @click="forward"
+            />
             <!-- 1倍速 -->
-            <el-tooltip
-                :content="Translate('IDCS_NORMAL_SPEED')"
-                placement="bottom"
-            >
-                <BaseImgSprite
-                    file="playOriginIcon"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="4"
-                    :disabled="resetSpeedDisabled"
-                    @click="resetSpeed"
-                />
-            </el-tooltip>
+            <BaseImgSprite
+                file="playOriginIcon"
+                :title="Translate('IDCS_NORMAL_SPEED')"
+                :index="0"
+                :hover-index="1"
+                :disabled-index="3"
+                :chunk="4"
+                :disabled="resetSpeedDisabled"
+                @click="resetSpeed"
+            />
             <!-- 上一帧 -->
-            <template v-if="mode === 'ocx'">
-                <el-tooltip
-                    :content="Translate('IDCS_PLAY_PREVIOUS_FRAME')"
-                    placement="bottom"
-                >
-                    <BaseImgSprite
-                        file="preFrame"
-                        :index="0"
-                        :hover-index="1"
-                        :disabled-index="3"
-                        :chunk="4"
-                        :disabled="nextFrameDisabled"
-                        @click="prevFrame"
-                    />
-                </el-tooltip>
-            </template>
+            <BaseImgSprite
+                v-if="mode === 'ocx'"
+                file="preFrame"
+                :title="Translate('IDCS_PLAY_PREVIOUS_FRAME')"
+                :index="0"
+                :hover-index="1"
+                :disabled-index="3"
+                :chunk="4"
+                :disabled="nextFrameDisabled"
+                @click="prevFrame"
+            />
             <!-- 下一帧 -->
-            <el-tooltip
-                :content="Translate('IDCS_PLAY_NEXT_FRAME')"
-                placement="bottom"
-            >
-                <BaseImgSprite
-                    file="nextFrame"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="4"
-                    :disabled="nextFrameDisabled"
-                    @click="nextFrame"
-                />
-            </el-tooltip>
+            <BaseImgSprite
+                file="nextFrame"
+                :title="Translate('IDCS_PLAY_NEXT_FRAME')"
+                :index="0"
+                :hover-index="1"
+                :disabled-index="3"
+                :chunk="4"
+                :disabled="nextFrameDisabled"
+                @click="nextFrame"
+            />
             <!-- 跳转播放 -->
             <div class="seek">
                 <BaseImgSprite
@@ -231,28 +185,26 @@
                     :chunk="2"
                 />
                 <div>
-                    <el-tooltip :content="Translate('IDCS_PLAY_DEC_30_SECONDS')">
-                        <BaseImgSprite
-                            file="bk30s"
-                            :index="0"
-                            :hover-index="1"
-                            :disabled-index="3"
-                            :chunk="4"
-                            :disabled
-                            @click="jump(-30)"
-                        />
-                    </el-tooltip>
-                    <el-tooltip :content="Translate('IDCS_PLAY_INC_30_SECONDS')">
-                        <BaseImgSprite
-                            file="fw30s"
-                            :index="0"
-                            :hover-index="1"
-                            :disabled-index="3"
-                            :chunk="4"
-                            :disabled
-                            @click="jump(30)"
-                        />
-                    </el-tooltip>
+                    <BaseImgSprite
+                        file="bk30s"
+                        :title="Translate('IDCS_PLAY_DEC_30_SECONDS')"
+                        :index="0"
+                        :hover-index="1"
+                        :disabled-index="3"
+                        :chunk="4"
+                        :disabled
+                        @click="jump(-30)"
+                    />
+                    <BaseImgSprite
+                        file="fw30s"
+                        :title="Translate('IDCS_PLAY_INC_30_SECONDS')"
+                        :index="0"
+                        :hover-index="1"
+                        :disabled-index="3"
+                        :chunk="4"
+                        :disabled
+                        @click="jump(30)"
+                    />
                 </div>
             </div>
             <BaseImgSprite
@@ -283,65 +235,61 @@
         </div>
         <div class="ctrl-right">
             <!-- POS按钮 -->
-            <el-tooltip :content="pos ? Translate('IDCS_CANCEL_POS') : Translate('IDCS_VIEW_POS')">
-                <BaseImgSprite
-                    file="POS"
-                    :index="pos ? 2 : 0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="4"
-                    :disabled="posDisabled"
-                    @click="togglePos(!pos)"
-                />
-            </el-tooltip>
+            <BaseImgSprite
+                v-show="pageData.isPosBtn"
+                file="POS"
+                :title="pos ? Translate('IDCS_CANCEL_POS') : Translate('IDCS_VIEW_POS')"
+                :index="pos ? 2 : 0"
+                :hover-index="1"
+                :disabled-index="3"
+                :chunk="4"
+                :disabled="posDisabled"
+                @click="togglePos(!pos)"
+            />
             <!-- 水印按钮 -->
-            <el-tooltip :content="watermark ? Translate('IDCS_CANCEL_WATER_MARK') : Translate('IDCS_VIEW_WATER_MARK')">
-                <BaseImgSprite
-                    file="backupWaterMark"
-                    :index="watermark ? 2 : 0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="4"
-                    :disabled
-                    @click="$emit('update:watermark', !watermark)"
-                />
-            </el-tooltip>
+            <BaseImgSprite
+                file="backupWaterMark"
+                :title="watermark ? Translate('IDCS_CANCEL_WATER_MARK') : Translate('IDCS_VIEW_WATER_MARK')"
+                :index="watermark ? 2 : 0"
+                :hover-index="1"
+                :disabled-index="3"
+                :chunk="4"
+                :disabled
+                @click="$emit('update:watermark', !watermark)"
+            />
             <!-- 开始裁切 -->
-            <el-tooltip :content="Translate('IDCS_BACKUP_START_TIME')">
-                <BaseImgSprite
-                    file="backupStart"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="4"
-                    :disabled
-                    @click="setClipStart"
-                />
-            </el-tooltip>
+            <BaseImgSprite
+                file="backupStart"
+                :title="Translate('IDCS_BACKUP_START_TIME')"
+                :index="0"
+                :hover-index="1"
+                :disabled-index="3"
+                :chunk="4"
+                :disabled
+                @click="setClipStart"
+            />
             <!-- 结束裁切 -->
-            <el-tooltip :content="Translate('IDCS_BACKUP_END_TIME')">
-                <BaseImgSprite
-                    file="backupEnd"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="4"
-                    :disabled
-                    @click="setClipEnd"
-                />
-            </el-tooltip>
+            <BaseImgSprite
+                file="backupEnd"
+                :title="Translate('IDCS_BACKUP_END_TIME')"
+                :index="0"
+                :hover-index="1"
+                :disabled-index="3"
+                :chunk="4"
+                :disabled
+                @click="setClipEnd"
+            />
             <!-- 备份 -->
-            <el-tooltip :content="Translate('IDCS_BACKUP')">
-                <BaseImgSprite
-                    file="backup"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="4"
-                    :disabled="backUpDisabled"
-                    @click="backUp"
-                />
-            </el-tooltip>
+            <BaseImgSprite
+                file="backup"
+                :title="Translate('IDCS_BACKUP')"
+                :index="0"
+                :hover-index="1"
+                :disabled-index="3"
+                :chunk="4"
+                :disabled="backUpDisabled"
+                @click="backUp"
+            />
         </div>
     </div>
 </template>

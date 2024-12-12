@@ -16,8 +16,8 @@ export default defineComponent({
         },
     },
     emits: {
-        change(data: PlaybackEventList[], typeMask: string[], eventList: string[], modeType: string) {
-            return Array.isArray(data) && Array.isArray(typeMask) && Array.isArray(eventList) && typeof modeType === 'string'
+        change(data: PlaybackEventList[], typeMask: string[], eventList: string[], modeType: string, posKeyword: string) {
+            return Array.isArray(data) && Array.isArray(typeMask) && Array.isArray(eventList) && typeof modeType === 'string' && typeof posKeyword === 'string'
         },
     },
     setup(prop, ctx) {
@@ -256,6 +256,10 @@ export default defineComponent({
             ],
             // UI1-B客户不支持选第二种模式
             isEventPopBtn: true,
+            // 是否显示POS输入框
+            isPosInput: systemCaps.supportPOS,
+            // POS关键字
+            posKeyword: '',
         })
 
         /**
@@ -337,7 +341,7 @@ export default defineComponent({
                     ),
                 )
 
-                ctx.emit('change', list, typeMask, eventList, MODE_INDEX_TYPE_MAP[pageData.value.activeEventIndex])
+                ctx.emit('change', list, typeMask, eventList, MODE_INDEX_TYPE_MAP[pageData.value.activeEventIndex], pageData.value.posKeyword)
             },
             {
                 immediate: true,

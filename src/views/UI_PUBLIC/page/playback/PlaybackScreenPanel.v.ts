@@ -70,6 +70,13 @@ export default defineComponent({
             type: String,
             required: true,
         },
+        /**
+         * @property 是否有POS事件
+         */
+        hasPosEvent: {
+            type: Boolean,
+            required: true,
+        },
     },
     emits: {
         'update:split': (num: number, type: number) => {
@@ -155,6 +162,8 @@ export default defineComponent({
             speedList: [1 / 32, 1 / 16, 1 / 8, 1 / 4, 1 / 2, 1, 2, 4, 8, 16, 32],
             // 速度值索引
             speedIndex: 5,
+            // 是否显示POS按钮
+            isPosBtn: systemCaps.supportPOS,
         })
 
         // 没有播放视图时，禁用操作按钮
@@ -327,7 +336,7 @@ export default defineComponent({
 
         // 是否禁用POS
         const posDisabled = computed(() => {
-            return !systemCaps.supportPOS || disabled.value
+            return !prop.hasPosEvent || disabled.value
         })
 
         /**

@@ -13,17 +13,14 @@
             @update:visible="$emit('update:visible', $event)"
         >
             <template #reference>
-                <div>
-                    <el-tooltip :content="Translate('IDCS_BACKUP_TASKS')">
-                        <BaseImgSprite
-                            file="backUpTask"
-                            :index="0"
-                            :hover-index="1"
-                            :disabled-index="3"
-                            :chunk="4"
-                        />
-                    </el-tooltip>
-                </div>
+                <BaseImgSprite
+                    file="backUpTask"
+                    :title="Translate('IDCS_BACKUP_TASKS')"
+                    :index="0"
+                    :hover-index="1"
+                    :disabled-index="3"
+                    :chunk="4"
+                />
             </template>
             <el-table
                 :data="tableData"

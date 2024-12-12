@@ -177,6 +177,8 @@ export default defineComponent({
             typeMask: [] as string[],
             // 事件列表
             eventList: [] as string[],
+            // POS关键字
+            posKeyword: '',
             // 事件模式
             eventModeType: '',
             // 鱼眼安装类型
@@ -209,6 +211,8 @@ export default defineComponent({
             chls: [] as PlaybackChlList[],
             // 事件录像列表
             recLogList: [] as PlaybackRecList[],
+            // 事件录像列表是否有POS事件
+            hasPosEvent: false,
             // 是否打开备份弹窗
             isBackUpPop: false,
             // 录像备份列表
@@ -407,6 +411,9 @@ export default defineComponent({
 
                 cmd(OCX_XML_SetRecPlayMode('SYNC'))
             }
+
+            toggleOSD(true)
+            toggleWatermark(false)
 
             if (history.state.chlId) {
                 pageData.value.startTime = dayjs(history.state.startTime).toDate()
@@ -646,11 +653,13 @@ export default defineComponent({
          * @param {Array} eventList
          * @param {String} eventModeType
          */
-        const changeEvent = (legend: PlaybackEventList[], typeMask: string[], eventList: string[], eventModeType: string) => {
+        const changeEvent = (legend: PlaybackEventList[], typeMask: string[], eventList: string[], eventModeType: string, posKeyword: string) => {
             pageData.value.legend = legend
             pageData.value.typeMask = typeMask
             pageData.value.eventList = eventList
             pageData.value.eventModeType = eventModeType
+            pageData.value.posKeyword = posKeyword
+
             if (pageData.value.recLogList.length) {
                 renderTimeline()
             }
@@ -999,6 +1008,7 @@ export default defineComponent({
             if (!ready.value) {
                 return
             }
+
             pageData.value.osd = bool
             if (mode.value === 'h5') {
                 player.toggleOSD(bool)
@@ -1130,7 +1140,7 @@ export default defineComponent({
 
             if (mode.value === 'ocx') {
                 cmd(OCX_XML_SetPlayStatus('FORWARDS'))
-                changeStreamType(pageData.value.split <= 4 ? 1 : 0)
+                // changeStreamType(pageData.value.split <= 4 ? 1 : 0)
             }
         }
 
@@ -1375,6 +1385,7 @@ export default defineComponent({
          */
         const handleRecLogCallback = (list: PlaybackRecList[], hasPosEvent: boolean) => {
             pageData.value.pos = hasPosEvent
+            pageData.value.hasPosEvent = hasPosEvent
             pageData.value.recLogList = list
             pageData.value.smdRecLogPlay = ''
 

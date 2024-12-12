@@ -31,16 +31,15 @@
                                 v-text="Translate('IDCS_PLUGIN_DOWNLOAD')"
                             ></span>
                         </span>
-                        <el-tooltip :content="Translate('IDCS_PLUGIN_DOWNLOAD_INSTRUCTIONS')">
-                            <BaseImgSprite
-                                class="icon_aq"
-                                file="aq"
-                                :index="pageData.hoverPluginIconIndex"
-                                :chunk="3"
-                                @mouseenter="pageData.hoverPluginIconIndex = 2"
-                                @mouseleave="pageData.hoverPluginIconIndex = 1"
-                            />
-                        </el-tooltip>
+                        <BaseImgSprite
+                            class="icon_aq"
+                            file="aq"
+                            :title="Translate('IDCS_PLUGIN_DOWNLOAD_INSTRUCTIONS')"
+                            :index="pageData.hoverPluginIconIndex"
+                            :chunk="3"
+                            @mouseenter="pageData.hoverPluginIconIndex = 2"
+                            @mouseleave="pageData.hoverPluginIconIndex = 1"
+                        />
                     </div>
                     <div class="nav-item">
                         <span>{{ userName }}</span>
