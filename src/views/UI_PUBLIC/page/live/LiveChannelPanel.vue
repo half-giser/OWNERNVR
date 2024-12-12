@@ -59,11 +59,13 @@
                         <BaseImgSprite
                             class="left-chl-search"
                             file="toolbar_search"
+                            :title="Translate('IDCS_SEARCH')"
                             @click="searchChl"
                         />
                         <BaseImgSprite
                             class="left-chl-search"
                             file="toolbar_refresh"
+                            :title="Translate('IDCS_REFRESH')"
                             @click="refreshChl"
                         />
                     </div>
