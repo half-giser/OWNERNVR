@@ -100,6 +100,8 @@ declare global {
             default?: boolean
             /** 分组元标签 */
             groups?: Record<string, FeatureItemGroupMeta>
+            /** 是否控制面板的默认菜单项 */
+            homeDefault?: boolean
         }
         /** 子路由配置项 */
         children?: FeatureTree
@@ -141,6 +143,7 @@ declare global {
             homeSort?: number
             sort?: number
             inHome?: 'self' | 'group'
+            homeDefault?: boolean
         }
         children: RouteRecordRawExtends[]
         redirect: string

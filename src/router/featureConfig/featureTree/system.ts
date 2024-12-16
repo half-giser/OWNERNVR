@@ -55,6 +55,7 @@ export default {
                 lk: 'IDCS_GENERAL_SET',
                 group: 'basicConfig',
                 default: true,
+                homeDefault: true,
                 inHome: 'group',
                 homeSort: 10,
                 auth: 'remoteSysCfgAndMaintain',

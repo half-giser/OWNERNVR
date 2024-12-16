@@ -46,6 +46,7 @@ export default {
                 lk: 'IDCS_DISK_MANAGE',
                 group: 'diskManagement',
                 default: true,
+                homeDefault: true,
                 inHome: 'self',
                 homeSort: 10,
                 auth: 'diskMgr',

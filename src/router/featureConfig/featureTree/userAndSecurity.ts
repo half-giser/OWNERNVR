@@ -59,6 +59,7 @@ export default {
                 lk: 'IDCS_CHANGE_OR_DELETE_USER',
                 group: 'account',
                 default: true,
+                homeDefault: true,
                 inHome: 'self',
                 homeSort: 20,
             },
