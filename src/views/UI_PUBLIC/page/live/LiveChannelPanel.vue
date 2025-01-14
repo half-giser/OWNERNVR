@@ -19,7 +19,7 @@
                         v-show="pageData.activeChlMenu === 0"
                         class="left-top-online"
                     >
-                        ( {{ pageData.onlineChlList.length }} / {{ pageData.cacheChlList.length }} )
+                        ({{ pageData.onlineChlList.length }}/{{ pageData.cacheChlList.length }})
                     </span>
                 </div>
                 <i></i>
@@ -56,18 +56,20 @@
                             :placeholder="Translate('IDCS_SEARCH_CHANNEL')"
                             @keydown.enter="searchChl"
                         />
-                        <BaseImgSprite
-                            class="left-chl-search"
-                            file="toolbar_search"
-                            :title="Translate('IDCS_SEARCH')"
-                            @click="searchChl"
-                        />
-                        <BaseImgSprite
-                            class="left-chl-search"
-                            file="toolbar_refresh"
-                            :title="Translate('IDCS_REFRESH')"
-                            @click="refreshChl"
-                        />
+                        <div class="left-chl-search">
+                            <BaseImgSprite
+                                file="toolbar_search"
+                                :title="Translate('IDCS_SEARCH')"
+                                @click="searchChl"
+                            />
+                        </div>
+                        <div class="left-chl-search">
+                            <BaseImgSprite
+                                file="toolbar_refresh"
+                                :title="Translate('IDCS_REFRESH')"
+                                @click="refreshChl"
+                            />
+                        </div>
                     </div>
                     <BaseListBox class="left-chl-box">
                         <BaseListBoxItem
@@ -275,11 +277,11 @@
         & > div {
             background-color: transparent;
             width: 42px;
-            height: 38px;
+            height: 35px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 10px;
+            margin: 0 13px 2px;
             border-top: 3px solid transparent;
 
             &.active {
@@ -300,10 +302,14 @@
         width: 100%;
 
         &-form {
-            margin: 10px;
+            margin: 10px 10px 5px;
             display: flex;
             flex-shrink: 0;
             align-items: center;
+
+            .el-input {
+                width: 162px;
+            }
         }
 
         &-search {
@@ -311,6 +317,11 @@
             margin-left: 5px;
             cursor: pointer;
             flex-shrink: 0;
+            width: 27px;
+            height: 27px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
 
             &:hover {
                 background-color: var(--btn-bg-hover);
@@ -333,11 +344,11 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 50px;
+            height: 33px;
             flex-shrink: 0;
 
             :deep(.el-button) {
-                margin: 0 2px;
+                min-width: unset !important;
             }
         }
 
@@ -346,6 +357,7 @@
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
+            margin-top: 10px;
         }
 
         &-thumb {
@@ -378,6 +390,11 @@
                 border-top: 1px solid var(--content-border);
             }
         }
+    }
+
+    .BaseListBox {
+        width: calc(100% - 10px);
+        margin-left: 10px;
     }
 }
 </style>

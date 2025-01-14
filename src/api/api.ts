@@ -97,7 +97,7 @@ class Request {
                     ...this.config,
                     ...config,
                     url,
-                    data: compressXml(getXmlWrapData(data)),
+                    data: import.meta.env.DEV ? compressXml(getXmlWrapData(data)) : getXmlWrapData(data),
                     baseURL: this.BASE_URL,
                 }).then(
                     (response) => {

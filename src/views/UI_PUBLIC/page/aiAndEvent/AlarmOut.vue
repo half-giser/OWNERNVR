@@ -144,7 +144,7 @@
     <!-- 排程管理弹窗 -->
     <ScheduleManagPop
         v-model="pageData.isSchedulePop"
-        @close="pageData.isSchedulePop = false"
+        @close="closeSchedulePop"
     />
 </template>
 

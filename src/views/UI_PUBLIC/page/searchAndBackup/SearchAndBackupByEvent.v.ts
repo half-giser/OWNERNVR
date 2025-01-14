@@ -425,8 +425,8 @@ export default defineComponent({
                     </recList>
                 </requireField>
                 <condition>
-                    <startTime>${formatDate(startTime, 'YYYY-MM-DD HH:mm:ss')}</startTime>
-                    <endTime>${formatDate(endTime, 'YYYY-MM-DD HH:mm:ss')}</endTime>
+                    <startTime>${formatDate(startTime, DEFAULT_DATE_FORMAT)}</startTime>
+                    <endTime>${formatDate(endTime, DEFAULT_DATE_FORMAT)}</endTime>
                     <startTimeEx>${localToUtc(startTime)}</startTimeEx>
                     <endTimeEx>${localToUtc(endTime)}</endTimeEx>
                     <recType type='list'>

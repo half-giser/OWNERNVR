@@ -135,10 +135,10 @@ const useLoading = () => {
      * @param inst
      */
     const closeInst = (inst: ReturnType<typeof ElLoading.service>) => {
-        nextTick(() => {
-            // Loading should be closed asynchronously
-            inst.close()
-        })
+        // nextTick(() => {
+        // Loading should be closed asynchronously
+        inst.close()
+        // })
     }
 
     /**

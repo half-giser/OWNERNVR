@@ -193,7 +193,7 @@ export default defineComponent({
 
         onMounted(async () => {
             await getAuth()
-            await getData()
+            getData()
         })
 
         return {

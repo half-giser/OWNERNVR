@@ -14,12 +14,12 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openMessageBox } = useMessageBox()
         const { openLoading, closeLoading } = useLoading()
-        const pushFormData = ref(new AlarmPushForm())
+        const formData = ref(new AlarmPushForm())
 
         const pageData = ref({
             scheduleOption: [] as SelectOption<string, string>[],
             //排程管理弹窗显示状态
-            scheduleManagPopOpen: false,
+            isSchedulePop: false,
         })
 
         const getScheduleData = async () => {
@@ -33,17 +33,13 @@ export default defineComponent({
             const result = await queryEventNotifyParam()
 
             commLoadResponseHandler(result, ($) => {
-                pushFormData.value.chkEnable = $('content/mobilePushSwitch').text().bool()
+                formData.value.chkEnable = $('content/mobilePushSwitch').text().bool()
 
                 if ($('content/pushSchedule').attr('id')) {
-                    pushFormData.value.pushSchedule = $('content/pushSchedule').attr('id')
+                    formData.value.pushSchedule = $('content/pushSchedule').attr('id')
                 } else {
                     const scheduleName = $('content/pushSchedule').text() || '24x7'
-                    pageData.value.scheduleOption.forEach((item) => {
-                        if (scheduleName === item.label) {
-                            pushFormData.value.pushSchedule = item.value
-                        }
-                    })
+                    formData.value.pushSchedule = pageData.value.scheduleOption.find((item) => scheduleName === item.label)?.value || ''
                 }
             })
         }
@@ -68,17 +64,18 @@ export default defineComponent({
         const setData = async () => {
             const sendXml = rawXml`
                 <content>
-                    <mobilePushSwitch>${pushFormData.value.chkEnable}</mobilePushSwitch>
-                    <pushSchedule id='${pushFormData.value.pushSchedule}'></pushSchedule>
+                    <mobilePushSwitch>${formData.value.chkEnable}</mobilePushSwitch>
+                    <pushSchedule id='${formData.value.pushSchedule}'></pushSchedule>
                 </content>
             `
             const result = await editEventNotifyParam(sendXml)
             commSaveResponseHandler(result)
         }
 
-        const closeSchedulePop = () => {
-            pageData.value.scheduleManagPopOpen = false
-            getScheduleData()
+        const closeSchedulePop = async () => {
+            pageData.value.isSchedulePop = false
+            await getScheduleData()
+            formData.value.pushSchedule = getScheduleId(pageData.value.scheduleOption, formData.value.pushSchedule, '')
         }
 
         onMounted(async () => {
@@ -90,7 +87,7 @@ export default defineComponent({
         })
 
         return {
-            pushFormData,
+            formData,
             pageData,
             testData,
             setData,

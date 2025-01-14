@@ -156,7 +156,7 @@ export const useLangStore = defineStore(
                     //     clear: '', // Translate("IDCS_CLEAR")
                     // },
                     datepicker: {
-                        now: Translate('IDCS_CURRENT_TIME'), // "此刻",
+                        now: Translate('IDCS_CALENDAR_TODAY'), // "此刻",
                         today: Translate('IDCS_CALENDAR_TODAY'),
                         cancel: Translate('IDCS_CANCEL'),
                         clear: Translate('IDCS_CLEAR'),
@@ -171,7 +171,8 @@ export const useLangStore = defineStore(
                         nextYear: Translate('IDCS_NEXT'), // "后一年",
                         prevMonth: Translate('IDCS_PREVIOUS'), // "上个月",
                         nextMonth: Translate('IDCS_NEXT'), // "下个月",
-                        year: Translate('IDCS_YEAR_ALL'),
+                        year: '',
+                        // year: Translate('IDCS_YEAR_ALL'),
                         month1: Translate('IDCS_Month_ONE'),
                         month2: Translate('IDCS_Month_TWO'),
                         month3: Translate('IDCS_Month_THREE'),

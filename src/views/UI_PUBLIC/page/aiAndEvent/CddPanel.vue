@@ -5,19 +5,13 @@
 -->
 <template>
     <div>
-        <!-- <div
-            v-if="pageData.notSupportTipShow"
-            class="base-ai-not-support-box"
-        >
-            {{ Translate('IDCS_CURRENT_INTEL_EVENT_UNSUPORT') }}
-        </div> -->
         <div
-            v-if="pageData.requireDataFail"
+            v-if="pageData.reqFail"
             class="base-ai-not-support-box"
         >
             {{ Translate('IDCS_QUERY_DATA_FAIL') }}
         </div>
-        <div v-if="!pageData.requireDataFail">
+        <div v-if="pageData.tab">
             <!-- 检测开启-->
             <div class="base-btn-box flex-start padding collapse">
                 <el-checkbox
@@ -27,7 +21,7 @@
             </div>
             <!-- 两种功能 -->
             <el-tabs
-                v-model="pageData.fuction"
+                v-model="pageData.tab"
                 class="base-ai-tabs"
             >
                 <!-- 参数设置 -->
@@ -44,7 +38,7 @@
                                     @message="notify"
                                 />
                             </div>
-                            <div v-if="pageData.fuction === 'param'">
+                            <div v-if="pageData.tab === 'param'">
                                 <div class="base-btn-box">
                                     <!-- <div>
                                         <el-checkbox

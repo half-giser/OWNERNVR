@@ -12,62 +12,54 @@ export interface RecordBuilderOption {
 
 type DoneCallback = (recordFile: ArrayBuffer, manul: boolean, fileIndex: number) => void
 
-export default class RecordBuilder {
-    private type = 0 // 解码类型，0表示回放
-    private doneCallback?: DoneCallback | null // 执行完录像录制任务后的回调
-    private callbackQueue: DoneCallback[] = [] // 执行完录像录制任务后的回调队列
-    private maxSingleSize = 0
-    private decodeWorker?: Worker
-    private recordFile: ArrayBuffer | null = null
-    private readonly ready: RecordBuilderOption['ready']
-    private readonly onFrameIndex: RecordBuilderOption['onFrameIndex']
-    private readonly onerror: RecordBuilderOption['onerror']
+export default function RecordBuilder(option: RecordBuilderOption) {
+    const type = 0 // 解码类型，0表示回放
 
-    constructor(option: RecordBuilderOption) {
-        this.ready = option.ready
-        this.maxSingleSize = option.maxSingleSize
-        this.onFrameIndex = option.onFrameIndex
-        this.onerror = option.onerror
-        this.initDecoder()
-    }
+    let doneCallback: DoneCallback | null = null // 执行完录像录制任务后的回调
+    let callbackQueue: DoneCallback[] = [] // 执行完录像录制任务后的回调队列
+    let recordFile: ArrayBuffer | null = null
 
-    private initDecoder() {
-        this.decodeWorker = new Worker('/workers/decoder.js', {
-            type: 'classic',
-        })
-        this.decodeWorker.onmessage = (e: any) => {
-            const data = e.data
-            if (!(data && data.cmd)) {
-                return
-            }
+    const ready = option.ready
+    const maxSingleSize = option.maxSingleSize
+    const onFrameIndex = option.onFrameIndex
+    const onerror = option.onerror
 
-            switch (data.cmd) {
-                case 'ready':
-                    this.decodeWorker!.postMessage({
-                        cmd: 'init',
-                        type: this.type,
-                        maxSingleSize: this.maxSingleSize,
-                    })
-                    this.ready && this.ready()
-                    break
-                case 'frameIndex':
-                    this.onFrameIndex && this.onFrameIndex(data.frameIndex, data.frameTime)
-                    break
-                case 'getRecData': // 获取到录像数据
-                    this.onRecordData(data.data, data.finished, data.manul, data.fileIndex)
-                    break
-                case 'fileOverSize': // 检测到读取avi文件达到单个文件阈值时
-                    this.onFileOverSize()
-                    break
-                case 'bufferError':
-                    this.onerror && this.onerror()
-                    break
-                case 'errorCode':
-                    this.handleErrorCode(data.code, data.url)
-                    break
-                default:
-                    break
-            }
+    const decodeWorker = new Worker('/workers/decoder.js', {
+        type: 'classic',
+    })
+
+    decodeWorker.onmessage = (e: any) => {
+        const data = e.data
+        if (!(data && data.cmd)) {
+            return
+        }
+
+        switch (data.cmd) {
+            case 'ready':
+                decodeWorker!.postMessage({
+                    cmd: 'init',
+                    type: type,
+                    maxSingleSize: maxSingleSize,
+                })
+                ready && ready()
+                break
+            case 'frameIndex':
+                onFrameIndex && onFrameIndex(data.frameIndex, data.frameTime)
+                break
+            case 'getRecData': // 获取到录像数据
+                onRecordData(data.data, data.finished, data.manul, data.fileIndex)
+                break
+            case 'fileOverSize': // 检测到读取avi文件达到单个文件阈值时
+                onFileOverSize()
+                break
+            case 'bufferError':
+                onerror && onerror()
+                break
+            case 'errorCode':
+                handleErrorCode(data.code, data.url)
+                break
+            default:
+                break
         }
     }
 
@@ -78,35 +70,35 @@ export default class RecordBuilder {
      * @param {boolean} manul 是否手动停止录像
      * @param {number} fileIndex 录像任务的第几个文件
      */
-    private onRecordData(data: ArrayBuffer, finished: boolean, manul: boolean, fileIndex: number) {
-        this.recordFile = appendBuffer(this.recordFile, data)
+    const onRecordData = (data: ArrayBuffer, finished: boolean, manul: boolean, fileIndex: number) => {
+        recordFile = appendBuffer(recordFile, data) as ArrayBuffer
         if (!finished) return
         // 回调返回封装完格式的录像
-        this.doneCallback && this.doneCallback(this.recordFile, manul, fileIndex)
+        doneCallback && doneCallback(recordFile, manul, fileIndex)
         // manul为true则说明当前任务所有文件已处理完, 执行下一个任务
         if (manul) {
-            this.execNextTask()
+            execNextTask()
         }
         // 当前任务还有分批文件, 继续录像
         else {
-            this.startRecord()
+            startRecord()
         }
-        this.recordFile = null
+        recordFile = null
     }
 
     /**
      * @description 已录制文件超过阈值时
      */
-    private onFileOverSize() {
-        this.stopRecord()
+    const onFileOverSize = () => {
+        stopRecord()
     }
 
     /**
      * @description 喂原始视频buffer
      * @param {ArrayBuffer} buffer
      */
-    sendBuffer(buffer: ArrayBuffer) {
-        this.decodeWorker!.postMessage({
+    const sendBuffer = (buffer: ArrayBuffer) => {
+        decodeWorker.postMessage({
             cmd: 'sendData',
             buffer: buffer,
             onlyForRecord: true,
@@ -117,37 +109,37 @@ export default class RecordBuilder {
      * @description 创建录像
      * @param {Function} doneCallback
      */
-    createRecord(doneCallback: DoneCallback) {
-        this.callbackQueue.push(doneCallback)
-        if (this.callbackQueue.length === 1) {
-            this.doneCallback = this.callbackQueue[0]
-            this.startRecord()
+    const createRecord = (doneCallback: DoneCallback) => {
+        callbackQueue.push(doneCallback)
+        if (callbackQueue.length === 1) {
+            doneCallback = callbackQueue[0]
+            startRecord()
         }
     }
 
     /**
      * @description 执行下一个任务
      */
-    execNextTask() {
-        this.callbackQueue.shift()
-        this.execTask()
+    const execNextTask = () => {
+        callbackQueue.shift()
+        execTask()
     }
 
     /**
      * @description 执行任务
      */
-    execTask() {
-        if (this.callbackQueue[0]) {
-            this.doneCallback = this.callbackQueue[0]
-            this.startRecord()
+    const execTask = () => {
+        if (callbackQueue[0]) {
+            doneCallback = callbackQueue[0]
+            startRecord()
         }
     }
 
     /**
      * @description 开始录像
      */
-    startRecord() {
-        this.decodeWorker!.postMessage({
+    const startRecord = () => {
+        decodeWorker.postMessage({
             cmd: 'startRecord',
             isExecuteSendQueue: true,
         })
@@ -157,8 +149,8 @@ export default class RecordBuilder {
      * @description 结束录像
      * @param {Boolean} manul:是否手动停止
      */
-    stopRecord(manul: boolean = false) {
-        this.decodeWorker!.postMessage({
+    const stopRecord = (manul: boolean = false) => {
+        decodeWorker.postMessage({
             cmd: 'stopRecord',
             manul: manul,
         })
@@ -167,13 +159,13 @@ export default class RecordBuilder {
     /**
      * @description 销毁
      */
-    destroy() {
-        this.decodeWorker!.postMessage({
+    const destroy = () => {
+        decodeWorker.postMessage({
             cmd: 'destroy',
         })
-        this.decodeWorker!.terminate()
-        this.doneCallback = null
-        this.callbackQueue = []
+        decodeWorker.terminate()
+        doneCallback = null
+        callbackQueue = []
     }
 
     /**
@@ -181,7 +173,15 @@ export default class RecordBuilder {
      * @param {number} code
      * @param {string} url
      */
-    handleErrorCode(code: number, url: string) {
+    const handleErrorCode = (code: number, url: string) => {
         console.log(code, url)
+    }
+
+    return {
+        sendBuffer,
+        createRecord,
+        startRecord,
+        stopRecord,
+        destroy,
     }
 }

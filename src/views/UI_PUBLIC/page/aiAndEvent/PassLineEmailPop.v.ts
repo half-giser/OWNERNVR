@@ -71,13 +71,13 @@ export default defineComponent({
                 saveTargetPicture: false,
                 saveSourcePicture: false,
                 sendEmailData: {
-                    type: '0',
+                    type: 0,
                     enableSwitch: false,
                     dailyReportSwitch: false,
                     weeklyReportSwitch: false,
-                    weeklyReportDate: '1',
+                    weeklyReportDate: 1,
                     mouthlyReportSwitch: false,
-                    mouthlyReportDate: '1',
+                    mouthlyReportDate: 1,
                     reportHour: 0,
                     reportMin: 0,
                 },
@@ -86,34 +86,34 @@ export default defineComponent({
             time: '00:00',
             weekOption: [
                 {
-                    value: '1',
+                    value: 1,
                     label: Translate('IDCS_WEEK_DAY_ONE'),
                 },
                 {
-                    value: '2',
+                    value: 2,
                     label: Translate('IDCS_WEEK_DAY_TWO'),
                 },
                 {
-                    value: '3',
+                    value: 3,
                     label: Translate('IDCS_WEEK_DAY_THREE'),
                 },
                 {
-                    value: '4',
+                    value: 4,
                     label: Translate('IDCS_WEEK_DAY_FOUR'),
                 },
                 {
-                    value: '5',
+                    value: 5,
                     label: Translate('IDCS_WEEK_DAY_FIVE'),
                 },
                 {
-                    value: '6',
+                    value: 6,
                     label: Translate('IDCS_WEEK_DAY_SIX'),
                 },
                 {
-                    value: '7',
+                    value: 7,
                     label: Translate('IDCS_WEEK_DAY_SEVEN'),
                 },
-            ] as SelectOption<string, string>[],
+            ] as SelectOption<number, string>[],
             monthOption: [] as SelectOption<string, string>[],
             scheduleList: [] as SelectOption<string, string>[],
             // 添加弹窗

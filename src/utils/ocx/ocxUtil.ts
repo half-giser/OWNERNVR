@@ -118,7 +118,7 @@ export const OCX_Plugin_Load_Lang: Record<string, Record<string, string>> = {
     },
     //Czech
     '0x0405': {
-        IDCS_NO_PLUGIN_FOR_WINDOWS: "Není nainstalován plugin, klikněte <a href='%1'>ZDE</a> pro stažení a nainstalování.  Před instalací uzavřete prohlížeč.",
+        IDCS_NO_PLUGIN_FOR_WINDOWS: "Není nainstalován plugin, klikněte <a href='%1'>ZDE</a> pro stažení a nainstalování. Před instalací uzavřete prohlížeč.",
         // IDCS_NO_PLUGIN_FOR_MAC: 'Není nainstalován plugin, klikněte <a href=\'%1\'>ZDE</a> pro stažení a nainstalování.  Před instalací pluginu je nutné nejprve zavřít prohlížeč.<br/>Pokud máte plugin již nainstalován, tak prosím zkontrolujte zda není zakázán v nastavení zabezpečení  "Safari->Preferences->Security".',
         // IDCS_NPAPI_NOT_SUPPORT: "NPAPI podpora je zakázána. Postupujte následovně: <ul><li>1.Zadejte  \"chrome://flags/#enable-npapi\"  do adresy;</li><li>2.Klikněte 'Povolit' v položce 'Povolit Npapi';</li><li>3.Zavřeteprohlíže Chrome;</li><li>4.Znovu otevřete prohlížeč Chrome a přihlaště se na zařízení.</li></ul>Pokud není plugin nainstalován, klikěnte <a href='%1'>ZDE</a> pro stažení a instalaci. Před instalací uzavřete prohlížeč.",
         IDCS_PLUGIN_VERSION_UPDATE: "Plugin není aktualizován, klikněte prosím na <a href='%1'>ZDE</a> ke stažení a instalaci.",
@@ -178,7 +178,7 @@ export const OCX_Plugin_Load_Lang: Record<string, Record<string, string>> = {
     },
     //Greek
     '0x0408': {
-        IDCS_NO_PLUGIN_FOR_WINDOWS: "Το πρόσθετο δεν έχει εγκατασταθεί, κάνετε click <a href='%1'>εδώ</a> για μεταφόρτωση και εγκατάσταση.  Πριν την εγκατάσταση κλείστε το φυλλομετρητή.",
+        IDCS_NO_PLUGIN_FOR_WINDOWS: "Το πρόσθετο δεν έχει εγκατασταθεί, κάνετε click <a href='%1'>εδώ</a> για μεταφόρτωση και εγκατάσταση. Πριν την εγκατάσταση κλείστε το φυλλομετρητή.",
         // IDCS_NO_PLUGIN_FOR_MAC: 'Το πρόσθετο δεν έχει εγκατασταθεί, κάνετε click <a href=\'%1\'>εδώ</a> για μεταφόρτωση και εγκατάσταση. Πριν την εγκατάσταση κλείστε το φυλλομετρητή<br/>Αν έχετε εγκαταστήσει το πρόσθετο,ελέγξτε αν έχει απενεργοποιηθεί στο μενού "Safari->Preferences->Security".',
         // IDCS_NPAPI_NOT_SUPPORT: "NPAPI υποστήριξη είναι απενεργοποιημένη. Ακολουθείστε τις οδηγίες για να την ενεργοποιήσετε:<ul><li>1.Input \"chrome://flags/#enable-npapi\" στη γραμμή διευθύνσεων;</li><li>2.Επιλέξτε 'Enable' στο μενού 'Enable Npapi';</li><li>3.Κλείστε τον Chrome;</li><li>4. Ανοίτε πάλι τον Chrome και μεταβείτε στο system, αν το πρόσθετο είναι διαθέσιμο.</li></ul>Αν το πρόσθετο δεν έχει εγκατασταθεί, επιλέξτε <a href='%1'>Εδώ</a>για μεταφόρτωση και εγκατάσταση. Πριν την εγκατάσταση κλείστε το φυλλομετρητή.",
         IDCS_PLUGIN_VERSION_UPDATE: "Το πρόσθετο δεν έχει ενημερωθεί, παρακαλώ κάντε κλικ στο <a href='%1'>Εδώ</a> για να κατεβάσετε και να εγκαταστήσετε.",
@@ -201,7 +201,7 @@ export const OCX_Plugin_Load_Lang: Record<string, Record<string, string>> = {
         IDCS_NO_PLUGIN_FOR_WINDOWS: "תוסף הוידאו לא זמין. אנא לחץ <a href='%1'> כאן </a> בכדי להוריד את התוסף ולהתקינו. לפני תחילת ההתקנה יש לסגור את דפדפן האינטרנט",
         // IDCS_NO_PLUGIN_FOR_MAC: "תוסף הוידאו לא זמין. אנא לחץ <a href='%1'> כאן </a> בכדי להוריד את התוסף ולהתקינו. לפני תחילת ההתקנה יש לסגור את דפדפן האינטרנט. אם כבר התקנת את הדפדפן, אנא ודא שהוא פעיל ברשימת התוספים של דפדפן האינטרנט שלך.",
         // IDCS_NPAPI_NOT_SUPPORT: '',
-        IDCS_PLUGIN_VERSION_UPDATE: "התוספת אינה מעודכנת, בבקשה לחץ על <a href='% 1'>כאן</ a> כדי להוריד ולהתקין.",
+        IDCS_PLUGIN_VERSION_UPDATE: "התוספת אינה מעודכנת, בבקשה לחץ על <a href='% 1'>כאן</a> כדי להוריד ולהתקין.",
         // IDCS_IE_VERSION_WARNING: 'הגרסה של הדפדף IE שלך לא תומכת. בבקשה השתמש בגרסה IE10 או בגרסה מאוחרת יותר.',
         // IDCS_FIREFOX_VERSION_WARNING: 'הגרסה שלך של דופקת Firefox לא תומכת. בבקשה השתמש בגרסה Firefox53 או אחר כך.',
         // IDCS_OPERA_VERSION_WARNING: 'הגרסה שלך של מעגל האופרה לא תומכת. אנא השתמש בגרסה אופר26 או בגרסה מאוחרת יותר.',
@@ -318,7 +318,7 @@ export const OCX_Plugin_Load_Lang: Record<string, Record<string, string>> = {
     },
     //Romanian
     '0x0418': {
-        IDCS_NO_PLUGIN_FOR_WINDOWS: "Plugin neinstalat, apasati pe <a href='%1'>Here</a>  sa descarcati si sa instalati. Before installation, please close your browser.",
+        IDCS_NO_PLUGIN_FOR_WINDOWS: "Plugin neinstalat, apasati pe <a href='%1'>Here</a> sa descarcati si sa instalati. Before installation, please close your browser.",
         // IDCS_NO_PLUGIN_FOR_MAC: 'Plugin neinstalat, apasati <a href=\'%1\'>Here</a> pt descarcare si instalare inchideti browser  <br/>If you have installed plugin, please check if the plugin is disabled at "Safari->Preferences->Security".',
         // IDCS_NPAPI_NOT_SUPPORT: "NPAPI Support dezactivat. urmati instr. pt. activare <ul><li>1.Input \"chrome://flags/#enable-npapi\" into address bar;</li><li>2.Click 'Enable' under the 'Enable Npapi';</li><li>3.Close the Chrome browser completely;</li><li>4.Reopen the Chrome and navigate to the system, the plugin is available.</li></ul>Or the plugin is not installed, please click <a href='%1'>Here</a> to download and install. Before installation, please close your browser.",
         IDCS_PLUGIN_VERSION_UPDATE: "Plugin nu este actualizat, vă rugăm să faceți clic pe <a href='%1'>Aici</a> pentru a descărca și instala.",
@@ -361,7 +361,7 @@ export const OCX_Plugin_Load_Lang: Record<string, Record<string, string>> = {
         IDCS_NO_PLUGIN_FOR_WINDOWS: '',
         // IDCS_NO_PLUGIN_FOR_MAC: '',
         // IDCS_NPAPI_NOT_SUPPORT: '',
-        IDCS_PLUGIN_VERSION_UPDATE: "Plugin nie je aktualizovaný, prosím kliknite na <a href='% 1'>Tu</ a> na stiahnutie a inštaláciu.",
+        IDCS_PLUGIN_VERSION_UPDATE: "Plugin nie je aktualizovaný, prosím kliknite na <a href='% 1'>Tu</a> na stiahnutie a inštaláciu.",
         // IDCS_IE_VERSION_WARNING: '',
         // IDCS_FIREFOX_VERSION_WARNING: '',
         // IDCS_OPERA_VERSION_WARNING: '',
@@ -418,7 +418,7 @@ export const OCX_Plugin_Load_Lang: Record<string, Record<string, string>> = {
     },
     //Spanish(Spain - Modern Sort)
     '0x0c0a': {
-        IDCS_NO_PLUGIN_FOR_WINDOWS: "Si el plugin no está instalado, haga clic <a href='%1'> aquí </a> para descargar e instalar.  Antes de la instalación, por favor, cierre su navegador.",
+        IDCS_NO_PLUGIN_FOR_WINDOWS: "Si el plugin no está instalado, haga clic <a href='%1'> aquí </a> para descargar e instalar. Antes de la instalación, por favor, cierre su navegador.",
         // IDCS_NO_PLUGIN_FOR_MAC: "El plugin no está instalado, haga clic <a href='%1'> aquí </A> para descargar e instalar. Antes de la instalación, por favor cierre su navegador. <br/> Si usted tiene el plug-in, por favor ver si el plugin está deshabilitado en Safari-> Preferencias> Seguridad.",
         // IDCS_NPAPI_NOT_SUPPORT: "El NPAPI soporte no está activa en este momento. Por favor, siga las siguientes instrucciones a fin de que: <ul> <li> 1.Ingrese chrome: // banderas / # enable-NPAPI  en la barra de direcciones </li> <li> 2. Haga clic 'activar' y en 'habilitar NPAPI'; </li> <li> 3.Cierre Chrome por completo;. </li> <li> 4. Abrir Chrome y navegar por el sistema, el plugin está habilitado </li> </ul> O el plugin no está instalado, por favor haga clic <a href='%1'> aquí </a> para descargar e instalar. Antes de la instalación, por favor, cierre su navegador.",
         IDCS_PLUGIN_VERSION_UPDATE: "El plugin no ha sido actualizado, haga clic <a href='%1'> aquí </a> para descargar e instalar. ",
@@ -661,10 +661,10 @@ export const OCX_Plugin_Load_Lang: Record<string, Record<string, string>> = {
     //Arabic(Egypt)
     '0x0c01': {
         // "IDCS_NO_PLUGIN_FOR_WINDOWS": "THE PLUGIN IS NOT INSTALLED, PLEASE CLICK <A HREF=\"لم يتم تثبيت المكون الإضافي، يرجى النقر <a href='%1'> هنا </a> للتنزيل والتثبيت. قبل التثبيت، يرجى إغلاق المتصفح.",
-        IDCS_NO_PLUGIN_FOR_WINDOWS: "لم يتم تثبيت المكون الإضافي، يرجى النقر<a href='%1'> هنا </a>  للتنزيل والتثبيت. قبل التثبيت، يرجى إغلاق المتصفح.",
+        IDCS_NO_PLUGIN_FOR_WINDOWS: "لم يتم تثبيت المكون الإضافي، يرجى النقر<a href='%1'> هنا </a> للتنزيل والتثبيت. قبل التثبيت، يرجى إغلاق المتصفح.",
         // IDCS_NO_PLUGIN_FOR_MAC: '',
         // IDCS_NPAPI_NOT_SUPPORT: '',
-        IDCS_PLUGIN_VERSION_UPDATE: "يتم تثبيت المكون الإضافي، يرجى النقر<a href='%1'> هنا </a>  للتنزيل والتثبيت. قبل التثبيت، يرجى إغلاق المتصفح.",
+        IDCS_PLUGIN_VERSION_UPDATE: "يتم تثبيت المكون الإضافي، يرجى النقر<a href='%1'> هنا </a> للتنزيل والتثبيت. قبل التثبيت، يرجى إغلاق المتصفح.",
         // IDCS_IE_VERSION_WARNING: '',
         // IDCS_FIREFOX_VERSION_WARNING: '',
         // IDCS_OPERA_VERSION_WARNING: '',
@@ -853,8 +853,8 @@ export const OCX_Plugin_Notice_Map = {
     // },
 }
 
-export const TIMESLIDER_PLUGIN = 'TimeSlider'
-export const VIDEO_PLUGIN = 'VideoPlugin'
+// export const TIMESLIDER_PLUGIN = 'TimeSlider'
+// export const VIDEO_PLUGIN = 'VideoPlugin'
 
 export const P2PACCESSTYPE = {
     P2P_SMALL_PLUGIN: 'p2pSmallPlugin', // 区分由P2P登录页跳转小插件查询版本号后再进行跳转登录
@@ -907,9 +907,4 @@ export const PluginSizeModeMapping: Record<BrowserType, PluginSizeMode> = {
     edge: 'relativeToDom',
     chrome: 'relativeToDom',
     safari: 'relativeToDom',
-}
-
-export const OCX_XML_OpenFileBrowser_getpath = (xmlStr: string) => {
-    const $xmlDoc = queryXml(XMLStr2XMLDoc(xmlStr))
-    return $xmlDoc("response[@type='OpenFileBrowser']").text()
 }

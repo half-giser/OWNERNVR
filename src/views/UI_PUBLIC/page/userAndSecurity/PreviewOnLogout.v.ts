@@ -176,7 +176,7 @@ export default defineComponent({
          * @description 更改选中的用户
          * @param {UserPreviewOnLogoutChannelList} row
          */
-        const handleChangeUser = (row: UserPreviewOnLogoutChannelList) => {
+        const changeUser = (row: UserPreviewOnLogoutChannelList) => {
             pageData.value.activeChannelIndex = tableData.value.findIndex((item) => item.id === row.id)
         }
 
@@ -201,7 +201,7 @@ export default defineComponent({
             chlOptions,
             changeAllChannel,
             setData,
-            handleChangeUser,
+            changeUser,
             changeChl,
         }
     },

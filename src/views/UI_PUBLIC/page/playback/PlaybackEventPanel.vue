@@ -100,12 +100,13 @@ fieldset {
     flex-shrink: 0;
     border: 1px solid var(--input-border);
     margin: 15px;
+    padding-bottom: 15px;
 }
 
 .list {
     display: flex;
     justify-content: center;
-    padding: 5px 10px 0 0;
+    padding: 5px 10px 5px 0;
     position: relative;
 }
 

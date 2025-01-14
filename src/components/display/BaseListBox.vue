@@ -4,14 +4,14 @@
  * @Description: 列表组件
 -->
 <template>
-    <el-scrollbar
+    <div
         class="BaseListBox"
         :class="{ border }"
     >
         <ul>
             <slot></slot>
         </ul>
-    </el-scrollbar>
+    </div>
 </template>
 
 <script lang="ts" setup>
@@ -31,7 +31,8 @@ withDefaults(
 <style lang="scss" scoped>
 .BaseListBox {
     width: 100%;
-    height: calc(100% - 80px);
+    height: calc(100% - 50px);
+    overflow-y: auto;
 
     &.border {
         border: 1px solid var(--content-border);

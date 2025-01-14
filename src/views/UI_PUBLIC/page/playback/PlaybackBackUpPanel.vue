@@ -147,7 +147,7 @@
     font-weight: normal;
 }
 
-:deep(.el-dropdown__popper) .el-popper__arrow::before {
-    background-color: var(--color-white) !important;
-}
+// :deep(.el-dropdown__popper) .el-popper__arrow::before {
+//     background-color: var(--color-white) !important;
+// }
 </style>

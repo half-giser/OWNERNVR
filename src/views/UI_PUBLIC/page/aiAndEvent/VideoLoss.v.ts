@@ -317,7 +317,7 @@ export default defineComponent({
                 rowData.preset = { switch: false, presets: [] }
             }
 
-            const sendXml = `
+            const sendXml = rawXml`
                 <content id="${rowData.id}">
                     <sysSnap>
                         <switch>${rowData.snap.switch}</switch>

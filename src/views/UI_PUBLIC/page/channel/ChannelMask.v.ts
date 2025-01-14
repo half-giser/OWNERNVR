@@ -24,7 +24,7 @@ export default defineComponent({
         const editRows = useWatchEditRows<ChannelMaskDto>()
         const editStatus = ref(false)
         const switchOptions = getSwitchOptions()
-        let maskDrawer: CanvasMask | undefined = undefined
+        let maskDrawer: ReturnType<typeof CanvasMask>
 
         const ready = computed(() => {
             return playerRef.value?.ready || false
@@ -363,7 +363,7 @@ export default defineComponent({
             plugin = playerRef.value!.plugin
 
             if (mode.value === 'h5') {
-                maskDrawer = new CanvasMask({
+                maskDrawer = CanvasMask({
                     el: player.getDrawbordCanvas(0) as HTMLCanvasElement,
                     onchange: handleMaskChange,
                 })
@@ -429,7 +429,6 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 maskDrawer?.destroy()
-                maskDrawer = undefined
             }
         })
 

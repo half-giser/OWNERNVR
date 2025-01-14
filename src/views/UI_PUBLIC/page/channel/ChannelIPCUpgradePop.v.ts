@@ -26,8 +26,8 @@ export default defineComponent({
             4: 'success', // 升级成功
             5: 'error', // 校验头文件失败
         }
-        let wsState: WebsocketState | null
-        let wsUpload: WebsocketUpload | null
+        let wsState: ReturnType<typeof WebsocketState> | null
+        let wsUpload: ReturnType<typeof WebsocketUpload> | null
 
         let chlData: ChannelInfoDto[] = [] // 所有通道
         let tempData: ChannelInfoDto[] = [] // 临时存储选中通道数据
@@ -111,7 +111,7 @@ export default defineComponent({
             })
             if (isSupportH5.value) {
                 // 监听升级进度
-                wsState = new WebsocketState({
+                wsState = WebsocketState({
                     config: {
                         ipc_upgrade_state_info: true,
                     },
@@ -222,7 +222,7 @@ export default defineComponent({
                 ele.upgradeProgressText = '0%'
             })
             if (isSupportH5.value) {
-                wsUpload = new WebsocketUpload({
+                wsUpload = WebsocketUpload({
                     file: file as Blob,
                     config: {
                         file_id: 'ipc_upgrade_file',

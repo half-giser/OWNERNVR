@@ -24,14 +24,14 @@ export default defineComponent({
 
         const canvas = ref<HTMLCanvasElement>()
 
-        let context: CanvasBase
+        let context: ReturnType<typeof CanvasBase>
 
         /**
          * @description 渲染矩阵框
          */
         const open = () => {
             if (!context) {
-                context = new CanvasBase(canvas.value!)
+                context = CanvasBase(canvas.value!)
             }
             context.ClearRect(0, 0, pageData.value.canvasWidth, pageData.value.canvasHeight)
 

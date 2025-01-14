@@ -160,7 +160,7 @@ export default defineComponent({
             }
         }
 
-        const handleIpChange = (value: string) => {
+        const changeIp = (value: string) => {
             formData.value.ip = value
         }
 
@@ -173,7 +173,7 @@ export default defineComponent({
             formData,
             formRule,
             pageData,
-            handleIpChange,
+            changeIp,
             setDefault,
             setData,
         }

@@ -6,6 +6,7 @@
 import { ElDialog, ElInputNumber, ElForm, ElTooltip, ElSelectV2, ElTable, ElDropdown, ElPopover, ElDatePicker, ElSlider, ElScrollbar } from 'element-plus'
 import { type PropType } from 'vue'
 import sprites from '../components/sprite/sprites'
+import BaseCalendarIcon from '@/components/icon/BaseCalendarIcon.vue'
 
 // ElPagination.props.layout = {
 //     type: String,
@@ -167,6 +168,16 @@ ElDatePicker.props.clearable = {
     type: Boolean,
     default: false,
 }
+
+ElDatePicker.props.prefixIcon = {
+    type: Object,
+    default: BaseCalendarIcon,
+}
+
+// ElDatePicker.props.showNow = {
+//     type: Boolean,
+//     default: true,
+// }
 
 ElSlider.props.showInputControls = {
     type: Boolean,

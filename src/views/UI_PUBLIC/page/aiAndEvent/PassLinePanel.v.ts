@@ -3,7 +3,7 @@
  * @Date: 2024-09-11 15:00:19
  * @Description: 过线检测
  */
-import { type AlarmChlDto, AlarmPassLinesEmailDto, AlarmPassLinesDto } from '@/types/apiType/aiAndEvent'
+import { type AlarmChlDto, type AlarmOnlineChlDto, AlarmPassLinesEmailDto, AlarmPassLinesDto } from '@/types/apiType/aiAndEvent'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import CanvasPassline from '@/utils/canvas/canvasPassline'
 import CanvasCpc from '@/utils/canvas/canvasCpc'
@@ -42,7 +42,7 @@ export default defineComponent({
          * @property {Array} 在线通道列表
          */
         onlineChannelList: {
-            type: Array as PropType<{ id: string; ip: string; name: string; accessType: string }[]>,
+            type: Array as PropType<AlarmOnlineChlDto[]>,
             required: true,
         },
     },
@@ -53,8 +53,8 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
         const playerRef = ref<PlayerInstance>()
-        let passLineDrawer: CanvasPassline
-        let cpcDrawer: CanvasCpc
+        let passLineDrawer: ReturnType<typeof CanvasPassline>
+        let cpcDrawer: ReturnType<typeof CanvasCpc>
 
         const directionTypeTip: Record<string, string> = {
             none: 'A<->B',
@@ -79,15 +79,13 @@ export default defineComponent({
         const pageData = ref({
             // 是否支持声音设置
             supportAlarmAudioConfig: true,
-            // 不支持功能提示页面是否展示
-            // notSupportTipShow: false,
             // 请求数据失败显示提示
-            requireDataFail: false,
+            reqFail: false,
+            // 选择的功能:param、target
+            tab: 'param',
             // 排程管理
             isSchedulePop: false,
             scheduleList: [] as SelectOption<string, string>[],
-            // 选择的功能:param、target
-            fuction: 'param',
             // passLine播放器设置
             // 是否显示全部区域绑定值
             isShowAllArea: false,
@@ -106,48 +104,56 @@ export default defineComponent({
             isCpcDrawAvailable: false,
             emailData: new AlarmPassLinesEmailDto(),
             sendEmailData: {
-                type: '0',
+                type: 0,
                 enableSwitch: false,
                 dailyReportSwitch: false,
                 weeklyReportSwitch: false,
-                weeklyReportDate: '0',
+                weeklyReportDate: 0,
                 mouthlyReportSwitch: false,
-                mouthlyReportDate: '0',
+                mouthlyReportDate: 0,
                 reportHour: 0,
                 reportMin: 0,
             },
             receiverData: [] as AlarmPassLinesEmailDto['receiverData'],
             weekOption: [
                 {
-                    value: '0',
+                    value: 0,
                     label: Translate('IDCS_WEEK_DAY_SEVEN'),
                 },
                 {
-                    value: '1',
+                    value: 1,
                     label: Translate('IDCS_WEEK_DAY_ONE'),
                 },
                 {
-                    value: '2',
+                    value: 2,
                     label: Translate('IDCS_WEEK_DAY_TWO'),
                 },
                 {
-                    value: '3',
+                    value: 3,
                     label: Translate('IDCS_WEEK_DAY_THREE'),
                 },
                 {
-                    value: '4',
+                    value: 4,
                     label: Translate('IDCS_WEEK_DAY_FOUR'),
                 },
                 {
-                    value: '5',
+                    value: 5,
                     label: Translate('IDCS_WEEK_DAY_FIVE'),
                 },
                 {
-                    value: '6',
+                    value: 6,
                     label: Translate('IDCS_WEEK_DAY_SIX'),
                 },
-            ] as SelectOption<string, string>[],
-            monthOption: [] as SelectOption<string, string>[],
+            ] as SelectOption<number, string>[],
+            monthOption: Array(31)
+                .fill(0)
+                .map((_, index) => {
+                    const i = index + 1
+                    return {
+                        value: i,
+                        label: i,
+                    }
+                }),
             // initComplete: false,
             drawInitCount: 0,
             openCount: 0,
@@ -182,14 +188,14 @@ export default defineComponent({
             if (mode.value === 'h5') {
                 const canvas = player.getDrawbordCanvas(0)
                 if (props.chlData.supportPassLine) {
-                    passLineDrawer = new CanvasPassline({
+                    passLineDrawer = CanvasPassline({
                         el: canvas,
                         enableOSD: true,
                         enableShowAll: false,
                         onchange: changePassLine,
                     })
                 } else if (props.chlData.supportCpc) {
-                    cpcDrawer = new CanvasCpc({
+                    cpcDrawer = CanvasCpc({
                         el: canvas,
                         enable: false,
                         onchange: changeCpc,
@@ -207,8 +213,6 @@ export default defineComponent({
         const play = () => {
             const { id, name } = props.chlData
 
-            console.log(mode.value)
-
             if (mode.value === 'h5') {
                 player.play({
                     chlID: id,
@@ -223,7 +227,6 @@ export default defineComponent({
 
         // 首次加载成功 播放视频
         const stopWatchFirstPlay = watchEffect(() => {
-            console.log(ready.value, props.chlData, watchEdit.ready.value)
             if (ready.value && props.chlData && watchEdit.ready.value) {
                 nextTick(() => {
                     play()
@@ -237,6 +240,7 @@ export default defineComponent({
         const closeSchedulePop = async () => {
             pageData.value.isSchedulePop = false
             await getScheduleList()
+            formData.value.schedule = getScheduleId(pageData.value.scheduleList, formData.value.schedule)
         }
 
         // 对sheduleList进行处理
@@ -254,13 +258,9 @@ export default defineComponent({
             if ($('status').text() === 'success') {
                 $('content/receiver/item').forEach((item) => {
                     const $ = queryXml(item.element)
-                    let schedule = $('schedule').attr('id')
-                    // 判断返回的排程是否存在，若不存在设为scheduleDefaultId
-                    const scheduleIdList = pageData.value.scheduleList.map((item) => item.value)
-                    schedule = scheduleIdList.includes(schedule) ? schedule : DEFAULT_EMPTY_ID
                     pageData.value.receiverData.push({
                         address: $('address').text(),
-                        schedule: schedule,
+                        schedule: getScheduleId(pageData.value.scheduleList, $('schedule').attr('id')),
                     })
                 })
             }
@@ -296,13 +296,13 @@ export default defineComponent({
                     if (chl.attr('id') === props.currChlId) {
                         const $item = queryXml(chl.element)
                         pageData.value.sendEmailData = {
-                            type: $item('param/item/type').text(),
+                            type: $item('param/item/type').text().num(),
                             enableSwitch: $item('param/item/switch').text().bool(),
                             dailyReportSwitch: $item('param/item/dailyReportSwitch').text().bool(),
                             weeklyReportSwitch: $item('param/item/weeklyReportSwitch').text().bool(),
-                            weeklyReportDate: $item('param/item/weeklyReportDate').text(),
+                            weeklyReportDate: $item('param/item/weeklyReportDate').text().num(),
                             mouthlyReportSwitch: $item('param/item/mouthlyReportSwitch').text().bool(),
-                            mouthlyReportDate: $item('param/item/mouthlyReportDate').text(),
+                            mouthlyReportDate: $item('param/item/mouthlyReportDate').text().num(),
                             reportHour: $item('param/item/reportHour').text().num(),
                             reportMin: $item('param/item/reportMin').text().num(),
                         }
@@ -339,7 +339,7 @@ export default defineComponent({
         const setScheduleGuid = () => {
             const sendXml = rawXml`
                 <content>
-                    <chl id="${props.currChlId}" scheduleGuid="${formData.value.passLineSchedule}">
+                    <chl id="${props.currChlId}" scheduleGuid="${formData.value.schedule}">
                         <trigger></trigger>
                     </chl>
                 </content>
@@ -374,7 +374,7 @@ export default defineComponent({
 
         // tab点击事件
         const changeTab = () => {
-            if (pageData.value.fuction === 'param') {
+            if (pageData.value.tab === 'param') {
                 if (props.chlData.supportPassLine) {
                     if (mode.value === 'h5') {
                         setPassLineOcxData()
@@ -388,7 +388,7 @@ export default defineComponent({
                             const alarmLine = pageData.value.chosenSurfaceIndex
                             const plugin = playerRef.value!.plugin
 
-                            const sendXML1 = OCX_XML_SetTripwireLine(formData.value.lineInfo[alarmLine])
+                            const sendXML1 = OCX_XML_SetTripwireLine(formData.value.line[alarmLine])
                             plugin.ExecuteCmd(sendXML1)
 
                             const sendXML2 = OCX_XML_SetTripwireLineAction('EDIT_ON')
@@ -402,7 +402,7 @@ export default defineComponent({
                     setCpcOcxData()
                     cpcDrawer.setEnable(true)
                 }
-            } else if (pageData.value.fuction === 'target') {
+            } else if (pageData.value.tab === 'target') {
                 if (props.chlData.supportPassLine) {
                     if (mode.value === 'h5') {
                         passLineDrawer.clear()
@@ -454,8 +454,8 @@ export default defineComponent({
                     if (typeof manualResetSwitch === 'boolean') {
                         enabledSwitch = manualResetSwitch
                     }
-                    formData.value.passLineDetectionEnable = enabledSwitch
-                    formData.value.passLineOriginalEnable = enabledSwitch
+                    formData.value.detectionEnable = enabledSwitch
+                    formData.value.originalEnable = enabledSwitch
 
                     formData.value.objectFilter = {
                         car: $param('objectFilter/car/switch').text().bool(),
@@ -471,20 +471,20 @@ export default defineComponent({
 
                     formData.value.countPeriod = {
                         day: {
-                            date: $param('countPeriod/day/dateSpan').text(),
+                            date: $param('countPeriod/day/dateSpan').text().num(),
                             dateTime: $param('countPeriod/day/dateTimeSpan').text(),
                         },
                         week: {
-                            date: $param('countPeriod/week/dateSpan').text(),
+                            date: $param('countPeriod/week/dateSpan').text().num(),
                             dateTime: $param('countPeriod/week/dateTimeSpan').text(),
                         },
                         month: {
-                            date: $param('countPeriod/month/dateSpan').text(),
+                            date: $param('countPeriod/month/dateSpan').text().num(),
                             dateTime: $param('countPeriod/month/dateTimeSpan').text(),
                         },
                     }
 
-                    formData.value.lineInfo = $param('line/item').map((element) => {
+                    formData.value.line = $param('line/item').map((element) => {
                         const $item = queryXml(element.element)
                         const direction = $item('direction').text() as CanvasPasslineDirection
                         const startX = $item('startPoint/X').text().num()
@@ -505,14 +505,13 @@ export default defineComponent({
                         }
                     })
 
-                    if (formData.value.lineInfo.length > 1) {
+                    if (formData.value.line.length > 1) {
                         pageData.value.showAllAreaVisible = true
                         pageData.value.clearAllVisible = true
                     }
 
-                    const schedule = $('content/chl').attr('scheduleGuid')
-                    formData.value.passLineSchedule = schedule ? (pageData.value.scheduleList.some((item) => item.value === schedule) ? schedule : DEFAULT_EMPTY_ID) : DEFAULT_EMPTY_ID
-                    formData.value.passLineholdTime = Number($param('alarmHoldTime').text())
+                    formData.value.schedule = getScheduleId(pageData.value.scheduleList, $('content/chl').attr('scheduleGuid'))
+                    formData.value.holdTime = Number($param('alarmHoldTime').text())
                     formData.value.countCycleTypeList = $('types/countCycleType/enum')
                         .map((element) => {
                             const itemValue = element.text()
@@ -523,14 +522,14 @@ export default defineComponent({
                         })
                         .filter((item) => item.value !== 'off')
 
-                    formData.value.passLineMutexList = $param('mutexList/item').map((element) => {
+                    formData.value.mutexList = $param('mutexList/item').map((element) => {
                         const $ = queryXml(element.element)
                         return {
                             object: $('object').text(),
                             status: $('status').text().bool(),
                         }
                     })
-                    formData.value.passLineMutexListEx = $param('mutexListEx/item').map((element) => {
+                    formData.value.mutexListEx = $param('mutexListEx/item').map((element) => {
                         const $ = queryXml(element.element)
                         return {
                             object: $('object').text(),
@@ -551,7 +550,7 @@ export default defineComponent({
                     formData.value.saveSourcePicture = $param('saveSourcePicture').text().bool()
                     formData.value.autoReset = countTimeType !== 'off'
 
-                    pageData.value.direction = formData.value.lineInfo[0].direction
+                    pageData.value.direction = formData.value.line[0].direction
                     pageData.value.directionList = $('types/direction/enum').map((element) => {
                         const itemValue = element.text()
                         return {
@@ -562,7 +561,8 @@ export default defineComponent({
 
                     watchEdit.listen()
                 } else {
-                    pageData.value.requireDataFail = true
+                    pageData.value.reqFail = true
+                    pageData.value.tab = ''
                 }
             } else if (props.chlData.supportCpc) {
                 const sendXml = rawXml`
@@ -579,32 +579,26 @@ export default defineComponent({
                 if ($('status').text() === 'success') {
                     const $param = queryXml($('content/chl/param')[0].element)
 
-                    const holdTimeArr = $param('holdTimeNote').text().split(',')
-                    const holdTime = $param('holdTime').text()
-                    if (!holdTimeArr.includes(holdTime)) {
-                        holdTimeArr.push(holdTime)
-                    }
-                    formData.value.holdTimeList = formatHoldTime(holdTimeArr)
-                    formData.value.holdTime = holdTime.num()
+                    formData.value.holdTime = $param('holdTime').text().num()
+                    formData.value.holdTimeList = getAlarmHoldTimeList($param('holdTimeNote').text(), formData.value.holdTime)
 
-                    const cpcSchedule = $param('content/chl').attr('scheduleGuid')
-                    formData.value.cpcSchedule = cpcSchedule === '' ? (pageData.value.scheduleList.some((item) => item.value === cpcSchedule) ? cpcSchedule : DEFAULT_EMPTY_ID) : DEFAULT_EMPTY_ID
-                    formData.value.cpcDetectionEnable = $param('switch').text().bool()
-                    formData.value.cpcOriginalEnable = $param('switch').text().bool()
+                    formData.value.schedule = getScheduleId(pageData.value.scheduleList, $param('content/chl').attr('scheduleGuid'))
+                    formData.value.detectionEnable = $param('switch').text().bool()
+                    formData.value.originalEnable = $param('switch').text().bool()
 
                     formData.value.detectSensitivity = $param('detectSensitivity').text().num()
                     formData.value.statisticalPeriod = $param('statisticalPeriod').text()
                     formData.value.crossInAlarmNumValue = $param('crossInAlarmNum').text().num()
                     formData.value.crossOutAlarmNumValue = $param('crossOutAlarmNum').text().num()
                     formData.value.twoWayDiffAlarmNumValue = $param('twoWayDiffAlarmNum').text().num()
-                    formData.value.cpcMutexList = $param('mutexList/item').map((element) => {
+                    formData.value.mutexList = $param('mutexList/item').map((element) => {
                         const $ = queryXml(element.element)
                         return {
                             object: $('object').text(),
                             status: $('status').text().bool(),
                         }
                     })
-                    formData.value.cpcMutexListEx = $param('mutexListEx/item').map((element) => {
+                    formData.value.mutexListEx = $param('mutexListEx/item').map((element) => {
                         const $ = queryXml(element.element)
                         return {
                             object: $('object').text(),
@@ -632,7 +626,7 @@ export default defineComponent({
                         X2: $param('regionInfo/item/X2').text().num(),
                         Y2: $param('regionInfo/item/Y2').text().num(),
                     }
-                    formData.value.cpcLineInfo = {
+                    formData.value.lineInfo = {
                         X1: $param('lineInfo/item/X1').text().num(),
                         Y1: $param('lineInfo/item/Y1').text().num(),
                         X2: $param('lineInfo/item/X2').text().num(),
@@ -641,7 +635,8 @@ export default defineComponent({
 
                     watchEdit.listen()
                 } else {
-                    pageData.value.requireDataFail = true
+                    pageData.value.reqFail = true
+                    pageData.value.tab = ''
                 }
             }
         }
@@ -652,8 +647,8 @@ export default defineComponent({
                 <content>
                     <chl id="${props.currChlId}">
                         <param>
-                            <switch>${formData.value.passLineDetectionEnable}</switch>
-                            <alarmHoldTime unit="s">${formData.value.passLineholdTime}</alarmHoldTime>
+                            <switch>${formData.value.detectionEnable}</switch>
+                            <alarmHoldTime unit="s">${formData.value.holdTime}</alarmHoldTime>
                             <objectFilter>
                                 <car>
                                     <switch>${formData.value.objectFilter.car}</switch>
@@ -699,11 +694,11 @@ export default defineComponent({
                             ${props.chlData.supportWhiteLight ? `<triggerWhiteLight>${formData.value.triggerWhiteLight}</triggerWhiteLight>` : ''}
                             <saveTargetPicture>${formData.value.saveTargetPicture}</saveTargetPicture>
                             <saveSourcePicture>${formData.value.saveSourcePicture}</saveSourcePicture>
-                            <line type="list" count="${formData.value.lineInfo.length}">
+                            <line type="list" count="${formData.value.line.length}">
                                 <itemType>
                                     <direction type="direction"/>
                                 </itemType>
-                                ${formData.value.lineInfo
+                                ${formData.value.line
                                     .map(
                                         (element) => rawXml`
                                             <item>
@@ -742,12 +737,12 @@ export default defineComponent({
         // 执行cpc编辑请求
         const saveCpcData = async () => {
             const regionInfo = formData.value.regionInfo
-            const cpcLineInfo = formData.value.cpcLineInfo
+            const lineInfo = formData.value.lineInfo
             const sendXml = rawXml`
                 <content>
-                    <chl id="${props.currChlId}" scheduleGuid="${formData.value.cpcSchedule}">
+                    <chl id="${props.currChlId}" scheduleGuid="${formData.value.schedule}">
                         <param>
-                            <switch>${formData.value.cpcDetectionEnable}</switch>
+                            <switch>${formData.value.detectionEnable}</switch>
                             <detectSensitivity>${formData.value.detectSensitivity}</detectSensitivity>
                             <statisticalPeriod>${formData.value.statisticalPeriod}</statisticalPeriod>
                             <crossOutAlarmNum>${formData.value.crossOutAlarmNumValue}</crossOutAlarmNum>
@@ -764,10 +759,10 @@ export default defineComponent({
                             </regionInfo>
                             <lineInfo type="list">
                                 <item>
-                                    <X1>${cpcLineInfo.X1}</X1>
-                                    <Y1>${cpcLineInfo.Y1}</Y1>
-                                    <X2>${cpcLineInfo.X2}</X2>
-                                    <Y2>${cpcLineInfo.Y2}</Y2>
+                                    <X1>${lineInfo.X1}</X1>
+                                    <Y1>${lineInfo.Y1}</Y1>
+                                    <X2>${lineInfo.X2}</X2>
+                                    <Y2>${lineInfo.Y2}</Y2>
                                 </item>
                             </lineInfo>
                         </param>
@@ -780,39 +775,29 @@ export default defineComponent({
             closeLoading()
             const $ = queryXml(res)
             if ($('status').text() === 'success') {
-                if (formData.value.cpcDetectionEnable) {
-                    formData.value.cpcOriginalEnable = true
+                if (formData.value.detectionEnable) {
+                    formData.value.originalEnable = true
                 }
             }
         }
 
         // 保存
         const applyData = () => {
-            if (props.chlData.supportPassLine) {
-                checkMutexChl({
-                    isChange: formData.value.passLineDetectionEnable && formData.value.passLineDetectionEnable !== formData.value.passLineOriginalEnable,
-                    mutexList: formData.value.passLineMutexList,
-                    mutexListEx: formData.value.passLineMutexListEx,
-                    chlName: props.chlData.name,
-                    chlIp: props.chlData.ip,
-                    chlList: props.onlineChannelList,
-                    tips: 'IDCS_SIMPLE_PASSLINE_DETECT_TIPS',
-                }).then(() => {
+            checkMutexChl({
+                isChange: formData.value.detectionEnable && formData.value.detectionEnable !== formData.value.originalEnable,
+                mutexList: formData.value.mutexList,
+                mutexListEx: formData.value.mutexListEx,
+                chlName: props.chlData.name,
+                chlIp: props.chlData.ip,
+                chlList: props.onlineChannelList,
+                tips: 'IDCS_SIMPLE_PASSLINE_DETECT_TIPS',
+            }).then(() => {
+                if (props.chlData.supportPassLine) {
                     savePassLineData()
-                })
-            } else if (props.chlData.supportCpc) {
-                checkMutexChl({
-                    isChange: formData.value.cpcDetectionEnable && formData.value.cpcDetectionEnable !== formData.value.cpcOriginalEnable,
-                    mutexList: formData.value.cpcMutexList,
-                    mutexListEx: formData.value.cpcMutexListEx,
-                    chlName: props.chlData.name,
-                    chlIp: props.chlData.ip,
-                    chlList: props.onlineChannelList,
-                    tips: 'IDCS_SIMPLE_PASSLINE_DETECT_TIPS',
-                }).then(() => {
+                } else if (props.chlData.supportCpc) {
                     saveCpcData()
-                })
-            }
+                }
+            })
         }
 
         // passLine手动重置请求
@@ -839,7 +824,7 @@ export default defineComponent({
                 })
             }
             // 重置的参数不包括开关, 故记下过线统计的开关
-            const manualResetSwitch = formData.value.passLineDetectionEnable
+            const manualResetSwitch = formData.value.detectionEnable
             getData(manualResetSwitch)
         }
 
@@ -886,17 +871,6 @@ export default defineComponent({
         // 初始化页面数据
         const initPageData = async () => {
             pageData.value.supportAlarmAudioConfig = systemCaps.supportAlarmAudioConfig
-
-            pageData.value.monthOption = Array(31)
-                .fill(0)
-                .map((_, index) => {
-                    const i = (index + 1).toString()
-                    return {
-                        value: i,
-                        label: i,
-                    }
-                })
-
             await getScheduleList()
             await getData()
             refreshInitPage()
@@ -904,13 +878,13 @@ export default defineComponent({
 
         // passLine选择警戒线
         const changeLine = () => {
-            pageData.value.direction = formData.value.lineInfo[pageData.value.chosenSurfaceIndex].direction
+            pageData.value.direction = formData.value.line[pageData.value.chosenSurfaceIndex].direction
             setPassLineOcxData()
         }
 
         // passLine选择方向
         const changeDirection = () => {
-            formData.value.lineInfo[pageData.value.chosenSurfaceIndex].direction = pageData.value.direction
+            formData.value.line[pageData.value.chosenSurfaceIndex].direction = pageData.value.direction
             setPassLineOcxData()
         }
 
@@ -925,20 +899,6 @@ export default defineComponent({
                 const sendXML = OCX_XML_SetTripwireLineInfo(formData.value.countOSD)
                 plugin.ExecuteCmd(sendXML)
             }
-        }
-
-        // 格式化持续时间
-        const formatHoldTime = (holdTimeList: string[]) => {
-            const timeList = holdTimeList.map((ele) => {
-                const element = Number(ele)
-                const itemText = getTranslateForSecond(element)
-                return {
-                    value: element,
-                    label: itemText,
-                }
-            })
-            timeList.sort((a, b) => a.value - b.value)
-            return timeList
         }
 
         // passLine绘图变化
@@ -956,11 +916,11 @@ export default defineComponent({
             },
         ) => {
             const alarmLine = pageData.value.chosenSurfaceIndex
-            formData.value.lineInfo[alarmLine].startPoint = {
+            formData.value.line[alarmLine].startPoint = {
                 X: passline.startX,
                 Y: passline.startY,
             }
-            formData.value.lineInfo[alarmLine].endPoint = {
+            formData.value.line[alarmLine].endPoint = {
                 X: passline.endX,
                 Y: passline.endY,
             }
@@ -975,20 +935,21 @@ export default defineComponent({
         const setPassLineOcxData = () => {
             const alarmLine = pageData.value.chosenSurfaceIndex
             const plugin = playerRef.value!.plugin
-            if (formData.value.lineInfo.length) {
+            if (formData.value.line.length) {
+                const line = formData.value.line[alarmLine]
                 if (mode.value === 'h5') {
                     passLineDrawer.setCurrentSurfaceOrAlarmLine(alarmLine)
-                    passLineDrawer.setDirection(formData.value.lineInfo[alarmLine].direction)
+                    passLineDrawer.setDirection(line.direction)
                     passLineDrawer.setPassline({
-                        startX: formData.value.lineInfo[alarmLine].startPoint.X,
-                        startY: formData.value.lineInfo[alarmLine].startPoint.Y,
-                        endX: formData.value.lineInfo[alarmLine].endPoint.X,
-                        endY: formData.value.lineInfo[alarmLine].endPoint.Y,
+                        startX: line.startPoint.X,
+                        startY: line.startPoint.Y,
+                        endX: line.endPoint.X,
+                        endY: line.endPoint.Y,
                     })
                 }
 
                 if (mode.value === 'ocx') {
-                    const sendXML = OCX_XML_SetTripwireLine(formData.value.lineInfo[alarmLine])
+                    const sendXML = OCX_XML_SetTripwireLine(line)
                     plugin.ExecuteCmd(sendXML)
                 }
             }
@@ -1020,7 +981,7 @@ export default defineComponent({
         const showAllPassLineArea = (isShowAllArea: boolean) => {
             passLineDrawer && passLineDrawer.setEnableShowAll(isShowAllArea)
             if (isShowAllArea) {
-                const lineInfoList = formData.value.lineInfo
+                const lineInfoList = formData.value.line
                 const currentAlarmLine = pageData.value.chosenSurfaceIndex
                 if (mode.value === 'h5') {
                     passLineDrawer.setCurrentSurfaceOrAlarmLine(currentAlarmLine)
@@ -1050,8 +1011,14 @@ export default defineComponent({
             }
 
             const currentAlarmLine = pageData.value.chosenSurfaceIndex
-            formData.value.lineInfo[currentAlarmLine].startPoint = { X: 0, Y: 0 }
-            formData.value.lineInfo[currentAlarmLine].endPoint = { X: 0, Y: 0 }
+            formData.value.line[currentAlarmLine].startPoint = {
+                X: 0,
+                Y: 0,
+            }
+            formData.value.line[currentAlarmLine].endPoint = {
+                X: 0,
+                Y: 0,
+            }
             if (pageData.value.isShowAllArea) {
                 showAllPassLineArea(true)
             }
@@ -1061,10 +1028,16 @@ export default defineComponent({
         const clearAllArea = () => {
             const plugin = playerRef.value!.plugin
 
-            const lineInfoList = formData.value.lineInfo
+            const lineInfoList = formData.value.line
             lineInfoList.forEach((lineInfo) => {
-                lineInfo.startPoint = { X: 0, Y: 0 }
-                lineInfo.endPoint = { X: 0, Y: 0 }
+                lineInfo.startPoint = {
+                    X: 0,
+                    Y: 0,
+                }
+                lineInfo.endPoint = {
+                    X: 0,
+                    Y: 0,
+                }
             })
 
             if (mode.value === 'h5') {
@@ -1083,7 +1056,7 @@ export default defineComponent({
 
         // passLine刷新
         const refreshInitPage = () => {
-            const lineInfoList = formData.value.lineInfo
+            const lineInfoList = formData.value.line
             lineInfoList.forEach((lineInfo) => {
                 if (lineInfo && !lineInfo.startPoint.X && !lineInfo.startPoint.Y && !lineInfo.endPoint.X && !lineInfo.endPoint.Y) {
                     lineInfo.configured = false
@@ -1092,7 +1065,7 @@ export default defineComponent({
                 }
             })
             // 是否显示全部区域切换按钮和清除全部按钮（区域数量大于等于2时才显示）
-            if (formData.value.lineInfo.length > 1) {
+            if (formData.value.line.length > 1) {
                 pageData.value.showAllAreaVisible = true
                 pageData.value.clearAllVisible = true
             } else {
@@ -1104,18 +1077,18 @@ export default defineComponent({
         // CPC绘图变化
         const changeCpc = (regionInfo: CanvasBaseArea, arrowlineInfo: CanvasBaseArea) => {
             formData.value.regionInfo = regionInfo
-            formData.value.cpcLineInfo = arrowlineInfo
+            formData.value.lineInfo = arrowlineInfo
         }
 
         // CPC绘图
         const setCpcOcxData = () => {
             if (mode.value === 'h5') {
                 cpcDrawer.setRegionInfo(formData.value.regionInfo)
-                cpcDrawer.setLineInfo(formData.value.cpcLineInfo)
+                cpcDrawer.setLineInfo(formData.value.lineInfo)
             }
 
             if (mode.value === 'ocx') {
-                const sendXML = OCX_XML_SetCpcArea(formData.value.regionInfo, formData.value.cpcLineInfo)
+                const sendXML = OCX_XML_SetCpcArea(formData.value.regionInfo, formData.value.lineInfo)
                 plugin.ExecuteCmd(sendXML)
             }
         }
@@ -1171,14 +1144,14 @@ export default defineComponent({
                     }
                 })
                 formData.value.regionInfo = region[0]
-                formData.value.cpcLineInfo = line[0]
+                formData.value.lineInfo = line[0]
             } else if ($("statenotify[@type='TripwireLine']").length) {
                 const alarmLine = pageData.value.chosenSurfaceIndex
-                formData.value.lineInfo[alarmLine].startPoint = {
+                formData.value.line[alarmLine].startPoint = {
                     X: $('statenotify/startPoint').attr('X').num(),
                     Y: $('statenotify/startPoint').attr('Y').num(),
                 }
-                formData.value.lineInfo[alarmLine].endPoint = {
+                formData.value.line[alarmLine].endPoint = {
                     X: $('statenotify/endPoint').attr('X').num(),
                     Y: $('statenotify/endPoint').attr('Y').num(),
                 }

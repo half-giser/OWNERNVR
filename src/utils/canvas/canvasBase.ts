@@ -60,22 +60,19 @@ interface CanvaseBaseArrowOption {
     }
 }
 
-export default class CanvasBase {
-    private readonly el: HTMLCanvasElement
-    private readonly ctx: CanvasRenderingContext2D
+export default function CanvasBase(element: HTMLCanvasElement) {
+    const el = isRef(element) ? toRaw(element) : element
+    const ctx = el.getContext('2d')!
 
-    constructor(el: HTMLCanvasElement) {
-        if (isRef(el)) {
-            this.el = toRaw(el)
-        } else {
-            this.el = el
-        }
-        this.ctx = this.el.getContext('2d')!
-    }
-
-    // 画直线 lineStyle: { lineWidth, strokeStyle }
-    Line(startX: number, startY: number, endX: number, endY: number, lineStyle?: Partial<CanvasBaseLineStyleOption>) {
-        const ctx = this.ctx
+    /**
+     * @description 画直线
+     * @param startX
+     * @param startY
+     * @param endX
+     * @param endY
+     * @param lineStyle
+     */
+    const Line = (startX: number, startY: number, endX: number, endY: number, lineStyle: Partial<CanvasBaseLineStyleOption>) => {
         ctx.beginPath()
         ctx.moveTo(startX, startY)
         ctx.lineTo(endX, endY)
@@ -89,9 +86,15 @@ export default class CanvasBase {
         ctx.stroke()
     }
 
-    // 画边框矩形 lineStyle: { lineWidth, strokeStyle }
-    Rect(startX: number, startY: number, width: number, height: number, lineStyle: Partial<CanvasBaseLineStyleOption>) {
-        const ctx = this.ctx
+    /**
+     * @description 画边框矩形
+     * @param startX
+     * @param startY
+     * @param width
+     * @param height
+     * @param lineStyle
+     */
+    const Rect = (startX: number, startY: number, width: number, height: number, lineStyle: Partial<CanvasBaseLineStyleOption>) => {
         ctx.beginPath()
         ctx.rect(startX, startY, width, height)
         if (lineStyle) {
@@ -101,18 +104,33 @@ export default class CanvasBase {
         ctx.stroke()
     }
 
-    DrawImage(imgSrc: string, startX: number, startY: number, width: number, height: number, callback?: () => void) {
+    /**
+     * @description 渲染图像
+     * @param imgSrc
+     * @param startX
+     * @param startY
+     * @param width
+     * @param height
+     * @param callback
+     */
+    const DrawImage = (imgSrc: string, startX: number, startY: number, width: number, height: number, callback?: () => void) => {
         const image = new Image()
         image.onload = () => {
-            this.ctx.drawImage(image, startX, startY, width, height)
+            ctx.drawImage(image, startX, startY, width, height)
             callback && callback()
         }
         image.src = imgSrc
     }
 
-    // 根据两点坐标画边框矩形 lineStyle: { lineWidth, strokeStyle }
-    Point2Rect(X1: number, Y1: number, X2: number, Y2: number, lineStyle: CanvasBaseLineStyleOption) {
-        const ctx = this.ctx
+    /**
+     * @description 根据两点坐标画边框矩形
+     * @param X1
+     * @param Y1
+     * @param X2
+     * @param Y2
+     * @param lineStyle
+     */
+    const Point2Rect = (X1: number, Y1: number, X2: number, Y2: number, lineStyle: CanvasBaseLineStyleOption) => {
         ctx.beginPath()
         ctx.moveTo(X1, Y1)
         ctx.lineTo(X2, Y1)
@@ -126,17 +144,28 @@ export default class CanvasBase {
         ctx.stroke()
     }
 
-    // 画填充矩形
-    FillRect(startX: number, startY: number, width: number, height: number, fillStyle: string | CanvasGradient | CanvasPattern) {
-        const ctx = this.ctx
+    /**
+     * @description 画填充矩形
+     * @param startX
+     * @param startY
+     * @param width
+     * @param height
+     * @param fillStyle
+     */
+    const FillRect = (startX: number, startY: number, width: number, height: number, fillStyle: string | CanvasGradient | CanvasPattern) => {
         ctx.beginPath()
-        ctx.fillStyle = fillStyle || '#18C0DD'
+        ctx.fillStyle = fillStyle || '#000'
         ctx.fillRect(startX, startY, width, height)
     }
 
-    // 画空心圆 lineStyle: { lineWidth, strokeStyle }
-    Circle(x: number, y: number, r: number, lineStyle: CanvasBaseLineStyleOption) {
-        const ctx = this.ctx
+    /**
+     * @description 画空心圆
+     * @param x
+     * @param y
+     * @param r
+     * @param lineStyle
+     */
+    const Circle = (x: number, y: number, r: number, lineStyle: CanvasBaseLineStyleOption) => {
         ctx.beginPath()
         ctx.arc(x, y, r, 0, 2 * Math.PI)
         if (lineStyle) {
@@ -147,9 +176,14 @@ export default class CanvasBase {
         ctx.closePath()
     }
 
-    // 画实心圆
-    FillCircle(x: number, y: number, r: number, fillStyle: string) {
-        const ctx = this.ctx
+    /**
+     * @description 画实心圆
+     * @param x
+     * @param y
+     * @param r
+     * @param fillStyle
+     */
+    const FillCircle = (x: number, y: number, r: number, fillStyle: string) => {
         ctx.beginPath()
         ctx.arc(x, y, r, 0, 2 * Math.PI)
         ctx.fillStyle = fillStyle || '#f00'
@@ -157,7 +191,7 @@ export default class CanvasBase {
     }
 
     /**
-     * 画文字
+     * @description 画文字
      * @param {Object} option
      *      @property {String} text 文字内容
      *      @property {Number} startX 起始坐标X
@@ -168,8 +202,7 @@ export default class CanvasBase {
      *      @property {String} font 字体,与css font属性相同用法，具体参考canvas font属性
      *      @property {String} textBaseline 文本基线，具体参考canvas textBaseline属性
      */
-    Text(option: CanvasBaseTextOption) {
-        const ctx = this.ctx
+    const Text = (option: CanvasBaseTextOption) => {
         ctx.textBaseline = option.textBaseline || 'top'
         ctx.font = option.font || '14px Verdana'
         ctx.fillStyle = option.fillStyle || '#fff' // 填充线样式
@@ -179,24 +212,53 @@ export default class CanvasBase {
         ctx.fillText(option.text, option.startX, option.startY)
     }
 
-    // 清除指定矩形区域的画布
-    ClearRect(startX: number, startY: number, width: number, height: number) {
-        this.ctx.clearRect(startX, startY, width, height)
+    /**
+     * @description 清除指定矩形区域的画布
+     * @param startX
+     * @param startY
+     * @param width
+     * @param height
+     */
+    const ClearRect = (startX: number, startY: number, width: number, height: number) => {
+        ctx.clearRect(startX, startY, width, height)
     }
 
-    // 判断坐标点是否在矩形范围内
-    IsInRect(x: number, y: number, rectX: number, rectY: number, rectWidth: number, rectHeight: number) {
+    /**
+     * @description 判断坐标点是否在矩形范围内
+     * @param x
+     * @param y
+     * @param rectX
+     * @param rectY
+     * @param rectWidth
+     * @param rectHeight
+     * @returns {number}
+     */
+    const IsInRect = (x: number, y: number, rectX: number, rectY: number, rectWidth: number, rectHeight: number) => {
         return x >= rectX && x <= rectX + rectWidth && y >= rectY && y <= rectY + rectHeight
     }
 
-    // 判断B点相对A点是否是顺时针方向（向量叉乘结果<0）
-    // 参考https://www.cnblogs.com/tuyang1129/p/9390376.html
-    isClockwise(pointAx: number, pointAy: number, pointBx: number, pointBy: number) {
+    /**
+     * @description 判断B点相对A点是否是顺时针方向（向量叉乘结果<0）
+     * @see https://www.cnblogs.com/tuyang1129/p/9390376.html
+     * @param pointAx
+     * @param pointAy
+     * @param pointBx
+     * @param pointBy
+     * @returns {boolean}
+     */
+    const isClockwise = (pointAx: number, pointAy: number, pointBx: number, pointBy: number) => {
         return pointAx * pointBy - pointAy * pointBx < 0
     }
 
-    // 获取B点相对A点为原点在坐标系（x→, y↑）中的坐标
-    getRelativePoint(pointAx: number, pointAy: number, pointBx: number, pointBy: number) {
+    /**
+     * @description 获取B点相对A点为原点在坐标系（x→, y↑）中的坐标
+     * @param pointAx
+     * @param pointAy
+     * @param pointBx
+     * @param pointBy
+     * @returns {object}
+     */
+    const getRelativePoint = (pointAx: number, pointAy: number, pointBx: number, pointBy: number) => {
         return {
             x: pointBx - pointAx,
             y: pointAy - pointBy,
@@ -204,7 +266,7 @@ export default class CanvasBase {
     }
 
     /**
-     * 根据已知线段和线段上的某点，画该点的箭头
+     * @description 根据已知线段和线段上的某点，画该点的箭头
      * @param {Object} option
      *      @property {Number} startX 线段起点坐标X
      *      @property {Number} startY 线段起点坐标Y
@@ -217,7 +279,7 @@ export default class CanvasBase {
      *      @property {String} lineStyle 箭头线条样式 { lineWidth, strokeStyle }
      *      @property {Object} textCfg 箭头两端点的文字配置 { textStart, textEnd, fillStyle, strokeStyle, font, textBaseline }, 详细见Text方法
      */
-    Arrow(option: CanvaseBaseArrowOption) {
+    const Arrow = (option: CanvaseBaseArrowOption) => {
         const startX = option.startX,
             startY = option.startY,
             endX = option.endX,
@@ -288,8 +350,8 @@ export default class CanvasBase {
                 arrowEndY = onlinePointY + relatX
             }
         }
-        this.Line(arrowStartX, arrowStartY, pointX, pointY, lineStyle)
-        this.Line(arrowEndX, arrowEndY, pointX, pointY, lineStyle)
+        Line(arrowStartX, arrowStartY, pointX, pointY, lineStyle)
+        Line(arrowEndX, arrowEndY, pointX, pointY, lineStyle)
         // 如果需要绘制文字
         if (option.textCfg) {
             const textCfg = option.textCfg
@@ -304,7 +366,7 @@ export default class CanvasBase {
             const textEndX = startX < endX ? endX + FONT_OFFSET : endX - TEXT_END_DISTANCE - FONT_OFFSET
             const textEndY = startY < endY ? endY + FONT_OFFSET : endY - FONT_OFFSET
             if (textCfg.textStart) {
-                this.Text({
+                Text({
                     text: textCfg.textStart,
                     startX: textStartX,
                     startY: textStartY,
@@ -315,7 +377,7 @@ export default class CanvasBase {
             }
 
             if (textCfg.textEnd) {
-                this.Text({
+                Text({
                     text: textCfg.textEnd,
                     startX: textEndX,
                     startY: textEndY,
@@ -328,7 +390,7 @@ export default class CanvasBase {
     }
 
     /**
-     * 判断线段AB和线段CD是否相交（不包含共端点）
+     * @description 判断线段AB和线段CD是否相交（不包含共端点）
      * 原理：如果线段CD的两个端点C和D，与另一条线段的一个端点（A或B，只能是其中一个）连成的向量，与向量AB做叉乘，
      *       若结果异号，表示C和D分别在直线AB的两边，
      *       若结果同号，则表示CD两点都在AB的一边，则肯定不相交。
@@ -336,7 +398,7 @@ export default class CanvasBase {
      * @see https://www.cnblogs.com/tuyang1129/p/9390376.html
      * @returns {Boolean} true:相交; false:不相交
      */
-    IsIntersect(pointA: CanvasBasePoint, pointB: CanvasBasePoint, pointC: CanvasBasePoint, pointD: CanvasBasePoint) {
+    const IsIntersect = (pointA: CanvasBasePoint, pointB: CanvasBasePoint, pointC: CanvasBasePoint, pointD: CanvasBasePoint) => {
         const vectorAC = { X: pointC.X - pointA.X, Y: pointC.Y - pointA.Y }
         const vectorAD = { X: pointD.X - pointA.X, Y: pointD.Y - pointA.Y }
         const vectorAB = { X: pointB.X - pointA.X, Y: pointB.Y - pointA.Y }
@@ -348,9 +410,15 @@ export default class CanvasBase {
         return isBothSideCD && isBothSideAB
     }
 
-    // 求点C到线段AB的垂直距离
-    // 利用点到直线距离公式求解: |kx-y+b|/√(k²+1)
-    GetVerticalDistance(pointA: CanvasBasePoint, pointB: CanvasBasePoint, pointC: CanvasBasePoint) {
+    /**
+     * @description 求点C到线段AB的垂直距离
+     * 利用点到直线距离公式求解: |kx-y+b|/√(k²+1)
+     * @param pointA
+     * @param pointB
+     * @param pointC
+     * @returns {number}
+     */
+    const GetVerticalDistance = (pointA: CanvasBasePoint, pointB: CanvasBasePoint, pointC: CanvasBasePoint) => {
         if (pointA.X === pointB.X) {
             // AB和y轴平行时
             // 先判断C点是否在AB之间
@@ -374,13 +442,39 @@ export default class CanvasBase {
         return isBetween ? distance : Infinity
     }
 
-    // 获取画布对象
-    getCanvas() {
-        return this.el
+    /**
+     * @description 获取画布对象
+     * @returns {HTMLCanvasElement}
+     */
+    const getCanvas = () => {
+        return el
     }
 
-    // 获取画布对象
-    getContext() {
-        return this.ctx
+    /**
+     * @description 获取画布上下文
+     * @returns {CanvasRenderingContext2D}
+     */
+    const getContext = () => {
+        return ctx
+    }
+
+    return {
+        Line,
+        Rect,
+        DrawImage,
+        Point2Rect,
+        FillRect,
+        Circle,
+        FillCircle,
+        Text,
+        ClearRect,
+        IsInRect,
+        isClockwise,
+        getRelativePoint,
+        Arrow,
+        IsIntersect,
+        GetVerticalDistance,
+        getCanvas,
+        getContext,
     }
 }

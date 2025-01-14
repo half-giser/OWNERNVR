@@ -34,7 +34,7 @@ export default defineComponent({
          * @param {UserBlackAllowList} row
          * @param {number} index
          */
-        const handleEdit = (row: UserEditBlackAllowListForm, index: number) => {
+        const openEditPop = (row: UserEditBlackAllowListForm, index: number) => {
             pageData.value.isEditPop = true
             pageData.value.editIndex = index
             pageData.value.editData = { ...row }
@@ -44,7 +44,7 @@ export default defineComponent({
          * @description 删除表单行
          * @param {number} index
          */
-        const handleDelete = (index: number) => {
+        const delItem = (index: number) => {
             openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_S'),
@@ -56,7 +56,7 @@ export default defineComponent({
         /**
          * @description 添加IP，打开编辑弹窗
          */
-        const handleAddIp = () => {
+        const addIp = () => {
             pageData.value.isEditPop = true
             pageData.value.editIndex = -1
             const editData = new UserEditBlackAllowListForm()
@@ -67,7 +67,7 @@ export default defineComponent({
         /**
          * @description 添加MAC，打开编辑弹窗
          */
-        const handleAddMac = () => {
+        const addMac = () => {
             pageData.value.isEditPop = true
             pageData.value.editIndex = -1
             const editData = new UserEditBlackAllowListForm()
@@ -79,7 +79,7 @@ export default defineComponent({
          * @description 关闭编辑弹窗，更新表格数据
          * @param {UserEditBlackAllowListForm} e
          */
-        const handleConfirmEdit = (e: UserEditBlackAllowListForm | null) => {
+        const confirmEditItem = (e: UserEditBlackAllowListForm | null) => {
             if (e) {
                 if (pageData.value.editIndex === -1) {
                     tableData.value.push({ ...e })
@@ -185,13 +185,13 @@ export default defineComponent({
             formData,
             tableData,
             pageData,
-            handleEdit,
-            handleDelete,
-            handleAddIp,
-            handleAddMac,
+            openEditPop,
+            delItem,
+            addIp,
+            addMac,
             formatIpMacAddress,
             setData,
-            handleConfirmEdit,
+            confirmEditItem,
         }
     },
 })

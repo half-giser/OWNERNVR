@@ -354,6 +354,7 @@ export default defineComponent({
         const closeSchedulePop = async () => {
             pageData.value.isSchedulePop = false
             await getScheduleList()
+            formData.value.schedule = getScheduleId(pageData.value.scheduleList, formData.value.schedule)
         }
 
         onMounted(async () => {

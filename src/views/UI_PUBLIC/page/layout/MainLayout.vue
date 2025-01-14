@@ -179,12 +179,13 @@
 
 #topRight {
     font-size: 14px;
-    margin: 0 60px 0 0;
+    margin: 0 56px 12px 0;
     display: flex;
     color: var(--header-text);
 
     .icon_aq {
         cursor: pointer;
+        margin-left: 5px;
     }
 
     .effective {
@@ -201,7 +202,7 @@
     }
 
     .narrowline {
-        margin: 0 3px;
+        margin: 0 4px;
     }
 
     .nav-item {
@@ -209,7 +210,7 @@
 
         &:not(:first-child)::before {
             content: '|';
-            margin: 0 10px;
+            margin: 0 12px;
         }
 
         .divLocalCfg {
@@ -219,7 +220,7 @@
 }
 
 #mainMenu {
-    height: 35px;
+    height: 34px;
     --el-menu-active-color: var(--primary);
     --el-menu-base-level-padding: 10px;
 
@@ -232,10 +233,11 @@
     --el-menu-active-color: var(--header-menu-text-active);
 
     & > .el-menu-item {
-        margin: 0 12px;
+        margin: 0 10px;
         line-height: 29px;
         font-weight: bold;
         font-size: 16px;
+        padding-bottom: 2px;
         color: var(--header-menu-text);
         background-color: var(--header-menu-bg);
         border-bottom: 6px solid var(--header-menu-border);
@@ -253,7 +255,7 @@
         }
 
         &:first-of-type {
-            margin-left: 60px;
+            margin-left: 66px;
         }
 
         & > .menu-split {

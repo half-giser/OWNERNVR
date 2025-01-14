@@ -19,7 +19,7 @@
                 />
             </el-radio-group>
             <div class="base-intel-left-column">
-                <div>
+                <div class="base-intel-left-form">
                     <div class="base-intel-row">
                         <BaseDateTab
                             :model-value="formData.dateRange"

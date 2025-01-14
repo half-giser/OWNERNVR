@@ -98,8 +98,8 @@
                 flexible
                 highlight-current-row
                 show-overflow-tooltip
-                @cell-click="handleChangeAuthGroup"
-                @cell-dblclick="handleEditAuthGroup"
+                @cell-click="changeAuthGroup"
+                @cell-dblclick="openEditAuthGroupPop"
             >
                 <el-table-column
                     min-width="220"
@@ -117,7 +117,7 @@
                             :index="0"
                             :hover-index="1"
                             :chunk="4"
-                            @click.stop="handleEditAuthGroup(scope.row)"
+                            @click.stop="openEditAuthGroupPop(scope.row)"
                         />
                     </template>
                 </el-table-column>
@@ -128,7 +128,7 @@
                             :index="0"
                             :hover-index="1"
                             :chunk="4"
-                            @click.stop="handleSaveAsAuthGroup(scope.row)"
+                            @click.stop="copyAuthGroup(scope.row)"
                         />
                     </template>
                 </el-table-column>
@@ -140,7 +140,7 @@
                             :index="0"
                             :hover-index="1"
                             :chunk="4"
-                            @click.stop="handleDeleteAuthGroup(scope.row)"
+                            @click.stop="deleteAuthGroup(scope.row)"
                         />
                     </template>
                 </el-table-column>
@@ -149,7 +149,7 @@
         <PermissionGroupEditPop
             v-model="pageData.isEditAuthGroup"
             :group-id="pageData.editAuthGroupID"
-            @confirm="handleConfirmEditAuthGroup"
+            @confirm="confirmEditAuthGroup"
             @close="pageData.isEditAuthGroup = false"
         />
     </div>

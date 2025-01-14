@@ -100,12 +100,14 @@ export default defineComponent({
             })
         }
 
-        const getData = async () => {
+        const getScheduleList = async () => {
             pageData.value.scheduleList = await buildScheduleList({
                 isManager: true,
                 defaultValue: '',
             })
+        }
 
+        const getData = async () => {
             editRows.clear()
             tableData.value = []
 
@@ -185,11 +187,8 @@ export default defineComponent({
                 rowData.switch = $content('param/switch').text()
                 rowData.holdTimeNote = $content('param/holdTimeNote').text()
                 rowData.holdTime = $content('param/holdTime').text()
-                rowData.schedule = {
-                    value: $content('trigger/triggerSchedule/schedule').attr('id'),
-                    label: $content('trigger/triggerSchedule/schedule').text(),
-                }
-                rowData.oldSchedule = $content('trigger/triggerSchedule/schedule').attr('id')
+                rowData.schedule = $content('trigger/triggerSchedule/schedule').attr('id')
+                rowData.oldSchedule = rowData.schedule
                 rowData.record = {
                     switch: $content('trigger/sysRec/switch').text().bool(),
                     chls: $content('trigger/sysRec/chls/item').map((item) => {
@@ -237,6 +236,7 @@ export default defineComponent({
                 const audioData = pageData.value.audioList.filter((item) => {
                     item.value === rowData.sysAudio
                 })
+
                 if (!audioData.length) {
                     rowData.sysAudio = DEFAULT_EMPTY_ID
                 }
@@ -252,7 +252,6 @@ export default defineComponent({
                         },
                     })
                 })
-                // tableDataInit.push(cloneDeep(rowData))
             })
         }
 
@@ -402,21 +401,23 @@ export default defineComponent({
                 pageData.value.isSchedulePop = true
             } else {
                 tableData.value.forEach((item) => {
-                    item.schedule.value = value
-                    item.oldSchedule = value
+                    if (!item.disabled) {
+                        item.schedule = value
+                        item.oldSchedule = value
+                    }
                 })
             }
         }
 
         const changeSchedule = (row: AlarmSensorEventDto) => {
-            if (row.schedule.value === 'scheduleMgr') {
+            if (row.schedule === 'scheduleMgr') {
                 pageData.value.isSchedulePop = true
                 nextTick(() => {
-                    row.schedule.value = row.oldSchedule
+                    row.schedule = row.oldSchedule
                 })
             } else {
                 nextTick(() => {
-                    row.oldSchedule = row.schedule.value
+                    row.oldSchedule = row.schedule
                 })
             }
         }
@@ -500,8 +501,8 @@ export default defineComponent({
                         <popMsgSwitch>${row.popMsgSwitch}</popMsgSwitch>
                         <sysAudio id='${row.sysAudio}'></sysAudio>
                         <triggerSchedule>
-                            <switch>${row.schedule.value !== ''}</switch>
-                            <schedule id='${row.schedule.value}'></schedule>
+                            <switch>${row.schedule !== ''}</switch>
+                            <schedule id='${row.schedule}'></schedule>
                         </triggerSchedule>
                         <emailSwitch>${row.emailSwitch}</emailSwitch>
                         <msgPushSwitch>${row.msgPushSwitch}</msgPushSwitch>
@@ -535,10 +536,21 @@ export default defineComponent({
             closeLoading()
         }
 
+        const closeSchedulePop = async () => {
+            pageData.value.isSchedulePop = false
+            await getScheduleList()
+            tableData.value.forEach((item) => {
+                if (!item.disabled) {
+                    item.schedule = getScheduleId(pageData.value.scheduleList, item.schedule, '')
+                    item.oldSchedule = item.schedule
+                }
+            })
+        }
+
         onMounted(async () => {
-            // 相关请求，获取前置数据
-            await getAudioData() // 声音数据
-            await getVideoPopupChlList() // 通道数据
+            await getAudioData()
+            await getVideoPopupChlList()
+            await getScheduleList()
             getData()
         })
 
@@ -548,11 +560,9 @@ export default defineComponent({
             tableData,
             changePaginationSize,
             changePagination,
-            // 名称修改
             focusName,
             blurName,
             blurInput,
-            // 排程
             changeScheduleAll,
             changeSchedule,
             switchRecord,
@@ -567,9 +577,9 @@ export default defineComponent({
             switchPreset,
             openPreset,
             changePreset,
-            // 表头改变属性
             changeAllValue,
             setData,
+            closeSchedulePop,
         }
     },
 })

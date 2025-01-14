@@ -7,7 +7,6 @@ import { type XMLQuery } from '@/utils/xmlParse'
 import { ChannelOsdDto } from '@/types/apiType/channel'
 import { cloneDeep } from 'lodash-es'
 import CanvasOSD, { type CanvasOSDOptionNameConfig, type CanvasOSDOptionTimeConfig } from '@/utils/canvas/canvasOsd'
-import { type TVTPlayerWinDataListItem } from '@/utils/wasmPlayer/tvtPlayer'
 import { type OcxXmlSetOSDInfo } from '@/utils/ocx/ocxCmd'
 import { type TableInstance } from 'element-plus'
 
@@ -69,7 +68,7 @@ export default defineComponent({
         })
 
         let nameMapping: Record<string, string> = {}
-        let osdDrawer: CanvasOSD | undefined = undefined
+        let osdDrawer: ReturnType<typeof CanvasOSD>
         const editRows = useWatchEditRows<ChannelOsdDto>()
 
         const handleChlSel = (chlId: string) => {
@@ -578,7 +577,7 @@ export default defineComponent({
             plugin = playerRef.value!.plugin
 
             if (mode.value === 'h5') {
-                osdDrawer = new CanvasOSD({
+                osdDrawer = CanvasOSD({
                     el: player.getDrawbordCanvas(0) as HTMLCanvasElement,
                     onchange: handleOSDChange,
                 })
@@ -713,7 +712,6 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 osdDrawer?.destroy()
-                osdDrawer = undefined
             }
         })
 

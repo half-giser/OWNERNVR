@@ -183,7 +183,7 @@ export default defineComponent({
             }
         }
 
-        const handleEnabelChangeAll = (value: boolean) => {
+        const changeAllEnable = (value: boolean) => {
             tableData.value.forEach((row) => {
                 if (row.enable) {
                     row.enable = value
@@ -215,6 +215,8 @@ export default defineComponent({
         const closeSchedulePop = async () => {
             pageData.value.isSchedulePop = false
             await getScheduleList()
+            pageData.value.schedule = getScheduleId(pageData.value.scheduleList, pageData.value.schedule)
+            changeSchedule()
         }
 
         onMounted(async () => {
@@ -228,7 +230,7 @@ export default defineComponent({
             editRows,
             changePagination,
             changePaginationSize,
-            handleEnabelChangeAll,
+            changeAllEnable,
             changeAllFrequencyType,
             blurDurationTime,
             changeSchedule,

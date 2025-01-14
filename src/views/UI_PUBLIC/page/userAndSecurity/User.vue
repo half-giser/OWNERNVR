@@ -116,8 +116,8 @@
                 flexible
                 highlight-current-row
                 show-overflow-tooltip
-                @cell-click="handleChangeUser"
-                @cell-dblclick="handleEditUser"
+                @cell-click="changeUser"
+                @cell-dblclick="openEditUserPop"
             >
                 <el-table-column
                     prop="userName"
@@ -140,7 +140,7 @@
                             :index="0"
                             :hover-index="1"
                             :chunk="4"
-                            @click.stop="handleEditUser(scope.row)"
+                            @click.stop="openEditUserPop(scope.row)"
                         />
                     </template>
                 </el-table-column>
@@ -152,7 +152,7 @@
                             :index="0"
                             :hover-index="1"
                             :chunk="4"
-                            @click.stop="handleDeleteUser(scope.row)"
+                            @click.stop="deleteUser(scope.row)"
                         />
                     </template>
                 </el-table-column>
@@ -161,9 +161,9 @@
         <UserEditPop
             v-model="pageData.isEditUser"
             :user-id="pageData.editUserId"
-            @confirm="handleConfirmEditUser"
+            @confirm="confirmEditUser"
             @close="pageData.isEditUser = false"
-            @reset-password="handleEditUserPassword"
+            @reset-password="openEditUserPasswordPop"
         />
         <UserEditPasswordPop
             v-model="pageData.isEditUserPassword"

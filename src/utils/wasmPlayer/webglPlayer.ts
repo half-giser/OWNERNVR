@@ -47,29 +47,17 @@ class Texture {
     }
 }
 
-export default class WebGLPlayer {
-    canvas: HTMLCanvasElement
-    gl: WebGLRenderingContextExtends
-    viewLeft = 0 // gl上下文窗口left
-    viewBottom = 0 // gl上下文窗口bottom
-    viewWidth = 0 // gl上下文窗口宽度
-    viewHeight = 0 // gl上下文窗口高度
-    constructor(canvas: HTMLCanvasElement, option: Record<string, any>) {
-        this.canvas = canvas
-        this.gl = (canvas.getContext('webgl', { preserveDrawingBuffer: true, ...option }) ||
-            canvas.getContext('experimental-webgl', { preserveDrawingBuffer: true, ...option })) as WebGLRenderingContextExtends
-        this.viewWidth = this.gl.canvas.width // gl上下文窗口宽度
-        this.viewHeight = this.gl.canvas.height // gl上下文窗口高度
-        this.initGL()
-    }
+export default function WebGLPlayer(canvas: HTMLCanvasElement, option: Record<string, any>) {
+    const gl = (canvas.getContext('webgl', { preserveDrawingBuffer: true, ...option }) ||
+        canvas.getContext('experimental-webgl', { preserveDrawingBuffer: true, ...option })) as WebGLRenderingContextExtends
+    let viewWidth = gl.canvas.width // gl上下文窗口宽度
+    let viewHeight = gl.canvas.height // gl上下文窗口高度
+    let viewLeft = 0 // gl上下文窗口left
+    let viewBottom = 0 // gl上下文窗口bottom
 
-    initGL() {
-        if (!this.gl) {
-            console.log('[ER] WebGL not supported.')
-            return
-        }
-
-        const gl = this.gl
+    if (!gl) {
+        console.log('[ER] WebGL not supported.')
+    } else {
         gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1)
         const program = gl.createProgram()!
         const vertexShaderSource = [
@@ -142,16 +130,18 @@ export default class WebGLPlayer {
      * @param {number} uOffset
      * @param {number} vOffset
      */
-    renderFrame(videoFrame: Uint8Array, width: number, height: number, uOffset: number, vOffset: number) {
-        if (!this.gl) {
+    const renderFrame = (videoFrame: Uint8Array, width: number, height: number, uOffset: number, vOffset: number) => {
+        if (!gl) {
             console.log('[ER] Render frame failed due to WebGL not supported.')
             return
         }
 
-        const gl = this.gl
-        gl.viewport(this.viewLeft, this.viewBottom, this.viewWidth, this.viewHeight)
+        // const gl = this.gl
+        gl.viewport(viewLeft, viewBottom, viewWidth, viewHeight)
         gl.clearColor(0.0, 0.0, 0.0, 0.0)
         gl.clear(gl.COLOR_BUFFER_BIT)
+        // console.log('gl.MAX_VIEWPORT_DIMS', gl.getParameter(gl.MAX_VIEWPORT_DIMS))
+        // console.log('gl.VIEWPORT', gl.getParameter(gl.VIEWPORT))
 
         gl.y.fill(width, height, videoFrame.subarray(0, uOffset))
         gl.u.fill(width >> 1, height >> 1, videoFrame.subarray(uOffset, uOffset + vOffset))
@@ -164,12 +154,12 @@ export default class WebGLPlayer {
      * @description 获取gl上下文窗口坐标及宽高
      * @returns {Object}
      */
-    getViewport() {
+    const getViewport = () => {
         return {
-            left: this.viewLeft,
-            bottom: this.viewBottom,
-            viewWidth: this.viewWidth,
-            viewHeight: this.viewHeight,
+            left: viewLeft,
+            bottom: viewBottom,
+            viewWidth: viewWidth,
+            viewHeight: viewHeight,
         }
     }
 
@@ -180,24 +170,22 @@ export default class WebGLPlayer {
      * @param {number} width
      * @param {number} height
      */
-    setViewport(left: number, bottom: number, width: number, height: number) {
-        this.viewLeft = left
-        this.viewBottom = bottom
-        this.viewWidth = width
-        this.viewHeight = height
+    const setViewport = (left: number, bottom: number, width: number, height: number) => {
+        viewLeft = left
+        viewBottom = bottom
+        viewWidth = width
+        viewHeight = height
     }
 
     /**
      * @description 清除画布
      */
-    clear() {
-        const gl = this.gl
+    const clear = () => {
         gl.clearColor(0.0, 0.0, 0.0, 0.0)
         gl.clear(gl.COLOR_BUFFER_BIT)
     }
 
-    fullscreen() {
-        const canvas = this.canvas
+    const fullscreen = () => {
         if (canvas.requestFullscreen) {
             canvas.requestFullscreen()
         } else if (canvas.webkitRequestFullscreen) {
@@ -211,7 +199,7 @@ export default class WebGLPlayer {
         }
     }
 
-    exitfullscreen() {
+    const exitfullscreen = () => {
         if (document.exitFullscreen) {
             document.exitFullscreen()
         } else if (document.webkitExitFullscreen) {
@@ -223,5 +211,14 @@ export default class WebGLPlayer {
         } else {
             alert("Exit fullscreen doesn't work")
         }
+    }
+
+    return {
+        renderFrame,
+        getViewport,
+        setViewport,
+        clear,
+        fullscreen,
+        exitfullscreen,
     }
 }

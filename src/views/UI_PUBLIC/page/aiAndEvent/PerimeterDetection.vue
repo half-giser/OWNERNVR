@@ -12,17 +12,23 @@
         />
         <el-tabs
             :key="pageData.currChlId"
-            v-model="pageData.chosenFunction"
+            v-model="pageData.tab"
             class="base-ai-menu-tabs"
         >
+            <div
+                v-if="pageData.notSupport"
+                class="base-ai-not-support-box"
+            >
+                {{ Translate('IDCS_CURRENT_INTEL_EVENT_UNSUPORT') }}
+            </div>
             <!-- tripwire -->
             <el-tab-pane
-                :disabled="pageData.tripwireDisable"
+                :disabled="!chlData.supportTripwire && !chlData.supportBackTripwire && !chlData.supportPeaTrigger"
                 name="Tripwire"
                 :label="Translate('IDCS_BEYOND_DETECTION')"
             >
                 <TripwirePanel
-                    v-if="pageData.chosenFunction === 'Tripwire'"
+                    v-if="pageData.tab === 'Tripwire'"
                     :curr-chl-id="pageData.currChlId"
                     :chl-data="chlData"
                     :voice-list="pageData.voiceList"
@@ -31,24 +37,18 @@
             </el-tab-pane>
             <!-- pea -->
             <el-tab-pane
-                :disabled="pageData.peaDisable"
+                :disabled="!chlData.supportPea && !chlData.supportBackPea && !chlData.supportPeaTrigger"
                 name="Pea"
                 :label="Translate('IDCS_INVADE_DETECTION')"
             >
                 <PeaPanel
-                    v-if="pageData.chosenFunction === 'Pea'"
+                    v-if="pageData.tab === 'Pea'"
                     :curr-chl-id="pageData.currChlId"
                     :chl-data="chlData"
                     :voice-list="pageData.voiceList"
                     :online-channel-list="pageData.onlineChannelList"
                 />
             </el-tab-pane>
-            <div
-                v-if="pageData.chosenFunction === ''"
-                class="notSupportBox"
-            >
-                {{ Translate('IDCS_CURRENT_INTEL_EVENT_UNSUPORT') }}
-            </div>
         </el-tabs>
     </div>
 </template>

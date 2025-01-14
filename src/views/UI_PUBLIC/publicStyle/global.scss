@@ -32,7 +32,7 @@
      ***********/
 
     --content-height: calc(100vh - 230px); /* 正文内容高度 */
-    --live-content-height: calc(100vh - 175px); /* 现场预览、回放的正文内容高度 */
+    --live-content-height: calc(100vh - 170px); /* 现场预览、回放的正文内容高度 */
 
     --form-label-width: 150px; /* 表单label宽度变量 */
     --form-input-width: 100%; /* 表单所有输入框宽度变量 */
@@ -224,7 +224,7 @@
      * 现场预览、回放的侧边栏面板
      */
     --panel-bg: transparent; // 侧边栏-背景
-    --panel-header-bg: transparent; // 侧边栏-标题背景色
+    --panel-header-bg: #fff; // 侧边栏-标题背景色
     --panel-header-text: #666; // 侧边栏-标题文本
     --panel-header-text-02: #666; // 侧边栏-标题文本（通道数）
     --panel-menu-bg: #f0f2f3; // 侧边栏-切换按钮-背景
@@ -251,7 +251,7 @@
     --tabbar-bg-hover: var(--primary-light); // tab菜单-背景 （hover）
     --tabbar-bg-active: var(--primary); // tab菜单-背景 （active）
 
-    --sidebar-text: var(--header-menu-text); // 侧边菜单-文本
+    --sidebar-text: #000; // 侧边菜单-文本
     --sidebar-text-hover: var(--header-menu-text); // 侧边菜单-文本（hover）
     --sidebar-text-active: var(--main-text-active); // 侧边菜单-文本（active）
     --sidebar-bg: transparent; // 侧边菜单-背景

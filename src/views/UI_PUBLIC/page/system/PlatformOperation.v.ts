@@ -187,8 +187,6 @@ export default defineComponent({
                     label: Translate('IDCS_REPAIRSIGN_RESULT_ALL'),
                 },
             ],
-            // 上传按钮禁用
-            uploadDisabled: false,
         })
 
         const formData = ref({
@@ -253,7 +251,6 @@ export default defineComponent({
                 case 'faultRepair':
                 case 'maintenanceSign':
                 case 'repairSign':
-                    refreshUploadBtnStatus()
                     break
             }
         }
@@ -278,7 +275,6 @@ export default defineComponent({
         // 表头全选checkbox点击
         const selectAllChl = (rows: chlDataItem[]) => {
             pageData.value.selectAll = rows.length === tableData.value.length
-            refreshUploadBtnStatus()
         }
 
         // 手动点击选择行checkbox
@@ -287,7 +283,6 @@ export default defineComponent({
                 tableRef.value!.setCurrentRow(null)
             }
             pageData.value.selectAll = selection.length === tableData.value.length
-            refreshUploadBtnStatus()
         }
 
         // 全选
@@ -295,9 +290,6 @@ export default defineComponent({
             tableRef.value!.clearSelection()
             if (pageData.value.selectAll) {
                 tableRef.value!.toggleAllSelection()
-                pageData.value.uploadDisabled = false
-            } else {
-                pageData.value.uploadDisabled = true
             }
         }
 
@@ -312,7 +304,6 @@ export default defineComponent({
                 }
             })
             pageData.value.selectAll = selectedRowsIds.length === 0
-            refreshUploadBtnStatus()
         }
 
         // 行点击事件
@@ -320,30 +311,25 @@ export default defineComponent({
             pageData.value.selectAll = false
             tableRef.value!.clearSelection()
             tableRef.value!.toggleRowSelection(rowData, true)
-            refreshUploadBtnStatus()
         }
 
         //设置上传按钮状态
-        const refreshUploadBtnStatus = () => {
+        const uploadDisabled = computed(() => {
             switch (formData.value.operationType) {
                 case 'testScreenshot':
                 case 'maintenanceScreenshot':
                 case 'acceptScreenshot':
-                    pageData.value.uploadDisabled = tableRef.value!.getSelectionRows().length === 0
-                    break
+                    return tableRef.value!.getSelectionRows().length === 0
                 case 'faultRepair':
-                    pageData.value.uploadDisabled = formData.value.chooseFaultType.length === 0
-                    break
+                    return formData.value.chooseFaultType.length === 0
                 case 'maintenanceSign':
-                    pageData.value.uploadDisabled = formData.value.chooseMaintenanceType.length === 0
-                    break
+                    return formData.value.chooseMaintenanceType.length === 0
                 case 'repairSign':
-                    pageData.value.uploadDisabled = formData.value.chooseRepairType.length === 0
-                    break
+                    return formData.value.chooseRepairType.length === 0
             }
-        }
+        })
 
-        const handleReturn = () => {
+        const goBack = () => {
             router.push({
                 path: '/config/system/platform/parameter',
             })
@@ -484,25 +470,15 @@ export default defineComponent({
             tableData,
             pageData,
             formData,
-            // 用户类型
+            uploadDisabled,
             changeUserType,
-            // 操作类型
             changeOperationType,
-            // 表头全选
             selectAllChl,
-            // 手动点击选择行checkbox
             handleSelect,
-            // 全选
             selectAll,
-            // 反选
             reverseSelection,
-            // 行点击事件
             handleRowClick,
-            // 更新上传按钮状态
-            refreshUploadBtnStatus,
-            // 返回
-            handleReturn,
-            // 上传数据
+            goBack,
             uploadData,
         }
     },

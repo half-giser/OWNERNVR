@@ -115,7 +115,8 @@ const timeSpanSplit = '-'
 const maxTimeNum = 24 * 60 - 1
 const scaleRef = ref<HTMLCanvasElement>()
 const timeSelectorRef = ref<HTMLCanvasElement>()
-let scaleCanvasBase: CanvasBase, timeSelectorCanvasBase: CanvasBase
+let scaleCanvasBase: ReturnType<typeof CanvasBase>
+let timeSelectorCanvasBase: ReturnType<typeof CanvasBase>
 
 //时间条控件中画布的宽度和高度
 const canvasWidth = props.width - 2 //减去左右border的宽度
@@ -159,8 +160,8 @@ const initStyle = () => {
  * 挂载完成后设置基础元素和属性
  */
 const setBasicProp = () => {
-    scaleCanvasBase = new CanvasBase(scaleRef.value as HTMLCanvasElement)
-    timeSelectorCanvasBase = new CanvasBase(timeSelectorRef.value as HTMLCanvasElement)
+    scaleCanvasBase = CanvasBase(scaleRef.value as HTMLCanvasElement)
+    timeSelectorCanvasBase = CanvasBase(timeSelectorRef.value as HTMLCanvasElement)
     canvasHeight = timeSelectorRef.value?.height as number
     //Canvas的X轴两边留白的空间，为了让收个刻度上的文字可以显示在刻度线中间
     headSpace = (() => {
@@ -534,12 +535,16 @@ const selectEnd = (event: MouseEvent) => {
     }
 }
 
-defineExpose({
+const expose = {
     getValue,
     resetValue,
     addTimeSpan,
     invert,
-})
+}
+
+export type ScheduleLineReturnsType = typeof expose
+
+defineExpose(expose)
 </script>
 
 <style lang="scss" scoped>

@@ -37,8 +37,6 @@ export default defineComponent({
             remainTotalNum: 0,
             // 排程选项列表
             scheduleList: [] as SelectOption<string, string>[],
-            // 排程Id列表
-            scheduleIdList: [] as string[],
             // 显示排程管理弹窗
             isSchedulePop: false,
         })
@@ -86,11 +84,11 @@ export default defineComponent({
         /**
          * @description 修改并关闭排程管理弹窗
          */
-        const confirmSchedule = async () => {
+        const closeSchedulePop = async () => {
             pageData.value.isSchedulePop = false
             await getScheduleList()
             tableData.value.forEach((item) => {
-                item.groupSchedule = pageData.value.scheduleIdList.indexOf(item.groupSchedule) > -1 ? item.groupSchedule : DEFAULT_EMPTY_ID
+                item.groupSchedule = getScheduleId(pageData.value.scheduleList, item.groupSchedule)
                 item.oldGroupSchedule = item.groupSchedule
             })
         }
@@ -104,7 +102,6 @@ export default defineComponent({
             pageData.value.scheduleList = await buildScheduleList({
                 isManager: true,
             })
-            pageData.value.scheduleIdList = pageData.value.scheduleList.map((item) => item.value)
 
             closeLoading()
         }
@@ -125,8 +122,7 @@ export default defineComponent({
                 pageData.value.remainTotalNum = $('content/basicInfo/remainSpaceNum').text().num()
                 tableData.value = $('content/parkingSapce/item').map((item) => {
                     const $item = queryXml(item.element)
-                    const groupSchedule = $item('groupSchedule').text()
-                    const schedule = pageData.value.scheduleIdList.indexOf(groupSchedule) > -1 ? groupSchedule : DEFAULT_EMPTY_ID
+                    const schedule = getScheduleId(pageData.value.scheduleList, $item('groupSchedule').text())
                     return {
                         id: item.attr('id'),
                         groupName: $item('groupName').text(),
@@ -280,7 +276,7 @@ export default defineComponent({
             changeAllSchedule,
             changeSingleSchedule,
             apply,
-            confirmSchedule,
+            closeSchedulePop,
         }
     },
 })

@@ -7,7 +7,7 @@
     <el-dialog
         width="600"
         :title
-        @open="handleOpen"
+        @open="open"
         @closed="formRef?.resetFields()"
     >
         <el-form

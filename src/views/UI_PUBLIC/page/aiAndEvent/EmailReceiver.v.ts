@@ -213,9 +213,9 @@ export default defineComponent({
             })
         }
 
-        const closeSchedulePop = async () => {
+        const closeSchedulePop = () => {
             pageData.value.isSchedulePop = false
-            await getScheduleList()
+            getScheduleList()
         }
 
         onMounted(async () => {

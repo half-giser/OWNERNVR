@@ -319,10 +319,16 @@
 
         &-box {
             height: 100%;
+            margin-left: 10px;
+            width: calc(100% - 10px);
+
+            .Sprite {
+                margin-right: 3px;
+            }
         }
 
         &-check-all {
-            margin-left: 11px;
+            margin-left: 21px;
             height: 32px;
         }
     }
@@ -338,11 +344,11 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 50px;
+            height: 33px;
             flex-shrink: 0;
 
             :deep(.el-button) {
-                margin: 0 2px;
+                min-width: unset !important;
             }
         }
 

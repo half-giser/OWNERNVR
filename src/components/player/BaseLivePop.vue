@@ -98,9 +98,13 @@ const ready = () => {
     play()
 }
 
-defineExpose<LivePopInstance>({
+const expose = {
     openLiveWin,
-})
+}
+
+export type LivePopReturnsType = typeof expose
+
+defineExpose(expose)
 </script>
 
 <style scoped lang="scss">

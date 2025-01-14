@@ -87,6 +87,7 @@
                         <BaseListBoxItem
                             v-for="item in pageData.chlList"
                             :key="item.id"
+                            :show-hover="false"
                         >
                             <el-checkbox
                                 :value="item.id"

@@ -137,6 +137,7 @@ export default defineComponent({
 
         // 页面数据
         const pageData = ref({
+            reqFail: false,
             tab: 'param',
             currRowData: new AlarmTemperatureDetectionBoundryDto(),
             // 是否显示全部区域
@@ -144,7 +145,7 @@ export default defineComponent({
             // 绘图区域下提示信息
             drawAreaTip: '',
             scheduleList: [] as SelectOption<string, string>[],
-            scheduleManagPopOpen: false,
+            isSchedulePop: false,
             // 声音列表
             voiceList: prop.voiceList,
             triggerList: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch', 'popMsgSwitch'],
@@ -166,7 +167,7 @@ export default defineComponent({
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
         // 车牌侦测绘制的Canvas
-        let tempDrawer = new CanvasPolygon({
+        let tempDrawer = CanvasPolygon({
             el: document.createElement('canvas'),
         })
 
@@ -179,7 +180,7 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 const canvas = player.getDrawbordCanvas(0)
-                tempDrawer = new CanvasPolygon({
+                tempDrawer = CanvasPolygon({
                     el: canvas,
                     onchange: changeArea,
                     closePath: closePath,
@@ -268,7 +269,7 @@ export default defineComponent({
         }
 
         // 获取温度检测数据
-        const getTemperatureDetectionData = async () => {
+        const getData = async () => {
             openLoading()
 
             const sendXml = rawXml`
@@ -281,25 +282,13 @@ export default defineComponent({
                 </requireField>
             `
             const result = await queryTemperatureAlarmConfig(sendXml)
+            const $ = queryXml(result)
 
             closeLoading()
-            commLoadResponseHandler(result, ($) => {
+
+            if ($('status').text() === 'success') {
                 const $param = queryXml($('content/chl/param')[0].element)
                 const $trigger = queryXml($('content/chl/trigger')[0].element)
-
-                let holdTimeArr = $param('holdTimeNote').text().split(',')
-                const holdTime = $param('alarmHoldTime').text()
-                if (!holdTimeArr.includes(holdTime)) {
-                    holdTimeArr.push(holdTime)
-                    holdTimeArr = holdTimeArr.sort((a, b) => Number(a) - Number(b))
-                }
-                const holdTimeList = holdTimeArr.map((item) => {
-                    const label = getTranslateForSecond(Number(item))
-                    return {
-                        value: item,
-                        label,
-                    }
-                })
 
                 const boundaryData = $param('boundary/item').map((item) => {
                     const $item = queryXml(item.element)
@@ -332,9 +321,9 @@ export default defineComponent({
 
                 formData.value = {
                     enabledSwitch: $param('switch').text().bool(),
-                    holdTime,
-                    holdTimeList,
-                    schedule: $('content/chl').attr('scheduleGuid'),
+                    holdTime: $param('alarmHoldTime').text().num(),
+                    holdTimeList: getAlarmHoldTimeList($param('holdTimeNote').text(), $param('alarmHoldTime').text().num()),
+                    schedule: getScheduleId(pageData.value.scheduleList, $('content/chl').attr('scheduleGuid')),
                     triggerAudio: $param('triggerAudio').text(),
                     triggerWhiteLight: $param('triggerWhiteLight').text(),
                     record: $trigger('sysRec/chls/item').map((item) => {
@@ -396,7 +385,10 @@ export default defineComponent({
                 })
 
                 watchEdit.listen()
-            })
+            } else {
+                pageData.value.tab = ''
+                pageData.value.reqFail = true
+            }
         }
 
         const getRuleTypeList = (ruleType: string) => {
@@ -570,7 +562,7 @@ export default defineComponent({
         }
 
         // 闭合区域
-        const setClosed = (points: { X: number; Y: number; isClosed?: boolean }[]) => {
+        const setClosed = (points: CanvasBasePoint[]) => {
             points.forEach((item) => {
                 item.isClosed = true
             })
@@ -773,9 +765,19 @@ export default defineComponent({
             }
         }
 
-        onMounted(async () => {
+        const getScheduleList = async () => {
             pageData.value.scheduleList = await buildScheduleList()
-            getTemperatureDetectionData()
+        }
+
+        const closeSchedulePop = async () => {
+            pageData.value.isSchedulePop = false
+            await getScheduleList()
+            formData.value.schedule = getScheduleId(pageData.value.scheduleList, formData.value.schedule)
+        }
+
+        onMounted(async () => {
+            await getScheduleList()
+            getData()
         })
 
         onBeforeUnmount(() => {
@@ -818,6 +820,7 @@ export default defineComponent({
             getRuleTypeList,
             setData,
             formatInputMaxLength,
+            closeSchedulePop,
         }
     },
 })

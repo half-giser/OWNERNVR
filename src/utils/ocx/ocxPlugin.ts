@@ -11,14 +11,6 @@ import { generateAsyncRoutes } from '../../router'
 
 type PluginStatus = 'Unloaded' | 'Loaded' | 'InitialComplete' | 'Connected' | 'Disconnected' | 'Reconnecting'
 
-// type EmbedPlugin = HTMLEmbedElement & {
-//     queryInfoMap: Record<number, (str: string) => void>
-//     QueryInfo: (str: string) => string
-//     ExecuteCmd: (str: string) => void
-//     Destroy: () => void
-//     LiveNotify2Js: (strXMLFormat: string) => Promise<void>
-// }
-
 let plugin: ReturnType<typeof getSingletonPlugin> | null = null
 
 const getSingletonPlugin = () => {
@@ -38,7 +30,7 @@ const getSingletonPlugin = () => {
     const pluginNoticeContainer = ref('')
     const isInstallPlugin = ref(false) // 插件已安装运行标记
 
-    let videoPlugin: WebsocketPlugin | null = null // | EmbedPlugin //主视频插件
+    let videoPlugin: ReturnType<typeof WebsocketPlugin> | null = null // | EmbedPlugin //主视频插件
     let videoPluginStatus: PluginStatus = 'Unloaded' // Unloaded, Loaded, InitialComplete, Connected, Disconnected, Reconnecting
 
     const VideoPluginReconnectTimeout = 5000 // 断开重新连接时间
@@ -167,7 +159,7 @@ const getSingletonPlugin = () => {
         const funcName = $('/response').attr('reqId').num()
 
         if ($('response').length && funcName) {
-            ;(getVideoPlugin() as WebsocketPlugin).queryInfoMap[funcName](strXMLFormat)
+            ;(getVideoPlugin() as ReturnType<typeof WebsocketPlugin>).queryInfoMap[funcName](strXMLFormat)
             return
         }
 
@@ -179,16 +171,7 @@ const getSingletonPlugin = () => {
         if ($('statenotify[@type="NVMS_NAT_CMD"]').length) {
             const $response = $('statenotify[@type="NVMS_NAT_CMD"]/response')
             const $request = queryXml(XMLStr2XMLDoc(CMD_QUEUE.cmd.cmd))('//cmd[@type="NVMS_NAT_CMD"]/request')
-            // const curCmdUrl = $request.attr('url')
-            // const curCmdFlay = $request.attr('flag')
             if ($response.attr('flag') === $request.attr('flag') && $response.attr('url') === $request.attr('url')) {
-                // try {
-                //     CMD_QUEUE.unlock()
-                //     clearTimeout(CMD_QUEUE.timeoutId)
-                // } catch (ex) {
-                // } finally {
-                //     CMD_QUEUE.next()
-                // }
                 CMD_QUEUE.resolve($response[0].element)
             }
         }
@@ -233,10 +216,6 @@ const getSingletonPlugin = () => {
                             clearTimeout(VideoPluginReconnectTimeoutId)
                             VideoPluginReconnectTimeoutId = null
                         } else {
-                            // if (systemInfo.platform === 'mac') {
-                            //     isPluginAvailable.value = true
-                            // }
-
                             //初始化多语言翻译模块
                             await getLangTypes()
                             await getLangItems()
@@ -286,7 +265,6 @@ const getSingletonPlugin = () => {
                                 execLoginTypeCallback(P2PACCESSTYPE.P2P_AUTHCODE_LOGIN, authCodeIndex)
                             } else {
                                 layoutStore.isInitial = true
-                                // router.replace('/live')
                                 router.push('/authCodeLogin')
                             }
                             return
@@ -594,7 +572,7 @@ const getSingletonPlugin = () => {
         //     setPluginNotice('body')
         //     return
         // }
-        const connPlugin = new WebsocketPlugin({
+        const connPlugin = WebsocketPlugin({
             wsType: 'pluginMainProcess',
             port: userSession.appType === 'STANDARD' ? ClientPort : P2PClientPort,
             onopen: () => {
@@ -644,7 +622,7 @@ const getSingletonPlugin = () => {
             // pluginErrorHandle()
             return
         }
-        videoPlugin = new WebsocketPlugin({
+        videoPlugin = WebsocketPlugin({
             wsType: 'pluginSubProcess',
             port: ocxPort,
             onopen: () => {
@@ -988,39 +966,10 @@ const getSingletonPlugin = () => {
         if (isShow && layoutStore.loadingCount) return
         if (isShow && forcedHidden) return
 
-        /**
-         * 智能分析-》车辆搜索-》停车记录tab激活时,不显示视频插件窗口，通过特殊类ocxWinTab进行标记
-         */
-        // if (isShow && $('.ocxWinTab').hasClass('active')) return
-
         // 检查浏览器当前标签页是否为可见。若不可见,则不显示视频插件窗口
         if (isShow && document.visibilityState === 'hidden') return
         if (!getIsPluginAvailable()) return
-        // if (systemInfo.platform === 'mac' && userSession.appType === 'P2P') {
-        //     // effect
-        //     // if ($('.tvt_dialog').length > 0 && isShow && $('#popRec_content').length == 0) {
-        //     //     return
-        //     // }
 
-        //     /*ocx假隐藏*/
-        //     const ocx = document.querySelectorAll('object,embed') as NodeListOf<HTMLElement>
-        //     ocx.forEach((element) => {
-        //         if (isShow && element.getAttribute('pluginPlaceholderId')) {
-        //             if (element.getAttribute('plugin_visible') === 'false') {
-        //                 setPluginSize(document.getElementById(element.getAttribute('pluginPlaceholderId') as string), element as EmbedPlugin)
-        //             }
-        //         } else {
-        //             element.style.setProperty('width', '1px')
-        //             element.style.setProperty('height', '1px')
-        //         }
-        //         if (isShow) {
-        //             element.setAttribute('plugin_visible', 'true')
-        //         } else {
-        //             element.setAttribute('plugin_visible', 'false')
-        //         }
-        //     })
-        //     return
-        // }
         const sendXML = OCX_XML_DisplayPlugin(isShow)
         getVideoPlugin().ExecuteCmd(sendXML)
     }
@@ -1031,12 +980,7 @@ const getSingletonPlugin = () => {
      * @param {Object} pluginObj 视频插件
      */
     const setPluginSize = (pluginRefDiv: HTMLElement | null, pluginObj?: ReturnType<typeof getVideoPlugin>, shouldAdjust = false) => {
-        // if (!context) context = document.body // $('body')
         if (!pluginObj) pluginObj = getVideoPlugin()
-        // if (systemInfo.platform === 'mac' && userSession.appType === 'P2P') {
-        //     setPluginSizeForP2PMac(pluginRefDiv, pluginObj as EmbedPlugin)
-        //     return
-        // }
 
         if (!pluginRefDiv) {
             if (browserEventMap.data.length) {
@@ -1342,6 +1286,8 @@ const getSingletonPlugin = () => {
         })
     }
 
+    let displayTimer: NodeJS.Timeout | number = 0
+
     /**
      * @description VisibleChange事件回调
      */
@@ -1350,11 +1296,13 @@ const getSingletonPlugin = () => {
             return
         }
 
+        clearTimeout(displayTimer)
+
         if (document.visibilityState === 'hidden') {
             //状态判断
             displayOCX(false)
         } else {
-            setTimeout(() => {
+            displayTimer = setTimeout(() => {
                 if (browserEventMap.data.length && !forcedHidden) displayOCX(true)
             }, 500)
         }
@@ -1365,12 +1313,15 @@ const getSingletonPlugin = () => {
         () => layoutStore.messageBoxCount,
         (newVal) => {
             if (!getIsInstallPlugin()) return
+
+            clearTimeout(displayTimer)
+
             if (newVal) {
                 displayOCX(false)
             } else {
-                setTimeout(() => {
+                displayTimer = setTimeout(() => {
                     if (browserEventMap.data.length && !forcedHidden) displayOCX(true)
-                }, 500)
+                }, 50)
             }
         },
     )
@@ -1380,12 +1331,15 @@ const getSingletonPlugin = () => {
         () => layoutStore.loadingCount,
         (newVal) => {
             if (!getIsInstallPlugin()) return
+
+            clearTimeout(displayTimer)
+
             if (newVal) {
                 displayOCX(false)
             } else {
-                setTimeout(() => {
+                displayTimer = setTimeout(() => {
                     if (browserEventMap.data.length && !forcedHidden) displayOCX(true)
-                }, 500)
+                }, 50)
             }
         },
     )
@@ -1429,6 +1383,7 @@ const getSingletonPlugin = () => {
 
     onMounted(() => {
         disposePlugin()
+
         if (userSession.appType === 'STANDARD') {
             startV2Process()
         } else {

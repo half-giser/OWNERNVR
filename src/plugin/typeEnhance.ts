@@ -14,7 +14,7 @@ export default {
          * 示例: "Should be between %1 and %2!".formatForLang('10', '100') => "Should be between 10 and 100!"
          */
         String.prototype.formatForLang = function (...args: string[]): string {
-            let str = <string>this
+            let str = this as string
             if (args.length === 0) return str
             for (let i = 0; i < args.length; i++) {
                 const reg = new RegExp('(%' + (i + 1) + ')', 'g')

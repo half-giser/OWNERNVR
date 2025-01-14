@@ -38,11 +38,11 @@ export default defineComponent({
             //手动录像时长
             urgencyRecDurationList: [] as SelectOption<number, string>[],
             //排程管理弹窗显示状态
-            scheduleManagPopOpen: false,
+            isSchedulePop: false,
             // 高级模式配置弹窗打开状态
-            advancePopOpen: false,
+            isAdvancePop: false,
             // 自动模式通道码流参数配置打开状态
-            recModeStreamPopOpen: false,
+            isRecModeStreamPop: false,
 
             //当前生效的高级模式选项（只支持一个）
             advanceModeCurrent: null as RecordModeDto | null,
@@ -166,30 +166,6 @@ export default defineComponent({
         pageData.value.advanceRecModes.forEach((item) => {
             advanceRecModeMap[item.id] = item
         })
-
-        onMounted(async () => {
-            genIconMap(recAutoModeList.value)
-            await getRecModeData()
-            await initChlScheduldTb()
-            watchEdit.listen()
-        })
-
-        watch(
-            () => {
-                return formData.value.autoModeId
-            },
-            (newValue, oldValue) => {
-                if (!watchEdit.ready.value) return
-                const isBack = pageData.value.autoModeIdOld === newValue
-                pageData.value.autoModeIdOld = oldValue
-
-                if (!isBack) {
-                    pageData.value.recModeStreamPopOpen = true
-                } else {
-                    pageData.value.autoModeIdOld = formData.value.autoModeId
-                }
-            },
-        )
 
         const genIconMap = (modes: RecordModeDto[]) => {
             pageData.value.icons = {}
@@ -392,6 +368,7 @@ export default defineComponent({
         const recAutoModeList = computed(() => {
             return pageData.value.advanceModeCurrent === null ? pageData.value.basicRecModes : pageData.value.basicRecModes.concat(pageData.value.advanceModeCurrent)
         })
+
         /**
          * 初始化通道的录像排程表格
          */
@@ -434,7 +411,7 @@ export default defineComponent({
          * @param selectedEvents 选择的事件列表
          */
         const advancePopConfirm = (selectedEvents: string[]) => {
-            if (genAdvanceMode(selectedEvents)) pageData.value.advancePopOpen = false
+            if (genAdvanceMode(selectedEvents)) pageData.value.isAdvancePop = false
         }
 
         const streamPopClose = (isConfirm: boolean) => {
@@ -443,7 +420,7 @@ export default defineComponent({
             } else {
                 pageData.value.autoModeIdOld = formData.value.autoModeId
             }
-            pageData.value.recModeStreamPopOpen = false
+            pageData.value.isRecModeStreamPop = false
         }
 
         /**
@@ -551,6 +528,30 @@ export default defineComponent({
             closeLoading()
             if (isPopMessage) commMutiSaveResponseHandler(resultList)
         }
+
+        watch(
+            () => {
+                return formData.value.autoModeId
+            },
+            (newValue, oldValue) => {
+                if (!watchEdit.ready.value) return
+                const isBack = pageData.value.autoModeIdOld === newValue
+                pageData.value.autoModeIdOld = oldValue
+
+                if (!isBack) {
+                    pageData.value.isRecModeStreamPop = true
+                } else {
+                    pageData.value.autoModeIdOld = formData.value.autoModeId
+                }
+            },
+        )
+
+        onMounted(async () => {
+            genIconMap(recAutoModeList.value)
+            await getRecModeData()
+            await initChlScheduldTb()
+            watchEdit.listen()
+        })
 
         return {
             formData,

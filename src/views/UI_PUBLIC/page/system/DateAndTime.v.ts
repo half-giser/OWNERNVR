@@ -97,7 +97,7 @@ export default defineComponent({
          */
         const renderTime = () => {
             // 与Internet时间同步时，使用返回的系统时间计时
-            if (formData.value.syncType === 'NTP') {
+            if (formData.value.syncType === 'manually') {
                 const now = performance.now()
                 formData.value.systemTime = dayjs(pageData.value.systemTime, formatSystemTime.value)
                     .add(now - pageData.value.startTime, 'millisecond')

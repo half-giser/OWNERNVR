@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 13:36:26
  * @Description: 区域入侵
  */
-import { type AlarmChlDto, AlarmPeaDto } from '@/types/apiType/aiAndEvent'
+import { type AlarmChlDto, type AlarmOnlineChlDto, AlarmPeaDto } from '@/types/apiType/aiAndEvent'
 import ChannelPtzCtrlPanel from '@/views/UI_PUBLIC/page/channel/ChannelPtzCtrlPanel.vue'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import CanvasPolygon from '@/utils/canvas/canvasPolygon'
@@ -52,7 +52,7 @@ export default defineComponent({
          * @property {Array} 在线通道列表
          */
         onlineChannelList: {
-            type: Array as PropType<{ id: string; ip: string; name: string; accessType: string }[]>,
+            type: Array as PropType<AlarmOnlineChlDto[]>,
             required: true,
         },
     },
@@ -63,7 +63,7 @@ export default defineComponent({
         const systemCaps = useCababilityStore()
         const { Translate } = useLangStore()
         const playerRef = ref<PlayerInstance>()
-        let peaDrawer = new CanvasPolygon({
+        let peaDrawer = CanvasPolygon({
             el: document.createElement('canvas'),
         })
 
@@ -76,15 +76,13 @@ export default defineComponent({
         const pageData = ref({
             // 是否支持声音设置
             supportAlarmAudioConfig: true,
-            // 不支持功能提示页面是否展示
-            // notSupportTipShow: false,
             // 请求数据失败显示提示
-            requireDataFail: false,
+            reqFail: false,
             // 排程管理
             isSchedulePop: false,
             scheduleList: [] as SelectOption<string, string>[],
-            // 选择的功能:pea_param,pea_target,pea_trigger
-            peaFunction: 'pea_param',
+            // 选择的功能:param,target,trigger
+            tab: 'param',
             // 是否启用侦测
             detectionEnable: false,
             // 用于对比
@@ -100,7 +98,7 @@ export default defineComponent({
             // 云台锁定状态
             lockStatus: false,
             // 云台speed
-            peaspeed: 0,
+            speed: 0,
             // 排程
             schedule: '',
             // 是否显示全部区域绑定值
@@ -162,7 +160,7 @@ export default defineComponent({
             if (mode.value === 'h5') {
                 const canvas = player.getDrawbordCanvas(0)
                 const regulation = pageData.value.currentRegulation
-                peaDrawer = new CanvasPolygon({
+                peaDrawer = CanvasPolygon({
                     el: canvas,
                     regulation: regulation,
                     onchange: changePea,
@@ -210,13 +208,14 @@ export default defineComponent({
          * @param {Number} speed
          */
         const setSpeed = (speed: number) => {
-            pageData.value.peaspeed = speed
+            pageData.value.speed = speed
         }
 
         // 关闭排程管理后刷新排程列表
         const closeSchedulePop = async () => {
             pageData.value.isSchedulePop = false
             await getScheduleList()
+            pageData.value.schedule = getScheduleId(pageData.value.scheduleList, pageData.value.schedule)
         }
 
         // 对sheduleList进行处理
@@ -243,12 +242,10 @@ export default defineComponent({
             closeLoading()
             const $ = queryXml(res)
             if ($('status').text() === 'success') {
-                const schedule = $('content/chl').attr('scheduleGuid')
-                pageData.value.schedule = schedule !== '' ? (pageData.value.scheduleList.some((item) => item.value === schedule) ? schedule : DEFAULT_EMPTY_ID) : DEFAULT_EMPTY_ID
+                pageData.value.schedule = getScheduleId(pageData.value.scheduleList, $('content/chl').attr('scheduleGuid'))
                 getPeaActivityData('perimeter', res)
                 getPeaActivityData('entry', res)
                 getPeaActivityData('leave', res)
-                // getPresetList()
                 pageData.value.activityType = pageData.value.supportList[0]
                 if (pageData.value.supportList.includes('perimeter')) {
                     pageData.value.areaActiveList.push({
@@ -288,7 +285,8 @@ export default defineComponent({
                 pageData.value.currAreaType = pageData.value.currentRegulation ? 'regionArea' : 'detectionArea'
                 watchEdit.listen()
             } else {
-                pageData.value.requireDataFail = true
+                pageData.value.reqFail = true
+                pageData.value.tab = ''
             }
         }
 
@@ -326,12 +324,9 @@ export default defineComponent({
             if (areaData.detectionEnable) {
                 pageData.value.activityType = activityType
             }
-            const holdTimeArr = $param('holdTimeNote').text().split(',')
+
             areaData.holdTime = $param('alarmHoldTime').text().num()
-            if (!holdTimeArr.includes(areaData.holdTime.toString())) {
-                holdTimeArr.push(areaData.holdTime.toString())
-            }
-            areaData.holdTimeList = formatHoldTime(holdTimeArr)
+            areaData.holdTimeList = getAlarmHoldTimeList($param('holdTimeNote').text(), areaData.holdTime)
 
             const regulation = $param('content/chl/perimeter/param/boundary').attr('regulation') === '1'
             areaData.regulation = regulation
@@ -611,7 +606,7 @@ export default defineComponent({
         }
 
         // 获取区域
-        const getRegion = (index: number, element: XmlElement, region: { X1: number; Y1: number; X2: number; Y2: number }) => {
+        const getRegion = (index: number, element: XmlElement, region: CanvasBaseArea) => {
             const $ = queryXml(element.element)
             if (index === 0) {
                 region.X1 = $('X').text().num()
@@ -628,7 +623,7 @@ export default defineComponent({
         }
 
         // 获取矩形区域点列表
-        const getRegionPoints = (points: { X1: number; Y1: number; X2: number; Y2: number }) => {
+        const getRegionPoints = (points: CanvasBaseArea) => {
             const pointList = []
             pointList.push({ X: points.X1, Y: points.Y1, isClosed: true })
             pointList.push({ X: points.X2, Y: points.Y1, isClosed: true })
@@ -641,7 +636,7 @@ export default defineComponent({
         const verification = () => {
             // 区域为多边形时，检测区域合法性(区域入侵AI事件中：currentRegulation为false时区域为多边形；currentRegulation为true时区域为矩形-联咏IPC)
             if (!pageData.value.currentRegulation) {
-                const allRegionList: { X: number; Y: number; isClosed?: boolean }[][] = []
+                const allRegionList: CanvasBasePoint[][] = []
                 const type = pageData.value.activityType
                 const boundaryInfoList = formData.value[type].boundaryInfo
                 boundaryInfoList.forEach((ele) => {
@@ -669,7 +664,7 @@ export default defineComponent({
 
         // pea tab点击事件
         const changeTab = () => {
-            if (pageData.value.peaFunction === 'pea_param') {
+            if (pageData.value.tab === 'param') {
                 const type = pageData.value.activityType
                 const area = pageData.value.chosenWarnAreaIndex
                 const boundaryInfo = formData.value[type].boundaryInfo
@@ -680,8 +675,10 @@ export default defineComponent({
 
                 if (mode.value === 'ocx') {
                     setTimeout(() => {
-                        const sendXML1 = OCX_XML_SetPeaArea(boundaryInfo[area].point, pageData.value.currentRegulation)
-                        plugin.ExecuteCmd(sendXML1)
+                        if (boundaryInfo[area].point.length) {
+                            const sendXML1 = OCX_XML_SetPeaArea(boundaryInfo[area].point, pageData.value.currentRegulation)
+                            plugin.ExecuteCmd(sendXML1)
+                        }
 
                         const sendXML2 = OCX_XML_SetPeaAreaAction('EDIT_ON')
                         plugin.ExecuteCmd(sendXML2)
@@ -691,7 +688,7 @@ export default defineComponent({
                 if (pageData.value.isShowAllArea) {
                     showAllPeaArea(true)
                 }
-            } else if (pageData.value.peaFunction === 'pea_target') {
+            } else if (pageData.value.tab === 'target') {
                 showAllPeaArea(false)
                 if (mode.value === 'h5') {
                     peaDrawer.clear()
@@ -763,21 +760,6 @@ export default defineComponent({
             if (props.chlData.supportAutoTrack) {
                 getPTZLockStatus()
             }
-        }
-
-        // 格式化持续时间
-        const formatHoldTime = (holdTimeList: string[]) => {
-            const timeList = holdTimeList.map((ele) => {
-                const element = Number(ele)
-                const itemText = getTranslateForSecond(element)
-                return {
-                    value: element,
-                    label: itemText,
-                }
-            })
-
-            timeList.sort((a, b) => a.value - b.value)
-            return timeList
         }
 
         // pea执行是否显示全部区域
@@ -857,20 +839,7 @@ export default defineComponent({
 
         // pea
         // pea绘图
-        const changePea = (
-            points:
-                | {
-                      X1: number
-                      Y1: number
-                      X2: number
-                      Y2: number
-                  }
-                | {
-                      X: number
-                      Y: number
-                      isClosed?: boolean
-                  }[],
-        ) => {
+        const changePea = (points: CanvasBaseArea | CanvasBasePoint[]) => {
             const type = pageData.value.activityType
             const area = pageData.value.chosenWarnAreaIndex
             if (formData.value[type].regulation) {
@@ -913,11 +882,15 @@ export default defineComponent({
                     }
                 } else {
                     // 画点
-                    const boundaryInfo: { X: number; Y: number; isClosed?: boolean }[][] = []
+                    const boundaryInfo: CanvasBasePoint[][] = []
                     const boundaryInfoList = formData.value[type].boundaryInfo
                     boundaryInfoList.forEach((ele, idx) => {
-                        boundaryInfo[idx] = ele.point.map((item: { X: number; Y: number; isClosed?: boolean }) => {
-                            return { X: item.X, Y: item.Y, isClosed: item.isClosed }
+                        boundaryInfo[idx] = ele.point.map((item) => {
+                            return {
+                                X: item.X,
+                                Y: item.Y,
+                                isClosed: item.isClosed,
+                            }
                         })
                     })
 
@@ -977,13 +950,7 @@ export default defineComponent({
         }
 
         // 区域关闭
-        const closePath = (
-            points: {
-                X: number
-                Y: number
-                isClosed?: boolean
-            }[],
-        ) => {
+        const closePath = (points: CanvasBasePoint[]) => {
             const currType = pageData.value.activityType
             const area = pageData.value.chosenWarnAreaIndex
             formData.value[currType].boundaryInfo[area].point = points

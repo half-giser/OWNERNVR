@@ -93,9 +93,11 @@ watch(
     },
 )
 
-onBeforeUnmount(() => {
-    plugin.DisposePlugin()
-})
+if (import.meta.env.PROD) {
+    onBeforeUnmount(() => {
+        plugin.DisposePlugin()
+    })
+}
 </script>
 
 <style lang="scss">

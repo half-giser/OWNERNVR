@@ -33,7 +33,7 @@ export default defineComponent({
 
         const MAX_ZIP_FILE_LENGTH = 5000 // 一个压缩包最大图片文件数量
 
-        let websocket: WebsocketPlateLib | null = null
+        let websocket: ReturnType<typeof WebsocketPlateLib> | null = null
 
         const csvHeader = ['(B1)' + Translate('IDCS_LICENSE_PLATE_NUM'), '(B2)' + Translate('IDCS_VEHICLE_OWNER'), '(B3)' + Translate('IDCS_PHONE_NUMBER'), '(N1)' + Translate('IDCS_VEHICLE_TYPE')]
 
@@ -72,7 +72,7 @@ export default defineComponent({
             pageData.value.currentTask = 0
             pageData.value.totalTask = prop.total
 
-            websocket = new WebsocketPlateLib({
+            websocket = WebsocketPlateLib({
                 onsuccess(data) {
                     // 数据接收完毕, 执行导出
                     if (typeof data === 'number') {

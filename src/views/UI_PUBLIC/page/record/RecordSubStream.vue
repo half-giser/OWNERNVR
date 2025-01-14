@@ -61,7 +61,7 @@
                             v-else
                             v-model="tableData[scope.$index].videoEncodeType"
                             :disabled="tableData[scope.$index].disabled"
-                            :options="pageData.videoEncodeTypeList[tableData[scope.$index].index]"
+                            :options="tableData[scope.$index].videoEncodeTypeList"
                             @change="changeVideoEncodeType(tableData[scope.$index])"
                         />
                     </template>
@@ -138,7 +138,7 @@
                             v-else
                             v-model="tableData[scope.$index].resolution"
                             :disabled="tableData[scope.$index].disabled"
-                            :options="arrayToOptions(pageData.resolutionList[tableData[scope.$index].index])"
+                            :options="arrayToOptions(tableData[scope.$index].resolutionList)"
                             @change="changeResolution(tableData[scope.$index], tableData[scope.$index].resolution)"
                         />
                     </template>
@@ -177,7 +177,7 @@
                             v-else
                             v-model="tableData[scope.$index].frameRate"
                             :disabled="tableData[scope.$index].disabled"
-                            :options="arrayToOptions(pageData.frameRateList[tableData[scope.$index].index])"
+                            :options="arrayToOptions(tableData[scope.$index].frameRateList)"
                             @change="changeVideoEncodeType(tableData[scope.$index])"
                         />
                     </template>
@@ -208,14 +208,14 @@
                     </template>
                     <template #default="scope">
                         <!-- 在码率上限中不可修改情况下，有数据的行不可选项也要设置为-- -->
-                        <div v-if="RecordSubResAdaptive && pageData.isVideoQualityDisabled[tableData[scope.$index].index]">{{ '--' }}</div>
+                        <div v-if="RecordSubResAdaptive && tableData[scope.$index].isVideoQualityDisabled">{{ '--' }}</div>
                         <div v-else-if="RecordSubResAdaptive">{{ tableData[scope.$index].videoQuality ? `${tableData[scope.$index].videoQuality}Kbps` : '--' }}</div>
                         <div v-else-if="pageData.isRowNonExistent[tableData[scope.$index].index]?.videoQuality">{{ '--' }}</div>
                         <el-select-v2
                             v-else
                             v-model="tableData[scope.$index].videoQuality"
-                            :disabled="tableData[scope.$index].disabled || pageData.isVideoQualityDisabled[tableData[scope.$index].index]"
-                            :options="pageData.videoQualityItemList[tableData[scope.$index].index]"
+                            :disabled="tableData[scope.$index].disabled || tableData[scope.$index].isVideoQualityDisabled"
+                            :options="tableData[scope.$index].videoQualityItemList"
                         />
                     </template>
                 </el-table-column>

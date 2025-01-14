@@ -67,9 +67,10 @@
         border-bottom: solid 1px var(--content-border);
         border-right: solid 1px var(--content-border);
         margin: 0;
-        line-height: 28px;
-        height: 28px;
+        line-height: 30px;
+        height: 30px;
         background-color: var(--tabbar-bg);
+        padding: 0 15px;
 
         &:first-of-type {
             border-left: solid 1px var(--content-border);

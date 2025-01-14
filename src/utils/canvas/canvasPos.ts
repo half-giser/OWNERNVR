@@ -24,55 +24,52 @@ export interface CanvasPosOption {
     // onchange: () => void
 }
 
-export default class CanvasPos {
-    private readonly DEFAULT_TEXT_COLOR = '#ffffff' // 画线默认色值
-    private readonly ctx: CanvasBase
-    private readonly canvas: HTMLCanvasElement
-    private readonly cavWidth: number
-    private readonly cavHeight: number
-    private posList: CanvasPosItem[]
-    // private onchange: CanvasPosOption['onchange']
+export default function CanvasPos(options: CanvasPosOption) {
+    const DEFAULT_TEXT_COLOR = '#ffffff' // 画线默认色值
 
-    constructor({ el, posList }: CanvasPosOption) {
-        this.posList = posList || []
-        // this.onchange = onchange
-        this.ctx = new CanvasBase(el)
-        this.canvas = this.ctx.getCanvas()
-        this.cavWidth = this.canvas.width // 画布宽
-        this.cavHeight = this.canvas.height // 画布高
-    }
+    let posList = options.posList || []
+
+    const ctx = CanvasBase(options.el)
+    const canvas = ctx.getCanvas()
+    const cavWidth = canvas.width // 画布宽
+    const cavHeight = canvas.height // 画布高
 
     // 根据数据绘制区域
-    init() {
-        this.ctx.ClearRect(0, 0, this.cavWidth, this.cavHeight)
-        this.drawPos()
+    const init = () => {
+        ctx.ClearRect(0, 0, cavWidth, cavHeight)
+        drawPos()
     }
 
     // 绘制pos
-    drawPos() {
-        if (!(this.posList && this.posList.length)) return
-        for (let i = 0; i < this.posList.length; i++) {
-            const item = this.posList[i]
-            this.ctx.Text({
+    const drawPos = () => {
+        if (!posList.length) return
+        for (let i = 0; i < posList.length; i++) {
+            const item = posList[i]
+            ctx.Text({
                 text: item.text,
                 startX: 20,
                 startY: 20 + i * 23,
                 font: '18px Verdana',
                 strokeStyle: '#000',
-                fillStyle: item.RGB ? `rgb${item.RGB}` : this.DEFAULT_TEXT_COLOR,
+                fillStyle: item.RGB ? `rgb${item.RGB}` : DEFAULT_TEXT_COLOR,
             })
         }
     }
 
     // 设置posList
-    setPosList(posList: CanvasPosItem[]) {
-        this.posList = posList
-        this.init()
+    const setPosList = (list: CanvasPosItem[]) => {
+        posList = list
+        init()
     }
 
     // 清空区域
-    clear() {
-        this.posList = []
-        this.setPosList(this.posList)
+    const clear = () => {
+        posList = []
+        setPosList(posList)
+    }
+
+    return {
+        setPosList,
+        clear,
     }
 }

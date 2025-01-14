@@ -107,7 +107,6 @@
 
 <script lang="ts" setup>
 import dayjs from 'dayjs'
-import { type TVTPlayerWinDataListItem } from '@/utils/wasmPlayer/tvtPlayer'
 import { type XMLQuery } from '@/utils/xmlParse'
 
 const prop = defineProps<{
@@ -261,14 +260,14 @@ const play = () => {
         }
         const sendXML = OCX_XML_SearchRec(
             'RecPlay',
-            dayjs(current.value.startTime).calendar('gregory').format('YYYY-MM-DD HH:mm:ss'),
-            dayjs(current.value.endTime).calendar('gregory').format('YYYY-MM-DD HH:mm:ss'),
+            dayjs(current.value.startTime).calendar('gregory').format(DEFAULT_DATE_FORMAT),
+            dayjs(current.value.endTime).calendar('gregory').format(DEFAULT_DATE_FORMAT),
             [0],
             [current.value.chlId],
             [current.value.chlName],
             eventList,
-            localToUtc(current.value.startTime, 'YYYY-MM-DD HH:mm:ss'),
-            localToUtc(current.value.endTime, 'YYYY-MM-DD HH:mm:ss'),
+            localToUtc(current.value.startTime, DEFAULT_DATE_FORMAT),
+            localToUtc(current.value.endTime, DEFAULT_DATE_FORMAT),
         )
         playerRef.value!.plugin.ExecuteCmd(sendXML)
         seek(startTimeStamp.value)

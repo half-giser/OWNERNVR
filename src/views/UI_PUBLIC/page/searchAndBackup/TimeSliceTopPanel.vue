@@ -82,10 +82,6 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-
-    .base-btn-box {
-        margin-bottom: 10px;
-    }
 }
 
 .list {

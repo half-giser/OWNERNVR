@@ -43,8 +43,8 @@ export default defineComponent({
             } as Record<string, string>,
             txtBandwidth: '',
             recTime: '',
-            PredictVisible: false,
-            CalculateVisible: false,
+            isPredict: false,
+            isCalculate: false,
             initComplete: false,
             key: '',
         })
@@ -52,13 +52,13 @@ export default defineComponent({
         const open = () => {
             pageData.value.initComplete = false
             if (!props.autoModeId) return
-            const events = props.autoModeId!.split('_')
+            const events = props.autoModeId.split('_')
             pageData.value.mainTitle = events
                 .map((item) => {
                     return props.advanceRecModeMap[item].text
                 })
                 .join('+')
-            const intensiveIndex = props.autoModeId!.indexOf(REC_MODE_TYPE.INTENSIVE)
+            const intensiveIndex = props.autoModeId.indexOf(REC_MODE_TYPE.INTENSIVE)
             pageData.value.tabs.length = 0
             if (intensiveIndex > -1) {
                 events.splice(intensiveIndex, 1)
@@ -78,8 +78,8 @@ export default defineComponent({
             })
             pageData.value.currenMode = pageData.value.modeMapping[pageData.value.tabs[0].value]
             if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
-                pageData.value.PredictVisible = true
-                pageData.value.CalculateVisible = true
+                pageData.value.isPredict = true
+                pageData.value.isCalculate = true
             }
             pageData.value.initComplete = true
         }

@@ -292,7 +292,7 @@ export default defineComponent({
         useEventListener(document.body, 'mouseup', handleCanvasMouseUp, false)
 
         // pos绘制的Canvas
-        let posDrawer: CanvasPos
+        let posDrawer: ReturnType<typeof CanvasPos>
         /**
          * @description 视频插件ready回调
          */
@@ -304,7 +304,7 @@ export default defineComponent({
 
             if (playerRef.value?.mode === 'h5') {
                 const canvas = playerRef.value.player.getDrawbordCanvas(0)
-                posDrawer = new CanvasPos({
+                posDrawer = CanvasPos({
                     el: canvas,
                 })
             }

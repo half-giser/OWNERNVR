@@ -35,7 +35,7 @@
                         :index="0"
                         :hover-index="1"
                         :chunk="4"
-                        @click.stop="handleShowDetailInfo(scope.$index)"
+                        @click.stop="showDetailInfo(scope.$index)"
                     />
                 </template>
             </el-table-column>

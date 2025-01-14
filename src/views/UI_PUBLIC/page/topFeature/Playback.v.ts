@@ -15,7 +15,6 @@ import PlaybackBackUpPanel from '../playback/PlaybackBackUpPanel.vue'
 import PlaybackRecLogPanel from '../playback/PlaybackRecLogPanel.vue'
 import BackupPop from '../searchAndBackup/BackupPop.vue'
 import BackupLocalPop from '../searchAndBackup/BackupLocalPop.vue'
-import { type TVTPlayerWinDataListItem } from '@/utils/wasmPlayer/tvtPlayer'
 import dayjs from 'dayjs'
 import { type XMLQuery } from '@/utils/xmlParse'
 
@@ -240,8 +239,8 @@ export default defineComponent({
         const getRecSection = async (chlList: string[]) => {
             if (chlList.length) {
                 const year = dayjs().year()
-                const startTime = dayjs(`${year - 10}-01-01 00:00:00`, 'YYYY-MM-DD HH:mm:ss')
-                const endTime = dayjs(`${year + 10}-01-01 00:00:00`, 'YYYY-MM-DD HH:mm:ss')
+                const startTime = dayjs(`${year - 10}-01-01 00:00:00`, DEFAULT_DATE_FORMAT)
+                const endTime = dayjs(`${year + 10}-01-01 00:00:00`, DEFAULT_DATE_FORMAT)
                 const spaceTime = 60 * 60 * 24
                 const spaceNum = (endTime.valueOf() - startTime.valueOf()) / 1000 / spaceTime
                 const sendXml = rawXml`
@@ -468,9 +467,9 @@ export default defineComponent({
                     return timestamp >= record.startTime && timestamp <= record.endTime
                 })
                 if (flag) {
-                    player.screen.hideErrorTips(index[0])
+                    player.hideErrorTips(index[0])
                 } else {
-                    player.screen.showErrorTips('none', index[0])
+                    player.showErrorTips('none', index[0])
                 }
             })
         }
@@ -880,7 +879,7 @@ export default defineComponent({
             }
 
             if (mode.value === 'h5') {
-                player.zoomOut(player.getSelectedWinIndex())
+                player.zoomIn(player.getSelectedWinIndex())
             }
 
             if (mode.value === 'ocx') {
@@ -900,7 +899,7 @@ export default defineComponent({
             }
 
             if (mode.value === 'h5') {
-                player.zoomIn(player.getSelectedWinIndex())
+                player.zoomOut(player.getSelectedWinIndex())
             }
 
             if (mode.value === 'ocx') {
@@ -1404,9 +1403,9 @@ export default defineComponent({
                             chlId: item.chlId,
                             chlName: item.chlName,
                             event: record.event,
-                            startTime: dayjs(record.startTime).format('YYYY-MM-DD hh:mm:ss'),
-                            startTimeEx: formatDate(record.startTime, 'YYYY-MM-DD HH:mm:ss'),
-                            endTime: formatDate(record.endTime, 'YYYY-MM-DD HH:mm:ss'),
+                            startTime: dayjs(record.startTime).format(DEFAULT_DATE_FORMAT),
+                            startTimeEx: formatDate(record.startTime, DEFAULT_DATE_FORMAT),
+                            endTime: formatDate(record.endTime, DEFAULT_DATE_FORMAT),
                             endTimeEx: localToUtc(record.endTime),
                             duration: record.duration,
                         }

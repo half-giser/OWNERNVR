@@ -4,20 +4,14 @@
  * @Description: 越界
 -->
 <template>
-    <div class="tripwire_setting_pane">
+    <div>
         <div
-            v-if="pageData.notSupportTipShow"
-            class="base-ai-not-support-box"
-        >
-            {{ Translate('IDCS_CURRENT_INTEL_EVENT_UNSUPORT') }}
-        </div>
-        <div
-            v-if="pageData.requireDataFail"
+            v-if="pageData.reqFail"
             class="base-ai-not-support-box"
         >
             {{ Translate('IDCS_QUERY_DATA_FAIL') }}
         </div>
-        <div v-if="!pageData.notSupportTipShow && !pageData.requireDataFail">
+        <div v-if="pageData.tab">
             <!-- nvr/ipc检测开启及ai按钮 -->
             <div class="base-btn-box space-between padding collapse">
                 <el-checkbox
@@ -34,7 +28,7 @@
 
             <!-- 只存在一个播放器，因此放于tab区域外 -->
             <div
-                v-show="pageData.tripwireFunction !== 'tripwire_trigger'"
+                v-show="pageData.tab !== 'trigger'"
                 class="base-ai-param-box-left fixed"
             >
                 <div class="player">
@@ -44,7 +38,7 @@
                         @message="notify"
                     />
                 </div>
-                <div v-if="pageData.tripwireFunction === 'tripwire_param'">
+                <div v-if="pageData.tab === 'param'">
                     <div class="base-btn-box space-between">
                         <div>
                             <el-checkbox
@@ -70,14 +64,14 @@
             <div class="base-ai-form">
                 <!-- 三种功能 -->
                 <el-tabs
-                    v-model="pageData.tripwireFunction"
+                    v-model="pageData.tab"
                     class="base-ai-tabs"
                     @tab-change="changeTab"
                 >
                     <!-- 参数设置 -->
                     <el-tab-pane
                         :label="Translate('IDCS_PARAM_SETTING')"
-                        name="tripwire_param"
+                        name="param"
                         class="base-ai-param-box"
                     >
                         <div class="base-ai-param-box-left"></div>
@@ -91,7 +85,7 @@
                                 <!-- 排程 -->
                                 <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
                                     <el-select-v2
-                                        v-model="formData.tripwire_schedule"
+                                        v-model="formData.schedule"
                                         :options="pageData.scheduleList"
                                     />
                                     <el-button @click="pageData.isSchedulePop = true">
@@ -133,7 +127,7 @@
                                 </el-form-item>
                                 <!-- 只支持人的灵敏度 -->
                                 <el-form-item
-                                    v-if="formData.tripwire_onlyPreson"
+                                    v-if="formData.onlyPreson"
                                     :label="Translate('IDCS_SENSITIVITY')"
                                 >
                                     <el-slider
@@ -142,7 +136,7 @@
                                     />
                                 </el-form-item>
                                 <el-form-item
-                                    v-if="formData.tripwire_onlyPreson"
+                                    v-if="formData.onlyPreson"
                                     :label="Translate('IDCS_DETECTION_ONLY_ONE_OBJECT').formatForLang(Translate('IDCS_BEYOND_DETECTION'), Translate('IDCS_DETECTION_PERSON'))"
                                 />
                                 <!-- 云台 -->
@@ -172,9 +166,9 @@
                     </el-tab-pane>
                     <!-- 检测目标 -->
                     <el-tab-pane
-                        v-if="!formData.tripwire_onlyPreson"
+                        v-if="!formData.onlyPreson"
                         :label="Translate('IDCS_DETECTION_TARGET')"
-                        name="tripwire_target"
+                        name="target"
                         class="base-ai-param-box"
                     >
                         <div class="base-ai-param-box-left"></div>
@@ -241,9 +235,9 @@
                     <!-- 联动方式 -->
                     <el-tab-pane
                         :label="Translate('IDCS_LINKAGE_MODE')"
-                        name="tripwire_trigger"
+                        name="trigger"
                     >
-                        <div class="trigger_box">
+                        <div>
                             <el-form
                                 v-if="pageData.supportAlarmAudioConfig"
                                 :style="{

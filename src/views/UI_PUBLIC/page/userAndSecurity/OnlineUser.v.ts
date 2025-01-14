@@ -55,7 +55,7 @@ export default defineComponent({
          * @description 打开详情弹窗
          * @param {number} index
          */
-        const handleShowDetailInfo = (index: number) => {
+        const showDetailInfo = (index: number) => {
             pageData.value.detailIndex = index
             pageData.value.isDetail = true
         }
@@ -74,7 +74,7 @@ export default defineComponent({
         return {
             tableData,
             currentUser,
-            handleShowDetailInfo,
+            showDetailInfo,
             pageData,
         }
     },

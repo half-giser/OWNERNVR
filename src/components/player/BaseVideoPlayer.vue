@@ -174,14 +174,42 @@
 </template>
 
 <script lang="ts" setup>
-import VideoPlayer, { type TVTPlayerWinDataListItem, type TVTPlayerPosInfoItem } from '@/utils/wasmPlayer/tvtPlayer'
-import type WebGLPlayer from '@/utils/wasmPlayer/webglPlayer'
-import { type WasmPlayerVideoFrame } from '@/utils/wasmPlayer/wasmPlayer'
 import { type XMLQuery } from '@/utils/xmlParse'
+import WasmPlayer from '@/utils/wasmPlayer/wasmPlayer'
 
-const plugin = usePlugin()
+export interface PlayerWinDataListItem {
+    PLAY_STATUS: 'play' | 'stop' | 'error'
+    CHANNEL_INFO: null | {
+        chlID: string
+        supportPtz: boolean
+        chlName: string
+        streamType: number
+    }
+    winIndex: number
+    seeking: boolean
+    original: boolean // 原始比例(1：1)状态，true开启，false关闭
+    audio: boolean // 声音 true开启，false关闭
+    magnify3D: boolean // 3D放大 true开启，false关闭
+    localRecording: boolean // 是否开启本地录像 true开启，false关闭
+    isPolling: boolean // 是否开启通道组轮询播放
+    timestamp: number
+    showWatermark: boolean
+    showPos: boolean
+    position: number
+}
 
-const pluginStore = usePluginStore()
+export interface PlayerPosInfoItem {
+    previewDisplay: boolean // 现场预览是否显示pos
+    printMode: 'page' | 'scroll' // pos显示模式：page翻页/scroll滚屏
+    displayPosition: {
+        // pos显示区域
+        x: number
+        y: number
+        width: number
+        height: number
+    }
+    timeout: number // pos超时隐藏时间，默认10秒
+}
 
 const prop = withDefaults(
     defineProps<{
@@ -227,36 +255,36 @@ const emits = defineEmits<{
     /**
      * @description 播放器初始化成功后执行
      */
-    (e: 'success', winIndex: number, item: TVTPlayerWinDataListItem): void
+    (e: 'success', winIndex: number, item: PlayerWinDataListItem): void
     /**
      * @description
      */
-    (e: 'playStatus', items: TVTPlayerWinDataListItem[]): void
+    (e: 'playStatus', items: PlayerWinDataListItem[]): void
     /**
      * @description
      */
-    (e: 'time', winIndex: number, item: TVTPlayerWinDataListItem, showTimestamp: number): void
+    (e: 'time', winIndex: number, item: PlayerWinDataListItem, showTimestamp: number): void
     /**
      * @description
      */
-    (e: 'stop', winIndex: number, item: TVTPlayerWinDataListItem): void
+    (e: 'stop', winIndex: number, item: PlayerWinDataListItem): void
     /**
      * @description
      */
-    (e: 'playComplete', winIndex: number, item: TVTPlayerWinDataListItem): void
+    (e: 'playComplete', winIndex: number, item: PlayerWinDataListItem): void
     /**
      * @description
      */
-    (e: 'recordFile', recordBuf: ArrayBuffer, item: TVTPlayerWinDataListItem, recordStartTime: number): void
+    (e: 'recordFile', recordBuf: ArrayBuffer, item: PlayerWinDataListItem, recordStartTime: number): void
     // onpos: () => void
     /**
      * @description 失败回调
      */
-    (e: 'error', winIndex: number, item: TVTPlayerWinDataListItem, reason?: string): void
+    (e: 'error', winIndex: number, item: PlayerWinDataListItem, reason?: string): void
     /**
      * @description 选中视窗后回调
      */
-    (e: 'select', winIndex: number, item: TVTPlayerWinDataListItem): void
+    (e: 'select', winIndex: number, item: PlayerWinDataListItem): void
     /**
      * @description 视窗位置交换后回调
      */
@@ -275,8 +303,13 @@ const emits = defineEmits<{
     (e: 'destroy'): void
 }>()
 
-const $screen = ref<HTMLDivElement>()
+const plugin = usePlugin()
+const systemCaps = useCababilityStore()
+const pluginStore = usePluginStore()
+const { openNotify } = useNotification()
 const { Translate } = useLangStore()
+
+const $screen = ref<HTMLDivElement>()
 
 const MAUNUAL_CHLIDREN = ['manual']
 const REC_CHLIDREN = ['sensor', 'gsensor']
@@ -288,7 +321,7 @@ const SCHEDULE_CHLIDREN = ['schedule']
 /**
  * @const 回放事件和对应图标展示映射(图标顺序按优先级从高到低排列)
  */
-const REC_EVENT_ICON_MAP: { icon: string; events: string[] }[] = [
+const REC_EVENT_ICON_MAP: readonly { icon: string; events: string[] }[] = [
     { icon: 'rec_manual', events: MAUNUAL_CHLIDREN },
     { icon: 'rec', events: REC_CHLIDREN },
     {
@@ -299,6 +332,16 @@ const REC_EVENT_ICON_MAP: { icon: string; events: string[] }[] = [
     { icon: 'rec_pos', events: POS_CHLIDREN },
     { icon: 'rec_schedule', events: SCHEDULE_CHLIDREN },
 ]
+
+const ERROR_CODE_MAP: Record<number, string> = {
+    [ErrorCode.USER_ERROR_FILE_STREAM_COMPLETED]: 'playComplete', // 文件流完成(回放结束时出现)
+    [ErrorCode.USER_ERROR_NO_RECORDDATA]: 'noRecord', // 无录像数据
+    [ErrorCode.USER_ERROR_DEVICE_BUSY]: 'deviceBusy', // 设备忙，不能请求
+    [ErrorCode.USER_ERROR_DEV_RESOURCE_LIMITED]: 'deviceBusy', // 设备忙，设备资源限制
+    [ErrorCode.USER_ERROR_NODE_NET_DISCONNECT]: 'offline', // 网络断开，通道离线
+    [ErrorCode.USER_ERROR_NODE_NET_OFFLINE]: 'offline', // 通道不在线
+    [ErrorCode.USER_ERROR_NO_AUTH]: 'noPermission', // 无权限
+}
 
 /**
  * @var 正在报警的AI类型
@@ -312,6 +355,25 @@ let isMouseInScreen = false // 鼠标是否悬浮在视频框
 let is3DControl = false // 是否正在执行3D移动
 let isHoldDownMouse = false // 是否处于鼠标按住左键或右键且不滑动状态（使用3D功能放大、缩小）
 let downMouseTimer: NodeJS.Timeout | 0 = 0 // 鼠标按住左键或右键不滑动定时器
+
+let showTimestamp = 0
+const playerList: (ReturnType<typeof WasmPlayer> | null)[] = []
+const winDataList: PlayerWinDataListItem[] = []
+const recordStartTime: number[] = []
+const enablePos = prop.enablePos && systemCaps.supportPOS
+let seeking = false
+let speed = 1
+let timeGapMap: Record<number, number> = {}
+
+// 通道id和录像状态的映射,录像状态包含属性见 setRecordStatus 方法
+const recordStatusChlMap: Record<string, { recordTypes: string[]; isRecording: boolean }> = {}
+// 通道id和报警状态的映射,录像状态包含属性见 setAlarmStatus 方法
+const alarmStatusChlMap: Record<string, Record<string, boolean>> = {}
+// 特殊处理问题单 NVRUSS78-252
+let noRecordFlag = true
+let posInfo: Record<string, PlayerPosInfoItem> = {}
+// 通道GUID和通道ip的映射
+let chlIpMap: Record<string, string> = {}
 
 const pollIndex: number[] = [] // 通道组 轮询 的窗口集
 
@@ -416,7 +478,7 @@ const handleMouseDown = (e: MouseEvent, winIndex: number) => {
                     downMouseTimer = 0
                     return
                 }
-                player.screen.setZoom(winIndex, mouseType === 'right' ? 'ZoomIn' : 'ZoomOut', 1, 'control')
+                setZoom(winIndex, mouseType === 'right' ? 'ZoomIn' : 'ZoomOut', 1, 'control')
             }, 100)
         }, 1000)
         is3DControl = true // 画矩形 3D放大、缩小
@@ -442,7 +504,7 @@ const handleMouseDown = (e: MouseEvent, winIndex: number) => {
 
         // 鼠标松开
         const handle3DControlMouseUp = () => {
-            player.screen.setZoom(winIndex, 'StopAction', 1, 'stop')
+            setZoom(winIndex, 'StopAction', 1, 'stop')
             isHoldDownMouse = false
             document.removeEventListener('mousemove', handle3DControlMouseMove)
             document.removeEventListener('mouseup', handle3DControlMouseUp)
@@ -462,7 +524,7 @@ const handleMouseDown = (e: MouseEvent, winIndex: number) => {
                 height: Math.floor(Math.abs(rectHeight)),
             }
             const location = get3DParam(winIndex, rect)
-            player.screen.setMagnify3D(
+            setMagnify3D(
                 winIndex,
                 '',
                 () => {
@@ -479,7 +541,7 @@ const handleMouseDown = (e: MouseEvent, winIndex: number) => {
     } else {
         if (selectedWinIndex.value !== winIndex) {
             selectedWinIndex.value = winIndex
-            player.screen.onselect && player.screen.onselect(winIndex)
+            emits('select', winIndex, winDataList[winIndex])
         }
 
         if (pageData.value[winIndex].zoomIndex === 0) {
@@ -494,14 +556,14 @@ const handleMouseDown = (e: MouseEvent, winIndex: number) => {
         const mouseDownY = e.screenY
 
         const handleScreenDragMouseMove = (e: MouseEvent) => {
-            const webglData = player.screen.getZoomCallback(winIndex)
+            const webglData = getZoomCallback(winIndex)
             const offsetX = e.screenX - mouseDownX
             const offsetY = e.screenY - mouseDownY
             const newLeft = (webglData.left | 0) + offsetX
             const newBottom = (webglData.bottom | 0) - offsetY
             if (throttleTimer) return false
             throttleTimer = setTimeout(() => {
-                player.screen.setZoomCallback(winIndex, newLeft, newBottom, webglData.viewWidth, webglData.viewHeight)
+                setZoomCallback(winIndex, newLeft, newBottom, webglData.viewWidth, webglData.viewHeight)
                 fixPlayCavPosition(winIndex)
                 throttleTimer = 0
             }, 100)
@@ -557,7 +619,7 @@ const handleMouseWheel = (e: Event) => {
     const wheel = (e as any).originalEvent.wheelDelta || -(e as any).originalEvent.detail // IE、chrome监听wheelDelta, 火狐监听detail
     const delta = Math.max(-1, Math.min(1, wheel))
     const zoom3DType = delta < 0 ? 'zoom3DIn' : 'zoom3DOut' // 缩小 放大
-    player.screen.setMagnify3D(
+    setMagnify3D(
         winIndex,
         zoom3DType,
         () => {
@@ -588,7 +650,7 @@ const handleDoubleClick = (e: MouseEvent, winIndex: number) => {
             height: 0,
         }
         const location = get3DParam(winIndex, rect)
-        player.screen.setMagnify3D(
+        setMagnify3D(
             winIndex,
             '',
             () => {
@@ -605,7 +667,7 @@ const handleDoubleClick = (e: MouseEvent, winIndex: number) => {
         dblclickToFull.value = false
         // splitValue.value = prop.split
         // setSplit(splitValue.value, true)
-        player.screen.ondblclickchange && player.screen.ondblclickchange(-1, -1)
+        handleDblClickChange(-1, -1)
     }
     // 双击的分屏单分屏显示
     else if (splitValue.value > 1) {
@@ -613,8 +675,17 @@ const handleDoubleClick = (e: MouseEvent, winIndex: number) => {
         dblclickToFull.value = true
         // splitValue.value = 1
         // setSplit(splitValue.value, true)
-        player.screen.ondblclickchange && player.screen.ondblclickchange(fullTarget.value, pageData.value[fullTarget.value].position)
+        handleDblClickChange(fullTarget.value, pageData.value[fullTarget.value].position)
     }
+}
+
+const handleDblClickChange = (winIndex: number, newSplit: number) => {
+    // 保持所有分屏的显示状态
+    for (let i = 0; i < MAX_SPLIT; i++) {
+        const original = winDataList[i].original
+        displayOriginal(i, original)
+    }
+    emits('dblclickchange', winIndex, newSplit)
 }
 
 let isDrag = false
@@ -655,33 +726,12 @@ const handleDrop = (newWinIndex: number) => {
     pageData.value[oldDragIndex].position = newIndexPosition
     pageData.value[newWinIndex].position = oldIndexPosition
 
-    // 测试时效果没问题
-    // 元素互换位置由逻辑/DOM结构上互换，变更为仅UI坐标互换，逻辑排序不变
+    winDataList[oldDragIndex].position = newIndexPosition
+    winDataList[newWinIndex].position = oldIndexPosition
 
-    // 元素互换位置
-    // var $oldTemp = $('<span></span>')
-    // var $newTemp = $('<span></span>')
-    // var $old = $('.screen-item__wrap', self.$el).eq(oldWinIndex)
-    // var $new = $('.screen-item__wrap', self.$el).eq(newWinIndex)
-    // $old.before($oldTemp)
-    // $new.before($newTemp)
-    // $old.attr("winindex", newWinIndex);
-    // $new.attr("winindex", oldWinIndex);
-    // $old.find('.play-video-cav').attr('id', '__PlayVideoCav__' + newWinIndex)
-    // $new.find('.play-video-cav').attr('id', '__PlayVideoCav__' + oldWinIndex)
-    // $old.find('.video-draw-board-cav').attr('id', '__VideoDrawBoardCav__' + newWinIndex)
-    // $new.find('.video-draw-board-cav').attr('id', '__VideoDrawBoardCav__' + oldWinIndex)
-    // $oldTemp.replaceWith($new)
-    // $newTemp.replaceWith($old)
-
-    // zoomIndexMap互换数据
-    // const oldIndexZoom = zoomIndexMap[oldWinIndex]
-    // const newIndexZoom = zoomIndexMap[newWinIndex]
-    // zoomIndexMap[oldWinIndex] = newIndexZoom
-    // zoomIndexMap[newWinIndex] = oldIndexZoom
-    player.exchangWin(oldDragIndex, newIndexPosition, newWinIndex, oldIndexPosition)
     nextTick(() => {
-        player.screen.onwinexchange(oldDragIndex, newWinIndex)
+        emits('select', newWinIndex, winDataList[newWinIndex])
+        emits('winexchange', oldDragIndex, newWinIndex)
     })
 }
 
@@ -690,8 +740,6 @@ const handleDrop = (newWinIndex: number) => {
  */
 const selectWin = (winIndex: number) => {
     selectedWinIndex.value = winIndex
-    // $screen.value[children].
-    // winIndex.mousedown().mouseup()
 }
 
 /**
@@ -708,17 +756,6 @@ const getWinIndexByPosition = (positionIndex: number) => {
  * @description 设置分屏元素宽高
  */
 const setItemSize = () => {
-    // 这里改为CSS设置，测试似乎没问题
-    // var row = Math.sqrt(this.split)
-    // var precent = row / this.split
-    // 取真实的border宽度(如缩放浏览器后, 即使设置border为1px, 最小宽度仍是1.111px)
-    // 火狐不支持border-width, 这里取border-left-width做兼容
-    // var borderWith = Math.ceil($('.screen-item__wrap', this.$el).css('border-left-width').replace(/[a-z]/g, '') * 2)
-    // var width = precent * this.elWidth - row * borderWith * precent
-    // var height = precent * this.elHeight - row * borderWith * precent
-    // $('.screen-item__wrap, .overlay-osd-wrap, .play-video-wrap', this.$el).width(width).height(height)
-    // $('.play-video-cav, .video-draw-board-cav', this.$el).attr('width', width).attr('height', height)
-
     for (let i = 0; i < MAX_SPLIT; i++) {
         setPlayCavItemSize(i)
         fixPlayCavPosition(i)
@@ -746,10 +783,10 @@ const setPlayCavItemSize = (winIndex: number) => {
     drawCav.style.width = width + 'px'
     drawCav.style.height = height + 'px'
 
-    if (!player.screen.getZoomCallback || !player.screen.getZoomCallback(winIndex)) return
+    if (!getZoomCallback(winIndex)) return
     const zoom = zoomList[pageData.value[winIndex].zoomIndex]
-    const webglData = player.screen.getZoomCallback(winIndex)
-    player.screen.setZoomCallback(winIndex, webglData.left, webglData.bottom, width * zoom, height * zoom)
+    const webglData = getZoomCallback(winIndex)
+    setZoomCallback(winIndex, webglData.left, webglData.bottom, width * zoom, height * zoom)
     fixPlayCavPosition(winIndex)
 }
 
@@ -765,7 +802,7 @@ const setSplit = (split: number) => {
         // 如果不是双击事件调用，则去掉双击事件绑定的类名
         dblclickToFull.value = false
         fullTarget.value = -1
-        player.screen.ondblclickchange && player.screen.ondblclickchange(-1, -1)
+        handleDblClickChange(-1, -1)
     }
 
     if (split > 1) {
@@ -857,28 +894,6 @@ const getOverlayCanvas = (winIndex: number) => {
 }
 
 /**
- * @description 抓图
- * @param {WasmPlayerVideoFrame} frame 当前视频帧
- * @param {WebGLPlayer} player webgl播放器
- * @param {string} fileName 文件名
- */
-const snap = (frame: WasmPlayerVideoFrame, player: typeof WebGLPlayer, fileName: string) => {
-    const canvas = document.createElement('canvas')
-    canvas.width = frame.width
-    canvas.height = frame.height
-    const webglPlayer = new player(canvas, {
-        preserveDrawingBuffer: false,
-    })
-    const buffer = new Uint8Array(frame.buffer)
-    const videoBuffer = buffer.slice(0, frame.yuvLen)
-    const yLength = frame.width * frame.height
-    const uvLength = (frame.width / 2) * (frame.height / 2)
-    webglPlayer.renderFrame(videoBuffer, frame.width, frame.height, yLength, uvLength)
-    const dataURL = canvas.toDataURL('image/bmp', 1)
-    downloadFromBase64(dataURL, fileName + '.bmp')
-}
-
-/**
  * @description 根据倍数值放大
  * @param {number} winIndex
  * @param {number} zoomValue 放大值
@@ -897,7 +912,7 @@ const zoom = (winIndex: number, zoomValue: number) => {
  * @description 画面放大
  * @param {number} winIndex
  */
-const zoomOut = (winIndex: number) => {
+const zoomIn = (winIndex: number) => {
     const zoomIndex = pageData.value[winIndex].zoomIndex
     if (zoomIndex === zoomList.length - 1) return
     const zoomBefore = zoomList[pageData.value[winIndex].zoomIndex]
@@ -911,7 +926,7 @@ const zoomOut = (winIndex: number) => {
  * @description 画面缩小
  * @param {number} winIndex
  */
-const zoomIn = (winIndex: number) => {
+const zoomOut = (winIndex: number) => {
     const zoomIndex = pageData.value[winIndex].zoomIndex
     if (zoomIndex === 0) return
     const zoomBefore = zoomList[pageData.value[winIndex].zoomIndex]
@@ -930,6 +945,7 @@ const zoom3D = (winIndex: number, status: boolean) => {
     pageData.value[winIndex].isZoom3D = status
     // 开启3D功能的窗口不能拖拽
     pageData.value[winIndex].draggable = !status
+    winDataList[winIndex].magnify3D = status
 }
 
 /**
@@ -947,8 +963,8 @@ const setZoomIcon = (winIndex: number, zoom: number) => {
  * @param {number} winIndex
  */
 const fixPlayCavPosition = (winIndex: number) => {
-    if (!player.screen.getZoomCallback || !player.screen.getZoomCallback(winIndex)) return
-    const bounding = player.screen.getZoomCallback(winIndex)
+    if (!getZoomCallback(winIndex)) return
+    const bounding = getZoomCallback(winIndex)
     let newLeft = bounding.left
     let newBottom = bounding.bottom
     const webglWidth = bounding.viewWidth
@@ -969,7 +985,7 @@ const fixPlayCavPosition = (winIndex: number) => {
     } else if (innerHeight >= webglHeight) {
         newBottom = height - webglHeight
     }
-    player.screen.setZoomCallback(winIndex, newLeft, newBottom, webglWidth, webglHeight)
+    setZoomCallback(winIndex, newLeft, newBottom, webglWidth, webglHeight)
 }
 
 /**
@@ -980,7 +996,7 @@ const fixPlayCavPosition = (winIndex: number) => {
 const setPlayCavPosition = (winIndex: number, zoomTimes: number) => {
     const $playWrap = getVideoWrapDiv(winIndex)
     const { width, height } = $playWrap.getBoundingClientRect()
-    const webglData = player.screen.getZoomCallback(winIndex)
+    const webglData = getZoomCallback(winIndex)
     const x = (width / 2 - webglData.left) | 0
     const y = (height / 2 - webglData.bottom) | 0
     let newLeft = width / 2 - zoomTimes * x
@@ -990,7 +1006,7 @@ const setPlayCavPosition = (winIndex: number, zoomTimes: number) => {
         newLeft = 0
         newBottom = 0
     }
-    player.screen.setZoomCallback(winIndex, newLeft, newBottom, width * zoom, height * zoom)
+    setZoomCallback(winIndex, newLeft, newBottom, width * zoom, height * zoom)
     fixPlayCavPosition(winIndex)
 }
 
@@ -1069,7 +1085,7 @@ const toggleAlarmStatus = (winIndex: number, alarmType: string, bool: boolean) =
 }
 
 /**
- * 设置录像状态可见性(优先级大于toggleRecordStatus)
+ * @description 设置录像状态可见性(优先级大于toggleRecordStatus)
  * @param {number} winIndex
  * @param {boolean} bool
  */
@@ -1172,7 +1188,7 @@ const fullscreen = () => {
 
     // safari全屏时不触发window.onresize事件，需要手动执行
     setTimeout(() => {
-        player.resize()
+        resizePlayer()
     }, 200)
 }
 
@@ -1198,7 +1214,11 @@ const destroy = () => {
     for (const i in posTimeoutTimer) {
         clearPosTimeout(Number(i))
     }
-    player.destroy()
+
+    for (let i = 0; i < playerList.length; i++) {
+        stop(i)
+    }
+    posInfo = {}
 }
 
 /**
@@ -1215,9 +1235,9 @@ const hideErrorTips = (winIndex: number) => {
  * @description 根据播放时的错误码显示相应提示
  * @param {string} type
  * @param {number} winIndex
- * @param {TVTPlayerWinDataListItem} winData
+ * @param {PlayerWinDataListItem} winData
  */
-const showErrorTips = (type: string, winIndex: number, winData?: TVTPlayerWinDataListItem) => {
+const showErrorTips = (type: string, winIndex: number, winData?: PlayerWinDataListItem) => {
     if (!type) return
     if (type === 'none') {
         if (!pageData.value[winIndex].isErrorTips) {
@@ -1313,11 +1333,11 @@ const setPosWrapSize = (winIndex: number) => {
  *      ------------- --- ------------- ---------------- -----
  *         pos内容   换行符    pos内容       颜色信息    终止符
  * @param {number} posLength pos长度
- * @param {TVTPlayerPosInfoItem} cfg previewDisplay
+ * @param {PlayerPosInfoItem} cfg previewDisplay
  * @param {number} winIndex
  * @param {string} chlId
  */
-const drawPos = (posFrame: Uint8Array, posLength: number, cfg: TVTPlayerPosInfoItem, winIndex: number, chlId: string) => {
+const drawPos = (posFrame: Uint8Array, posLength: number, cfg: PlayerPosInfoItem, winIndex: number, chlId: string) => {
     const printMode = cfg.printMode
     pageData.value[winIndex].displayPosition = cfg.displayPosition
 
@@ -1393,12 +1413,6 @@ const drawPos = (posFrame: Uint8Array, posLength: number, cfg: TVTPlayerPosInfoI
             color: (posItem.match(rgbReg) && posItem.match(rgbReg)![1]) || '#FFFFFF',
         })
     })
-
-    // if ($posList.height() > $posWrap.height()) {
-    //     $posWrap.css('justify-content', 'flex-end')
-    // } else {
-    //     $posWrap.css('justify-content', 'flex-start')
-    // }
 }
 
 /**
@@ -1558,67 +1572,957 @@ const resetZoom3D = (index: number) => {
     is3DControl = false
 }
 
+/**
+ * @description
+ * @param {number} winIndex
+ */
+const getZoomCallback = (winIndex: number) => {
+    return (
+        playerList[winIndex]?.getWebGL() || {
+            left: 0,
+            bottom: 0,
+            viewWidth: 0,
+            viewHeight: 0,
+        }
+    )
+}
+
+/**
+ * @description
+ * @param {number} winIndex
+ * @param {number} left
+ * @param {number} bottom
+ * @param {number} width
+ * @param {number} height
+ */
+const setZoomCallback = (winIndex: number, left: number, bottom: number, width: number, height: number) => {
+    playerList[winIndex]?.setWebGL(left, bottom, width, height)
+}
+
+// 设置3D功能
+const setMagnify3D = (winIndex: number, zoom3DType: string, callback: () => void, obj: { dx: number; dy: number; zoom: number } | false) => {
+    if (playerList[winIndex]) {
+        const data = {
+            chlId: winDataList[winIndex].CHANNEL_INFO!.chlID,
+            dx: obj ? obj.dx : 0,
+            dy: obj ? obj.dy : 0,
+            zoom: zoom3DType ? (zoom3DType === 'zoom3DIn' ? -20 : 20) : obj ? obj.zoom : 1,
+        }
+        const sendXML = rawXml`
+            <content>
+                <chlId>${data.chlId}</chlId>
+                <dx>${String(data.dx)}</dx>
+                <dy>${String(data.dy)}</dy>
+                <zoom>${String(data.zoom)}</zoom>
+            </content>
+        `
+        ptz3DControl(sendXML)
+            .then(() => {
+                callback && callback()
+            })
+            .catch(() => {
+                callback && callback()
+            })
+    }
+}
+
+/**
+ * @description 设置缩放功能（3D球机和非球机统一使用ptzMoveCall协议控制缩放）
+ * @param {number} winIndex
+ * @param {string} actionType
+ * @param {number} speed
+ * @param {string} type
+ */
+const setZoom = (winIndex: number, actionType: 'ZoomIn' | 'ZoomOut' | 'StopAction', speed = 1, type: 'control' | 'direction' | 'activeStop' | 'stop') => {
+    if (playerList[winIndex]) {
+        const opt = {
+            chlId: winDataList[winIndex].CHANNEL_INFO!.chlID,
+            actionType, // ZoomIn, ZoomOut, StopAction
+            speed, // 默认 1
+            type, // control, direction, activeStop, stop
+        }
+        const sendXML = rawXml`
+            <content>
+                <chlId>${opt.chlId}</chlId>
+                <actionType>${opt.actionType}</actionType>
+                <speed>${String(opt.speed)}</speed>
+                <type>${opt.type}</type>
+            </content>
+        `
+        ptzMoveCall(sendXML)
+    }
+}
+
+/**
+ * @description 初始化数据
+ */
 const createVideoPlayer = () => {
-    return new VideoPlayer({
+    for (let i = 0; i < MAX_SPLIT; i++) {
+        playerList.push(null)
+        winDataList.push({
+            PLAY_STATUS: 'stop',
+            CHANNEL_INFO: null,
+            winIndex: i,
+            seeking: false,
+            original: false,
+            audio: false,
+            magnify3D: false,
+            localRecording: false,
+            isPolling: false,
+            timestamp: 0,
+            showWatermark: false,
+            showPos: false,
+            position: getWinIndexByPosition(i),
+        })
+    }
+
+    if (enablePos) {
+        getPosCfg()
+    }
+}
+
+interface PlayerPlayParams {
+    winIndex?: number // 窗口索引, 不传则默认为激活窗口索引
+    isSelect?: boolean // 播放之后焦点是否落在窗口索引位置
+    showWatermark?: boolean // 是否显示水印
+    callback?: (winIndex: number) => void // 播放完成(成功或失败)之后的自定义回调
+    audioStatus?: boolean // 播放时设置音频开关状态（默认是继承上次音频状态，预览切换通道时需置为关）
+    showPos?: boolean // 是否显示Pos
+    isDblClickSplit?: boolean
+    isOnline?: boolean // 如果调用方明确传入通道离线状态，则根据此字段显示离线提示，否则显示“正在请求视频流”
+    volume?: number
+    chlID: string
+    isPolling?: boolean // 是否开启通道组轮询播放
+    supportPtz?: boolean
+    chlName?: string
+    streamType: number
+    startTime?: number // 时间戳 单位：秒
+    endTime?: number // 时间戳 单位：秒
+    typeMask?: string[]
+    isPlayback?: boolean
+    isEndRec?: boolean
+}
+
+/**
+ * @description 播放
+ * @param {Object} params 具体字段参考wasm-player的play方法
+ *      @property {Number} winIndex 窗口索引, 不传则默认为激活窗口索引
+ *      @property {Boolean} isSelect 播放之后焦点是否落在窗口索引位置
+ *      @property {Boolean} showWatermark 是否显示水印
+ *      @property {Boolean} callback 播放完成(成功或失败)之后的自定义回调
+ *      @property {Boolean} audioStatus 播放时设置音频开关状态（默认是继承上次音频状态，预览切换通道时需置为关）
+ *      @property {Boolean} showPos 是否显示Pos
+ */
+const play = (params: PlayerPlayParams) => {
+    noRecordFlag = true
+    // https访问时，拦截并根据业务类型弹出提示
+    if (isHttpsLogin()) {
+        handleHttpsPlay()
+        return
+    }
+    const winIndex = getWinIndexByPosition(params.winIndex || params.winIndex === 0 ? params.winIndex : selectedWinIndex.value)
+    const isDblClickSplit = params.isDblClickSplit || false
+    stop(winIndex)
+    const videoCav = getVideoCanvas(winIndex)
+    const curSplit = getSplit()
+    if (!isDblClickSplit && curSplit < winIndex + 1) {
+        setSplit(MAX_SPLIT)
+    }
+    // 先隐藏视频丢失logo
+    toggleVideoLossLogo(winIndex, false)
+    const isOnline = typeof params.isOnline === 'undefined' ? true : params.isOnline
+    if (!isOnline) {
+        showErrorTips('offline', winIndex, winDataList[winIndex])
+    } else {
+        showErrorTips('streamOpening', winIndex, winDataList[winIndex])
+    }
+    playerList[winIndex] = WasmPlayer({
+        canvas: videoCav,
         type: prop.type,
-        split: prop.split,
-        enablePos: prop.enablePos,
-        showVideoLoss: prop.showVideoLoss,
-        onsuccess: (winIndex, item) => emits('success', winIndex, item),
-        onplayStatus: (items) => emits('playStatus', items),
-        ontime: (winIndex, item, showTimestamp) => emits('time', winIndex, item, showTimestamp),
-        onstop: (winIndex, item) => emits('stop', winIndex, item),
-        onplayComplete: (winIndex, item) => emits('playComplete', winIndex, item),
-        onrecordFile: (recordBuf, item, recordStartTime) => emits('recordFile', recordBuf, item, recordStartTime),
-        // onpos: () => void
-        onerror: (winIndex, item, reason) => emits('error', winIndex, item, reason),
-        onselect: (winIndex, item) => emits('select', winIndex, item),
-        onwinexchange: (oldWinIndex, newWinIndex) => emits('winexchange', oldWinIndex, newWinIndex),
-        ondblclickchange: (winIndex, newSplit) => emits('dblclickchange', winIndex, newSplit),
-        screen: {
-            getVideoCanvas,
-            getWinIndexByPosition,
-            toggleVideoLossLogo,
-            showErrorTips,
-            setPosBaseSize,
-            toggleAudioIcon,
-            togglePtzIcon,
-            zoom,
-            setWatermark,
-            toggleWatermark,
-            togglePos,
-            clearPos,
-            toggleAlarmOsdVisible,
-            toggleRecordOsdVisible,
-            toggleChlIp,
-            hideErrorTips,
-            setSplit,
-            snap,
-            getSplit,
-            setVideoDivSize,
-            resetVideoDivSize,
-            zoomOut,
-            zoom3D,
-            toggleOSD,
-            toggleRecordStatus,
-            toggleAlarmStatus,
-            zoomIn,
-            getItemSize,
-            setPollIndex,
-            // setSize,
-            fullscreen,
-            resize,
-            getOverlayCanvas,
-            drawPos,
-            setIpToScreen,
-            resetZoom3D,
-            selectWin,
+        volume: params.volume || 50,
+        onopen: () => {},
+        onsuccess: () => {
+            const winIndex = getWinIndexByCav(videoCav)
+            if (params.audioStatus) winDataList[winIndex].audio = Boolean(params.audioStatus)
+            handlePlaySuccess(winIndex)
         },
+        onstop: () => {
+            const winIndex = getWinIndexByCav(videoCav)
+            winDataList[winIndex].PLAY_STATUS = 'stop'
+            winDataList[winIndex].seeking = false
+            // this.winDataList[winIndex].audio = false  // NVR145-178 音频不重置
+            winDataList[winIndex].magnify3D = false
+            winDataList[winIndex].timestamp = 0
+            toggleAudioIcon(winIndex, false)
+            togglePtzIcon(winIndex, false)
+            zoom(winIndex, 1)
+            // 关闭并清除水印
+            setWatermark(winIndex, '')
+            toggleWatermark(winIndex, false)
+            // 清除pos
+            togglePos(winIndex, false)
+            clearPos(winIndex)
+            // 关闭报警事件图标
+            toggleAlarmOsdVisible(winIndex, false, 'hideAll')
+            // 关闭录像状态图标
+            toggleRecordOsdVisible(winIndex, false)
+            // 显示视频丢失logo
+            toggleVideoLossLogo(winIndex, true)
+            // 关闭通道ip信息
+            toggleChlIp(winIndex, false)
+            // 窗口停止播放时如果打开了原始比例按钮需要重置，否则切换通道时显示的还是上次设置的原始比例
+            winDataList[winIndex].original && displayOriginal(winIndex, false)
+            emits('stop', winIndex, winDataList[winIndex])
+            emits('playStatus', getPlayingChlList())
+        },
+        onfinished: () => {
+            const winIndex = getWinIndexByCav(videoCav)
+            if (params.callback) params.callback(winIndex)
+        },
+        onerror: (errorCode?: number, url?: string) => {
+            const winIndex = getWinIndexByCav(videoCav)
+            handlePlayError(winIndex, errorCode, url)
+            winDataList[winIndex].PLAY_STATUS = 'error'
+            emits('error', winIndex, winDataList[winIndex])
+            emits('playStatus', getPlayingChlList())
+        },
+        ontime: (timestamp: number) => {
+            noRecordFlag = false
+            const winIndex = getWinIndexByCav(videoCav)
+            handleOntime(winIndex, timestamp)
+            if (winDataList[winIndex].PLAY_STATUS === 'error') {
+                hideErrorTips(winIndex)
+                toggleVideoLossLogo(winIndex, false)
+                winDataList[winIndex].PLAY_STATUS = 'play'
+                emits('playStatus', getPlayingChlList())
+            }
+        },
+        onwatermark: (watermark: string) => {
+            const winIndex = getWinIndexByCav(videoCav)
+            setWatermark(winIndex, watermark)
+        },
+        onrecordFile: (recordBuf: ArrayBuffer) => {
+            const winIndex = getWinIndexByCav(videoCav)
+            emits('recordFile', recordBuf, winDataList[winIndex], recordStartTime[winIndex])
+        },
+        onpos: (posFrame: Uint8Array, posLength) => {
+            if (!enablePos) return
+            const winIndex = getWinIndexByCav(videoCav)
+            handlePos(posFrame, posLength, params.chlID, winIndex)
+        },
+    })
+    playerList[winIndex]?.play(params)
+    resetZoom3D(winIndex)
+    winDataList[winIndex].CHANNEL_INFO = {
+        chlID: params.chlID,
+        supportPtz: params.supportPtz || false,
+        chlName: params.chlName || '',
+        streamType: params.streamType || 2,
+    }
+    winDataList[winIndex].original = false
+    winDataList[winIndex].localRecording = false
+    winDataList[winIndex].audio = false
+    winDataList[winIndex].magnify3D = false
+    winDataList[winIndex].timestamp = 0
+    winDataList[winIndex].showWatermark = params.showWatermark || false
+    winDataList[winIndex].showPos = params.showPos || false
+    winDataList[winIndex].isPolling = params.isPolling || false
+    if (params.isSelect !== false) {
+        selectWin(winIndex)
+    }
+}
+
+/**
+ * @description 获取视频canvas对象所在窗口号
+ * @param {HTMLCanvasElement} canvas
+ * @returns {number}
+ **/
+const getWinIndexByCav = (canvas: HTMLCanvasElement) => {
+    if (!playerList) return -1
+    const findIndex = playerList.findIndex((item) => item?.isSameCanvas(canvas))
+    return findIndex
+}
+
+/**
+ * @description 停止某个窗口播放
+ * @param {number} winIndex
+ */
+const stop = (winIndex: number) => {
+    if (!playerList[winIndex]) {
+        return
+    }
+    playerList[winIndex].stop()
+    playerList[winIndex].destroy()
+    hideErrorTips(winIndex)
+    playerList[winIndex] = null
+}
+
+/**
+ * @description 全部窗口停止播放
+ */
+const stopAll = () => {
+    for (let i = 0; i < playerList.length; i++) {
+        stop(i)
+    }
+}
+
+/**
+ * @description 暂停某个窗口播放
+ * @param {number} winIndex
+ */
+const pause = (winIndex: number) => {
+    playerList[winIndex]?.pause()
+}
+
+/**
+ * @description 全部窗口暂停播放
+ */
+const pauseAll = () => {
+    for (let i = 0; i < playerList.length; i++) {
+        pause(i)
+    }
+}
+
+/**
+ * @description 继续某个窗口播放
+ * @param {number} winIndex
+ */
+const resume = (winIndex: number) => {
+    playerList[winIndex]?.resume()
+}
+
+/**
+ * @description 全部窗口继续播放
+ */
+const resumeAll = () => {
+    for (let i = 0; i < playerList.length; i++) {
+        resume(i)
+    }
+}
+
+/**
+ * @description seek回放时间点
+ * @param {number} frameTime
+ */
+const seek = (frameTime: number) => {
+    seeking = true
+    for (let i = 0; i < playerList.length; i++) {
+        playerList[i]?.seek(frameTime)
+        winDataList[i].seeking = winDataList[i].PLAY_STATUS === 'play'
+    }
+}
+
+/**
+ * @description 播放成功的处理
+ * @param {number} winIndex
+ */
+const handlePlaySuccess = (winIndex: number) => {
+    if (prop.type === 'record') {
+        winDataList[winIndex].seeking = false
+        showTimestamp = 0
+        let seekingFlag = false
+        for (let i = 0; i < splitValue.value; i++) {
+            playerList[i]?.resetBasicTime()
+            if (winDataList[i].seeking && playerList[i]) {
+                seekingFlag = true
+            }
+        }
+        seeking = seekingFlag
+    } else if (prop.type === 'live') {
+        const supportPtz = winDataList[winIndex].CHANNEL_INFO!.supportPtz
+        togglePtzIcon(winIndex, supportPtz)
+        const chlId = winDataList[winIndex].CHANNEL_INFO!.chlID
+        if (recordStatusChlMap[chlId]) {
+            const recordTypes = recordStatusChlMap[chlId].recordTypes
+            const isRecording = recordStatusChlMap[chlId].isRecording
+            setRecordStatus(chlId, recordTypes, isRecording)
+        }
+
+        if (alarmStatusChlMap[chlId]) {
+            Object.keys(alarmStatusChlMap[chlId]).forEach((alarmType) => {
+                const isAlarming = alarmStatusChlMap[chlId][alarmType]
+                setAlarmStatus(chlId, alarmType, isAlarming)
+            })
+        }
+
+        // 设置通道ip信息 (目前仅在UI1-E实现)
+        setChlIp(winIndex, chlId)
+        // 打开录像状态图标
+        toggleRecordOsdVisible(winIndex, true)
+        // 打开报警事件图标
+        toggleAlarmOsdVisible(winIndex, true)
+        // 打开通道ip信息
+        toggleChlIp(winIndex, true)
+    }
+    winDataList[winIndex].audio ? openAudio(winIndex) : closeAudio(winIndex)
+    toggleWatermark(winIndex, winDataList[winIndex].showWatermark)
+    togglePos(winIndex, winDataList[winIndex].showPos)
+    hideErrorTips(winIndex)
+    winDataList[winIndex].PLAY_STATUS = 'play'
+    emits('success', winIndex, winDataList[winIndex])
+    emits('playStatus', getPlayingChlList())
+}
+
+/**
+ * @description 处理播放失败
+ * @param {number} winIndex
+ * @param {number} errorCode
+ * @param {string} url
+ */
+const handlePlayError = (winIndex: number, errorCode: number = 0, url: string = '') => {
+    if (url === '/device/preview/audio/open#response' || url === '/device/playback/audio/open#response') {
+        // 处理打开音频回复的错误码
+        switch (errorCode) {
+            case ErrorCode.USER_ERROR_UNSUPPORTED_CMD: // 不支持打开音频
+                closeAudio(winIndex)
+                emits('error', winIndex, winDataList[winIndex], 'notSupportAudio')
+                emits('error', winIndex, winDataList[winIndex], 'audioClosed')
+                break
+            case ErrorCode.USER_ERROR_NO_AUTH: // 无权限
+                closeAudio(winIndex)
+                emits('error', winIndex, winDataList[winIndex], 'noPermission')
+                emits('error', winIndex, winDataList[winIndex], 'audioClosed')
+                break
+        }
+    } else if (url === '/device/preview/audio/close#response' || url === '/device/playback/audio/close#response') {
+        // 处理关闭音频回复的错误码
+        switch (errorCode) {
+            // 音频流已关闭
+            case ErrorCode.USER_ERROR_FILE_STREAM_COMPLETED:
+                emits('error', winIndex, winDataList[winIndex], 'audioClosed')
+                break
+            default:
+                break
+        }
+    } else {
+        // 处理视频流相关错误码
+        switch (errorCode) {
+            // 文件流完成(回放结束时出现)
+            case ErrorCode.USER_ERROR_FILE_STREAM_COMPLETED:
+                emits('playComplete', winIndex, winDataList[winIndex])
+                break
+            case ErrorCode.USER_ERROR_DEVICE_BUSY:
+            case ErrorCode.USER_ERROR_DEV_RESOURCE_LIMITED:
+                // 回放返回设备忙时，直接关闭回放链路
+                if (url === '/device/playback/open#response' && playerList[winIndex]) {
+                    playerList[winIndex]!.stop()
+                    playerList[winIndex]!.destroy()
+                    playerList[winIndex] = null // NCNHZ07-49
+                }
+                break
+            default:
+                break
+        }
+
+        if (noRecordFlag && errorCode === ErrorCode.USER_ERROR_FILE_STREAM_COMPLETED) {
+            showErrorTips('noRecord', winIndex, winDataList[winIndex])
+        } else {
+            showErrorTips(ERROR_CODE_MAP[errorCode], winIndex, winDataList[winIndex])
+        }
+    }
+}
+
+/**
+ * @description 处理播放进度回调
+ * @param {number} winIndex
+ * @param {number} timestamp
+ */
+const handleOntime = (winIndex: number, timestamp: number) => {
+    winDataList[winIndex].timestamp = timestamp
+    if (prop.type === 'record') {
+        if (seeking) return
+        const timeArr = []
+        for (let i = 0; i < splitValue.value; i++) {
+            const statusI = winDataList[i].PLAY_STATUS
+            const timestampI = winDataList[i].timestamp
+            if (statusI === 'play' && timestampI >= showTimestamp) {
+                const timeGap = timestampI - showTimestamp
+                if (showTimestamp !== 0 && timeGap >= 2000 * speed) {
+                    if (playerList[i]?.getPlayState() === 'PLAYING') {
+                        playerList[i]!.pause()
+                        timeGapMap[i] = timeGap
+                    }
+                } else if (timestampI >= showTimestamp) {
+                    timeArr.push(timestampI)
+                    if (playerList[i]?.getPlayState() === 'PAUSE') {
+                        playerList[i]!.resume()
+                    }
+                }
+            }
+        }
+
+        if (timeArr.length > 0) {
+            showTimestamp = Math.min.apply(null, timeArr)
+        } else {
+            showTimestamp = timestamp
+            const timeGapArr = Object.values(timeGapMap)
+            const minTimeGap = timeGapArr.length > 0 ? Math.min.apply(null, timeGapArr) : 0
+            for (let i = 0; i < splitValue.value; i++) {
+                playerList[i]?.setTimeGap(minTimeGap)
+                if (playerList[i]?.getPlayState() === 'PAUSE') {
+                    playerList[i]!.resume()
+                }
+            }
+            timeGapMap = {}
+        }
+    } else {
+        showTimestamp = timestamp
+    }
+    emits('time', winIndex, winDataList[winIndex], showTimestamp)
+}
+
+/**
+ * @description 倍速播放
+ * @param {number} value
+ */
+const setSpeed = (value: number) => {
+    speed = value
+    for (let i = 0; i < playerList.length; i++) {
+        playerList[i]?.setSpeed(speed)
+    }
+}
+
+/**
+ * @description 手动下一帧播放
+ */
+const nextFrame = () => {
+    for (let i = 0; i < playerList.length; i++) {
+        playerList[i]?.nextFrame()
+    }
+}
+
+/**
+ * @description 启用关键帧回放
+ * @param {number} timestamp 毫秒时间戳
+ */
+const keyFramePlay = (timestamp: number) => {
+    for (let i = 0; i < playerList.length; i++) {
+        playerList[i]?.keyFramePlay(timestamp)
+    }
+}
+
+/**
+ * @description 恢复全帧回放
+ * @param {number} timestamp 毫秒时间戳
+ */
+const allFramePlay = (timestamp: number) => {
+    for (let i = 0; i < playerList.length; i++) {
+        playerList[i]?.allFramePlay(timestamp)
+    }
+}
+
+/**
+ * @description 原始比例播放
+ * @param {number} winIndex 窗口号
+ * @param {boolean} bool 是否原始比例
+ */
+const displayOriginal = (winIndex: number, bool: boolean) => {
+    if (!playerList[winIndex]) return
+    if (bool) {
+        playerList[winIndex]!.displayOriginal()
+        const size = playerList[winIndex]!.getSize()
+        setVideoDivSize(winIndex, size.width, size.height)
+    } else {
+        const size = getItemSize(winIndex)
+        playerList[winIndex]!.setSize(size.width, size.height)
+        resetVideoDivSize(winIndex)
+    }
+    winDataList[winIndex].original = bool
+}
+
+/**
+ * @description 手动设置通道组轮询状态
+ * @param {boolean} bool
+ * @param {number} winIndex
+ */
+const setPollingState = (bool: boolean, winIndex?: number) => {
+    if (winIndex !== undefined) {
+        winDataList[winIndex].isPolling = bool
+        return
+    }
+
+    for (let i = 0; i < MAX_SPLIT; i++) {
+        winDataList[i].isPolling = bool
+    }
+}
+
+/**
+ * @description 显示/隐藏所有水印
+ * @param {boolean} bool
+ */
+const toggleAllWatermark = (bool: boolean) => {
+    for (let i = 0; i < MAX_SPLIT; i++) {
+        winDataList[i].showWatermark = bool
+        toggleWatermark(i, bool)
+    }
+}
+
+/**
+ * @description 显示/隐藏所有pos
+ * @param {boolean} bool
+ */
+const toggleAllPos = (bool: boolean) => {
+    for (let i = 0; i < MAX_SPLIT; i++) {
+        winDataList[i].showPos = bool
+        togglePos(i, bool)
+    }
+}
+
+/**
+ * @description 设置录像状态
+ * @param {string} chlId 通道id
+ * @param {Arrray<string>} recordTypes 录像类型 ['motion', 'manual', ...]
+ * @param {boolean} isRecording 是否正在录像
+ */
+const setRecordStatus = (chlId: string, recordTypes: string[], isRecording: boolean) => {
+    const winIndexes = getWinIndexesByChlId(chlId)
+    recordStatusChlMap[chlId] = {
+        recordTypes: recordTypes,
+        isRecording: isRecording,
+    }
+    for (let i = 0; i < winIndexes.length; i++) {
+        toggleRecordStatus(winIndexes[i], recordTypes, isRecording)
+    }
+}
+
+/**
+ * @description 设置报警状态
+ * @param {string} chlId 通道id
+ * @param {string} alarmType 报警类型(只处理移动侦测和智能事件，详情见 screen.js中的 INTELIGENCE_CHLIDREN 和 MOTION_CHLIDREN )
+ * @param {boolean} isAlarming 是否正在报警
+ */
+const setAlarmStatus = (chlId: string, alarmType: string, isAlarming: boolean) => {
+    const winIndexes = getWinIndexesByChlId(chlId)
+    alarmStatusChlMap[chlId] = {}
+    if (!alarmStatusChlMap[chlId]) {
+        alarmStatusChlMap[chlId] = {}
+    }
+    alarmStatusChlMap[chlId][alarmType] = isAlarming
+    for (let i = 0; i < winIndexes.length; i++) {
+        toggleAlarmStatus(winIndexes[i], alarmType, isAlarming)
+    }
+}
+
+/**
+ * @description 设置音量，取值0-100
+ * @param {number} winIndex
+ * @param {number} volume
+ */
+const setVolume = (winIndex: number, volume: number) => {
+    playerList[winIndex]?.setVolume(volume)
+}
+
+/**
+ * @description 打开声音, 此操作为互斥行为，即只能同时打开1个通道的声音
+ * @param {number} winIndex
+ */
+const openAudio = (winIndex: number) => {
+    // 先关闭所有通道的声音
+    for (let i = 0; i < playerList.length; i++) {
+        closeAudio(i)
+    }
+    playerList[winIndex]?.openAudio()
+    winDataList[winIndex].audio = true
+    toggleAudioIcon(winIndex, true)
+}
+
+/**
+ * @description 关闭声音
+ * @param {number} winIndex
+ */
+const closeAudio = (winIndex: number) => {
+    playerList[winIndex]?.closeAudio()
+    winDataList[winIndex].audio = false
+    toggleAudioIcon(winIndex, false)
+}
+
+/**
+ * @description 获取正在播放的窗口集合
+ * @returns {Array}
+ */
+const getPlayingWinIndexList = () => {
+    const list = []
+    for (let i = 0; i < winDataList.length; i++) {
+        if (winDataList[i] && winDataList[i].PLAY_STATUS === 'play') {
+            list.push(i)
+        }
+    }
+    return list
+}
+
+/**
+ * @description 根据通道id获取窗口号(返回值为窗口号数组，因为可能存在多个窗口打开同一通道)
+ * @param {String} chlId
+ */
+const getWinIndexesByChlId = (chlId: string) => {
+    const winIndexes = []
+    for (let i = 0; i < winDataList.length; i++) {
+        const item = winDataList[i]
+        if (item?.CHANNEL_INFO?.chlID === chlId) {
+            winIndexes.push(i)
+        }
+    }
+    return winIndexes
+}
+
+/**
+ * @description 获取处于播放状态的通道集合
+ * @returns {Array}
+ */
+const getPlayingChlList = () => {
+    const list = []
+    for (let i = 0; i < winDataList.length; i++) {
+        if (winDataList[i] && winDataList[i].PLAY_STATUS === 'play') {
+            list.push(winDataList[i])
+        }
+    }
+    return list
+}
+
+const getChlList = () => {
+    return [...winDataList]
+}
+
+/**
+ * @description 获取空闲窗口集合
+ * @returns {Array}
+ */
+const getFreeWinIndexes = () => {
+    const list = []
+    for (let i = 0; i < winDataList.length; i++) {
+        if (!(winDataList[i] && winDataList[i].PLAY_STATUS === 'play')) {
+            list.push(i)
+        }
+    }
+    return list
+}
+
+/**
+ * @description 获取所有窗口数据
+ * @returns {PlayerWinDataListItem[]}
+ */
+const getWinData = () => {
+    return winDataList
+}
+
+/**
+ * @description 抓图
+ * @param {number} winIndex
+ * @param {string} fileName
+ */
+const snap = (winIndex: number, fileName: string) => {
+    const config = playerList[winIndex]!.getCurrFrame()
+    const frame = config.frame
+    const player = config.WebGLPlayer
+    const canvas = document.createElement('canvas')
+    canvas.width = frame.width
+    canvas.height = frame.height
+    const webglPlayer = player(canvas, {
+        preserveDrawingBuffer: false,
+    })
+    const buffer = new Uint8Array(frame.buffer)
+    const videoBuffer = buffer.slice(0, frame.yuvLen)
+    const yLength = frame.width * frame.height
+    const uvLength = (frame.width / 2) * (frame.height / 2)
+    webglPlayer.renderFrame(videoBuffer, frame.width, frame.height, yLength, uvLength)
+    const dataURL = canvas.toDataURL('image/bmp', 1)
+    downloadFromBase64(dataURL, fileName + '.bmp')
+}
+
+/**
+ * @description 更新尺寸
+ */
+const resizePlayer = () => {
+    resize()
+    // 遍历查看当前窗口是否处于原始比例状态，如果是则置为原始比例
+    for (let i = 0; i < playerList.length; i++) {
+        if (winDataList[i].original && playerList[i]) {
+            displayOriginal(i, true)
+        }
+    }
+}
+
+/**
+ * @description 开始本地录像
+ * @param {number} winIndex
+ */
+const startRecord = (winIndex: number) => {
+    if (playerList[winIndex]) {
+        recordStartTime[winIndex] = new Date().getTime() // 记录开始录像时间
+        playerList[winIndex]!.startRecord()
+        winDataList[winIndex].localRecording = true
+    }
+}
+
+/**
+ * @description 停止本地录像
+ * @param {number} winIndex
+ */
+const stopRecord = (winIndex: number) => {
+    if (playerList[winIndex]) {
+        playerList[winIndex]!.stopRecord(true)
+        winDataList[winIndex].localRecording = false
+    }
+}
+
+/**
+ * @description 开始全部本地录像
+ */
+const startAllRecord = () => {
+    for (let i = 0; i < playerList.length; i++) {
+        startRecord(i)
+    }
+}
+
+/**
+ * @description 停止全部本地录像
+ */
+const stopAllRecord = () => {
+    for (let i = 0; i < playerList.length; i++) {
+        stopRecord(i)
+    }
+}
+
+/**
+ * @description 获取pos配置
+ */
+const getPosCfg = () => {
+    queryPosList().then((res) => {
+        const $ = queryXml(res)
+        if ($('status').text() !== 'success') return
+        const $systemX = $('content/itemType/coordinateSystem/X')
+        const $systemY = $('content/itemType/coordinateSystem/Y')
+        const width = $systemX.attr('max').num() - $systemX.attr('min').num()
+        const height = $systemY.attr('max').num() - $systemY.attr('min').num()
+        setPosBaseSize({ width, height })
+        const posInfo: Record<string, PlayerPosInfoItem> = {}
+        $('channel/chl').forEach((ele) => {
+            const chlId = ele.attr('id')
+            const $ele = queryXml(ele.element)
+            const previewDisplay = $ele('previewDisplay').text().bool()
+            const printMode = $ele('printMode').text()
+            posInfo[chlId] = {
+                previewDisplay: previewDisplay, // 现场预览是否显示pos
+                printMode: printMode as 'page' | 'scroll', // pos显示模式：page翻页/scroll滚屏
+                displayPosition: {
+                    // pos显示区域
+                    x: 0,
+                    y: 0,
+                    width: width,
+                    height: height,
+                },
+                timeout: 10, // pos超时隐藏时间，默认10秒
+            }
+        })
+        $('content/item').forEach((ele) => {
+            const $ele = queryXml(ele.element)
+            const $position = 'param/displaySetting/displayPosition/'
+            const $triggerChls = $ele('trigger/triggerChl/chls/item')
+            const timeout = $ele('param/displaySetting/common/timeOut').text()
+            if (!$triggerChls.length) return
+            const displayPosition = {
+                x: $ele(`${$position}X`).text().num(),
+                y: $ele(`${$position}Y`).text().num(),
+                width: $ele(`${$position}width`).text().num(),
+                height: $ele(`${$position}height`).text().num(),
+            }
+            $triggerChls.forEach((item) => {
+                const chlId = item.attr('id')
+                if (posInfo[chlId]) {
+                    posInfo[chlId].displayPosition = displayPosition
+                    posInfo[chlId].timeout = Number(timeout)
+                }
+            })
+        })
     })
 }
 
-const player: VideoPlayer = createVideoPlayer()
+/**
+ * @description 处理pos信息
+ * @param {Uint8Array} posFrame
+ * @param {number} posLength
+ * @param {string} chlId
+ * @param {number} winIndex
+ */
+const handlePos = (posFrame: Uint8Array, posLength: number, chlId: string, winIndex: number) => {
+    if (!posInfo) {
+        return
+    }
+    const cfg = posInfo[chlId]
+    if (prop.type === 'live') {
+        if (!cfg.previewDisplay) {
+            return
+        } else {
+            // 现场预览默认打开pos
+            togglePos(winIndex, true)
+        }
+    }
+    drawPos(posFrame, posLength, cfg, winIndex, chlId)
+}
+
+/**
+ * @description 处理https访问时的视频播放
+ */
+const handleHttpsPlay = () => {
+    if (prop.type === 'live') {
+        openNotify(formatHttpsTips(Translate('IDCS_LIVE_PREVIEW')), true)
+    } else if (prop.type === 'record') {
+        openNotify(formatHttpsTips(Translate('IDCS_REPLAY')), true)
+    }
+}
+
+/**
+ * @description UI1-E 获取通道IP
+ */
+const getChlIp = () => {
+    queryDevOsdDisplayCfg().then((res) => {
+        const $ = queryXml(res)
+        if ($('status').text() !== 'success') return
+        if ($('content/addressSwitch').text().bool()) {
+            // 若为true则可以显示ip地址
+            const sendXml = rawXml`
+                <requireField>
+                    <ip/>
+                </requireField>
+            `
+            queryDevList(sendXml).then((res) => {
+                const $ = queryXml(res)
+                if ($('status').text() !== 'success') return
+                chlIpMap = {}
+                $('content/item').forEach((item) => {
+                    const $el = queryXml(item.element)
+                    const ip = $el('ip').text()
+                    const id = item.attr('id')
+                    chlIpMap[id] = ip
+                })
+                winDataList.forEach((item) => {
+                    if (item.CHANNEL_INFO) {
+                        for (const key in chlIpMap) {
+                            if (item.CHANNEL_INFO.chlID === key) {
+                                setChlIp(item.winIndex, key)
+                                break
+                            }
+                        }
+                    }
+                })
+            })
+        }
+    })
+}
+
+/**
+ * @description UI1-E 设置通道IP
+ * @param winIndex
+ * @param chlId
+ */
+const setChlIp = (winIndex: number, chlId: string) => {
+    if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
+        setIpToScreen(winIndex, chlIpMap[chlId])
+    }
+}
+
 const ready = ref(false)
+
 const mode = computed(() => {
     return prop.onlyWasm ? 'h5' : pluginStore.currPluginMode === 'h5' ? 'h5' : 'ocx'
 })
@@ -1631,6 +2535,8 @@ const readyState = computed(() => {
 const resizeObserver = new ResizeObserver(() => {
     resize()
 })
+
+createVideoPlayer()
 
 onMounted(() => {
     tryToGetVideoLossLogo(prop.type === 'live')
@@ -1673,12 +2579,64 @@ const stopWatchSplit = watch(
     () => prop.split,
     () => {
         if (mode.value === 'h5') {
-            player.setSplit(prop.split)
+            setSplit(prop.split)
         } else {
             stopWatchSplit()
         }
     },
 )
+
+const player = {
+    play,
+    getWinIndexByCav,
+    stop,
+    stopAll,
+    pause,
+    pauseAll,
+    resume,
+    resumeAll,
+    setSplit,
+    getSplit,
+    seek,
+    setSpeed,
+    nextFrame,
+    keyFramePlay,
+    allFramePlay,
+    displayOriginal,
+    zoomOut,
+    zoomIn,
+    setPollingState,
+    zoom3D,
+    toggleOSD,
+    toggleWatermark: toggleAllWatermark,
+    togglePos: toggleAllPos,
+    setRecordStatus,
+    setAlarmStatus,
+    fullscreen,
+    setVolume,
+    openAudio,
+    closeAudio,
+    getPlayingWinIndexList,
+    getWinIndexesByChlId,
+    getPlayingChlList,
+    getChlList,
+    getFreeWinIndexes,
+    getSelectedWinIndex,
+    getWinData,
+    snap,
+    resize: resizePlayer,
+    getDrawbordCanvas: getOverlayCanvas,
+    startRecord,
+    stopRecord,
+    startAllRecord,
+    stopAllRecord,
+    getChlIp,
+    setPollIndex,
+    showErrorTips,
+    hideErrorTips,
+}
+
+export type PlayerReturnsType = typeof player
 
 defineExpose({
     player,

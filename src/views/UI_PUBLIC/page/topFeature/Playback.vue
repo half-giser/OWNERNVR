@@ -103,7 +103,7 @@
                             }"
                             @click="calendar.change(scope.data.date)"
                         >
-                            {{ scope.data.day.split('-')[2] }}
+                            {{ Number(scope.data.day.split('-')[2]) }}
                         </div>
                     </template>
                 </el-calendar>
@@ -229,12 +229,24 @@
     font-weight: bolder;
     background-color: var(--bg-table);
 
+    span:first-child {
+        margin-left: 30px;
+    }
+
+    span:last-child {
+        margin-right: 30px;
+    }
+
     span:first-child,
     span:last-child {
         font-size: 24px;
         font-weight: normal;
         cursor: pointer;
         font-family: consolas, sans-serif;
+    }
+
+    span:nth-child(2) {
+        font-size: 12px;
     }
 }
 

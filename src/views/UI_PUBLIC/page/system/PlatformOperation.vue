@@ -94,10 +94,7 @@
                 />
             </el-form-item>
             <el-form-item>
-                <el-checkbox-group
-                    v-model="formData.chooseFaultType"
-                    @change="refreshUploadBtnStatus"
-                >
+                <el-checkbox-group v-model="formData.chooseFaultType">
                     <el-checkbox
                         v-for="item in pageData.chooseFaultTypeList"
                         :key="item.value"
@@ -126,10 +123,7 @@
             </el-form-item>
             <el-form-item :label="Translate('IDCS_MAINTENSIGN_ITEMCHOOSE')" />
             <el-form-item>
-                <el-checkbox-group
-                    v-model="formData.chooseMaintenanceType"
-                    @change="refreshUploadBtnStatus"
-                >
+                <el-checkbox-group v-model="formData.chooseMaintenanceType">
                     <el-checkbox
                         v-for="item in pageData.chooseMaintenanceTypeList"
                         :key="item.value"
@@ -152,10 +146,7 @@
         <el-form v-show="formData.operationType === 'repairSign'">
             <el-form-item :label="Translate('IDCS_MAINTENSIGN_ITEMCHOOSE')" />
             <el-form-item>
-                <el-checkbox-group
-                    v-model="formData.chooseRepairType"
-                    @change="refreshUploadBtnStatus"
-                >
+                <el-checkbox-group v-model="formData.chooseRepairType">
                     <el-checkbox
                         v-for="item in pageData.chooseMaintenanceTypeList"
                         :key="item.value"
@@ -186,12 +177,12 @@
         :style="{ '--form-input-width': '665px' }"
     >
         <el-button
-            :disabled="pageData.uploadDisabled"
+            :disabled="uploadDisabled"
             @click="uploadData"
         >
             {{ Translate('IDCS_PLATFORM_OPERATE_UPLOAD') }}
         </el-button>
-        <el-button @click="handleReturn">{{ Translate('IDCS_PLATFORM_OPERATE_RETURN') }}</el-button>
+        <el-button @click="goBack">{{ Translate('IDCS_PLATFORM_OPERATE_RETURN') }}</el-button>
     </div>
 </template>
 

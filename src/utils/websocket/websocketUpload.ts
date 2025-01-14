@@ -15,43 +15,28 @@ interface WebsocketUploadOption {
     error?: (param: number) => void
 }
 
-export default class WebsocketUpload {
-    private ws?: WebsocketBase
-    private config: CmdUploadFileOpenOption
-    private file: Blob
-    // private breakUpload = false
-    private fileBuffer: ArrayBuffer | null = null
-    private maxSingleSize = 50 * 1024 // 单个分片最大32k
-    private oneUploadNum = 8 // 最大缓存分片数
-    private packageArr: ArrayBuffer[] = [] // 需要上传的分片
-    private uploadIndex = 0 // 当前上传下标
-    private uploadArr: number[] = [] // 上传队列(长度不超过this.oneUploadNum)
-    private readonly successCallback: WebsocketUploadOption['success']
-    private readonly progressCallback: WebsocketUploadOption['progress']
-    private readonly errorCallback: WebsocketUploadOption['error']
+export default function WebsocketUpload(option: WebsocketUploadOption) {
+    let ws: ReturnType<typeof WebsocketBase>
 
-    constructor(option: WebsocketUploadOption) {
-        this.config = option.config
-        this.file = option.file
-        this.successCallback = option.success
-        this.progressCallback = option.progress
-        this.errorCallback = option.error
-        this.init()
-    }
+    const maxSingleSize = 50 * 1024 // 单个分片最大32k
+    const oneUploadNum = 8 // 最大缓存分片数
+    const packageArr: ArrayBuffer[] = [] // 需要上传的分片
+    const uploadArr: number[] = [] // 上传队列(长度不超过this.oneUploadNum)
+    let uploadIndex = 0 // 当前上传下标
+    let fileBuffer: ArrayBuffer | null = null
 
-    private init() {
-        this.readFileInfo(this.file).then((buffer) => {
-            this.fileBuffer = buffer
-            this.setWebsocket()
-        })
-    }
+    const config = option.config
+    const file = option.file
+    const successCallback = option.success
+    const progressCallback = option.progress
+    const errorCallback = option.error
 
     /**
      * @description
      * @param {ArrayBuffer} file
      * @returns {Promise<ArrayBuffer>}
      */
-    private readFileInfo(file: Blob) {
+    const readFileInfo = (file: Blob) => {
         return new Promise((resolve: (buffer: ArrayBuffer) => void) => {
             const reader = new FileReader()
             reader.onload = (event) => {
@@ -61,80 +46,80 @@ export default class WebsocketUpload {
         })
     }
 
-    private setWebsocket() {
-        this.ws = new WebsocketBase({
+    const setWebsocket = () => {
+        ws = WebsocketBase({
             onopen: () => {
-                this.start()
+                start()
             },
             onmessage: (data: string) => {
                 try {
                     const res = JSON.parse(data)
                     const code = Number(res.basic.code)
                     if (res.url === '/device/file/upload/start#response' && code === 0) {
-                        this.cutPackage(this.fileBuffer as ArrayBuffer)
+                        cutPackage(fileBuffer as ArrayBuffer)
                     }
 
                     if (res.url === '/device/file/upload/step#response' && code === 0) {
-                        this.uploadArr.shift()
-                        this.batchSend()
+                        uploadArr.shift()
+                        batchSend()
                         const step = Number(res.data.step)
-                        this.progressCallback && this.progressCallback(step)
+                        progressCallback && progressCallback(step)
                         if (step === 100) {
-                            this.endUpload()
+                            endUpload()
                             return
                         }
                     }
 
                     if (res.url === '/device/file/upload/stop#response' && code === 0) {
                         // 文件成功上传完毕，断开连接
-                        this.successCallback && this.successCallback(res.data)
-                        this.ws!.close()
+                        successCallback && successCallback(res.data)
+                        ws?.close()
                     }
 
                     if (code !== 0) {
                         // 其他错误码时进行
-                        this.errorCallback && this.errorCallback(code)
-                        this.ws!.close()
+                        errorCallback && errorCallback(code)
+                        ws?.close()
                     }
                 } catch (e) {}
             },
         })
     }
 
-    start() {
-        const cmd = CMD_UPLOAD_FILE_OPEN(this.config)
-        this.ws!.send(JSON.stringify(cmd))
+    const start = () => {
+        const cmd = CMD_UPLOAD_FILE_OPEN(config)
+        ws?.send(JSON.stringify(cmd))
     }
 
     /**
      * @description 裁剪文件成多份
      * @param {ArrayBuffer} buffer
      */
-    cutPackage(buffer: ArrayBuffer) {
-        const cutNumber = Math.ceil(buffer.byteLength / this.maxSingleSize)
+    const cutPackage = (buffer: ArrayBuffer) => {
+        const cutNumber = Math.ceil(buffer.byteLength / maxSingleSize)
         for (let i = 0; i < cutNumber; i++) {
-            const start = i * this.maxSingleSize
-            const end = (i + 1) * this.maxSingleSize
+            const start = i * maxSingleSize
+            const end = (i + 1) * maxSingleSize
             // 文件buffer
             const bufferSlice = buffer.slice(start, end)
-            this.packageArr.push(bufferSlice)
+            packageArr.push(bufferSlice)
         }
-        if (this.packageArr.length) this.batchSend()
+        if (packageArr.length) batchSend()
     }
 
     /**
      * @description 分批上传
      */
-    batchSend() {
+    const batchSend = () => {
         // 当上传队列不超过最大缓存分片 和 上传下标不超过分片数 时, 执行上传
-        while (this.uploadArr.length < this.oneUploadNum && this.uploadIndex < this.packageArr.length) {
-            this.uploadIndex++
-            const packageIndex = this.uploadIndex - 1
-            const byteLength = this.packageArr[packageIndex].byteLength
+        while (uploadArr.length < oneUploadNum && uploadIndex < packageArr.length) {
+            uploadIndex++
+            const packageIndex = uploadIndex - 1
+            const byteLength = packageArr[packageIndex].byteLength
             const bufferSliceStr = '0,' + byteLength
-            const json = CMD_UPLOAD_FILE_HEADER(this.uploadIndex, bufferSliceStr) // 通信的index从1开始
-            this.sendPackage(json, this.packageArr[packageIndex])
-            this.uploadArr.push(this.uploadIndex) // 通过上传下标来标识
+            const json = CMD_UPLOAD_FILE_HEADER(uploadIndex, bufferSliceStr) // 通信的index从1开始
+            sendPackage(json, packageArr[packageIndex])
+            uploadArr.push(uploadIndex) // 通过上传下标来标识
         }
     }
 
@@ -143,39 +128,50 @@ export default class WebsocketUpload {
      * @param {Object} json
      * @param {ArrayBuffer} bufferSlice
      */
-    sendPackage(json: ReturnType<typeof CMD_UPLOAD_FILE_HEADER>, bufferSlice: ArrayBuffer) {
+    const sendPackage = (json: ReturnType<typeof CMD_UPLOAD_FILE_HEADER>, bufferSlice: ArrayBuffer) => {
         dataToBuffer(JSON.stringify(json)).then((jsonBuffer) => {
             // 包头buffer + jsonbuffer + 文件buffer
             const headerbuffer = buildHeader(json)
             const temp = appendBuffer(headerbuffer, jsonBuffer) as ArrayBuffer
             const combineBuffer = appendBuffer(temp, bufferSlice)
-            this.ws!.send(combineBuffer)
+            ws?.send(combineBuffer)
         })
     }
 
     /**
      * @description 中断上传
      */
-    cancel() {
-        // this.breakUpload = true
+    const cancel = () => {
+        // breakUpload = true
         const cmd = CMD_UPLOAD_FILE_CLOSE({
             reason: 'break',
         })
-        this.ws!.send(JSON.stringify(cmd))
+        ws?.send(JSON.stringify(cmd))
     }
 
     /**
      * @description 结束上传
      */
-    endUpload() {
+    const endUpload = () => {
         const cmd = CMD_UPLOAD_FILE_CLOSE({
             reason: 'finished',
-            sign: MD5_encrypt(this.fileBuffer as ArrayBuffer),
+            sign: MD5_encrypt(fileBuffer as ArrayBuffer),
         })
-        this.ws!.send(JSON.stringify(cmd))
+        ws?.send(JSON.stringify(cmd))
     }
 
-    close() {
-        this.ws?.close()
+    const close = () => {
+        ws?.close()
+    }
+
+    readFileInfo(file).then((buffer) => {
+        fileBuffer = buffer
+        setWebsocket()
+    })
+
+    return {
+        start,
+        cancel,
+        close,
     }
 }

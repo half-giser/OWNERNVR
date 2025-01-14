@@ -36,7 +36,7 @@ export default defineComponent({
         // 通道录像数据数组
         const chlTimeSliceMap: { startTime: number; endTime: number; chlId: string; chlName: string }[] = []
 
-        let keyframe: WebsocketKeyframe
+        let keyframe: ReturnType<typeof WebsocketKeyframe>
         // 时间切片列表加载完成Flag
         let timesliceFlag = false
         // 通道列表加载完成Flag
@@ -125,8 +125,8 @@ export default defineComponent({
          */
         const getRecSection = async () => {
             const year = dayjs().year()
-            const startTime = dayjs(`${year - 10}-01-01 00:00:00`, 'YYYY-MM-DD HH:mm:ss')
-            const endTime = dayjs(`${year + 10}-01-01 00:00:00`, 'YYYY-MM-DD HH:mm:ss')
+            const startTime = dayjs(`${year - 10}-01-01 00:00:00`, DEFAULT_DATE_FORMAT)
+            const endTime = dayjs(`${year + 10}-01-01 00:00:00`, DEFAULT_DATE_FORMAT)
             const spaceTime = 60 * 60 * 24
             const spaceNum = (endTime.valueOf() - startTime.valueOf()) / 1000 / spaceTime
 
@@ -214,7 +214,7 @@ export default defineComponent({
          * @description 初始化获取关键帧的websocket
          */
         const createWebsocketKeyframe = () => {
-            keyframe = new WebsocketKeyframe({
+            keyframe = WebsocketKeyframe({
                 onmessage: (data: WebsocketKeyframeOnMessageParam) => {
                     if (timesliceMap[data.taskId.toUpperCase()]) {
                         const [index, chlIndex] = timesliceMap[data.taskId.toUpperCase()]

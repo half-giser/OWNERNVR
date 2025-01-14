@@ -36,8 +36,11 @@
     flex-wrap: wrap;
 
     .el-checkbox {
+        --el-checkbox-font-size: 12px;
+
         width: 100%;
         margin-left: 0 !important;
+        height: 30px;
     }
 }
 
@@ -69,6 +72,10 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+}
+
+.base-intel-left-form {
+    padding: 0 15px;
 }
 
 .base-intel-right {

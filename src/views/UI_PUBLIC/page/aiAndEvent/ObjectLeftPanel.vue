@@ -5,13 +5,22 @@
 -->
 <template>
     <div>
-        <div class="base-btn-box flex-start padding collapse">
+        <div
+            v-if="pageData.reqFail"
+            class="base-ai-not-support-box"
+        >
+            {{ Translate('IDCS_QUERY_DATA_FAIL') }}
+        </div>
+        <div
+            v-if="pageData.tab"
+            class="base-btn-box flex-start padding collapse"
+        >
             <el-checkbox
                 v-model="formData.enabledSwitch"
                 :label="Translate('IDCS_ENABLE')"
             />
         </div>
-        <div>
+        <div v-if="pageData.tab">
             <el-tabs
                 v-model="pageData.tab"
                 class="base-ai-tabs"
@@ -67,7 +76,7 @@
                                     v-model="formData.schedule"
                                     :options="pageData.scheduleList"
                                 />
-                                <el-button @click="pageData.scheduleManagPopOpen = true">{{ Translate('IDCS_MANAGE') }}</el-button>
+                                <el-button @click="pageData.isSchedulePop = true">{{ Translate('IDCS_MANAGE') }}</el-button>
                             </el-form-item>
                             <!-- 规则 -->
                             <div class="base-ai-subheading">{{ Translate('IDCD_RULE') }}</div>
@@ -151,7 +160,7 @@
         <div class="base-btn-box fixed">
             <el-button
                 :disabled="watchEdit.disabled.value"
-                @click="applyObjectLeftData"
+                @click="applyData"
             >
                 {{ Translate('IDCS_APPLY') }}
             </el-button>
@@ -159,8 +168,8 @@
     </div>
     <!-- 排程管理弹窗 -->
     <ScheduleManagPop
-        v-model="pageData.scheduleManagPopOpen"
-        @close="pageData.scheduleManagPopOpen = false"
+        v-model="pageData.isSchedulePop"
+        @close="closeSchedulePop"
     />
 </template>
 

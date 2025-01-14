@@ -4,7 +4,13 @@
  * @Description: AI 事件——更多——异常侦测
 -->
 <template>
-    <div>
+    <div
+        v-if="pageData.reqFail"
+        class="base-ai-not-support-box"
+    >
+        {{ Translate('IDCS_QUERY_DATA_FAIL') }}
+    </div>
+    <div v-if="pageData.tab">
         <el-tabs
             v-model="pageData.tab"
             class="base-ai-tabs"

@@ -67,6 +67,7 @@ export default defineComponent({
         // 页面数据
         const pageData = ref({
             tab: 'param',
+            reqFail: false,
             // 是否显示全部区域
             isShowAllArea: false,
             // 在只有一个区域时，不显示（显示全部区域checkbox，全部清除btn）
@@ -74,7 +75,7 @@ export default defineComponent({
             isShowAllClearBtn: false,
             // 排程
             scheduleList: [] as SelectOption<string, string>[],
-            scheduleManagPopOpen: false,
+            isSchedulePop: false,
             warnArea: 0,
             configuredArea: [] as boolean[],
             // 声音列表
@@ -96,7 +97,7 @@ export default defineComponent({
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
         // 物品遗留与看护绘制的Canvas
-        let objDrawer = new CanvasPolygon({
+        let objDrawer = CanvasPolygon({
             el: document.createElement('canvas'),
         })
 
@@ -109,7 +110,7 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 const canvas = player.getDrawbordCanvas(0)
-                objDrawer = new CanvasPolygon({
+                objDrawer = CanvasPolygon({
                     el: canvas,
                     onchange: changeArea,
                     closePath: closePath,
@@ -200,7 +201,7 @@ export default defineComponent({
             setAreaView()
         }
 
-        const getObjectLeftData = async () => {
+        const getData = async () => {
             openLoading()
             const sendXml = rawXml`
                 <condition>
@@ -212,30 +213,20 @@ export default defineComponent({
                 </requireField>
             `
             const result = await queryOsc(sendXml)
+            const $ = queryXml(result)
+
             closeLoading()
-            commLoadResponseHandler(result, ($) => {
+
+            if ($('status').text() === 'success') {
                 const $param = queryXml($('content/chl/param')[0].element)
                 const $trigger = queryXml($('content/chl/trigger')[0].element)
-
-                let holdTimeArr = $param('holdTimeNote').text().split(',')
-                const holdTime = $param('holdTime').text()
-                if (!holdTimeArr.includes(holdTime)) {
-                    holdTimeArr.push(holdTime)
-                    holdTimeArr = holdTimeArr.sort((a, b) => Number(a) - Number(b))
-                }
 
                 formData.value = {
                     enabledSwitch: $param('switch').text().bool(),
                     originalSwitch: $param('switch').text().bool(),
-                    holdTime,
-                    holdTimeList: holdTimeArr.map((item) => {
-                        const label = getTranslateForSecond(Number(item))
-                        return {
-                            value: item,
-                            label,
-                        }
-                    }),
-                    schedule: $('content/chl').attr('scheduleGuid'),
+                    holdTime: $param('holdTime').text().num(),
+                    holdTimeList: getAlarmHoldTimeList($param('holdTimeNote').text(), $param('holdTime').text().num()),
+                    schedule: getScheduleId(pageData.value.scheduleList, $('content/chl').attr('scheduleGuid')),
                     oscTypeList: $('types/oscType/enum').map((item) => {
                         return {
                             value: item.text(),
@@ -297,7 +288,10 @@ export default defineComponent({
                 }
                 refreshInitPage()
                 watchEdit.listen()
-            })
+            } else {
+                pageData.value.tab = ''
+                pageData.value.reqFail = true
+            }
         }
 
         // 检测和屏蔽区域的样式初始化
@@ -408,7 +402,7 @@ export default defineComponent({
         }
 
         // 闭合区域
-        const setClosed = (points: { X: number; Y: number; isClosed?: boolean }[]) => {
+        const setClosed = (points: CanvasBasePoint[]) => {
             points.forEach((item) => {
                 item.isClosed = true
             })
@@ -539,7 +533,7 @@ export default defineComponent({
             return sendXml
         }
 
-        const setObjectLeftData = async () => {
+        const setData = async () => {
             openLoading()
             const sendXml = getObjectLeftSaveData()
             const result = await editOsc(sendXml)
@@ -556,7 +550,7 @@ export default defineComponent({
             }
         }
 
-        const applyObjectLeftData = () => {
+        const applyData = () => {
             if (!verification()) return
             checkMutexChl({
                 isChange: formData.value.enabledSwitch && formData.value.enabledSwitch !== formData.value.originalSwitch,
@@ -564,7 +558,7 @@ export default defineComponent({
                 tips: 'IDCS_SIMPLE_WATCH_DETECT_TIPS',
                 mutexList: formData.value.mutexList,
             }).then(() => {
-                setObjectLeftData()
+                setData()
             })
         }
 
@@ -604,9 +598,20 @@ export default defineComponent({
                 }
             }
         }
-        onMounted(async () => {
+
+        const getScheduleList = async () => {
             pageData.value.scheduleList = await buildScheduleList()
-            getObjectLeftData()
+        }
+
+        const closeSchedulePop = async () => {
+            pageData.value.isSchedulePop = false
+            await getScheduleList()
+            formData.value.schedule = getScheduleId(pageData.value.scheduleList, formData.value.schedule)
+        }
+
+        onMounted(async () => {
+            await getScheduleList()
+            getData()
         })
 
         onBeforeUnmount(() => {
@@ -642,7 +647,8 @@ export default defineComponent({
             formatAreaName,
             blurInput,
             // 提交物品遗留与看护数据
-            applyObjectLeftData,
+            applyData,
+            closeSchedulePop,
         }
     },
 })
