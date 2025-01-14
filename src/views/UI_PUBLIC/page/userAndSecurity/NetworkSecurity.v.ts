@@ -11,7 +11,7 @@ export default defineComponent({
         const { openLoading, closeLoading } = useLoading()
 
         const tableData = ref<UserNetworkSecurityForm[]>([])
-        const watchEdit = useWatchEdit(tableData)
+        const watchEdit = useWatchEditData(tableData)
 
         /**
          * @description 获取数据
@@ -39,7 +39,7 @@ export default defineComponent({
                         getGatewayMac: autoGetGatewayMac ? gatewayMac : manualInputGatewayMac,
                     }
                 })
-                watchEdit.update()
+                watchEdit.listen()
             })
         }
 
@@ -98,13 +98,12 @@ export default defineComponent({
         /**
          * @description 自动获取网关MAC时, 赋值gatewayMac；否组赋值manualInputGatewayMac
          * @param {UserNetworkSecurityForm} row
-         * @param {number} index
          */
-        const handleChangeAutoGetGatewayMac = (row: UserNetworkSecurityForm, index: number) => {
+        const changeAutoGetGatewayMac = (row: UserNetworkSecurityForm) => {
             if (row.autoGetGatewayMac) {
-                tableData.value[index].getGatewayMac = row.gatewayMac || '00:00:00:00:00:00'
+                row.getGatewayMac = row.gatewayMac || '00:00:00:00:00:00'
             } else {
-                tableData.value[index].getGatewayMac = row.manualInputGatewayMac || '00:00:00:00:00:00'
+                row.getGatewayMac = row.manualInputGatewayMac || '00:00:00:00:00:00'
             }
         }
 
@@ -113,8 +112,8 @@ export default defineComponent({
          * @param {UserNetworkSecurityForm} row
          * @param {number} index
          */
-        const handleChangeMannualGatewayMac = (row: UserNetworkSecurityForm, index: number) => {
-            tableData.value[index].manualInputGatewayMac = row.getGatewayMac
+        const changeMannualGatewayMac = (row: UserNetworkSecurityForm) => {
+            row.manualInputGatewayMac = row.getGatewayMac
         }
 
         onMounted(() => {
@@ -126,8 +125,8 @@ export default defineComponent({
             setData,
             watchEdit,
             formatNetworkCardName,
-            handleChangeAutoGetGatewayMac,
-            handleChangeMannualGatewayMac,
+            changeAutoGetGatewayMac,
+            changeMannualGatewayMac,
         }
     },
 })

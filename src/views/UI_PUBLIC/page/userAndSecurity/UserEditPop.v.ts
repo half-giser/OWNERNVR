@@ -215,9 +215,9 @@ export default defineComponent({
         /**
          * @description 打开弹窗时的数据请求
          */
-        const handleOpen = async () => {
+        const open = async () => {
             await getAuthGroup()
-            await getUser()
+            getUser()
         }
 
         /**
@@ -242,7 +242,7 @@ export default defineComponent({
             formData,
             pageData,
             authGroupOptions,
-            handleOpen,
+            open,
             changePassword,
             verify,
             rules,

@@ -108,14 +108,8 @@ export default defineComponent({
                         const $trigger = queryXml($('content/chl/trigger')[0].element)
 
                         row.disabled = false
-                        row.schedule = {
-                            value: $trigger('triggerSchedule/schedule').attr('id') || ' ',
-                            label: $trigger('triggerSchedule/schedule').text(),
-                        }
-                        row.oldSchedule = {
-                            value: row.schedule.value,
-                            label: row.schedule.label,
-                        }
+                        row.schedule = $trigger('triggerSchedule/schedule').attr('id') || ' '
+                        row.oldSchedule = row.schedule
                         row.record = {
                             switch: $trigger('sysRec/switch').text().bool(),
                             chls: $trigger('sysRec/chls/item').map((item) => {
@@ -188,35 +182,40 @@ export default defineComponent({
             getData()
         }
 
-        const changeAllSchedule = (schedule: { value: string; label: string }) => {
+        const changeAllSchedule = (schedule: SelectOption<string, string>) => {
             if (schedule.value === 'scheduleMgr') {
                 pageData.value.isSchedulePop = true
                 return
             }
             tableData.value.forEach((item) => {
                 if (!item.disabled) {
-                    item.schedule = schedule
+                    item.schedule = schedule.value
+                    item.oldSchedule = schedule.value
                 }
             })
         }
 
         const changeSchedule = (row: AlarmEventDto) => {
-            if (row.schedule.value === 'scheduleMgr') {
+            if (row.schedule === 'scheduleMgr') {
                 pageData.value.isSchedulePop = true
                 nextTick(() => {
-                    row.schedule.value = row.oldSchedule.value
-                    row.schedule.label = row.oldSchedule.label
+                    row.schedule = row.oldSchedule
                 })
                 return
             } else {
-                row.oldSchedule.value = row.schedule.value
-                row.oldSchedule.label = row.schedule.label
+                row.oldSchedule = row.schedule
             }
         }
 
         const closeSchedulePop = async () => {
             pageData.value.isSchedulePop = false
             await getScheduleList()
+            tableData.value.forEach((item) => {
+                if (!item.disabled) {
+                    item.schedule = getScheduleId(pageData.value.scheduleList, item.schedule, ' ')
+                    item.oldSchedule = item.schedule
+                }
+            })
         }
 
         const switchRecord = (index: number) => {
@@ -423,8 +422,8 @@ export default defineComponent({
                             <msgPushSwitch>${rowData.msgPush}</msgPushSwitch>
                             <sysAudio id='${rowData.sysAudio}'></sysAudio>
                             <triggerSchedule>
-                                <switch>${rowData.schedule.value !== ' '}</switch>
-                                <schedule id="${rowData.schedule.value === ' ' ? '' : rowData.schedule.value}"></schedule>
+                                <switch>${rowData.schedule !== ' '}</switch>
+                                <schedule id="${rowData.schedule === ' ' ? '' : rowData.schedule}"></schedule>
                             </triggerSchedule>
                             <popVideoSwitch>${rowData.videoPopup}</popVideoSwitch>
                             <emailSwitch>${rowData.email}</emailSwitch>

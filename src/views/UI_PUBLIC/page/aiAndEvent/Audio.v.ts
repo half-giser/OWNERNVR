@@ -63,10 +63,10 @@ export default defineComponent({
             ipcAudioTab: 'audioAlarm',
             supportAlarmAudioConfig: systemCaps.supportAlarmAudioConfig,
             isImportAudioDialog: false,
-            scheduleManagPopOpen: false,
-            audioSchedule: '',
+            isSchedulePop: false,
+            schedule: '',
             isScheduleChanged: false,
-            audioScheduleList: [] as SelectOption<string, string>[],
+            scheduleList: [] as SelectOption<string, string>[],
         })
 
         const btnDisabled = computed(() => {
@@ -426,19 +426,19 @@ export default defineComponent({
          * @description 获取排程数据
          */
         const getScheduleData = async () => {
-            pageData.value.audioScheduleList = await buildScheduleList()
+            pageData.value.scheduleList = await buildScheduleList()
 
             const result = await queryEventNotifyParam()
             commLoadResponseHandler(result, ($) => {
                 const scheduleId = $('content/triggerChannelAudioSchedule').attr('id')
                 // 判断返回的排程是否存在，若不存在设为空ID
                 if (scheduleId) {
-                    pageData.value.audioSchedule = scheduleId
+                    pageData.value.schedule = scheduleId
                 } else {
                     const scheduleName = $('content/triggerChannelAudioSchedule').text()
-                    const find = pageData.value.audioScheduleList.find((item) => item.label === scheduleName)
+                    const find = pageData.value.scheduleList.find((item) => item.label === scheduleName)
                     if (find) {
-                        pageData.value.audioSchedule = find.value
+                        pageData.value.schedule = find.value
                     }
                 }
             })
@@ -452,11 +452,11 @@ export default defineComponent({
                 return
             }
 
-            // <triggerChannelAudioSchedule id='${pageData.value.audioSchedule}'>${audioName}</triggerChannelAudioSchedule>
+            // <triggerChannelAudioSchedule id='${pageData.value.schedule}'>${audioName}</triggerChannelAudioSchedule>
             // 这里删掉了原代码中传的audioName，因为在audioName = <无>的情况下会导致解析错误
             const sendXml = rawXml`
                 <content>
-                    <triggerChannelAudioSchedule id='${pageData.value.audioSchedule}'></triggerChannelAudioSchedule>
+                    <triggerChannelAudioSchedule id='${pageData.value.schedule}'></triggerChannelAudioSchedule>
                 </content>
             `
             await editEventNotifyParam(sendXml)
@@ -522,9 +522,10 @@ export default defineComponent({
         /**
          * @description 关闭排程弹窗 更新排程数据
          */
-        const handleSchedulePopClose = async () => {
-            pageData.value.scheduleManagPopOpen = false
+        const closeSchedulePop = async () => {
+            pageData.value.isSchedulePop = false
             await getScheduleData()
+            pageData.value.schedule = getScheduleId(pageData.value.scheduleList, pageData.value.schedule)
         }
 
         onMounted(async () => {
@@ -556,7 +557,7 @@ export default defineComponent({
             handleRowClick,
             deleteLocalAudio,
             setData,
-            handleSchedulePopClose,
+            closeSchedulePop,
             changeAudioVolume,
             btnDisabled,
         }

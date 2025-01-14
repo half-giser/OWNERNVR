@@ -7,7 +7,7 @@
     <el-dialog
         :title="Translate('IDCS_EDIT_USER_RIGHT')"
         width="1000"
-        @open="handleOpen"
+        @open="open"
     >
         <div>
             <el-form

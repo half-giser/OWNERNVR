@@ -103,7 +103,7 @@
         </div>
         <ScheduleManagPop
             v-model="pageData.isSchedulePop"
-            @close="confirmSchedule"
+            @close="closeSchedulePop"
         />
     </div>
 </template>

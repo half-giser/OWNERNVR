@@ -205,43 +205,35 @@ const PIC_KEY_MAP = {
     },
 }
 
-export default class WebsocketSnap {
-    private ws?: WebsocketBase
-    private config: SnapDataConfig
-    private readonly onsuccess: WebsocketSnapOption['onsuccess']
+export default function WebsocketSnap(option: WebsocketSnapOption) {
+    const config = option.config
+    const onsuccess = option.onsuccess
 
-    constructor(option: WebsocketSnapOption) {
-        this.config = option.config
-        this.onsuccess = option.onsuccess
-        this.init()
-    }
-
-    private init() {
-        this.ws = new WebsocketBase({
-            onopen: () => {
-                this.start()
-            },
-            onmessage: (data: any) => {
-                try {
-                    const res = JSON.parse(data)
-                    const code = Number(res.basic.code)
-                    if (res.url === '/device/real_image/subscribe#response' && code === 0) {
-                        console.log('intelligent picture subscription success')
-                    }
-                } catch (ev) {
-                    const dataView = new DataView(data)
-                    const encryptType = dataView.getUint32(0, true)
-                    const jsonOffset = encryptType === 0 ? 8 : 16
-                    const jsonLen = dataView.getUint32(4, true)
-                    const jsonEndPosition = jsonLen + jsonOffset
-                    const jsonBuf = data.slice(jsonOffset, jsonEndPosition)
-                    const json = JSON.parse(Uint8ArrayToStr(new Uint8Array(jsonBuf)))
-                    const snapDataList = this.getSnapData(json.data, jsonEndPosition, data)
-                    this.onsuccess && this.onsuccess(snapDataList)
+    const ws = WebsocketBase({
+        onopen: () => {
+            start()
+        },
+        onmessage: (data: any) => {
+            try {
+                const res = JSON.parse(data)
+                const code = Number(res.basic.code)
+                if (res.url === '/device/real_image/subscribe#response' && code === 0) {
+                    console.log('intelligent picture subscription success')
                 }
-            },
-        })
-    }
+            } catch (ev) {
+                const dataView = new DataView(data)
+                const encryptType = dataView.getUint32(0, true)
+                const jsonOffset = encryptType === 0 ? 8 : 16
+                const jsonLen = dataView.getUint32(4, true)
+                const jsonEndPosition = jsonLen + jsonOffset
+                const jsonBuf = data.slice(jsonOffset, jsonEndPosition)
+                const json = JSON.parse(Uint8ArrayToStr(new Uint8Array(jsonBuf)))
+                const snapDataList = getSnapData(json.data, jsonEndPosition, data)
+                onsuccess && onsuccess(snapDataList)
+            }
+        },
+    })
+    // }
 
     /**
      * @description 从响应json报文的data字段信息中读取抓拍数据
@@ -250,7 +242,7 @@ export default class WebsocketSnap {
      * @param {ArrayBuffer} buffer
      * @returns {WebsocketSnapOnSuccessParam[]}
      */
-    private getSnapData(data: SnapDataType, jsonEndPosition: number, buffer: ArrayBuffer) {
+    const getSnapData = (data: SnapDataType, jsonEndPosition: number, buffer: ArrayBuffer) => {
         const snapDataList: WebsocketSnapOnSuccessParam[] = []
 
         Object.entries(data).forEach(([currentKey, list]) => {
@@ -258,7 +250,7 @@ export default class WebsocketSnap {
             list.forEach((itemOut) => {
                 // 停车场类型
                 if (itemOut.parking_lot_info) {
-                    snapDataList.push(this.analysisParkData(itemOut, jsonEndPosition, buffer))
+                    snapDataList.push(analysisParkData(itemOut, jsonEndPosition, buffer))
                     return
                 }
                 const chlId = itemOut.channel_id
@@ -297,7 +289,7 @@ export default class WebsocketSnap {
      * @param {ArrayBuffer} buffer
      * @returns {WebsocketSnapOnSuccessPlate}
      */
-    private analysisParkData(data: SnapDataDatum, jsonEndPosition: number, buffer: ArrayBuffer) {
+    const analysisParkData = (data: SnapDataDatum, jsonEndPosition: number, buffer: ArrayBuffer) => {
         const parking_lot = data
         const parking_lot_info = parking_lot.parking_lot_info
         const vehicle_info = parking_lot.vehicle_info // 当前帧
@@ -336,18 +328,24 @@ export default class WebsocketSnap {
         return obj
     }
 
-    start() {
-        const cmd = CMD_REALTIME_SNAP_SUBSCRIBE(this.config)
-        this.ws!.send(JSON.stringify(cmd))
+    const start = () => {
+        const cmd = CMD_REALTIME_SNAP_SUBSCRIBE(config)
+        ws.send(JSON.stringify(cmd))
     }
 
-    stop() {
+    const stop = () => {
         const cmd = CMD_REALTIME_SNAP_UNSUBSCRIBE()
-        this.ws!.send(JSON.stringify(cmd))
+        ws.send(JSON.stringify(cmd))
     }
 
-    destroy() {
-        this.stop()
-        this.ws!.close()
+    const destroy = () => {
+        stop()
+        ws.close()
+    }
+
+    return {
+        start,
+        stop,
+        destroy,
     }
 }

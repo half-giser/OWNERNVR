@@ -9,21 +9,6 @@ export {}
 
 declare global {
     /**
-     * 有效的UI名称
-     * 同时也跟src\views下的UI目录的名字对应
-     */
-    type UiName = 'UI1' | 'UI2' | 'UI3' | 'UI4' | 'UI5'
-
-    /**
-     * UI和主题
-     */
-    interface UiAndTheme {
-        ui: UiName
-        theme: string
-        name: string
-    }
-
-    /**
      * 多组件路径Map：
      * name：视图出口的名称
      * value：组件路径
@@ -100,6 +85,8 @@ declare global {
             default?: boolean
             /** 分组元标签 */
             groups?: Record<string, FeatureItemGroupMeta>
+            /** 是否控制面板的默认菜单项 */
+            homeDefault?: boolean
         }
         /** 子路由配置项 */
         children?: FeatureTree
@@ -141,13 +128,9 @@ declare global {
             homeSort?: number
             sort?: number
             inHome?: 'self' | 'group'
+            homeDefault?: boolean
         }
         children: RouteRecordRawExtends[]
         redirect: string
     }
-
-    /**
-     * 路由组名称
-     */
-    type RouteGroupName = 'monitor' | 'config' | 'common'
 }

@@ -142,7 +142,7 @@
 
 .speed {
     width: 190px;
-    margin: 0 auto 10px;
+    margin: 0 auto 3px;
     display: flex;
     align-items: center;
     flex-shrink: 0;
@@ -160,7 +160,7 @@
 
 .row {
     width: 190px;
-    margin: 5px auto;
+    margin: 3px auto;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -181,6 +181,7 @@
         justify-content: space-between;
         flex-shrink: 0;
         margin: 10px 0;
+        font-size: 16px;
     }
 
     &-main {

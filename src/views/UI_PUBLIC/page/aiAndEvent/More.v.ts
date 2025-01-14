@@ -3,7 +3,7 @@
  * @Date: 2024-09-10 17:50:35
  * @Description: 更多功能页面的框架
  */
-import { AlarmChlDto } from '@/types/apiType/aiAndEvent'
+import { AlarmChlDto, type AlarmOnlineChlDto } from '@/types/apiType/aiAndEvent'
 import AlarmBaseChannelSelector from './AlarmBaseChannelSelector.vue'
 import FireDetectionPanel from './FireDetectionPanel.vue'
 import TemperatureDetectionPanel from './TemperatureDetectionPanel.vue'
@@ -32,50 +32,14 @@ export default defineComponent({
             // 在线通道id列表
             onlineChannelIdList: [] as string[],
             // 在线通道列表
-            onlineChannelList: [] as { id: string; ip: string; name: string; accessType: string }[],
+            onlineChannelList: [] as AlarmOnlineChlDto[],
             // 通道能力集
             chlCaps: {} as Record<string, AlarmChlDto>,
             // 当前选择的功能
-            chosenFunction: 'tripwire',
+            tab: '',
+            notSupport: false,
             // 声音列表
             voiceList: [] as SelectOption<string, string>[],
-            // 排程列表
-            scheduleList: [] as SelectOption<string, string>[],
-
-            // 是否支持声音设置
-            supportAlarmAudioConfig: true,
-
-            // 设备能力集
-            localFaceDectEnabled: false,
-            localTargetDectEnabled: false,
-            faceMatchLimitMaxChlNum: 0,
-            supportFaceMatch: false,
-            supportPlateMatch: false,
-            showAIReourceDetail: false,
-
-            // fireDetection是否禁用
-            fireDetectionDisable: false,
-            // videoStructure是否禁用
-            videoStructureDisable: false,
-            // passLine是否禁用
-            passLineDisable: false,
-            // cdd是否禁用
-            cddDisable: false,
-            // temperatureDetection是否禁用
-            temperatureDetectionDisable: false,
-            // objectLeft是否禁用
-            objectLeftDisable: false,
-            // avd是否禁用
-            avdDisable: false,
-
-            // 筛选出第一个支持人脸的通道
-            checkFirstFaceChlId: '',
-            // 筛选出第一个支持车辆的通道
-            checkFirstVehicleChlId: '',
-            // 保存所有支持人车非周界的通道
-            boundaryChlCapsObj: [],
-            // 保存所有支持更多分类的通道
-            moreChlCapsObj: [],
         })
 
         const chlData = computed(() => {
@@ -83,8 +47,30 @@ export default defineComponent({
         })
 
         // 切换通道
-        const handleChangeChannel = () => {
-            initPage()
+        const changeChannel = () => {
+            const tabList: [string, boolean][] = [
+                ['fireDetection', chlData.value.supportFire],
+                ['videoStructure', chlData.value.supportVideoMetadata],
+                ['passLine', chlData.value.supportPassLine || chlData.value.supportCpc],
+                ['cdd', chlData.value.supportCdd],
+                ['temperatureDetection', chlData.value.supportTemperature],
+                ['objectLeft', chlData.value.supportOsc],
+                ['avd', chlData.value.supportAvd],
+            ]
+
+            tabList.some((item) => {
+                if (item[1]) {
+                    pageData.value.tab = item[0]
+                }
+                return item[1]
+            })
+
+            // 若都不可用，则显示提示
+            if (!pageData.value.tab) {
+                pageData.value.notSupport = true
+            } else {
+                pageData.value.notSupport = false
+            }
         }
 
         // 获取在线通道
@@ -98,26 +84,12 @@ export default defineComponent({
             }
 
             if (!pageData.value.onlineChannelIdList.length) {
-                pageData.value.chosenFunction = ''
-                pageData.value.fireDetectionDisable = true
-                pageData.value.videoStructureDisable = true
-                pageData.value.passLineDisable = true
-                pageData.value.cddDisable = true
-                pageData.value.temperatureDetectionDisable = true
-                pageData.value.objectLeftDisable = true
-                pageData.value.avdDisable = true
+                pageData.value.notSupport = true
             }
         }
 
         // 获取通道数据
         const getChannelData = async () => {
-            pageData.value.localFaceDectEnabled = !!systemCaps.localFaceDectMaxCount
-            pageData.value.localTargetDectEnabled = !!systemCaps.localTargetDectMaxCount
-            pageData.value.faceMatchLimitMaxChlNum = systemCaps.faceMatchLimitMaxChlNum
-            pageData.value.supportFaceMatch = systemCaps.supportFaceMatch
-            pageData.value.supportPlateMatch = systemCaps.supportPlateMatch
-            pageData.value.showAIReourceDetail = systemCaps.showAIReourceDetail
-
             const result = await getChlList({
                 requireField: [
                     'ip',
@@ -181,12 +153,13 @@ export default defineComponent({
                         let supportBackPea = false
                         let supportBackAOIEntry = false
                         let supportBackAOILeave = false
-                        if (pageData.value.localFaceDectEnabled) {
+
+                        if (!!systemCaps.localFaceDectMaxCount) {
                             // 支持人脸后侦测且人脸前侦测为false，才算支持人脸后侦测
                             supportBackVfd = !supportVfd
                         }
 
-                        if (pageData.value.localTargetDectEnabled) {
+                        if (!!systemCaps.localTargetDectMaxCount) {
                             supportBackTripwire = !supportTripwire
                             supportBackPea = !supportPea
                             supportBackAOIEntry = !supportAOIEntry
@@ -219,33 +192,9 @@ export default defineComponent({
                             supportFire,
                             supportTemperature,
                             supportBackVfd,
-                            pageData.value.localTargetDectEnabled,
                             supportVideoMetadata,
                         ]
                         if (allCapsArr.includes(true)) {
-                            if (!pageData.value.checkFirstFaceChlId) {
-                                if (supportVfd || supportBackVfd) {
-                                    pageData.value.checkFirstFaceChlId = id
-                                }
-                            }
-
-                            if (!pageData.value.checkFirstVehicleChlId && supportVehiclePlate) {
-                                pageData.value.checkFirstVehicleChlId = id
-                            }
-                            // 保存人车非周界的能力集，用于筛选出第一个支持的通道
-                            // 保存能力集为true的通道
-                            // 区域入侵界面包含了区域进入和离开
-                            // const areaIntellCfg = [supportPea, supportBackPea, supportPeaTrigger, supportAOIEntry, supportBackAOIEntry, supportAOILeave, supportBackAOILeave]
-                            // supportTripwire || supportBackTripwire || supportPeaTrigger ? pageData.value.tripwireCaps.push(id) : pageData.value.tripwireCaps
-                            // areaIntellCfg.includes(true) ? pageData.value.peaCaps.push(id) : pageData.value.peaCaps
-                            // 更多模块 其他页面用
-                            // supportOsc ? oscCaps.push(id) : oscCaps
-                            // supportCdd ? cddCaps.push(id) : cddCaps
-                            // supportPassLine || supportCpc ? passLinecaps.push(id) : passLinecaps
-                            // supportAvd ? avdCaps.push(id) : avdCaps
-                            // supportFire ? fireCaps.push(id) : fireCaps
-                            // supportTemperature ? temperatureCaps.push(id) : temperatureCaps
-
                             pageData.value.onlineChannelList.push({
                                 id: id,
                                 ip: ip,
@@ -282,64 +231,33 @@ export default defineComponent({
                                 supportFire: supportFire,
                                 supportTemperature: supportTemperature,
                                 supportVideoMetadata: supportVideoMetadata,
-                                showAIReourceDetail: pageData.value.showAIReourceDetail,
-                                faceMatchLimitMaxChlNum: pageData.value.faceMatchLimitMaxChlNum,
                             }
                         }
                     }
                 })
+
                 pageData.value.currChlId = pageData.value.onlineChannelList[0].id
             }
         }
 
         // 获取音频列表
         const getVoiceList = async () => {
-            pageData.value.supportAlarmAudioConfig = systemCaps.supportAlarmAudioConfig
-            if (pageData.value.supportAlarmAudioConfig) {
+            if (systemCaps.supportAlarmAudioConfig) {
                 pageData.value.voiceList = await buildAudioList()
             }
-        }
-
-        // 切换通道及初始化时判断tab是否可用，若不可用则切换到可用的tab，都不可用再显示提示
-        const isTabDisabled = () => {
-            pageData.value.fireDetectionDisable = !chlData.value.supportFire
-            pageData.value.videoStructureDisable = !chlData.value.supportVideoMetadata
-            pageData.value.passLineDisable = !(chlData.value.supportPassLine || chlData.value.supportCpc)
-            pageData.value.cddDisable = !chlData.value.supportCdd
-            pageData.value.temperatureDetectionDisable = !chlData.value.supportTemperature
-            pageData.value.objectLeftDisable = !chlData.value.supportOsc
-            pageData.value.avdDisable = !chlData.value.supportAvd
-            // 遍历上述七个tab，找到第一个可用的tab，切换到该tab
-            const tabList = ['fireDetection', 'videoStructure', 'passLine', 'cdd', 'temperatureDetection', 'objectLeft', 'avd']
-            let flag = false
-            tabList.forEach((item) => {
-                const tabDisable = item + 'Disable'
-                if (!pageData.value[tabDisable as keyof typeof pageData.value] && !flag) {
-                    pageData.value.chosenFunction = item
-                    flag = true
-                }
-            })
-            // 若都不可用，则显示提示
-            if (!flag) {
-                pageData.value.chosenFunction = ''
-            }
-        }
-
-        const initPage = () => {
-            isTabDisabled()
         }
 
         onMounted(async () => {
             await getOnlineChannel()
             await getChannelData()
             await getVoiceList()
-            initPage()
+            changeChannel()
         })
 
         return {
             chlData,
             pageData,
-            handleChangeChannel,
+            changeChannel,
         }
     },
 })

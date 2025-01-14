@@ -48,19 +48,17 @@ export default defineComponent({
         const systemCaps = useCababilityStore()
         const playerRef = ref<PlayerInstance>()
 
-        let cddDrawer: CanvasVfd
+        let cddDrawer: ReturnType<typeof CanvasVfd>
 
         const pageData = ref({
             // 是否支持声音设置
             supportAlarmAudioConfig: systemCaps.supportAlarmAudioConfig,
-            // 不支持功能提示页面是否展示
-            // notSupportTipShow: false,
             // 请求数据失败显示提示
-            requireDataFail: false,
+            reqFail: false,
+            // 选择的功能:param、trigger
+            tab: 'param',
             isSchedulePop: false,
             scheduleList: [] as SelectOption<string, string>[],
-            // 选择的功能:param、trigger
-            fuction: 'param',
             // 是否显示绘制控制按钮 老代码写死不显示 并且允许画图
             // showDrawAvailable: false,
             // 是否允许绘制 老代码写死允许画图
@@ -96,7 +94,7 @@ export default defineComponent({
             if (mode.value === 'h5') {
                 if (playerRef.value) {
                     const canvas = player.getDrawbordCanvas(0)
-                    cddDrawer = new CanvasVfd({
+                    cddDrawer = CanvasVfd({
                         el: canvas,
                         onchange: (data) => {
                             formData.value.regionInfo = [data]
@@ -155,6 +153,7 @@ export default defineComponent({
         const closeSchedulePop = async () => {
             pageData.value.isSchedulePop = false
             await getScheduleList()
+            formData.value.schedule = getScheduleId(pageData.value.scheduleList, formData.value.schedule)
         }
 
         /**
@@ -162,24 +161,6 @@ export default defineComponent({
          */
         const getScheduleList = async () => {
             pageData.value.scheduleList = await buildScheduleList()
-        }
-
-        /**
-         * @description 格式化持续时间
-         * @param {string[]} holdTimeList
-         * @returns {SelectOption<string, string>[]}
-         */
-        const formatHoldTime = (holdTimeList: string[]) => {
-            const timeList = holdTimeList.map((ele) => {
-                const value = Number(ele)
-                const label = getTranslateForSecond(value)
-                return {
-                    value,
-                    label,
-                }
-            })
-            timeList.sort((a, b) => a.value - b.value)
-            return timeList
         }
 
         /**
@@ -205,21 +186,12 @@ export default defineComponent({
                 const $param = queryXml($('content/chl/param')[0].element)
                 const $trigger = queryXml($('content/chl/trigger')[0].element)
 
-                const holdTimeArr = $param('holdTimeNote').text().split(',')
-                const holdTime = $param('alarmHoldTime').text().num()
-                if (!holdTimeArr.includes(holdTime.toString())) {
-                    holdTimeArr.push(holdTime.toString())
-                }
-
-                let schedule = $('content/chl').attr('scheduleGuid')
-                schedule = schedule !== '' ? (pageData.value.scheduleList.some((item) => item.value === schedule) ? schedule : DEFAULT_EMPTY_ID) : DEFAULT_EMPTY_ID
-
                 formData.value = {
                     detectionEnable: $param('switch').text().bool(),
                     originalEnable: $param('switch').text().bool(),
-                    schedule,
-                    holdTime,
-                    holdTimeList: formatHoldTime(holdTimeArr),
+                    schedule: getScheduleId(pageData.value.scheduleList, $('content/chl').attr('scheduleGuid')),
+                    holdTime: $param('alarmHoldTime').text().num(),
+                    holdTimeList: getAlarmHoldTimeList($param('holdTimeNote').text(), $param('alarmHoldTime').text().num()),
                     refreshFrequency: $param('detectFrequency').text().num(),
                     refreshFrequencyList: $('types/refreshFrequency/enum').map((item) => {
                         const value = item.text().num() / 1000
@@ -276,7 +248,8 @@ export default defineComponent({
 
                 watchEdit.listen()
             } else {
-                pageData.value.requireDataFail = true
+                pageData.value.reqFail = true
+                pageData.value.tab = ''
             }
         }
 
@@ -309,12 +282,7 @@ export default defineComponent({
                             </sysRec>
                             <alarmOut>
                                 <alarmOuts type="list">
-                                    ${formData.value.alarmOut
-                                        .map(
-                                            (element) => `
-                                                <item id="${element.value}"><![CDATA[${element.label}]]></item>`,
-                                        )
-                                        .join('')}
+                                    ${formData.value.alarmOut.map((element) => `<item id="${element.value}"><![CDATA[${element.label}]]></item>`).join('')}
                                 </alarmOuts>
                             </alarmOut>
                             <preset>
@@ -392,7 +360,12 @@ export default defineComponent({
                 plugin.ExecuteCmd(sendXML)
             }
 
-            formData.value.regionInfo[0] = { X1: 0, X2: 0, Y1: 0, Y2: 0 }
+            formData.value.regionInfo[0] = {
+                X1: 0,
+                X2: 0,
+                Y1: 0,
+                Y2: 0,
+            }
         }
 
         const notify = ($: XMLQuery) => {

@@ -3,7 +3,7 @@
  * @Date: 2024-09-11 14:16:37
  * @Description: 火点检测
  */
-import { type AlarmChlDto, AlarmFireDetectionDto } from '@/types/apiType/aiAndEvent'
+import { type AlarmChlDto, type AlarmOnlineChlDto, AlarmFireDetectionDto } from '@/types/apiType/aiAndEvent'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
 import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
@@ -46,7 +46,7 @@ export default defineComponent({
          * @property {Array} 在线通道列表
          */
         onlineChannelList: {
-            type: Array as PropType<{ id: string; ip: string; name: string; accessType: string }[]>,
+            type: Array as PropType<AlarmOnlineChlDto[]>,
             required: true,
         },
     },
@@ -61,15 +61,13 @@ export default defineComponent({
         const pageData = ref({
             // 是否支持声音设置
             supportAlarmAudioConfig: true,
-            // 不支持功能提示页面是否展示
-            // notSupportTipShow: false,
             // 请求数据失败显示提示
-            requireDataFail: false,
+            reqFail: false,
+            // 选择的功能:param、trigger
+            tab: 'param',
             isSchedulePop: false,
             scheduleList: [] as SelectOption<string, string>[],
             isSwitchChange: false,
-            // 选择的功能:param、trigger
-            fuction: 'param',
             drawInitCount: 0,
         })
 
@@ -131,25 +129,12 @@ export default defineComponent({
         const closeSchedulePop = async () => {
             pageData.value.isSchedulePop = false
             await getScheduleList()
+            formData.value.schedule = getScheduleId(pageData.value.scheduleList, formData.value.schedule)
         }
 
         // 对sheduleList进行处理
         const getScheduleList = async () => {
             pageData.value.scheduleList = await buildScheduleList()
-        }
-
-        // 格式化持续时间
-        const formatHoldTime = (holdTimeList: string[]) => {
-            const timeList = holdTimeList.map((ele) => {
-                const value = Number(ele)
-                const label = getTranslateForSecond(value)
-                return {
-                    value,
-                    label,
-                }
-            })
-            timeList.sort((a, b) => a.value - b.value)
-            return timeList
         }
 
         // 获取火点数据
@@ -174,15 +159,6 @@ export default defineComponent({
                 const $param = queryXml($('content/chl/param')[0].element)
                 const $trigger = queryXml($('content/chl/trigger')[0].element)
 
-                const holdTimeArr = $param('holdTimeNote').text().split(',')
-                const holdTime = $param('alarmHoldTime').text().num()
-                if (!holdTimeArr.includes(holdTime.toString())) {
-                    holdTimeArr.push(holdTime.toString())
-                }
-
-                let schedule = $('content/chl').attr('scheduleGuid')
-                schedule = schedule !== '' ? (pageData.value.scheduleList.some((item) => item.value === schedule) ? schedule : DEFAULT_EMPTY_ID) : DEFAULT_EMPTY_ID
-
                 formData.value = {
                     mutexList: $param('mutexList/item').map((item) => {
                         const $item = queryXml(item.element)
@@ -198,9 +174,9 @@ export default defineComponent({
                             status: $item('status').text().bool(),
                         }
                     }),
-                    holdTime,
-                    holdTimeList: formatHoldTime(holdTimeArr),
-                    schedule,
+                    holdTime: $param('alarmHoldTime').text().num(),
+                    holdTimeList: getAlarmHoldTimeList($param('holdTimeNote').text(), $param('alarmHoldTime').text().num()),
+                    schedule: getScheduleId(pageData.value.scheduleList, $('content/chl').attr('scheduleGuid')),
                     detectionEnable: $param('switch').text().bool(),
                     originalEnable: $param('switch').text().bool(),
                     audioSuport: $param('triggerAudio').text() !== '',
@@ -257,7 +233,8 @@ export default defineComponent({
 
                 watchEdit.listen()
             } else {
-                pageData.value.requireDataFail = true
+                pageData.value.tab = ''
+                pageData.value.reqFail = true
             }
         }
 

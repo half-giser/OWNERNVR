@@ -137,11 +137,11 @@
         & > div {
             background-color: transparent;
             width: 42px;
-            height: 38px;
+            height: 35px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 5px;
+            margin: 0 4px 2px;
             border-top: 3px solid transparent;
 
             &.active {

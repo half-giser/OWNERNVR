@@ -124,8 +124,8 @@ export default defineComponent({
                 <pageIndex>${formData.value.pageIndex}</pageIndex>
                 <pageSize>${formData.value.pageSize}</pageSize>
                 <condition>
-                    <startTime>${formatDate(startTime, 'YYYY-MM-DD HH:mm:ss')}</startTime>
-                    <endTime>${formatDate(endTime, 'YYYY-MM-DD HH:mm:ss')}</endTime>
+                    <startTime>${formatDate(startTime, DEFAULT_DATE_FORMAT)}</startTime>
+                    <endTime>${formatDate(endTime, DEFAULT_DATE_FORMAT)}</endTime>
                     <startTimeEx>${localToUtc(startTime)}</startTimeEx>
                     <endTimeEx>${localToUtc(endTime)}</endTimeEx>
                 </condition>
@@ -150,7 +150,7 @@ export default defineComponent({
                     creator: Translate($item('creator').text()),
                     captureMode: $item('captureMode').text().num(),
                     captureModeKey: Translate($item('captureMode').attr('translateKey')),
-                    captureTimeStamp: dayjs.utc($item('captureTime').text().substring(0, 19), 'YYYY-MM-DD HH:mm:ss').valueOf(),
+                    captureTimeStamp: dayjs.utc($item('captureTime').text().substring(0, 19), DEFAULT_DATE_FORMAT).valueOf(),
                     captureTime: $item('captureTime').text(),
                 }
             })

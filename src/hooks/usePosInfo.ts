@@ -3,7 +3,6 @@
  * @Date: 2024-08-12 14:52:28
  * @Description: POS信息
  */
-import { type TVTPlayerPosInfoItem } from '@/utils/wasmPlayer/tvtPlayer'
 
 /**
  * @description POS信息

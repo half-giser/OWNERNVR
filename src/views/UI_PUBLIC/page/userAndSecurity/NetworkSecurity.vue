@@ -32,7 +32,7 @@
                         <el-checkbox
                             v-model="scope.row.autoGetGatewayMac"
                             :disabled="!scope.row.arpSwitch"
-                            @change="handleChangeAutoGetGatewayMac(scope.row, scope.$index)"
+                            @change="changeAutoGetGatewayMac(scope.row)"
                         />
                     </template>
                 </el-table-column>
@@ -44,7 +44,7 @@
                         <BaseMacInput
                             v-model="scope.row.getGatewayMac"
                             :disabled="!scope.row.arpSwitch || scope.row.autoGetGatewayMac"
-                            @change="handleChangeMannualGatewayMac(scope.row, scope.$index)"
+                            @change="changeMannualGatewayMac(scope.row)"
                         />
                     </template>
                 </el-table-column>

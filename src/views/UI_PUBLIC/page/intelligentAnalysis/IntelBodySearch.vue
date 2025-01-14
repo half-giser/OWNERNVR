@@ -6,7 +6,7 @@
 <template>
     <div class="base-intel-box">
         <div class="base-intel-left base-intel-left-column">
-            <div>
+            <div class="base-intel-left-form">
                 <IntelBaseDateTimeSelector v-model="formData.dateRange" />
                 <IntelBaseChannelSelector
                     v-model="formData.chl"

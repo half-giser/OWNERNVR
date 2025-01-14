@@ -49,6 +49,7 @@ export default {
                 lk: 'IDCS_MODE_SET',
                 group: 'record',
                 default: true,
+                homeDefault: true,
                 inHome: 'self',
                 homeSort: 10,
             },

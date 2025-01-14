@@ -296,7 +296,7 @@ export default defineComponent({
             if ($('status').text() === 'success') {
                 pageData.value.isCheckAuth = false
                 if (isSupportH5.value) {
-                    new WebsocketDownload({
+                    WebsocketDownload({
                         config: {
                             file_id: 'config_file',
                         },
@@ -360,7 +360,7 @@ export default defineComponent({
                     },
                 }
                 if (noCheckversion) obj.checkversion = false // checkversion为false, 则启动降级升级
-                new WebsocketUpload({
+                WebsocketUpload({
                     file: file,
                     config: obj,
                     progress: (step) => {

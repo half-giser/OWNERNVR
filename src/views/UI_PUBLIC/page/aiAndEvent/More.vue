@@ -8,22 +8,28 @@
         <AlarmBaseChannelSelector
             v-model="pageData.currChlId"
             :list="pageData.onlineChannelList"
-            :height="pageData.chosenFunction === 'avd' ? 100 : 140"
-            @change="handleChangeChannel"
+            :height="pageData.tab === 'avd' ? 100 : 140"
+            @change="changeChannel"
         />
         <el-tabs
             :key="pageData.currChlId"
-            v-model="pageData.chosenFunction"
+            v-model="pageData.tab"
             class="base-ai-menu-tabs"
         >
+            <div
+                v-show="pageData.notSupport"
+                class="base-ai-not-support-box"
+            >
+                {{ Translate('IDCS_ADD_INTEL_CHANNEL_TIP').formatForLang(Translate('IDCS_INTELLIGENT')) }}
+            </div>
             <!-- fireDetection -->
             <el-tab-pane
-                :disabled="pageData.fireDetectionDisable"
+                :disabled="!chlData.supportFire"
                 name="fireDetection"
                 :label="Translate('IDCS_FIRE_POINT_DETECTION')"
             >
                 <FireDetectionPanel
-                    v-if="pageData.chosenFunction === 'fireDetection'"
+                    v-if="pageData.tab === 'fireDetection'"
                     :curr-chl-id="pageData.currChlId"
                     :chl-data="chlData"
                     :voice-list="pageData.voiceList"
@@ -33,12 +39,12 @@
 
             <!-- videoStructure -->
             <el-tab-pane
-                :disabled="pageData.videoStructureDisable"
+                :disabled="!chlData.supportVideoMetadata"
                 name="videoStructure"
                 :label="Translate('IDCS_VSD_DETECTION')"
             >
                 <VideoStructurePanel
-                    v-if="pageData.chosenFunction === 'videoStructure'"
+                    v-if="pageData.tab === 'videoStructure'"
                     :curr-chl-id="pageData.currChlId"
                     :chl-data="chlData"
                     :voice-list="pageData.voiceList"
@@ -47,12 +53,12 @@
 
             <!-- passLine -->
             <el-tab-pane
-                :disabled="pageData.passLineDisable"
+                :disabled="!chlData.supportPassLine && !chlData.supportCpc"
                 name="passLine"
                 :label="Translate('IDCS_PASS_LINE_COUNT_DETECTION')"
             >
                 <PassLinePanel
-                    v-if="pageData.chosenFunction === 'passLine'"
+                    v-if="pageData.tab === 'passLine'"
                     :curr-chl-id="pageData.currChlId"
                     :chl-data="chlData"
                     :voice-list="pageData.voiceList"
@@ -62,12 +68,12 @@
 
             <!-- cdd -->
             <el-tab-pane
-                :disabled="pageData.cddDisable"
+                :disabled="!chlData.supportCdd"
                 name="cdd"
                 :label="Translate('IDCS_CROWD_DENSITY_DETECTION')"
             >
                 <CddPanel
-                    v-if="pageData.chosenFunction === 'cdd'"
+                    v-if="pageData.tab === 'cdd'"
                     :curr-chl-id="pageData.currChlId"
                     :chl-data="chlData"
                     :voice-list="pageData.voiceList"
@@ -76,12 +82,12 @@
 
             <!-- temperatureDetection -->
             <el-tab-pane
-                :disabled="pageData.temperatureDetectionDisable"
+                :disabled="!chlData.supportTemperature"
                 name="temperatureDetection"
                 :label="Translate('IDCS_TEMPERATURE_DETECTION')"
             >
                 <TemperatureDetectionPanel
-                    v-if="pageData.chosenFunction === 'temperatureDetection'"
+                    v-if="pageData.tab === 'temperatureDetection'"
                     :curr-chl-id="pageData.currChlId"
                     :chl-data="chlData"
                     :voice-list="pageData.voiceList"
@@ -90,12 +96,12 @@
 
             <!-- objectLeft -->
             <el-tab-pane
-                :disabled="pageData.objectLeftDisable"
+                :disabled="!chlData.supportOsc"
                 name="objectLeft"
                 :label="Translate('IDCS_WATCH_DETECTION')"
             >
                 <ObjectLeftPanel
-                    v-if="pageData.chosenFunction === 'objectLeft'"
+                    v-if="pageData.tab === 'objectLeft'"
                     :curr-chl-id="pageData.currChlId"
                     :chl-data="chlData"
                     :voice-list="pageData.voiceList"
@@ -104,24 +110,17 @@
 
             <!-- avd -->
             <el-tab-pane
-                :disabled="pageData.avdDisable"
+                :disabled="!chlData.supportAvd"
                 name="avd"
                 :label="Translate('IDCS_ABNORMAL_DISPOSE_WAY')"
             >
                 <AbnormalDisposePanel
-                    v-if="pageData.chosenFunction === 'avd'"
+                    v-if="pageData.tab === 'avd'"
                     :curr-chl-id="pageData.currChlId"
                     :chl-data="chlData"
                     :voice-list="pageData.voiceList"
                 />
             </el-tab-pane>
-
-            <div
-                v-if="pageData.chosenFunction === ''"
-                class="base-ai-not-support-box"
-            >
-                {{ Translate('IDCS_ADD_INTEL_CHANNEL_TIP').formatForLang(Translate('IDCS_INTELLIGENT')) }}
-            </div>
         </el-tabs>
     </div>
 </template>

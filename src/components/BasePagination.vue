@@ -85,10 +85,25 @@ import { arrayToOptions } from '@/utils/tools'
 
 const prop = withDefaults(
     defineProps<{
+        /**
+         * @property 当前页页码
+         */
         currentPage?: number
+        /**
+         * @property 每页行数
+         */
         pageSize?: number
+        /**
+         * @property 每页行数可选项
+         */
         pageSizes?: number[]
+        /**
+         * @property 总行数
+         */
         total: number
+        /**
+         * @property Layout
+         */
         layout?: string
     }>(),
     {
@@ -123,11 +138,19 @@ const emits = defineEmits<{
     (e: 'sizeChange', pageSize: number): void
 }>()
 
+/**
+ * @description 改变每页行数
+ * @param {number} pageSize
+ */
 const changePageSize = (pageSize: number) => {
     emits('update:pageSize', pageSize)
     emits('sizeChange', pageSize)
 }
 
+/**
+ * @description 输入页码
+ * @param {number} currentPage
+ */
 const keydownPage = (currentPage: number) => {
     if (currentPage > totalPage.value) {
         inputNumber.value = totalPage.value
@@ -140,11 +163,18 @@ const keydownPage = (currentPage: number) => {
     changeCurrentPage(inputNumber.value)
 }
 
+/**
+ * @description 切换页码
+ * @param {number} currentPage
+ */
 const changeCurrentPage = (currentPage: number) => {
     emits('update:currentPage', currentPage)
     emits('currentChange', currentPage)
 }
 
+/**
+ * @description 跳转首页
+ */
 const firstPage = () => {
     if (prop.currentPage <= 1) {
         return
@@ -153,6 +183,9 @@ const firstPage = () => {
     changeCurrentPage(1)
 }
 
+/**
+ * @description 上一页
+ */
 const prevPage = () => {
     if (prop.currentPage <= 1) {
         return
@@ -161,6 +194,9 @@ const prevPage = () => {
     changeCurrentPage(prop.currentPage - 1)
 }
 
+/**
+ * @description 下一页
+ */
 const nextPage = () => {
     if (prop.currentPage >= totalPage.value) {
         return
@@ -169,6 +205,9 @@ const nextPage = () => {
     changeCurrentPage(prop.currentPage + 1)
 }
 
+/**
+ * @description 跳转尾页
+ */
 const lastPage = () => {
     if (prop.currentPage >= totalPage.value) {
         return
@@ -192,14 +231,14 @@ watch(
     align-items: center;
 
     .btn {
-        width: 24px;
-        height: 24px;
+        width: 19px;
+        height: 19px;
         overflow: hidden;
         border: 1px solid var(--pagination-border);
         margin: 0 2px;
 
         :deep(.Sprite) {
-            transform: translate3d(-8px, -8px, 0);
+            transform: translate3d(-11px, -11px, 0);
         }
 
         &:hover {

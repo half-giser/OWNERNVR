@@ -27,7 +27,7 @@ export default defineComponent({
 
         const MAX_ZIP_FILE_LENGTH = 5000 // 一个压缩包最大图片文件数量
 
-        let websocket: WebsocketFaceLib | null = null
+        let websocket: ReturnType<typeof WebsocketFaceLib> | null = null
 
         const csvHeader = [
             '(01)' + Translate('IDCS_NAME_PERSON'),
@@ -79,7 +79,7 @@ export default defineComponent({
         const open = () => {
             pageData.value.currentTask = 0
 
-            websocket = new WebsocketFaceLib({
+            websocket = WebsocketFaceLib({
                 onsuccess(data) {
                     // 数据接收完毕, 执行导出
                     if (typeof data === 'number') {

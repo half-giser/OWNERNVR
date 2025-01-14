@@ -10,42 +10,42 @@
         @change="changeChl"
     />
     <el-tabs
-        v-model="pageData.faceTab"
+        :key="pageData.curChl"
+        v-model="pageData.tab"
         class="base-ai-menu-tabs"
         @tab-change="changeTab"
     >
         <div
-            v-if="pageData.notChlSupport"
+            v-if="pageData.notSupport"
             class="base-ai-not-support-box"
         >
-            {{ pageData.notSupportTip }}
+            {{ Translate('IDCS_FACE_EVENT_UNSUPORT_TIP') }}
         </div>
         <!-- 侦测 -->
         <el-tab-pane
             :label="Translate('IDCS_DETECTION')"
             name="faceDetection"
-            :disabled="pageData.faceDetectionDisabled"
+            :disabled="pageData.detectionDisabled"
         >
             <div>
                 <div class="base-btn-box space-between padding collapse">
                     <el-checkbox
-                        v-model="faceDetectionData.enabledSwitch"
+                        v-model="detectionFormData.enabledSwitch"
                         :label="detectionPageData.deviceInfo"
                     />
                     <AlarmBaseResourceData
                         v-if="showAIReourceDetail"
                         :chl-id="pageData.curChl"
                         event="faceDetect"
-                        :enable="faceDetectionData.enabledSwitch && !chlData.supportVfd"
+                        :enable="detectionFormData.enabledSwitch && !chlData.supportVfd"
                         @error="handleAIResourceError"
                         @change="handleAIResourceDel"
                     />
                 </div>
                 <div class="base-ai-form">
                     <el-tabs
-                        v-model="detectionPageData.detectionTab"
+                        v-model="detectionPageData.tab"
                         class="base-ai-tabs"
-                        @tab-change="changeDetectionTab"
                     >
                         <!-- 参数设置 -->
                         <el-tab-pane
@@ -61,7 +61,7 @@
                                         @message="notify"
                                     />
                                 </div>
-                                <div v-show="faceDetectionData.supportVfd">
+                                <div v-show="detectionFormData.supportVfd">
                                     <div class="base-btn-box">
                                         <el-button @click="clearDrawArea">{{ Translate('IDCS_CLEAR') }}</el-button>
                                     </div>
@@ -79,37 +79,37 @@
                                     <!-- 排程配置 -->
                                     <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
                                         <el-select-v2
-                                            v-model="faceDetectionData.schedule"
+                                            v-model="detectionFormData.schedule"
                                             :options="pageData.scheduleList"
                                         />
-                                        <el-button @click="pageData.scheduleManagPopOpen = true">{{ Translate('IDCS_MANAGE') }}</el-button>
+                                        <el-button @click="pageData.isSchedulePop = true">{{ Translate('IDCS_MANAGE') }}</el-button>
                                     </el-form-item>
-                                    <template v-if="faceDetectionData.supportVfd">
+                                    <template v-if="detectionFormData.supportVfd">
                                         <!-- 规则 -->
                                         <div class="base-ai-subheading">{{ Translate('IDCD_RULE') }}</div>
                                         <!-- 持续时间 -->
                                         <el-form-item :label="Translate('IDCS_DURATION')">
                                             <el-select-v2
-                                                v-model="faceDetectionData.holdTime"
-                                                :options="faceDetectionData.holdTimeList"
+                                                v-model="detectionFormData.holdTime"
+                                                :options="detectionFormData.holdTimeList"
                                             />
                                         </el-form-item>
                                         <!-- 抓拍间隔 -->
                                         <el-form-item :label="Translate('IDCS_SNAPSHOT_INTERVAL')">
                                             <el-select-v2
-                                                v-model="faceDetectionData.snapInterval"
+                                                v-model="detectionFormData.snapInterval"
                                                 :options="detectionPageData.snapList"
-                                                :disabled="faceDetectionData.snapInterval === ''"
+                                                :disabled="detectionFormData.snapInterval === ''"
                                             />
                                         </el-form-item>
                                         <!-- 抓拍次数 -->
                                         <el-form-item :label="Translate('IDCS_SNAPSHOT_NUMBER')">
                                             <BaseNumberInput
-                                                v-if="faceDetectionData.captureCycleChecked"
-                                                v-model="faceDetectionData.captureCycle"
+                                                v-if="detectionFormData.captureCycleChecked"
+                                                v-model="detectionFormData.captureCycle"
                                                 :min="1"
                                                 :max="65534"
-                                                :disabled="faceDetectionData.snapInterval === ''"
+                                                :disabled="detectionFormData.snapInterval === ''"
                                             />
                                             <el-input
                                                 v-else
@@ -117,18 +117,18 @@
                                                 disabled
                                             />
                                             <el-checkbox
-                                                v-model="faceDetectionData.captureCycleChecked"
-                                                :disabled="faceDetectionData.snapInterval === ''"
+                                                v-model="detectionFormData.captureCycleChecked"
+                                                :disabled="detectionFormData.snapInterval === ''"
                                             />
                                         </el-form-item>
                                         <!-- 人脸曝光 -->
                                         <el-form-item :label="Translate('IDCS_FACE_DETECT_EXPOSURE')">
                                             <el-checkbox
-                                                v-model="faceDetectionData.faceExpSwitch"
+                                                v-model="detectionFormData.faceExpSwitch"
                                                 :disabled="detectionPageData.faceExpDisabled"
                                             />
                                             <el-slider
-                                                v-model="faceDetectionData.faceExpStrength"
+                                                v-model="detectionFormData.faceExpStrength"
                                                 :disabled="detectionPageData.faceExpDisabled"
                                                 show-input
                                                 :min="1"
@@ -139,17 +139,17 @@
                                         <div class="base-ai-subheading">{{ Translate('IDCS_FACE_SIZE_TIP') }}</div>
                                         <el-form-item :label="Translate('IDCS_MIN')">
                                             <BaseNumberInput
-                                                v-model="faceDetectionData.minFaceFrame"
+                                                v-model="detectionFormData.minFaceFrame"
                                                 :min="3"
-                                                :max="Math.min(50, faceDetectionData.maxFaceFrame)"
+                                                :max="Math.min(50, detectionFormData.maxFaceFrame)"
                                                 @blur="blurMinFaceFrame"
                                             />
                                             <span>%</span>
                                         </el-form-item>
                                         <el-form-item :label="Translate('IDCS_MAX')">
                                             <BaseNumberInput
-                                                v-model="faceDetectionData.maxFaceFrame"
-                                                :min="Math.max(faceDetectionData.minFaceFrame, 3)"
+                                                v-model="detectionFormData.maxFaceFrame"
+                                                :min="Math.max(detectionFormData.minFaceFrame, 3)"
                                                 :max="50"
                                                 @blur="blurMaxFaceFrame"
                                             />
@@ -168,7 +168,7 @@
                         </el-tab-pane>
                         <!-- 联动方式 -->
                         <el-tab-pane
-                            v-if="faceDetectionData.supportVfd"
+                            v-if="detectionFormData.supportVfd"
                             :label="Translate('IDCS_LINKAGE_MODE')"
                             name="linkage"
                         >
@@ -182,7 +182,7 @@
                                     :label="Translate('IDCS_VOICE_PROMPT')"
                                 >
                                     <el-select-v2
-                                        v-model="faceDetectionData.sysAudio"
+                                        v-model="detectionFormData.sysAudio"
                                         :options="pageData.voiceList"
                                     />
                                 </el-form-item>
@@ -190,15 +190,15 @@
                             <div class="base-ai-linkage-content">
                                 <!-- 常规联动 -->
                                 <AlarmBaseTriggerSelector
-                                    v-model="faceDetectionData.trigger"
+                                    v-model="detectionFormData.trigger"
                                     :include="detectionPageData.triggerList"
                                 />
                                 <!-- 录像 -->
-                                <AlarmBaseRecordSelector v-model="faceDetectionData.record" />
+                                <AlarmBaseRecordSelector v-model="detectionFormData.record" />
                                 <!-- 报警输出 -->
-                                <AlarmBaseRecordSelector v-model="faceDetectionData.alarmOut" />
+                                <AlarmBaseRecordSelector v-model="detectionFormData.alarmOut" />
                                 <!-- 联动预置点 -->
-                                <AlarmBasePresetSelector v-model="faceDetectionData.preset" />
+                                <AlarmBasePresetSelector v-model="detectionFormData.preset" />
                             </div>
                         </el-tab-pane>
                     </el-tabs>
@@ -210,7 +210,7 @@
                     >
                         <template #reference>
                             <div
-                                v-show="faceDetectionData.supportVfd"
+                                v-show="detectionFormData.supportVfd"
                                 class="base-ai-advance-btn"
                             >
                                 <span>{{ Translate('IDCS_ADVANCED') }}</span>
@@ -226,13 +226,13 @@
                                 {{ Translate('IDCS_VIDEO_SAVE_PIC') }}
                             </div>
                             <el-checkbox
-                                v-model="faceDetectionData.saveSourcePicture"
-                                :disabled="faceDetectionData.saveSourcePicture === undefined"
+                                v-model="detectionFormData.saveSourcePicture"
+                                :disabled="detectionFormData.saveSourcePicture === undefined"
                                 :label="Translate('IDCS_SMART_SAVE_SOURCE_PIC')"
                             />
                             <el-checkbox
-                                v-model="faceDetectionData.saveFacePicture"
-                                :disabled="faceDetectionData.saveFacePicture === undefined"
+                                v-model="detectionFormData.saveFacePicture"
+                                :disabled="detectionFormData.saveFacePicture === undefined"
                                 :label="Translate('IDCS_SMART_SAVE_TARGET_PIC')"
                             />
                             <div class="base-btn-box">
@@ -253,10 +253,10 @@
         </el-tab-pane>
         <!-- 识别 -->
         <el-tab-pane
-            v-if="pageData.isFaceCompareShow"
+            v-if="pageData.isRecognitionShow"
             :label="Translate('IDCS_RECOGNITION')"
             name="faceCompare"
-            :disabled="pageData.faceCompareDisabled"
+            :disabled="pageData.recognitionDisabled"
         >
             <div>
                 <div class="base-btn-box space-between collapse padding">
@@ -282,9 +282,8 @@
                 </div>
                 <div class="base-ai-form">
                     <el-tabs
-                        v-model="comparePageData.compareTab"
+                        v-model="recognitionPageData.tab"
                         class="base-ai-tabs"
-                        @tab-change="compareTabChange"
                     >
                         <el-tab-pane
                             :label="Translate('IDCS_PARAM_SETTING')"
@@ -319,7 +318,7 @@
                                                 >
                                                     <el-form-item :label="Translate('IDCS_SIMILARITY')">
                                                         <BaseNumberInput
-                                                            v-model="comparePageData.similarityNumber"
+                                                            v-model="recognitionPageData.similarity"
                                                             :min="1"
                                                             :max="100"
                                                         />
@@ -328,7 +327,7 @@
                                                 </el-form>
                                                 <div class="base-btn-box">
                                                     <el-button @click="changeAllSimilarity">{{ Translate('IDCS_OK') }}</el-button>
-                                                    <el-button @click="comparePageData.isSimilarityPop = false">{{ Translate('IDCS_CANCEL') }}</el-button>
+                                                    <el-button @click="recognitionPageData.isSimilarityPop = false">{{ Translate('IDCS_CANCEL') }}</el-button>
                                                 </div>
                                             </el-popover>
                                         </template>
@@ -357,11 +356,11 @@
                         >
                             <template #default>
                                 <RecognitionPanel
-                                    :curr-task-data="faceCompareData.task[index]"
+                                    :curr-task-data="recognitionFormData.task[index]"
                                     :group-data="faceGroupData"
                                     :schedule-list="pageData.scheduleList"
                                     :voice-list="pageData.voiceList"
-                                    @change="faceCompareData.task[index] = $event"
+                                    @change="recognitionFormData.task[index] = $event"
                                 />
                             </template>
                         </el-tab-pane>
@@ -370,7 +369,7 @@
                     <div class="base-ai-task-btn">
                         <span @click="addTask">+</span>
                         <span
-                            :class="{ disabled: comparePageData.removeDisabled }"
+                            :class="{ disabled: ['param', 'miss', 'hit'].includes(recognitionPageData.tab) }"
                             @click="removeTask"
                             >-</span
                         >
@@ -378,8 +377,8 @@
                 </div>
                 <div class="base-btn-box fixed">
                     <el-button
-                        :disabled="watchCompare.disabled.value && watchMatch.disabled.value"
-                        @click="applyFaceCompareData"
+                        :disabled="watchRecognition.disabled.value && watchMatch.disabled.value"
+                        @click="applyRecognitionData"
                     >
                         {{ Translate('IDCS_APPLY') }}
                     </el-button>
@@ -388,9 +387,9 @@
         </el-tab-pane>
         <!-- 人脸库跳转 NLYH-64：非AI模式下，不支持人脸比对，可根据是否支持人脸比对supportFaceMatch来隐藏人脸识别和人脸库  -->
         <el-tab-pane
-            v-if="pageData.isFaceLibraryShow"
+            v-if="pageData.isLibraryShow"
             name="faceLibrary"
-            :disabled="pageData.faceLibraryDisabled || !supportFaceMatch"
+            :disabled="pageData.libraryDisabled || !supportFaceMatch"
         >
             <template #label>
                 <span :title="Translate('IDCS_FEATURE_LIBRARY')">{{ Translate('IDCS_FEATURE_LIBRARY') }}</span>
@@ -403,8 +402,8 @@
     </el-tabs>
     <!-- 排程管理弹窗 -->
     <ScheduleManagPop
-        v-model="pageData.scheduleManagPopOpen"
-        @close="pageData.scheduleManagPopOpen = false"
+        v-model="pageData.isSchedulePop"
+        @close="closeSchedulePop"
     />
 </template>
 

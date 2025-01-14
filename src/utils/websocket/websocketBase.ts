@@ -11,136 +11,141 @@ export interface WebsocketBaseOption {
     binaryType?: BinaryType
 }
 
-export default class WebsocketBase {
-    private readonly HEART_BEAT_TIME = 30000 * 1000 // 心跳频率
-    private readonly RETRY_TIME = 5000 // 重试频率
-    private readonly MAX_RETRY = 10 // 最大重试次数
-    private ws: WebSocket | null = null // 连接实例
-    private heartBeatTimer: NodeJS.Timeout | number = 0 // 心跳定时器
-    private retryTimer: NodeJS.Timeout | number = 0 // 重试定时器
-    private retryCount = 0 // 当前重试次数
-    private readonly binaryType: BinaryType
-    private readonly onopenCb: WebsocketBaseOption['onopen']
-    private readonly onmessageCb: WebsocketBaseOption['onmessage']
-    private readonly onerrorCb: WebsocketBaseOption['onerror']
-    private readonly oncloseCb: WebsocketBaseOption['onclose']
+export default function WebsocketBase(option: WebsocketBaseOption) {
+    const HEART_BEAT_TIME = 30000 * 1000 // 心跳频率
+    const RETRY_TIME = 5000 // 重试频率
+    const MAX_RETRY = 10 // 最大重试次数
 
-    constructor(option: WebsocketBaseOption) {
-        this.onopenCb = option.onopen
-        this.onmessageCb = option.onmessage
-        this.onerrorCb = option.onerror
-        this.oncloseCb = option.onclose
-        this.binaryType = option.binaryType || 'arraybuffer'
-        this.init()
-    }
+    let ws: WebSocket
+
+    // let ws: WebSocket | null = null // 连接实例
+    let heartBeatTimer: NodeJS.Timeout | number = 0 // 心跳定时器
+    let retryTimer: NodeJS.Timeout | number = 0 // 重试定时器
+    let retryCount = 0 // 当前重试次数
+
+    const onopenCb = option.onopen
+    const onmessageCb = option.onmessage
+    const onerrorCb = option.onerror
+    const oncloseCb = option.onclose
+    const binaryType = option.binaryType || 'arraybuffer'
 
     /**
      * @description 初始化建立连接，连接url由getWebsocketOpenUrl函数提供
      */
-    private init() {
-        this.ws = new WebSocket(getWebsocketOpenUrl())
-        this.ws.binaryType = this.binaryType
-        this.ws.onopen = () => {
-            console.log('websocket success:', formatDate(new Date(), 'YYYY-MM-DD HH:mm:ss'))
+    const init = () => {
+        ws = new WebSocket(getWebsocketOpenUrl())
+
+        ws.binaryType = binaryType
+
+        ws.onopen = () => {
+            console.log('websocket success:', formatDate(new Date()))
         }
 
-        this.ws.onmessage = (event) => {
+        ws.onmessage = (event) => {
             try {
                 const res = JSON.parse(event.data)
                 const resData = res.data || {}
                 const code = Number(resData.code)
                 if (res.url === '/device/create_connection#response' && code === 0) {
-                    console.log('websocket authentication success:', formatDate(new Date(), 'YYYY-MM-dd hh:mm:ss'))
-                    this.closeRetryTimer()
-                    this.openHeartBeat()
-                    this.onopenCb && this.onopenCb(event.data)
+                    console.log('websocket authentication success:', formatDate(new Date()))
+                    closeRetryTimer()
+                    openHeartBeat()
+                    onopenCb && onopenCb(event.data)
                 } else {
-                    this.onmessageCb && this.onmessageCb(event.data)
+                    onmessageCb && onmessageCb(event.data)
                 }
             } catch (ev) {
-                this.onmessageCb && this.onmessageCb(event.data)
+                onmessageCb && onmessageCb(event.data)
             }
         }
 
-        this.ws.onerror = () => {
-            this.openRetryTimer()
+        ws.onerror = () => {
+            openRetryTimer()
         }
 
-        this.ws.onclose = () => {
-            console.log('websocket closed', formatDate(new Date(), 'YYYY-MM-DD HH:mm:ss'))
-            this.oncloseCb && this.oncloseCb()
+        ws.onclose = () => {
+            console.log('websocket closed', formatDate(new Date()))
+            oncloseCb && oncloseCb()
         }
     }
 
     /**
      * @description 开启心跳检测
      */
-    private openHeartBeat() {
-        this.heartBeatTimer = setInterval(() => {
-            if (this.ws!.readyState === 1) {
+    const openHeartBeat = () => {
+        heartBeatTimer = setInterval(() => {
+            if (ws?.readyState === 1) {
                 console.log('websocket keep connect')
             } else {
                 console.log('websocket disconnect, try again')
-                this.openRetryTimer()
+                openRetryTimer()
             }
-        }, this.HEART_BEAT_TIME)
+        }, HEART_BEAT_TIME)
     }
 
     /**
      * @description 关闭心跳
      */
-    private closeHeartBeat() {
-        clearInterval(this.heartBeatTimer)
-        this.heartBeatTimer = 0
+    const closeHeartBeat = () => {
+        clearInterval(heartBeatTimer)
+        heartBeatTimer = 0
     }
 
     /**
      * @description 开启重试定时器
      */
-    private openRetryTimer() {
-        if (this.retryTimer) {
-            this.closeRetryTimer()
+    const openRetryTimer = () => {
+        if (retryTimer) {
+            closeRetryTimer()
         }
         // 定时尝试重连，5秒尝试一次
-        this.retryTimer = setInterval(() => {
-            if (this.ws!.readyState === 1) {
-                this.closeRetryTimer()
-            } else if (this.retryCount > this.MAX_RETRY) {
+        retryTimer = setInterval(() => {
+            if (ws?.readyState === 1) {
+                closeRetryTimer()
+            } else if (retryCount > MAX_RETRY) {
                 // 最多重试10次，超过10次断开连接
-                this.onerrorCb && this.onerrorCb()
-                this.close()
+                onerrorCb && onerrorCb()
+                close()
             } else {
-                this.ws = new WebSocket(getWebsocketOpenUrl())
-                this.retryCount++
+                init()
+                // ws = new WebSocket(getWebsocketOpenUrl())
+                retryCount++
             }
-        }, this.RETRY_TIME)
+        }, RETRY_TIME)
     }
 
     /**
      * @description 清除重试定时器
      */
-    private closeRetryTimer() {
-        this.retryCount = 0
-        clearInterval(this.retryTimer)
-        this.retryTimer = 0
+    const closeRetryTimer = () => {
+        retryCount = 0
+        clearInterval(retryTimer)
+        retryTimer = 0
     }
 
     /**
      * @description 发送数据
      * @param { string | ArrayBufferLike | Blob | ArrayBufferView } data
      */
-    send(data: string | ArrayBufferLike | Blob | ArrayBufferView) {
-        if (this.ws?.readyState === 1) {
-            this.ws.send(data)
+    const send = (data: string | ArrayBufferLike | Blob | ArrayBufferView) => {
+        if (ws?.readyState === 1) {
+            ws.send(data)
         }
     }
 
     /**
      * @description 关闭连接
      */
-    close() {
-        this.ws?.close()
-        this.closeHeartBeat()
-        this.closeRetryTimer()
+    const close = () => {
+        ws?.close()
+        closeHeartBeat()
+        closeRetryTimer()
+    }
+
+    init()
+
+    return {
+        send,
+        close,
     }
 }

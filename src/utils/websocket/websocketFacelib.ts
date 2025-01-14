@@ -28,64 +28,56 @@ export type WebsocketFaceLibFaceDataDatum = {
     index: string
 }
 
-export default class WebsocketFaceLib {
-    private ws: WebsocketBase | null = null
-    private taskId: string | null = null
-    private abnormalIndex = 0
-    private readonly onsuccess: WebsocketFaceLibOption['onsuccess']
-    private readonly onerror: WebsocketFaceLibOption['onerror']
-    private readonly onclose: WebsocketFaceLibOption['onclose']
+export default function WebsocketFaceLib(option: WebsocketFaceLibOption) {
+    let taskId: string | null = null
+    let abnormalIndex = 0
 
-    constructor(option: WebsocketFaceLibOption) {
-        this.onsuccess = option.onsuccess
-        this.onerror = option.onerror
-        this.onclose = option.onclose
-        this.init()
-    }
+    const onsuccess = option.onsuccess
+    const onerror = option.onerror
+    const onclose = option.onclose
 
-    private init() {
-        this.ws = new WebsocketBase({
-            onopen: () => {
-                this.start()
-            },
-            onmessage: (data: string | ArrayBuffer) => {
-                if (data instanceof ArrayBuffer) {
-                    const dataView = new DataView(data)
-                    const encryptType = dataView.getUint32(0, true)
-                    const jsonOffset = encryptType === 0 ? 8 : 16
-                    const jsonLen = dataView.getUint32(4, true)
-                    const jsonEndPosition = jsonLen + jsonOffset
-                    const jsonBuf = data.slice(jsonOffset, jsonEndPosition)
-                    const jsonStr = Uint8ArrayToStr(new Uint8Array(jsonBuf))
-                    try {
-                        const json = JSON.parse(jsonStr)
-                        const faceDataList = this.getFaceData(json.data, jsonEndPosition, data)
-                        this.onsuccess && this.onsuccess(faceDataList)
-                    } catch (e) {
-                        console.log(this.abnormalIndex * 1 + 1, jsonStr + ': this data is abnormal')
-                        this.refreshIndex(this.abnormalIndex * 1 + 1)
-                    }
-                } else {
-                    const res = JSON.parse(data)
-                    const code = Number(res.basic.code)
-                    if (res.url === '/device/facelib/export/start#response' && code === 0) {
-                        console.log('open the task of exporting sample library')
-                    }
-                    // 导出有误
-                    else if (res.url === '/device/facelib/export/start#response' && code !== 0) {
-                        this.onerror && this.onerror(code)
-                    } else if (res.url === '/device/facelib/export/data' && code !== 0) {
-                        // 数据发送完毕
-                        if (code === ErrorCode.USER_ERROR_FILE_STREAM_COMPLETED) {
-                            this.onsuccess && this.onsuccess(code)
-                        }
+    const ws = WebsocketBase({
+        onopen: () => {
+            start()
+        },
+        onmessage: (data: string | ArrayBuffer) => {
+            if (data instanceof ArrayBuffer) {
+                const dataView = new DataView(data)
+                const encryptType = dataView.getUint32(0, true)
+                const jsonOffset = encryptType === 0 ? 8 : 16
+                const jsonLen = dataView.getUint32(4, true)
+                const jsonEndPosition = jsonLen + jsonOffset
+                const jsonBuf = data.slice(jsonOffset, jsonEndPosition)
+                const jsonStr = Uint8ArrayToStr(new Uint8Array(jsonBuf))
+                try {
+                    const json = JSON.parse(jsonStr)
+                    const faceDataList = getFaceData(json.data, jsonEndPosition, data)
+                    onsuccess && onsuccess(faceDataList)
+                } catch (e) {
+                    console.log(abnormalIndex * 1 + 1, jsonStr + ': this data is abnormal')
+                    refreshIndex(abnormalIndex * 1 + 1)
+                }
+            } else {
+                const res = JSON.parse(data)
+                const code = Number(res.basic.code)
+                if (res.url === '/device/facelib/export/start#response' && code === 0) {
+                    console.log('open the task of exporting sample library')
+                }
+                // 导出有误
+                else if (res.url === '/device/facelib/export/start#response' && code !== 0) {
+                    onerror && onerror(code)
+                } else if (res.url === '/device/facelib/export/data' && code !== 0) {
+                    // 数据发送完毕
+                    if (code === ErrorCode.USER_ERROR_FILE_STREAM_COMPLETED) {
+                        onsuccess && onsuccess(code)
                     }
                 }
-            },
-            onerror: this.onerror,
-            onclose: this.onclose,
-        })
-    }
+            }
+        },
+        onerror: onerror,
+        onclose: onclose,
+    })
+    // }
 
     /**
      * @description 从响应json报文的data字段信息中读取人脸库数据
@@ -113,7 +105,7 @@ export default class WebsocketFaceLib {
      * ]
      *
      */
-    private getFaceData(data: WebsocketFaceLibFaceDataDatum[], jsonEndPosition: number, buffer: ArrayBuffer) {
+    const getFaceData = (data: WebsocketFaceLibFaceDataDatum[], jsonEndPosition: number, buffer: ArrayBuffer) => {
         try {
             const faceDataList: WebsocketFaceLibFaceDataDatum[] = data.map((item) => ({
                 ...item,
@@ -121,9 +113,9 @@ export default class WebsocketFaceLib {
             }))
 
             const lastIndex = Number(data[data.length - 1].index)
-            this.abnormalIndex = lastIndex
+            abnormalIndex = lastIndex
             if (lastIndex >= 0) {
-                this.refreshIndex(lastIndex)
+                refreshIndex(lastIndex)
             }
             return faceDataList
         } catch (e) {
@@ -131,28 +123,34 @@ export default class WebsocketFaceLib {
         }
     }
 
-    start() {
+    const start = () => {
         const cmd = CMD_FACELIB_EXPORT_START()
-        this.taskId = cmd.data.task_id
-        this.ws!.send(JSON.stringify(cmd))
+        taskId = cmd.data.task_id
+        ws.send(JSON.stringify(cmd))
     }
 
     /**
      * @description
      * @param {number} index
      */
-    private refreshIndex(index: number) {
-        const cmd = CMD_FACELIB_EXPORT_REFRESH_INDEX(index, this.taskId as string)
-        this.ws!.send(JSON.stringify(cmd))
+    const refreshIndex = (index: number) => {
+        const cmd = CMD_FACELIB_EXPORT_REFRESH_INDEX(index, taskId as string)
+        ws.send(JSON.stringify(cmd))
     }
 
-    stop() {
-        const cmd = CMD_FACELIB_EXPORT_STOP(this.taskId as string)
-        this.ws!.send(JSON.stringify(cmd))
+    const stop = () => {
+        const cmd = CMD_FACELIB_EXPORT_STOP(taskId as string)
+        ws.send(JSON.stringify(cmd))
     }
 
-    destroy() {
-        this.stop()
-        this.ws!.close()
+    const destroy = () => {
+        stop()
+        ws.close()
+    }
+
+    return {
+        start,
+        stop,
+        destroy,
     }
 }

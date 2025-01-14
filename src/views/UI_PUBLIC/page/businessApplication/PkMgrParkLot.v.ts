@@ -50,7 +50,7 @@ export default defineComponent({
 
         const DATA_LIMIT = 5 // 最大数量限制
 
-        let websocket: WebsocketSnap
+        let websocket: ReturnType<typeof WebsocketSnap>
 
         const pageData = ref({
             // 停车场名称
@@ -245,10 +245,10 @@ export default defineComponent({
                     const $exit = exit.length ? queryXml(exit[0].element) : ''
 
                     const enterFrameTime = $enter ? $enter('time').text() : ''
-                    const enterTime = enterFrameTime ? dayjs.utc(enterFrameTime.slice(0, enterFrameTime.length - 8), 'YYYY-MM-DD HH:mm:ss').valueOf() : 0
+                    const enterTime = enterFrameTime ? dayjs.utc(enterFrameTime.slice(0, enterFrameTime.length - 8), DEFAULT_DATE_FORMAT).valueOf() : 0
 
                     const exitFrameTime = $exit ? $exit('time').text() : ''
-                    const exitTime = exitFrameTime ? dayjs.utc(exitFrameTime.slice(0, exitFrameTime.length - 8), 'YYYY-MM-DD HH:mm:ss').valueOf() : 0
+                    const exitTime = exitFrameTime ? dayjs.utc(exitFrameTime.slice(0, exitFrameTime.length - 8), DEFAULT_DATE_FORMAT).valueOf() : 0
 
                     const isEnter = enter.length > 0
                     const enterType = $enter ? $enter('openType').text() : ''
@@ -295,7 +295,7 @@ export default defineComponent({
          * @description 自动更新抓拍数据
          */
         const createWebsoket = () => {
-            websocket = new WebsocketSnap({
+            websocket = WebsocketSnap({
                 config: [
                     {
                         parking_lot: {

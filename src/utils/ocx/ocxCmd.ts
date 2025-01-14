@@ -3,7 +3,12 @@
  * @Date: 2024-06-03 11:56:43
  * @Description: 插件命令集合
  */
-const wrapXml = (xml: string) => `${xmlHeader}${xml}`
+const wrapXml = (xml: string) => (import.meta.env.DEV ? compressXml(`${xmlHeader}${xml}`) : `${xmlHeader}${xml}`)
+
+export const OCX_XML_OpenFileBrowser_getpath = (xmlStr: string) => {
+    const $xmlDoc = queryXml(XMLStr2XMLDoc(xmlStr))
+    return $xmlDoc("response[@type='OpenFileBrowser']").text()
+}
 
 /**
  * @description 获取语言节点
@@ -94,8 +99,9 @@ export const OCX_XML_GetLangNode = () => {
  * @return {string}
  */
 export const OCX_XML_Initial = (model: string, notifyFunName: string, viewType: string, screenNum?: number) => {
-    return wrapXml(rawXml`<cmd type="Initial">
-            ${viewType === TIMESLIDER_PLUGIN ? '<cmd type="Initial" target="dateCtrl">' : viewType ? `<viewType>${viewType}</viewType>` : ''}
+    return wrapXml(rawXml`
+        <cmd type="Initial">
+            ${viewType ? `<viewType>${viewType}</viewType>` : ''}
             ${model ? `<setModel>${model}</setModel>` : ''}
             <setLang></setLang>
             ${notifyFunName ? `<NotifyFunName>${notifyFunName}</NotifyFunName>` : ''}
@@ -116,7 +122,7 @@ export const OCX_XML_Initial = (model: string, notifyFunName: string, viewType: 
 export const OCX_XML_Initial_P2P = (model?: string, notifyFunName?: string, viewType?: string, screenNum?: number) => {
     const p2pVersion = useUserSessionStore().p2pVersion
     return wrapXml(rawXml`
-        ${viewType === TIMESLIDER_PLUGIN ? '<cmd type="Initial" target="dateCtrl">' : '<cmd type="Initial">'}
+        <cmd type="Initial">
             ${viewType ? `<viewType>${viewType}</viewType>` : ''}
             ${model ? `<setModel>${model}</setModel>` : ''}
             <natSvc>
@@ -138,7 +144,8 @@ export const OCX_XML_Initial_P2P = (model?: string, notifyFunName?: string, view
  */
 export const OCX_XML_SetPluginModel = (model?: string, viewType?: string) => {
     return wrapXml(rawXml`
-        ${(viewType === TIMESLIDER_PLUGIN ? '<cmd type="SetPluginModel" target="dateCtrl">' : '<cmd type="SetPluginModel">') + (viewType ? `<viewType>${viewType}</viewType>` : '')}
+        <cmd type="SetPluginModel">
+            ${viewType ? `<viewType>${viewType}</viewType>` : ''}
             ${model ? `<setModel>${model}</setModel>` : ''}
         </cmd>
     `)
@@ -198,7 +205,8 @@ export const OCX_XML_DisplayPlugin = (isShow: boolean) => {
  */
 export const OCX_XML_SetProperty = (properties: Record<string, string | Boolean>, viewType?: string) => {
     return wrapXml(rawXml`
-        ${(viewType === TIMESLIDER_PLUGIN ? '<cmd type="SetProperty" target="dateCtrl">' : '<cmd type="SetProperty">') + (viewType ? `<viewType>${viewType}</viewType>` : '')}
+        <cmd type="SetProperty">
+            ${viewType ? `<viewType>${viewType}</viewType>` : ''}
             ${Object.entries(properties)
                 .map(([key, item]) => `<${key}>${item}</${key}>`)
                 .join('')}
@@ -233,7 +241,8 @@ export const OCX_XML_SetPropertyOSD = (nameSwitch: boolean, iconSwitch: boolean,
  */
 export const OCX_XML_SetModeTwo = (properties: Record<string, string | Boolean>, viewType: string) => {
     return wrapXml(rawXml`
-        ${viewType === TIMESLIDER_PLUGIN ? '<cmd type="SetNewProperty" target="dateCtrl">' : '<cmd type="SetNewProperty">' + viewType ? `<viewType>${viewType}</viewType>` : ''}
+        <cmd type="SetNewProperty">
+            ${viewType ? `<viewType>${viewType}</viewType>` : ''}
             ${Object.entries(properties)
                 .map(([key, item]) => `<${key}>${item}</${key}>`)
                 .join('')}
@@ -321,9 +330,9 @@ export const OCX_XML_SetSessionIdLogin_P2P = (sessionId: string, sn: string) => 
  * @param viewType
  * @returns {string}
  */
-export const OCX_XML_SetScreenMode = (screenNum: number, layoutType?: number, viewType?: string) => {
+export const OCX_XML_SetScreenMode = (screenNum: number, layoutType?: number) => {
     return wrapXml(rawXml`
-        <cmd type="SetScreenMode" ${viewType === TIMESLIDER_PLUGIN ? 'target="dateCtrl"' : ''} layoutType="${layoutType || 1}">${screenNum}</cmd>
+        <cmd type="SetScreenMode" layoutType="${layoutType || 1}">${screenNum}</cmd>
     `)
 }
 
@@ -363,7 +372,7 @@ export const OCX_XML_SetAllViewChannelId = (chlIds: string[], chlNames: string[]
         <cmd type="SetAllViewChannelId">
             ${chlIds
                 .map((item, key) => {
-                    return `<item id="${item}" chlIp="${chlPoe ? chlPoe[key]?.chlIp || ' ' : ''}"  poe="${chlPoe ? chlPoe[key]?.poeSwitch || false : false}">${chlNames[key]}</item>`
+                    return `<item id="${item}" chlIp="${chlPoe ? chlPoe[key]?.chlIp || ' ' : ''}" poe="${chlPoe ? chlPoe[key]?.poeSwitch || false : false}">${chlNames[key]}</item>`
                 })
                 .join('')}
         </cmd>
@@ -650,9 +659,9 @@ export const OCX_XML_LightSwitch = (status: 'ON' | 'OFF') => {
  * @param viewType
  * @returns {string}
  */
-export const OCX_XML_SetLang = (viewType: string = '') => {
+export const OCX_XML_SetLang = () => {
     return wrapXml(rawXml`
-        <cmd type="SetLang" ${viewType === TIMESLIDER_PLUGIN ? 'target="dateCtrl"' : ''}>
+        <cmd type="SetLang">
             ${OCX_XML_GetLangNode()}
         </cmd>
     `)
@@ -803,9 +812,9 @@ export const OCX_XML_Skip = (time: number) => {
  * @param viewType
  * @returns {string}
  */
-export const OCX_XML_RecCurPlayTime = (winList: { time: number; index: number }[], viewType: string = '') => {
+export const OCX_XML_RecCurPlayTime = (winList: { time: number; index: number }[]) => {
     return wrapXml(rawXml`
-        <cmd type="RecCurPlayTime" ${viewType === TIMESLIDER_PLUGIN ? 'target="dateCtrl"' : ''}>
+        <cmd type="RecCurPlayTime">
             ${winList.map((item) => `<win index="${item.index}" time="${getUTCDateByMilliseconds(item.time)}">${item.time}</win>`).join('')}
         </cmd>
     `)
@@ -883,8 +892,8 @@ export const OCX_XML_DefaultSize = () => {
  * @param viewType
  * @returns {string}
  */
-export const OCX_XML_SetRecPlayMode = (mode: string, viewType: string = '') => {
-    return wrapXml(rawXml`<cmd type="SetRecPlayMode" ${viewType === TIMESLIDER_PLUGIN ? 'target="dateCtrl"' : ''}>${mode}</cmd>`)
+export const OCX_XML_SetRecPlayMode = (mode: string) => {
+    return wrapXml(rawXml`<cmd type="SetRecPlayMode">${mode}</cmd>`)
 }
 
 /**

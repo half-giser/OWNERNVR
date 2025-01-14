@@ -46,11 +46,10 @@ export default defineComponent({
          * @param {RouteRecordRawExtends} moduleItem
          */
         const goToDefaultPage = (moduleItem: RouteRecordRawExtends) => {
-            // console.log(moduleItem)
             if (moduleItem.meta.auth && !userSession.hasAuth(moduleItem.meta.auth)) {
                 return
             }
-            const defaultMenu = moduleItem.children.find((o) => o.meta.default === true && !getMenuDisabled(o))
+            const defaultMenu = moduleItem.children.find((o) => o.meta.homeDefault === true && !getMenuDisabled(o))
             if (defaultMenu) {
                 router.push(defaultMenu.meta.fullPath)
             } else {

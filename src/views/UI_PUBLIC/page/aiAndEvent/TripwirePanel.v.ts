@@ -3,9 +3,9 @@
  * @Date: 2024-09-19 11:16:22
  * @Description: 越界
  */
-import { type AlarmChlDto, AlarmTripwireDto, type CanvasPasslineDirection } from '@/types/apiType/aiAndEvent'
+import { type AlarmChlDto, type AlarmOnlineChlDto, AlarmTripwireDto, type CanvasPasslineDirection } from '@/types/apiType/aiAndEvent'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
-import CanvasPassline from '@/utils/canvas/canvasPassline'
+import CanvasPassline, { type CanvasPasslinePassline } from '@/utils/canvas/canvasPassline'
 import ChannelPtzCtrlPanel from '@/views/UI_PUBLIC/page/channel/ChannelPtzCtrlPanel.vue'
 import { cloneDeep } from 'lodash-es'
 import { type XMLQuery } from '@/utils/xmlParse'
@@ -51,7 +51,7 @@ export default defineComponent({
          * @property {Array} 在线通道列表
          */
         onlineChannelList: {
-            type: Array as PropType<{ id: string; ip: string; name: string; accessType: string }[]>,
+            type: Array as PropType<AlarmOnlineChlDto[]>,
             required: true,
         },
     },
@@ -59,7 +59,7 @@ export default defineComponent({
         const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
         const playerRef = ref<PlayerInstance>()
-        let tripwireDrawer: CanvasPassline
+        let tripwireDrawer: ReturnType<typeof CanvasPassline>
 
         const directionTypeTip: Record<string, string> = {
             none: 'A<->B',
@@ -70,15 +70,13 @@ export default defineComponent({
         const pageData = ref({
             // 是否支持声音设置
             supportAlarmAudioConfig: true,
-            // 不支持功能提示页面是否展示
-            notSupportTipShow: false,
             // 请求数据失败显示提示
-            requireDataFail: false,
+            reqFail: false,
+            // 选择的功能:param,target,trigger
+            tab: 'param',
             // 排程管理
             isSchedulePop: false,
             scheduleList: [] as SelectOption<string, string>[],
-            // 选择的功能:tripwire_param,tripwire_target,tripwire_trigger
-            tripwireFunction: 'tripwire_param',
             // 选择的警戒面
             chosenSurfaceIndex: 0,
             // 是否显示全部区域绑定值
@@ -118,7 +116,7 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 const canvas = player.getDrawbordCanvas(0)
-                tripwireDrawer = new CanvasPassline({
+                tripwireDrawer = CanvasPassline({
                     el: canvas,
                     enableOSD: true,
                     enableShowAll: false,
@@ -170,9 +168,10 @@ export default defineComponent({
         }
 
         // 关闭排程管理后刷新排程列表
-        const closeSchedulePop = () => {
+        const closeSchedulePop = async () => {
             pageData.value.isSchedulePop = false
-            getScheduleList()
+            await getScheduleList()
+            formData.value.schedule = getScheduleId(pageData.value.scheduleList, formData.value.schedule)
         }
 
         // 获取越界检测数据
@@ -192,8 +191,7 @@ export default defineComponent({
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() === 'success') {
-                    const schedule = $('content/chl').attr('scheduleGuid')
-                    formData.value.tripwire_schedule = schedule !== '' ? (pageData.value.scheduleList.some((item) => item.value === schedule) ? schedule : DEFAULT_EMPTY_ID) : DEFAULT_EMPTY_ID
+                    formData.value.schedule = getScheduleId(pageData.value.scheduleList, $('content/chl').attr('scheduleGuid'))
 
                     const $trigger = queryXml($('content/chl/trigger')[0].element)
 
@@ -231,7 +229,8 @@ export default defineComponent({
 
                     watchEdit.listen()
                 } else {
-                    pageData.value.requireDataFail = true
+                    pageData.value.reqFail = true
+                    pageData.value.tab = ''
                 }
             } else {
                 const sendXML = rawXml`
@@ -250,8 +249,7 @@ export default defineComponent({
                     const $trigger = queryXml($('content/chl/trigger')[0].element)
                     const $param = queryXml($('content/chl/param')[0].element)
 
-                    const schedule = $('content/chl').attr('scheduleGuid')
-                    formData.value.tripwire_schedule = schedule === '' ? DEFAULT_EMPTY_ID : pageData.value.scheduleList.some((item) => item.value === schedule) ? schedule : DEFAULT_EMPTY_ID
+                    formData.value.schedule = getScheduleId(pageData.value.scheduleList, $('content/chl').attr('scheduleGuid'))
 
                     formData.value.directionList = $('types/direction/enum').map((item) => {
                         return {
@@ -276,12 +274,8 @@ export default defineComponent({
                         }
                     })
 
-                    const holdTimeArr = $param('holdTimeNote').text().split(',')
                     formData.value.holdTime = $param('alarmHoldTime').text().num()
-                    if (!holdTimeArr.includes(formData.value.holdTime.toString())) {
-                        holdTimeArr.push(formData.value.holdTime.toString())
-                    }
-                    formData.value.holdTimeList = formatHoldTime(holdTimeArr)
+                    formData.value.holdTimeList = getAlarmHoldTimeList($param('holdTimeNote').text(), formData.value.holdTime)
 
                     formData.value.lineInfo = $param('line/item').map((item) => {
                         const $item = queryXml(item.element)
@@ -308,9 +302,9 @@ export default defineComponent({
                     formData.value.pictureAvailable = $param('saveTargetPicture').text() !== ''
                     formData.value.saveTargetPicture = $param('aveTargetPicture').text().bool()
                     formData.value.saveSourcePicture = $param('saveSourcePicture').text().bool()
-                    formData.value.tripwire_onlyPreson = $param('sensitivity').text() !== ''
+                    formData.value.onlyPreson = $param('sensitivity').text() !== ''
                     // NTA1-231：低配版IPC：4M S4L-C，越界/区域入侵目标类型只支持人
-                    formData.value.onlyPersonSensitivity = formData.value.tripwire_onlyPreson ? $param('sensitivity').text().num() : 0
+                    formData.value.onlyPersonSensitivity = formData.value.onlyPreson ? $param('sensitivity').text().num() : 0
                     formData.value.hasObj = $param('objectFilter').text() !== ''
                     if (formData.value.hasObj) {
                         const car = $param('objectFilter/car/switch').text().bool()
@@ -375,7 +369,8 @@ export default defineComponent({
 
                     watchEdit.listen()
                 } else {
-                    pageData.value.requireDataFail = true
+                    pageData.value.reqFail = true
+                    pageData.value.tab = ''
                 }
             }
         }
@@ -388,7 +383,7 @@ export default defineComponent({
                     <param>
                         <switch>${formData.value.detectionEnable}</switch>
                         <alarmHoldTime unit="s">${formData.value.holdTime}</alarmHoldTime>
-                        ${formData.value.tripwire_onlyPreson ? `<sensitivity>${formData.value.onlyPersonSensitivity}</sensitivity>` : ''}
+                        ${formData.value.onlyPreson ? `<sensitivity>${formData.value.onlyPersonSensitivity}</sensitivity>` : ''}
                         ${
                             formData.value.hasObj
                                 ? rawXml`
@@ -454,7 +449,7 @@ export default defineComponent({
 
             const sendXml = rawXml`
                 <content>
-                    <chl id="${props.currChlId}" scheduleGuid="${formData.value.tripwire_schedule}">
+                    <chl id="${props.currChlId}" scheduleGuid="${formData.value.schedule}">
                         ${paramXml}
                         <trigger>
                             <sysRec>
@@ -547,7 +542,7 @@ export default defineComponent({
 
         // tripwire tab点击事件
         const changeTab = () => {
-            if (pageData.value.tripwireFunction === 'tripwire_param') {
+            if (pageData.value.tab === 'param') {
                 if (mode.value === 'h5') {
                     setTripwireOcxData()
                     tripwireDrawer.setEnable('line', true)
@@ -563,10 +558,10 @@ export default defineComponent({
                 }
 
                 if (pageData.value.isShowAllArea) {
-                    showAllTripwireArea(true)
+                    showAllArea(true)
                 }
-            } else if (pageData.value.tripwireFunction === 'tripwire_target') {
-                showAllTripwireArea(false)
+            } else if (pageData.value.tab === 'target') {
+                showAllArea(false)
 
                 if (mode.value === 'h5') {
                     tripwireDrawer.clear()
@@ -603,42 +598,10 @@ export default defineComponent({
             }
         }
 
-        const initPageData = async () => {
-            pageData.value.supportAlarmAudioConfig = systemCaps.supportAlarmAudioConfig
-            if (
-                props.chlData.supportTripwire ||
-                props.chlData.supportAOIEntry ||
-                props.chlData.supportAOILeave ||
-                props.chlData.supportBackTripwire ||
-                props.chlData.supportBackAOIEntry ||
-                props.chlData.supportBackAOILeave
-            ) {
-                await getTripwireData()
-                refreshInitPage()
-                if (props.chlData.supportAutoTrack) {
-                    getPTZLockStatus()
-                }
-            } else {
-                pageData.value.notSupportTipShow = true
-            }
-        }
-
-        // 格式化持续时间
-        const formatHoldTime = (holdTimeList: string[]) => {
-            const timeList: SelectOption<number, string>[] = []
-            holdTimeList.forEach((ele) => {
-                const element = Number(ele)
-                const itemText = getTranslateForSecond(element)
-                timeList.push({ value: element, label: itemText })
-            })
-            timeList.sort((a, b) => a.value - b.value)
-            return timeList
-        }
-
         // tripwire执行是否显示全部区域
         const toggleShowAllArea = () => {
             tripwireDrawer && tripwireDrawer.setEnableShowAll(pageData.value.isShowAllArea)
-            showAllTripwireArea(pageData.value.isShowAllArea)
+            showAllArea(pageData.value.isShowAllArea)
         }
 
         // tripWire选择警戒面
@@ -690,7 +653,7 @@ export default defineComponent({
         }
 
         // tripwire绘图
-        const changeTripwire = (passline: { startX: number; startY: number; endX: number; endY: number }) => {
+        const changeTripwire = (passline: CanvasPasslinePassline) => {
             const surface = pageData.value.chosenSurfaceIndex
             formData.value.lineInfo[surface].startPoint = {
                 X: passline.startX,
@@ -701,13 +664,13 @@ export default defineComponent({
                 Y: passline.endY,
             }
             if (pageData.value.isShowAllArea) {
-                showAllTripwireArea(true)
+                showAllArea(true)
             }
             refreshInitPage()
         }
 
         // tripwire是否显示所有区域
-        const showAllTripwireArea = (isShowAll: boolean) => {
+        const showAllArea = (isShowAll: boolean) => {
             tripwireDrawer && tripwireDrawer.setEnableShowAll(isShowAll)
             if (isShowAll) {
                 const lineInfoList = formData.value.lineInfo
@@ -736,7 +699,7 @@ export default defineComponent({
 
         // tripwire显示
         const setTripwireOcxData = () => {
-            if (pageData.value.tripwireFunction === 'tripwire_param') {
+            if (pageData.value.tab === 'param') {
                 const surface = pageData.value.chosenSurfaceIndex
                 if (formData.value.lineInfo.length > 0) {
                     if (mode.value === 'h5') {
@@ -757,7 +720,7 @@ export default defineComponent({
                 }
 
                 if (pageData.value.isShowAllArea) {
-                    showAllTripwireArea(true)
+                    showAllArea(true)
                 }
             }
         }
@@ -774,8 +737,14 @@ export default defineComponent({
             }
 
             const surface = pageData.value.chosenSurfaceIndex
-            formData.value.lineInfo[surface].startPoint = { X: 0, Y: 0 }
-            formData.value.lineInfo[surface].endPoint = { X: 0, Y: 0 }
+            formData.value.lineInfo[surface].startPoint = {
+                X: 0,
+                Y: 0,
+            }
+            formData.value.lineInfo[surface].endPoint = {
+                X: 0,
+                Y: 0,
+            }
             formData.value.lineInfo[surface].configured = false
             tripwireDrawer.clear()
         }
@@ -783,8 +752,14 @@ export default defineComponent({
         // 清空所有区域
         const clearAllArea = () => {
             formData.value.lineInfo.forEach((lineInfo) => {
-                lineInfo.startPoint = { X: 0, Y: 0 }
-                lineInfo.endPoint = { X: 0, Y: 0 }
+                lineInfo.startPoint = {
+                    X: 0,
+                    Y: 0,
+                }
+                lineInfo.endPoint = {
+                    X: 0,
+                    Y: 0,
+                }
                 lineInfo.configured = false
             })
 
@@ -801,7 +776,7 @@ export default defineComponent({
             }
 
             if (pageData.value.isShowAllArea) {
-                showAllTripwireArea(true)
+                showAllArea(true)
             }
         }
 
@@ -821,8 +796,16 @@ export default defineComponent({
         }
 
         onMounted(async () => {
+            pageData.value.supportAlarmAudioConfig = systemCaps.supportAlarmAudioConfig
             await getScheduleList()
-            initPageData()
+            await getTripwireData()
+            if (pageData.value.reqFail) {
+                return
+            }
+            refreshInitPage()
+            if (props.chlData.supportAutoTrack) {
+                getPTZLockStatus()
+            }
         })
 
         onBeforeUnmount(() => {

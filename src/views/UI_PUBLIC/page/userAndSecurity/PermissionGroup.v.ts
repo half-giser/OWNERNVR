@@ -159,7 +159,7 @@ export default defineComponent({
          * @description 处理高亮选中的权限组，显示左侧信息
          * @param {UserAuthGroupList} row
          */
-        const handleChangeAuthGroup = (row: UserAuthGroupList) => {
+        const changeAuthGroup = (row: UserAuthGroupList) => {
             pageData.value.activeAuthGroup = authGroupList.value.findIndex((item) => item.id === row.id)
 
             if (currentAuthGroup.value) {
@@ -174,7 +174,7 @@ export default defineComponent({
          * @description 打开编辑用户弹窗
          * @param {UserAuthGroupList} row
          */
-        const handleEditAuthGroup = (row: UserAuthGroupList) => {
+        const openEditAuthGroupPop = (row: UserAuthGroupList) => {
             pageData.value.editAuthGroupID = row.id
             pageData.value.isEditAuthGroup = true
         }
@@ -182,7 +182,7 @@ export default defineComponent({
         /**
          * @description 确认编辑用户弹窗
          */
-        const handleConfirmEditAuthGroup = () => {
+        const confirmEditAuthGroup = () => {
             pageData.value.isEditAuthGroup = false
             getAuthGroup()
         }
@@ -191,7 +191,7 @@ export default defineComponent({
          * @description 删除权限组
          * @param {UserAuthGroupList} row
          */
-        const handleDeleteAuthGroup = (row: UserAuthGroupList) => {
+        const deleteAuthGroup = (row: UserAuthGroupList) => {
             openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_USER_DELETE_USERGROUP_S').formatForLang(replaceWithEntity(row.name)),
@@ -239,7 +239,7 @@ export default defineComponent({
          * @description 复制权限组
          * @param {UserAuthGroupList} row
          */
-        const handleSaveAsAuthGroup = (row: UserAuthGroupList) => {
+        const copyAuthGroup = (row: UserAuthGroupList) => {
             router.push({
                 path: '/config/security/auth_group/add',
                 state: {
@@ -301,11 +301,11 @@ export default defineComponent({
             authGroupList,
             tableRef,
             displayAuthGroup,
-            handleChangeAuthGroup,
-            handleEditAuthGroup,
-            handleDeleteAuthGroup,
-            handleConfirmEditAuthGroup,
-            handleSaveAsAuthGroup,
+            changeAuthGroup,
+            openEditAuthGroupPop,
+            deleteAuthGroup,
+            confirmEditAuthGroup,
+            copyAuthGroup,
         }
     },
 })

@@ -116,8 +116,8 @@ export default defineComponent({
             const sendXml = rawXml`
                 <resultLimit>150000</resultLimit>
                 <condition>
-                    <startTime>${formatDate(formData.value.dateRange[0], 'YYYY-MM-DD HH:mm:ss')}</startTime>
-                    <endTime>${formatDate(formData.value.dateRange[1], 'YYYY-MM-DD HH:mm:ss')}</endTime>
+                    <startTime>${formatDate(formData.value.dateRange[0], DEFAULT_DATE_FORMAT)}</startTime>
+                    <endTime>${formatDate(formData.value.dateRange[1], DEFAULT_DATE_FORMAT)}</endTime>
                     <timeQuantum>${stats.getTimeQuantum()}</timeQuantum>
                     <deduplicate>${formData.value.deduplicate}</deduplicate>
                     <chls type="list">${formData.value.chl.map((item) => `<item id="${item}"></item>`).join('')}</chls>

@@ -42,6 +42,7 @@
                     <BaseListBoxItem
                         v-for="item in pageData.chlList"
                         :key="item.id"
+                        :show-hover="false"
                     >
                         <el-checkbox
                             :value="item.id"
@@ -117,7 +118,6 @@
     &-box {
         width: calc(100% - 30px);
         margin: 0 auto 15px;
-        // border: 1px solid var(--input-border);
     }
 }
 

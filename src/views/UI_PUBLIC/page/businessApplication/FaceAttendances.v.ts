@@ -449,8 +449,8 @@ export default defineComponent({
                     }
 
                     const types: string[] = []
-                    const onTime = dayjs(date.date + ' ' + formData.value.startTime, 'YYYY-MM-DD HH:mm:ss').valueOf()
-                    const offTime = dayjs(date.date + ' ' + formData.value.endTime, 'YYYY-MM-DD HH:mm:ss').valueOf()
+                    const onTime = dayjs(date.date + ' ' + formData.value.startTime, DEFAULT_DATE_FORMAT).valueOf()
+                    const offTime = dayjs(date.date + ' ' + formData.value.endTime, DEFAULT_DATE_FORMAT).valueOf()
 
                     if (item.searchData[date.date][0].timestamp > onTime) {
                         tableList[index].late++

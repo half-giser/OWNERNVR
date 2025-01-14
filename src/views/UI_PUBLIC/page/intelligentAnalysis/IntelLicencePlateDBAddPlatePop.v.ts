@@ -533,7 +533,7 @@ export default defineComponent({
             }
         }
 
-        let ws: WebsocketImportPlate | null = null
+        let ws: ReturnType<typeof WebsocketImportPlate> | null = null
 
         /**
          * @description 批量新增车牌
@@ -556,7 +556,7 @@ export default defineComponent({
                     message: Translate('IDCS_IMPORT_FAIL'),
                 })
             }
-            ws = new WebsocketImportPlate({
+            ws = WebsocketImportPlate({
                 plateDataList: plateList,
                 onsuccess() {
                     closeLoading()

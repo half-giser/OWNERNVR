@@ -56,6 +56,7 @@ export default defineComponent({
         // 页面数据
         const pageData = ref({
             tab: 'param',
+            reqFail: false,
             enableList: getSwitchOptions(),
         })
 
@@ -121,29 +122,17 @@ export default defineComponent({
                 </requireField>
             `
             const result = await queryAvd(sendXml)
+            const $ = queryXml(result)
 
             closeLoading()
 
-            commLoadResponseHandler(result, ($) => {
+            if ($('status').text() === 'success') {
                 const $trigger = queryXml($('content/chl/trigger')[0].element)
                 const $param = queryXml($('content/chl/param')[0].element)
 
-                let holdTimeArr = $param('holdTimeNote').text().split(',')
-                const holdTime = $param('holdTime').text()
-                if (!holdTimeArr.includes(holdTime)) {
-                    holdTimeArr.push(holdTime)
-                    holdTimeArr = holdTimeArr.sort((a, b) => Number(a) - Number(b))
-                }
-
                 formData.value = {
-                    holdTime,
-                    holdTimeList: holdTimeArr.map((item) => {
-                        const label = getTranslateForSecond(Number(item))
-                        return {
-                            value: item,
-                            label,
-                        }
-                    }),
+                    holdTime: $param('holdTime').text().num(),
+                    holdTimeList: getAlarmHoldTimeList($param('holdTimeNote').text(), $param('holdTime').text().num()),
                     sceneChangeSwitch: $param('sceneChangeSwitch').text(),
                     clarityAbnormalSwitch: $param('clarityAbnormalSwitch').text(),
                     colorAbnormalSwitch: $param('colorAbnormalSwitch').text(),
@@ -178,7 +167,10 @@ export default defineComponent({
                 }
 
                 watchEdit.listen()
-            })
+            } else {
+                pageData.value.reqFail = true
+                pageData.value.tab = ''
+            }
         }
 
         // 首次加载成功 播放视频

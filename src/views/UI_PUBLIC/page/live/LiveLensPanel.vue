@@ -11,7 +11,7 @@
                 '--form-input-width': '130px',
             }"
         >
-            <div class="lens-ctrl">
+            <div class="lens-ctrl lens-ctrl1">
                 <div
                     class="lens-btn"
                     @mousedown="addCmd('ZoomOut')"
@@ -24,9 +24,15 @@
                     />
                 </div>
 
-                <BaseImgSprite file="arr_left" />
+                <BaseImgSprite
+                    class="arrow"
+                    file="arr_left"
+                />
                 <span class="lens-txt">{{ Translate('IDCS_ZOOM') }}</span>
-                <BaseImgSprite file="arr_right" />
+                <BaseImgSprite
+                    class="arrow"
+                    file="arr_right"
+                />
                 <div
                     class="lens-btn"
                     @mousedown="addCmd('ZoomIn')"
@@ -56,7 +62,7 @@
             </el-form-item>
             <div
                 v-show="formData.focusType === 'manual'"
-                class="lens-ctrl"
+                class="lens-ctrl lens-ctrl2"
             >
                 <div
                     class="lens-btn"
@@ -70,9 +76,15 @@
                         :chunk="4"
                     />
                 </div>
-                <BaseImgSprite file="arr_left" />
+                <BaseImgSprite
+                    class="arrow"
+                    file="arr_left"
+                />
                 <span class="lens-txt">{{ Translate('IDCS_FOCUS') }}</span>
-                <BaseImgSprite file="arr_right" />
+                <BaseImgSprite
+                    class="arrow"
+                    file="arr_right"
+                />
                 <div
                     class="lens-btn"
                     @mousedown="addCmd('Near')"
@@ -93,9 +105,9 @@
                     {{ Translate('IDCS_ONE_KEY_FOCUS') }}
                 </el-button>
             </div>
-            <el-form-item>
-                <el-text class="text-error">{{ Translate('IDCS_FOCUS_MODEL_TIP') }}</el-text>
-            </el-form-item>
+            <div class="lens-tip">
+                <span class="text-error">{{ Translate('IDCS_FOCUS_MODEL_TIP') }}</span>
+            </div>
             <!-- <p class="focus-tip"></p> -->
             <el-form-item>
                 <el-checkbox
@@ -121,14 +133,26 @@
 
 <style lang="scss" scoped>
 .lens {
-    padding-top: 30px;
+    padding-top: 15px;
 
     &-ctrl {
         display: flex;
-        padding: 15px 10px;
+        padding: 15px 10px 0;
         height: 32px;
         line-height: 32px;
         align-items: center;
+
+        &1 {
+            padding-bottom: 40px;
+        }
+
+        &2 {
+            padding: 20px 10px 10px;
+        }
+    }
+
+    .arrow {
+        margin: 0 3px;
     }
 
     &-btn {
@@ -149,6 +173,11 @@
 
     &-txt {
         flex-shrink: 0;
+        margin: 0 3px;
+    }
+
+    &-tip {
+        padding: 10px 10px 40px;
     }
 
     &-onekeyfocus {

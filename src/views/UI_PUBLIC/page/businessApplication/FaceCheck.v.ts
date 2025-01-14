@@ -372,8 +372,8 @@ export default defineComponent({
                         return
                     }
 
-                    const onTime = dayjs(date.date + ' ' + formData.value.startTime, 'YYYY-MM-DD HH:mm:ss').valueOf()
-                    const offTime = dayjs(date.date + ' ' + formData.value.endTime, 'YYYY-MM-DD HH:mm:ss').valueOf()
+                    const onTime = dayjs(date.date + ' ' + formData.value.startTime, DEFAULT_DATE_FORMAT).valueOf()
+                    const offTime = dayjs(date.date + ' ' + formData.value.endTime, DEFAULT_DATE_FORMAT).valueOf()
                     const find = item.searchData[date.date].find((data) => {
                         return data.timestamp > onTime && data.timestamp < offTime
                     })

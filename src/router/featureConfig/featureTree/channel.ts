@@ -73,6 +73,7 @@ export default {
                 default: true,
                 inHome: 'self',
                 homeSort: 10,
+                homeDefault: true,
                 hasCap(systemCaps) {
                     return !!systemCaps.ipChlMaxCount
                 },

@@ -183,7 +183,7 @@ export default defineComponent({
         /**
          * @description 开启弹窗时更新表单数据
          */
-        const handleOpen = () => {
+        const open = () => {
             formData.value.switch = prop.data.switch
             formData.value.addressType = prop.data.addressType
             formData.value.ip = prop.data.ip
@@ -198,7 +198,7 @@ export default defineComponent({
             rules,
             verify,
             goBack,
-            handleOpen,
+            open,
             title,
         }
     },

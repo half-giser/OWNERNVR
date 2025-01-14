@@ -151,7 +151,7 @@ export default defineComponent({
 
         /**
          * @description 获取用户列表
-         * @param userName
+         * @param {string} userName
          */
         const getUserList = async (userName: string) => {
             openLoading()
@@ -193,7 +193,7 @@ export default defineComponent({
                     }
                 })
 
-                handleChangeUser(userList.value[0])
+                changeUser(userList.value[0])
                 nextTick(() => {
                     tableRef.value!.setCurrentRow(userList.value[0])
                 })
@@ -206,7 +206,7 @@ export default defineComponent({
          * @description 点击右侧表格项，更新权限组
          * @param row
          */
-        const handleChangeUser = (row: UserList) => {
+        const changeUser = (row: UserList) => {
             pageData.value.activeUser = userList.value.findIndex((item) => item.id === row.id)
             if (currentUser.value) {
                 getAuthGroup(row.id)
@@ -219,7 +219,7 @@ export default defineComponent({
          * @description 打开编辑用户弹窗
          * @param row
          */
-        const handleEditUser = (row: UserList) => {
+        const openEditUserPop = (row: UserList) => {
             pageData.value.editUserId = row.id
             pageData.value.editUserName = row.userName
             pageData.value.isEditUser = true
@@ -228,7 +228,7 @@ export default defineComponent({
         /**
          * @description 关闭编辑用户弹窗
          */
-        const handleConfirmEditUser = () => {
+        const confirmEditUser = () => {
             pageData.value.isEditUser = false
             getUserList(pageData.value.searchText)
         }
@@ -237,7 +237,7 @@ export default defineComponent({
          * @description 删除用户
          * @param row
          */
-        const handleDeleteUser = (row: UserList) => {
+        const deleteUser = (row: UserList) => {
             openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_USER_DELETE_USER_S').formatForLang(row.userName),
@@ -259,7 +259,7 @@ export default defineComponent({
         /**
          * @description 打开修改密码弹窗
          */
-        const handleEditUserPassword = () => {
+        const openEditUserPasswordPop = () => {
             pageData.value.isEditUserPassword = true
         }
 
@@ -347,11 +347,11 @@ export default defineComponent({
             authEffective,
             userList,
             displayAuthGroup,
-            handleChangeUser,
-            handleEditUser,
-            handleDeleteUser,
-            handleConfirmEditUser,
-            handleEditUserPassword,
+            changeUser,
+            openEditUserPop,
+            deleteUser,
+            confirmEditUser,
+            openEditUserPasswordPop,
         }
     },
 })

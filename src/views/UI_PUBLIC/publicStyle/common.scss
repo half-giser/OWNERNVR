@@ -380,6 +380,8 @@ input[type='number'] {
         margin-bottom: 10px;
 
         .el-form-item {
+            min-height: 32px;
+
             &__label {
                 width: var(--form-label-width);
                 align-items: center;
@@ -400,10 +402,15 @@ input[type='number'] {
                 display: flex;
                 flex-wrap: nowrap;
             }
+
+            .el-button {
+                height: 21px;
+                line-height: 21px;
+            }
         }
 
         & > .el-form-item {
-            padding: 5px 15px;
+            padding: 2px 15px;
             margin-bottom: 0;
             flex-wrap: nowrap;
 

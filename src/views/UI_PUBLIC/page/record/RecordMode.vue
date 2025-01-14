@@ -25,7 +25,7 @@
                 <div class="base-btn-box space-between">
                     <span class="chlRecScheduleTb">{{ Translate('IDCS_SCHEDULE_OF_RECORD_SET') }}</span>
                     <div>
-                        <el-button @click="pageData.scheduleManagPopOpen = true">{{ Translate('IDCS_SCHEDULE_MANAGE') }}</el-button>
+                        <el-button @click="pageData.isSchedulePop = true">{{ Translate('IDCS_SCHEDULE_MANAGE') }}</el-button>
                     </div>
                 </div>
                 <el-table
@@ -222,7 +222,7 @@
                     />
                 </el-radio-group>
                 <div class="base-btn-box flex-start">
-                    <el-button @click="pageData.advancePopOpen = true">{{ Translate('IDCS_ADVANCED') }}</el-button>
+                    <el-button @click="pageData.isAdvancePop = true">{{ Translate('IDCS_ADVANCED') }}</el-button>
                 </div>
             </div>
         </div>
@@ -250,15 +250,15 @@
         </div>
         <!-- 高级模式事件选择弹窗 -->
         <RecordModeAdvancePop
-            v-model="pageData.advancePopOpen"
+            v-model="pageData.isAdvancePop"
             :advance-rec-modes="pageData.advanceRecModes"
             @confirm="advancePopConfirm"
-            @close="pageData.advancePopOpen = false"
+            @close="pageData.isAdvancePop = false"
         />
 
         <!-- 录像模式码流参数设置弹窗 -->
         <RecordModeStreamPop
-            v-model="pageData.recModeStreamPopOpen"
+            v-model="pageData.isRecModeStreamPop"
             :advance-rec-mode-map="advanceRecModeMap"
             :auto-mode-id="formData.autoModeId"
             @close="streamPopClose"
@@ -266,8 +266,8 @@
 
         <!-- 排程管理弹窗 -->
         <ScheduleManagPop
-            v-model="pageData.scheduleManagPopOpen"
-            @close="pageData.scheduleManagPopOpen = false"
+            v-model="pageData.isSchedulePop"
+            @close="pageData.isSchedulePop = false"
         />
     </div>
 </template>

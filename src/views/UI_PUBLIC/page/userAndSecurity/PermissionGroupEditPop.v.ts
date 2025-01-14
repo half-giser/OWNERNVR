@@ -211,7 +211,7 @@ export default defineComponent({
         /**
          * @description 打开弹窗时处理回显信息
          */
-        const handleOpen = async () => {
+        const open = async () => {
             openLoading()
             formData.value.name = ''
             // channelAuthList.value = []
@@ -244,7 +244,7 @@ export default defineComponent({
             pageData,
             goBack,
             changeAllChannelAuth,
-            handleOpen,
+            open,
             displayAuthGroup,
         }
     },

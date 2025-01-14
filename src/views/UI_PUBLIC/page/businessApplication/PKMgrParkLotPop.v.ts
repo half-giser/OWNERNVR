@@ -108,7 +108,7 @@ export default defineComponent({
             const virtualEnd = '2080-01-01 00:00:00'
             const frameTime = data.frameTime
             const isDirectionIn = Number(data.direction) === 1
-            const enterExitTime = dayjs.utc(frameTime.slice(0, frameTime.length - 8), 'YYYY-MM-DD HH:mm:ss').valueOf()
+            const enterExitTime = dayjs.utc(frameTime.slice(0, frameTime.length - 8), DEFAULT_DATE_FORMAT).valueOf()
             const startTime = isDirectionIn ? frameTime : virtualStart
             const endTime = isDirectionIn ? virtualEnd : frameTime
             const sendXml = rawXml`
@@ -157,7 +157,7 @@ export default defineComponent({
                 const gateName = $('gateName').text()
                 const openType = $('openGateType').text()
                 const apiTime = $('time').text()
-                const time = apiTime ? dayjs.utc(apiTime.slice(0, apiTime.length - 8), 'YYYY-MM-DD HH:mm:ss').valueOf() : 0
+                const time = apiTime ? dayjs.utc(apiTime.slice(0, apiTime.length - 8), DEFAULT_DATE_FORMAT).valueOf() : 0
                 const img = $('content').text()
                 if (resDirection === 'in') {
                     obj.enterChl = gateName

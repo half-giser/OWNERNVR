@@ -44,7 +44,7 @@
                     :data="tableData"
                     show-overflow-tooltip
                     highlight-current-row
-                    @row-click="handleChangeUser"
+                    @row-click="changeUser"
                 >
                     <el-table-column
                         :label="Translate('IDCS_CHANNEL_NAME')"

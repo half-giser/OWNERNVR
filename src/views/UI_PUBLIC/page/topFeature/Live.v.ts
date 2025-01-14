@@ -5,7 +5,6 @@
  */
 import { cloneDeep } from 'lodash-es'
 import { type LiveChannelList, type LiveCustomViewChlList, LiveSharedWinData } from '@/types/apiType/live'
-import { type TVTPlayerWinDataListItem, type TVTPlayerPosInfoItem } from '@/utils/wasmPlayer/tvtPlayer'
 import WebsocketState from '@/utils/websocket/websocketState'
 import { type XMLQuery } from '@/utils/xmlParse'
 import LiveChannelPanel, { type ChannelPanelExpose } from '../live/LiveChannelPanel.vue'
@@ -32,7 +31,7 @@ const useStateSubscribe = (
     recordCallback: (chlID: string, status: boolean) => void,
     recordRemoteCallback: (status: boolean) => void,
 ) => {
-    let ws: WebsocketState | null = null
+    let ws: ReturnType<typeof WebsocketState> | null = null
 
     // 报警节点id和通道GUID的映射
     const chlIdMap = ref<Record<string, string>>({})
@@ -65,7 +64,7 @@ const useStateSubscribe = (
      * @description 订阅状态
      */
     const createStateSubscribe = () => {
-        ws = new WebsocketState({
+        ws = WebsocketState({
             config: {
                 channel_state_info: true,
                 alarm_state_info: userSession.hasAuth('alarmMgr'),
@@ -783,7 +782,6 @@ export default defineComponent({
 
                 // 点击的通道正处于播放状态
                 if (pageData.value.playingList.includes(chlID)) {
-                    console.log(pageData.value.playingList)
                     if (pageData.value.playingList.length === 1) {
                         return
                     }
@@ -850,7 +848,7 @@ export default defineComponent({
                         isPolling: true,
                         volume: pageData.value.volume,
                     })
-                    player.screen.setPollIndex(winIndex)
+                    player.setPollIndex(winIndex)
 
                     chlGroupTimer[winIndex] = setTimeout(() => {
                         currentIndex++
@@ -1341,7 +1339,7 @@ export default defineComponent({
             }
 
             if (mode.value === 'h5') {
-                player.zoomOut(player.getSelectedWinIndex())
+                player.zoomIn(player.getSelectedWinIndex())
             }
 
             if (mode.value === 'ocx') {
@@ -1361,7 +1359,7 @@ export default defineComponent({
             }
 
             if (mode.value === 'h5') {
-                player.zoomIn(player.getSelectedWinIndex())
+                player.zoomOut(player.getSelectedWinIndex())
             }
 
             if (mode.value === 'ocx') {

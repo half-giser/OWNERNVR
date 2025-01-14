@@ -98,6 +98,12 @@ export class RecordSubStreamList extends TableRowStatus {
     videoEncodeType = ''
     subStreamQualityCaps: RecordSubStreamQualityCaps[] = []
     qualitys: string[] = []
+    videoEncodeTypeList: SelectOption<string, string>[] = []
+    resolutionList: string[] = []
+    frameRateList: string[] = []
+    videoQualityItemList: SelectOption<string, string>[] = []
+    maxFps = 0
+    isVideoQualityDisabled = false
 }
 
 /**

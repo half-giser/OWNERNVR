@@ -107,10 +107,7 @@ export class AlarmEventDto extends TableRowStatus {
         factoryName: '',
     }
     name = ''
-    schedule = {
-        value: '',
-        label: '',
-    }
+    schedule = ''
     record = {
         switch: false,
         chls: [] as SelectOption<string, string>[],
@@ -139,10 +136,7 @@ export class AlarmEventDto extends TableRowStatus {
     videoPopupList: SelectOption<string, string>[] = []
     msgBoxPopup = ''
     email = ''
-    oldSchedule = {
-        value: '',
-        label: '',
-    }
+    oldSchedule = ''
 }
 
 /**
@@ -263,10 +257,7 @@ export class AlarmSensorEventDto extends TableRowStatus {
     // 持续时间
     holdTime = ''
     // 排程
-    schedule = {
-        value: '',
-        label: '',
-    }
+    schedule = ''
     // 打开排程管理时将原本的排程填入
     oldSchedule = ''
     // record录像
@@ -418,8 +409,8 @@ export class AlarmFaceDetectionDto {
     supportVfd = false
     enabledSwitch = false
     originalSwitch = false
-    holdTime = ''
-    holdTimeList: SelectOption<string, string>[] = []
+    holdTime = 0
+    holdTimeList: SelectOption<number, string>[] = []
     regionInfo: CanvasBaseArea[] = []
     mutexList: AlarmMutexDto[] = []
     mutexListEx: AlarmMutexDto[] = []
@@ -465,13 +456,19 @@ export class AlarmFaceGroupDto {
 }
 
 /**
- * @description 通道项
+ * @description 在线通道项
  */
-export class AlarmChlDto {
+export class AlarmOnlineChlDto {
     id = ''
     ip = ''
     name = ''
     accessType = ''
+}
+
+/**
+ * @description 通道项
+ */
+export class AlarmChlDto extends AlarmOnlineChlDto {
     chlType = ''
     supportOsc = false
     supportCdd = false
@@ -497,8 +494,6 @@ export class AlarmChlDto {
     supportFire = false
     supportTemperature = false
     supportVideoMetadata = false
-    showAIReourceDetail = false
-    faceMatchLimitMaxChlNum = 0
 }
 
 /**
@@ -583,7 +578,7 @@ export class AlarmTripwireDto {
     // 方向列表
     directionList: SelectOption<string, string>[] = []
     // 排程
-    tripwire_schedule = ''
+    schedule = ''
     // 持续时间
     holdTime = 0
     holdTimeList: SelectOption<number, string>[] = []
@@ -591,7 +586,7 @@ export class AlarmTripwireDto {
     mutexList: AlarmMutexDto[] = []
     mutexListEx: AlarmMutexDto[] = []
     // 目标类型只支持人
-    tripwire_onlyPreson = false
+    onlyPreson = false
     // 只支持人的灵敏度
     onlyPersonSensitivity = 0
     // 是否支持SD卡存储
@@ -637,30 +632,30 @@ export class AlarmPassLinesDto {
     // 三种模式的时间
     countPeriod = {
         day: {
-            date: '0',
+            date: 0,
             dateTime: '00:00:00',
         },
         week: {
-            date: '0',
+            date: 0,
             dateTime: '00:00:00',
         },
         month: {
-            date: '1',
+            date: 1,
             dateTime: '00:00:00',
         },
     }
     // 是否启用侦测
-    passLineDetectionEnable = false
+    detectionEnable = false
     // 用于对比
-    passLineOriginalEnable = false
+    originalEnable = false
     // mutex
-    passLineMutexList: AlarmMutexDto[] = []
-    passLineMutexListEx: AlarmMutexDto[] = []
+    mutexList: AlarmMutexDto[] = []
+    mutexListEx: AlarmMutexDto[] = []
     // 排程
-    passLineSchedule = ''
+    schedule = ''
     // 持续时间
-    passLineholdTime = 0
-    lineInfo: {
+    holdTime = 0
+    line: {
         direction: CanvasPasslineDirection
         startPoint: { X: number; Y: number }
         endPoint: { X: number; Y: number }
@@ -683,14 +678,7 @@ export class AlarmPassLinesDto {
     saveTargetPicture = false
     // SD卡目标图存储
     saveSourcePicture = false
-    // cpc TODO现无支持设备，无法测试
-    // 是否启用侦测
-    cpcDetectionEnable = false
-    // 用于对比
-    cpcOriginalEnable = false
-    cpcMutexList: AlarmMutexDto[] = []
-    cpcMutexListEx: AlarmMutexDto[] = []
-    cpcLineInfo: CanvasBaseArea = {
+    lineInfo: CanvasBaseArea = {
         X1: 0,
         Y1: 0,
         X2: 0,
@@ -702,10 +690,6 @@ export class AlarmPassLinesDto {
         X2: 0,
         Y2: 0,
     }
-    // 排程
-    cpcSchedule = ''
-    // 持续时间
-    holdTime = 0
     holdTimeList: SelectOption<number, string>[] = []
     // 灵敏度
     detectSensitivity = 0
@@ -740,13 +724,13 @@ export class AlarmPassLinesEmailDto {
     saveTargetPicture = false
     saveSourcePicture = false
     sendEmailData = {
-        type: '0',
+        type: 0,
         enableSwitch: false,
         dailyReportSwitch: false,
         weeklyReportSwitch: false,
-        weeklyReportDate: '0',
+        weeklyReportDate: 0,
         mouthlyReportSwitch: false,
-        mouthlyReportDate: '0',
+        mouthlyReportDate: 0,
         reportHour: 0,
         reportMin: 0,
     }
@@ -810,16 +794,18 @@ export class AlarmVehicleDetectionDto {
     schedule = ''
     plateSupportArea = ''
     direction = ''
-    exposureChecked = false
+    exposureSwitch = false
     exposureValue = 0
-    plateAbsenceCheceked = false
+    exposureMin = 1
+    exposureMax = 50
+    capturePlateAbsenceVehicle = false
     regionInfo: CanvasBaseArea[] = []
     maskAreaInfo: Record<number, CanvasBasePoint[]> = {}
     mutexList: AlarmMutexDto[] = []
     plateSize = {
         minWidth: 0,
         maxWidth: 1,
-        min: 1,
+        min: 0,
         max: 50,
     }
     minRegionInfo: CanvasBaseArea[] = []
@@ -841,8 +827,8 @@ export class AlarmVehicleRecognitionDto {
  */
 export class AlarmTemperatureDetectionDto {
     enabledSwitch = false
-    holdTime = ''
-    holdTimeList: SelectOption<string, string>[] = []
+    holdTime = 0
+    holdTimeList: SelectOption<number, string>[] = []
     schedule = ''
     triggerAudio = ''
     triggerWhiteLight = ''
@@ -883,8 +869,8 @@ export class AlarmTemperatureDetectionBoundryDto {
 export class AlarmObjectLeftDto {
     enabledSwitch = false
     originalSwitch = false
-    holdTime = ''
-    holdTimeList: SelectOption<string, string>[] = []
+    holdTime = 0
+    holdTimeList: SelectOption<number, string>[] = []
     schedule = ''
     oscTypeList: SelectOption<string, string>[] = []
     oscType = ''
@@ -909,8 +895,8 @@ export class AlarmObjectLeftBoundaryDto {
  * @description AI事件——更多——异常侦测
  **/
 export class AlarmAbnormalDisposeDto {
-    holdTime = ''
-    holdTimeList: SelectOption<string, string>[] = []
+    holdTime = 0
+    holdTimeList: SelectOption<number, string>[] = []
     sceneChangeSwitch = ''
     clarityAbnormalSwitch = ''
     colorAbnormalSwitch = ''
@@ -962,16 +948,16 @@ export class AlarmVideoStructureDto {
     countPeriod = {
         countTimeType: 'day',
         day: {
-            date: '',
-            dateTime: '',
+            date: 0,
+            dateTime: '00:00:00',
         },
         week: {
-            date: '',
-            dateTime: '',
+            date: 0,
+            dateTime: '00:00:00',
         },
         month: {
-            date: '',
-            dateTime: '',
+            date: 0,
+            dateTime: '00:00:00',
         },
     }
     objectFilter = {

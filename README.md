@@ -6,12 +6,12 @@
 #### VSCode
 建议使用**VSCode**，并安装以下Extensions：
 
-**Vue - Official**
-**EsLint**
-**koroFileHeader**
-**Prettier - Code formatter**
-**Prettier ESLint**
-**Stylelint**
+- Vue - Official
+- EsLint
+- koroFileHeader
+- Prettier - Code formatter
+- Prettier ESLint
+- Stylelint
 
 在根目录中创建 **.vscode/settings.json**，添加以下配置：
 ```json
@@ -41,7 +41,7 @@
   ],
   "fileheader.customMade": {
     "Description":"",
-    "Author":"Your Name （Your Email）", // 更改为您的名字
+    "Author":"Your Name （Your Email）", /* 更改为您的名字 */
     "Date":"Do not edit",
   },
   "fileheader.configObj": {
@@ -77,11 +77,17 @@ npm run mirror:set
 npm install
 ```
 
+并初始化husky
+```bash
+npm run prepare
+```
+
 ## 开发调试
 
-可在 **config/.env.dev** 中更改测试设备IP
+可在 **config/.env.dev** 中更改测试设备IP和更改HTTP/HTTPS调试模式
 ```
 VITE_APP_IP=0.0.0.0
+VITE_APP_HTTPS=false
 ```
 
 可在 **config/.env** 中更改测试UI
@@ -96,14 +102,14 @@ npm run dev
 
 ## 生产打包
 
-##### 方法1. 在Terminal中运行
+在Terminal中运行
 ```bash
 npm run generate bundle=UI1-A,UI2-A_IL03,UI1-E_USE44
 ```
 
-bundle=后面跟随需要打包的{UI类型}_{客户}，多个包则使用英文逗号隔开. 如果没带客户后缀，则会打包中性客户版本. 打包结果在**dist**目录下
+bundle=后面跟随需要打包的**UI类型_客户**，多个包则使用英文逗号隔开. 如果没带客户后缀，则会打包中性客户版本. 打包结果（包括标准版本和P2P版本的包）保存在**dist**目录下. 
 
-##### 方法2. 在Termial中运行
+<!-- ##### 方法2. 在Termial中运行（不推荐）
 ```bash
 npm run generate manual
 ```
@@ -118,4 +124,4 @@ npm run generate manual
  ◯ UI1-E
  ◯ UI1-F
  ◯ UI1-G
-```
+``` -->

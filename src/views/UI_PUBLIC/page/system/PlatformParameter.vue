@@ -38,7 +38,7 @@
                     v-if="!formData.isDomain"
                     :disabled="!formData.enable"
                     :model-value="formData.ip"
-                    @update:model-value="handleIpChange"
+                    @update:model-value="changeIp"
                 />
                 <el-input
                     v-else

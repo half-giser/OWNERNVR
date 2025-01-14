@@ -225,7 +225,7 @@ const initColor = () => {
  */
 const getFirstDayByGreDate = (dateStr: string) => {
     const currentDate = dayjs(dateStr, 'YYYY/MM/DD')
-    return dayjs().year(currentDate.year()).month(currentDate.month()).date(1).hour(0).minute(0).second(0).format('YYYY-MM-DD HH:mm:ss')
+    return dayjs().year(currentDate.year()).month(currentDate.month()).date(1).hour(0).minute(0).second(0).format(DEFAULT_DATE_FORMAT)
 }
 
 /**
@@ -797,10 +797,10 @@ const clear = () => {
  */
 const formatTime = (second: number, format = 'HH:mm') => {
     if (minTime > 0) {
-        return dayjs.utc('1970-01-01 00:00:00', 'YYYY-MM-DD HH:mm:ss').add(second, 'second').local().format(format)
+        return dayjs.utc('1970-01-01 00:00:00', DEFAULT_DATE_FORMAT).add(second, 'second').local().format(format)
         // return dayjs.utc(second * 1000).format(format)
     } else {
-        return dayjs.utc('1970-01-01 00:00:00', 'YYYY-MM-DD HH:mm:ss').add(second, 'second').format(format)
+        return dayjs.utc('1970-01-01 00:00:00', DEFAULT_DATE_FORMAT).add(second, 'second').format(format)
         // return dayjs.utc(0).add(second, 'second').format(format)
     }
 }
@@ -1364,7 +1364,7 @@ watch(
     },
 )
 
-defineExpose<TimelineInstance>({
+const expose = {
     updateChlList,
     play,
     stop,
@@ -1390,7 +1390,11 @@ defineExpose<TimelineInstance>({
     getTimeRangeMask,
     getDST,
     setMode,
-})
+}
+
+export type TimelineReturnsType = typeof expose
+
+defineExpose(expose)
 </script>
 
 <style lang="scss" scoped>

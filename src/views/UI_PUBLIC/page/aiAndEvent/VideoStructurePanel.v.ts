@@ -98,10 +98,8 @@ export default defineComponent({
             osdFormat: '',
         }
 
-        // const osdCfgCheckedList = ref<string[]>([])
-
-        // 页面数据
         const pageData = ref({
+            reqFail: false,
             tab: 'param',
             // 存储是否可用
             isSavePicDisabled: false,
@@ -126,40 +124,44 @@ export default defineComponent({
             countCycleTypeList: [] as SelectOption<string, string>[],
             weekOption: [
                 {
-                    value: '0',
+                    value: 0,
                     label: Translate('IDCS_WEEK_DAY_SEVEN'),
                 },
                 {
-                    value: '1',
+                    value: 1,
                     label: Translate('IDCS_WEEK_DAY_ONE'),
                 },
                 {
-                    value: '2',
+                    value: 2,
                     label: Translate('IDCS_WEEK_DAY_TWO'),
                 },
                 {
-                    value: '3',
+                    value: 3,
                     label: Translate('IDCS_WEEK_DAY_THREE'),
                 },
                 {
-                    value: '4',
+                    value: 4,
                     label: Translate('IDCS_WEEK_DAY_FOUR'),
                 },
                 {
-                    value: '5',
+                    value: 5,
                     label: Translate('IDCS_WEEK_DAY_FIVE'),
                 },
                 {
-                    value: '6',
+                    value: 6,
                     label: Translate('IDCS_WEEK_DAY_SIX'),
                 },
             ],
-            monthOption: [] as SelectOption<string, string>[],
-
+            monthOption: Array(31)
+                .fill(0)
+                .map((_, index) => {
+                    const i = index + 1
+                    return {
+                        value: i,
+                        label: i,
+                    }
+                }),
             imgOsdTypeList: [] as SelectOption<string, string>[],
-            // osdCheckAll: false,
-            // osdCfgList: [] as SelectOption<string, string>[],
-            // osdShowList: [] as string[],
         })
 
         // 视频结构化数据
@@ -181,7 +183,7 @@ export default defineComponent({
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
         // 车牌侦测绘制的Canvas
-        let vsdDrawer = new CanvasPolygon({
+        let vsdDrawer = CanvasPolygon({
             el: document.createElement('canvas'),
         })
 
@@ -194,7 +196,7 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 const canvas = player.getDrawbordCanvas(0)
-                vsdDrawer = new CanvasPolygon({
+                vsdDrawer = CanvasPolygon({
                     el: canvas,
                     enable: true,
                     enableOSD: formData.value.countOSD.switch,
@@ -309,7 +311,9 @@ export default defineComponent({
                 </requireField>
             `
             const result = await queryVideoMetadata(sendXml)
-            commLoadResponseHandler(result, ($) => {
+            const $ = queryXml(result)
+
+            if ($('status').text() === 'success') {
                 const param = $('content/chl/param')
                 const $param = queryXml(param[0].element)
                 const enabledSwitch = $param('switch').text().bool()
@@ -436,7 +440,7 @@ export default defineComponent({
                 formData.value = {
                     enabledSwitch,
                     originalSwitch: enabledSwitch,
-                    schedule: $('content/chl').attr('scheduleGuid'),
+                    schedule: getScheduleId(pageData.value.scheduleList, $('content/chl').attr('scheduleGuid')),
                     saveSourcePicture: $param('saveSourcePicture').text().bool(),
                     saveTargetPicture: $param('saveTargetPicture').text().bool(),
                     algoChkModel: $param('algoModel/algoChkModel').text(),
@@ -450,15 +454,15 @@ export default defineComponent({
                     countPeriod: {
                         countTimeType: $param('countPeriod/countTimeType').text(),
                         day: {
-                            date: $param('countPeriod/daily/dateSpan').text(),
+                            date: $param('countPeriod/daily/dateSpan').text().num(),
                             dateTime: $param('countPeriod/daily/dateTimeSpan').text(),
                         },
                         week: {
-                            date: $param('countPeriod/weekly/dateSpan').text(),
+                            date: $param('countPeriod/weekly/dateSpan').text().num(),
                             dateTime: $param('countPeriod/weekly/dateTimeSpan').text(),
                         },
                         month: {
-                            date: $param('countPeriod/monthly/dateSpan').text(),
+                            date: $param('countPeriod/monthly/dateSpan').text().num(),
                             dateTime: $param('countPeriod/monthly/dateTimeSpan').text(),
                         },
                     },
@@ -485,32 +489,11 @@ export default defineComponent({
                 pageData.value.autoReset = formData.value.countPeriod.countTimeType !== 'off'
 
                 watchEdit.listen()
-            })
+            } else {
+                pageData.value.tab = ''
+                pageData.value.reqFail = true
+            }
         }
-
-        // const handleVideoStructureData = () => {
-        //     refreshInitPage()
-
-        //     // 重置信息
-        //     pageData.value.autoReset = formData.value.countPeriod.countTimeType !== 'off'
-        //     // 图片叠加(OSD)
-        //     // if (formData.value.osdType === 'person') {
-        //     //     // OSD-人
-        //     //     getOsdCfgHtml(formData.value.osdPersonCfgList)
-        //     //     judgeCheckAll(formData.value.osdPersonCfgList)
-        //     //     getOsdShowListHtml(formData.value.osdPersonCfgList)
-        //     // } else if (formData.value.osdType === 'vehicle') {
-        //     //     // OSD-汽车
-        //     //     getOsdCfgHtml(formData.value.osdCarCfgList)
-        //     //     judgeCheckAll(formData.value.osdCarCfgList)
-        //     //     getOsdShowListHtml(formData.value.osdCarCfgList)
-        //     // } else if (formData.value.osdType === 'bike') {
-        //     //     // OSD-摩托车
-        //     //     getOsdCfgHtml(formData.value.osdBikeCfgList)
-        //     //     judgeCheckAll(formData.value.osdBikeCfgList)
-        //     //     getOsdShowListHtml(formData.value.osdBikeCfgList)
-        //     // }
-        // }
 
         // 检测和屏蔽区域的样式初始化
         const refreshInitPage = () => {
@@ -1194,19 +1177,19 @@ export default defineComponent({
             }
         }
 
-        onMounted(async () => {
-            pageData.value.monthOption = Array(31)
-                .fill(0)
-                .map((_, index) => {
-                    const i = (index + 1).toString()
-                    return {
-                        value: i,
-                        label: i,
-                    }
-                })
-
-            openLoading()
+        const getScheduleList = async () => {
             pageData.value.scheduleList = await buildScheduleList()
+        }
+
+        const closeSchedulePop = async () => {
+            pageData.value.isSchedulePop = false
+            await getScheduleList()
+            formData.value.schedule = getScheduleId(pageData.value.scheduleList, formData.value.schedule)
+        }
+
+        onMounted(async () => {
+            openLoading()
+            await getScheduleList()
             await getData()
             closeLoading()
         })
@@ -1255,6 +1238,7 @@ export default defineComponent({
             osdShowList,
             toggleAllOsd,
             applyData,
+            closeSchedulePop,
         }
     },
 })

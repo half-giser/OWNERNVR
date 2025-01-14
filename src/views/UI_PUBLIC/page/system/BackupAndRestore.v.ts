@@ -248,7 +248,7 @@ export default defineComponent({
         const importFile = () => {
             if (isSupportH5.value) {
                 openLoading()
-                new WebsocketUpload({
+                WebsocketUpload({
                     file: file,
                     config: {
                         file_id: 'config_file',
@@ -315,7 +315,7 @@ export default defineComponent({
 
             if ($('status').text() === 'success') {
                 if (isSupportH5.value) {
-                    new WebsocketDownload({
+                    WebsocketDownload({
                         config: {
                             file_id: 'config_file',
                             param: {

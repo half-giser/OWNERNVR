@@ -53,7 +53,7 @@
                             :index="0"
                             :hover-index="1"
                             :chunk="4"
-                            @click.stop="handleEdit(scope.row, scope.$index)"
+                            @click.stop="openEditPop(scope.row, scope.$index)"
                         />
                     </template>
                 </el-table-column>
@@ -67,7 +67,7 @@
                             :index="0"
                             :hover-index="1"
                             :chunk="4"
-                            @click.stop="handleDelete(scope.$index)"
+                            @click.stop="delItem(scope.$index)"
                         />
                     </template>
                 </el-table-column>
@@ -76,13 +76,13 @@
         <div class="base-btn-box">
             <el-button
                 :disabled="!formData.switch"
-                @click="handleAddIp"
+                @click="addIp"
             >
                 {{ Translate('IDCS_ADD_IP') }}
             </el-button>
             <el-button
                 :disabled="!formData.switch"
-                @click="handleAddMac"
+                @click="addMac"
             >
                 {{ Translate('IDCS_ADD_MAC') }}
             </el-button>
@@ -93,7 +93,7 @@
             :index="pageData.editIndex"
             :table-data="tableData"
             :data="pageData.editData"
-            @confirm="handleConfirmEdit"
+            @confirm="confirmEditItem"
             @close="pageData.isEditPop = false"
         />
     </div>

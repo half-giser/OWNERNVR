@@ -174,14 +174,18 @@ const invert = () => {
     })
 }
 
-defineExpose({
+const expose = {
     weekdayLang,
     getValue,
     resetValue,
     resetSameValue,
     addTimeSpan,
     invert,
-})
+}
+
+export type ScheduleWeekReturnsType = typeof expose
+
+defineExpose(expose)
 </script>
 
 <style lang="scss" scoped>

@@ -26,7 +26,7 @@ export default defineComponent({
         const selectedChlId = ref('')
         const editRows = useWatchEditRows<ChannelMotionDto>()
         const switchOptions = getBoolSwitchOptions()
-        let motionDrawer: CanvasMotion
+        let motionDrawer: ReturnType<typeof CanvasMotion>
         let motionAlarmList: string[] = []
 
         const ready = computed(() => {
@@ -383,7 +383,7 @@ export default defineComponent({
             plugin = playerRef.value!.plugin
 
             if (mode.value === 'h5') {
-                motionDrawer = new CanvasMotion({
+                motionDrawer = CanvasMotion({
                     el: player.getDrawbordCanvas(0) as HTMLCanvasElement,
                     onchange: motionAreaChange,
                 })

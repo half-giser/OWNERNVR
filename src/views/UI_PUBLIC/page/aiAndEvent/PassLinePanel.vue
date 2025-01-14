@@ -5,29 +5,23 @@
 -->
 <template>
     <div>
-        <!-- <div
-            v-if="pageData.notSupportTipShow"
-            class="base-ai-not-support-box"
-        >
-            {{ Translate('IDCS_CURRENT_INTEL_EVENT_UNSUPORT') }}
-        </div> -->
         <div
-            v-if="pageData.requireDataFail"
+            v-if="pageData.reqFail"
             class="base-ai-not-support-box"
         >
             {{ Translate('IDCS_QUERY_DATA_FAIL') }}
         </div>
-        <div v-if="!pageData.requireDataFail">
+        <div v-if="pageData.tab">
             <!-- 检测开启 -->
             <div class="base-btn-box flex-start padding collapse">
                 <el-checkbox
                     v-if="chlData.supportPassLine"
-                    v-model="formData.passLineDetectionEnable"
+                    v-model="formData.detectionEnable"
                     :label="Translate('IDCS_ENABLE')"
                 />
                 <el-checkbox
                     v-if="chlData.supportCpc"
-                    v-model="formData.cpcDetectionEnable"
+                    v-model="formData.detectionEnable"
                     :label="Translate('IDCS_ENABLE')"
                 />
             </div>
@@ -42,7 +36,7 @@
                     />
                 </div>
                 <!-- passLine设置 -->
-                <div v-if="pageData.fuction === 'param' && chlData.supportPassLine">
+                <div v-if="pageData.tab === 'param' && chlData.supportPassLine">
                     <div class="base-btn-box space-between">
                         <div>
                             <el-checkbox
@@ -65,7 +59,7 @@
                     <div class="base-ai-tip">{{ Translate('IDCS_DRAW_LINE_TIP') }}</div>
                 </div>
                 <!-- cpc设置 -->
-                <div v-if="pageData.fuction === 'param' && chlData.supportCpc">
+                <div v-if="pageData.tab === 'param' && chlData.supportCpc">
                     <div class="base-btn-box">
                         <!-- <div>
                             <el-checkbox
@@ -83,7 +77,7 @@
             <div class="base-ai-form">
                 <!-- 两种功能 -->
                 <el-tabs
-                    v-model="pageData.fuction"
+                    v-model="pageData.tab"
                     class="base-ai-tabs"
                     @tab-change="changeTab"
                 >
@@ -108,7 +102,7 @@
                                     <!-- 排程 -->
                                     <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
                                         <el-select-v2
-                                            v-model="formData.passLineSchedule"
+                                            v-model="formData.schedule"
                                             :options="pageData.scheduleList"
                                         />
                                         <el-button @click="pageData.isSchedulePop = true">
@@ -126,7 +120,7 @@
                                             @change="changeLine"
                                         >
                                             <el-radio-button
-                                                v-for="(_item, index) in formData.lineInfo"
+                                                v-for="(_item, index) in formData.line"
                                                 :key="index"
                                                 :value="index"
                                                 :label="index + 1"
@@ -181,13 +175,13 @@
                                     >
                                         <el-select-v2
                                             v-if="formData.countTimeType === 'week'"
-                                            v-model="formData.countPeriod['week'].date"
+                                            v-model="formData.countPeriod.week.date"
                                             :options="pageData.weekOption"
                                             :disabled="!formData.autoReset"
                                         />
                                         <el-select-v2
                                             v-if="formData.countTimeType === 'month'"
-                                            v-model="formData.countPeriod['month'].date"
+                                            v-model="formData.countPeriod.month.date"
                                             :options="pageData.monthOption"
                                             :disabled="!formData.autoReset"
                                         />
@@ -198,19 +192,19 @@
                                         />
                                         <el-time-picker
                                             v-if="formData.countTimeType === 'day'"
-                                            v-model="formData.countPeriod['day']['dateTime']"
+                                            v-model="formData.countPeriod.day.dateTime"
                                             :disabled="!formData.autoReset"
                                             value-format="HH:mm:ss"
                                         />
                                         <el-time-picker
                                             v-if="formData.countTimeType === 'week'"
-                                            v-model="formData.countPeriod['week']['dateTime']"
+                                            v-model="formData.countPeriod.week.dateTime"
                                             :disabled="!formData.autoReset"
                                             value-format="HH:mm:ss"
                                         />
                                         <el-time-picker
                                             v-if="formData.countTimeType === 'month'"
-                                            v-model="formData.countPeriod['month']['dateTime']"
+                                            v-model="formData.countPeriod.month.dateTime"
                                             :disabled="!formData.autoReset"
                                             value-format="HH:mm:ss"
                                         />
@@ -240,7 +234,7 @@
                                     <!-- 排程 -->
                                     <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
                                         <el-select-v2
-                                            v-model="formData.cpcSchedule"
+                                            v-model="formData.schedule"
                                             :options="pageData.scheduleList"
                                         />
                                         <el-button @click="pageData.isSchedulePop = true">

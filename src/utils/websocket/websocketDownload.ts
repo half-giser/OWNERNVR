@@ -13,57 +13,45 @@ export interface WebsocketDownloadOption {
     error?: (code: number) => void
 }
 
-export default class WebsocketDownload {
-    private config: CmdDownloadFileOpenOption
-    private fileName: string
-    private fileBuffer: ArrayBuffer | null = null
-    // private fileSize = 0
-    private downloadIndex = 0
-    // private oneDownloadNum = 8
-    private ws: WebsocketBase | null = null
-    private readonly successCallback: WebsocketDownloadOption['success']
-    private readonly errorCallback: WebsocketDownloadOption['error']
+export default function WebsocketDownload(option: WebsocketDownloadOption) {
+    let fileBuffer: ArrayBuffer | null | Uint8Array<ArrayBuffer> = null
+    let downloadIndex = 0
 
-    constructor(option: WebsocketDownloadOption) {
-        this.config = option.config
-        this.fileName = option.fileName
-        this.successCallback = option.success
-        this.errorCallback = option.error
-        this.init()
-    }
+    const config = option.config
+    const fileName = option.fileName
+    const successCallback = option.success
+    const errorCallback = option.error
 
-    private init() {
-        this.ws = new WebsocketBase({
-            onopen: () => {
-                this.start()
-            },
-            onmessage: (data: string | ArrayBuffer) => {
-                if (data instanceof ArrayBuffer) {
-                    const fileBuffer = this.getFileBuffer(data)
-                    this.writeFile(fileBuffer)
-                } else {
-                    const res = JSON.parse(data)
-                    const resData = res.data || {}
-                    const resBasic = res.basic || {}
-                    const dataCode = Number(resData.code)
-                    if (res.url === '/device/file/download/step') {
-                        if (dataCode === ErrorCode.USER_ERROR_FILE_STREAM_COMPLETED) {
-                            // 文件流完成
-                            this.download()
-                        }
-                    }
-                    const code = dataCode || Number(resBasic.code)
-                    if (code && code !== 0 && code !== ErrorCode.USER_ERROR_FILE_STREAM_COMPLETED) {
-                        this.errorCallback && this.errorCallback(code)
+    const ws = WebsocketBase({
+        onopen: () => {
+            start()
+        },
+        onmessage: (data: string | ArrayBuffer) => {
+            if (data instanceof ArrayBuffer) {
+                const fileBuffer = getFileBuffer(data)
+                writeFile(fileBuffer)
+            } else {
+                const res = JSON.parse(data)
+                const resData = res.data || {}
+                const resBasic = res.basic || {}
+                const dataCode = Number(resData.code)
+                if (res.url === '/device/file/download/step') {
+                    if (dataCode === ErrorCode.USER_ERROR_FILE_STREAM_COMPLETED) {
+                        // 文件流完成
+                        handleDownload()
                     }
                 }
-            },
-        })
-    }
+                const code = dataCode || Number(resBasic.code)
+                if (code && code !== 0 && code !== ErrorCode.USER_ERROR_FILE_STREAM_COMPLETED) {
+                    errorCallback && errorCallback(code)
+                }
+            }
+        },
+    })
 
-    private start() {
-        const cmd = CMD_DOWNLOAD_FILE_OPEN(this.config)
-        this.ws!.send(JSON.stringify(cmd))
+    const start = () => {
+        const cmd = CMD_DOWNLOAD_FILE_OPEN(config)
+        ws.send(JSON.stringify(cmd))
     }
 
     /**
@@ -71,7 +59,7 @@ export default class WebsocketDownload {
      * @param {ArrayBuffer} data
      * @returns {ArrayBuffer}
      */
-    private getFileBuffer(data: ArrayBuffer) {
+    const getFileBuffer = (data: ArrayBuffer) => {
         const dataView = new DataView(data)
         const encryptType = dataView.getUint32(0, true)
         const jsonOffset = encryptType === 0 ? 8 : 16
@@ -84,30 +72,30 @@ export default class WebsocketDownload {
      * @description
      * @param {ArrayBuffer} newBuf
      */
-    private writeFile(newBuf: ArrayBuffer) {
-        this.downloadIndex++
-        if (!this.fileBuffer) {
-            this.fileBuffer = newBuf || null
-            this.confirmStep()
+    const writeFile = (newBuf: ArrayBuffer) => {
+        downloadIndex++
+        if (!fileBuffer) {
+            fileBuffer = newBuf || null
+            confirmStep()
             return
         }
-        this.fileBuffer = appendBuffer(this.fileBuffer, newBuf)
-        this.confirmStep()
+        fileBuffer = appendBuffer(fileBuffer as ArrayBuffer, newBuf)
+        confirmStep()
     }
 
     /**
      * @description 确认下载帧
      */
-    private confirmStep() {
-        const cmd = CMD_DOWNLOAD_CONFIRM_STEP(this.downloadIndex)
-        this.ws!.send(JSON.stringify(cmd))
+    const confirmStep = () => {
+        const cmd = CMD_DOWNLOAD_CONFIRM_STEP(downloadIndex)
+        ws.send(JSON.stringify(cmd))
     }
 
-    private download() {
-        const blob = new Blob([this.fileBuffer as ArrayBuffer])
-        download(blob, this.fileName)
-        this.ws!.send(JSON.stringify(CMD_DOWNLOAD_FILE_CLOSE()))
-        this.ws!.close()
-        this.successCallback && this.successCallback(this.fileBuffer as ArrayBuffer)
+    const handleDownload = () => {
+        const blob = new Blob([fileBuffer as ArrayBuffer])
+        download(blob, fileName)
+        ws.send(JSON.stringify(CMD_DOWNLOAD_FILE_CLOSE()))
+        ws.close()
+        successCallback && successCallback(fileBuffer as ArrayBuffer)
     }
 }

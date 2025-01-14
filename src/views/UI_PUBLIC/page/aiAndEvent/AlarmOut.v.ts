@@ -41,14 +41,15 @@ export default defineComponent({
         // 当前告警输出的常开/常闭类型
         const curAlarmoutType = ref('')
 
-        onMounted(async () => {
+        /**
+         * @description 获取排程列表
+         */
+        const getScheduleList = async () => {
             pageData.value.scheduleList = await buildScheduleList({
                 isManager: true,
                 defaultValue: '',
             })
-            await getAlarmOutType()
-            getData()
-        })
+        }
 
         /**
          * @description: 获取表格数据
@@ -144,6 +145,10 @@ export default defineComponent({
             getData()
         }
 
+        /**
+         * @description 修改所有项的排程/打开排程管理弹窗
+         * @param {string} value
+         */
         const changeScheduleAll = (value: string) => {
             if (value === 'scheduleMgr') {
                 pageData.value.isSchedulePop = true
@@ -155,6 +160,10 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 修改排程/打开排程管理弹窗
+         * @param {AlarmOutDto} row
+         */
         const changeSchedule = (row: AlarmOutDto) => {
             if (row.scheduleId === 'scheduleMgr') {
                 pageData.value.isSchedulePop = true
@@ -169,8 +178,18 @@ export default defineComponent({
         }
 
         /**
-         * @description: 获取告警输出常开/常闭类型
-         * @return {*}
+         * @description 关闭排程管理弹窗
+         */
+        const closeSchedulePop = async () => {
+            pageData.value.isSchedulePop = false
+            await getScheduleList()
+            tableData.value.forEach((item) => {
+                item.scheduleId = getScheduleId(pageData.value.scheduleList, item.scheduleId, '')
+            })
+        }
+
+        /**
+         * @description 获取告警输出常开/常闭类型
          */
         const getAlarmOutType = async () => {
             const result = await queryBasicCfg()
@@ -192,7 +211,10 @@ export default defineComponent({
             originalName.value = name
         }
 
-        // 失去焦点时检查名称是否合法
+        /**
+         * @description 失去焦点时检查名称是否合法
+         * @param {AlarmOutDto} row
+         */
         const blurName = (row: AlarmOutDto) => {
             const name = row.name
             if (!checkChlName(name)) {
@@ -223,7 +245,10 @@ export default defineComponent({
             }
         }
 
-        // 回车键失去焦点
+        /**
+         * @description 回车键失去焦点
+         * @param {Event} event
+         */
         const blurInput = (event: Event) => {
             ;(event.target as HTMLInputElement).blur()
         }
@@ -241,8 +266,7 @@ export default defineComponent({
         }
 
         /**
-         * @description: 报警输出类型变化
-         * @return {*}
+         * @description 报警输出类型变化
          */
         const changeType = async (value: string) => {
             if (value === curAlarmoutType.value) return
@@ -266,8 +290,7 @@ export default defineComponent({
         }
 
         /**
-         * @description: 保存数据
-         * @return {*}
+         * @description 保存数据
          */
         const setData = async () => {
             openLoading()
@@ -300,6 +323,11 @@ export default defineComponent({
             closeLoading()
         }
 
+        /**
+         * @description 序号字段格式化
+         * @param {AlarmOutDto} row
+         * @returns {string}
+         */
         const displaySerialNum = (row: AlarmOutDto) => {
             if (row.disabled) {
                 return ''
@@ -307,9 +335,20 @@ export default defineComponent({
             return `${row.devDesc ? row.devDesc : Translate('IDCS_LOCAL')}-${row.index}`
         }
 
+        /**
+         * @description 类型字段格式化
+         * @param {AlarmOutDto} row
+         * @returns {string}
+         */
         const displayAlarmOutType = (row: AlarmOutDto) => {
             return row.disabled ? '' : row.devDesc ? '--' : pageData.value.alarmoutTypeText[curAlarmoutType.value]
         }
+
+        onMounted(async () => {
+            await getScheduleList()
+            await getAlarmOutType()
+            getData()
+        })
 
         return {
             pageData,
@@ -322,9 +361,9 @@ export default defineComponent({
             focusName,
             blurName,
             blurInput,
-            // 排程
             changeScheduleAll,
             changeSchedule,
+            closeSchedulePop,
             changeType,
             setData,
             displaySerialNum,

@@ -49,6 +49,7 @@ export default {
                 lk: 'IDCS_TCP_IPV4',
                 group: 'network',
                 default: true,
+                homeDefault: true,
                 inHome: 'self',
                 homeSort: 10,
             },

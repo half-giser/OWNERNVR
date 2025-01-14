@@ -54,7 +54,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const { openMessageBox } = useMessageBox()
 
-        let recorder: WebsocketRecordBackup | null = null
+        let recorder: ReturnType<typeof WebsocketRecordBackup> | null = null
 
         const pageData = ref({
             // 下载进度
@@ -88,7 +88,7 @@ export default defineComponent({
                 return
             }
             destroy()
-            recorder = new WebsocketRecordBackup({
+            recorder = WebsocketRecordBackup({
                 maxSingleSize: prop.maxSingleSize,
                 onmessage: handleRecordFile,
                 onFrameTime: handleFrameTime,

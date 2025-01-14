@@ -79,6 +79,7 @@ export default {
                 default: true,
                 inHome: 'self',
                 homeSort: 50,
+                homeDefault: true,
             },
         },
         alarmEmailReceiver: {

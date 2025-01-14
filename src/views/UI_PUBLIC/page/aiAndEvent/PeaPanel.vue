@@ -5,19 +5,13 @@
 -->
 <template>
     <div>
-        <!-- <div
-            v-if="pageData.notSupportTipShow"
-            class="base-ai-not-support-box"
-        >
-            {{ Translate('IDCS_CURRENT_INTEL_EVENT_UNSUPORT') }}
-        </div> -->
         <div
-            v-if="pageData.requireDataFail"
+            v-if="pageData.reqFail"
             class="base-ai-not-support-box"
         >
             {{ Translate('IDCS_QUERY_DATA_FAIL') }}
         </div>
-        <div v-if="!pageData.requireDataFail">
+        <div v-if="pageData.tab">
             <!-- nvr/ipc检测开启及ai按钮 -->
             <div class="base-btn-box space-between padding collapse">
                 <el-checkbox
@@ -33,7 +27,7 @@
             </div>
             <!-- 只存在一个播放器，因此放于tab区域外 -->
             <div
-                v-show="pageData.peaFunction !== 'pea_trigger'"
+                v-show="pageData.tab !== 'trigger'"
                 class="base-ai-param-box-left fixed"
             >
                 <div class="player">
@@ -43,7 +37,7 @@
                         @message="notify"
                     />
                 </div>
-                <div v-show="pageData.peaFunction === 'pea_param'">
+                <div v-show="pageData.tab === 'param'">
                     <div class="base-btn-box space-between">
                         <div>
                             <el-checkbox
@@ -69,14 +63,14 @@
             <div class="base-ai-form">
                 <!-- 三种功能 -->
                 <el-tabs
-                    v-model="pageData.peaFunction"
+                    v-model="pageData.tab"
                     class="base-ai-tabs"
                     @tab-change="changeTab"
                 >
                     <!-- 参数设置 -->
                     <el-tab-pane
                         :label="Translate('IDCS_PARAM_SETTING')"
-                        name="pea_param"
+                        name="param"
                     >
                         <div class="base-ai-param-box">
                             <div class="base-ai-param-box-left"></div>
@@ -189,7 +183,7 @@
                     <el-tab-pane
                         v-if="!formData[pageData.activityType].pea_onlyPreson"
                         :label="Translate('IDCS_DETECTION_TARGET')"
-                        name="pea_target"
+                        name="target"
                     >
                         <div class="base-ai-param-box">
                             <div class="base-ai-param-box-left"></div>
@@ -257,7 +251,7 @@
                     <!-- 联动方式 -->
                     <el-tab-pane
                         :label="Translate('IDCS_LINKAGE_MODE')"
-                        name="pea_trigger"
+                        name="trigger"
                     >
                         <el-form v-if="pageData.supportAlarmAudioConfig">
                             <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">

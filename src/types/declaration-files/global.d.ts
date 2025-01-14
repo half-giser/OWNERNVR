@@ -6,24 +6,16 @@
 
 import type { Action, MessageBoxState } from 'element-plus'
 import type { usePlugin } from '@/utils/ocx/ocxPlugin'
-import type TVTPlayer from '@/utils/wasmPlayer/tvtPlayer'
 import type { UserChlAuth as _UserChlAuth } from '@/hooks/useUserChlAuth'
+import type { PlayerWinDataListItem, PlayerPosInfoItem, PlayerReturnsType } from '@/components/player/BaseVideoPlayer.vue'
+import type { ScheduleLineReturnsType } from '@/components/BaseScheduleLine.vue'
+import type { ScheduleWeekReturnsType } from '@/components/BaseScheduleWeek.vue'
+import type { TimelineReturnsType } from '@/components/player/BaseTimeline.vue'
+import type { LivePopReturnsType } from '@/components/player/BaseLivePop.vue'
 
 export {}
 
 declare global {
-    /**
-     * 语言项
-     */
-    // interface LangItem {
-    //     id: string
-    //     value: string
-    // }
-
-    // interface ImportCallOptions {
-    //     query: string
-    // }
-
     interface String {
         formatForLang: Function
         format: Function
@@ -73,8 +65,6 @@ declare global {
     }
 
     type PluginType = ReturnType<typeof usePlugin>
-
-    // type AlarmContentType = 'none' | 'ptz' | 'tvWall' | 'sysRec' | 'popVideo' | 'snapShot' | 'alarmOut'
 
     interface ConfigToolBarEvent<T> {
         type: string
@@ -140,69 +130,27 @@ declare global {
     }
 
     interface PlayerInstance {
-        player: TVTPlayer
+        player: PlayerReturnsType
         plugin: PluginType
         mode: 'h5' | 'ocx'
         ready: boolean
     }
 
+    type TVTPlayerWinDataListItem = PlayerWinDataListItem
+
+    type TVTPlayerPosInfoItem = PlayerPosInfoItem
+
     interface LivePopInstance {
         openLiveWin(chlId: string, chlName: string, isOnline?: boolean): void
     }
 
-    interface TimelineInstance {
-        updateChlList: (
-            chlList: { chlName: string; chlId: string; records: { startTime: number; endTime: number; event: string; [key?: string]: any }[] }[],
-            autoPointer: boolean,
-            pageType: 'live' | 'record',
-        ) => void
-        play: (step: number, speed: number) => void
-        stop: () => void
-        getTime: () => number
-        setTime: (time: number) => void
-        playForward: (second: number) => void
-        playBack: (second: number) => void
-        setDstDayTime: (currentDayStartTime: string) => void
-        setClipStart: (time?: number) => void
-        setClipEnd: (time?: number) => void
-        clearData: () => void
-        getMaxTime: () => number
-        getMinTime: () => number
-        setColorMap: (colorMap: { value: string; color: string; name: string; children: string[] }[]) => void
-        getTimeSplitList: () => { startTime: number; endTime: number }[]
-        getMinuteSplitList: () => { startTime: number; endTime: number }[]
-        getPointerTime: () => number
-        getTimeRangeMask: () => [number, number]
-        clearClipRange: () => void
-        getDST: () => {
-            hours: number
-            start: number
-            end: number
-        }
-        clearTimeRangeMask: () => void
-        drawTimeRangeMask: (startTime: number, endTime: number) => void
-        setMode: (modeConfig: { mode?: string; startDate?: string; monthNum?: number }, newPointerTime?: number) => void
-    }
+    type LivePopInstance = LivePopReturnsType
 
-    interface ScheduleWeekInstance {
-        weekdayLang: string[]
-        getValue: () => [string, string][][]
-        resetValue: (value: [string, string][][]) => void
-        resetSameValue: (value: [string, string][]) => void
-        addTimeSpan: (timeSpan: [string, string] | [number, number], days: number[]) => void
-        invert: () => void
-    }
+    type TimelineInstance = TimelineReturnsType
 
-    interface ScheduleLineInstance {
-        getValue: () => [string, string][]
-        resetValue: (newValue: Array<[string, string]> | Array<[number, number]>) => void
-        addTimeSpan: (timeSpan: [string, string] | [number, number]) => void
-        invert: () => void
-    }
+    type ScheduleWeekInstance = ScheduleWeekReturnsType
 
-    // interface FloatErrorInstance {
-    //     show: (opt: { container?: string; message?: string; type?: string }) => void
-    // }
+    type ScheduleLineInstance = ScheduleLineReturnsType
 
     type UserChlAuth = _UserChlAuth
 

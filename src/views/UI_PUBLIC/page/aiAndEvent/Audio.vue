@@ -213,11 +213,11 @@
                 <div class="base-subheading-box">{{ Translate('IDCS_AUDIO_LINK_SCHEDULE') }}</div>
                 <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
                     <el-select-v2
-                        v-model="pageData.audioSchedule"
-                        :options="pageData.audioScheduleList"
+                        v-model="pageData.schedule"
+                        :options="pageData.scheduleList"
                         @change="pageData.isScheduleChanged = true"
                     />
-                    <el-button @click="pageData.scheduleManagPopOpen = true">{{ Translate('IDCS_MANAGE') }}</el-button>
+                    <el-button @click="pageData.isSchedulePop = true">{{ Translate('IDCS_MANAGE') }}</el-button>
                 </el-form-item>
                 <el-form-item>
                     <span class="ipcAudioTips">*{{ Translate('IDCS_AUDIO_LINK_SCHEDULE_TIPS') }}</span>
@@ -274,8 +274,8 @@
     />
     <!-- 排程管理弹窗 -->
     <ScheduleManagPop
-        v-model="pageData.scheduleManagPopOpen"
-        @close="handleSchedulePopClose"
+        v-model="pageData.isSchedulePop"
+        @close="closeSchedulePop"
     />
 </template>
 

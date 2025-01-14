@@ -10,7 +10,6 @@ import { type WebsocketKeyframeOnMessageParam } from '@/utils/websocket/websocke
 import { type PlaybackChlTimeSliceList, type PlaybackRecList, type PlaybackBackUpRecList } from '@/types/apiType/playback'
 import BackupPop from '../searchAndBackup/BackupPop.vue'
 import BackupLocalPop from '../searchAndBackup/BackupLocalPop.vue'
-import { type TVTPlayerWinDataListItem } from '@/utils/wasmPlayer/tvtPlayer'
 import TimeSliceTimeRangePop from './TimeSliceTimeRangePop.vue'
 
 export default defineComponent({
@@ -258,7 +257,7 @@ export default defineComponent({
             }
         })
 
-        let keyframe: WebsocketKeyframe
+        let keyframe: ReturnType<typeof WebsocketKeyframe>
 
         // 当前模式项
         const modeItem = computed(() => {
@@ -576,6 +575,7 @@ export default defineComponent({
          * @param {number} pointerTime
          */
         const changeTimeSlice = (pointerTime: number) => {
+            seek(pointerTime)
             timeSliceTimer.stop()
             if (pageData.value.mode === 'day') {
                 if (pageData.value.sliceType === 'hour') {
@@ -680,8 +680,8 @@ export default defineComponent({
                 </requireField>
                 <condition>
                     <modeType>modeOne</modeType>
-                    <startTime>${formatDate(startTime, 'YYYY-MM-DD HH:mm:ss')}</startTime>
-                    <endTime>${formatDate(endTime, 'YYYY-MM-DD HH:mm:ss')}</endTime>
+                    <startTime>${formatDate(startTime, DEFAULT_DATE_FORMAT)}</startTime>
+                    <endTime>${formatDate(endTime, DEFAULT_DATE_FORMAT)}</endTime>
                     <startTimeEx>${localToUtc(startTime)}</startTimeEx>
                     <endTimeEx>${localToUtc(endTime)}</endTimeEx>
                     <recType type='list'>
@@ -733,7 +733,7 @@ export default defineComponent({
          * @description 创建Websocket连接
          */
         const createWebsocket = () => {
-            keyframe = new WebsocketKeyframe({
+            keyframe = WebsocketKeyframe({
                 onmessage: (data: WebsocketKeyframeOnMessageParam) => {
                     pageData.value.timeSliceList.forEach((item) => {
                         if (data.taskId.toUpperCase() === item.taskId) {

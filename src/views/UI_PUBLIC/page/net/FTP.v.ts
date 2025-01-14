@@ -326,14 +326,11 @@ export default defineComponent({
         /**
          * @description 修改并关闭排程管理弹窗
          */
-        const confirmManageSchedule = async () => {
+        const closeSchedulePop = async () => {
             pageData.value.isSchedulePop = false
             await getScheduleList()
-            const scheduleIdList = pageData.value.scheduleOptions.map((item) => item.value)
             tableData.value.forEach((item) => {
-                if (!scheduleIdList.includes(item.schedule)) {
-                    item.schedule = DEFAULT_EMPTY_ID
-                }
+                item.schedule = getScheduleId(pageData.value.scheduleOptions, item.schedule)
             })
         }
 
@@ -358,7 +355,7 @@ export default defineComponent({
             tableData,
             changeAllSwitch,
             manageSchedule,
-            confirmManageSchedule,
+            closeSchedulePop,
             test,
             verify,
             formatServerAddress,

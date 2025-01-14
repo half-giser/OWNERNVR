@@ -399,7 +399,7 @@ export default defineComponent({
                         message: Translate('IDCS_FILE_NO_EXISTS'),
                     })
                 }
-                new WebsocketUpload({
+                WebsocketUpload({
                     file: file,
                     config: {
                         file_id: 'cert_file',
@@ -458,7 +458,7 @@ export default defineComponent({
                     openNotify(formatHttpsTips(Translate('IDCS_EXPORT_CERT_FILE')), true)
                     return
                 }
-                new WebsocketDownload({
+                WebsocketDownload({
                     config: {
                         file_id: 'cert_file',
                     },

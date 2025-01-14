@@ -27,137 +27,124 @@ interface CanvasVfdOption {
     onchange: (area: CanvasBaseArea) => void
 }
 
-export default class CanvasVfd {
-    private readonly DEFAULT_LINE_COLOR = '#00ff00' // 画线默认色值
-    private readonly DEFAULT_TEXT_COLOR = '#ffff00' // 文字默认色值
-    private readonly RELATIVE_WIDTH = 10000 // 万分比宽度
-    private readonly RELATIVE_HEIGHT = 10000 // 万分比高度
-    private readonly DEFAULT_AREA = {
+export default function CanvasVfd(option: CanvasVfdOption) {
+    const DEFAULT_LINE_COLOR = '#00ff00' // 画线默认色值
+    const DEFAULT_TEXT_COLOR = '#ffff00' // 文字默认色值
+    const RELATIVE_WIDTH = 10000 // 万分比宽度
+    const RELATIVE_HEIGHT = 10000 // 万分比高度
+    const DEFAULT_AREA = {
         X1: 0,
         Y1: 0,
         X2: 0,
         Y2: 0,
     }
-    private readonly ctx: CanvasBase
-    private readonly canvas: HTMLCanvasElement
-    private readonly cavWidth: number
-    private readonly cavHeight: number
-    private lineStyle: CanvasBaseLineStyleOption
-    private enable: boolean
-    private showRange: boolean
-    area: CanvasBaseArea
-    rangeMin: CanvasBaseArea
-    rangeMax: CanvasBaseArea
-    private readonly onchange: CanvasVfdOption['onchange']
-    private onMouseDown?: (e: MouseEvent) => void
 
-    constructor(option: CanvasVfdOption) {
-        this.lineStyle = {
-            strokeStyle: this.DEFAULT_LINE_COLOR,
-            lineWidth: 1.5,
-            ...(option.lineStyle || {}),
-        }
-        this.enable = option.enable || false
-        this.showRange = option.showRange || false
-        this.area = {
-            ...this.DEFAULT_AREA,
-            ...(option.area || {}),
-        }
-        this.rangeMax = {
-            ...this.DEFAULT_AREA,
-            ...(option.rangeMax || {}),
-        }
-        this.rangeMin = {
-            ...this.DEFAULT_AREA,
-            ...(option.rangeMin || {}),
-        }
-        this.onchange = option.onchange
-        this.ctx = new CanvasBase(option.el)
-        this.canvas = this.ctx.getCanvas()
-        this.cavWidth = this.canvas.width // 画布宽
-        this.cavHeight = this.canvas.height // 画布高
-        this.bindEvent()
+    let onMouseDown: ((e: MouseEvent) => void) | undefined = undefined
+
+    const lineStyle = {
+        strokeStyle: DEFAULT_LINE_COLOR,
+        lineWidth: 1.5,
+        ...(option.lineStyle || {}),
     }
+    let enable = option.enable || false
+    let showRange = option.showRange || false
+    let area = {
+        ...DEFAULT_AREA,
+        ...(option.area || {}),
+    }
+    let rangeMax = {
+        ...DEFAULT_AREA,
+        ...(option.rangeMax || {}),
+    }
+    let rangeMin = {
+        ...DEFAULT_AREA,
+        ...(option.rangeMin || {}),
+    }
+    const onchange = option.onchange
+    const ctx = CanvasBase(option.el)
+    const canvas = ctx.getCanvas()
+    const cavWidth = canvas.width // 画布宽
+    const cavHeight = canvas.height // 画布高
 
     // 根据数据绘制区域
-    init() {
-        this.ctx.ClearRect(0, 0, this.cavWidth, this.cavHeight)
-        this.drawArea()
-        if (this.showRange) {
-            this.drawRangeMax()
-            this.drawRangeMin()
+    const init = () => {
+        ctx.ClearRect(0, 0, cavWidth, cavHeight)
+        drawArea()
+        if (showRange) {
+            drawRangeMax()
+            drawRangeMin()
         }
     }
 
     // 绘制警戒区域
-    drawArea() {
-        const item = this.getRealItemByRelative(this.area)
-        this.ctx.Point2Rect(item.X1, item.Y1, item.X2, item.Y2, this.lineStyle)
+    const drawArea = () => {
+        const item = getRealItemByRelative(area)
+        ctx.Point2Rect(item.X1, item.Y1, item.X2, item.Y2, lineStyle)
     }
 
     // 绘制最大值区域
-    drawRangeMax() {
-        const item = this.getRealItemByRelative(this.rangeMax)
-        this.ctx.Point2Rect(item.X1, item.Y1, item.X2, item.Y2, this.lineStyle)
-        this.ctx.Text({
+    const drawRangeMax = () => {
+        const item = getRealItemByRelative(rangeMax)
+        ctx.Point2Rect(item.X1, item.Y1, item.X2, item.Y2, lineStyle)
+        ctx.Text({
             text: 'Max',
             startX: item.X1,
             startY: item.Y1,
-            fillStyle: this.DEFAULT_TEXT_COLOR,
+            fillStyle: DEFAULT_TEXT_COLOR,
             strokeStyle: '#000',
             textBaseline: 'bottom',
         })
     }
 
     // 绘制最小值区域
-    drawRangeMin() {
-        const item = this.getRealItemByRelative(this.rangeMin)
-        const rangeMaxY1 = this.getRealSizeByRelative(this.rangeMax.Y1, 'y')
-        this.ctx.Point2Rect(item.X1, item.Y1, item.X2, item.Y2, this.lineStyle)
-        this.ctx.Text({
+    const drawRangeMin = () => {
+        const item = getRealItemByRelative(rangeMin)
+        const rangeMaxY1 = getRealSizeByRelative(rangeMax.Y1, 'y')
+        ctx.Point2Rect(item.X1, item.Y1, item.X2, item.Y2, lineStyle)
+        ctx.Text({
             text: 'Min',
             startX: item.X1,
             startY: item.Y1,
-            fillStyle: this.DEFAULT_TEXT_COLOR,
+            fillStyle: DEFAULT_TEXT_COLOR,
             strokeStyle: '#000',
             textBaseline: Math.abs(rangeMaxY1 - item.Y1) < 14 ? 'top' : 'bottom',
         })
     }
 
     // 设置警戒区域
-    setArea(area: CanvasBaseArea) {
-        this.area = area
-        this.init()
+    const setArea = (info: CanvasBaseArea) => {
+        area = info
+        init()
     }
 
     // 设置最大值
-    setRangeMax(rangeMax: CanvasBaseArea) {
-        this.rangeMax = rangeMax
-        this.init()
+    const setRangeMax = (area: CanvasBaseArea) => {
+        rangeMax = area
+        init()
     }
 
     // 设置最小值
-    setRangeMin(rangeMin: CanvasBaseArea) {
-        this.rangeMin = rangeMin
-        this.init()
+    const setRangeMin = (area: CanvasBaseArea) => {
+        rangeMin = area
+        init()
     }
 
     // 设置画布是否禁用
-    setEnable(enable: boolean) {
-        this.enable = enable
+    const setEnable = (bool: boolean) => {
+        enable = bool
     }
 
     // 设置最值区域是否可见
-    toggleRange(visible: boolean) {
-        this.showRange = visible
-        this.init()
+    const toggleRange = (visible: boolean) => {
+        showRange = visible
+        init()
     }
 
     // 绑定事件
-    private bindEvent() {
-        if (!this.onMouseDown) {
-            this.onMouseDown = (e: MouseEvent) => {
-                if (!this.enable) {
+    const bindEvent = () => {
+        if (!onMouseDown) {
+            onMouseDown = (e: MouseEvent) => {
+                if (!enable) {
                     return
                 }
                 const startX = e.offsetX,
@@ -172,9 +159,9 @@ export default class CanvasVfd {
                     endX = e1.clientX - clientX + startX
                     endY = e1.clientY - clientY + startY
                     if (endX < 0) endX = 0
-                    if (endX > this.cavWidth) endX = this.cavWidth
+                    if (endX > cavWidth) endX = cavWidth
                     if (endY < 0) endY = 0
-                    if (endY > this.cavHeight) endY = this.cavHeight
+                    if (endY > cavHeight) endY = cavHeight
                     finalX = startX
                     finalY = startY
                     if (endX < startX) {
@@ -186,8 +173,8 @@ export default class CanvasVfd {
                         finalY = endY
                         endY = startY
                     }
-                    this.setArea(
-                        this.getRelativeItemByReal({
+                    setArea(
+                        getRelativeItemByReal({
                             X1: finalX,
                             Y1: finalY,
                             X2: endX,
@@ -197,7 +184,7 @@ export default class CanvasVfd {
                 }
 
                 const onMouseUp = () => {
-                    this.onchange && this.onchange(this.area)
+                    onchange && onchange(area)
                     document.removeEventListener('mousemove', onMouseMove)
                     document.removeEventListener('mouseup', onMouseUp)
                     document.body.style.setProperty('user-select', 'unset')
@@ -208,63 +195,76 @@ export default class CanvasVfd {
             }
         }
 
-        this.canvas.removeEventListener('mousedown', this.onMouseDown)
-        this.canvas.addEventListener('mousedown', this.onMouseDown)
+        canvas.removeEventListener('mousedown', onMouseDown)
+        canvas.addEventListener('mousedown', onMouseDown)
     }
 
     // 根据万分比尺寸获取画布尺寸
-    getRealSizeByRelative(size: number, type: 'x' | 'y') {
+    const getRealSizeByRelative = (size: number, type: 'x' | 'y') => {
         if (type === 'x') {
-            return (this.cavWidth * size) / this.RELATIVE_WIDTH
+            return (cavWidth * size) / RELATIVE_WIDTH
         } else {
-            return (this.cavHeight * size) / this.RELATIVE_HEIGHT
+            return (cavHeight * size) / RELATIVE_HEIGHT
         }
     }
 
     // 根据画布尺寸获取对应万分比尺寸
-    getRelativeSizeByReal(size: number, type: 'x' | 'y') {
+    const getRelativeSizeByReal = (size: number, type: 'x' | 'y') => {
         if (type === 'x') {
-            return (this.RELATIVE_WIDTH * size) / this.cavWidth
+            return (RELATIVE_WIDTH * size) / cavWidth
         } else {
-            return (this.RELATIVE_HEIGHT * size) / this.cavHeight
+            return (RELATIVE_HEIGHT * size) / cavHeight
         }
     }
 
-    getRealItemByRelative({ X1, Y1, X2, Y2 }: CanvasBaseArea) {
+    const getRealItemByRelative = ({ X1, Y1, X2, Y2 }: CanvasBaseArea) => {
         return {
-            X1: this.getRealSizeByRelative(X1, 'x'),
-            Y1: this.getRealSizeByRelative(Y1, 'y'),
-            X2: this.getRealSizeByRelative(X2, 'x'),
-            Y2: this.getRealSizeByRelative(Y2, 'y'),
+            X1: getRealSizeByRelative(X1, 'x'),
+            Y1: getRealSizeByRelative(Y1, 'y'),
+            X2: getRealSizeByRelative(X2, 'x'),
+            Y2: getRealSizeByRelative(Y2, 'y'),
         }
     }
 
-    getRelativeItemByReal({ X1, Y1, X2, Y2 }: CanvasBaseArea) {
+    const getRelativeItemByReal = ({ X1, Y1, X2, Y2 }: CanvasBaseArea) => {
         return {
-            X1: this.getRelativeSizeByReal(X1, 'x'),
-            Y1: this.getRelativeSizeByReal(Y1, 'y'),
-            X2: this.getRelativeSizeByReal(X2, 'x'),
-            Y2: this.getRelativeSizeByReal(Y2, 'y'),
+            X1: getRelativeSizeByReal(X1, 'x'),
+            Y1: getRelativeSizeByReal(Y1, 'y'),
+            X2: getRelativeSizeByReal(X2, 'x'),
+            Y2: getRelativeSizeByReal(Y2, 'y'),
         }
     }
 
     // 获取绘制数据
-    getArea() {
-        return this.area
+    const getArea = () => {
+        return area
     }
 
     // 清空区域
-    clear() {
-        this.area = this.DEFAULT_AREA
-        this.setArea(this.area)
+    const clear = () => {
+        area = DEFAULT_AREA
+        setArea(area)
     }
 
     // 销毁
-    destroy() {
-        this.clear()
+    const destroy = () => {
+        clear()
 
-        if (this.onMouseDown) {
-            this.canvas.removeEventListener('mousedown', this.onMouseDown)
+        if (onMouseDown) {
+            canvas.removeEventListener('mousedown', onMouseDown)
         }
+    }
+
+    bindEvent()
+
+    return {
+        setArea,
+        setRangeMax,
+        setRangeMin,
+        setEnable,
+        toggleRange,
+        getArea,
+        clear,
+        destroy,
     }
 }

@@ -5,7 +5,7 @@
 -->
 <template>
     <li
-        :class="{ active }"
+        :class="{ active, 'show-hover': showHover }"
         @click="handleClick"
         @dblclick="handleDblClick"
     >
@@ -20,9 +20,11 @@ withDefaults(
          * @property 是否选中状态
          */
         active?: boolean
+        showHover?: boolean
     }>(),
     {
         active: false,
+        showHover: true,
     },
 )
 
@@ -73,9 +75,11 @@ li {
         width: 100%;
     }
 
-    &:hover,
-    &.active {
-        border-color: var(--primary);
+    &.show-hover {
+        &:hover,
+        &.active {
+            border-color: var(--primary);
+        }
     }
 
     &.active {

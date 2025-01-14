@@ -61,6 +61,7 @@
             padding: 0 !important;
             height: 90px;
             color: var(--sidebar-text);
+
             --el-menu-hover-bg-color: var(--sidebar-bg-hover);
             --el-menu-text-color: var(--sidebar-text);
 
@@ -81,7 +82,7 @@
             span {
                 width: 100%;
                 font-size: 12px;
-                line-height: 1.4;
+                line-height: 30px;
                 white-space: pre-wrap;
             }
         }

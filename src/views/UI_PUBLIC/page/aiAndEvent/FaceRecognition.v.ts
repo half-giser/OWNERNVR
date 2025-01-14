@@ -36,10 +36,6 @@ export default defineComponent({
 
         const playerRef = ref<PlayerInstance>()
 
-        // 侦测页的数据
-        const faceDetectionData = ref(new AlarmFaceDetectionDto())
-        const watchDetection = useWatchEditData(faceDetectionData)
-
         const taskTabs = ref<SelectOption<string, string>[]>([])
         //nameId的取值为0,1,2,3;0为默认的识别成功和陌生人类型，添加的项取值不可能为0
         const defaultNameId = [1, 2, 3]
@@ -51,10 +47,6 @@ export default defineComponent({
         // 人脸匹配数据
         const faceMatchData = ref(new AlarmFaceMatchDto())
         const watchMatch = useWatchEditData(faceMatchData)
-
-        // 人脸识别数据
-        const faceCompareData = ref(new AlarmFaceRecognitionDto())
-        const watchCompare = useWatchEditData(faceCompareData)
 
         // 需要用到的系统配置
         const supportFaceMatch = systemCaps.supportFaceMatch
@@ -69,7 +61,7 @@ export default defineComponent({
             // '启用IPC/NVR侦测'
             deviceInfo: '',
             // 默认进入参数配置tab项
-            detectionTab: 'param',
+            tab: 'param',
             // 显示范围框是否选中
             isDispalyRangeChecked: false,
             snapList: [300, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 15000, 20000, 30000, 40000, 50000, 60000, 120000, 240000, 360000, 480000, 600000].map((item) => {
@@ -89,38 +81,43 @@ export default defineComponent({
             triggerList: ['snapSwitch', 'msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch'],
         })
 
+        // 侦测页的数据
+        const detectionFormData = ref(new AlarmFaceDetectionDto())
+        const watchDetection = useWatchEditData(detectionFormData)
+
         // 识别tab项下的界面数据
-        const comparePageData = ref({
+        const recognitionPageData = ref({
             // 默认进入参数配置tab项
-            compareTab: 'hit',
-            // tab项‘param’，‘hit’，‘miss’不可被移除，移除btn不可用
-            removeDisabled: true,
+            tab: 'hit',
             // 相似度下拉框
             isSimilarityPop: false,
             // 相似度默认值
-            similarityNumber: 75,
+            similarity: 75,
             // 当前选中tab的任务数据
             taskData: {} as AlarmRecognitionTaskDto,
         })
+
+        // 人脸识别数据
+        const recognitionFormData = ref(new AlarmFaceRecognitionDto())
+        const watchRecognition = useWatchEditData(recognitionFormData)
 
         // 整体的通用界面数据
         const pageData = ref({
             curChl: '',
             chlList: [] as AlarmFaceChlDto[],
             // 当前选择的tab项
-            faceTab: 'faceDetection',
-            faceDetectionDisabled: false,
-            faceCompareDisabled: false,
-            faceLibraryDisabled: false,
-            isFaceCompareShow: true,
-            isFaceLibraryShow: true,
+            tab: '',
+            detectionDisabled: false,
+            recognitionDisabled: false,
+            libraryDisabled: false,
+            isRecognitionShow: true,
+            isLibraryShow: true,
             // 排程
             scheduleList: [] as SelectOption<string, string>[],
-            scheduleManagPopOpen: false,
+            isSchedulePop: false,
             // 声音列表
             voiceList: [] as SelectOption<string, string>[],
-            notChlSupport: false,
-            notSupportTip: '',
+            notSupport: false,
             // 高级设置
             isAdvance: false,
         })
@@ -139,7 +136,7 @@ export default defineComponent({
 
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
-        let vfdDrawer: CanvasVfd
+        let vfdDrawer: ReturnType<typeof CanvasVfd>
 
         const chlData = computed(() => {
             return pageData.value.chlList.find((item) => item.id === pageData.value.curChl) || new AlarmFaceChlDto()
@@ -154,10 +151,10 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 const canvas = player.getDrawbordCanvas(0)
-                vfdDrawer = new CanvasVfd({
+                vfdDrawer = CanvasVfd({
                     el: canvas,
                     onchange: (area) => {
-                        faceDetectionData.value.regionInfo = [area]
+                        detectionFormData.value.regionInfo = [area]
                     },
                 })
             }
@@ -281,66 +278,50 @@ export default defineComponent({
         }
 
         /**
-         * @description 处理通道数据
-         */
-        const handleCurrChlData = () => {
-            const data = chlData.value
-            pageData.value.faceDetectionDisabled = !(data.supportVfd || data.supportBackVfd)
-            pageData.value.faceCompareDisabled = !(data.supportVfd || (data.supportBackVfd && supportFaceMatch))
-            // TSSR-20367, 仅TD-3332B2-A1型号才会返回AISwitch字段, 此时人像库固定显示, 仅可选/置灰
-            if (typeof AISwitch === 'boolean') {
-                pageData.value.faceCompareDisabled = false
-                pageData.value.faceLibraryDisabled = AISwitch ? true : false
-            } else if (!supportFaceMatch) {
-                pageData.value.isFaceCompareShow = false
-                // NLYH-64：非AI模式下，不支持人脸比对，可根据是否支持人脸比对supportFaceMatch来隐藏人脸识别和人脸库
-                pageData.value.isFaceLibraryShow = false
-            }
-
-            if (!(data.supportVfd || data.supportBackVfd)) {
-                pageData.value.faceTab = ''
-                pageData.value.notChlSupport = true
-                pageData.value.notSupportTip = Translate('IDCS_FACE_EVENT_UNSUPORT_TIP')
-            } else {
-                pageData.value.faceTab = 'faceDetection'
-            }
-        }
-
-        /**
          * @description 通道发生改变时刷新数据
          */
         const changeChl = async () => {
-            pageData.value.faceTab = 'faceDetection'
-            detectionPageData.value.detectionTab = 'param'
+            openLoading()
+            pageData.value.tab = ''
+            detectionPageData.value.tab = 'param'
             // 识别页切换为识别成功，-禁用
-            comparePageData.value.compareTab = 'hit'
-            comparePageData.value.removeDisabled = true
-            pageData.value.notChlSupport = false
-            handleCurrChlData()
+            recognitionPageData.value.tab = 'hit'
+
+            const data = chlData.value
+            pageData.value.detectionDisabled = !(data.supportVfd || data.supportBackVfd)
+            pageData.value.recognitionDisabled = !(data.supportVfd || (data.supportBackVfd && supportFaceMatch))
+            // TSSR-20367, 仅TD-3332B2-A1型号才会返回AISwitch字段, 此时人像库固定显示, 仅可选/置灰
+            if (typeof AISwitch === 'boolean') {
+                pageData.value.recognitionDisabled = false
+                pageData.value.libraryDisabled = AISwitch ? true : false
+            } else if (!supportFaceMatch) {
+                pageData.value.isRecognitionShow = false
+                // NLYH-64：非AI模式下，不支持人脸比对，可根据是否支持人脸比对supportFaceMatch来隐藏人脸识别和人脸库
+                pageData.value.isLibraryShow = false
+            }
+
+            if (!(data.supportVfd || data.supportBackVfd)) {
+                pageData.value.notSupport = true
+            } else {
+                pageData.value.notSupport = false
+            }
+
+            // handleCurrChlData()
             // 更换通道时清空上一个通道的数据
-            faceDetectionData.value = new AlarmFaceDetectionDto()
-            faceCompareData.value = new AlarmFaceRecognitionDto()
+            detectionFormData.value = new AlarmFaceDetectionDto()
+            recognitionFormData.value = new AlarmFaceRecognitionDto()
             faceMatchData.value = new AlarmFaceMatchDto()
             taskTabs.value = []
             faceGroupData.value = []
             haveUseNameId = []
 
-            await getFaceDetectionData()
-            await getFaceGroupData()
-            await getFaceMatchData()
-            await getFaceCompareData()
+            await getGroupData()
+            await getMatchData()
+            await getRecognitionData()
+            await getDetectionData()
+            pageData.value.tab = 'faceDetection'
 
-            if (mode.value === 'h5') {
-                vfdDrawer.clear()
-            }
-
-            if (mode.value === 'ocx') {
-                const sendXML = OCX_XML_SetVfdAreaAction('NONE', 'vfdArea')
-                plugin.ExecuteCmd(sendXML)
-            }
-
-            changeDisplayRange(false)
-            play()
+            closeLoading()
         }
 
         const getVfdData = async () => {
@@ -360,20 +341,6 @@ export default defineComponent({
 
                 const enabledSwitch = $param('switch').text().bool()
 
-                let holdTimeArr = $param('holdTimeNote').text().split(',')
-                const holdTime = $param('holdTime').text()
-                if (!holdTimeArr.includes(holdTime)) {
-                    holdTimeArr.push(holdTime)
-                    holdTimeArr = holdTimeArr.sort((a, b) => Number(a) - Number(b))
-                }
-                const holdTimeList = holdTimeArr.map((item) => {
-                    const label = getTranslateForSecond(Number(item))
-                    return {
-                        value: item,
-                        label,
-                    }
-                })
-
                 // true自定义可输入1-65534，false显示“无限制”，值为65535
                 // 防止返回值是65535时，是“无限制”状态，值取默认值3
                 let captureCycle = $param('senceMode/customize/captureCycle').text().num()
@@ -383,12 +350,12 @@ export default defineComponent({
                     captureCycle = 3
                 }
 
-                faceDetectionData.value = {
+                detectionFormData.value = {
                     supportVfd: true,
                     enabledSwitch,
                     originalSwitch: enabledSwitch,
-                    holdTime,
-                    holdTimeList,
+                    holdTime: $param('holdTime').text().num(),
+                    holdTimeList: getAlarmHoldTimeList($param('holdTimeNote').text(), $param('holdTime').text().num()),
                     regionInfo: $param('regionInfo/item').map((item) => {
                         const $item = queryXml(item.element)
                         return {
@@ -425,7 +392,7 @@ export default defineComponent({
                     triggerWhiteLight: $param('triggerWhiteLight').text(),
                     faceExpSwitch: $param('faceExp/switch').text().bool(),
                     faceExpStrength: $param('senceMode/customize/faceExpStrength').text().num(),
-                    schedule: $('content/chl').attr('scheduleGuid'),
+                    schedule: getScheduleId(pageData.value.scheduleList, $('content/chl').attr('scheduleGuid')),
                     record: $trigger('sysRec/chls/item').map((item) => {
                         return {
                             value: item.attr('id'),
@@ -456,23 +423,23 @@ export default defineComponent({
                 }
             })
 
-            if (faceDetectionData.value.triggerAudio && chlData.value.supportAudio) {
+            if (detectionFormData.value.triggerAudio && chlData.value.supportAudio) {
                 detectionPageData.value.triggerList.push('triggerAudio')
-                if (faceDetectionData.value.triggerAudio === 'true') {
-                    faceDetectionData.value.trigger.push('triggerAudio')
+                if (detectionFormData.value.triggerAudio === 'true') {
+                    detectionFormData.value.trigger.push('triggerAudio')
                 }
             }
 
-            if (faceDetectionData.value.triggerWhiteLight && chlData.value.supportWhiteLight) {
+            if (detectionFormData.value.triggerWhiteLight && chlData.value.supportWhiteLight) {
                 detectionPageData.value.triggerList.push('triggerWhiteLight')
-                if (faceDetectionData.value.triggerWhiteLight === 'true') {
-                    faceDetectionData.value.trigger.push('triggerWhiteLight')
+                if (detectionFormData.value.triggerWhiteLight === 'true') {
+                    detectionFormData.value.trigger.push('triggerWhiteLight')
                 }
             }
 
             // 先判断人脸曝光是否为空，确定是否禁用，再赋给其默认值50
-            detectionPageData.value.faceExpDisabled = faceDetectionData.value.faceExpStrength === 0
-            faceDetectionData.value.faceExpStrength = faceDetectionData.value.faceExpStrength || 50
+            detectionPageData.value.faceExpDisabled = detectionFormData.value.faceExpStrength === 0
+            detectionFormData.value.faceExpStrength = detectionFormData.value.faceExpStrength || 50
 
             detectionPageData.value.isDispalyRangeChecked = false
         }
@@ -489,16 +456,16 @@ export default defineComponent({
                 if (item.attr('guid') === pageData.value.curChl) {
                     const $item = queryXml(item.element)
                     const enabledSwitch = $item('switch').text().bool()
-                    faceDetectionData.value.enabledSwitch = enabledSwitch
-                    faceDetectionData.value.originalSwitch = enabledSwitch
-                    faceDetectionData.value.mutexList = $item('mutexList/item').map((item) => {
+                    detectionFormData.value.enabledSwitch = enabledSwitch
+                    detectionFormData.value.originalSwitch = enabledSwitch
+                    detectionFormData.value.mutexList = $item('mutexList/item').map((item) => {
                         const $item = queryXml(item.element)
                         return {
                             object: $item('object').text(),
                             status: $item('status').text().bool(),
                         }
                     })
-                    faceDetectionData.value.schedule = item.attr('scheduleGuid')
+                    detectionFormData.value.schedule = getScheduleId(pageData.value.scheduleList, item.attr('scheduleGuid'))
                 }
             })
         }
@@ -506,7 +473,7 @@ export default defineComponent({
         /**
          * @description 获取人脸侦测的数据
          */
-        const getFaceDetectionData = async () => {
+        const getDetectionData = async () => {
             watchDetection.reset()
 
             if (chlData.value.supportVfd) {
@@ -526,32 +493,32 @@ export default defineComponent({
          */
         const setCurrChlView = (type: string) => {
             if (type === 'vfdArea') {
-                if (faceDetectionData.value.regionInfo && faceDetectionData.value.regionInfo.length > 0) {
+                if (detectionFormData.value.regionInfo && detectionFormData.value.regionInfo.length > 0) {
                     if (mode.value === 'h5') {
-                        vfdDrawer.setArea(faceDetectionData.value.regionInfo[0])
+                        vfdDrawer.setArea(detectionFormData.value.regionInfo[0])
                     }
 
                     if (mode.value === 'ocx') {
-                        const sendXML = OCX_XML_SetVfdArea(faceDetectionData.value.regionInfo[0], type, '#00ff00', 'TYPE_VFD_BLOCK')
+                        const sendXML = OCX_XML_SetVfdArea(detectionFormData.value.regionInfo[0], type, '#00ff00', 'TYPE_VFD_BLOCK')
                         plugin.ExecuteCmd(sendXML)
                     }
                 }
             } else if (type === 'faceMax') {
                 if (mode.value === 'h5') {
-                    vfdDrawer.setRangeMax(faceDetectionData.value.maxRegionInfo[0])
+                    vfdDrawer.setRangeMax(detectionFormData.value.maxRegionInfo[0])
                 }
 
                 if (mode.value === 'ocx') {
-                    const sendXML = OCX_XML_SetVfdArea(faceDetectionData.value.maxRegionInfo[0], type, '#00ff00', 'TYPE_VFD_BLOCK')
+                    const sendXML = OCX_XML_SetVfdArea(detectionFormData.value.maxRegionInfo[0], type, '#00ff00', 'TYPE_VFD_BLOCK')
                     plugin.ExecuteCmd(sendXML)
                 }
             } else if (type === 'faceMin') {
                 if (mode.value === 'h5') {
-                    vfdDrawer.setRangeMin(faceDetectionData.value.minRegionInfo[0])
+                    vfdDrawer.setRangeMin(detectionFormData.value.minRegionInfo[0])
                 }
 
                 if (mode.value === 'ocx') {
-                    const sendXML = OCX_XML_SetVfdArea(faceDetectionData.value.minRegionInfo[0], type, '#00ff00', 'TYPE_VFD_BLOCK')
+                    const sendXML = OCX_XML_SetVfdArea(detectionFormData.value.minRegionInfo[0], type, '#00ff00', 'TYPE_VFD_BLOCK')
                     plugin.ExecuteCmd(sendXML)
                 }
             }
@@ -581,9 +548,9 @@ export default defineComponent({
          */
         const blurMinFaceFrame = () => {
             if (detectionPageData.value.isDispalyRangeChecked) {
-                const minRegionInfo = calcRegionInfo(faceDetectionData.value.minFaceFrame)
-                faceDetectionData.value.minRegionInfo = []
-                faceDetectionData.value.minRegionInfo.push(minRegionInfo)
+                const minRegionInfo = calcRegionInfo(detectionFormData.value.minFaceFrame)
+                detectionFormData.value.minRegionInfo = []
+                detectionFormData.value.minRegionInfo.push(minRegionInfo)
                 setCurrChlView('faceMin')
             }
         }
@@ -593,9 +560,9 @@ export default defineComponent({
          */
         const blurMaxFaceFrame = () => {
             if (detectionPageData.value.isDispalyRangeChecked) {
-                const maxRegionInfo = calcRegionInfo(faceDetectionData.value.maxFaceFrame)
-                faceDetectionData.value.maxRegionInfo = []
-                faceDetectionData.value.maxRegionInfo.push(maxRegionInfo)
+                const maxRegionInfo = calcRegionInfo(detectionFormData.value.maxFaceFrame)
+                detectionFormData.value.maxRegionInfo = []
+                detectionFormData.value.maxRegionInfo.push(maxRegionInfo)
                 setCurrChlView('faceMax')
             }
         }
@@ -607,13 +574,13 @@ export default defineComponent({
         const changeDisplayRange = (value: CheckboxValueType) => {
             if (value) {
                 // 显示范围框
-                const minRegionInfo = calcRegionInfo(faceDetectionData.value.minFaceFrame)
-                faceDetectionData.value.minRegionInfo = []
-                faceDetectionData.value.minRegionInfo.push(minRegionInfo)
+                const minRegionInfo = calcRegionInfo(detectionFormData.value.minFaceFrame)
+                detectionFormData.value.minRegionInfo = []
+                detectionFormData.value.minRegionInfo.push(minRegionInfo)
                 setCurrChlView('faceMin')
-                const maxRegionInfo = calcRegionInfo(faceDetectionData.value.maxFaceFrame)
-                faceDetectionData.value.maxRegionInfo = []
-                faceDetectionData.value.maxRegionInfo.push(maxRegionInfo)
+                const maxRegionInfo = calcRegionInfo(detectionFormData.value.maxFaceFrame)
+                detectionFormData.value.maxRegionInfo = []
+                detectionFormData.value.maxRegionInfo.push(maxRegionInfo)
                 setCurrChlView('faceMax')
                 if (mode.value === 'h5') {
                     vfdDrawer.toggleRange(true)
@@ -646,7 +613,7 @@ export default defineComponent({
                 plugin.ExecuteCmd(sendXML)
             }
 
-            faceDetectionData.value.regionInfo = [{ X1: 0, Y1: 0, X2: 0, Y2: 0 }]
+            detectionFormData.value.regionInfo = [{ X1: 0, Y1: 0, X2: 0, Y2: 0 }]
         }
 
         /**
@@ -654,9 +621,10 @@ export default defineComponent({
          * @param {TabPaneName} name
          */
         const changeTab = (name: TabPaneName) => {
-            if (name === 'faceDetection') {
-                play()
-            } else if (name === 'faceLibrary') {
+            // if (name === 'faceDetection') {
+            //     play()
+            // } else
+            if (name === 'faceLibrary') {
                 if (import.meta.env.VITE_UI_TYPE === 'UI2-A') {
                     router.push({
                         path: '/config/alarm/faceFeature',
@@ -676,22 +644,12 @@ export default defineComponent({
         }
 
         /**
-         * @description 更改人脸侦测Tab
-         * @param {TabPaneName} name
-         */
-        const changeDetectionTab = (name: TabPaneName) => {
-            if (name === 'param') {
-                play()
-            }
-        }
-
-        /**
          * @description 获取AI资源列表数据
          */
         const handleAIResourceError = () => {
-            if (pageData.value.faceTab === 'faceDetection') {
-                faceDetectionData.value.enabledSwitch = false
-            } else if (pageData.value.faceTab === 'faceCompare') {
+            if (pageData.value.tab === 'faceDetection') {
+                detectionFormData.value.enabledSwitch = false
+            } else if (pageData.value.tab === 'faceCompare') {
                 faceMatchData.value.hitEnable = false
                 faceMatchData.value.notHitEnable = false
             }
@@ -710,17 +668,17 @@ export default defineComponent({
         const applyFaceDetectionData = () => {
             checkMutexChl({
                 tips: 'IDCS_SIMPLE_FACE_DETECT_TIPS',
-                isChange: faceDetectionData.value.enabledSwitch && faceDetectionData.value.enabledSwitch !== faceDetectionData.value.originalSwitch,
-                mutexList: faceDetectionData.value.mutexList,
-                mutexListEx: faceDetectionData.value.mutexListEx,
+                isChange: detectionFormData.value.enabledSwitch && detectionFormData.value.enabledSwitch !== detectionFormData.value.originalSwitch,
+                mutexList: detectionFormData.value.mutexList,
+                mutexListEx: detectionFormData.value.mutexListEx,
                 chlList: pageData.value.chlList,
                 chlIp: chlData.value.ip,
                 chlName: chlData.value.name,
             }).then(() => {
                 if (chlData.value.supportVfd) {
-                    setFaceDetectionData()
+                    setDetectionData()
                 } else {
-                    setFaceDetectionBackUpData()
+                    setDetectionBackUpData()
                 }
             })
         }
@@ -728,40 +686,40 @@ export default defineComponent({
         const getFaceDetectionSaveData = () => {
             const sendXml = rawXml`
                 <content>
-                    <chl id='${pageData.value.curChl}' scheduleGuid='${faceDetectionData.value.schedule}'><param>
-                    <switch>${faceDetectionData.value.enabledSwitch}</switch>
-                    <holdTime>${faceDetectionData.value.holdTime}</holdTime>
-                    ${typeof faceDetectionData.value.saveFacePicture === 'boolean' ? `<saveFacePicture>${faceDetectionData.value.saveFacePicture}</saveFacePicture>` : ''}
-                    ${typeof faceDetectionData.value.saveSourcePicture === 'boolean' ? `<saveSourcePicture>${faceDetectionData.value.saveSourcePicture}</saveSourcePicture>` : ''}
+                    <chl id='${pageData.value.curChl}' scheduleGuid='${detectionFormData.value.schedule}'><param>
+                    <switch>${detectionFormData.value.enabledSwitch}</switch>
+                    <holdTime>${detectionFormData.value.holdTime}</holdTime>
+                    ${typeof detectionFormData.value.saveFacePicture === 'boolean' ? `<saveFacePicture>${detectionFormData.value.saveFacePicture}</saveFacePicture>` : ''}
+                    ${typeof detectionFormData.value.saveSourcePicture === 'boolean' ? `<saveSourcePicture>${detectionFormData.value.saveSourcePicture}</saveSourcePicture>` : ''}
                     ${
-                        faceDetectionData.value.snapInterval
+                        detectionFormData.value.snapInterval
                             ? rawXml`
                                 <senceMode>
                                     <Mode>customize</Mode>
                                     <customize>
-                                        <intervalTime>${faceDetectionData.value.snapInterval}</intervalTime>
-                                        <captureCycle>${!faceDetectionData.value.captureCycleChecked ? 65535 : faceDetectionData.value.captureCycle}</captureCycle>
+                                        <intervalTime>${detectionFormData.value.snapInterval}</intervalTime>
+                                        <captureCycle>${!detectionFormData.value.captureCycleChecked ? 65535 : detectionFormData.value.captureCycle}</captureCycle>
                                     </customize>
                                 </senceMode>
                             `
                             : ''
                     }
-                    ${faceDetectionData.value.minFaceFrame ? `<minFaceFrame>${faceDetectionData.value.minFaceFrame}</minFaceFrame>` : ''}
-                    ${faceDetectionData.value.maxFaceFrame ? `<maxFaceFrame>${faceDetectionData.value.maxFaceFrame}</maxFaceFrame>` : ''}
-                    ${faceDetectionData.value.triggerAudio && chlData.value.supportAudio ? `<triggerAudio>${faceDetectionData.value.trigger.includes('triggerAudio')}</triggerAudio>` : ''}
-                    ${faceDetectionData.value.triggerWhiteLight && chlData.value.supportWhiteLight ? `<triggerWhiteLight>${faceDetectionData.value.trigger.includes('triggerWhiteLight')}</triggerWhiteLight>` : ''}
+                    ${detectionFormData.value.minFaceFrame ? `<minFaceFrame>${detectionFormData.value.minFaceFrame}</minFaceFrame>` : ''}
+                    ${detectionFormData.value.maxFaceFrame ? `<maxFaceFrame>${detectionFormData.value.maxFaceFrame}</maxFaceFrame>` : ''}
+                    ${detectionFormData.value.triggerAudio && chlData.value.supportAudio ? `<triggerAudio>${detectionFormData.value.trigger.includes('triggerAudio')}</triggerAudio>` : ''}
+                    ${detectionFormData.value.triggerWhiteLight && chlData.value.supportWhiteLight ? `<triggerWhiteLight>${detectionFormData.value.trigger.includes('triggerWhiteLight')}</triggerWhiteLight>` : ''}
                     ${
-                        faceDetectionData.value.faceExpStrength
+                        detectionFormData.value.faceExpStrength
                             ? rawXml`
                                 <faceExp>
-                                    <switch>${faceDetectionData.value.faceExpSwitch}</switch>
-                                    <faceExpStrength>${faceDetectionData.value.faceExpStrength}</faceExpStrength>
+                                    <switch>${detectionFormData.value.faceExpSwitch}</switch>
+                                    <faceExpStrength>${detectionFormData.value.faceExpStrength}</faceExpStrength>
                                 </faceExp>
                             `
                             : ''
                     }
                     <regionInfo type='list'>
-                        ${faceDetectionData.value.regionInfo
+                        ${detectionFormData.value.regionInfo
                             .map(
                                 (item) => rawXml`
                                     <item>
@@ -778,17 +736,17 @@ export default defineComponent({
                         <trigger>
                             <sysRec>
                                 <chls type='list'>
-                                    ${faceDetectionData.value.record.map((item) => `<item id='${item.value}'><![CDATA[${item.label}]]></item>`).join('')}
+                                    ${detectionFormData.value.record.map((item) => `<item id='${item.value}'><![CDATA[${item.label}]]></item>`).join('')}
                                 </chls>
                             </sysRec>
                             <alarmOut>
                                 <alarmOuts type='list'>
-                                    ${faceDetectionData.value.alarmOut.map((item) => `<item id='${item.value}'><![CDATA[${item.label}]]></item>`).join('')}
+                                    ${detectionFormData.value.alarmOut.map((item) => `<item id='${item.value}'><![CDATA[${item.label}]]></item>`).join('')}
                                 </alarmOuts>
                             </alarmOut>
                             <preset>
                                 <presets type='list'>
-                                    ${faceDetectionData.value.preset
+                                    ${detectionFormData.value.preset
                                         .map((item) => {
                                             return rawXml`
                                                 <item>
@@ -801,12 +759,12 @@ export default defineComponent({
                                         .join('')}
                                 </presets>
                             </preset>
-                            <snapSwitch>${faceDetectionData.value.trigger.includes('snapSwitch')}</snapSwitch>
-                            <msgPushSwitch>${faceDetectionData.value.trigger.includes('msgPushSwitch')}</msgPushSwitch>
-                            <buzzerSwitch>${faceDetectionData.value.trigger.includes('buzzerSwitch')}</buzzerSwitch>
-                            <popVideoSwitch>${faceDetectionData.value.trigger.includes('popVideoSwitch')}</popVideoSwitch>
-                            <emailSwitch>${faceDetectionData.value.trigger.includes('emailSwitch')}</emailSwitch>
-                            <sysAudio id='${faceDetectionData.value.sysAudio}'></sysAudio>
+                            <snapSwitch>${detectionFormData.value.trigger.includes('snapSwitch')}</snapSwitch>
+                            <msgPushSwitch>${detectionFormData.value.trigger.includes('msgPushSwitch')}</msgPushSwitch>
+                            <buzzerSwitch>${detectionFormData.value.trigger.includes('buzzerSwitch')}</buzzerSwitch>
+                            <popVideoSwitch>${detectionFormData.value.trigger.includes('popVideoSwitch')}</popVideoSwitch>
+                            <emailSwitch>${detectionFormData.value.trigger.includes('emailSwitch')}</emailSwitch>
+                            <sysAudio id='${detectionFormData.value.sysAudio}'></sysAudio>
                         </trigger>
                     </chl>
                 </content>
@@ -815,24 +773,24 @@ export default defineComponent({
             return sendXml
         }
 
-        const setFaceDetectionData = async () => {
+        const setDetectionData = async () => {
             const sendXml = getFaceDetectionSaveData()
             openLoading()
             await editVfd(sendXml)
             closeLoading()
-            if (faceDetectionData.value.enabledSwitch) {
-                faceDetectionData.value.originalSwitch = true
+            if (detectionFormData.value.enabledSwitch) {
+                detectionFormData.value.originalSwitch = true
             }
             watchDetection.update()
         }
 
-        const setFaceDetectionBackUpData = async () => {
+        const setDetectionBackUpData = async () => {
             const sendXml = rawXml`
                 <content>
                     <param>
                         <chls>
-                            <item guid='${pageData.value.curChl}' scheduleGuid='${faceDetectionData.value.schedule}'>
-                                <switch>${faceDetectionData.value.enabledSwitch}</switch>
+                            <item guid='${pageData.value.curChl}' scheduleGuid='${detectionFormData.value.schedule}'>
+                                <switch>${detectionFormData.value.enabledSwitch}</switch>
                             </item>
                         </chls>
                     </param>
@@ -845,10 +803,22 @@ export default defineComponent({
         }
 
         // 首次加载成功 播放视频
-        const stopWatchFirstPlay = watchEffect(() => {
-            if (ready.value && pageData.value.chlList.length) {
-                nextTick(() => play())
-                stopWatchFirstPlay()
+        watchEffect(() => {
+            if (ready.value && watchDetection.ready.value) {
+                nextTick(() => {
+                    if (mode.value === 'h5') {
+                        vfdDrawer.clear()
+                    }
+
+                    if (mode.value === 'ocx') {
+                        const sendXML = OCX_XML_SetVfdAreaAction('NONE', 'vfdArea')
+                        plugin.ExecuteCmd(sendXML)
+                    }
+
+                    play()
+
+                    changeDisplayRange(false)
+                })
             }
         })
 
@@ -870,9 +840,8 @@ export default defineComponent({
                 value: 'hit' + nameId,
                 label: Translate('IDCS_SUCCESSFUL_RECOGNITION') + nameId,
             })
-            comparePageData.value.compareTab = 'hit' + nameId
-            comparePageData.value.removeDisabled = false
-            faceCompareData.value.task.push({
+            recognitionPageData.value.tab = 'hit' + nameId
+            recognitionFormData.value.task.push({
                 guid: '',
                 id: '',
                 ruleType: 'hit',
@@ -899,45 +868,32 @@ export default defineComponent({
          * @description 移除任务项
          */
         const removeTask = () => {
-            if (comparePageData.value.removeDisabled) {
+            if (['param', 'miss', 'hit'].includes(recognitionPageData.value.tab)) {
                 return false
             }
             openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_S'),
             }).then(() => {
-                haveUseNameId = haveUseNameId.filter((item) => item !== Number(comparePageData.value.compareTab[3]))
-                taskTabs.value = taskTabs.value.filter((item) => item.value !== comparePageData.value.compareTab)
-                faceCompareData.value.task = faceCompareData.value.task.filter((item) => {
-                    if (item.ruleType === 'hit' && item.nameId === Number(comparePageData.value.compareTab[3])) {
+                haveUseNameId = haveUseNameId.filter((item) => item !== Number(recognitionPageData.value.tab[3]))
+                taskTabs.value = taskTabs.value.filter((item) => item.value !== recognitionPageData.value.tab)
+                recognitionFormData.value.task = recognitionFormData.value.task.filter((item) => {
+                    if (item.ruleType === 'hit' && item.nameId === Number(recognitionPageData.value.tab[3])) {
                         if (item.guid) {
-                            deleteFaceCompareData(item)
+                            deleteRecognitionData(item)
                         }
                     } else {
                         return item
                     }
                 })
-                comparePageData.value.compareTab = 'hit'
-                comparePageData.value.removeDisabled = true
+                recognitionPageData.value.tab = 'hit'
             })
-        }
-
-        /**
-         * @description 人脸识别tab项切换
-         * @param {TabPaneName} name
-         */
-        const compareTabChange = (name: TabPaneName) => {
-            if (name === 'param' || name === 'hit' || name === 'miss') {
-                comparePageData.value.removeDisabled = true
-            } else {
-                comparePageData.value.removeDisabled = false
-            }
         }
 
         /**
          * @description 获取人脸分组数据
          */
-        const getFaceGroupData = async () => {
+        const getGroupData = async () => {
             const result = await queryFacePersonnalInfoGroupList()
             commLoadResponseHandler(result, ($) => {
                 $('content/item').forEach((item) => {
@@ -967,7 +923,7 @@ export default defineComponent({
         /**
          * @description 获取人脸识别-参数设置数据
          */
-        const getFaceMatchData = async () => {
+        const getMatchData = async () => {
             watchMatch.reset()
 
             const sendXml = rawXml`
@@ -1010,9 +966,9 @@ export default defineComponent({
          */
         const changeAllSimilarity = () => {
             faceMatchData.value.groupInfo.forEach((item) => {
-                item.similarity = comparePageData.value.similarityNumber
+                item.similarity = recognitionPageData.value.similarity
             })
-            comparePageData.value.isSimilarityPop = false
+            recognitionPageData.value.isSimilarityPop = false
         }
 
         /**
@@ -1026,7 +982,7 @@ export default defineComponent({
         /**
          * @description 提交人脸匹配数据
          */
-        const setFaceMatchData = async () => {
+        const setMatchData = async () => {
             const sendXml = rawXml`
                 <content>
                     <chl id='${pageData.value.curChl}'>
@@ -1081,8 +1037,8 @@ export default defineComponent({
         /**
          * @description 获取人脸识别数据
          */
-        const getFaceCompareData = async () => {
-            watchCompare.reset()
+        const getRecognitionData = async () => {
+            watchRecognition.reset()
 
             const sendXml = rawXml`
                 <condition>
@@ -1092,16 +1048,16 @@ export default defineComponent({
             const result = await queryFaceMatchAlarmParam(sendXml)
 
             commLoadResponseHandler(result, ($) => {
-                faceCompareData.value.voiceList = [{ value: '', label: Translate('IDCS_NULL') }]
+                recognitionFormData.value.voiceList = [{ value: '', label: Translate('IDCS_NULL') }]
                 $('content/voiceItem/item').forEach((item) => {
                     const $item = queryXml(item.element)
-                    faceCompareData.value.voiceList.push({
+                    recognitionFormData.value.voiceList.push({
                         value: $item('filePath').text(),
                         label: $item('name').text(),
                     })
                 })
 
-                faceCompareData.value.task = $('content/chl/task/item').map((item) => {
+                recognitionFormData.value.task = $('content/chl/task/item').map((item) => {
                     const $item = queryXml(item.element)
                     const nameId = $item('param/nameId').text().num()
                     haveUseNameId.push(nameId)
@@ -1113,7 +1069,7 @@ export default defineComponent({
                         pluseSwitch: $item('param/pluseSwitch').text().bool(),
                         groupId: $item('param/groupId/item').map((item) => item.attr('guid')),
                         hintword: $item('param/hint/word').text(),
-                        schedule: $item('schedule').attr('id'),
+                        schedule: getScheduleId(pageData.value.scheduleList, $item('schedule').attr('id')),
                         record: $item('trigger/sysRec/chls/item').map((item) => {
                             return {
                                 value: item.attr('id'),
@@ -1150,13 +1106,13 @@ export default defineComponent({
                     }
                 })
 
-                faceCompareData.value.task.forEach((item) => {
+                recognitionFormData.value.task.forEach((item) => {
                     if (item.ruleType === 'hit' && !item.nameId) {
                         taskTabs.value.push({
                             value: 'hit',
                             label: Translate('IDCS_SUCCESSFUL_RECOGNITION'),
                         })
-                        comparePageData.value.taskData = item
+                        recognitionPageData.value.taskData = item
                     } else if (item.ruleType === 'miss' && !item.nameId) {
                         taskTabs.value.push({
                             value: 'miss',
@@ -1170,7 +1126,7 @@ export default defineComponent({
                     }
                 })
 
-                watchCompare.listen()
+                watchRecognition.listen()
             })
         }
 
@@ -1179,7 +1135,7 @@ export default defineComponent({
                 <content>
                     <chl id='${pageData.value.curChl}'>
                         <task>
-                            ${faceCompareData.value.task
+                            ${recognitionFormData.value.task
                                 .map((item) => {
                                     return rawXml`
                                         <item guid='${item.guid}' id='${item.id}'>
@@ -1258,11 +1214,11 @@ export default defineComponent({
             openLoading()
             await editFaceMatchAlarmParam(sendXml)
             closeLoading()
-            comparePageData.value.compareTab = 'hit'
-            watchCompare.update()
+            recognitionPageData.value.tab = 'hit'
+            watchRecognition.update()
         }
 
-        const deleteFaceCompareData = async (data: AlarmRecognitionTaskDto) => {
+        const deleteRecognitionData = async (data: AlarmRecognitionTaskDto) => {
             const sendXml = rawXml`
                 <condition>
                     <chl id='${pageData.value.curChl}'>
@@ -1275,20 +1231,20 @@ export default defineComponent({
         }
 
         // 提交人脸识别数据
-        const applyFaceCompareData = async () => {
-            // 识别中监听faceMatchData和faceCompareData两个数据
+        const applyRecognitionData = async () => {
+            // 识别中监听faceMatchData和recognitionFormData两个数据
             if (faceMatchData.value.editFlag) {
-                await setFaceMatchData()
+                await setMatchData()
             }
 
-            if (faceCompareData.value.editFlag) {
+            if (recognitionFormData.value.editFlag) {
                 await setFaceCompareData()
             }
         }
 
         const notify = ($: XMLQuery) => {
             if ($("statenotify[@type='VfdArea']").length) {
-                faceDetectionData.value.regionInfo = $('statenotify/item').map((item) => {
+                detectionFormData.value.regionInfo = $('statenotify/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         X1: $item('X1').text().num(),
@@ -1300,6 +1256,16 @@ export default defineComponent({
             }
         }
 
+        const getScheduleList = async () => {
+            pageData.value.scheduleList = await buildScheduleList()
+        }
+
+        const closeSchedulePop = async () => {
+            pageData.value.isSchedulePop = false
+            await getScheduleList()
+            detectionFormData.value.schedule = getScheduleId(pageData.value.scheduleList, detectionFormData.value.schedule)
+        }
+
         onMounted(async () => {
             openLoading()
 
@@ -1307,8 +1273,7 @@ export default defineComponent({
                 await getVoiceList()
             }
 
-            pageData.value.scheduleList = await buildScheduleList()
-
+            await getScheduleList()
             await getChlData()
 
             if (history.state.chlId) {
@@ -1322,9 +1287,9 @@ export default defineComponent({
                 pageData.value.curChl = pageData.value.chlList[0].id
             }
 
-            await changeChl()
-
             closeLoading()
+
+            await changeChl()
         })
 
         onBeforeUnmount(() => {
@@ -1352,7 +1317,7 @@ export default defineComponent({
             chlData,
             detectionPageData,
             pageData,
-            faceDetectionData,
+            detectionFormData,
             supportAlarmAudioConfig,
             AISwitch,
             supportFaceMatch,
@@ -1360,7 +1325,6 @@ export default defineComponent({
             playerRef,
             notify,
             changeTab,
-            changeDetectionTab,
             changeChl,
             blurMinFaceFrame,
             blurMaxFaceFrame,
@@ -1368,24 +1332,25 @@ export default defineComponent({
             clearDrawArea,
             applyFaceDetectionData,
             handlePlayerReady,
+            closeSchedulePop,
 
             taskTabs,
             faceMatchData,
             faceGroupData,
-            comparePageData,
+            recognitionPageData,
             addTask,
             removeTask,
-            compareTabChange,
+            // tabChange,
             changeAllSimilarity,
             blurInput,
-            applyFaceCompareData,
+            applyRecognitionData,
             handleAIResourceError,
             handleAIResourceDel,
-            faceCompareData,
+            recognitionFormData,
 
             watchDetection,
             watchMatch,
-            watchCompare,
+            watchRecognition,
         }
     },
 })

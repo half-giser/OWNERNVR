@@ -30,18 +30,12 @@ export default defineComponent({
             loopRecSwitch: true,
             maxQoI: 0,
             videoEncodeTypeUnionList: [] as SelectOption<string, string>[],
-            videoEncodeTypeList: [[] as SelectOption<string, string>[]],
             // 分辨率表头下拉框
             resolutionHeaderVisble: false,
             resolutionUnionList: [] as string[],
             resolutionGroups: [] as RecordSubStreamResolutionDto[],
-            resolutionList: [[] as string[]],
             frameRateUnionList: [] as string[],
-            frameRateList: [[] as string[]],
-            maxFpsMap: [] as number[],
             videoQualityList: [] as SelectOption<string, string>[],
-            videoQualityItemList: [[] as SelectOption<string, string>[]],
-            isVideoQualityDisabled: [] as boolean[],
             expands: [] as string[],
         })
 
@@ -89,21 +83,21 @@ export default defineComponent({
             if (rowData.subStreamQualityCaps.length) {
                 let isQualityCapsMatch = false
                 let isQualityCapsEmpty = true
-                pageData.value.videoQualityItemList[rowData.index] = []
+                rowData.videoQualityItemList = []
 
                 rowData.subStreamQualityCaps.forEach((item) => {
                     if (item.enct === rowData.videoEncodeType && item.res === rowData.resolution) {
                         if (item.value[0]) {
                             isQualityCapsEmpty = false
-                            tableData.value[rowData.index].qualitys = item.value
-                            tableData.value[rowData.index].qualitys.forEach((item) => {
+                            rowData.qualitys = item.value
+                            rowData.qualitys.forEach((item) => {
                                 if (poeModeNode === 10 && Number(item) <= 6144) {
-                                    pageData.value.videoQualityItemList[rowData.index].push({
+                                    rowData.videoQualityItemList.push({
                                         value: item,
                                         label: item + 'Kbps',
                                     })
                                 } else if (!poeModeNode || poeModeNode === 100) {
-                                    pageData.value.videoQualityItemList[rowData.index].push({
+                                    rowData.videoQualityItemList.push({
                                         value: item,
                                         label: item + 'Kbps',
                                     })
@@ -126,15 +120,15 @@ export default defineComponent({
                         ) {
                             if (item.value[0]) {
                                 isQualityCapsEmpty = false
-                                tableData.value[rowData.index].qualitys = item.value
-                                tableData.value[rowData.index].qualitys.forEach((item) => {
+                                rowData.qualitys = item.value
+                                rowData.qualitys.forEach((item) => {
                                     if (poeModeNode === 10 && Number(item) <= 6144) {
-                                        pageData.value.videoQualityItemList[rowData.index].push({
+                                        rowData.videoQualityItemList.push({
                                             value: item,
                                             label: item + 'Kbps',
                                         })
                                     } else if (!poeModeNode || poeModeNode === 100) {
-                                        pageData.value.videoQualityItemList[rowData.index].push({
+                                        rowData.videoQualityItemList.push({
                                             value: item,
                                             label: item + 'Kbps',
                                         })
@@ -152,12 +146,12 @@ export default defineComponent({
                             tableData.value[rowData.index].qualitys = item.value
                             tableData.value[rowData.index].qualitys.forEach((item) => {
                                 if (poeModeNode === 10 && Number(item) <= 6144) {
-                                    pageData.value.videoQualityItemList[rowData.index].push({
+                                    rowData.videoQualityItemList.push({
                                         value: item,
                                         label: item + 'Kbps',
                                     })
                                 } else if (!poeModeNode || poeModeNode === 100) {
-                                    pageData.value.videoQualityItemList[rowData.index].push({
+                                    rowData.videoQualityItemList.push({
                                         value: item,
                                         label: item + 'Kbps',
                                     })
@@ -167,8 +161,8 @@ export default defineComponent({
                     })
                 }
 
-                if (Number(rowData.videoQuality) < Number(pageData.value.videoQualityItemList[rowData.index][0]?.value)) {
-                    rowData.videoQuality = pageData.value.videoQualityItemList[rowData.index][0].value
+                if (Number(rowData.videoQuality) < Number(rowData.videoQualityItemList[0]?.value)) {
+                    rowData.videoQuality = rowData.videoQualityItemList[0].value
                 } else {
                     // cboRowVideoQuality.val(rowData["videoQuality"]);  cboRowVideoQuality是一个option选项组，这里选中了当前rowData["videoQuality"]的值
                     // vue3双向绑定，无需进行操作
@@ -245,7 +239,7 @@ export default defineComponent({
                             unionList.push(item)
                         }
                     })
-                    pageData.value.videoEncodeTypeList[index] = subCaps.supEnct.sort().map((item) => {
+                    const videoEncodeTypeList = subCaps.supEnct.sort().map((item) => {
                         return {
                             value: item,
                             label: STREAM_TYPE_MAPPING[item],
@@ -253,7 +247,7 @@ export default defineComponent({
                     })
 
                     // 分辨率单个行选项列表
-                    pageData.value.resolutionList[index] = subCaps.res.map((item) => item.value)
+                    const resolutionList = subCaps.res.map((item) => item.value)
 
                     const subStreamQualityCaps: RecordSubStreamQualityCaps[] = []
                     // 码率上限总选项
@@ -327,14 +321,15 @@ export default defineComponent({
 
                         // 帧率
                         const resolution = initItem.attr('res')
-                        pageData.value.frameRateList[index] = []
+                        const frameRateList: string[] = []
+                        let maxFps = 0
                         subCaps.res.forEach((item) => {
                             if (item.value === resolution) {
                                 const maxFrameRate = Number(item.fps)
-                                pageData.value.maxFpsMap[index] = maxFrameRate
+                                maxFps = maxFrameRate
                                 const minFrameRate = mainStreamLimitFps > maxFrameRate ? maxFrameRate : mainStreamLimitFps
                                 for (let i = maxFrameRate; i >= minFrameRate; i--) {
-                                    pageData.value.frameRateList[index].push(String(i))
+                                    frameRateList.push(String(i))
                                 }
                             }
                         })
@@ -366,6 +361,12 @@ export default defineComponent({
                             disabled: false,
                             status: '',
                             statusTip: '',
+                            maxFps,
+                            frameRateList,
+                            videoEncodeTypeList,
+                            resolutionList,
+                            videoQualityItemList: [],
+                            isVideoQualityDisabled: false,
                         }
                     }
 
@@ -396,6 +397,12 @@ export default defineComponent({
                         disabled: false,
                         status: '',
                         statusTip: '',
+                        maxFps: 0,
+                        frameRateList: [],
+                        videoEncodeTypeList: [],
+                        resolutionList: [],
+                        videoQualityItemList: [],
+                        isVideoQualityDisabled: false,
                     }
                 })
             })
@@ -404,11 +411,10 @@ export default defineComponent({
             tableData.value.forEach((item) => {
                 getQualityList(item)
                 if (videoEncodeTypeArr.includes(item.videoEncodeType)) {
-                    pageData.value.isVideoQualityDisabled[item.index] = true
+                    item.isVideoQualityDisabled = true
                 }
 
                 if (item.chlType === 'recorder' || !item.subCaps.res.length || item.isRTSPChl === 'true') {
-                    // pageData.value.isRowDisabled[item.index] = true
                     item.disabled = true
                 } else {
                     editRows.listen(item)
@@ -515,7 +521,7 @@ export default defineComponent({
         // 视频编码改变
         const changeVideoEncodeType = (rowData: RecordSubStreamList) => {
             const isDisabled = videoEncodeTypeArr.includes(rowData.videoEncodeType)
-            pageData.value.isVideoQualityDisabled[rowData.index] = isDisabled
+            rowData.isVideoQualityDisabled = isDisabled
             if (!isDisabled) {
                 getQualityList(rowData)
                 if (rowData.bitType === 'CBR') {
@@ -545,22 +551,20 @@ export default defineComponent({
         const updateFrameRate = (rowData: RecordSubStreamList, maxFrameRate: number) => {
             const minFrameRate = mainStreamLimitFps > maxFrameRate ? maxFrameRate : mainStreamLimitFps
 
-            pageData.value.frameRateList[rowData.index] = []
+            rowData.frameRateList = []
 
             for (let i = maxFrameRate; i >= minFrameRate; i--) {
-                pageData.value.frameRateList[rowData.index].push(String(i))
+                rowData.frameRateList.push(String(i))
             }
 
-            pageData.value.maxFpsMap[rowData.index] = maxFrameRate
+            rowData.maxFps = maxFrameRate
         }
 
         const updateTitleFrameRate = () => {
-            let maxFrameRate = 0
-            for (const item in pageData.value.maxFpsMap) {
-                if (pageData.value.maxFpsMap[item] > maxFrameRate) {
-                    maxFrameRate = pageData.value.maxFpsMap[item]
-                }
-            }
+            const maxFrameRate = Math.max.apply(
+                [],
+                tableData.value.map((item) => item.maxFps),
+            )
 
             pageData.value.frameRateUnionList = []
 
@@ -572,14 +576,14 @@ export default defineComponent({
 
         // 改变当前行的分辨率
         const changeResolution = (rowData: RecordSubStreamList, value: string) => {
-            rowData.subCaps.res.forEach((item, index) => {
+            rowData.subCaps.res.forEach((item) => {
                 if (item.value === value) {
                     let frameRate = rowData.frameRate
                     if (Number(frameRate) > Number(item.fps)) {
                         frameRate = item.fps
                     }
 
-                    if (pageData.value.maxFpsMap[index] !== Number(item.fps)) {
+                    if (rowData.maxFps !== Number(item.fps)) {
                         updateFrameRate(rowData, Number(item.fps))
                         updateTitleFrameRate()
                     }
@@ -668,10 +672,10 @@ export default defineComponent({
         }
 
         const changeAllFrameRate = (value: string) => {
-            tableData.value.forEach((item, index) => {
+            tableData.value.forEach((item) => {
                 let val = value
-                if (Number(val) > pageData.value.maxFpsMap[index]) {
-                    val = String(pageData.value.maxFpsMap[index])
+                if (Number(val) > item.maxFps) {
+                    val = String(item.maxFps)
                 }
 
                 if (!item.disabled) {

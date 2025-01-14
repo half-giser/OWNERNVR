@@ -41,12 +41,12 @@
                 <span class="row_bandwidth">{{ pageData.txtBandwidth }}</span>
                 <span class="detailBtn"></span>
                 <span
-                    v-if="pageData.PredictVisible"
+                    v-if="pageData.isPredict"
                     class="txRecTime"
                     >{{ pageData.recTime }}</span
                 >
                 <el-button
-                    v-if="pageData.CalculateVisible"
+                    v-if="pageData.isCalculate"
                     class="btnActivate"
                     @click="handleCalculate"
                 >

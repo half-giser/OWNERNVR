@@ -5,7 +5,7 @@
  */
 
 import { type QueryNodeListDto } from '@/types/apiType/channel'
-import { type AlarmMutexDto } from '@/types/apiType/aiAndEvent'
+import { type AlarmMutexDto, type AlarmOnlineChlDto } from '@/types/apiType/aiAndEvent'
 import { type ApiResult } from '@/api/api'
 import { type XMLQuery, type XmlResult } from './xmlParse'
 import JSZip from 'jszip'
@@ -951,6 +951,46 @@ export const buildScheduleList = async (option: Partial<ScheduleListOption> = {}
 }
 
 /**
+ * @description 判断排程ID是否在排程列表中存在，若存在，返回排程ID，否则返回默认ID
+ * @param {SelectOption<string, string>[]} scheduleList
+ * @param {string} scheduleId
+ * @param {string} defaultScheduleId
+ * @return {string}
+ */
+export const getScheduleId = (scheduleList: SelectOption<string, string>[], scheduleId: string, defaultScheduleId = DEFAULT_EMPTY_ID) => {
+    if (scheduleId === '') {
+        return defaultScheduleId
+    }
+
+    if (scheduleList.some((item) => item.value === scheduleId)) {
+        return scheduleId
+    }
+
+    return defaultScheduleId
+}
+
+/**
+ * @description 返回持续时间列表
+ * @returns {SelectOption<string, string>[]}
+ */
+export const getAlarmHoldTimeList = (holdTimeList: string, holdTime: number) => {
+    const holdTimeArr = holdTimeList.split(',').map((item) => Number(item))
+    if (!holdTimeArr.includes(holdTime)) {
+        holdTimeArr.push(holdTime)
+    }
+    return holdTimeArr
+        .map((value) => {
+            return {
+                value,
+                label: getTranslateForSecond(value),
+            }
+        })
+        .toSorted((a, b) => {
+            return a.value - b.value
+        })
+}
+
+/**
  * @description 构建语音播报列表
  */
 export const buildAudioList = async () => {
@@ -1292,7 +1332,7 @@ type MutexOptions = {
     isChange: boolean
     mutexList: AlarmMutexDto[]
     mutexListEx?: AlarmMutexDto[]
-    chlList?: MutexChlDto[]
+    chlList?: AlarmOnlineChlDto[]
     chlIp?: string
     chlName: string
     tips: string

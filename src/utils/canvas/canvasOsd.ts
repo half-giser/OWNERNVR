@@ -36,21 +36,21 @@ interface CanvasOSDOption {
     onchange?: (nameCfg: CanvasOSDOptionNameConfig, timeCfg: CanvasOSDOptionTimeConfig) => void
 }
 
-export default class CanvasOSD {
-    private readonly OSD_COLOR: string | CanvasGradient | CanvasPattern = '#f00' // osd颜色
-    private readonly OSD_FONT_SIZE = 14 // osd字体大小
-    private readonly OSD_FONT = this.OSD_FONT_SIZE + 'px Arial'
-    private readonly DATE_FORMAT_MAP = {
-        'year-month-day': 'YYYY/MM/DD',
-        'month-day-year': 'MM/DD/YYYY',
-        'day-month-year': 'DD/MM/YYYY',
+export default function CanvasOSD(option: CanvasOSDOption) {
+    const OSD_COLOR: string | CanvasGradient | CanvasPattern = '#f00' // osd颜色
+    const OSD_FONT_SIZE = 14 // osd字体大小
+    const OSD_FONT = OSD_FONT_SIZE + 'px Arial'
+    const DATE_FORMAT_MAP = {
+        'year-month-day': 'yyyy/MM/dd',
+        'month-day-year': 'MM/dd/yyyy',
+        'day-month-year': 'dd/MM/yyyy',
     }
-    private readonly TIME_FORMAT_MAP = {
-        12: 'hh:mm:ss A',
+    const TIME_FORMAT_MAP = {
+        12: 'hh:mm:ss tt',
         24: 'HH:mm:ss',
     }
     // 通道名osd参数默认配置
-    private readonly DEFAULT_NAME_CONFIG: CanvasOSDOptionNameConfig = {
+    const DEFAULT_NAME_CONFIG: CanvasOSDOptionNameConfig = {
         value: '', // 通道名
         switch: true, // 是否显示，下同
         X: 0, // 左上角点坐标x，下同
@@ -61,7 +61,7 @@ export default class CanvasOSD {
         YMaxValue: 10000, // 参照比例高度终止点，下同
     }
     // 时间osd参数默认配置
-    private readonly DEFAULT_TIME_CONFIG: CanvasOSDOptionTimeConfig = {
+    const DEFAULT_TIME_CONFIG: CanvasOSDOptionTimeConfig = {
         dateFormat: 'year-month-day',
         timeFormat: 24,
         switch: true, // 是否显示
@@ -74,126 +74,109 @@ export default class CanvasOSD {
         timestamp: new Date().getTime(),
     }
     // 参考系(一般是万分比)画布宽度
-    private readonly RELATIVE_WIDTH = this.DEFAULT_NAME_CONFIG.XMaxValue - this.DEFAULT_NAME_CONFIG.XMinValue
+    const RELATIVE_WIDTH = DEFAULT_NAME_CONFIG.XMaxValue - DEFAULT_NAME_CONFIG.XMinValue
     // 参考系(一般是万分比)画布高度
-    private readonly RELATIVE_HEIGHT = this.DEFAULT_NAME_CONFIG.YMaxValue - this.DEFAULT_NAME_CONFIG.YMinValue
-    private readonly ctx: CanvasBase
-    private readonly canvas: HTMLCanvasElement
-    private readonly cavWidth: number
-    private readonly cavHeight: number
+    const RELATIVE_HEIGHT = DEFAULT_NAME_CONFIG.YMaxValue - DEFAULT_NAME_CONFIG.YMinValue
+
     // 通道名矩形区域
-    private nameRect: CanvasBaseRect = {
+    let nameRect: CanvasBaseRect = {
         x: 0,
         y: 0,
         width: 0,
         height: 0,
     }
     // 时间矩形区域
-    private timeRect: CanvasBaseRect = {
+    let timeRect: CanvasBaseRect = {
         x: 0,
         y: 0,
         width: 0,
         height: 0,
     }
-    private onchange: CanvasOSDOption['onchange']
-    private nameCfg: CanvasOSDOptionNameConfig
-    private timeCfg: CanvasOSDOptionTimeConfig
-    private onMouseDown?: (e: MouseEvent) => void
-    private onMouseMove?: (e: MouseEvent) => void
 
-    /*
-     * OSD配置绘制
-     * @param {Object} option
-     *      @property {String} el 画布选择器
-     *      @property {Object} nameCfg 通道名osd配置
-     *      @property {Object} timeCfg 时间osd配置
-     *      @property {Function} onchange osd配置改变的回调
-     */
-    constructor(option: CanvasOSDOption) {
-        this.onchange = option.onchange
-        this.nameCfg = {
-            ...this.DEFAULT_NAME_CONFIG,
-            ...(option.nameCfg || {}),
-        }
-        this.timeCfg = {
-            ...this.DEFAULT_TIME_CONFIG,
-            ...(option.timeCfg || {}),
-        }
+    let onMouseDown: ((e: MouseEvent) => void) | undefined = undefined
+    let onMouseMove: ((e: MouseEvent) => void) | undefined = undefined
 
-        this.ctx = new CanvasBase(option.el)
-        this.canvas = this.ctx.getCanvas()
-        this.cavWidth = this.canvas.width // 画布宽
-        this.cavHeight = this.canvas.height // 画布高
-        this.bindEvent()
+    const onchange = option.onchange
+    let nameCfg = {
+        ...DEFAULT_NAME_CONFIG,
+        ...(option.nameCfg || {}),
+    }
+    let timeCfg = {
+        ...DEFAULT_TIME_CONFIG,
+        ...(option.timeCfg || {}),
     }
 
+    const ctx = CanvasBase(option.el)
+    const canvas = ctx.getCanvas()
+    const cavWidth = canvas.width // 画布宽
+    const cavHeight = canvas.height // 画布高
+
     // 初始化
-    init() {
-        this.clear()
-        if (this.nameCfg.switch) {
-            this.drawName()
+    const init = () => {
+        clear()
+        if (nameCfg.switch) {
+            drawName()
         }
 
-        if (this.timeCfg.switch) {
-            this.drawTime()
+        if (timeCfg.switch) {
+            drawTime()
         }
     }
 
     // 根据万分比尺寸获取画布尺寸
-    getRealSizeByRelative(size: number, type: 'x' | 'y') {
+    const getRealSizeByRelative = (size: number, type: 'x' | 'y') => {
         if (type === 'x') {
-            return (this.cavWidth * size) / this.RELATIVE_WIDTH
+            return (cavWidth * size) / RELATIVE_WIDTH
         } else {
-            return (this.cavHeight * size) / this.RELATIVE_HEIGHT
+            return (cavHeight * size) / RELATIVE_HEIGHT
         }
     }
 
     // 根据画布尺寸获取对应万分比尺寸
-    getRelativeSizeByReal(size: number, type: 'x' | 'y') {
+    const getRelativeSizeByReal = (size: number, type: 'x' | 'y') => {
         if (type === 'x') {
-            return (this.RELATIVE_WIDTH * size) / this.cavWidth
+            return (RELATIVE_WIDTH * size) / cavWidth
         } else {
-            return (this.RELATIVE_HEIGHT * size) / this.cavHeight
+            return (RELATIVE_HEIGHT * size) / cavHeight
         }
     }
 
     // 设置osd配置
-    setCfg(config: { nameCfg?: Partial<CanvasOSDOptionNameConfig>; timeCfg?: Partial<CanvasOSDOptionTimeConfig> }) {
-        this.nameCfg = {
-            ...this.nameCfg,
+    const setCfg = (config: { nameCfg?: Partial<CanvasOSDOptionNameConfig>; timeCfg?: Partial<CanvasOSDOptionTimeConfig> }) => {
+        nameCfg = {
+            ...nameCfg,
             ...(config.nameCfg || {}),
         }
-        this.timeCfg = {
-            ...this.timeCfg,
+        timeCfg = {
+            ...timeCfg,
             ...(config.timeCfg || {}),
         }
-        this.init()
+        init()
     }
 
     // 设置时间osd时间戳
-    setTime(timestamp: number) {
-        this.timeCfg.timestamp = timestamp
-        this.init()
+    const setTime = (timestamp: number) => {
+        timeCfg.timestamp = timestamp
+        init()
     }
 
     // 绘制通道名osd
-    drawName() {
-        const ctx = this.ctx
-        const text = this.nameCfg.value
-        const startX = this.getRealSizeByRelative(this.nameCfg.X, 'x')
-        const startY = this.getRealSizeByRelative(this.nameCfg.Y, 'y')
+    const drawName = () => {
+        const text = nameCfg.value
+        const startX = getRealSizeByRelative(nameCfg.X, 'x')
+        const startY = getRealSizeByRelative(nameCfg.Y, 'y')
         ctx.Text({
             text: text,
             startX: startX,
             startY: startY,
-            fillStyle: this.OSD_COLOR,
-            font: this.OSD_FONT,
+            fillStyle: OSD_COLOR,
+            font: OSD_FONT,
         })
         const strLen = text.length
-        const rectWidth = strLen * (this.OSD_FONT_SIZE - 5)
-        const rectHeight = this.OSD_FONT_SIZE
-        ctx.Rect(startX, startY, rectWidth, rectHeight, { strokeStyle: this.OSD_COLOR })
-        this.nameRect = {
+        const rectWidth = strLen * (OSD_FONT_SIZE - 5)
+        const rectHeight = OSD_FONT_SIZE
+        ctx.Rect(startX, startY, rectWidth, rectHeight, { strokeStyle: OSD_COLOR })
+        nameRect = {
             x: startX,
             y: startY,
             width: rectWidth,
@@ -202,24 +185,23 @@ export default class CanvasOSD {
     }
 
     // 绘制时间osd
-    drawTime() {
-        const ctx = this.ctx
-        const format = this.DATE_FORMAT_MAP[this.timeCfg.dateFormat] + ' ' + this.TIME_FORMAT_MAP[this.timeCfg.timeFormat]
-        const text = formatDate(this.timeCfg.timestamp, format)
-        const startX = this.getRealSizeByRelative(this.timeCfg.X, 'x')
-        const startY = this.getRealSizeByRelative(this.timeCfg.Y, 'y')
+    const drawTime = () => {
+        const format = DATE_FORMAT_MAP[timeCfg.dateFormat] + ' ' + TIME_FORMAT_MAP[timeCfg.timeFormat]
+        const text = formatDate(timeCfg.timestamp, format)
+        const startX = getRealSizeByRelative(timeCfg.X, 'x')
+        const startY = getRealSizeByRelative(timeCfg.Y, 'y')
         ctx.Text({
             text: text,
             startX: startX,
             startY: startY,
-            fillStyle: this.OSD_COLOR,
-            font: this.OSD_FONT,
+            fillStyle: OSD_COLOR,
+            font: OSD_FONT,
         })
         const strLen = text.length
-        const rectWidth = strLen * (this.OSD_FONT_SIZE - 5)
-        const rectHeight = this.OSD_FONT_SIZE
-        ctx.Rect(startX, startY, rectWidth, rectHeight, { strokeStyle: this.OSD_COLOR })
-        this.timeRect = {
+        const rectWidth = strLen * (OSD_FONT_SIZE - 5)
+        const rectHeight = OSD_FONT_SIZE
+        ctx.Rect(startX, startY, rectWidth, rectHeight, { strokeStyle: OSD_COLOR })
+        timeRect = {
             x: startX,
             y: startY,
             width: rectWidth,
@@ -228,20 +210,20 @@ export default class CanvasOSD {
     }
 
     // 绑定事件
-    private bindEvent() {
-        if (!this.onMouseDown) {
-            this.onMouseDown = (e: MouseEvent) => {
-                const isInName = this.ctx.IsInRect(e.offsetX, e.offsetY, this.nameRect.x, this.nameRect.y, this.nameRect.width, this.nameRect.height)
-                const isInTime = this.ctx.IsInRect(e.offsetX, e.offsetY, this.timeRect.x, this.timeRect.y, this.timeRect.width, this.timeRect.height)
+    const bindEvent = () => {
+        if (!onMouseDown) {
+            onMouseDown = (e: MouseEvent) => {
+                const isInName = ctx.IsInRect(e.offsetX, e.offsetY, nameRect.x, nameRect.y, nameRect.width, nameRect.height)
+                const isInTime = ctx.IsInRect(e.offsetX, e.offsetY, timeRect.x, timeRect.y, timeRect.width, timeRect.height)
                 if (!isInName && !isInTime) return
-                const targetRect = isInName ? 'nameRect' : 'timeRect'
-                const targetCfg = isInName ? 'nameCfg' : 'timeCfg'
+                const targetRect = isInName ? nameRect : timeRect
+                const targetCfg = isInName ? nameCfg : timeCfg
                 const clientX = e.clientX
                 const clientY = e.clientY
-                const startX = this[targetRect].x
-                const startY = this[targetRect].y
-                const cavWidth = this.canvas.width
-                const cavHeight = this.canvas.height
+                const startX = targetRect.x
+                const startY = targetRect.y
+                const cavWidth = canvas.width
+                const cavHeight = canvas.height
                 document.body.style.setProperty('user-select', 'none')
                 const onMouseMove = (ev: MouseEvent) => {
                     let newX = startX + ev.clientX - clientX
@@ -250,21 +232,21 @@ export default class CanvasOSD {
                         newX = 0
                     }
 
-                    if (newX + this[targetRect].width >= cavWidth) {
-                        newX = cavWidth - this[targetRect].width
+                    if (newX + targetRect.width >= cavWidth) {
+                        newX = cavWidth - targetRect.width
                     }
 
                     if (newY <= 0) {
                         newY = 0
                     }
 
-                    if (newY + this[targetRect].height >= cavHeight) {
-                        newY = cavHeight - this[targetRect].height
+                    if (newY + targetRect.height >= cavHeight) {
+                        newY = cavHeight - targetRect.height
                     }
-                    this[targetCfg].X = this.getRelativeSizeByReal(newX, 'x')
-                    this[targetCfg].Y = this.getRelativeSizeByReal(newY, 'y')
-                    this.init()
-                    this.onchange && this.onchange(this.nameCfg, this.timeCfg)
+                    targetCfg.X = getRelativeSizeByReal(newX, 'x')
+                    targetCfg.Y = getRelativeSizeByReal(newY, 'y')
+                    init()
+                    onchange && onchange(nameCfg, timeCfg)
                 }
 
                 const onMouseUp = () => {
@@ -278,43 +260,53 @@ export default class CanvasOSD {
             }
         }
 
-        if (!this.onMouseMove) {
+        if (!onMouseMove) {
             // 监听鼠标移动事件，进入osd覆盖层时改变鼠标形态为move状态
-            this.onMouseMove = (e: MouseEvent) => {
-                const isInName = this.ctx.IsInRect(e.offsetX, e.offsetY, this.nameRect.x, this.nameRect.y, this.nameRect.width, this.nameRect.height)
-                const isInTime = this.ctx.IsInRect(e.offsetX, e.offsetY, this.timeRect.x, this.timeRect.y, this.timeRect.width, this.timeRect.height)
-                this.canvas.style.setProperty('cursor', 'default')
+            onMouseMove = (e: MouseEvent) => {
+                const isInName = ctx.IsInRect(e.offsetX, e.offsetY, nameRect.x, nameRect.y, nameRect.width, nameRect.height)
+                const isInTime = ctx.IsInRect(e.offsetX, e.offsetY, timeRect.x, timeRect.y, timeRect.width, timeRect.height)
+                canvas.style.setProperty('cursor', 'default')
                 if (!isInName && !isInTime) return
-                this.canvas.style.setProperty('cursor', 'move')
+                canvas.style.setProperty('cursor', 'move')
             }
         }
-        this.canvas.removeEventListener('mousedown', this.onMouseDown)
-        this.canvas.removeEventListener('mousemove', this.onMouseMove)
-        this.canvas.addEventListener('mousedown', this.onMouseDown)
-        this.canvas.addEventListener('mousemove', this.onMouseMove)
+        canvas.removeEventListener('mousedown', onMouseDown)
+        canvas.removeEventListener('mousemove', onMouseMove)
+        canvas.addEventListener('mousedown', onMouseDown)
+        canvas.addEventListener('mousemove', onMouseMove)
     }
 
     // 组件生命周期结束时执行
-    destroy() {
-        if (this.onMouseDown) {
-            this.canvas.removeEventListener('mousedown', this.onMouseDown)
+    const destroy = () => {
+        if (onMouseDown) {
+            canvas.removeEventListener('mousedown', onMouseDown)
         }
 
-        if (this.onMouseMove) {
-            this.canvas.removeEventListener('mousemove', this.onMouseMove)
+        if (onMouseMove) {
+            canvas.removeEventListener('mousemove', onMouseMove)
         }
     }
 
     // 清除指定矩形区域的画布
-    clear() {
-        this.ctx.ClearRect(0, 0, this.cavWidth, this.cavHeight)
+    const clear = () => {
+        ctx.ClearRect(0, 0, cavWidth, cavHeight)
     }
 
     // 获取绘制信息
-    getOSDInfo() {
+    const getOSDInfo = () => {
         return {
-            nameCfg: this.nameCfg,
-            timeCfg: this.timeCfg,
+            nameCfg: nameCfg,
+            timeCfg: timeCfg,
         }
+    }
+
+    bindEvent()
+
+    return {
+        setCfg,
+        setTime,
+        destroy,
+        clear,
+        getOSDInfo,
     }
 }

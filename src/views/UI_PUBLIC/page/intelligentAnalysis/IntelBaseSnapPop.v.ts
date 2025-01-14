@@ -49,7 +49,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const dateTime = useDateTimeStore()
 
-        let context: CanvasBase
+        let context: ReturnType<typeof CanvasBase>
         const canvas = ref<HTMLCanvasElement>()
 
         // 允许注册的事件
@@ -306,7 +306,7 @@ export default defineComponent({
          */
         const open = () => {
             if (!context) {
-                context = new CanvasBase(canvas.value!)
+                context = CanvasBase(canvas.value!)
             }
             pageData.value.currentIndex = prop.index
             renderCanvas()

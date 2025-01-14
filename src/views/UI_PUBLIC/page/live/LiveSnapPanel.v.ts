@@ -114,7 +114,7 @@ export default defineComponent({
             isFacePop: false,
         })
 
-        let ws: WebsocketSnap | null = null
+        let ws: ReturnType<typeof WebsocketSnap> | null = null
 
         /**
          * @description 获取权限
@@ -172,7 +172,7 @@ export default defineComponent({
                 },
             }))
 
-            ws = new WebsocketSnap({
+            ws = WebsocketSnap({
                 config: chlIdList,
                 onsuccess(arr) {
                     pageData.value.snapListQueue = [...(arr as WebsocketSnapOnSuccessSnap[]), ...pageData.value.snapListQueue]
