@@ -149,7 +149,7 @@
      * 穿梭框
      */
     --transfer-title-bg: #e5e5e5; // 穿梭框头部背景色
-    --transfer-bg: #e6e6e6; // 穿梭框背景色
+    --transfer-bg: unset; // 穿梭框背景色
     --transfer-stripe: #f1f1f1; // 穿梭框斑马线背景色
     --transfer-border: #999; // 穿梭框边框色
     --transfer-text: var(--main-text); // 穿梭框文本颜色
@@ -294,6 +294,7 @@
      * Loading
      */
     --loading-bg: rgb(255 255 255 / 30%); // Loading背景色
+    --loading-text: #333; // Loading文本颜色
 
     /**
      * 状态
@@ -394,6 +395,20 @@
     --pagination-border: #888; // 分页器 border颜色
     --pagination-border-hover: #cacaca; // 分页器 border颜色 (hover)
     --pagination-border-disabled: #e0e0e0; // 分页器 border颜色（disabled）
+
+    /**
+     * 时间日期选择器
+     */
+    --datepicker-header-bg: #f3f8ff; // 时间日期选择器 周 背景
+    --datepicker-border: #b9d7fc; // 时间日期选择器 周 border颜色
+    --datepicker-text: #000; // 时间日期选择器 周 border颜色
+    --datepicker-text-hover: #06c; // 时间日期选择器 选中日期 文本颜色
+    --datepicker-bg-hover: #f3f8ff; // 时间日期选择器 选中日期 背景颜色
+    --datepicker-border-hover: #06c; // 时间日期选择器 选中日期 border颜色
+    --datepicker-btn-border: #b9d7fc; // 时间日期选择器 按钮 border颜色
+    --datepicker-btn-bg: #f3f8ff; // 时间日期选择器 按钮 背景颜色
+    --datepicker-btn-text: #06c; // 时间日期选择器 按钮 文本颜色
+    --datepicker-input-border: #b9d7fc; // 时间日期选择器 输入框 border颜色
 
     // Success
     // --success--01: #edf9eb;

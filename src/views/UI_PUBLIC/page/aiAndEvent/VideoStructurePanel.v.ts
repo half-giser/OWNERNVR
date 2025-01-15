@@ -326,7 +326,7 @@ export default defineComponent({
                 })
                 // 侦测区域
                 const detectAreaInfo: Record<number, CanvasBasePoint[]> = {}
-                $('boundary/item').forEach((item, index) => {
+                $param('boundary/item').forEach((item, index) => {
                     detectAreaInfo[index] = []
                     const $item = queryXml(item.element)
                     $item('point/item').forEach((ele) => {
@@ -341,7 +341,7 @@ export default defineComponent({
                 })
                 // 屏蔽区域
                 const maskAreaInfo: Record<number, CanvasBasePoint[]> = {}
-                $('maskArea/item').forEach((item, index) => {
+                $param('maskArea/item').forEach((item, index) => {
                     maskAreaInfo[index] = []
                     const $item = queryXml(item.element)
                     $item('point/item').forEach((ele) => {

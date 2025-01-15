@@ -60,6 +60,7 @@
                     min-width="300"
                 />
                 <el-table-column
+                    v-if="!dialog"
                     :label="Translate('IDCS_PREVIEW')"
                     min-width="140"
                 >

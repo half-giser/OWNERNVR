@@ -348,25 +348,27 @@
                         </div>
                     </template>
                     <div class="base-ai-advance-box">
-                        <div class="base-ai-subheading">
-                            {{ Translate('IDCS_VIDEO_SAVE_PIC') }}
-                        </div>
-                        <el-checkbox
-                            v-model="formData.saveSourcePicture"
-                            :disabled="pageData.isSavePicDisabled"
-                            :label="Translate('IDCS_SMART_SAVE_SOURCE_PIC')"
-                        />
-                        <el-checkbox
-                            v-model="formData.saveTargetPicture"
-                            :disabled="pageData.isSavePicDisabled"
-                            :label="Translate('IDCS_SMART_SAVE_TARGET_PIC')"
-                        />
                         <el-form
                             :style="{
                                 '--form-label-width': '150px',
                                 '--form-input-width': '170px',
                             }"
                         >
+                            <div class="base-ai-subheading">
+                                {{ Translate('IDCS_VIDEO_SAVE_PIC') }}
+                            </div>
+                            <el-form-item>
+                                <el-checkbox
+                                    v-model="formData.saveSourcePicture"
+                                    :disabled="pageData.isSavePicDisabled"
+                                    :label="Translate('IDCS_SMART_SAVE_SOURCE_PIC')"
+                                />
+                                <el-checkbox
+                                    v-model="formData.saveTargetPicture"
+                                    :disabled="pageData.isSavePicDisabled"
+                                    :label="Translate('IDCS_SMART_SAVE_TARGET_PIC')"
+                                />
+                            </el-form-item>
                             <!-- 识别模式 -->
                             <div class="base-ai-subheading">{{ Translate('IDCS_RECOGNITION_MODE') }}</div>
                             <!-- 识别模式 -->

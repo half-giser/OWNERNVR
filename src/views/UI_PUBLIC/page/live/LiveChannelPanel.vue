@@ -4,13 +4,13 @@
  * @Description: 现场预览-通道视图
 -->
 <template>
-    <div class="left">
+    <div class="base-home-panel left">
         <div
             v-show="pageData.isOpen"
-            class="left-content"
+            class="base-home-panel-content"
         >
             <div
-                class="left-top"
+                class="base-home-panel-top margin"
                 @click="pageData.isOpen = false"
             >
                 <div>
@@ -22,12 +22,13 @@
                         ({{ pageData.onlineChlList.length }}/{{ pageData.cacheChlList.length }})
                     </span>
                 </div>
-                <i></i>
+                <i class="base-home-panel-arrow"></i>
             </div>
-            <div class="left-menu">
+            <div class="base-home-panel-menu">
                 <div
                     v-for="(item, index) in pageData.chlMenu"
                     :key="item.tab"
+                    class="base-home-panel-menu-item stroke"
                     :class="{
                         active: pageData.activeChlMenu === index,
                     }"
@@ -44,7 +45,7 @@
                     />
                 </div>
             </div>
-            <div class="left-bottom">
+            <div class="base-home-panel-bottom">
                 <!-- 通道列表 -->
                 <div
                     v-show="pageData.activeChlMenu === 0"
@@ -168,14 +169,14 @@
         </div>
         <div
             v-show="!pageData.isOpen"
-            class="left-hide"
+            class="base-home-panel-hide"
         >
             <div
-                class="left-top"
+                class="base-home-panel-top"
                 @click="pageData.isOpen = true"
             >
                 <div></div>
-                <i class="hide"></i>
+                <i class="base-home-panel-arrow hide"></i>
             </div>
         </div>
         <!-- 新增通道组 -->
@@ -198,101 +199,10 @@
 
 <style lang="scss" scoped>
 .left {
-    height: 100%;
-    flex-shrink: 0;
-    background-color: var(--panel-bg);
-
-    &-content {
-        width: 260px;
-        height: 100%;
-    }
-
-    &-hide {
-        width: 16px;
-        height: 100%;
-    }
-
     &-top {
-        display: flex;
-        width: 100%;
-        height: 50px;
-        align-items: center;
-        justify-content: space-between;
-        color: var(--panel-header-text);
-        background-color: var(--panel-header-bg);
-
-        & > div {
-            margin-left: 10px;
-        }
-
         &-online {
             color: var(--panel-header-text-02);
         }
-
-        i {
-            border-right: 8px solid var(--panel-header-text);
-            border-top: 8px solid transparent;
-            border-bottom: 8px solid transparent;
-            border-left: 8px solid transparent;
-            font-size: 0;
-            width: 0;
-            height: 0;
-            line-height: 0;
-            cursor: pointer;
-            margin-right: 10px;
-            position: relative;
-
-            &::after {
-                content: '';
-                border-right: 4px solid var(--panel-header-bg);
-                border-top: 4px solid transparent;
-                border-bottom: 4px solid transparent;
-                border-left: 4px solid transparent;
-                position: absolute;
-                width: 0;
-                height: 0;
-                left: 0;
-                top: -4px;
-            }
-
-            &.hide {
-                transform: rotate(180deg);
-                left: -5px;
-            }
-        }
-
-        &:hover i {
-            border-right-color: var(--primary);
-        }
-    }
-
-    &-menu {
-        height: 50px;
-        background-color: var(--panel-menu-bg);
-        display: flex;
-        align-items: flex-end;
-        justify-content: center;
-        flex-shrink: 0;
-
-        & > div {
-            background-color: transparent;
-            width: 42px;
-            height: 35px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 13px 2px;
-            border-top: 3px solid transparent;
-
-            &.active {
-                background-color: var(--panel-menu-bg-active);
-                border-top-color: var(--primary);
-            }
-        }
-    }
-
-    &-bottom {
-        height: calc(100% - 100px);
     }
 
     &-chl {

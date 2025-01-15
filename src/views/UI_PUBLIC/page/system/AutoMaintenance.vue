@@ -39,8 +39,6 @@
                 <el-time-picker
                     v-model="formData.time"
                     format="HH:mm"
-                    editable
-                    prefix-icon=""
                     :disabled="!formData.switch"
                 />
             </el-form-item>

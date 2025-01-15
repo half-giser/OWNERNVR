@@ -57,6 +57,7 @@ const useLoading = () => {
                 target: getTarget(target),
                 lock: true,
                 text: text,
+                svg: ' ',
             })
             layoutStore.loadingCount = 1
             // 将其他局部loading的count都加到全屏loading的count，后面打开关闭任何loading都是对全局loading计数
@@ -75,6 +76,7 @@ const useLoading = () => {
                 target: getTarget(target),
                 lock: true,
                 text: text,
+                svg: ' ',
             })
             loadingInstMap.set(target, { inst, count: 1 })
         }

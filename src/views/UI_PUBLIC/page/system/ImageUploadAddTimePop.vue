@@ -18,7 +18,6 @@
                 <el-time-picker
                     v-model="pageData.addTimeData"
                     value-format="HH:mm:ss"
-                    :clearable="false"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">

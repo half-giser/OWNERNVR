@@ -3,7 +3,7 @@
  * @Date: 2024-10-25 09:17:39
  * @Description: Element Plus的默认值设置
  */
-import { ElDialog, ElInputNumber, ElForm, ElTooltip, ElSelectV2, ElTable, ElDropdown, ElPopover, ElDatePicker, ElSlider, ElScrollbar } from 'element-plus'
+import { ElDialog, ElInputNumber, ElForm, ElTooltip, ElSelectV2, ElTable, ElDropdown, ElPopover, ElDatePicker, ElTimePicker, ElSlider, ElScrollbar } from 'element-plus'
 import { type PropType } from 'vue'
 import sprites from '../components/sprite/sprites'
 import BaseCalendarIcon from '@/components/icon/BaseCalendarIcon.vue'
@@ -77,6 +77,16 @@ ElTooltip.props.showAfter = {
     default: 500,
 }
 
+ElTooltip.props.showArrow = {
+    type: Boolean,
+    default: false,
+}
+
+ElTooltip.props.effect = {
+    type: String,
+    default: 'light',
+}
+
 // ElSelect.props.placeholder = {
 //     type: String,
 //     default: ' ',
@@ -110,6 +120,21 @@ ElSelectV2.props.emptyValues = {
 ElSelectV2.props.persistent = {
     type: Boolean,
     default: false,
+}
+
+ElSelectV2.props.showArrow = {
+    type: Boolean,
+    default: false,
+}
+
+ElSelectV2.props.offset = {
+    type: Number,
+    default: 0,
+}
+
+ElSelectV2.props.itemHeight = {
+    type: Number,
+    default: 26,
 }
 
 ElTable.props.emptyText = {
@@ -159,6 +184,16 @@ ElPopover.props.trigger = {
     default: 'click',
 }
 
+ElPopover.props.showArrow = {
+    type: Boolean,
+    default: false,
+}
+
+ElPopover.props.offset = {
+    type: Number,
+    default: 0,
+}
+
 ElDatePicker.props.cellClassName = {
     type: Function as PropType<(data: Date) => string>,
     default: highlightWeekend,
@@ -178,6 +213,16 @@ ElDatePicker.props.prefixIcon = {
 //     type: Boolean,
 //     default: true,
 // }
+
+ElTimePicker.props.clearable = {
+    type: Boolean,
+    default: false,
+}
+
+ElTimePicker.props.editable = {
+    type: Boolean,
+    default: true,
+}
 
 ElSlider.props.showInputControls = {
     type: Boolean,

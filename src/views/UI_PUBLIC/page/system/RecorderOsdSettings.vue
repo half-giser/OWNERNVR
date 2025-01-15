@@ -8,7 +8,7 @@
         <el-form
             class="stripe"
             :style="{
-                '--form-input-width': '340px',
+                '--form-input-width': '220px',
             }"
         >
             <el-form-item :label="Translate('IDCS_NAME_ENABLE')">

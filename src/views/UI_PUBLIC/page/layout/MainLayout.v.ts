@@ -228,7 +228,7 @@ export default defineComponent({
             let diskDamage = false //是否有磁盘损坏/未格式化
             $('content/item').forEach((item) => {
                 const $item = queryXml(item.element)
-                const diskStatus = $item('/diskStatus').text()
+                const diskStatus = $item('diskStatus').text()
                 if (diskStatus === 'bad' || diskStatus === 'read') {
                     diskDamage = true
                 }
