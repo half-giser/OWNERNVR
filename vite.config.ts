@@ -84,6 +84,7 @@ export default defineConfig(({ mode }) => {
                     process.env.NODE_ENV === 'development'
                         ? []
                         : [
+                              // 压缩的CSS变量只能在CSS/SCSS中使用，不能在template、typescript等样式外的文件中引用
                               PostCssVariableCompress([(name: string) => !name.startsWith('--el')]),
                               CssNano({
                                   preset: 'default',

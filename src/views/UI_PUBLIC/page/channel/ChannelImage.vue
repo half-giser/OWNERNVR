@@ -668,7 +668,6 @@
                                                         v-model="scope.row.IRCutDayTime"
                                                         :format="timeMode === 24 ? 'HH:mm' : 'hh:mm A'"
                                                         value-format="HH:mm"
-                                                        :clearable="false"
                                                         @change="setAZData()"
                                                     />
                                                 </el-form-item>
@@ -680,7 +679,6 @@
                                                         v-model="scope.row.IRCutNightTime"
                                                         :format="timeMode === 24 ? 'HH:mm' : 'hh:mm A'"
                                                         value-format="HH:mm"
-                                                        :clearable="false"
                                                         @change="setAZData()"
                                                     />
                                                 </el-form-item>
@@ -828,7 +826,6 @@
                                                         v-model="scope.row.whitelightOnTime"
                                                         :format="timeMode === 24 ? 'HH:mm' : 'hh:mm A'"
                                                         value-format="HH:mm"
-                                                        :clearable="false"
                                                         @change="setAZData()"
                                                     />
                                                 </el-form-item>
@@ -840,7 +837,6 @@
                                                         v-model="scope.row.whitelightOffTime"
                                                         :format="timeMode === 24 ? 'HH:mm' : 'hh:mm A'"
                                                         value-format="HH:mm"
-                                                        :clearable="false"
                                                         @change="setAZData()"
                                                     />
                                                 </el-form-item>
@@ -884,7 +880,6 @@
                                                         v-model="scope.row.scheduleInfo.dayTime"
                                                         :format="timeMode === 24 ? 'HH:mm' : 'hh:mm A'"
                                                         value-format="HH:mm"
-                                                        :clearable="false"
                                                         @change="handleChangeTime('day')"
                                                     />
                                                     <el-text class="time-splitter"> -- </el-text>
@@ -892,7 +887,6 @@
                                                         v-model="scope.row.scheduleInfo.nightTime"
                                                         :format="timeMode === 24 ? 'HH:mm' : 'hh:mm A'"
                                                         value-format="HH:mm"
-                                                        :clearable="false"
                                                         @change="handleChangeTime('night')"
                                                     />
                                                 </el-form-item>

@@ -84,11 +84,30 @@
             padding-inline: 5px;
             font-size: 13px;
         }
+
+        &__popper {
+            border: none;
+            font-size: 13px;
+            line-height: var(--el-component-size);
+
+            &.el-popper {
+                box-shadow: 0 0 0 1px var(--input-border) inset;
+            }
+        }
     }
 
     .el-input {
         &__wrapper {
             padding-inline: 5px;
+        }
+    }
+
+    .el-input-number {
+        &.is-without-controls {
+            .el-input__wrapper {
+                padding-left: 5px;
+                padding-right: 5px;
+            }
         }
     }
 
@@ -172,7 +191,7 @@
         --el-checkbox-text-color: var(--main-text);
         --el-checkbox-input-border: var(--el-border-width) var(--el-border-style) var(--input-border);
         --el-checkbox-input-border-color-hover: var(--primary);
-        --el-checkbox-checked-text-color: var(--primary);
+        --el-checkbox-checked-text-color: default; // var(--primary);
         --el-checkbox-checked-input-border-color: var(--primary);
         --el-checkbox-checked-bg-color: var(--primary);
         --el-checkbox-disabled-border-color: var(--input-border-disabled);
@@ -187,7 +206,7 @@
     }
 
     .el-radio {
-        --el-radio-checked-text-color: var(--primary);
+        --el-radio-checked-text-color: default; // var(--primary);
         --el-radio-input-border: var(--el-border-width) var(--el-border-style) var(--input-border);
         --el-radio-input-border-color-hover: var(--primary);
         --el-radio-text-color: var(--main-text);
@@ -195,6 +214,10 @@
 
         &__label {
             padding-left: 5px;
+        }
+
+        &__input.is-checked + .el-radio__label {
+            color: default;
         }
     }
 
@@ -515,8 +538,16 @@
                 border-radius: var(--el-checkbox-border-radius);
             }
 
-            .el-checkbox__label {
-                padding-left: 18px;
+            &__body {
+                .el-checkbox__label {
+                    padding-left: 20px;
+                }
+            }
+
+            &__header {
+                .el-checkbox__label {
+                    font-weight: bolder;
+                }
             }
         }
 
@@ -560,6 +591,7 @@
 
         &__button {
             min-width: unset;
+            padding: 0 8px;
         }
 
         &__button:nth-child(2) {
@@ -571,19 +603,6 @@
         transition: none;
     }
 
-    .el-picker-panel {
-        .el-button.is-text {
-            border-color: var(--btn-border);
-            background-color: var(--btn-bg);
-            color: var(--btn-text);
-
-            &:hover {
-                background-color: var(--btn-bg-hover);
-                border-color: var(--btn-border-hover);
-            }
-        }
-    }
-
     .el-date-editor {
         .el-input__wrapper {
             flex-direction: row-reverse;
@@ -593,6 +612,163 @@
             .el-input__icon {
                 width: 16px;
                 margin-right: 0;
+            }
+        }
+    }
+
+    $width: 250px;
+
+    .el-date-picker {
+        width: $width;
+
+        .el-input {
+            --el-input-border-color: var(--datepicker-input-border);
+        }
+
+        &__time-header {
+            border-bottom: 1px solid var(--datepicker-border);
+            padding: 3px;
+            line-height: 21px;
+        }
+
+        &__header {
+            padding: 0 3px;
+
+            &-label {
+                font-size: 12px;
+            }
+        }
+
+        .el-picker-panel__content {
+            width: $width;
+            margin: 0;
+        }
+
+        .el-date-table {
+            tbody tr:first-child {
+                height: 20px;
+                background-color: var(--datepicker-header-bg);
+            }
+
+            th {
+                font-weight: bolder;
+                padding-block: 0;
+                padding-inline: 0;
+                line-height: 20px;
+                border-top: 1px solid var(--datepicker-border);
+                border-bottom: 1px solid var(--datepicker-border);
+            }
+
+            td {
+                padding: 0;
+                height: 20px;
+
+                .el-date-table-cell {
+                    height: 20px;
+                    padding: 0;
+                }
+
+                .el-date-table-cell .el-date-table-cell__text {
+                    height: 18px;
+                    line-height: 18px;
+                    border-radius: 0;
+                    border: 1px solid transparent;
+                    width: $width / 8;
+                }
+
+                &.current:not(.disabled) .el-date-table-cell .el-date-table-cell__text {
+                    color: var(--datepicker-text-hover);
+                    border-color: var(--datepicker-border-hover);
+                    background-color: var(--datepicker-bg-hover);
+                    font-weight: normal;
+                }
+
+                &:not(.disabled) .el-date-table-cell .el-date-table-cell__text:hover {
+                    color: var(--datepicker-text-hover);
+                    border-color: var(--datepicker-border-hover);
+                    background-color: var(--datepicker-bg-hover);
+                    font-weight: normal;
+                }
+            }
+        }
+
+        .el-date-picker__header--bordered {
+            border-bottom: 1px solid var(--datepicker-border);
+        }
+
+        .el-month-table,
+        .el-year-table {
+            .el-date-table-cell .el-date-table-cell__text {
+                border-radius: 0;
+                border: 1px solid transparent;
+                width: $width / 5;
+            }
+
+            td {
+                width: $width / 5;
+                padding: 0;
+            }
+
+            td.current:not(.disabled) .el-date-table-cell__text {
+                color: var(--datepicker-text-hover);
+                border-color: var(--datepicker-border-hover);
+                background-color: var(--datepicker-bg-hover);
+                font-weight: normal;
+            }
+
+            td:not(.disabled) .el-date-table-cell .el-date-table-cell__text:hover {
+                color: var(--datepicker-text-hover);
+                border-color: var(--datepicker-border-hover);
+                background-color: var(--datepicker-bg-hover);
+                font-weight: normal;
+            }
+        }
+
+        .el-picker-panel__footer {
+            border-top: 1px solid var(--datepicker-border);
+            padding: 0 3px;
+            height: 30px;
+
+            .el-button,
+            .el-button.is-text {
+                line-height: 20px;
+                height: 20px;
+                min-width: unset;
+                width: unset;
+                border: 1px solid var(--datepicker-btn-border);
+                background-color: var(--datepicker-btn-bg);
+                color: var(--datepicker-btn-text);
+
+                &:hover {
+                    border-color: var(--datepicker-btn-border);
+                    background-color: var(--datepicker-btn-bg);
+                    color: var(--datepicker-btn-text);
+                }
+            }
+        }
+    }
+
+    .el-popper:has(> .el-date-picker) {
+        border-color: var(--datepicker-border);
+    }
+
+    .el-loading {
+        &-spinner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            svg {
+                animation: none;
+                background: var(--img-spinner) no-repeat;
+                width: 31px;
+                height: 31px;
+            }
+
+            .el-loading-text {
+                margin: 0 0 0 10px;
+                color: var(--loading-text);
+                font-size: 15px;
             }
         }
     }

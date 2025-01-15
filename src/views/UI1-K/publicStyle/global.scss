@@ -10,6 +10,7 @@
     --img-login-btn: url('@ui/publicStyle/img/loginBtn.png');
     --img-motion-note: url('@/views/UI_PUBLIC/publicStyle/img/motionNote.gif');
     --img-loading: url('@ui/publicStyle/img/loading.gif');
+    --img-spinner: url('@ui/publicStyle/img/spinner.gif');
     --img-initview: url('@/views/UI_PUBLIC/publicStyle/img/initview.gif');
     --img-favicon: url('@/views/UI_PUBLIC/publicStyle/img/favicon.ico');
 
@@ -213,7 +214,8 @@
     --calendar-bg-active: var(--primary);
     --calendar-bg-today: var(--primary-light);
 
-    --loading-bg: rgb(255 255 255 / 20%);
+    --loading-bg: rgb(255 255 255 / 30%);
+    --loading-text: #ccc;
 
     --color-online: green;
     --color-offline: red;

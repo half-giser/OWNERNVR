@@ -6,18 +6,21 @@
 <template>
     <div class="base-intel-box">
         <div class="base-intel-left base-intel-left-column">
-            <el-radio-group
-                v-model="pageData.searchType"
-                size="large"
-                class="inline hide-border-top hide-border-inline"
-            >
-                <el-radio-button
-                    v-for="item in pageData.searchOptions"
-                    :key="item.value"
-                    :value="item.value"
-                    :label="item.label"
-                />
-            </el-radio-group>
+            <div class="tabs">
+                <el-menu
+                    :default-active="pageData.searchType"
+                    mode="horizontal"
+                    @select="pageData.searchType = $event"
+                >
+                    <el-menu-item
+                        v-for="item in pageData.searchOptions"
+                        :key="item.value"
+                        :index="item.value"
+                    >
+                        {{ item.label }}
+                    </el-menu-item>
+                </el-menu>
+            </div>
             <div class="base-intel-left-column">
                 <div class="base-intel-left-form">
                     <div class="base-intel-row">
@@ -485,6 +488,24 @@
 <script lang="ts" src="./IntelFaceSearch.v.ts"></script>
 
 <style lang="scss" scoped>
+.el-menu {
+    border-bottom: 1px solid var(--main-border);
+}
+
+.el-menu--horizontal {
+    height: 55px;
+}
+
+.el-menu--horizontal > .el-menu-item {
+    &.is-active {
+        background-color: transparent;
+    }
+
+    &:hover {
+        background-color: transparent;
+    }
+}
+
 .base-intel-left {
     padding: 0;
 

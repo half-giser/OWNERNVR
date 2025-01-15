@@ -127,7 +127,7 @@ export default defineComponent({
             } else {
                 formData.value.bonds.forEach((bond) => {
                     const data = { ...DEFAULT_DATA }
-                    const item = $(`bonds/item[@id="${bond.id}"]`)
+                    const item = $(`content/bonds/item[@id="${bond.id}"]`)
                     if (!item.length) {
                         return
                     }
@@ -160,7 +160,7 @@ export default defineComponent({
                     return
                 }
                 const data = { ...DEFAULT_DATA }
-                const item = $(`nic/item[@id="${config.id}"]`)
+                const item = $(`content/nic/item[@id="${config.id}"]`)
                 if (!item.length) {
                     return
                 }

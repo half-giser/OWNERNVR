@@ -4,6 +4,7 @@
  * @Description: 各主题公用的公共样式
  */
 
+@use './home';
 @use './aiAndEvent';
 @use './businessApplication';
 @use './channel';
@@ -319,7 +320,9 @@ input[type='number'] {
                 padding: 0;
 
                 .el-select-dropdown__item {
-                    padding: 0 10px;
+                    padding: 0 5px;
+                    line-height: 26px;
+                    height: 26px;
 
                     &.is-hovering {
                         color: var(--color-white);
@@ -345,6 +348,7 @@ input[type='number'] {
 
         &.el-popover {
             color: var(--main-text);
+            box-shadow: none;
         }
     }
 
@@ -365,11 +369,6 @@ input[type='number'] {
         &.is-without-controls {
             .el-input__inner {
                 text-align: left;
-            }
-
-            .el-input__wrapper {
-                padding-left: 11px;
-                padding-right: 11px;
             }
         }
     }
@@ -414,10 +413,8 @@ input[type='number'] {
             margin-bottom: 0;
             flex-wrap: nowrap;
 
-            &:has(.el-form-item) {
-                .el-form-item__content {
-                    justify-content: space-between;
-                }
+            &:has(.el-form-item .el-form-item__content) {
+                justify-content: space-between;
             }
 
             & > .el-form-item__content > .el-form-item {
@@ -466,11 +463,6 @@ input[type='number'] {
                 &.is-without-controls {
                     .el-input__inner {
                         text-align: center;
-                    }
-
-                    .el-input__wrapper {
-                        padding-left: 5px;
-                        padding-right: 5px;
                     }
                 }
             }

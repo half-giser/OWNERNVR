@@ -62,7 +62,6 @@
                             v-model="manualTimeSpan"
                             is-range
                             range-separator="-"
-                            :clearable="false"
                             format="HH:mm"
                         />
                         <el-button @click="manualTimeInputOk">{{ Translate('IDCS_OK') }}</el-button>

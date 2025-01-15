@@ -45,20 +45,9 @@ export const camel2Kebab = (name: string) => {
 
 //视图集合
 const viewComponents: Record<string, any> = {}
+// 此处对页面组件的名称做了较严格的匹配，组件名称前缀为IntelBase、AlarmBase、RecordBase、或后缀为Pop、Item、Panel等等都被认为不是页面组件
 const puglicPages = import.meta.glob(['@public/page/**/*.vue', '!**/{Intel,Alarm,Record}Base*.vue', '!**/*Pop.vue', '!**/*Item.vue', '!**/!(Function)Panel.vue'])
 const uiPages = import.meta.glob('@ui/page/**/*.vue')
-
-// let uiPages: Record<string, any> = {} // import.meta.glob(import.meta.env.VITE_UI)
-// //新增UI后，需要在这里增加
-// if (__UI_1__) {
-//     uiPages = import.meta.glob('/src/views/UI1/page/**/*.vue')
-// }
-// if (__UI_2__) {
-//     uiPages = import.meta.glob('/src/views/UI2/page/**/*.vue')
-// }
-// if (__UI_3__) {
-//     uiPages = import.meta.glob('/src/views/UI3/page/**/*.vue')
-// }
 
 const getItemName = (file: string) => {
     // const item = file.replace('/src/views/', '')

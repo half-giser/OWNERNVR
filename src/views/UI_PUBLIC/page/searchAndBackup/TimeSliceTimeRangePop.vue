@@ -18,7 +18,6 @@
                     :disabled-hours="pickerRange.disabledStartTimeHours"
                     :disabled-minutes="pickerRange.disabledStartTimeMinutes"
                     :disabled-seconds="pickerRange.disabledStartTimeSeconds"
-                    :clearable="false"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_END_TIME')">
@@ -29,7 +28,6 @@
                     :disabled-hours="pickerRange.disabledEndTimeHours"
                     :disabled-minutes="pickerRange.disabledEndTimeMinutes"
                     :disabled-seconds="pickerRange.disabledEndTimeSeconds"
-                    :clearable="false"
                 />
             </el-form-item>
         </el-form>

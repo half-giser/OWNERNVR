@@ -136,12 +136,9 @@ export default function WebGLPlayer(canvas: HTMLCanvasElement, option: Record<st
             return
         }
 
-        // const gl = this.gl
         gl.viewport(viewLeft, viewBottom, viewWidth, viewHeight)
         gl.clearColor(0.0, 0.0, 0.0, 0.0)
         gl.clear(gl.COLOR_BUFFER_BIT)
-        // console.log('gl.MAX_VIEWPORT_DIMS', gl.getParameter(gl.MAX_VIEWPORT_DIMS))
-        // console.log('gl.VIEWPORT', gl.getParameter(gl.VIEWPORT))
 
         gl.y.fill(width, height, videoFrame.subarray(0, uOffset))
         gl.u.fill(width >> 1, height >> 1, videoFrame.subarray(uOffset, uOffset + vOffset))

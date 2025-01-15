@@ -14,7 +14,6 @@
         <el-menu
             v-show="pageData.tabs.length > 1"
             :default-active="pageData.tabs.length > 0 ? pageData.tabs[0].value : ''"
-            class="el-menu-demo"
             mode="horizontal"
             @select="changeTab"
         >
@@ -65,7 +64,23 @@
 
 <style lang="scss" scoped>
 .el-menu {
+    border: 1px solid var(--table-border);
+
     --el-menu-horizontal-height: 30px;
+}
+
+.el-menu--horizontal > .el-menu-item {
+    color: var(--main-text);
+
+    &.is-active {
+        background-color: var(--primary);
+        color: var(--main-text-active) !important;
+    }
+
+    &:hover {
+        color: var(--primary);
+        background-color: var(--primary-light);
+    }
 }
 
 .streamTable {

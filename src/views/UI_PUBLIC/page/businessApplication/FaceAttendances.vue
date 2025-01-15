@@ -65,7 +65,7 @@
                         </el-checkbox-group>
                     </el-form-item>
                     <el-form-item>
-                        <el-form-item :label="Translate('IDCS_START_TIME')">
+                        <el-form-item :label="Translate('IDCS_ATTENDANCE_START_TIME')">
                             <el-time-picker
                                 v-model="formData.startTime"
                                 format="HH:mm:ss"
@@ -73,11 +73,10 @@
                                 :disabled-hours="pickerRange.disabledStartTimeHours"
                                 :disabled-minutes="pickerRange.disabledStartTimeMinutes"
                                 :disabled-seconds="pickerRange.disabledStartTimeSeconds"
-                                :clearable="false"
                             />
                         </el-form-item>
                         <el-form-item
-                            :label="Translate('IDCS_END_TIME')"
+                            :label="Translate('IDCS_ATTENDANCE_END_TIME')"
                             class="end-time"
                         >
                             <el-time-picker
@@ -87,7 +86,6 @@
                                 :disabled-hours="pickerRange.disabledEndTimeHours"
                                 :disabled-minutes="pickerRange.disabledEndTimeMinutes"
                                 :disabled-seconds="pickerRange.disabledEndTimeSeconds"
-                                :clearable="false"
                             />
                         </el-form-item>
                     </el-form-item>

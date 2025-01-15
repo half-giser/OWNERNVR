@@ -39,9 +39,6 @@
                     v-model="formData.startTime"
                     format="HH:mm"
                     value-format="HH:mm"
-                    parser=""
-                    editable
-                    prefix-icon=""
                 />
             </el-form-item>
             <el-form-item
@@ -52,8 +49,6 @@
                     v-model="formData.endTime"
                     format="HH:mm"
                     value-format="HH:mm"
-                    editable
-                    prefix-icon=""
                 />
             </el-form-item>
         </el-form>

@@ -59,7 +59,6 @@
                                         v-model="pageData.manualTimeSpan"
                                         is-range
                                         range-separator="-"
-                                        :clearable="false"
                                         format="HH:mm"
                                     />
                                 </div>

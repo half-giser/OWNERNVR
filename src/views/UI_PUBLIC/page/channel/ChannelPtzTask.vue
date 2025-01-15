@@ -56,7 +56,6 @@
                         v-model="formData.startTime"
                         format="HH:mm"
                         value-format="HH:mm"
-                        editable
                         popper-class="base-chl-timepicker"
                         :disabled="!tableData.length"
                     />
@@ -69,7 +68,6 @@
                         v-model="formData.endTime"
                         format="HH:mm"
                         value-format="HH:mm"
-                        editable
                         popper-class="base-chl-timepicker"
                         :disabled="!tableData.length"
                     />
