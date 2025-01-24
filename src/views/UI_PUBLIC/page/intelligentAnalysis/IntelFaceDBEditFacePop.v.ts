@@ -38,8 +38,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const dateTime = useDateTimeStore()
 
         const pageData = ref({
@@ -149,10 +147,7 @@ export default defineComponent({
          */
         const verify = async () => {
             if (!disabled.value && !formData.value.name) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_PROMPT_FULL_NAME_EMPTY'),
-                })
+                openMessageBox(Translate('IDCS_PROMPT_FULL_NAME_EMPTY'))
                 return
             }
 
@@ -207,10 +202,7 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_SAVE_FAIL')
                         break
                 }
-                openMessageBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
         }
 

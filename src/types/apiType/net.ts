@@ -4,6 +4,7 @@
  * @Description: 网络
  */
 import { TableRowStatus } from './base'
+import { type RecordStreamQualityCapsDto } from './record'
 
 /**
  * @description TCP/IP配置表单
@@ -381,17 +382,6 @@ export class NetSubStreamResList {
 }
 
 /**
- * @description 网络子码流码流质量列表项
- */
-export class NetSubStreamQualityCapsList {
-    enct = ''
-    res = ''
-    digitalDefault = 0
-    analogDefault = 0
-    value: string[] = []
-}
-
-/**
  * @description 网络子码流比特范围
  */
 export class NetSubStreamListBitRange {
@@ -413,7 +403,7 @@ export class NetSubStreamList extends TableRowStatus {
         res: [] as NetSubStreamResList[],
     }
     videoEncodeType = ''
-    subStreamQualityCaps: NetSubStreamQualityCapsList[] = []
+    subStreamQualityCaps: RecordStreamQualityCapsDto[] = []
     streamType = ''
     GOP = 0
     resolution = ''

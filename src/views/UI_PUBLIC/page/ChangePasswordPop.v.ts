@@ -38,7 +38,6 @@ export default defineComponent({
         const passwordErrorMessage = ref('')
         const strength = computed(() => getPwdSaftyStrength(formData.value.newPassword))
         const userSession = useUserSessionStore()
-        const { openMessageBox } = useMessageBox()
 
         const rules = ref<FormRules>({
             currentPassword: [
@@ -156,10 +155,7 @@ export default defineComponent({
                         errorMessage.value = Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_NO_PERMISSION')
                         break
                     case ErrorCode.USER_ERROR_NO_USER:
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_DEVICE_USER_NOTEXIST'),
-                        }).then(() => {
+                        openMessageBox(Translate('IDCS_DEVICE_USER_NOTEXIST')).then(() => {
                             Logout()
                         })
                         break

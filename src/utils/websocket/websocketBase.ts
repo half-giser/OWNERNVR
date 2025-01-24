@@ -16,9 +16,7 @@ export default function WebsocketBase(option: WebsocketBaseOption) {
     const RETRY_TIME = 5000 // 重试频率
     const MAX_RETRY = 10 // 最大重试次数
 
-    let ws: WebSocket
-
-    // let ws: WebSocket | null = null // 连接实例
+    let ws: WebSocket // 连接实例
     let heartBeatTimer: NodeJS.Timeout | number = 0 // 心跳定时器
     let retryTimer: NodeJS.Timeout | number = 0 // 重试定时器
     let retryCount = 0 // 当前重试次数

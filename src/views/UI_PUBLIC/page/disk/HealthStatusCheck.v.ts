@@ -8,7 +8,6 @@ import { type DiskHealthInfoDiskList, type DiskHealthInfoDiskDetailList } from '
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
 
         // 磁盘健康状态与显示文本的映射
         const DISK_STATUS_MAPPING: Record<string, string> = {

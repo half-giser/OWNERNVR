@@ -17,9 +17,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
-        const { openNotify } = useNotification()
         const userSession = useUserSessionStore()
         const browserInfo = getBrowserInfo()
 
@@ -51,7 +48,7 @@ export default defineComponent({
             ],
         })
 
-        const plugin = setupPlugin({
+        const plugin = usePlugin({
             onReady: (mode, plugin) => {
                 if (mode.value === 'h5' && isHttpsLogin()) {
                     openNotify(formatHttpsTips(Translate('IDCS_BACKUP_AND_RESTORE_SET')), true)
@@ -70,9 +67,9 @@ export default defineComponent({
                     pageData.value.isExportDisabled = false
                 }
             },
-            onMessage: ($) => {
+            onMessage: ($, stateType) => {
                 //导入或导出进度
-                if ($("statenotify[@type='FileNetTransportProgress']").length) {
+                if (stateType === 'FileNetTransportProgress') {
                     const progress = $('statenotify/progress').text()
                     switch ($('statenotify/action').text()) {
                         case 'Import':
@@ -101,11 +98,13 @@ export default defineComponent({
                             break
                     }
                 }
+
                 //连接成功
-                else if ($("statenotify[@type='connectstate']").length) {
+                if (stateType === 'connectstate') {
                 }
+
                 //网络断开
-                else if ($("statenotify[@type='FileNetTransport']").length) {
+                else if (stateType === 'FileNetTransport') {
                     closeLoading()
                     pageData.value.isEncryptPwd = false
                     if ($('statenotify/errorCode').length) {
@@ -361,17 +360,6 @@ export default defineComponent({
         }
 
         /**
-         * @description 提示框
-         * @param {string} message
-         */
-        const showMsg = (message: string) => {
-            openMessageBox({
-                type: 'info',
-                message,
-            })
-        }
-
-        /**
          * @description 错误信息处理
          * @param {number} errorCode
          */
@@ -386,23 +374,20 @@ export default defineComponent({
                 case ErrorCode.USER_ERROR_NO_USER:
                     // 用户名/密码错误
                     pageData.value.isCheckAuth = true
-                    showMsg(Translate('IDCS_DEVICE_PWD_ERROR'))
+                    openMessageBox(Translate('IDCS_DEVICE_PWD_ERROR'))
                     break
                 case ErrorCode.USER_ERROR_NO_AUTH:
                     // 鉴权账号无相关权限
-                    showMsg(Translate('IDCS_NO_AUTH'))
+                    openMessageBox(Translate('IDCS_NO_AUTH'))
                     break
                 case ErrorCode.USER_ERROR_NODE_NET_DISCONNECT:
-                    showMsg(Translate('IDCS_OCX_NET_DISCONNECT'))
+                    openMessageBox(Translate('IDCS_OCX_NET_DISCONNECT'))
                     break
                 case ErrorCode.USER_ERROR_DEVICE_BUSY:
-                    showMsg(Translate('IDCS_DEVICE_BUSY'))
+                    openMessageBox(Translate('IDCS_DEVICE_BUSY'))
                     break
                 case ErrorCode.USER_ERROR_SERVER_NO_EXISTS:
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_LOGIN_OVERTIME'),
-                    }).finally(() => {
+                    openMessageBox(Translate('IDCS_LOGIN_OVERTIME')).finally(() => {
                         Logout()
                     })
                     break
@@ -410,7 +395,7 @@ export default defineComponent({
                 case ErrorCode.USER_ERROR_FILE_TYPE_ERROR:
                 case ErrorCode.USER_ERROR_FAIL:
                 default:
-                    showMsg(Translate('IDCS_RESTORE_CONFIG_FAIL'))
+                    openMessageBox(Translate('IDCS_RESTORE_CONFIG_FAIL'))
                     break
             }
         }

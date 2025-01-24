@@ -8,8 +8,6 @@ import { UserPasswordSecurityForm } from '@/types/apiType/userAndSecurity'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { closeLoading, openLoading } = useLoading()
-        const { openMessageBox } = useMessageBox()
 
         const formData = ref(new UserPasswordSecurityForm())
 

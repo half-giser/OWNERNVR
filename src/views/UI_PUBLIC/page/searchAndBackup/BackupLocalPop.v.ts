@@ -52,7 +52,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
 
         let recorder: ReturnType<typeof WebsocketRecordBackup> | null = null
 
@@ -201,10 +200,7 @@ export default defineComponent({
             }
 
             if (errorInfo) {
-                openMessageBox({
-                    type: 'info',
-                    message: errorInfo,
-                }).finally(() => {
+                openMessageBox(errorInfo).finally(() => {
                     close()
                 })
             } else {

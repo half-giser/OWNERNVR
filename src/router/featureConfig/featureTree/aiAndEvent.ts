@@ -195,16 +195,12 @@ export default {
                 },
             },
             async beforeEnter(to, from, next) {
-                const { openMessageBox } = useMessageBox()
                 const { Translate } = useLangStore()
                 const flag = await checkChlListCaps('boundary')
                 if (flag) {
                     next()
                 } else {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_ADD_INTEL_CHANNEL_TIP').formatForLang(Translate('IDCS_HUMAN_CAR_OTHER_BOUNDARY')),
-                    })
+                    openMessageBox(Translate('IDCS_ADD_INTEL_CHANNEL_TIP').formatForLang(Translate('IDCS_HUMAN_CAR_OTHER_BOUNDARY')))
                     if (from.fullPath === to.fullPath) {
                         next('/live')
                     } else {
@@ -228,16 +224,12 @@ export default {
                 },
             },
             async beforeEnter(to, from, next) {
-                const { openMessageBox } = useMessageBox()
                 const { Translate } = useLangStore()
                 const flag = await checkChlListCaps('faceRecognition')
                 if (flag) {
                     next()
                 } else {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_ADD_INTEL_CHANNEL_TIP').formatForLang(Translate('IDCS_FACE_RECOGNITION')),
-                    })
+                    openMessageBox(Translate('IDCS_ADD_INTEL_CHANNEL_TIP').formatForLang(Translate('IDCS_FACE_RECOGNITION')))
                     if (from.fullPath === to.fullPath) {
                         next('/live')
                     } else {
@@ -261,16 +253,12 @@ export default {
                 },
             },
             async beforeEnter(to, from, next) {
-                const { openMessageBox } = useMessageBox()
                 const { Translate } = useLangStore()
                 const flag = await checkChlListCaps('vehicleRecognition')
                 if (flag) {
                     next()
                 } else {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_ADD_INTEL_CHANNEL_TIP').formatForLang(Translate('IDCS_VEHICLE_DETECTION')),
-                    })
+                    openMessageBox(Translate('IDCS_ADD_INTEL_CHANNEL_TIP').formatForLang(Translate('IDCS_VEHICLE_DETECTION')))
                     if (from.fullPath === to.fullPath) {
                         next('/live')
                     } else {
@@ -292,16 +280,12 @@ export default {
                 },
             },
             async beforeEnter(to, from, next) {
-                const { openMessageBox } = useMessageBox()
                 const { Translate } = useLangStore()
                 const flag = await checkChlListCaps('more')
                 if (flag) {
                     next()
                 } else {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_ADD_INTEL_CHANNEL_TIP').formatForLang(Translate('IDCS_INTELLIGENT')),
-                    })
+                    openMessageBox(Translate('IDCS_ADD_INTEL_CHANNEL_TIP').formatForLang(Translate('IDCS_INTELLIGENT')))
                     if (from.fullPath === to.fullPath) {
                         next('/live')
                     } else {
@@ -396,7 +380,6 @@ export default {
             },
             // 撤防布防界面，若没有开启远程权限，提示开启权限，页面不跳转
             async beforeEnter(to, from, next) {
-                const { openMessageBox } = useMessageBox()
                 const { Translate } = useLangStore()
                 const result = await querySystemDisArmParam()
                 const $ = queryXml(result)
@@ -404,10 +387,7 @@ export default {
                 if (remoteSwitch) {
                     next()
                 } else {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_DISARM_AUTH_TIP'),
-                    })
+                    openMessageBox(Translate('IDCS_DISARM_AUTH_TIP'))
                     if (from.fullPath === to.fullPath) {
                         next('/live')
                     } else {

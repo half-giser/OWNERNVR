@@ -12,8 +12,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
-        const { openMessageBox } = useMessageBox()
 
         const pageData = ref({
             // 是否显示编辑弹窗

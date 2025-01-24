@@ -10,8 +10,6 @@ import { AccessConfigForm, AccessLockDataItem } from '@/types/apiType/business'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
-        const { openMessageBox } = useMessageBox()
 
         const pageData = ref({
             // chlId-当前选中的通道Id
@@ -64,18 +62,6 @@ export default defineComponent({
             INPUT: Translate('IDCS_WIEGAND_CONFIG_ENUM_INPUT'), // 韦根输入
             OUTPUT: Translate('IDCS_WIEGAND_CONFIG_ENUM_OUTPUT'), // 韦根输出
             OFF: Translate('IDCS_OFF'), // 关
-        }
-
-        // 韦根模式与文本映射
-        const WIEGAND_MODE_MAPPING: Record<string, string> = {
-            '26bit(8)': '26bit(8)',
-            '26bit(10)': '26bit(10)',
-            '34bit': '34bit',
-            '37bit': '37bit',
-            '42bit': '42bit',
-            '46bit': '46bit',
-            '58bit': '58bit',
-            '66bit': '66bit',
         }
 
         /**
@@ -204,7 +190,7 @@ export default defineComponent({
                 pageData.value.doorLockActionEnum = $('types/wiegandMode/enum').map((item) => {
                     return {
                         value: item.text(),
-                        label: WIEGAND_MODE_MAPPING[item.text()],
+                        label: item.text(),
                     }
                 })
 
@@ -363,10 +349,7 @@ export default defineComponent({
                 if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
                     errorMsg = Translate('IDCS_NO_PERMISSION')
                 }
-                openMessageBox({
-                    type: 'info',
-                    message: errorMsg,
-                })
+                openMessageBox(errorMsg)
             }
         }
 

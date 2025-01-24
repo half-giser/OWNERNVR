@@ -8,8 +8,6 @@ import { type PkMgrEnterExitManageList } from '@/types/apiType/business'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
-        const { openMessageBox } = useMessageBox()
         const cababilityStore = useCababilityStore()
 
         // 方向-Map
@@ -138,10 +136,7 @@ export default defineComponent({
                 if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
                     errorMsg = Translate('IDCS_NO_PERMISSION')
                 }
-                openMessageBox({
-                    type: 'info',
-                    message: errorMsg,
-                })
+                openMessageBox(errorMsg)
             }
         }
 

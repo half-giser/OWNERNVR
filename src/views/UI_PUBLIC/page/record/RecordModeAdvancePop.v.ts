@@ -11,6 +11,10 @@ export default defineComponent({
             type: Array as PropType<Array<RecordModeDto>>,
             required: true,
         },
+        advanceRecModeId: {
+            type: String,
+            required: true,
+        },
     },
     emits: {
         confirm(e: string[]) {
@@ -20,16 +24,16 @@ export default defineComponent({
             return true
         },
     },
-    setup() {
-        const userSessionStore = useUserSessionStore()
+    setup(prop) {
+        const open = () => {
+            // 选中当前生效的高级模式的时间
+            if (prop.advanceRecModeId) {
+                selectedEvents.value = prop.advanceRecModeId.split('_')
+            }
+        }
 
         //选择的值
         const selectedEvents = ref<string[]>([])
-
-        // 选中当前生效的高级模式的时间
-        if (userSessionStore.advanceRecModeId) {
-            selectedEvents.value = userSessionStore.advanceRecModeId.split('_')
-        }
 
         const isIntensiveDisabled = computed(() => {
             return selectedEvents.value.includes(REC_MODE_TYPE.POS)
@@ -42,6 +46,7 @@ export default defineComponent({
         })
 
         return {
+            open,
             selectedEvents,
             isIntensiveDisabled,
         }

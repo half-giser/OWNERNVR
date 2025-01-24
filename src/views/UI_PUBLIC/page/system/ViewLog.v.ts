@@ -14,8 +14,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
         const lang = useLangStore()
         const dateTime = useDateTimeStore()
@@ -470,10 +468,7 @@ export default defineComponent({
          */
         const changeStartTime = (value: string) => {
             if (dayjs(value, dateTime.dateTimeFormat).isAfter(dayjs(pageData.value.endTime, dateTime.dateTimeFormat))) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_END_TIME_GREATER_THAN_START'),
-                })
+                openMessageBox(Translate('IDCS_END_TIME_GREATER_THAN_START'))
                 pageData.value.startTime = formData.value.startTime
                 return
             }
@@ -487,10 +482,7 @@ export default defineComponent({
          */
         const changeEndTime = (value: string) => {
             if (dayjs(value, dateTime.dateTimeFormat).isBefore(dayjs(pageData.value.startTime, dateTime.dateTimeFormat))) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_END_TIME_GREATER_THAN_START'),
-                })
+                openMessageBox(Translate('IDCS_END_TIME_GREATER_THAN_START'))
                 pageData.value.endTime = formData.value.endTime
                 return
             }
@@ -504,10 +496,7 @@ export default defineComponent({
         const handleExport = async () => {
             // 从导出逻辑上看，此处导出是用浏览器原生实现，与插件无关，不明白为何插件未安装或不可用时禁止导出
             // if (!Plugin.IsSupportH5() && !Plugin.IsInstallPlugin()) {
-            //     openMessageBox({
-            //         type: 'info',
-            //         message: Plugin.pluginNoticeHtml.value,
-            //     })
+            //     openMessageBox(Plugin.pluginNoticeHtml.value)
             //     return
             // }
             // if (!Plugin.IsSupportH5() && !Plugin.IsPluginAvailable()) {
@@ -529,10 +518,7 @@ export default defineComponent({
                     message: Translate('IDCS_EXPORT_SUCCESS') + `(${Translate('IDCS_EXPORT_LOG_OVER_LIMIT_TIP')})`,
                 })
             } catch (e) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_EXPORT_FAIL'),
-                })
+                openMessageBox(Translate('IDCS_EXPORT_FAIL'))
             }
         }
 
@@ -595,10 +581,7 @@ export default defineComponent({
             }
 
             if (!playList.length) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_ASSOCIATE_CHANNEL_RECORD'),
-                })
+                openMessageBox(Translate('IDCS_NO_ASSOCIATE_CHANNEL_RECORD'))
                 return
             }
 

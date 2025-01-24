@@ -26,8 +26,6 @@ export default defineComponent({
     },
     setup(prop, { emit }) {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
-        const { openMessageBox } = useMessageBox()
         const router = useRouter()
 
         const formRef = useFormRef()
@@ -83,18 +81,12 @@ export default defineComponent({
             const valid = await formRef.value!.validate()
             if (valid) {
                 if (!selNum.value) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_PROMPT_CHANNEL_GROUP_EMPTY'),
-                    })
+                    openMessageBox(Translate('IDCS_PROMPT_CHANNEL_GROUP_EMPTY'))
                     return false
                 }
 
                 if (selNum.value > chlGroupCountLimit) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_CHL_GROUP_CHL_OVER_TIPS').formatForLang(chlGroupCountLimit),
-                    })
+                    openMessageBox(Translate('IDCS_CHL_GROUP_CHL_OVER_TIPS').formatForLang(chlGroupCountLimit))
                     return false
                 }
             }
@@ -126,17 +118,17 @@ export default defineComponent({
                         handleCancel()
                     })
                 } else {
-                    const errorCdoe = $('errorCode').text().num()
+                    const errorCode = $('errorCode').text().num()
                     let msg = Translate('IDCS_SAVE_DATA_FAIL')
-                    if (errorCdoe === ErrorCode.USER_ERROR_NAME_EXISTED) {
-                        msg = Translate('IDCS_PROMPT_CHANNEL_GROUP_NAME_EXIST')
-                    } else if (errorCdoe === ErrorCode.USER_ERROR_OVER_LIMIT) {
-                        msg = Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT')
+                    switch (errorCode) {
+                        case ErrorCode.USER_ERROR_NAME_EXISTED:
+                            msg = Translate('IDCS_PROMPT_CHANNEL_GROUP_NAME_EXIST')
+                            break
+                        case ErrorCode.USER_ERROR_OVER_LIMIT:
+                            msg = Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT')
+                            break
                     }
-                    openMessageBox({
-                        type: 'info',
-                        message: msg,
-                    })
+                    openMessageBox(msg)
                 }
             })
         }

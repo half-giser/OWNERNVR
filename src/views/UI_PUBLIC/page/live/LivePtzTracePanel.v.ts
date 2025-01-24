@@ -42,7 +42,6 @@ export default defineComponent({
     },
     setup(prop) {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
         const systemCaps = useCababilityStore()
 
         // 最大的巡航线数量
@@ -101,10 +100,7 @@ export default defineComponent({
             }
 
             if (listData.value.length >= pageData.value.maxCount) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
-                })
+                openMessageBox(Translate('IDCS_OVER_MAX_NUMBER_LIMIT'))
                 return
             }
             pageData.value.isAddPop = true
@@ -133,10 +129,7 @@ export default defineComponent({
         const playTrace = async () => {
             const item = listData.value[pageData.value.active]
             if (!item) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_PROMPT_CHANNEL_TRACE_EMPTY'),
-                })
+                openMessageBox(Translate('IDCS_PROMPT_CHANNEL_TRACE_EMPTY'))
                 return
             }
 
@@ -240,10 +233,7 @@ export default defineComponent({
             const index = pageData.value.active
             const item = listData.value[pageData.value.active]
             if (!item) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_PROMPT_CHANNEL_TRACE_EMPTY'),
-                })
+                openMessageBox(Translate('IDCS_PROMPT_CHANNEL_TRACE_EMPTY'))
                 return
             }
 

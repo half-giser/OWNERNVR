@@ -64,7 +64,7 @@ export default defineComponent({
             return Object.entries(obj)
                 .map((item) => {
                     return {
-                        label: item[1] === '--' ? UNKNOWN : str ? (Translate(item[1]).formatForLang(str) as string) : Translate(item[1]),
+                        label: item[1] === '--' ? UNKNOWN : str ? Translate(item[1]).formatForLang(str) : Translate(item[1]),
                         value: Number(item[0]),
                     }
                 })
@@ -76,6 +76,7 @@ export default defineComponent({
                     if (b.value === 0) {
                         return -2
                     }
+
                     return a.value - b.value
                 })
         }

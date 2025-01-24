@@ -3,12 +3,13 @@
  * @Date: 2023-04-28 17:57:48
  * @Description: 常量定义
  */
-import { type UserPermissionChannelAuthList } from '@/types/apiType/userAndSecurity'
 
 export * as ErrorCode from './const/errorcode'
 export * as LocalCacheKey from './const/localCacheKey'
 export * from './const/date'
 export * from './const/lang'
+export * from './const/record'
+export * from './const/auth'
 
 export const DEFAULT_EMPTY_ID = '{00000000-0000-0000-0000-000000000000}'
 
@@ -90,31 +91,6 @@ export const DEFAULT_PASSWORD_STREMGTH_MAPPING: Record<string, number> = {
 }
 
 /**
- * @description 默认权限组的名字映射
- */
-export const DEFAULT_AUTH_GROUP_MAPPING: Record<string, string> = {
-    Administrator: 'IDCS_DEFAULT_AUTHGROUP_SUPER',
-    Advanced: 'IDCS_DEFAULT_ADVANCES',
-    Ordinary: 'IDCS_DEFAULT_ORDINARY',
-}
-
-/**
- * @description 默认通道权限列表
- */
-export const DEFAULT_CHANNEL_AUTH_LIST: ('_lp' | '_spr' | '_bk' | '_ad' | '_ptz' | '@lp' | '@spr' | '@bk' | '@ad' | '@ptz')[] = [
-    '_lp',
-    '_spr',
-    '_bk',
-    '_ad',
-    '_ptz',
-    '@lp',
-    '@spr',
-    '@bk',
-    '@ad',
-    '@ptz',
-]
-
-/**
  * @description 默认开关选项
  */
 export const DEFAULT_SWITCH_OPTIONS: SelectOption<string, string>[] = [
@@ -125,6 +101,17 @@ export const DEFAULT_SWITCH_OPTIONS: SelectOption<string, string>[] = [
     {
         label: 'IDCS_OFF',
         value: 'false',
+    },
+]
+
+export const DEFAULT_BOOL_SWITCH_OPTIONS: SelectOption<boolean, string>[] = [
+    {
+        label: 'IDCS_ON',
+        value: true,
+    },
+    {
+        label: 'IDCS_OFF',
+        value: false,
     },
 ]
 
@@ -139,61 +126,6 @@ export const DEFAULT_ALWAYS_OPTIONS: SelectOption<string, string>[] = [
     {
         label: 'IDCS_ALWAYS_OPEN',
         value: 'NO',
-    },
-]
-
-// 通道权限Tabs
-export const DEFAULT_CHANNEL_AUTH_TABS = ['IDCS_LOCAL_RIGHT', 'IDCS_REMOTE_RIGHT']
-
-/**
- * @description 默认本地通道权限列表
- */
-export const DEFAULT_LOCAL_CHANNEL_AUTH_LIST: SelectOption<keyof UserPermissionChannelAuthList, string>[] = [
-    {
-        value: '_lp',
-        label: 'IDCS_PREVIEW',
-    },
-    {
-        value: '_spr',
-        label: 'IDCS_SEARCH_AND_PLAYBACK',
-    },
-    {
-        value: '_bk',
-        label: 'IDCS_SEARCH_AND_BACKUP',
-    },
-    {
-        value: '_ad',
-        label: 'IDCS_AUDIO_FREQUENCY',
-    },
-    {
-        value: '_ptz',
-        label: 'IDCS_PTZ_CONTROL',
-    },
-]
-
-/**
- * @description 默认远程通道权限列表
- */
-export const DEFAULT_REMOTE_CHANNEL_AUTH_LIST: SelectOption<keyof UserPermissionChannelAuthList, string>[] = [
-    {
-        value: '@lp',
-        label: 'IDCS_PREVIEW',
-    },
-    {
-        value: '@spr',
-        label: 'IDCS_SEARCH_AND_PLAYBACK',
-    },
-    {
-        value: '@bk',
-        label: 'IDCS_SEARCH_AND_BACKUP',
-    },
-    {
-        value: '@ad',
-        label: 'IDCS_AUDIO_FREQUENCY',
-    },
-    {
-        value: '@ptz',
-        label: 'IDCS_PTZ_CONTROL',
     },
 ]
 

@@ -36,20 +36,18 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
         const DEFAULT_BIRTHDAY = formatDate(new Date(), 'YYYY/MM/DD')
 
-        const plugin = setupPlugin({
+        const plugin = usePlugin({
             onReady: (mode, plugin) => {
                 if (mode.value === 'ocx' && prop.type === 'both') {
                     const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
                     plugin.ExecuteCmd(sendXML)
                 }
             },
-            onMessage: ($) => {
-                if ($('statenotify[@type="UploadIPCAudioBase64"]').length) {
+            onMessage: ($, stateType) => {
+                if (stateType === 'UploadIPCAudioBase64') {
                     const $item = queryXml($('statenotify')[0].element)
                     if ($item('status').text() === 'success') {
                         const fileBase64 = $item('base64').text()
@@ -64,18 +62,12 @@ export default defineComponent({
                             case ErrorCode.USER_ERROR_KEYBOARDINDEX_ERROR:
                                 closeLoading()
                                 resetOCXData()
-                                openMessageBox({
-                                    type: 'info',
-                                    message: Translate('IDCS_ADD_FACE_FAIL') + ',' + Translate('IDCS_PICTURE_SIZE_LIMIT_TIP'),
-                                })
+                                openMessageBox(Translate('IDCS_ADD_FACE_FAIL') + ',' + Translate('IDCS_PICTURE_SIZE_LIMIT_TIP'))
                                 return
                             case ErrorCode.USER_ERROR_SPECIAL_CHAR_2:
                                 closeLoading()
                                 resetOCXData()
-                                openMessageBox({
-                                    type: 'info',
-                                    message: Translate('IDCS_FILE_NOT_AVAILABLE'),
-                                })
+                                openMessageBox(Translate('IDCS_FILE_NOT_AVAILABLE'))
                                 return
                         }
                     }
@@ -88,15 +80,13 @@ export default defineComponent({
                         uploadOCXFile()
                     }
                 }
+
                 //网络断开
-                else if ($('statenotify[@type="FileNetTransport"]').length) {
+                if (stateType === 'FileNetTransport') {
                     closeLoading()
                     resetOCXData()
                     if ($('statenotify/errorCode').text().num() === ErrorCode.USER_ERROR_NODE_NET_DISCONNECT) {
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_OCX_NET_DISCONNECT'),
-                        })
+                        openMessageBox(Translate('IDCS_OCX_NET_DISCONNECT'))
                     }
                 }
             },
@@ -119,10 +109,7 @@ export default defineComponent({
          */
         const checkImportFaceImgCount = (len: number) => {
             if (len > prop.limit) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_SELECT_FACE_UPTO_MAX').formatForLang(prop.limit),
-                })
+                openMessageBox(Translate('IDCS_SELECT_FACE_UPTO_MAX').formatForLang(prop.limit))
                 return false
             }
             return true
@@ -278,10 +265,7 @@ export default defineComponent({
             }
 
             if (hasNotSupportedType) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_FILE_NOT_AVAILABLE'),
-                })
+                openMessageBox(Translate('IDCS_FILE_NOT_AVAILABLE'))
                 return
             }
 
@@ -314,10 +298,7 @@ export default defineComponent({
                 closeLoading()
                 resetOCXData()
             } catch (e) {
-                openMessageBox({
-                    type: 'info',
-                    message: e as string,
-                })
+                openMessageBox(e as string)
                 closeLoading()
                 resetOCXData()
                 return

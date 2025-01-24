@@ -1,0 +1,16 @@
+@use 'sass:map';
+
+/**
+ * 雪碧图mixin
+ * @param $img 雪碧图的变量，见sprites/sprites.scss
+ * @param $index 雪碧图分块的索引，下标从0开始
+ * @param $chunk 雪碧图分块数量
+ */
+@mixin sprite($img, $index: 0, $chunk: 1) {
+    width: calc(map.get($img, 'width') / $chunk);
+    height: map.get($img, 'height');
+    background-image: url('@/components/sprite/sprites.png');
+    background-repeat: no-repeat;
+    background-position-x: -1 * (map.get($img, 'x') + calc($index / $chunk) * map.get($img, 'width'));
+    background-position-y: -1 * map.get($img, 'y');
+}

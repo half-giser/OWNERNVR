@@ -10,8 +10,6 @@ import { PkMgrBasicConfigForm } from '@/types/apiType/business'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
-        const { openMessageBox } = useMessageBox()
 
         const formData = ref(new PkMgrBasicConfigForm())
         const formRef = useFormRef()
@@ -121,15 +119,15 @@ export default defineComponent({
                     } else {
                         const errorCode = $('errorCode').text().num()
                         let errorMsg = Translate('IDCS_SAVE_DATA_FAIL')
-                        if (errorCode === ErrorCode.USER_ERROR_INVALID_PARAM) {
-                            errorMsg = Translate('IDCS_FTP_ERROR_INVALID_PARAM')
-                        } else if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
-                            errorMsg = Translate('IDCS_NO_PERMISSION')
+                        switch (errorCode) {
+                            case ErrorCode.USER_ERROR_INVALID_PARAM:
+                                errorMsg = Translate('IDCS_FTP_ERROR_INVALID_PARAM')
+                                break
+                            case ErrorCode.USER_ERROR_NO_AUTH:
+                                errorMsg = Translate('IDCS_NO_PERMISSION')
+                                break
                         }
-                        openMessageBox({
-                            type: 'info',
-                            message: errorMsg,
-                        })
+                        openMessageBox(errorMsg)
                     }
                 }
             })

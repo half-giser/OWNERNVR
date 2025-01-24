@@ -8,8 +8,6 @@ import { NetUPnPForm, type NetUPnPPortDto } from '@/types/apiType/net'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
         // 显示文本映射
         const TRANS_MAPPING: Record<string, string> = {
@@ -136,10 +134,7 @@ export default defineComponent({
         const setData = async () => {
             const isHasSamePort = hasSamePort()
             if (isHasSamePort) {
-                openMessageBox({
-                    type: 'info',
-                    message: isHasSamePort,
-                })
+                openMessageBox(isHasSamePort)
                 return
             }
 

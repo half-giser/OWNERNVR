@@ -27,38 +27,8 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
 
-        const week = [
-            {
-                value: 1,
-                label: Translate('IDCS_MONDAY'),
-            },
-            {
-                value: 2,
-                label: Translate('IDCS_TUESDAY'),
-            },
-            {
-                value: 3,
-                label: Translate('IDCS_WEDNESDAY'),
-            },
-            {
-                value: 4,
-                label: Translate('IDCS_THURSDAY'),
-            },
-            {
-                value: 5,
-                label: Translate('IDCS_FRIDAY'),
-            },
-            {
-                value: 6,
-                label: Translate('IDCS_SATURDAY'),
-            },
-            {
-                value: 7,
-                label: Translate('IDCS_SUNDAY'),
-            },
-        ]
+        const week = objectToOptions(getTranslateMapping(DEFAULT_WEEK_MAPPING2), 'number').slice(1)
 
         const pageData = ref({
             expireTime: 1,
@@ -74,20 +44,7 @@ export default defineComponent({
             const result = await queryTimeCfg()
             commLoadResponseHandler(result, ($) => {
                 const dateFormat = $('content/formatInfo/date').text()
-                switch (dateFormat) {
-                    case 'year-month-day':
-                        pageData.value.dateFormat = 'YYYY/MM/DD'
-                        break
-                    case 'month-day-year':
-                        pageData.value.dateFormat = 'MM/DD/YYYY'
-                        break
-                    case 'day-month-year':
-                        pageData.value.dateFormat = 'DD/MM/YYYY'
-                        break
-                    default:
-                        pageData.value.dateFormat = 'YYYY/MM/DD'
-                        break
-                }
+                pageData.value.dateFormat = DEFAULT_MOMENT_MAPPING[dateFormat] || 'YYYY/MM/DD'
             })
         }
 
@@ -126,26 +83,17 @@ export default defineComponent({
         // 提交数据
         const apply = () => {
             if (!pageData.value.expireTime) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_EXPIRE_TIME_EMPTY'),
-                })
+                openMessageBox(Translate('IDCS_EXPIRE_TIME_EMPTY'))
                 return
             }
 
             if (pageData.value.expireTime < 1 || pageData.value.expireTime > 8760) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_EXPIRE_TIME_INVALID'),
-                })
+                openMessageBox(Translate('IDCS_EXPIRE_TIME_INVALID'))
                 return
             }
 
             if (pageData.value.weekArr.length === 7) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_KEEPVIDEO_WEEK_ALL'),
-                })
+                openMessageBox(Translate('IDCS_KEEPVIDEO_WEEK_ALL'))
                 return
             }
             const unit = pageData.value.expireTime === 1 ? Translate('IDCS_HOUR') : Translate('IDCS_HOURS')

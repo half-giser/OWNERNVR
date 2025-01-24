@@ -21,8 +21,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
         // 名称被修改时保存原始名称
@@ -37,9 +35,9 @@ export default defineComponent({
             scheduleList: [] as SelectOption<string, string>[],
             isSchedulePop: false,
             // 类型
-            typeList: getAlwaysOptions(),
+            typeList: getTranslateOptions(DEFAULT_ALWAYS_OPTIONS),
             // 启用、推送、蜂鸣器、消息框弹出、email
-            switchList: getSwitchOptions(),
+            switchList: getTranslateOptions(DEFAULT_SWITCH_OPTIONS),
             // 持续时间列表
             durationList: [] as SelectOption<string, string>[],
             // 是否支持声音
@@ -150,11 +148,14 @@ export default defineComponent({
             const result = await queryAlarmIn(sendXml)
             rowData.status = ''
             commLoadResponseHandler(result, ($) => {
+                const $param = queryXml($('content/param')[0].element)
+                const $trigger = queryXml($('content/trigger')[0].element)
+
                 rowData.disabled = false
-                if (!pageData.value.durationList.length && $('content/param/holdTimeNote').length) {
-                    pageData.value.durationList = $('content/param/holdTimeNote')
+                if (!pageData.value.durationList.length && $param('holdTimeNote').length) {
+                    pageData.value.durationList = $param('holdTimeNote')
                         .text()
-                        .split(',')
+                        .array()
                         .map((item) => {
                             const itemNum = Number(item)
                             return {
@@ -164,12 +165,9 @@ export default defineComponent({
                         })
                 }
 
-                const content = $('content')[0]
-                const $content = queryXml(content.element)
-
-                const index = $content('param/index').text().num() + 1
-                const devDescTemp = $content('param/devDesc').text()
-                const isEditable = $content('param/devDesc').attr('isEditable') === 'false' ? false : true
+                const index = $param('index').text().num() + 1
+                const devDescTemp = $param('devDesc').text()
+                const isEditable = $param('devDesc').attr('isEditable').bool()
                 let serialNum = ''
                 if (rowData.alarmInType === 'local') {
                     serialNum = Translate('IDCS_LOCAL') + '-' + rowData.nodeIndex
@@ -181,27 +179,27 @@ export default defineComponent({
 
                 rowData.isEditable = isEditable
                 rowData.serialNum = serialNum
-                rowData.name = $content('param/name').text()
-                rowData.originalName = $content('param/name').text()
-                rowData.type = $content('param/voltage').text()
-                rowData.switch = $content('param/switch').text()
-                rowData.holdTimeNote = $content('param/holdTimeNote').text()
-                rowData.holdTime = $content('param/holdTime').text()
-                rowData.schedule = $content('trigger/triggerSchedule/schedule').attr('id')
+                rowData.name = $param('name').text()
+                rowData.originalName = $param('name').text()
+                rowData.type = $param('voltage').text()
+                rowData.switch = $param('switch').text()
+                rowData.holdTimeNote = $param('holdTimeNote').text()
+                rowData.holdTime = $param('holdTime').text()
+                rowData.schedule = $trigger('triggerSchedule/schedule').attr('id')
                 rowData.oldSchedule = rowData.schedule
                 rowData.record = {
-                    switch: $content('trigger/sysRec/switch').text().bool(),
-                    chls: $content('trigger/sysRec/chls/item').map((item) => {
+                    switch: $trigger('sysRec/switch').text().bool(),
+                    chls: $trigger('sysRec/chls/item').map((item) => {
                         return {
                             value: item.attr('id'),
                             label: item.text(),
                         }
                     }),
                 }
-                rowData.sysAudio = $content('trigger/sysAudio').attr('id') || DEFAULT_EMPTY_ID
+                rowData.sysAudio = $trigger('sysAudio').attr('id') || DEFAULT_EMPTY_ID
                 rowData.snap = {
-                    switch: $content('trigger/sysSnap/switch').text().bool(),
-                    chls: $content('trigger/sysSnap/chls/item').map((item) => {
+                    switch: $trigger('sysSnap/switch').text().bool(),
+                    chls: $trigger('sysSnap/chls/item').map((item) => {
                         return {
                             value: item.attr('id'),
                             label: item.text(),
@@ -209,8 +207,8 @@ export default defineComponent({
                     }),
                 }
                 rowData.alarmOut = {
-                    switch: $content('trigger/alarmOut/switch').text().bool(),
-                    alarmOuts: $content('trigger/alarmOut/alarmOuts/item').map((item) => {
+                    switch: $trigger('alarmOut/switch').text().bool(),
+                    alarmOuts: $trigger('alarmOut/alarmOuts/item').map((item) => {
                         return {
                             value: item.attr('id'),
                             label: item.text(),
@@ -218,20 +216,20 @@ export default defineComponent({
                     }),
                 }
                 rowData.popVideo = {
-                    switch: $content('trigger/popVideo/switch').text(),
+                    switch: $trigger('popVideo/switch').text(),
                     chl: {
-                        id: $content('trigger/popVideo/chl').attr('id'),
-                        innerText: $content('trigger/popVideo/chl').text(),
+                        id: $trigger('popVideo/chl').attr('id'),
+                        innerText: $trigger('popVideo/chl').text(),
                     },
                 }
                 rowData.preset = {
-                    switch: $content('trigger/preset/switch').text().bool(),
+                    switch: $trigger('preset/switch').text().bool(),
                     presets: [],
                 }
-                rowData.msgPushSwitch = $content('trigger/msgPushSwitch').text()
-                rowData.buzzerSwitch = $content('trigger/buzzerSwitch').text()
-                rowData.emailSwitch = $content('trigger/emailSwitch').text()
-                rowData.popMsgSwitch = $content('trigger/popMsgSwitch').text()
+                rowData.msgPushSwitch = $trigger('msgPushSwitch').text()
+                rowData.buzzerSwitch = $trigger('buzzerSwitch').text()
+                rowData.emailSwitch = $trigger('emailSwitch').text()
+                rowData.popMsgSwitch = $trigger('popMsgSwitch').text()
 
                 const audioData = pageData.value.audioList.filter((item) => {
                     item.value === rowData.sysAudio
@@ -241,7 +239,7 @@ export default defineComponent({
                     rowData.sysAudio = DEFAULT_EMPTY_ID
                 }
 
-                $content('trigger/preset/presets/item').forEach((item) => {
+                $trigger('preset/presets/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     rowData.preset.presets.push({
                         index: $item('index').text(),
@@ -263,26 +261,17 @@ export default defineComponent({
         const blurName = (row: AlarmSensorEventDto) => {
             const name = row.name
             if (!checkChlName(name)) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'),
-                })
+                openMessageBox(Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'))
                 row.name = originalName.value
             } else {
                 if (!name) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_PROMPT_NAME_EMPTY'),
-                    })
+                    openMessageBox(Translate('IDCS_PROMPT_NAME_EMPTY'))
                     row.name = originalName.value
                 }
 
                 for (const item of tableData.value) {
                     if (item.id !== row.id && name === item.name) {
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_NAME_SAME'),
-                        })
+                        openMessageBox(Translate('IDCS_NAME_SAME'))
                         row.name = originalName.value
                         break
                     }

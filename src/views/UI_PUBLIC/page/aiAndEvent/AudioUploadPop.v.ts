@@ -31,7 +31,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
 
         const pageData = ref({
             title: '',
@@ -78,16 +77,10 @@ export default defineComponent({
 
             if (prop.type === 'nvrAudio' && files[0].name.indexOf('.mp3') === -1) {
                 // 过滤非mp3文件
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_SELECT_MP3_FILE'),
-                })
+                openMessageBox(Translate('IDCS_SELECT_MP3_FILE'))
                 return
             } else if (prop.type === 'ipcAudio' && files[0].name.indexOf('.wav') === -1) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_CHOOSE_TDB_FILE').formatForLang('wav'),
-                })
+                openMessageBox(Translate('IDCS_NO_CHOOSE_TDB_FILE').formatForLang('wav'))
                 return
             }
             rawFile = files[0]
@@ -107,7 +100,7 @@ export default defineComponent({
                     // let audioFileLimitSize = prop.ipcRowData.audioFileLimitSize
                     const audioFileLimitSize = (Number(prop.ipcRowData.audioFileLimitSize) / 1024).toFixed(2)
                     if (fileSize > audioFileLimitSize) {
-                        showMsg(Translate('IDCS_OUT_FILE_SIZE'))
+                        openMessageBox(Translate('IDCS_OUT_FILE_SIZE'))
                         return
                     }
                     const sendXml = rawXml`
@@ -137,7 +130,7 @@ export default defineComponent({
                 } else {
                     if (Number(fileSize) > 1.5) {
                         // 上传的音乐文件必须小于1.5MB
-                        showMsg(Translate('IDCS_OUT_FILE_SIZE'))
+                        openMessageBox(Translate('IDCS_OUT_FILE_SIZE'))
                         return
                     }
                     const sendXml = rawXml`
@@ -161,24 +154,17 @@ export default defineComponent({
             })
         }
 
-        const showMsg = (msg: string) => {
-            openMessageBox({
-                type: 'info',
-                message: msg,
-            })
-        }
-
         const handleErrorMsg = (errorCode: number) => {
             if (errorCode === ErrorCode.USER_ERROR_CLIENT_LIMITED_BY_LITE_TYPE) {
-                showMsg(Translate('IDCS_OUT_FILE_SIZE'))
+                openMessageBox(Translate('IDCS_OUT_FILE_SIZE'))
             } else if (errorCode === ErrorCode.USER_ERROR_NAME_EXISTED) {
-                showMsg(Translate('IDCS_NAME_SAME'))
+                openMessageBox(Translate('IDCS_NAME_SAME'))
             } else if (errorCode === ErrorCode.USER_ERROR_DEV_RESOURCE_LIMITED) {
-                showMsg(Translate('IDCS_CONFIG_SPACE_NOT_ENOUGH'))
+                openMessageBox(Translate('IDCS_CONFIG_SPACE_NOT_ENOUGH'))
             } else if (errorCode === ErrorCode.USER_ERROR_NODE_NET_DISCONNECT) {
-                showMsg(Translate('IDCS_OCX_NET_DISCONNECT'))
+                openMessageBox(Translate('IDCS_OCX_NET_DISCONNECT'))
             } else {
-                showMsg(Translate('IDCS_AUDIO_FILE_TASK_ERROR').formatForLang(pageData.value.uploadFileName))
+                openMessageBox(Translate('IDCS_AUDIO_FILE_TASK_ERROR').formatForLang(pageData.value.uploadFileName))
             }
         }
 

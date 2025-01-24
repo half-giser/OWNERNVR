@@ -40,15 +40,6 @@ export default function CanvasOSD(option: CanvasOSDOption) {
     const OSD_COLOR: string | CanvasGradient | CanvasPattern = '#f00' // osd颜色
     const OSD_FONT_SIZE = 14 // osd字体大小
     const OSD_FONT = OSD_FONT_SIZE + 'px Arial'
-    const DATE_FORMAT_MAP = {
-        'year-month-day': 'yyyy/MM/dd',
-        'month-day-year': 'MM/dd/yyyy',
-        'day-month-year': 'dd/MM/yyyy',
-    }
-    const TIME_FORMAT_MAP = {
-        12: 'hh:mm:ss tt',
-        24: 'HH:mm:ss',
-    }
     // 通道名osd参数默认配置
     const DEFAULT_NAME_CONFIG: CanvasOSDOptionNameConfig = {
         value: '', // 通道名
@@ -71,7 +62,7 @@ export default function CanvasOSD(option: CanvasOSDOption) {
         Y: 0,
         YMinValue: 0,
         YMaxValue: 10000,
-        timestamp: new Date().getTime(),
+        timestamp: Date.now(),
     }
     // 参考系(一般是万分比)画布宽度
     const RELATIVE_WIDTH = DEFAULT_NAME_CONFIG.XMaxValue - DEFAULT_NAME_CONFIG.XMinValue
@@ -186,7 +177,7 @@ export default function CanvasOSD(option: CanvasOSDOption) {
 
     // 绘制时间osd
     const drawTime = () => {
-        const format = DATE_FORMAT_MAP[timeCfg.dateFormat] + ' ' + TIME_FORMAT_MAP[timeCfg.timeFormat]
+        const format = DEFAULT_MOMENT_MAPPING[timeCfg.dateFormat] + ' ' + DEFAULT_MOMENT_MAPPING[timeCfg.timeFormat]
         const text = formatDate(timeCfg.timestamp, format)
         const startX = getRealSizeByRelative(timeCfg.X, 'x')
         const startY = getRealSizeByRelative(timeCfg.Y, 'y')

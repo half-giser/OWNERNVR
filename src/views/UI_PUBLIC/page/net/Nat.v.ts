@@ -10,8 +10,6 @@ import { NetNatForm } from '@/types/apiType/net'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
         // NAT状态与显示文本的映射

@@ -9,8 +9,6 @@ import { SystemGeneralSettingForm } from '@/types/apiType/system'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
         const formRef = useFormRef()
@@ -297,7 +295,7 @@ export default defineComponent({
             $('content/decoderResolution/decoder').forEach((item) => {
                 const $item = queryXml(item.element)
                 const decoderId = item.attr('id').num()
-                const onlineStatus = item.attr('onlineStatus') === 'true'
+                const onlineStatus = item.attr('onlineStatus').bool()
                 decoderCardMap[decoderId].onlineStatus = onlineStatus
 
                 if (!$item('item').length) {

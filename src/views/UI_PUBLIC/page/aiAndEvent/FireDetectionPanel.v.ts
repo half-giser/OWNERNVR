@@ -51,8 +51,6 @@ export default defineComponent({
         },
     },
     setup(props) {
-        const { openLoading, closeLoading } = useLoading()
-        const openMessageBox = useMessageBox().openMessageBox
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
 
@@ -306,10 +304,7 @@ export default defineComponent({
                 })
                 watchEdit.update()
             } else {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_SAVE_DATA_FAIL'),
-                })
+                openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
             }
         }
 

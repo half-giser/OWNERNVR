@@ -44,62 +44,64 @@ interface CountDownerOption {
     overFn?: () => void
 }
 
-//倒计时
-export class CountDowner {
+// //倒计时
+export function CountDowner(opts: CountDownerOption) {
     //倒计时读秒触发的回调
-    callback?: (countDownTime: CountDownTime) => void
-    //剩余倒计时秒数
-    distime: number
+    const callback = opts.callback
     //倒计时结束回调
-    overFn?: () => void
+    const overFn = opts.overFn
+    //剩余倒计时秒数
+    let distime = opts.distime || 0
     //定时器
-    timer?: NodeJS.Timeout
-    constructor(opts: CountDownerOption) {
-        this.callback = opts.callback // || (() => {})
-        this.distime = opts.distime || 0
-        this.overFn = opts.overFn // || (() => {})
-        this.timer = undefined
-        this.countDown()
-    }
+    let timer: NodeJS.Timeout | number = 0
 
     /**
-     * 开始倒计时
+     * @description 开始倒计时
      */
-    countDown() {
-        this.timer = setTimeout(() => {
-            this.distime--
-            this.countDown()
+    const countDown = () => {
+        timer = setTimeout(() => {
+            distime--
+            countDown()
         }, 1000)
-        if (this.distime <= 0) {
-            this.distime = 0
-            clearTimeout(this.timer)
+        if (distime <= 0) {
+            distime = 0
+            clearTimeout(timer)
         }
-        const disdays = Math.floor(this.distime / (3600 * 24))
-        const dishours = Math.floor((this.distime - disdays * 3600 * 24) / 3600)
-        const disminites = Math.floor((this.distime - disdays * 3600 * 24 - dishours * 3600) / 60)
-        const disseconds = Math.floor(this.distime - disdays * 3600 * 24 - dishours * 3600 - disminites * 60)
+        const disdays = Math.floor(distime / (3600 * 24))
+        const dishours = Math.floor((distime - disdays * 3600 * 24) / 3600)
+        const disminites = Math.floor((distime - disdays * 3600 * 24 - dishours * 3600) / 60)
+        const disseconds = Math.floor(distime - disdays * 3600 * 24 - dishours * 3600 - disminites * 60)
         const countDownTime = {
-            disdays: this.addZelo(disdays),
-            dishours: this.addZelo(dishours),
-            disminites: this.addZelo(disminites),
-            disseconds: this.addZelo(disseconds),
+            disdays: addZelo(disdays),
+            dishours: addZelo(dishours),
+            disminites: addZelo(disminites),
+            disseconds: addZelo(disseconds),
         }
-        this.callback && this.callback(countDownTime)
-        if (this.distime === 0) {
-            this.overFn && this.overFn()
+        callback && callback(countDownTime)
+        if (distime === 0) {
+            overFn && overFn()
         }
     }
 
     /**
-     * 不足2位补0
-     * @param n
-     * @returns
+     * @description 不足2位补0
+     * @param {number} n
+     * @returns {string}
      */
-    addZelo(n: number) {
-        return n < 10 && n >= 0 ? '0' + n : '' + n
+    const addZelo = (n: number) => {
+        return ('00' + n).slice(-2)
     }
 
-    destroy() {
-        clearTimeout(this.timer)
+    /**
+     * @description 销毁 停止计时
+     */
+    const destroy = () => {
+        clearTimeout(timer)
+    }
+
+    countDown()
+
+    return {
+        destroy,
     }
 }

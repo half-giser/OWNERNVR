@@ -33,8 +33,6 @@ export default defineComponent({
         },
     },
     setup(prop, ctx) {
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const { Translate } = useLangStore()
         const dateTime = useDateTimeStore()
 
@@ -131,7 +129,7 @@ export default defineComponent({
             formData.value.faceIndex = []
             listData.value = $('content/i')
                 .map((item) => {
-                    const textArr = item.text().split(',')
+                    const textArr = item.text().array()
                     const chlId = getChlGuid16(textArr[4]).toUpperCase()
                     const timestamp = hexToDec(textArr[1]) * 1000
                     return {
@@ -182,10 +180,7 @@ export default defineComponent({
                     formData.value.faceIndex[0] = index
                 } else {
                     if (formData.value.faceIndex.length >= 5) {
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_SELECT_FACE_UPTO_MAX').formatForLang(5),
-                        })
+                        openMessageBox(Translate('IDCS_SELECT_FACE_UPTO_MAX').formatForLang(5))
                         return
                     }
                     formData.value.faceIndex.push(index)

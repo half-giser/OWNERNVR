@@ -25,7 +25,6 @@ export default defineComponent({
     setup(prop) {
         const plugin = usePlugin()
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
 
         // 任务列表刷新间隔3秒
         const REFRESH_IMTERVAL = 3000

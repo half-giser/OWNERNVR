@@ -3,8 +3,7 @@
  * @Date: 2024-06-17 20:32:26
  * @Description: 添加权限组
  */
-import { UserPermissionSystemAuthList, UserPermissionChannelAuthList } from '@/types/apiType/userAndSecurity'
-import { UserPermissionGroupAddForm } from '@/types/apiType/userAndSecurity'
+import { UserPermissionSystemAuthList, UserPermissionChannelAuthList, type UserPermissionAuthKey, UserPermissionGroupAddForm } from '@/types/apiType/userAndSecurity'
 import { type FormRules } from 'element-plus'
 import type { XMLQuery } from '@/utils/xmlParse'
 import PermissionGroupInfoPop from './PermissionGroupInfoPop.vue'
@@ -16,8 +15,6 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const userSession = useUserSessionStore()
-        const { openMessageBox } = useMessageBox()
-        const { closeLoading, openLoading } = useLoading()
         const router = useRouter()
         const systemCaps = useCababilityStore()
 
@@ -52,11 +49,11 @@ export default defineComponent({
             // 当前选中的通道权限Tab
             activeChannelTab: DEFAULT_CHANNEL_AUTH_TABS[0],
             // 通道权限选项
-            channelOption: getSwitchOptions(),
+            channelOption: getTranslateOptions(DEFAULT_BOOL_SWITCH_OPTIONS),
             // 本地通道权限列表
-            localChannelIds: DEFAULT_LOCAL_CHANNEL_AUTH_LIST,
+            localChannelIds: getTranslateOptions(DEFAULT_LOCAL_CHANNEL_AUTH_LIST),
             // 远程通道权限列表
-            remoteChannelIds: DEFAULT_REMOTE_CHANNEL_AUTH_LIST,
+            remoteChannelIds: getTranslateOptions(DEFAULT_REMOTE_CHANNEL_AUTH_LIST),
         })
 
         /**
@@ -156,9 +153,9 @@ export default defineComponent({
                     const auth = $item('auth').text()
                     DEFAULT_CHANNEL_AUTH_LIST.forEach((key) => {
                         if (auth.includes(key)) {
-                            arrayItem[key] = 'true'
+                            arrayItem[key] = true
                         } else {
-                            arrayItem[key] = 'false'
+                            arrayItem[key] = false
                         }
                     })
                     return arrayItem
@@ -170,7 +167,7 @@ export default defineComponent({
                     arrayItem.id = item.attr('id')
                     arrayItem.name = $item('name').text()
                     DEFAULT_CHANNEL_AUTH_LIST.forEach((key) => {
-                        arrayItem[key] = 'false'
+                        arrayItem[key] = false
                     })
                     return arrayItem
                 })
@@ -182,7 +179,7 @@ export default defineComponent({
          * @param {string} key
          * @param {string} value
          */
-        const changeAllChannelAuth = (key: keyof UserPermissionChannelAuthList, value: string) => {
+        const changeAllChannelAuth = (key: UserPermissionAuthKey, value: boolean) => {
             channelAuthList.value.forEach((item) => {
                 item[key] = value
             })
@@ -218,7 +215,7 @@ export default defineComponent({
                             .map((item) => {
                                 return rawXml`
                                     <item id="${item.id}">
-                                        ${wrapCDATA(DEFAULT_CHANNEL_AUTH_LIST.filter((key) => item[key] === 'true').join(','))}
+                                        ${wrapCDATA(DEFAULT_CHANNEL_AUTH_LIST.filter((key) => item[key]).join(','))}
                                     </item>
                                 `
                             })
@@ -258,10 +255,7 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
                         break
                 }
-                openMessageBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
         }
 

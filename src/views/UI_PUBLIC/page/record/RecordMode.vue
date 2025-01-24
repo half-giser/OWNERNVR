@@ -252,7 +252,8 @@
         <RecordModeAdvancePop
             v-model="pageData.isAdvancePop"
             :advance-rec-modes="pageData.advanceRecModes"
-            @confirm="advancePopConfirm"
+            :advance-rec-mode-id="pageData.advanceRecModeId"
+            @confirm="confirmAdvancePop"
             @close="pageData.isAdvancePop = false"
         />
 
@@ -261,7 +262,7 @@
             v-model="pageData.isRecModeStreamPop"
             :advance-rec-mode-map="advanceRecModeMap"
             :auto-mode-id="formData.autoModeId"
-            @close="streamPopClose"
+            @close="closeStreamPop"
         />
 
         <!-- 排程管理弹窗 -->

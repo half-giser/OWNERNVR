@@ -72,7 +72,7 @@
                             <el-table-column
                                 v-for="(item, key) in pageData.localChannelIds"
                                 :key
-                                :label="Translate(item.label)"
+                                :label="item.label"
                             >
                                 <template #default="{ $index }">
                                     {{ displayChannelAuth(channelAuthList[$index][item.value]) }}
@@ -96,7 +96,7 @@
                             <el-table-column
                                 v-for="(item, key) in pageData.remoteChannelIds"
                                 :key
-                                :label="Translate(item.label)"
+                                :label="item.label"
                             >
                                 <template #default="{ $index }">
                                     {{ displayChannelAuth(channelAuthList[$index][item.value]) }}

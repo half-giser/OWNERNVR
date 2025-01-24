@@ -30,8 +30,6 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const userSession = useUserSessionStore()
-        const { openMessageBox } = useMessageBox()
-        const { closeLoading, openLoading } = useLoading()
 
         const formRef = useFormRef()
         const formData = ref(new UserEditForm())
@@ -122,10 +120,7 @@ export default defineComponent({
                     default:
                         errorText = Translate('IDCS_QUERY_DATA_FAIL')
                 }
-                openMessageBox({
-                    type: 'info',
-                    message: errorText,
-                })
+                openMessageBox(errorText)
             }
         }
 
@@ -205,10 +200,7 @@ export default defineComponent({
                     default:
                         errorText = Translate('IDCS_SAVE_DATA_FAIL')
                 }
-                openMessageBox({
-                    type: 'info',
-                    message: errorText,
-                })
+                openMessageBox(errorText)
             }
         }
 

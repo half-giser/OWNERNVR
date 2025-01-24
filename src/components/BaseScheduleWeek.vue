@@ -74,7 +74,7 @@ withDefaults(
     },
 )
 
-const weekdayLang = ['IDCS_SUNDAY', 'IDCS_MONDAY', 'IDCS_TUESDAY', 'IDCS_WEDNESDAY', 'IDCS_THURSDAY', 'IDCS_FRIDAY', 'IDCS_SATURDAY']
+const weekdayLang = Object.values(DEFAULT_WEEK_MAPPING2).slice(0, 7)
 const scheduleLines: Ref<InstanceType<typeof BaseScheduleLine>[] | null> = ref(null)
 const copyToCheckedDay: Ref<number[]> = ref([])
 

@@ -221,7 +221,7 @@ export const download = (blob: Blob, fileName: string) => {
 
 /**
  * @description 下载文件
- * @param { imgBase64 } Base64 文件的blob
+ * @param { string } imgBase64 base64或URL
  * @param { string } fileName 文件名(包含扩展名)
  */
 export const downloadFromBase64 = (imgBase64: string, fileName: string) => {
@@ -269,17 +269,7 @@ export const downloadExcel = (titleArr: string[], contentArr: string[][], fileNa
         "<style type='text/css'>table td, table th {height: 50px;text-align: center;font-size: 18px;}</style>" +
         `</head><body>${table}</body></html>`
     const blob = new Blob([template], { type: 'text/csv' })
-    const link = document.createElement('a')
-    const url = window.URL.createObjectURL(blob)
-    link.setAttribute('href', url)
-    link.setAttribute('download', fileName || 'Worksheet.xls')
-    link.style.display = 'none'
-    document.body.appendChild(link)
-    link.click()
-    setTimeout(() => {
-        document.body.removeChild(link)
-        window.URL.revokeObjectURL(url)
-    }, 1000)
+    download(blob, fileName || 'Worksheet.xls')
 }
 
 export type DownloadZipOptions = {
@@ -469,7 +459,6 @@ export const getChlList = (options: Partial<QueryNodeListDto>) => {
  * @returns {Promise<Boolean>}
  */
 export const checkChlListCaps = async (route: string) => {
-    const { openLoading, closeLoading } = useLoading()
     const systemCaps = useCababilityStore()
 
     if (route.includes('faceRecognition') || route.includes('vehicleRecognition') || route.includes('boundary') || route.includes('more')) {
@@ -568,16 +557,12 @@ export const checkChlListCaps = async (route: string) => {
 export const commLoadResponseHandler = ($response: any, successHandler?: (result: (path: string) => XmlResult) => void, failedHandler?: (result: (path: string) => XmlResult) => void) => {
     return new Promise((resolve: ($: (path: string) => XmlResult) => void, reject: ($: (path: string) => XmlResult) => void) => {
         const Translate = useLangStore().Translate
-        const openMessageBox = useMessageBox().openMessageBox
         const $ = queryXml($response)
         if ($('status').text() === 'success') {
             successHandler && successHandler($)
             resolve($)
         } else {
-            openMessageBox({
-                type: 'info',
-                message: Translate('IDCS_QUERY_DATA_FAIL'),
-            }).then(() => {
+            openMessageBox(Translate('IDCS_QUERY_DATA_FAIL')).then(() => {
                 failedHandler && failedHandler($)
                 reject($)
             })
@@ -594,7 +579,6 @@ export const commLoadResponseHandler = ($response: any, successHandler?: (result
 export const commSaveResponseHandler = ($response: ApiResult, successHandler?: (result: (path: string) => XmlResult) => void, failedHandler?: (result: (path: string) => XmlResult) => void) => {
     return new Promise((resolve: ($: (path: string) => XmlResult) => void, reject: ($: (path: string) => XmlResult) => void) => {
         const Translate = useLangStore().Translate
-        const openMessageBox = useMessageBox().openMessageBox
         const $ = queryXml($response)
         if ($('status').text() === 'success') {
             openMessageBox({
@@ -605,10 +589,7 @@ export const commSaveResponseHandler = ($response: ApiResult, successHandler?: (
                 resolve($)
             })
         } else {
-            openMessageBox({
-                type: 'info',
-                message: Translate('IDCS_SAVE_DATA_FAIL'),
-            }).then(() => {
+            openMessageBox(Translate('IDCS_SAVE_DATA_FAIL')).then(() => {
                 failedHandler && failedHandler($)
                 reject($)
             })
@@ -639,7 +620,6 @@ export const commMutiSaveResponseHandler = (
         }
     })
     const Translate = useLangStore().Translate
-    const openMessageBox = useMessageBox().openMessageBox
 
     return new Promise((resolve: (responseXmlList: ((path: string) => XmlResult)[]) => void, reject: (responseXmlList: ((path: string) => XmlResult)[]) => void) => {
         if (allSuccess) {
@@ -651,10 +631,7 @@ export const commMutiSaveResponseHandler = (
                 resolve(responseXmlList)
             })
         } else {
-            openMessageBox({
-                type: 'info',
-                message: Translate('IDCS_SAVE_DATA_FAIL'),
-            }).then(() => {
+            openMessageBox(Translate('IDCS_SAVE_DATA_FAIL')).then(() => {
                 failedHandler && failedHandler(responseXmlList)
                 reject(responseXmlList)
             })
@@ -686,18 +663,6 @@ export const getArrayDiffRows = (arr1: Record<string, any>[], arr2: Record<strin
         })
     }
     return diffRows
-}
-
-/**
- * @description 返回IP十进制数值
- * @param {string} ip
- * @returns {number}
- */
-export const getIpNumber = (ip: string) => {
-    const split = ip.split('.')
-    return split.reduce((sum, current, index) => {
-        return Number(sum) + Number(current) * Math.pow(Math.pow(2, 8), split.length - 1 - index)
-    }, 0)
 }
 
 /**
@@ -868,19 +833,14 @@ export const getIpNumber = (ip: string) => {
  * @returns {NodeJS.Timeout}
  */
 export const reconnect = () => {
-    const { openMessageBox } = useMessageBox()
     const { Translate } = useLangStore()
     const pluginStore = usePluginStore()
     const userSession = useUserSessionStore()
-    const { closeLoading } = useLoading()
 
     if (userSession.appType === 'STANDARD') {
         return setTimeout(() => {
             reconnectStandard(() => {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_LOGIN_OVERTIME'),
-                }).then(() => {
+                openMessageBox(Translate('IDCS_LOGIN_OVERTIME')).then(() => {
                     closeLoading()
                     Logout()
                 })
@@ -974,7 +934,7 @@ export const getScheduleId = (scheduleList: SelectOption<string, string>[], sche
  * @returns {SelectOption<string, string>[]}
  */
 export const getAlarmHoldTimeList = (holdTimeList: string, holdTime: number) => {
-    const holdTimeArr = holdTimeList.split(',').map((item) => Number(item))
+    const holdTimeArr = holdTimeList.array().map((item) => Number(item))
     if (!holdTimeArr.includes(holdTime)) {
         holdTimeArr.push(holdTime)
     }
@@ -1137,20 +1097,6 @@ export const getTranslateForPasswordStrength = (key: keyof typeof DEFAULT_PASSWO
 
 /**
  * @description 获取通用的开关选项
- * @returns {SelectOption<string, string>[]}
- */
-export const getSwitchOptions = () => {
-    const Translate = useLangStore().Translate
-    return DEFAULT_SWITCH_OPTIONS.map((item) => {
-        return {
-            label: Translate(item.label),
-            value: item.value,
-        }
-    })
-}
-
-/**
- * @description 获取通用的开关选项
  * @returns {SelectOption<boolean, string>[]}
  */
 export const getBoolSwitchOptions = () => {
@@ -1164,12 +1110,13 @@ export const getBoolSwitchOptions = () => {
 }
 
 /**
- * @description 获取常开常闭选项
- * @returns {SelectOption<string, string>[]}
+ * @description 返回翻译label的选项
+ * @param {SelectOption[]} options
+ * @returns {SelectOption[]}
  */
-export const getAlwaysOptions = () => {
+export const getTranslateOptions = <K extends string | number | boolean>(options: SelectOption<K, string>[]): SelectOption<K, string>[] => {
     const Translate = useLangStore().Translate
-    return DEFAULT_ALWAYS_OPTIONS.map((item) => {
+    return options.map((item) => {
         return {
             label: Translate(item.label),
             value: item.value,
@@ -1178,19 +1125,29 @@ export const getAlwaysOptions = () => {
 }
 
 /**
+ * @description 返回翻译value的Record<string, string>
+ * @param {Record<string, string>} options
+ * @returns {Record<string, string>}
+ */
+export const getTranslateMapping = (options: Record<string, string>): Record<string, string> => {
+    const Translate = useLangStore().Translate
+    const keys = Object.keys(options)
+    keys.forEach((key) => {
+        options[key] = Translate(options[key])
+    })
+    return options
+}
+
+/**
  * @description 提示达到搜索最大数量
  * @param $
  */
 export const showMaxSearchLimitTips = ($: XMLQuery) => {
     const isMaxSearchResultNum = $('content/IsMaxSearchResultNum').text().bool()
-    const { openMessageBox } = useMessageBox()
     const { Translate } = useLangStore()
 
     if (isMaxSearchResultNum) {
-        openMessageBox({
-            type: 'info',
-            message: Translate('IDCS_SEARCH_RESULT_LIMIT_TIPS'),
-        })
+        openMessageBox(Translate('IDCS_SEARCH_RESULT_LIMIT_TIPS'))
     }
 }
 
@@ -1219,14 +1176,19 @@ export const getBitrateRange = (options: GetBitRateRangeOption) => {
     let resolution = { width: 0, height: 0 }
     if (typeof options.resolution === 'string') {
         const resParts = options.resolution.split('x')
-        resolution = { width: Number(resParts[0]), height: Number(resParts[1]) }
+        resolution = {
+            width: Number(resParts[0]),
+            height: Number(resParts[1]),
+        }
     } else {
         resolution = options.resolution
     }
+
     const totalResolution = resolution.width * resolution.height
     if (!totalResolution) {
         return null
     }
+
     let resParam = Math.floor(totalResolution / (totalResolution >= 1920 * 1080 ? 200000 : 150000))
     if (!resParam) {
         resParam = 0.5
@@ -1240,10 +1202,12 @@ export const getBitrateRange = (options: GetBitRateRangeOption) => {
         lower: 34,
         lowest: 25,
     }
+
     const levelParam = levelParamMapping[options.level]
     if (!levelParam) {
         return null
     }
+
     // 根据帧率使用不同公式计算下限和上限
     const minBase = (768 * resParam * levelParam * (options.fps >= 10 ? options.fps : 10)) / 3000
     let min = minBase - (options.fps >= 10 ? 0 : ((10 - options.fps) * minBase * 2) / 27)
@@ -1261,33 +1225,7 @@ export const getBitrateRange = (options: GetBitRateRangeOption) => {
         return null
     }
 
-    return { min: min, max: max }
-}
-
-// 将IPC音频文件转换为base64-导入摄像机声音/本地音频使用
-export const fileToBase64 = (file: Blob, callback: Function) => {
-    const reader = new FileReader()
-    reader.onload = (e) => {
-        const data = (e.target?.result as string).split(',')
-        const base64 = data[1]
-        const base64Str = formatBase64(base64)
-        if (typeof callback === 'function') {
-            callback(base64Str)
-        }
-    }
-    reader.readAsDataURL(file)
-}
-
-// base64 每76位加一个换行
-export const formatBase64 = (param: string) => {
-    let result = ''
-    for (let i = 0; i < param.length; i++) {
-        if (i !== 0 && i % 76 === 0) {
-            result += '\r\n'
-        }
-        result += param[i]
-    }
-    return result
+    return { min, max }
 }
 
 // 获取base64文件大小，返回MB数字
@@ -1306,19 +1244,31 @@ export const base64FileSize = (base64url: string) => {
 /**
  * @description 填充通道id,获取guid
  * @param {string} id
- * @returns Pstring
+ * @returns {string} Pstring
  */
 export const getChlGuid16 = (id: string) => {
-    try {
-        while (id.length < 8) {
-            id = '0' + id
+    const arr = ['00000000', '0000', '0000', '0000', '000000000000']
+    arr[0] = (arr[0] + id).slice(-8)
+    const guid = '{' + arr.join('-') + '}'
+    return guid
+}
+
+/**
+ * @description 生成16进制字符随机guid, 格式: {00000000-0000-0000-0000-000000000000}
+ * @returns {string} Pstring
+ */
+export const getRandomGUID = () => {
+    const str = '0123456789abcdef'
+    const temp = '00000000-0000-0000-0000-000000000000'
+    let ret = ''
+    for (let i = 0; i < temp.length; i++) {
+        if (temp[i] === '-') {
+            ret += '-'
+            continue
         }
-        const arr = [id, '0000', '0000', '0000', '000000000000']
-        const guid = '{' + arr.join('-') + '}'
-        return guid
-    } catch (e) {
-        return '{00000001-0000-0000-0000-000000000000}'
+        ret += str[Math.floor(Math.random() * str.length)]
     }
+    return `{${ret}}`
 }
 
 interface MutexChlDto {
@@ -1383,7 +1333,6 @@ export const checkMutexChl = async ({ isChange, mutexList, mutexListEx = [], chl
     }
 
     const { Translate } = useLangStore()
-    const { openMessageBox } = useMessageBox()
     const DEFAULT_ALARM_EVENT: Record<string, string> = {
         cdd: Translate('IDCS_CROWD_DENSITY_DETECTION'),
         cpc: Translate('IDCS_PASS_LINE_COUNT_DETECTION'),
@@ -1441,7 +1390,7 @@ export const checkMutexChl = async ({ isChange, mutexList, mutexListEx = [], chl
 }
 
 /**
- * @description 将number[]/string[]转换为SelectOption<number,number>/SelectOption<string, string>
+ * @description 将number[]/string[]转换为SelectOption<number,number>[]/SelectOption<string, string>[]
  * @param {Array} array
  * @returns {SelectOption[]}
  */
@@ -1450,4 +1399,22 @@ export const arrayToOptions = <T>(array: T[]) => {
         label: value,
         value,
     }))
+}
+
+/**
+ * @description 将Record<string,string>转换为SelectOption<T,string>[]
+ * @param {Record} object
+ * @param {valueType} string number | string | boolean
+ * @returns {SelectOption[]}
+ */
+export const objectToOptions = <T extends 'number' | 'string' | 'boolean', K extends T extends 'number' ? number : T extends 'boolean' ? boolean : string>(
+    object: Record<string, string>,
+    valueType: T,
+): SelectOption<K, string>[] => {
+    return Object.entries(object).map((item) => {
+        return {
+            label: item[1],
+            value: (valueType === 'number' ? item[0].num() : valueType === 'boolean' ? item[0].bool() : item[0]) as K,
+        }
+    })
 }

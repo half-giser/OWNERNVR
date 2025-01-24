@@ -13,8 +13,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const userSession = useUserSessionStore()
         const router = useRouter()
 
@@ -178,10 +176,7 @@ export default defineComponent({
          */
         const handleEdit = () => {
             if (!userSession.hasAuth('alarmMgr')) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_AUTH'),
-                })
+                openMessageBox(Translate('IDCS_NO_AUTH'))
                 return
             }
             router.push({
@@ -206,10 +201,7 @@ export default defineComponent({
         const changeSecurityConnection = () => {
             setDefaultPort()
             if (formData.value.ssl === 'NO') {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_MAIL_ARENOT_ENCRYPTED_WITHOUT_SSL'),
-                })
+                openMessageBox(Translate('IDCS_MAIL_ARENOT_ENCRYPTED_WITHOUT_SSL'))
             }
         }
 

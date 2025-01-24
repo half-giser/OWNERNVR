@@ -67,7 +67,7 @@ const IS_ALLOWED_URI = /^(?:(?:https?|mailto|tel|callto|sms|xmpp):|[^a-z]|[a-z+.
 
 const CLOBBERED_ATTRS = ['id']
 
-const IS_ALLOWED_ID = /^_ca_[0-9]/
+const IS_ALLOWED_ID = /^_n9_[0-9]/
 
 const cleanAttributes = (element: Element) => {
     const attributes = element.attributes

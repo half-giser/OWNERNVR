@@ -12,8 +12,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
-        const { openMessageBox } = useMessageBox()
 
         let timer: NodeJS.Timeout | number = 0
 
@@ -64,10 +62,7 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_USER_OR_PASSWORD_ERROR')
                         break
                 }
-                openMessageBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
         }
 

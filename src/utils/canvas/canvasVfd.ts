@@ -28,8 +28,8 @@ interface CanvasVfdOption {
 }
 
 export default function CanvasVfd(option: CanvasVfdOption) {
-    const DEFAULT_LINE_COLOR = '#00ff00' // 画线默认色值
-    const DEFAULT_TEXT_COLOR = '#ffff00' // 文字默认色值
+    const DEFAULT_LINE_COLOR = '#0f0' // 画线默认色值
+    const DEFAULT_TEXT_COLOR = '#ff0' // 文字默认色值
     const RELATIVE_WIDTH = 10000 // 万分比宽度
     const RELATIVE_HEIGHT = 10000 // 万分比高度
     const DEFAULT_AREA = {

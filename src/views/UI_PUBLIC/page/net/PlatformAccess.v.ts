@@ -13,8 +13,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const userSession = useUserSessionStore()
 
         // 平台接入类型与显示文本的映射
@@ -339,21 +337,19 @@ export default defineComponent({
                     })
                 }
 
-                const reservedPort = $('content').attr('reservedPort')
-                if (reservedPort) {
-                    pageData.value.reservedPort = reservedPort
-                        .split(',')
-                        .map((port) => {
-                            const split = port.split('-')
-                            if (split.length === 1) return [Number(port)]
-                            const ports: number[] = []
-                            for (let i = Number(split[0]); i <= Number(split[1]); i++) {
-                                ports.push(i)
-                            }
-                            return ports
-                        })
-                        .flat()
-                }
+                pageData.value.reservedPort = $('content')
+                    .attr('reservedPort')
+                    .array()
+                    .map((port) => {
+                        const split = port.split('-')
+                        if (split.length === 1) return [Number(port)]
+                        const ports: number[] = []
+                        for (let i = Number(split[0]); i <= Number(split[1]); i++) {
+                            ports.push(i)
+                        }
+                        return ports
+                    })
+                    .flat()
             })
         }
 
@@ -467,10 +463,7 @@ export default defineComponent({
          */
         const changeNWMS5000Switch = () => {
             if (formData.value.nwms5000Switch) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_RTSP_OR_FTP_ENABLE_REMIND'),
-                })
+                openMessageBox(Translate('IDCS_RTSP_OR_FTP_ENABLE_REMIND'))
             }
         }
 

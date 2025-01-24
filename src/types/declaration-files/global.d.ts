@@ -20,15 +20,26 @@ declare global {
         formatForLang: Function
         format: Function
         /**
-         * @description 如果text()返回的字符串为'true',则返回true，否则为false
+         * @description 如果text()/attr()返回的字符串为'true',则返回true，否则为false
          * @returns {boolean}
          */
         bool: () => boolean
         /**
-         * @description 将text()返回的字符串转换为数字
+         * @description 将text()/attr()返回的字符串转换为数字. 如果为空字符串，则返回0
          * @returns {number}
          */
         num: () => number
+        /**
+         * @description 将text()/attr()返回的字符串转换为字符串数组
+         * @param {string} seperator 分隔符，默认为','
+         * @returns {string[]}
+         */
+        array: (seperator?: string) => string[]
+        /**
+         * @description text()/attr()若为空字符串时，返回undefined，否则返回原字符串
+         * @returns {string | undefined}
+         */
+        undef: () => string | undefined
     }
 
     /**

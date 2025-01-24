@@ -6,12 +6,11 @@
 import { type ChannelInfoDto } from '@/types/apiType/channel'
 import WebsocketState from '@/utils/websocket/websocketState'
 import WebsocketUpload from '@/utils/websocket/websocketUpload'
-import { getRandomGUID } from '@/utils/websocket/websocketCmd'
 
 export default defineComponent({
     setup(_prop, { expose }) {
-        const { openMessageBox } = useMessageBox()
         const { Translate } = useLangStore()
+
         const ipcUpgradePopVisiable = ref(false)
         const productModelOptionList = ref<SelectOption<string, string>[]>([])
         const selectedProductModel = ref('')
@@ -37,10 +36,10 @@ export default defineComponent({
         let file: File | undefined = undefined
         const taskGUIDMap: Record<string, ChannelInfoDto[]> = {} // 插件上传IPC升级包任务ID-上传通道数组
 
-        const plugin = setupPlugin({
-            onMessage: ($) => {
+        const plugin = usePlugin({
+            onMessage: ($, stateType) => {
                 //升级进度
-                if ($("statenotify[@type='FileNetTransportProgress']").length) {
+                if (stateType === 'FileNetTransportProgress') {
                     const taskGUID = $('statenotify/taskGUID').text().toLowerCase()
                     if (taskGUIDMap[taskGUID]) {
                         const progress = $('statenotify/progress').text().replace('%', '')
@@ -48,19 +47,18 @@ export default defineComponent({
                             changeStatus(ele, 'progress', progress)
                         })
                         if (progress === '100') {
-                            openMessageBox({
-                                type: 'info',
-                                message: Translate('IDCS_UPGRADE_IPC_NOTE'),
-                            })
+                            openMessageBox(Translate('IDCS_UPGRADE_IPC_NOTE'))
                         }
                     }
                 }
+
                 //连接成功
-                // else if ($("statenotify[@type='connectstate']").length) {
-                //     const status = $("statenotify[@type='connectstate']").text()
+                // if (stateType === 'connectstate') {
+                //     const status = $("statenotify").text()
                 // }
+
                 // 网络断开
-                else if ($("statenotify[@type='FileNetTransport']").length) {
+                if (stateType === 'FileNetTransport') {
                     if ($('statenotify/errorCode').length) {
                         const taskGUID = $('statenotify/taskGUID').text().toLowerCase()
                         const errorCode = $('statenotify/errorCode').text().num()
@@ -93,7 +91,7 @@ export default defineComponent({
                         if (tmpList.indexOf(value) === -1) tmpList.push(value)
                     }
                 })
-                productModelOptionList.value = arrayToOption(tmpList)
+                productModelOptionList.value = arrayToOptions(tmpList)
             }
 
             if (productModelOptionList.value.length) {
@@ -166,19 +164,13 @@ export default defineComponent({
             })
             if (errorCode === ErrorCode.USER_ERROR_DEVICE_BUSY) {
                 // 设备忙
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_DEVICE_BUSY'),
-                })
+                openMessageBox(Translate('IDCS_DEVICE_BUSY'))
             } else if (errorCode === ErrorCode.USER_ERROR_FILE_MISMATCHING) {
                 // 无磁盘
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_DISK'),
-                })
+                openMessageBox(Translate('IDCS_NO_DISK'))
             } else {
                 // 提示错误图标
-                tempData.forEach((ele: ChannelInfoDto) => {
+                tempData.forEach((ele) => {
                     ele.upgradeStatus = 'error'
                 })
             }

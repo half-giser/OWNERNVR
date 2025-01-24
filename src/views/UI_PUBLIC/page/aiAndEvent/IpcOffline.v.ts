@@ -17,14 +17,13 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-
-        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
+
         const pageData = ref({
             pageIndex: 1,
             pageSize: 10,
             totalCount: 0,
-            enableList: getSwitchOptions(),
+            enableList: getTranslateOptions(DEFAULT_SWITCH_OPTIONS),
             supportAudio: false,
             // 未传值
             // supportFTP: false,

@@ -186,11 +186,11 @@
                                 <template #dropdown>
                                     <el-dropdown-menu>
                                         <el-dropdown-item
-                                            v-for="(item, index) in dateFormatOptions"
-                                            :key="index"
-                                            @click="changeDateFormatAll(item.value)"
+                                            v-for="(label, value) in dateFormatTip"
+                                            :key="value"
+                                            @click="changeDateFormatAll(value)"
                                         >
-                                            {{ item.text }}
+                                            {{ label }}
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
@@ -212,11 +212,11 @@
                                 <template #dropdown>
                                     <el-dropdown-menu>
                                         <el-dropdown-item
-                                            v-for="(value, key) in timeFormatTip"
-                                            :key="key"
-                                            @click="changeTimeFormatAll(key)"
+                                            v-for="(label, value) in timeFormatTip"
+                                            :key="value"
+                                            @click="changeTimeFormatAll(value)"
                                         >
-                                            {{ value }}
+                                            {{ label }}
                                         </el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>

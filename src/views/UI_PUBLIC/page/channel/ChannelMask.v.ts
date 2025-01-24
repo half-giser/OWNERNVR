@@ -11,7 +11,6 @@ import { type TableInstance } from 'element-plus'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
 
         const playerRef = ref<PlayerInstance>()
         const formData = ref(new ChannelMaskDto())
@@ -23,7 +22,7 @@ export default defineComponent({
         const selectedChlId = ref('')
         const editRows = useWatchEditRows<ChannelMaskDto>()
         const editStatus = ref(false)
-        const switchOptions = getSwitchOptions()
+        const switchOptions = getTranslateOptions(DEFAULT_SWITCH_OPTIONS)
         let maskDrawer: ReturnType<typeof CanvasMask>
 
         const ready = computed(() => {
@@ -288,8 +287,8 @@ export default defineComponent({
             return tableData.value.find((element) => element.id === chlId)
         }
 
-        const notify = ($: XMLQuery) => {
-            if ($("statenotify[@type='MaskArea']").length) {
+        const notify = ($: XMLQuery, stateType: string) => {
+            if (stateType === 'MaskArea') {
                 const preRowData = getRowById(selectedChlId.value)!
                 if (!preRowData.mask.length) {
                     for (let i = 0; i < 4; i++) {
@@ -364,7 +363,7 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 maskDrawer = CanvasMask({
-                    el: player.getDrawbordCanvas(0) as HTMLCanvasElement,
+                    el: player.getDrawbordCanvas(0),
                     onchange: handleMaskChange,
                 })
             }

@@ -56,7 +56,6 @@ export default defineComponent({
         },
     },
     setup(props) {
-        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
         const playerRef = ref<PlayerInstance>()
         let tripwireDrawer: ReturnType<typeof CanvasPassline>
@@ -780,8 +779,8 @@ export default defineComponent({
             }
         }
 
-        const notify = ($: XMLQuery) => {
-            if ($('statenotify[@type="TripwireLine"]').length > 0) {
+        const notify = ($: XMLQuery, stateType: string) => {
+            if (stateType === 'TripwireLine') {
                 const surface = pageData.value.chosenSurfaceIndex
                 formData.value.lineInfo[surface].startPoint = {
                     X: $('statenotify/startPoint').attr('X').num(),

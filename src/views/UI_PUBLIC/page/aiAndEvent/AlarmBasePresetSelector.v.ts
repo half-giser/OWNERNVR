@@ -23,7 +23,6 @@ export default defineComponent({
     setup(prop, ctx) {
         const MAX_TRIGGER_PRESET_COUNT = 16
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
 
         const pageData = ref({
             chlList: [] as SelectOption<string, string>[],
@@ -142,10 +141,7 @@ export default defineComponent({
             }
 
             if (presetItems.length > MAX_TRIGGER_PRESET_COUNT) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_PRESET_LIMIT'),
-                })
+                openMessageBox(Translate('IDCS_PRESET_LIMIT'))
             } else {
                 const result = presetItems.filter((item) => item.index !== ' ')
                 ctx.emit('update:modelValue', result)

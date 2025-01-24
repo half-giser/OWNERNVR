@@ -323,15 +323,15 @@ const usePos = (mode: Ref<string>) => {
         })
         $('content/item').forEach((ele) => {
             const $ele = queryXml(ele.element)
-            const $position = 'param/displaySetting/displayPosition/'
+            const $position = queryXml($('param/displaySetting/displayPosition')[0].element)
             const $triggerChls = $ele('trigger/triggerChl/chls/item')
             const timeout = $ele('param/displaySetting/common/timeOut').text()
-            if ($triggerChls.length === 0) return
+            if (!$triggerChls.length) return
             const displayPosition = {
-                x: $ele(`${$position}X`).text().num(),
-                y: $ele(`${$position}Y`).text().num(),
-                width: $ele(`${$position}width`).text().num(),
-                height: $ele(`${$position}height`).text().num(),
+                x: $position('X').text().num(),
+                y: $position('Y').text().num(),
+                width: $position('width').text().num(),
+                height: $position('height').text().num(),
             }
             $triggerChls.forEach((item) => {
                 const chlId = item.attr('id')
@@ -411,10 +411,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
-        const { openNotify } = useNotification()
-
         const systemCaps = useCababilityStore()
         const userSession = useUserSessionStore()
         const layoutStore = useLayoutStore()
@@ -1016,19 +1012,13 @@ export default defineComponent({
         const handlePlayerError = (index: number, data: TVTPlayerWinDataListItem, error?: string) => {
             // 不支持打开音频
             if (error === 'notSupportAudio') {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_AUDIO_NOT_SUPPORT'),
-                })
+                openMessageBox(Translate('IDCS_AUDIO_NOT_SUPPORT'))
                 pageData.value.winData.supportAudio = false
                 pageData.value.winData.audio = false
             }
             // 当前用户打开无音频的权限
             else if (error === 'noPermission') {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_PERMISSION'),
-                })
+                openMessageBox(Translate('IDCS_NO_PERMISSION'))
             }
             // 音频流关闭事件，将对应通道的音频图标置为关闭状态
             else if (error === 'audioClosed') {
@@ -1047,7 +1037,7 @@ export default defineComponent({
         const handlePlayerRecordFile = (recordBuf: ArrayBuffer, data: TVTPlayerWinDataListItem, recordStartTime: number) => {
             const chlId = data.CHANNEL_INFO!.chlID
             const chlName = chlRef.value!.getChlMap()[chlId].value
-            const date = formatDate(new Date(recordStartTime), 'YYYYMMDDHHmmss')
+            const date = formatDate(recordStartTime, 'YYYYMMDDHHmmss')
             download(new Blob([recordBuf]), `${chlName}_${date}.avi`)
             if (!localStorage.getItem(LocalCacheKey.KEY_LOCAL_AVI_NOT_ENCRYPTED)) {
                 openNotify(Translate('IDCS_AVI_UNENCRYPTED_TIP'))
@@ -1537,10 +1527,7 @@ export default defineComponent({
 
             if (mode.value === 'ocx') {
                 if (userAuth.value.audio[pageData.value.winData.chlID] === false) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_NO_PERMISSION'),
-                    })
+                    openMessageBox(Translate('IDCS_NO_PERMISSION'))
                     return
                 }
 
@@ -1620,9 +1607,9 @@ export default defineComponent({
          * @description 插件接收消息
          * @param {XMLQuery} $
          */
-        const notify = ($: XMLQuery) => {
+        const notify = ($: XMLQuery, stateType: string) => {
             // 设置预览通道状态
-            if ($('statenotify[@type="StartViewChl"]').length) {
+            if (stateType === 'StartViewChl') {
                 const status = $('statenotify/status').text()
                 const chlId = $('statenotify/chlId').text()
                 const winIndex = $('statenotify/winIndex').text().num()
@@ -1658,8 +1645,9 @@ export default defineComponent({
                         break
                 }
             }
+
             // 设置停止预览通道状态
-            else if ($('statenotify[@type="StopViewChl"]').length) {
+            if (stateType === 'StopViewChl') {
                 const chlId = $('statenotify/chlId').text()
                 const winIndex = $('statenotify/winIndex').text().num()
 
@@ -1674,8 +1662,9 @@ export default defineComponent({
                     pageData.value.playingList.splice(index, 1)
                 }
             }
+
             // 设置预览通道失败
-            else if ($('statenotify[@type="SetViewChannelId"]').length) {
+            if (stateType === 'SetViewChannelId') {
                 if ($('statenotify/status').text() !== 'success') {
                     const errorCode = $('statenotify/errorCode').text().num()
                     // 主码流预览失败超过上限，切换回子码流预览
@@ -1685,8 +1674,9 @@ export default defineComponent({
                     }
                 }
             }
+
             // 窗口状态改变通知
-            else if ($('statenotify[@type="WindowStatus"]').length) {
+            if (stateType === 'WindowStatus') {
                 if ($('statenotify/previewingWinNum').text().num()) {
                     pageData.value.allPreview = true
                     // pageData.value.winData.PLAY_STATUS = 'stop'
@@ -1702,8 +1692,9 @@ export default defineComponent({
                     pageData.value.allClientRecord = false
                 }
             }
+
             // 如果是选中窗体改变通知，重新绑定预置点和巡航线
-            else if ($('statenotify[@type="CurrentSelectedWindow"]').length) {
+            if (stateType === 'CurrentSelectedWindow') {
                 const $item = queryXml($('statenotify')[0].element)
                 const winIndex = $item('winIndex').text().trim().num()
                 cacheWinMap[winIndex] = { ...cloneWinData }
@@ -1745,12 +1736,14 @@ export default defineComponent({
                     }, 100)
                 }
             }
+
             // 通知分割屏数目
-            else if ($('statenotify[@type="CurrentFrameNum"]').length || $('statenotify[@type="CurrentScreenMode"]').length) {
+            if (stateType === 'CurrentFrameNum' || stateType === 'CurrentScreenMode') {
                 pageData.value.split = $('statenotify').text().trim().num()
             }
+
             // 通知抓图结果
-            else if ($('statenotify[@type="TakePhoto"]').length) {
+            if (stateType === 'TakePhoto') {
                 if ($('statenotify/status').text() === 'success') {
                     if (import.meta.env.VITE_UI_TYPE !== 'UI1-E') {
                         if (!localStorage.getItem(LocalCacheKey.KEY_SNAP_PIC_NOT_ENCRYPTED)) {
@@ -1764,8 +1757,9 @@ export default defineComponent({
                     openNotify(Translate('IDCS_SNAP_FAIL') + errorDescription)
                 }
             }
+
             // 通知手动录像结果
-            else if ($('statenotify[@type="RecComplete"]').length) {
+            if (stateType === 'RecComplete') {
                 if ($('statenotify/status').text() === 'success') {
                     if (import.meta.env.VITE_UI_TYPE !== 'UI1-E') {
                         if (!localStorage.getItem(LocalCacheKey.KEY_LOCAL_AVI_NOT_ENCRYPTED)) {
@@ -1786,8 +1780,9 @@ export default defineComponent({
                     }, 100)
                 }
             }
+
             // 对讲
-            else if ($('statenotify[@type="TalkSwitch"]').length) {
+            if (stateType === 'TalkSwitch') {
                 if ($('statenotify/status').text() === 'success') {
                     if ($('statenotify/chlId').text() === pageData.value.winData.chlID) {
                         pageData.value.winData.talk = true

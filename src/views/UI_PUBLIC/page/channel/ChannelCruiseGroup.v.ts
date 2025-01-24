@@ -17,8 +17,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const playerRef = ref<PlayerInstance>()
         const auth = useUserChlAuth(false)
 
@@ -216,10 +214,7 @@ export default defineComponent({
         const addCruise = (index: number) => {
             const current = tableData.value[index]
             if (current.cruise.length >= current.maxCount) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
-                })
+                openMessageBox(Translate('IDCS_OVER_MAX_NUMBER_LIMIT'))
                 return
             }
             pageData.value.addChlId = current.chlId

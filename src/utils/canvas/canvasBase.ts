@@ -64,6 +64,9 @@ export default function CanvasBase(element: HTMLCanvasElement) {
     const el = isRef(element) ? toRaw(element) : element
     const ctx = el.getContext('2d')!
 
+    ctx.imageSmoothingEnabled = false
+    ctx.imageSmoothingQuality = 'high'
+
     /**
      * @description 画直线
      * @param startX
@@ -358,7 +361,7 @@ export default function CanvasBase(element: HTMLCanvasElement) {
             const TEXT_START_DISTANCE = textCfg.textStart ? textCfg.textStart.length * 10 : 0 // 文字和端点距离
             const TEXT_END_DISTANCE = textCfg.textEnd ? textCfg.textEnd.length * 10 : 0 // 文字和端点距离
             const FONT_OFFSET = 3 // 文字与端点间距
-            const DEFAULT_FILLSTYLE = '#ff0000' // 文字填充色
+            const DEFAULT_FILLSTYLE = '#f00' // 文字填充色
             const DEFAULT_STROKE_STYLE = '#4f2828' // 文字描边色
             const DEFAULT_BASELINE = 'middle' // 文字基准线
             const textStartX = startX < endX ? startX - TEXT_START_DISTANCE - FONT_OFFSET : startX + FONT_OFFSET
@@ -399,12 +402,30 @@ export default function CanvasBase(element: HTMLCanvasElement) {
      * @returns {Boolean} true:相交; false:不相交
      */
     const IsIntersect = (pointA: CanvasBasePoint, pointB: CanvasBasePoint, pointC: CanvasBasePoint, pointD: CanvasBasePoint) => {
-        const vectorAC = { X: pointC.X - pointA.X, Y: pointC.Y - pointA.Y }
-        const vectorAD = { X: pointD.X - pointA.X, Y: pointD.Y - pointA.Y }
-        const vectorAB = { X: pointB.X - pointA.X, Y: pointB.Y - pointA.Y }
-        const vectorCA = { X: pointA.X - pointC.X, Y: pointA.Y - pointC.Y }
-        const vectorCB = { X: pointB.X - pointC.X, Y: pointB.Y - pointC.Y }
-        const vectorCD = { X: pointD.X - pointC.X, Y: pointD.Y - pointC.Y }
+        const vectorAC = {
+            X: pointC.X - pointA.X,
+            Y: pointC.Y - pointA.Y,
+        }
+        const vectorAD = {
+            X: pointD.X - pointA.X,
+            Y: pointD.Y - pointA.Y,
+        }
+        const vectorAB = {
+            X: pointB.X - pointA.X,
+            Y: pointB.Y - pointA.Y,
+        }
+        const vectorCA = {
+            X: pointA.X - pointC.X,
+            Y: pointA.Y - pointC.Y,
+        }
+        const vectorCB = {
+            X: pointB.X - pointC.X,
+            Y: pointB.Y - pointC.Y,
+        }
+        const vectorCD = {
+            X: pointD.X - pointC.X,
+            Y: pointD.Y - pointC.Y,
+        }
         const isBothSideCD = (vectorAC.X * vectorAB.Y - vectorAC.Y * vectorAB.X) * (vectorAD.X * vectorAB.Y - vectorAD.Y * vectorAB.X) < 0
         const isBothSideAB = (vectorCA.X * vectorCD.Y - vectorCA.Y * vectorCD.X) * (vectorCB.X * vectorCD.Y - vectorCB.Y * vectorCD.X) < 0
         return isBothSideCD && isBothSideAB

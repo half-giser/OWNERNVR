@@ -49,8 +49,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
         // 通道ID与通道名称的映射
@@ -236,10 +234,7 @@ export default defineComponent({
                 })
             } else {
                 if ($('errorCode').text().num() === ErrorCode.USER_ERROR_NO_AUTH) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_NO_PERMISSION'),
-                    })
+                    openMessageBox(Translate('IDCS_NO_PERMISSION'))
                 }
             }
         }

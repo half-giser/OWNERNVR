@@ -48,10 +48,10 @@ export default defineComponent({
     },
     setup(props) {
         type CanvasPasslineDirection = 'none' | 'rightortop' | 'leftorbotton'
-        const { openLoading, closeLoading } = useLoading()
-        const openMessageBox = useMessageBox().openMessageBox
+
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
+
         const playerRef = ref<PlayerInstance>()
         let passLineDrawer: ReturnType<typeof CanvasPassline>
         let cpcDrawer: ReturnType<typeof CanvasCpc>
@@ -115,36 +115,7 @@ export default defineComponent({
                 reportMin: 0,
             },
             receiverData: [] as AlarmPassLinesEmailDto['receiverData'],
-            weekOption: [
-                {
-                    value: 0,
-                    label: Translate('IDCS_WEEK_DAY_SEVEN'),
-                },
-                {
-                    value: 1,
-                    label: Translate('IDCS_WEEK_DAY_ONE'),
-                },
-                {
-                    value: 2,
-                    label: Translate('IDCS_WEEK_DAY_TWO'),
-                },
-                {
-                    value: 3,
-                    label: Translate('IDCS_WEEK_DAY_THREE'),
-                },
-                {
-                    value: 4,
-                    label: Translate('IDCS_WEEK_DAY_FOUR'),
-                },
-                {
-                    value: 5,
-                    label: Translate('IDCS_WEEK_DAY_FIVE'),
-                },
-                {
-                    value: 6,
-                    label: Translate('IDCS_WEEK_DAY_SIX'),
-                },
-            ] as SelectOption<number, string>[],
+            weekOption: objectToOptions(getTranslateMapping(DEFAULT_WEEK_MAPPING), 'number').slice(0, 7),
             monthOption: Array(31)
                 .fill(0)
                 .map((_, index) => {
@@ -818,10 +789,7 @@ export default defineComponent({
                     message: Translate('IDCS_RESET_SUCCESSED'),
                 })
             } else {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_SAVE_DATA_FAIL'),
-                })
+                openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
             }
             // 重置的参数不包括开关, 故记下过线统计的开关
             const manualResetSwitch = formData.value.detectionEnable
@@ -842,10 +810,7 @@ export default defineComponent({
                     message: Translate('IDCS_RESET_SUCCESSED'),
                 })
             } else {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_SAVE_DATA_FAIL'),
-                })
+                openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
             }
         }
 
@@ -1123,8 +1088,8 @@ export default defineComponent({
             }
         }
 
-        const notify = ($: XMLQuery) => {
-            if ($("statenotify[@type='CpcParam']").length) {
+        const notify = ($: XMLQuery, stateType: string) => {
+            if (stateType === 'CpcParam') {
                 const region = $('statenotify/regionInfo/item').map((element) => {
                     const $ = queryXml(element.element)
                     return {
@@ -1145,7 +1110,9 @@ export default defineComponent({
                 })
                 formData.value.regionInfo = region[0]
                 formData.value.lineInfo = line[0]
-            } else if ($("statenotify[@type='TripwireLine']").length) {
+            }
+
+            if (stateType === 'TripwireLine') {
                 const alarmLine = pageData.value.chosenSurfaceIndex
                 formData.value.line[alarmLine].startPoint = {
                     X: $('statenotify/startPoint').attr('X').num(),
@@ -1155,7 +1122,9 @@ export default defineComponent({
                     X: $('statenotify/endPoint').attr('X').num(),
                     Y: $('statenotify/endPoint').attr('Y').num(),
                 }
-            } else if ($("statenotify[@type='TripwireLineInfo']").length) {
+            }
+
+            if (stateType === 'TripwireLineInfo') {
                 const X = $('statenotify/PosInfo/X').text().num()
                 const Y = $('statenotify/PosInfo/Y').text().num()
                 formData.value.countOSD.X = X

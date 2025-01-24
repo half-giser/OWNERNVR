@@ -43,8 +43,8 @@
                         v-model="formData.displayName"
                         :disabled="!formData.enabled"
                         maxlength="11"
-                        :formatter="handleDisplayNameInput"
-                        :parser="handleDisplayNameInput"
+                        :formatter="formatName"
+                        :parser="formatName"
                     />
                 </el-form-item>
             </el-form-item>

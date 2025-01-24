@@ -24,9 +24,7 @@ export default defineComponent({
     },
     setup(props, { emit }) {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
         const userSessionStore = useUserSessionStore()
-        const { openMessageBox } = useMessageBox()
         const formRef = useFormRef()
         const formData = ref(new ChannelAddEditIPCIpDto())
         const maskDisabled = ref(false)
@@ -110,30 +108,28 @@ export default defineComponent({
                         if (errorCode === 0) {
                             emit('close')
                         } else {
-                            if (errorCode === ErrorCode.USER_ERROR_CHANNEL_IPADDRESS_AND_PORT_EXIST) {
-                                showMsg(Translate('IDCS_PROMPT_CHANNEL_IPADDRESS_AND_PORT_EXIST'))
-                            } else if (errorCode === ErrorCode.USER_ERROR_MASK_NOT_CONTINE || errorCode === ErrorCode.USER_ERROR_INVALID_SUBMASK) {
-                                // 子网掩码无效
-                                showMsg(Translate('IDCS_ERROR_MASK_NOT_CONTINE'))
-                            } else if (errorCode === ErrorCode.USER_ERROR_DIFFERENT_SEGMENT) {
-                                // 网关不在由IP地址和子网掩码定义的同一网段上
-                                showMsg(Translate('IDCS_ERROR_DIFFERENT_SEGMENT'))
-                            } else {
-                                // 其他错误码不提示直接刷新通道列表，与设备一致
-                                emit('close')
+                            switch (errorCode) {
+                                case ErrorCode.USER_ERROR_CHANNEL_IPADDRESS_AND_PORT_EXIST:
+                                    openMessageBox(Translate('IDCS_PROMPT_CHANNEL_IPADDRESS_AND_PORT_EXIST'))
+                                    break
+                                case ErrorCode.USER_ERROR_MASK_NOT_CONTINE:
+                                case ErrorCode.USER_ERROR_INVALID_SUBMASK:
+                                    // 子网掩码无效
+                                    openMessageBox(Translate('IDCS_ERROR_MASK_NOT_CONTINE'))
+                                    break
+                                case ErrorCode.USER_ERROR_DIFFERENT_SEGMENT:
+                                    // 网关不在由IP地址和子网掩码定义的同一网段上
+                                    openMessageBox(Translate('IDCS_ERROR_DIFFERENT_SEGMENT'))
+                                    break
+                                default:
+                                    // 其他错误码不提示直接刷新通道列表，与设备一致
+                                    emit('close')
                             }
                         }
                     } else {
-                        showMsg(Translate('IDCS_SAVE_DATA_FAIL'))
+                        openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
                     }
                 })
-            })
-        }
-
-        const showMsg = (msg: string) => {
-            openMessageBox({
-                type: 'info',
-                message: msg,
             })
         }
 

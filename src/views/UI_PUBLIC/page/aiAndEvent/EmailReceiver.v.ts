@@ -15,8 +15,6 @@ export default defineComponent({
         const router = useRouter()
         const userSession = useUserSessionStore()
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
-        const openMessageBox = useMessageBox().openMessageBox
         const tableData = ref<AlarmEmailReceiverDto[]>([])
         const tableRef = ref<TableInstance>()
         const maxEmailCount = ref(16)

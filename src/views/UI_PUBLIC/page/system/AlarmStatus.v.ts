@@ -12,13 +12,14 @@ import { type PlaybackPopList } from '@/components/player/BasePlaybackPop.vue'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
         const dateTime = useDateTimeStore()
 
+        const NONE = Translate('IDCS_NULL')
+
         const NAME_MAPPING: Record<number, string> = {
-            1: Translate('IDCS_WHITE_LIST') + '1',
-            2: Translate('IDCS_WHITE_LIST') + '2',
+            1: Translate('IDCS_WHITE_LIST') + 1,
+            2: Translate('IDCS_WHITE_LIST') + 2,
             3: Translate('IDCS_BLACK_LIST'),
             9: Translate('IDCS_GROUP_STRANGER'),
         }
@@ -45,6 +46,7 @@ export default defineComponent({
             hddPullOut: 'IDCS_HDD_PULL_OUT',
             alarmServerOffline: 'IDCS_ALARM_SERVER_OFFLINE',
         }
+
         const INTELLIGENCE_TYPE_MAPPING: Record<string, string> = {
             osc: 'IDCS_WATCH_DETECTION',
             avd: 'IDCS_ABNORMAL_DETECTION',
@@ -305,7 +307,7 @@ export default defineComponent({
                     data: [
                         {
                             key: 'IDCS_ALARM_SOURCE',
-                            value: replaceWithEntity($item('sourceAlarmIn').text()),
+                            value: $item('sourceAlarmIn').text(),
                             span: 2,
                         },
                         {
@@ -315,17 +317,17 @@ export default defineComponent({
                         },
                         {
                             key: 'IDCS_TRIGGER_RECORD_CHANNEL',
-                            value: triggerRecChlNames || Translate('IDCS_NULL'),
+                            value: triggerRecChlNames || NONE,
                             span: 2,
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_OUT',
-                            value: $item('triggerAlarmOutNames').text() || Translate('IDCS_NULL'),
+                            value: $item('triggerAlarmOutNames').text() || NONE,
                             span: 2,
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_PRESET',
-                            value: $item('triggerPresetNames').text() || Translate('IDCS_NULL'),
+                            value: $item('triggerPresetNames').text() || NONE,
                             span: 2,
                         },
                         {
@@ -381,7 +383,7 @@ export default defineComponent({
                     data: [
                         {
                             key: 'IDCS_ALARM_SOURCE',
-                            value: replaceWithEntity($item('alarmOut').text()),
+                            value: $item('alarmOut').text(),
                             span: 2,
                         },
                         {
@@ -417,7 +419,7 @@ export default defineComponent({
                     data: [
                         {
                             key: 'IDCS_ALARM_SOURCE',
-                            value: replaceWithEntity($item('sourceChl').text()),
+                            value: $item('sourceChl').text(),
                             span: 2,
                         },
                         {
@@ -427,17 +429,17 @@ export default defineComponent({
                         },
                         {
                             key: 'IDCS_TRIGGER_RECORD_CHANNEL',
-                            value: triggerRecChlNames || Translate('IDCS_NULL'),
+                            value: triggerRecChlNames || NONE,
                             span: 2,
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_OUT',
-                            value: $item('triggerAlarmOutNames').text() || Translate('IDCS_NULL'),
+                            value: $item('triggerAlarmOutNames').text() || NONE,
                             span: 2,
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_PRESET',
-                            value: $item('triggerPresetNames').text() || Translate('IDCS_NULL'),
+                            value: $item('triggerPresetNames').text() || NONE,
                             span: 2,
                         },
                         {
@@ -500,7 +502,7 @@ export default defineComponent({
                     data: [
                         {
                             key: 'IDCS_ALARM_SOURCE',
-                            value: replaceWithEntity($item('sourceChl').text()),
+                            value: $item('sourceChl').text(),
                             span: 1,
                         },
                         {
@@ -515,17 +517,17 @@ export default defineComponent({
                         },
                         {
                             key: 'IDCS_TRIGGER_RECORD_CHANNEL',
-                            value: triggerRecChlNames || Translate('IDCS_NULL'),
+                            value: triggerRecChlNames || NONE,
                             span: 2,
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_OUT',
-                            value: $item('triggerAlarmOutNames').text() || Translate('IDCS_NULL'),
+                            value: $item('triggerAlarmOutNames').text() || NONE,
                             span: 2,
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_PRESET',
-                            value: $item('triggerPresetNames').text() || Translate('IDCS_NULL'),
+                            value: $item('triggerPresetNames').text() || NONE,
                             span: 2,
                         },
                         {
@@ -598,7 +600,7 @@ export default defineComponent({
                     case 'noDisk':
                     case 'signalShelter':
                     case 'alarmServerOffline':
-                        abnormalInfo = replaceWithEntity($item('alarmNode').text())
+                        abnormalInfo = $item('alarmNode').text()
                         break
                     default:
                         break
@@ -611,10 +613,7 @@ export default defineComponent({
                         abnormalTypeText = text1 + text2
                         break
                     case 'networkBreak':
-                        abnormalTypeText = '%1%2'.formatForLang(
-                            Translate(ABNORMAL_TYPE_MAPPING[abnormalType]),
-                            nic ? '(%1)'.formatForLang(Translate(nic === 'eth0' ? 'IDCS_ETH0_NAME' : nic === 'eth1' ? 'IDCS_ETH1_NAME' : nic)) : '',
-                        )
+                        abnormalTypeText = `${Translate(ABNORMAL_TYPE_MAPPING[abnormalType])}${nic ? `(${Translate(nic === 'eth0' ? 'IDCS_ETH0_NAME' : nic === 'eth1' ? 'IDCS_ETH1_NAME' : nic)})` : ''}`
                         break
                     case 'ipConflict':
                         const ipTips = ip ? `:${ip}` : ''
@@ -646,7 +645,7 @@ export default defineComponent({
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_OUT',
-                            value: $item('triggerAlarmOutNames').text() || Translate('IDCS_NULL'),
+                            value: $item('triggerAlarmOutNames').text() || NONE,
                             span: 2,
                         },
                         {
@@ -699,7 +698,7 @@ export default defineComponent({
                     data: [
                         {
                             key: 'IDCS_ALARM_SOURCE',
-                            value: replaceWithEntity($item('sourceChl').text()),
+                            value: $item('sourceChl').text(),
                             span: 2,
                         },
                         {
@@ -714,12 +713,12 @@ export default defineComponent({
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_OUT',
-                            value: $item('triggerAlarmOutNames').text() || Translate('IDCS_NULL'),
+                            value: $item('triggerAlarmOutNames').text() || NONE,
                             span: 2,
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_PRESET',
-                            value: $item('triggerPresetNames').text() || Translate('IDCS_NULL'),
+                            value: $item('triggerPresetNames').text() || NONE,
                             span: 2,
                         },
                         {
@@ -767,7 +766,7 @@ export default defineComponent({
                     data: [
                         {
                             key: 'IDCS_ALARM_SOURCE',
-                            value: replaceWithEntity($item('sourceChl').text()),
+                            value: $item('sourceChl').text(),
                             span: 2,
                         },
                         {
@@ -782,12 +781,12 @@ export default defineComponent({
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_OUT',
-                            value: $item('triggerAlarmOutNames').text() || Translate('IDCS_NULL'),
+                            value: $item('triggerAlarmOutNames').text() || NONE,
                             span: 2,
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_PRESET',
-                            value: $item('triggerPresetNames').text() || Translate('IDCS_NULL'),
+                            value: $item('triggerPresetNames').text() || NONE,
                             span: 2,
                         },
                         {
@@ -879,17 +878,17 @@ export default defineComponent({
                         },
                         {
                             key: 'IDCS_TRIGGER_RECORD_CHANNEL',
-                            value: triggerRecChlNames || Translate('IDCS_NULL'),
+                            value: triggerRecChlNames || NONE,
                             span: 2,
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_OUT',
-                            value: $item('triggerAlarmOutNames').text() || Translate('IDCS_NULL'),
+                            value: $item('triggerAlarmOutNames').text() || NONE,
                             span: 2,
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_PRESET',
-                            value: $item('triggerPresetNames').text() || Translate('IDCS_NULL'),
+                            value: $item('triggerPresetNames').text() || NONE,
                             span: 2,
                         },
                         {
@@ -955,17 +954,17 @@ export default defineComponent({
                         },
                         {
                             key: 'IDCS_TRIGGER_RECORD_CHANNEL',
-                            value: triggerRecChlNames || Translate('IDCS_NULL'),
+                            value: triggerRecChlNames || NONE,
                             span: 2,
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_OUT',
-                            value: $item('triggerAlarmOutNames').text() || Translate('IDCS_NULL'),
+                            value: $item('triggerAlarmOutNames').text() || NONE,
                             span: 2,
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_PRESET',
-                            value: $item('triggerPresetNames').text() || Translate('IDCS_NULL'),
+                            value: $item('triggerPresetNames').text() || NONE,
                             span: 2,
                         },
                         {
@@ -1048,12 +1047,12 @@ export default defineComponent({
                         },
                         {
                             key: 'IDCS_TRIGGER_RECORD_CHANNEL',
-                            value: triggerRecChlNames || Translate('IDCS_NULL'),
+                            value: triggerRecChlNames || NONE,
                             span: 2,
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_OUT',
-                            value: $item('triggerAlarmOutNames').text() || Translate('IDCS_NULL'),
+                            value: $item('triggerAlarmOutNames').text() || NONE,
                             span: 2,
                         },
                         {

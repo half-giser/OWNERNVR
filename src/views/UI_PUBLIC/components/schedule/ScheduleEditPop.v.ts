@@ -21,8 +21,7 @@ export default defineComponent({
     },
     setup(props, ctx) {
         const { Translate } = useLangStore()
-        const openMessageBox = useMessageBox().openMessageBox
-        const { openLoading, closeLoading } = useLoading()
+
         const scheduleWeekRef = ref<ScheduleWeekInstance>()
 
         const pageData = ref({
@@ -57,10 +56,7 @@ export default defineComponent({
                     validator: (_rule, _value, callback) => {
                         if (!(formData.value.timespan.length && formData.value.timespan.find((o) => o.length > 0))) {
                             callback(new Error(''))
-                            openMessageBox({
-                                type: 'info',
-                                message: Translate('IDCS_PROMPT_SCHEDULE_PERIOD_EMPTY'),
-                            })
+                            openMessageBox(Translate('IDCS_PROMPT_SCHEDULE_PERIOD_EMPTY'))
                             return
                         }
                         callback()

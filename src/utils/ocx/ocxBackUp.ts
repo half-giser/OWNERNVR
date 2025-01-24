@@ -8,7 +8,6 @@ import { type XMLQuery } from '@/utils/xmlParse'
 import dayjs from 'dayjs'
 
 export const useOcxBackUp = (cmd: (str: string) => void) => {
-    const { openMessageBox } = useMessageBox()
     const userSession = useUserSessionStore()
 
     // OCX本地下载任务限制
@@ -183,14 +182,14 @@ export const useOcxBackUp = (cmd: (str: string) => void) => {
      * @description OCX通知回调
      * @param {XMLQuery} $
      */
-    const notify = ($: XMLQuery) => {
+    const notify = ($: XMLQuery, stateType: string) => {
         // 备份通知
-        if ($('statenotify[@type="BackUpRec"]').length) {
+        if (stateType === 'BackUpRec') {
             // var backupTaskGrid = $("#backupTaskGrid");
             const errorCode = $('statenotify/errorCode').text().num()
 
             if ([ErrorCode.USER_ERROR_NO_AUTH, 513, ErrorCode.USER_ERROR_SYSTEM_BUSY].includes(errorCode)) {
-                const taskIds = $('statenotify/errorDescription').text().split(',')
+                const taskIds = $('statenotify/errorDescription').text().array()
                 if (errorCode === ErrorCode.USER_ERROR_SYSTEM_BUSY) {
                     resendTask(taskIds)
                 } else {
@@ -204,14 +203,12 @@ export const useOcxBackUp = (cmd: (str: string) => void) => {
             } else if (errorCode === ErrorCode.USER_ERROR_DISK_SPACE_NO_ENOUGH) {
                 const errorDescription = $('statenotify/errorDescription').text()
                 localTableData.value = []
-                openMessageBox({
-                    type: 'info',
-                    message: errorDescription,
-                })
+                openMessageBox(errorDescription)
             }
         }
+
         //备份任务通知
-        else if ($("statenotify[@type='BackUpRecTasks']").length) {
+        if (stateType === 'BackUpRecTasks') {
             const taskItems = $('statenotify/tasks/item')
 
             // 清理已完成或失败的数据
@@ -238,8 +235,9 @@ export const useOcxBackUp = (cmd: (str: string) => void) => {
                 }
             })
         }
+
         //备份任务进度通知
-        else if ($("statenotify[@type='BackUpRecProgress']").length) {
+        if (stateType === 'BackUpRecProgress') {
             $('statenotify/tasks/item').forEach((item) => {
                 const taskId = item.attr('id')
                 const progress = item.text()

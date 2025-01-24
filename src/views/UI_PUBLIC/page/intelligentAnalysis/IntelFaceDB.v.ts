@@ -21,9 +21,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
-        const { openNotify } = useNotification()
         const userSession = useUserSessionStore()
         const dateTime = useDateTimeStore()
         const router = useRouter()
@@ -130,10 +127,7 @@ export default defineComponent({
          */
         const checkPermission = () => {
             if (!userSession.facePersonnalInfoMgr) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_PERMISSION'),
-                })
+                openMessageBox(Translate('IDCS_NO_PERMISSION'))
                 return false
             }
             return true
@@ -252,10 +246,7 @@ export default defineComponent({
                     default:
                         errorInfo = Translate('IDCS_SAVE_FAIL')
                 }
-                openMessageBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
         }
 
@@ -276,10 +267,7 @@ export default defineComponent({
                 return a + b.count
             }, 0)
             if (!totalTask) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_EXPORT_FAIL'),
-                })
+                openMessageBox(Translate('IDCS_EXPORT_FAIL'))
                 return
             }
 
@@ -617,10 +605,7 @@ export default defineComponent({
                         default:
                             errorInfo = Translate('IDCS_SAVE_FAIL')
                     }
-                    openMessageBox({
-                        type: 'info',
-                        message: errorInfo,
-                    })
+                    openMessageBox(errorInfo)
                 }
             })
         }
@@ -690,10 +675,7 @@ export default defineComponent({
                     default:
                         errorInfo = Translate('IDCS_SAVE_FAIL')
                 }
-                openMessageBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
 
                 return false
             }
@@ -731,10 +713,7 @@ export default defineComponent({
          */
         const handleFaceRecognition = () => {
             if (!userSession.hasAuth('alarmMgr')) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_AUTH'),
-                })
+                openMessageBox(Translate('IDCS_NO_AUTH'))
             }
 
             if (history.state.backChlId) {

@@ -44,8 +44,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
         const PRESET_MAX_COUNT = 16
 
@@ -158,10 +156,7 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
                         break
                 }
-                openMessageBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
 
             closeLoading()
@@ -190,10 +185,7 @@ export default defineComponent({
          */
         const addPreset = () => {
             if (tableData.value.length >= PRESET_MAX_COUNT) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_PRESET_MAX_NUM').formatForLang(PRESET_MAX_COUNT),
-                })
+                openMessageBox(Translate('IDCS_PRESET_MAX_NUM').formatForLang(PRESET_MAX_COUNT))
                 return
             }
             pageData.value.isPresetPop = true

@@ -16,9 +16,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
-        const { openNotify } = useNotification()
         const userSession = useUserSessionStore()
 
         const pageData = ref({
@@ -93,16 +90,16 @@ export default defineComponent({
         })
         let reqFile: File
 
-        const plugin = setupPlugin({
+        const plugin = usePlugin({
             onReady: (mode, plugin) => {
                 if (mode.value === 'ocx') {
                     const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
                     plugin.ExecuteCmd(sendXML)
                 }
             },
-            onMessage: ($) => {
+            onMessage: ($, stateType) => {
                 //导入或导出进度
-                if ($("statenotify[@type='FileNetTransportProgress']").length) {
+                if (stateType === 'FileNetTransportProgress') {
                     const progress = $('statenotify/progress').text()
                     const action = $('statenotify/action').text()
                     if (progress === '100%') {
@@ -114,10 +111,7 @@ export default defineComponent({
                                     getCertificate()
                                 } else {
                                     closeLoading()
-                                    openMessageBox({
-                                        type: 'info',
-                                        message: Translate('IDCS_IMPORT_FAIL'),
-                                    })
+                                    openMessageBox(Translate('IDCS_IMPORT_FAIL'))
                                 }
                             })
                         } else {
@@ -125,15 +119,17 @@ export default defineComponent({
                         }
                     }
                 }
+
                 //连接成功
-                else if ($("statenotify[@type='connectstate']").length) {
+                if (stateType === 'connectstate') {
                     const status = $('statenotify').text().trim()
                     if (status === 'success') {
                         pageData.value.isBrowserImportCertDirectDisabled = false
                     }
                 }
+
                 //网络断开
-                else if ($("statenotify[@type='FileNetTransport']").length) {
+                if (stateType === 'FileNetTransport') {
                     closeLoading()
                     handleErrorMsg($('statenotify/errorCode').text().num())
                 }
@@ -393,11 +389,7 @@ export default defineComponent({
                 const file = formData.value.cert === 1 ? directFile : reqFile
                 if (file.size === 0) {
                     closeLoading()
-
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_FILE_NO_EXISTS'),
-                    })
+                    openMessageBox(Translate('IDCS_FILE_NO_EXISTS'))
                 }
                 WebsocketUpload({
                     file: file,
@@ -468,10 +460,7 @@ export default defineComponent({
                     },
                     error: () => {
                         pageData.value.isExportCertReqDisabled = false
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_EXPORT_FAIL'),
-                        })
+                        openMessageBox(Translate('IDCS_EXPORT_FAIL'))
                     },
                 })
             } else {
@@ -515,10 +504,7 @@ export default defineComponent({
                     errorInfo = Translate('IDCS_IMPORT_FAIL')
                     break
             }
-            openMessageBox({
-                type: 'info',
-                message: errorInfo,
-            })
+            openMessageBox(errorInfo)
         }
 
         onMounted(async () => {

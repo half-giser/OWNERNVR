@@ -24,21 +24,12 @@
                         {{ value }}
                     </p>
                 </div>
-                <div
-                    v-if="pageData.tab !== 'image'"
-                    class="player"
-                >
+                <div class="player">
                     <BaseVideoPlayer
                         ref="playerRef"
                         @ready="handlePlayerReady"
                         @message="notify"
                     />
-                </div>
-                <div
-                    v-else
-                    class="player"
-                >
-                    <BaseVideoPlayer />
                 </div>
                 <div v-show="pageData.tab === 'param'">
                     <div class="base-btn-box space-between">

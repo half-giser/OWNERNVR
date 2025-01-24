@@ -18,9 +18,9 @@ export interface channelAddMultiChlIPCAddPop {
 export default defineComponent({
     setup(_, ctx) {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
         const userSessionStore = useUserSessionStore()
         const router = useRouter()
+
         const multiChlIPCCfgDialogVisiable = ref(false)
         const tableData = ref<ChannelMultiChlIPCAddDto[]>([])
 

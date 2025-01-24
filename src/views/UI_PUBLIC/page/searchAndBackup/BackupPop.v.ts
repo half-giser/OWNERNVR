@@ -37,7 +37,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
         const plugin = usePlugin()
 
         const pageData = ref({
@@ -140,10 +139,7 @@ export default defineComponent({
                     formData.value.localPath = $('response/recBackUpPath').text()
                 })
             } catch {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_QUERY_DATA_FAIL'),
-                })
+                openMessageBox(Translate('IDCS_QUERY_DATA_FAIL'))
             }
         }
 
@@ -175,7 +171,6 @@ export default defineComponent({
                 <content>
                     ${prop.backupList
                         .map((item) => {
-                            // if (!item.records.length) return ''
                             return rawXml`
                                 <item>
                                     <chls>
@@ -186,7 +181,7 @@ export default defineComponent({
                                     <endTime>${localToUtc(item.endTime)}</endTime>
                                     <backupFileFormat>${formData.value.remoteFormat}</backupFileFormat>
                                     <backupPath>${formData.value.remoteDeviceName}</backupPath>
-                                    <IsMainStream>${item.streamType === 0 ? 'true' : 'false'}</IsMainStream>
+                                    <IsMainStream>${item.streamType === 0}</IsMainStream>
                                     ${ternary(password, `<encryptPassword>${password}</encryptPassword>`)}
                                 </item>
                             `
@@ -217,10 +212,7 @@ export default defineComponent({
                 }
 
                 if (errorInfo) {
-                    openMessageBox({
-                        type: 'info',
-                        message: errorInfo,
-                    })
+                    openMessageBox(errorInfo)
                 }
             }
         }

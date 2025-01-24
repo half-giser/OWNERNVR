@@ -42,7 +42,6 @@ export default defineComponent({
     },
     setup(prop) {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
 
         const pageData = ref({
             // 预置点最大数量
@@ -88,10 +87,7 @@ export default defineComponent({
             }
 
             if (listData.value.length >= pageData.value.maxCount) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
-                })
+                openMessageBox(Translate('IDCS_OVER_MAX_NUMBER_LIMIT'))
                 return
             }
             pageData.value.isAddPop = true
@@ -115,10 +111,7 @@ export default defineComponent({
 
             const item = listData.value[pageData.value.active]
             if (!item) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_PROMPT_CHANNEL_PRESET_EMPTY'),
-                })
+                openMessageBox(Translate('IDCS_PROMPT_CHANNEL_PRESET_EMPTY'))
                 return
             }
 
@@ -145,10 +138,7 @@ export default defineComponent({
                         getList()
                     })
                 } else {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_DELETE_FAIL'),
-                    })
+                    openMessageBox(Translate('IDCS_DELETE_FAIL'))
                 }
             })
         }
@@ -163,10 +153,7 @@ export default defineComponent({
 
             const item = listData.value[pageData.value.active]
             if (!item) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_PROMPT_CHANNEL_PRESET_EMPTY'),
-                })
+                openMessageBox(Translate('IDCS_PROMPT_CHANNEL_PRESET_EMPTY'))
                 return
             }
 

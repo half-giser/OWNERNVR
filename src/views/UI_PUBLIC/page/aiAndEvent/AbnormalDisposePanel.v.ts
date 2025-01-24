@@ -40,7 +40,6 @@ export default defineComponent({
         },
     },
     setup(prop) {
-        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
         // 系统配置
@@ -57,7 +56,7 @@ export default defineComponent({
         const pageData = ref({
             tab: 'param',
             reqFail: false,
-            enableList: getSwitchOptions(),
+            enableList: getTranslateOptions(DEFAULT_SWITCH_OPTIONS),
         })
 
         const ready = computed(() => {

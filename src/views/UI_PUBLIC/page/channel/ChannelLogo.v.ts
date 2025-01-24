@@ -8,13 +8,12 @@ import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
     setup() {
-        const { openLoading, closeLoading } = useLoading()
         const playerRef = ref<PlayerInstance>()
 
         const pageData = ref({
             // 选中行索引
             tableIndex: 0,
-            switchOptions: getSwitchOptions(),
+            switchOptions: getTranslateOptions(DEFAULT_SWITCH_OPTIONS),
             pageIndex: 1,
             pageSize: 10,
             total: 10,
@@ -164,16 +163,17 @@ export default defineComponent({
                 const result = await queryIPChlORChlLogo(sendXml)
                 const $ = queryXml(result)
                 if ($('status').text() === 'success') {
-                    item.switch = $('content/chl/logo/switch').text().bool().toString()
-                    item.opacity = $('content/chl/logo/opacity').text().num()
-                    item.minOpacity = $('content/chl/logo/opacity').attr('min').num()
-                    item.maxOpacity = $('content/chl/logo/opacity').attr('max').num()
-                    item.X = $('content/chl/logo/X').text().num()
-                    item.Y = $('content/chl/logo/Y').text().num()
-                    item.minX = $('content/chl/logo/X').attr('min').num()
-                    item.maxX = $('content/chl/logo/X').attr('max').num()
-                    item.minY = $('content/chl/logo/Y').attr('min').num()
-                    item.maxY = $('content/chl/logo/Y').attr('max').num()
+                    const $logo = queryXml($('content/chl/logo')[0].element)
+                    item.switch = $logo('switch').text().bool().toString()
+                    item.opacity = $logo('opacity').text().num()
+                    item.minOpacity = $logo('opacity').attr('min').num()
+                    item.maxOpacity = $logo('opacity').attr('max').num()
+                    item.X = $logo('X').text().num()
+                    item.Y = $logo('Y').text().num()
+                    item.minX = $logo('X').attr('min').num()
+                    item.maxX = $logo('X').attr('max').num()
+                    item.minY = $logo('Y').attr('min').num()
+                    item.maxY = $logo('Y').attr('max').num()
                     item.disabled = false
                 } else {
                     item.disabled = true

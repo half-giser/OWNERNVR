@@ -26,7 +26,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
         const userSession = useUserSessionStore()
 
         const formRef = useFormRef()

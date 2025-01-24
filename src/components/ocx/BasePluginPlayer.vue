@@ -29,16 +29,16 @@ const prop = withDefaults(
 
 const emits = defineEmits<{
     (e: 'ready'): void
-    (e: 'message', $: XMLQuery): void
+    (e: 'message', $: XMLQuery, stateType: string): void
 }>()
 
 const plugin = usePlugin()
 const $player = ref<HTMLDivElement>()
 const ready = ref(false)
 
-setupPlugin({
+usePlugin({
     player: $player,
-    onMessage: ($) => emits('message', $),
+    onMessage: ($, stateType) => emits('message', $, stateType),
 })
 
 /**

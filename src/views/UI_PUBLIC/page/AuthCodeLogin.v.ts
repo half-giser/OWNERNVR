@@ -9,9 +9,8 @@ import progress from '@bassist/progress'
 
 export default defineComponent({
     setup() {
-        const Plugin = usePlugin()
+        const plugin = usePlugin()
         const layoutStore = useLayoutStore()
-        const { openLoading, closeLoading } = useLoading()
         const lang = useP2PLang()
         const Translate = lang.Translate
         const userSession = useUserSessionStore()
@@ -228,7 +227,7 @@ export default defineComponent({
                 setCookie('loginLock', 'true')
                 pageData.value.btnDisabled = true
                 const originError = pageData.value.errorMsg
-                new CountDowner({
+                CountDowner({
                     distime: lockTime / 1000,
                     callback(obj) {
                         let info = ''
@@ -276,7 +275,7 @@ export default defineComponent({
                 if (currentTime - loginLockTime < lockTime) {
                     setCookie('loginLock', 'true')
                     const originError = getCookie('originError') || ''
-                    new CountDowner({
+                    CountDowner({
                         distime: loginLockTime + lockTime - currentTime,
                         callback(obj) {
                             if (getCookie('loginLock') === 'true') {
@@ -353,9 +352,9 @@ export default defineComponent({
             pluginStore.manuaClosePlugin = true
             pageData.value.errorMsg = ''
             userSession.p2pSessionId = null
-            Plugin.DisposePlugin()
-            Plugin.StartV2Process()
-            Plugin.SetLoginTypeCallback((loginType, authCodeIndex) => {
+            plugin.DisposePlugin()
+            plugin.StartV2Process()
+            plugin.SetLoginTypeCallback((loginType, authCodeIndex) => {
                 closeLoading()
                 pageData.value.loginType = loginType
                 pageData.value.authCodeIndex = authCodeIndex
@@ -377,13 +376,13 @@ export default defineComponent({
             pageData.value.btnDisabled = true
             pageData.value.errorMsg = ''
             userSession.calendarType = formData.value.calendarType
-            Plugin.P2pAuthCodeLogin(formData.value.code, pageData.value.authCodeIndex)
+            plugin.P2pAuthCodeLogin(formData.value.code, pageData.value.authCodeIndex)
         }
 
         onMounted(async () => {
             await lang.getLangTypes()
             await lang.getLangItems()
-            Plugin.SetLoginErrorCallback(handlerErrorCode)
+            plugin.SetLoginErrorCallback(handlerErrorCode)
             layoutStore.isInitial = true
             userSession.refreshLoginPage = true
             startCountDownTime()
@@ -392,8 +391,8 @@ export default defineComponent({
         })
 
         onBeforeUnmount(() => {
-            Plugin.SetLoginTypeCallback()
-            Plugin.SetLoginErrorCallback()
+            plugin.SetLoginTypeCallback()
+            plugin.SetLoginErrorCallback()
             userSession.refreshLoginPage = false
         })
 

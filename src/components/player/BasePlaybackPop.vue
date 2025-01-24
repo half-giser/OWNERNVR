@@ -477,8 +477,8 @@ const reset = () => {
  * @description OCX通知监听
  * @param {Function} $
  */
-const ocxNotify = ($: XMLQuery) => {
-    if ($('statenotify[@type="connectstate"]').length) {
+const ocxNotify = ($: XMLQuery, stateType: string) => {
+    if (stateType === 'connectstate') {
         if ($('statenotify').text() === 'success') {
             const sendXML = OCX_XML_SetRecPlayMode('SYNC')
             playerRef.value!.plugin.ExecuteCmd(sendXML)
@@ -486,7 +486,7 @@ const ocxNotify = ($: XMLQuery) => {
         }
     }
 
-    if ($('statenotify[@type="RecCurPlayTime"]').length) {
+    if (stateType === 'RecCurPlayTime') {
         if (pageData.value.lockSlider) {
             return
         }
@@ -494,17 +494,19 @@ const ocxNotify = ($: XMLQuery) => {
         pageData.value.progress = seconds
     }
 
-    if ($('statenotify[@type="CurrentSelectedWindow"]').length) {
+    if (stateType === 'CurrentSelectedWindow') {
         if ($('statenotify/playStatus').text() === 'STOP') {
             pageData.value.iconDisabled = false
         }
     }
 
-    if ($('statenotify[@type="RecPlay"]/errorCode').length) {
-        reset()
+    if (stateType === 'RecPlay') {
+        if ($('statenotify/errorCode').length) {
+            reset()
+        }
     }
     // StartViewChl
-    if ($('statenotify[@type="StartViewChl"]').length) {
+    if (stateType === 'StartViewChl') {
         const status = $('statenotify/status').text()
         const chlId = $('statenotify/chlId').text()
         const winIndex = $('statenotify/winIndex').text().num()

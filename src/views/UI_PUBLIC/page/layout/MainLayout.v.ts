@@ -17,9 +17,7 @@ export default defineComponent({
         const router = useRouter()
         const userSession = useUserSessionStore()
         const systemCaps = useCababilityStore()
-        const { openMessageBox } = useMessageBox()
         const { Translate } = useLangStore()
-        // const plugin = usePlugin()
         const systemInfo = getSystemInfo()
         const layoutStore = useLayoutStore()
         const pluginStore = usePluginStore()
@@ -219,10 +217,7 @@ export default defineComponent({
             const $ = queryXml(result)
             const diskNum = $('content/item').text().num()
             if (diskNum === 0) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_DISK'),
-                })
+                openMessageBox(Translate('IDCS_NO_DISK'))
                 return
             }
             let diskDamage = false //是否有磁盘损坏/未格式化
@@ -249,10 +244,7 @@ export default defineComponent({
                             router.push('/config/disk/management')
                         }
                     } else {
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_NO_PERMISSION'),
-                        })
+                        openMessageBox(Translate('IDCS_NO_PERMISSION'))
                     }
                 })
             }
@@ -265,6 +257,10 @@ export default defineComponent({
                 if (mode !== 'ocx') {
                     const path = getPluginPath()
                     pageData.value.pluginDownloadURL = path.ClientPluDownLoadPath
+                    if (import.meta.env.DEV) {
+                        pageData.value.pluginDownloadURL = '/plugin' + path.ClientPluDownLoadPath
+                    }
+
                     // mac操作系统仅支持H5，插件下载按钮隐藏
                     if (systemInfo.platform !== 'mac') {
                         pageData.value.isPluginDownloadBtn = true
@@ -284,15 +280,7 @@ export default defineComponent({
          */
         const handleDownloadPlugin = () => {
             const pluginName = pageData.value.pluginDownloadURL.slice(pageData.value.pluginDownloadURL.lastIndexOf('/') + 1)
-            const link = document.createElement('a')
-            link.setAttribute('href', pageData.value.pluginDownloadURL)
-            link.setAttribute('download', pluginName)
-            link.style.display = 'none'
-            document.body.appendChild(link)
-            link.click()
-            setTimeout(() => {
-                document.body.removeChild(link)
-            }, 1000)
+            downloadFromBase64(pageData.value.pluginDownloadURL, pluginName)
         }
 
         /**

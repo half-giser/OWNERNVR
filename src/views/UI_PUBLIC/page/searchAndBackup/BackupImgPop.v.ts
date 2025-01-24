@@ -22,7 +22,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
         const userSession = useUserSessionStore()
 
         const pageData = ref({
@@ -108,10 +107,7 @@ export default defineComponent({
             const result = await backupPicture(sendXml)
             const $ = queryXml(result)
             if ($('status').text() !== 'success') {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_SAVE_FAIL'),
-                })
+                openMessageBox(Translate('IDCS_SAVE_FAIL'))
             }
             ctx.emit('close')
         }
@@ -177,14 +173,15 @@ export default defineComponent({
                 try {
                     link.click()
                 } catch (e) {
-                    openMessageBox({
-                        type: 'info',
-                        message: 'Your browser does not support downloading pictures',
-                    })
+                    openMessageBox('Your browser does not support downloading pictures')
                 }
 
                 context.clearRect(0, 0, canvas.width, canvas.height)
             }
+
+            setTimeout(() => {
+                document.body.removeChild(link)
+            }, 1000)
         }
 
         /**

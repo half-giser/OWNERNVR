@@ -151,8 +151,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openNotify } = useNotification()
         const systemCaps = useCababilityStore()
         const userSession = useUserSessionStore()
 
@@ -534,19 +532,13 @@ export default defineComponent({
         const handlePlayerError = (index: number, data: TVTPlayerWinDataListItem, error?: string) => {
             // 不支持打开音频
             if (error === 'notSupportAudio') {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_AUDIO_NOT_SUPPORT'),
-                })
+                openMessageBox(Translate('IDCS_AUDIO_NOT_SUPPORT'))
                 pageData.value.winData.supportAudio = false
                 pageData.value.winData.audio = false
             }
             // 当前用户打开无音频的权限
             else if (error === 'noPermission') {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_PERMISSION'),
-                })
+                openMessageBox(Translate('IDCS_NO_PERMISSION'))
             }
             // 音频流关闭事件，将对应通道的音频图标置为关闭状态
             else if (error === 'audioClosed') {
@@ -982,10 +974,7 @@ export default defineComponent({
                 }
 
                 if (userAuth.value.audio[pageData.value.winData.chlID] === false) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_NO_PERMISSION'),
-                    })
+                    openMessageBox(Translate('IDCS_NO_PERMISSION'))
                     return
                 }
                 const winIndex = pageData.value.winData.winIndex
@@ -1434,10 +1423,7 @@ export default defineComponent({
          */
         const backUp = () => {
             if (plugin.BackUpTask.isExeed(pageData.value.recLogList.length)) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_BACKUP_TASK_NUM_LIMIT').formatForLang(plugin.BackUpTask.limit),
-                })
+                openMessageBox(Translate('IDCS_BACKUP_TASK_NUM_LIMIT').formatForLang(plugin.BackUpTask.limit))
                 return
             }
             const startTime = pageData.value.timelineClipRange[0] * 1000
@@ -1469,10 +1455,7 @@ export default defineComponent({
             if (pageData.value.backupRecList.length) {
                 pageData.value.isBackUpPop = true
             } else {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_RECORD_DATA'),
-                })
+                openMessageBox(Translate('IDCS_NO_RECORD_DATA'))
             }
         }
 
@@ -1503,14 +1486,15 @@ export default defineComponent({
          * @description 插件通知回调
          * @param {XMLQuery} $
          */
-        const notify = ($: XMLQuery) => {
+        const notify = ($: XMLQuery, stateType: string) => {
             // 播放进度
-            if ($("statenotify[@type='RecCurPlayTime']").length) {
+            if (stateType === 'RecCurPlayTime') {
                 const time = $('statenotify/win').text().num()
                 timelineRef.value?.setTime(time + Math.floor(startTimeStamp.value / 1000))
             }
+
             // 通知当前选中窗口信息
-            else if ($("statenotify[@type='CurrentSelectedWindow']").length) {
+            if (stateType === 'CurrentSelectedWindow') {
                 const $item = queryXml($('statenotify')[0].element)
                 const winIndex = $item('winIndex').text().num()
 
@@ -1537,27 +1521,31 @@ export default defineComponent({
                 // 是否启用鱼眼
                 pageData.value.fishEye = $item('fishEyeInstallType').text()
             }
+
             // 通知窗口状态信息
-            else if ($("statenotify[@type='WindowStatus']").length) {
-                // const eventOpenWinNum = $("statenotify[@type='WindowStatus']/eventOpenWinNum").text().num()
+            if (stateType === 'WindowStatus') {
+                // const eventOpenWinNum = $("statenotify/eventOpenWinNum").text().num()
                 const vedioOpenWinNum = $('statenotify/vedioOpenWinNum').text().num()
                 pageData.value.playingListNum = vedioOpenWinNum
             }
+
             // 通知分割屏数目
-            else if ($("statenotify[@type='CurrentFrameNum']").length || $("statenotify[@type='CurrentScreenMode']").length) {
+            if (stateType === 'CurrentFrameNum' || stateType === 'CurrentScreenMode') {
                 pageData.value.split = $('statenotify').text().trim().num()
             }
+
             // 通知双击大屏分割屏数目
-            else if ($("statenotify[@type='MaxFrameMode']").length) {
+            if (stateType === 'MaxFrameMode') {
                 const segNum = $('statenotify').text().trim().num()
                 pageData.value.split = segNum
                 pageData.value.isFullScreen = segNum === 1 ? false : true
             }
+
             // 播放
-            else if ($("statenotify[@type='RecPlay']").length) {
+            if (stateType === 'RecPlay') {
                 const status = $('statenotify/status').text()
                 const chlId = $('statenotify/chlId').text()
-                // const winIndex = $("statenotify[@type='RecPlay']/winIndex").text()
+                // const winIndex = $("statenotify/winIndex").text()
                 const errorCode = $('statenotify/errorCode').text().num()
                 if (status === 'fail') {
                     switch (errorCode) {
@@ -1573,18 +1561,20 @@ export default defineComponent({
                     openNotify(find ? `${find.value}: ${Translate('IDCS_NO_REC_DATA')}` : Translate('IDCS_NO_REC_DATA'))
                 }
             }
+
             // 通知抓图结果
-            else if ($("statenotify[@type='TakePhoto']").length) {
+            if (stateType === 'TakePhoto') {
                 const status = $('statenotify/status').text()
                 if (status === 'success') {
-                    openNotify(Translate('IDCS_SNAP_SUCCESS_PATH') + Translate($('statenotify[@type="TakePhoto"].dir').text()))
+                    openNotify(Translate('IDCS_SNAP_SUCCESS_PATH') + Translate($('statenotify/dir').text()))
                 } else {
                     const errorDescription = $('statenotify/errorDescription').text()
                     openNotify(Translate('IDCS_SNAP_FAIL') + (errorDescription || ''))
                 }
             }
+
             // StartViewChl
-            else if ($("statenotify[@type='StartViewChl']").length) {
+            if (stateType === 'StartViewChl') {
                 const status = $('statenotify/status').text()
                 const chlId = $('statenotify/chlId').text()
                 const winIndex = $('statenotify/winIndex').text().num()

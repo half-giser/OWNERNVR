@@ -167,7 +167,7 @@
         >
             <BasePluginPlayer
                 :is-update-pos="prop.ocxUpdatePos"
-                @message="emits('message', $event)"
+                @message="handleOCXMessage"
             />
         </div>
     </div>
@@ -296,7 +296,7 @@ const emits = defineEmits<{
     /**
      * @description 接收OCX通知信息
      */
-    (e: 'message', $: XMLQuery): void
+    (e: 'message', $: XMLQuery, stateType: string): void
     /**
      * @description 组件销毁时回调
      */
@@ -306,7 +306,6 @@ const emits = defineEmits<{
 const plugin = usePlugin()
 const systemCaps = useCababilityStore()
 const pluginStore = usePluginStore()
-const { openNotify } = useNotification()
 const { Translate } = useLangStore()
 
 const $screen = ref<HTMLDivElement>()
@@ -2348,7 +2347,7 @@ const resizePlayer = () => {
  */
 const startRecord = (winIndex: number) => {
     if (playerList[winIndex]) {
-        recordStartTime[winIndex] = new Date().getTime() // 记录开始录像时间
+        recordStartTime[winIndex] = Date.now() // 记录开始录像时间
         playerList[winIndex]!.startRecord()
         winDataList[winIndex].localRecording = true
     }
@@ -2535,6 +2534,10 @@ const readyState = computed(() => {
 const resizeObserver = new ResizeObserver(() => {
     resize()
 })
+
+const handleOCXMessage = ($: XMLQuery, stateType: string) => {
+    return emits('message', $, stateType)
+}
 
 createVideoPlayer()
 

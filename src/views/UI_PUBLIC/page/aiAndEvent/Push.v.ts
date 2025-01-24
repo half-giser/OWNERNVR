@@ -12,8 +12,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const formData = ref(new AlarmPushForm())
 
         const pageData = ref({
@@ -54,10 +52,7 @@ export default defineComponent({
                     message: Translate('IDCS_TEST_PUSH_MOBILE_SUCCESS'),
                 })
             } else {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_TEST_PUSH_MOBILE_FAILED'),
-                })
+                openMessageBox(Translate('IDCS_TEST_PUSH_MOBILE_FAILED'))
             }
         }
 

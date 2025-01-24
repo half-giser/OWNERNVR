@@ -9,9 +9,8 @@ import { SystemLocalConfig } from '@/types/apiType/system'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
 
-        const plugin = setupPlugin({
+        const plugin = usePlugin({
             onReady: (mode, plugin) => {
                 if (mode.value === 'ocx') {
                     const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
@@ -83,10 +82,7 @@ export default defineComponent({
                     formData.value.recBackUpPath = $('response/recBackUpPath').text()
                 })
             } catch {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_QUERY_DATA_FAIL'),
-                })
+                openMessageBox(Translate('IDCS_QUERY_DATA_FAIL'))
             }
         }
 
@@ -113,10 +109,7 @@ export default defineComponent({
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
             } catch {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_SAVE_DATA_FAIL'),
-                })
+                openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
             }
         }
 

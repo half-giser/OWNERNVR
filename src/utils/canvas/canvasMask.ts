@@ -23,7 +23,7 @@ interface CanvasMaskOption {
 }
 
 export default function CanvasMask(option: CanvasMaskOption) {
-    const DEFAULT_COLOR = '#00ff0088' // 默认填充色值
+    const DEFAULT_COLOR = '#0f08' // 默认填充色值
     const DEFAULT_MAX = 4 // 绘制最大数量
     const RELATIVE_WIDTH = 640 // 万分比宽度
     const RELATIVE_HEIGHT = 480 // 万分比高度

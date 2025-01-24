@@ -79,7 +79,6 @@ const emits = defineEmits<{
 const data = ref<SelectOption<string, string>[]>([])
 const chosedList = ref<string[]>([])
 
-const { openMessageBox } = useMessageBox()
 const { Translate } = useLangStore()
 
 /**
@@ -95,10 +94,7 @@ const open = () => {
  */
 const change = () => {
     if (chosedList.value.length > props.limit) {
-        openMessageBox({
-            type: 'info',
-            message: Translate(props.limitTip),
-        })
+        openMessageBox(Translate(props.limitTip))
         chosedList.value.splice(props.limit, chosedList.value.length - 1)
     }
 }

@@ -21,8 +21,6 @@ export default defineComponent({
     },
     setup(props, { emit }) {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
-        const { openMessageBox } = useMessageBox()
 
         let tmpEditItem: ChannelGroupDto
         const tableRef = ref<TableInstance>()
@@ -62,7 +60,7 @@ export default defineComponent({
                 const $ = queryXml(res)
                 if ($('status').text() === 'success') {
                     const chlList: ChannelInfoDto[] = []
-                    const addedChlList: string[] = tmpEditItem.chls.map((ele: Record<string, string | boolean>) => {
+                    const addedChlList: string[] = tmpEditItem.chls.map((ele) => {
                         return ele.value as string
                     })
                     $('content/item').forEach((ele) => {
@@ -86,10 +84,7 @@ export default defineComponent({
 
         const verification = () => {
             if (!selNum.value) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_PROMPT_CHANNEL_GROUP_EMPTY'),
-                })
+                openMessageBox(Translate('IDCS_PROMPT_CHANNEL_GROUP_EMPTY'))
                 return false
             }
             return true
@@ -128,17 +123,14 @@ export default defineComponent({
                     })
                     emit('close', true)
                 } else {
-                    const errorCdoe = $('errorCode').text().num()
-                    if (errorCdoe === ErrorCode.USER_ERROR_OVER_LIMIT) {
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
-                        })
-                    } else {
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_SAVE_DATA_FAIL'),
-                        })
+                    const errorCode = $('errorCode').text().num()
+                    switch (errorCode) {
+                        case ErrorCode.USER_ERROR_OVER_LIMIT:
+                            openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT'))
+                            break
+                        default:
+                            openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
+                            break
                     }
                 }
             })

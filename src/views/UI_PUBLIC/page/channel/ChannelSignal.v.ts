@@ -9,8 +9,6 @@ import { ChannelSignalDto } from '@/types/apiType/channel'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
-        const { openMessageBox } = useMessageBox()
         const cababilityStore = useCababilityStore()
 
         const tableData = ref<ChannelSignalDto[]>([new ChannelSignalDto()])
@@ -45,25 +43,19 @@ export default defineComponent({
         ]
 
         const chlSupSignalTypeList = ref<SelectOption<string, string>[]>([])
-        const switchOptions = getBoolSwitchOptions()
+        const switchOptions = getTranslateOptions(DEFAULT_BOOL_SWITCH_OPTIONS)
 
         const handleAnalogIpChange = (rowData: ChannelSignalDto) => {
             const count = tableData.value.filter((item) => item.signal === 'D').length
             if (rowData.analogIp === 'IP') {
                 if ((switchIpChlRange[0] && rowData.id < switchIpChlRange[0] - 1) || (switchIpChlRange[1] && rowData.id > switchIpChlRange[1] - 1)) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_ANALOG_SWITCH_RANGE_ERROR').formatForLang(switchIpChlRange[0], switchIpChlRange[1]),
-                    })
+                    openMessageBox(Translate('IDCS_ANALOG_SWITCH_RANGE_ERROR').formatForLang(switchIpChlRange[0], switchIpChlRange[1]))
                     rowData.analogIp = 'Analog'
                     return
                 }
 
                 if (count >= switchableIpChlMaxCount) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_IP_CAN_NOT_ALL_SWITCH').formatForLang(switchableIpChlMaxCount),
-                    })
+                    openMessageBox(Translate('IDCS_IP_CAN_NOT_ALL_SWITCH').formatForLang(switchableIpChlMaxCount))
                     rowData.analogIp = 'Analog'
                     return
                 }
@@ -74,10 +66,7 @@ export default defineComponent({
             } else {
                 const name = rowData.name.slice(2, 4).indexOf('0') === 0 ? rowData.name.slice(3, 4) : rowData.name.slice(2, 4)
                 if (chls.includes(Number(name))) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_SIGNAL_IP_TO_ANALOG_TIP'),
-                    })
+                    openMessageBox(Translate('IDCS_SIGNAL_IP_TO_ANALOG_TIP'))
                     rowData.analogIp = 'IP'
                     return
                 }
@@ -107,10 +96,7 @@ export default defineComponent({
                         changeIpCount++
                     }
                 })
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_IP_CAN_NOT_ALL_SWITCH').formatForLang(switchableIpChlMaxCount),
-                })
+                openMessageBox(Translate('IDCS_IP_CAN_NOT_ALL_SWITCH').formatForLang(switchableIpChlMaxCount))
                 hasChangeIP = true
             }
 
@@ -118,17 +104,11 @@ export default defineComponent({
                 tableData.value.forEach((ele) => {
                     if (ele.id > switchIpChlRange[0] && ele.id < switchIpChlRange[1]) changeIpRowData.push(ele)
                 })
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_ANALOG_SWITCH_RANGE_ERROR').formatForLang(switchIpChlRange[0], switchIpChlRange[1]),
-                })
+                openMessageBox(Translate('IDCS_ANALOG_SWITCH_RANGE_ERROR').formatForLang(switchIpChlRange[0], switchIpChlRange[1]))
             }
 
             if (guidAnalog && val === 'Analog') {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_SIGNAL_IP_TO_ANALOG_TIP'),
-                })
+                openMessageBox(Translate('IDCS_SIGNAL_IP_TO_ANALOG_TIP'))
                 tableData.value.forEach((ele) => (ele.analogIp = 'IP'))
                 guidAnalog = false
                 return

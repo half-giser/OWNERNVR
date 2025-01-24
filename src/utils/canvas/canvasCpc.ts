@@ -17,9 +17,9 @@ interface CanvasCpcOption {
 }
 
 export default function CanvasCpc(option: CanvasCpcOption) {
-    const DEFAULT_REGION_LINE_COLOR = '#00ff00' // 区域画线默认色值
-    const DEFAULT_ARROW_LINE_COLOR = '#ff0000' // 箭头默认色值
-    // const DEFAULT_TEXT_COLOR = '#ff0000' // 文字默认色值
+    const DEFAULT_REGION_LINE_COLOR = '#0f0' // 区域画线默认色值
+    const DEFAULT_ARROW_LINE_COLOR = '#f00' // 箭头默认色值
+    // const DEFAULT_TEXT_COLOR = '#f00' // 文字默认色值
     const RELATIVE_WIDTH = 10000 // 万分比宽度
     const RELATIVE_HEIGHT = 10000 // 万分比高度
     const DEFAULT_REGION_INFO = {
@@ -245,7 +245,12 @@ export default function CanvasCpc(option: CanvasCpcOption) {
                         }
                     } else {
                         // 非拖动模式，则绘制新的矩形区域
-                        regionInfo = getRelativeItemByReal({ X1: startX, Y1: startY, X2: endX, Y2: endY })
+                        regionInfo = getRelativeItemByReal({
+                            X1: startX,
+                            Y1: startY,
+                            X2: endX,
+                            Y2: endY,
+                        })
                     }
                     init()
                 }

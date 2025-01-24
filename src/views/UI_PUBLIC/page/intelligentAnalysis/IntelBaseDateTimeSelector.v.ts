@@ -40,28 +40,7 @@ export default defineComponent({
             // 确认的日期范围类型
             confirmDateRangeType: 'today',
             // 按钮选项
-            buttons: [
-                {
-                    label: DATE_MAPPING.today,
-                    value: 'today',
-                },
-                {
-                    label: DATE_MAPPING.yesterday,
-                    value: 'yesterday',
-                },
-                {
-                    label: DATE_MAPPING.week,
-                    value: 'week',
-                },
-                {
-                    label: DATE_MAPPING.month,
-                    value: 'month',
-                },
-                {
-                    label: DATE_MAPPING.custom,
-                    value: 'custom',
-                },
-            ],
+            buttons: objectToOptions(DATE_MAPPING, 'string'),
         })
 
         // 选项框回显内容

@@ -14,33 +14,19 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const dateTime = useDateTimeStore()
 
         // 周与文本的映射
-        const WEEK_DAY_MAPPING: Record<number, string> = {
-            0: Translate('IDCS_WEEK_DAY_SEVEN'),
-            1: Translate('IDCS_WEEK_DAY_ONE'),
-            2: Translate('IDCS_WEEK_DAY_TWO'),
-            3: Translate('IDCS_WEEK_DAY_THREE'),
-            4: Translate('IDCS_WEEK_DAY_FOUR'),
-            5: Translate('IDCS_WEEK_DAY_FIVE'),
-            6: Translate('IDCS_WEEK_DAY_SIX'),
+        const WEEK_DAY_MAPPING = getTranslateMapping(DEFAULT_WEEK_MAPPING)
+
+        const TYPE_MAPPING: Record<string, string> = {
+            checked: Translate('IDCS_ATTENDANCE_CHECKED'),
+            unchecked: Translate('IDCS_ATTENDANCE_UNCHECK'),
         }
 
         const pageData = ref({
             // 类型选项
-            typeOptions: [
-                {
-                    label: Translate('IDCS_ATTENDANCE_CHECKED'),
-                    value: 'checked',
-                },
-                {
-                    label: Translate('IDCS_ATTENDANCE_UNCHECK'),
-                    value: 'unchecked',
-                },
-            ],
+            typeOptions: objectToOptions(TYPE_MAPPING, 'string'),
             // 日期范围类型
             dateRangeType: 'date',
             // 通道列表
@@ -287,18 +273,12 @@ export default defineComponent({
          */
         const getData = async () => {
             if (!formData.value.chls.length) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_PROMPT_CHANNEL_GROUP_EMPTY'),
-                })
+                openMessageBox(Translate('IDCS_PROMPT_CHANNEL_GROUP_EMPTY'))
                 return
             }
 
             if (!formData.value.faceGroup.length) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_SELECT_GROUP_NOT_EMPTY'),
-                })
+                openMessageBox(Translate('IDCS_SELECT_GROUP_NOT_EMPTY'))
             }
 
             const sendXml = rawXml`
@@ -332,7 +312,7 @@ export default defineComponent({
 
             $('content/i')
                 .map((item) => {
-                    const textArr = item.text().split(',')
+                    const textArr = item.text().array()
                     const chlId = getChlGuid16(textArr[4]).toUpperCase()
                     const timestamp = hexToDec(textArr[1]) * 1000
                     return {
@@ -366,7 +346,7 @@ export default defineComponent({
                             date: date.date,
                             day: date.day,
                             alarm: true,
-                            type: Translate('IDCS_ATTENDANCE_UNCHECK'),
+                            type: TYPE_MAPPING.unchecked,
                             detail: [],
                         })
                         return
@@ -383,7 +363,7 @@ export default defineComponent({
                     tableList[index].detail.push({
                         date: date.date,
                         day: date.day,
-                        type: find ? Translate('IDCS_ATTENDANCE_CHECKED') : Translate('IDCS_ATTENDANCE_UNCHECK'),
+                        type: find ? TYPE_MAPPING.checked : TYPE_MAPPING.unchecked,
                         alarm: !!find,
                         detail: find ? [find] : [],
                     })

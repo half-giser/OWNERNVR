@@ -21,8 +21,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
         // 名称被修改时保存原始名称
@@ -38,9 +36,9 @@ export default defineComponent({
 
         const pageData = ref({
             // 类型
-            typeList: getAlwaysOptions(),
+            typeList: getTranslateOptions(DEFAULT_ALWAYS_OPTIONS),
             // 启用、推送、蜂鸣器、消息框弹出、email
-            switchList: getSwitchOptions(),
+            switchList: getTranslateOptions(DEFAULT_SWITCH_OPTIONS),
             // 持续时间列表
             durationList: [] as SelectOption<string, string>[],
             // 是否支持声音
@@ -285,26 +283,17 @@ export default defineComponent({
         const blurName = (row: AlarmCombinedDto) => {
             const name = row.name
             if (!checkChlName(name)) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'),
-                })
+                openMessageBox(Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'))
                 row.name = originalName.value
             } else {
                 if (!name) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_PROMPT_NAME_EMPTY'),
-                    })
+                    openMessageBox(Translate('IDCS_PROMPT_NAME_EMPTY'))
                     row.name = originalName.value
                 }
 
                 for (const item of tableData.value) {
                     if (item.id !== row.id && name === item.name) {
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_NAME_SAME'),
-                        })
+                        openMessageBox(Translate('IDCS_NAME_SAME'))
                         row.name = originalName.value
                         break
                     }

@@ -62,8 +62,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
         const pageData = ref({
             // 通道列表是否初始化完毕
@@ -310,10 +308,7 @@ export default defineComponent({
                 })
             } else {
                 if ($('errorCode').text().num() === ErrorCode.USER_ERROR_NO_AUTH) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_NO_PERMISSION'),
-                    })
+                    openMessageBox(Translate('IDCS_NO_PERMISSION'))
                 }
             }
         }
@@ -506,10 +501,7 @@ export default defineComponent({
             pageData.value.activeCustomView = item.id
 
             if (item.segNum > 4) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_SUPPORT_SEGMENTATION').formatForLang(item.segNum),
-                })
+                openMessageBox(Translate('IDCS_NO_SUPPORT_SEGMENTATION').formatForLang(item.segNum))
             }
             ctx.emit('custom', item.chlArr, item.segNum)
         }

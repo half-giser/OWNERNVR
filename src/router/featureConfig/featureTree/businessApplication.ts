@@ -107,7 +107,6 @@ export default {
         },
     },
     async beforeEnter(_to, from, next) {
-        const { openMessageBox } = useMessageBox()
         const { Translate } = useLangStore()
         const userSession = useUserSessionStore()
         const systemCaps = useCababilityStore()
@@ -118,10 +117,7 @@ export default {
             const parkingLotMgr = userSession.hasAuth('parkingLotMgr') && !IntelAndFaceConfigHide
             const AccessControlMgr = userSession.hasAuth('AccessControlMgr')
             if (!parkingLotMgr && !AccessControlMgr && !supportFaceMatch) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_AUTH'),
-                })
+                openMessageBox(Translate('IDCS_NO_AUTH'))
                 if (from.fullPath.includes('business-application')) {
                     next('/live')
                 } else {

@@ -9,8 +9,6 @@ import { type FormRules } from 'element-plus'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const userSession = useUserSessionStore()
 
         const formRef = useFormRef()
@@ -154,7 +152,7 @@ export default defineComponent({
                 formData.value.userName = $('content/userName').text()
                 formData.value.password = $('content/password').text()
                 formData.value.domainName = $('content/domainName').text()
-                formData.value.heartbeatTime = $('content/heartbeatTime').text().num() || undefined
+                formData.value.heartbeatTime = $('content/heartbeatTime').text().undef()?.num()
                 formData.value.switch = $('content/switch').text().bool()
 
                 pageData.value.serverTypeOptions = $('types/ddnsServerType/enum').map((item) => {
@@ -205,10 +203,10 @@ export default defineComponent({
                         domainName: isSelected ? formData.value.domainName : '',
                         heartbeatTime: isSelected ? formData.value.heartbeatTime : undefined,
                         suffix,
-                        requireParam: item.attr('requireParam').split(','),
+                        requireParam: item.attr('requireParam').array(),
                         hideParam: hideParam,
                         defaultServerAddr,
-                        defaultHeartBeatTime: item.attr('defaultHeartBeatTime').num() || undefined,
+                        defaultHeartBeatTime: item.attr('defaultHeartBeatTime').undef()?.num(),
                         defaultDomainName,
                         isRegisterBtn,
                         isTestBtn,
@@ -276,10 +274,7 @@ export default defineComponent({
                     if ($('status').text() === 'success') {
                         await confirmSetData()
                     } else {
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_SAVE_FAIL') + ', ' + Translate($('errorDescription').text()),
-                        })
+                        openMessageBox(Translate('IDCS_SAVE_FAIL') + ', ' + Translate($('errorDescription').text()))
                     }
                 } else {
                     openLoading()
@@ -323,10 +318,7 @@ export default defineComponent({
                         message: current.value.isRegisterBtn ? Translate('IDCS_REGISTER_SUCCESS') : Translate('IDCS_TEST_SUCCESS'),
                     })
                 } else {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate($('errorDescription').text()),
-                    })
+                    openMessageBox(Translate($('errorDescription').text()))
                 }
 
                 closeLoading()

@@ -31,8 +31,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const dateTime = useDateTimeStore()
 
         // 错误码与显示文本的映射
@@ -264,10 +262,7 @@ export default defineComponent({
          */
         const setSingleImportData = async (item: IntelFaceDBFaceForm, index: number, force = false) => {
             if (!item.name) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_PROMPT_FULL_NAME_EMPTY'),
-                })
+                openMessageBox(Translate('IDCS_PROMPT_FULL_NAME_EMPTY'))
                 return
             }
 

@@ -23,8 +23,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const userSession = useUserSessionStore()
 
         const pageData = ref({
@@ -199,10 +197,7 @@ export default defineComponent({
                         close()
                     })
                 } else {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_TEST_FAIL'),
-                    })
+                    openMessageBox(Translate('IDCS_TEST_FAIL'))
                 }
 
                 closeLoading()

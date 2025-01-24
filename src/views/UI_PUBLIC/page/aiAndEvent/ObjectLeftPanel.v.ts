@@ -46,8 +46,6 @@ export default defineComponent({
     },
     setup(prop) {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
         // 系统配置
         const supportAlarmAudioConfig = systemCaps.supportAlarmAudioConfig
@@ -140,10 +138,7 @@ export default defineComponent({
 
         const forceClosePath = (canBeClosed: boolean) => {
             if (!canBeClosed) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_INTERSECT'),
-                })
+                openMessageBox(Translate('IDCS_INTERSECT'))
             }
         }
 
@@ -436,16 +431,10 @@ export default defineComponent({
             for (const item of formData.value.boundary) {
                 const count = item.points.length
                 if (count > 0 && count < 4) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_INPUT_LIMIT_FOUR_POIONT'),
-                    })
+                    openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_INPUT_LIMIT_FOUR_POIONT'))
                     return false
                 } else if (count > 0 && !objDrawer.judgeAreaCanBeClosed(item.points)) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_INTERSECT'),
-                    })
+                    openMessageBox(Translate('IDCS_INTERSECT'))
                     return false
                 }
             }
@@ -570,9 +559,9 @@ export default defineComponent({
             }
         })
 
-        const notify = ($: XMLQuery) => {
+        const notify = ($: XMLQuery, stateType: string) => {
             // 物品看护改变
-            if ($("statenotify[@type='OscArea']").length) {
+            if (stateType === 'OscArea') {
                 // 绘制点线
                 if ($('statenotify/points').length) {
                     formData.value.boundary[pageData.value.warnArea].points = $('statenotify/points/item').map((item) => {
@@ -591,10 +580,7 @@ export default defineComponent({
                     clearCurrentArea()
                 } else if (errorCode === 515) {
                     // 515-区域有相交直线，不可闭合
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_INTERSECT'),
-                    })
+                    openMessageBox(Translate('IDCS_INTERSECT'))
                 }
             }
         }

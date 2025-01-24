@@ -41,7 +41,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
 
         const pageData = ref({
             // TAB
@@ -275,10 +274,7 @@ export default defineComponent({
         const handleCanvasMouseUp = () => {
             if (isCanvasMoving) {
                 if (drawingPosition.value.width < prop.limit.wmin || drawingPosition.value.height < prop.limit.hmin) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_DISPLAY_SIZE_INVALID'),
-                    }).finally(() => {
+                    openMessageBox(Translate('IDCS_DISPLAY_SIZE_INVALID')).finally(() => {
                         drawingPosition.value = { ...displayPosition.value }
                     })
                 } else {
@@ -382,10 +378,7 @@ export default defineComponent({
                 return true
             })
             if (!matchStartEndChar) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_START_END_NOT_MATCH'),
-                })
+                openMessageBox(Translate('IDCS_START_END_NOT_MATCH'))
                 return
             }
             const setting: SystemPosDisplaySetting = {

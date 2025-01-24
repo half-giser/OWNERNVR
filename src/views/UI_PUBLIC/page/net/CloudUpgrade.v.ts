@@ -13,8 +13,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
         const pageData = ref({
             // 升级选项
@@ -80,10 +78,7 @@ export default defineComponent({
             checkDownloadTimer.stop()
 
             if (pageData.value.isLatest) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_ONLINE_UPGRADE_TIP_LATEST'),
-                })
+                openMessageBox(Translate('IDCS_ONLINE_UPGRADE_TIP_LATEST'))
                 return
             }
 
@@ -129,10 +124,7 @@ export default defineComponent({
                         break
                 }
 
-                openMessageBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
         }
 
@@ -195,10 +187,7 @@ export default defineComponent({
                     }
                     // NT-9558 有进度显示进度,由于设备升级失败时会立即清掉状态 此时web不一定取得到downloadFail和installFail
                     else if (!pageData.value.firstReq && !isRuningTask && errorCode !== 0) {
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_CLOUD_UPGRADE_FAIL'),
-                        }).finally(() => getData())
+                        openMessageBox(Translate('IDCS_CLOUD_UPGRADE_FAIL')).finally(() => getData())
                         checkDownloadTimer.stop()
                         cloudCfgTimer.repeat()
                         return
@@ -215,18 +204,12 @@ export default defineComponent({
                     }
                 } else {
                     // 请求失败提示网络断开
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_OCX_NET_DISCONNECT'),
-                    }).finally(() => Logout())
+                    openMessageBox(Translate('IDCS_OCX_NET_DISCONNECT')).finally(() => Logout())
                 }
                 return $('content/state').text()
             } catch (e) {
                 // 请求失败提示网络断开
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_OCX_NET_DISCONNECT'),
-                }).finally(() => Logout())
+                openMessageBox(Translate('IDCS_OCX_NET_DISCONNECT')).finally(() => Logout())
             }
         }
 
@@ -262,15 +245,9 @@ export default defineComponent({
                 pageData.value.versionInfo = $content('versionInfo').text()
                 pageData.value.versionGUID = $content('versionGUID').text()
 
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_CHECK_FINISH'),
-                })
+                openMessageBox(Translate('IDCS_CHECK_FINISH'))
             } else {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_ONLINE_UPGRADE_TIP_CHECK_FAILED'),
-                })
+                openMessageBox(Translate('IDCS_ONLINE_UPGRADE_TIP_CHECK_FAILED'))
             }
         }
 
@@ -329,15 +306,9 @@ export default defineComponent({
                 cloudCfgTimer.stop()
                 checkDownloadTimer.repeat()
             } else if (state === 'downloadNetException') {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_CLOUD_UPGRADE_CONNECT_FAIL'),
-                })
+                openMessageBox(Translate('IDCS_CLOUD_UPGRADE_CONNECT_FAIL'))
             } else if (state === 'taskTerminate') {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_TASK_TERMINATION'),
-                })
+                openMessageBox(Translate('IDCS_TASK_TERMINATION'))
             }
 
             closeLoading()

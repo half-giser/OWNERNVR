@@ -33,25 +33,17 @@ export default defineComponent({
         const { Translate } = useLangStore()
 
         const recordStreamTableRef = ref<RecordStreamTableExpose>()
+
         const pageData = ref({
             mainTitle: '',
             tabs: [] as SelectOption<string, string>[],
             currenMode: '',
-            modeMapping: {
-                EVENT: 'event',
-                INTENSIVE: 'timing',
-            } as Record<string, string>,
             txtBandwidth: '',
             recTime: '',
-            isPredict: false,
-            isCalculate: false,
-            initComplete: false,
-            key: '',
+            isRecTime: false,
         })
 
         const open = () => {
-            pageData.value.initComplete = false
-            if (!props.autoModeId) return
             const events = props.autoModeId.split('_')
             pageData.value.mainTitle = events
                 .map((item) => {
@@ -59,37 +51,34 @@ export default defineComponent({
                 })
                 .join('+')
             const intensiveIndex = props.autoModeId.indexOf(REC_MODE_TYPE.INTENSIVE)
-            pageData.value.tabs.length = 0
+
+            pageData.value.tabs = []
             if (intensiveIndex > -1) {
                 events.splice(intensiveIndex, 1)
                 pageData.value.tabs.push({
-                    value: REC_MODE_TYPE.INTENSIVE,
+                    value: 'timing',
                     label: Translate('IDCS_TIME_RECORD'),
                 })
             }
 
             pageData.value.tabs.push({
-                value: REC_MODE_TYPE.EVENT,
+                value: 'event',
                 label: events
                     .map((item) => {
                         return props.advanceRecModeMap![item].text
                     })
                     .join('+'),
             })
-            pageData.value.currenMode = pageData.value.modeMapping[pageData.value.tabs[0].value]
+
+            pageData.value.currenMode = pageData.value.tabs[0].value
+
             if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
-                pageData.value.isPredict = true
-                pageData.value.isCalculate = true
+                pageData.value.isRecTime = true
             }
-            pageData.value.initComplete = true
         }
 
         const changeTab = (key: string) => {
-            if (key === REC_MODE_TYPE.INTENSIVE) {
-                pageData.value.currenMode = 'timing'
-            } else {
-                pageData.value.currenMode = 'event'
-            }
+            pageData.value.currenMode = key
         }
 
         const getBandwidth = (e: string) => {

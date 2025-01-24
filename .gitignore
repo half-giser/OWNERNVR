@@ -40,3 +40,4 @@ auto-import.d.ts
 # 雪碧图自动生成文件
 src/components/sprite/sprites.png
 src/components/sprite/sprites.ts
+src/components/sprite/sprites.scss

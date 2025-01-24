@@ -34,7 +34,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
 
         const pageData = ref({
             // 当前类型
@@ -100,10 +99,7 @@ export default defineComponent({
             if (pageData.value.currentSnap.length) {
                 ctx.emit('choose', pageData.value.currentSnap)
             } else {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_SELECT_PIC_UNQUALIFIED'),
-                })
+                openMessageBox(Translate('IDCS_SELECT_PIC_UNQUALIFIED'))
             }
         }
 

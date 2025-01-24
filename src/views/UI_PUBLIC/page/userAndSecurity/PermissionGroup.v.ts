@@ -14,8 +14,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
         const router = useRouter()
 
@@ -42,9 +40,9 @@ export default defineComponent({
             // 编辑权限组的ID
             editAuthGroupID: '',
             // 本地通道权限列表
-            localChannelIds: DEFAULT_LOCAL_CHANNEL_AUTH_LIST,
+            localChannelIds: getTranslateOptions(DEFAULT_LOCAL_CHANNEL_AUTH_LIST),
             // 远程通道权限列表
-            remoteChannelIds: DEFAULT_REMOTE_CHANNEL_AUTH_LIST,
+            remoteChannelIds: getTranslateOptions(DEFAULT_REMOTE_CHANNEL_AUTH_LIST),
         })
 
         /**
@@ -133,11 +131,7 @@ export default defineComponent({
                 arrayItem.id = item.id
                 arrayItem.name = item.name
                 DEFAULT_CHANNEL_AUTH_LIST.forEach((key) => {
-                    if (item.auth.includes(key)) {
-                        arrayItem[key] = 'true'
-                    } else {
-                        arrayItem[key] = 'false'
-                    }
+                    arrayItem[key] = item.auth.includes(key)
                 })
                 return arrayItem
             })
@@ -194,7 +188,7 @@ export default defineComponent({
         const deleteAuthGroup = (row: UserAuthGroupList) => {
             openMessageBox({
                 type: 'question',
-                message: Translate('IDCS_USER_DELETE_USERGROUP_S').formatForLang(replaceWithEntity(row.name)),
+                message: Translate('IDCS_USER_DELETE_USERGROUP_S').formatForLang(row.name),
             }).then(async () => {
                 openLoading()
 
@@ -227,10 +221,7 @@ export default defineComponent({
                             errorInfo = Translate('IDCS_DELETE_FAIL')
                             break
                     }
-                    openMessageBox({
-                        type: 'info',
-                        message: errorInfo,
-                    })
+                    openMessageBox(errorInfo)
                 }
             })
         }
@@ -261,18 +252,18 @@ export default defineComponent({
             if (currentAuthGroup.value) {
                 const name = currentAuthGroup.value.name
                 const mappingName = displayAuthGroup(name)
-                return Translate('IDCS_USER_RIGHT_INFORMATION').formatForLang(replaceWithEntity(mappingName))
+                return Translate('IDCS_USER_RIGHT_INFORMATION').formatForLang(mappingName)
             }
             return ''
         })
 
         /**
          * @description 显示权限开关文案
-         * @param {boolean} string
+         * @param {boolean} value
          * @returns {string}
          */
-        const displayChannelAuth = (value: string) => {
-            return value === 'true' ? Translate('IDCS_ON') : Translate('IDCS_OFF')
+        const displayChannelAuth = (value: boolean | string) => {
+            return value ? Translate('IDCS_ON') : Translate('IDCS_OFF')
         }
 
         /**

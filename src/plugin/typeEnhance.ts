@@ -41,12 +41,21 @@ export default {
             return str
         }
 
+        String.prototype.undef = function () {
+            return (this as string) === '' ? undefined : String(this)
+        }
+
         String.prototype.bool = function () {
             return (this as string).toLowerCase() === 'true'
         }
 
         String.prototype.num = function () {
             return Number(this as string)
+        }
+
+        String.prototype.array = function (seperator = ','): string[] {
+            const str = this as string
+            return str ? str.split(seperator) : []
         }
 
         Boolean.prototype.toString = function (): string {

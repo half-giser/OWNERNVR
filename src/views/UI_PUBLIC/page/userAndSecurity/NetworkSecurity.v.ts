@@ -8,7 +8,13 @@ import { type UserNetworkSecurityForm } from '@/types/apiType/userAndSecurity'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
+
+        const NETWORK_CARD_MAPPING: Record<string, string> = {
+            bond0: Translate('IDCS_NETWORK_FAULT_TOLERANCE'),
+            eth0: Translate('IDCS_ETH0_NAME'),
+            eth1: Translate('IDCS_ETH1_NAME'),
+            ppp0: Translate('IDCS_PPPOE'),
+        }
 
         const tableData = ref<UserNetworkSecurityForm[]>([])
         const watchEdit = useWatchEditData(tableData)
@@ -81,18 +87,7 @@ export default defineComponent({
          * @param {string} value
          */
         const formatNetworkCardName = (value: string) => {
-            switch (value) {
-                case 'bond0':
-                    return Translate('IDCS_NETWORK_FAULT_TOLERANCE')
-                case 'eth0':
-                    return Translate('IDCS_ETH0_NAME')
-                case 'eth1':
-                    return Translate('IDCS_ETH1_NAME')
-                case 'ppp0':
-                    return Translate('IDCS_PPPOE')
-                default:
-                    return Translate(value)
-            }
+            return NETWORK_CARD_MAPPING[value] || Translate(value)
         }
 
         /**

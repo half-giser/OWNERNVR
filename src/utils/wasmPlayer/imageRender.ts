@@ -57,7 +57,7 @@ export default function ImageRender(option: ImageRenderOption) {
 
         switch (data.cmd) {
             case 'ready':
-                decodeWorker!.postMessage({
+                decodeWorker.postMessage({
                     cmd: 'init',
                     type: type,
                 })
@@ -142,7 +142,7 @@ export default function ImageRender(option: ImageRenderOption) {
     const execTask = () => {
         if (taskQueue[0]) {
             curTask = taskQueue[0]
-            decodeWorker!.postMessage({
+            decodeWorker.postMessage({
                 cmd: 'sendData',
                 buffer: curTask.buffer,
                 isPure: true,
@@ -162,10 +162,10 @@ export default function ImageRender(option: ImageRenderOption) {
      * @description 销毁渲染器
      */
     const destroy = () => {
-        decodeWorker!.postMessage({
+        decodeWorker.postMessage({
             cmd: 'destroy',
         })
-        decodeWorker!.terminate()
+        decodeWorker.terminate()
         webglPlayer.clear()
         taskQueue = []
     }

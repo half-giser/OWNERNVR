@@ -8,31 +8,6 @@ import { type NetSubStreamList, type NetSubStreamResolutionList } from '@/types/
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
-        const { openMessageBox } = useMessageBox()
-
-        // 码流类型与文本的映射
-        const STREAM_TYPE_MAPPING: Record<string, string> = {
-            h264: Translate('IDCS_VIDEO_ENCT_TYPE_H264'),
-            h264s: Translate('IDCS_VIDEO_ENCT_TYPE_H264_SMART'),
-            h264p: Translate('IDCS_VIDEO_ENCT_TYPE_H264_PLUS'),
-            h265: Translate('IDCS_VIDEO_ENCT_TYPE_H265'),
-            h265s: Translate('IDCS_VIDEO_ENCT_TYPE_H265_SMART'),
-            h265p: Translate('IDCS_VIDEO_ENCT_TYPE_H265_PLUS'),
-        }
-
-        // 视频编码类型
-        const VIDEO_ENCODE_TYPE_ARRAY = ['h264s', 'h265s', 'h264p', 'h265p']
-
-        // 图像质量与文本的映射
-        const IMAGE_LEVEL_MAPPING: Record<string, string> = {
-            highest: Translate('IDCS_HIGHEST'),
-            higher: Translate('IDCS_HIGHER'),
-            medium: Translate('IDCS_MEDIUM'),
-            low: Translate('IDCS_LOW'),
-            lower: Translate('IDCS_LOWER'),
-            lowest: Translate('IDCS_LOWEST'),
-        }
 
         // 主码流帧率限制
         const MAIN_STREAM_LIMIT_FPS = 1
@@ -42,7 +17,6 @@ export default defineComponent({
             audioInNum: -1,
             // 最大码率
             maxQoI: 0,
-            // chlList: [] as NetStreamChlList[],
             // 码率选项
             videoQualityList: [] as SelectOption<number, string>[],
             // 图像质量选项
@@ -77,7 +51,7 @@ export default defineComponent({
          * @returns {String}
          */
         const displayStreamType = (key: string) => {
-            return STREAM_TYPE_MAPPING[key]
+            return Translate(DEFAULT_STREAM_TYPE_MAPPING[key])
         }
 
         /**
@@ -210,7 +184,7 @@ export default defineComponent({
          */
         const isBitTypeDisabled = (index: number) => {
             const item = tableData.value[index]
-            return item.disabled || VIDEO_ENCODE_TYPE_ARRAY.includes(item.videoEncodeType)
+            return item.disabled || DEFAULT_VIDEO_ENCODE_TYPE_ARRAY.includes(item.videoEncodeType)
         }
 
         /**
@@ -270,7 +244,7 @@ export default defineComponent({
          */
         const isVideoQualityDisabled = (index: number) => {
             const item = tableData.value[index]
-            return item.disabled || VIDEO_ENCODE_TYPE_ARRAY.includes(item.videoEncodeType)
+            return item.disabled || DEFAULT_VIDEO_ENCODE_TYPE_ARRAY.includes(item.videoEncodeType)
         }
 
         /**
@@ -394,7 +368,7 @@ export default defineComponent({
          */
         const isGOPDisabled = (index: number) => {
             const item = tableData.value[index]
-            return item.disabled || VIDEO_ENCODE_TYPE_ARRAY.includes(item.videoEncodeType)
+            return item.disabled || DEFAULT_VIDEO_ENCODE_TYPE_ARRAY.includes(item.videoEncodeType)
         }
 
         /**
@@ -471,31 +445,33 @@ export default defineComponent({
                         }
                     }
 
-                    if (index === 0) {
-                        const levelList = $item('levelNote').text()
-                        if (levelList) {
-                            pageData.value.levelList = levelList
-                                .split(',')
-                                .reverse()
-                                .map((element) => {
-                                    return {
-                                        value: element,
-                                        label: IMAGE_LEVEL_MAPPING[element],
-                                    }
-                                })
-                        }
+                    if (!pageData.value.levelList.length) {
+                        pageData.value.levelList = $item('levelNote')
+                            .text()
+                            .array()
+                            .reverse()
+                            .map((element) => {
+                                return {
+                                    value: element,
+                                    label: Translate(DEFAULT_IMAGE_LEVEL_MAPPING[element]),
+                                }
+                            })
                     }
 
-                    const supEnct = ($item('subCaps').attr('supEnct') ? $item('subCaps').attr('supEnct').split(',').sort() : []).map((item) => {
-                        return {
-                            value: item,
-                            label: STREAM_TYPE_MAPPING[item],
-                        }
-                    })
+                    const supEnct = $item('subCaps')
+                        .attr('supEnct')
+                        .array()
+                        .sort()
+                        .map((item) => {
+                            return {
+                                value: item,
+                                label: Translate(DEFAULT_STREAM_TYPE_MAPPING[item]),
+                            }
+                        })
 
                     pageData.value.videoEcodeTypeList.push(...supEnct)
 
-                    const bitTypeList = $item('subCaps').length && $item('subCaps').attr('bitType') ? $item('subCaps').attr('bitType').split(',') : []
+                    const bitTypeList = $item('subCaps').attr('bitType').array()
                     pageData.value.bitTypeList.push(...bitTypeList)
 
                     const level = $item('sub').attr('level')
@@ -518,7 +494,7 @@ export default defineComponent({
                         subStreamQualityCaps: $item('subStreamQualityCaps/item').map((caps) => {
                             const enct = caps.attr('enct')
                             const res = caps.attr('res')
-                            const value = caps.text() ? caps.text().split(',').toReversed() : []
+                            const value = caps.text().array().toReversed()
                             if (enct === 'h264' && res === '0x0' && !pageData.value.videoQualityList.length) {
                                 pageData.value.videoQualityList = value
                                     .map((quality) => {
@@ -612,10 +588,7 @@ export default defineComponent({
                     editRows.remove(item)
                 })
             } else {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_NOT_SUPPORTFUNC'),
-                })
+                openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_NOT_SUPPORTFUNC'))
             }
         }
 

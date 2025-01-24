@@ -9,9 +9,8 @@ import dayjs from 'dayjs'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
 
-        const plugin = setupPlugin({
+        const plugin = usePlugin({
             onReady: (mode, plugin) => {
                 if (mode.value === 'ocx') {
                     const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Playback')

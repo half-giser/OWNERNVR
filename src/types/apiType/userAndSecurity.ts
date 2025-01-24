@@ -174,22 +174,24 @@ export class UserPermissionSystemAuthList {
     }
 }
 
+export type UserPermissionAuthKey = '_lp' | '_spr' | '_bk' | '_ad' | '_ptz' | '@lp' | '@spr' | '@bk' | '@ad' | '@ptz'
+
 /**
  * @description 用户通道权限列表
  */
 export class UserPermissionChannelAuthList {
     id = ''
     name = ''
-    _lp = ''
-    _spr = ''
-    _bk = ''
-    _ad = ''
-    _ptz = ''
-    '@lp' = ''
-    '@spr' = ''
-    '@bk' = ''
-    '@ad' = ''
-    '@ptz' = ''
+    _lp = false
+    _spr = false
+    _bk = false
+    _ad = false
+    _ptz = false
+    '@lp' = false
+    '@spr' = false
+    '@bk' = false
+    '@ad' = false
+    '@ptz' = false
 }
 
 /**
@@ -247,15 +249,6 @@ export class UserBlackAllowListForm {
     switch = false
     filterType = 'refuse'
 }
-
-// export type UserBlackAllowList = {
-//     switch: boolean
-//     addressType: 'ip' | 'iprange' | 'mac'
-//     ip: string
-//     startIp: string
-//     endIp: string
-//     mac: string
-// }
 
 /**
  * @description 黑白名单表单

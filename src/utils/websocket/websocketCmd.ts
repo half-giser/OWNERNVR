@@ -20,23 +20,6 @@ export const getWebsocketOpenUrl = () => {
     }
 }
 
-/**
- * @description 生成16进制字符随机guid, 格式: {00000000-0000-0000-0000-000000000000}
- */
-export const getRandomGUID = () => {
-    const str = '0123456789abcdef'
-    const temp = '00000000-0000-0000-0000-000000000000'
-    let ret = ''
-    for (let i = 0; i < temp.length; i++) {
-        if (temp[i] === '-') {
-            ret += '-'
-            continue
-        }
-        ret += str[Math.floor(Math.random() * str.length)]
-    }
-    return `{${ret}}`
-}
-
 // 回放事件类型全集
 export const REC_EVENT_TYPES = [
     'manual',
@@ -77,7 +60,7 @@ export const getBasic = () => {
     const newId = id && id < Number.MAX_SAFE_INTEGER ? id + 1 : 1
     return {
         ver: '1.0',
-        time: new Date().getTime(),
+        time: Date.now(),
         id: newId,
         nonce: getNonce(),
     }

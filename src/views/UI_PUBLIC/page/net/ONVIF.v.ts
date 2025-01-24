@@ -12,8 +12,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
         // 用户类型与文本的映射
         const USER_LEVEL_MAPPING: Record<string, string> = {
@@ -92,10 +90,7 @@ export default defineComponent({
          * @param {NetOnvifUserList} item
          */
         const deleteUser = (item: NetOnvifUserList) => {
-            openMessageBox({
-                type: 'info',
-                message: Translate('IDCS_USER_DELETE_USER_S').formatForLang(item.userName),
-            }).then(async () => {
+            openMessageBox(Translate('IDCS_USER_DELETE_USER_S').formatForLang(item.userName)).then(async () => {
                 openLoading()
 
                 const sendXml = rawXml`
@@ -114,10 +109,7 @@ export default defineComponent({
          * @description 删除所有用户
          */
         const deleteAllUser = () => {
-            openMessageBox({
-                type: 'info',
-                message: Translate('IDCS_DELETE_ALL_ONVIF_USER_TIP'),
-            }).then(async () => {
+            openMessageBox(Translate('IDCS_DELETE_ALL_ONVIF_USER_TIP')).then(async () => {
                 openLoading()
 
                 const sendXml = rawXml`

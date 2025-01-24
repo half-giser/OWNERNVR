@@ -88,7 +88,7 @@ export default function WebsocketImportPlateLib(option: WebsocketImportPlateLibO
      * @description 传输给服务端
      * @param {Object} json
      */
-    const sendJsonBuffer = (json: any) => {
+    const sendJsonBuffer = (json: Record<any, any>) => {
         dataToBuffer(JSON.stringify(json)).then((jsonBuffer) => {
             // 包头buffer + jsonbuffer (数据包含在jsonbuffer里)
             const headerbuffer = buildHeader(json)

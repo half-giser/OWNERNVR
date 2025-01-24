@@ -15,8 +15,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
         // 类型与文本的映射
         const TYPE_MAPPING: Record<string, string> = {
@@ -150,10 +148,7 @@ export default defineComponent({
                     default:
                         errorInfo = item.type === 'normal' ? Translate('IDCS_CONFIG_HOT_DISK_ERROR') : Translate('IDCS_CONFIG_NORMAL_DISK_ERROR')
                 }
-                openMessageBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
         }
 

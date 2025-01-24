@@ -14,8 +14,6 @@ export default defineComponent({
     },
     setup(_prop, ctx) {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
-        const { openMessageBox } = useMessageBox()
 
         const tableRef = ref<TableInstance>()
         const timeMode = ref(24)
@@ -72,8 +70,7 @@ export default defineComponent({
 
         // 24小时制转12小时制
         const _24turn12 = (value: string) => {
-            const time = new Date(2000, 1, 1, ...value.split(':').map((item) => Number(item)))
-            return dayjs(time).format('hh:mm:ss A')
+            return dayjs(`2000-01-01 ${value}`, DEFAULT_DATE_FORMAT).format('hh:mm:ss A')
         }
 
         // 获取时间格式
@@ -175,20 +172,14 @@ export default defineComponent({
         // 校验添加时间是否合格
         const checkTime = (timeList: SelectOption<string, string>[], time: string) => {
             if (timeList.length >= 20) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_SCHEDULE_TIME_NUMBER'),
-                })
+                openMessageBox(Translate('IDCS_SCHEDULE_TIME_NUMBER'))
                 return false
             }
 
             for (let i = 0; i < timeList.length; i++) {
                 const distime = getSeconds(timeList[i].value) - getSeconds(time)
                 if (Math.abs(distime) < 5 * 60) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_SCHEDULE_TIME_INTER'),
-                    })
+                    openMessageBox(Translate('IDCS_SCHEDULE_TIME_INTER'))
                     return false
                 }
             }
@@ -208,10 +199,7 @@ export default defineComponent({
         // 添加时间项弹窗确认
         const addUploadTime = (data: SystenSHDBImageUploadDto[], addTime: string) => {
             if (!data.length) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_PROMPT_CHANNEL_GROUP_EMPTY'),
-                })
+                openMessageBox(Translate('IDCS_PROMPT_CHANNEL_GROUP_EMPTY'))
                 return false
             } else {
                 for (const item of data) {

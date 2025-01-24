@@ -8,7 +8,6 @@ import { type LiveAlarmList } from '@/types/apiType/live'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
 
         const isDelay = import.meta.env.VITE_UI_TYPE === 'UI2-A'
         const userSession = useUserSessionStore()
@@ -144,10 +143,7 @@ export default defineComponent({
             } else {
                 const errorCode = $('errorCode').text().num()
                 if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_NO_AUTH'),
-                    })
+                    openMessageBox(Translate('IDCS_NO_AUTH'))
                 }
             }
         }

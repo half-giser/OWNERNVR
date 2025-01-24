@@ -4,19 +4,19 @@
  * @Description: 业务应用api
  */
 
-import http from './api'
+import fetch from './api'
 
 /**
  * @description 获取停车场基础配置（基础配置、车位管理、出入口）
  * @returns
  */
-export const queryParkingLotConfig = () => http.fetch('queryParkingLotConfig', '')
+export const queryParkingLotConfig = () => fetch('queryParkingLotConfig', '')
 
 /**
  * @description 编辑停车场基础配置（基础配置、车位管理、出入口）
  * @returns
  */
-export const editParkingLotConfig = (data: string) => http.fetch('editParkingLotConfig', data)
+export const editParkingLotConfig = (data: string) => fetch('editParkingLotConfig', data)
 
 /**
  * @description 获取门禁配置-门锁配置
@@ -24,7 +24,7 @@ export const editParkingLotConfig = (data: string) => http.fetch('editParkingLot
  * @param config
  * @returns
  */
-export const queryAccessControlCfg = (data: string) => http.fetch('queryAccessControlCfg', data)
+export const queryAccessControlCfg = (data: string) => fetch('queryAccessControlCfg', data)
 
 /**
  * @description 编辑门禁配置-门锁配置
@@ -32,7 +32,7 @@ export const queryAccessControlCfg = (data: string) => http.fetch('queryAccessCo
  * @param config
  * @returns
  */
-export const editAccessControlCfg = (data: string) => http.fetch('editAccessControlCfg', data)
+export const editAccessControlCfg = (data: string) => fetch('editAccessControlCfg', data)
 
 /**
  * @description 获取门禁配置-韦根配置
@@ -40,7 +40,7 @@ export const editAccessControlCfg = (data: string) => http.fetch('editAccessCont
  * @param config
  * @returns
  */
-export const queryAccessDataComCfg = (data: string) => http.fetch('queryAccessDataComCfg', data)
+export const queryAccessDataComCfg = (data: string) => fetch('queryAccessDataComCfg', data)
 
 /**
  * @description 编辑门禁配置-韦根配置
@@ -48,25 +48,25 @@ export const queryAccessDataComCfg = (data: string) => http.fetch('queryAccessDa
  * @param config
  * @returns
  */
-export const editAccessDataComCfg = (data: string) => http.fetch('editAccessDataComCfg', data)
+export const editAccessDataComCfg = (data: string) => fetch('editAccessDataComCfg', data)
 
 /**
  * @description 获取个人脸照
  * @param {string} data
  * @returns
  */
-export const searchGateSnap = (data: string) => http.fetch('searchGateSnap', data)
+export const searchGateSnap = (data: string) => fetch('searchGateSnap', data)
 
 /**
  * @description 开门放闸
  * @param {string} data
  * @returns
  */
-export const openGate = (data: string) => http.fetch('openGate', data)
+export const openGate = (data: string) => fetch('openGate', data)
 
 /**
  * @description 搜索开闸事件关联数据
  * @param {string} data
  * @returns
  */
-export const searchOpenGateEventRelevanceData = (data: string) => http.fetch('searchOpenGateEventRelevanceData', data)
+export const searchOpenGateEventRelevanceData = (data: string) => fetch('searchOpenGateEventRelevanceData', data)

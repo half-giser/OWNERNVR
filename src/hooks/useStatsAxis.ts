@@ -10,30 +10,8 @@ export const useStatsAxis = (dateRangeType: Ref<string> | ComputedRef<string>, d
     const { Translate } = useLangStore()
     const dateTime = useDateTimeStore()
 
-    const MONTH_MAPPING: Record<number, string> = {
-        0: Translate('IDCS_Month_ONE'),
-        1: Translate('IDCS_Month_TWO'),
-        2: Translate('IDCS_Month_THREE'),
-        3: Translate('IDCS_Month_FOUR'),
-        4: Translate('IDCS_Month_FIVE'),
-        5: Translate('IDCS_Month_SIX'),
-        6: Translate('IDCS_Month_SEVEN'),
-        7: Translate('IDCS_Month_EIGHT'),
-        8: Translate('IDCS_Month_NINE'),
-        9: Translate('IDCS_Month_TEM'),
-        10: Translate('IDCS_Month_ELEVEN'),
-        11: Translate('IDCS_Month_TWELVE'),
-    }
-
-    const WEEK_MAPPING: Record<string, string> = {
-        1: Translate('IDCS_WEEK_DAY_ONE'),
-        2: Translate('IDCS_WEEK_DAY_TWO'),
-        3: Translate('IDCS_WEEK_DAY_THREE'),
-        4: Translate('IDCS_WEEK_DAY_FOUR'),
-        5: Translate('IDCS_WEEK_DAY_FIVE'),
-        6: Translate('IDCS_WEEK_DAY_SIX'),
-        0: Translate('IDCS_WEEK_DAY_SEVEN'),
-    }
+    const MONTH_MAPPING = getTranslateMapping(DEFAULT_MONTH_MAPPING)
+    const WEEK_MAPPING = getTranslateMapping(DEFAULT_WEEK_MAPPING)
 
     const dateArray = Array(24).fill(0)
     const weekArray = Array(7).fill(0)

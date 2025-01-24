@@ -36,7 +36,7 @@ export default function RecordBuilder(option: RecordBuilderOption) {
 
         switch (data.cmd) {
             case 'ready':
-                decodeWorker!.postMessage({
+                decodeWorker.postMessage({
                     cmd: 'init',
                     type: type,
                     maxSingleSize: maxSingleSize,

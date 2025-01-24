@@ -137,7 +137,6 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
-        const { openNotify } = useNotification()
 
         const WASM_SEG = [1, 4].map((split) => ({
             split,

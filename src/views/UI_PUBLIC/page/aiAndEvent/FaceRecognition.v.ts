@@ -29,8 +29,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const router = useRouter()
         const systemCaps = useCababilityStore()
 
@@ -379,8 +377,8 @@ export default defineComponent({
                             status: $item('status').text().bool(),
                         }
                     }),
-                    saveFacePicture: $param('saveFacePicture').text() ? $param('saveFacePicture').text().bool() : undefined,
-                    saveSourcePicture: $param('saveSourcePicture').text() ? $param('saveSourcePicture').text().bool() : undefined,
+                    saveFacePicture: $param('saveFacePicture').text().undef()?.bool(),
+                    saveSourcePicture: $param('saveSourcePicture').text().undef()?.bool(),
                     snapInterval: $param('senceMode/customize/intervalTime').text(),
                     captureCycle,
                     captureCycleChecked,
@@ -828,10 +826,7 @@ export default defineComponent({
         const addTask = () => {
             // 默认有识别成功、陌生人两项，添加的最多为3项
             if (taskTabs.value.length === 5) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
-                })
+                openMessageBox(Translate('IDCS_OVER_MAX_NUMBER_LIMIT'))
                 return false
             }
             const nameId = defaultNameId.find((item) => !haveUseNameId.includes(item))!
@@ -1012,23 +1007,19 @@ export default defineComponent({
             if ($('status').text() !== 'success') {
                 const errorCode = $('errorCode').text().num()
                 if (errorCode === ErrorCode.USER_ERROR_LIMITED_PLATFORM_VERSION_MISMATCH) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_MAX_CHANNEL_LIMIT').formatForLang(faceMatchLimitMaxChlNum),
-                    })
+                    openMessageBox(Translate('IDCS_MAX_CHANNEL_LIMIT').formatForLang(faceMatchLimitMaxChlNum))
                 } else if (errorCode === ErrorCode.USER_ERROR_PC_LICENSE_MISMATCH) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_MAX_CHANNEL_LIMIT').formatForLang(faceMatchLimitMaxChlNum) + Translate('IDCS_REBOOT_DEVICE').formatForLang(Translate('IDCS_ENABLE') + 'AI'),
-                    }).then(async () => {
-                        //AISwitch 打开AI模式开关 NT-9997
-                        const sendXml = rawXml`
-                            <content>
-                                <AISwitch>true</AISwitch>
-                            </content>
-                        `
-                        await editBasicCfg(sendXml)
-                    })
+                    openMessageBox(Translate('IDCS_MAX_CHANNEL_LIMIT').formatForLang(faceMatchLimitMaxChlNum) + Translate('IDCS_REBOOT_DEVICE').formatForLang(Translate('IDCS_ENABLE') + 'AI')).then(
+                        async () => {
+                            //AISwitch 打开AI模式开关 NT-9997
+                            const sendXml = rawXml`
+                                <content>
+                                    <AISwitch>true</AISwitch>
+                                </content>
+                            `
+                            await editBasicCfg(sendXml)
+                        },
+                    )
                 }
                 watchMatch.update()
             }
@@ -1242,8 +1233,8 @@ export default defineComponent({
             }
         }
 
-        const notify = ($: XMLQuery) => {
-            if ($("statenotify[@type='VfdArea']").length) {
+        const notify = ($: XMLQuery, stateType: string) => {
+            if (stateType === 'VfdArea') {
                 detectionFormData.value.regionInfo = $('statenotify/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {

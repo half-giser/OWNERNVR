@@ -11,8 +11,6 @@ import { type TableInstance } from 'element-plus'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
-        const { openMessageBox } = useMessageBox()
         const userSessionStore = useUserSessionStore()
         const router = useRouter()
 
@@ -25,7 +23,7 @@ export default defineComponent({
         const pageTotal = ref(0)
         const selectedChlId = ref('')
         const editRows = useWatchEditRows<ChannelMotionDto>()
-        const switchOptions = getBoolSwitchOptions()
+        const switchOptions = getTranslateOptions(DEFAULT_BOOL_SWITCH_OPTIONS)
         let motionDrawer: ReturnType<typeof CanvasMotion>
         let motionAlarmList: string[] = []
 
@@ -58,7 +56,7 @@ export default defineComponent({
             })
         })
 
-        const holdTimeList = ref<SelectOption<string, string>[]>([])
+        const holdTimeList = ref<SelectOption<number, string>[]>([])
 
         const handleChlSel = (chlId: string) => {
             const rowData = getRowById(chlId)!
@@ -76,10 +74,7 @@ export default defineComponent({
 
         const handleDisposeWayClick = () => {
             if (!userSessionStore.hasAuth('alarmMgr')) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_AUTH'),
-                })
+                openMessageBox(Translate('IDCS_NO_AUTH'))
                 return
             }
             router.push({
@@ -87,13 +82,13 @@ export default defineComponent({
             })
         }
 
-        const handleChangeAll = (type: 'switch' | 'holdTime', val: boolean | string) => {
+        const handleChangeAll = (type: 'switch' | 'holdTime', val: boolean | number) => {
             tableData.value.forEach((ele) => {
                 if (!ele.disabled) {
                     if (type === 'switch') {
                         ele.switch = val as boolean
                     } else {
-                        ele.holdTime = val as string
+                        ele.holdTime = val as number
                     }
                 }
             })
@@ -120,9 +115,11 @@ export default defineComponent({
                     return
                 }
 
-                rowData.isOnvifChl = !$('content/chl/param/holdTimeNote').length
+                const $param = queryXml($('content/chl/param')[0].element)
+
+                rowData.isOnvifChl = !$param('holdTimeNote').length
                 if (!holdTimeList.value.length && !rowData.isOnvifChl) {
-                    holdTimeList.value = ['5', '10', '20', '30', '60', '120'].map((item) => {
+                    holdTimeList.value = [5, 10, 20, 30, 60, 120].map((item) => {
                         return {
                             label: getTranslateForSecond(Number(item)),
                             value: item,
@@ -131,44 +128,28 @@ export default defineComponent({
                 }
 
                 if ($('status').text() === 'success') {
-                    const areaInfo = $('content/chl/param/area/item').map((ele) => ele.text().trim())
-
-                    const holdTimeNote = $('content/chl/param/holdTimeNote').text().split(',')
-                    const holdTime = $('content/chl/param/holdTime').text()
-                    // 如果当前的持续时间holdTime不在持续时间列表holdTimeArr中，则添加到持续时间列表中
-                    if (!holdTimeNote.includes(holdTime)) {
-                        holdTimeNote.push(holdTime)
-                        holdTimeNote.sort((a, b) => {
-                            return Number(a) - Number(b)
-                        })
-                    }
+                    const areaInfo = $param('area/item').map((ele) => ele.text().trim())
 
                     if (rowData.isOnvifChl) {
-                        rowData.holdTime = ''
+                        rowData.holdTime = 0
                     } else {
-                        rowData.holdTime = holdTime
+                        rowData.holdTime = $param('holdTime').text().num()
                     }
 
-                    rowData.holdTimeList = holdTimeNote.map((item) => {
-                        return {
-                            label: getTranslateForSecond(Number(item)),
-                            value: item,
-                        }
-                    })
-
-                    rowData.switch = $('content/chl/param/switch').text().bool()
-                    rowData.sensitivity = $('content/chl/param/sensitivity').text().num()
+                    rowData.holdTimeList = getAlarmHoldTimeList($param('holdTimeNote').text(), $param('holdTime').text().num())
+                    rowData.switch = $param('switch').text().bool()
+                    rowData.sensitivity = $param('sensitivity').text().num()
                     rowData.status = ''
                     rowData.disabled = false
 
-                    if ($('content/chl/param/sensitivity').length) rowData.sensitivityMinValue = $('content/chl/param/sensitivity').attr('min').num()
-                    if ($('content/chl/param/objectFilter/car').length) rowData.objectFilterCar = $('content/chl/param/objectFilter/car/switch').text().bool()
-                    if ($('content/chl/param/objectFilter/person').length) rowData.objectFilterPerson = $('content/chl/param/objectFilter/person/switch').text().bool()
-                    let max = $('content/chl/param/sensitivity').length ? $('content/chl/param/sensitivity').attr('max').num() : 100
+                    if ($param('sensitivity').length) rowData.sensitivityMinValue = $param('sensitivity').attr('min').num()
+                    if ($param('objectFilter/car').length) rowData.objectFilterCar = $param('objectFilter/car/switch').text().bool()
+                    if ($param('objectFilter/person').length) rowData.objectFilterPerson = $param('objectFilter/person/switch').text().bool()
+                    let max = $param('sensitivity').length ? $param('sensitivity').attr('max').num() : 100
                     if (import.meta.env.VITE_UI_TYPE === 'UI1-F' && max === 100) max = 120
                     rowData.sensitivityMaxValue = max
-                    rowData.column = $('content/chl/param/area/itemType').attr('maxLen').num()
-                    rowData.row = $('content/chl/param/area').attr('count').num()
+                    rowData.column = $param('area/itemType').attr('maxLen').num()
+                    rowData.row = $param('area').attr('count').num()
                     rowData.areaInfo = areaInfo
                 } else {
                     rowData.status = ''
@@ -307,8 +288,8 @@ export default defineComponent({
             closeLoading()
         }
 
-        const notify = ($: XMLQuery) => {
-            if ($("statenotify[@type='MotionArea']").length) {
+        const notify = ($: XMLQuery, stateType: string) => {
+            if (stateType === 'MotionArea') {
                 const rowData = getRowById(selectedChlId.value)!
                 rowData.areaInfo = $('statenotify/areaInfo/item').map((ele) => ele.text())
             }
@@ -384,7 +365,7 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 motionDrawer = CanvasMotion({
-                    el: player.getDrawbordCanvas(0) as HTMLCanvasElement,
+                    el: player.getDrawbordCanvas(0),
                     onchange: motionAreaChange,
                 })
             }

@@ -18,8 +18,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
         // 连接类型与显示文本的映射
         const CONNECTION_TYPE_MAPPING: Record<string, string> = {
@@ -33,7 +31,7 @@ export default defineComponent({
             // 连接类型选项列表
             connectionTypeList: [] as SelectOption<string, string>[],
             // 开关选项列表
-            switchOption: getSwitchOptions(),
+            switchOption: getTranslateOptions(DEFAULT_SWITCH_OPTIONS),
             // 协议选项列表
             manufacturersList: [] as SelectOption<string, string>[],
             // 编码选项列表
@@ -122,14 +120,14 @@ export default defineComponent({
                     }
                 })
 
-                const displaysetString = 'content/itemType/param/displaySetting/displayPosition/'
+                const $position = queryXml($('content/itemType/param/displaySetting/displayPosition')[0].element)
                 const displaysetList = pageData.value.displaysetList
-                displaysetList.xmin = $(`${displaysetString}coordinateSystem/X`).attr('min').num()
-                displaysetList.xmax = $(`${displaysetString}coordinateSystem/X`).attr('max').num()
-                displaysetList.ymin = $(`${displaysetString}coordinateSystem/Y`).attr('min').num()
-                displaysetList.ymax = $(`${displaysetString}coordinateSystem/Y`).attr('max').num()
-                displaysetList.wmin = $(`${displaysetString}width`).attr('min').num()
-                displaysetList.hmin = $(`${displaysetString}height`).attr('min').num()
+                displaysetList.xmin = $position('coordinateSystem/X').attr('min').num()
+                displaysetList.xmax = $position('coordinateSystem/X').attr('max').num()
+                displaysetList.ymin = $position('coordinateSystem/Y').attr('min').num()
+                displaysetList.ymax = $position('coordinateSystem/Y').attr('max').num()
+                displaysetList.wmin = $position('width').attr('min').num()
+                displaysetList.hmin = $position('height').attr('min').num()
 
                 pageData.value.manufacturersList = $('types/manufacturers/enum').map((item) => {
                     const value = item.text()
@@ -146,14 +144,13 @@ export default defineComponent({
 
                 tableData.value = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
-                    const manufacturers = $item('param/manufacturers').text()
-                    const connectionType = $item('param/connectionType').text()
+
                     return {
                         id: item.attr('id'),
                         name: $item('param/name').text(),
                         switch: $item('param/switch').text(),
-                        connectionType,
-                        manufacturers,
+                        connectionType: $item('param/manufacturers').text(),
+                        manufacturers: $item('param/connectionType').text(),
                         connectionSetting: {
                             posIp: $item('param/connectionSetting/posIp').text(),
                             filterDstIpSwitch: $item('param/connectionSetting/filterDstIpSwitch').text().bool(),
@@ -319,10 +316,7 @@ export default defineComponent({
                 })
                 watchEdit.update()
             } else {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_SAVE_DATA_FAIL'),
-                })
+                openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
             }
         }
 
@@ -347,10 +341,7 @@ export default defineComponent({
                 return true
             })
             if (!isValidAddress) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_PROMPT_IPADDRESS_INVALID'),
-                })
+                openMessageBox(Translate('IDCS_PROMPT_IPADDRESS_INVALID'))
                 return false
             }
 
@@ -363,10 +354,7 @@ export default defineComponent({
                 return true
             })
             if (!isNoEmptyIp) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_POS_IP_EMPTY'),
-                })
+                openMessageBox(Translate('IDCS_POS_IP_EMPTY'))
                 return false
             }
 
@@ -381,10 +369,7 @@ export default defineComponent({
                 return true
             })
             if (!isNoEmptyPort) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_POS_PORT_EMPTY'),
-                })
+                openMessageBox(Translate('IDCS_POS_PORT_EMPTY'))
                 return false
             }
 
@@ -403,10 +388,7 @@ export default defineComponent({
                 })
             const isSameIPAndPort = useIPAndPort.length && useIPAndPort.length !== Array.from(new Set(useIPAndPort)).length
             if (isSameIPAndPort) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_POS_IP_SAME'),
-                })
+                openMessageBox(Translate('IDCS_POS_IP_SAME'))
                 return false
             }
 

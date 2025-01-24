@@ -66,11 +66,11 @@ export class RecordParamDto {
 /**
  * @description
  */
-export class RecordSubStreamQualityCaps {
+export class RecordStreamQualityCapsDto {
     enct = ''
     res = ''
-    digitalDefault = ''
-    analogDefault = ''
+    digitalDefault = 0
+    analogDefault = 0
     value: string[] = []
 }
 
@@ -81,29 +81,24 @@ export class RecordSubStreamList extends TableRowStatus {
     id = ''
     index = 0
     name = ''
-    isRTSPChl = ''
+    isRTSPChl = false
     chlType = ''
     subCaps = {
-        supEnct: [] as string[],
+        supEnct: [] as SelectOption<string, string>[],
         bitType: [] as string[],
-        res: [] as { fps: string; value: string }[],
+        res: [] as { fps: number; value: string; label: string }[],
     }
     streamType = ''
     streamLength = 0
     resolution = ''
-    frameRate = ''
+    frameRate = 0
     bitType = ''
     level = ''
-    videoQuality = ''
+    videoQuality = 0
     videoEncodeType = ''
-    subStreamQualityCaps: RecordSubStreamQualityCaps[] = []
-    qualitys: string[] = []
-    videoEncodeTypeList: SelectOption<string, string>[] = []
-    resolutionList: string[] = []
-    frameRateList: string[] = []
-    videoQualityItemList: SelectOption<string, string>[] = []
-    maxFps = 0
-    isVideoQualityDisabled = false
+    subStreamQualityCaps: RecordStreamQualityCapsDto[] = []
+    // frameRateList: number[] = []
+    // maxFps = 0
 }
 
 /**
@@ -118,14 +113,15 @@ export class RecordSubStreamResolutionDto {
     }
 }
 
-/**
- * @description 录像子码流页面，表格行中不存在的属性
- */
-export class RecordSubStreamNoneDto {
-    videoEncodeType = ''
-    videoQuality = ''
-    frameRate = ''
-    resolution = ''
+export class RecordStreamInfoAttrDto {
+    res = ''
+    fps = 0
+    QoI = 0
+    audio = ''
+    type = ''
+    bitType = ''
+    level = ''
+    originalFps = 0
 }
 
 /**
@@ -137,11 +133,10 @@ export class RecordStreamInfoDto extends TableRowStatus {
     streamType = ''
     videoEncodeType = ''
     resolution = ''
-    frameRate = ''
+    frameRate = 0
     bitRate = ''
     level = ''
-    videoQuality = ''
-    bitRange: { min: number; max: number } | null = { min: 0, max: 0 }
+    videoQuality = 0
     audio = ''
     recordStream = ''
     GOP: number | undefined = undefined
@@ -151,71 +146,21 @@ export class RecordStreamInfoDto extends TableRowStatus {
         supEnct: [] as SelectOption<string, string>[],
         // 可选的码率
         bitType: [] as string[],
-        res: [] as { fps: string; value: string; label: string }[],
+        res: [] as { fps: number; value: string; label: string }[],
     }
     main = {
         enct: '',
         aGOP: '',
         mGOP: '',
     }
-    an = {
-        res: '',
-        fps: '',
-        QoI: '',
-        audio: '',
-        type: '',
-        bitType: '',
-        level: '',
-    }
-    ae = {
-        res: '',
-        fps: '',
-        QoI: '',
-        audio: '',
-        type: '',
-        bitType: '',
-        level: '',
-    }
-    mn = {
-        res: '',
-        fps: '',
-        QoI: '',
-        audio: '',
-        type: '',
-        bitType: '',
-        level: '',
-    }
-    me = {
-        res: '',
-        fps: '',
-        QoI: '',
-        audio: '',
-        type: '',
-        bitType: '',
-        level: '',
-    }
-    mainStreamQualityCaps: { enct: string; res: string; digitalDefault: string; analogDefault: string; value: string[] }[] = []
+    an = new RecordStreamInfoAttrDto()
+    ae = new RecordStreamInfoAttrDto()
+    mn = new RecordStreamInfoAttrDto()
+    me = new RecordStreamInfoAttrDto()
+    mainStreamQualityCaps: RecordStreamQualityCapsDto[] = []
     levelNote: SelectOption<string, string>[] = []
     bitType = ''
     supportAudio = false
-    // 码率可选范围
-    qualitys: SelectOption<string, string>[] = []
-    // 帧率可选范围
-    frameRates: SelectOption<string, string>[] = []
-    resolutions: SelectOption<string, string>[] = []
-    videoEncodeTypeDisable = false
-    resolutionDisable = false
-    frameRateDisable = false
-    bitTypeDisable = false
-    imageLevelDisable = false
-    videoQualityDisable = false
-    bitRangeDisable = false
-    audioDisable = false
-    GOPDisable = false
-    // recordStream可能没用
-    recordStreamDisable = false
-
-    bitTypeVisible = true
 }
 
 export interface RecordStreamTableExpose {

@@ -30,7 +30,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
 
         const listData = ref<IntelSearchCollectList[]>([])
 

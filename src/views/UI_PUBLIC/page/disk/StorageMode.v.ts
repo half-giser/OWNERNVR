@@ -14,8 +14,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate, langId } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
         const pageData = ref({
             // 磁盘组列表
@@ -237,10 +235,7 @@ export default defineComponent({
                     getDiskGroupList()
                 })
             } else {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_DELETE_FAIL'),
-                })
+                openMessageBox(Translate('IDCS_DELETE_FAIL'))
             }
         }
 

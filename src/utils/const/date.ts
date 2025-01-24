@@ -108,3 +108,77 @@ export const CALENDAR_TYPE_MAPPING: Record<string, { value: string; text: string
         },
     ],
 }
+
+export const DEFAULT_MONTH_MAPPING: Record<string, string> = {
+    0: 'IDCS_Month_ONE',
+    1: 'IDCS_Month_TWO',
+    2: 'IDCS_Month_THREE',
+    3: 'IDCS_Month_FOUR',
+    4: 'IDCS_Month_FIVE',
+    5: 'IDCS_Month_SIX',
+    6: 'IDCS_Month_SEVEN',
+    7: 'IDCS_Month_EIGHT',
+    8: 'IDCS_Month_NINE',
+    9: 'IDCS_Month_TEM',
+    10: 'IDCS_Month_ELEVEN',
+    11: 'IDCS_Month_TWELVE',
+}
+
+export const DEFAULT_MONTH_SHORT_MAPPING: Record<string, string> = {
+    0: 'IDCS_CALENDAR_JANUARY',
+    1: 'IDCS_CALENDAR_FEBRUARY',
+    2: 'IDCS_CALENDAR_MARCH',
+    3: 'IDCS_CALENDAR_APRIL',
+    4: 'IDCS_CALENDAR_MAY',
+    5: 'IDCS_CALENDAR_JUNE',
+    6: 'IDCS_CALENDAR_JULY',
+    7: 'IDCS_CALENDAR_AUGUST',
+    8: 'IDCS_CALENDAR_SEPTEMBER',
+    9: 'IDCS_CALENDAR_OCTOBER',
+    10: 'IDCS_CALENDAR_NOVEMBER',
+    11: 'IDCS_CALENDAR_DECEMBER',
+}
+
+export const DEFAULT_WEEK_MAPPING: Record<string, string> = {
+    0: 'IDCS_WEEK_DAY_SEVEN',
+    1: 'IDCS_WEEK_DAY_ONE',
+    2: 'IDCS_WEEK_DAY_TWO',
+    3: 'IDCS_WEEK_DAY_THREE',
+    4: 'IDCS_WEEK_DAY_FOUR',
+    5: 'IDCS_WEEK_DAY_FIVE',
+    6: 'IDCS_WEEK_DAY_SIX',
+    7: 'IDCS_WEEK_DAY_SEVEN',
+}
+
+export const DEFAULT_WEEK_MAPPING2: Record<string, string> = {
+    0: 'IDCS_SUNDAY',
+    1: 'IDCS_MONDAY',
+    2: 'IDCS_TUESDAY',
+    3: 'IDCS_WEDNESDAY',
+    4: 'IDCS_THURSDAY',
+    5: 'IDCS_FRIDAY',
+    6: 'IDCS_SATURDAY',
+    7: 'IDCS_SUNDAY',
+}
+
+export const DEFAULT_WEEK_SHORT_MAPPING: Record<string, string> = {
+    0: 'IDCS_CALENDAR_SUNDAY',
+    1: 'IDCS_CALENDAR_MONDAY',
+    2: 'IDCS_CALENDAR_TUESDAY',
+    3: 'IDCS_CALENDAR_WEDNESDAY',
+    4: 'IDCS_CALENDAR_THURSDAY',
+    5: 'IDCS_CALENDAR_FRIDAY',
+    6: 'IDCS_CALENDAR_SATURDAY',
+    7: 'IDCS_CALENDAR_SUNDAY',
+}
+
+export const DEFAULT_DATE_FORMAT_MAPPING: Record<string, string> = {
+    'year-month-day': 'IDCS_DATE_FORMAT_YMD',
+    'month-day-year': 'IDCS_DATE_FORMAT_MDY',
+    'day-month-year': 'IDCS_DATE_FORMAT_DMY',
+}
+
+export const DEFAULT_TIME_FORMAT_MAPPING: Record<string, string> = {
+    24: 'IDCS_TIME_FORMAT_24',
+    12: 'IDCS_TIME_FORMAT_12',
+}

@@ -140,7 +140,7 @@ export default defineComponent({
 
                 pageData.value.timeIntervalOptions = $('content/chl/timeIntervalNote')
                     .text()
-                    .split(',')
+                    .array()
                     .map((item) => {
                         const value = Number(item)
                         return {

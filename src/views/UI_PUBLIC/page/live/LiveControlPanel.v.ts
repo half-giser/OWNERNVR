@@ -97,8 +97,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        // const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
         const userSession = useUserSessionStore()
 
@@ -290,10 +288,7 @@ export default defineComponent({
                 if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
                     errorInfo = Translate('IDCS_NO_PERMISSION')
                 }
-                openMessageBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
         }
 
@@ -576,10 +571,7 @@ export default defineComponent({
                 if (errorCode === ErrorCode.USER_ERROR_UNSUPPORTED_FUNC) {
                     errorInfo = Translate('IDCS_NOT_SUPPORTFUNC')
                 }
-                openMessageBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
         }
 

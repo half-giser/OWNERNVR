@@ -79,14 +79,14 @@
                             <template #header>
                                 <el-dropdown>
                                     <BaseTableDropdownLink>
-                                        {{ Translate(item.label) }}
+                                        {{ item.label }}
                                     </BaseTableDropdownLink>
                                     <template #dropdown>
                                         <el-dropdown-menu>
                                             <el-dropdown-item
                                                 v-for="opt in pageData.channelOption"
-                                                :key="opt.value"
-                                                @click="changeAllChannelAuth(item.value, opt.label)"
+                                                :key="opt.label"
+                                                @click="changeAllChannelAuth(item.value, opt.value)"
                                             >
                                                 {{ opt.label }}
                                             </el-dropdown-item>
@@ -121,14 +121,14 @@
                             <template #header>
                                 <el-dropdown>
                                     <BaseTableDropdownLink>
-                                        {{ Translate(item.label) }}
+                                        {{ item.label }}
                                     </BaseTableDropdownLink>
                                     <template #dropdown>
                                         <el-dropdown-menu>
                                             <el-dropdown-item
                                                 v-for="opt in pageData.channelOption"
-                                                :key="opt.value"
-                                                @click="changeAllChannelAuth(item.value, opt.label)"
+                                                :key="opt.label"
+                                                @click="changeAllChannelAuth(item.value, opt.value)"
                                             >
                                                 {{ opt.label }}
                                             </el-dropdown-item>

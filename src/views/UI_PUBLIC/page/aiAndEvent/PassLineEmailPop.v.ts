@@ -23,7 +23,6 @@ export default defineComponent({
     },
     setup(props, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
         const formRef = useFormRef()
         const formData = ref({
             address: '',
@@ -84,36 +83,7 @@ export default defineComponent({
                 receiverData: [],
             } as AlarmPassLinesEmailDto,
             time: '00:00',
-            weekOption: [
-                {
-                    value: 1,
-                    label: Translate('IDCS_WEEK_DAY_ONE'),
-                },
-                {
-                    value: 2,
-                    label: Translate('IDCS_WEEK_DAY_TWO'),
-                },
-                {
-                    value: 3,
-                    label: Translate('IDCS_WEEK_DAY_THREE'),
-                },
-                {
-                    value: 4,
-                    label: Translate('IDCS_WEEK_DAY_FOUR'),
-                },
-                {
-                    value: 5,
-                    label: Translate('IDCS_WEEK_DAY_FIVE'),
-                },
-                {
-                    value: 6,
-                    label: Translate('IDCS_WEEK_DAY_SIX'),
-                },
-                {
-                    value: 7,
-                    label: Translate('IDCS_WEEK_DAY_SEVEN'),
-                },
-            ] as SelectOption<number, string>[],
+            weekOption: objectToOptions(getTranslateMapping(DEFAULT_WEEK_MAPPING), 'number').slice(1),
             monthOption: [] as SelectOption<string, string>[],
             scheduleList: [] as SelectOption<string, string>[],
             // 添加弹窗

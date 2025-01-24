@@ -17,15 +17,36 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const userSessionStore = useUserSessionStore()
         const { supportPOS, CustomerID } = useCababilityStore()
-        const openMessageBox = useMessageBox().openMessageBox
-        const { openLoading, closeLoading } = useLoading()
 
         const MODE_MAPPING: Record<string, string> = {
             manually: Translate('IDCS_REPLAY_CUSTOMIZE'),
             auto: Translate('IDCS_AUTO'),
         }
+
+        // icon信息映射
+        const ICON_MAPPING: { icon: string; event: string }[] = [
+            {
+                icon: 'record_all',
+                event: 'INTENSIVE',
+            },
+            {
+                icon: 'motion',
+                event: 'MOTION',
+            },
+            {
+                icon: 'alarm_1',
+                event: 'ALARM',
+            },
+            {
+                icon: 'intelligent',
+                event: 'INTELLIGENT',
+            },
+            {
+                icon: 'POS',
+                event: 'POS',
+            },
+        ]
 
         const formData = ref(new RecordDistributeInfoDto())
         const watchEdit = useWatchEditData(formData)
@@ -131,18 +152,11 @@ export default defineComponent({
                 },
             ] as RecordModeDto[],
             icons: {} as Record<string, string[]>,
-            // icon信息映射
-            iconMap: {
-                MOTION: 'motion',
-                ALARM: 'alarm_1',
-                INTELLIGENT: 'intelligent',
-                POS: 'POS',
-                INTENSIVE: 'record_all',
-            } as Record<string, string>,
             // 根据UI选择是否显示icon
             showIcon: import.meta.env.VITE_UI_TYPE === 'UI1-E',
             // 特定客户的需求
             isInw48: CustomerID === 100,
+            advanceRecModeId: '',
         })
 
         // 如果支持POS，才在高级模式选项列表中加入POS
@@ -170,26 +184,7 @@ export default defineComponent({
         const genIconMap = (modes: RecordModeDto[]) => {
             pageData.value.icons = {}
             modes.forEach((item) => {
-                pageData.value.icons[item.id] = []
-                if (item.text.includes(Translate('IDCS_INTENSIVE_RECORD'))) {
-                    pageData.value.icons[item.id].push(pageData.value.iconMap.INTENSIVE)
-                }
-
-                if (item.text.includes(Translate('IDCS_MOTION_RECORD'))) {
-                    pageData.value.icons[item.id].push(pageData.value.iconMap.MOTION)
-                }
-
-                if (item.text.includes(Translate('IDCS_ALARM_RECORD'))) {
-                    pageData.value.icons[item.id].push(pageData.value.iconMap.ALARM)
-                }
-
-                if (item.text.includes(Translate('IDCS_AI_RECORD'))) {
-                    pageData.value.icons[item.id].push(pageData.value.iconMap.INTELLIGENT)
-                }
-
-                if (item.text.includes(Translate('IDCS_POS_RECORD'))) {
-                    pageData.value.icons[item.id].push(pageData.value.iconMap.POS)
-                }
+                pageData.value.icons[item.id] = ICON_MAPPING.filter((icon) => item.events.includes(icon.event)).map((icon) => icon.icon)
             })
         }
 
@@ -211,7 +206,7 @@ export default defineComponent({
 
             formData.value.mode = $('content/recMode/mode').text()
             formData.value.autoMode = $('content/recMode/autoMode').text()
-            formData.value.autoModeEvents = $('content/recMode/autoMode').attr('eventType').split(',')
+            formData.value.autoModeEvents = $('content/recMode/autoMode').attr('eventType').array()
             formData.value.urgencyRecDuration = $('content/urgencyRecDuration').text().num()
 
             //TODO: CustomerID为100代表inw48客户,要求隐藏智能侦测
@@ -234,7 +229,7 @@ export default defineComponent({
             //绑定手动录像时长下拉
             $('content/urgencyRecDurationNote')
                 .text()
-                .split(',')
+                .array()
                 .forEach((item) => {
                     const value = Number(item)
                     if (Number.isNaN(value)) return
@@ -281,8 +276,8 @@ export default defineComponent({
 
             // 如果返回数据中没有高级模式，查看本次会话中是否有已构建好的高级模式
             if (pageData.value.advanceModeCurrent === null) {
-                if (userSessionStore.advanceRecModeId) {
-                    genAdvanceMode(userSessionStore.advanceRecModeId.split('_'))
+                if (pageData.value.advanceRecModeId) {
+                    genAdvanceMode(pageData.value.advanceRecModeId.split('_'))
                 }
             }
         }
@@ -302,10 +297,7 @@ export default defineComponent({
             const intensiveIndex = events.indexOf(REC_MODE_TYPE.INTENSIVE)
             // 不能只选一直录像
             if (events.length === 1 && intensiveIndex > -1) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_ONLY_INTENSIVE_TIP'),
-                })
+                openMessageBox(Translate('IDCS_ONLY_INTENSIVE_TIP'))
                 return false
             }
 
@@ -343,10 +335,7 @@ export default defineComponent({
                     return item.id === advanceModeCurrent.id
                 })
             ) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_RECORD_MODE_EXIST'),
-                })
+                openMessageBox(Translate('IDCS_RECORD_MODE_EXIST'))
                 return false
             }
 
@@ -355,8 +344,7 @@ export default defineComponent({
 
             pageData.value.advanceModeCurrent = advanceModeCurrent
 
-            // 存入Store
-            userSessionStore.advanceRecModeId = advanceModeCurrent.id
+            pageData.value.advanceRecModeId = advanceModeCurrent.id
             genIconMap(recAutoModeList.value.concat([advanceModeCurrent]))
 
             return true
@@ -410,11 +398,11 @@ export default defineComponent({
          * 高级弹窗确认事件
          * @param selectedEvents 选择的事件列表
          */
-        const advancePopConfirm = (selectedEvents: string[]) => {
+        const confirmAdvancePop = (selectedEvents: string[]) => {
             if (genAdvanceMode(selectedEvents)) pageData.value.isAdvancePop = false
         }
 
-        const streamPopClose = (isConfirm: boolean) => {
+        const closeStreamPop = (isConfirm: boolean) => {
             if (!isConfirm) {
                 formData.value.autoModeId = pageData.value.autoModeIdOld
             } else {
@@ -474,7 +462,7 @@ export default defineComponent({
          */
         const setRecScheduleInfo = (editRows: RecordScheduleDto[]) => {
             const getSwitch = (scheduleId: string) => {
-                return scheduleId === DEFAULT_EMPTY_ID ? 'false' : 'true'
+                return scheduleId !== DEFAULT_EMPTY_ID
             }
             const sendXml = rawXml`
                 <content type="list" total="${editRows.length}">
@@ -482,7 +470,7 @@ export default defineComponent({
                         .map((row) => {
                             return rawXml`
                                 <item id="${row.id}">
-                                    <name><![CDATA[IPCamera]]></name>
+                                    <name><![CDATA[${row.name}]]></name>
                                     <scheduleRec>
                                         <switch>${getSwitch(row.scheduleRec)}</switch>
                                         <schedule id="${row.scheduleRec}"></schedule>
@@ -561,8 +549,8 @@ export default defineComponent({
             advanceRecModeMap,
             supportPOS,
             changeAllSchedule,
-            advancePopConfirm,
-            streamPopClose,
+            confirmAdvancePop,
+            closeStreamPop,
             setData,
         }
     },
