@@ -7,13 +7,11 @@ import type { SystemPoeList } from '@/types/apiType/system'
 
 export default defineComponent({
     setup() {
-        const { openLoading, closeLoading } = useLoading()
-
         const indexMapping: Record<string, number> = {}
 
         const pageData = ref({
             // 开关选项
-            switchOptions: getSwitchOptions(),
+            switchOptions: getTranslateOptions(DEFAULT_SWITCH_OPTIONS),
             // 总功率
             totalPower: '0.00',
             // 剩余功率

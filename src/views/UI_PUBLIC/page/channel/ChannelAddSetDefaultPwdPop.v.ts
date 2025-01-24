@@ -22,9 +22,7 @@ export default defineComponent({
     },
     setup(_, { emit }) {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
         const userSessionStore = useUserSessionStore()
-        const { openMessageBox } = useMessageBox()
         const formRef = useFormRef()
         const formData = ref({
             params: [] as Array<ChannelDefaultPwdDto>,
@@ -129,21 +127,20 @@ export default defineComponent({
                     emit('close')
                 } else {
                     const errorCode = $('errorCode').text().num()
-                    if (errorCode === ErrorCode.USER_ERROR_PWD_ERR || errorCode === ErrorCode.USER_ERROR_NO_USER) {
+                    switch (errorCode) {
                         // 用户名/密码错误
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_DEVICE_PWD_ERROR'),
-                        })
-                    } else if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
+                        case ErrorCode.USER_ERROR_PWD_ERR:
+                        case ErrorCode.USER_ERROR_NO_USER:
+                            openMessageBox(Translate('IDCS_DEVICE_PWD_ERROR'))
+                            break
                         // 鉴权账号无相关权限
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_NO_AUTH'),
-                        })
-                    } else {
-                        baseCheckAuthPopVisiable.value = false
-                        emit('close')
+                        case ErrorCode.USER_ERROR_NO_AUTH:
+                            openMessageBox(Translate('IDCS_NO_AUTH'))
+                            break
+                        default:
+                            baseCheckAuthPopVisiable.value = false
+                            emit('close')
+                            break
                     }
                 }
             })

@@ -1475,7 +1475,7 @@ interface OcxXmlRequestRecStream {
  */
 export const OCX_XML_RequestRecStream = (option: OcxXmlRequestRecStream) => {
     const { pluginPort } = usePluginStore()
-    const serverIp = useUserSessionStore()
+    const { serverIp } = useUserSessionStore()
 
     return wrapXml(rawXml`
         <cmd type="${option.cmdType}">

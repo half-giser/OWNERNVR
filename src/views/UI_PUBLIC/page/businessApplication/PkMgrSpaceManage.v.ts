@@ -12,8 +12,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
-        const { openMessageBox } = useMessageBox()
 
         const pageData = ref({
             // 停车选项列表
@@ -149,37 +147,25 @@ export default defineComponent({
             return tableData.value.every((item) => {
                 // 分组总车位为空
                 if (item.groupTotalNum.toString() === '' && item.parkingType === 'usingGroup') {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_GROUP_TOTAL_VEHICLE_NOT_CONFIG'),
-                    })
+                    openMessageBox(Translate('IDCS_GROUP_TOTAL_VEHICLE_NOT_CONFIG'))
                     return false
                 }
 
                 // 分组剩余车位为空
                 if (item.groupRemainNum.toString() === '' && item.parkingType === 'usingGroup') {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_GROUP_REMAIN_VEHICLE_NOT_CONFIG'),
-                    })
+                    openMessageBox(Translate('IDCS_GROUP_REMAIN_VEHICLE_NOT_CONFIG'))
                     return false
                 }
 
                 // 分组剩余车位超过分组总车位
                 if (item.groupRemainNum > item.groupTotalNum) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_GROUP_REMAIN_VEHICLE_NUM_OVER_TIPS'),
-                    })
+                    openMessageBox(Translate('IDCS_GROUP_REMAIN_VEHICLE_NUM_OVER_TIPS'))
                     return false
                 }
 
                 // 邮箱格式错误
                 if (item.linkEmail && !checkEmail(item.linkEmail)) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_PROMPT_INVALID_EMAIL'),
-                    })
+                    openMessageBox(Translate('IDCS_PROMPT_INVALID_EMAIL'))
                     return false
                 }
 
@@ -189,10 +175,7 @@ export default defineComponent({
                 }
 
                 if (groupTotalNum > pageData.value.totalNum) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_ALL_GROUP_VEHICLE_NUM_OVER_TIPS'),
-                    })
+                    openMessageBox(Translate('IDCS_ALL_GROUP_VEHICLE_NUM_OVER_TIPS'))
                     return false
                 }
 
@@ -202,10 +185,7 @@ export default defineComponent({
                 }
 
                 if (groupRemainTotalNum > pageData.value.remainTotalNum) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_GROUP_TOTAL_REMAIN_SPACE_OVER_TIPS'),
-                    })
+                    openMessageBox(Translate('IDCS_GROUP_TOTAL_REMAIN_SPACE_OVER_TIPS'))
                     return false
                 }
 
@@ -257,10 +237,7 @@ export default defineComponent({
                 if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
                     errorMsg = Translate('IDCS_NO_PERMISSION')
                 }
-                openMessageBox({
-                    type: 'info',
-                    message: errorMsg,
-                })
+                openMessageBox(errorMsg)
             }
         }
 

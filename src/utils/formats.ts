@@ -24,20 +24,32 @@ export const camel2Kebab = (name: string) => {
     return nameArr.join('')
 }
 
+const TEXT_ENTITY_LIST = [
+    {
+        ch: '&',
+        entity: '&amp;',
+    },
+    {
+        ch: '<',
+        entity: '&lt;',
+    },
+    {
+        ch: '>',
+        entity: '&gt;',
+    },
+    {
+        ch: '"',
+        entity: '&quot;',
+    },
+]
+
 /**
  * @description 用实体替换特殊字符
  * @param {string} str
  * @returns {string}
  */
 export const replaceWithEntity = (str: string) => {
-    str = '' + str // 参数必须转换为字符串，否则可能会报错
-    const entityList = [
-        { ch: '&', entity: '&amp;' },
-        { ch: '<', entity: '&lt;' },
-        { ch: '>', entity: '&gt;' },
-        { ch: '"', entity: '&quot;' },
-    ]
-    entityList.forEach((element) => {
+    TEXT_ENTITY_LIST.forEach((element) => {
         str = str.replace(new RegExp(element.ch, 'g'), element.entity)
     })
     return str
@@ -49,16 +61,8 @@ export const replaceWithEntity = (str: string) => {
  * @returns {String}
  */
 export const convertToTextEntities = (str: string) => {
-    str = '' + str
-    const entityList: { ch: string; entity: string }[] = [
-        { ch: '&amp;', entity: '&' },
-        { ch: '&lt;', entity: '<' },
-        { ch: '&gt;', entity: '>' },
-        { ch: '&quot;', entity: '"' },
-        { ch: '&nbsp;', entity: ' ' },
-    ]
-    entityList.forEach((element) => {
-        str = str.replace(new RegExp(element.ch, 'g'), element.entity)
+    TEXT_ENTITY_LIST.forEach((element) => {
+        str = str.replace(new RegExp(element.entity, 'g'), element.ch)
     })
     return str
 }
@@ -80,6 +84,18 @@ export const hexToDec = (str: string) => {
  */
 export const decToHex = (num: number) => {
     return num.toString(16).toUpperCase()
+}
+
+/**
+ * @description 返回IP十进制数值
+ * @param {string} ip
+ * @returns {number}
+ */
+export const getIpNumber = (ip: string) => {
+    const split = ip.split('.').map((item) => Number(item))
+    return split.reduce((sum, current, index) => {
+        return sum + current * Math.pow(Math.pow(2, 8), split.length - 1 - index)
+    }, 0)
 }
 
 /**
@@ -257,16 +273,18 @@ export const hideSensitiveInfo = (value: string, level: 'low' | 'high' | 'medium
     if (type === 'name') {
         let result = ''
         const nameArr = []
-        for (let index = 0; index < separator.length; index++) {
-            if (separator[index].type.test(value)) {
-                const tmpArr = value.split(separator[index].value)
+        separator.some((item) => {
+            if (item.type.test(value)) {
+                const tmpArr = value.split(item.value)
                 tmpArr.forEach((e, i) => {
                     nameArr.push(e)
-                    i < tmpArr.length - 1 && nameArr.push(separator[index].value)
+                    if (i < tmpArr.length - 1) {
+                        nameArr.push(item.value)
+                    }
                 })
-                break
+                return true
             }
-        }
+        })
 
         if (!nameArr.length) {
             nameArr.push(value)
@@ -303,10 +321,7 @@ export const hideSensitiveInfo = (value: string, level: 'low' | 'high' | 'medium
     const strLen = value.length
     const n = Math.floor(strLen / 3)
     const x = strLen % 3
-    let f = ''
-    for (let i = 0; i < n + x; i++) {
-        f += '*'
-    }
+    const f = new Array(n + x).fill('*').join('')
 
     // 全部显示
     if (level === 'low') {

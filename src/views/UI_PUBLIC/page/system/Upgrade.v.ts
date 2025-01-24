@@ -20,9 +20,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading, closeAllLoading, LoadingTarget } = useLoading()
-        const { openNotify } = useNotification()
         const systemCaps = useCababilityStore()
         const userSession = useUserSessionStore()
         // 用户鉴权表单数据
@@ -84,7 +81,7 @@ export default defineComponent({
         let clickFlag = false
         let uploadTimer: NodeJS.Timeout | 0 = 0
 
-        const plugin = setupPlugin({
+        const plugin = usePlugin({
             onReady: (mode, plugin) => {
                 if (mode.value === 'ocx') {
                     const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
@@ -97,9 +94,9 @@ export default defineComponent({
                     pageData.value.isUploadDisabled = true
                 }
             },
-            onMessage: ($) => {
+            onMessage: ($, stateType) => {
                 // 升级进度/备份进度
-                if ($("statenotify[@type='FileNetTransportProgress']").length) {
+                if (stateType === 'FileNetTransportProgress') {
                     const progress = $('statenotify/progress').text()
                     pageData.value.isCheckAuth = false
                     if ($('statenotify/action').text() === 'Export') {
@@ -120,16 +117,18 @@ export default defineComponent({
                         }
                     }
                 }
+
                 //网络断开
-                else if ($("statenotify[@type='FileNetTransport']").length) {
+                if (stateType === 'FileNetTransport') {
                     closeAllLoading()
                     if ($('statenotify/errorCode').length) {
                         const errorCode = $('statenotify/errorCode').text().num()
                         handleErrorMsg(errorCode)
                     }
                 }
+
                 // 升级文件校验
-                else if ($("statenotify[@type='UploadUpgradeCheckFileBase64']").length) {
+                if (stateType === 'UploadUpgradeCheckFileBase64') {
                     const fileHeadBase64 = $('statenotify/base64').text()
                     // 若插件返回的升级包校验头内容为空，说明插件读取升级包失败。（可能是由于升级包文件被占用,另一web客户端正在升级）NVRUSS78-226
                     if (!fileHeadBase64) {
@@ -207,19 +206,13 @@ export default defineComponent({
                 if (systemCaps.devSystemType === 1) {
                     // 只能选择.pkg后缀的文件
                     if (name.indexOf('.pkg') === -1) {
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_NO_CHOOSE_TDB_FILE').formatForLang('.pkg'),
-                        })
+                        openMessageBox(Translate('IDCS_NO_CHOOSE_TDB_FILE').formatForLang('.pkg'))
                         return
                     }
                 } else {
                     // 只能选择.fls后缀的文件
                     if (name.indexOf('.fls') === -1) {
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_NO_CHOOSE_TDB_FILE').formatForLang('.fls'),
-                        })
+                        openMessageBox(Translate('IDCS_NO_CHOOSE_TDB_FILE').formatForLang('.fls'))
                         return
                     }
                 }
@@ -408,10 +401,7 @@ export default defineComponent({
          * @param {string} message
          */
         const showMessage = (message: string) => {
-            openMessageBox({
-                type: 'info',
-                message,
-            })
+            openMessageBox(message)
         }
 
         /**
@@ -453,10 +443,7 @@ export default defineComponent({
                     showMessage(Translate('IDCS_DEVICE_BUSY'))
                     break
                 case ErrorCode.USER_ERROR_SERVER_NO_EXISTS:
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_LOGIN_OVERTIME'),
-                    }).finally(() => {
+                    openMessageBox(Translate('IDCS_LOGIN_OVERTIME')).finally(() => {
                         Logout()
                     })
                     break

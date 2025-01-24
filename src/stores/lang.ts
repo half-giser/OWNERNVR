@@ -48,7 +48,7 @@ export const useLangStore = defineStore(
                 langId.value = LANG_MAPPING[langType.value]
                 if (!langId.value) {
                     // 如果map中不存在，则尝试只比较前2位
-                    langId.value = LANG_MAPPING[langType.value.substring(0, 2)] as string
+                    langId.value = LANG_MAPPING[langType.value.substring(0, 2)]
                 }
 
                 if (!langId.value) {
@@ -143,8 +143,14 @@ export const useLangStore = defineStore(
             localStorage.setItem(LocalCacheKey.KEY_LANG_ID, newVal)
         }
 
+        /**
+         * @see /node_modules/element-plus/es/locale/lang/
+         */
         //element国际化资源
         const elLocale = computed(() => {
+            const shortMonth = getTranslateMapping(DEFAULT_MONTH_SHORT_MAPPING)
+            const month = getTranslateMapping(DEFAULT_MONTH_MAPPING)
+            const shortWeek = getTranslateMapping(DEFAULT_WEEK_SHORT_MAPPING)
             return {
                 name: 'custom',
                 el: {
@@ -173,40 +179,40 @@ export const useLangStore = defineStore(
                         nextMonth: Translate('IDCS_NEXT'), // "下个月",
                         year: '',
                         // year: Translate('IDCS_YEAR_ALL'),
-                        month1: Translate('IDCS_Month_ONE'),
-                        month2: Translate('IDCS_Month_TWO'),
-                        month3: Translate('IDCS_Month_THREE'),
-                        month4: Translate('IDCS_Month_FOUR'),
-                        month5: Translate('IDCS_Month_FIVE'),
-                        month6: Translate('IDCS_Month_SIX'),
-                        month7: Translate('IDCS_Month_SEVEN'),
-                        month8: Translate('IDCS_Month_EIGHT'),
-                        month9: Translate('IDCS_Month_NINE'),
-                        month10: Translate('IDCS_Month_TEM'),
-                        month11: Translate('IDCS_Month_ELEVEN'),
-                        month12: Translate('IDCS_Month_TWELVE'),
+                        month1: month[0],
+                        month2: month[1],
+                        month3: month[2],
+                        month4: month[3],
+                        month5: month[4],
+                        month6: month[5],
+                        month7: month[6],
+                        month8: month[7],
+                        month9: month[8],
+                        month10: month[9],
+                        month11: month[10],
+                        month12: month[11],
                         weeks: {
-                            sun: Translate('IDCS_CALENDAR_SUNDAY'),
-                            mon: Translate('IDCS_CALENDAR_MONDAY'),
-                            tue: Translate('IDCS_CALENDAR_TUESDAY'),
-                            wed: Translate('IDCS_CALENDAR_WEDNESDAY'),
-                            thu: Translate('IDCS_CALENDAR_THURSDAY'),
-                            fri: Translate('IDCS_CALENDAR_FRIDAY'),
-                            sat: Translate('IDCS_CALENDAR_SATURDAY'),
+                            sun: shortWeek[0],
+                            mon: shortWeek[1],
+                            tue: shortWeek[2],
+                            wed: shortWeek[3],
+                            thu: shortWeek[4],
+                            fri: shortWeek[5],
+                            sat: shortWeek[6],
                         },
                         months: {
-                            jan: Translate('IDCS_CALENDAR_JANUARY'),
-                            feb: Translate('IDCS_CALENDAR_FEBRUARY'),
-                            mar: Translate('IDCS_CALENDAR_MARCH'),
-                            apr: Translate('IDCS_CALENDAR_APRIL'),
-                            may: Translate('IDCS_CALENDAR_MAY'),
-                            jun: Translate('IDCS_CALENDAR_JUNE'),
-                            jul: Translate('IDCS_CALENDAR_JULY'),
-                            aug: Translate('IDCS_CALENDAR_AUGUST'),
-                            sep: Translate('IDCS_CALENDAR_SEPTEMBER'),
-                            oct: Translate('IDCS_CALENDAR_OCTOBER'),
-                            nov: Translate('IDCS_CALENDAR_NOVEMBER'),
-                            dec: Translate('IDCS_CALENDAR_DECEMBER'),
+                            jan: shortMonth[0],
+                            feb: shortMonth[1],
+                            mar: shortMonth[2],
+                            apr: shortMonth[3],
+                            may: shortMonth[4],
+                            jun: shortMonth[5],
+                            jul: shortMonth[6],
+                            aug: shortMonth[7],
+                            sep: shortMonth[8],
+                            oct: shortMonth[9],
+                            nov: shortMonth[10],
+                            dec: shortMonth[11],
                         },
                     },
                     select: {

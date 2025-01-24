@@ -9,7 +9,6 @@ import { type FormRules } from 'element-plus'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
 
         const pageData = ref({
             // 是否显示启用密码复选框

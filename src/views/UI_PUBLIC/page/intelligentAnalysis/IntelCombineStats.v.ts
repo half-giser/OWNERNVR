@@ -17,8 +17,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
         let chlMap: Record<string, string> = {}
         let eventMap: Record<string, string> = {}
@@ -190,10 +188,7 @@ export default defineComponent({
                 showMaxSearchLimitTips($)
             } else {
                 if ($('errorCode').text().num() === ErrorCode.USER_ERROR_JSU_HAVEACSSYSTEM) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_SELECT_EVENT_TIP'),
-                    })
+                    openMessageBox(Translate('IDCS_SELECT_EVENT_TIP'))
                 }
                 tableData.value = []
             }

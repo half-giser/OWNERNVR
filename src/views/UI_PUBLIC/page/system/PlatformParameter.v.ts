@@ -10,7 +10,6 @@ import { SystemSHDBPlatformParameterForm } from '@/types/apiType/system'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
 
         const formRef = useFormRef()
 
@@ -71,7 +70,7 @@ export default defineComponent({
                 pageData.value.defaultResolution = $('content/snapParam/resolution').attr('default') || 'CIF'
                 pageData.value.resolutionList = $('content/snapParam/resolutionNote')
                     .text()
-                    .split(',')
+                    .array()
                     .map((item) => ({
                         value: item.trim(),
                         label: item.trim(),
@@ -79,7 +78,7 @@ export default defineComponent({
                 pageData.value.defaultLevel = $('content/snapParam/level').attr('default') || 'medium'
                 pageData.value.levelList = $('content/snapParam/levelNote')
                     .text()
-                    .split(',')
+                    .array()
                     .reverse()
                     .map((item) => ({
                         value: item.trim(),
@@ -89,7 +88,7 @@ export default defineComponent({
                 pageData.value.unit = $('content/snapParam/holdTime').attr('unit')
                 pageData.value.holdTimeList = $('content/snapParam/holdTimeNote')
                     .text()
-                    .split(',')
+                    .array()
                     .map((item) => ({
                         value: item.trim(),
                         label: getTranslateForSecond(Number(item.trim())),

@@ -69,8 +69,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
         const cacheChlListOfGroup: Record<string, ChlItem[]> = {}
@@ -917,10 +915,7 @@ export default defineComponent({
                         break
                 }
 
-                openMessageBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
         }
 

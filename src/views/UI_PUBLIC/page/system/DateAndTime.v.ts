@@ -9,7 +9,6 @@ import dayjs from 'dayjs'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
         const dateTime = useDateTimeStore()
 
         let interval: NodeJS.Timeout | number = 0
@@ -23,17 +22,8 @@ export default defineComponent({
         }
 
         // 日期格式与显示文本映射
-        const DATE_FORMAT_MAPPING: Record<string, string> = {
-            'year-month-day': Translate('IDCS_DATE_FORMAT_YMD'),
-            'month-day-year': Translate('IDCS_DATE_FORMAT_MDY'),
-            'day-month-year': Translate('IDCS_DATE_FORMAT_DMY'),
-        }
-
-        // 时间格式与显示文本映射
-        const TIME_FORMAT_MAPPING: Record<string, string> = {
-            '24': Translate('IDCS_TIME_FORMAT_24'),
-            '12': Translate('IDCS_TIME_FORMAT_12'),
-        }
+        const DATE_FORMAT_MAPPING = getTranslateMapping(DEFAULT_DATE_FORMAT_MAPPING)
+        const TIME_FORMAT_MAPPING = getTranslateMapping(DEFAULT_TIME_FORMAT_MAPPING)
 
         const pageData = ref({
             // 同步类型选项

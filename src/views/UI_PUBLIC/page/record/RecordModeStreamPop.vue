@@ -26,11 +26,10 @@
             </el-menu-item>
         </el-menu>
         <RecordBaseStreamTable
+            v-if="pageData.currenMode"
             ref="recordStreamTableRef"
-            v-model="pageData.initComplete"
             :mode="pageData.currenMode"
             :pop="true"
-            :initkey="autoModeId"
             class="streamTable"
             @bandwidth="getBandwidth"
             @rec-time="getRecTime"
@@ -40,12 +39,12 @@
                 <span class="row_bandwidth">{{ pageData.txtBandwidth }}</span>
                 <span class="detailBtn"></span>
                 <span
-                    v-if="pageData.isPredict"
+                    v-if="pageData.isRecTime"
                     class="txRecTime"
                     >{{ pageData.recTime }}</span
                 >
                 <el-button
-                    v-if="pageData.isCalculate"
+                    v-if="pageData.isRecTime"
                     class="btnActivate"
                     @click="handleCalculate"
                 >
@@ -72,7 +71,8 @@
 .el-menu--horizontal > .el-menu-item {
     color: var(--main-text);
 
-    &.is-active {
+    &.is-active,
+    &.is-active:hover {
         background-color: var(--primary);
         color: var(--main-text-active) !important;
     }

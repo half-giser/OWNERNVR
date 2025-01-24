@@ -19,8 +19,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
-        const { openMessageBox } = useMessageBox()
         const playerRef = ref<PlayerInstance>()
         const auth = useUserChlAuth(false)
 
@@ -324,15 +322,9 @@ export default defineComponent({
             } else {
                 const errorCode = $('errorCode').text().num()
                 if (errorCode === ErrorCode.USER_ERROR_NAME_EXISTED) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_PROMPT_CRUISE_NAME_EXIST'),
-                    })
+                    openMessageBox(Translate('IDCS_PROMPT_CRUISE_NAME_EXIST'))
                 } else {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_SAVE_DATA_FAIL'),
-                    })
+                    openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
                 }
             }
         }
@@ -344,10 +336,7 @@ export default defineComponent({
         const addCruise = (index: number) => {
             const current = tableData.value[index]
             if (current.cruise.length >= current.maxCount) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
-                })
+                openMessageBox(Translate('IDCS_OVER_MAX_NUMBER_LIMIT'))
                 return
             }
             pageData.value.addChlId = current.chlId
@@ -377,10 +366,7 @@ export default defineComponent({
          */
         const addPreset = () => {
             if (presetTableData.value.length >= PRESET_MAX_COUNT) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_PRESET_MAX_NUM').formatForLang(PRESET_MAX_COUNT),
-                })
+                openMessageBox(Translate('IDCS_PRESET_MAX_NUM').formatForLang(PRESET_MAX_COUNT))
                 return
             }
             pageData.value.isPresetPop = true

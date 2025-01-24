@@ -17,8 +17,6 @@ export default defineComponent({
     setup(_prop, ctx) {
         const { Translate } = useLangStore()
         const userSession = useUserSessionStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
         const tableRef = ref<TableInstance>()
@@ -50,9 +48,9 @@ export default defineComponent({
             // 是否打开编辑用户密码的弹窗
             isEditUserPassword: false,
             // 本地通道权限列表
-            localChannelIds: DEFAULT_LOCAL_CHANNEL_AUTH_LIST,
+            localChannelIds: getTranslateOptions(DEFAULT_LOCAL_CHANNEL_AUTH_LIST),
             // 远程通道权限列表
-            remoteChannelIds: DEFAULT_REMOTE_CHANNEL_AUTH_LIST,
+            remoteChannelIds: getTranslateOptions(DEFAULT_REMOTE_CHANNEL_AUTH_LIST),
         })
 
         /**
@@ -115,11 +113,7 @@ export default defineComponent({
                     arrayItem.name = $item('name').text()
                     const auth = $item('auth').text()
                     DEFAULT_CHANNEL_AUTH_LIST.forEach((key) => {
-                        if (auth.includes(key)) {
-                            arrayItem[key] = 'true'
-                        } else {
-                            arrayItem[key] = 'false'
-                        }
+                        arrayItem[key] = auth.includes(key)
                     })
                     return arrayItem
                 })
@@ -130,7 +124,7 @@ export default defineComponent({
                     arrayItem.id = item.attr('id')
                     arrayItem.name = $item('name').text()
                     DEFAULT_CHANNEL_AUTH_LIST.forEach((key) => {
-                        arrayItem[key] = 'true'
+                        arrayItem[key] = true
                     })
                     return arrayItem
                 })
@@ -281,7 +275,7 @@ export default defineComponent({
         // 当前选中用户的用户名
         const userName = computed(() => {
             if (currentUser.value) {
-                return Translate('IDCS_USER_RIGHT_INFORMATION').formatForLang(replaceWithEntity(currentUser.value.userName))
+                return Translate('IDCS_USER_RIGHT_INFORMATION').formatForLang(currentUser.value.userName)
             }
             return ''
         })
@@ -312,8 +306,8 @@ export default defineComponent({
          * @param {boolean} string
          * @returns {string}
          */
-        const displayChannelAuth = (value: string) => {
-            return value === 'true' ? Translate('IDCS_ON') : Translate('IDCS_OFF')
+        const displayChannelAuth = (value: boolean) => {
+            return value ? Translate('IDCS_ON') : Translate('IDCS_OFF')
         }
 
         /**

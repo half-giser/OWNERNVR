@@ -27,8 +27,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const dateTime = useDateTimeStore()
 
         const pageData = ref({
@@ -215,10 +213,7 @@ export default defineComponent({
                 }
 
                 if (errorInfo) {
-                    openMessageBox({
-                        type: 'info',
-                        message: errorInfo,
-                    })
+                    openMessageBox(errorInfo)
                 }
             }
         }

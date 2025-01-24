@@ -545,8 +545,8 @@ export class ChannelMotionDto extends TableRowStatus {
     sensitivity = 1
     sensitivityMinValue = 1
     sensitivityMaxValue = 1
-    holdTime = ''
-    holdTimeList: SelectOption<string, string>[] = []
+    holdTime = 0
+    holdTimeList: SelectOption<number, string>[] = []
     supportSMD = false
     isOnvifChl = false
     objectFilterCar: boolean | undefined = undefined

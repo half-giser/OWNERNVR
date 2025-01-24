@@ -13,8 +13,6 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
-        const openMessageBox = useMessageBox().openMessageBox
-        const { openLoading, closeLoading } = useLoading()
 
         const formRef = useFormRef()
         const formData = ref(new AlarmServerForm())
@@ -188,8 +186,7 @@ export default defineComponent({
                     formData.value.interval = $('content/heartbeat/interval').text().num()
                     formData.value.schedule = $('content/alarmServerSchedule').text()
 
-                    const alarmServerAlarmTypeValue = $('content/alarmServerAlarmTypes').text()
-                    pageData.value.linkedAlarmList = alarmServerAlarmTypeValue ? alarmServerAlarmTypeValue.split(',') : []
+                    pageData.value.linkedAlarmList = $('content/alarmServerAlarmTypes').text().array()
                     tableData.value = pageData.value.linkedAlarmList.map((item) => {
                         return {
                             value: item,
@@ -297,10 +294,7 @@ export default defineComponent({
                                     message: Translate('IDCS_TEST_ALARM_SERVER_SUCCESS'),
                                 })
                             } else {
-                                openMessageBox({
-                                    type: 'info',
-                                    message: Translate('IDCS_TEST_ALARM_SERVER_FAILED'),
-                                })
+                                openMessageBox(Translate('IDCS_TEST_ALARM_SERVER_FAILED'))
                             }
                         })
                         pageData.value.isTestAlarmServer = false
@@ -328,10 +322,7 @@ export default defineComponent({
                                     case ErrorCode.USER_ERROR_INVALID_PARAM:
                                         msg = Translate('IDCS_USER_ERROR_INVALID_PARAM')
                                 }
-                                openMessageBox({
-                                    type: 'info',
-                                    message: Translate('IDCS_SAVE_DATA_FAIL') + msg,
-                                })
+                                openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + msg)
                             }
                         })
                     }

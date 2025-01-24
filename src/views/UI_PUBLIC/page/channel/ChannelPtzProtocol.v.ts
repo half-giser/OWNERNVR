@@ -8,12 +8,11 @@ import { ChannelPtzProtocolDto } from '@/types/apiType/channel'
 
 export default defineComponent({
     setup(_prop, ctx) {
-        const { openLoading, closeLoading } = useLoading()
         const playerRef = ref<PlayerInstance>()
 
         const pageData = ref({
             // 云台选项
-            ptzOptions: getBoolSwitchOptions(),
+            ptzOptions: getTranslateOptions(DEFAULT_BOOL_SWITCH_OPTIONS),
             // 云台索引
             tableIndex: 0,
             pageIndex: 1,

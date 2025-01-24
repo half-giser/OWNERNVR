@@ -9,7 +9,10 @@
         class="download"
     >
         <span class="download-text">{{ Translate('IDCS_BS_PLUGIN_DOWNLOAD') }}</span>
-        <a :href="pluginLink">
+        <a
+            :href="pluginLink"
+            :download="pluginName"
+        >
             <BaseImgSprite
                 file="plugin"
                 :index="0"
@@ -29,6 +32,11 @@ const userSession = useUserSessionStore()
 
 // UI1-E定制版本的插件与中性版本的插件不同
 const pluginLink = ref(path.ClientPluDownLoadPath)
+if (import.meta.env.DEV) {
+    pluginLink.value = '/plugin' + path.ClientPluDownLoadPath
+}
+const split = pluginLink.value.split('/')
+const pluginName = ref(split[split.length - 1])
 
 // MAC系统本地访问进入登录页面时，不显示插件下载链接
 const isPluginIconHide = ref(userSession.appType === 'STANDARD' && osType === 'mac') // ref(osType === 'mac')

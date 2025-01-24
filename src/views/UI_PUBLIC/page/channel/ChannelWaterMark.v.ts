@@ -7,7 +7,6 @@ import { ChannelWaterMarkDto } from '@/types/apiType/channel'
 import { type TableInstance } from 'element-plus'
 export default defineComponent({
     setup() {
-        const { openLoading, closeLoading } = useLoading()
         const playerRef = ref<PlayerInstance>()
         const tableRef = ref<TableInstance>()
         const pageData = ref({
@@ -19,7 +18,7 @@ export default defineComponent({
             chlList: [] as ChannelWaterMarkDto[],
             customTextSetAll: '',
             initComplete: false,
-            options: getSwitchOptions(),
+            options: getTranslateOptions(DEFAULT_SWITCH_OPTIONS),
             pageIndex: 1,
             pageSize: 10,
             totalCount: 0,

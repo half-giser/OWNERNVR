@@ -8,7 +8,6 @@ import { AlarmDisplayPopVideoForm, AlarmDisplayPopMsgForm } from '@/types/apiTyp
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
 
         const videoFormData = ref(new AlarmDisplayPopVideoForm())
         const msgFormData = ref(new AlarmDisplayPopMsgForm())
@@ -30,7 +29,7 @@ export default defineComponent({
                 videoFormData.value.popVideoDuration = $('content/popVideoDuration').text().num()
                 pageData.value.popVideoDurationOption = $('content/popVideoDurationNote')
                     .text()
-                    .split(',')
+                    .array()
                     .map((item) => {
                         const value = Number(item)
                         return {
@@ -39,7 +38,7 @@ export default defineComponent({
                         }!
                     })
                 videoFormData.value.popVideoOutput = $('content/popVideoOutput').text()
-                const popVideoOutputNote = $('content/popVideoOutputNote').text().split(',')
+                const popVideoOutputNote = $('content/popVideoOutputNote').text().array()
                 if (popVideoOutputNote.length >= 2) {
                     videoFormData.value.popVideoOutputShow = true
                 }
@@ -60,7 +59,7 @@ export default defineComponent({
                 msgFormData.value.popMsgDuration = $('content/popMsgDuration').text().num()
                 pageData.value.popMsgDurationOption = $('content/popMsgDurationNote')
                     .text()
-                    .split(',')
+                    .array()
                     .map((item) => {
                         const value = Number(item)
                         return {

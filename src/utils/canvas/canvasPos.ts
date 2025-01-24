@@ -25,7 +25,7 @@ export interface CanvasPosOption {
 }
 
 export default function CanvasPos(options: CanvasPosOption) {
-    const DEFAULT_TEXT_COLOR = '#ffffff' // 画线默认色值
+    const DEFAULT_TEXT_COLOR = '#fff' // 画线默认色值
 
     let posList = options.posList || []
 

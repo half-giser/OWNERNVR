@@ -20,8 +20,6 @@ export default defineComponent({
     },
     setup(props, { emit }) {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
-        const { openMessageBox } = useMessageBox()
         const formRef = useFormRef()
         const formData = ref(new ChannelProtocolManageDto())
         const protocolManageList = ref<ChannelProtocolManageDto[]>([])
@@ -143,37 +141,25 @@ export default defineComponent({
                 const mainPath = formData.value.resourcesPath[0].path.trim()
                 const subPath = formData.value.resourcesPath[1].path.trim()
                 if (!mainPath) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_MAIN_RESOURCE_PATH_EMPTY'),
-                    })
+                    openMessageBox(Translate('IDCS_MAIN_RESOURCE_PATH_EMPTY'))
                     currentProtocolLogo.value = tempProtocolLogo
                     return false
                 }
 
                 if (!subPath) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_SUB_RESOURCE_PATH_EMPTY'),
-                    })
+                    openMessageBox(Translate('IDCS_SUB_RESOURCE_PATH_EMPTY'))
                     currentProtocolLogo.value = tempProtocolLogo
                     return false
                 }
                 const reg = /[^A-z|\d!@#$%^&*(){}\|:"`<>?~_\\'./\-\s\[\];,=+]/g
                 if (reg.test(mainPath)) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_MAIN_RESOURCE_PATH_ILLEGAL'),
-                    })
+                    openMessageBox(Translate('IDCS_MAIN_RESOURCE_PATH_ILLEGAL'))
                     currentProtocolLogo.value = tempProtocolLogo
                     return false
                 }
 
                 if (reg.test(subPath)) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_SUB_RESOURCE_PATH_ILLEGAL'),
-                    })
+                    openMessageBox(Translate('IDCS_SUB_RESOURCE_PATH_ILLEGAL'))
                     currentProtocolLogo.value = tempProtocolLogo
                     return false
                 }
@@ -199,10 +185,7 @@ export default defineComponent({
                     } else {
                         msg = Translate('IDCS_SAVE_DATA_FAIL')
                     }
-                    openMessageBox({
-                        type: 'info',
-                        message: msg,
-                    }).then(() => {
+                    openMessageBox(msg).then(() => {
                         emit('close', true)
                     })
                 }
@@ -241,7 +224,7 @@ export default defineComponent({
             `
         }
 
-        const handleDisplayNameInput = (val: string) => {
+        const formatName = (val: string) => {
             return val.replace(/[^A-z|\d!@#$%^&*(){}\|:"`?~_\\'./\-\s\[\];,=+]/g, '')
         }
 
@@ -260,7 +243,7 @@ export default defineComponent({
             save,
             opened,
             currentProtocolLogo,
-            handleDisplayNameInput,
+            formatName,
             pageData,
         }
     },

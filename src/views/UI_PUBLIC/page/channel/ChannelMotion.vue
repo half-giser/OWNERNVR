@@ -45,8 +45,15 @@
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_DURATION')">
                     <el-select-v2
+                        v-if="formData.holdTime === 0"
+                        model-value=""
+                        disabled
+                        :options="[]"
+                    />
+                    <el-select-v2
+                        v-else
                         v-model="formData.holdTime"
-                        :disabled="formData.disabled || formData.holdTime === ''"
+                        :disabled="formData.disabled"
                         :options="formData.holdTimeList"
                         :height="170"
                     />

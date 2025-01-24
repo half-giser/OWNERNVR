@@ -57,15 +57,24 @@ interface CanvasPolygonOption {
 }
 
 export default function CanvasPolygon(option: CanvasPolygonOption) {
-    const DEFAULT_LINE_COLOR = '#00ff00'
-    const DEFAULT_POINT_COLOR = '#ff1111' // 打点的颜色
-    const DEFAULT_TEXT_COLOR = '#ff0000' // 文字默认色值
+    const DEFAULT_LINE_COLOR = '#0f0'
+    const DEFAULT_POINT_COLOR = '#f11' // 打点的颜色
+    const DEFAULT_TEXT_COLOR = '#f00' // 文字默认色值
     const MAX_COUNT = 6 // 最大打点数
     // private readonly MIN_COUNT = 4 // 最小打点数
-    const DEFAULT_OSD_INFO = { X: 0, Y: 0, osdFormat: '' } // 默认osd信息
+    const DEFAULT_OSD_INFO = {
+        X: 0,
+        Y: 0,
+        osdFormat: '',
+    } // 默认osd信息
     const RELATIVE_WIDTH = 10000 // 万分比宽度
     const RELATIVE_HEIGHT = 10000 // 万分比高度
-    const DEFAULT_AREA: CanvasBaseArea = { X1: 0, Y1: 0, X2: 0, Y2: 0 }
+    const DEFAULT_AREA: CanvasBaseArea = {
+        X1: 0,
+        Y1: 0,
+        X2: 0,
+        Y2: 0,
+    }
 
     let isClosed = false
     let osdRect: CanvasBaseRect = {
@@ -207,13 +216,16 @@ export default function CanvasPolygon(option: CanvasPolygonOption) {
     // 绘制最大值区域
     const drawRangeMax = () => {
         const item = getRealAreaItemByRelative(rangeMax)
-        const lineStyle = { strokeStyle: DEFAULT_LINE_COLOR, lineWidth: 1.5 }
+        const lineStyle = {
+            strokeStyle: DEFAULT_LINE_COLOR,
+            lineWidth: 1.5,
+        }
         ctx.Point2Rect(item.X1, item.Y1, item.X2, item.Y2, lineStyle)
         ctx.Text({
             text: 'Max',
             startX: item.X1,
             startY: item.Y1,
-            fillStyle: '#ffff00',
+            fillStyle: '#ff0',
             strokeStyle: '#000',
             textBaseline: 'bottom',
         })
@@ -232,7 +244,7 @@ export default function CanvasPolygon(option: CanvasPolygonOption) {
             text: 'Min',
             startX: item.X1,
             startY: item.Y1,
-            fillStyle: '#ffff00',
+            fillStyle: '#ff0',
             strokeStyle: '#000',
             textBaseline: Math.abs(rangeMaxY1 - item.Y1) < 14 ? 'top' : 'bottom',
         })

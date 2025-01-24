@@ -8,7 +8,6 @@ import type { UserOnlineList } from '@/types/apiType/userAndSecurity'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
         const dateTime = useDateTimeStore()
 
         const pageData = ref({

@@ -14,8 +14,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
         const supportANR = systemCaps.supportANR
@@ -53,7 +51,7 @@ export default defineComponent({
             perList: [] as SelectOption<string, string>[],
             postList: [] as SelectOption<string, string>[],
             // 开关选项列表
-            switchOption: getSwitchOptions(),
+            switchOption: getTranslateOptions(DEFAULT_SWITCH_OPTIONS),
             isSetCustomization: false,
             expirationType: '',
             expirationData: new RecordParamDto(),
@@ -81,7 +79,7 @@ export default defineComponent({
 
                 pageData.value.expirationList = $('content/expirationNote')
                     .text()
-                    .split(',')
+                    .array()
                     .map((item) => {
                         return {
                             value: item,
@@ -125,7 +123,7 @@ export default defineComponent({
             commLoadResponseHandler(result, ($) => {
                 pageData.value.perList = $('content/item/preRecordTimeNote')
                     .text()
-                    .split(',')
+                    .array()
                     .map((item) => {
                         return {
                             value: item,
@@ -135,7 +133,7 @@ export default defineComponent({
 
                 pageData.value.postList = $('content/item/delayedRecordTimeNote')
                     .text()
-                    .split(',')
+                    .array()
                     .map((item) => {
                         return {
                             value: item,
@@ -330,10 +328,7 @@ export default defineComponent({
                 // 只有chlResult才会走到这里
                 commSaveResponseHandler(chlResult)
             } else {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_SAVE_DATA_FAIL'),
-                })
+                openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
             }
         }
 

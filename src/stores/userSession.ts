@@ -36,7 +36,6 @@ export const useUserSessionStore = defineStore(
         const authMask = ref(0)
         const csvDeviceName = ref('')
         const sn = ref('')
-        const advanceRecModeId = ref('')
         const defaultStreamType = ref('')
 
         const p2pSessionId = ref<null | string>(null)
@@ -188,7 +187,7 @@ export const useUserSessionStore = defineStore(
                 csvDeviceName.value = $('content/name').text()
                 const CustomerID = $('content/CustomerID').text()
                 cababilityStore.CustomerID = Number(CustomerID)
-                cababilityStore.AISwitch = $('content/AISwitch').text() ? $('content/AISwitch').text().bool() : undefined
+                cababilityStore.AISwitch = $('content/AISwitch').text().undef()?.bool()
                 cababilityStore.productModel = $('content/productModel').text()
             })
 
@@ -264,7 +263,6 @@ export const useUserSessionStore = defineStore(
             updataByReqLogin,
             updateByLogin,
             sn,
-            advanceRecModeId,
             authEffective,
             defaultStreamType,
             p2pSessionId,

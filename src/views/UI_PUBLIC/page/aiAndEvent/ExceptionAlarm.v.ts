@@ -15,7 +15,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
         const eventTypeMapping: Record<string, string> = {
@@ -33,7 +32,7 @@ export default defineComponent({
         }
 
         const pageData = ref({
-            enableList: getSwitchOptions(),
+            enableList: getTranslateOptions(DEFAULT_SWITCH_OPTIONS),
             supportAudio: false,
             audioList: [] as SelectOption<string, string>[],
             // 打开穿梭框时选择行的索引

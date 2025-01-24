@@ -5,7 +5,7 @@
  */
 
 import type { AxiosRequestConfig } from 'axios'
-import http from './api'
+import fetch from './api'
 import router from '../router'
 import { removeAsyncRoutes } from '../router'
 import progress from '@bassist/progress'
@@ -14,7 +14,7 @@ import progress from '@bassist/progress'
  * @description 预登录
  * @returns
  */
-export const reqLogin = () => http.fetch('reqLogin', '')
+export const reqLogin = () => fetch('reqLogin', '')
 
 /**
  * @description 登录
@@ -23,7 +23,7 @@ export const reqLogin = () => http.fetch('reqLogin', '')
  * @param checkCommonErrorSwitch
  * @returns
  */
-export const doLogin = (data: string, config?: AxiosRequestConfig, checkCommonErrorSwitch = true) => http.fetch('doLogin', data, config, checkCommonErrorSwitch)
+export const doLogin = (data: string, config?: AxiosRequestConfig, checkCommonErrorSwitch = true) => fetch('doLogin', data, config, checkCommonErrorSwitch)
 
 /**
  * @description 退出登录
@@ -31,7 +31,7 @@ export const doLogin = (data: string, config?: AxiosRequestConfig, checkCommonEr
  * @param config
  * @returns
  */
-export const doLogout = () => http.fetch('doLogout', '', {}, false)
+export const doLogout = () => fetch('doLogout', '', {}, false)
 
 /**
  * @description 登出处理
@@ -60,4 +60,4 @@ export const Logout = async () => {
  * @description 查询隐私政策
  * @returns
  */
-export const queryShowPrivacyView = () => http.fetch('queryShowPrivacyView', '')
+export const queryShowPrivacyView = () => fetch('queryShowPrivacyView', '')

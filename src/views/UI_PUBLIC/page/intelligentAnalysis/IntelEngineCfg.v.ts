@@ -13,8 +13,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
         // 事件与文本的映射
         const EVENT_TYPE_MAPPING: Record<string, string> = {
@@ -69,7 +67,7 @@ export default defineComponent({
                 const $item = queryXml(item.element)
                 const name = $item('name').text()
                 $item('resource/item').forEach((res) => {
-                    const eventType = res.attr('eventType').split(',')
+                    const eventType = res.attr('eventType').array()
                     tableData.value.push({
                         name,
                         eventType: eventType.map((event) => EVENT_TYPE_MAPPING[event]).join('+'),
@@ -144,10 +142,7 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_USER_OR_PASSWORD_ERROR')
                         break
                 }
-                openMessageBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
         }
 

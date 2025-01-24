@@ -19,8 +19,6 @@ export default defineComponent({
     setup(_prop, ctx) {
         const router = useRouter()
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
-        const { openMessageBox } = useMessageBox()
 
         const tableData = ref<ChannelGroupDto[]>([])
         const pageIndex = ref(1)
@@ -90,10 +88,7 @@ export default defineComponent({
                             getData()
                         })
                     } else {
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_DELETE_FAIL'),
-                        })
+                        openMessageBox(Translate('IDCS_DELETE_FAIL'))
                     }
                 })
             })
@@ -172,10 +167,7 @@ export default defineComponent({
 
         const handleDelChl = (rowData: ChannelGroupDto, chlId: string) => {
             if (rowData.chlCount <= 1) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_PROMPT_CHANNEL_GROUP_DELETE_CHANNEL_ERROR'),
-                })
+                openMessageBox(Translate('IDCS_PROMPT_CHANNEL_GROUP_DELETE_CHANNEL_ERROR'))
                 return
             }
             const data = rawXml`
@@ -208,10 +200,7 @@ export default defineComponent({
                         rowData.chlCount = rowData.chls.length
                     })
                 } else {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_DELETE_FAIL'),
-                    })
+                    openMessageBox(Translate('IDCS_DELETE_FAIL'))
                 }
             })
         }

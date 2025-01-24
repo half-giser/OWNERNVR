@@ -55,72 +55,68 @@ export default function WebGLPlayer(canvas: HTMLCanvasElement, option: Record<st
     let viewLeft = 0 // gl上下文窗口left
     let viewBottom = 0 // gl上下文窗口bottom
 
-    if (!gl) {
-        console.log('[ER] WebGL not supported.')
-    } else {
-        gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1)
-        const program = gl.createProgram()!
-        const vertexShaderSource = [
-            'attribute highp vec4 aVertexPosition;',
-            'attribute vec2 aTextureCoord;',
-            'varying highp vec2 vTextureCoord;',
-            'void main(void) {',
-            ' gl_Position = aVertexPosition;',
-            ' vTextureCoord = aTextureCoord;',
-            '}',
-        ].join('\n')
-        const vertexShader = gl.createShader(gl.VERTEX_SHADER)!
-        gl.shaderSource(vertexShader, vertexShaderSource)
-        gl.compileShader(vertexShader)
-        const fragmentShaderSource = [
-            'precision highp float;',
-            'varying lowp vec2 vTextureCoord;',
-            'uniform sampler2D YTexture;',
-            'uniform sampler2D UTexture;',
-            'uniform sampler2D VTexture;',
-            'const mat4 YUV2RGB = mat4',
-            '(',
-            ' 1.1643828125, 0, 1.59602734375, -.87078515625,',
-            ' 1.1643828125, -.39176171875, -.81296875, .52959375,',
-            ' 1.1643828125, 2.017234375, 0, -1.081390625,',
-            ' 0, 0, 0, 1',
-            ');',
-            'void main(void) {',
-            ' gl_FragColor = vec4( texture2D(YTexture, vTextureCoord).x, texture2D(UTexture, vTextureCoord).x, texture2D(VTexture, vTextureCoord).x, 1) * YUV2RGB;',
-            '}',
-        ].join('\n')
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1)
+    const program = gl.createProgram()!
+    const vertexShaderSource = [
+        'attribute highp vec4 aVertexPosition;',
+        'attribute vec2 aTextureCoord;',
+        'varying highp vec2 vTextureCoord;',
+        'void main(void) {',
+        ' gl_Position = aVertexPosition;',
+        ' vTextureCoord = aTextureCoord;',
+        '}',
+    ].join('\n')
+    const vertexShader = gl.createShader(gl.VERTEX_SHADER)!
+    gl.shaderSource(vertexShader, vertexShaderSource)
+    gl.compileShader(vertexShader)
+    const fragmentShaderSource = [
+        'precision highp float;',
+        'varying lowp vec2 vTextureCoord;',
+        'uniform sampler2D YTexture;',
+        'uniform sampler2D UTexture;',
+        'uniform sampler2D VTexture;',
+        'const mat4 YUV2RGB = mat4',
+        '(',
+        ' 1.1643828125, 0, 1.59602734375, -.87078515625,',
+        ' 1.1643828125, -.39176171875, -.81296875, .52959375,',
+        ' 1.1643828125, 2.017234375, 0, -1.081390625,',
+        ' 0, 0, 0, 1',
+        ');',
+        'void main(void) {',
+        ' gl_FragColor = vec4( texture2D(YTexture, vTextureCoord).x, texture2D(UTexture, vTextureCoord).x, texture2D(VTexture, vTextureCoord).x, 1) * YUV2RGB;',
+        '}',
+    ].join('\n')
 
-        const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)!
-        gl.shaderSource(fragmentShader, fragmentShaderSource)
-        gl.compileShader(fragmentShader)
-        gl.attachShader(program, vertexShader)
-        gl.attachShader(program, fragmentShader)
-        gl.linkProgram(program)
-        gl.useProgram(program)
-        if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-            console.log('[ER] Shader link failed.')
-        }
-        const vertexPositionAttribute = gl.getAttribLocation(program, 'aVertexPosition')
-        gl.enableVertexAttribArray(vertexPositionAttribute)
-        const textureCoordAttribute = gl.getAttribLocation(program, 'aTextureCoord')
-        gl.enableVertexAttribArray(textureCoordAttribute)
-
-        const verticesBuffer = gl.createBuffer()
-        gl.bindBuffer(gl.ARRAY_BUFFER, verticesBuffer)
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([1.0, 1.0, 0.0, -1.0, 1.0, 0.0, 1.0, -1.0, 0.0, -1.0, -1.0, 0.0]), gl.STATIC_DRAW)
-        gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0)
-        const texCoordBuffer = gl.createBuffer()
-        gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer)
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([1.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0]), gl.STATIC_DRAW)
-        gl.vertexAttribPointer(textureCoordAttribute, 2, gl.FLOAT, false, 0, 0)
-
-        gl.y = new Texture(gl)
-        gl.u = new Texture(gl)
-        gl.v = new Texture(gl)
-        gl.y.bind(0, program, 'YTexture')
-        gl.u.bind(1, program, 'UTexture')
-        gl.v.bind(2, program, 'VTexture')
+    const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)!
+    gl.shaderSource(fragmentShader, fragmentShaderSource)
+    gl.compileShader(fragmentShader)
+    gl.attachShader(program, vertexShader)
+    gl.attachShader(program, fragmentShader)
+    gl.linkProgram(program)
+    gl.useProgram(program)
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+        console.log('[ER] Shader link failed.')
     }
+    const vertexPositionAttribute = gl.getAttribLocation(program, 'aVertexPosition')
+    gl.enableVertexAttribArray(vertexPositionAttribute)
+    const textureCoordAttribute = gl.getAttribLocation(program, 'aTextureCoord')
+    gl.enableVertexAttribArray(textureCoordAttribute)
+
+    const verticesBuffer = gl.createBuffer()
+    gl.bindBuffer(gl.ARRAY_BUFFER, verticesBuffer)
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([1.0, 1.0, 0.0, -1.0, 1.0, 0.0, 1.0, -1.0, 0.0, -1.0, -1.0, 0.0]), gl.STATIC_DRAW)
+    gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0)
+    const texCoordBuffer = gl.createBuffer()
+    gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer)
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([1.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0]), gl.STATIC_DRAW)
+    gl.vertexAttribPointer(textureCoordAttribute, 2, gl.FLOAT, false, 0, 0)
+
+    gl.y = new Texture(gl)
+    gl.u = new Texture(gl)
+    gl.v = new Texture(gl)
+    gl.y.bind(0, program, 'YTexture')
+    gl.u.bind(1, program, 'UTexture')
+    gl.v.bind(2, program, 'VTexture')
 
     /**
      * @description 渲染帧
@@ -189,8 +185,6 @@ export default function WebGLPlayer(canvas: HTMLCanvasElement, option: Record<st
             canvas.webkitRequestFullscreen()
         } else if (canvas.mozRequestFullScreen) {
             canvas.mozRequestFullScreen()
-        } else if (canvas.msRequestFullscreen) {
-            canvas.msRequestFullscreen()
         } else {
             alert("This browser doesn't supporter fullscreen")
         }
@@ -203,8 +197,6 @@ export default function WebGLPlayer(canvas: HTMLCanvasElement, option: Record<st
             document.webkitExitFullscreen()
         } else if (document.mozCancelFullScreen) {
             document.mozCancelFullScreen()
-        } else if (document.msExitFullscreen) {
-            document.msExitFullscreen()
         } else {
             alert("Exit fullscreen doesn't work")
         }

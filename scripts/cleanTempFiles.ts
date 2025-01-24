@@ -7,7 +7,7 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import Chalk from 'chalk'
-import { TEMP_FOLDER, SPRITE_PNG_FILE_PATH, SPRITE_JSON_FILE_PATH, TYPE_AUTO_IMPORT_FILE_PATH, TYPE_COMPONENTS_FILE_PATH } from './filePaths'
+import { TEMP_FOLDER, SPRITE_PNG_FILE_PATH, SPRITE_JSON_FILE_PATH, SPRITE_SASS_FILE_PATH, TYPE_AUTO_IMPORT_FILE_PATH, TYPE_COMPONENTS_FILE_PATH } from './filePaths'
 
 async function cleanUp(src: string) {
     try {
@@ -39,7 +39,7 @@ async function main() {
     }
     // 清理所有临时文件，包括runtime相关的文件
     else if (level === 1) {
-        await cleanUpQueue([TEMP_FOLDER, SPRITE_PNG_FILE_PATH, SPRITE_JSON_FILE_PATH, TYPE_AUTO_IMPORT_FILE_PATH, TYPE_COMPONENTS_FILE_PATH])
+        await cleanUpQueue([TEMP_FOLDER, SPRITE_PNG_FILE_PATH, SPRITE_JSON_FILE_PATH, SPRITE_SASS_FILE_PATH, TYPE_AUTO_IMPORT_FILE_PATH, TYPE_COMPONENTS_FILE_PATH])
     }
 
     console.log(Chalk.green.bold('SUCCESS'), Chalk.blueBright(new Date().toLocaleString('zh-CN')), Chalk.white('Clean up temp files!'))

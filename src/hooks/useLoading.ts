@@ -3,6 +3,7 @@
  * @Date: 2024-05-30 08:58:30
  * @Description: Loading
  */
+// import { ElLoading } from 'element-plus'
 
 interface LoadingItem {
     inst: ReturnType<typeof ElLoading.service>
@@ -28,147 +29,139 @@ let fullScreenInst: null | ReturnType<typeof ElLoading.service> = null
  *  closeLoading()：关闭loading
  *
  */
-const useLoading = () => {
-    const LoadingTarget = {
-        MainContent: 'MainContent',
-        ConfigContent: 'ConfigContent',
-        FullScreen: 'FullScreen',
-    }
 
+export const LoadingTarget = {
+    MainContent: 'MainContent',
+    ConfigContent: 'ConfigContent',
+    FullScreen: 'FullScreen',
+}
+
+/**
+ * @description: 打开loading
+ * @param {string | HTMLElement} target
+ * @param {string} text
+ */
+export const openLoading = (target: string | HTMLElement = 'FullScreen', text?: string) => {
     const { Translate } = useLangStore()
     const layoutStore = useLayoutStore()
 
-    /**
-     * @description: 打开loading
-     * @param {string | HTMLElement} target
-     * @param {string} text
-     */
-    const openLoading = (target: string | HTMLElement = 'FullScreen', text = Translate('IDCS_LOADING')) => {
-        //当前已经打开了全屏loading
-        if (fullScreenInst !== null) {
-            layoutStore.loadingCount += 1
-            return
-        }
-
-        //打开全屏loading
-        if (target === LoadingTarget.FullScreen) {
-            fullScreenInst = ElLoading.service({
-                fullscreen: true,
-                target: getTarget(target),
-                lock: true,
-                text: text,
-                svg: ' ',
-            })
-            layoutStore.loadingCount = 1
-            // 将其他局部loading的count都加到全屏loading的count，后面打开关闭任何loading都是对全局loading计数
-            loadingInstMap.forEach((value) => {
-                layoutStore.loadingCount += value.count
-            })
-            closeAllPartLoading()
-            return
-        }
-
-        //没有打开全屏loading时，局部loading间可同时打开，不处理相互覆盖的情况
-        if (loadingInstMap.has(target)) {
-            loadingInstMap.get(target)!.count++
-        } else {
-            const inst = ElLoading.service({
-                target: getTarget(target),
-                lock: true,
-                text: text,
-                svg: ' ',
-            })
-            loadingInstMap.set(target, { inst, count: 1 })
-        }
+    //当前已经打开了全屏loading
+    if (fullScreenInst !== null) {
+        layoutStore.loadingCount += 1
+        return
     }
 
-    /**
-     * @description
-     */
-    const closeAllPartLoading = () => {
-        loadingInstMap.forEach((value) => {
-            closeInst(value.inst)
+    //打开全屏loading
+    if (target === LoadingTarget.FullScreen) {
+        fullScreenInst = ElLoading.service({
+            fullscreen: true,
+            target: getTarget(target),
+            lock: true,
+            text: typeof text === 'undefined' ? Translate('IDCS_LOADING') : text,
+            svg: ' ',
         })
-        loadingInstMap.clear()
-    }
-
-    /**
-     * @description 关闭loading
-     */
-    const closeLoading = (target: string | HTMLElement = 'FullScreen') => {
-        //当前已经打开了全屏loading
-        if (fullScreenInst !== null) {
-            if (layoutStore.loadingCount > 0) layoutStore.loadingCount -= 1
-            if (layoutStore.loadingCount === 0) {
-                const inst = fullScreenInst
-                closeInst(inst)
-                fullScreenInst = null
-            }
-            return
-        }
-
-        if (loadingInstMap.has(target)) {
-            const item = loadingInstMap.get(target)!
-            item.count--
-            if (!item.count) {
-                closeInst(item.inst)
-                loadingInstMap.delete(target)
-            }
-        } else {
-            console.warn('loading target not found, close all...', target)
-            //如果传入的target没找到，将所有loading关闭
-            closeAllPartLoading()
-        }
-    }
-
-    /**
-     * @description 关闭所有loading
-     */
-    const closeAllLoading = () => {
-        if (fullScreenInst !== null) {
-            closeInst(fullScreenInst)
-            layoutStore.loadingCount = 0
-        }
+        layoutStore.loadingCount = 1
+        // 将其他局部loading的count都加到全屏loading的count，后面打开关闭任何loading都是对全局loading计数
+        loadingInstMap.forEach((value) => {
+            layoutStore.loadingCount += value.count
+        })
         closeAllPartLoading()
+        return
     }
 
-    /**
-     * @description
-     * @param inst
-     */
-    const closeInst = (inst: ReturnType<typeof ElLoading.service>) => {
-        // nextTick(() => {
-        // Loading should be closed asynchronously
-        inst.close()
-        // })
-    }
-
-    /**
-     * @description
-     * @param {string | HTMLElement} target
-     * @returns {string | HTMLElement}
-     */
-    const getTarget = (target: string | HTMLElement) => {
-        if (target instanceof HTMLElement) {
-            return target
-        }
-
-        switch (target) {
-            case LoadingTarget.MainContent:
-                return '#layoutMainBody'
-            case LoadingTarget.ConfigContent:
-                return '#layout2Content'
-            default:
-                return target
-        }
-    }
-
-    return {
-        LoadingTarget,
-        openLoading,
-        closeLoading,
-        closeAllLoading,
+    //没有打开全屏loading时，局部loading间可同时打开，不处理相互覆盖的情况
+    if (loadingInstMap.has(target)) {
+        loadingInstMap.get(target)!.count++
+    } else {
+        const inst = ElLoading.service({
+            target: getTarget(target),
+            lock: true,
+            text: text,
+            svg: ' ',
+        })
+        loadingInstMap.set(target, { inst, count: 1 })
     }
 }
 
-export default useLoading
+/**
+ * @description
+ */
+const closeAllPartLoading = () => {
+    loadingInstMap.forEach((value) => {
+        closeInst(value.inst)
+    })
+    loadingInstMap.clear()
+}
+
+/**
+ * @description 关闭loading
+ */
+export const closeLoading = (target: string | HTMLElement = 'FullScreen') => {
+    const layoutStore = useLayoutStore()
+    //当前已经打开了全屏loading
+    if (fullScreenInst !== null) {
+        if (layoutStore.loadingCount > 0) layoutStore.loadingCount -= 1
+        if (layoutStore.loadingCount === 0) {
+            const inst = fullScreenInst
+            closeInst(inst)
+            fullScreenInst = null
+        }
+        return
+    }
+
+    if (loadingInstMap.has(target)) {
+        const item = loadingInstMap.get(target)!
+        item.count--
+        if (!item.count) {
+            closeInst(item.inst)
+            loadingInstMap.delete(target)
+        }
+    } else {
+        console.warn('loading target not found, close all...', target)
+        //如果传入的target没找到，将所有loading关闭
+        closeAllPartLoading()
+    }
+}
+
+/**
+ * @description 关闭所有loading
+ */
+export const closeAllLoading = () => {
+    const layoutStore = useLayoutStore()
+    if (fullScreenInst !== null) {
+        closeInst(fullScreenInst)
+        layoutStore.loadingCount = 0
+    }
+    closeAllPartLoading()
+}
+
+/**
+ * @description
+ * @param inst
+ */
+const closeInst = (inst: ReturnType<typeof ElLoading.service>) => {
+    // nextTick(() => {
+    // Loading should be closed asynchronously
+    inst.close()
+    // })
+}
+
+/**
+ * @description
+ * @param {string | HTMLElement} target
+ * @returns {string | HTMLElement}
+ */
+const getTarget = (target: string | HTMLElement) => {
+    if (target instanceof HTMLElement) {
+        return target
+    }
+
+    switch (target) {
+        case LoadingTarget.MainContent:
+            return '#layoutMainBody'
+        case LoadingTarget.ConfigContent:
+            return '#layout2Content'
+        default:
+            return target
+    }
+}

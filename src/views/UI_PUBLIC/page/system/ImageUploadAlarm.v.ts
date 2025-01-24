@@ -9,9 +9,7 @@ export default defineComponent({
     setup() {
         const router = useRouter()
         const userSessionStore = useUserSessionStore()
-        const openMessageBox = useMessageBox().openMessageBox
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
 
         const EVENT_TYPE_MAPPING: Record<string, string> = {
             MOTION: Translate('IDCS_MOTION_DETECTION'),
@@ -79,11 +77,16 @@ export default defineComponent({
                         label: EVENT_TYPE_MAPPING['MOTION,ALARM'],
                     })
                 }
-                const pretimeList = $('content/param/preTimeNote').text()
-                pageData.value.pretimeList = pretimeList !== '' ? pretimeList.split(',').map((item) => ({ value: item.trim(), label: getTranslateForSecond(Number(item.trim())) })) : []
+                pageData.value.pretimeList = $('content/param/preTimeNote')
+                    .text()
+                    .array()
+                    .map((item) => ({
+                        value: item.trim(),
+                        label: getTranslateForSecond(Number(item.trim())),
+                    }))
                 pageData.value.saveTimeList = $('content/param/holdTimeNote')
                     .text()
-                    .split(',')
+                    .array()
                     .map((item) => ({
                         value: item.trim(),
                         label: getTranslateForSecond(Number(item.trim())),
@@ -150,10 +153,7 @@ export default defineComponent({
 
         const setDispose = () => {
             if (!pageData.value.hasAuth) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_AUTH'),
-                })
+                openMessageBox(Translate('IDCS_NO_AUTH'))
                 return
             }
             router.push(MENU_ID_MAPPING[pageData.value.alarmType])

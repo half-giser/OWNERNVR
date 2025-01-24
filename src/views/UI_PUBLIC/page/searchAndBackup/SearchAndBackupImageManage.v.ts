@@ -16,8 +16,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const browser = getBrowserInfo()
 
         const tableRef = ref<TableInstance>()
@@ -55,7 +53,7 @@ export default defineComponent({
 
         const formData = ref(new PlaybackSearchImgForm())
 
-        const plugin = setupPlugin({
+        const plugin = usePlugin({
             onReady: (mode, plugin) => {
                 if (mode.value === 'ocx') {
                     const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Playback')
@@ -108,10 +106,7 @@ export default defineComponent({
             const startTime = dayjs(formData.value.startTime, dateTime.dateTimeFormat).valueOf()
             const endTime = dayjs(formData.value.endTime, dateTime.dateTimeFormat).valueOf()
             if (endTime <= startTime) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_END_TIME_GREATER_THAN_START'),
-                })
+                openMessageBox(Translate('IDCS_END_TIME_GREATER_THAN_START'))
                 return
             }
 
@@ -188,10 +183,7 @@ export default defineComponent({
          */
         const exportImg = (row: PlaybackSearchImgList) => {
             if (!userAuth.value.hasAll && !userAuth.value.bk[row.chlId]) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_NODE_NO_AUTH').formatForLang(row.chlName),
-                })
+                openMessageBox(Translate('IDCS_NODE_NO_AUTH').formatForLang(row.chlName))
                 return
             }
             pageData.value.isBackUpPop = true
@@ -206,10 +198,7 @@ export default defineComponent({
             if (!userAuth.value.hasAll) {
                 const find = selection.find((item) => !userAuth.value.bk[item.chlId])
                 if (find) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_NODE_NO_AUTH').formatForLang(find.chlName),
-                    })
+                    openMessageBox(Translate('IDCS_NODE_NO_AUTH').formatForLang(find.chlName))
                     return
                 }
             }
@@ -224,10 +213,7 @@ export default defineComponent({
          */
         const deleteImg = (row: PlaybackSearchImgList, cbk?: () => void) => {
             if (!userAuth.value.hasAll && !userAuth.value.bk[row.chlId]) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_NODE_NO_AUTH').formatForLang(row.chlName),
-                })
+                openMessageBox(Translate('IDCS_NODE_NO_AUTH').formatForLang(row.chlName))
                 return
             }
             openMessageBox({
@@ -265,10 +251,7 @@ export default defineComponent({
             if (!userAuth.value.hasAll) {
                 const find = selection.find((item) => !userAuth.value.bk[item.chlId])
                 if (find) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_NODE_NO_AUTH').formatForLang(find.chlName),
-                    })
+                    openMessageBox(Translate('IDCS_NODE_NO_AUTH').formatForLang(find.chlName))
                     return
                 }
             }

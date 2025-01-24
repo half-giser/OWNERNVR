@@ -3,6 +3,8 @@
  * @Date: 2023-05-18 13:48:43
  * @Description: 覆盖公共Element UI 样式
  */
+@use '@/components/sprite/sprites' as *;
+@use '@/components/sprite/mixin' as *;
 
 :root {
     --el-color-primary: var(--primary);
@@ -337,24 +339,21 @@
             padding-inline: 10px;
             position: absolute;
             background-color: var(--color-white);
-            top: 3px;
+            top: 4px;
             left: var(--form-error-offset, var(--form-input-width));
             display: flex;
             align-items: center;
             border: 1px solid var(--color-error);
             color: var(--color-error);
             margin-left: 10px;
-            height: 24px;
+            height: 22px;
             text-align: left;
             pointer-events: none;
 
             &::before {
+                @include sprite($img-floatTip, 0, 5);
+
                 content: '';
-                width: 16px;
-                height: 16px;
-                background-image: url('@/components/sprite/sprites.png');
-                background-position-x: var(--float-x);
-                background-position-y: var(--float-y);
                 display: inline-block;
                 margin-right: 5px;
                 flex-shrink: 0;
@@ -405,6 +404,10 @@
 
         &__arrow {
             display: none;
+        }
+
+        &[role='tooltip'] {
+            max-width: 50vw;
         }
     }
 
@@ -639,6 +642,10 @@
             }
         }
 
+        &__editor-wrap {
+            padding: 0 2px;
+        }
+
         .el-picker-panel__content {
             width: $width;
             margin: 0;
@@ -673,7 +680,7 @@
                     line-height: 18px;
                     border-radius: 0;
                     border: 1px solid transparent;
-                    width: $width / 8;
+                    width: calc($width / 8);
                 }
 
                 &.current:not(.disabled) .el-date-table-cell .el-date-table-cell__text {
@@ -701,11 +708,11 @@
             .el-date-table-cell .el-date-table-cell__text {
                 border-radius: 0;
                 border: 1px solid transparent;
-                width: $width / 5;
+                width: calc($width / 5);
             }
 
             td {
-                width: $width / 5;
+                width: calc($width / 5);
                 padding: 0;
             }
 

@@ -53,10 +53,10 @@ export const queryXml = (xmlDoc: XMLDocument | Element | null) => {
     return (path: string): XmlResult => xmlParse(path, xmlDoc)
 }
 
-export const getElementText = (xmlObj: XmlElement | Element, eleName: string, defaultValue: string = '') => {
-    const eleObj = xmlParse(eleName, (xmlObj as XmlElement).element ? (xmlObj as XmlElement).element : (xmlObj as Element))[0]
-    return eleObj ? eleObj.text() : defaultValue
-}
+// export const getElementText = (xmlObj: XmlElement | Element, eleName: string, defaultValue: string = '') => {
+//     const eleObj = xmlParse(eleName, (xmlObj as XmlElement).element ? (xmlObj as XmlElement).element : (xmlObj as Element))[0]
+//     return eleObj ? eleObj.text() : defaultValue
+// }
 
 // xml标签元素（类）
 export class XmlElement {

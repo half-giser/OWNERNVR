@@ -48,7 +48,7 @@
                     </template>
                     <template #default="scope">
                         <el-select-v2
-                            v-model="scope.row.schedule.value"
+                            v-model="scope.row.schedule"
                             :disabled="scope.row.disabled"
                             :options="pageData.scheduleList"
                             @change="changeSchedule(scope.row)"

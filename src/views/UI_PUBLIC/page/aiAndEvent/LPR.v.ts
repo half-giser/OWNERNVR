@@ -19,8 +19,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const router = useRouter()
         const systemCaps = useCababilityStore()
         type CanvasAreaType = 'regionArea' | 'maskArea'
@@ -302,10 +300,7 @@ export default defineComponent({
 
         const forceClosePath = (canBeClosed: boolean) => {
             if (!canBeClosed) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_INTERSECT'),
-                })
+                openMessageBox(Translate('IDCS_INTERSECT'))
             }
         }
 
@@ -990,16 +985,10 @@ export default defineComponent({
                 for (const key in detectionFormData.value.maskAreaInfo) {
                     const count = detectionFormData.value.maskAreaInfo[key].length
                     if (count > 0 && count < 4) {
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_INPUT_LIMIT_FOUR_POIONT'),
-                        })
+                        openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_INPUT_LIMIT_FOUR_POIONT'))
                         return false
                     } else if (count > 0 && !vehicleDrawer.judgeAreaCanBeClosed(detectionFormData.value.maskAreaInfo[key])) {
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_INTERSECT'),
-                        })
+                        openMessageBox(Translate('IDCS_INTERSECT'))
                         return false
                     }
                 }
@@ -1118,10 +1107,7 @@ export default defineComponent({
         const addTask = () => {
             // 默认有识别成功、陌生车牌两项，添加的最多为3项
             if (taskTabs.value.length === 5) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
-                })
+                openMessageBox(Translate('IDCS_OVER_MAX_NUMBER_LIMIT'))
                 return false
             }
             const nameId = defaultNameId.find((item) => !haveUseNameId.includes(item))!
@@ -1389,9 +1375,9 @@ export default defineComponent({
             }
         }
 
-        const notify = ($: XMLQuery) => {
+        const notify = ($: XMLQuery, stateType: string) => {
             // 侦测区域
-            if ($("statenotify[@type='VfdArea']").length) {
+            if (stateType === 'VfdArea') {
                 detectionFormData.value.regionInfo = $('statenotify/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
@@ -1402,8 +1388,9 @@ export default defineComponent({
                     }
                 })
             }
+
             // 屏蔽区域
-            else if ($("statenotify[@type='PeaArea']").length) {
+            if (stateType === 'PeaArea') {
                 if ($('statenotify/points').length) {
                     detectionFormData.value.maskAreaInfo[detectionPageData.value.maskArea] = $('statenotify/points/item').map((item) => {
                         return {
@@ -1420,10 +1407,7 @@ export default defineComponent({
                     clearCurrentArea()
                 } else if (errorCode === 515) {
                     // 515-区域有相交直线，不可闭合
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_INTERSECT'),
-                    })
+                    openMessageBox(Translate('IDCS_INTERSECT'))
                 }
             }
         }

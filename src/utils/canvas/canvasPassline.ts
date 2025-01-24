@@ -54,8 +54,8 @@ interface CanvasPasslineOption {
 }
 
 export default function CanvasPassline(option: CanvasPasslineOption) {
-    const DEFAULT_LINE_COLOR = '#00ff00'
-    const DEFAULT_TEXT_COLOR = '#ff0000'
+    const DEFAULT_LINE_COLOR = '#0f0'
+    const DEFAULT_TEXT_COLOR = '#f00'
     const RELATIVE_WIDTH = 10000
     const RELATIVE_HEIGHT = 10000
     const VERTICAL_LINE_LENGTH = 50

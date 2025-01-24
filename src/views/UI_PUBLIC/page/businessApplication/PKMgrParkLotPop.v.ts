@@ -37,7 +37,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
         const dateTime = useDateTimeStore()
 
         let listIndex = 0
@@ -318,10 +317,7 @@ export default defineComponent({
             const isEnterRefuse = current.value.enterType === '0' || current.value.enterType === 'refuse'
             if (isEnterRefuse) {
                 if (!formData.value.plateNum.trim()) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_VEHICLE_NUMBER_EMPTY'),
-                    })
+                    openMessageBox(Translate('IDCS_VEHICLE_NUMBER_EMPTY'))
                     return
                 }
                 ctx.emit('updatePlate', current.value.index, formData.value.plateNum.trim())
@@ -336,10 +332,7 @@ export default defineComponent({
             if (item.enterType !== '0' && item.enterType !== 'refuse') return
             if (!item.enterChlId || !item.enterTime || !item.enterVehicleId) return
             if (!item.plateNum) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_VEHICLE_NUMBER_EMPTY'),
-                })
+                openMessageBox(Translate('IDCS_VEHICLE_NUMBER_EMPTY'))
                 return
             }
             const sendXml = rawXml`
@@ -363,10 +356,7 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_OPEN_GATE_RELEASE_FAIL')
                         break
                 }
-                openMessageBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
         }
 

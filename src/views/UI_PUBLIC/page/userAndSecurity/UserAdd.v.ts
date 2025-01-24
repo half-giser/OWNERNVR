@@ -14,7 +14,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { closeLoading, openLoading } = useLoading()
         const systemCaps = useCababilityStore()
         const userSession = useUserSessionStore()
         const router = useRouter()
@@ -31,7 +30,6 @@ export default defineComponent({
         const isAuthDialog = ref(false)
 
         const authGroupOptions = ref<SelectOption<string, string>[]>([])
-        const { openMessageBox } = useMessageBox()
 
         // 密码强度提示信息
         const noticeMsg = computed(() => {

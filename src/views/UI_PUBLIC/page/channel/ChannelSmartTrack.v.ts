@@ -9,7 +9,6 @@ import { ChannelPtzSmartTrackDto } from '@/types/apiType/channel'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
         const playerRef = ref<PlayerInstance>()
 
         const pageData = ref({

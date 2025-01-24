@@ -20,17 +20,15 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
         const userSession = useUserSessionStore()
         const router = useRouter()
-        const openMessageBox = useMessageBox().openMessageBox
 
         const pageData = ref({
             pageIndex: 1,
             pageSize: 10,
             totalCount: 0,
-            enableList: getSwitchOptions(),
+            enableList: getTranslateOptions(DEFAULT_SWITCH_OPTIONS),
             supportAudio: false,
             scheduleList: [] as SelectOption<string, string>[],
             isSchedulePop: false,
@@ -370,10 +368,7 @@ export default defineComponent({
             if (userSession.hasAuth('remoteChlMgr')) {
                 router.push('/config/channel/settings/motion')
             } else {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_AUTH'),
-                })
+                openMessageBox(Translate('IDCS_NO_AUTH'))
             }
         }
 

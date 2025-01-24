@@ -16,7 +16,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
         const router = useRouter()
         const systemCaps = useCababilityStore()
 
@@ -57,7 +56,7 @@ export default defineComponent({
             chls: [] as string[],
         })
 
-        const plugin = setupPlugin({
+        const plugin = usePlugin({
             onReady: (mode, plugin) => {
                 if (mode.value === 'ocx') {
                     const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Playback')
@@ -126,18 +125,12 @@ export default defineComponent({
             const startTime = dayjs(formData.value.startTime, dateTime.dateTimeFormat).valueOf()
             const endTime = dayjs(formData.value.endTime, dateTime.dateTimeFormat).valueOf()
             if (endTime <= startTime) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_END_TIME_GREATER_THAN_START'),
-                })
+                openMessageBox(Translate('IDCS_END_TIME_GREATER_THAN_START'))
                 return
             }
 
             if (mode.value === 'ocx' && plugin.BackUpTask.isExeed(formData.value.chls.length)) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_BACKUP_TASK_NUM_LIMIT').formatForLang(plugin.BackUpTask.limit),
-                })
+                openMessageBox(Translate('IDCS_BACKUP_TASK_NUM_LIMIT').formatForLang(plugin.BackUpTask.limit))
                 return
             }
             pageData.value.backupRecList = formData.value.chls.map((chl) => {

@@ -50,8 +50,6 @@ export default defineComponent({
     },
     setup(prop) {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
 
         // 系统配置
@@ -212,10 +210,7 @@ export default defineComponent({
 
         const forceClosePath = (canBeClosed: boolean) => {
             if (!canBeClosed) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_INTERSECT'),
-                })
+                openMessageBox(Translate('IDCS_INTERSECT'))
             }
         }
 
@@ -586,10 +581,7 @@ export default defineComponent({
             const count = formData.value.boundaryData.length
             for (const item of formData.value.boundaryData) {
                 if (count > 2 && !tempDrawer.judgeAreaCanBeClosed(item.points)) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_INTERSECT'),
-                    })
+                    openMessageBox(Translate('IDCS_INTERSECT'))
                     return false
                 }
             }
@@ -704,15 +696,9 @@ export default defineComponent({
             } else {
                 const errorCode = $('errorCode').text().num()
                 if (errorCode === 536871053) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_INPUT_LIMIT_FOUR_POIONT'),
-                    })
+                    openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_INPUT_LIMIT_FOUR_POIONT'))
                 } else {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_SAVE_DATA_FAIL'),
-                    })
+                    openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
                 }
             }
         }
@@ -739,9 +725,9 @@ export default defineComponent({
             }
         })
 
-        const notify = ($: XMLQuery) => {
+        const notify = ($: XMLQuery, stateType: string) => {
             // 温度报警检测
-            if ($("statenotify[@type='OscArea']").length) {
+            if (stateType === 'OscArea') {
                 if ($('statenotify/points').length) {
                     pageData.value.currRowData.points = $('statenotify/points/item').map((item) => {
                         return {
@@ -757,10 +743,7 @@ export default defineComponent({
                     clearCurrentArea()
                 } else if (errorCode === 515) {
                     // 515-区域有相交直线，不可闭合
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_INTERSECT'),
-                    })
+                    openMessageBox(Translate('IDCS_INTERSECT'))
                 }
             }
         }

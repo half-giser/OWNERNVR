@@ -14,14 +14,12 @@ export default defineComponent({
 
         const pageData = ref({
             mode: '',
-            init: false,
         })
 
         const updateMode = () => {
             pageData.value.mode = route.path
             // 对mode进行处理，获取最后一个/后面的字符串
             pageData.value.mode = pageData.value.mode.substring(pageData.value.mode.lastIndexOf('/') + 1)
-            pageData.value.init = true
         }
 
         onMounted(() => {

@@ -5,6 +5,16 @@
  */
 import axios, { type AxiosRequestConfig } from 'axios'
 
+const BASE_URL = import.meta.env.VITE_BASE_URL
+const BASE_CONFIG: AxiosRequestConfig = {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+    },
+    responseType: 'document',
+    timeout: 20 * 1000,
+}
+
 export const xmlHeader = '<?xml version="1.0" encoding="UTF-8" ?>'
 export type ApiResult = Element | XMLDocument
 
@@ -53,16 +63,13 @@ const getXmlWrapData = (data: string, url = '', refresh = false) => {
  * @param {string} message
  */
 const handleUserErrorRedirectToLogin = (message: string) => {
-    const { openMessageBox, count } = useMessageBox()
     const layoutStore = useLayoutStore()
+
     if (!layoutStore.isInitial) {
         Logout()
     } else {
-        if (!count) {
-            openMessageBox({
-                type: 'info',
-                message: message,
-            }).finally(() => {
+        if (!layoutStore.messageBoxCount) {
+            openMessageBox(message).finally(() => {
                 Logout()
             })
         }
@@ -70,115 +77,93 @@ const handleUserErrorRedirectToLogin = (message: string) => {
 }
 
 /**
+ * @description 处理公共错误
+ * @param {errorCode} number
+ * @returns {boolean} true：停止继续处理，一般为流程中断了，比如退出登录，false：需要继续处理
+ */
+const handelCommonError = (errorCode: number) => {
+    let isStopHandle = true
+    const { Translate } = useLangStore()
+    switch (errorCode) {
+        case ErrorCode.USER_ERROR_NO_USER:
+        case ErrorCode.USER_ERROR_PWD_ERR:
+            handleUserErrorRedirectToLogin(Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR'))
+            break
+        case ErrorCode.USER_ERROR_SERVER_NO_EXISTS:
+            handleUserErrorRedirectToLogin(Translate('IDCS_LOGIN_OVERTIME'))
+            break
+        case ErrorCode.USER_ERROR_USER_LOCKED:
+            handleUserErrorRedirectToLogin(Translate('IDCS_LOGIN_FAIL_USER_LOCKED'))
+            break
+        case ErrorCode.USER_ERROR_INVALID_PARAM:
+            handleUserErrorRedirectToLogin(Translate('IDCS_USER_ERROR_INVALID_PARAM'))
+            break
+        default:
+            isStopHandle = false
+            break
+    }
+    closeAllLoading()
+    return isStopHandle
+}
+
+/**
  * @description HTTP请求工具类
  * @returns
  */
-class Request {
-    BASE_URL: string
-    config: object
-
-    constructor() {
-        this.BASE_URL = import.meta.env.VITE_BASE_URL
-        this.config = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-            },
-            responseType: 'document',
-            timeout: 20 * 1000,
-        }
-    }
-
-    fetch(url: string, data: string, config?: AxiosRequestConfig, checkCommonErrorSwitch = true) {
-        return new Promise((resolve: (data: ApiResult) => void, reject: (error: any) => void) => {
-            const appType = useUserSessionStore().appType
-            if (appType === 'STANDARD') {
-                return axios({
-                    ...this.config,
-                    ...config,
-                    url,
-                    data: import.meta.env.DEV ? compressXml(getXmlWrapData(data)) : getXmlWrapData(data),
-                    baseURL: this.BASE_URL,
-                }).then(
-                    (response) => {
-                        const xmlDoc = getXmlDoc(response.data)
-                        if (xmlDoc) {
-                            const $ = queryXml(xmlDoc)
-                            if ($('//status').text() === ApiStatus.fail) {
-                                const errorCode = queryXml(xmlDoc)('//errorCode').text().num()
-                                if (checkCommonErrorSwitch && this.handelCommonError(errorCode)) {
-                                    reject(errorCode)
-                                    return
-                                }
-                            }
-                            resolve($('/response')[0].element)
-                        } else {
-                            console.trace('error = xmlDoc is null')
-                            reject('xmlDoc_is_null')
-                        }
-                    },
-                    (error) => {
-                        console.trace('error =', error)
-                        reject(error)
-                    },
-                )
-            } else {
-                const plugin = usePlugin()
-                plugin.P2pCmdSender.add({
-                    cmd: getXmlWrapData(data, url),
-                    resolve: (xmlDoc) => {
+const fetch = (url: string, data: string, config?: AxiosRequestConfig, checkCommonErrorSwitch = true) => {
+    return new Promise((resolve: (data: ApiResult) => void, reject: (error: any) => void) => {
+        const appType = useUserSessionStore().appType
+        if (appType === 'STANDARD') {
+            return axios({
+                ...BASE_CONFIG,
+                ...config,
+                url,
+                data: import.meta.env.DEV ? compressXml(getXmlWrapData(data)) : getXmlWrapData(data),
+                baseURL: BASE_URL,
+            }).then(
+                (response) => {
+                    const xmlDoc = getXmlDoc(response.data)
+                    if (xmlDoc) {
                         const $ = queryXml(xmlDoc)
                         if ($('//status').text() === ApiStatus.fail) {
                             const errorCode = queryXml(xmlDoc)('//errorCode').text().num()
-                            if (checkCommonErrorSwitch && this.handelCommonError(errorCode)) {
+                            if (checkCommonErrorSwitch && handelCommonError(errorCode)) {
                                 reject(errorCode)
                                 return
                             }
                         }
-                        resolve(xmlDoc)
-                    },
-                    reject: (e) => {
-                        reject(e)
-                    },
-                })
-            }
-        })
-    }
-
-    /**
-     * @description 处理公共错误
-     * @param {errorCode} number
-     * @returns {boolean} true：停止继续处理，一般为流程中断了，比如退出登录，false：需要继续处理
-     */
-    handelCommonError(errorCode: number) {
-        const { Translate } = useLangStore()
-        const { closeAllLoading } = useLoading()
-        let isStopHandle = true
-        switch (errorCode) {
-            case ErrorCode.USER_ERROR_NO_USER:
-            case ErrorCode.USER_ERROR_PWD_ERR:
-                handleUserErrorRedirectToLogin(Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR'))
-                break
-            case ErrorCode.USER_ERROR_SERVER_NO_EXISTS:
-                handleUserErrorRedirectToLogin(Translate('IDCS_LOGIN_OVERTIME'))
-                break
-            case ErrorCode.USER_ERROR_USER_LOCKED:
-                handleUserErrorRedirectToLogin(Translate('IDCS_LOGIN_FAIL_USER_LOCKED'))
-                break
-            case ErrorCode.USER_ERROR_INVALID_PARAM:
-                handleUserErrorRedirectToLogin(Translate('IDCS_USER_ERROR_INVALID_PARAM'))
-                break
-            default:
-                isStopHandle = false
-                break
+                        resolve($('/response')[0].element)
+                    } else {
+                        console.trace('error = xmlDoc is null')
+                        reject('xmlDoc_is_null')
+                    }
+                },
+                (error) => {
+                    console.trace('error =', error)
+                    reject(error)
+                },
+            )
+        } else {
+            const plugin = usePlugin()
+            plugin.P2pCmdSender.add({
+                cmd: getXmlWrapData(data, url),
+                resolve: (xmlDoc) => {
+                    const $ = queryXml(xmlDoc)
+                    if ($('//status').text() === ApiStatus.fail) {
+                        const errorCode = queryXml(xmlDoc)('//errorCode').text().num()
+                        if (checkCommonErrorSwitch && handelCommonError(errorCode)) {
+                            reject(errorCode)
+                            return
+                        }
+                    }
+                    resolve(xmlDoc)
+                },
+                reject: (e) => {
+                    reject(e)
+                },
+            })
         }
-        closeAllLoading()
-        return isStopHandle
-    }
+    })
 }
 
-const http = new Request()
-
-export default http
-
-export { Request }
+export default fetch

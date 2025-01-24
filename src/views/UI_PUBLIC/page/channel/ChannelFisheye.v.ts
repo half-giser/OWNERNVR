@@ -9,8 +9,6 @@ import { type TableInstance } from 'element-plus'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
-        const { openMessageBox } = useMessageBox()
 
         const playerRef = ref<PlayerInstance>()
         const formData = ref(new ChannelFisheyeDto())
@@ -27,7 +25,7 @@ export default defineComponent({
         const deviceDatacache: Record<string, Record<string, string>> = {}
         const hikvisionIds: string[] = []
         const privateProtocolIds: string[] = []
-        const switchOptions = getBoolSwitchOptions()
+        const switchOptions = getTranslateOptions(DEFAULT_BOOL_SWITCH_OPTIONS)
         const editRows = useWatchEditRows<ChannelFisheyeDto>()
 
         const chlOptions = computed(() => {

@@ -11,7 +11,12 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
+
+        const LIGHT_FREQUENCY_MAPPING: Record<string, string> = {
+            high: Translate('IDCS_HWDR_HIGH'),
+            medium: Translate('IDCS_HWDR_MEDIUM'),
+            low: Translate('IDCS_HWDR_LOW'),
+        }
 
         const pageData = ref({
             pageIndex: 1,
@@ -22,7 +27,7 @@ export default defineComponent({
             scheduleName: '',
             scheduleChanged: false,
             scheduleList: [] as SelectOption<string, string>[],
-            enableList: getBoolSwitchOptions(),
+            enableList: getTranslateOptions(DEFAULT_BOOL_SWITCH_OPTIONS),
             lightFrequencyList: [] as SelectOption<string, string>[],
         })
 
@@ -71,7 +76,7 @@ export default defineComponent({
                             pageData.value.lightFrequencyList = $('types/lightFrequency/enum').map((item) => {
                                 return {
                                     value: item.text(),
-                                    label: getLightFrequencyLang(item.text()),
+                                    label: LIGHT_FREQUENCY_MAPPING[item.text()],
                                 }
                             })
                         }
@@ -168,19 +173,6 @@ export default defineComponent({
                 pageData.value.pageIndex = totalPage
             }
             getData()
-        }
-
-        const getLightFrequencyLang = (value: string) => {
-            switch (value) {
-                case 'high':
-                    return Translate('IDCS_HWDR_HIGH')
-                case 'medium':
-                    return Translate('IDCS_HWDR_MEDIUM')
-                case 'low':
-                    return Translate('IDCS_HWDR_LOW')
-                default:
-                    return value
-            }
         }
 
         const changeAllEnable = (value: boolean) => {

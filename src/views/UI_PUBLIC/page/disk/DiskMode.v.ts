@@ -13,8 +13,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
         const pageData = ref({
             // 鉴权弹窗
@@ -78,10 +76,7 @@ export default defineComponent({
                 }
 
                 if (errorInfo) {
-                    openMessageBox({
-                        type: 'info',
-                        message: errorInfo,
-                    })
+                    openMessageBox(errorInfo)
                 }
             }
         }

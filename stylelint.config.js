@@ -18,6 +18,7 @@ export default {
         'selector-class-pattern': '^[a-zA-Z][-_a-zA-Z0-9]*$',
         'selector-id-pattern': '^[a-zA-Z][a-zA-Z0-9]*$',
         'custom-property-pattern': '^[a-z][-a-zA-Z0-9]*$',
+        'scss/dollar-variable-pattern': '^[a-z][-a-zA-Z0-9]*$',
         'scss/double-slash-comment-empty-line-before': null,
         'no-descending-specificity': null,
         'declaration-block-no-redundant-longhand-properties': [

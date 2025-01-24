@@ -20,8 +20,8 @@ export default defineComponent({
     },
     setup(props, { emit }) {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
         const userSessionStore = useUserSessionStore()
+
         const formRef = useFormRef()
         const formData = ref({
             password: '',

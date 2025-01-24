@@ -29,7 +29,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
         const systemCaps = useCababilityStore()
 
         const pageData = ref({
@@ -275,10 +274,7 @@ export default defineComponent({
             }
 
             if (pageData.value.fishEyeingId && prop.winData.chlID !== pageData.value.fishEyeingId) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_SUPPORT_ONE_FISHEYE'),
-                })
+                openMessageBox(Translate('IDCS_SUPPORT_ONE_FISHEYE'))
                 return
             }
             pageData.value.fishEyeMode = fishEyeMode

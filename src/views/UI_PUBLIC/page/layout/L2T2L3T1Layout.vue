@@ -22,6 +22,7 @@
                     </template>
                     <template #title>
                         <span
+                            class="text-ellipsis"
                             :title="Translate(menu3.meta.lk || '')"
                             v-text="Translate(menu3.meta.lk || '')"
                         ></span>
@@ -83,7 +84,7 @@
                 width: 100%;
                 font-size: 12px;
                 line-height: 30px;
-                white-space: pre-wrap;
+                display: block;
             }
         }
     }

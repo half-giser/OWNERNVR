@@ -39,8 +39,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const dateTime = useDateTimeStore()
         const auth = useUserChlAuth()
         const userSession = useUserSessionStore()
@@ -497,7 +495,7 @@ export default defineComponent({
             if ($('status').text() === 'success') {
                 tableData.value = $('content/i').map((item) => {
                     const isDelSnap = item.attr('s') === 'd'
-                    const split = item.text().split(',')
+                    const split = item.text().array()
                     const guid = hexToDec(split[3])
                     const chlId = getChlGuid16(split[3]).toUpperCase()
                     const timestamp = hexToDec(split[0]) * 1000
@@ -537,10 +535,7 @@ export default defineComponent({
             }
 
             if (!tableData.value.length) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_RECORD_DATA'),
-                })
+                openMessageBox(Translate('IDCS_NO_RECORD_DATA'))
             }
 
             changeSortType()
@@ -656,10 +651,7 @@ export default defineComponent({
                 return !auth.value.bk[item.chlId]
             })
             if (find) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_CHANNEL_BACUP_NO_PERMISSION').formatForLang(find.chlName),
-                })
+                openMessageBox(Translate('IDCS_CHANNEL_BACUP_NO_PERMISSION').formatForLang(find.chlName))
                 return false
             }
             return true
@@ -759,10 +751,7 @@ export default defineComponent({
             if (downloadData.length) {
                 createZip()
             } else {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_RECORD_DATA'),
-                })
+                openMessageBox(Translate('IDCS_NO_RECORD_DATA'))
             }
         }
 

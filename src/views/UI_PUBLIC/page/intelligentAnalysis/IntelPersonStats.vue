@@ -6,16 +6,18 @@
 <template>
     <div class="base-intel-box">
         <div class="base-intel-left">
-            <IntelBaseChannelSelector
-                v-model="formData.chl"
-                @update:model-value="changeChl"
-                @ready="getChlMap"
-            />
-            <IntelBaseEventSelector
-                v-model="formData.event"
-                @update:model-value="changeEvent"
-                @ready="getEventMap"
-            />
+            <div class="base-intel-left-form">
+                <IntelBaseChannelSelector
+                    v-model="formData.chl"
+                    @update:model-value="changeChl"
+                    @ready="getChlMap"
+                />
+                <IntelBaseEventSelector
+                    v-model="formData.event"
+                    @update:model-value="changeEvent"
+                    @ready="getEventMap"
+                />
+            </div>
         </div>
         <div class="base-intel-right">
             <div class="base-intel-row">

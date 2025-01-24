@@ -15,8 +15,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const dateTime = useDateTimeStore()
 
         // 磁盘名字与显示文本的映射
@@ -198,6 +196,7 @@ export default defineComponent({
                 type: 'question',
                 title: Translate('IDCS_QUESTION_MSG'),
                 message: `${Translate('IDCS_FORMAT_MP_DISK_S')}<br><span style="color:red;">${Translate('IDCS_FORMAT_MP_DISK_RESULT')}</span>`.formatForLang(tableData.value[index].diskNum),
+                dangerouslyUseHTMLString: true,
             }).then(() => {
                 pageData.value.isCheckAuth = true
             })
@@ -212,6 +211,7 @@ export default defineComponent({
                 type: 'question',
                 title: Translate('IDCS_QUESTION_MSG'),
                 message: `${Translate('IDCS_FORMAT_ALL_DISKS')}<br><span style="color:var(--color-error);">${Translate('IDCS_FORMAT_MP_DISK_RESULT')}</span>`,
+                dangerouslyUseHTMLString: true,
             }).then(() => {
                 pageData.value.isCheckAuth = true
             })
@@ -262,10 +262,7 @@ export default defineComponent({
                             break
                     }
 
-                    openMessageBox({
-                        type: 'info',
-                        message: errorInfo,
-                    })
+                    openMessageBox(errorInfo)
                 }
             } catch {
                 closeLoading()
@@ -300,10 +297,7 @@ export default defineComponent({
                 pageData.value.isInputEncryptPwd = false
                 getData()
             } else {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_UNLOCK_DISK_FAIL'),
-                })
+                openMessageBox(Translate('IDCS_UNLOCK_DISK_FAIL'))
             }
         }
 

@@ -44,8 +44,8 @@ export default defineComponent({
         },
     },
     setup(props) {
-        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
+
         const playerRef = ref<PlayerInstance>()
 
         let cddDrawer: ReturnType<typeof CanvasVfd>
@@ -368,8 +368,8 @@ export default defineComponent({
             }
         }
 
-        const notify = ($: XMLQuery) => {
-            if ($("statenotify[@type='CddParam']").length) {
+        const notify = ($: XMLQuery, stateType: string) => {
+            if (stateType === 'CddParam') {
                 formData.value.regionInfo = $('statenotify/item').map((element) => {
                     const $ = queryXml(element.element)
                     return {

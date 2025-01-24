@@ -35,9 +35,7 @@ export default defineComponent({
     },
     setup(props, { emit }) {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
         const userSessionStore = useUserSessionStore()
-        const { openMessageBox } = useMessageBox()
         const router = useRouter()
         const formRef = useFormRef()
         const formData = ref(new ChannelRecorderAddDto())
@@ -124,10 +122,7 @@ export default defineComponent({
                         })
                     } else {
                         const errorCode = $('errorCode').text().num()
-                        openMessageBox({
-                            type: 'info',
-                            message: errorMap[errorCode] || Translate('IDCS_LOGIN_OVERTIME'),
-                        }).then(() => {
+                        openMessageBox(errorMap[errorCode] || Translate('IDCS_LOGIN_OVERTIME')).then(() => {
                             const chlCount = formData.value.channelCount
                             formData.value.recorderList = Array(chlCount)
                                 .fill(new ChannelRecorderDto())
@@ -201,10 +196,7 @@ export default defineComponent({
                             getData(true)
                         } else {
                             const errorCode = $('errorCode').text().num()
-                            openMessageBox({
-                                type: 'info',
-                                message: errorMap[errorCode] || Translate('IDCS_LOGIN_OVERTIME'),
-                            }).then(() => {
+                            openMessageBox(errorMap[errorCode] || Translate('IDCS_LOGIN_OVERTIME')).then(() => {
                                 loadNoRecoderData(formData.value.channelCount)
                             })
                         }
@@ -227,10 +219,7 @@ export default defineComponent({
                             const $ = queryXml(res)
                             const addedChlNum = $('content/item').length
                             if (addedChlNum + tableRef.value!.getSelectionRows().length > props.chlCountLimit) {
-                                openMessageBox({
-                                    type: 'info',
-                                    message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
-                                })
+                                openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT'))
                                 return
                             }
                             openLoading()
@@ -247,34 +236,19 @@ export default defineComponent({
                                 } else {
                                     const errorCdoe = $('errorCode').text().num()
                                     if (errorCdoe === ErrorCode.USER_ERROR_NODE_ID_EXISTS) {
-                                        openMessageBox({
-                                            type: 'info',
-                                            message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_CAMERA_EXISTED'),
-                                        })
+                                        openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_CAMERA_EXISTED'))
                                     } else if (errorCdoe === ErrorCode.USER_ERROR_OVER_LIMIT) {
-                                        openMessageBox({
-                                            type: 'info',
-                                            message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
-                                        }).then(() => {
+                                        openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT')).then(() => {
                                             emit('close')
                                         })
                                     } else if (errorCdoe === ErrorCode.USER_ERROR_OVER_BANDWIDTH_LIMIT) {
-                                        openMessageBox({
-                                            type: 'info',
-                                            message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_BANDWIDTH_LIMIT'),
-                                        })
+                                        openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_BANDWIDTH_LIMIT'))
                                     } else if (errorCdoe === ErrorCode.USER_ERROR_SPECIAL_CHAR) {
                                         const poePort = $('poePort').text()
                                         // POE连接冲突提示
-                                        openMessageBox({
-                                            type: 'info',
-                                            message: Translate('IDCS_POE_RESOURCE_CONFLICT_TIP').formatForLang(poePort),
-                                        })
+                                        openMessageBox(Translate('IDCS_POE_RESOURCE_CONFLICT_TIP').formatForLang(poePort))
                                     } else if (errorCdoe === ErrorCode.USER_ERROR_LIMITED_PLATFORM_TYPE_MISMATCH) {
-                                        openMessageBox({
-                                            type: 'info',
-                                            message: Translate('IDCS_ADD_CHANNEL_FAIL').formatForLang(props.faceMatchLimitMaxChlNum),
-                                        })
+                                        openMessageBox(Translate('IDCS_ADD_CHANNEL_FAIL').formatForLang(props.faceMatchLimitMaxChlNum))
                                     } else if (errorCdoe === ErrorCode.USER_ERROR_PC_LICENSE_MISMATCH) {
                                         const msg =
                                             Translate('IDCS_ADD_CHANNEL_FAIL').formatForLang(props.faceMatchLimitMaxChlNum) + Translate('IDCS_REBOOT_DEVICE').formatForLang(Translate('IDCS_KEEP_ADD'))
@@ -290,10 +264,7 @@ export default defineComponent({
                                             editBasicCfg(sendXml)
                                         })
                                     } else {
-                                        openMessageBox({
-                                            type: 'info',
-                                            message: Translate('IDCS_SAVE_DATA_FAIL'),
-                                        })
+                                        openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
                                     }
                                 }
                             })

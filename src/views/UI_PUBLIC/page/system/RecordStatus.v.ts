@@ -38,20 +38,10 @@ export default defineComponent({
         }
 
         // 图像质量与显示文案的映射
-        const DEFAULT_IMAGE_LEVEL_MAPPING: Record<string, string> = {
-            highest: Translate('IDCS_HIGHEST'),
-            higher: Translate('IDCS_HIGHER'),
-            medium: Translate('IDCS_MEDIUM'),
-            low: Translate('IDCS_LOW'),
-            lower: Translate('IDCS_LOWER'),
-            lowest: Translate('IDCS_LOWEST'),
-        }
+        const IMAGE_LEVEL_MAPPING = getTranslateMapping(DEFAULT_IMAGE_LEVEL_MAPPING)
 
         // 码流类型与显示文案的映射
-        const DEFAULT_STREAM_TYPE_MAPPING: Record<string, string> = {
-            main: Translate('IDCS_MAIN_STREAM'),
-            sub: Translate('IDCS_SUB_STREAM'),
-        }
+        const STREAM_TYPE_MAPPING = getTranslateMapping(DEFAULT_STREAM_TYPE_MAPPING)
 
         const tableData = ref<SystemRecordStatusList[]>([])
 
@@ -141,7 +131,7 @@ export default defineComponent({
          * @returns {string}
          */
         const displayStreamType = (row: SystemRecordStatusList) => {
-            return row.streamType ? DEFAULT_STREAM_TYPE_MAPPING[row.streamType] : '--'
+            return row.streamType ? STREAM_TYPE_MAPPING[row.streamType] : '--'
         }
 
         /**
@@ -150,7 +140,7 @@ export default defineComponent({
          * @returns {string}
          */
         const displayLevel = (row: SystemRecordStatusList) => {
-            return row.level && row.bitType === 'VBR' ? DEFAULT_IMAGE_LEVEL_MAPPING[row.level] : '--'
+            return row.level && row.bitType === 'VBR' ? IMAGE_LEVEL_MAPPING[row.level] : '--'
         }
 
         onMounted(() => {

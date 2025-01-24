@@ -82,10 +82,10 @@ export const arrayBufferToBase64 = (buffer: ArrayBuffer) => {
 
 /**
  * @description js数据类型转buffer
+ * @param {string} data
  * data -> blob -> buffer
- * @param {*} json
  */
-export const dataToBuffer = (data: any) => {
+export const dataToBuffer = (data: string) => {
     return new Promise((resolve: (param: ArrayBuffer) => void) => {
         const blob = new Blob([data])
         const reader = new FileReader()
@@ -98,11 +98,11 @@ export const dataToBuffer = (data: any) => {
 }
 
 /**
- * 构建包头
- * @param {*} json
+ * @description 构建包头
+ * @param {object} json
  * @returns {ArrayBuffer}
  */
-export const buildHeader = (json: any) => {
+export const buildHeader = (json: Record<any, any>) => {
     const buffer = new ArrayBuffer(8)
     const dataView = new DataView(buffer)
     dataView.setUint32(0, 0, true)
@@ -143,4 +143,34 @@ export const base64ToFile = (base64: string, fileName: string) => {
         u8arr[n] = bstr.charCodeAt(n)
     }
     return new File([u8arr], fileName, { type: mime })
+}
+
+/**
+ * @description 将IPC音频文件转换为base64-导入摄像机声音/本地音频使用
+ * @param {Blob} file
+ * @param callback
+ */
+export const fileToBase64 = (file: Blob, callback: Function) => {
+    // base64 每76位加一个换行
+    const formatBase64 = (param: string) => {
+        let result = ''
+        for (let i = 0; i < param.length; i++) {
+            if (i !== 0 && i % 76 === 0) {
+                result += '\r\n'
+            }
+            result += param[i]
+        }
+        return result
+    }
+
+    const reader = new FileReader()
+    reader.onload = (e) => {
+        const data = (e.target!.result as string).split(',')
+        const base64 = data[1]
+        const base64Str = formatBase64(base64)
+        if (typeof callback === 'function') {
+            callback(base64Str)
+        }
+    }
+    reader.readAsDataURL(file)
 }

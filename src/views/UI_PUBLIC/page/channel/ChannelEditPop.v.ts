@@ -39,8 +39,7 @@ export default defineComponent({
     setup(props, { emit }) {
         const userSessionStore = useUserSessionStore()
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
-        const { openMessageBox } = useMessageBox()
+
         const formRef = useFormRef()
         const ipTitle = ref('')
         const showIpInput = ref(true)
@@ -51,6 +50,7 @@ export default defineComponent({
         const inputDisabled = ref(false)
         const ipDisabled = ref(false)
         const portDisabled = ref(false)
+
         let isIp = false
         let isIpv6 = false
         let isDomain = false
@@ -129,10 +129,7 @@ export default defineComponent({
                     let errorInfo = Translate('IDCS_QUERY_DATA_FAIL')
                     const isNotExit = $('errorCode').text().num() === ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR
                     if (isNotExit) errorInfo = Translate('IDCS_RESOURCE_NOT_EXIST').formatForLang(Translate('IDCS_CHANNEL'))
-                    openMessageBox({
-                        type: 'info',
-                        message: errorInfo,
-                    }).then(() => {
+                    openMessageBox(errorInfo).finally(() => {
                         emit('close', true)
                         // if (isNotExit) {
                         //     emit('close', true)
@@ -155,10 +152,7 @@ export default defineComponent({
                         }
 
                         if (!checkChlName(value.replace(' ', ''))) {
-                            openMessageBox({
-                                type: 'info',
-                                message: Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'),
-                            })
+                            openMessageBox(Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'))
                             return
                         }
 
@@ -266,25 +260,24 @@ export default defineComponent({
                         } else {
                             const errorCode = $('errorCode').text().num()
                             let errorInfo = Translate('IDCS_SAVE_DATA_FAIL')
-                            if (errorCode === ErrorCode.USER_ERROR_NAME_EXISTED) {
-                                errorInfo = Translate('IDCS_PROMPT_CHANNEL_NAME_EXIST')
-                            } else if (errorCode === ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR) {
-                                openMessageBox({
-                                    type: 'info',
-                                    message: Translate('IDCS_RESOURCE_NOT_EXIST').formatForLang(Translate('IDCS_CHANNEL')),
-                                }).then(() => {
-                                    emit('close', true)
-                                })
-                                return
-                            } else if (errorCode === ErrorCode.USER_ERROR_NODE_ID_EXISTS) {
-                                errorInfo = Translate('IDCS_PROMPT_CHANNEL_EXIST')
-                            } else if (errorCode === ErrorCode.USER_ERROR_INVALID_IP) {
-                                errorInfo = Translate('IDCS_PROMPT_CHANNEL_EXIST')
+                            switch (errorCode) {
+                                case ErrorCode.USER_ERROR_NAME_EXISTED:
+                                    errorInfo = Translate('IDCS_PROMPT_CHANNEL_NAME_EXIST')
+                                    break
+                                case ErrorCode.USER_ERROR__CANNOT_FIND_NODE_ERROR:
+                                    openMessageBox(Translate('IDCS_RESOURCE_NOT_EXIST').formatForLang(Translate('IDCS_CHANNEL'))).then(() => {
+                                        emit('close', true)
+                                    })
+                                    return
+                                case ErrorCode.USER_ERROR_NODE_ID_EXISTS:
+                                    errorInfo = Translate('IDCS_PROMPT_CHANNEL_EXIST')
+                                    break
+                                case ErrorCode.USER_ERROR_INVALID_IP:
+                                    errorInfo = Translate('IDCS_PROMPT_CHANNEL_EXIST')
+                                    break
                             }
-                            openMessageBox({
-                                type: 'info',
-                                message: errorInfo,
-                            })
+
+                            openMessageBox(errorInfo)
                         }
                     })
                 }

@@ -8,7 +8,6 @@ import { type DiskSmartInfoList, type DiskSmartInfoDiskList } from '@/types/apiT
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
 
         // 磁盘类型与文本的映射
         const DISK_TYPE_MAPPING: Record<string, string> = {

@@ -6,22 +6,24 @@
 <template>
     <div class="base-intel-box">
         <div class="base-intel-left">
-            <IntelBaseChannelSelector
-                v-model="formData.chl"
-                @update:model-value="changeChl"
-                @ready="getChlMap"
-            />
-            <IntelBaseEventSelector
-                v-model="formData.event"
-                :range="['face', 'vehicle']"
-                @update:model-value="changeEvent"
-                @ready="getEventMap"
-            />
-            <IntelBaseAttributeSelector
-                :model-value="[formData.vehicleAttribute, formData.personAttribute]"
-                :range="['face', 'vehicle']"
-                @update:model-value="changeAttribute"
-            />
+            <div class="base-intel-left-form">
+                <IntelBaseChannelSelector
+                    v-model="formData.chl"
+                    @update:model-value="changeChl"
+                    @ready="getChlMap"
+                />
+                <IntelBaseEventSelector
+                    v-model="formData.event"
+                    :range="['face', 'vehicle']"
+                    @update:model-value="changeEvent"
+                    @ready="getEventMap"
+                />
+                <IntelBaseAttributeSelector
+                    :model-value="[formData.vehicleAttribute, formData.personAttribute]"
+                    :range="['face', 'vehicle']"
+                    @update:model-value="changeAttribute"
+                />
+            </div>
         </div>
         <div class="base-intel-right">
             <div class="base-intel-row">

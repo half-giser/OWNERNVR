@@ -15,16 +15,11 @@ export default defineComponent({
         ChannelIPCUpgradePop,
     },
     setup(_prop, ctx) {
-        const volumn = ref(0)
-        const mute = ref(false)
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
-        const { openNotify } = useNotification()
         const browserInfo = getBrowserInfo()
         const cababilityStore = useCababilityStore()
         const userSession = useUserSessionStore()
         const router = useRouter()
-        const { openMessageBox } = useMessageBox()
         const plugin = usePlugin()
         const pluginStore = usePluginStore()
 
@@ -474,8 +469,6 @@ export default defineComponent({
             ipNumVisable,
             editNameMapping,
             setDataCallBack,
-            volumn,
-            mute,
             baseLivePopRef,
             channelIPCUpgradePopRef,
         }

@@ -15,9 +15,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
-        const { openNotify } = useNotification()
         const systemCaps = useCababilityStore()
 
         const plugin = usePlugin()
@@ -158,14 +155,14 @@ export default defineComponent({
 
                 item.audioSwitch = $param('switch').text().bool()
                 item.audioType = $param('audioType').text().num()
-                item.alarmTimes = $param('alarmTimes').text() ? $param('alarmTimes').text().num() : undefined
-                item.audioVolume = $param('audioVolume').text() ? $param('audioVolume').text().num() : undefined
+                item.alarmTimes = $param('alarmTimes').text().undef()?.num()
+                item.audioVolume = $param('audioVolume').text().undef()?.num()
                 item.languageType = $param('languageType').text()
                 item.audioFormat = $param('audioParamLimit/audioFormat').text()
                 item.sampleRate = $param('audioParamLimit/sampleRate').text()
                 item.audioChannel = $param('audioParamLimit/audioChannel').text()
                 item.audioDepth = $param('audioParamLimit/audioDepth').text()
-                item.audioFileLimitSize = $param('audioParamLimit/audioFileSize').text().split(' ').pop()!
+                item.audioFileLimitSize = $param('audioParamLimit/audioFileSize').text().array(' ').pop()!
             }
         }
 
@@ -244,10 +241,7 @@ export default defineComponent({
                 const errorCode = $('errorCode').text().num()
                 let msg = item.name + Translate('IDCS_AUDITION_FAILED')
                 if (errorCode === ErrorCode.USER_ERROR_GET_CONFIG_INFO_FAIL) msg += Translate('IDCS_GET_CFG_FAIL')
-                openMessageBox({
-                    type: 'info',
-                    message: msg,
-                })
+                openMessageBox(msg)
             }
         }
 
@@ -381,9 +375,9 @@ export default defineComponent({
                 item.micInVolume = $param('volume/micInVolume').text().num()
                 item.linInVolume = $param('volume/linInVolume').text().num()
                 item.audioOutVolume = $param('volume/audioOutVolume').text().num()
-                item.micMaxValue = $param('volume/micInVolume').attr('max') ? $param('volume/micInVolume').attr('max').num() : 100
-                item.linMaxValue = $param('volume/linInVolume').attr('max') ? $param('volume/linInVolume').attr('max').num() : 100
-                item.audioOutMaxValue = $param('volume/audioOutVolume').attr('max') ? $param('volume/audioOutVolume').attr('max').num() : 100
+                item.micMaxValue = $param('volume/micInVolume').attr('max').undef()?.num() ?? 100
+                item.linMaxValue = $param('volume/linInVolume').attr('max').undef()?.num() ?? 100
+                item.audioOutMaxValue = $param('volume/audioOutVolume').attr('max').undef()?.num() ?? 100
                 item.micOrLinEnabled = $param('volume/micInVolume').length > 0 || $param('volume/volume/linInVolume').length > 0
                 item.audioOutEnabled = $param('volume/audioOutVolume').length > 0
             }

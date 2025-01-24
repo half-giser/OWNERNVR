@@ -25,8 +25,7 @@ export default defineComponent({
     },
     setup(props, { emit }) {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
-        const { openMessageBox } = useMessageBox()
+
         const formRef = useFormRef()
         const formData = ref(new ChannelGroupDto())
         const timeList = [5, 10, 20, 30, 60, 120, 300, 600].map((value) => {
@@ -88,15 +87,9 @@ export default defineComponent({
                     })
                 } else {
                     if ($('errorCode').text().num() === ErrorCode.USER_ERROR_NAME_EXISTED) {
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_PROMPT_CHANNEL_GROUP_NAME_EXIST'),
-                        })
+                        openMessageBox(Translate('IDCS_PROMPT_CHANNEL_GROUP_NAME_EXIST'))
                     } else {
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_SAVE_DATA_FAIL'),
-                        })
+                        openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
                     }
                 }
             })

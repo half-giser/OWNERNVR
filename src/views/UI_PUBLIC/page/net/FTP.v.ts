@@ -13,8 +13,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const userSession = useUserSessionStore()
 
         const pageData = ref({
@@ -38,7 +36,7 @@ export default defineComponent({
                 },
             ] as SelectOption<string, string>[],
             // 开关选项
-            switchOptions: getSwitchOptions(),
+            switchOptions: getTranslateOptions(DEFAULT_SWITCH_OPTIONS),
             // 显示排程管理弹窗
             isSchedulePop: false,
         })
@@ -162,10 +160,7 @@ export default defineComponent({
          */
         const changeSwitch = () => {
             if (formData.value.switch) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_RTSP_OR_FTP_ENABLE_REMIND'),
-                })
+                openMessageBox(Translate('IDCS_RTSP_OR_FTP_ENABLE_REMIND'))
             }
         }
 
@@ -272,15 +267,9 @@ export default defineComponent({
                 const $ = queryXml(result)
 
                 if ($('status').text() === 'success') {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_FTP_TEST_SUCCESS'),
-                    })
+                    openMessageBox(Translate('IDCS_FTP_TEST_SUCCESS'))
                 } else {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_FTP_TEST_FAIL'),
-                    })
+                    openMessageBox(Translate('IDCS_FTP_TEST_FAIL'))
                 }
 
                 closeLoading()

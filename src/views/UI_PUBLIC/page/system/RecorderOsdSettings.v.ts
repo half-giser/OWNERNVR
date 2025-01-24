@@ -7,10 +7,8 @@ import { SystemRecorderOSDSettingsForm } from '@/types/apiType/system'
 
 export default defineComponent({
     setup() {
-        const { openLoading, closeLoading } = useLoading()
-
         const pageData = ref({
-            options: getSwitchOptions(),
+            options: getTranslateOptions(DEFAULT_SWITCH_OPTIONS),
             isAddress: import.meta.env.VITE_UI_TYPE === 'UI1-E',
         })
 

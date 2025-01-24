@@ -82,7 +82,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
         const dateTime = useDateTimeStore()
 
         const pageData = ref({
@@ -167,10 +166,7 @@ export default defineComponent({
                 ctx.emit('chooseSnap', pageData.value.currentSnap)
                 close()
             } else {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_SELECT_FACE_EMPTY'),
-                })
+                openMessageBox(Translate('IDCS_SELECT_FACE_EMPTY'))
             }
         }
 
@@ -182,10 +178,7 @@ export default defineComponent({
                 ctx.emit('chooseFace', pageData.value.currentFace)
                 close()
             } else {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_SELECT_FACE_EMPTY'),
-                })
+                openMessageBox(Translate('IDCS_SELECT_FACE_EMPTY'))
             }
         }
 
@@ -226,10 +219,7 @@ export default defineComponent({
                 return a + b.count
             }, 0)
             if (count >= 200) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_GROUP_FACE_NUM_IS_TOO_MANY').formatForLang(5),
-                })
+                openMessageBox(Translate('IDCS_GROUP_FACE_NUM_IS_TOO_MANY').formatForLang(5))
                 return
             } else {
                 ctx.emit('chooseGroup', pageData.value.currentFaceGroup)

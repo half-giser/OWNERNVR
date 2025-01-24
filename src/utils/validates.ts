@@ -206,8 +206,8 @@ export const checkPwdSaftyStrength = (value: string) => {
  * 当表格大于1行时，最后一行为空行，不保存，不需要检验（如果改了空行的值，会在后面自动产生一个新的空行）
  * @return {boolean} true:需要验证，false：不需要验证
  */
-export const isTableRowNotValidate = (rule: any, tableDataLen: number) => {
-    const rowIndex = parseInt(rule.field.split('.')[1])
-    if (tableDataLen > 1 && rowIndex === tableDataLen - 1) return false
-    return true
-}
+// export const isTableRowNotValidate = (rule: any, tableDataLen: number) => {
+//     const rowIndex = parseInt(rule.field.split('.')[1])
+//     if (tableDataLen > 1 && rowIndex === tableDataLen - 1) return false
+//     return true
+// }

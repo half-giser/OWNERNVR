@@ -38,8 +38,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading, LoadingTarget } = useLoading()
         const userSession = useUserSessionStore()
 
         const groupMap: Record<string, string> = {}
@@ -109,9 +107,9 @@ export default defineComponent({
             register: Translate('IDCS_REGISTER'),
         }
 
-        const plugin = setupPlugin({
-            onMessage: ($) => {
-                if ($('statenotify[@type="UploadIPCAudioBase64"]').length) {
+        const plugin = usePlugin({
+            onMessage: ($, stateType) => {
+                if (stateType === 'UploadIPCAudioBase64') {
                     const $item = queryXml($('statenotify')[0].element)
                     if ($item('status').text() === 'success') {
                         const fileBase64 = $item('base64').text()
@@ -120,21 +118,16 @@ export default defineComponent({
                         const file = base64ToFile(fileBase64, pageData.value.fileName)
                         parseFiles(file)
                     } else {
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_OUT_FILE_SIZE'),
-                        })
+                        openMessageBox(Translate('IDCS_OUT_FILE_SIZE'))
                         closeLoading()
                     }
                 }
+
                 //网络断开
-                else if ($('statenotify[@type="FileNetTransport"]').length) {
+                if (stateType === 'FileNetTransport') {
                     closeLoading()
                     if ($('statenotify/errorCode').text().num() === ErrorCode.USER_ERROR_NODE_NET_DISCONNECT) {
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_OCX_NET_DISCONNECT'),
-                        })
+                        openMessageBox(Translate('IDCS_OCX_NET_DISCONNECT'))
                     }
                 }
             },
@@ -214,10 +207,7 @@ export default defineComponent({
                     errorInfo = Translate('IDCS_ADD_FACE_FAIL')
                     break
             }
-            openMessageBox({
-                type: 'info',
-                message: errorInfo,
-            })
+            openMessageBox(errorInfo)
         }
 
         /**
@@ -348,20 +338,11 @@ export default defineComponent({
                 })
             } else {
                 if (pageData.value.fileName.indexOf('.csv') === -1) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_NO_CHOOSE_TDB_FILE'),
-                    })
+                    openMessageBox(Translate('IDCS_NO_CHOOSE_TDB_FILE'))
                 } else if (!pageData.value.fileData.length) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_IMPORT_FAIL'),
-                    })
+                    openMessageBox(Translate('IDCS_IMPORT_FAIL'))
                 } else if (!formData.value.groupId) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_PLATE_LIBRARY_GROUP_NOT_EXIST'),
-                    })
+                    openMessageBox(Translate('IDCS_PLATE_LIBRARY_GROUP_NOT_EXIST'))
                 }
                 addPlates()
             }
@@ -500,10 +481,7 @@ export default defineComponent({
         const parseFiles = async (file: File) => {
             const fileType = file.name.split('.').pop()
             if (fileType !== 'csv') {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_FILE_NOT_AVAILABLE'),
-                })
+                openMessageBox(Translate('IDCS_FILE_NOT_AVAILABLE'))
                 return
             }
             pageData.value.fileName = file.name
@@ -551,10 +529,7 @@ export default defineComponent({
                     }
                 })
             if (!plateList.length) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_IMPORT_FAIL'),
-                })
+                openMessageBox(Translate('IDCS_IMPORT_FAIL'))
             }
             ws = WebsocketImportPlate({
                 plateDataList: plateList,
@@ -595,10 +570,7 @@ export default defineComponent({
                             errorInfo = Translate('IDCS_IMPORT_FAIL')
                             break
                     }
-                    openMessageBox({
-                        type: 'info',
-                        message: errorInfo,
-                    })
+                    openMessageBox(errorInfo)
                 },
                 onclose() {
                     closeLoading()

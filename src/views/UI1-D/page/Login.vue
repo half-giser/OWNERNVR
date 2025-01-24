@@ -50,7 +50,7 @@
                         :key="item.value"
                         size="large"
                         :value="item.value"
-                        :label="Translate(item.label)"
+                        :label="item.label"
                     />
                 </el-radio-group>
                 <div class="login-btns">

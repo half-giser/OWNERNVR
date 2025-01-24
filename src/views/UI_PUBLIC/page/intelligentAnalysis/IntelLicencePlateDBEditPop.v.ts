@@ -33,8 +33,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
         const formRef = useFormRef()
 
@@ -106,10 +104,7 @@ export default defineComponent({
                         break
                 }
 
-                openMessageBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
         }
 
@@ -137,7 +132,7 @@ export default defineComponent({
                 ctx.emit('confirm')
             } else {
                 const errorCode = $('errorCode').text().num()
-                let errorInfo = ''
+                let errorInfo = Translate('IDCS_SAVE_FAIL')
 
                 switch (errorCode) {
                     case ErrorCode.USER_ERROR_NAME_EXISTED:
@@ -151,10 +146,7 @@ export default defineComponent({
                         break
                 }
 
-                openMessageBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
         }
 

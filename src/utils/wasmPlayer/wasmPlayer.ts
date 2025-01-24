@@ -753,7 +753,7 @@ export default function WasmPlayer(options: WasmPlayerOption) {
      */
     const displayNextVideoFrame = () => {
         const frame = videoQueue[0]
-        const currentRealTime = new Date().getTime()
+        const currentRealTime = Date.now()
         const currentFrameTime = frame.realTimestamp // 当前帧时间
         if (!basicFrameTime) {
             basicRealTime = currentRealTime // 真实基准时间

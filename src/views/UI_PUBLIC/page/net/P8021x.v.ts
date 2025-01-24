@@ -9,7 +9,6 @@ import { Net8021xForm } from '@/types/apiType/net'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
         const userSession = useUserSessionStore()
 
         const formRef = useFormRef()

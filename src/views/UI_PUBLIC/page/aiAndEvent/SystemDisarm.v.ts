@@ -9,8 +9,6 @@ import { cloneDeep } from 'lodash-es'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const openMessageBox = useMessageBox().openMessageBox
-        const { openLoading, closeLoading } = useLoading()
 
         const defenseParamMap: Record<string, string> = {
             sysRec: Translate('IDCS_RECORD'),
@@ -303,10 +301,7 @@ export default defineComponent({
                 } else {
                     const errorCode = $('errorcode').text().num()
                     if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_DISARM_SAVE_INVALID'),
-                        })
+                        openMessageBox(Translate('IDCS_DISARM_SAVE_INVALID'))
                     }
                 }
             })

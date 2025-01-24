@@ -28,7 +28,7 @@
                     show-overflow-tooltip
                 >
                     <template #default="scope">
-                        {{ formatDisplayStreamType(tableData[scope.$index]) }}
+                        {{ displayStreamType(tableData[scope.$index]) }}
                     </template>
                 </el-table-column>
                 <!-- videoEncodeType -->
@@ -44,9 +44,9 @@
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
-                                        v-for="(item, index) in pageData.videoEncodeTypeUnionList"
+                                        v-for="(item, index) in pageData.videoEncodeTypeList"
                                         :key="index"
-                                        @click="handleVideoEncodeTypeChangeAll(item.value)"
+                                        @click="changeAllVideoEncodeType(item.value)"
                                     >
                                         {{ item.label }}
                                     </el-dropdown-item>
@@ -57,9 +57,9 @@
                     <template #default="scope">
                         <el-select-v2
                             v-model="tableData[scope.$index].videoEncodeType"
-                            :disabled="tableData[scope.$index].videoEncodeTypeDisable"
+                            :disabled="tableData[scope.$index].disabled"
                             :options="tableData[scope.$index].mainCaps.supEnct"
-                            @change="handleVideoEncodeTypeChange(tableData[scope.$index])"
+                            @change="changeVideoEncodeType(tableData[scope.$index])"
                         />
                     </template>
                 </el-table-column>
@@ -89,14 +89,14 @@
                                     :row-key="getRowKey"
                                     :expand-row-keys="pageData.expands"
                                     :border="false"
-                                    @expand-change="handleExpandChange($event, pageData.expands)"
+                                    @expand-change="changeExpandResolution($event, pageData.expands)"
                                 >
                                     <el-table-column width="220">
                                         <template #default="scope">
                                             <el-select-v2
                                                 v-model="scope.row.res"
                                                 :options="scope.row.resGroup"
-                                                @visible-change="handleResolutionVisibleChange"
+                                                @visible-change="changeResolutionVisible"
                                             />
                                         </template>
                                     </el-table-column>
@@ -123,8 +123,8 @@
                                     </el-table-column>
                                 </el-table>
                                 <div class="base-btn-box">
-                                    <el-button @click="handleSetResolutionAll">{{ Translate('IDCS_OK') }}</el-button>
-                                    <el-button @click="handleSetResolutionCancel">{{ Translate('IDCS_CANCEL') }}</el-button>
+                                    <el-button @click="changeAllResolution">{{ Translate('IDCS_OK') }}</el-button>
+                                    <el-button @click="cancelSetAllResolution">{{ Translate('IDCS_CANCEL') }}</el-button>
                                 </div>
                             </div>
                         </el-popover>
@@ -133,9 +133,9 @@
                         <el-select-v2
                             v-model="tableData[scope.$index].resolution"
                             max-height="400"
-                            :disabled="tableData[scope.$index].resolutionDisable"
-                            :options="tableData[scope.$index].resolutions"
-                            @change="handleResolutionChange(tableData[scope.$index])"
+                            :disabled="tableData[scope.$index].disabled"
+                            :options="tableData[scope.$index].mainCaps.res"
+                            @change="changeResolution(tableData[scope.$index])"
                         />
                     </template>
                 </el-table-column>
@@ -152,9 +152,9 @@
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
-                                        v-for="item in pageData.frameRateList"
+                                        v-for="item in getFrameRateList()"
                                         :key="item.value"
-                                        @click="handleFrameRateChangeAll(item.value)"
+                                        @click="changeAllFrameRate(item.value)"
                                     >
                                         {{ item.label }}
                                     </el-dropdown-item>
@@ -164,10 +164,16 @@
                     </template>
                     <template #default="scope">
                         <el-select-v2
+                            v-if="!tableData[scope.$index].frameRate"
+                            model-value=""
+                            disabled
+                            :options="[]"
+                        />
+                        <el-select-v2
+                            v-else
                             v-model="tableData[scope.$index].frameRate"
-                            :disabled="tableData[scope.$index].frameRateDisable"
-                            :options="tableData[scope.$index].frameRates"
-                            @change="handleFrameRateChange(tableData[scope.$index])"
+                            :disabled="tableData[scope.$index].disabled"
+                            :options="getFrameRateSingleList(tableData[scope.$index])"
                         />
                     </template>
                 </el-table-column>
@@ -177,16 +183,16 @@
                     width="145"
                 >
                     <template #header>
-                        <el-dropdown :disabled="pageData.bitTypeDropDisable">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_BITRATE_TYPE') }}
                             </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
                                     <el-dropdown-item
-                                        v-for="item in pageData.bitTypeUnionList"
+                                        v-for="item in pageData.bitTypeList"
                                         :key="item"
-                                        @click="handleBitTypeChangeAll(item)"
+                                        @click="changeAllBitType(item)"
                                     >
                                         {{ item }}
                                     </el-dropdown-item>
@@ -196,11 +202,11 @@
                     </template>
                     <template #default="scope">
                         <el-select-v2
-                            v-if="tableData[scope.$index].bitTypeVisible"
+                            v-if="!tableData[scope.$index].disabled"
                             v-model="tableData[scope.$index].bitType"
-                            :disabled="tableData[scope.$index].bitTypeDisable"
+                            :disabled="isBitTypeDisabled(scope.$index)"
                             :options="arrayToOptions(tableData[scope.$index].mainCaps.bitType)"
-                            @change="handleBitTypeChange(tableData[scope.$index])"
+                            @change="changeBitType(tableData[scope.$index])"
                         />
                         <span v-else>- -</span>
                     </template>
@@ -211,7 +217,7 @@
                     width="145"
                 >
                     <template #header>
-                        <el-dropdown :disabled="pageData.levelDropDisable">
+                        <el-dropdown :disabled="isAllLevelDisabled()">
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_IMAGE_QUALITY') }}
                             </BaseTableDropdownLink>
@@ -220,7 +226,7 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.levelList"
                                         :key="item.value"
-                                        @click="handleLevelChangeAll(item.value)"
+                                        @click="changeAllLevel(item.value)"
                                     >
                                         {{ item.label }}
                                     </el-dropdown-item>
@@ -232,9 +238,8 @@
                         <el-select-v2
                             v-model="tableData[scope.$index].level"
                             :placeholder="Translate('IDCS_LOWEST')"
-                            :disabled="tableData[scope.$index].imageLevelDisable"
+                            :disabled="isLevelDisabled(scope.$index)"
                             :options="tableData[scope.$index].levelNote"
-                            @change="handleLevelChange(tableData[scope.$index])"
                         />
                     </template>
                 </el-table-column>
@@ -253,7 +258,7 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.videoQualityList"
                                         :key="item.value"
-                                        @click="handleVideoQualityChangeAll(item)"
+                                        @click="changeAllVideoQuality(item.value)"
                                     >
                                         {{ item.label }}
                                     </el-dropdown-item>
@@ -264,8 +269,8 @@
                     <template #default="scope">
                         <el-select-v2
                             v-model="tableData[scope.$index].videoQuality"
-                            :disabled="tableData[scope.$index].videoQualityDisable"
-                            :options="tableData[scope.$index].qualitys"
+                            :disabled="isVideoQualityDisabled(scope.$index)"
+                            :options="getQualityList(tableData[scope.$index])"
                         />
                     </template>
                 </el-table-column>
@@ -276,7 +281,7 @@
                     show-overflow-tooltip
                 >
                     <template #default="scope">
-                        <span :disabled="tableData[scope.$index].bitRangeDisable">{{ formatDisplayBitRange(tableData[scope.$index]) }}</span>
+                        <span :disabled="tableData[scope.$index].disabled">{{ getBitRange(tableData[scope.$index]) }}</span>
                     </template>
                 </el-table-column>
                 <!-- audio -->
@@ -294,7 +299,7 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.audioOptions"
                                         :key="item.value"
-                                        @click="handleAudioOptionsChangeAll(item)"
+                                        @click="changeAllAudio(item)"
                                     >
                                         {{ item.label }}
                                     </el-dropdown-item>
@@ -306,7 +311,7 @@
                         <el-select-v2
                             v-model="tableData[scope.$index].audio"
                             :placeholder="Translate('IDCS_ON')"
-                            :disabled="tableData[scope.$index].audioDisable"
+                            :disabled="isAudioDisabled(scope.$index)"
                             :options="pageData.audioOptions"
                         />
                     </template>
@@ -376,8 +381,8 @@
                                         />
                                     </el-form-item>
                                     <div class="base-btn-box">
-                                        <el-button @click="handleSetGopAll(pageData.gopSetAll)">{{ Translate('IDCS_OK') }}</el-button>
-                                        <el-button @click="handleGopCancel">{{ Translate('IDCS_CANCEL') }}</el-button>
+                                        <el-button @click="changeAllGOP(pageData.gopSetAll)">{{ Translate('IDCS_OK') }}</el-button>
+                                        <el-button @click="cancelSetGOP">{{ Translate('IDCS_CANCEL') }}</el-button>
                                     </div>
                                 </el-form>
                             </div>
@@ -386,8 +391,8 @@
                     <template #default="scope">
                         <BaseNumberInput
                             v-model="tableData[scope.$index].GOP"
-                            :disabled="tableData[scope.$index].GOPDisable"
-                            :min="tableData[scope.$index].GOPDisable ? 0 : 1"
+                            :disabled="isGOPDisabled(scope.$index)"
+                            :min="isGOPDisabled(scope.$index) ? 0 : 1"
                             :max="480"
                         />
                     </template>
@@ -403,11 +408,11 @@
                 <!-- <span
                     class="detailBtn"
                 ></span> -->
-                <span v-if="pageData.PredictVisible">{{ pageData.recTime }}</span>
+                <span v-if="pageData.isRecTime">{{ pageData.recTime }}</span>
                 <el-button
-                    v-if="pageData.CalculateVisible"
+                    v-if="pageData.isRecTime"
                     class="btnActivate"
-                    @click="handleCalculate"
+                    @click="getRemainRecTime"
                 >
                     {{ Translate('IDCS_CALCULATE') }}
                 </el-button>

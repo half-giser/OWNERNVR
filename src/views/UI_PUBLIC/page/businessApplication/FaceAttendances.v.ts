@@ -14,76 +14,24 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const dateTime = useDateTimeStore()
 
         // 周与文本的映射
-        const WEEK_DAY_MAPPING: Record<number, string> = {
-            0: Translate('IDCS_WEEK_DAY_SEVEN'),
-            1: Translate('IDCS_WEEK_DAY_ONE'),
-            2: Translate('IDCS_WEEK_DAY_TWO'),
-            3: Translate('IDCS_WEEK_DAY_THREE'),
-            4: Translate('IDCS_WEEK_DAY_FOUR'),
-            5: Translate('IDCS_WEEK_DAY_FIVE'),
-            6: Translate('IDCS_WEEK_DAY_SIX'),
+        const WEEK_DAY_MAPPING = getTranslateMapping(DEFAULT_WEEK_MAPPING)
+
+        const TYPE_MAPPING: Record<string, string> = {
+            normal: Translate('IDCS_NORMAL'),
+            late: Translate('IDCS_LATE'),
+            leftEarly: Translate('IDCS_LEFT_EARLY'),
+            absenteeism: Translate('IDCS_ATTENDANCE_NONE'),
+            abnormal: Translate('IDCS_ABNORMAL'),
         }
 
         const pageData = ref({
             // 周选项
-            weekdayOptions: [
-                {
-                    label: Translate('IDCS_CALENDAR_SUNDAY'),
-                    value: 0,
-                },
-                {
-                    label: Translate('IDCS_CALENDAR_MONDAY'),
-                    value: 1,
-                },
-                {
-                    label: Translate('IDCS_CALENDAR_TUESDAY'),
-                    value: 2,
-                },
-                {
-                    label: Translate('IDCS_CALENDAR_WEDNESDAY'),
-                    value: 3,
-                },
-                {
-                    label: Translate('IDCS_CALENDAR_THURSDAY'),
-                    value: 4,
-                },
-                {
-                    label: Translate('IDCS_CALENDAR_FRIDAY'),
-                    value: 5,
-                },
-                {
-                    label: Translate('IDCS_CALENDAR_SATURDAY'),
-                    value: 6,
-                },
-            ],
+            weekdayOptions: objectToOptions(getTranslateMapping(DEFAULT_WEEK_SHORT_MAPPING), 'number').slice(0, 7),
             // 类型选项
-            typeOptions: [
-                {
-                    label: Translate('IDCS_NORMAL'),
-                    value: 'normal',
-                },
-                {
-                    label: Translate('IDCS_LATE'),
-                    value: 'late',
-                },
-                {
-                    label: Translate('IDCS_LEFT_EARLY'),
-                    value: 'leftEarly',
-                },
-                {
-                    label: Translate('IDCS_ATTENDANCE_NONE'),
-                    value: 'absenteeism',
-                },
-                {
-                    label: Translate('IDCS_ABNORMAL'),
-                    value: 'abnormal',
-                },
-            ],
+            typeOptions: objectToOptions(TYPE_MAPPING, 'string'),
             // 日期范围类型
             dateRangeType: 'date',
             // 通道列表
@@ -332,18 +280,12 @@ export default defineComponent({
          */
         const getData = async () => {
             if (!formData.value.chls.length) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_PROMPT_CHANNEL_GROUP_EMPTY'),
-                })
+                openMessageBox(Translate('IDCS_PROMPT_CHANNEL_GROUP_EMPTY'))
                 return
             }
 
             if (!formData.value.faceGroup.length) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_SELECT_GROUP_NOT_EMPTY'),
-                })
+                openMessageBox(Translate('IDCS_SELECT_GROUP_NOT_EMPTY'))
             }
 
             const sendXml = rawXml`
@@ -380,7 +322,7 @@ export default defineComponent({
 
             $('content/i')
                 .map((item) => {
-                    const textArr = item.text().split(',')
+                    const textArr = item.text().array()
                     const chlId = getChlGuid16(textArr[4]).toUpperCase()
                     const timestamp = hexToDec(textArr[1]) * 1000
                     return {
@@ -429,7 +371,7 @@ export default defineComponent({
                         tableList[index].detail.push({
                             date: date.date,
                             day: date.day,
-                            type: Translate('IDCS_ATTENDANCE_NONE'),
+                            type: TYPE_MAPPING.absenteeism,
                             alarm: true,
                             detail: [],
                         })
@@ -439,7 +381,7 @@ export default defineComponent({
                     if (item.searchData[date.date].length === 1) {
                         tableList[index].abnormal++
                         tableList[index].detail.push({
-                            type: Translate('IDCS_ABNORMAL'),
+                            type: TYPE_MAPPING.abnormal,
                             date: date.date,
                             day: date.day,
                             alarm: false,
@@ -454,18 +396,18 @@ export default defineComponent({
 
                     if (item.searchData[date.date][0].timestamp > onTime) {
                         tableList[index].late++
-                        types.push(Translate('IDCS_LATE'))
+                        types.push(TYPE_MAPPING.late)
                     }
 
                     if (item.searchData[date.date][item.searchData[date.date].length - 1].timestamp < offTime) {
                         tableList[index].leftEarly++
-                        types.push(Translate('IDCS_LEFT_EARLY'))
+                        types.push(TYPE_MAPPING.leftEarly)
                     }
                     tableList[index].detail.push({
                         date: date.date,
                         day: date.day,
-                        type: !types.length ? Translate('IDCS_NORMAL') : types.join(', '),
-                        alarm: types.includes(Translate('IDCS_LEFT_EARLY')),
+                        type: !types.length ? TYPE_MAPPING.normal : types.join(', '),
+                        alarm: types.includes(TYPE_MAPPING.leftEarly),
                         detail: [item.searchData[date.date][0], item.searchData[date.date][item.searchData[date.date].length - 1]],
                     })
                 })

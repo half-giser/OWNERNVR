@@ -15,8 +15,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
         const raidStatusTimer = useRefreshTimer(() => {
             getRaidStatus()
@@ -167,10 +165,7 @@ export default defineComponent({
                         errorInfo = Translate('IDCS_DELETE_RAID_ERROR')
                 }
 
-                openMessageBox({
-                    type: 'info',
-                    message: errorInfo,
-                })
+                openMessageBox(errorInfo)
             }
         }
 

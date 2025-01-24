@@ -9,7 +9,6 @@ import { SystemAutoMaintenanceForm } from '@/types/apiType/system'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
         const dateTime = useDateTimeStore()
 
         const formRef = useFormRef()

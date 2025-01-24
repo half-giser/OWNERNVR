@@ -10,8 +10,7 @@ import { cloneDeep } from 'lodash-es'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
-        const { openMessageBox } = useMessageBox()
+        const layoutStore = useLayoutStore()
 
         const playerRef = ref<PlayerInstance>()
         const formData = ref(new ChannelImageDto())
@@ -186,6 +185,11 @@ export default defineComponent({
             whiteLight: Translate('IDCS_WHITE_LIGHT'),
         }
 
+        const focusModeMap: Record<string, string> = {
+            manual: Translate('IDCS_MANUAL_FOCUS'),
+            auto: Translate('IDCS_AUTO_FOCUS'),
+        }
+
         const pageData = ref({
             whitelightModeOptions: [
                 {
@@ -201,63 +205,24 @@ export default defineComponent({
                     label: Translate('IDCS_AUTO'),
                 },
             ],
-            focusModeOptions: [
-                {
-                    value: 'manual',
-                    label: Translate('IDCS_MANUAL_FOCUS'),
-                },
-                {
-                    value: 'auto',
-                    label: Translate('IDCS_AUTO_FOCUS'),
-                },
-            ],
+            focusModeOptions: objectToOptions(focusModeMap, 'string'),
             smartIrLevelOptions: [
                 {
                     value: '2',
-                    label: Translate('IDCS_DN_SEN_HIGH'),
-                },
-                {
-                    value: '1',
-                    label: Translate('IDCS_DN_SEN_MID'),
-                },
-                {
-                    value: '0',
-                    label: Translate('IDCS_DN_SEN_LOW'),
-                },
-            ],
-            switchOptions: getBoolSwitchOptions(),
-            icCutModeOptions: [
-                {
-                    value: 'auto',
-                    label: DayNightModeMap.auto,
-                },
-                {
-                    value: 'day',
-                    label: DayNightModeMap.day,
-                },
-                {
-                    value: 'night',
-                    label: DayNightModeMap.night,
-                },
-                {
-                    value: 'time',
-                    label: DayNightModeMap.time,
-                },
-            ],
-            irCutConvSenOptions: [
-                {
-                    value: 'high',
                     label: SensortyMap.high,
                 },
                 {
-                    value: 'mid',
+                    value: '1',
                     label: SensortyMap.mid,
                 },
                 {
-                    value: 'low',
+                    value: '0',
                     label: SensortyMap.low,
                 },
             ],
+            switchOptions: getTranslateOptions(DEFAULT_BOOL_SWITCH_OPTIONS),
+            icCutModeOptions: objectToOptions(DayNightModeMap, 'string'),
+            irCutConvSenOptions: objectToOptions(SensortyMap, 'string'),
             imgRotateOptions: arrayToOptions([0, 90, 180, 270]),
         })
 
@@ -480,10 +445,7 @@ export default defineComponent({
             const rowData = getRowById(selectedChlId.value)
             if (rowData.shutterLowLimit !== undefined && Number(rowData.shutterUpLimit) > Number(rowData.shutterLowLimit)) {
                 rowData.shutterUpLimit = tmpShutterUpLimit
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_LOWER_LIMIT_OVER_UPPER_LIMIT_TIP'),
-                })
+                openMessageBox(Translate('IDCS_LOWER_LIMIT_OVER_UPPER_LIMIT_TIP'))
                 return
             }
             tmpShutterUpLimit = rowData.shutterUpLimit
@@ -494,10 +456,7 @@ export default defineComponent({
             const rowData = getRowById(selectedChlId.value)
             if (rowData.shutterUpLimit !== undefined && Number(rowData.shutterUpLimit) > Number(rowData.shutterLowLimit)) {
                 rowData.shutterLowLimit = tmpShutterLowLimit
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_LOWER_LIMIT_OVER_UPPER_LIMIT_TIP'),
-                })
+                openMessageBox(Translate('IDCS_LOWER_LIMIT_OVER_UPPER_LIMIT_TIP'))
                 return
             }
             tmpShutterLowLimit = rowData.shutterLowLimit
@@ -522,7 +481,7 @@ export default defineComponent({
             let data = rawXml`
                 <content>
                     <chl id='${rowData.id}'>
-                    <rebootPrompt>${noRebootPrompt ? 'false' : 'true'}</rebootPrompt>`
+                    <rebootPrompt>${!noRebootPrompt}</rebootPrompt>`
             if (rowData.sharpenValue !== undefined)
                 data += rawXml`
                     <sharpen>
@@ -629,7 +588,7 @@ export default defineComponent({
                 } else {
                     const rebootParam = $('rebootParam').text()
                     if (rebootParam) {
-                        judgeReboot(rebootParam, () => {
+                        checkReboot(rebootParam, () => {
                             setAZData(setSchedule, true)
                         })
                     } else {
@@ -740,11 +699,11 @@ export default defineComponent({
                     const $chl = queryXml($('content/chl')[0].element)
 
                     let isSpeco = false
-                    rowData.bright = $chl('bright').length ? $chl('bright').text().num() : undefined
-                    rowData.contrast = $chl('contrast').length ? $chl('contrast').text().num() : undefined
+                    rowData.bright = $chl('bright').text().undef()?.num()
+                    rowData.contrast = $chl('contrast').text().undef()?.num()
                     // NT2-3481 设备接入海康IPC，协议不返回hue节点，“色调”配置项置灰
-                    rowData.hue = $chl('hue').length ? $chl('hue').text().num() : -1
-                    rowData.saturation = $chl('saturation').length ? $chl('saturation').text().num() : undefined
+                    rowData.hue = $chl('hue').text().undef()?.num() ?? -1
+                    rowData.saturation = $chl('saturation').text().undef()?.num()
                     rowData.status = ''
                     rowData.disabled = false
 
@@ -752,7 +711,7 @@ export default defineComponent({
                         isSpeco = true
                     }
                     rowData.isSpeco = rowData.disabled = isSpeco
-                    if ($chl('palette').length) {
+                    if ($chl('palette').text()) {
                         rowData.paletteCode = $chl('palette/color').text()
                         rowData.defaultPaletteCode = $chl('palette/color').attr('default')
                         rowData.paletteList = $('types/paletteType/enum').map((ele) => {
@@ -814,8 +773,8 @@ export default defineComponent({
                             rowData.redMaxValue = $chl('whiteBalance/red').attr('max').num()
                             rowData.redValue = $chl('whiteBalance/red').text().num()
                         }
-                        rowData.HFR = $chl('HFR').text().length ? $chl('HFR').text().bool() : undefined
-                        rowData.whiteBalanceMode = $chl('whiteBalance/mode').length ? $chl('whiteBalance/mode').text() : undefined
+                        rowData.HFR = $chl('HFR').text().undef()?.bool()
+                        rowData.whiteBalanceMode = $chl('whiteBalance/mode').text().undef()
 
                         if ($chl('whiteBalance/blue').text()) {
                             rowData.blueDefaultValue = $chl('whiteBalance/blue').attr('default').num()
@@ -824,13 +783,13 @@ export default defineComponent({
                             rowData.blueValue = $chl('whiteBalance/blue').text().num()
                         }
 
-                        rowData.IRCutMode = $chl('IRCutMode').text() || undefined
-                        rowData.IRCutModeDef = $chl('IRCutMode').attr('default') || undefined // : undefined
-                        rowData.IRCutConvSen = $chl('IRCutConvSen').text() || 'mid'
-                        rowData.IRCutConvSen2 = $chl('IRCutConvSen').text() || undefined
-                        rowData.IRCutConvSenDef = $chl('IRCutConvSen').attr('default') || undefined
-                        rowData.IRCutDayTime = $chl('IRCutDayTime').text() || undefined
-                        rowData.IRCutNightTime = $chl('IRCutNightTime').text() || undefined
+                        rowData.IRCutMode = $chl('IRCutMode').text().undef()
+                        rowData.IRCutModeDef = $chl('IRCutMode').attr('default').undef()
+                        rowData.IRCutConvSen = $chl('IRCutConvSen').text().undef() ?? 'mid'
+                        rowData.IRCutConvSen2 = $chl('IRCutConvSen').text().undef()
+                        rowData.IRCutConvSenDef = $chl('IRCutConvSen').attr('default').undef()
+                        rowData.IRCutDayTime = $chl('IRCutDayTime').text().undef()
+                        rowData.IRCutNightTime = $chl('IRCutNightTime').text().undef()
 
                         if ($chl('sharpen/value').text()) {
                             rowData.sharpenDefaultValue = $chl('sharpen/value').attr('default').num()
@@ -841,8 +800,8 @@ export default defineComponent({
                         rowData.sharpenSwitch = $chl('sharpen/switch').text().bool()
                         rowData.sharpenSwitchEnable = $chl('sharpen/switch').attr('switchEnabled') && !$chl('sharpen/switch').attr('switchEnabled').bool() ? false : true
 
-                        rowData.mirrorSwitch = $chl('mirrorSwitch').length ? $chl('mirrorSwitch').text().bool() : undefined
-                        rowData.flipSwitch = $chl('flipSwitch').length ? $chl('flipSwitch').text().bool() : undefined
+                        rowData.mirrorSwitch = $chl('mirrorSwitch').text().undef()?.bool()
+                        rowData.flipSwitch = $chl('flipSwitch').text().undef()?.bool()
                         rowData.imageRotate = $chl('imageRotate').text()
                         rowData.imageRotateDef = $chl('imageRotate').attr('default')
 
@@ -853,9 +812,9 @@ export default defineComponent({
                             rowData.imageValue = $chl('imageShift').text().num()
                         }
 
-                        rowData.BLCMode = $chl('backlightCompensation/mode').length ? $chl('backlightCompensation/mode').text() : undefined
+                        rowData.BLCMode = $chl('backlightCompensation/mode').text().undef()
                         rowData.BLCModeDefault = $chl('backlightCompensation/mode').attr('default')
-                        rowData.HWDRLevel = $chl('backlightCompensation/HWDRLevel').length ? $chl('backlightCompensation/HWDRLevel').text() : undefined
+                        rowData.HWDRLevel = $chl('backlightCompensation/HWDRLevel').text().undef()
                         rowData.HWDRLevelDefault = $chl('backlightCompensation/HWDRLevel').attr('default')
 
                         if ($chl('smartIr/mode').text()) {
@@ -868,7 +827,7 @@ export default defineComponent({
                         }
 
                         if ($chl('smartIR').text()) {
-                            rowData.smartIrSwitch = $chl('smartIR/switch').text().length ? $chl('smartIR/switch').text().bool() : undefined
+                            rowData.smartIrSwitch = $chl('smartIR/switch').text().undef()?.bool()
                             rowData.smartIrSwitchDefault = $chl('smartIR/switch').attr('default').bool()
                             rowData.smartIrLevel = $chl('smartIR/level').text()
                             rowData.smartIrLevelDefault = $chl('smartIR/level').attr('default')
@@ -880,7 +839,7 @@ export default defineComponent({
                             rowData.defogDefaultValue = $chl('fogReduction/value').attr('default').num()
                             rowData.defogMinValue = $chl('fogReduction/value').attr('min').num()
                             rowData.defogMaxValue = $chl('fogReduction/value').attr('max').num()
-                            rowData.defogSwitch = $chl('fogReduction/switch').length ? $chl('fogReduction/switch').text().bool() : undefined
+                            rowData.defogSwitch = $chl('fogReduction/switch').text().undef()?.bool()
                         }
 
                         // 抗闪
@@ -932,7 +891,7 @@ export default defineComponent({
                             rowData.shutterModeDefault = $chl('shutter/mode').attr('default')
                             rowData.shutterValue = $chl('shutter/value').text()
                             rowData.shutterValueDefault = $chl('shutter/value').attr('default')
-                            rowData.shutterLowLimit = $chl('shutter/lowLimit').length ? $chl('shutter/lowLimit').text() : undefined
+                            rowData.shutterLowLimit = $chl('shutter/lowLimit').text().undef()
                             rowData.shutterLowLimitDefault = $chl('shutter/lowLimit').attr('default')
                             rowData.shutterUpLimit = $chl('shutter/upLimit').text()
                             rowData.shutterUpLimitDefault = $chl('shutter/upLimit').attr('default')
@@ -1113,7 +1072,7 @@ export default defineComponent({
                 } else {
                     const rebootParam = $('rebootParam').text()
                     if (rebootParam) {
-                        judgeReboot(rebootParam, () => {
+                        checkReboot(rebootParam, () => {
                             setData(rowData, true)
                         })
                     } else {
@@ -1130,8 +1089,10 @@ export default defineComponent({
         }
 
         // 重启提示
-        const judgeReboot = (rebootParam: string, callback: Function) => {
-            if (document.getElementsByClassName('el-message-box').length > 0) return
+        const checkReboot = (rebootParam: string, callback: Function) => {
+            if (layoutStore.messageBoxCount) {
+                return
+            }
             openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_IPC_MODIFY_REBOOT_TIPS').formatForLang(rebootTipMap[rebootParam] || ''),
@@ -1184,24 +1145,28 @@ export default defineComponent({
                     const focusType = $('types/focusType').text()
                     const reg1 = /(manual){1}/g
                     const reg2 = /(auto){1}/g
-                    if (reg1.test(focusType))
+                    if (reg1.test(focusType)) {
                         newData.focusTypeList.push({
                             value: 'manual',
-                            label: Translate('IDCS_MANUAL_FOCUS'),
+                            label: focusModeMap.manual,
                         })
-                    if (reg2.test(focusType))
+                    }
+
+                    if (reg2.test(focusType)) {
                         newData.focusTypeList.push({
                             value: 'auto',
-                            label: Translate('IDCS_AUTO_FOCUS'),
+                            label: focusModeMap.auto,
                         })
-                    $('content/chl/timeIntervalNote')
+                    }
+
+                    newData.timeIntervalList = $('content/chl/timeIntervalNote')
                         .text()
-                        .split(',')
-                        .forEach((ele) => {
-                            newData.timeIntervalList.push({
+                        .array()
+                        .map((ele) => {
+                            return {
                                 value: ele,
                                 label: ele === '0' ? Translate('IDCS_ALWAYS_KEEP') : getTranslateForSecond(Number(ele)),
-                            })
+                            }
                         })
                     newData.timeInterval = $('content/chl/timeInterval').text()
                     if (focusType !== 'auto') {
@@ -1368,10 +1333,7 @@ export default defineComponent({
             const isValid = isWhitelight ? date1 !== date2 : date1 < date2
             const msg = isWhitelight ? Translate('IDCS_STARTTIME_NOTEQUAL_ENDTIME') : Translate('IDCS_END_TIME_GREATER_THAN_START')
             if (!isValid) {
-                openMessageBox({
-                    type: 'info',
-                    message: msg,
-                })
+                openMessageBox(msg)
             }
             return isValid
         }

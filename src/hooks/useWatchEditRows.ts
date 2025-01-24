@@ -14,11 +14,18 @@ export const useWatchEditRows = <T extends TableRowStatus>() => {
      * @description 清除所有记录的数据
      */
     const clear = () => {
+        off()
+        editRows.value.clear()
+    }
+
+    /**
+     * @description 暂停侦听，不清除记录的数据
+     */
+    const off = () => {
         watcher.forEach((stopWatch) => {
             stopWatch()
         })
         watcher.clear()
-        editRows.value.clear()
     }
 
     /**
@@ -82,6 +89,7 @@ export const useWatchEditRows = <T extends TableRowStatus>() => {
         listen,
         clear,
         remove,
+        off,
         has,
         size,
         toArray,

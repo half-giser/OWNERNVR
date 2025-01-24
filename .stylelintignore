@@ -7,6 +7,7 @@ dist/
 script/
 index.html
 .temp/
+sprites.scss
 
 *.ts
 *.js

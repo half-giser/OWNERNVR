@@ -4,38 +4,32 @@
  * @Date: 2024-07-31 10:13:57
  */
 
-import { type RecordSubStreamResolutionDto, type RecordSubStreamList, RecordSubStreamNoneDto, type RecordSubStreamQualityCaps } from '@/types/apiType/record'
+import { type RecordSubStreamResolutionDto, type RecordSubStreamList, type RecordStreamQualityCapsDto } from '@/types/apiType/record'
 import { type TableInstance } from 'element-plus'
-import { uniq } from 'lodash-es'
 
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
+
         // “RecordSubResAdaptive” 为true时:录像子码流界面仅显示不可编辑，为false时录像子码流可以编辑
         const RecordSubResAdaptive = systemCaps.RecordSubResAdaptive
-
         const mainStreamLimitFps = systemCaps.mainStreamLimitFps // 主码流帧率限制
+
         let poeModeNode = 0
 
         const resolutionTableRef = ref<TableInstance>()
 
         const pageData = ref({
-            isRowNonExistent: [] as RecordSubStreamNoneDto[],
             doubleStreamRecSwitch: true,
-            recType: '',
-            recType1: '',
+            isAuto: true,
             loopRecSwitch: true,
             maxQoI: 0,
-            videoEncodeTypeUnionList: [] as SelectOption<string, string>[],
+            videoEncodeTypeList: [] as SelectOption<string, string>[],
             // 分辨率表头下拉框
             resolutionHeaderVisble: false,
-            resolutionUnionList: [] as string[],
             resolutionGroups: [] as RecordSubStreamResolutionDto[],
-            frameRateUnionList: [] as string[],
-            videoQualityList: [] as SelectOption<string, string>[],
+            videoQualityList: [] as SelectOption<number, string>[],
             expands: [] as string[],
         })
 
@@ -47,27 +41,12 @@ export default defineComponent({
                 .map((item, index) => item + index)
         })
 
-        // 码流类型与显示文本的映射
-        const STREAM_TYPE_MAPPING: Record<string, string> = {
-            main: Translate('IDCS_MAIN_STREAM'),
-            sub: Translate('IDCS_SUB_STREAM'),
-            h264: Translate('IDCS_VIDEO_ENCT_TYPE_H264'),
-            h264s: Translate('IDCS_VIDEO_ENCT_TYPE_H264_SMART'),
-            h264p: Translate('IDCS_VIDEO_ENCT_TYPE_H264_PLUS'),
-            h265: Translate('IDCS_VIDEO_ENCT_TYPE_H265'),
-            h265s: Translate('IDCS_VIDEO_ENCT_TYPE_H265_SMART'),
-            h265p: Translate('IDCS_VIDEO_ENCT_TYPE_H265_PLUS'),
-        }
-
-        const videoEncodeTypeArr = ['h264s', 'h265s', 'h264p', 'h265p']
-
         const getDevRecParamCfgModule = async () => {
             const result = await queryRecordDistributeInfo()
             const $ = queryXml(result)
 
             pageData.value.doubleStreamRecSwitch = $('content/doubleStreamRecSwitch').text().bool()
-            pageData.value.recType = $('content/recMode/mode').text() === 'auto' ? 'ae' : 'me'
-            pageData.value.recType1 = $('content/recMode/mode').text() === 'auto' ? 'an' : 'mn'
+            pageData.value.isAuto = $('content/recMode/mode').text() === 'auto'
             pageData.value.loopRecSwitch = $('content/loopRecSwitch').text().toLowerCase().bool()
         }
 
@@ -78,27 +57,31 @@ export default defineComponent({
             poeModeNode = $('content/poeMode').text().num()
         }
 
+        /**
+         * @description 获取码率选项
+         * @param {RecordSubStreamList} rowData
+         */
         const getQualityList = (rowData: RecordSubStreamList) => {
+            const qualitys: SelectOption<number, string>[] = []
             // rtsp通道只有声音节点，没有其他
             if (rowData.subStreamQualityCaps.length) {
                 let isQualityCapsMatch = false
                 let isQualityCapsEmpty = true
-                rowData.videoQualityItemList = []
 
                 rowData.subStreamQualityCaps.forEach((item) => {
                     if (item.enct === rowData.videoEncodeType && item.res === rowData.resolution) {
                         if (item.value[0]) {
                             isQualityCapsEmpty = false
-                            rowData.qualitys = item.value
-                            rowData.qualitys.forEach((item) => {
-                                if (poeModeNode === 10 && Number(item) <= 6144) {
-                                    rowData.videoQualityItemList.push({
-                                        value: item,
+                            item.value.forEach((item) => {
+                                const value = Number(item)
+                                if (poeModeNode === 10 && value <= 6144) {
+                                    qualitys.push({
+                                        value,
                                         label: item + 'Kbps',
                                     })
                                 } else if (!poeModeNode || poeModeNode === 100) {
-                                    rowData.videoQualityItemList.push({
-                                        value: item,
+                                    qualitys.push({
+                                        value,
                                         label: item + 'Kbps',
                                     })
                                 }
@@ -120,16 +103,16 @@ export default defineComponent({
                         ) {
                             if (item.value[0]) {
                                 isQualityCapsEmpty = false
-                                rowData.qualitys = item.value
-                                rowData.qualitys.forEach((item) => {
-                                    if (poeModeNode === 10 && Number(item) <= 6144) {
-                                        rowData.videoQualityItemList.push({
-                                            value: item,
+                                item.value.forEach((item) => {
+                                    const value = Number(item)
+                                    if (poeModeNode === 10 && value <= 6144) {
+                                        qualitys.push({
+                                            value,
                                             label: item + 'Kbps',
                                         })
                                     } else if (!poeModeNode || poeModeNode === 100) {
-                                        rowData.videoQualityItemList.push({
-                                            value: item,
+                                        qualitys.push({
+                                            value,
                                             label: item + 'Kbps',
                                         })
                                     }
@@ -143,16 +126,16 @@ export default defineComponent({
                 if (isQualityCapsEmpty) {
                     rowData.subStreamQualityCaps.forEach((item) => {
                         if (item.enct === rowData.videoEncodeType && item.res === '0x0') {
-                            tableData.value[rowData.index].qualitys = item.value
-                            tableData.value[rowData.index].qualitys.forEach((item) => {
-                                if (poeModeNode === 10 && Number(item) <= 6144) {
-                                    rowData.videoQualityItemList.push({
-                                        value: item,
+                            item.value.forEach((item) => {
+                                const value = Number(item)
+                                if (poeModeNode === 10 && value <= 6144) {
+                                    qualitys.push({
+                                        value,
                                         label: item + 'Kbps',
                                     })
                                 } else if (!poeModeNode || poeModeNode === 100) {
-                                    rowData.videoQualityItemList.push({
-                                        value: item,
+                                    qualitys.push({
+                                        value,
                                         label: item + 'Kbps',
                                     })
                                 }
@@ -161,13 +144,12 @@ export default defineComponent({
                     })
                 }
 
-                if (Number(rowData.videoQuality) < Number(rowData.videoQualityItemList[0]?.value)) {
-                    rowData.videoQuality = rowData.videoQualityItemList[0].value
-                } else {
-                    // cboRowVideoQuality.val(rowData["videoQuality"]);  cboRowVideoQuality是一个option选项组，这里选中了当前rowData["videoQuality"]的值
-                    // vue3双向绑定，无需进行操作
+                if (rowData.videoQuality < (qualitys[0].value || 0)) {
+                    rowData.videoQuality = qualitys[0].value
                 }
             }
+
+            return qualitys
         }
 
         const getData = async () => {
@@ -179,8 +161,7 @@ export default defineComponent({
                     <chlType/>
                     <mainCaps/>
                     <main/>
-                    <${pageData.value.recType}/>
-                    <${pageData.value.recType1}/>
+                    ${pageData.value.isAuto ? '<an/><ae/>' : '<mn/><me/>'}
                     <mainStreamQualityCaps/>
                     <sub/>
                     <subCaps/>
@@ -192,11 +173,6 @@ export default defineComponent({
             `
             const result = await queryNodeEncodeInfo(sendXML)
 
-            const unionList: string[] = []
-            let videoQualityListFlag = 0
-
-            let maxFrameRate = 0
-
             commLoadResponseHandler(result, ($) => {
                 tableData.value = $('content/item').map((item, index) => {
                     const $item = queryXml(item.element)
@@ -207,98 +183,98 @@ export default defineComponent({
                         res: [],
                     }
                     // aux1Caps 视频编码能力参数
-                    if ($item('aux1Caps') && $item('aux1Caps').attr('supEnct') && $item('aux1Caps/res')[0]) {
-                        subCaps.supEnct = uniq(
-                            $item('aux1Caps') && $item('aux1Caps').attr('supEnct') ? ($item('aux1Caps').attr('supEnct').split(',') ? $item('aux1Caps').attr('supEnct').split(',') : []) : [],
-                        )
-                        subCaps.bitType =
-                            $item('aux1Caps') && $item('aux1Caps').attr('bitType') ? ($item('aux1Caps').attr('bitType').split(',') ? $item('aux1Caps').attr('bitType').split(',') : []) : []
-
-                        $item('aux1Caps/res').forEach((elem) => {
-                            subCaps.res.push({
-                                fps: elem.attr('fps'),
-                                value: elem.text(),
+                    if ($item('aux1Caps').attr('supEnct') && $item('aux1Caps/res').length) {
+                        subCaps.supEnct = Array.from(new Set($item('aux1Caps').attr('supEnct').array()))
+                            .sort()
+                            .map((item) => {
+                                return {
+                                    value: item,
+                                    label: Translate(DEFAULT_STREAM_TYPE_MAPPING[item]),
+                                }
                             })
+                        subCaps.bitType = $item('aux1Caps').attr('bitType').array()
+                        subCaps.res = $item('aux1Caps/res').map((elem) => {
+                            return {
+                                fps: elem.attr('fps').num(),
+                                value: elem.text(),
+                                label: elem.text(),
+                            }
                         })
                     } else {
-                        subCaps.supEnct = uniq(
-                            $item('subCaps') && $item('subCaps').attr('supEnct') ? ($item('subCaps').attr('supEnct').split(',') ? $item('subCaps').attr('supEnct').split(',') : []) : [],
-                        )
-                        subCaps.bitType = $item('subCaps') && $item('subCaps').attr('bitType') ? ($item('subCaps').attr('bitType').split(',') ? $item('subCaps').attr('bitType').split(',') : []) : []
-
-                        $item('subCaps/res').forEach((elem) => {
-                            subCaps.res.push({
-                                fps: elem.attr('fps'),
-                                value: elem.text(),
+                        subCaps.supEnct = Array.from(new Set($item('subCaps').attr('supEnct').array()))
+                            .sort()
+                            .map((item) => {
+                                return {
+                                    value: item,
+                                    label: Translate(DEFAULT_STREAM_TYPE_MAPPING[item]),
+                                }
                             })
+                        subCaps.bitType = $item('subCaps').attr('bitType').array()
+                        subCaps.res = $item('subCaps/res').map((elem) => {
+                            return {
+                                fps: elem.attr('fps').num(),
+                                value: elem.text(),
+                                label: elem.text(),
+                            }
                         })
                     }
                     // 视频编码总选项和单个行选项
                     subCaps.supEnct.forEach((item) => {
-                        if (!unionList.includes(item)) {
-                            unionList.push(item)
-                        }
-                    })
-                    const videoEncodeTypeList = subCaps.supEnct.sort().map((item) => {
-                        return {
-                            value: item,
-                            label: STREAM_TYPE_MAPPING[item],
+                        if (!pageData.value.videoEncodeTypeList.some((find) => find.value === item.value)) {
+                            pageData.value.videoEncodeTypeList.push(item)
                         }
                     })
 
-                    // 分辨率单个行选项列表
-                    const resolutionList = subCaps.res.map((item) => item.value)
-
-                    const subStreamQualityCaps: RecordSubStreamQualityCaps[] = []
+                    const subStreamQualityCaps: RecordStreamQualityCapsDto[] = []
                     // 码率上限总选项
                     $item('subStreamQualityCaps/item').forEach((item) => {
                         subStreamQualityCaps.push({
                             enct: item.attr('enct'),
                             res: item.attr('res'),
-                            digitalDefault: item.attr('digitalDefault'),
-                            analogDefault: item.attr('analogDefault'),
-                            value: item.text().split(',') ? item.text().split(',') : [],
+                            digitalDefault: item.attr('digitalDefault').num(),
+                            analogDefault: item.attr('analogDefault').num(),
+                            value: item.text().array(),
                         })
-                        if (item.attr('enct') === 'h264' && item.attr('res') === '0x0' && videoQualityListFlag === 0) {
+                        if (item.attr('enct') === 'h264' && item.attr('res') === '0x0' && !pageData.value.videoQualityList.length) {
                             item.text()
-                                .split(',')
+                                .array()
                                 .forEach((element) => {
-                                    pageData.value.maxQoI = Math.max(Number(element), pageData.value.maxQoI)
+                                    const value = Number(element)
+                                    pageData.value.maxQoI = Math.max(value, pageData.value.maxQoI)
 
-                                    if (poeModeNode === 10 && Number(element) <= 6144) {
+                                    if (poeModeNode === 10 && value <= 6144) {
                                         //为长线模式时，过滤掉6M以上的码率
                                         pageData.value.videoQualityList.push({
-                                            value: element,
+                                            value,
                                             label: element + 'Kbps',
                                         })
                                     } else if (!poeModeNode || poeModeNode === 100) {
                                         pageData.value.videoQualityList.push({
-                                            value: element,
+                                            value,
                                             label: element + 'Kbps',
                                         })
                                     }
                                 })
-                            videoQualityListFlag++
                         }
                     })
 
                     // 初始数据项，一些tableData上的数据只有在有initItem下才存在
-                    let initItem = null
-                    $item('stream/s').forEach((item) => {
-                        if (item.attr('idx') === '3') {
-                            initItem = item
-                            return false
-                        }
+                    let initItem = $item('stream/s').find((item) => {
+                        return item.attr('idx').num() === 3
                     })
+
                     if (!initItem) {
                         if ($item('sub')) {
                             initItem = $item('sub')[0]
                         }
                     }
 
+                    let videoEncodeType = ''
+                    let frameRate = 0
+
                     if (initItem) {
                         // 视频编码
-                        let videoEncodeType = ''
+
                         if (initItem.attr('enct').indexOf('plus') !== -1) {
                             videoEncodeType = initItem.attr('enct').replace(/plus/g, 'p')
                         } else if (initItem.attr('enct').indexOf('smart') !== -1) {
@@ -308,155 +284,53 @@ export default defineComponent({
                         }
 
                         // 分辨率
-                        let frameRate = initItem.attr('fps')
+                        frameRate = initItem.attr('fps').num()
                         if (!frameRate && subCaps.res.length) {
                             frameRate = subCaps.res[0].fps
                         }
-
-                        if (subCaps.res.length > 1) {
-                            subCaps.res.sort((a, b) => {
-                                return Number(b.value.split('x')[0]) - Number(a.value.split('x')[0])
-                            })
-                        }
-
-                        // 帧率
-                        const resolution = initItem.attr('res')
-                        const frameRateList: string[] = []
-                        let maxFps = 0
-                        subCaps.res.forEach((item) => {
-                            if (item.value === resolution) {
-                                const maxFrameRate = Number(item.fps)
-                                maxFps = maxFrameRate
-                                const minFrameRate = mainStreamLimitFps > maxFrameRate ? maxFrameRate : mainStreamLimitFps
-                                for (let i = maxFrameRate; i >= minFrameRate; i--) {
-                                    frameRateList.push(String(i))
-                                }
-                            }
-                        })
-
-                        // 帧率总选项
-                        subCaps.res.forEach((item) => {
-                            if (resolution === item.value && maxFrameRate < Number(item.fps)) {
-                                maxFrameRate = Number(item.fps)
-                            }
-                        })
-
-                        return {
-                            index,
-                            id: item.attr('id').trim(),
-                            name: $item('name').text(),
-                            isRTSPChl: item.attr('isRTSPChl'),
-                            chlType: $item('chlType').text(),
-                            subCaps,
-                            streamType: 'sub',
-                            streamLength: $item('stream/s').length,
-                            resolution,
-                            frameRate,
-                            bitType: initItem.attr('bitType'),
-                            level: initItem.attr('level'),
-                            videoQuality: initItem.attr('QoI'),
-                            videoEncodeType,
-                            subStreamQualityCaps,
-                            qualitys: [],
-                            disabled: false,
-                            status: '',
-                            statusTip: '',
-                            maxFps,
-                            frameRateList,
-                            videoEncodeTypeList,
-                            resolutionList,
-                            videoQualityItemList: [],
-                            isVideoQualityDisabled: false,
-                        }
                     }
 
-                    // 在取值后再进行排序
-                    if (subCaps.res.length > 1) {
-                        subCaps.res.sort((a, b) => {
-                            return Number(b.value.split('x')[0]) - Number(a.value.split('x')[0])
-                        })
-                    }
+                    subCaps.res.sort((a, b) => {
+                        return Number(b.value.split('x')[0]) - Number(a.value.split('x')[0])
+                    })
 
                     return {
                         index,
                         id: item.attr('id').trim(),
                         name: $item('name').text(),
-                        isRTSPChl: item.attr('isRTSPChl'),
+                        isRTSPChl: item.attr('isRTSPChl').bool(),
                         chlType: $item('chlType').text(),
                         subCaps,
                         streamType: 'sub',
                         streamLength: $item('stream/s').length,
-                        resolution: '',
-                        frameRate: '',
-                        bitType: '',
-                        level: '',
-                        videoQuality: '',
-                        videoEncodeType: '',
+                        resolution: initItem?.attr('res') || '',
+                        frameRate,
+                        bitType: initItem?.attr('bitType') || '',
+                        level: initItem?.attr('level') || '',
+                        videoQuality: initItem?.attr('QoI').num() || 0,
+                        videoEncodeType,
                         subStreamQualityCaps,
-                        qualitys: [],
                         disabled: false,
                         status: '',
                         statusTip: '',
-                        maxFps: 0,
-                        frameRateList: [],
-                        videoEncodeTypeList: [],
-                        resolutionList: [],
-                        videoQualityItemList: [],
-                        isVideoQualityDisabled: false,
                     }
                 })
             })
 
             // isVideoQualityDisabled当前行是否可进行修改
             tableData.value.forEach((item) => {
-                getQualityList(item)
-                if (videoEncodeTypeArr.includes(item.videoEncodeType)) {
-                    item.isVideoQualityDisabled = true
-                }
-
-                if (item.chlType === 'recorder' || !item.subCaps.res.length || item.isRTSPChl === 'true') {
+                if (item.chlType === 'recorder' || !item.subCaps.res.length || item.isRTSPChl) {
                     item.disabled = true
                 } else {
                     editRows.listen(item)
                 }
-
-                if (item.isRTSPChl === 'true') {
-                    const none = new RecordSubStreamNoneDto()
-
-                    if (!item.videoEncodeType) {
-                        none.videoEncodeType = 'true'
-                    }
-
-                    if (!item.resolution) {
-                        none.resolution = 'true'
-                    }
-
-                    if (!item.frameRate) {
-                        none.frameRate = 'true'
-                    }
-
-                    if (!item.videoQuality) {
-                        none.videoQuality = 'true'
-                    }
-
-                    pageData.value.isRowNonExistent[item.index] = none
-                }
             })
 
-            pageData.value.videoEncodeTypeUnionList = unionList.sort().map((item) => {
-                return {
-                    value: item,
-                    label: STREAM_TYPE_MAPPING[item],
-                }
+            // 排序 NT-9768
+            pageData.value.videoEncodeTypeList.sort((a, b) => {
+                return a.value.charCodeAt(0) - b.value.charCodeAt(0)
             })
 
-            if (maxFrameRate === 0) {
-                pageData.value.frameRateUnionList = []
-            }
-            const minFrameRate = mainStreamLimitFps > maxFrameRate ? maxFrameRate : mainStreamLimitFps
-            for (let i = maxFrameRate; i >= minFrameRate; i--) {
-                pageData.value.frameRateUnionList.push(String(i))
-            }
             getResolutionDropdownData()
         }
 
@@ -518,79 +392,97 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 当前码率上限是否禁用
+         * @param {Number} index
+         */
+        const isVideoQualityDisabled = (index: number) => {
+            const item = tableData.value[index]
+            return item.disabled || DEFAULT_VIDEO_ENCODE_TYPE_ARRAY.includes(item.videoEncodeType)
+        }
+
         // 视频编码改变
         const changeVideoEncodeType = (rowData: RecordSubStreamList) => {
-            const isDisabled = videoEncodeTypeArr.includes(rowData.videoEncodeType)
-            rowData.isVideoQualityDisabled = isDisabled
-            if (!isDisabled) {
-                getQualityList(rowData)
-                if (rowData.bitType === 'CBR') {
-                    rowData.subStreamQualityCaps.forEach((item) => {
-                        if (rowData.resolution === item.res && rowData.videoEncodeType === item.enct) {
-                            if (poeModeNode === 10 && Number(rowData.chlType === 'digital' ? item.digitalDefault : item.analogDefault) > 6144) {
-                                tableData.value[rowData.index].videoQuality = '6144'
-                            } else {
-                                tableData.value[rowData.index].videoQuality = rowData.chlType === 'digital' ? item.digitalDefault : item.analogDefault
-                            }
+            if (rowData.bitType === 'CBR') {
+                rowData.subStreamQualityCaps.forEach((item) => {
+                    if (rowData.resolution === item.res && rowData.videoEncodeType === item.enct) {
+                        if (poeModeNode === 10 && (rowData.chlType === 'digital' ? item.digitalDefault : item.analogDefault) > 6144) {
+                            tableData.value[rowData.index].videoQuality = 6144
+                        } else {
+                            tableData.value[rowData.index].videoQuality = rowData.chlType === 'digital' ? item.digitalDefault : item.analogDefault
                         }
-                    })
-                }
+                    }
+                })
             }
+        }
+
+        /**
+         * @description 获取全局可选取的帧率范围
+         * @returns {SelectOption<number, number>}
+         */
+        const getFrameRateList = () => {
+            let maxFrameRate = 0
+            tableData.value.forEach((element) => {
+                element.subCaps.res.forEach((obj) => {
+                    if (element.resolution === obj.value && maxFrameRate < obj.fps) {
+                        maxFrameRate = obj.fps
+                    }
+                })
+            })
+            if (maxFrameRate === 0) return []
+
+            const fps: number[] = []
+            const minFrameRate = Math.min(mainStreamLimitFps, maxFrameRate)
+            for (let i = maxFrameRate; i >= minFrameRate; i--) {
+                fps.push(i)
+            }
+            return arrayToOptions(fps)
+        }
+
+        /**
+         * @description 获取单个设备的帧率范围
+         * @param {RecordSubStreamList} rowData
+         * @returns {SelectOption<number, number>}
+         */
+        const getFrameRateSingleList = (rowData: RecordSubStreamList) => {
+            const frameRates: number[] = []
+            rowData.subCaps.res.forEach((obj) => {
+                if (obj.value === rowData.resolution) {
+                    const maxFrameRate = obj.fps
+                    const minFrameRate = Math.min(mainStreamLimitFps, maxFrameRate)
+                    for (let i = maxFrameRate; i >= minFrameRate; i--) {
+                        frameRates.push(i)
+                    }
+                }
+            })
+
+            if (rowData.frameRate > frameRates[0]) {
+                rowData.frameRate = frameRates[0]
+            }
+
+            if (rowData.frameRate < frameRates[frameRates.length - 1]) {
+                rowData.frameRate = frameRates[frameRates.length - 1]
+            }
+
+            return arrayToOptions(frameRates)
         }
 
         const changeAllVideoEncodeType = (value: string) => {
             tableData.value.forEach((item) => {
-                if (item.chlType !== 'recorder' && !item.disabled && item.subCaps.supEnct.includes(value)) {
+                if (!item.disabled && item.subCaps.supEnct.some((find) => find.value === value)) {
                     item.videoEncodeType = value
                     changeVideoEncodeType(item)
                 }
             })
         }
 
-        // 更新当前行帧率选项
-        const updateFrameRate = (rowData: RecordSubStreamList, maxFrameRate: number) => {
-            const minFrameRate = mainStreamLimitFps > maxFrameRate ? maxFrameRate : mainStreamLimitFps
-
-            rowData.frameRateList = []
-
-            for (let i = maxFrameRate; i >= minFrameRate; i--) {
-                rowData.frameRateList.push(String(i))
-            }
-
-            rowData.maxFps = maxFrameRate
-        }
-
-        const updateTitleFrameRate = () => {
-            const maxFrameRate = Math.max.apply(
-                [],
-                tableData.value.map((item) => item.maxFps),
-            )
-
-            pageData.value.frameRateUnionList = []
-
-            const minFrameRate = mainStreamLimitFps > maxFrameRate ? maxFrameRate : mainStreamLimitFps
-            for (let i = maxFrameRate; i >= minFrameRate; i--) {
-                pageData.value.frameRateUnionList.push(String(i))
-            }
-        }
-
         // 改变当前行的分辨率
         const changeResolution = (rowData: RecordSubStreamList, value: string) => {
             rowData.subCaps.res.forEach((item) => {
                 if (item.value === value) {
-                    let frameRate = rowData.frameRate
-                    if (Number(frameRate) > Number(item.fps)) {
-                        frameRate = item.fps
-                    }
-
-                    if (rowData.maxFps !== Number(item.fps)) {
-                        updateFrameRate(rowData, Number(item.fps))
-                        updateTitleFrameRate()
-                    }
-                    rowData.frameRate = frameRate
+                    rowData.frameRate = Math.min(rowData.frameRate, item.fps)
                 }
             })
-            getQualityList(rowData)
 
             if (rowData.bitType === 'CBR') {
                 rowData.subStreamQualityCaps.forEach((item) => {
@@ -604,7 +496,7 @@ export default defineComponent({
         // 获取分辨率下拉框数据
         const getResolutionDropdownData = () => {
             const rowDatas = tableData.value.filter((item) => {
-                return item.chlType !== 'recorder' && !item.disabled
+                return !item.disabled
             })
 
             const resolutionMapping: Record<string, SelectOption<string, string>[]> = {}
@@ -671,22 +563,30 @@ export default defineComponent({
             return row.chls.data[0].value
         }
 
-        const changeAllFrameRate = (value: string) => {
+        const changeAllFrameRate = (value: number) => {
             tableData.value.forEach((item) => {
-                let val = value
-                if (Number(val) > item.maxFps) {
-                    val = String(item.maxFps)
-                }
-
+                let currentFrameRate = value
                 if (!item.disabled) {
-                    item.frameRate = val
+                    const frameRateList = getFrameRateSingleList(item)
+                    if (value > frameRateList[0].value) {
+                        currentFrameRate = frameRateList[0].value
+                    }
+                    item.frameRate = currentFrameRate
                 }
             })
         }
 
-        const changeAllVideoQuality = (value: string) => {
+        const changeAllVideoQuality = (value: number) => {
             tableData.value.forEach((item) => {
-                if (item.chlType !== 'recorder' && !item.disabled && item.qualitys.includes(value)) item.videoQuality = value
+                if (!item.disabled) {
+                    if (
+                        getQualityList(item)
+                            .map((item) => item.value)
+                            .includes(value)
+                    ) {
+                        item.videoQuality = value
+                    }
+                }
             })
         }
 
@@ -694,6 +594,15 @@ export default defineComponent({
             setTimeout(() => {
                 pageData.value.resolutionHeaderVisble = true
             }, 0)
+        }
+
+        /**
+         * @description 显示码流文本
+         * @param {String} key
+         * @returns {String}
+         */
+        const displayStreamType = (key: string) => {
+            return key ? Translate(DEFAULT_STREAM_TYPE_MAPPING[key]) : '--'
         }
 
         onMounted(async () => {
@@ -707,8 +616,11 @@ export default defineComponent({
         })
 
         return {
+            getQualityList,
             resolutionTableRef,
-            STREAM_TYPE_MAPPING,
+            getFrameRateList,
+            getFrameRateSingleList,
+            displayStreamType,
             RecordSubResAdaptive,
             pageData,
             tableData,
@@ -726,6 +638,7 @@ export default defineComponent({
             close,
             arrayToOptions,
             handleResolutionVisibleChange,
+            isVideoQualityDisabled,
         }
     },
 })

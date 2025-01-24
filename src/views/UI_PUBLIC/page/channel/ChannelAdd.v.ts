@@ -24,10 +24,8 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
         const cababilityStore = useCababilityStore()
         const router = useRouter()
-        const { openMessageBox } = useMessageBox()
         const supportsIPCActivation = cababilityStore.supportsIPCActivation ? cababilityStore.supportsIPCActivation : true
         const supportRecorder = ref(false)
 
@@ -369,20 +367,14 @@ export default defineComponent({
             const selectedRows: Array<ChannelQuickAddDto> = quickAddTableRef.value!.getSelectionRows()
             const unActivateData: Array<ChannelQuickAddDto> = []
             if (!selectedRows.length) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_SEL_ACTIVATE_CHANNEL'),
-                })
+                openMessageBox(Translate('IDCS_SEL_ACTIVATE_CHANNEL'))
                 return false
             }
             selectedRows.forEach((ele) => {
                 if (ele.activateStatus === 'UNACTIVATED') unActivateData.push(ele)
             })
             if (!unActivateData.length) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_CHANNEL_TO_ACTIVATE'),
-                })
+                openMessageBox(Translate('IDCS_NO_CHANNEL_TO_ACTIVATE'))
                 return false
             }
             activateIpcData.value = unActivateData
@@ -603,58 +595,46 @@ export default defineComponent({
                     })
                 } else {
                     const errorCode = $('errorCode').text().num()
-                    if (errorCode === ErrorCode.USER_ERROR_NODE_ID_EXISTS) {
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_PROMPT_CHANNEL_EXIST'),
-                        })
-                    } else if (errorCode === ErrorCode.USER_ERROR_OVER_LIMIT) {
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
-                        }).then(() => {
-                            router.push('list')
-                        })
-                    } else if (errorCode === ErrorCode.USER_ERROR_OVER_BANDWIDTH_LIMIT) {
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_BANDWIDTH_LIMIT'),
-                        })
-                    } else if (errorCode === ErrorCode.USER_ERROR_SPECIAL_CHAR) {
-                        const poePort = $('poePort').text()
-                        // POE连接冲突提示
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_POE_RESOURCE_CONFLICT_TIP').formatForLang(poePort),
-                        })
-                    } else if (errorCode === ErrorCode.USER_ERROR_LIMITED_PLATFORM_TYPE_MISMATCH) {
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_ADD_CHANNEL_FAIL').formatForLang(faceMatchLimitMaxChlNum),
-                        })
-                    } else if (errorCode === ErrorCode.USER_ERROR_INVALID_IP) {
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID'),
-                        })
-                    } else if (errorCode === ErrorCode.USER_ERROR_PC_LICENSE_MISMATCH) {
-                        const msg = Translate('IDCS_ADD_CHANNEL_FAIL').formatForLang(faceMatchLimitMaxChlNum) + Translate('IDCS_REBOOT_DEVICE').formatForLang(Translate('IDCS_KEEP_ADD'))
-                        openMessageBox({
-                            type: 'question',
-                            message: msg,
-                        }).then(() => {
-                            const data = rawXml`
-                                <content>
-                                    <AISwitch>false</AISwitch>
-                                </content>
-                            `
-                            editBasicCfg(data)
-                        })
-                    } else {
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_SAVE_DATA_FAIL'),
-                        })
+                    switch (errorCode) {
+                        case ErrorCode.USER_ERROR_NODE_ID_EXISTS:
+                            openMessageBox(Translate('IDCS_PROMPT_CHANNEL_EXIST'))
+                            break
+                        case ErrorCode.USER_ERROR_OVER_LIMIT:
+                            openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT')).then(() => {
+                                router.push('list')
+                            })
+                            break
+                        case ErrorCode.USER_ERROR_OVER_BANDWIDTH_LIMIT:
+                            openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_BANDWIDTH_LIMIT'))
+                            break
+                        case ErrorCode.USER_ERROR_SPECIAL_CHAR:
+                            const poePort = $('poePort').text()
+                            // POE连接冲突提示
+                            openMessageBox(Translate('IDCS_POE_RESOURCE_CONFLICT_TIP').formatForLang(poePort))
+                            break
+                        case ErrorCode.USER_ERROR_LIMITED_PLATFORM_TYPE_MISMATCH:
+                            openMessageBox(Translate('IDCS_ADD_CHANNEL_FAIL').formatForLang(faceMatchLimitMaxChlNum))
+                            break
+                        case ErrorCode.USER_ERROR_INVALID_IP:
+                            openMessageBox(Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID'))
+                            break
+                        case ErrorCode.USER_ERROR_PC_LICENSE_MISMATCH:
+                            const msg = Translate('IDCS_ADD_CHANNEL_FAIL').formatForLang(faceMatchLimitMaxChlNum) + Translate('IDCS_REBOOT_DEVICE').formatForLang(Translate('IDCS_KEEP_ADD'))
+                            openMessageBox({
+                                type: 'question',
+                                message: msg,
+                            }).then(() => {
+                                const data = rawXml`
+                                    <content>
+                                        <AISwitch>false</AISwitch>
+                                    </content>
+                                `
+                                editBasicCfg(data)
+                            })
+                            break
+                        default:
+                            openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
+                            break
                     }
                 }
             })

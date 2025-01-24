@@ -8,8 +8,6 @@ import type { TableInstance } from 'element-plus'
 
 export default defineComponent({
     setup() {
-        const { openMessageBox } = useMessageBox()
-        const { closeLoading, openLoading } = useLoading()
         const { Translate } = useLangStore()
 
         const playerRef = ref<PlayerInstance>()
@@ -20,7 +18,7 @@ export default defineComponent({
 
         const pageData = ref({
             // 通道选项
-            channelOptions: getSwitchOptions(),
+            channelOptions: getTranslateOptions(DEFAULT_SWITCH_OPTIONS),
             // 当前选中的通道
             activeChannelIndex: 0,
         })
@@ -148,10 +146,7 @@ export default defineComponent({
                 })
                 watchEdit.update()
             } else {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_SAVE_DATA_FAIL'),
-                })
+                openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
             }
         }
 

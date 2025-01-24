@@ -77,7 +77,6 @@ const emits = defineEmits<{
     (e: 'change', value: [number, number], type: string): void
 }>()
 
-const { openMessageBox } = useMessageBox()
 const { Translate } = useLangStore()
 const dateTime = useDateTimeStore()
 
@@ -139,18 +138,12 @@ const verifyCustomPop = () => {
     const startTime = dayjs(formData.value.startTime, dateTime.dateTimeFormat).valueOf()
     const endTime = dayjs(formData.value.endTime, dateTime.dateTimeFormat).valueOf()
     if (startTime > endTime) {
-        openMessageBox({
-            type: 'info',
-            message: Translate('IDCS_END_TIME_GREATER_THAN_START'),
-        })
+        openMessageBox(Translate('IDCS_END_TIME_GREATER_THAN_START'))
         return
     }
 
     if (dayjs(endTime).diff(startTime, 'day', true) > 31) {
-        openMessageBox({
-            type: 'info',
-            message: Translate('IDCS_TIME_CUSTOMIZE_ERROR'),
-        })
+        openMessageBox(Translate('IDCS_TIME_CUSTOMIZE_ERROR'))
         return
     }
 

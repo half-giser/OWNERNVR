@@ -34,8 +34,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
         const tableData = ref<StorageModeChlList[]>([])
         const pageData = ref({
@@ -96,10 +94,7 @@ export default defineComponent({
          */
         const confirm = async () => {
             if (!pageData.value.selection.length) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_PROMPT_CHANNEL_GROUP_EMPTY'),
-                })
+                openMessageBox(Translate('IDCS_PROMPT_CHANNEL_GROUP_EMPTY'))
                 return
             }
 

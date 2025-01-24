@@ -42,7 +42,6 @@ export default defineComponent({
     },
     setup(prop) {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
 
         const CRUISE_MAX_COUNT = 8
 
@@ -126,10 +125,7 @@ export default defineComponent({
 
             // 巡航线数量达到上限8个
             if (listData.value.length >= CRUISE_MAX_COUNT) {
-                openMessageBox({
-                    type: 'info',
-                    message: 'IDCS_OVER_MAX_NUMBER_LIMIT',
-                })
+                openMessageBox(Translate('IDCS_OVER_MAX_NUMBER_LIMIT'))
                 return
             }
             pageData.value.isAddPop = true

@@ -39,8 +39,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
         const pageData = ref({
             isPop: false,
@@ -92,7 +90,7 @@ export default defineComponent({
                         name = connectState ? name : name + '(' + Translate('IDCS_OFFLINE') + ')'
 
                         $item('resource/item').forEach((ele) => {
-                            const eventType = ele.attr('eventType').split(',')
+                            const eventType = ele.attr('eventType').array()
 
                             const eventTypeText = eventType
                                 .map((item) => {
@@ -120,10 +118,7 @@ export default defineComponent({
                     })
                 } else {
                     // 资源占用率超过100
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_NO_RESOURCE'),
-                    })
+                    openMessageBox(Translate('IDCS_NO_RESOURCE'))
                     ctx.emit('error')
                 }
             }

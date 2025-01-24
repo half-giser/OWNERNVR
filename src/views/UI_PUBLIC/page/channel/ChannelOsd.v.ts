@@ -13,8 +13,6 @@ import { type TableInstance } from 'element-plus'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
-        const { openMessageBox } = useMessageBox()
         const dateTime = useDateTimeStore()
 
         const playerRef = ref<PlayerInstance>()
@@ -29,34 +27,12 @@ export default defineComponent({
         const chlList = ref<ChannelOsdDto[]>([]) // 作为下拉列表选项来源，只需保证name为最新值即可
         const { supportSHDB } = useCababilityStore() // 是否支持上海地标
         const tempName = ref('')
-        const switchOptions = getBoolSwitchOptions()
+        const switchOptions = getTranslateOptions(DEFAULT_BOOL_SWITCH_OPTIONS)
         const manufacturer: Record<string, string> = {}
 
-        const dateFormatTip: Record<string, string> = {
-            'year-month-day': Translate('IDCS_DATE_FORMAT_YMD'),
-            'month-day-year': Translate('IDCS_DATE_FORMAT_MDY'),
-            'day-month-year': Translate('IDCS_DATE_FORMAT_DMY'),
-        }
+        const dateFormatTip = getTranslateMapping(DEFAULT_DATE_FORMAT_MAPPING)
 
-        const dateFormatOptions: Record<string, string>[] = [
-            {
-                value: 'year-month-day',
-                text: Translate('IDCS_DATE_FORMAT_YMD'),
-            },
-            {
-                value: 'month-day-year',
-                text: Translate('IDCS_DATE_FORMAT_MDY'),
-            },
-            {
-                value: 'day-month-year',
-                text: Translate('IDCS_DATE_FORMAT_DMY'),
-            },
-        ]
-
-        const timeFormatTip: Record<string, string> = {
-            '24': Translate('IDCS_TIME_FORMAT_24'),
-            '12': Translate('IDCS_TIME_FORMAT_12'),
-        }
+        const timeFormatTip = getTranslateMapping(DEFAULT_TIME_FORMAT_MAPPING)
 
         const chlOptions = computed(() => {
             return chlList.value.map((item) => {
@@ -88,10 +64,7 @@ export default defineComponent({
             const rowData = getRowById(chlId)!
             const name = chlName.trim()
             if (!checkChlName(name)) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'),
-                })
+                openMessageBox(Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'))
                 rowData.name = tempName.value
                 formData.value = cloneDeep(rowData)
                 chlList.value = cloneDeep(tableData.value)
@@ -173,10 +146,7 @@ export default defineComponent({
                 if (ele.dateEnum.includes(val) && !ele.disabled) {
                     ele.dateFormat = val
                 } else {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_NOT_SUPPORT_MODIFY_DATEFORMAT'),
-                    })
+                    openMessageBox(Translate('IDCS_NOT_SUPPORT_MODIFY_DATEFORMAT'))
                 }
             })
             const rowData = getRowById(selectedChlId.value)!
@@ -228,9 +198,9 @@ export default defineComponent({
             return tableData.value.find((element) => element.id === chlId)
         }
 
-        const notify = ($: XMLQuery) => {
+        const notify = ($: XMLQuery, stateType: string) => {
             //OSD位置改变
-            if ($("statenotify[@type='OSDInfo']").length) {
+            if (stateType === 'OSDInfo') {
                 const preRowData = getRowById(selectedChlId.value)!
                 preRowData.timeX = $('statenotify/timeStamp/X').text().num()
                 preRowData.timeY = $('statenotify/timeStamp/Y').text().num()
@@ -578,7 +548,7 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 osdDrawer = CanvasOSD({
-                    el: player.getDrawbordCanvas(0) as HTMLCanvasElement,
+                    el: player.getDrawbordCanvas(0),
                     onchange: handleOSDChange,
                 })
             }
@@ -731,7 +701,6 @@ export default defineComponent({
             selectedChlId,
             tempName,
             dateFormatTip,
-            dateFormatOptions,
             timeFormatTip,
             handleRowClick,
             handleChlSel,

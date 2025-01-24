@@ -12,8 +12,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
         const pageData = ref({
             delayList: [] as SelectOption<number, string>[],
@@ -94,7 +92,7 @@ export default defineComponent({
                     if (!pageData.value.delayList.length) {
                         pageData.value.delayList = $('content/delayTimeNote')
                             .text()
-                            .split(',')
+                            .array()
                             .map((delayItem) => {
                                 const value = Number(delayItem)
                                 return {
@@ -218,26 +216,17 @@ export default defineComponent({
         const blurName = (row: AlarmOutDto) => {
             const name = row.name
             if (!checkChlName(name)) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'),
-                })
+                openMessageBox(Translate('IDCS_PROMPT_NAME_ILLEGAL_CHARS'))
                 row.name = originalName.value
             } else {
                 if (!name) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_PROMPT_NAME_EMPTY'),
-                    })
+                    openMessageBox(Translate('IDCS_PROMPT_NAME_EMPTY'))
                     row.name = originalName.value
                 }
 
                 for (const item of tableData.value) {
                     if (item.id !== row.id && name === item.name) {
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_NAME_SAME'),
-                        })
+                        openMessageBox(Translate('IDCS_NAME_SAME'))
                         row.name = originalName.value
                         break
                     }

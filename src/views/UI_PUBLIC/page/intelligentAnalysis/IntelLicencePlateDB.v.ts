@@ -17,8 +17,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const userSession = useUserSessionStore()
         const router = useRouter()
 
@@ -69,10 +67,7 @@ export default defineComponent({
          */
         const checkPermission = () => {
             if (!userSession.facePersonnalInfoMgr) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_PERMISSION'),
-                })
+                openMessageBox(Translate('IDCS_NO_PERMISSION'))
                 return false
             }
             return true
@@ -155,10 +150,7 @@ export default defineComponent({
                         }
                         getGroupList()
                     } else {
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_NO_AUTH'),
-                        })
+                        openMessageBox(Translate('IDCS_NO_AUTH'))
                     }
                 } catch (e) {
                     if (pageData.value.expandRowKey.length) {
@@ -187,10 +179,7 @@ export default defineComponent({
                 return a + b.plateNum
             }, 0)
             if (!totalTask) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_EXPORT_FAIL'),
-                })
+                openMessageBox(Translate('IDCS_EXPORT_FAIL'))
                 return
             }
 
@@ -207,10 +196,7 @@ export default defineComponent({
          */
         const handleVehicleRecognition = () => {
             if (!userSession.hasAuth('alarmMgr')) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_NO_AUTH'),
-                })
+                openMessageBox(Translate('IDCS_NO_AUTH'))
             }
 
             if (history.state.backChlId) {
@@ -297,10 +283,7 @@ export default defineComponent({
                 } else {
                     const errorCode = $('errorCode').text().num()
                     if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_NO_AUTH'),
-                        })
+                        openMessageBox(Translate('IDCS_NO_AUTH'))
                     }
                 }
             })

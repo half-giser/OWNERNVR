@@ -5,24 +5,7 @@
  */
 import { ElDialog, ElInputNumber, ElForm, ElTooltip, ElSelectV2, ElTable, ElDropdown, ElPopover, ElDatePicker, ElTimePicker, ElSlider, ElScrollbar } from 'element-plus'
 import { type PropType } from 'vue'
-import sprites from '../components/sprite/sprites'
 import BaseCalendarIcon from '@/components/icon/BaseCalendarIcon.vue'
-
-// ElPagination.props.layout = {
-//     type: String,
-//     default: 'jumper, prev, pager, next, sizes, total',
-// }
-
-// ElPagination.props.pageSizes = {
-//     type: Array as PropType<number[]>,
-//     default: () => [10, 20, 30],
-//     required: false,
-// }
-
-// ElPagination.props.size = {
-//     type: String,
-//     default: 'small',
-// }
 
 ElInputNumber.props.controls = {
     type: Boolean,
@@ -85,6 +68,11 @@ ElTooltip.props.showArrow = {
 ElTooltip.props.effect = {
     type: String,
     default: 'light',
+}
+
+ElTooltip.props.offset = {
+    type: Number,
+    default: 0,
 }
 
 // ElSelect.props.placeholder = {
@@ -234,5 +222,18 @@ ElScrollbar.props.always = {
     default: true,
 }
 
-document.body.style.setProperty('--float-x', `-${sprites.coordinates.floatTip[0]}px`)
-document.body.style.setProperty('--float-y', `-${sprites.coordinates.floatTip[1]}px`)
+// ElPagination.props.layout = {
+//     type: String,
+//     default: 'jumper, prev, pager, next, sizes, total',
+// }
+
+// ElPagination.props.pageSizes = {
+//     type: Array as PropType<number[]>,
+//     default: () => [10, 20, 30],
+//     required: false,
+// }
+
+// ElPagination.props.size = {
+//     type: String,
+//     default: 'small',
+// }

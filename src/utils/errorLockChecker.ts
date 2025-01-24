@@ -6,80 +6,96 @@
  */
 import { type CountDownTime, CountDowner } from './countDowner'
 
-export class ErrorLockChecker {
-    //是否已锁定
-    isLocked: boolean
-    //锁定时长
-    private lockTime: number
-    //业务类型，本地缓存前缀
+interface ErrorLockCheckerOptions {
     busType: string
-    //翻译方法，因为inject只能在组件setup执行，需要从调用的逐渐传入
-    Translate: (str: string) => string
-    //前置错误消息，需要和次数错误，读秒错误等拼接
-    preErrorMsg: string
-    //读秒回调
-    countDownCallback: Function
-    //读秒结束回调
-    countDownEndCallback: Function
+    countDownCallback?: (info: string) => void
+    countDownEndCallback?: () => void
+}
 
-    constructor(busType: string, countDownCallback: Function, countDownEndCallback: Function) {
-        this.isLocked = false
-        this.busType = busType
-        this.lockTime = 0
-        this.preErrorMsg = ''
-        this.countDownCallback = countDownCallback
-        this.countDownEndCallback = countDownEndCallback
-        const { Translate } = useLangStore()
-        this.Translate = Translate
-        this.checkIsLocked()
-    }
+export const ErrorLockChecker = (opt: ErrorLockCheckerOptions) => {
+    const { Translate } = useLangStore()
+
+    //是否已锁定
+    let isLocked = false
+    //锁定时长
+    let lockTime = 0
+    //业务类型，本地缓存前缀
+    const busType = opt.busType
+    //前置错误消息，需要和次数错误，读秒错误等拼接
+    let preErrorMsg = ''
+    //读秒回调
+    const countDownCallback = opt.countDownCallback
+    //读秒结束回调
+    const countDownEndCallback = opt.countDownEndCallback
 
     /**
-     * 设置锁定时间
-     * @param lockTime
+     * @description 设置锁定时间
+     * @param {number} lockTime ms
      */
-    setLockTime(lockTime: number) {
-        this.lockTime = lockTime
+    const setLockTime = (time: number) => {
+        lockTime = time
         //每次设置锁定时间，计算锁定结束时间点存入缓存，每次初始化时（如刷新页面）或读取是否有上次锁定的结束时间，重新计算锁定时间，进行读秒
-        localStorage.setItem(`${this.busType}_${LocalCacheKey.KEY_LOCK_END_TIMESTAMP}`, '' + (Date.now() + lockTime))
+        localStorage.setItem(`${busType}_${LocalCacheKey.KEY_LOCK_END_TIMESTAMP}`, '' + (Date.now() + lockTime))
     }
 
-    checkIsLocked() {
-        const lockEndTimestampStr = localStorage.getItem(`${this.busType}_${LocalCacheKey.KEY_LOCK_END_TIMESTAMP}`)
+    const checkIsLocked = () => {
+        const lockEndTimestampStr = localStorage.getItem(`${busType}_${LocalCacheKey.KEY_LOCK_END_TIMESTAMP}`)
         const currentTime = Date.now()
         if (lockEndTimestampStr) {
             const lockEndTimestamp = Number(lockEndTimestampStr)
             if (currentTime - lockEndTimestamp < 0) {
-                this.lockTime = lockEndTimestamp - currentTime
-                this.error(() => {})
+                lockTime = lockEndTimestamp - currentTime
+                error(() => {})
             }
         }
     }
 
-    error(errorTimeCallback: Function) {
-        if (this.lockTime > 0) {
-            this.isLocked = true
-            new CountDowner({
-                distime: this.lockTime / 1000,
+    const error = (errorTimeCallback: () => void) => {
+        if (lockTime > 0) {
+            isLocked = true
+            CountDowner({
+                distime: lockTime / 1000,
                 callback: (obj: CountDownTime) => {
                     let info = ''
                     if (parseInt(obj.disminites) > 0) {
-                        info = this.Translate('IDCS_TICK_MIN')
+                        info = Translate('IDCS_TICK_MIN')
                         info = info.formatForLang(obj.disminites, obj.disseconds)
                     } else {
-                        info = this.Translate('IDCS_TICK_SEC')
+                        info = Translate('IDCS_TICK_SEC')
                         info = info.formatForLang(obj.disseconds)
                     }
-                    this.countDownCallback(this.preErrorMsg + info)
+                    countDownCallback && countDownCallback(preErrorMsg + info)
                 },
                 overFn: () => {
-                    this.isLocked = false
-                    this.lockTime = 0
-                    this.countDownEndCallback()
+                    isLocked = false
+                    lockTime = 0
+                    countDownEndCallback && countDownEndCallback()
                 },
             })
         } else {
             errorTimeCallback()
         }
+    }
+
+    const setLock = (lock: boolean) => {
+        isLocked = lock
+    }
+
+    const getLock = () => {
+        return isLocked
+    }
+
+    const setPreErrorMessage = (msg: string) => {
+        preErrorMsg = msg
+    }
+
+    checkIsLocked()
+
+    return {
+        setLockTime,
+        setLock,
+        setPreErrorMessage,
+        getLock,
+        error,
     }
 }

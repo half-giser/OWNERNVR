@@ -7,8 +7,6 @@ import { AlarmBuzzerForm } from '@/types/apiType/aiAndEvent'
 
 export default defineComponent({
     setup() {
-        const { openLoading, closeLoading } = useLoading()
-
         const formData = ref(new AlarmBuzzerForm())
 
         const pageData = ref({
@@ -21,7 +19,7 @@ export default defineComponent({
                 formData.value.buzzerDuration = $('content/buzzerDuration').text().num()
                 pageData.value.buzzerDurationOption = $('content/buzzerDurationNote')
                     .text()
-                    .split(',')
+                    .array()
                     .map((item) => {
                         const value = Number(item)
                         return {

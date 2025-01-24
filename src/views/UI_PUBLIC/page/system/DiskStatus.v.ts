@@ -7,7 +7,6 @@ import { type SystemDiskStatusList } from '@/types/apiType/system'
 
 export default defineComponent({
     setup(_prop, ctx) {
-        const { openLoading, closeLoading } = useLoading()
         const { Translate } = useLangStore()
         const dateTime = useDateTimeStore()
 
@@ -206,7 +205,7 @@ export default defineComponent({
             closeLoading()
 
             // 请求显示设置数据
-            tableData.value.map((item, index) => getDetail(item.id, index))
+            tableData.value.forEach((item) => getDetail(item))
         }
 
         /**
@@ -214,10 +213,10 @@ export default defineComponent({
          * @param {string} id
          * @param {number} index
          */
-        const getDetail = async (id: string, index: number) => {
+        const getDetail = async (item: SystemDiskStatusList) => {
             const sendXml = rawXml`
                 <condition>
-                    <diskId>${id}</diskId>
+                    <diskId>${item.id}</diskId>
                 </condition>
             `
             const result = await queryDiskDetailInfo(sendXml)
@@ -225,16 +224,16 @@ export default defineComponent({
 
             if ($('status').text() === 'success') {
                 let groupName = ''
-                if (diskStatus[id].diskEncryptStatus !== excludeFlag) {
+                if (item.diskEncryptStatus !== excludeFlag) {
                     groupName = $('content/groupName').text()
                 } else {
                     groupName = '--'
                 }
-                tableData.value[index].source = TRANS_MAPPING[$('content/source').text()]
-                tableData.value[index].group = groupName
-                tableData.value[index].disabled = false
+                item.source = TRANS_MAPPING[$('content/source').text()]
+                item.group = groupName
+                item.disabled = false
             }
-            tableData.value[index].status = ''
+            item.status = ''
         }
 
         /**

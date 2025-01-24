@@ -13,7 +13,7 @@
         <el-form
             :style="{
                 '--form-input-width': '300px',
-                '--form-label-width': '100px',
+                '--form-label-width': '150px',
             }"
         >
             <el-form-item :label="Translate('IDCS_EXPIRE_TIME')">
@@ -29,7 +29,7 @@
             </el-form-item>
         </el-form>
         <div class="middleBox">
-            <span>{{ Translate('IDCS_KEEPVIDEO_WEEK') }}</span>
+            <div class="base-btn-box flex-start collapse">{{ Translate('IDCS_KEEPVIDEO_WEEK') }}</div>
             <el-checkbox-group v-model="pageData.weekArr">
                 <el-checkbox
                     v-for="item in week"

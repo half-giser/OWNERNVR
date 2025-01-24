@@ -11,14 +11,10 @@ import { generateAsyncRoutes } from '../../router'
 
 type PluginStatus = 'Unloaded' | 'Loaded' | 'InitialComplete' | 'Connected' | 'Disconnected' | 'Reconnecting'
 
-let plugin: ReturnType<typeof getSingletonPlugin> | null = null
-
 const getSingletonPlugin = () => {
     const pluginStore = usePluginStore()
     const { Translate, getLangTypes, getLangItems, langItems } = useLangStore()
-    const { openMessageBox } = useMessageBox()
     const router = useRouter()
-    const { closeLoading, openLoading } = useLoading()
     const userSession = useUserSessionStore()
     const layoutStore = useLayoutStore()
     const route = useRoute()
@@ -36,7 +32,7 @@ const getSingletonPlugin = () => {
     const VideoPluginReconnectTimeout = 5000 // 断开重新连接时间
     let VideoPluginReconnectTimeoutId: NodeJS.Timeout | null = null // 重新连接超时ID
 
-    const VideoPluginNotifyEmitter = CreateEvent('notify')
+    const VideoPluginNotifyEmitter = CreateEvent()
 
     // 对支持wasm的浏览器环境做插件调用代码的兼容处理，避免调用插件的代码报错
     const FakePluginForWasm = {
@@ -157,6 +153,7 @@ const getSingletonPlugin = () => {
     const VideoPluginNotify = async (strXMLFormat: string) => {
         const $ = queryXml(XMLStr2XMLDoc(strXMLFormat))
         const funcName = $('/response').attr('reqId').num()
+        const stateType = $('statenotify').attr('type')
 
         if ($('response').length && funcName) {
             ;(getVideoPlugin() as ReturnType<typeof WebsocketPlugin>).queryInfoMap[funcName](strXMLFormat)
@@ -168,8 +165,8 @@ const getSingletonPlugin = () => {
             return
         }
 
-        if ($('statenotify[@type="NVMS_NAT_CMD"]').length) {
-            const $response = $('statenotify[@type="NVMS_NAT_CMD"]/response')
+        if (stateType === 'NVMS_NAT_CMD') {
+            const $response = $('statenotify/response')
             const $request = queryXml(XMLStr2XMLDoc(CMD_QUEUE.cmd.cmd))('//cmd[@type="NVMS_NAT_CMD"]/request')
             if ($response.attr('flag') === $request.attr('flag') && $response.attr('url') === $request.attr('url')) {
                 CMD_QUEUE.resolve($response[0].element)
@@ -177,21 +174,21 @@ const getSingletonPlugin = () => {
         }
 
         // 获取插件返回的sessionId，用于刷新无感知登录（授权码登录成功后，返回sessionId)
-        if ($('statenotify[@type="sessionId"]').length) {
+        if (stateType === 'sessionId') {
             let sessionId = null
-            if ($('statenotify[@type="sessionId"]/sessionId').length) {
-                sessionId = $('statenotify[@type="sessionId"]/sessionId').text()
+            if ($('statenotify/sessionId').length) {
+                sessionId = $('statenotify/sessionId').text()
             }
             userSession.p2pSessionId = sessionId
             return
         }
         //OCX已创建好窗口，通知可以登录了
-        else if ($('statenotify[@type="InitialComplete"]').length) {
+        else if (stateType === 'InitialComplete') {
             setVideoPluginStatus('InitialComplete')
             videoPluginLogin()
         }
         //连接成功
-        else if ($('statenotify[@type="connectstate"]').length) {
+        else if (stateType === 'connectstate') {
             let status = ''
             if ($('statenotify/status').length) {
                 status = $('statenotify/status').text().trim()
@@ -286,7 +283,7 @@ const getSingletonPlugin = () => {
             }
         }
 
-        VideoPluginNotifyEmitter.emit($, strXMLFormat)
+        VideoPluginNotifyEmitter.emit($, stateType, strXMLFormat)
     }
 
     let videoPluginLoadLang_timeoutId: NodeJS.Timeout | null = null
@@ -354,7 +351,7 @@ const getSingletonPlugin = () => {
                 if ($('status').text() === 'success') {
                     $('content/nicConfigs/item').forEach((item) => {
                         const $item = queryXml(item.element)
-                        if (item.attr('isSupSecondIP') === 'true') {
+                        if (item.attr('isSupSecondIP').bool()) {
                             // 判断是否使用了辅IP
                             const secondIpSwitch = $item('secondIpSwitch').text().bool()
                             isSubIpUsed = hostName === $item('secondIp').text() && secondIpSwitch
@@ -899,10 +896,7 @@ const getSingletonPlugin = () => {
         if (isPluginNoResponseFlag) return
 
         isPluginNoResponseFlag = true
-        openMessageBox({
-            type: 'info',
-            message: Translate('IDCS_PLUGIN_NO_RESPONSE_TIPS'),
-        })
+        openMessageBox(Translate('IDCS_PLUGIN_NO_RESPONSE_TIPS'))
             .then(() => {
                 Logout()
             })
@@ -1350,10 +1344,7 @@ const getSingletonPlugin = () => {
         (newVal) => {
             if (newVal) {
                 setReconnCallBack(() => {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_LOGIN_OVERTIME'),
-                    }).then(() => {
+                    openMessageBox(Translate('IDCS_LOGIN_OVERTIME')).then(() => {
                         closeLoading()
                         Logout()
                     })
@@ -1454,14 +1445,21 @@ const getSingletonPlugin = () => {
     }
 }
 
+let plugin: ReturnType<typeof getSingletonPlugin> | null = null
+
 /**
  * @description 确保plugin对象是个单例
  * @returns
  */
-export const usePlugin = () => {
+export const usePlugin = (data?: PluginHookOptions) => {
     if (!plugin) {
         plugin = getSingletonPlugin()
     }
+
+    if (data) {
+        setupPlugin(plugin, data)
+    }
+
     return plugin
 }
 
@@ -1469,7 +1467,7 @@ interface PluginHookOptions {
     player?: Ref<HTMLDivElement | undefined>
     onReady?: (mode: ComputedRef<string>, plugin: ReturnType<typeof getSingletonPlugin>) => void
     onDestroy?: (mode: ComputedRef<string>, plugin: ReturnType<typeof getSingletonPlugin>) => void
-    onMessage?: ($: XMLQuery) => void
+    onMessage?: ($: XMLQuery, stateType: string) => void
 }
 
 /**
@@ -1477,8 +1475,7 @@ interface PluginHookOptions {
  * @param {Function} cbk
  * @returns
  */
-export const setupPlugin = (data: PluginHookOptions) => {
-    const plugin = usePlugin()
+export const setupPlugin = (plugin: ReturnType<typeof usePlugin>, data: PluginHookOptions) => {
     const pluginStore = usePluginStore()
 
     const mode = computed(() => {
@@ -1581,6 +1578,4 @@ export const setupPlugin = (data: PluginHookOptions) => {
             data.onDestroy(mode, plugin)
         }
     })
-
-    return plugin
 }

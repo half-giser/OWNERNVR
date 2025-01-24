@@ -18,8 +18,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
         // 周排程组件引用
         const scheduleWeekRef = ref<ScheduleWeekInstance>()
@@ -172,7 +170,7 @@ export default defineComponent({
         const deleteSchedule = (row: NameValueItem) => {
             openMessageBox({
                 type: 'question',
-                message: Translate('IDCS_DELETE_MP_SCHEDULE_S').formatForLang(replaceWithEntity(getShortString(row.name, 10))),
+                message: Translate('IDCS_DELETE_MP_SCHEDULE_S').formatForLang(getShortString(row.name, 10)),
             }).then(async () => {
                 openLoading()
 

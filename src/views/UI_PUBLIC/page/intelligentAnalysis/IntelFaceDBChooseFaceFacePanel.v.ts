@@ -37,8 +37,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const dateTime = useDateTimeStore()
 
         // 缓存人脸Base64图片数据 节约请求
@@ -312,10 +310,7 @@ export default defineComponent({
                     formData.value.faceIndex[0] = index
                 } else {
                     if (formData.value.faceIndex.length >= 5) {
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_SELECT_FACE_UPTO_MAX').formatForLang(5),
-                        })
+                        openMessageBox(Translate('IDCS_SELECT_FACE_UPTO_MAX').formatForLang(5))
                         return
                     }
                     formData.value.faceIndex.push(index)

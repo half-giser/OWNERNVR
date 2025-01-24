@@ -14,8 +14,6 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
         const playerRef = ref<PlayerInstance>()
         const auth = useUserChlAuth(false)
@@ -51,32 +49,7 @@ export default defineComponent({
             // 表格展开索引列表
             expandRowKey: [] as string[],
             // 功能选项
-            typeOptions: [
-                {
-                    label: Translate('IDCS_NO'),
-                    value: 'NON',
-                },
-                {
-                    label: Translate('IDCS_PRESET'),
-                    value: 'PRE',
-                },
-                {
-                    label: Translate('IDCS_CRUISE'),
-                    value: 'CRU',
-                },
-                {
-                    label: Translate('IDCS_PTZ_TRACE'),
-                    value: 'TRA',
-                },
-                {
-                    label: Translate('IDCS_RANDOM_SCANNING'),
-                    value: 'RSC',
-                },
-                {
-                    label: Translate('IDCS_BOUNDARY_SCANNING'),
-                    value: 'ASC',
-                },
-            ],
+            typeOptions: objectToOptions(TYPE_TRANS_MAPPING, 'string'),
             // 名称选项
             nameOptions: [
                 {
@@ -108,10 +81,7 @@ export default defineComponent({
                         }
 
                         if (tableData.value[pageData.value.tableIndex].taskItemCount >= TASK_LIMIT) {
-                            openMessageBox({
-                                type: 'info',
-                                message: Translate('IDCS_OVER_MAX_NUMBER_LIMIT'),
-                            })
+                            openMessageBox(Translate('IDCS_OVER_MAX_NUMBER_LIMIT'))
                             callback(new Error(''))
                             return
                         }

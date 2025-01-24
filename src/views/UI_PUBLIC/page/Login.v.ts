@@ -32,11 +32,11 @@ export default defineComponent({
             quality: 'sub',
             qualityOptions: [
                 {
-                    label: 'IDCS_HIGH_QUALITY',
+                    label: Translate('IDCS_HIGH_QUALITY'),
                     value: 'main',
                 },
                 {
-                    label: 'IDCS_STANDARD_QUALITY',
+                    label: Translate('IDCS_STANDARD_QUALITY'),
                     value: 'sub',
                 },
             ],
@@ -102,8 +102,12 @@ export default defineComponent({
         }
 
         // 初始化错误超过次数锁定检测工具
-        const errorLockChecker = new ErrorLockChecker('login', countDownCallback, countDownEndCallback)
-        if (errorLockChecker.isLocked) {
+        const errorLockChecker = ErrorLockChecker({
+            busType: 'login',
+            countDownCallback,
+            countDownEndCallback,
+        })
+        if (errorLockChecker.getLock()) {
             pageData.value.btnDisabled = true
         }
 
@@ -179,19 +183,19 @@ export default defineComponent({
                     const errorCode = $('errorCode').text().num()
                     const ramainingNumber = $('ramainingNumber').text()
                     errorLockChecker.setLockTime($('ramainingTime').text().num() * 1000)
-                    errorLockChecker.isLocked = $('locked').text().bool()
+                    errorLockChecker.setLock($('locked').text().bool())
                     if (errorCode) {
                         switch (errorCode) {
                             case ErrorCode.USER_ERROR_NO_USER:
                             case ErrorCode.USER_ERROR_PWD_ERR:
-                                errorLockChecker.preErrorMsg = Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR')
-                                pageData.value.errorMsg = errorLockChecker.preErrorMsg
+                                pageData.value.errorMsg = Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR')
+                                errorLockChecker.setPreErrorMessage(pageData.value.errorMsg)
                                 errorLockChecker.error(() => {
                                     if (ramainingNumber) {
                                         pageData.value.errorMsg = pageData.value.errorMsg + '\n' + Translate('IDCS_TICK_ERROR_COUNT').formatForLang(ramainingNumber)
                                     }
                                 })
-                                if (errorLockChecker.isLocked) {
+                                if (errorLockChecker.getLock()) {
                                     pageData.value.btnDisabled = true
                                 }
                                 break
@@ -240,6 +244,11 @@ export default defineComponent({
             localStorage.setItem(LocalCacheKey.KEY_PRIVACY, 'true')
         }
 
+        const updateTitle = () => {
+            const title = Translate('IDCS_WEB_CLIENT')
+            document.title = title === 'IDCS_WEB_CLIENT' ? '' : title
+        }
+
         /**
          * @description 切换语言
          */
@@ -252,8 +261,7 @@ export default defineComponent({
             }
             await langStore.getLangItems(true)
             updateCalendar()
-            const title = Translate('IDCS_WEB_CLIENT')
-            document.title = title === 'IDCS_WEB_CLIENT' ? '' : title
+            updateTitle()
         }
 
         /**
@@ -288,9 +296,7 @@ export default defineComponent({
         }
 
         onMounted(() => {
-            const title = Translate('IDCS_WEB_CLIENT')
-            document.title = title === 'IDCS_WEB_CLIENT' ? '' : title
-
+            updateTitle()
             getIsShowPrivacy()
             updateCalendar()
         })

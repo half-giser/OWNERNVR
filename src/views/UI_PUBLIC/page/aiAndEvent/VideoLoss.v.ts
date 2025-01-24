@@ -18,12 +18,11 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
 
-        const { openLoading, closeLoading } = useLoading()
         const pageData = ref({
             pageIndex: 1,
             pageSize: 10,
             totalCount: 0,
-            enableList: getSwitchOptions(),
+            enableList: getTranslateOptions(DEFAULT_SWITCH_OPTIONS),
             // supportFTP: false,
             audioList: [] as SelectOption<string, string>[],
             // 打开穿梭框时选择行的索引
@@ -39,24 +38,21 @@ export default defineComponent({
 
         const editRows = useWatchEditRows<AlarmEventDto>()
 
-        const getVideoPopupList = () => {
-            pageData.value.videoPopupList.push({
+        const getVideoPopupList = async () => {
+            const res = await getChlList({
+                nodeType: 'chls',
+            })
+            const $ = queryXml(res)
+            pageData.value.videoPopupList = $('content/item').map((item) => {
+                const $item = queryXml(item.element)
+                return {
+                    value: item.attr('id'),
+                    label: $item('name').text(),
+                }
+            })
+            pageData.value.videoPopupList.unshift({
                 value: ' ',
                 label: Translate('IDCS_OFF'),
-            })
-            getChlList({
-                nodeType: 'chls',
-            }).then((res) => {
-                const $ = queryXml(res)
-                if ($('status').text() === 'success') {
-                    $('content/item').forEach((item) => {
-                        const $item = queryXml(item.element)
-                        pageData.value.videoPopupList.push({
-                            value: item.attr('id'),
-                            label: $item('name').text(),
-                        })
-                    })
-                }
             })
         }
 

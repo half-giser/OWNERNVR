@@ -9,7 +9,7 @@ import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleMana
 import CanvasPolygon from '@/utils/canvas/canvasPolygon'
 import type { CanvasBasePoint, CanvasBaseArea } from '@/utils/canvas/canvasBase'
 import { cloneDeep } from 'lodash-es'
-import { type XmlElement, type XmlResult } from '@/utils/xmlParse'
+import { type XMLQuery, type XmlElement } from '@/utils/xmlParse'
 import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
 import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
 import AlarmBaseTriggerSelector from './AlarmBaseTriggerSelector.vue'
@@ -58,8 +58,7 @@ export default defineComponent({
     },
     setup(props) {
         type CanvasPolygonAreaType = 'detectionArea' | 'maskArea' | 'regionArea' // 侦测-"detectionArea"/屏蔽-"maskArea"/矩形-"regionArea"
-        const { openLoading, closeLoading } = useLoading()
-        const openMessageBox = useMessageBox().openMessageBox
+
         const systemCaps = useCababilityStore()
         const { Translate } = useLangStore()
         const playerRef = ref<PlayerInstance>()
@@ -580,10 +579,7 @@ export default defineComponent({
             } else {
                 const errorCode = $('errorCode').text().num()
                 if (errorCode === 536871053) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_INPUT_LIMIT_FOUR_POIONT'),
-                    })
+                    openMessageBox(Translate('IDCS_INPUT_LIMIT_FOUR_POIONT'))
                 }
             }
         }
@@ -645,16 +641,10 @@ export default defineComponent({
                 for (const i in allRegionList) {
                     const count = allRegionList[i].length
                     if (count > 0 && count < 4) {
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_INPUT_LIMIT_FOUR_POIONT'),
-                        })
+                        openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_INPUT_LIMIT_FOUR_POIONT'))
                         return false
                     } else if (count > 0 && !peaDrawer.judgeAreaCanBeClosed(allRegionList[i])) {
-                        openMessageBox({
-                            type: 'info',
-                            message: Translate('IDCS_INTERSECT'),
-                        })
+                        openMessageBox(Translate('IDCS_INTERSECT'))
                         return false
                     }
                 }
@@ -962,10 +952,7 @@ export default defineComponent({
         // 提示区域关闭
         const forceClosePath = (canBeClosed: boolean) => {
             if (!canBeClosed) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_INTERSECT'),
-                })
+                openMessageBox(Translate('IDCS_INTERSECT'))
             }
         }
 
@@ -1063,9 +1050,9 @@ export default defineComponent({
             }
         }
 
-        const notify = ($: (path: string) => XmlResult) => {
+        const notify = ($: XMLQuery, stateType: string) => {
             // 区域入侵
-            if ($('statenotify[@type="PeaArea"]').length) {
+            if (stateType === 'PeaArea') {
                 if ($('statenotify/points').length) {
                     const currType = pageData.value.activityType
                     const points = $('statenotify/points/item').map((element) => {
@@ -1095,10 +1082,7 @@ export default defineComponent({
                     clearCurrentArea()
                 } else if (errorCode === 515) {
                     // 515-区域有相交直线，不可闭合
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_INTERSECT'),
-                    })
+                    openMessageBox(Translate('IDCS_INTERSECT'))
                 }
             }
         }

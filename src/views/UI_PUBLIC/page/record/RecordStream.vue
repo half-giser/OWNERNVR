@@ -4,13 +4,11 @@
  * @Description: 
 -->
 <template>
-    <div>
-        <RecordBaseStreamTable
-            :v-model="pageData.init"
-            :mode="pageData.mode"
-            :pop="false"
-        />
-    </div>
+    <RecordBaseStreamTable
+        v-if="pageData.mode"
+        :mode="pageData.mode"
+        :pop="false"
+    />
 </template>
 
 <script lang="ts" src="./RecordStream.v.ts"></script>

@@ -9,8 +9,6 @@ import { type FormRules } from 'element-plus'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
         const systemCaps = useCababilityStore()
         const userSession = useUserSessionStore()
 
@@ -192,10 +190,7 @@ export default defineComponent({
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 })
             } else {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_SAVE_DATA_FAIL'),
-                })
+                openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
             }
 
             pageData.value.mounted = false
@@ -219,7 +214,7 @@ export default defineComponent({
                 // portFormData.value.rtspPort = $("//rtspPort").text().num()
                 portFormData.value.virtualHostEnabled = $('content/virtualHostEnabled').text().bool()
 
-                const reservedPort = $('content/reservedPort').text().split(',')
+                const reservedPort = $('content/reservedPort').text().array()
                 pageData.value.reservedPort = []
                 pageData.value.reservedPortRange = []
                 reservedPort.forEach((item) => {
@@ -492,10 +487,7 @@ export default defineComponent({
          */
         const changeRtspServerSwitch = () => {
             if (rtspServerFormData.value.rtspServerSwitch) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_RTSP_OR_FTP_ENABLE_REMIND'),
-                })
+                openMessageBox(Translate('IDCS_RTSP_OR_FTP_ENABLE_REMIND'))
             }
         }
 
@@ -504,10 +496,7 @@ export default defineComponent({
          */
         const changeAnonymous = () => {
             if (rtspServerFormData.value.anonymousAccess) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_ANONYMOUS_LOGIN_REMIND'),
-                })
+                openMessageBox(Translate('IDCS_ANONYMOUS_LOGIN_REMIND'))
             }
         }
 

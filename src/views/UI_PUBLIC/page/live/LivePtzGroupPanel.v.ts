@@ -28,7 +28,6 @@ export default defineComponent({
     },
     setup(prop) {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
         const systemCaps = useCababilityStore()
 
         // 巡航线最大数量
@@ -78,10 +77,7 @@ export default defineComponent({
 
             // 巡航线数量达到上限8个
             if (listData.value.length >= CRUISE_MAX_COUNT) {
-                openMessageBox({
-                    type: 'info',
-                    message: 'IDCS_OVER_MAX_NUMBER_LIMIT',
-                })
+                openMessageBox(Translate('IDCS_OVER_MAX_NUMBER_LIMIT'))
                 return
             }
             pageData.value.isAddPop = true
@@ -132,10 +128,7 @@ export default defineComponent({
                         getList()
                     })
                 } else {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_DELETE_FAIL'),
-                    }).finally(() => {
+                    openMessageBox(Translate('IDCS_DELETE_FAIL')).finally(() => {
                         getList()
                     })
                 }

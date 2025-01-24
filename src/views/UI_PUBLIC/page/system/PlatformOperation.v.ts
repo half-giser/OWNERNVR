@@ -9,8 +9,6 @@ import { type TableInstance } from 'element-plus'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
-        const { openLoading, closeLoading } = useLoading()
-        const { openMessageBox } = useMessageBox()
 
         const router = useRouter()
 
@@ -450,10 +448,7 @@ export default defineComponent({
             const result = await editSHDBOperationCfg(sendXml)
             const $ = queryXml(result)
             if ($('status').text() === 'success') {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_PLATFORM_OPERATE_UPLOAD_MSG'),
-                })
+                openMessageBox(Translate('IDCS_PLATFORM_OPERATE_UPLOAD_MSG'))
             }
             closeLoading()
         }

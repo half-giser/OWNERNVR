@@ -63,7 +63,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
         const router = useRouter()
         const systemCaps = useCababilityStore()
         const userAuth = useUserChlAuth()
@@ -209,7 +208,7 @@ export default defineComponent({
         const timelineRef = ref<TimelineInstance>()
         const playerRef = ref<PlayerInstance>()
 
-        const plugin = setupPlugin({
+        const plugin = usePlugin({
             onReady: (mode, plugin) => {
                 if (mode.value === 'ocx') {
                     const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Playback')
@@ -483,10 +482,7 @@ export default defineComponent({
          * @description 没有数据时弹窗
          */
         const handleNoData = () => {
-            openMessageBox({
-                type: 'info',
-                message: Translate('IDCS_NO_RECORD_DATA'),
-            })
+            openMessageBox(Translate('IDCS_NO_RECORD_DATA'))
         }
 
         /**
@@ -800,10 +796,7 @@ export default defineComponent({
          */
         const backUp = () => {
             if (mode.value === 'ocx' && plugin.BackUpTask.isExeed(1)) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_BACKUP_TASK_NUM_LIMIT').formatForLang(plugin.BackUpTask.limit),
-                })
+                openMessageBox(Translate('IDCS_BACKUP_TASK_NUM_LIMIT').formatForLang(plugin.BackUpTask.limit))
                 return
             }
             pageData.value.backupRecList = [

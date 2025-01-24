@@ -39,8 +39,6 @@ export default defineComponent({
     },
     setup(prop) {
         const { Translate } = useLangStore()
-        const { openMessageBox } = useMessageBox()
-        const { openLoading, closeLoading } = useLoading()
 
         type CanvasAreaType = 'detectionArea' | 'maskArea'
         // 高级设置
@@ -122,36 +120,7 @@ export default defineComponent({
             timeType: 'day',
             // 重置模式列表
             countCycleTypeList: [] as SelectOption<string, string>[],
-            weekOption: [
-                {
-                    value: 0,
-                    label: Translate('IDCS_WEEK_DAY_SEVEN'),
-                },
-                {
-                    value: 1,
-                    label: Translate('IDCS_WEEK_DAY_ONE'),
-                },
-                {
-                    value: 2,
-                    label: Translate('IDCS_WEEK_DAY_TWO'),
-                },
-                {
-                    value: 3,
-                    label: Translate('IDCS_WEEK_DAY_THREE'),
-                },
-                {
-                    value: 4,
-                    label: Translate('IDCS_WEEK_DAY_FOUR'),
-                },
-                {
-                    value: 5,
-                    label: Translate('IDCS_WEEK_DAY_FIVE'),
-                },
-                {
-                    value: 6,
-                    label: Translate('IDCS_WEEK_DAY_SIX'),
-                },
-            ],
+            weekOption: objectToOptions(getTranslateMapping(DEFAULT_WEEK_MAPPING), 'number').slice(0, 7),
             monthOption: Array(31)
                 .fill(0)
                 .map((_, index) => {
@@ -240,10 +209,7 @@ export default defineComponent({
 
         const forceClosePath = (canBeClosed: boolean) => {
             if (!canBeClosed) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_INTERSECT'),
-                })
+                openMessageBox(Translate('IDCS_INTERSECT'))
             }
         }
 
@@ -936,16 +902,10 @@ export default defineComponent({
             for (const i in allRegionList) {
                 const count = allRegionList[i].length
                 if (count > 0 && count < 4) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_INPUT_LIMIT_FOUR_POIONT'),
-                    })
+                    openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_INPUT_LIMIT_FOUR_POIONT'))
                     return false
                 } else if (count > 0 && !vsdDrawer.judgeAreaCanBeClosed(allRegionList[i])) {
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_INTERSECT'),
-                    })
+                    openMessageBox(Translate('IDCS_INTERSECT'))
                     return false
                 }
             }
@@ -954,10 +914,7 @@ export default defineComponent({
             const carOsdName = formData.value.countOSD.osdCarName
             const bikeOsdName = formData.value.countOSD.osdBikeName
             if (!checkOsdName(peopleOsdName) || !checkOsdName(carOsdName) || !checkOsdName(bikeOsdName)) {
-                openMessageBox({
-                    type: 'info',
-                    message: Translate('IDCS_USER_ERROR_INVALID_PARAM'),
-                })
+                openMessageBox(Translate('IDCS_USER_ERROR_INVALID_PARAM'))
                 return false
             }
             return true
@@ -1137,9 +1094,9 @@ export default defineComponent({
             })
         }
 
-        const notify = ($: XMLQuery) => {
+        const notify = ($: XMLQuery, stateType: string) => {
             // 侦测区域/屏蔽区域
-            if ($("statenotify[@type='PeaArea']").length) {
+            if (stateType === 'PeaArea') {
                 // 绘制点线
                 if ($('statenotify/points').length) {
                     const point = $('statenotify/points/item').map((item) => {
@@ -1162,14 +1119,12 @@ export default defineComponent({
                     clearCurrentArea()
                 } else if (errorCode === 515) {
                     // 515-区域有相交直线，不可闭合
-                    openMessageBox({
-                        type: 'info',
-                        message: Translate('IDCS_INTERSECT'),
-                    })
+                    openMessageBox(Translate('IDCS_INTERSECT'))
                 }
             }
+
             // OSD
-            else if ($("statenotify[@type='TripwireLineInfo']").length) {
+            if (stateType === 'TripwireLineInfo') {
                 const X = $('statenotify/PosInfo/X').text().num()
                 const Y = $('statenotify/PosInfo/Y').text().num()
                 formData.value.countOSD.X = X
