@@ -4,7 +4,7 @@
  * @Date: 2024-07-31 10:13:57
  */
 
-import { type RecordSubStreamResolutionDto, type RecordSubStreamList, type RecordStreamQualityCapsDto } from '@/types/apiType/record'
+import { type RecordStreamResolutionDto, type RecordSubStreamList, type RecordStreamQualityCapsDto } from '@/types/apiType/record'
 import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
@@ -28,14 +28,14 @@ export default defineComponent({
             videoEncodeTypeList: [] as SelectOption<string, string>[],
             // 分辨率表头下拉框
             resolutionHeaderVisble: false,
-            resolutionGroups: [] as RecordSubStreamResolutionDto[],
+            resolutionGroups: [] as RecordStreamResolutionDto[],
             videoQualityList: [] as SelectOption<number, string>[],
             expands: [] as string[],
         })
 
         const tableData = ref<RecordSubStreamList[]>([])
         const editRows = useWatchEditRows<RecordSubStreamList>()
-        const virtualTableData = computed(() => {
+        const virtualTableData = computed<number[]>(() => {
             return Array(tableData.value.length)
                 .fill(1)
                 .map((item, index) => item + index)
@@ -460,8 +460,8 @@ export default defineComponent({
                 rowData.frameRate = frameRates[0]
             }
 
-            if (rowData.frameRate < frameRates[frameRates.length - 1]) {
-                rowData.frameRate = frameRates[frameRates.length - 1]
+            if (rowData.frameRate < frameRates.at(-1)!) {
+                rowData.frameRate = frameRates.at(-1)!
             }
 
             return arrayToOptions(frameRates)
@@ -511,7 +511,7 @@ export default defineComponent({
                     resolutionMapping[mappingKey] = []
                     pageData.value.resolutionGroups.push({
                         res: resolutionList[0],
-                        resGroup: resolutionList,
+                        resGroup: arrayToOptions(resolutionList),
                         chls: {
                             expand: !pageData.value.resolutionGroups.length,
                             data: resolutionMapping[mappingKey],
@@ -547,7 +547,7 @@ export default defineComponent({
             pageData.value.resolutionHeaderVisble = false
         }
 
-        const handleExpandChange = (row: RecordSubStreamResolutionDto, expandedRows: string[]) => {
+        const handleExpandChange = (row: RecordStreamResolutionDto, expandedRows: string[]) => {
             if (expandedRows.includes(row.chls.data[0].value) && resolutionTableRef.value) {
                 resolutionTableRef.value.toggleRowExpansion(row, false)
                 row.chls.expand = false
@@ -559,7 +559,7 @@ export default defineComponent({
             }
         }
 
-        const getRowKey = (row: RecordSubStreamResolutionDto) => {
+        const getRowKey = (row: RecordStreamResolutionDto) => {
             return row.chls.data[0].value
         }
 

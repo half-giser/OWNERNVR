@@ -19,12 +19,12 @@
             @expand-change="handleExpandChange"
         >
             <el-table-column>
-                <template #default="scope">
+                <template #default="scope: TableColumn<SystemAlarmStatusList>">
                     <div class="type">{{ scope.row.type }}</div>
                 </template>
             </el-table-column>
             <el-table-column>
-                <template #default="scope">
+                <template #default="scope: TableColumn<SystemAlarmStatusList>">
                     <div class="status">
                         <div
                             :class="{
@@ -49,7 +49,7 @@
                 </template>
             </el-table-column>
             <el-table-column type="expand">
-                <template #default="scope">
+                <template #default="scope: TableColumn<SystemAlarmStatusList>">
                     <div class="expand-box">
                         <div
                             v-show="scope.row.data.length"
@@ -61,7 +61,7 @@
                                     :key="`${scope.row.id + (scope.row.index - 1)}${key}`"
                                     :class="[
                                         {
-                                            hidden: item.hidden,
+                                            hidden: item.hide,
                                         },
                                         `span${item.span}`,
                                     ]"

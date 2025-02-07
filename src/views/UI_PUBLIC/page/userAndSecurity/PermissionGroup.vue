@@ -105,12 +105,12 @@
                     min-width="220"
                     :label="Translate('IDCS_RIGHT_GROUP')"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<UserAuthGroupList>">
                         {{ displayAuthGroup(scope.row.name) }}
                     </template>
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_EDIT')">
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<UserAuthGroupList>">
                         <BaseImgSprite
                             v-show="scope.row.enableEdit"
                             file="edit (2)"
@@ -122,7 +122,7 @@
                     </template>
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_SAVE_AS')">
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<UserAuthGroupList>">
                         <BaseImgSprite
                             file="saveas"
                             :index="0"
@@ -133,7 +133,7 @@
                     </template>
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_DELETE')">
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<UserAuthGroupList>">
                         <BaseImgSprite
                             v-show="!scope.row.isDefault"
                             file="del"

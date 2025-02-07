@@ -3,7 +3,7 @@
  * @Date: 2024-08-29 09:41:34
  * @Description: 智能分析-引擎配置
  */
-import { EngineConfigForm, type EngineConfigList } from '@/types/apiType/intelligentAnalysis'
+import { IntelEngineConfigForm, type IntelEngineConfigList } from '@/types/apiType/intelligentAnalysis'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import type { UserCheckAuthForm } from '@/types/apiType/user'
 
@@ -33,11 +33,11 @@ export default defineComponent({
             isCheckAuthPop: false,
         })
 
-        const formData = ref(new EngineConfigForm())
+        const formData = ref(new IntelEngineConfigForm())
         // 用来记录勾选框的值是否被更改，更改了才需要下发协议
-        const cloneFormData = new EngineConfigForm()
+        const cloneFormData = new IntelEngineConfigForm()
 
-        const tableData = ref<EngineConfigList[]>([])
+        const tableData = ref<IntelEngineConfigList[]>([])
 
         /**
          * @description 获取工作模式

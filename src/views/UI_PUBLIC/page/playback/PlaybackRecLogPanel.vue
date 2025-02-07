@@ -36,11 +36,11 @@
                     prop="chlName"
                 />
                 <el-table-column :label="Translate('IDCS_START_TIME')">
-                    <template #default="scope">{{ displayTime(scope.row.startTime) }}</template>
+                    <template #default="scope: TableColumn<PlaybackRecLogList>">{{ displayTime(scope.row.startTime) }}</template>
                 </el-table-column>
 
                 <el-table-column :label="Translate('IDCS_END_TIME')">
-                    <template #default="scope">{{ displayTime(scope.row.endTime) }}</template>
+                    <template #default="scope: TableColumn<PlaybackRecLogList>">{{ displayTime(scope.row.endTime) }}</template>
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_EVENT_TYPE')">
                     <template #header>
@@ -83,7 +83,7 @@
                         </el-popover>
                     </template>
 
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<PlaybackRecLogList>">
                         <el-text>{{ displayEvent(scope.row) }}</el-text>
                         <BaseImgSprite
                             v-show="displayEventIcon(scope.row)"
@@ -97,7 +97,7 @@
                 />
 
                 <el-table-column :label="Translate('IDCS_PLAY')">
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<PlaybackRecLogList>">
                         <BaseImgSprite
                             file="play (3)"
                             :index="0"
@@ -112,7 +112,7 @@
                     v-show="!isMac"
                     :label="Translate('IDCS_DOWNLOAD')"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<PlaybackRecLogList>">
                         <BaseImgSprite
                             file="download"
                             :index="0"

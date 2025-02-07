@@ -63,7 +63,7 @@
                         width="152"
                     />
                     <el-table-column :label="Translate('IDCS_EDIT')">
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelPtzCruiseGroupCruiseDto>">
                             <BaseImgSprite
                                 file="del"
                                 :index="2"
@@ -100,12 +100,12 @@
                 >
                     <el-table-column prop="chlName" />
                     <el-table-column>
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelPtzCruiseGroupChlDto>">
                             {{ Translate('IDCS_CRUISE_NUM_D').formatForLang(scope.row.cruiseCount) }}
                         </template>
                     </el-table-column>
                     <el-table-column type="expand">
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelPtzCruiseGroupChlDto>">
                             <ChannelPtzTableExpandPanel @add="addCruise(scope.$index)">
                                 <ChannelPtzTableExpandItem
                                     v-for="(item, index) in scope.row.cruise"

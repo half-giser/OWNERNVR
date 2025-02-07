@@ -454,7 +454,7 @@ export default defineComponent({
                     return
                 }
 
-                if (timestamp >= item.records[item.records.length - 1].endTime) {
+                if (timestamp >= item.records.at(-1)!.endTime) {
                     return
                 }
                 const index = player.getWinIndexesByChlId(item.chlId)

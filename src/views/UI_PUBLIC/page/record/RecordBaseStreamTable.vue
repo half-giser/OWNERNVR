@@ -17,7 +17,7 @@
                     min-width="220"
                     show-overflow-tooltip
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<number>">
                         {{ tableData[scope.$index].name }}
                     </template>
                 </el-table-column>
@@ -27,7 +27,7 @@
                     width="120"
                     show-overflow-tooltip
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<number>">
                         {{ displayStreamType(tableData[scope.$index]) }}
                     </template>
                 </el-table-column>
@@ -54,7 +54,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<number>">
                         <el-select-v2
                             v-model="tableData[scope.$index].videoEncodeType"
                             :disabled="tableData[scope.$index].disabled"
@@ -92,7 +92,7 @@
                                     @expand-change="changeExpandResolution($event, pageData.expands)"
                                 >
                                     <el-table-column width="220">
-                                        <template #default="scope">
+                                        <template #default="scope: TableColumn<RecordStreamResolutionDto>">
                                             <el-select-v2
                                                 v-model="scope.row.res"
                                                 :options="scope.row.resGroup"
@@ -104,7 +104,7 @@
                                         type="expand"
                                         width="188"
                                     >
-                                        <template #default="scope">
+                                        <template #default="scope: TableColumn<RecordStreamResolutionDto>">
                                             <div class="chl-box">
                                                 <div
                                                     v-for="(item, index) in scope.row.chls.data"
@@ -129,7 +129,7 @@
                             </div>
                         </el-popover>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<number>">
                         <el-select-v2
                             v-model="tableData[scope.$index].resolution"
                             max-height="400"
@@ -162,7 +162,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<number>">
                         <el-select-v2
                             v-if="!tableData[scope.$index].frameRate"
                             model-value=""
@@ -200,7 +200,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<number>">
                         <el-select-v2
                             v-if="!tableData[scope.$index].disabled"
                             v-model="tableData[scope.$index].bitType"
@@ -234,7 +234,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<number>">
                         <el-select-v2
                             v-model="tableData[scope.$index].level"
                             :placeholder="Translate('IDCS_LOWEST')"
@@ -266,7 +266,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<number>">
                         <el-select-v2
                             v-model="tableData[scope.$index].videoQuality"
                             :disabled="isVideoQualityDisabled(scope.$index)"
@@ -280,7 +280,7 @@
                     width="205"
                     show-overflow-tooltip
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<number>">
                         <span :disabled="tableData[scope.$index].disabled">{{ getBitRange(tableData[scope.$index]) }}</span>
                     </template>
                 </el-table-column>
@@ -307,7 +307,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<number>">
                         <el-select-v2
                             v-model="tableData[scope.$index].audio"
                             :placeholder="Translate('IDCS_ON')"
@@ -340,7 +340,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<number>">
                         <el-select-v2
                             v-model="tableData[scope.$index].recordStream"
                             placeholder="主码流"
@@ -388,7 +388,7 @@
                             </div>
                         </el-popover>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<number>">
                         <BaseNumberInput
                             v-model="tableData[scope.$index].GOP"
                             :disabled="isGOPDisabled(scope.$index)"

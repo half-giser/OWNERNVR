@@ -223,7 +223,7 @@ export default defineComponent({
                 }
             }
             const label = stats.calLabel()
-            const defaultValue = Array(csvTitle.colspan - 2).fill('0')
+            const defaultValue: string[] = Array(csvTitle.colspan - 2).fill('0')
             const csvBody: string[][] = []
             label.forEach((labelItem, index) => {
                 const item = tableData.value[index]

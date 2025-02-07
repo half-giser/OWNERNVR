@@ -1,13 +1,13 @@
 /*
  * @Author: zhangdongming zhangdongming@tvt.net.cn
  * @Date: 2024-05-27 18:04:03
- * @Description: 排程
+ * @Description: 排程的类型定义，类型命名的前缀统一为Schedule*
  */
 
 /**
  * @description 排程-排程信息
  */
-export class NameValueItem {
+export class ScheduleDto {
     id = '' // id
     name = '' // 名称
 }

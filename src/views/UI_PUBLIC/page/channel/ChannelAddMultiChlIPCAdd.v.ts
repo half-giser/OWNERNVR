@@ -1,5 +1,5 @@
 /*
- * @Author: yejiahao yejiahao@tvt.net.cn
+ * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-07-09 18:39:25
  * @Description: 添加通道 - 手动添加IPC通道(普通通道+热成像通道)
  */

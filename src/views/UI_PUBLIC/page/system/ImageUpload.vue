@@ -34,7 +34,7 @@
                     :label="Translate('IDCS_SCHEDULE_TIMES')"
                     min-width="400"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<SystenSHDBImageUploadDto>">
                         {{ Translate('IDCS_SCHEDULE_UPLOAD_PIC_TIMES').formatForLang(scope.row.timeCount) }}
                     </template>
                 </el-table-column>
@@ -44,7 +44,7 @@
                     :label="Translate('IDCS_CLEAR_ALL')"
                     width="110"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<SystenSHDBImageUploadDto>">
                         <BaseImgSprite
                             file="del"
                             :chunk="4"
@@ -61,7 +61,7 @@
                     :label="Translate('IDCS_EDIT')"
                     width="106"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<SystenSHDBImageUploadDto>">
                         <div class="expand">
                             <div
                                 v-for="(item, index) in scope.row.timelist"

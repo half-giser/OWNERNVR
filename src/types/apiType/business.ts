@@ -1,13 +1,13 @@
 /*
  * @Author: zhangdongming zhangdongming@tvt.net.cn
  * @Date: 2024-05-27 10:50:38
- * @Description: 业务应用（停车场管理、门禁管理、人脸考勤、人脸签到）
+ * @Description: 业务应用（停车场管理、门禁管理、人脸考勤、人脸签到）的类型定义，类型命名的前缀统一为Business*
  */
 
 /**
  * @description 停车场管理-基础配置-停车场信息表单
  */
-export class PkMgrBasicConfigForm {
+export class BusinessPkMgrBasicConfigForm {
     parkName = '' // 停车场名称
     totalNum = 0 // 总车位
     remainTotalNum = 0 // 剩余总车位
@@ -18,7 +18,7 @@ export class PkMgrBasicConfigForm {
 /**
  * @description 停车场管理-车位管理-车位信息列表
  */
-export class PkMgrSpaceManageList {
+export class BusinessPkMgrSpaceManageList {
     id = '' // parkingSapce id（车位id）
     groupName = '' // 停车组名称
     parkingType = '' // 停车选项
@@ -30,9 +30,7 @@ export class PkMgrSpaceManageList {
 }
 
 // 业务应用-停车场管理-出入口-出入口信息
-export type directionType = 'no' | 'out' | 'in' // 方向-Type
-export type screenType = 'JiaXun' // LED屏-Type
-export class PkMgrEnterExitManageList {
+export class BusinessPkMgrEnterExitManageList {
     id = '' // id
     channelName = '' // 出入口车道名称（通道名称）
     direction = '' // 方向
@@ -47,7 +45,7 @@ export class PkMgrEnterExitManageList {
 /**
  * @description 门禁管理-门禁配置-门禁信息
  */
-export class AccessLockDataItem {
+export class BusinessAccessLockDataItem {
     id = 0
     name = ' '
     openDelayTimeMin = 0 // 开门延时时间-最小值
@@ -67,8 +65,8 @@ export class AccessLockDataItem {
 /**
  * @description 业务应用-门禁管理表单
  */
-export class AccessConfigForm {
-    accessLockData = [new AccessLockDataItem()]
+export class BusinessAccessConfigForm {
+    accessLockData = [new BusinessAccessLockDataItem()]
     accessListType = ''
     wearMaskOpen = false
     wiegandIOType = ''

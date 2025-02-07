@@ -140,12 +140,12 @@
                 >
                     <el-table-column prop="chlName" />
                     <el-table-column>
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelPtzTraceChlDto>">
                             {{ Translate('IDCS_TRACE_NUM_D').formatForLang(scope.row.traceCount) }}
                         </template>
                     </el-table-column>
                     <el-table-column type="expand">
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelPtzTraceChlDto>">
                             <ChannelPtzTableExpandPanel @add="addTrace(scope.$index)">
                                 <ChannelPtzTableExpandItem
                                     v-for="(item, index) in scope.row.trace"

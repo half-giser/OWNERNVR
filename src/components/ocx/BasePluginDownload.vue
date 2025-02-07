@@ -36,7 +36,7 @@ if (import.meta.env.DEV) {
     pluginLink.value = '/plugin' + path.ClientPluDownLoadPath
 }
 const split = pluginLink.value.split('/')
-const pluginName = ref(split[split.length - 1])
+const pluginName = ref(split.at(-1)!)
 
 // MAC系统本地访问进入登录页面时，不显示插件下载链接
 const isPluginIconHide = ref(userSession.appType === 'STANDARD' && osType === 'mac') // ref(osType === 'mac')

@@ -154,12 +154,12 @@
     width: 100%;
     display: flex;
     justify-content: space-between;
-    height: 65px;
+    height: 70px;
     align-items: center;
 }
 
 #logo {
-    margin-left: 14px;
+    margin-left: 12px;
     width: 50%;
     // width: 350px;
     height: 65px;
@@ -220,6 +220,7 @@
 }
 
 #mainMenu {
+    margin-top: 5px;
     height: 34px;
     --el-menu-active-color: var(--primary);
     --el-menu-base-level-padding: 10px;

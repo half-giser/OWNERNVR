@@ -1,7 +1,7 @@
 /*
  * @Author: tengxiang tengxiang@tvt.net.cn
  * @Date: 2024-08-10 12:08:57
- * @Description: AI/事件
+ * @Description: AI/事件的类型定义，类型命名的前缀统一为Alaram*
  */
 
 import { TableRowStatus } from './base'
@@ -232,10 +232,12 @@ export class AlarmSystemDisarmDto {
     nodeType = ''
 }
 
-// 传感器页面——通道列表
-export class ChlList {
+export class AlarmSystemDisarmChlAndSensorSrcDto {
     id = ''
-    name = ''
+    value = ''
+    nodeType = ''
+    supportManualAudio = false
+    supportManualWhiteLight = false
 }
 
 /**

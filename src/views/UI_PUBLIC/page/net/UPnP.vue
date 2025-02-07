@@ -33,12 +33,12 @@
                 :row-class-name="handleRowClassName"
             >
                 <el-table-column :label="Translate('IDCS_PORT_TYPE')">
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<NetUPnPPortDto>">
                         {{ displayPortType(scope.row.portType) }}
                     </template>
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_EXT_PORT')">
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<NetUPnPPortDto>">
                         <BaseNumberInput
                             v-model="scope.row.externalPort"
                             :min="10"

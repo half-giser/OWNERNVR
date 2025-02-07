@@ -64,7 +64,7 @@
                         label=" "
                         width="50"
                     >
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelFisheyeDto>">
                             <BaseTableRowStatus
                                 :icon="scope.row.status"
                                 :error-text="scope.row.statusTip"
@@ -98,7 +98,7 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelFisheyeDto>">
                             <el-select-v2
                                 v-model="scope.row.fishEyeMode"
                                 :disabled="scope.row.disabled || scope.row.reqCfgFail || scope.row.HIKVISION"
@@ -130,7 +130,7 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelFisheyeDto>">
                             <el-select-v2
                                 v-model="scope.row.installType"
                                 :disabled="scope.row.disabled || scope.row.reqCfgFail || scope.row.HIKVISION"
@@ -162,7 +162,7 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelFisheyeDto>">
                             <el-select-v2
                                 v-model="scope.row.fishEyeEnable"
                                 :disabled="!scope.row.reqCfgFail || scope.row.privateProtocol"

@@ -59,7 +59,7 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<RecordScheduleDto>">
                             <el-select-v2
                                 v-model="scope.row.alarmRec"
                                 :options="pageData.scheduleList"
@@ -87,7 +87,7 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<RecordScheduleDto>">
                             <el-select-v2
                                 v-model="scope.row.motionRec"
                                 :options="pageData.scheduleList"
@@ -115,7 +115,7 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<RecordScheduleDto>">
                             <el-select-v2
                                 v-model="scope.row.intelligentRec"
                                 :options="pageData.scheduleList"
@@ -143,7 +143,7 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<RecordScheduleDto>">
                             <el-select-v2
                                 v-model="scope.row.posRec"
                                 :options="pageData.scheduleList"
@@ -171,7 +171,7 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<RecordScheduleDto>">
                             <el-select-v2
                                 v-model="scope.row.scheduleRec"
                                 :options="pageData.scheduleList"

@@ -55,7 +55,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<SystemImageUploadAlarmItem>">
                         <el-select-v2
                             v-model="scope.row.preTime"
                             :disabled="scope.row.rowDisable"
@@ -83,7 +83,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<SystemImageUploadAlarmItem>">
                         <el-select-v2
                             v-model="scope.row.saveTime"
                             :disabled="scope.row.rowDisable"

@@ -50,7 +50,7 @@
                     :label="Translate('IDCS_FREE_AI_RESOURCE')"
                     width="118"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<AlarmAIResourceDto>">
                         <BaseImgSprite
                             file="del"
                             :chunk="4"

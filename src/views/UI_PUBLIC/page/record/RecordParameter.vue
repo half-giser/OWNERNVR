@@ -73,7 +73,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<RecordParamDto>">
                         <el-select-v2
                             v-model="scope.row.per"
                             :options="pageData.perList"
@@ -103,7 +103,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<RecordParamDto>">
                         <el-select-v2
                             v-model="scope.row.post"
                             :options="pageData.postList"
@@ -134,7 +134,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<RecordParamDto>">
                         <el-select-v2
                             v-model="scope.row.ANRSwitch"
                             :disabled="!scope.row.manufacturerEnable"
@@ -166,7 +166,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<RecordParamDto>">
                         <el-select-v2
                             v-model="scope.row.expirationDisplay"
                             :options="pageData.expirationList"

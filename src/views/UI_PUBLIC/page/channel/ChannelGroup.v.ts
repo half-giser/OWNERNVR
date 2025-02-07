@@ -165,7 +165,7 @@ export default defineComponent({
             isAddChlPop.value = true
         }
 
-        const handleDelChl = (rowData: ChannelGroupDto, chlId: string) => {
+        const handleDelChl = (rowData: ChannelGroupDto, chlId: string | boolean) => {
             if (rowData.chlCount <= 1) {
                 openMessageBox(Translate('IDCS_PROMPT_CHANNEL_GROUP_DELETE_CHANNEL_ERROR'))
                 return

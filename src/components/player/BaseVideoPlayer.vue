@@ -898,7 +898,7 @@ const getOverlayCanvas = (winIndex: number) => {
  * @param {number} zoomValue 放大值
  */
 const zoom = (winIndex: number, zoomValue: number) => {
-    if (zoomValue < zoomList[0] || zoomValue > zoomList[zoomList.length - 1]) {
+    if (zoomValue < zoomList.at(0)! || zoomValue > zoomList.at(-1)!) {
         return
     }
     const zoomBefore = zoomList[pageData.value[winIndex].zoomIndex]
@@ -1850,8 +1850,8 @@ const stop = (winIndex: number) => {
     if (!playerList[winIndex]) {
         return
     }
-    playerList[winIndex].stop()
-    playerList[winIndex].destroy()
+    playerList[winIndex]?.stop()
+    playerList[winIndex]?.destroy()
     hideErrorTips(winIndex)
     playerList[winIndex] = null
 }

@@ -15,12 +15,12 @@
                 prop="name"
             />
             <el-table-column :label="Translate('IDCS_CONNECT_STATUS')">
-                <template #default="scope">
+                <template #default="scope: TableColumn<SystemChannelStatusList>">
                     <span :class="{ 'text-error': !scope.row.online }">{{ scope.row.online ? Translate('IDCS_ONLINE') : Translate('IDCS_OFFLINE') }}</span>
                 </template>
             </el-table-column>
             <el-table-column :label="Translate('IDCS_MOTION_DETECTION')">
-                <template #default="scope">
+                <template #default="scope: TableColumn<SystemChannelStatusList>">
                     {{ formatMotionStatus(scope.row) }}
                 </template>
             </el-table-column>
@@ -28,12 +28,12 @@
                 v-if="systemCaps.ipChlMaxCount > 0"
                 :label="Translate('IDCS_AI')"
             >
-                <template #default="scope">
+                <template #default="scope: TableColumn<SystemChannelStatusList>">
                     {{ formatIntelligentStatus(scope.row) }}
                 </template>
             </el-table-column>
             <el-table-column :label="Translate('IDCS_RECORD')">
-                <template #default="scope">
+                <template #default="scope: TableColumn<SystemChannelStatusList>">
                     <span :class="{ 'text-error': scope.row.online && scope.row.recStatus === 'recordingAbnormal' }">{{ formatRecStatus(scope.row) }}</span>
                 </template>
             </el-table-column>

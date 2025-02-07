@@ -53,7 +53,7 @@
                         label=" "
                         width="50"
                     >
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelWaterMarkDto>">
                             <BaseTableRowStatus :icon="scope.row.status" />
                         </template>
                     </el-table-column>
@@ -82,7 +82,7 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelWaterMarkDto>">
                             <el-select-v2
                                 v-model="scope.row.switch"
                                 :disabled="scope.row.disabled"

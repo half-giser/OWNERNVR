@@ -1,7 +1,7 @@
 /*
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-03 16:14:27
- * @Description: 录像与回放
+ * @Description: 录像配置的类型定义，类型命名的前缀统一为Record*
  */
 import { TableRowStatus } from './base'
 
@@ -104,9 +104,9 @@ export class RecordSubStreamList extends TableRowStatus {
 /**
  * @description 分辨率数据项
  */
-export class RecordSubStreamResolutionDto {
+export class RecordStreamResolutionDto {
     res = ''
-    resGroup: string[] = []
+    resGroup: SelectOption<string, string>[] = []
     chls = {
         expand: false,
         data: [] as SelectOption<string, string>[],

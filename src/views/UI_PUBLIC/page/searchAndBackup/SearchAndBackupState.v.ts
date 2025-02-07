@@ -40,7 +40,7 @@ export default defineComponent({
         const remoteTableData = ref<PlaybackBackUpTaskList[]>([])
 
         // 任务列表
-        const tableData = computed(() => {
+        const tableData = computed<PlaybackBackUpTaskList[]>(() => {
             return [...localTableData.value, ...remoteTableData.value]
         })
 

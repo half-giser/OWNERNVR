@@ -3,7 +3,7 @@
  * @Date: 2024-10-15 10:04:36
  * @Description: 录像码流通用组件
  */
-import { RecordStreamInfoDto, type RecordStreamInfoAttrDto } from '@/types/apiType/record'
+import { RecordStreamInfoDto, type RecordStreamInfoAttrDto, type RecordStreamResolutionDto } from '@/types/apiType/record'
 import { type XmlResult } from '@/utils/xmlParse'
 import type { TableInstance } from 'element-plus'
 export default defineComponent({
@@ -31,11 +31,11 @@ export default defineComponent({
         // 用于控制下拉菜单的打开关闭
         const resolutionTableRef = ref<TableInstance>()
 
-        type ResolutionGroupReturnsType = {
-            res: string
-            resGroup: SelectOption<string, string>[]
-            chls: { expand: boolean; data: SelectOption<string, string>[] }
-        }
+        // type ResolutionGroupReturnsType = {
+        //     res: string
+        //     resGroup: SelectOption<string, string>[]
+        //     chls: { expand: boolean; data: SelectOption<string, string>[] }
+        // }
 
         type ChlItem = {
             id: string
@@ -55,7 +55,7 @@ export default defineComponent({
             isAuto: false,
             loopRecSwitch: false,
             videoEncodeTypeList: [] as SelectOption<string, string>[],
-            resolutionGroups: [] as ResolutionGroupReturnsType[],
+            resolutionGroups: [] as RecordStreamResolutionDto[],
             bitTypeList: [] as string[],
             levelList: [] as SelectOption<string, string>[],
             videoQualityList: [] as SelectOption<number, string>[],
@@ -649,10 +649,10 @@ export default defineComponent({
 
         /**
          * @description 展开或者收起分辨率下拉框的方法
-         * @param {ResolutionGroupReturnsType} row
+         * @param {RecordStreamResolutionDto} row
          * @param {string[]} expandedRows
          */
-        const changeExpandResolution = (row: ResolutionGroupReturnsType, expandedRows: string[]) => {
+        const changeExpandResolution = (row: RecordStreamResolutionDto, expandedRows: string[]) => {
             if (expandedRows.includes(row.chls.data[0].value) && resolutionTableRef.value) {
                 resolutionTableRef.value.toggleRowExpansion(row, false)
                 row.chls.expand = false
@@ -666,9 +666,9 @@ export default defineComponent({
 
         /**
          * @description 获取分辨率下拉框的key
-         * @param {ResolutionGroupReturnsType} row
+         * @param {RecordStreamResolutionDto} row
          */
-        const getRowKey = (row: ResolutionGroupReturnsType) => {
+        const getRowKey = (row: RecordStreamResolutionDto) => {
             return row.chls.data[0].value
         }
 
@@ -889,15 +889,15 @@ export default defineComponent({
                 rowData.frameRate = frameRates[0]
             }
 
-            if (rowData.frameRate < frameRates[frameRates.length - 1]) {
-                rowData.frameRate = frameRates[frameRates.length - 1]
+            if (rowData.frameRate < frameRates.at(-1)!) {
+                rowData.frameRate = frameRates.at(-1)!
             }
             return arrayToOptions(frameRates)
         }
 
         /**
          * @description 获取整体的分辨率下拉框数据
-         * @returns {ResolutionGroupReturnsType[]}
+         * @returns {RecordStreamResolutionDto[]}
          */
         const getResolutionGroups = () => {
             // 生成数据
@@ -905,7 +905,7 @@ export default defineComponent({
                 return item.chlType !== 'recorder' && !item.disabled
             })
             const resolutionMapping: Record<string, SelectOption<string, string>[]> = {}
-            const resolutionGroups: ResolutionGroupReturnsType[] = []
+            const resolutionGroups: RecordStreamResolutionDto[] = []
             rowDatas.forEach((rowData) => {
                 const resolutionList: string[] = []
                 rowData.mainCaps.res.forEach((element) => {

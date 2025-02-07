@@ -59,14 +59,14 @@
                 :chl="pageData.chlMap"
                 :auth="userAuth"
             >
-                <template #default="scope">
+                <template #default="{ index }">
                     <LiveSnapPanel
                         v-if="isSnapPanel"
-                        v-show="scope.index === 0"
+                        v-show="index === 0"
                         :auth="userAuth"
                     />
                     <LiveControlPanel
-                        v-show="scope.index === 1"
+                        v-show="index === 1"
                         :mode="mode"
                         :split="pageData.split"
                         :win-data="pageData.winData"
@@ -88,20 +88,20 @@
                         @talk="toggleTalk"
                     />
                     <LiveLensPanel
-                        v-show="scope.index === 2"
+                        v-show="index === 2"
                         :mode="mode"
                         :win-data="pageData.winData"
                         @update-support-az="updateSupportAz"
                     />
                     <LivePtzPanel
-                        v-show="scope.index === 3"
+                        v-show="index === 3"
                         :win-data="pageData.winData"
                         :chl="pageData.chlMap"
                         :mode="mode"
                     />
                     <LiveFishEyePanel
                         v-if="isFishEyePanel"
-                        v-show="scope.index === 4"
+                        v-show="index === 4"
                         ref="fisheyeRef"
                         :win-data="pageData.winData"
                         @update-support-fish-eye="updateSupportFishEye"

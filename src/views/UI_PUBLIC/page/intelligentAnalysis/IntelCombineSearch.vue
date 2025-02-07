@@ -181,7 +181,7 @@
                         :selectable="getTableSelectable"
                     />
                     <el-table-column :label="Translate('IDCS_SNAP_TIME')">
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<IntelSearchList>">
                             {{ displayDateTime(scope.row.timestamp) }}
                         </template>
                     </el-table-column>
@@ -197,7 +197,7 @@
                         width="100"
                         :label="Translate('IDCS_DETAIL_INFO')"
                     >
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<IntelSearchList>">
                             <BaseImgSprite
                                 file="browser"
                                 :index="0"

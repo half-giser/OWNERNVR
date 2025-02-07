@@ -8,11 +8,10 @@ import fs from 'node:fs'
 
 const optimizeDepsIncludes = ['element-plus/es', '@element-plus/icons-vue']
 fs.readdirSync('node_modules/element-plus/es/components').map((dirname) => {
-    fs.access(`node_modules/element-plus/es/components/${dirname}/style/css.mjs`, (err) => {
-        if (!err) {
-            optimizeDepsIncludes.push(`element-plus/es/components/${dirname}/style/css`)
-        }
-    })
+    try {
+        fs.accessSync(`node_modules/element-plus/es/components/${dirname}/style/css.mjs`)
+        optimizeDepsIncludes.push(`element-plus/es/components/${dirname}/style/css`)
+    } catch (e) {}
 })
 
 export default optimizeDepsIncludes

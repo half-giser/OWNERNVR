@@ -121,52 +121,52 @@
             <div class="base-table-box">
                 <el-table :data="tableData">
                     <el-table-column :label="Translate('IDCS_LICENSE_PLATE_NUM')">
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<BusinessParkingLotList>">
                             {{ displayPlateNum(scope.row.plateNum) }}
                         </template>
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_VEHICLE_PARKING_TIME')">
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<BusinessParkingLotList>">
                             <span :class="{ 'text-error': scope.row.abnormal }">{{ displayDuration(scope.row) }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_VEHICLE_IN_OUT_RESULT')">
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<BusinessParkingLotList>">
                             <span :class="{ 'text-error': scope.row.abnormal }">{{ displayType(scope.row.type) }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_VEHICLE_ENTRANCE')">
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<BusinessParkingLotList>">
                             <span :class="{ 'text-error': scope.row.abnormal }">{{ scope.row.enterChl || '--' }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_VEHICLE_IN_TIME')">
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<BusinessParkingLotList>">
                             <span :class="{ 'text-error': scope.row.abnormal }">{{ displayDateTime(scope.row.enterTime) }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_VEHICLE_IN_RELEASE_METHOD')">
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<BusinessParkingLotList>">
                             <span :class="{ 'text-error': scope.row.abnormal }">{{ displayOpenGateType(scope.row.enterType) }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_VEHICLE_EXIT')">
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<BusinessParkingLotList>">
                             <span :class="{ 'text-error': scope.row.abnormal }">{{ scope.row.exitChl || '--' }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_VEHICLE_OUT_TIME')">
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<BusinessParkingLotList>">
                             <span :class="{ 'text-error': scope.row.abnormal }">{{ displayDateTime(scope.row.exitTime) }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_VEHICLE_OUT_RELEASE_METHOD')">
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<BusinessParkingLotList>">
                             <span :class="{ 'text-error': scope.row.abnormal }">{{ displayOpenGateType(scope.row.exitType) }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_DETAIL')">
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<BusinessParkingLotList>">
                             <el-button @click="showDetail(scope.$index)">{{ Translate('IDCS_VIEW') }}</el-button>
                         </template>
                     </el-table-column>

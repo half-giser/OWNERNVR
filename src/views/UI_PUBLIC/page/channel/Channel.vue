@@ -21,7 +21,7 @@
                     :label="Translate('IDCS_CHANNEL_NAME')"
                     min-width="200"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<ChannelInfoDto>">
                         {{ formatDisplayName(scope.row) }}
                     </template>
                 </el-table-column>
@@ -34,7 +34,7 @@
                     :label="Translate('IDCS_PORT')"
                     width="80"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<ChannelInfoDto>">
                         <!-- 模拟通道端口置空 -->
                         {{ scope.row.ip === '' ? '' : scope.row.port }}
                     </template>
@@ -43,7 +43,7 @@
                     :label="Translate('IDCS_CONNECT_STATUS')"
                     width="100"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<ChannelInfoDto>">
                         <span
                             class="status"
                             :class="[scope.row.isOnline ? 'text-online' : 'text-offline']"
@@ -56,7 +56,7 @@
                     :label="Translate('IDCS_PROTOCOL')"
                     min-width="140"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<ChannelInfoDto>">
                         {{ formatDisplayManufacturer(scope.row) }}
                     </template>
                 </el-table-column>
@@ -69,7 +69,7 @@
                     :label="Translate('IDCS_PREVIEW')"
                     width="80"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<ChannelInfoDto>">
                         <BaseImgSprite
                             file="play (3)"
                             :chunk="4"
@@ -96,7 +96,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<ChannelInfoDto>">
                         <BaseImgSprite
                             file="edit (2)"
                             :chunk="4"
@@ -123,7 +123,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<ChannelInfoDto>">
                         <BaseImgSprite
                             file="del"
                             :chunk="4"
@@ -141,7 +141,7 @@
                     :label="Translate('IDCS_CONFIGURATION')"
                     width="80"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<ChannelInfoDto>">
                         <BaseImgSprite
                             v-show="scope.row.showSetting"
                             file="localCfg"
@@ -169,7 +169,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<ChannelInfoDto>">
                         <BaseImgSprite
                             v-show="handleShowUpgradeBtn(scope.row) && scope.row.upgradeStatus === 'normal'"
                             file="upload"

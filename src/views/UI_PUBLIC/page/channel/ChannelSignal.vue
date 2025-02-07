@@ -40,7 +40,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<ChannelSignalDto>">
                         <el-select-v2
                             v-model="scope.row.analogIp"
                             :options="analogIpOptions"
@@ -84,7 +84,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<ChannelSignalDto>">
                         <el-select-v2
                             v-if="scope.row.showSignal"
                             v-model="scope.row.signal"
@@ -119,7 +119,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<ChannelSignalDto>">
                         <el-select-v2
                             v-if="scope.row.showLite"
                             v-model="scope.row.lite"

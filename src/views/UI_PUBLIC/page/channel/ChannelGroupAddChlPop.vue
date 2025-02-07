@@ -41,7 +41,7 @@
                 :label="Translate('IDCS_PREVIEW')"
                 width="80"
             >
-                <template #default="scope">
+                <template #default="scope: TableColumn<ChannelInfoDto>">
                     <BaseImgSprite
                         file="play (3)"
                         :chunk="4"

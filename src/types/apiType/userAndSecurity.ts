@@ -1,7 +1,7 @@
 /*
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-14 10:33:02
- * @Description: 用户与安全
+ * @Description: 用户与安全的类型定义，类型命名的前缀统一为User*
  */
 
 /**

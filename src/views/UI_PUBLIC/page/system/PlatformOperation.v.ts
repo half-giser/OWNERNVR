@@ -3,7 +3,7 @@
  * @Date: 2024-10-25 18:38:09
  * @Description: 平台操作管理
  */
-import { type chlDataItem } from '@/types/apiType/system'
+import { type SystemSHDBPlatformOperatorDto } from '@/types/apiType/system'
 import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
@@ -13,7 +13,7 @@ export default defineComponent({
         const router = useRouter()
 
         const tableRef = ref<TableInstance>()
-        const tableData = ref<chlDataItem[]>([])
+        const tableData = ref<SystemSHDBPlatformOperatorDto[]>([])
 
         const pageData = ref({
             operationTypeList: [] as SelectOption<string, string>[],
@@ -271,12 +271,12 @@ export default defineComponent({
         }
 
         // 表头全选checkbox点击
-        const selectAllChl = (rows: chlDataItem[]) => {
+        const selectAllChl = (rows: SystemSHDBPlatformOperatorDto[]) => {
             pageData.value.selectAll = rows.length === tableData.value.length
         }
 
         // 手动点击选择行checkbox
-        const handleSelect = (selection: chlDataItem[], row: chlDataItem) => {
+        const handleSelect = (selection: SystemSHDBPlatformOperatorDto[], row: SystemSHDBPlatformOperatorDto) => {
             if (!selection.some((item) => item.chlId === row.chlId)) {
                 tableRef.value!.setCurrentRow(null)
             }
@@ -293,7 +293,7 @@ export default defineComponent({
 
         // 反选
         const reverseSelection = () => {
-            const selectedRowsIds = tableRef.value!.getSelectionRows().map((row: chlDataItem) => row.chlId)
+            const selectedRowsIds = tableRef.value!.getSelectionRows().map((row: SystemSHDBPlatformOperatorDto) => row.chlId)
             tableRef.value!.setCurrentRow(null)
             tableRef.value!.clearSelection()
             tableData.value.forEach((row) => {
@@ -305,7 +305,7 @@ export default defineComponent({
         }
 
         // 行点击事件
-        const handleRowClick = (rowData: chlDataItem) => {
+        const handleRowClick = (rowData: SystemSHDBPlatformOperatorDto) => {
             pageData.value.selectAll = false
             tableRef.value!.clearSelection()
             tableRef.value!.toggleRowSelection(rowData, true)
@@ -335,7 +335,7 @@ export default defineComponent({
 
         // 测试抓图上传数据
         const getTestScreenshotSaveData = () => {
-            const selection = tableRef.value!.getSelectionRows() as chlDataItem[]
+            const selection = tableRef.value!.getSelectionRows() as SystemSHDBPlatformOperatorDto[]
             const sendXml = rawXml`
                 <content>
                     <item id='testerUploadImage'>
@@ -364,7 +364,7 @@ export default defineComponent({
 
         // 维保抓图上传数据
         const getMaintenanceScreenshotSaveData = () => {
-            const selection = tableRef.value!.getSelectionRows() as chlDataItem[]
+            const selection = tableRef.value!.getSelectionRows() as SystemSHDBPlatformOperatorDto[]
             const sendXml = rawXml`
                 <content>
                     <item id='keeperUploadImage'>
@@ -407,7 +407,7 @@ export default defineComponent({
 
         // 验收抓图上传数据
         const getAcceptScreenshotSaveData = () => {
-            const selection = tableRef.value!.getSelectionRows() as chlDataItem[]
+            const selection = tableRef.value!.getSelectionRows() as SystemSHDBPlatformOperatorDto[]
             const sendXml = rawXml`
                 <content>
                     <item id='checkUploadImage'>

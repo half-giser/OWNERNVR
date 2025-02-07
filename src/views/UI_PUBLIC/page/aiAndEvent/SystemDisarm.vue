@@ -21,7 +21,7 @@
                 width="55"
             />
             <el-table-column :label="`${Translate('IDCS_CHANNEL')}/${Translate('IDCS_SENSOR')}`">
-                <template #default="scope">
+                <template #default="scope: TableColumn<AlarmSystemDisarmChlAndSensorSrcDto>">
                     {{ scope.row.value }}
                 </template>
             </el-table-column>
@@ -168,7 +168,7 @@
                             </div>
                         </el-popover>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<AlarmSystemDisarmDto>">
                         <el-button @click="disarmCfg(scope.$index)">
                             {{ Translate('IDCS_CONFIG') }}
                         </el-button>
@@ -189,7 +189,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<AlarmSystemDisarmDto>">
                         <el-button @click="deleteItem(scope.row)">
                             {{ Translate('IDCS_DELETE') }}
                         </el-button>

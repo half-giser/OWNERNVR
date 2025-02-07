@@ -208,7 +208,7 @@
     }
 
     .el-radio {
-        --el-radio-checked-text-color: default; // var(--primary);
+        --el-radio-checked-text-color: inherit; // var(--primary);
         --el-radio-input-border: var(--el-border-width) var(--el-border-style) var(--input-border);
         --el-radio-input-border-color-hover: var(--primary);
         --el-radio-text-color: var(--main-text);
@@ -219,7 +219,7 @@
         }
 
         &__input.is-checked + .el-radio__label {
-            color: default;
+            color: inherit;
         }
     }
 

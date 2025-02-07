@@ -53,7 +53,7 @@ export default defineComponent({
         const item2 = computed(() => {
             if (current.value?.detail?.length > 1) {
                 const item = prop.data.searchData[current.value.date]
-                return item[item.length - 1]
+                return item.at(-1)!
             }
             return cloneData
         })

@@ -68,7 +68,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<{ date: string }>">
                         <BaseImgSprite
                             file="del"
                             :chunk="4"

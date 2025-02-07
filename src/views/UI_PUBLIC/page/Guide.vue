@@ -251,7 +251,7 @@
                                 prop="question"
                             />
                             <el-table-column :label="Translate('IDCS_ANSWER')">
-                                <template #default="scope">
+                                <template #default="scope: TableColumn<SystemGuideQuestionForm>">
                                     <template v-if="!isDefeultQuestion || (isDefeultQuestion && !scope.row.answer)">******</template>
                                     <template v-else>{{ scope.row.answer }}</template>
                                 </template>
@@ -260,7 +260,7 @@
                                 v-if="!isDefeultQuestion"
                                 :label="Translate('IDCS_DELETE')"
                             >
-                                <template #default="scope">
+                                <template #default="scope: TableColumn<SystemGuideQuestionForm>">
                                     <BaseImgSprite
                                         file="del"
                                         :chunk="4"
@@ -296,7 +296,6 @@
                             :label="Translate('IDCS_DISK')"
                             prop="name"
                         />
-
                         <el-table-column
                             :label="Translate('IDCS_TYPE')"
                             prop="combinedStatus"
@@ -314,7 +313,7 @@
                             prop="combinedStatus"
                         />
                         <el-table-column>
-                            <template #default="scope">
+                            <template #default="scope: TableColumn<SystemGuideDiskList>">
                                 <el-button
                                     :disabled="scope.row.diskStatus !== 'bad'"
                                     @click="formatCurrentDisk(scope.$index)"

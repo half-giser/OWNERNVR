@@ -1,7 +1,7 @@
 /*
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-21 18:15:30
- * @Description: 磁盘
+ * @Description: 磁盘的类型定义，类型命名的前缀统一为Disk*
  */
 
 /**

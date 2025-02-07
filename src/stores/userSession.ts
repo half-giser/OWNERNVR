@@ -4,7 +4,7 @@
  * @Description: 用户会话信息
  */
 import { type XMLQuery } from '@/utils/xmlParse'
-import { type LoginForm, type LoginReqData } from '@/types/apiType/user'
+import { type UserLoginForm, type UserLoginReqData } from '@/types/apiType/user'
 import { generateAsyncRoutes } from '@/router'
 
 export const useUserSessionStore = defineStore(
@@ -45,7 +45,7 @@ export const useUserSessionStore = defineStore(
         let hostname = window.location.hostname
         // ie8以上的版本ipv6的ip带括号，导致请求不到视频
         if (hostname.indexOf('[') !== -1) {
-            hostname = hostname.substring(1, hostname.length - 1)
+            hostname = hostname.slice(1, -1)
         }
 
         const serverIp = ref(import.meta.env.VITE_APP_IP || hostname)
@@ -142,8 +142,8 @@ export const useUserSessionStore = defineStore(
          * @param loginFormData
          */
         async function updateByLogin(loginType: 'P2P', loginResult: Element | XMLDocument): Promise<void>
-        async function updateByLogin(loginType: 'STANDARD', loginResult: Element | XMLDocument, loginReqData: LoginReqData, loginFormData: LoginForm): Promise<void>
-        async function updateByLogin(loginType: 'P2P' | 'STANDARD', loginResult: Element | XMLDocument, loginReqData?: LoginReqData, loginFormData?: LoginForm): Promise<void> {
+        async function updateByLogin(loginType: 'STANDARD', loginResult: Element | XMLDocument, loginReqData: UserLoginReqData, loginFormData: UserLoginForm): Promise<void>
+        async function updateByLogin(loginType: 'P2P' | 'STANDARD', loginResult: Element | XMLDocument, loginReqData?: UserLoginReqData, loginFormData?: UserLoginForm): Promise<void> {
             const $ = queryXml(loginResult)
 
             if (loginType === 'STANDARD') {

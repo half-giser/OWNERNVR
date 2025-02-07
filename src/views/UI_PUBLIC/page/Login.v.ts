@@ -4,7 +4,7 @@
  * @Description: 登录界面
  */
 import { type FormRules } from 'element-plus'
-import { LoginForm, LoginReqData } from '@/types/apiType/user'
+import { UserLoginForm, UserLoginReqData } from '@/types/apiType/user'
 import LoginPrivacyPop from './LoginPrivacyPop.vue'
 import progress from '@bassist/progress'
 
@@ -54,7 +54,7 @@ export default defineComponent({
         const formRef = useFormRef()
 
         // 界面表单数据
-        const formData = ref(new LoginForm())
+        const formData = ref(new UserLoginForm())
         formData.value.calendarType = userSessionStore.calendarType
 
         // 校验规则
@@ -133,7 +133,7 @@ export default defineComponent({
                 const $ = queryXml(result)
                 if ($('status').text() === 'success') {
                     userSessionStore.updataByReqLogin(result)
-                    const reqData = new LoginReqData()
+                    const reqData = new UserLoginReqData()
                     const md5Pwd = MD5_encrypt(formData.value.password)
                     reqData.userName = formData.value.userName
                     const nonce = userSessionStore.nonce ? userSessionStore.nonce : ''
@@ -153,9 +153,9 @@ export default defineComponent({
 
         /**
          * @description 登录后更新用户会话信息
-         * @param {LoginReqData} reqData
+         * @param {UserLoginReqData} reqData
          */
-        const fnDoLogin = async (reqData: LoginReqData) => {
+        const fnDoLogin = async (reqData: UserLoginReqData) => {
             const sendXml = rawXml`
                 <content>
                     <userName>${reqData.userName}</userName>

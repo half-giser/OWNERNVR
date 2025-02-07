@@ -7,7 +7,7 @@
 /**
  * @description 登录表单数据
  */
-export class LoginForm {
+export class UserLoginForm {
     userName = ''
     password = ''
     calendarType = ''
@@ -16,7 +16,7 @@ export class LoginForm {
 /**
  * @description 登录请求数据类型
  */
-export class LoginReqData {
+export class UserLoginReqData {
     userName = ''
     password = ''
     passwordMd5 = ''
@@ -25,7 +25,7 @@ export class LoginReqData {
 /**
  * @description 授权码登录表单数据
  */
-export class AuthCodeLoginForm {
+export class UserAuthCodeLoginForm {
     sn = ''
     code = ''
     calendarType = ''
@@ -34,7 +34,7 @@ export class AuthCodeLoginForm {
 /**
  * @description 重置密码表单数据
  */
-export class ChangePasswordForm {
+export class UserChangePasswordForm {
     currentPassword = ''
     newPassword = ''
     confirmNewPassword = ''
@@ -43,7 +43,7 @@ export class ChangePasswordForm {
 /**
  * @description 重置密码请求数据类型
  */
-export class ChangePasswordReqData {
+export class UserChangePasswordReqData {
     oldPassword = ''
     password = ''
 }

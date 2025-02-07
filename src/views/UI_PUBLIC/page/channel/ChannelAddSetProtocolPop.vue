@@ -59,7 +59,7 @@
                 :label="Translate('IDCS_CODE_STREAM_TYPE')"
                 min-width="260"
             >
-                <template #default="scope">
+                <template #default="scope: TableColumn<ChannelResourcesPathDto>">
                     {{ scope.row.streamType === 'Main' ? Translate('IDCS_MAIN_STREAM') : Translate('IDCS_SUB_STREAM') }}
                 </template>
             </el-table-column>
@@ -67,7 +67,7 @@
                 :label="Translate('IDCS_TYPE')"
                 minn-width="130"
             >
-                <template #default="scope">
+                <template #default="scope: TableColumn<ChannelResourcesPathDto>">
                     <el-select-v2
                         v-model="scope.row.protocol"
                         :disabled="!formData.enabled"
@@ -79,7 +79,7 @@
                 :label="Translate('IDCS_TRANSFER_PROTOCOL')"
                 minn-width="130"
             >
-                <template #default="scope">
+                <template #default="scope: TableColumn<ChannelResourcesPathDto>">
                     <el-select-v2
                         v-model="scope.row.transportProtocol"
                         :disabled="!formData.enabled"
@@ -91,7 +91,7 @@
                 :label="Translate('IDCS_PORT')"
                 minn-width="130"
             >
-                <template #default="scope">
+                <template #default="scope: TableColumn<ChannelResourcesPathDto>">
                     <BaseNumberInput
                         v-model="scope.row.port"
                         :min="10"
@@ -104,7 +104,7 @@
                 :label="Translate('IDCS_RESOURCE_PATH')"
                 min-width="210"
             >
-                <template #default="scope">
+                <template #default="scope: TableColumn<ChannelResourcesPathDto>">
                     <el-input
                         v-model="scope.row.path"
                         :disabled="!formData.enabled"

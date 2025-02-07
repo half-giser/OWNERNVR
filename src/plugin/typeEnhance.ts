@@ -13,12 +13,12 @@ export default {
          * @return {string}
          * 示例: "Should be between %1 and %2!".formatForLang('10', '100') => "Should be between 10 and 100!"
          */
-        String.prototype.formatForLang = function (...args: string[]): string {
+        String.prototype.formatForLang = function (...args: (string | number)[]): string {
             let str = this as string
             if (args.length === 0) return str
             for (let i = 0; i < args.length; i++) {
                 const reg = new RegExp('(%' + (i + 1) + ')', 'g')
-                str = args[i] !== undefined ? str.replace(reg, args[i]) : str.replace(reg, '')
+                str = args[i] !== undefined ? str.replace(reg, args[i] as string) : str.replace(reg, '')
             }
             return str
         }
@@ -28,13 +28,13 @@ export default {
          * let template1 = "apple is {0}，banana is {1}";
          * let result1 = template1.format("red","yellow");
          */
-        String.prototype.format = function (...args: string[]) {
+        String.prototype.format = function (...args: (string | number)[]) {
             let str = <string>this
             if (args.length > 0) {
                 for (let i = 0; i < args.length; i++) {
                     if (args[i] !== undefined) {
                         const reg = new RegExp('({[' + i + ']})', 'g')
-                        str = str.replace(reg, args[i])
+                        str = str.replace(reg, args[i] as string)
                     }
                 }
             }

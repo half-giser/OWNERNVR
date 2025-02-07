@@ -32,8 +32,8 @@
                     min-width="100"
                 />
                 <el-table-column :label="Translate('IDCS_DESTINATION')">
-                    <template #default="scope">
-                        {{ displayDestination(scope.row.description) }}
+                    <template #default="scope: TableColumn<PlaybackBackUpTaskList>">
+                        {{ displayDestination(scope.row.destination) }}
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -65,7 +65,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<PlaybackBackUpTaskList>">
                         <el-button
                             v-if="scope.row.status === 'ongoing'"
                             @click="pauseTask(scope.row)"
@@ -94,7 +94,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<PlaybackBackUpTaskList>">
                         <el-button @click="deleteTask(scope.row)">{{ Translate('IDCS_DELETE') }}</el-button>
                     </template>
                 </el-table-column>

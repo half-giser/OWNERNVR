@@ -22,7 +22,7 @@
                     min-width="200"
                     :label="Translate('IDCS_PARKING_TYPE')"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<BusinessPkMgrSpaceManageList>">
                         <el-select-v2
                             v-model="scope.row.parkingType"
                             :options="pageData.parkingTypeList"
@@ -33,7 +33,7 @@
                     width="200"
                     :label="Translate('IDCS_TOTAL_VEHICLE_NUM')"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<BusinessPkMgrSpaceManageList>">
                         <BaseNumberInput
                             v-model="scope.row.groupTotalNum"
                             :min="0"
@@ -46,7 +46,7 @@
                     width="200"
                     :label="Translate('IDCS_REMAIN_VEHICLE_NUM')"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<BusinessPkMgrSpaceManageList>">
                         <BaseNumberInput
                             v-model="scope.row.groupRemainNum"
                             :min="0"
@@ -74,7 +74,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<BusinessPkMgrSpaceManageList>">
                         <el-select-v2
                             v-model="scope.row.groupSchedule"
                             :options="pageData.scheduleList"
@@ -86,7 +86,7 @@
                     min-width="200"
                     :label="Translate('IDCS_EMAIL')"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<BusinessPkMgrSpaceManageList>">
                         <el-input v-model="scope.row.linkEmail" />
                     </template>
                 </el-table-column>

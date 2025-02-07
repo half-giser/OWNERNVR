@@ -3,7 +3,7 @@
  * @Date: 2024-05-29 21:21:34
  * @Description: 业务应用-停车场管理-出入口
  */
-import { type PkMgrEnterExitManageList } from '@/types/apiType/business'
+import { type BusinessPkMgrEnterExitManageList } from '@/types/apiType/business'
 
 export default defineComponent({
     setup() {
@@ -22,7 +22,7 @@ export default defineComponent({
             JiaXun: Translate('IDCS_JIAXUN_LED_SCREEN'),
         }
 
-        const tableData = ref<PkMgrEnterExitManageList[]>([])
+        const tableData = ref<BusinessPkMgrEnterExitManageList[]>([])
         const watchEdit = useWatchEditData(tableData)
 
         const pageData = ref({

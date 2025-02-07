@@ -1,7 +1,7 @@
 /*
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-04 12:00:49
- * @Description: 录像与回放
+ * @Description: 回放与备份的类型定义，类型命名的前缀统一为Playback*
  */
 
 /**

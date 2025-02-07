@@ -155,7 +155,7 @@
                         label=" "
                         width="50"
                     >
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelImageDto>">
                             <BaseTableRowStatus
                                 :icon="scope.row.status"
                                 :error-text="scope.row.statusTip"
@@ -171,7 +171,7 @@
                         :label="Translate('IDCS_BRIGHTNESS')"
                         min-width="160"
                     >
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelImageDto>">
                             <span v-if="scope.row.isSpeco"></span>
                             <span v-else-if="scope.row.isSupportThermal">--</span>
                             <BaseNumberInput
@@ -189,7 +189,7 @@
                         :label="Translate('IDCS_CONTRAST')"
                         min-width="160"
                     >
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelImageDto>">
                             <span v-if="scope.row.isSpeco"></span>
                             <span v-else-if="scope.row.isSupportThermal">--</span>
                             <BaseNumberInput
@@ -207,7 +207,7 @@
                         :label="Translate('IDCS_SATURATION')"
                         min-width="160"
                     >
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelImageDto>">
                             <span v-if="scope.row.isSpeco"></span>
                             <span v-else-if="scope.row.isSupportThermal">--</span>
                             <BaseNumberInput
@@ -225,7 +225,7 @@
                         :label="Translate('IDCS_TONE')"
                         min-width="160"
                     >
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelImageDto>">
                             <span v-if="scope.row.isSpeco"></span>
                             <span v-else-if="scope.row.isSupportThermal || scope.row.hue === -1">--</span>
                             <BaseNumberInput
@@ -244,7 +244,7 @@
                         :label="Translate('IDCS_ADVANCED')"
                         min-width="160"
                     >
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelImageDto>">
                             <div class="expandContent">
                                 <div class="page_content">
                                     <el-scrollbar>
@@ -273,7 +273,7 @@
                                                             v-if="scope.row.sharpenSwitchEnable"
                                                             v-model="scope.row.sharpenSwitch"
                                                             :label="Translate('IDCS_SHARPNESS')"
-                                                            :disabled="isNaN(scope.row.sharpenMaxValue)"
+                                                            :disabled="scope.row.sharpenMaxValue === undefined"
                                                             @change="setAZData()"
                                                         />
                                                         <span v-else>{{ Translate('IDCS_SHARPNESS') }}</span>
@@ -281,13 +281,13 @@
                                                     <div class="slider_wrap">
                                                         <el-slider
                                                             v-model="scope.row.sharpenValue"
-                                                            :disabled="!scope.row.sharpenSwitch || isNaN(scope.row.sharpenMaxValue)"
-                                                            :min="isNaN(scope.row.sharpenMinValue) ? 0 : scope.row.sharpenMinValue"
-                                                            :max="isNaN(scope.row.sharpenMaxValue) ? 100 : scope.row.sharpenMaxValue"
+                                                            :disabled="!scope.row.sharpenSwitch || scope.row.sharpenMaxValue === undefined"
+                                                            :min="scope.row.sharpenMinValue === undefined ? 0 : scope.row.sharpenMinValue"
+                                                            :max="scope.row.sharpenMaxValue === undefined ? 100 : scope.row.sharpenMaxValue"
                                                             @change="setAZData()"
                                                         />
                                                         <el-input
-                                                            :model-value="isNaN(scope.row.sharpenMaxValue) ? 0 : scope.row.sharpenValue"
+                                                            :model-value="scope.row.sharpenMaxValue === undefined ? 0 : scope.row.sharpenValue"
                                                             readonly
                                                         />
                                                     </div>
@@ -297,20 +297,20 @@
                                                         <el-checkbox
                                                             v-model="scope.row.WDRSwitch"
                                                             :label="Translate('IDCS_WDR')"
-                                                            :disabled="isNaN(scope.row.WDRMaxValue)"
+                                                            :disabled="scope.row.WDRMaxValue === undefined"
                                                             @change="setAZData()"
                                                         />
                                                     </template>
                                                     <div class="slider_wrap">
                                                         <el-slider
                                                             v-model="scope.row.WDRValue"
-                                                            :disabled="!scope.row.WDRSwitch || isNaN(scope.row.WDRMaxValue)"
-                                                            :min="isNaN(scope.row.WDRMinValue) ? 0 : scope.row.WDRMinValue"
-                                                            :max="isNaN(scope.row.WDRMaxValue) ? 100 : scope.row.WDRMaxValue"
+                                                            :disabled="!scope.row.WDRSwitch || scope.row.WDRMaxValue === undefined"
+                                                            :min="scope.row.WDRMinValue === undefined ? 0 : scope.row.WDRMinValue"
+                                                            :max="scope.row.WDRMaxValue === undefined ? 100 : scope.row.WDRMaxValue"
                                                             @change="setAZData()"
                                                         />
                                                         <el-input
-                                                            :model-value="isNaN(scope.row.WDRMaxValue) ? 0 : scope.row.WDRValue"
+                                                            :model-value="scope.row.WDRMaxValue === undefined ? 0 : scope.row.WDRValue"
                                                             readonly
                                                         />
                                                     </div>
@@ -320,20 +320,20 @@
                                                         <el-checkbox
                                                             v-model="scope.row.denoiseSwitch"
                                                             :label="Translate('IDCS_DENOISE')"
-                                                            :disabled="isNaN(scope.row.denoiseMaxValue)"
+                                                            :disabled="scope.row.denoiseMaxValue === undefined"
                                                             @change="setAZData()"
                                                         />
                                                     </template>
                                                     <div class="slider_wrap">
                                                         <el-slider
                                                             v-model="scope.row.denoiseValue"
-                                                            :disabled="!scope.row.denoiseSwitch || isNaN(scope.row.denoiseMaxValue)"
-                                                            :min="isNaN(scope.row.denoiseMinValue) ? 0 : scope.row.denoiseMinValue"
-                                                            :max="isNaN(scope.row.denoiseMaxValue) ? 100 : scope.row.denoiseMaxValue"
+                                                            :disabled="!scope.row.denoiseSwitch || scope.row.denoiseMaxValue === undefined"
+                                                            :min="scope.row.denoiseMinValue === undefined ? 0 : scope.row.denoiseMinValue"
+                                                            :max="scope.row.denoiseMaxValue === undefined ? 100 : scope.row.denoiseMaxValue"
                                                             @change="setAZData()"
                                                         />
                                                         <el-input
-                                                            :model-value="isNaN(scope.row.denoiseMaxValue) ? 0 : scope.row.denoiseValue"
+                                                            :model-value="scope.row.denoiseMaxValue === undefined ? 0 : scope.row.denoiseValue"
                                                             readonly
                                                         />
                                                     </div>
@@ -359,8 +359,8 @@
                                                         <el-slider
                                                             v-model="scope.row.defogValue"
                                                             :disabled="!scope.row.defogSwitch"
-                                                            :min="isNaN(scope.row.defogMinValue) ? 0 : scope.row.defogMinValue"
-                                                            :max="isNaN(scope.row.defogMaxValue) ? 100 : scope.row.defogMaxValue"
+                                                            :min="scope.row.defogMinValue === undefined ? 0 : scope.row.defogMinValue"
+                                                            :max="scope.row.defogMaxValue === undefined ? 100 : scope.row.defogMaxValue"
                                                             @change="setAZData()"
                                                         />
                                                         <el-input
@@ -383,26 +383,26 @@
                                                     <div class="slider_wrap with-btn">
                                                         <el-slider
                                                             v-model="scope.row.imageValue"
-                                                            :min="isNaN(scope.row.imageMinValue) ? 0 : scope.row.imageMinValue"
-                                                            :max="isNaN(scope.row.imageMaxValue) ? 100 : scope.row.imageMaxValue"
-                                                            :disabled="scope.row.chlType !== 'analog' || isNaN(scope.row.imageMaxValue)"
+                                                            :min="scope.row.imageMinValue === undefined ? 0 : scope.row.imageMinValue"
+                                                            :max="scope.row.imageMaxValue === undefined ? 100 : scope.row.imageMaxValue"
+                                                            :disabled="scope.row.chlType !== 'analog' || scope.row.imageMaxValue === undefined"
                                                             class="slider slider_sp"
                                                             @change="setAZData()"
                                                         />
                                                         <div class="custom_btn_slider_wrap">
                                                             <div
                                                                 class="custom_btn_slider custom_btn_slider_decr"
-                                                                :class="{ disabled: scope.row.chlType !== 'analog' || isNaN(scope.row.imageMaxValue) }"
+                                                                :class="{ disabled: scope.row.chlType !== 'analog' || scope.row.imageMaxValue === undefined }"
                                                                 @click="handleImageValueChange(-1)"
                                                             ></div>
                                                             <div
                                                                 class="custom_btn_slider custom_btn_slider_incr"
-                                                                :class="{ disabled: scope.row.chlType !== 'analog' || isNaN(scope.row.imageMaxValue) }"
+                                                                :class="{ disabled: scope.row.chlType !== 'analog' || scope.row.imageMaxValue === undefined }"
                                                                 @click="handleImageValueChange(1)"
                                                             ></div>
                                                         </div>
                                                         <el-input
-                                                            :model-value="scope.row.chlType !== 'analog' || isNaN(scope.row.imageMaxValue) ? 0 : scope.row.imageValue"
+                                                            :model-value="scope.row.chlType !== 'analog' || scope.row.imageMaxValue === undefined ? 0 : scope.row.imageValue"
                                                             readonly
                                                         />
                                                     </div>
@@ -447,13 +447,13 @@
                                                     <div class="slider_wrap">
                                                         <el-slider
                                                             v-model="scope.row.redValue"
-                                                            :min="isNaN(scope.row.redMinValue) ? 0 : scope.row.redMinValue"
-                                                            :max="isNaN(scope.row.redMaxValue) ? 100 : scope.row.redMaxValue"
-                                                            :disabled="isNaN(scope.row.redMaxValue)"
+                                                            :min="scope.row.redMinValue === undefined ? 0 : scope.row.redMinValue"
+                                                            :max="scope.row.redMaxValue === undefined ? 100 : scope.row.redMaxValue"
+                                                            :disabled="scope.row.redMaxValue === undefined"
                                                             @change="setAZData()"
                                                         />
                                                         <el-input
-                                                            :model-value="isNaN(scope.row.redMaxValue) ? 0 : scope.row.redValue"
+                                                            :model-value="scope.row.redMaxValue === undefined ? 0 : scope.row.redValue"
                                                             readonly
                                                         />
                                                     </div>
@@ -465,13 +465,13 @@
                                                     <div class="slider_wrap">
                                                         <el-slider
                                                             v-model="scope.row.blueValue"
-                                                            :min="isNaN(scope.row.blueMinValue) ? 0 : scope.row.blueMinValue"
-                                                            :max="isNaN(scope.row.blueMaxValue) ? 100 : scope.row.blueMaxValue"
-                                                            :disabled="isNaN(scope.row.blueMaxValue)"
+                                                            :min="scope.row.blueMinValue === undefined ? 0 : scope.row.blueMinValue"
+                                                            :max="scope.row.blueMaxValue === undefined ? 100 : scope.row.blueMaxValue"
+                                                            :disabled="scope.row.blueMaxValue === undefined"
                                                             @change="setAZData()"
                                                         />
                                                         <el-input
-                                                            :model-value="isNaN(scope.row.blueMaxValue) ? 0 : scope.row.blueValue"
+                                                            :model-value="scope.row.blueMaxValue === undefined ? 0 : scope.row.blueValue"
                                                             readonly
                                                         />
                                                     </div>
@@ -524,8 +524,8 @@
                                                     <div class="slider_wrap">
                                                         <el-slider
                                                             v-model="scope.row.gainValue"
-                                                            :min="isNaN(scope.row.gainMinValue) ? 0 : scope.row.gainMinValue"
-                                                            :max="isNaN(scope.row.gainMaxValue) ? 100 : scope.row.gainMaxValue"
+                                                            :min="scope.row.gainMinValue === undefined ? 0 : scope.row.gainMinValue"
+                                                            :max="scope.row.gainMaxValue === undefined ? 100 : scope.row.gainMaxValue"
                                                             :disabled="scope.row.BLCMode === 'HWDR' || (scope.row.BLCMode !== 'HWDR' && scope.row.gainMode === undefined)"
                                                             @change="setAZData()"
                                                         />
@@ -542,8 +542,8 @@
                                                     <div class="slider_wrap">
                                                         <el-slider
                                                             v-model="scope.row.gainAGC"
-                                                            :min="isNaN(scope.row.gainMinValue) ? 0 : scope.row.gainMinValue"
-                                                            :max="isNaN(scope.row.gainMaxValue) ? 100 : scope.row.gainMaxValue"
+                                                            :min="scope.row.gainMinValue === undefined ? 0 : scope.row.gainMinValue"
+                                                            :max="scope.row.gainMaxValue === undefined ? 100 : scope.row.gainMaxValue"
                                                             :disabled="scope.row.BLCMode === 'HWDR' || (scope.row.BLCMode !== 'HWDR' && scope.row.gainMode === undefined)"
                                                             @change="setAZData()"
                                                         />
@@ -715,8 +715,8 @@
                                                     <div class="slider_wrap">
                                                         <el-slider
                                                             v-model="scope.row.lightLevelValue"
-                                                            :min="isNaN(scope.row.lightLevelMinValue) ? 0 : scope.row.lightLevelMinValue"
-                                                            :max="isNaN(scope.row.lightLevelMaxValue) ? 100 : scope.row.lightLevelMaxValue"
+                                                            :min="scope.row.lightLevelMinValue === undefined ? 0 : scope.row.lightLevelMinValue"
+                                                            :max="scope.row.lightLevelMaxValue === undefined ? 100 : scope.row.lightLevelMaxValue"
                                                             @change="setAZData()"
                                                         />
                                                         <el-input
@@ -726,14 +726,14 @@
                                                     </div>
                                                 </el-form-item>
                                                 <el-form-item
-                                                    v-if="scope.row.isSupportIRCutMode && scope.row.IRCutMode === 'auto' && !isNaN(scope.row.delayTimeValue)"
+                                                    v-if="scope.row.isSupportIRCutMode && scope.row.IRCutMode === 'auto' && scope.row.delayTimeValue !== undefined"
                                                     :label="Translate('IDCS_DELAY_TIME_SECOND')"
                                                 >
                                                     <div class="slider_wrap">
                                                         <el-slider
                                                             v-model="scope.row.delayTimeValue"
-                                                            :min="isNaN(scope.row.delayTimeMinValue) ? 0 : scope.row.delayTimeMinValue"
-                                                            :max="isNaN(scope.row.delayTimeMaxValue) ? 100 : scope.row.delayTimeMaxValue"
+                                                            :min="scope.row.delayTimeMinValue === undefined ? 0 : scope.row.delayTimeMinValue"
+                                                            :max="scope.row.delayTimeMaxValue === undefined ? 100 : scope.row.delayTimeMaxValue"
                                                             @change="setAZData()"
                                                         />
                                                         <el-input
@@ -808,8 +808,8 @@
                                                     <div class="slider_wrap">
                                                         <el-slider
                                                             v-model="scope.row.whitelightStrength"
-                                                            :min="isNaN(scope.row.whitelightStrengthMin) ? 0 : scope.row.whitelightStrengthMin"
-                                                            :max="isNaN(scope.row.whitelightStrengthMax) ? 100 : scope.row.whitelightStrengthMax"
+                                                            :min="scope.row.whitelightStrengthMin === undefined ? 0 : scope.row.whitelightStrengthMin"
+                                                            :max="scope.row.whitelightStrengthMax === undefined ? 100 : scope.row.whitelightStrengthMax"
                                                             @change="setAZData()"
                                                         />
                                                         <el-input

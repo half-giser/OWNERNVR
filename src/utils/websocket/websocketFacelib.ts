@@ -112,7 +112,7 @@ export default function WebsocketFaceLib(option: WebsocketFaceLibOption) {
                 faceImg: getPicBase64(buffer, item.faceImg, jsonEndPosition) as string,
             }))
 
-            const lastIndex = Number(data[data.length - 1].index)
+            const lastIndex = Number(data.at(-1)!.index)
             abnormalIndex = lastIndex
             if (lastIndex >= 0) {
                 refreshIndex(lastIndex)

@@ -101,7 +101,7 @@
                             />
                         </div>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<PlaybackSearchImgList>">
                         {{ displayDateTime(scope.row.captureTimeStamp) }}
                     </template>
                 </el-table-column>
@@ -111,7 +111,7 @@
                     min-width="220"
                 />
                 <el-table-column :label="Translate('IDCS_BROWSE')">
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<PlaybackSearchImgList>">
                         <BaseImgSprite
                             file="browser"
                             :index="0"
@@ -135,7 +135,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<PlaybackSearchImgList>">
                         <BaseImgSprite
                             file="export"
                             :index="0"
@@ -158,7 +158,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<PlaybackSearchImgList>">
                         <BaseImgSprite
                             file="del"
                             :index="0"

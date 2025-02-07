@@ -61,6 +61,7 @@
     &-home {
         width: 100%;
         height: var(--content-height);
+        font-size: 16px;
     }
 
     &-wrapper {

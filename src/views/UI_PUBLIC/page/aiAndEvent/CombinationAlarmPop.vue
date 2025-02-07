@@ -28,7 +28,7 @@
                 width="150"
                 :label="Translate('IDCS_TYPE')"
             >
-                <template #default="scope">
+                <template #default="scope: TableColumn<AlarmCombinedItemDto>">
                     <el-select-v2
                         v-model="scope.row.alarmSourceType"
                         :options="pageData.alarmSourceTypeList[scope.$index]"
@@ -41,7 +41,7 @@
                 width="150"
                 :label="Translate('IDCS_ALARM_SOURCE')"
             >
-                <template #default="scope">
+                <template #default="scope: TableColumn<AlarmCombinedItemDto>">
                     <el-select-v2
                         v-model="scope.row.alarmSourceEntity.value"
                         :options="pageData.alarmSourceEntityList[scope.$index]"
@@ -54,7 +54,7 @@
                 width="98"
                 :label="Translate('IDCS_OPERATION')"
             >
-                <template #default="scope">
+                <template #default="scope: TableColumn<AlarmCombinedItemDto>">
                     <BaseImgSprite
                         v-show="scope.row.alarmSourceType === 'FaceMatch'"
                         file="edit (2)"

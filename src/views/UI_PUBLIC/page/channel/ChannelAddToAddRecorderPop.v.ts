@@ -353,7 +353,7 @@ export default defineComponent({
                 eleChlCountDisabled.value = false
                 eleUserNameDisabled.value = false
                 eleBtnTestDisabled.value = false
-                loadNoRecoderData(Number(formData.value.channelCount))
+                loadNoRecoderData(formData.value.channelCount)
             }
         }
 

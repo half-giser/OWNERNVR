@@ -103,7 +103,7 @@
                                     width="60"
                                     :label="Translate('IDCS_ENABLE')"
                                 >
-                                    <template #default="scope">
+                                    <template #default="scope: TableColumn<AlarmTemperatureDetectionBoundryDto>">
                                         <el-checkbox v-model="scope.row.switch" />
                                     </template>
                                 </el-table-column>
@@ -112,7 +112,7 @@
                                     width="180"
                                     :label="Translate('IDCS_NAME')"
                                 >
-                                    <template #default="scope">
+                                    <template #default="scope: TableColumn<AlarmTemperatureDetectionBoundryDto>">
                                         <el-input
                                             v-model="scope.row.ruleName"
                                             :formatter="formatInputMaxLength"
@@ -126,7 +126,7 @@
                                     width="110"
                                     :label="Translate('IDCS_TYPE')"
                                 >
-                                    <template #default="scope">
+                                    <template #default="scope: TableColumn<AlarmTemperatureDetectionBoundryDto>">
                                         <el-select-v2
                                             v-model="scope.row.ruleType"
                                             :options="ruleShapeTypeList"
@@ -139,7 +139,7 @@
                                     width="90"
                                     :label="Translate('IDCS_EMISSIVITY')"
                                 >
-                                    <template #default="scope">
+                                    <template #default="scope: TableColumn<AlarmTemperatureDetectionBoundryDto>">
                                         <el-input-number
                                             v-model="scope.row.emissivity"
                                             :min="0.01"
@@ -158,7 +158,7 @@
                                     width="90"
                                     :label="Translate('IDCS_DISTANCE')"
                                 >
-                                    <template #default="scope">
+                                    <template #default="scope: TableColumn<AlarmTemperatureDetectionBoundryDto>">
                                         <el-input-number
                                             v-model="scope.row.distance"
                                             :min="0"
@@ -175,7 +175,7 @@
                                     width="120"
                                     :label="Translate('IDCS_REFLECTED_TEMPERATURE')"
                                 >
-                                    <template #default="scope">
+                                    <template #default="scope: TableColumn<AlarmTemperatureDetectionBoundryDto>">
                                         <el-input-number
                                             v-model="scope.row.reflectTemper"
                                             :min="-30"
@@ -192,7 +192,7 @@
                                     width="180"
                                     :label="Translate('IDCS_ALARM_RULES')"
                                 >
-                                    <template #default="scope">
+                                    <template #default="scope: TableColumn<AlarmTemperatureDetectionBoundryDto>">
                                         <el-select-v2
                                             v-model="scope.row.alarmRule"
                                             :options="getRuleTypeList(scope.row.ruleType)"
@@ -204,7 +204,7 @@
                                     width="150"
                                     :label="Translate('IDCS_ALARM_TEMPERATURE')"
                                 >
-                                    <template #default="scope">
+                                    <template #default="scope: TableColumn<AlarmTemperatureDetectionBoundryDto>">
                                         <el-input-number
                                             v-model="scope.row.alarmTemper"
                                             :min="-50"

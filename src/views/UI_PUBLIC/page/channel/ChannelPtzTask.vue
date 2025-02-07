@@ -96,7 +96,7 @@
                 >
                     <el-table-column prop="chlName" />
                     <el-table-column>
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelPtzTaskChlDto>">
                             {{ Translate('IDCS_TASK_NUM_D').formatForLang(scope.row.taskItemCount) }}
                         </template>
                     </el-table-column>
@@ -134,22 +134,22 @@
                                     </template>
                                 </el-table-column>
                                 <el-table-column :label="Translate('IDCS_START_TIME')">
-                                    <template #default="scope">
+                                    <template #default="scope: TableColumn<ChannelPtzTaskDto>">
                                         {{ displayTime(scope.row.startTime) }}
                                     </template>
                                 </el-table-column>
                                 <el-table-column :label="Translate('IDCS_END_TIME')">
-                                    <template #default="scope">
+                                    <template #default="scope: TableColumn<ChannelPtzTaskDto>">
                                         {{ displayTime(scope.row.endTime) }}
                                     </template>
                                 </el-table-column>
                                 <el-table-column :label="Translate('IDCS_FUNCTION')">
-                                    <template #default="scope">
+                                    <template #default="scope: TableColumn<ChannelPtzTaskDto>">
                                         {{ displayType(scope.row.type) }}
                                     </template>
                                 </el-table-column>
                                 <el-table-column :label="Translate('IDCS_NAME')">
-                                    <template #default="scope">
+                                    <template #default="scope: TableColumn<ChannelPtzTaskDto>">
                                         {{ displayName(scope.row.name) }}
                                     </template>
                                 </el-table-column>
@@ -166,7 +166,7 @@
                                             </template>
                                         </el-dropdown>
                                     </template>
-                                    <template #default="scope">
+                                    <template #default="scope: TableColumn<ChannelPtzTaskDto>">
                                         <BaseImgSprite
                                             file="edit (2)"
                                             :index="0"

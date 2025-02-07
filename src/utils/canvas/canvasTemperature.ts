@@ -208,7 +208,7 @@ export default function CanvasPolygon(option: CanvasTemperatureOption) {
 
             // 绘制的最后一个点是最大点数，或者强制闭合为true时，才绘制闭合线段
             if (i === pointList.length - 1 && (i === max - 1 || isFoucusClosePath)) {
-                const isIntersect = pointList.length >= 3 ? judgeIntersect(pointList[pointList.length - 1], true) : true
+                const isIntersect = pointList.length >= 3 ? judgeIntersect(pointList.at(-1)!, true) : true
                 if (!isIntersect) {
                     ctx.Line(startPoint.X, startPoint.Y, item.X, item.Y, lineStyle)
                     isClosed = true
@@ -343,7 +343,7 @@ export default function CanvasPolygon(option: CanvasTemperatureOption) {
     // 判断新绘制线段是否和已有线段相交
     const judgeIntersect = (newPoint: CanvasBasePoint, isFoucusClosePath = false) => {
         let flag = false
-        const lastPoint = pointList[pointList.length - 1]
+        const lastPoint = pointList.at(-1)!
         for (let i = 0; i < pointList.length; i++) {
             if (i < pointList.length - 1) {
                 const item = pointList[i]
@@ -374,8 +374,8 @@ export default function CanvasPolygon(option: CanvasTemperatureOption) {
     // 判断画点多边形区域是否可闭合（通过判断区域中的第一个点和最后一个点的连线是否与其他线相交）- true:可闭合; false:不可闭合
     const judgeAreaCanBeClosed = (pointList: CanvasBasePoint[]) => {
         let flag = true
-        const startPoint = pointList[0]
-        const lastPoint = pointList[pointList.length - 1]
+        const startPoint = pointList.at(0)!
+        const lastPoint = pointList.at(-1)!
         for (let i = 0; i < pointList.length; i++) {
             if (i < pointList.length - 1) {
                 const item = pointList[i]
@@ -391,7 +391,7 @@ export default function CanvasPolygon(option: CanvasTemperatureOption) {
 
     // 强制闭合当前绘制点时，判断是否有线段相交
     const isCurrentIntersect = () => {
-        return judgeIntersect(pointList[pointList.length - 1], true)
+        return judgeIntersect(pointList.at(-1)!, true)
     }
 
     // 设置多边形顶点数据
@@ -629,7 +629,7 @@ export default function CanvasPolygon(option: CanvasTemperatureOption) {
         if (!onDoubleClick) {
             onDoubleClick = () => {
                 // const pointList = pointList || []
-                const isIntersect = pointList.length >= 3 ? judgeIntersect(pointList[pointList.length - 1], true) : true
+                const isIntersect = pointList.length >= 3 ? judgeIntersect(pointList.at(-1)!, true) : true
                 if (pointList.length >= 3 && !isIntersect && !isClosed) {
                     init(true)
                     forceClosePath && forceClosePath(true) // 区域可闭合

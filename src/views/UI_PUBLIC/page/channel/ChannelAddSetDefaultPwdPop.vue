@@ -30,7 +30,7 @@
                     min-width="240"
                     class-name="cell-with-form-rule"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<ChannelDefaultPwdDto>">
                         <el-form-item
                             :prop="`params.${scope.$index}.userName`"
                             :rules="rules.userName"
@@ -49,7 +49,7 @@
                     :label="Translate('IDCS_PASSWORD')"
                     width="240"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<ChannelDefaultPwdDto>">
                         <span
                             v-show="!scope.row.showInput"
                             @click="handlePwdViewChange(scope.$index, scope.row)"

@@ -131,7 +131,7 @@
         <div class="base-table-box">
             <el-table :data="sliceTableData">
                 <el-table-column :label="Translate('No.')">
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<BusinessFaceCheckList>">
                         {{ displayIndex(scope.$index) }}
                     </template>
                 </el-table-column>
@@ -144,17 +144,17 @@
                     prop="groupName"
                 />
                 <el-table-column :label="Translate('IDCS_ATTENDANCE_CHECKED')">
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<BusinessFaceCheckList>">
                         {{ displayStatus(scope.row.checked) }}
                     </template>
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_ATTENDANCE_UNCHECK')">
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<BusinessFaceCheckList>">
                         <span class="text-error">{{ displayStatus(scope.row.unchecked) }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_DETAIL')">
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<BusinessFaceCheckList>">
                         <BaseImgSprite
                             file="edit (2)"
                             :index="0"

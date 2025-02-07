@@ -15,7 +15,7 @@
                 label=" "
                 width="50"
             >
-                <template #default="scope">
+                <template #default="scope: TableColumn<SystemDiskStatusList>">
                     <BaseTableRowStatus :icon="scope.row.status" />
                 </template>
             </el-table-column>
@@ -34,12 +34,12 @@
             >
             </el-table-column> -->
             <el-table-column :label="Translate('IDCS_TYPE')">
-                <template #default="scope">
+                <template #default="scope: TableColumn<SystemDiskStatusList>">
                     {{ formatDiskType(scope.row) }}
                 </template>
             </el-table-column>
             <el-table-column :label="Translate('IDCS_DISK_FREE_CAPACITY')">
-                <template #default="scope">
+                <template #default="scope: TableColumn<SystemDiskStatusList>">
                     {{ formatSizeAndFreeSpace(scope.row) }}
                 </template>
             </el-table-column>
@@ -56,7 +56,7 @@
                 prop="group"
             />
             <el-table-column :label="Translate('IDCS_DISK_RECORD_PERIOD')">
-                <template #default="scope">
+                <template #default="scope: TableColumn<SystemDiskStatusList>">
                     {{ scope.row.recTime ? scope.row.recTime : '' }}
                 </template>
             </el-table-column>

@@ -339,8 +339,8 @@ export default defineComponent({
                 const pointLeftTop = item.info.point_left_top
                 const pointRightBottm = item.info.point_right_bottom
                 if (pointLeftTop && pointRightBottm) {
-                    const leftTop = pointLeftTop.slice(1, pointLeftTop.length - 1).split(',')
-                    const rightBottom = pointRightBottm.slice(1, pointRightBottm.length - 1).split(',')
+                    const leftTop = pointLeftTop.slice(1, -1).split(',')
+                    const rightBottom = pointRightBottm.slice(1, -1).split(',')
                     X1 = Number(leftTop[0]) / width
                     X2 = Number(rightBottom[0]) / width
                     Y1 = Number(leftTop[1]) / height
@@ -426,8 +426,8 @@ export default defineComponent({
                 const pointLeftTop = item.info.point_left_top
                 const pointRightBottm = item.info.point_right_bottom
                 if (pointLeftTop && pointRightBottm) {
-                    const leftTop = pointLeftTop.slice(1, pointLeftTop.length - 1).split(',')
-                    const rightBottom = pointRightBottm.slice(1, pointRightBottm.length - 1).split(',')
+                    const leftTop = pointLeftTop.slice(1, -1).split(',')
+                    const rightBottom = pointRightBottm.slice(1, -1).split(',')
                     X1 = Number(leftTop[0]) / width
                     X2 = Number(rightBottom[0]) / width
                     Y1 = Number(leftTop[1]) / height

@@ -31,7 +31,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<SystemPosList>">
                         <el-select-v2
                             v-model="scope.row.switch"
                             :options="pageData.switchOption"
@@ -58,7 +58,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<SystemPosList>">
                         <el-select-v2
                             v-model="scope.row.connectionType"
                             :options="pageData.connectionTypeList"
@@ -70,7 +70,7 @@
                     :label="Translate('IDCS_CONNECTION_SETTINGS')"
                     width="150"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<SystemPosList>">
                         <el-button @click="setConnection(scope.$index)">{{ Translate('IDCS_CONFIG') }}</el-button>
                     </template>
                 </el-table-column>
@@ -94,7 +94,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<SystemPosList>">
                         <el-select-v2
                             v-model="scope.row.manufacturers"
                             :options="pageData.manufacturersList"
@@ -106,7 +106,7 @@
                     :label="Translate('IDCS_CHANNEL_TRGGER')"
                     width="150"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<SystemPosList>">
                         <div class="base-cell-box">
                             <el-checkbox
                                 v-model="scope.row.triggerChl.switch"
@@ -128,7 +128,7 @@
                             {{ Translate('IDCS_DISPLAY_SETTINGS') }}
                         </BaseTableDropdownLink>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<SystemPosList>">
                         <el-button @click="setDisplay(scope.$index)">{{ Translate('IDCS_CONFIG') }}</el-button>
                     </template>
                 </el-table-column>
@@ -152,7 +152,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<SystemPosList>">
                         <el-select-v2
                             v-model="scope.row.encodeFormat"
                             :options="pageData.encodeList"
