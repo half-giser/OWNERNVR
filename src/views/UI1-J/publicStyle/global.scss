@@ -53,7 +53,7 @@
     --form-stripe: var(--table-stripe);
 
     --radio-btn-text: var(--main-text);
-    --radio-btn-text-hover: var(--main-text);
+    --radio-btn-text-hover: #fff;
     --radio-btn-text-active: var(--main-text-active);
     --radio-btn-bg: transparent;
     --radio-btn-bg-hover: var(--primary-light);
@@ -81,12 +81,14 @@
     --table-bg: #fff;
     --table-bg-hover: #f7f7f7;
     --table-stripe: #eee;
+    --table-expand-bg: #fff;
 
     --table-tbody-border: rgb(28 31 43);
 
     --table-thead-text: var(--main-text);
     --table-thead-bg: #e5e5e5;
     --table-thead-border: rgb(28 31 43);
+    --table-checkbox-border-checked: #e9efff;
 
     --dialog-title: #1c1f2b;
     --dialog-bg: var(--main-bg);
@@ -100,6 +102,7 @@
     --transfer-stripe: transparent;
     --transfer-border: rgb(28 31 43);
     --transfer-text: var(--main-text);
+    --transfer-btn-bg-disabled: var(--btn-bg-disabled);
 
     --config-menu-text: #1c1f2b;
     --config-menu-text-hover: var(--primary);
@@ -135,14 +138,19 @@
     --config-aside-text-active: #fff;
     --config-aside-text-disabled: #d9d9d9;
     --config-aside-bg: unset;
+    --config-aside-item-border-hover: var(--primary);
     --config-aside-item-bg: unset;
     --config-aside-item-bg-active: var(--primary);
+    --config-aside-item-bg-hover: unset;
 
     --breadcrumb-text: #1c1f2b;
     --breadcrumb-bg: transparent;
 
     --ptz-btn: #fff;
     --ptz-btn-disabled: #fff;
+
+    --ai-menu-bg-disabled: #aeabab;
+    --ai-menu-text-disabled: #797979;
 
     --ai-linkbox-bg: #d0d0d0;
     --ai-linkbox-border: rgb(28 31 43);
@@ -166,6 +174,11 @@
     --panel-btn-bg: #777;
     --panel-btn-bg-disabled: #b7b7b7;
 
+    --panel-chl-border: transparent;
+    --panel-chl-border-hover: var(--primary);
+    --panel-chl-bg: transparent;
+    --panel-chl-bg-hover: transparent;
+
     --panel-snap-border: black;
     --panel-snap-history-border: #fc6;
     --panel-snap-btn-bg: rgb(0 0 0 / 50%);
@@ -178,14 +191,14 @@
     --panel-event-title-bg: #999;
 
     --tabbar-text: var(--header-menu-text);
-    --tabbar-text-hover: var(--header-menu-text);
+    --tabbar-text-hover: #fff;
     --tabbar-text-active: #fff;
     --tabbar-bg: transparent;
     --tabbar-bg-hover: var(--primary-light);
     --tabbar-bg-active: var(--primary);
 
-    --sidebar-text: #fff;
-    --sidebar-text-hover: var(--header-menu-text);
+    --sidebar-text: #1c1f2b;
+    --sidebar-text-hover: #fff;
     --sidebar-text-active: var(--main-text-active);
     --sidebar-bg: transparent;
     --sidebar-bg-hover: var(--primary-light);
@@ -269,4 +282,20 @@
     --pagination-border: rgb(28 31 43);
     --pagination-border-hover: #1f393f;
     --pagination-border-disabled: #e0e0e0;
+
+    --datepicker-header-bg: #f3f8ff;
+    --datepicker-border: #b9d7fc;
+    --datepicker-text: #000;
+    --datepicker-text-hover: #06c;
+    --datepicker-bg-hover: #f3f8ff;
+    --datepicker-border-hover: #06c;
+    --datepicker-btn-border: #b9d7fc;
+    --datepicker-btn-bg: #f3f8ff;
+    --datepicker-btn-text: #06c;
+    --datepicker-input-border: #b9d7fc;
+    --datepicker-input-bg: #fff;
+    --datepicker-input-text: #000;
+
+    --tooltip-border: #111;
+    --tooltip-text: #333;
 }

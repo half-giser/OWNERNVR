@@ -37,7 +37,7 @@
 }
 
 #layout2Header {
-    background-color: var(--main-bg);
+    // background-color: var(--breadcrumb-bg);
     padding: 0;
     height: 38px;
     border-bottom: solid 1px var(--content-border);
@@ -56,7 +56,7 @@
     align-items: center;
     border: 0;
     border-bottom: 1px solid var(--content-border);
-    background-color: var(--main-bg);
+    background-color: var(--breadcrumb-bg);
 
     :deep(.el-menu-item) {
         --el-menu-active-color: var(--tabbar-text);

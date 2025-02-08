@@ -435,7 +435,7 @@ input[type='number'] {
             width: var(--form-input-width);
 
             & + * {
-                margin-left: 5px;
+                margin-left: 8px;
             }
 
             & + .el-slider {
@@ -446,7 +446,7 @@ input[type='number'] {
         .el-checkbox,
         .el-button {
             & + * {
-                margin-left: 5px;
+                margin-left: 8px;
             }
 
             & + .el-slider {
@@ -850,4 +850,11 @@ input[type='number'] {
     to {
         opacity: 0;
     }
+}
+
+.base-tooltip {
+    max-width: 50vw;
+    color: var(--tooltip-text) !important;
+    padding: 2px 8px !important;
+    border-color: var(--tooltip-border) !important;
 }

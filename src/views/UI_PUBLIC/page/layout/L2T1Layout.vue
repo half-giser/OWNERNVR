@@ -118,6 +118,12 @@
     flex-shrink: 0;
     background-color: var(--config-aside-item-bg);
 
+    &:hover {
+        border: solid 1px var(--config-aside-item-border-hover);
+        background-color: var(--config-aside-item-bg-hover);
+        z-index: 100;
+    }
+
     &.active {
         background-color: var(--config-aside-item-bg-active);
 
@@ -140,11 +146,6 @@
                 color: var(--config-aside-text-active);
             }
         }
-    }
-
-    &:hover {
-        border: solid 1px var(--primary);
-        z-index: 100;
     }
 
     &:last-of-type {

@@ -21,10 +21,7 @@
                     </template>
                 </el-table-column>
                 <!-- 音频   -->
-                <el-table-column
-                    v-if="pageData.supportAudio"
-                    width="155"
-                >
+                <el-table-column v-if="pageData.supportAudio">
                     <template #header>
                         <el-dropdown>
                             <BaseTableDropdownLink>
@@ -51,7 +48,7 @@
                     </template>
                 </el-table-column>
                 <!-- 消息推送   -->
-                <el-table-column width="194">
+                <el-table-column>
                     <template #header>
                         <el-dropdown>
                             <BaseTableDropdownLink>
@@ -78,7 +75,7 @@
                     </template>
                 </el-table-column>
                 <!-- 报警输出   -->
-                <el-table-column width="215">
+                <el-table-column>
                     <template #header>
                         <AlarmBaseAlarmOutPop
                             :visible="pageData.isAlarmOutPop"
@@ -103,7 +100,7 @@
                     </template>
                 </el-table-column>
                 <!-- 蜂鸣器   -->
-                <el-table-column width="260">
+                <el-table-column>
                     <template #header>
                         <el-dropdown>
                             <BaseTableDropdownLink>
@@ -130,7 +127,7 @@
                     </template>
                 </el-table-column>
                 <!-- 消息框弹出   -->
-                <el-table-column width="260">
+                <el-table-column>
                     <template #header>
                         <el-dropdown>
                             <BaseTableDropdownLink>
@@ -157,7 +154,7 @@
                     </template>
                 </el-table-column>
                 <!-- email   -->
-                <el-table-column width="260">
+                <el-table-column>
                     <template #header>
                         <el-dropdown>
                             <BaseTableDropdownLink> Email </BaseTableDropdownLink>

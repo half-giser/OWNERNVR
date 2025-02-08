@@ -154,7 +154,7 @@
     width: 100%;
     display: flex;
     justify-content: space-between;
-    height: 70px;
+    height: 65px;
     align-items: center;
 }
 
@@ -220,7 +220,6 @@
 }
 
 #mainMenu {
-    margin-top: 5px;
     height: 34px;
     --el-menu-active-color: var(--primary);
     --el-menu-base-level-padding: 10px;

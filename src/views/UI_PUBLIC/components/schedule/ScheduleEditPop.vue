@@ -19,7 +19,7 @@
             }"
         >
             <div class="base-btn-box space-between form">
-                <div>
+                <div class="form-panel">
                     <el-form-item
                         :label="Translate('IDCS_SCHEDULE_NAME')"
                         prop="name"
@@ -144,6 +144,12 @@
 
 #n9web .el-form .el-form-item {
     padding: 3px 0 0;
+}
+
+.form-panel {
+    :deep(.el-form-item__label) {
+        color: var(--schedule-form-btn) !important;
+    }
 }
 
 .btn-panel {

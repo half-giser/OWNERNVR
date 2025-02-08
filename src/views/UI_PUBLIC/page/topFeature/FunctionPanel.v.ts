@@ -81,6 +81,7 @@ export default defineComponent({
             // 选中的主菜单
             mainMenuIndex: 0,
             hoverMenuIndex: -1,
+            activeIconIndex: import.meta.env.VITE_UI_TYPE === 'UI1-D' ? 0 : 1,
         })
 
         /**

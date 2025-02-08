@@ -10,7 +10,7 @@
             class="base-home-panel-content"
         >
             <div
-                class="base-home-panel-top margin"
+                class="base-home-panel-top"
                 @click="pageData.isOpen = false"
             >
                 <i class="base-home-panel-arrow"></i>

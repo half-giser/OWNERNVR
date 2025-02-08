@@ -119,7 +119,7 @@
 .live {
     width: 100%;
     height: var(--live-content-height);
-    border: 1px solid var(--input-border);
+    border: 1px solid var(--content-border);
     display: flex;
     font-size: 14px;
 }
@@ -127,8 +127,8 @@
 .center {
     width: 100%;
     height: 100%;
-    border-left: 1px solid var(--input-border);
-    border-right: 1px solid var(--input-border);
+    border-left: 1px solid var(--content-border);
+    border-right: 1px solid var(--content-border);
 
     &-player {
         width: 100%;

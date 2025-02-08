@@ -490,6 +490,7 @@
 <style lang="scss" scoped>
 .el-menu {
     border-bottom: 1px solid var(--main-border);
+    background-color: transparent;
 }
 
 .el-menu--horizontal {
@@ -497,6 +498,8 @@
 }
 
 .el-menu--horizontal > .el-menu-item {
+    color: var(--main-text);
+
     &.is-active {
         background-color: transparent;
     }
