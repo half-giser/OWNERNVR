@@ -1,7 +1,7 @@
 /*
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-06-21 18:15:30
- * @Description: 系统
+ * @Description: 系统的类型定义，类型命名的前缀统一为System*
  */
 import { TableRowStatus } from './base'
 
@@ -443,7 +443,7 @@ export class SystenSHDBImageUploadDto {
 /**
  * @description 平台操作管理表格项
  */
-export class chlDataItem {
+export class SystemSHDBPlatformOperatorDto {
     chlId = ''
     chlNum = 0
     name = ''

@@ -12,7 +12,7 @@
                     label=" "
                     width="50"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<AlarmWhiteLightDto>">
                         <BaseTableRowStatus :icon="scope.row.status" />
                     </template>
                 </el-table-column>
@@ -41,7 +41,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<AlarmWhiteLightDto>">
                         <el-select-v2
                             v-model="scope.row.enable"
                             :placeholder="Translate('IDCS_ON')"
@@ -52,7 +52,7 @@
                 </el-table-column>
                 <!-- 闪烁时间 -->
                 <el-table-column :label="Translate('IDCS_FLASHING_TIME')">
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<AlarmWhiteLightDto>">
                         <BaseNumberInput
                             v-model="scope.row.durationTime"
                             :disabled="!scope.row.enable"
@@ -82,7 +82,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<AlarmWhiteLightDto>">
                         <el-select-v2
                             v-model="scope.row.frequencyType"
                             :disabled="!scope.row.enable"

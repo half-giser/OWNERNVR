@@ -121,7 +121,7 @@
                             :label="Translate('IDCS_SERIAL_NUMBER')"
                             min-width="50"
                         >
-                            <template #default="scope">
+                            <template #default="scope: TableColumn<PlaybackRecLogList>">
                                 {{ displayIndex(scope.$index) }}
                             </template>
                         </el-table-column>
@@ -135,7 +135,7 @@
                             :label="Translate('IDCS_TYPE')"
                             min-width="100"
                         >
-                            <template #default="scope">
+                            <template #default="scope: TableColumn<PlaybackRecLogList>">
                                 <el-text>{{ displayEvent(scope.row) }}</el-text>
                                 <BaseImgSprite
                                     v-if="displayEventIcon(scope.row)"
@@ -147,7 +147,7 @@
                             :label="Translate('IDCS_START_TIME')"
                             min-width="150"
                         >
-                            <template #default="scope">
+                            <template #default="scope: TableColumn<PlaybackRecLogList>">
                                 {{ displayDateTime(scope.row.startTime) }}
                             </template>
                         </el-table-column>
@@ -155,7 +155,7 @@
                             :label="Translate('IDCS_END_TIME')"
                             min-width="150"
                         >
-                            <template #default="scope">
+                            <template #default="scope: TableColumn<PlaybackRecLogList>">
                                 {{ displayDateTime(scope.row.endTime) }}
                             </template>
                         </el-table-column>
@@ -170,7 +170,7 @@
                             min-width="100"
                         />
                         <el-table-column :label="Translate('IDCS_PLAY')">
-                            <template #default="scope">
+                            <template #default="scope: TableColumn<PlaybackRecLogList>">
                                 <BaseImgSprite
                                     file="play (3)"
                                     :index="0"
@@ -181,7 +181,7 @@
                             </template>
                         </el-table-column>
                         <el-table-column :label="Translate('IDCS_INFORMATION')">
-                            <template #default="scope">
+                            <template #default="scope: TableColumn<PlaybackRecLogList>">
                                 <BaseImgSprite
                                     v-if="scope.row.event === 'POS'"
                                     file="detail"

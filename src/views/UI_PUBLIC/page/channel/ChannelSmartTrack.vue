@@ -75,7 +75,7 @@
                         label=" "
                         width="50"
                     >
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelPtzSmartTrackDto>">
                             <BaseTableRowStatus :icon="scope.row.status" />
                         </template>
                     </el-table-column>
@@ -103,7 +103,7 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelPtzSmartTrackDto>">
                             <el-select-v2
                                 v-model="scope.row.autoBackSwitch"
                                 :options="pageData.autoBackOptions"
@@ -112,7 +112,7 @@
                         </template>
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_HOMING_AFTER_TARGET_STATIONARY_TIME')">
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelPtzSmartTrackDto>">
                             <BaseNumberInput
                                 v-model="scope.row.autoBackTime"
                                 :min="0"

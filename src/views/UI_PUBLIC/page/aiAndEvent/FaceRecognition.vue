@@ -331,7 +331,7 @@
                                                 </div>
                                             </el-popover>
                                         </template>
-                                        <template #default="scope">
+                                        <template #default="scope: TableColumn<AlarmFaceGroupDto>">
                                             <BaseNumberInput
                                                 v-model="scope.row.similarity"
                                                 :min="1"

@@ -135,12 +135,12 @@
                             width="170"
                             :label="Translate('IDCS_RECIPIENT')"
                         >
-                            <template #default="scope">
+                            <template #default="scope: TableColumn<AlarmPassLinesEmailReceiverDto>">
                                 {{ formatAddress(scope.row) }}
                             </template>
                         </el-table-column>
                         <el-table-column>
-                            <template #default="scope">
+                            <template #default="scope: TableColumn<AlarmPassLinesEmailReceiverDto>">
                                 {{ formatSchedule(scope.row) }}
                             </template>
                         </el-table-column>
@@ -148,7 +148,7 @@
                             :label="Translate('IDCS_DELETE')"
                             width="70"
                         >
-                            <template #default="scope">
+                            <template #default="scope: TableColumn<AlarmPassLinesEmailReceiverDto>">
                                 <BaseImgSprite
                                     file="del"
                                     :chunk="4"

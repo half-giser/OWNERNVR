@@ -55,7 +55,7 @@
                             @click="handleLogin"
                             @keyup.enter="keyUp"
                         >
-                            {{ Translate('IDCS_LOGIN_NBSP') }}
+                            <span v-clean-html="Translate('IDCS_LOGIN_NBSP')"></span>
                         </el-button>
                     </el-form-item>
                 </el-form>
@@ -136,6 +136,11 @@
         :deep(.el-input__wrapper) {
             box-shadow: none;
             border-radius: 0;
+            background-color: var(--login-input-bg);
+        }
+
+        :deep(.el-input__inner) {
+            color: var(--login-input-text);
         }
 
         :deep(.el-form-item) {

@@ -33,18 +33,18 @@
                 prop="spareHard"
             />
             <el-table-column :label="Translate('IDCS_STATE')">
-                <template #default="scope">
+                <template #default="scope: TableColumn<DiskRaidList>">
                     {{ displayRaidState(scope.row.raidState) }}
                 </template>
             </el-table-column>
 
             <el-table-column :label="Translate('IDCS_TYPE')">
-                <template #default="scope">
+                <template #default="scope: TableColumn<DiskRaidList>">
                     {{ displayRaidType(scope.row.raidType) }}
                 </template>
             </el-table-column>
             <el-table-column :label="Translate('IDCS_REPAIR')">
-                <template #default="scope">
+                <template #default="scope: TableColumn<DiskRaidList>">
                     <BaseImgSprite
                         file="repair"
                         :index="0"
@@ -57,7 +57,7 @@
                 </template>
             </el-table-column>
             <el-table-column :label="Translate('IDCS_DELETE')">
-                <template #default="scope">
+                <template #default="scope: TableColumn<DiskRaidList>">
                     <BaseImgSprite
                         file="del"
                         :index="0"

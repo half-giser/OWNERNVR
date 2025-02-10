@@ -34,7 +34,7 @@
                     prop="ip"
                 />
                 <el-table-column :label="Translate('IDCS_PREVIEW')">
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<StorageModeChlList>">
                         <BaseImgSprite
                             file="play (3)"
                             :chunk="4"

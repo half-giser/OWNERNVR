@@ -103,7 +103,7 @@
                         label=" "
                         width="50"
                     >
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelPtzProtocolDto>">
                             <BaseTableRowStatus :icon="scope.row.status" />
                         </template>
                     </el-table-column>
@@ -132,7 +132,7 @@
                             </el-dropdown>
                         </template>
 
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelPtzProtocolDto>">
                             <el-select-v2
                                 v-model="scope.row.ptz"
                                 :disabled="scope.row.disabled"
@@ -142,7 +142,7 @@
                     </el-table-column>
 
                     <el-table-column :label="Translate('IDCS_PROTOCOL')">
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelPtzProtocolDto>">
                             <el-select-v2
                                 v-model="scope.row.protocol"
                                 :disabled="scope.row.disabled"
@@ -152,7 +152,7 @@
                     </el-table-column>
 
                     <el-table-column :label="Translate('IDCS_BAUD_RATE')">
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelPtzProtocolDto>">
                             <el-select-v2
                                 v-model="scope.row.baudRate"
                                 :disabled="scope.row.disabled"
@@ -162,7 +162,7 @@
                     </el-table-column>
 
                     <el-table-column :label="Translate('IDCS_ADDRESS')">
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelPtzProtocolDto>">
                             <BaseNumberInput
                                 v-model="scope.row.address"
                                 :min="scope.row.addressMin"

@@ -12,7 +12,7 @@
                     label=" "
                     width="50"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<AlarmOutDto>">
                         <BaseTableRowStatus :icon="scope.row.status" />
                     </template>
                 </el-table-column>
@@ -23,14 +23,14 @@
                     width="268"
                     show-overflow-tooltip
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<AlarmOutDto>">
                         {{ displaySerialNum(scope.row) }}
                     </template>
                 </el-table-column>
 
                 <!-- 名称 -->
                 <el-table-column :label="Translate('IDCS_NAME')">
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<AlarmOutDto>">
                         <el-input
                             v-model="scope.row.name"
                             :disabled="scope.row.disabled"
@@ -61,7 +61,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<AlarmOutDto>">
                         <el-select-v2
                             v-model="scope.row.delayTime"
                             :disabled="scope.row.disabled"
@@ -90,7 +90,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<AlarmOutDto>">
                         <el-select-v2
                             v-model="scope.row.scheduleId"
                             :disabled="scope.row.disabled"

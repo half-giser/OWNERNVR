@@ -6,7 +6,7 @@
 import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
 import IntelBaseEventSelector from './IntelBaseEventSelector.vue'
 import IntelBaseAttributeSelector from './IntelBaseAttributeSelector.vue'
-import { type IntelCombineStatsList, IntelCombineStatsForm } from '@/types/apiType/intelligentAnalysis'
+import { type IntelCombineStatsList, IntelCombineStatsForm, type IntelStatsBarChartDataDto } from '@/types/apiType/intelligentAnalysis'
 import { type BarChartXValueOptionItem } from '@/components/chart/BaseBarChart.vue'
 
 export default defineComponent({
@@ -51,11 +51,7 @@ export default defineComponent({
             // 表格选项
             tableData: {
                 label: [] as string[],
-                data: [] as {
-                    chlId: string
-                    chlName: string
-                    data: number[]
-                }[],
+                data: [] as IntelStatsBarChartDataDto[],
             },
         })
 

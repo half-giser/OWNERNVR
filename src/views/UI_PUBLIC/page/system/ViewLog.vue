@@ -62,7 +62,7 @@
                     :label="Translate('IDCS_SERIAL_NUMBER')"
                     width="70"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<SystemLogList>">
                         {{ (formData.currentPage - 1) * formData.pageSize + scope.$index + 1 }}
                     </template>
                 </el-table-column>
@@ -109,7 +109,7 @@
                     width="425"
                     :label="Translate('IDCS_DETAIL_INFO')"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<SystemLogList>">
                         <div class="detail-info">
                             <div>{{ scope.row.content }}</div>
                             <BaseImgSprite
@@ -126,7 +126,7 @@
                     :label="Translate('IDCS_PLAY')"
                     width="60"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<SystemLogList>">
                         <BaseImgSprite
                             v-show="displayPlayIcon(scope.row)"
                             file="play (3)"

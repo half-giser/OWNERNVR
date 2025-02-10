@@ -49,7 +49,7 @@
                     :label="Translate('IDCS_IPC_ACTIVATE_STATE')"
                     min-width="140"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<ChannelQuickAddDto>">
                         <span :class="[scope.row.activateStatus === 'UNACTIVATED' ? 'text-offline' : '']">
                             {{ scope.row.activateStatus === 'ACTIVATED' ? Translate('IDCS_ACTIVATED') : scope.row.activateStatus === 'UNACTIVATED' ? Translate('IDCS_UN_ACTIVATED') : '--' }}
                         </span>
@@ -59,7 +59,7 @@
                     :label="Translate('IDCS_ADDRESS')"
                     min-width="140"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<ChannelQuickAddDto>">
                         {{ scope.row.poeIndex ? Translate('IDCS_POE_PREFIX').formatForLang(scope.row.poeIndex) + scope.row.ip : scope.row.ip }}
                     </template>
                 </el-table-column>
@@ -73,7 +73,7 @@
                     width="120"
                     align="center"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<ChannelQuickAddDto>">
                         <BaseImgSprite
                             file="edit (2)"
                             :chunk="4"
@@ -93,7 +93,7 @@
                     :label="Translate('IDCS_PROTOCOL')"
                     min-width="200"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<ChannelQuickAddDto>">
                         {{ formatDisplayManufacturer(scope.row) }}
                     </template>
                 </el-table-column>
@@ -124,7 +124,7 @@
                     width="340"
                     :show-overflow-tooltip="false"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<ChannelManualAddDto>">
                         <div class="base-cell-box">
                             <el-select-v2
                                 v-model="scope.row.addrType"
@@ -149,7 +149,7 @@
                     :label="Translate('IDCS_PORT')"
                     width="150"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<ChannelManualAddDto>">
                         <BaseNumberInput
                             v-model="scope.row.port"
                             :min="10"
@@ -163,7 +163,7 @@
                     :label="Translate('IDCS_USERNAME')"
                     min-width="300"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<ChannelManualAddDto>">
                         <el-input
                             v-model="scope.row.userName"
                             maxlength="63"
@@ -175,7 +175,7 @@
                     :label="Translate('IDCS_PASSWORD')"
                     min-width="300"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<ChannelManualAddDto>">
                         <el-input
                             v-model="scope.row.password"
                             type="password"
@@ -188,7 +188,7 @@
                     :label="Translate('IDCS_PROTOCOL')"
                     min-width="300"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<ChannelManualAddDto>">
                         <el-select-v2
                             v-model="scope.row.manufacturer"
                             :options="manufacturerList"
@@ -200,7 +200,7 @@
                     :label="Translate('IDCS_DELETE')"
                     width="100"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<ChannelManualAddDto>">
                         <BaseImgSprite
                             file="del"
                             :index="0"

@@ -288,7 +288,7 @@ export default defineComponent({
         }
 
         const rowDelClass = (index: number) => {
-            return index === manualAddFormData.value.length - 1 ? true : false
+            return index === manualAddFormData.value.length - 1
         }
 
         const rowDel = (index: number) => {

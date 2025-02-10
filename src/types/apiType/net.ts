@@ -1,7 +1,7 @@
 /*
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-09 14:47:05
- * @Description: 网络
+ * @Description: 网络的类型定义，类型命名的前缀统一为Net*
  */
 import { TableRowStatus } from './base'
 import { type RecordStreamQualityCapsDto } from './record'

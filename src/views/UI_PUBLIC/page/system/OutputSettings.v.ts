@@ -207,7 +207,7 @@ export default defineComponent({
 
         // 当前视窗通道数据
         const currentViewData = computed(() => {
-            const array = Array(64).fill({ id: '', value: '' }) as ChlItem[]
+            const array: ChlItem[] = Array(64).fill({ id: '', value: '' })
             activeViewItem.value.chls.forEach((item) => {
                 array[item.winindex] = {
                     id: item.id,

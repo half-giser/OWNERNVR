@@ -75,7 +75,7 @@
                         label=" "
                         width="50"
                     >
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelLogoSetDto>">
                             <BaseTableRowStatus :icon="scope.row.status" />
                         </template>
                     </el-table-column>
@@ -105,7 +105,7 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelLogoSetDto>">
                             <el-select-v2
                                 v-model="scope.row.switch"
                                 :disabled="scope.row.disabled"
@@ -115,7 +115,7 @@
                     </el-table-column>
                     <!-- 透明度 -->
                     <el-table-column :label="Translate('IDCS_TRANSPARENCY')">
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelLogoSetDto>">
                             <BaseNumberInput
                                 v-model="scope.row.opacity"
                                 :disabled="scope.row.disabled"

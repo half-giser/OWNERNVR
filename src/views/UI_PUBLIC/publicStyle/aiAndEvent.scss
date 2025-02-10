@@ -62,8 +62,10 @@
         }
 
         .el-tabs__item.is-disabled {
-            background: var(--btn-bg-disabled);
-            color: var(--btn-text-disabled);
+            background-color: var(--ai-menu-bg-disabled);
+            color: var(--ai-menu-text-disabled);
+            // background: var(--btn-bg-disabled);
+            // color: var(--btn-text-disabled);
         }
     }
 }

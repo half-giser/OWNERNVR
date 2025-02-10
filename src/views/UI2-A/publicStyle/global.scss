@@ -44,9 +44,9 @@
     --footer-text: var(--header-menu-text);
     --footer-bg: unset;
 
-    --input-text: #000;
+    --input-text: #fff;
     --input-text-disabled: #545454;
-    --input-bg: #fff;
+    --input-bg: #343434;
     --input-bg-disabled: #808080;
     --input-border: #888;
     --input-border-disabled: #888;
@@ -82,12 +82,14 @@
     --table-bg-hover: #400000;
     --table-border: #5c5c5c;
     --table-stripe: #343434;
+    --table-expand-bg: #343434;
 
     --table-tbody-border: #5c5c5c;
 
     --table-thead-text: #fff;
     --table-thead-bg: #343434;
     --table-thead-border: #ccc;
+    --table-checkbox-border-checked: #e9efff;
 
     --dialog-title: #ddd;
     --dialog-bg: #2d2d2d;
@@ -101,6 +103,7 @@
     --transfer-stripe: transparent;
     --transfer-border: #999;
     --transfer-text: var(--main-text);
+    --transfer-btn-bg-disabled: var(--btn-bg);
 
     --config-menu-text: #ddd;
     --config-menu-text-hover: #ddd;
@@ -136,14 +139,19 @@
     --config-aside-text-active: #ddd;
     --config-aside-text-disabled: #555;
     --config-aside-bg: #343434;
+    --config-aside-item-border-hover: var(--primary);
     --config-aside-item-bg: unset;
     --config-aside-item-bg-active: var(--primary);
+    --config-aside-item-bg-hover: unset;
 
     --breadcrumb-text: #ddd;
     --breadcrumb-bg: #343434;
 
     --ptz-btn: var(--main-bg);
     --ptz-btn-disabled: #fff;
+
+    --ai-menu-bg-disabled: #aeabab;
+    --ai-menu-text-disabled: #797979;
 
     --ai-linkbox-bg: #5e5e5e;
     --ai-linkbox-border: #888;
@@ -158,14 +166,19 @@
 
     --upgrade-text-active: #23de1a;
 
-    --panel-bg: #343434;
-    --panel-header-bg: #343434;
+    --panel-bg: var(--main-bg);
+    --panel-header-bg: var(--main-bg);
     --panel-header-text: #ddd;
     --panel-header-text-02: #ddd;
     --panel-menu-bg: #3a3a3a;
     --panel-menu-bg-active: #515151;
     --panel-btn-bg: var(--primary);
     --panel-btn-bg-disabled: #6b6b6b;
+
+    --panel-chl-border: #343434;
+    --panel-chl-border-hover: var(--primary);
+    --panel-chl-bg: transparent;
+    --panel-chl-bg-hover: #343434;
 
     --panel-snap-border: black;
     --panel-snap-history-border: #fc6;
@@ -270,4 +283,20 @@
     --pagination-border: #888;
     --pagination-border-hover: #cacaca;
     --pagination-border-disabled: #5a5a5a;
+
+    --datepicker-header-bg: #f3f8ff;
+    --datepicker-border: #b9d7fc;
+    --datepicker-text: #000;
+    --datepicker-text-hover: #fff;
+    --datepicker-bg-hover: #d90000;
+    --datepicker-border-hover: #400000;
+    --datepicker-btn-border: #b9d7fc;
+    --datepicker-btn-bg: #f3f8ff;
+    --datepicker-btn-text: #06c;
+    --datepicker-input-border: #b9d7fc;
+    --datepicker-input-bg: #fff;
+    --datepicker-input-text: #000;
+
+    --tooltip-border: #111;
+    --tooltip-text: #333;
 }

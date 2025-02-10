@@ -75,6 +75,11 @@ ElTooltip.props.offset = {
     default: 0,
 }
 
+ElTooltip.props.popperClass = {
+    type: String,
+    default: 'base-tooltip',
+}
+
 // ElSelect.props.placeholder = {
 //     type: String,
 //     default: ' ',

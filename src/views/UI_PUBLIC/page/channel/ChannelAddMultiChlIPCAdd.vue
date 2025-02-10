@@ -25,7 +25,7 @@
                 min-width="420"
                 class-name="custom_cell"
             >
-                <template #default="scope">
+                <template #default="scope: TableColumn<ChannelMultiChlIPCAddDto>">
                     <el-checkbox
                         v-for="(item, index) in scope.row.multichannelCheckedInfoList"
                         :key="index"

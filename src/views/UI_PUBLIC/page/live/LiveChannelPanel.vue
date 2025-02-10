@@ -10,7 +10,7 @@
             class="base-home-panel-content"
         >
             <div
-                class="base-home-panel-top margin"
+                class="base-home-panel-top"
                 @click="pageData.isOpen = false"
             >
                 <div>
@@ -304,7 +304,19 @@
 
     .BaseListBox {
         width: calc(100% - 10px);
+        height: calc(100% - 52px);
         margin-left: 10px;
+
+        li {
+            border: 1px solid var(--panel-chl-border);
+            background-color: var(--panel-chl-bg);
+            box-sizing: border-box;
+
+            &:hover {
+                border-color: var(--panel-chl-border-hover);
+                background-color: var(--panel-chl-bg-hover);
+            }
+        }
     }
 }
 </style>

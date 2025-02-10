@@ -85,12 +85,14 @@
             padding-block: 0;
             padding-inline: 5px;
             font-size: 13px;
+            background-color: var(--input-bg);
         }
 
         &__popper {
             border: none;
             font-size: 13px;
             line-height: var(--el-component-size);
+            background-color: var(--input-bg);
 
             &.el-popper {
                 box-shadow: 0 0 0 1px var(--input-border) inset;
@@ -99,6 +101,8 @@
     }
 
     .el-input {
+        --el-input-bg-color: var(--input-bg);
+
         &__wrapper {
             padding-inline: 5px;
         }
@@ -190,6 +194,7 @@
     }
 
     .el-checkbox {
+        --el-checkbox-bg-color: var(--input-bg);
         --el-checkbox-text-color: var(--main-text);
         --el-checkbox-input-border: var(--el-border-width) var(--el-border-style) var(--input-border);
         --el-checkbox-input-border-color-hover: var(--primary);
@@ -208,18 +213,33 @@
     }
 
     .el-radio {
-        --el-radio-checked-text-color: default; // var(--primary);
+        --el-radio-checked-text-color: inherit; // var(--primary);
         --el-radio-input-border: var(--el-border-width) var(--el-border-style) var(--input-border);
         --el-radio-input-border-color-hover: var(--primary);
         --el-radio-text-color: var(--main-text);
         --el-radio-font-size: 14px;
+        --el-disabled-border-color: var(--input-border-disabled);
 
         &__label {
             padding-left: 5px;
         }
 
-        &__input.is-checked + .el-radio__label {
-            color: default;
+        &__input {
+            &.is-checked + .el-radio__label {
+                color: inherit;
+            }
+
+            &.is-checked .el-radio__inner {
+                background-color: var(--primary);
+            }
+
+            &.is-disabled.is-checked .el-radio__inner {
+                background-color: var(--input-bg-disabled);
+            }
+        }
+
+        &__inner {
+            background-color: var(--input-bg);
         }
     }
 
@@ -322,6 +342,14 @@
         &--enable-row-hover .el-table__body tr:hover > td.el-table__cell {
             background-color: var(--table-bg-hover);
         }
+
+        &__expanded-cell {
+            background-color: var(--table-expand-bg);
+
+            &:hover {
+                background-color: var(--table-expand-bg) !important;
+            }
+        }
     }
 
     .el-form {
@@ -404,10 +432,6 @@
 
         &__arrow {
             display: none;
-        }
-
-        &[role='tooltip'] {
-            max-width: 50vw;
         }
     }
 
@@ -623,9 +647,19 @@
 
     .el-date-picker {
         width: $width;
+        --el-text-color-regular: var(--datepicker-text);
+        --el-datepicker-icon-color: var(--datepicker-text);
 
         .el-input {
             --el-input-border-color: var(--datepicker-input-border);
+
+            &__wrapper {
+                background-color: var(--datepicker-input-bg);
+            }
+
+            &__inner {
+                color: var(--datepicker-input-text);
+            }
         }
 
         &__time-header {
@@ -757,6 +791,16 @@
 
     .el-popper:has(> .el-date-picker) {
         border-color: var(--datepicker-border);
+    }
+
+    .el-time {
+        &-panel {
+            background-color: var(--input-bg);
+        }
+
+        &-spinner__item:hover:not(.is-disabled, .is-active) {
+            background-color: var(--input-bg);
+        }
     }
 
     .el-loading {

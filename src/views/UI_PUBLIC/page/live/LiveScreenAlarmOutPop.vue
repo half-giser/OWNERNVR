@@ -31,12 +31,12 @@
                         prop="name"
                     />
                     <el-table-column :label="Translate('IDCS_STATE')">
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<LiveAlarmList>">
                             {{ displaySwitch(scope.row.switch) }}
                         </template>
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_MANUAL_TRIGGER')">
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<LiveAlarmList>">
                             <el-button
                                 :disabled
                                 @click="setStatus(scope.row.id, scope.$index, true)"
@@ -67,7 +67,7 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<LiveAlarmList>">
                             <el-select-v2
                                 v-model="scope.row.delay"
                                 :disabled
@@ -88,7 +88,7 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<LiveAlarmList>">
                             <el-button
                                 :disabled
                                 @click="setStatus(scope.row.id, scope.$index, false)"

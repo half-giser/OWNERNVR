@@ -21,12 +21,12 @@
                     width="300"
                 />
                 <el-table-column label="dwellTime">
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<ChannelGroupDto>">
                         {{ formatDwellTime(scope.row.dwellTime) }}
                     </template>
                 </el-table-column>
                 <el-table-column label="chlCount">
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<ChannelGroupDto>">
                         {{ Translate('IDCS_CHANNEL_NUM_D').formatForLang(scope.row.chlCount) }}
                     </template>
                 </el-table-column>
@@ -34,7 +34,7 @@
                     :label="Translate('IDCS_EDIT')"
                     width="60"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<ChannelGroupDto>">
                         <BaseImgSprite
                             file="edit (2)"
                             :chunk="4"
@@ -49,7 +49,7 @@
                     :label="Translate('IDCS_DELETE')"
                     width="60"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<ChannelGroupDto>">
                         <BaseImgSprite
                             file="del"
                             :chunk="4"
@@ -64,12 +64,12 @@
                     type="expand"
                     width="100"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<ChannelGroupDto>">
                         <ChannelPtzTableExpandPanel @add="handleAddChl(scope.row)">
                             <ChannelPtzTableExpandItem
                                 v-for="item in scope.row.chls"
-                                :key="item.value"
-                                :text="item.text"
+                                :key="String(item.value)"
+                                :text="String(item.text)"
                                 @delete="handleDelChl(scope.row, item.value)"
                             />
                         </ChannelPtzTableExpandPanel>

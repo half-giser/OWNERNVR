@@ -4,6 +4,7 @@
  * @Description: 回放-右侧视图
  */
 import { type LiveSharedWinData } from '@/types/apiType/live'
+import { type SlotsType } from 'vue'
 
 export default defineComponent({
     props: {
@@ -29,6 +30,9 @@ export default defineComponent({
             required: true,
         },
     },
+    slots: Object as SlotsType<{
+        default: (scope: { index: number }) => any
+    }>,
     setup(prop) {
         const { Translate } = useLangStore()
 

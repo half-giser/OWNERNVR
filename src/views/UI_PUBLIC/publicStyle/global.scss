@@ -127,6 +127,7 @@
     --table-bg: #fff; // 表格行背景色
     --table-bg-hover: #f7f7f7; // 表格行背景色 (hover)
     --table-stripe: #eee; // 表格背景色 (斑马线)
+    --table-expand-bg: #fff; // 表格展开背景色
 
     --table-tbody-border: #f0f0f0; // 表格行边框颜色
 
@@ -153,6 +154,7 @@
     --transfer-stripe: #f1f1f1; // 穿梭框斑马线背景色
     --transfer-border: #999; // 穿梭框边框色
     --transfer-text: var(--main-text); // 穿梭框文本颜色
+    --transfer-btn-bg-disabled: var(--btn-bg-disabled); // 穿梭框按钮禁用颜色
 
     /**
      * 功能面板页
@@ -168,6 +170,7 @@
     --config-menu-border: #aeaeae; // 功能面板页-主菜单-border
     --config-menu-border-hover: var(--primary); // 功能面板页-主菜单-border (hover)
     --config-menu-border-disabled: #d9d9d9; // 功能面板页-主菜单-border (disabled)
+
     --config-submenu-text: #8f8f8f; // 功能面板-子菜单-文本
     --config-submenu-text-hover: var(--primary); // 功能面板-子菜单-文本 (hover)
     --config-submenu-text-disabled: #d9d9d9; // 功能面板-子菜单-文本 (disabled)
@@ -178,6 +181,8 @@
      */
     --login-bg: var(--main-bg); // 登录-背景
     --login-content-bg: transparent; // 登录-容器-背景
+    --login-input-bg: #fff; // 登录-输入框-背景
+    --login-input-text: #000; // 登录-输入框-文本
     --login-btn-text: #fff; // 登录-登录按钮-文本
     --login-plugin-text: #9b9b9b; // 登录-下载按钮-文本
 
@@ -187,6 +192,7 @@
     --authcode-bg: #fff; // 授权码登录-背景
     --authcode-content-bg: transparent; // 授权码登录-容器-背景
     --authcode-btn-text: #fff; // 授权码登录-登录按钮-文本
+    --authcode-input-text: #000; // 授权码登录-输入框-文本
     --authcode-input-text-disabled: #454545; // 授权码登录-输入框-文本 （disabled）
     --authcode-input-bg-disabled: #ccc; // 授权码登录-输入框-背景
 
@@ -198,14 +204,19 @@
     --config-aside-text-active: #555; // 配置页-左侧菜单栏-文本 (active)
     --config-aside-text-disabled: #d9d9d9; // 配置页-左侧菜单栏-文本 (disabled)
     --config-aside-bg: unset; // 配置页-左侧菜单栏-背景
+    --config-aside-item-border-hover: var(--primary); // 配置页-左侧菜单栏-边框 (hover)
     --config-aside-item-bg: unset; // 配置页-左侧菜单栏菜单项-背景
     --config-aside-item-bg-active: #eee; // 配置页-左侧菜单栏菜单项-背景 (active)
+    --config-aside-item-bg-hover: #805b29; // 配置页-左侧菜单栏菜单项-背景 (hover)
 
     --breadcrumb-text: #454545; // 面包屑-文本
     --breadcrumb-bg: transparent; // 面包屑-背景
 
     --ptz-btn: #f0f0f0; // 云台-ICON按钮-背景色
     --ptz-btn-disabled: #fff; // 云台-ICON按钮-背景色 （disabled）
+
+    --ai-menu-bg-disabled: #aeabab; // AI与事件菜单-背景色（disabled）
+    --ai-menu-text-disabled: #797979; // AI与事件菜单-文本色（disabled）
 
     --ai-linkbox-bg: #d0d0d0; // AI与事件-联动窗标题背景色
     --ai-linkbox-border: #888; // AI与事件-联动窗边框色
@@ -231,9 +242,16 @@
     --panel-menu-bg-active: #fff; // 侧边栏-切换按钮-背景 （active）
     --panel-btn-bg: #b7b7b7; // 侧边栏-icon按钮-背景
     --panel-btn-bg-disabled: #d9d9d9; // 侧边栏-icon按钮-背景 (disabled)
+
+    --panel-chl-border: transparent; // 侧边栏-通道列表项-边框颜色
+    --panel-chl-border-hover: var(--primary); // 侧边栏-通道列表项-边框颜色 (hover)
+    --panel-chl-bg: transparent; // 侧边栏-通道列表项-边框背景色
+    --panel-chl-bg-hover: transparent; // 侧边栏-通道列表项-边框背景色 (hover)
+
     --panel-snap-border: black; // 侧边栏-抓拍-item-border
     --panel-snap-history-border: #fc6; // 侧边栏-抓拍-历史item-border
     --panel-snap-btn-bg: rgb(0 0 0 / 50%); // 侧边栏-抓拍-按钮-背景
+
     --panel-event-text: #d5d4d4;
     --panel-event-bg: #454545;
     --panel-event-bg-hover: #63b1be;
@@ -409,6 +427,14 @@
     --datepicker-btn-bg: #f3f8ff; // 时间日期选择器 按钮 背景颜色
     --datepicker-btn-text: #06c; // 时间日期选择器 按钮 文本颜色
     --datepicker-input-border: #b9d7fc; // 时间日期选择器 输入框 border颜色
+    --datepicker-input-bg: #fff; // 时间日期选择器 输入框 背景颜色
+    --datepicker-input-text: #000; // 时间日期选择器 输入框 文本颜色
+
+    /**
+     * Tooltip
+     */
+    --tooltip-border: #111; // 提示框 边框颜色
+    --tooltip-text: #333; // 提示框 文本颜色
 
     // Success
     // --success--01: #edf9eb;

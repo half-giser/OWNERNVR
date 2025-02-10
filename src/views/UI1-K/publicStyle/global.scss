@@ -54,7 +54,7 @@
 
     --radio-btn-text: #666;
     --radio-btn-text-hover: var(--main-text);
-    --radio-btn-text-active: var(--main-text-active);
+    --radio-btn-text-active: #666;
     --radio-btn-bg: #fff;
     --radio-btn-bg-hover: var(--primary-light);
     --radio-btn-bg-active: var(--primary);
@@ -68,7 +68,7 @@
 
     --btn-text: #fff;
     --btn-text-hover: #000;
-    --btn-text-disabled: #fff;
+    --btn-text-disabled: #5f5f5f;
     --btn-bg: #888;
     --btn-bg-hover: var(--primary);
     --btn-bg-disabled: #ccc;
@@ -77,16 +77,18 @@
     --btn-border-disabled: #999;
 
     --table-text-disabled: #888;
-    --table-border: #f0f0f0;
+    --table-border: #ccc;
     --table-bg: #ccc;
     --table-bg-hover: #f7f7f7;
     --table-stripe: #eee;
+    --table-expand-bg: #fff;
 
     --table-tbody-border: #f0f0f0;
 
     --table-thead-text: #000;
     --table-thead-bg: #e5e5e5;
     --table-thead-border: #ccc;
+    --table-checkbox-border-checked: #e9efff;
 
     --dialog-title: #666;
     --dialog-bg: #fff;
@@ -100,6 +102,7 @@
     --transfer-stripe: transparent;
     --transfer-border: #999;
     --transfer-text: var(--main-text);
+    --transfer-btn-bg-disabled: var(--btn-bg-disabled);
 
     --config-menu-text: #3c3c3c;
     --config-menu-text-hover: var(--primary);
@@ -135,14 +138,19 @@
     --config-aside-text-active: #555;
     --config-aside-text-disabled: #d9d9d9;
     --config-aside-bg: unset;
+    --config-aside-item-border-hover: var(--primary);
     --config-aside-item-bg: unset;
     --config-aside-item-bg-active: #ffbe00;
+    --config-aside-item-bg-hover: unset;
 
     --breadcrumb-text: #454545;
     --breadcrumb-bg: transparent;
 
     --ptz-btn: #f0f0f0;
     --ptz-btn-disabled: #fff;
+
+    --ai-menu-bg-disabled: #aeabab;
+    --ai-menu-text-disabled: #797979;
 
     --ai-linkbox-bg: #d0d0d0;
     --ai-linkbox-border: #888;
@@ -160,11 +168,16 @@
     --panel-bg: #fff;
     --panel-header-bg: #fff;
     --panel-header-text: #666;
-    --panel-header-text-02: #ccc;
+    --panel-header-text-02: #666;
     --panel-menu-bg: #f0f2f3;
     --panel-menu-bg-active: #fff;
     --panel-btn-bg: #d9d9d9;
     --panel-btn-bg-disabled: #777;
+
+    --panel-chl-border: #eee;
+    --panel-chl-border-hover: var(--primary);
+    --panel-chl-bg: transparent;
+    --panel-chl-bg-hover: transparent;
 
     --panel-snap-border: black;
     --panel-snap-history-border: #fc6;
@@ -178,7 +191,7 @@
     --panel-event-title-bg: #999;
 
     --tabbar-text: #333;
-    --tabbar-text-hover: var(--header-menu-text);
+    --tabbar-text-hover: #000;
     --tabbar-text-active: #676767;
     --tabbar-bg: #fff;
     --tabbar-bg-hover: var(--primary-light);
@@ -269,4 +282,20 @@
     --pagination-border: #888;
     --pagination-border-hover: #cacaca;
     --pagination-border-disabled: #e0e0e0;
+
+    --datepicker-header-bg: #f3f8ff;
+    --datepicker-border: #b9d7fc;
+    --datepicker-text: #000;
+    --datepicker-text-hover: #06c;
+    --datepicker-bg-hover: #f3f8ff;
+    --datepicker-border-hover: #06c;
+    --datepicker-btn-border: #b9d7fc;
+    --datepicker-btn-bg: #f3f8ff;
+    --datepicker-btn-text: #06c;
+    --datepicker-input-border: #b9d7fc;
+    --datepicker-input-bg: #fff;
+    --datepicker-input-text: #000;
+
+    --tooltip-border: #111;
+    --tooltip-text: #333;
 }

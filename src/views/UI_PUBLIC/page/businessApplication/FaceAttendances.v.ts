@@ -394,12 +394,12 @@ export default defineComponent({
                     const onTime = dayjs(date.date + ' ' + formData.value.startTime, DEFAULT_DATE_FORMAT).valueOf()
                     const offTime = dayjs(date.date + ' ' + formData.value.endTime, DEFAULT_DATE_FORMAT).valueOf()
 
-                    if (item.searchData[date.date][0].timestamp > onTime) {
+                    if (item.searchData[date.date].at(0)!.timestamp > onTime) {
                         tableList[index].late++
                         types.push(TYPE_MAPPING.late)
                     }
 
-                    if (item.searchData[date.date][item.searchData[date.date].length - 1].timestamp < offTime) {
+                    if (item.searchData[date.date].at(-1)!.timestamp < offTime) {
                         tableList[index].leftEarly++
                         types.push(TYPE_MAPPING.leftEarly)
                     }
@@ -408,7 +408,7 @@ export default defineComponent({
                         day: date.day,
                         type: !types.length ? TYPE_MAPPING.normal : types.join(', '),
                         alarm: types.includes(TYPE_MAPPING.leftEarly),
-                        detail: [item.searchData[date.date][0], item.searchData[date.date][item.searchData[date.date].length - 1]],
+                        detail: [item.searchData[date.date].at(0)!, item.searchData[date.date].at(-1)!],
                     })
                 })
             })

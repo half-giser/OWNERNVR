@@ -53,7 +53,7 @@
                     prop="holdTime"
                 />
                 <el-table-column :label="Translate('IDCS_EDIT')">
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<ChannelPtzCruisePresetDto>">
                         <BaseImgSprite
                             file="edit (2)"
                             :index="2"
@@ -77,7 +77,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<ChannelPtzCruisePresetDto>">
                         <BaseImgSprite
                             file="del"
                             :index="2"

@@ -1,4 +1,4 @@
-import { ChangePasswordForm } from '@/types/apiType/user'
+import { UserChangePasswordForm } from '@/types/apiType/user'
 import { type FormRules } from 'element-plus'
 
 export default defineComponent({
@@ -33,7 +33,7 @@ export default defineComponent({
     setup(prop, ctx) {
         const { Translate } = useLangStore()
         const formRef = useFormRef()
-        const formData = ref(new ChangePasswordForm())
+        const formData = ref(new UserChangePasswordForm())
         const errorMessage = ref('')
         const passwordErrorMessage = ref('')
         const strength = computed(() => getPwdSaftyStrength(formData.value.newPassword))

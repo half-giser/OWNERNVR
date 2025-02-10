@@ -159,7 +159,7 @@
 }
 
 #logo {
-    margin-left: 14px;
+    margin-left: 12px;
     width: 50%;
     // width: 350px;
     height: 65px;

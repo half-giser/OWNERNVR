@@ -35,10 +35,10 @@
                     :label="Translate('IDCS_USER_TYPE')"
                     prop="userLevel"
                 >
-                    <template #default="scope">{{ displayUserLevel(scope.row.userLevel) }}</template>
+                    <template #default="scope: TableColumn<NetOnvifUserList>">{{ displayUserLevel(scope.row.userLevel) }}</template>
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_EDIT')">
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<NetOnvifUserList>">
                         <BaseImgSprite
                             file="edit (2)"
                             :index="0"
@@ -61,7 +61,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<NetOnvifUserList>">
                         <BaseImgSprite
                             file="del"
                             :index="0"

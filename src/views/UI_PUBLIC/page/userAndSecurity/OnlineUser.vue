@@ -29,7 +29,7 @@
                 width="250"
             />
             <el-table-column :label="Translate('IDCS_DETAIL_INFO')">
-                <template #default="scope">
+                <template #default="scope: TableColumn<UserOnlineList>">
                     <BaseImgSprite
                         file="detail"
                         :index="0"

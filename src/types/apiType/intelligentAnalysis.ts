@@ -1,20 +1,20 @@
 /*
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-08-29 09:13:28
- * @Description: 智能分析
+ * @Description: 智能分析的类型定义，类型命名的前缀统一为Intel*
  */
 
 /**
  * @description 引擎配置 表单
  */
-export class EngineConfigForm {
+export class IntelEngineConfigForm {
     supportAI = false
 }
 
 /**
  * @description 引擎配置 列表项
  */
-export class EngineConfigList {
+export class IntelEngineConfigList {
     name = ''
     eventType = ''
 }
@@ -248,6 +248,12 @@ export class IntelCombineStatsChlList {
     nonVehicleOut = 0
 }
 
+export class IntelStatsBarChartDataDto {
+    chlId = ''
+    chlName = ''
+    data: number[] = []
+}
+
 /**
  * @description 组合统计 列表
  */
@@ -322,6 +328,7 @@ export class IntelSearchList extends IntelSnapImgDto {
     bolckNo = 0
     offset = 0
     eventTypeID = 0
+    direction: number | string = ''
 }
 
 /**

@@ -7,7 +7,6 @@
     <div class="base-flex-box">
         <div class="base-table-box">
             <el-table
-                class="tableView"
                 :data="tableData"
                 show-overflow-tooltip
             >
@@ -25,7 +24,7 @@
                     min-width="200"
                     :label="Translate('IDCS_DIRECTION')"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<BusinessPkMgrEnterExitManageList>">
                         <el-select-v2
                             v-model="scope.row.direction"
                             :options="pageData.directionList"
@@ -41,7 +40,7 @@
                     width="150"
                     :label="Translate('IDCS_COMMON_STATE')"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<BusinessPkMgrEnterExitManageList>">
                         <span :class="getChlStatus(scope.row.id)">{{ getChlStatus(scope.row.id) === 'text-online' ? Translate('IDCS_ONLINE') : Translate('IDCS_OFFLINE') }}</span>
                     </template>
                 </el-table-column>
@@ -49,7 +48,7 @@
                     min-width="200"
                     :label="Translate('IDCS_ENABLE_LED_SCREEN')"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<BusinessPkMgrEnterExitManageList>">
                         <el-checkbox
                             v-model="scope.row.enableLEDScreen"
                             :disabled="!scope.row.enableLEDScreenValid"
@@ -60,7 +59,7 @@
                     min-width="200"
                     :label="Translate('IDCS_RELATION_LED_SCREEN')"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<BusinessPkMgrEnterExitManageList>">
                         <el-select-v2
                             v-model="scope.row.LEDScreenType"
                             :options="pageData.screenList"

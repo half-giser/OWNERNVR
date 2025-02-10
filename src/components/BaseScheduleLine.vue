@@ -304,8 +304,8 @@ const invert = () => {
         }
         num1 = item[1]
     })
-    if (selectedTimeSpans.value[selectedTimeSpans.value.length - 1][1] < maxTimeNum) {
-        reuslt.push([selectedTimeSpans.value[selectedTimeSpans.value.length - 1][1], maxTimeNum])
+    if (selectedTimeSpans.value.at(-1)![1] < maxTimeNum) {
+        reuslt.push([selectedTimeSpans.value.at(-1)![1], maxTimeNum])
     }
     resetValue(reuslt as Array<[number, number]>)
 }

@@ -39,7 +39,7 @@ function generateSprite(option: GenerateSpriteOption) {
             const coordinates: Record<string, number[]> = {}
             Object.keys(result.coordinates).forEach((key) => {
                 const split = key.split('/')
-                const keyName = split[split.length - 1].split('.')[0]
+                const keyName = split.at(-1)!.split('.')[0]
                 const { x, y, width, height } = result.coordinates[key]
                 coordinates[keyName] = [x, y, width, height]
 

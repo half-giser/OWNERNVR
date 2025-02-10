@@ -44,7 +44,7 @@
                         :label="Translate('IDCS_EDIT')"
                         width="80"
                     >
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ScheduleDto>">
                             <BaseImgSprite
                                 v-if="pageData.defaultSchedules.indexOf(scope.row.name)"
                                 file="edit (2)"
@@ -61,7 +61,7 @@
                         :label="Translate('IDCS_DELETE')"
                         width="80"
                     >
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ScheduleDto>">
                             <BaseImgSprite
                                 v-if="pageData.defaultSchedules.indexOf(scope.row.name)"
                                 file="del"

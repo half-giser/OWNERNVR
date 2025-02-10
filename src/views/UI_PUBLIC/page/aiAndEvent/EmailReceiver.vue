@@ -49,7 +49,7 @@
                     :label="Translate('IDCS_RECIPIENT')"
                     show-overflow-tooltip
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<AlarmEmailReceiverDto>">
                         {{ formatAddress(scope.row) }}
                     </template>
                 </el-table-column>
@@ -72,7 +72,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<AlarmEmailReceiverDto>">
                         <el-select-v2
                             v-model="scope.row.schedule"
                             :options="pageData.scheduleList"
@@ -95,7 +95,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<AlarmEmailReceiverDto>">
                         <BaseImgSprite
                             file="del"
                             :chunk="4"

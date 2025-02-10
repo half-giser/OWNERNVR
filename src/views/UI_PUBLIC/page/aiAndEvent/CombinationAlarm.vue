@@ -16,7 +16,7 @@
                     label=" "
                     width="50"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<AlarmCombinedDto>">
                         <BaseTableRowStatus :icon="scope.row.status" />
                     </template>
                 </el-table-column>
@@ -26,7 +26,7 @@
                     width="160"
                     :label="Translate('IDCS_NAME')"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<AlarmCombinedDto>">
                         <el-input
                             v-model="scope.row.name"
                             maxlength="32"
@@ -42,7 +42,7 @@
                     :label="Translate('IDCS_COMBINATION_ALARM')"
                     width="180"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<AlarmCombinedDto>">
                         <div class="base-cell-box">
                             <el-checkbox
                                 v-model="scope.row.combinedAlarm.switch"
@@ -68,7 +68,7 @@
                             @confirm="changeRecord"
                         />
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<AlarmCombinedDto>">
                         <div class="base-cell-box">
                             <el-checkbox
                                 v-model="scope.row.record.switch"
@@ -94,7 +94,7 @@
                             @confirm="changeSnap"
                         />
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<AlarmCombinedDto>">
                         <div class="base-cell-box">
                             <el-checkbox
                                 v-model="scope.row.snap.switch"
@@ -133,7 +133,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<AlarmCombinedDto>">
                         <el-select-v2
                             v-model="scope.row.sysAudio"
                             :options="pageData.audioList"
@@ -161,7 +161,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<AlarmCombinedDto>">
                         <el-select-v2
                             v-model="scope.row.msgPush"
                             :options="pageData.switchList"
@@ -179,7 +179,7 @@
                             @confirm="changeAlarmOut"
                         />
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<AlarmCombinedDto>">
                         <div class="base-cell-box">
                             <el-checkbox
                                 v-model="scope.row.alarmOut.switch"
@@ -200,7 +200,7 @@
                     :label="Translate('IDCS_PRESET_NAME')"
                     width="180"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<AlarmCombinedDto>">
                         <div class="base-cell-box">
                             <el-checkbox
                                 v-model="scope.row.preset.switch"
@@ -236,7 +236,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<AlarmCombinedDto>">
                         <el-select-v2
                             v-model="scope.row.beeper"
                             :options="pageData.switchList"
@@ -264,7 +264,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<AlarmCombinedDto>">
                         <el-select-v2
                             v-model="scope.row.popVideo.chl.value"
                             :options="pageData.videoPopupChlList"
@@ -292,7 +292,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<AlarmCombinedDto>">
                         <el-select-v2
                             v-model="scope.row.msgBoxPopup"
                             :options="pageData.switchList"
@@ -318,7 +318,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<AlarmCombinedDto>">
                         <el-select-v2
                             v-model="scope.row.email"
                             :options="pageData.switchList"

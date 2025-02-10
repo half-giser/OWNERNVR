@@ -26,7 +26,7 @@ npm install
 #npm run generate bundle=UI1-A,UI2-A_IL03,UI1-E_USE44
 npm run generate bundle=${UI_STR}${PKGID_Suffix}
 #清除临时文件
-npm run clean
+npm run clean level=runtime
 if [ ! -d dist ] ; then
   echo "build Web fail! Need Node 20.13.0+, npm 10.5.0+ at least!"
   exit 1  

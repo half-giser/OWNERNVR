@@ -122,7 +122,7 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelPtzCruisePresetDto>">
                             <div class="base-cell-box">
                                 <BaseImgSprite
                                     file="edit (2)"
@@ -183,12 +183,12 @@
                 >
                     <el-table-column prop="chlName" />
                     <el-table-column>
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelPtzCruiseChlDto>">
                             {{ Translate('IDCS_CRUISE_NUM_D').formatForLang(scope.row.cruiseCount) }}
                         </template>
                     </el-table-column>
                     <el-table-column type="expand">
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelPtzCruiseChlDto>">
                             <ChannelPtzTableExpandPanel @add="addCruise(scope.$index)">
                                 <ChannelPtzTableExpandItem
                                     v-for="(item, index) in scope.row.cruise"

@@ -34,12 +34,12 @@
                 :data="tableData"
             >
                 <el-table-column :label="Translate('IDCS_ENABLE')">
-                    <template #default="scope">
-                        {{ scope.switch ? Translate('IDCS_YES') : Translate('IDCS_NO') }}
+                    <template #default="scope: TableColumn<UserEditBlackAllowListForm>">
+                        {{ scope.row.switch ? Translate('IDCS_YES') : Translate('IDCS_NO') }}
                     </template>
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_IP_MAC_ADDRESS')">
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<UserEditBlackAllowListForm>">
                         {{ formatIpMacAddress(scope.row) }}
                     </template>
                 </el-table-column>
@@ -47,7 +47,7 @@
                     :label="Translate('IDCS_EDIT')"
                     width="150"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<UserEditBlackAllowListForm>">
                         <BaseImgSprite
                             file="edit (2)"
                             :index="0"
@@ -61,7 +61,7 @@
                     :label="Translate('IDCS_DELETE')"
                     width="150"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<UserEditBlackAllowListForm>">
                         <BaseImgSprite
                             file="del"
                             :index="0"

@@ -2044,8 +2044,8 @@ export const parseStreamUrl = (url: string) => {
         result.devIp = urlParts[1]
         result.devPort = urlParts[2]
         let param = urlParts[3]
-        while (param[param.length - 1] === '/') {
-            param = param.substr(0, param.length - 1)
+        while (param.at(-1) === '/') {
+            param = param.slice(0, -1)
         }
         const paramArr = param.split('&')
         let paramItem

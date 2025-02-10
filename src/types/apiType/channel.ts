@@ -1,7 +1,7 @@
 /*
  * @Author: linguifan linguifan@tvt.net.cn
  * @Date: 2024-05-08 17:03:07
- * @Description: 通道
+ * @Description: 通道的类型定义，类型命名的前缀统一为Channel*
  */
 import { TableRowStatus } from './base'
 
@@ -156,7 +156,7 @@ export class ChannelRecorderAddDto {
 /**
  * @description 查询IPC列表
  */
-export class QueryNodeListDto {
+export class ChannelQueryNodeListDto {
     pageIndex = 0
     pageSize = 0
     nodeType = ''

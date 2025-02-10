@@ -4,7 +4,7 @@
  * @Description: 排程管理弹窗
  */
 import ScheduleEditPop from './ScheduleEditPop.vue'
-import { ScheduleInfo, type NameValueItem } from '@/types/apiType/schedule'
+import { ScheduleInfo, type ScheduleDto } from '@/types/apiType/schedule'
 import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
@@ -28,7 +28,7 @@ export default defineComponent({
             //排程编辑弹窗显示状态
             scheduleEditPopOpen: false,
             // 排程列表
-            scheduleList: [] as NameValueItem[],
+            scheduleList: [] as ScheduleDto[],
             // 当前选中的排程id
             currentScheduleId: '',
             // 当前选中的排程详情
@@ -94,7 +94,7 @@ export default defineComponent({
          * @param {NameValueItem} row
          * @return {*}
          */
-        const tableRowChange = async (row: NameValueItem | undefined) => {
+        const tableRowChange = async (row: ScheduleDto | undefined) => {
             if (!row) return
             pageData.value.currentScheduleId = row.id
             if (await getScheduleDetail(row.id)) {
@@ -151,7 +151,7 @@ export default defineComponent({
          * @param {NameValueItem} row
          * @return {*}
          */
-        const openScheduleEditPop = async (row?: NameValueItem) => {
+        const openScheduleEditPop = async (row?: ScheduleDto) => {
             if (row) {
                 if (await getScheduleDetail(row.id)) {
                     pageData.value.editScheduleInfo = pageData.value.currentScheduleInfo
@@ -167,7 +167,7 @@ export default defineComponent({
          * @param {NameValueItem} row
          * @return {*}
          */
-        const deleteSchedule = (row: NameValueItem) => {
+        const deleteSchedule = (row: ScheduleDto) => {
             openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_SCHEDULE_S').formatForLang(getShortString(row.name, 10)),

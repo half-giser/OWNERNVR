@@ -447,7 +447,7 @@ export default defineComponent({
                 info += item.alarmSourceEntity.label + '  ' + COMBINED_ALARM_TYPES_MAPPING[item.alarmSourceType] + ' & '
             })
             if (info) {
-                info = info.substring(0, info.length - 3)
+                info = info.slice(0, -3)
             }
             pageData.value.CombinedALarmInfo = info
         }

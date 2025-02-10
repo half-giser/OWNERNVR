@@ -190,7 +190,7 @@
             >
                 <el-table-column prop="label" />
                 <el-table-column type="expand">
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<NetPlatformSipList>">
                         <el-table
                             :data="scope.row.list"
                             class="expand-table"

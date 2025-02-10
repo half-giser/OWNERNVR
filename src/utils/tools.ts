@@ -4,7 +4,7 @@
  * @Description: 工具方法
  */
 
-import { type QueryNodeListDto } from '@/types/apiType/channel'
+import { type ChannelQueryNodeListDto } from '@/types/apiType/channel'
 import { type AlarmMutexDto, type AlarmOnlineChlDto } from '@/types/apiType/aiAndEvent'
 import { type ApiResult } from '@/api/api'
 import { type XMLQuery, type XmlResult } from './xmlParse'
@@ -391,7 +391,7 @@ export const ternary = (condition: boolean | number | string | undefined | null,
  * @param options（options为过滤条件）
  * @returns {promise}
  */
-export const getChlList = (options: Partial<QueryNodeListDto>) => {
+export const getChlList = (options: Partial<ChannelQueryNodeListDto>) => {
     const data = rawXml`
         <types>
             <nodeType>

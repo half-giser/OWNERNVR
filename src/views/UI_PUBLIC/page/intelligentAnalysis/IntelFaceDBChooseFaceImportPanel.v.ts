@@ -155,7 +155,7 @@ export default defineComponent({
                 }
             })
             // 删除最后一行换行符导致的空数据
-            if (!rowData[rowData.length - 1]) {
+            if (!rowData.at(-1)) {
                 rowData.pop()
             }
             return rowData.slice(1, rowData.length).map((item) => {

@@ -10,7 +10,7 @@
             height="100%"
         >
             <el-table-column :label="Translate('IDCS_ATTRIBUTE')">
-                <template #default="scope">
+                <template #default="scope: TableColumn<SystemNetStatusList>">
                     <div
                         class="align"
                         :style="{ 'text-indent': `${scope.row.i * 20}px` }"

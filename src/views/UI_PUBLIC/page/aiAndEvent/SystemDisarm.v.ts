@@ -3,7 +3,7 @@
  * @Date: 2024-08-23 10:59:14
  * @Description: 系统撤防
  */
-import { AlarmSystemDisarmDto } from '@/types/apiType/aiAndEvent'
+import { AlarmSystemDisarmDto, type AlarmSystemDisarmChlAndSensorSrcDto } from '@/types/apiType/aiAndEvent'
 import { type TableInstance } from 'element-plus'
 import { cloneDeep } from 'lodash-es'
 export default defineComponent({
@@ -30,14 +30,6 @@ export default defineComponent({
             inputSource: '',
         })
 
-        interface ChlAndsensorSourceList {
-            id: string
-            value: string
-            nodeType: string
-            supportManualAudio: boolean
-            supportManualWhiteLight: boolean
-        }
-
         const addTableRef = ref<TableInstance>()
         const cfgTableRef = ref<TableInstance>()
         const popTableRef = ref<TableInstance>()
@@ -53,7 +45,7 @@ export default defineComponent({
             // 当前在线的通道列表
             onlineChlList: [] as string[],
             // 通道和传感器源列表
-            chlAndsensorSourceList: [] as ChlAndsensorSourceList[],
+            chlAndsensorSourceList: [] as AlarmSystemDisarmChlAndSensorSrcDto[],
             // 撤防联动项通用列表，从后端获取，不包含手动声光报警输出和手动白光报警输出
             defenseParamList: [] as { id: string; value: string }[],
             // 总的撤防联动项列表
@@ -359,7 +351,7 @@ export default defineComponent({
             return totalDefenseParamList
         }
 
-        const filterChlsSourceList = computed(() => {
+        const filterChlsSourceList = computed<AlarmSystemDisarmChlAndSensorSrcDto[]>(() => {
             const added = tableData.value.map((item) => item.id)
             return pageData.value.chlAndsensorSourceList.filter((item) => !added.includes(item.id))
         })
@@ -414,7 +406,7 @@ export default defineComponent({
 
         // 添加通道或传感器
         const addItem = () => {
-            const selection = addTableRef.value!.getSelectionRows() as ChlAndsensorSourceList[]
+            const selection = addTableRef.value!.getSelectionRows() as AlarmSystemDisarmChlAndSensorSrcDto[]
             if (selection.length) {
                 selection.forEach((item) => {
                     const row = new AlarmSystemDisarmDto()

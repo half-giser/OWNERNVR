@@ -14,6 +14,7 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import GenerateSprite from './scripts/generateSprite'
 import MinifyXmlTemplateStrings from './scripts/minifyXmlTemplateStrings'
 import MinifyWorkers from './scripts/minifyWorkers'
+import { cleanUpTempFiles } from './scripts/cleanTempFiles'
 import BasicSSL from '@vitejs/plugin-basic-ssl'
 import PostCssVariableCompress from 'postcss-variable-compress'
 import PostCssPresetEnv from 'postcss-preset-env'
@@ -98,6 +99,7 @@ export default defineConfig(({ mode }) => {
             },
         },
         plugins: [
+            cleanUpTempFiles(),
             GenerateSprite({
                 src: `sprite/${VITE_UI_TYPE}-sprite/sprite/*.png`,
             }),
@@ -144,6 +146,9 @@ export default defineConfig(({ mode }) => {
                 //     globalsPropValue: true,
                 // },
                 defaultExportByFilename: false,
+                dirsScanOptions: {
+                    types: false, // Enable auto import the types under the directories
+                },
                 dirs: [
                     // 添加需要自动导入的模块
                     './src/hooks',
@@ -155,6 +160,10 @@ export default defineConfig(({ mode }) => {
                     './src/utils/canvas',
                     './src/components/*.vue',
                     './src/components/**/*.vue',
+                    {
+                        glob: './src/types/apiType',
+                        types: true,
+                    },
                 ],
             }),
             Components({

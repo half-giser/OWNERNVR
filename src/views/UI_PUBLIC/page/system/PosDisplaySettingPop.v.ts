@@ -420,7 +420,7 @@ export default defineComponent({
                     endChar: '',
                 })
             } else {
-                const lastStartEndCharItem = startEndCharTableList.value[startEndCharTableList.value.length - 1]
+                const lastStartEndCharItem = startEndCharTableList.value.at(-1)!
                 if (lastStartEndCharItem.startChar || lastStartEndCharItem.endChar) {
                     startEndCharTableList.value.push({
                         startChar: '',
@@ -431,7 +431,7 @@ export default defineComponent({
 
             lineBreakTableList.value = [...prop.data.common.lineBreak.map((value: string) => ({ value }))]
             // 插入空行
-            if (!lineBreakTableList.value.length || lineBreakTableList.value[lineBreakTableList.value.length - 1].value) {
+            if (!lineBreakTableList.value.length || lineBreakTableList.value.at(-1)?.value) {
                 lineBreakTableList.value.push({
                     value: '',
                 })
@@ -439,7 +439,7 @@ export default defineComponent({
 
             ignoreChareTableList.value = [...prop.data.common.ignoreChar.map((value: string) => ({ value }))]
             // 插入空行
-            if (!ignoreChareTableList.value.length || ignoreChareTableList.value[ignoreChareTableList.value.length - 1].value) {
+            if (!ignoreChareTableList.value.length || ignoreChareTableList.value.at(-1)?.value) {
                 ignoreChareTableList.value.push({
                     value: '',
                 })

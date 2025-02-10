@@ -210,12 +210,9 @@ const handleBlur = () => {
 
 <style lang="scss">
 .IpInput {
-    // --el-input-inner-height: 28px;
-
     align-items: left;
-    border: 1px solid var(--input-border);
     border-radius: var(--el-input-border-radius, var(--el-border-radius-base));
-    box-shadow: 0 0 0 1px var(--el-input-border-color, var(--el-border-color)) inset;
+    box-shadow: 0 0 0 1px var(--input-border) inset;
     cursor: text;
     display: inline-flex;
     justify-content: flex-start;
@@ -223,14 +220,15 @@ const handleBlur = () => {
     transform: translateZ(0);
     transition: var(--el-transition-box-shadow);
     font-size: var(--el-font-size-base);
-    line-height: calc(var(--el-component-size) - 2px);
+    line-height: var(--el-component-size);
     width: var(--el-input-width);
     box-sizing: border-box;
-    background: var(--el-input-bg-color, var(--el-fill-color-blank));
+    background: var(--input-bg);
+    color: var(--input-text);
 
     &:hover,
     &.is-focus {
-        box-shadow: 0 0 0 1px var(--el-input-hover-border-color) inset;
+        box-shadow: 0 0 0 1px var(--primary) inset;
         border-color: var(--primary);
 
         &.disabled {
@@ -254,13 +252,14 @@ const handleBlur = () => {
     input {
         max-width: 25%;
         font-size: inherit;
-        line-height: calc(var(--el-component-size) - 4px);
-        height: calc(var(--el-component-size) - 4px);
+        line-height: calc(var(--el-component-size) - 2px);
+        height: calc(var(--el-component-size) - 2px);
         width: 25px;
         border: none;
         outline: 0;
         text-align: center;
         background: transparent;
+        color: var(--input-text);
 
         &:disabled {
             color: var(--el-disabled-text-color);

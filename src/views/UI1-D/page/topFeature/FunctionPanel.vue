@@ -21,7 +21,7 @@
                 >
                     <BaseImgSprite
                         :file="moduleItem.meta.icon"
-                        :index="getMenuDisabled(moduleItem) ? 1 : 0"
+                        :index="getMenuDisabled(moduleItem) ? 1 : pageData.hoverMenuIndex === key || pageData.mainMenuIndex === key ? pageData.activeIconIndex : 0"
                         :chunk="2"
                     />
                     <div class="config-menu-text">{{ Translate(moduleItem.meta.lk || '') }}</div>

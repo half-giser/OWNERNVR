@@ -317,7 +317,7 @@
                         v-if="formData.searchType === 'face'"
                         width="260"
                     >
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<IntelSearchFaceList>">
                             <div
                                 v-if="scope.row.faceFeatureId === -1000"
                                 class="table-date"
@@ -334,12 +334,12 @@
                         </template>
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_SNAP_TIME')">
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<IntelSearchFaceList>">
                             {{ formData.searchType === 'event' ? displayDateTime(scope.row.timestamp) : displayTime(scope.row.timestamp) }}
                         </template>
                     </el-table-column>
                     <el-table-column v-if="formData.searchType === 'face'">
-                        <template #default="scope"> {{ scope.row.info.name }} ({{ scope.row.similarity }}%) </template>
+                        <template #default="scope: TableColumn<IntelSearchFaceList>"> {{ scope.row.info.name }} ({{ scope.row.similarity }}%) </template>
                     </el-table-column>
                     <el-table-column
                         :label="Translate('IDCS_CHANNEL')"
@@ -349,7 +349,7 @@
                         width="100"
                         :label="Translate('IDCS_DETAIL_INFO')"
                     >
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<IntelSearchFaceList>">
                             <BaseImgSprite
                                 file="browser"
                                 :index="0"
@@ -490,6 +490,7 @@
 <style lang="scss" scoped>
 .el-menu {
     border-bottom: 1px solid var(--main-border);
+    background-color: transparent;
 }
 
 .el-menu--horizontal {
@@ -497,6 +498,8 @@
 }
 
 .el-menu--horizontal > .el-menu-item {
+    color: var(--main-text);
+
     &.is-active {
         background-color: transparent;
     }

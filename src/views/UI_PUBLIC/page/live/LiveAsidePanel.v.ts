@@ -4,6 +4,7 @@
  * @Description: 现场预览-右侧视图 Layout
  */
 import { type LiveChannelList, type LiveSharedWinData } from '@/types/apiType/live'
+import { type SlotsType } from 'vue'
 
 export default defineComponent({
     props: {
@@ -50,6 +51,9 @@ export default defineComponent({
             required: true,
         },
     },
+    slots: Object as SlotsType<{
+        default: (scope: { index: number }) => any
+    }>,
     setup(prop) {
         const { Translate } = useLangStore()
         const userSession = useUserSessionStore()

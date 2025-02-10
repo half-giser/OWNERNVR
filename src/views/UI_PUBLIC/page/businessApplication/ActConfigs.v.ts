@@ -5,7 +5,7 @@
  */
 
 import { cloneDeep } from 'lodash-es'
-import { AccessConfigForm, AccessLockDataItem } from '@/types/apiType/business'
+import { BusinessAccessConfigForm, BusinessAccessLockDataItem } from '@/types/apiType/business'
 
 export default defineComponent({
     setup() {
@@ -34,8 +34,8 @@ export default defineComponent({
             wiegandModeEnum: [] as SelectOption<string, string>[],
         })
 
-        const formData = ref(new AccessConfigForm())
-        let originalFormData = new AccessConfigForm()
+        const formData = ref(new BusinessAccessConfigForm())
+        let originalFormData = new BusinessAccessConfigForm()
 
         // 门锁配置与文本映射
         const DOOR_LOCK_TYPE_MAPPING: Record<string, string> = {
@@ -162,7 +162,7 @@ export default defineComponent({
 
                 formData.value.accessListType = ''
                 formData.value.wearMaskOpen = false
-                formData.value.accessLockData = [new AccessLockDataItem()]
+                formData.value.accessLockData = [new BusinessAccessLockDataItem()]
             }
 
             pageData.value.accessLockCurrentIndex = formData.value.accessLockData[0].id

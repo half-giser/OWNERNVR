@@ -5,13 +5,13 @@
  */
 
 import { type FormRules } from 'element-plus'
-import { PkMgrBasicConfigForm } from '@/types/apiType/business'
+import { BusinessPkMgrBasicConfigForm } from '@/types/apiType/business'
 
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
 
-        const formData = ref(new PkMgrBasicConfigForm())
+        const formData = ref(new BusinessPkMgrBasicConfigForm())
         const formRef = useFormRef()
 
         const rules = reactive<FormRules>({

@@ -69,7 +69,7 @@
                         label=" "
                         width="50"
                     >
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelMaskDto>">
                             <BaseTableRowStatus
                                 :icon="scope.row.status"
                                 :error-text="scope.row.statusTip"
@@ -103,7 +103,7 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelMaskDto>">
                             <el-select-v2
                                 v-if="!scope.row.isSpeco"
                                 v-model="scope.row.switch"
@@ -118,7 +118,7 @@
                         :label="Translate('IDCS_COLOR')"
                         min-width="120"
                     >
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelMaskDto>">
                             <span v-if="!scope.row.isSpeco">{{ colorMap[scope.row.color] }}</span>
                         </template>
                     </el-table-column>

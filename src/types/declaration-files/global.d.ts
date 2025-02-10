@@ -17,8 +17,8 @@ export {}
 
 declare global {
     interface String {
-        formatForLang: Function
-        format: Function
+        formatForLang: (...args: (string | number)[]) => string
+        format: (...args: (string | number)[]) => string
         /**
          * @description 如果text()/attr()返回的字符串为'true',则返回true，否则为false
          * @returns {boolean}
@@ -73,6 +73,12 @@ declare global {
         openLoading: Function
         closeLoading: Function
         notify: Function
+    }
+
+    interface TableColumn<T> {
+        row: T
+        column: any
+        $index: number
     }
 
     type PluginType = ReturnType<typeof usePlugin>

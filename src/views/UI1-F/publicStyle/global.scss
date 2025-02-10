@@ -81,12 +81,14 @@
     --table-bg: #fff;
     --table-bg-hover: #f7f7f7;
     --table-stripe: #eee;
+    --table-expand-bg: #fff;
 
     --table-tbody-border: #f0f0f0;
 
     --table-thead-text: var(--main-text);
     --table-thead-bg: #e5e5e5;
     --table-thead-border: #ccc;
+    --table-checkbox-border-checked: #e9efff;
 
     --dialog-title: #666;
     --dialog-bg: var(--main-bg);
@@ -100,6 +102,7 @@
     --transfer-stripe: transparent;
     --transfer-border: #999;
     --transfer-text: var(--main-text);
+    --transfer-btn-bg-disabled: var(--btn-bg-disabled);
 
     --config-menu-text: #555;
     --config-menu-text-hover: #6e6e6e;
@@ -135,14 +138,19 @@
     --config-aside-text-active: #6e6e6e;
     --config-aside-text-disabled: #d9d9d9;
     --config-aside-bg: var(--main-bg);
+    --config-aside-item-border-hover: var(--primary);
     --config-aside-item-bg: unset;
     --config-aside-item-bg-active: #eee;
+    --config-aside-item-bg-hover: unset;
 
     --breadcrumb-text: #454545;
     --breadcrumb-bg: transparent;
 
     --ptz-btn: #f0f0f0;
     --ptz-btn-disabled: #fff;
+
+    --ai-menu-bg-disabled: #aeabab;
+    --ai-menu-text-disabled: #797979;
 
     --ai-linkbox-bg: #d0d0d0;
     --ai-linkbox-border: #888;
@@ -165,6 +173,11 @@
     --panel-menu-bg-active: var(--main-bg);
     --panel-btn-bg: #b7b7b7;
     --panel-btn-bg-disabled: #d9d9d9;
+
+    --panel-chl-border: transparent;
+    --panel-chl-border-hover: var(--primary);
+    --panel-chl-bg: transparent;
+    --panel-chl-bg-hover: transparent;
 
     --panel-snap-border: black;
     --panel-snap-history-border: #fc6;
@@ -269,4 +282,20 @@
     --pagination-border: #888;
     --pagination-border-hover: #cacaca;
     --pagination-border-disabled: #e0e0e0;
+
+    --datepicker-header-bg: #f3f8ff;
+    --datepicker-border: #b9d7fc;
+    --datepicker-text: #000;
+    --datepicker-text-hover: #06c;
+    --datepicker-bg-hover: #f3f8ff;
+    --datepicker-border-hover: #06c;
+    --datepicker-btn-border: #b9d7fc;
+    --datepicker-btn-bg: #f3f8ff;
+    --datepicker-btn-text: #06c;
+    --datepicker-input-border: #b9d7fc;
+    --datepicker-input-bg: #fff;
+    --datepicker-input-text: #000;
+
+    --tooltip-border: #111;
+    --tooltip-text: #333;
 }

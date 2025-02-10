@@ -138,7 +138,7 @@
         <div class="base-table-box">
             <el-table :data="sliceTableData">
                 <el-table-column :label="Translate('No.')">
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<BusinessFaceAttendanceList>">
                         {{ displayIndex(scope.$index) }}
                     </template>
                 </el-table-column>
@@ -151,37 +151,37 @@
                     prop="groupName"
                 />
                 <el-table-column :label="Translate('IDCS_NORMAL')">
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<BusinessFaceAttendanceList>">
                         {{ displayStatus(scope.row.normal) }}
                     </template>
                 </el-table-column>
 
                 <el-table-column :label="Translate('IDCS_LATE')">
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<BusinessFaceAttendanceList>">
                         {{ displayStatus(scope.row.late) }}
                     </template>
                 </el-table-column>
 
                 <el-table-column :label="Translate('IDCS_LEFT_EARLY')">
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<BusinessFaceAttendanceList>">
                         <span class="text-error">{{ displayStatus(scope.row.leftEarly) }}</span>
                     </template>
                 </el-table-column>
 
                 <el-table-column :label="Translate('IDCS_ATTENDANCE_NONE')">
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<BusinessFaceAttendanceList>">
                         <span class="text-error">{{ displayStatus(scope.row.absenteeism) }}</span>
                     </template>
                 </el-table-column>
 
                 <el-table-column :label="Translate('IDCS_ABNORMAL')">
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<BusinessFaceAttendanceList>">
                         {{ displayStatus(scope.row.abnormal) }}
                     </template>
                 </el-table-column>
 
                 <el-table-column :label="Translate('IDCS_DETAIL')">
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<BusinessFaceAttendanceList>">
                         <BaseImgSprite
                             file="edit (2)"
                             :index="0"

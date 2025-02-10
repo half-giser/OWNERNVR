@@ -1,7 +1,7 @@
 /*
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-07-17 11:31:57
- * @Description: 现场预览
+ * @Description: 现场预览的类型定义，类型命名的前缀统一为Live*
  */
 
 /**

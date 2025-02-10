@@ -83,7 +83,7 @@
         align-items: flex-start;
         box-sizing: border-box;
         padding: 10px 0;
-        background-color: var(--color-white);
+        background-color: var(--main-bg);
     }
 
     &-item {

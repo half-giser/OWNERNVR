@@ -90,7 +90,7 @@
                         label=" "
                         width="50"
                     >
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelOsdDto>">
                             <BaseTableRowStatus
                                 :icon="scope.row.status"
                                 :error-text="scope.row.statusTip"
@@ -101,7 +101,7 @@
                         :label="Translate('IDCS_CHANNEL_NAME')"
                         min-width="120"
                     >
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelOsdDto>">
                             <el-input
                                 v-model="scope.row.name"
                                 maxlength="63"
@@ -132,7 +132,7 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelOsdDto>">
                             <el-select-v2
                                 v-show="!scope.row.isSpeco"
                                 v-model="scope.row.displayName"
@@ -163,7 +163,7 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelOsdDto>">
                             <el-select-v2
                                 v-show="!scope.row.isSpeco"
                                 v-model="scope.row.displayTime"
@@ -196,7 +196,7 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelOsdDto>">
                             {{ scope.row.supportDateFormat ? dateFormatTip[scope.row.dateFormat] : '--' }}
                         </template>
                     </el-table-column>
@@ -222,7 +222,7 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelOsdDto>">
                             {{ scope.row.supportTimeFormat ? timeFormatTip[scope.row.timeFormat] : '--' }}
                         </template>
                     </el-table-column>
@@ -253,7 +253,7 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelOsdDto>">
                             <el-select-v2
                                 v-model="scope.row.remarkSwitch"
                                 :disabled="scope.row.remarkDisabled"
@@ -267,7 +267,7 @@
                         :label="Translate('IDCS_WATER_MARK_CHAR')"
                         min-width="200"
                     >
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelOsdDto>">
                             <el-input
                                 v-model="scope.row.remarkNote"
                                 :disabled="scope.row.remarkDisabled"

@@ -11,12 +11,12 @@
                 show-overflow-tooltip
             >
                 <el-table-column :label="Translate('IDCS_NETWORK_CARD')">
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<UserNetworkSecurityForm>">
                         {{ formatNetworkCardName(scope.row.id) }}
                     </template>
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_ARP_GUARD')">
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<UserNetworkSecurityForm>">
                         <el-checkbox v-model="scope.row.arpSwitch" />
                     </template>
                 </el-table-column>
@@ -28,7 +28,7 @@
                     :label="Translate('IDCS_AUTO_GATEWAY_MAC')"
                     width="250"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<UserNetworkSecurityForm>">
                         <el-checkbox
                             v-model="scope.row.autoGetGatewayMac"
                             :disabled="!scope.row.arpSwitch"
@@ -40,7 +40,7 @@
                     :label="Translate('IDCS_GATEWAY_MAC')"
                     width="250"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<UserNetworkSecurityForm>">
                         <BaseMacInput
                             v-model="scope.row.getGatewayMac"
                             :disabled="!scope.row.arpSwitch || scope.row.autoGetGatewayMac"
@@ -49,7 +49,7 @@
                     </template>
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_DETECTION_DEFENSE')">
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<UserNetworkSecurityForm>">
                         <el-checkbox
                             v-model="scope.row.preventDetection"
                             :disabled="!scope.row.arpSwitch"

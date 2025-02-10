@@ -159,7 +159,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<NetFTPList>">
                         <el-select-v2
                             v-model="scope.row.schedule"
                             :disabled="!formData.switch"
@@ -189,7 +189,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<NetFTPList>">
                         <el-select-v2
                             v-model="scope.row.motion"
                             :disabled="!formData.switch"
@@ -217,7 +217,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<NetFTPList>">
                         <el-select-v2
                             v-model="scope.row.inteligence"
                             :options="pageData.switchOptions"
@@ -245,7 +245,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<NetFTPList>">
                         <el-select-v2
                             v-model="scope.row.sensor"
                             :disabled="!formData.switch"
@@ -273,7 +273,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<NetFTPList>">
                         <el-select-v2
                             v-model="scope.row.streamType"
                             :disabled="!formData.switch"
@@ -303,7 +303,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<NetFTPList>">
                         <el-select-v2
                             v-model="scope.row.ftpSnapSwitch"
                             :disabled="!formData.switch"
@@ -333,7 +333,7 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<NetFTPList>">
                         <el-select-v2
                             v-model="scope.row.ftpAlarmInfoSwitch"
                             :disabled="!formData.switch"

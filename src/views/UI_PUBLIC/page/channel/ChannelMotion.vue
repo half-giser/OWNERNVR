@@ -93,7 +93,7 @@
                         label=" "
                         width="50"
                     >
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelMotionDto>">
                             <BaseTableRowStatus
                                 :icon="scope.row.status"
                                 :error-text="scope.row.statusTip"
@@ -127,7 +127,7 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelMotionDto>">
                             <el-select-v2
                                 v-model="scope.row.switch"
                                 :disabled="scope.row.disabled"
@@ -140,7 +140,7 @@
                         :label="Translate('IDCS_SENSITIVITY')"
                         min-width="180"
                     >
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelMotionDto>">
                             <BaseNumberInput
                                 v-model="scope.row.sensitivity"
                                 :min="scope.row.sensitivityMinValue"
@@ -171,7 +171,7 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelMotionDto>">
                             <el-select-v2
                                 v-model="scope.row.holdTime"
                                 :disabled="scope.row.disabled"

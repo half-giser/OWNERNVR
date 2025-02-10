@@ -244,10 +244,10 @@ export default defineComponent({
                     const $exit = exit.length ? queryXml(exit[0].element) : ''
 
                     const enterFrameTime = $enter ? $enter('time').text() : ''
-                    const enterTime = enterFrameTime ? dayjs.utc(enterFrameTime.slice(0, enterFrameTime.length - 8), DEFAULT_DATE_FORMAT).valueOf() : 0
+                    const enterTime = enterFrameTime ? dayjs.utc(enterFrameTime.slice(0, -8), DEFAULT_DATE_FORMAT).valueOf() : 0
 
                     const exitFrameTime = $exit ? $exit('time').text() : ''
-                    const exitTime = exitFrameTime ? dayjs.utc(exitFrameTime.slice(0, exitFrameTime.length - 8), DEFAULT_DATE_FORMAT).valueOf() : 0
+                    const exitTime = exitFrameTime ? dayjs.utc(exitFrameTime.slice(0, -8), DEFAULT_DATE_FORMAT).valueOf() : 0
 
                     const isEnter = enter.length > 0
                     const enterType = $enter ? $enter('openType').text() : ''

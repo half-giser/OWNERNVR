@@ -12,7 +12,7 @@
                 highlight-current-row
             >
                 <el-table-column :label="Translate('IDCS_DISK')">
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<DiskPhysicalList>">
                         <el-checkbox
                             v-if="scope.row.type === 'normal'"
                             v-model="scope.row.switch"
@@ -30,7 +30,7 @@
                     prop="raid"
                 />
                 <el-table-column :label="Translate('IDCS_TYPE')">
-                    <template #default="scope">{{ displayType(scope.row.type) }}</template>
+                    <template #default="scope: TableColumn<DiskPhysicalList>">{{ displayType(scope.row.type) }}</template>
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_STATE')"
@@ -42,7 +42,7 @@
                     width="210"
                 />
                 <el-table-column :label="Translate('IDCS_HOT_TO_DISK')">
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<DiskPhysicalList>">
                         <BaseImgSprite
                             file="transform"
                             :index="0"

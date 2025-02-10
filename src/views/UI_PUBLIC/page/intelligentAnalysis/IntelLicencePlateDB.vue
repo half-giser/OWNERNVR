@@ -21,11 +21,11 @@
                     type="index"
                 />
                 <el-table-column :label="Translate('IDCS_GROUP')">
-                    <template #default="scope"> {{ scope.row.name }} ({{ scope.row.plateNum }}) </template>
+                    <template #default="scope: TableColumn<IntelPlateDBGroupList>"> {{ scope.row.name }} ({{ scope.row.plateNum }}) </template>
                 </el-table-column>
                 <el-table-column />
                 <el-table-column :label="Translate('IDCS_EDIT')">
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<IntelPlateDBGroupList>">
                         <BaseImgSprite
                             file="edit (2)"
                             :index="0"
@@ -36,7 +36,7 @@
                     </template>
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_DELETE')">
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<IntelPlateDBGroupList>">
                         <BaseImgSprite
                             file="del"
                             :index="0"
@@ -51,7 +51,7 @@
                     type="expand"
                     :width="200"
                 >
-                    <template #default="scope">
+                    <template #default="scope: TableColumn<IntelPlateDBGroupList>">
                         <div
                             v-if="pageData.expandRowKey.includes(scope.row.id)"
                             class="expand"

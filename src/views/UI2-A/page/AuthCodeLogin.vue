@@ -90,7 +90,7 @@
                             @click="verify"
                             @keyup.enter="verify"
                         >
-                            {{ Translate('IDCS_LOGIN_NBSP') }}
+                            <span v-clean-html="Translate('IDCS_LOGIN_NBSP')"></span>
                         </el-button>
                     </el-form-item>
                     <div
@@ -152,7 +152,7 @@
     font-size: 16px;
     border: 1px solid var(--color-black);
     display: flex;
-    background-color: var(--input-bg);
+    background-color: #fff;
 
     &.disabled {
         background-color: var(--authcode-input-bg-disabled);
@@ -213,6 +213,10 @@
 
             :deep(.el-input__wrapper) {
                 background: transparent;
+            }
+
+            :deep(.el-input__inner) {
+                color: var(--authcode-input-text);
             }
         }
 

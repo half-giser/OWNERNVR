@@ -88,22 +88,22 @@
             </div>
             <div class="bottom">
                 <el-calendar v-model="calendar.date.value">
-                    <template #header="scope">
+                    <template #header="{ date }">
                         <div class="calendar-header">
                             <span @click="calendar.prevMonth">&lt;</span>
-                            <span>{{ scope.date }}</span>
+                            <span>{{ date }}</span>
                             <span @click="calendar.nextMonth">&gt;</span>
                         </div>
                     </template>
-                    <template #date-cell="scope">
+                    <template #date-cell="{ data }">
                         <div
                             :class="{
-                                active: calendar.current.value.getTime() === scope.data.date.getTime(),
-                                badge: calendar.highlight(pageData.recTimeList, scope.data.date),
+                                active: calendar.current.value.getTime() === data.date.getTime(),
+                                badge: calendar.highlight(pageData.recTimeList, data.date),
                             }"
-                            @click="calendar.change(scope.data.date)"
+                            @click="calendar.change(data.date)"
                         >
-                            {{ Number(scope.data.day.split('-')[2]) }}
+                            {{ Number(data.day.split('-')[2]) }}
                         </div>
                     </template>
                 </el-calendar>
@@ -136,9 +136,9 @@
             :support-fish-eye="!!pageData.fishEye"
             :win-data="pageData.winData"
         >
-            <template #default="scope">
+            <template #default="{ index }">
                 <PlaybackControlPanel
-                    v-show="scope.index === 0"
+                    v-show="index === 0"
                     :mode="mode"
                     :win-data="pageData.winData"
                     :volume="pageData.volume"
@@ -154,7 +154,7 @@
                 />
                 <PlaybackFisheyePanel
                     v-if="isFishEyePanel"
-                    v-show="scope.index === 1"
+                    v-show="index === 1"
                     ref="fisheyeRef"
                     :win-data="pageData.winData"
                     :install-type="pageData.fishEye"
@@ -184,7 +184,7 @@
 .playback {
     width: 100%;
     height: var(--live-content-height);
-    border: 1px solid var(--input-border);
+    border: 1px solid var(--content-border);
     display: flex;
     font-size: 14px;
     min-width: 1500px;
@@ -193,8 +193,8 @@
 .center {
     width: 100%;
     height: 100%;
-    border-left: 1px solid var(--input-border);
-    border-right: 1px solid var(--input-border);
+    border-left: 1px solid var(--content-border);
+    border-right: 1px solid var(--content-border);
 
     &-player {
         width: 100%;

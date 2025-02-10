@@ -104,7 +104,7 @@
                     <el-table-column prop="chlName" />
                     <el-table-column :formatter="(row) => Translate('IDCS_PRESET_NUM_D').formatForLang(row.presetCount)" />
                     <el-table-column type="expand">
-                        <template #default="scope">
+                        <template #default="scope: TableColumn<ChannelPtzPresetChlDto>">
                             <ChannelPtzTableExpandPanel @add="addPreset(scope.$index)">
                                 <ChannelPtzTableExpandItem
                                     v-for="(item, index) in scope.row.presets"
