@@ -9,7 +9,7 @@
         <el-form
             :style="{
                 '--form-input-width': '250px',
-                '--form-label-width': 'auto',
+                '--form-label-width': '200px',
             }"
         >
             <el-form-item :label="Translate('IDCS_MODE')">
@@ -230,7 +230,7 @@
         <el-form
             :style="{
                 '--form-input-width': '250px',
-                '--form-label-width': 'auto',
+                '--form-label-width': '200px',
             }"
         >
             <el-form-item :label="Translate('IDCS_MANUAL_RECORD_OPTION')">

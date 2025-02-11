@@ -20,7 +20,7 @@
                 <div class="main-menu">
                     <BaseImgSprite
                         :file="menuGroup[1].icon || ''"
-                        :index="getMenuGroupDisabled(menuGroup[0]) ? 1 : 0"
+                        :index="getMenuGroupDisabled(menuGroup[0]) ? disabledIconIndex : normalIconIndex"
                         :chunk="2"
                     />
                     <span v-text="Translate(menuGroup[1].lk || '')"> </span>
@@ -112,7 +112,7 @@
 .menu-group {
     width: 237px;
     border: solid 1px var(--content-border);
-    padding: 16px 10px 16px 15px;
+    padding: 18px 10px 18px 15px;
     margin: 0 0 -1px;
     position: relative;
     flex-shrink: 0;
@@ -186,7 +186,7 @@
     align-items: center;
 
     span {
-        margin-right: 8px;
+        margin-right: 10px;
         display: inline-block;
         font-size: 16px;
         text-decoration: none;
@@ -202,7 +202,8 @@
 }
 
 .sub-menus {
-    margin-top: 5px;
+    margin-top: 2px;
+    line-height: 22px;
 
     span {
         display: inline-block;
@@ -227,7 +228,7 @@
         &:not(:last-of-type)::after {
             content: '';
             display: inline-block;
-            margin: 0 3px;
+            margin: 0 2px;
             position: relative;
             top: 2px;
             width: 1px;

@@ -55,6 +55,8 @@
     --main-border: #666; // 界面, 以及Dialog、MessageBox、Notification等弹出框的Border颜色
 
     --content-border: #999; // 页面上主要线框的颜色
+    --live-border: #999; // 现场预览、回放的主要线框的颜色
+    --live-wasm-border: #999; // 现场预览、回放(wasm)的主要线框的颜色
 
     --subheading-text: var(--main-text); // 子标题文本颜色
     --subheading-bg: #ccc; // 子标题背景色
@@ -64,6 +66,7 @@
      */
     --header-bg: var(--main-bg); // 顶部背景色
     --header-text: var(--main-text); // 顶部文本颜色
+    --header-border: #666; // 顶部底边框颜色
     --header-menu-text: #666; // 顶部菜单栏文本颜色
     --header-menu-text-hover: #313131; // 顶部菜单栏文本颜色 (hover)
     --header-menu-text-active: var(--primary); // 顶部菜单栏文本颜色 (active)
@@ -128,6 +131,7 @@
     --table-bg-hover: #f7f7f7; // 表格行背景色 (hover)
     --table-stripe: #eee; // 表格背景色 (斑马线)
     --table-expand-bg: #fff; // 表格展开背景色
+    --table-wrap-bg: var(--main-bg); // 表格empty背景色
 
     --table-tbody-border: #f0f0f0; // 表格行边框颜色
 

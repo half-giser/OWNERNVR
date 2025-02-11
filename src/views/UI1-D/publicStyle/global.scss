@@ -25,13 +25,16 @@
     --main-bg: #1b1b1b;
     --main-border: #999;
 
-    --content-border: #ddd;
+    --content-border: #999;
+    --live-border: #999;
+    --live-wasm-border: #4e535a;
 
     --subheading-text: #fff;
     --subheading-bg: #8a8a8a;
 
     --header-bg: var(--main-bg);
     --header-text: var(--main-text);
+    --header-border: #fff;
     --header-menu-text: #1c1c1c;
     --header-menu-text-hover: #1c1c1c;
     --header-menu-text-active: #fff;
@@ -76,7 +79,7 @@
     --btn-bg-disabled: #888;
     --btn-border: #575757;
     --btn-border-hover: #575757;
-    --btn-border-disabled: #2a3336;
+    --btn-border-disabled: #888;
 
     --table-text-disabled: #444;
     --table-border: #313439;
@@ -84,6 +87,7 @@
     --table-bg-hover: var(--primary-light);
     --table-stripe: #6a6a6a;
     --table-expand-bg: #6a6a6a;
+    --table-wrap-bg: #1c1c1c;
 
     --table-tbody-border: #313439;
 

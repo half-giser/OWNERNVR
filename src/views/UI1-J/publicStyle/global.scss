@@ -24,12 +24,15 @@
     --main-border: rgb(28 31 43);
 
     --content-border: rgb(28 31 43);
+    --live-border: #4e535a;
+    --live-wasm-border: rgb(28 31 43);
 
     --subheading-text: #1c1f2b;
     --subheading-bg: #cbcbcb;
 
     --header-bg: var(--main-bg);
     --header-text: var(--main-text);
+    --header-border: rgb(28 31 43);
     --header-menu-text: rgb(28 31 43);
     --header-menu-text-hover: var(--primary-light);
     --header-menu-text-active: var(--primary);
@@ -82,6 +85,7 @@
     --table-bg-hover: #f7f7f7;
     --table-stripe: #eee;
     --table-expand-bg: #fff;
+    --table-wrap-bg: var(--main-bg);
 
     --table-tbody-border: rgb(28 31 43);
 

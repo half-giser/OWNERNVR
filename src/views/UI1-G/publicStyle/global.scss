@@ -24,18 +24,21 @@
     --main-bg: #1b1b1b;
     --main-border: #999;
 
-    --content-border: #ddd;
+    --content-border: #999;
+    --live-border: #999;
+    --live-wasm-border: #4e535a;
 
     --subheading-text: #fff;
     --subheading-bg: #20273e;
 
     --header-bg: var(--main-bg);
     --header-text: var(--main-text);
+    --header-border: #fff;
     --header-menu-text: #1c1c1c;
     --header-menu-text-hover: #1c1c1c;
     --header-menu-text-active: #fff;
-    --header-menu-bg: #e3e3e3;
-    --header-menu-bg-hover: #e3e3e3;
+    --header-menu-bg: #fff;
+    --header-menu-bg-hover: #fff;
     --header-menu-bg-active: var(--primary);
     --header-menu-border: transparent;
     --header-menu-border-hover: transparent;
@@ -83,6 +86,7 @@
     --table-bg-hover: #4a82c3;
     --table-stripe: unset;
     --table-expand-bg: #20273e;
+    --table-wrap-bg: #1c1c1c;
 
     --table-tbody-border: #313439;
 

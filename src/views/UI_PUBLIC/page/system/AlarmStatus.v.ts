@@ -334,7 +334,7 @@ export default defineComponent({
                             key: '',
                             value: '',
                             span: 2,
-                            hidden: true,
+                            hide: true,
                         },
                         {
                             key: 'IDCS_SNAP',
@@ -446,7 +446,7 @@ export default defineComponent({
                             key: '',
                             value: '',
                             span: 2,
-                            hidden: true,
+                            hide: true,
                         },
                         {
                             key: 'IDCS_SNAP',
@@ -534,7 +534,7 @@ export default defineComponent({
                             key: '',
                             value: '',
                             span: 2,
-                            hidden: true,
+                            hide: true,
                         },
                         {
                             key: 'IDCS_SNAP',
@@ -652,7 +652,7 @@ export default defineComponent({
                             key: '',
                             value: '',
                             span: 2,
-                            hidden: true,
+                            hide: true,
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_BUZZER',
@@ -725,7 +725,7 @@ export default defineComponent({
                             key: '',
                             value: '',
                             span: 2,
-                            hidden: true,
+                            hide: true,
                         },
                         {
                             key: 'IDCS_SNAP',
@@ -793,7 +793,7 @@ export default defineComponent({
                             key: '',
                             value: '',
                             span: 2,
-                            hidden: true,
+                            hide: true,
                         },
                         {
                             key: 'IDCS_SNAP',
@@ -971,7 +971,7 @@ export default defineComponent({
                             key: '',
                             value: '',
                             span: 2,
-                            hidden: true,
+                            hide: true,
                         },
                         {
                             key: 'IDCS_SNAP',

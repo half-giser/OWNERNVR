@@ -6,7 +6,7 @@
 <template>
     <el-container id="layoutMain">
         <el-header id="layoutMainHeader">
-            <div id="MainHeaderLine1">
+            <div id="Top">
                 <div
                     v-show="pageData.logoShow"
                     id="logo"
@@ -79,7 +79,7 @@
                     </div>
                 </div>
             </div>
-            <div id="MainHeaderLine2">
+            <div>
                 <el-menu
                     id="mainMenu"
                     mode="horizontal"
@@ -150,12 +150,16 @@
     background-color: var(--header-bg);
 }
 
-#MainHeaderLine1 {
+#Top {
     width: 100%;
     display: flex;
     justify-content: space-between;
     height: 65px;
     align-items: center;
+
+    @if $GLOBAL_UI_TYPE == UI2-A {
+        height: 73px;
+    }
 }
 
 #logo {
@@ -163,7 +167,7 @@
     width: 50%;
     // width: 350px;
     height: 65px;
-    background-position: center left;
+    background-position: 0 70%;
     background-repeat: no-repeat;
     text-align: right;
 
@@ -220,16 +224,20 @@
 }
 
 #mainMenu {
-    height: 34px;
     --el-menu-active-color: var(--primary);
     --el-menu-base-level-padding: 10px;
 
     background-color: var(--header-bg);
+    height: 34px;
+
+    @if $GLOBAL_UI_TYPE == UI2-A {
+        margin-top: 3px;
+    }
 }
 
 .el-menu--horizontal {
     background-color: var(--main-bg);
-    border-bottom: solid 1px var(--main-border);
+    border-bottom: solid 1px var(--header-border);
     --el-menu-active-color: var(--header-menu-text-active);
 
     & > .el-menu-item {
@@ -276,6 +284,10 @@
     flex: auto 1 1;
     overflow-y: auto;
     margin-block: 25px;
+
+    @if $GLOBAL_UI_TYPE == UI2-A {
+        margin-top: 15px;
+    }
 }
 
 #layoutMainContent {
@@ -293,7 +305,7 @@
     padding: 1px 0;
     height: 18px;
     width: 100%;
-    border-top: 1px solid var(--main-border);
+    border-top: 1px solid var(--header-border);
     flex-shrink: 0;
     color: var(--footer-text);
     background-color: var(--footer-bg);

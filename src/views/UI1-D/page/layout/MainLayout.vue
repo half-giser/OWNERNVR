@@ -6,7 +6,7 @@
 <template>
     <el-container id="layoutMain">
         <el-header id="layoutMainHeader">
-            <div id="MainHeaderLine1">
+            <div id="Top">
                 <div
                     v-show="pageData.logoShow"
                     id="logo"
@@ -80,7 +80,7 @@
                     </div>
                 </div>
             </div>
-            <div id="MainHeaderLine2">
+            <div id="Top2">
                 <el-menu
                     id="mainMenu"
                     mode="horizontal"
@@ -142,18 +142,18 @@
     height: auto;
     flex: auto 0 0;
     position: relative;
-    border-bottom: 1px solid var(--content-border);
+    border-bottom: 1px solid var(--header-border);
 }
 
-#MainHeaderLine1 {
+#Top {
     width: 100%;
     display: flex;
     justify-content: space-between;
 }
 
-#MainHeaderLine2 {
+#Top2 {
     position: absolute;
-    bottom: 0;
+    bottom: 2px;
     right: 20px;
 
     .el-menu--horizontal {
@@ -164,7 +164,7 @@
 
         & > .el-menu-item {
             margin: 0 2px;
-            padding: 0 10px;
+            padding: 0 10px 0 20px;
             font-weight: bold;
             font-size: 16px;
             color: var(--header-menu-text);
@@ -280,7 +280,6 @@
     width: 100%;
     color: var(--footer-text);
     background-color: var(--footer-bg);
-    // border-top: 1px solid var(--main-border);
     flex-shrink: 0;
 }
 </style>
