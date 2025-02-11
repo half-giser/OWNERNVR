@@ -109,11 +109,11 @@ export default defineComponent({
             scheduleList: [] as SelectOption<string, string>[],
             isSchedulePop: false,
             // 检测区域，屏蔽区域
-            detectArea: 0,
-            detectConfiguredArea: [] as boolean[],
-            maskArea: -1,
+            detectArea: -1,
+            detectAreaChecked: [] as number[],
+            maskArea: 0,
             // 初始是否有数据（添加样式）
-            maskConfiguredArea: [] as boolean[],
+            maskAreaChecked: [] as number[],
 
             // 是否启用自动重置
             autoReset: true,
@@ -464,21 +464,19 @@ export default defineComponent({
         // 检测和屏蔽区域的样式初始化
         const refreshInitPage = () => {
             // 区域状态
-            for (const key in formData.value.detectAreaInfo) {
-                if (formData.value.detectAreaInfo[key].length > 0) {
-                    pageData.value.detectConfiguredArea[key] = true
-                } else {
-                    pageData.value.detectConfiguredArea[key] = false
+            pageData.value.detectAreaChecked = Object.values(formData.value.detectAreaInfo).map((item, index) => {
+                if (item.length > 0) {
+                    return index
                 }
-            }
+                return -1
+            })
 
-            for (const key in formData.value.maskAreaInfo) {
-                if (formData.value.maskAreaInfo[key].length > 0) {
-                    pageData.value.maskConfiguredArea[key] = true
-                } else {
-                    pageData.value.maskConfiguredArea[key] = false
+            pageData.value.maskAreaChecked = Object.values(formData.value.maskAreaInfo).map((item, index) => {
+                if (item.length > 0) {
+                    return index
                 }
-            }
+                return -1
+            })
 
             // OSD状态
             if (formData.value.countOSD) {

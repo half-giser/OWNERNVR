@@ -94,6 +94,9 @@
                                             :key="index"
                                             :label="index + 1"
                                             :value="index"
+                                            :class="{
+                                                checked: pageData.detectAreaChecked.includes(index),
+                                            }"
                                         />
                                     </el-radio-group>
                                 </el-form-item>
@@ -108,6 +111,9 @@
                                             :key="index"
                                             :label="index + 1"
                                             :value="index"
+                                            :class="{
+                                                checked: pageData.maskAreaChecked.includes(index),
+                                            }"
                                         />
                                     </el-radio-group>
                                 </el-form-item>

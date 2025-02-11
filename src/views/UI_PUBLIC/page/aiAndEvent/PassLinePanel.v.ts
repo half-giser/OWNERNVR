@@ -125,13 +125,13 @@ export default defineComponent({
                         label: i,
                     }
                 }),
-            // initComplete: false,
             drawInitCount: 0,
             openCount: 0,
             // 更多弹窗数据
             morePopOpen: false,
             // 选择的警戒面
-            chosenSurfaceIndex: 0,
+            surfaceIndex: 0,
+            surfaceChecked: [] as number[],
         })
 
         const formData = ref(new AlarmPassLinesDto())
@@ -356,7 +356,7 @@ export default defineComponent({
 
                     if (mode.value === 'ocx') {
                         setTimeout(() => {
-                            const alarmLine = pageData.value.chosenSurfaceIndex
+                            const alarmLine = pageData.value.surfaceIndex
                             const plugin = playerRef.value!.plugin
 
                             const sendXML1 = OCX_XML_SetTripwireLine(formData.value.line[alarmLine])
@@ -472,7 +472,6 @@ export default defineComponent({
                                 X: endX,
                                 Y: endY,
                             },
-                            configured: Boolean(startX && startY && endX && endY),
                         }
                     })
 
@@ -843,13 +842,13 @@ export default defineComponent({
 
         // passLine选择警戒线
         const changeLine = () => {
-            pageData.value.direction = formData.value.line[pageData.value.chosenSurfaceIndex].direction
+            pageData.value.direction = formData.value.line[pageData.value.surfaceIndex].direction
             setPassLineOcxData()
         }
 
         // passLine选择方向
         const changeDirection = () => {
-            formData.value.line[pageData.value.chosenSurfaceIndex].direction = pageData.value.direction
+            formData.value.line[pageData.value.surfaceIndex].direction = pageData.value.direction
             setPassLineOcxData()
         }
 
@@ -880,7 +879,7 @@ export default defineComponent({
                 osdFormat: string
             },
         ) => {
-            const alarmLine = pageData.value.chosenSurfaceIndex
+            const alarmLine = pageData.value.surfaceIndex
             formData.value.line[alarmLine].startPoint = {
                 X: passline.startX,
                 Y: passline.startY,
@@ -898,7 +897,7 @@ export default defineComponent({
 
         // passLine绘图
         const setPassLineOcxData = () => {
-            const alarmLine = pageData.value.chosenSurfaceIndex
+            const alarmLine = pageData.value.surfaceIndex
             const plugin = playerRef.value!.plugin
             if (formData.value.line.length) {
                 const line = formData.value.line[alarmLine]
@@ -947,7 +946,7 @@ export default defineComponent({
             passLineDrawer && passLineDrawer.setEnableShowAll(isShowAllArea)
             if (isShowAllArea) {
                 const lineInfoList = formData.value.line
-                const currentAlarmLine = pageData.value.chosenSurfaceIndex
+                const currentAlarmLine = pageData.value.surfaceIndex
                 if (mode.value === 'h5') {
                     passLineDrawer.setCurrentSurfaceOrAlarmLine(currentAlarmLine)
                     passLineDrawer.drawAllPassline(lineInfoList, currentAlarmLine)
@@ -975,7 +974,7 @@ export default defineComponent({
                 plugin.ExecuteCmd(sendXML)
             }
 
-            const currentAlarmLine = pageData.value.chosenSurfaceIndex
+            const currentAlarmLine = pageData.value.surfaceIndex
             formData.value.line[currentAlarmLine].startPoint = {
                 X: 0,
                 Y: 0,
@@ -1022,12 +1021,11 @@ export default defineComponent({
         // passLine刷新
         const refreshInitPage = () => {
             const lineInfoList = formData.value.line
-            lineInfoList.forEach((lineInfo) => {
-                if (lineInfo && !lineInfo.startPoint.X && !lineInfo.startPoint.Y && !lineInfo.endPoint.X && !lineInfo.endPoint.Y) {
-                    lineInfo.configured = false
-                } else {
-                    lineInfo.configured = true
+            pageData.value.surfaceChecked = lineInfoList.map((lineInfo, index) => {
+                if (lineInfo.startPoint.X || lineInfo.startPoint.Y || lineInfo.endPoint.X || lineInfo.endPoint.Y) {
+                    return index
                 }
+                return -1
             })
             // 是否显示全部区域切换按钮和清除全部按钮（区域数量大于等于2时才显示）
             if (formData.value.line.length > 1) {
@@ -1113,7 +1111,7 @@ export default defineComponent({
             }
 
             if (stateType === 'TripwireLine') {
-                const alarmLine = pageData.value.chosenSurfaceIndex
+                const alarmLine = pageData.value.surfaceIndex
                 formData.value.line[alarmLine].startPoint = {
                     X: $('statenotify/startPoint').attr('X').num(),
                     Y: $('statenotify/startPoint').attr('Y').num(),

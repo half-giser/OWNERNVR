@@ -105,7 +105,7 @@
                                 <!-- 警戒面 -->
                                 <el-form-item :label="Translate('IDCS_ALERT_SURFACE')">
                                     <el-radio-group
-                                        v-model="pageData.chosenSurfaceIndex"
+                                        v-model="pageData.surfaceIndex"
                                         class="small-btn"
                                         @change="changeSurface()"
                                     >
@@ -114,6 +114,9 @@
                                             :key="index"
                                             :value="index"
                                             :label="index + 1"
+                                            :class="{
+                                                checked: pageData.surfaceChecked.includes(index),
+                                            }"
                                         />
                                     </el-radio-group>
                                 </el-form-item>

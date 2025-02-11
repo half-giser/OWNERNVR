@@ -106,11 +106,13 @@ export default defineComponent({
             isShowAllArea: false,
             // 侦测区域
             regionArea: 0,
-            reginConfiguredArea: [] as boolean[],
+            regionAreaChecked: [] as number[],
+            // reginConfiguredArea: [] as boolean[],
             // 屏蔽区域
             maskArea: -1,
+            maskAreaChecked: [] as number[],
             // 初始是否有数据（添加样式）
-            maskConfiguredArea: [] as boolean[],
+            // maskConfiguredArea: [] as boolean[],
             // 检测区域-洲
             continentValue: '',
             continentDisabled: false,
@@ -727,20 +729,19 @@ export default defineComponent({
 
         // 检测和屏蔽区域的样式初始化
         const refreshInitPage = () => {
-            detectionFormData.value.regionInfo.forEach((item, index) => {
+            detectionPageData.value.regionAreaChecked = detectionFormData.value.regionInfo.map((item, index) => {
                 if (item.X1 || item.Y1 || item.X2 || item.Y2) {
-                    detectionPageData.value.reginConfiguredArea[index] = true
-                } else {
-                    detectionPageData.value.reginConfiguredArea[index] = false
+                    return index
                 }
+                return -1
             })
-            for (const key in detectionFormData.value.maskAreaInfo) {
-                if (detectionFormData.value.maskAreaInfo[key].length) {
-                    detectionPageData.value.maskConfiguredArea[key] = true
-                } else {
-                    detectionPageData.value.maskConfiguredArea[key] = false
+
+            detectionPageData.value.maskAreaChecked = Object.values(detectionFormData.value.maskAreaInfo).map((item, index) => {
+                if (item.length) {
+                    return index
                 }
-            }
+                return -1
+            })
         }
 
         // 切换洲时，对应的区域随之变化
