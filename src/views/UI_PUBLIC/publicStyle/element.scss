@@ -274,7 +274,7 @@
 
         th.el-table__cell {
             border-right-color: var(--table-thead-border);
-            border-bottom-color: var(--table-thead-border);
+            border-bottom-color: var(--table-thead-bottom-border);
         }
 
         td.el-table__cell {
@@ -432,6 +432,13 @@
 
         &__arrow {
             display: none;
+        }
+
+        &[role='tooltip']:not(:has(div)) {
+            max-width: 50vw;
+            color: var(--tooltip-text);
+            padding: 2px 8px;
+            border-color: var(--tooltip-border);
         }
     }
 

@@ -134,6 +134,7 @@
     --table-thead-text: #000; // 表格头文本色
     --table-thead-bg: #e5e5e5; // 表格头背景色
     --table-thead-border: #ccc; // 表格头边框色
+    --table-thead-bottom-border: #ccc; // 表格头底部边框色
     --table-checkbox-border-checked: #e9efff; // 表格checkbox选中边框色
 
     /**
@@ -207,7 +208,7 @@
     --config-aside-item-border-hover: var(--primary); // 配置页-左侧菜单栏-边框 (hover)
     --config-aside-item-bg: unset; // 配置页-左侧菜单栏菜单项-背景
     --config-aside-item-bg-active: #eee; // 配置页-左侧菜单栏菜单项-背景 (active)
-    --config-aside-item-bg-hover: #805b29; // 配置页-左侧菜单栏菜单项-背景 (hover)
+    --config-aside-item-bg-hover: unset; // 配置页-左侧菜单栏菜单项-背景 (hover)
 
     --breadcrumb-text: #454545; // 面包屑-文本
     --breadcrumb-bg: transparent; // 面包屑-背景
