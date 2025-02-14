@@ -50,14 +50,14 @@
                     :label="Translate('IDCS_FREE_AI_RESOURCE')"
                     width="118"
                 >
-                    <template #default="scope: TableColumn<AlarmAIResourceDto>">
+                    <template #default="{ row }: TableColumn<AlarmAIResourceDto>">
                         <BaseImgSprite
                             file="del"
                             :chunk="4"
                             :index="0"
                             :hover-index="1"
                             :active-index="1"
-                            @click="deleteResource(scope.row)"
+                            @click="deleteResource(row)"
                         />
                     </template>
                 </el-table-column>

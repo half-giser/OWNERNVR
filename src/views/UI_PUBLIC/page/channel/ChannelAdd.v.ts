@@ -613,13 +613,13 @@ export default defineComponent({
                             openMessageBox(Translate('IDCS_POE_RESOURCE_CONFLICT_TIP').formatForLang(poePort))
                             break
                         case ErrorCode.USER_ERROR_LIMITED_PLATFORM_TYPE_MISMATCH:
-                            openMessageBox(Translate('IDCS_ADD_CHANNEL_FAIL').formatForLang(faceMatchLimitMaxChlNum))
+                            openMessageBox(Translate('IDCS_ADD_CHANNEL_FAIL').formatForLang(faceMatchLimitMaxChlNum.value))
                             break
                         case ErrorCode.USER_ERROR_INVALID_IP:
                             openMessageBox(Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID'))
                             break
                         case ErrorCode.USER_ERROR_PC_LICENSE_MISMATCH:
-                            const msg = Translate('IDCS_ADD_CHANNEL_FAIL').formatForLang(faceMatchLimitMaxChlNum) + Translate('IDCS_REBOOT_DEVICE').formatForLang(Translate('IDCS_KEEP_ADD'))
+                            const msg = Translate('IDCS_ADD_CHANNEL_FAIL').formatForLang(faceMatchLimitMaxChlNum.value) + Translate('IDCS_REBOOT_DEVICE').formatForLang(Translate('IDCS_KEEP_ADD'))
                             openMessageBox({
                                 type: 'question',
                                 message: msg,

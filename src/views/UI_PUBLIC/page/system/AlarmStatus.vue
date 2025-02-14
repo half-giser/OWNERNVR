@@ -19,46 +19,46 @@
             @expand-change="handleExpandChange"
         >
             <el-table-column>
-                <template #default="scope: TableColumn<SystemAlarmStatusList>">
-                    <div class="type">{{ scope.row.type }}</div>
+                <template #default="{ row }: TableColumn<SystemAlarmStatusList>">
+                    <div class="type">{{ row.type }}</div>
                 </template>
             </el-table-column>
             <el-table-column>
-                <template #default="scope: TableColumn<SystemAlarmStatusList>">
+                <template #default="{ row, $index }: TableColumn<SystemAlarmStatusList>">
                     <div class="status">
                         <div
                             :class="{
-                                active: getAlarmStatusActive(scope.row, scope.$index),
+                                active: getAlarmStatusActive(row, $index),
                             }"
                         >
                             <BaseImgSprite
-                                :index="getAlarmClassName(scope.row, scope.$index)"
+                                :index="getAlarmClassName(row, $index)"
                                 file="alarm_status"
                                 :chunk="5"
                             />
-                            <span>{{ scope.row.data.length || '' }}</span>
+                            <span>{{ row.data.length || '' }}</span>
                         </div>
                         <span
                             :class="{
-                                'text-error': scope.row.data.length > 0,
+                                'text-error': row.data.length > 0,
                             }"
                         >
-                            {{ scope.row.data.length > 0 ? Translate('IDCS_ABNORMAL') : Translate('IDCS_NORMAL') }}
+                            {{ row.data.length > 0 ? Translate('IDCS_ABNORMAL') : Translate('IDCS_NORMAL') }}
                         </span>
                     </div>
                 </template>
             </el-table-column>
             <el-table-column type="expand">
-                <template #default="scope: TableColumn<SystemAlarmStatusList>">
+                <template #default="{ row }: TableColumn<SystemAlarmStatusList>">
                     <div class="expand-box">
                         <div
-                            v-show="scope.row.data.length"
+                            v-show="row.data.length"
                             class="expand"
                         >
                             <div class="left">
                                 <div
-                                    v-for="(item, key) in scope.row.data[scope.row.index - 1]?.data || []"
-                                    :key="`${scope.row.id + (scope.row.index - 1)}${key}`"
+                                    v-for="(item, key) in row.data[row.index - 1]?.data || []"
+                                    :key="`${row.id + (row.index - 1)}${key}`"
                                     :class="[
                                         {
                                             hidden: item.hide,
@@ -72,28 +72,28 @@
                             </div>
                             <div class="right">
                                 <img
-                                    v-if="scope.row.data[scope.row.index - 1]?.img"
-                                    :src="scope.row.data[scope.row.index - 1]?.img"
+                                    v-if="row.data[row.index - 1]?.img"
+                                    :src="row.data[row.index - 1]?.img"
                                 />
                                 <BaseImgSprite
-                                    v-if="scope.row.data[scope.row.index - 1]?.rec.length"
+                                    v-if="row.data[row.index - 1]?.rec.length"
                                     file="large_play"
                                     :index="0"
                                     :hover-index="2"
                                     :chunk="4"
-                                    @click="playRec(scope.row.data[scope.row.index - 1])"
+                                    @click="playRec(row.data[row.index - 1])"
                                 />
                             </div>
                         </div>
                         <div
-                            v-show="scope.row.data.length"
+                            v-show="row.data.length"
                             class="base-pagination-box"
                         >
                             <BasePagination
-                                v-model:current-page="scope.row.index"
+                                v-model:current-page="row.index"
                                 :page-size="1"
                                 layout="prev, pager, next"
-                                :total="scope.row.data.length"
+                                :total="row.data.length"
                             />
                         </div>
                     </div>

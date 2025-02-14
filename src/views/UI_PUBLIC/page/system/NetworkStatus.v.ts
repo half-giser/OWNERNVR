@@ -144,7 +144,7 @@ export default defineComponent({
                             array.push({
                                 i: 2,
                                 k: Translate('IDCS_PRIMARY_NETWORK_CARD'),
-                                v: netStatusContentNicPoe === item.attr('id') ? Translate('IDCS_POE_ETH_NAME') : Translate('IDCS_ETH_NAME').formatForLang(String(index + 1)),
+                                v: netStatusContentNicPoe === item.attr('id') ? Translate('IDCS_POE_ETH_NAME') : Translate('IDCS_ETH_NAME').formatForLang(index + 1),
                             })
                         }
                     })
@@ -156,7 +156,7 @@ export default defineComponent({
                     const $item = queryXml(item.element)
                     array.push({
                         i: 0,
-                        k: netStatusContentNicPoe === item.attr('id') ? Translate('IDCS_POE_ETH_NAME') : Translate('IDCS_ETH_NAME').formatForLang(String(index + 1)),
+                        k: netStatusContentNicPoe === item.attr('id') ? Translate('IDCS_POE_ETH_NAME') : Translate('IDCS_ETH_NAME').formatForLang(index + 1),
                         v: DEFAULT_LANG_MAPPING[$item('nicStatus').text()],
                     })
                     if (!ipGroupSwitch) {

@@ -32,35 +32,35 @@
                                 height="300"
                             >
                                 <el-table-column :label="Translate('IDCS_START_CHAR')">
-                                    <template #default="scope: TableColumn<SystemPosListStartEndChar>">
+                                    <template #default="{ row, $index }: TableColumn<SystemPosListStartEndChar>">
                                         <el-input
-                                            v-model="scope.row.startChar"
+                                            v-model="row.startChar"
                                             :formatter="formatChar"
                                             :parser="formatChar"
-                                            @blur="addStartEndCharRow(scope.row, scope.$index)"
+                                            @blur="addStartEndCharRow(row, $index)"
                                         />
                                     </template>
                                 </el-table-column>
                                 <el-table-column :label="Translate('IDCS_END_CHAR')">
-                                    <template #default="scope: TableColumn<SystemPosListStartEndChar>">
+                                    <template #default="{ row, $index }: TableColumn<SystemPosListStartEndChar>">
                                         <el-input
-                                            v-model="scope.row.endChar"
+                                            v-model="row.endChar"
                                             :formatter="formatChar"
                                             :parser="formatChar"
-                                            @blur="addStartEndCharRow(scope.row, scope.$index)"
+                                            @blur="addStartEndCharRow(row, $index)"
                                         />
                                     </template>
                                 </el-table-column>
                                 <el-table-column :label="Translate('IDCS_DELETE')">
-                                    <template #default="scope: TableColumn<SystemPosListStartEndChar>">
+                                    <template #default="{ $index }: TableColumn<SystemPosListStartEndChar>">
                                         <BaseImgSprite
                                             file="del"
                                             :index="2"
                                             :hover-index="0"
                                             :disabled-index="3"
-                                            :disabled="scope.$index === startEndCharTableList.length - 1"
+                                            :disabled="$index === startEndCharTableList.length - 1"
                                             :chunk="4"
-                                            @click="deleteStartEndChar(scope.$index)"
+                                            @click="deleteStartEndChar($index)"
                                         />
                                     </template>
                                 </el-table-column>
@@ -73,25 +73,25 @@
                                 height="300"
                             >
                                 <el-table-column :label="Translate('IDCS_WRAP_CHAR')">
-                                    <template #default="scope: TableColumn<{ value: string }>">
+                                    <template #default="{ row, $index }: TableColumn<{ value: string }>">
                                         <el-input
-                                            v-model="scope.row.value"
+                                            v-model="row.value"
                                             :formatter="formatChar"
                                             :parser="formatChar"
-                                            @blur="addLineBreakRow(scope.row, scope.$index)"
+                                            @blur="addLineBreakRow(row, $index)"
                                         />
                                     </template>
                                 </el-table-column>
                                 <el-table-column :label="Translate('IDCS_DELETE')">
-                                    <template #default="scope: TableColumn<{ value: string }>">
+                                    <template #default="{ $index }: TableColumn<{ value: string }>">
                                         <BaseImgSprite
                                             file="del"
                                             :index="2"
                                             :hover-index="0"
                                             :disabled-index="3"
-                                            :disabled="scope.$index === lineBreakTableList.length - 1"
+                                            :disabled="$index === lineBreakTableList.length - 1"
                                             :chunk="4"
-                                            @click="deleteLineBreak(scope.$index)"
+                                            @click="deleteLineBreak($index)"
                                         />
                                     </template>
                                 </el-table-column>
@@ -104,23 +104,23 @@
                                 height="300"
                             >
                                 <el-table-column :label="Translate('IDCS_IGNORE_CHAR')">
-                                    <template #default="scope: TableColumn<{ value: string }>">
+                                    <template #default="{ row, $index }: TableColumn<{ value: string }>">
                                         <el-input
-                                            v-model="scope.row.value"
-                                            @blur="addIgnoreCharRow(scope.row, scope.$index)"
+                                            v-model="row.value"
+                                            @blur="addIgnoreCharRow(row, $index)"
                                         />
                                     </template>
                                 </el-table-column>
                                 <el-table-column :label="Translate('IDCS_DELETE')">
-                                    <template #default="scope: TableColumn<{ value: string }>">
+                                    <template #default="{ $index }: TableColumn<{ value: string }>">
                                         <BaseImgSprite
                                             file="del"
                                             :index="0"
                                             :hover-index="2"
                                             :disabled-index="3"
-                                            :disabled="scope.$index === ignoreChareTableList.length - 1"
+                                            :disabled="$index === ignoreChareTableList.length - 1"
                                             :chunk="4"
-                                            @click="deleteIgnoreChar(scope.$index)"
+                                            @click="deleteIgnoreChar($index)"
                                         />
                                     </template>
                                 </el-table-column>

@@ -105,42 +105,42 @@
                     min-width="220"
                     :label="Translate('IDCS_RIGHT_GROUP')"
                 >
-                    <template #default="scope: TableColumn<UserAuthGroupList>">
-                        {{ displayAuthGroup(scope.row.name) }}
+                    <template #default="{ row }: TableColumn<UserAuthGroupList>">
+                        {{ displayAuthGroup(row.name) }}
                     </template>
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_EDIT')">
-                    <template #default="scope: TableColumn<UserAuthGroupList>">
+                    <template #default="{ row }: TableColumn<UserAuthGroupList>">
                         <BaseImgSprite
-                            v-show="scope.row.enableEdit"
+                            v-show="row.enableEdit"
                             file="edit (2)"
                             :index="0"
                             :hover-index="1"
                             :chunk="4"
-                            @click.stop="openEditAuthGroupPop(scope.row)"
+                            @click.stop="openEditAuthGroupPop(row)"
                         />
                     </template>
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_SAVE_AS')">
-                    <template #default="scope: TableColumn<UserAuthGroupList>">
+                    <template #default="{ row }: TableColumn<UserAuthGroupList>">
                         <BaseImgSprite
                             file="saveas"
                             :index="0"
                             :hover-index="1"
                             :chunk="4"
-                            @click.stop="copyAuthGroup(scope.row)"
+                            @click.stop="copyAuthGroup(row)"
                         />
                     </template>
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_DELETE')">
-                    <template #default="scope: TableColumn<UserAuthGroupList>">
+                    <template #default="{ row }: TableColumn<UserAuthGroupList>">
                         <BaseImgSprite
-                            v-show="!scope.row.isDefault"
+                            v-show="!row.isDefault"
                             file="del"
                             :index="0"
                             :hover-index="1"
                             :chunk="4"
-                            @click.stop="deleteAuthGroup(scope.row)"
+                            @click.stop="deleteAuthGroup(row)"
                         />
                     </template>
                 </el-table-column>

@@ -68,14 +68,14 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<{ date: string }>">
+                    <template #default="{ row }: TableColumn<{ date: string }>">
                         <BaseImgSprite
                             file="del"
                             :chunk="4"
                             :index="0"
                             :hover-index="1"
                             :active-index="1"
-                            @click="handleDelDate(scope.row)"
+                            @click="handleDelDate(row)"
                         />
                     </template>
                 </el-table-column>

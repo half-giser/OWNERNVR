@@ -73,9 +73,9 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<RecordParamDto>">
+                    <template #default="{ row }: TableColumn<RecordParamDto>">
                         <el-select-v2
-                            v-model="scope.row.per"
+                            v-model="row.per"
                             :options="pageData.perList"
                         />
                     </template>
@@ -103,9 +103,9 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<RecordParamDto>">
+                    <template #default="{ row }: TableColumn<RecordParamDto>">
                         <el-select-v2
-                            v-model="scope.row.post"
+                            v-model="row.post"
                             :options="pageData.postList"
                         />
                     </template>
@@ -134,10 +134,10 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<RecordParamDto>">
+                    <template #default="{ row }: TableColumn<RecordParamDto>">
                         <el-select-v2
-                            v-model="scope.row.ANRSwitch"
-                            :disabled="!scope.row.manufacturerEnable"
+                            v-model="row.ANRSwitch"
+                            :disabled="!row.manufacturerEnable"
                             :options="pageData.switchOption"
                             :placeholder="Translate('IDCS_OFF')"
                         />
@@ -166,11 +166,11 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<RecordParamDto>">
+                    <template #default="{ row }: TableColumn<RecordParamDto>">
                         <el-select-v2
-                            v-model="scope.row.expirationDisplay"
+                            v-model="row.expirationDisplay"
                             :options="pageData.expirationList"
-                            @change="changeExpirationList(scope.row)"
+                            @change="changeExpirationList(row)"
                         />
                     </template>
                 </el-table-column>

@@ -53,8 +53,8 @@
                         label=" "
                         width="50"
                     >
-                        <template #default="scope: TableColumn<ChannelWaterMarkDto>">
-                            <BaseTableRowStatus :icon="scope.row.status" />
+                        <template #default="{ row }: TableColumn<ChannelWaterMarkDto>">
+                            <BaseTableRowStatus :icon="row.status" />
                         </template>
                     </el-table-column>
                     <!-- 通道名 -->
@@ -82,13 +82,13 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope: TableColumn<ChannelWaterMarkDto>">
+                        <template #default="{ row }: TableColumn<ChannelWaterMarkDto>">
                             <el-select-v2
-                                v-model="scope.row.switch"
-                                :disabled="scope.row.disabled"
+                                v-model="row.switch"
+                                :disabled="row.disabled"
                                 :placeholder="Translate('IDCS_ON')"
                                 :options="pageData.options"
-                                @change="handleTableSwitchChange(scope.row)"
+                                @change="handleTableSwitchChange(row)"
                             />
                         </template>
                     </el-table-column>

@@ -15,8 +15,8 @@
                     label=" "
                     width="50"
                 >
-                    <template #default="scope: TableColumn<AlarmEventDto>">
-                        <BaseTableRowStatus :icon="scope.row.status" />
+                    <template #default="{ row }: TableColumn<AlarmEventDto>">
+                        <BaseTableRowStatus :icon="row.status" />
                     </template>
                 </el-table-column>
                 <!-- 通道名 -->
@@ -37,16 +37,16 @@
                             @confirm="changeSnap"
                         />
                     </template>
-                    <template #default="scope: TableColumn<AlarmEventDto>">
+                    <template #default="{ row, $index }: TableColumn<AlarmEventDto>">
                         <div class="base-cell-box">
                             <el-checkbox
-                                v-model="scope.row.snap.switch"
-                                :disabled="scope.row.disabled"
-                                @change="switchSnap(scope.$index)"
+                                v-model="row.snap.switch"
+                                :disabled="row.disabled"
+                                @change="switchSnap($index)"
                             />
                             <el-button
-                                :disabled="!scope.row.snap.switch || scope.row.disabled"
-                                @click="openSnap(scope.$index)"
+                                :disabled="!row.snap.switch || row.disabled"
+                                @click="openSnap($index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
@@ -76,11 +76,11 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<AlarmEventDto>">
+                    <template #default="{ row }: TableColumn<AlarmEventDto>">
                         <el-select-v2
-                            v-model="scope.row.sysAudio"
+                            v-model="row.sysAudio"
                             :options="pageData.audioList"
-                            :disabled="scope.row.disabled"
+                            :disabled="row.disabled"
                         />
                     </template>
                 </el-table-column>
@@ -104,10 +104,10 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<AlarmEventDto>">
+                    <template #default="{ row }: TableColumn<AlarmEventDto>">
                         <el-select-v2
-                            v-model="scope.row.msgPush"
-                            :disabled="scope.row.disabled"
+                            v-model="row.msgPush"
+                            :disabled="row.disabled"
                             :options="pageData.enableList"
                         />
                     </template>
@@ -122,16 +122,16 @@
                             @confirm="changeAlarmOut"
                         />
                     </template>
-                    <template #default="scope: TableColumn<AlarmEventDto>">
+                    <template #default="{ row, $index }: TableColumn<AlarmEventDto>">
                         <div class="base-cell-box">
                             <el-checkbox
-                                v-model="scope.row.alarmOut.switch"
-                                :disabled="scope.row.disabled"
-                                @change="switchAlarmOut(scope.$index)"
+                                v-model="row.alarmOut.switch"
+                                :disabled="row.disabled"
+                                @change="switchAlarmOut($index)"
                             />
                             <el-button
-                                :disabled="!scope.row.alarmOut.switch || scope.row.disabled"
-                                @click="openAlarmOut(scope.$index)"
+                                :disabled="!row.alarmOut.switch || row.disabled"
+                                @click="openAlarmOut($index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
@@ -144,16 +144,16 @@
                     width="195"
                     :label="Translate('IDCS_PRESET_NAME')"
                 >
-                    <template #default="scope: TableColumn<AlarmEventDto>">
+                    <template #default="{ row, $index }: TableColumn<AlarmEventDto>">
                         <div class="base-cell-box">
                             <el-checkbox
-                                v-model="scope.row.preset.switch"
-                                :disabled="scope.row.disabled"
-                                @change="switchPreset(scope.$index)"
+                                v-model="row.preset.switch"
+                                :disabled="row.disabled"
+                                @change="switchPreset($index)"
                             />
                             <el-button
-                                :disabled="!scope.row.preset.switch || scope.row.disabled"
-                                @click="openPreset(scope.$index)"
+                                :disabled="!row.preset.switch || row.disabled"
+                                @click="openPreset($index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
@@ -183,10 +183,10 @@
                         </template>
                     </el-dropdown>
                 </template>
-                <template #default="scope: TableColumn<AlarmEventDto>">
+                <template #default="{ row }: TableColumn<AlarmEventDto>">
                     <el-select-v2
-                        v-model="scope.row.ftpSnap"
-                        :disabled="scope.row.disabled"
+                        v-model="row.ftpSnap"
+                        :disabled="row.disabled"
                         :options="pageData.enableList"
                     />
                 </template>
@@ -211,11 +211,11 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<AlarmEventDto>">
+                    <template #default="{ row }: TableColumn<AlarmEventDto>">
                         <el-select-v2
-                            v-model="scope.row.beeper"
+                            v-model="row.beeper"
                             :options="pageData.enableList"
-                            :disabled="scope.row.disabled"
+                            :disabled="row.disabled"
                         />
                     </template>
                 </el-table-column>
@@ -239,11 +239,11 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<AlarmEventDto>">
+                    <template #default="{ row }: TableColumn<AlarmEventDto>">
                         <el-select-v2
-                            v-model="scope.row.videoPopupInfo.chl.value"
-                            :disabled="scope.row.disabled"
-                            :options="scope.row.videoPopupList"
+                            v-model="row.videoPopupInfo.chl.value"
+                            :disabled="row.disabled"
+                            :options="row.videoPopupList"
                         />
                     </template>
                 </el-table-column>
@@ -267,10 +267,10 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<AlarmEventDto>">
+                    <template #default="{ row }: TableColumn<AlarmEventDto>">
                         <el-select-v2
-                            v-model="scope.row.msgBoxPopup"
-                            :disabled="scope.row.disabled"
+                            v-model="row.msgBoxPopup"
+                            :disabled="row.disabled"
                             :options="pageData.enableList"
                         />
                     </template>
@@ -293,10 +293,10 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<AlarmEventDto>">
+                    <template #default="{ row }: TableColumn<AlarmEventDto>">
                         <el-select-v2
-                            v-model="scope.row.email"
-                            :disabled="scope.row.disabled"
+                            v-model="row.email"
+                            :disabled="row.disabled"
                             :options="pageData.enableList"
                         />
                     </template>

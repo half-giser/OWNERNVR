@@ -62,8 +62,8 @@
                     :label="Translate('IDCS_SERIAL_NUMBER')"
                     width="70"
                 >
-                    <template #default="scope: TableColumn<SystemLogList>">
-                        {{ (formData.currentPage - 1) * formData.pageSize + scope.$index + 1 }}
+                    <template #default="{ $index }: TableColumn<SystemLogList>">
+                        {{ (formData.currentPage - 1) * formData.pageSize + $index + 1 }}
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -109,15 +109,15 @@
                     width="425"
                     :label="Translate('IDCS_DETAIL_INFO')"
                 >
-                    <template #default="scope: TableColumn<SystemLogList>">
+                    <template #default="{ row, $index }: TableColumn<SystemLogList>">
                         <div class="detail-info">
-                            <div>{{ scope.row.content }}</div>
+                            <div>{{ row.content }}</div>
                             <BaseImgSprite
                                 file="detail"
                                 :index="0"
                                 :hover-index="1"
                                 :chunk="4"
-                                @click="showLogDetail(scope.$index)"
+                                @click="showLogDetail($index)"
                             />
                         </div>
                     </template>
@@ -126,14 +126,14 @@
                     :label="Translate('IDCS_PLAY')"
                     width="60"
                 >
-                    <template #default="scope: TableColumn<SystemLogList>">
+                    <template #default="{ row }: TableColumn<SystemLogList>">
                         <BaseImgSprite
-                            v-show="displayPlayIcon(scope.row)"
+                            v-show="displayPlayIcon(row)"
                             file="play (3)"
                             :index="0"
                             :hover-index="1"
                             :chunk="4"
-                            @click="playRec(scope.row)"
+                            @click="playRec(row)"
                         />
                     </template>
                 </el-table-column>

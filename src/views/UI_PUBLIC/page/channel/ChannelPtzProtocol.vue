@@ -103,8 +103,8 @@
                         label=" "
                         width="50"
                     >
-                        <template #default="scope: TableColumn<ChannelPtzProtocolDto>">
-                            <BaseTableRowStatus :icon="scope.row.status" />
+                        <template #default="{ row }: TableColumn<ChannelPtzProtocolDto>">
+                            <BaseTableRowStatus :icon="row.status" />
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -132,42 +132,42 @@
                             </el-dropdown>
                         </template>
 
-                        <template #default="scope: TableColumn<ChannelPtzProtocolDto>">
+                        <template #default="{ row }: TableColumn<ChannelPtzProtocolDto>">
                             <el-select-v2
-                                v-model="scope.row.ptz"
-                                :disabled="scope.row.disabled"
+                                v-model="row.ptz"
+                                :disabled="row.disabled"
                                 :options="pageData.ptzOptions"
                             />
                         </template>
                     </el-table-column>
 
                     <el-table-column :label="Translate('IDCS_PROTOCOL')">
-                        <template #default="scope: TableColumn<ChannelPtzProtocolDto>">
+                        <template #default="{ row }: TableColumn<ChannelPtzProtocolDto>">
                             <el-select-v2
-                                v-model="scope.row.protocol"
-                                :disabled="scope.row.disabled"
-                                :options="scope.row.protocolOptions"
+                                v-model="row.protocol"
+                                :disabled="row.disabled"
+                                :options="row.protocolOptions"
                             />
                         </template>
                     </el-table-column>
 
                     <el-table-column :label="Translate('IDCS_BAUD_RATE')">
-                        <template #default="scope: TableColumn<ChannelPtzProtocolDto>">
+                        <template #default="{ row }: TableColumn<ChannelPtzProtocolDto>">
                             <el-select-v2
-                                v-model="scope.row.baudRate"
-                                :disabled="scope.row.disabled"
-                                :options="scope.row.baudRateOptions"
+                                v-model="row.baudRate"
+                                :disabled="row.disabled"
+                                :options="row.baudRateOptions"
                             />
                         </template>
                     </el-table-column>
 
                     <el-table-column :label="Translate('IDCS_ADDRESS')">
-                        <template #default="scope: TableColumn<ChannelPtzProtocolDto>">
+                        <template #default="{ row }: TableColumn<ChannelPtzProtocolDto>">
                             <BaseNumberInput
-                                v-model="scope.row.address"
-                                :min="scope.row.addressMin"
-                                :max="scope.row.addressMax"
-                                :disabled="scope.row.disabled"
+                                v-model="row.address"
+                                :min="row.addressMin"
+                                :max="row.addressMax"
+                                :disabled="row.disabled"
                             />
                         </template>
                     </el-table-column>

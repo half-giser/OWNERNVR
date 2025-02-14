@@ -34,26 +34,26 @@
                 :data="tableData"
             >
                 <el-table-column :label="Translate('IDCS_ENABLE')">
-                    <template #default="scope: TableColumn<UserEditBlackAllowListForm>">
-                        {{ scope.row.switch ? Translate('IDCS_YES') : Translate('IDCS_NO') }}
+                    <template #default="{ row }: TableColumn<UserEditBlackAllowListForm>">
+                        {{ row.switch ? Translate('IDCS_YES') : Translate('IDCS_NO') }}
                     </template>
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_IP_MAC_ADDRESS')">
-                    <template #default="scope: TableColumn<UserEditBlackAllowListForm>">
-                        {{ formatIpMacAddress(scope.row) }}
+                    <template #default="{ row }: TableColumn<UserEditBlackAllowListForm>">
+                        {{ formatIpMacAddress(row) }}
                     </template>
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_EDIT')"
                     width="150"
                 >
-                    <template #default="scope: TableColumn<UserEditBlackAllowListForm>">
+                    <template #default="{ row, $index }: TableColumn<UserEditBlackAllowListForm>">
                         <BaseImgSprite
                             file="edit (2)"
                             :index="0"
                             :hover-index="1"
                             :chunk="4"
-                            @click.stop="openEditPop(scope.row, scope.$index)"
+                            @click.stop="openEditPop(row, $index)"
                         />
                     </template>
                 </el-table-column>
@@ -61,13 +61,13 @@
                     :label="Translate('IDCS_DELETE')"
                     width="150"
                 >
-                    <template #default="scope: TableColumn<UserEditBlackAllowListForm>">
+                    <template #default="{ $index }: TableColumn<UserEditBlackAllowListForm>">
                         <BaseImgSprite
                             file="del"
                             :index="0"
                             :hover-index="1"
                             :chunk="4"
-                            @click.stop="delItem(scope.$index)"
+                            @click.stop="delItem($index)"
                         />
                     </template>
                 </el-table-column>

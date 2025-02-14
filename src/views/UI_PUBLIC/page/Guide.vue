@@ -251,23 +251,23 @@
                                 prop="question"
                             />
                             <el-table-column :label="Translate('IDCS_ANSWER')">
-                                <template #default="scope: TableColumn<SystemGuideQuestionForm>">
-                                    <template v-if="!isDefeultQuestion || (isDefeultQuestion && !scope.row.answer)">******</template>
-                                    <template v-else>{{ scope.row.answer }}</template>
+                                <template #default="{ row }: TableColumn<SystemGuideQuestionForm>">
+                                    <template v-if="!isDefeultQuestion || (isDefeultQuestion && !row.answer)">******</template>
+                                    <template v-else>{{ row.answer }}</template>
                                 </template>
                             </el-table-column>
                             <el-table-column
                                 v-if="!isDefeultQuestion"
                                 :label="Translate('IDCS_DELETE')"
                             >
-                                <template #default="scope: TableColumn<SystemGuideQuestionForm>">
+                                <template #default="{ $index }: TableColumn<SystemGuideQuestionForm>">
                                     <BaseImgSprite
                                         file="del"
                                         :chunk="4"
                                         :index="0"
                                         :hover-index="1"
                                         :active-index="1"
-                                        @click="deleteQuestion(scope.$index)"
+                                        @click="deleteQuestion($index)"
                                     />
                                 </template>
                             </el-table-column>
@@ -313,10 +313,10 @@
                             prop="combinedStatus"
                         />
                         <el-table-column>
-                            <template #default="scope: TableColumn<SystemGuideDiskList>">
+                            <template #default="{ row, $index }: TableColumn<SystemGuideDiskList>">
                                 <el-button
-                                    :disabled="scope.row.diskStatus !== 'bad'"
-                                    @click="formatCurrentDisk(scope.$index)"
+                                    :disabled="row.diskStatus !== 'bad'"
+                                    @click="formatCurrentDisk($index)"
                                 >
                                     {{ Translate('IDCS_FORMATTING') }}
                                 </el-button>

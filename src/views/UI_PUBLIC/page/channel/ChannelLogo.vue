@@ -75,8 +75,8 @@
                         label=" "
                         width="50"
                     >
-                        <template #default="scope: TableColumn<ChannelLogoSetDto>">
-                            <BaseTableRowStatus :icon="scope.row.status" />
+                        <template #default="{ row }: TableColumn<ChannelLogoSetDto>">
+                            <BaseTableRowStatus :icon="row.status" />
                         </template>
                     </el-table-column>
                     <!-- 通道名 -->
@@ -105,22 +105,22 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope: TableColumn<ChannelLogoSetDto>">
+                        <template #default="{ row }: TableColumn<ChannelLogoSetDto>">
                             <el-select-v2
-                                v-model="scope.row.switch"
-                                :disabled="scope.row.disabled"
+                                v-model="row.switch"
+                                :disabled="row.disabled"
                                 :options="pageData.switchOptions"
                             />
                         </template>
                     </el-table-column>
                     <!-- 透明度 -->
                     <el-table-column :label="Translate('IDCS_TRANSPARENCY')">
-                        <template #default="scope: TableColumn<ChannelLogoSetDto>">
+                        <template #default="{ row }: TableColumn<ChannelLogoSetDto>">
                             <BaseNumberInput
-                                v-model="scope.row.opacity"
-                                :disabled="scope.row.disabled"
-                                :min="scope.row.minOpacity"
-                                :max="scope.row.maxOpacity"
+                                v-model="row.opacity"
+                                :disabled="row.disabled"
+                                :min="row.minOpacity"
+                                :max="row.maxOpacity"
                                 @keydown.enter="handleKeydownEnter($event)"
                             />
                         </template>

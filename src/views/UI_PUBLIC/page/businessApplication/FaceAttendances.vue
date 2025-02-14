@@ -138,8 +138,8 @@
         <div class="base-table-box">
             <el-table :data="sliceTableData">
                 <el-table-column :label="Translate('No.')">
-                    <template #default="scope: TableColumn<BusinessFaceAttendanceList>">
-                        {{ displayIndex(scope.$index) }}
+                    <template #default="{ $index }: TableColumn<BusinessFaceAttendanceList>">
+                        {{ displayIndex($index) }}
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -151,43 +151,43 @@
                     prop="groupName"
                 />
                 <el-table-column :label="Translate('IDCS_NORMAL')">
-                    <template #default="scope: TableColumn<BusinessFaceAttendanceList>">
-                        {{ displayStatus(scope.row.normal) }}
+                    <template #default="{ row }: TableColumn<BusinessFaceAttendanceList>">
+                        {{ displayStatus(row.normal) }}
                     </template>
                 </el-table-column>
 
                 <el-table-column :label="Translate('IDCS_LATE')">
-                    <template #default="scope: TableColumn<BusinessFaceAttendanceList>">
-                        {{ displayStatus(scope.row.late) }}
+                    <template #default="{ row }: TableColumn<BusinessFaceAttendanceList>">
+                        {{ displayStatus(row.late) }}
                     </template>
                 </el-table-column>
 
                 <el-table-column :label="Translate('IDCS_LEFT_EARLY')">
-                    <template #default="scope: TableColumn<BusinessFaceAttendanceList>">
-                        <span class="text-error">{{ displayStatus(scope.row.leftEarly) }}</span>
+                    <template #default="{ row }: TableColumn<BusinessFaceAttendanceList>">
+                        <span class="text-error">{{ displayStatus(row.leftEarly) }}</span>
                     </template>
                 </el-table-column>
 
                 <el-table-column :label="Translate('IDCS_ATTENDANCE_NONE')">
-                    <template #default="scope: TableColumn<BusinessFaceAttendanceList>">
-                        <span class="text-error">{{ displayStatus(scope.row.absenteeism) }}</span>
+                    <template #default="{ row }: TableColumn<BusinessFaceAttendanceList>">
+                        <span class="text-error">{{ displayStatus(row.absenteeism) }}</span>
                     </template>
                 </el-table-column>
 
                 <el-table-column :label="Translate('IDCS_ABNORMAL')">
-                    <template #default="scope: TableColumn<BusinessFaceAttendanceList>">
-                        {{ displayStatus(scope.row.abnormal) }}
+                    <template #default="{ row }: TableColumn<BusinessFaceAttendanceList>">
+                        {{ displayStatus(row.abnormal) }}
                     </template>
                 </el-table-column>
 
                 <el-table-column :label="Translate('IDCS_DETAIL')">
-                    <template #default="scope: TableColumn<BusinessFaceAttendanceList>">
+                    <template #default="{ $index }: TableColumn<BusinessFaceAttendanceList>">
                         <BaseImgSprite
                             file="edit (2)"
                             :index="0"
                             :hover-index="1"
                             :chunk="4"
-                            @click="showDetail(scope.$index)"
+                            @click="showDetail($index)"
                         />
                     </template>
                 </el-table-column>

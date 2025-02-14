@@ -17,8 +17,8 @@
                     width="270"
                     show-overflow-tooltip
                 >
-                    <template #default="scope: TableColumn<number>">
-                        {{ tableData[scope.$index].name }}
+                    <template #default="{ row }: TableColumn<number>">
+                        {{ tableData[row].name }}
                     </template>
                 </el-table-column>
                 <!-- 码流类型 -->
@@ -52,12 +52,12 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<number>">
+                    <template #default="{ row }: TableColumn<number>">
                         <el-select-v2
-                            v-model="tableData[scope.$index].videoEncodeType"
-                            :disabled="tableData[scope.$index].disabled"
-                            :options="tableData[scope.$index].subCaps.supEnct"
-                            @change="changeStreamType(scope.$index)"
+                            v-model="tableData[row].videoEncodeType"
+                            :disabled="tableData[row].disabled"
+                            :options="tableData[row].subCaps.supEnct"
+                            @change="changeStreamType(row)"
                         />
                     </template>
                 </el-table-column>
@@ -82,19 +82,19 @@
                                 :data="pageData.resolutionList"
                             >
                                 <el-table-column>
-                                    <template #default="scope: TableColumn<NetSubStreamResolutionList>">
+                                    <template #default="{ row, $index }: TableColumn<NetSubStreamResolutionList>">
                                         <el-select-v2
-                                            v-model="tableData[scope.$index].value"
-                                            :options="scope.row.resolution"
+                                            v-model="tableData[$index].value"
+                                            :options="row.resolution"
                                             @visible-change="handleResolutionVisibleChange"
                                         />
                                     </template>
                                 </el-table-column>
                                 <el-table-column type="expand">
-                                    <template #default="scope: TableColumn<NetSubStreamResolutionList>">
+                                    <template #default="{ row }: TableColumn<NetSubStreamResolutionList>">
                                         <div class="expand">
                                             <div
-                                                v-for="item in scope.row.chlsList"
+                                                v-for="item in row.chlsList"
                                                 :key="item.chlId"
                                             >
                                                 <BaseImgSprite
@@ -114,12 +114,12 @@
                             </div>
                         </el-popover>
                     </template>
-                    <template #default="scope: TableColumn<number>">
+                    <template #default="{ row }: TableColumn<number>">
                         <el-select-v2
-                            v-model="tableData[scope.$index].resolution"
-                            :disabled="tableData[scope.$index].disabled"
-                            :options="tableData[scope.$index].subCaps.res"
-                            @change="changeResolution(scope.$index)"
+                            v-model="tableData[row].resolution"
+                            :disabled="tableData[row].disabled"
+                            :options="tableData[row].subCaps.res"
+                            @change="changeResolution(row)"
                         />
                     </template>
                 </el-table-column>
@@ -147,18 +147,18 @@
                         </el-dropdown>
                     </template>
 
-                    <template #default="scope: TableColumn<number>">
+                    <template #default="{ row }: TableColumn<number>">
                         <el-select-v2
-                            v-if="!tableData[scope.$index].frameRate"
+                            v-if="!tableData[row].frameRate"
                             model-value=""
                             disabled
                             :options="[]"
                         />
                         <el-select-v2
                             v-else
-                            v-model="tableData[scope.$index].frameRate"
-                            :disabled="tableData[scope.$index].disabled"
-                            :options="getFpsOptions(scope.$index)"
+                            v-model="tableData[row].frameRate"
+                            :disabled="tableData[row].disabled"
+                            :options="getFpsOptions(row)"
                         />
                     </template>
                 </el-table-column>
@@ -186,14 +186,14 @@
                         </el-dropdown>
                     </template>
 
-                    <template #default="scope: TableColumn<number>">
-                        <el-text v-if="!tableData[scope.$index].subCaps.bitType.length">--</el-text>
+                    <template #default="{ row }: TableColumn<number>">
+                        <el-text v-if="!tableData[row].subCaps.bitType.length">--</el-text>
                         <el-select-v2
                             v-else
-                            v-model="tableData[scope.$index].bitType"
-                            :disabled="isBitTypeDisabled(scope.$index)"
-                            :options="arrayToOptions(tableData[scope.$index].subCaps.bitType)"
-                            @change="changeBitType(scope.$index)"
+                            v-model="tableData[row].bitType"
+                            :disabled="isBitTypeDisabled(row)"
+                            :options="arrayToOptions(tableData[row].subCaps.bitType)"
+                            @change="changeBitType(row)"
                         />
                     </template>
                 </el-table-column>
@@ -220,10 +220,10 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<number>">
+                    <template #default="{ row }: TableColumn<number>">
                         <el-select-v2
-                            v-model="tableData[scope.$index].level"
-                            :disabled="isLevelDisabled(scope.$index)"
+                            v-model="tableData[row].level"
+                            :disabled="isLevelDisabled(row)"
                             :options="pageData.levelList"
                         />
                     </template>
@@ -251,17 +251,17 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<number>">
+                    <template #default="{ row }: TableColumn<number>">
                         <el-select-v2
-                            v-if="isVideoQualityDisabled(scope.$index)"
-                            :model-value="tableData[scope.$index].videoQuality === 0 ? '' : tableData[scope.$index].videoQuality"
+                            v-if="isVideoQualityDisabled(row)"
+                            :model-value="tableData[row].videoQuality === 0 ? '' : tableData[row].videoQuality"
                             disabled
                             :options="[]"
                         />
                         <el-select-v2
                             v-else
-                            v-model="tableData[scope.$index].videoQuality"
-                            :options="getVideoQualityOptions(scope.$index)"
+                            v-model="tableData[row].videoQuality"
+                            :options="getVideoQualityOptions(row)"
                         />
                     </template>
                 </el-table-column>
@@ -271,7 +271,7 @@
                     width="200"
                     show-overflow-tooltip
                 >
-                    <template #default="scope: TableColumn<number>">{{ getBitRange(tableData[scope.$index]) }}</template>
+                    <template #default="{ row }: TableColumn<number>">{{ getBitRange(tableData[row]) }}</template>
                 </el-table-column>
                 <!-- GOP -->
                 <el-table-column
@@ -309,13 +309,13 @@
                             </el-form>
                         </el-popover>
                     </template>
-                    <template #default="scope: TableColumn<number>">
+                    <template #default="{ row }: TableColumn<number>">
                         <BaseNumberInput
-                            :model-value="isGOPDisabled(scope.$index) && tableData[scope.$index].GOP === 0 ? undefined : tableData[scope.$index].GOP"
+                            :model-value="isGOPDisabled(row) && tableData[row].GOP === 0 ? undefined : tableData[row].GOP"
                             :min="1"
                             :max="480"
-                            :disabled="isGOPDisabled(scope.$index)"
-                            @update:model-value="tableData[scope.$index].GOP = $event"
+                            :disabled="isGOPDisabled(row)"
+                            @update:model-value="tableData[row].GOP = $event"
                         />
                     </template>
                 </el-table-column>

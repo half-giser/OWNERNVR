@@ -44,15 +44,15 @@
                         :label="Translate('IDCS_EDIT')"
                         width="80"
                     >
-                        <template #default="scope: TableColumn<ScheduleDto>">
+                        <template #default="{ row }: TableColumn<ScheduleDto>">
                             <BaseImgSprite
-                                v-if="pageData.defaultSchedules.indexOf(scope.row.name)"
+                                v-if="pageData.defaultSchedules.indexOf(row.name)"
                                 file="edit (2)"
                                 :chunk="4"
                                 :index="0"
                                 :hover-index="1"
                                 :active-index="1"
-                                @click="openScheduleEditPop(scope.row)"
+                                @click="openScheduleEditPop(row)"
                             />
                         </template>
                     </el-table-column>
@@ -61,15 +61,15 @@
                         :label="Translate('IDCS_DELETE')"
                         width="80"
                     >
-                        <template #default="scope: TableColumn<ScheduleDto>">
+                        <template #default="{ row }: TableColumn<ScheduleDto>">
                             <BaseImgSprite
-                                v-if="pageData.defaultSchedules.indexOf(scope.row.name)"
+                                v-if="pageData.defaultSchedules.indexOf(row.name)"
                                 file="del"
                                 :chunk="4"
                                 :index="0"
                                 :hover-index="1"
                                 :active-index="1"
-                                @click="deleteSchedule(scope.row)"
+                                @click="deleteSchedule(row)"
                             />
                         </template>
                     </el-table-column>

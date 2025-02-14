@@ -317,29 +317,29 @@
                         v-if="formData.searchType === 'face'"
                         width="260"
                     >
-                        <template #default="scope: TableColumn<IntelSearchFaceList>">
+                        <template #default="{ row }: TableColumn<IntelSearchFaceList>">
                             <div
-                                v-if="scope.row.faceFeatureId === -1000"
+                                v-if="row.faceFeatureId === -1000"
                                 class="table-date"
                             >
-                                {{ displayDate(scope.row.timestamp) }}
+                                {{ displayDate(row.timestamp) }}
                             </div>
                             <div
                                 v-else
                                 class="table-pic"
                             >
-                                <img :src="scope.row.pic" />
-                                <img :src="scope.row.match" />
+                                <img :src="row.pic" />
+                                <img :src="row.match" />
                             </div>
                         </template>
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_SNAP_TIME')">
-                        <template #default="scope: TableColumn<IntelSearchFaceList>">
-                            {{ formData.searchType === 'event' ? displayDateTime(scope.row.timestamp) : displayTime(scope.row.timestamp) }}
+                        <template #default="{ row }: TableColumn<IntelSearchFaceList>">
+                            {{ formData.searchType === 'event' ? displayDateTime(row.timestamp) : displayTime(row.timestamp) }}
                         </template>
                     </el-table-column>
                     <el-table-column v-if="formData.searchType === 'face'">
-                        <template #default="scope: TableColumn<IntelSearchFaceList>"> {{ scope.row.info.name }} ({{ scope.row.similarity }}%) </template>
+                        <template #default="{ row }: TableColumn<IntelSearchFaceList>"> {{ row.info.name }} ({{ row.similarity }}%) </template>
                     </el-table-column>
                     <el-table-column
                         :label="Translate('IDCS_CHANNEL')"
@@ -349,13 +349,13 @@
                         width="100"
                         :label="Translate('IDCS_DETAIL_INFO')"
                     >
-                        <template #default="scope: TableColumn<IntelSearchFaceList>">
+                        <template #default="{ row }: TableColumn<IntelSearchFaceList>">
                             <BaseImgSprite
                                 file="browser"
                                 :index="0"
                                 :hover-index="1"
                                 :chunk="4"
-                                @click.stop="showDetail(scope.row)"
+                                @click.stop="showDetail(row)"
                             />
                         </template>
                     </el-table-column>

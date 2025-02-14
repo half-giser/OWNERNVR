@@ -34,13 +34,13 @@
                     prop="ip"
                 />
                 <el-table-column :label="Translate('IDCS_PREVIEW')">
-                    <template #default="scope: TableColumn<StorageModeChlList>">
+                    <template #default="{ row }: TableColumn<StorageModeChlList>">
                         <BaseImgSprite
                             file="play (3)"
                             :chunk="4"
                             :index="0"
                             :hover-index="1"
-                            @click="preview(scope.row)"
+                            @click="preview(row)"
                         />
                     </template>
                 </el-table-column>

@@ -101,8 +101,8 @@
                             />
                         </div>
                     </template>
-                    <template #default="scope: TableColumn<PlaybackSearchImgList>">
-                        {{ displayDateTime(scope.row.captureTimeStamp) }}
+                    <template #default="{ row }: TableColumn<PlaybackSearchImgList>">
+                        {{ displayDateTime(row.captureTimeStamp) }}
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -111,13 +111,13 @@
                     min-width="220"
                 />
                 <el-table-column :label="Translate('IDCS_BROWSE')">
-                    <template #default="scope: TableColumn<PlaybackSearchImgList>">
+                    <template #default="{ $index }: TableColumn<PlaybackSearchImgList>">
                         <BaseImgSprite
                             file="browser"
                             :index="0"
                             :hover-index="1"
                             :chunk="4"
-                            @click="browseImg(scope.$index)"
+                            @click="browseImg($index)"
                         />
                     </template>
                 </el-table-column>
@@ -135,13 +135,13 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<PlaybackSearchImgList>">
+                    <template #default="{ row }: TableColumn<PlaybackSearchImgList>">
                         <BaseImgSprite
                             file="export"
                             :index="0"
                             :hover-index="1"
                             :chunk="4"
-                            @click="exportImg(scope.row)"
+                            @click="exportImg(row)"
                         />
                     </template>
                 </el-table-column>
@@ -158,13 +158,13 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<PlaybackSearchImgList>">
+                    <template #default="{ row }: TableColumn<PlaybackSearchImgList>">
                         <BaseImgSprite
                             file="del"
                             :index="0"
                             :hover-index="1"
                             :chunk="4"
-                            @click="deleteImg(scope.row)"
+                            @click="deleteImg(row)"
                         />
                     </template>
                 </el-table-column>

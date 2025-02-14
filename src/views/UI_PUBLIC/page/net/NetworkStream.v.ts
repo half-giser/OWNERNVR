@@ -40,9 +40,7 @@ export default defineComponent({
         const tableData = ref<NetSubStreamList[]>([])
         const editRows = useWatchEditRows<NetSubStreamList>()
         const virtualTableData = computed<number[]>(() => {
-            return Array(tableData.value.length)
-                .fill(1)
-                .map((item, index) => item + index)
+            return [...Array(tableData.value.length).keys()]
         })
 
         /**

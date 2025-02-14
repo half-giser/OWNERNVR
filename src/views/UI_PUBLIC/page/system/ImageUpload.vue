@@ -34,8 +34,8 @@
                     :label="Translate('IDCS_SCHEDULE_TIMES')"
                     min-width="400"
                 >
-                    <template #default="scope: TableColumn<SystenSHDBImageUploadDto>">
-                        {{ Translate('IDCS_SCHEDULE_UPLOAD_PIC_TIMES').formatForLang(scope.row.timeCount) }}
+                    <template #default="{ row }: TableColumn<SystenSHDBImageUploadDto>">
+                        {{ Translate('IDCS_SCHEDULE_UPLOAD_PIC_TIMES').formatForLang(row.timeCount) }}
                     </template>
                 </el-table-column>
                 <!-- 清空 -->
@@ -44,14 +44,14 @@
                     :label="Translate('IDCS_CLEAR_ALL')"
                     width="110"
                 >
-                    <template #default="scope: TableColumn<SystenSHDBImageUploadDto>">
+                    <template #default="{ row }: TableColumn<SystenSHDBImageUploadDto>">
                         <BaseImgSprite
                             file="del"
                             :chunk="4"
                             :index="0"
                             :hover-index="1"
                             :active-index="1"
-                            @click="clearChannelAllTime(scope.row)"
+                            @click="clearChannelAllTime(row)"
                         />
                     </template>
                 </el-table-column>
@@ -61,10 +61,10 @@
                     :label="Translate('IDCS_EDIT')"
                     width="106"
                 >
-                    <template #default="scope: TableColumn<SystenSHDBImageUploadDto>">
+                    <template #default="{ row }: TableColumn<SystenSHDBImageUploadDto>">
                         <div class="expand">
                             <div
-                                v-for="(item, index) in scope.row.timelist"
+                                v-for="(item, index) in row.timelist"
                                 :key="item.value"
                                 class="expand-item"
                             >
@@ -72,7 +72,7 @@
                                 <BaseImgSprite
                                     file="delItem"
                                     class="expand-del"
-                                    @click="deleteTimeItem(scope.row, index)"
+                                    @click="deleteTimeItem(row, index)"
                                 />
                             </div>
                             <BaseImgSprite
@@ -80,7 +80,7 @@
                                 file="addItem"
                                 :index="0"
                                 :chunk="2"
-                                @click="openAddTimeDialog(scope.row)"
+                                @click="openAddTimeDialog(row)"
                             />
                         </div>
                     </template>

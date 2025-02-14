@@ -30,9 +30,9 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<SystemPoeList>">
+                    <template #default="{ row }: TableColumn<SystemPoeList>">
                         <el-select-v2
-                            v-model="scope.row.switch"
+                            v-model="row.switch"
                             :options="pageData.switchOptions"
                         />
                     </template>

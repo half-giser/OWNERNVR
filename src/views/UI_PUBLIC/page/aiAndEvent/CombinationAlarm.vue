@@ -16,8 +16,8 @@
                     label=" "
                     width="50"
                 >
-                    <template #default="scope: TableColumn<AlarmCombinedDto>">
-                        <BaseTableRowStatus :icon="scope.row.status" />
+                    <template #default="{ row }: TableColumn<AlarmCombinedDto>">
+                        <BaseTableRowStatus :icon="row.status" />
                     </template>
                 </el-table-column>
 
@@ -26,12 +26,12 @@
                     width="160"
                     :label="Translate('IDCS_NAME')"
                 >
-                    <template #default="scope: TableColumn<AlarmCombinedDto>">
+                    <template #default="{ row }: TableColumn<AlarmCombinedDto>">
                         <el-input
-                            v-model="scope.row.name"
+                            v-model="row.name"
                             maxlength="32"
-                            @focus="focusName(scope.row.name)"
-                            @blur="blurName(scope.row)"
+                            @focus="focusName(row.name)"
+                            @blur="blurName(row)"
                             @keyup.enter="keydownEnterName($event)"
                         />
                     </template>
@@ -42,15 +42,15 @@
                     :label="Translate('IDCS_COMBINATION_ALARM')"
                     width="180"
                 >
-                    <template #default="scope: TableColumn<AlarmCombinedDto>">
+                    <template #default="{ row }: TableColumn<AlarmCombinedDto>">
                         <div class="base-cell-box">
                             <el-checkbox
-                                v-model="scope.row.combinedAlarm.switch"
-                                @change="switchCombinedAlarm(scope.row)"
+                                v-model="row.combinedAlarm.switch"
+                                @change="switchCombinedAlarm(row)"
                             />
                             <el-button
-                                :disabled="!scope.row.combinedAlarm.switch"
-                                @click="openCombinedAlarmPop(scope.row)"
+                                :disabled="!row.combinedAlarm.switch"
+                                @click="openCombinedAlarmPop(row)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
@@ -68,15 +68,15 @@
                             @confirm="changeRecord"
                         />
                     </template>
-                    <template #default="scope: TableColumn<AlarmCombinedDto>">
+                    <template #default="{ row, $index }: TableColumn<AlarmCombinedDto>">
                         <div class="base-cell-box">
                             <el-checkbox
-                                v-model="scope.row.record.switch"
-                                @change="switchRecord(scope.$index)"
+                                v-model="row.record.switch"
+                                @change="switchRecord($index)"
                             />
                             <el-button
-                                :disabled="!scope.row.record.switch"
-                                @click="openRecord(scope.$index)"
+                                :disabled="!row.record.switch"
+                                @click="openRecord($index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
@@ -94,15 +94,15 @@
                             @confirm="changeSnap"
                         />
                     </template>
-                    <template #default="scope: TableColumn<AlarmCombinedDto>">
+                    <template #default="{ row, $index }: TableColumn<AlarmCombinedDto>">
                         <div class="base-cell-box">
                             <el-checkbox
-                                v-model="scope.row.snap.switch"
-                                @change="switchSnap(scope.$index)"
+                                v-model="row.snap.switch"
+                                @change="switchSnap($index)"
                             />
                             <el-button
-                                :disabled="!scope.row.snap.switch"
-                                @click="openSnap(scope.$index)"
+                                :disabled="!row.snap.switch"
+                                @click="openSnap($index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
@@ -133,9 +133,9 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<AlarmCombinedDto>">
+                    <template #default="{ row }: TableColumn<AlarmCombinedDto>">
                         <el-select-v2
-                            v-model="scope.row.sysAudio"
+                            v-model="row.sysAudio"
                             :options="pageData.audioList"
                         />
                     </template>
@@ -161,9 +161,9 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<AlarmCombinedDto>">
+                    <template #default="{ row }: TableColumn<AlarmCombinedDto>">
                         <el-select-v2
-                            v-model="scope.row.msgPush"
+                            v-model="row.msgPush"
                             :options="pageData.switchList"
                         />
                     </template>
@@ -179,15 +179,15 @@
                             @confirm="changeAlarmOut"
                         />
                     </template>
-                    <template #default="scope: TableColumn<AlarmCombinedDto>">
+                    <template #default="{ row, $index }: TableColumn<AlarmCombinedDto>">
                         <div class="base-cell-box">
                             <el-checkbox
-                                v-model="scope.row.alarmOut.switch"
-                                @change="switchAlarmOut(scope.$index)"
+                                v-model="row.alarmOut.switch"
+                                @change="switchAlarmOut($index)"
                             />
                             <el-button
-                                :disabled="!scope.row.alarmOut.switch"
-                                @click="openAlarmOut(scope.$index)"
+                                :disabled="!row.alarmOut.switch"
+                                @click="openAlarmOut($index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
@@ -200,15 +200,15 @@
                     :label="Translate('IDCS_PRESET_NAME')"
                     width="180"
                 >
-                    <template #default="scope: TableColumn<AlarmCombinedDto>">
+                    <template #default="{ row, $index }: TableColumn<AlarmCombinedDto>">
                         <div class="base-cell-box">
                             <el-checkbox
-                                v-model="scope.row.preset.switch"
-                                @change="switchPreset(scope.$index)"
+                                v-model="row.preset.switch"
+                                @change="switchPreset($index)"
                             />
                             <el-button
-                                :disabled="!scope.row.preset.switch"
-                                @click="openPreset(scope.$index)"
+                                :disabled="!row.preset.switch"
+                                @click="openPreset($index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
@@ -236,9 +236,9 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<AlarmCombinedDto>">
+                    <template #default="{ row }: TableColumn<AlarmCombinedDto>">
                         <el-select-v2
-                            v-model="scope.row.beeper"
+                            v-model="row.beeper"
                             :options="pageData.switchList"
                         />
                     </template>
@@ -264,9 +264,9 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<AlarmCombinedDto>">
+                    <template #default="{ row }: TableColumn<AlarmCombinedDto>">
                         <el-select-v2
-                            v-model="scope.row.popVideo.chl.value"
+                            v-model="row.popVideo.chl.value"
                             :options="pageData.videoPopupChlList"
                         />
                     </template>
@@ -292,9 +292,9 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<AlarmCombinedDto>">
+                    <template #default="{ row }: TableColumn<AlarmCombinedDto>">
                         <el-select-v2
-                            v-model="scope.row.msgBoxPopup"
+                            v-model="row.msgBoxPopup"
                             :options="pageData.switchList"
                         />
                     </template>
@@ -318,9 +318,9 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<AlarmCombinedDto>">
+                    <template #default="{ row }: TableColumn<AlarmCombinedDto>">
                         <el-select-v2
-                            v-model="scope.row.email"
+                            v-model="row.email"
                             :options="pageData.switchList"
                         />
                     </template>

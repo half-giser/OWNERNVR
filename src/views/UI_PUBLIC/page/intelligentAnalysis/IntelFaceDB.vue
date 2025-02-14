@@ -21,32 +21,32 @@
                     type="index"
                 />
                 <el-table-column :label="Translate('IDCS_GROUP')">
-                    <template #default="scope: TableColumn<IntelFaceDBGroupList>"> {{ scope.row.name }} ({{ scope.row.count }}) </template>
+                    <template #default="{ row }: TableColumn<IntelFaceDBGroupList>"> {{ row.name }} ({{ row.count }}) </template>
                 </el-table-column>
                 <el-table-column>
-                    <!-- <template #default="scope: TableColumn<IntelFaceDBGroupList>">
-                        <div :class="getAlarmClassName(scope.row.id, scope.row.property)">{{ displayAlarmText(scope.row.property) }}</div>
+                    <!-- <template #default="{ row }: TableColumn<IntelFaceDBGroupList>">
+                        <div :class="getAlarmClassName(row.id, row.property)">{{ displayAlarmText(row.property) }}</div>
                     </template> -->
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_EDIT')">
-                    <template #default="scope: TableColumn<IntelFaceDBGroupList>">
+                    <template #default="{ row }: TableColumn<IntelFaceDBGroupList>">
                         <BaseImgSprite
                             file="edit (2)"
                             :index="0"
                             :hover-index="1"
                             :chunk="4"
-                            @click="editGroup(scope.row)"
+                            @click="editGroup(row)"
                         />
                     </template>
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_DELETE')">
-                    <template #default="scope: TableColumn<IntelFaceDBGroupList>">
+                    <template #default="{ row }: TableColumn<IntelFaceDBGroupList>">
                         <BaseImgSprite
                             file="del"
                             :index="0"
                             :hover-index="1"
                             :chunk="4"
-                            @click="deleteGroup(scope.row)"
+                            @click="deleteGroup(row)"
                         />
                     </template>
                 </el-table-column>
@@ -55,16 +55,16 @@
                     type="expand"
                     :width="200"
                 >
-                    <template #default="scope: TableColumn<IntelFaceDBGroupList>">
+                    <template #default="{ row }: TableColumn<IntelFaceDBGroupList>">
                         <div
-                            v-if="pageData.expandRowKey.includes(scope.row.groupId)"
+                            v-if="pageData.expandRowKey.includes(row.groupId)"
                             class="expand"
                         >
                             <div class="expand-btns">
-                                <el-button @click="addFace(scope.row.groupId)">{{ Translate('IDCS_ADD') }}</el-button>
+                                <el-button @click="addFace(row.groupId)">{{ Translate('IDCS_ADD') }}</el-button>
                                 <el-button
                                     :disabled="!formData.faceIndex.length"
-                                    @click="editFace(scope.row.groupId)"
+                                    @click="editFace(row.groupId)"
                                 >
                                     {{ Translate('IDCS_CHANGE') }}
                                 </el-button>
@@ -91,7 +91,7 @@
                                     v-model="formData.name"
                                     :placeholder="Translate('IDCS_SEARCH_TARGET_PERSON')"
                                 />
-                                <el-button @click="searchFace(scope.row.groupId)">{{ Translate('IDCS_SEARCH') }}</el-button>
+                                <el-button @click="searchFace(row.groupId)">{{ Translate('IDCS_SEARCH') }}</el-button>
                             </div>
                             <div class="expand-content">
                                 <div class="expand-list">
@@ -111,8 +111,8 @@
                                             v-model:current-page="formData.pageIndex"
                                             v-model:page-size="pageData.pageSize"
                                             :page-sizes="[pageData.pageSize]"
-                                            :total="scope.row.count"
-                                            @current-change="changeFacePage($event, scope.row.groupId)"
+                                            :total="row.count"
+                                            @current-change="changeFacePage($event, row.groupId)"
                                         />
                                     </div>
                                 </div>

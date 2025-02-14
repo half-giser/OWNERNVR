@@ -21,27 +21,27 @@
                     width="300"
                 />
                 <el-table-column label="dwellTime">
-                    <template #default="scope: TableColumn<ChannelGroupDto>">
-                        {{ formatDwellTime(scope.row.dwellTime) }}
+                    <template #default="{ row }: TableColumn<ChannelGroupDto>">
+                        {{ formatDwellTime(row.dwellTime) }}
                     </template>
                 </el-table-column>
                 <el-table-column label="chlCount">
-                    <template #default="scope: TableColumn<ChannelGroupDto>">
-                        {{ Translate('IDCS_CHANNEL_NUM_D').formatForLang(scope.row.chlCount) }}
+                    <template #default="{ row }: TableColumn<ChannelGroupDto>">
+                        {{ Translate('IDCS_CHANNEL_NUM_D').formatForLang(row.chlCount) }}
                     </template>
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_EDIT')"
                     width="60"
                 >
-                    <template #default="scope: TableColumn<ChannelGroupDto>">
+                    <template #default="{ row }: TableColumn<ChannelGroupDto>">
                         <BaseImgSprite
                             file="edit (2)"
                             :chunk="4"
                             :index="0"
                             :hover-index="1"
                             :active-index="1"
-                            @click="handleEditChlGroup(scope.row)"
+                            @click="handleEditChlGroup(row)"
                         />
                     </template>
                 </el-table-column>
@@ -49,14 +49,14 @@
                     :label="Translate('IDCS_DELETE')"
                     width="60"
                 >
-                    <template #default="scope: TableColumn<ChannelGroupDto>">
+                    <template #default="{ row }: TableColumn<ChannelGroupDto>">
                         <BaseImgSprite
                             file="del"
                             :chunk="4"
                             :index="0"
                             :hover-index="1"
                             :active-index="1"
-                            @click="handleDelChlGroup(scope.row)"
+                            @click="handleDelChlGroup(row)"
                         />
                     </template>
                 </el-table-column>
@@ -64,13 +64,13 @@
                     type="expand"
                     width="100"
                 >
-                    <template #default="scope: TableColumn<ChannelGroupDto>">
-                        <ChannelPtzTableExpandPanel @add="handleAddChl(scope.row)">
+                    <template #default="{ row }: TableColumn<ChannelGroupDto>">
+                        <ChannelPtzTableExpandPanel @add="handleAddChl(row)">
                             <ChannelPtzTableExpandItem
-                                v-for="item in scope.row.chls"
+                                v-for="item in row.chls"
                                 :key="String(item.value)"
                                 :text="String(item.text)"
-                                @delete="handleDelChl(scope.row, item.value)"
+                                @delete="handleDelChl(row, item.value)"
                             />
                         </ChannelPtzTableExpandPanel>
                     </template>

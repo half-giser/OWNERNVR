@@ -56,8 +56,8 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<DiskManagememtList>">
-                        <el-button @click="formatCurrentDisk(scope.$index)">{{ Translate('IDCS_FORMATTING') }}</el-button>
+                    <template #default="{ $index }: TableColumn<DiskManagememtList>">
+                        <el-button @click="formatCurrentDisk($index)">{{ Translate('IDCS_FORMATTING') }}</el-button>
                     </template>
                 </el-table-column>
             </el-table>

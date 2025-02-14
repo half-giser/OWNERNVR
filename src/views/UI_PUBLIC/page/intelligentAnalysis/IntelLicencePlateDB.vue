@@ -21,28 +21,28 @@
                     type="index"
                 />
                 <el-table-column :label="Translate('IDCS_GROUP')">
-                    <template #default="scope: TableColumn<IntelPlateDBGroupList>"> {{ scope.row.name }} ({{ scope.row.plateNum }}) </template>
+                    <template #default="{ row }: TableColumn<IntelPlateDBGroupList>"> {{ row.name }} ({{ row.plateNum }}) </template>
                 </el-table-column>
                 <el-table-column />
                 <el-table-column :label="Translate('IDCS_EDIT')">
-                    <template #default="scope: TableColumn<IntelPlateDBGroupList>">
+                    <template #default="{ row }: TableColumn<IntelPlateDBGroupList>">
                         <BaseImgSprite
                             file="edit (2)"
                             :index="0"
                             :hover-index="1"
                             :chunk="4"
-                            @click="editGroup(scope.row)"
+                            @click="editGroup(row)"
                         />
                     </template>
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_DELETE')">
-                    <template #default="scope: TableColumn<IntelPlateDBGroupList>">
+                    <template #default="{ row }: TableColumn<IntelPlateDBGroupList>">
                         <BaseImgSprite
                             file="del"
                             :index="0"
                             :hover-index="1"
                             :chunk="4"
-                            @click="deleteGroup(scope.row)"
+                            @click="deleteGroup(row)"
                         />
                     </template>
                 </el-table-column>
@@ -51,9 +51,9 @@
                     type="expand"
                     :width="200"
                 >
-                    <template #default="scope: TableColumn<IntelPlateDBGroupList>">
+                    <template #default="{ row }: TableColumn<IntelPlateDBGroupList>">
                         <div
-                            v-if="pageData.expandRowKey.includes(scope.row.id)"
+                            v-if="pageData.expandRowKey.includes(row.id)"
                             class="expand"
                         >
                             <div class="base-btn-box form">
@@ -62,10 +62,10 @@
                                     class="search"
                                     :placeholder="Translate('IDCS_SEARCH_TARGET_LICENSE_PLATE')"
                                     @focus="handleNameFocus"
-                                    @blur="searchPlate(scope.row.id)"
-                                    @keydown.enter="searchPlate(scope.row.id)"
+                                    @blur="searchPlate(row.id)"
+                                    @keydown.enter="searchPlate(row.id)"
                                 />
-                                <el-button @click="addPlate(scope.row.id)">{{ Translate('IDCS_ADD_LICENSE_PLATE') }}</el-button>
+                                <el-button @click="addPlate(row.id)">{{ Translate('IDCS_ADD_LICENSE_PLATE') }}</el-button>
                             </div>
                             <el-table
                                 :data="groupTableData"
@@ -74,7 +74,7 @@
                                 @row-click="handleExpandRowClick"
                             >
                                 <el-table-column :label="Translate('IDCS_LICENSE_PLATE_NUM')">
-                                    <template #default="data">
+                                    <template #default="data: TableColumn<IntelPlateDBPlateInfo>">
                                         {{ displayPlateNumber(data.row) }}
                                     </template>
                                 </el-table-column>
@@ -83,17 +83,17 @@
                                     prop="vehicleType"
                                 />
                                 <el-table-column :label="Translate('IDCS_VEHICLE_OWNER')">
-                                    <template #default="data">
+                                    <template #default="data: TableColumn<IntelPlateDBPlateInfo>">
                                         {{ displayOwner(data.row) }}
                                     </template>
                                 </el-table-column>
                                 <el-table-column :label="Translate('IDCS_PHONE_NUMBER')">
-                                    <template #default="data">
+                                    <template #default="data: TableColumn<IntelPlateDBPlateInfo>">
                                         {{ displayPhone(data.row) }}
                                     </template>
                                 </el-table-column>
                                 <el-table-column :label="Translate('IDCS_EDIT')">
-                                    <template #default="data">
+                                    <template #default="data: TableColumn<IntelPlateDBPlateInfo>">
                                         <BaseImgSprite
                                             file="edit (2)"
                                             :index="0"
@@ -104,7 +104,7 @@
                                     </template>
                                 </el-table-column>
                                 <el-table-column :label="Translate('IDCS_DELETE')">
-                                    <template #default="data">
+                                    <template #default="data: TableColumn<IntelPlateDBPlateInfo>">
                                         <BaseImgSprite
                                             file="del"
                                             :index="0"
@@ -121,8 +121,8 @@
                                     v-model:page-size="formData.pageSize"
                                     :page-sizes="[15, 20, 30]"
                                     :total="formData.total"
-                                    @current-change="changePlatePage($event, scope.row.id)"
-                                    @size-change="changePlatePageSize($event, scope.row.id)"
+                                    @current-change="changePlatePage($event, row.id)"
+                                    @size-change="changePlatePageSize($event, row.id)"
                                 />
                             </div>
                         </div>

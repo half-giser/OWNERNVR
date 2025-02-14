@@ -121,8 +121,8 @@
                             :label="Translate('IDCS_SERIAL_NUMBER')"
                             min-width="50"
                         >
-                            <template #default="scope: TableColumn<PlaybackRecLogList>">
-                                {{ displayIndex(scope.$index) }}
+                            <template #default="{ $index }: TableColumn<PlaybackRecLogList>">
+                                {{ displayIndex($index) }}
                             </template>
                         </el-table-column>
                         <el-table-column type="selection" />
@@ -135,11 +135,11 @@
                             :label="Translate('IDCS_TYPE')"
                             min-width="100"
                         >
-                            <template #default="scope: TableColumn<PlaybackRecLogList>">
-                                <el-text>{{ displayEvent(scope.row) }}</el-text>
+                            <template #default="{ row }: TableColumn<PlaybackRecLogList>">
+                                <el-text>{{ displayEvent(row) }}</el-text>
                                 <BaseImgSprite
-                                    v-if="displayEventIcon(scope.row)"
-                                    :file="scope.row.event"
+                                    v-if="displayEventIcon(row)"
+                                    :file="row.event"
                                 />
                             </template>
                         </el-table-column>
@@ -147,16 +147,16 @@
                             :label="Translate('IDCS_START_TIME')"
                             min-width="150"
                         >
-                            <template #default="scope: TableColumn<PlaybackRecLogList>">
-                                {{ displayDateTime(scope.row.startTime) }}
+                            <template #default="{ row }: TableColumn<PlaybackRecLogList>">
+                                {{ displayDateTime(row.startTime) }}
                             </template>
                         </el-table-column>
                         <el-table-column
                             :label="Translate('IDCS_END_TIME')"
                             min-width="150"
                         >
-                            <template #default="scope: TableColumn<PlaybackRecLogList>">
-                                {{ displayDateTime(scope.row.endTime) }}
+                            <template #default="{ row }: TableColumn<PlaybackRecLogList>">
+                                {{ displayDateTime(row.endTime) }}
                             </template>
                         </el-table-column>
                         <el-table-column
@@ -170,25 +170,25 @@
                             min-width="100"
                         />
                         <el-table-column :label="Translate('IDCS_PLAY')">
-                            <template #default="scope: TableColumn<PlaybackRecLogList>">
+                            <template #default="{ row }: TableColumn<PlaybackRecLogList>">
                                 <BaseImgSprite
                                     file="play (3)"
                                     :index="0"
                                     :hover-index="1"
                                     :chunk="4"
-                                    @click.stop="playRec(scope.row)"
+                                    @click.stop="playRec(row)"
                                 />
                             </template>
                         </el-table-column>
                         <el-table-column :label="Translate('IDCS_INFORMATION')">
-                            <template #default="scope: TableColumn<PlaybackRecLogList>">
+                            <template #default="{ row }: TableColumn<PlaybackRecLogList>">
                                 <BaseImgSprite
-                                    v-if="scope.row.event === 'POS'"
+                                    v-if="row.event === 'POS'"
                                     file="detail"
                                     :index="0"
                                     :hover-index="1"
                                     :chunk="4"
-                                    @click="showPosInfo(scope.row)"
+                                    @click="showPosInfo(row)"
                                 />
                                 <el-text v-else>--</el-text>
                             </template>

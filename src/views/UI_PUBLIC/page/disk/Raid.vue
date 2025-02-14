@@ -33,37 +33,37 @@
                 prop="spareHard"
             />
             <el-table-column :label="Translate('IDCS_STATE')">
-                <template #default="scope: TableColumn<DiskRaidList>">
-                    {{ displayRaidState(scope.row.raidState) }}
+                <template #default="{ row }: TableColumn<DiskRaidList>">
+                    {{ displayRaidState(row.raidState) }}
                 </template>
             </el-table-column>
 
             <el-table-column :label="Translate('IDCS_TYPE')">
-                <template #default="scope: TableColumn<DiskRaidList>">
-                    {{ displayRaidType(scope.row.raidType) }}
+                <template #default="{ row }: TableColumn<DiskRaidList>">
+                    {{ displayRaidType(row.raidType) }}
                 </template>
             </el-table-column>
             <el-table-column :label="Translate('IDCS_REPAIR')">
-                <template #default="scope: TableColumn<DiskRaidList>">
+                <template #default="{ row, $index }: TableColumn<DiskRaidList>">
                     <BaseImgSprite
                         file="repair"
                         :index="0"
                         :hover-index="1"
                         :disabled-index="3"
-                        :disabled="scope.row.raidState !== 'downgrade'"
+                        :disabled="row.raidState !== 'downgrade'"
                         :chunk="4"
-                        @click="rebuildRaid(scope.row, scope.$index)"
+                        @click="rebuildRaid(row, $index)"
                     />
                 </template>
             </el-table-column>
             <el-table-column :label="Translate('IDCS_DELETE')">
-                <template #default="scope: TableColumn<DiskRaidList>">
+                <template #default="{ row, $index }: TableColumn<DiskRaidList>">
                     <BaseImgSprite
                         file="del"
                         :index="0"
                         :hover-index="1"
                         :chunk="4"
-                        @click="deleteRaid(scope.row, scope.$index)"
+                        @click="deleteRaid(row, $index)"
                     />
                 </template>
             </el-table-column>

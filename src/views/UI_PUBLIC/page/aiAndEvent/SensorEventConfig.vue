@@ -15,8 +15,8 @@
                     label=" "
                     width="50"
                 >
-                    <template #default="scope: TableColumn<AlarmSensorEventDto>">
-                        <BaseTableRowStatus :icon="scope.row.status" />
+                    <template #default="{ row }: TableColumn<AlarmSensorEventDto>">
+                        <BaseTableRowStatus :icon="row.status" />
                     </template>
                 </el-table-column>
 
@@ -33,13 +33,13 @@
                     width="150"
                     :label="Translate('IDCS_NAME')"
                 >
-                    <template #default="scope: TableColumn<AlarmSensorEventDto>">
+                    <template #default="{ row }: TableColumn<AlarmSensorEventDto>">
                         <el-input
-                            v-model="scope.row.name"
+                            v-model="row.name"
                             maxlength="32"
-                            :disabled="scope.row.disabled"
-                            @focus="focusName(scope.row.name)"
-                            @blur="blurName(scope.row)"
+                            :disabled="row.disabled"
+                            @focus="focusName(row.name)"
+                            @blur="blurName(row)"
                             @keyup.enter="blurInput"
                         />
                     </template>
@@ -65,12 +65,12 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<AlarmSensorEventDto>">
+                    <template #default="{ row }: TableColumn<AlarmSensorEventDto>">
                         <el-select-v2
-                            v-model="scope.row.schedule"
-                            :disabled="scope.row.disabled"
+                            v-model="row.schedule"
+                            :disabled="row.disabled"
                             :options="pageData.scheduleList"
-                            @change="changeSchedule(scope.row)"
+                            @change="changeSchedule(row)"
                         />
                     </template>
                 </el-table-column>
@@ -95,11 +95,11 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<AlarmSensorEventDto>">
+                    <template #default="{ row }: TableColumn<AlarmSensorEventDto>">
                         <el-select-v2
-                            v-model="scope.row.type"
+                            v-model="row.type"
                             :options="pageData.typeList"
-                            :disabled="!scope.row.type || scope.row.alarmInType === 'virtual' || !scope.row.isEditable || scope.row.disabled"
+                            :disabled="!row.type || row.alarmInType === 'virtual' || !row.isEditable || row.disabled"
                         />
                     </template>
                 </el-table-column>
@@ -124,11 +124,11 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<AlarmSensorEventDto>">
+                    <template #default="{ row }: TableColumn<AlarmSensorEventDto>">
                         <el-select-v2
-                            v-model="scope.row.switch"
+                            v-model="row.switch"
                             :options="pageData.switchList"
-                            :disabled="scope.row.disabled || !scope.row.switch || !scope.row.isEditable"
+                            :disabled="row.disabled || !row.switch || !row.isEditable"
                         />
                     </template>
                 </el-table-column>
@@ -153,11 +153,11 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<AlarmSensorEventDto>">
+                    <template #default="{ row }: TableColumn<AlarmSensorEventDto>">
                         <el-select-v2
-                            v-model="scope.row.holdTime"
+                            v-model="row.holdTime"
                             :options="pageData.durationList"
-                            :disabled="scope.row.disabled || !scope.row.holdTime || !scope.row.isEditable"
+                            :disabled="row.disabled || !row.holdTime || !row.isEditable"
                         />
                     </template>
                 </el-table-column>
@@ -172,16 +172,16 @@
                             @confirm="changeRecord"
                         />
                     </template>
-                    <template #default="scope: TableColumn<AlarmSensorEventDto>">
+                    <template #default="{ row, $index }: TableColumn<AlarmSensorEventDto>">
                         <div class="base-cell-box">
                             <el-checkbox
-                                v-model="scope.row.record.switch"
-                                :disabled="scope.row.disabled"
-                                @change="switchRecord(scope.$index)"
+                                v-model="row.record.switch"
+                                :disabled="row.disabled"
+                                @change="switchRecord($index)"
                             />
                             <el-button
-                                :disabled="!scope.row.record.switch || scope.row.disabled"
-                                @click="openRecord(scope.$index)"
+                                :disabled="!row.record.switch || row.disabled"
+                                @click="openRecord($index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
@@ -199,16 +199,16 @@
                             @confirm="changeSnap"
                         />
                     </template>
-                    <template #default="scope: TableColumn<AlarmSensorEventDto>">
+                    <template #default="{ row, $index }: TableColumn<AlarmSensorEventDto>">
                         <div class="base-cell-box">
                             <el-checkbox
-                                v-model="scope.row.snap.switch"
-                                :disabled="scope.row.disabled"
-                                @change="switchSnap(scope.$index)"
+                                v-model="row.snap.switch"
+                                :disabled="row.disabled"
+                                @change="switchSnap($index)"
                             />
                             <el-button
-                                :disabled="!scope.row.snap.switch || scope.row.disabled"
-                                @click="openSnap(scope.$index)"
+                                :disabled="!row.snap.switch || row.disabled"
+                                @click="openSnap($index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
@@ -239,11 +239,11 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<AlarmSensorEventDto>">
+                    <template #default="{ row }: TableColumn<AlarmSensorEventDto>">
                         <el-select-v2
-                            v-model="scope.row.sysAudio"
+                            v-model="row.sysAudio"
                             :options="pageData.audioList"
-                            :disabled="scope.row.disabled"
+                            :disabled="row.disabled"
                         />
                     </template>
                 </el-table-column>
@@ -268,10 +268,10 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<AlarmSensorEventDto>">
+                    <template #default="{ row }: TableColumn<AlarmSensorEventDto>">
                         <el-select-v2
-                            v-model="scope.row.msgPushSwitch"
-                            :disabled="scope.row.disabled"
+                            v-model="row.msgPushSwitch"
+                            :disabled="row.disabled"
                             :options="pageData.switchList"
                         />
                     </template>
@@ -287,16 +287,16 @@
                             @confirm="changeAlarmOut"
                         />
                     </template>
-                    <template #default="scope: TableColumn<AlarmSensorEventDto>">
+                    <template #default="{ row, $index }: TableColumn<AlarmSensorEventDto>">
                         <div class="base-cell-box">
                             <el-checkbox
-                                v-model="scope.row.alarmOut.switch"
-                                :disabled="scope.row.disabled"
-                                @change="switchAlarmOut(scope.$index)"
+                                v-model="row.alarmOut.switch"
+                                :disabled="row.disabled"
+                                @change="switchAlarmOut($index)"
                             />
                             <el-button
-                                :disabled="!scope.row.alarmOut.switch || scope.row.disabled"
-                                @click="openAlarmOut(scope.$index)"
+                                :disabled="!row.alarmOut.switch || row.disabled"
+                                @click="openAlarmOut($index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
@@ -309,16 +309,16 @@
                     :label="Translate('IDCS_PRESET_NAME')"
                     width="180"
                 >
-                    <template #default="scope: TableColumn<AlarmSensorEventDto>">
+                    <template #default="{ row, $index }: TableColumn<AlarmSensorEventDto>">
                         <div class="base-cell-box">
                             <el-checkbox
-                                v-model="scope.row.preset.switch"
-                                :disabled="scope.row.disabled"
-                                @change="switchPreset(scope.$index)"
+                                v-model="row.preset.switch"
+                                :disabled="row.disabled"
+                                @change="switchPreset($index)"
                             />
                             <el-button
-                                :disabled="!scope.row.preset.switch || scope.row.disabled"
-                                @click="openPreset(scope.$index)"
+                                :disabled="!row.preset.switch || row.disabled"
+                                @click="openPreset($index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
@@ -346,10 +346,10 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<AlarmSensorEventDto>">
+                    <template #default="{ row }: TableColumn<AlarmSensorEventDto>">
                         <el-select-v2
-                            v-model="scope.row.buzzerSwitch"
-                            :disabled="scope.row.disabled"
+                            v-model="row.buzzerSwitch"
+                            :disabled="row.disabled"
                             :options="pageData.switchList"
                         />
                     </template>
@@ -375,10 +375,10 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<AlarmSensorEventDto>">
+                    <template #default="{ row }: TableColumn<AlarmSensorEventDto>">
                         <el-select-v2
-                            v-model="scope.row.popVideo.chl.id"
-                            :disabled="scope.row.disabled"
+                            v-model="row.popVideo.chl.id"
+                            :disabled="row.disabled"
                             :options="pageData.videoPopupChlList"
                         />
                     </template>
@@ -404,10 +404,10 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<AlarmSensorEventDto>">
+                    <template #default="{ row }: TableColumn<AlarmSensorEventDto>">
                         <el-select-v2
-                            v-model="scope.row.popMsgSwitch"
-                            :disabled="scope.row.disabled"
+                            v-model="row.popMsgSwitch"
+                            :disabled="row.disabled"
                             :options="pageData.switchList"
                         />
                     </template>
@@ -430,10 +430,10 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<AlarmSensorEventDto>">
+                    <template #default="{ row }: TableColumn<AlarmSensorEventDto>">
                         <el-select-v2
-                            v-model="scope.row.emailSwitch"
-                            :disabled="scope.row.disabled"
+                            v-model="row.emailSwitch"
+                            :disabled="row.disabled"
                             :options="pageData.switchList"
                         />
                     </template>

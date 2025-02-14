@@ -36,11 +36,11 @@
                     prop="chlName"
                 />
                 <el-table-column :label="Translate('IDCS_START_TIME')">
-                    <template #default="scope: TableColumn<PlaybackRecLogList>">{{ displayTime(scope.row.startTime) }}</template>
+                    <template #default="{ row }: TableColumn<PlaybackRecLogList>">{{ displayTime(row.startTime) }}</template>
                 </el-table-column>
 
                 <el-table-column :label="Translate('IDCS_END_TIME')">
-                    <template #default="scope: TableColumn<PlaybackRecLogList>">{{ displayTime(scope.row.endTime) }}</template>
+                    <template #default="{ row }: TableColumn<PlaybackRecLogList>">{{ displayTime(row.endTime) }}</template>
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_EVENT_TYPE')">
                     <template #header>
@@ -83,11 +83,11 @@
                         </el-popover>
                     </template>
 
-                    <template #default="scope: TableColumn<PlaybackRecLogList>">
-                        <el-text>{{ displayEvent(scope.row) }}</el-text>
+                    <template #default="{ row }: TableColumn<PlaybackRecLogList>">
+                        <el-text>{{ displayEvent(row) }}</el-text>
                         <BaseImgSprite
-                            v-show="displayEventIcon(scope.row)"
-                            :file="[scope.row.event, scope.row.recSubType].includes('SMDHUMAN') ? 'SMDHUMAN' : 'SMDVEHICLE'"
+                            v-show="displayEventIcon(row)"
+                            :file="[row.event, row.recSubType].includes('SMDHUMAN') ? 'SMDHUMAN' : 'SMDVEHICLE'"
                         />
                     </template>
                 </el-table-column>
@@ -97,13 +97,13 @@
                 />
 
                 <el-table-column :label="Translate('IDCS_PLAY')">
-                    <template #default="scope: TableColumn<PlaybackRecLogList>">
+                    <template #default="{ row }: TableColumn<PlaybackRecLogList>">
                         <BaseImgSprite
                             file="play (3)"
                             :index="0"
                             :hover-index="1"
                             :chunk="4"
-                            @click="play(scope.row)"
+                            @click="play(row)"
                         />
                     </template>
                 </el-table-column>
@@ -112,13 +112,13 @@
                     v-show="!isMac"
                     :label="Translate('IDCS_DOWNLOAD')"
                 >
-                    <template #default="scope: TableColumn<PlaybackRecLogList>">
+                    <template #default="{ row }: TableColumn<PlaybackRecLogList>">
                         <BaseImgSprite
                             file="download"
                             :index="0"
                             :hover-index="1"
                             :chunk="4"
-                            @click="download(scope.row)"
+                            @click="download(row)"
                         />
                     </template>
                 </el-table-column>

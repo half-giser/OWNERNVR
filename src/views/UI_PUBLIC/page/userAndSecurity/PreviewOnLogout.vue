@@ -69,9 +69,9 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope: TableColumn<UserPreviewOnLogoutChannelList>">
+                        <template #default="{ row }: TableColumn<UserPreviewOnLogoutChannelList>">
                             <el-select-v2
-                                v-model="scope.row.switch"
+                                v-model="row.switch"
                                 :options="pageData.channelOptions"
                             />
                         </template>

@@ -84,8 +84,8 @@
                         :label="label"
                         width="80"
                     >
-                        <template #default="scope: TableColumn<IntelStatsBarChartDataDto>">
-                            <span :class="{ 'text-error': scope.row.data[index] }">{{ scope.row.data[index] }}</span>
+                        <template #default="{ row }: TableColumn<IntelStatsBarChartDataDto>">
+                            <span :class="{ 'text-error': row.data[index] }">{{ row.data[index] }}</span>
                         </template>
                     </el-table-column>
                 </el-table>

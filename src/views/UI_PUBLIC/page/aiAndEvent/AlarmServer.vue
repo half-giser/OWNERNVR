@@ -149,8 +149,8 @@
                             </el-button>
                         </div>
                     </template>
-                    <template #default="scope: TableColumn<SelectOption<string, string>>">
-                        <span class="table_item">{{ scope.row.label }}</span>
+                    <template #default="{ row }: TableColumn<SelectOption<string, string>>">
+                        <span class="table_item">{{ row.label }}</span>
                     </template>
                 </el-table-column>
             </el-table>

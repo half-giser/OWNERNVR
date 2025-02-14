@@ -73,7 +73,7 @@ export default defineComponent({
             gopSetAll: undefined as number | undefined,
             maxQoI: 0, // 最大QoI
             poeModeNode: 0, // poe模式
-            txtBandwidth: ref(''), // 宽带信息
+            txtBandwidth: '', // 宽带信息
             audioInNum: -1, //支持的音频数量
             mainStreamLimitFps: 1, // 主码流帧率限制
 
@@ -92,9 +92,7 @@ export default defineComponent({
         const editMode = new Set<string>()
 
         const virtualTableData = computed(() => {
-            return Array(tableData.value.length)
-                .fill(1)
-                .map((item, index) => item + index)
+            return [...Array(tableData.value.length).keys()]
         })
 
         /**

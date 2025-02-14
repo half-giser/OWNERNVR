@@ -40,11 +40,11 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<ChannelSignalDto>">
+                    <template #default="{ row }: TableColumn<ChannelSignalDto>">
                         <el-select-v2
-                            v-model="scope.row.analogIp"
+                            v-model="row.analogIp"
                             :options="analogIpOptions"
-                            @change="handleAnalogIpChange(scope.row)"
+                            @change="handleAnalogIpChange(row)"
                         />
                     </template>
                 </el-table-column>
@@ -84,10 +84,10 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<ChannelSignalDto>">
+                    <template #default="{ row }: TableColumn<ChannelSignalDto>">
                         <el-select-v2
-                            v-if="scope.row.showSignal"
-                            v-model="scope.row.signal"
+                            v-if="row.showSignal"
+                            v-model="row.signal"
                             :options="chlSupSignalTypeList"
                             filterable
                             :persistent="true"
@@ -119,10 +119,10 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<ChannelSignalDto>">
+                    <template #default="{ row }: TableColumn<ChannelSignalDto>">
                         <el-select-v2
-                            v-if="scope.row.showLite"
-                            v-model="scope.row.lite"
+                            v-if="row.showLite"
+                            v-model="row.lite"
                             :options="switchOptions"
                         />
                         <span v-else>--</span>

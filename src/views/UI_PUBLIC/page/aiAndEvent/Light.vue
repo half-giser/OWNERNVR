@@ -12,8 +12,8 @@
                     label=" "
                     width="50"
                 >
-                    <template #default="scope: TableColumn<AlarmWhiteLightDto>">
-                        <BaseTableRowStatus :icon="scope.row.status" />
+                    <template #default="{ row }: TableColumn<AlarmWhiteLightDto>">
+                        <BaseTableRowStatus :icon="row.status" />
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -41,21 +41,21 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<AlarmWhiteLightDto>">
+                    <template #default="{ row }: TableColumn<AlarmWhiteLightDto>">
                         <el-select-v2
-                            v-model="scope.row.enable"
+                            v-model="row.enable"
                             :placeholder="Translate('IDCS_ON')"
-                            :disabled="scope.row.disabled"
+                            :disabled="row.disabled"
                             :options="pageData.enableList"
                         />
                     </template>
                 </el-table-column>
                 <!-- 闪烁时间 -->
                 <el-table-column :label="Translate('IDCS_FLASHING_TIME')">
-                    <template #default="scope: TableColumn<AlarmWhiteLightDto>">
+                    <template #default="{ row }: TableColumn<AlarmWhiteLightDto>">
                         <BaseNumberInput
-                            v-model="scope.row.durationTime"
-                            :disabled="!scope.row.enable"
+                            v-model="row.durationTime"
+                            :disabled="!row.enable"
                             :min="1"
                             :max="60"
                             @keydown.enter="blurDurationTime($event)"
@@ -82,10 +82,10 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<AlarmWhiteLightDto>">
+                    <template #default="{ row }: TableColumn<AlarmWhiteLightDto>">
                         <el-select-v2
-                            v-model="scope.row.frequencyType"
-                            :disabled="!scope.row.enable"
+                            v-model="row.frequencyType"
+                            :disabled="!row.enable"
                             :options="pageData.lightFrequencyList"
                         />
                     </template>

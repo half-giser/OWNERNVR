@@ -75,8 +75,8 @@
                         label=" "
                         width="50"
                     >
-                        <template #default="scope: TableColumn<ChannelPtzSmartTrackDto>">
-                            <BaseTableRowStatus :icon="scope.row.status" />
+                        <template #default="{ row }: TableColumn<ChannelPtzSmartTrackDto>">
+                            <BaseTableRowStatus :icon="row.status" />
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -103,21 +103,21 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope: TableColumn<ChannelPtzSmartTrackDto>">
+                        <template #default="{ row }: TableColumn<ChannelPtzSmartTrackDto>">
                             <el-select-v2
-                                v-model="scope.row.autoBackSwitch"
+                                v-model="row.autoBackSwitch"
                                 :options="pageData.autoBackOptions"
-                                :disabled="scope.row.disabled"
+                                :disabled="row.disabled"
                             />
                         </template>
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_HOMING_AFTER_TARGET_STATIONARY_TIME')">
-                        <template #default="scope: TableColumn<ChannelPtzSmartTrackDto>">
+                        <template #default="{ row }: TableColumn<ChannelPtzSmartTrackDto>">
                             <BaseNumberInput
-                                v-model="scope.row.autoBackTime"
+                                v-model="row.autoBackTime"
                                 :min="0"
                                 :max="100"
-                                :disabled="!scope.row.autoBackSwitch || scope.row.disabled"
+                                :disabled="!row.autoBackSwitch || row.disabled"
                             />
                         </template>
                     </el-table-column>

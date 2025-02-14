@@ -19,9 +19,9 @@
                     prop="text"
                 />
                 <el-table-column :label="Translate('IDCS_POS_TILL')">
-                    <template #default="scope: TableColumn<SystemPosListChls>">
+                    <template #default="{ row }: TableColumn<SystemPosListChls>">
                         <el-input
-                            v-model.trim="scope.row.till"
+                            v-model.trim="row.till"
                             type="number"
                         />
                     </template>

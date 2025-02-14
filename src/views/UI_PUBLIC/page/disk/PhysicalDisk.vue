@@ -12,13 +12,13 @@
                 highlight-current-row
             >
                 <el-table-column :label="Translate('IDCS_DISK')">
-                    <template #default="scope: TableColumn<DiskPhysicalList>">
+                    <template #default="{ row }: TableColumn<DiskPhysicalList>">
                         <el-checkbox
-                            v-if="scope.row.type === 'normal'"
-                            v-model="scope.row.switch"
-                            :label="scope.row.slotIndex"
+                            v-if="row.type === 'normal'"
+                            v-model="row.switch"
+                            :label="row.slotIndex"
                         />
-                        <el-text v-else>{{ scope.row.slotIndex }}</el-text>
+                        <el-text v-else>{{ row.slotIndex }}</el-text>
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -30,7 +30,7 @@
                     prop="raid"
                 />
                 <el-table-column :label="Translate('IDCS_TYPE')">
-                    <template #default="scope: TableColumn<DiskPhysicalList>">{{ displayType(scope.row.type) }}</template>
+                    <template #default="{ row }: TableColumn<DiskPhysicalList>">{{ displayType(row.type) }}</template>
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_STATE')"
@@ -42,15 +42,15 @@
                     width="210"
                 />
                 <el-table-column :label="Translate('IDCS_HOT_TO_DISK')">
-                    <template #default="scope: TableColumn<DiskPhysicalList>">
+                    <template #default="{ row, $index }: TableColumn<DiskPhysicalList>">
                         <BaseImgSprite
                             file="transform"
                             :index="0"
                             :hover-index="2"
                             :chunk="4"
                             :disabled-index="3"
-                            :disabled="scope.row.type === 'array'"
-                            @click="transformDisk(scope.row, scope.$index)"
+                            :disabled="row.type === 'array'"
+                            @click="transformDisk(row, $index)"
                         />
                     </template>
                 </el-table-column>
