@@ -3,12 +3,15 @@
  * @Date: 2024-08-07 15:12:23
  * @Description: 批量打包多UI
  * 命令行格式： npm run generate bundle=UI1-A,UI2-A_IL03,UI1-E_USE44
+ * npm run generate bundle=UI1-A_TVT p2p=2.2.0.0_17782 (同时生成P2P ZIP发布件)
  */
 import { exec } from 'node:child_process'
 import fs from 'node:fs/promises'
+import fsStream from 'node:fs'
 import path from 'node:path'
 import Chalk from 'chalk'
 import Inquirer from 'inquirer'
+import Archiver from 'archiver'
 
 const LEGAL_UI = ['UI1-A', 'UI1-B', 'UI1-C', 'UI1-D', 'UI1-E', 'UI1-F', 'UI1-G', 'UI1-J', 'UI1-K', 'UI2-A']
 const LEGAL_CUSTOMER_ID = ['IL03', 'PL14', 'TVT', 'USE44', 'USW02']
@@ -19,6 +22,11 @@ function print(head: string, body: string, type = 'info') {
     } else {
         console.log(Chalk.bgCyanBright.bold(head), Chalk.blueBright(new Date().toLocaleString('zh-CN')), Chalk.white(body))
     }
+}
+
+function getDateTime() {
+    const date = new Date()
+    return `${date.getFullYear()}${('00' + (date.getMonth() + 1)).slice(-2)}${('00' + date.getDate()).slice(-2)}`
 }
 
 function getDistName(...str: string[]) {
@@ -88,6 +96,56 @@ async function copyDir(src: string, dest: string) {
             await fs.copyFile(srcPath, destPath)
         }
     }
+}
+
+async function generateCustomerP2PZip(customer: string, uiList: string[], version: string) {
+    return new Promise((resolve) => {
+        const outputCustomer = customer === 'STANDARD' ? 'TVT' : customer
+        const outputFileName = path.resolve(`dist/${outputCustomer}_NVR_${getDateTime()}_${version}.zip`)
+        const output = fsStream.createWriteStream(outputFileName)
+        const archive = Archiver('zip')
+
+        output.on('close', function () {
+            print(outputCustomer, `Generate ${outputFileName}`)
+            resolve(void 0)
+        })
+
+        output.on('end', function () {
+            console.log(outputCustomer, Chalk.red('Data has been drained'), 'error')
+            resolve(void 0)
+        })
+
+        uiList.forEach((ui) => {
+            const uiMatch = ui.match(/UI(.*)-(.*)/)
+            const versionUnderline = version.split('_')[0].split('.').join('_')
+            archive.directory(path.resolve(`./dist/${ui}${customer === 'STANDARD' ? '' : '_' + customer}_P2P/`), `dev/bd/nvr/${versionUnderline}/u${uiMatch![1]}${uiMatch![2].toLowerCase()}/`)
+        })
+
+        archive.pipe(output)
+        archive.finalize()
+    })
+}
+
+async function getGitRevision() {
+    return new Promise((resolve) => {
+        exec('git rev-parse HEAD', (error, stdout, stderr) => {
+            if (error) {
+                resolve('')
+                return
+            }
+
+            if (stderr) {
+                resolve('')
+                return
+            }
+
+            resolve(stdout.slice(0, 8))
+        })
+    })
+}
+
+function getPackageVersion() {
+    return process.env.npm_package_version
 }
 
 async function generate() {
@@ -163,6 +221,28 @@ async function generate() {
                 await copyDir(standardPath, path.resolve('dist', ui))
                 await cleanUp(standardPath)
             } catch {}
+        }
+    }
+
+    const matchP2P = process.argv.find((item) => item.startsWith('p2p'))
+
+    if (matchP2P) {
+        let version = process.argv.find((item) => item.startsWith('p2p='))?.split('=')[1] // || '2.2.0.0'
+        if (!version) {
+            const gitVersion = await getGitRevision()
+            const packageVersion = getPackageVersion()
+            version = packageVersion + '_' + gitVersion
+        }
+        const bundleObj: Record<string, string[]> = {}
+        bundleList.forEach((item) => {
+            const customer = item[1] || 'STANDARD'
+            if (!bundleObj[customer]) {
+                bundleObj[customer] = []
+            }
+            bundleObj[customer].push(item[0])
+        })
+        for (const entry of Object.entries(bundleObj)) {
+            await generateCustomerP2PZip(entry[0], entry[1], version)
         }
     }
 
