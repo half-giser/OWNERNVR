@@ -116,10 +116,6 @@
     text-align: left;
 }
 
-.el-table {
-    border: 1px solid var(--table-border);
-}
-
 .status {
     display: flex;
 

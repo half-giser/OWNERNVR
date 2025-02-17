@@ -47,14 +47,14 @@ const isPluginIconHide = ref(userSession.appType === 'STANDARD' && osType === 'm
     position: absolute;
     left: 0;
     width: 100%;
-    bottom: 20px;
+    bottom: 10px;
     font-size: 18px;
     text-align: center;
     color: var(--login-plugin-text);
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 30px;
+    height: 32px;
 
     &-text {
         line-height: 1;

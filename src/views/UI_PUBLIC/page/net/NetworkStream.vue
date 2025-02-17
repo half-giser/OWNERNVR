@@ -17,8 +17,8 @@
                     width="270"
                     show-overflow-tooltip
                 >
-                    <template #default="{ row }: TableColumn<number>">
-                        {{ tableData[row].name }}
+                    <template #default="{ $index }: TableColumn<number>">
+                        {{ tableData[$index].name }}
                     </template>
                 </el-table-column>
                 <!-- 码流类型 -->
@@ -52,12 +52,12 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="{ row }: TableColumn<number>">
+                    <template #default="{ $index }: TableColumn<number>">
                         <el-select-v2
-                            v-model="tableData[row].videoEncodeType"
-                            :disabled="tableData[row].disabled"
-                            :options="tableData[row].subCaps.supEnct"
-                            @change="changeStreamType(row)"
+                            v-model="tableData[$index].videoEncodeType"
+                            :disabled="tableData[$index].disabled"
+                            :options="tableData[$index].subCaps.supEnct"
+                            @change="changeStreamType($index)"
                         />
                     </template>
                 </el-table-column>
@@ -79,6 +79,7 @@
                             <el-table
                                 :height="400"
                                 :show-header="false"
+                                :border="false"
                                 :data="pageData.resolutionList"
                             >
                                 <el-table-column>
@@ -114,12 +115,12 @@
                             </div>
                         </el-popover>
                     </template>
-                    <template #default="{ row }: TableColumn<number>">
+                    <template #default="{ $index }: TableColumn<number>">
                         <el-select-v2
-                            v-model="tableData[row].resolution"
-                            :disabled="tableData[row].disabled"
-                            :options="tableData[row].subCaps.res"
-                            @change="changeResolution(row)"
+                            v-model="tableData[$index].resolution"
+                            :disabled="tableData[$index].disabled"
+                            :options="tableData[$index].subCaps.res"
+                            @change="changeResolution($index)"
                         />
                     </template>
                 </el-table-column>
@@ -147,18 +148,18 @@
                         </el-dropdown>
                     </template>
 
-                    <template #default="{ row }: TableColumn<number>">
+                    <template #default="{ $index }: TableColumn<number>">
                         <el-select-v2
-                            v-if="!tableData[row].frameRate"
+                            v-if="!tableData[$index].frameRate"
                             model-value=""
                             disabled
                             :options="[]"
                         />
                         <el-select-v2
                             v-else
-                            v-model="tableData[row].frameRate"
-                            :disabled="tableData[row].disabled"
-                            :options="getFpsOptions(row)"
+                            v-model="tableData[$index].frameRate"
+                            :disabled="tableData[$index].disabled"
+                            :options="getFpsOptions($index)"
                         />
                     </template>
                 </el-table-column>
@@ -186,14 +187,14 @@
                         </el-dropdown>
                     </template>
 
-                    <template #default="{ row }: TableColumn<number>">
-                        <el-text v-if="!tableData[row].subCaps.bitType.length">--</el-text>
+                    <template #default="{ $index }: TableColumn<number>">
+                        <el-text v-if="!tableData[$index].subCaps.bitType.length">--</el-text>
                         <el-select-v2
                             v-else
-                            v-model="tableData[row].bitType"
-                            :disabled="isBitTypeDisabled(row)"
-                            :options="arrayToOptions(tableData[row].subCaps.bitType)"
-                            @change="changeBitType(row)"
+                            v-model="tableData[$index].bitType"
+                            :disabled="isBitTypeDisabled($index)"
+                            :options="arrayToOptions(tableData[$index].subCaps.bitType)"
+                            @change="changeBitType($index)"
                         />
                     </template>
                 </el-table-column>
@@ -220,10 +221,10 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="{ row }: TableColumn<number>">
+                    <template #default="{ $index }: TableColumn<number>">
                         <el-select-v2
-                            v-model="tableData[row].level"
-                            :disabled="isLevelDisabled(row)"
+                            v-model="tableData[$index].level"
+                            :disabled="isLevelDisabled($index)"
                             :options="pageData.levelList"
                         />
                     </template>
@@ -251,17 +252,17 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="{ row }: TableColumn<number>">
+                    <template #default="{ $index }: TableColumn<number>">
                         <el-select-v2
-                            v-if="isVideoQualityDisabled(row)"
-                            :model-value="tableData[row].videoQuality === 0 ? '' : tableData[row].videoQuality"
+                            v-if="isVideoQualityDisabled($index)"
+                            :model-value="tableData[$index].videoQuality === 0 ? '' : tableData[$index].videoQuality"
                             disabled
                             :options="[]"
                         />
                         <el-select-v2
                             v-else
-                            v-model="tableData[row].videoQuality"
-                            :options="getVideoQualityOptions(row)"
+                            v-model="tableData[$index].videoQuality"
+                            :options="getVideoQualityOptions($index)"
                         />
                     </template>
                 </el-table-column>
@@ -271,7 +272,7 @@
                     width="200"
                     show-overflow-tooltip
                 >
-                    <template #default="{ row }: TableColumn<number>">{{ getBitRange(tableData[row]) }}</template>
+                    <template #default="{ $index }: TableColumn<number>">{{ getBitRange(tableData[$index]) }}</template>
                 </el-table-column>
                 <!-- GOP -->
                 <el-table-column
@@ -309,13 +310,13 @@
                             </el-form>
                         </el-popover>
                     </template>
-                    <template #default="{ row }: TableColumn<number>">
+                    <template #default="{ $index }: TableColumn<number>">
                         <BaseNumberInput
-                            :model-value="isGOPDisabled(row) && tableData[row].GOP === 0 ? undefined : tableData[row].GOP"
+                            :model-value="isGOPDisabled($index) && tableData[$index].GOP === 0 ? undefined : tableData[$index].GOP"
                             :min="1"
                             :max="480"
-                            :disabled="isGOPDisabled(row)"
-                            @update:model-value="tableData[row].GOP = $event"
+                            :disabled="isGOPDisabled($index)"
+                            @update:model-value="tableData[$index].GOP = $event"
                         />
                     </template>
                 </el-table-column>

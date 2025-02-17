@@ -55,7 +55,7 @@ export default defineComponent({
         }
 
         const formatDwellTime = (value: number) => {
-            return Translate('IDCS_STAY_TIME_D').formatForLang(value + ' ', getTranslateForSecond(value))
+            return Translate('IDCS_STAY_TIME_D').formatForLang(getTranslateForSecond(value), '')
         }
 
         const handleEditChlGroup = (rowData: ChannelGroupDto) => {

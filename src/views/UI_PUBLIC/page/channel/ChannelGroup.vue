@@ -12,6 +12,7 @@
                 show-overflow-tooltip
                 highlight-current-row
                 :show-header="false"
+                :border="false"
                 :row-key="(row) => row.id"
                 @expand-change="handleExpandChange"
             >

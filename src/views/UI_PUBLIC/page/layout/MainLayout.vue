@@ -263,7 +263,7 @@
         }
 
         &:first-of-type {
-            margin-left: 66px;
+            margin-left: 64px;
         }
 
         & > .menu-split {

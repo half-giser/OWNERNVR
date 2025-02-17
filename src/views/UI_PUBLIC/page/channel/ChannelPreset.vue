@@ -96,6 +96,7 @@
                     :data="tableData"
                     :row-key="getRowKey"
                     :expand-row-key="pageData.expandRowKey"
+                    :border="false"
                     highlight-current-row
                     show-overflow-tooltip
                     @row-click="handleRowClick"

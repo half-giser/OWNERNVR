@@ -178,6 +178,7 @@
                     :expand-row-key="pageData.expandRowKey"
                     highlight-current-row
                     show-overflow-tooltip
+                    :border="false"
                     @row-click="handleRowClick"
                     @expand-change="handleExpandChange"
                 >

@@ -54,6 +54,7 @@
                     <div class="left-chl-form">
                         <el-input
                             v-model="pageData.chlKeyword"
+                            class="middle"
                             :placeholder="Translate('IDCS_SEARCH_CHANNEL')"
                             @keydown.enter="searchChl"
                         />

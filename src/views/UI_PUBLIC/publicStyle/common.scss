@@ -365,6 +365,17 @@ input[type='number'] {
         }
     }
 
+    .el-input {
+        &.middle {
+            line-height: 27px;
+            height: 27px;
+
+            .el-input__wrapper {
+                padding-inline: 10px;
+            }
+        }
+    }
+
     .el-input-number {
         &.is-without-controls {
             .el-input__inner {
