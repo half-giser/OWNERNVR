@@ -82,16 +82,9 @@ export default defineComponent({
                 </content>
             `
             const result = await editPasswordSecurity(sendXml)
-            const $ = queryXml(result)
 
             closeLoading()
-
-            if ($('status').text() === 'success') {
-                openMessageBox({
-                    type: 'success',
-                    message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                })
-            }
+            commSaveResponseHandler(result)
         }
 
         onMounted(() => {

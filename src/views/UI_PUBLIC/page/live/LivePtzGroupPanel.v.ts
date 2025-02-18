@@ -118,20 +118,16 @@ export default defineComponent({
                     </content>
                 `
                 const result = await editChlPtzGroup(sendXml)
-                const $ = queryXml(result)
 
-                if ($('status').text() === 'success') {
-                    openMessageBox({
-                        type: 'success',
-                        message: Translate('IDCS_DELETE_SUCCESS'),
-                    }).finally(() => {
+                commDelResponseHandler(
+                    result,
+                    () => {
                         getList()
-                    })
-                } else {
-                    openMessageBox(Translate('IDCS_DELETE_FAIL')).finally(() => {
+                    },
+                    () => {
                         getList()
-                    })
-                }
+                    },
+                )
             })
         }
 

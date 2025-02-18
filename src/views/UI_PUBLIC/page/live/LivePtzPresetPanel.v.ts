@@ -128,18 +128,10 @@ export default defineComponent({
                     </condition>
                 `
                 const result = await delChlPreset(sendXml)
-                const $ = queryXml(result)
 
-                if ($('status').text() === 'success') {
-                    openMessageBox({
-                        type: 'success',
-                        message: Translate('IDCS_DELETE_SUCCESS'),
-                    }).finally(() => {
-                        getList()
-                    })
-                } else {
-                    openMessageBox(Translate('IDCS_DELETE_FAIL'))
-                }
+                commDelResponseHandler(result, () => {
+                    getList()
+                })
             })
         }
 

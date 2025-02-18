@@ -510,17 +510,11 @@ export default defineComponent({
                         </condition>
                     `
                     const result = await delChlGroup(sendXml)
-                    const $ = queryXml(result)
                     closeLoading()
-                    if ($('status').text() === 'success') {
-                        openMessageBox({
-                            type: 'success',
-                            message: Translate('IDCS_DELETE_SUCCESS'),
-                        }).then(() => {
-                            getChlGroupList()
-                            pageData.value.chlListOfGroup = []
-                        })
-                    }
+                    commDelResponseHandler(result, () => {
+                        getChlGroupList()
+                        pageData.value.chlListOfGroup = []
+                    })
                 })
             }
         }

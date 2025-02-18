@@ -78,18 +78,10 @@ export default defineComponent({
                 openLoading()
                 delChlGroup(data).then((res) => {
                     closeLoading()
-                    const $ = queryXml(res)
-                    if ($('status').text() === 'success') {
-                        openMessageBox({
-                            type: 'success',
-                            message: Translate('IDCS_DELETE_SUCCESS'),
-                        }).then(() => {
-                            pageIndex.value = 1
-                            getData()
-                        })
-                    } else {
-                        openMessageBox(Translate('IDCS_DELETE_FAIL'))
-                    }
+                    commDelResponseHandler(res, () => {
+                        pageIndex.value = 1
+                        getData()
+                    })
                 })
             })
         }
@@ -190,18 +182,10 @@ export default defineComponent({
             openLoading()
             editSetAndElementRelation(data).then((res) => {
                 closeLoading()
-                const $ = queryXml(res)
-                if ($('status').text() === 'success') {
-                    openMessageBox({
-                        type: 'success',
-                        message: Translate('IDCS_DELETE_SUCCESS'),
-                    }).then(() => {
-                        rowData.chls = rowData.chls.filter((item) => item.value !== chlId)
-                        rowData.chlCount = rowData.chls.length
-                    })
-                } else {
-                    openMessageBox(Translate('IDCS_DELETE_FAIL'))
-                }
+                commDelResponseHandler(res, () => {
+                    rowData.chls = rowData.chls.filter((item) => item.value !== chlId)
+                    rowData.chlCount = rowData.chls.length
+                })
             })
         }
 
