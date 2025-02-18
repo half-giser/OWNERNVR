@@ -64,10 +64,10 @@
                         label=" "
                         width="50"
                     >
-                        <template #default="scope: TableColumn<ChannelFisheyeDto>">
+                        <template #default="{ row }: TableColumn<ChannelFisheyeDto>">
                             <BaseTableRowStatus
-                                :icon="scope.row.status"
-                                :error-text="scope.row.statusTip"
+                                :icon="row.status"
+                                :error-text="row.statusTip"
                             />
                         </template>
                     </el-table-column>
@@ -98,12 +98,12 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope: TableColumn<ChannelFisheyeDto>">
+                        <template #default="{ row }: TableColumn<ChannelFisheyeDto>">
                             <el-select-v2
-                                v-model="scope.row.fishEyeMode"
-                                :disabled="scope.row.disabled || scope.row.reqCfgFail || scope.row.HIKVISION"
+                                v-model="row.fishEyeMode"
+                                :disabled="row.disabled || row.reqCfgFail || row.HIKVISION"
                                 :options="fishEyeModeOption"
-                                @focus="handleRowClick(scope.row)"
+                                @focus="handleRowClick(row)"
                                 @change="handleChangeVal()"
                             />
                         </template>
@@ -130,12 +130,12 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope: TableColumn<ChannelFisheyeDto>">
+                        <template #default="{ row }: TableColumn<ChannelFisheyeDto>">
                             <el-select-v2
-                                v-model="scope.row.installType"
-                                :disabled="scope.row.disabled || scope.row.reqCfgFail || scope.row.HIKVISION"
+                                v-model="row.installType"
+                                :disabled="row.disabled || row.reqCfgFail || row.HIKVISION"
                                 :options="installTypeOption"
-                                @focus="handleRowClick(scope.row)"
+                                @focus="handleRowClick(row)"
                                 @change="handleChangeVal()"
                             />
                         </template>
@@ -162,12 +162,12 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope: TableColumn<ChannelFisheyeDto>">
+                        <template #default="{ row }: TableColumn<ChannelFisheyeDto>">
                             <el-select-v2
-                                v-model="scope.row.fishEyeEnable"
-                                :disabled="!scope.row.reqCfgFail || scope.row.privateProtocol"
+                                v-model="row.fishEyeEnable"
+                                :disabled="!row.reqCfgFail || row.privateProtocol"
                                 :options="switchOptions"
-                                @focus="handleRowClick(scope.row)"
+                                @focus="handleRowClick(row)"
                                 @change="handleChangeVal(true)"
                             />
                         </template>

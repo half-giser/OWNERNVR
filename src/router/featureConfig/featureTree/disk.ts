@@ -60,9 +60,6 @@ export default {
                 sort: 40,
                 lk: 'IDCS_DISK_MODE',
                 group: 'diskManagement',
-                default: true,
-                inHome: 'self',
-                homeSort: 10,
                 auth: 'diskMgr',
                 hasCap(systemCaps) {
                     return systemCaps.supportRaid

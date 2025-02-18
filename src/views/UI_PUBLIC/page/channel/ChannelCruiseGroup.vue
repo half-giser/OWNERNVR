@@ -63,14 +63,14 @@
                         width="152"
                     />
                     <el-table-column :label="Translate('IDCS_EDIT')">
-                        <template #default="scope: TableColumn<ChannelPtzCruiseGroupCruiseDto>">
+                        <template #default="{ $index }: TableColumn<ChannelPtzCruiseGroupCruiseDto>">
                             <BaseImgSprite
                                 file="del"
                                 :index="2"
                                 :hover-index="0"
                                 :disabled-index="3"
                                 :chunk="4"
-                                @click="deleteCruise(pageData.tableIndex, scope.$index)"
+                                @click="deleteCruise(pageData.tableIndex, $index)"
                             />
                         </template>
                     </el-table-column>
@@ -93,6 +93,7 @@
                     :data="tableData"
                     :row-key="getRowKey"
                     :expand-row-key="pageData.expandRowKey"
+                    :border="false"
                     highlight-current-row
                     show-overflow-tooltip
                     @row-click="handleRowClick"
@@ -100,19 +101,19 @@
                 >
                     <el-table-column prop="chlName" />
                     <el-table-column>
-                        <template #default="scope: TableColumn<ChannelPtzCruiseGroupChlDto>">
-                            {{ Translate('IDCS_CRUISE_NUM_D').formatForLang(scope.row.cruiseCount) }}
+                        <template #default="{ row }: TableColumn<ChannelPtzCruiseGroupChlDto>">
+                            {{ Translate('IDCS_CRUISE_NUM_D').formatForLang(row.cruiseCount) }}
                         </template>
                     </el-table-column>
                     <el-table-column type="expand">
-                        <template #default="scope: TableColumn<ChannelPtzCruiseGroupChlDto>">
-                            <ChannelPtzTableExpandPanel @add="addCruise(scope.$index)">
+                        <template #default="{ row, $index }: TableColumn<ChannelPtzCruiseGroupChlDto>">
+                            <ChannelPtzTableExpandPanel @add="addCruise($index)">
                                 <ChannelPtzTableExpandItem
-                                    v-for="(item, index) in scope.row.cruise"
+                                    v-for="(item, index) in row.cruise"
                                     :key="item.index"
                                     :text="`${item.index}. ${item.name}`"
                                     file="cruise"
-                                    @delete="deleteCruise(scope.$index, index)"
+                                    @delete="deleteCruise($index, index)"
                                 />
                             </ChannelPtzTableExpandPanel>
                         </template>

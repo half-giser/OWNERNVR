@@ -36,9 +36,7 @@ export default defineComponent({
         const tableData = ref<RecordSubStreamList[]>([])
         const editRows = useWatchEditRows<RecordSubStreamList>()
         const virtualTableData = computed<number[]>(() => {
-            return Array(tableData.value.length)
-                .fill(1)
-                .map((item, index) => item + index)
+            return [...Array(tableData.value.length).keys()]
         })
 
         const getDevRecParamCfgModule = async () => {
@@ -382,7 +380,7 @@ export default defineComponent({
                 } else {
                     openMessageBox({
                         type: 'question',
-                        message: Translate('IDCS_SIMPLE_SMART_ENCODE_TIPS').formatForLang(null, Translate('IDCS_FACE_DETECTION')),
+                        message: Translate('IDCS_SIMPLE_SMART_ENCODE_TIPS').formatForLang('', Translate('IDCS_FACE_DETECTION')),
                     }).then(() => {
                         setRecSubStreamData()
                     })

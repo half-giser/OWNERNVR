@@ -140,18 +140,18 @@
                 >
                     <el-table-column prop="chlName" />
                     <el-table-column>
-                        <template #default="scope: TableColumn<ChannelPtzTraceChlDto>">
-                            {{ Translate('IDCS_TRACE_NUM_D').formatForLang(scope.row.traceCount) }}
+                        <template #default="{ row }: TableColumn<ChannelPtzTraceChlDto>">
+                            {{ Translate('IDCS_TRACE_NUM_D').formatForLang(row.traceCount) }}
                         </template>
                     </el-table-column>
                     <el-table-column type="expand">
-                        <template #default="scope: TableColumn<ChannelPtzTraceChlDto>">
-                            <ChannelPtzTableExpandPanel @add="addTrace(scope.$index)">
+                        <template #default="{ row, $index }: TableColumn<ChannelPtzTraceChlDto>">
+                            <ChannelPtzTableExpandPanel @add="addTrace($index)">
                                 <ChannelPtzTableExpandItem
-                                    v-for="(item, index) in scope.row.trace"
+                                    v-for="(item, index) in row.trace"
                                     :key="item.index"
                                     :text="`${item.index}. ${item.name}`"
-                                    @delete="deleteTrace(scope.$index, index)"
+                                    @delete="deleteTrace($index, index)"
                                 />
                             </ChannelPtzTableExpandPanel>
                         </template>

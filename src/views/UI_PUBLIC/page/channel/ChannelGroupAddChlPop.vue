@@ -41,14 +41,14 @@
                 :label="Translate('IDCS_PREVIEW')"
                 width="80"
             >
-                <template #default="scope: TableColumn<ChannelInfoDto>">
+                <template #default="{ row }: TableColumn<ChannelInfoDto>">
                     <BaseImgSprite
                         file="play (3)"
                         :chunk="4"
                         :index="0"
                         :hover-index="1"
                         :active-index="1"
-                        @click="handlePreview(scope.row)"
+                        @click="handlePreview(row)"
                     />
                 </template>
             </el-table-column>

@@ -29,13 +29,13 @@
                 width="250"
             />
             <el-table-column :label="Translate('IDCS_DETAIL_INFO')">
-                <template #default="scope: TableColumn<UserOnlineList>">
+                <template #default="{ $index }: TableColumn<UserOnlineList>">
                     <BaseImgSprite
                         file="detail"
                         :index="0"
                         :hover-index="1"
                         :chunk="4"
-                        @click.stop="showDetailInfo(scope.$index)"
+                        @click.stop="showDetailInfo($index)"
                     />
                 </template>
             </el-table-column>

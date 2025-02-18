@@ -1384,18 +1384,21 @@ const getSingletonPlugin = () => {
                 return
             }
 
-            const checkNatIp = () => {
-                if (typeof natIp_2_0 === 'string') {
-                    userSession.p2pSessionId = null
-                    startV2Process()
-                } else {
-                    requestAnimationFrame(checkNatIp)
-                }
-            }
+            // const checkNatIp = () => {
+            //     if (typeof natIp_2_0 === 'string') {
+            //         userSession.p2pSessionId = null
+            //         startV2Process()
+            //     } else {
+            //         requestAnimationFrame(checkNatIp)
+            //     }
+            // }
 
             // siteDictionary.js 在根目录下
             const script = document.createElement('script')
-            script.onload = () => requestAnimationFrame(checkNatIp)
+            script.onload = () => {
+                userSession.p2pSessionId = null
+                startV2Process()
+            }
             script.src = '/siteDictionary.js'
             document.body.appendChild(script)
         }

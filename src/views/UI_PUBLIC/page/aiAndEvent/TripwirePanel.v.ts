@@ -77,7 +77,8 @@ export default defineComponent({
             isSchedulePop: false,
             scheduleList: [] as SelectOption<string, string>[],
             // 选择的警戒面
-            chosenSurfaceIndex: 0,
+            surfaceIndex: 0,
+            surfaceChecked: [] as number[],
             // 是否显示全部区域绑定值
             isShowAllArea: false,
             // 控制显示展示全部区域的checkbox
@@ -288,10 +289,9 @@ export default defineComponent({
                                 X: $item('endPoint/X').text().num(),
                                 Y: $item('endPoint/Y').text().num(),
                             },
-                            configured: false,
                         }
                     })
-                    formData.value.direction = formData.value.lineInfo[pageData.value.chosenSurfaceIndex].direction
+                    formData.value.direction = formData.value.lineInfo[pageData.value.surfaceIndex].direction
                     formData.value.detectionEnable = $param('switch').text().bool()
                     formData.value.originalEnable = formData.value.detectionEnable
                     formData.value.audioSuport = $param('triggerAudio').text() !== ''
@@ -548,7 +548,7 @@ export default defineComponent({
                 }
 
                 if (mode.value === 'ocx') {
-                    const surface = pageData.value.chosenSurfaceIndex
+                    const surface = pageData.value.surfaceIndex
                     const sendXML1 = OCX_XML_SetTripwireLine(formData.value.lineInfo[surface])
                     plugin.ExecuteCmd(sendXML1)
 
@@ -580,14 +580,14 @@ export default defineComponent({
         // tripwire刷新页面数据
         const refreshInitPage = () => {
             // 区域状态
-            const lineInfoList = formData.value.lineInfo
-            lineInfoList.forEach((lineInfo, surface) => {
-                if (lineInfo && !lineInfo.startPoint.X && !lineInfo.startPoint.Y && !lineInfo.endPoint.X && !lineInfo.endPoint.Y) {
-                    formData.value.lineInfo[surface].configured = false
+            pageData.value.surfaceChecked = formData.value.lineInfo.map((lineInfo, index) => {
+                if (lineInfo.startPoint.X || lineInfo.startPoint.Y || lineInfo.endPoint.X || lineInfo.endPoint.Y) {
+                    return index
                 } else {
-                    formData.value.lineInfo[surface].configured = true
+                    return -1
                 }
             })
+
             if (formData.value.lineInfo.length > 1) {
                 pageData.value.showAllAreaVisible = true
                 pageData.value.clearAllVisible = true
@@ -605,14 +605,13 @@ export default defineComponent({
 
         // tripWire选择警戒面
         const changeSurface = () => {
-            // pageData.value.chosenSurfaceIndex = index
-            formData.value.direction = formData.value.lineInfo[pageData.value.chosenSurfaceIndex].direction
+            formData.value.direction = formData.value.lineInfo[pageData.value.surfaceIndex].direction
             setTripwireOcxData()
         }
 
         // tripwire选择方向
         const changeDirection = () => {
-            formData.value.lineInfo[pageData.value.chosenSurfaceIndex].direction = formData.value.direction
+            formData.value.lineInfo[pageData.value.surfaceIndex].direction = formData.value.direction
             setTripwireOcxData()
         }
 
@@ -653,7 +652,7 @@ export default defineComponent({
 
         // tripwire绘图
         const changeTripwire = (passline: CanvasPasslinePassline) => {
-            const surface = pageData.value.chosenSurfaceIndex
+            const surface = pageData.value.surfaceIndex
             formData.value.lineInfo[surface].startPoint = {
                 X: passline.startX,
                 Y: passline.startY,
@@ -673,7 +672,7 @@ export default defineComponent({
             tripwireDrawer && tripwireDrawer.setEnableShowAll(isShowAll)
             if (isShowAll) {
                 const lineInfoList = formData.value.lineInfo
-                const currentSurface = pageData.value.chosenSurfaceIndex
+                const currentSurface = pageData.value.surfaceIndex
 
                 if (mode.value === 'h5') {
                     tripwireDrawer.setCurrentSurfaceOrAlarmLine(currentSurface)
@@ -699,7 +698,7 @@ export default defineComponent({
         // tripwire显示
         const setTripwireOcxData = () => {
             if (pageData.value.tab === 'param') {
-                const surface = pageData.value.chosenSurfaceIndex
+                const surface = pageData.value.surfaceIndex
                 if (formData.value.lineInfo.length > 0) {
                     if (mode.value === 'h5') {
                         tripwireDrawer.setCurrentSurfaceOrAlarmLine(surface)
@@ -735,7 +734,7 @@ export default defineComponent({
                 plugin.ExecuteCmd(sendXML)
             }
 
-            const surface = pageData.value.chosenSurfaceIndex
+            const surface = pageData.value.surfaceIndex
             formData.value.lineInfo[surface].startPoint = {
                 X: 0,
                 Y: 0,
@@ -744,7 +743,6 @@ export default defineComponent({
                 X: 0,
                 Y: 0,
             }
-            formData.value.lineInfo[surface].configured = false
             tripwireDrawer.clear()
         }
 
@@ -759,7 +757,6 @@ export default defineComponent({
                     X: 0,
                     Y: 0,
                 }
-                lineInfo.configured = false
             })
 
             if (mode.value === 'h5') {
@@ -781,7 +778,7 @@ export default defineComponent({
 
         const notify = ($: XMLQuery, stateType: string) => {
             if (stateType === 'TripwireLine') {
-                const surface = pageData.value.chosenSurfaceIndex
+                const surface = pageData.value.surfaceIndex
                 formData.value.lineInfo[surface].startPoint = {
                     X: $('statenotify/startPoint').attr('X').num(),
                     Y: $('statenotify/startPoint').attr('Y').num(),

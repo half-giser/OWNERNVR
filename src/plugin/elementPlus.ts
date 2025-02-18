@@ -75,11 +75,6 @@ ElTooltip.props.offset = {
     default: 0,
 }
 
-ElTooltip.props.popperClass = {
-    type: String,
-    default: 'base-tooltip',
-}
-
 // ElSelect.props.placeholder = {
 //     type: String,
 //     default: ' ',
@@ -112,7 +107,7 @@ ElSelectV2.props.emptyValues = {
 
 ElSelectV2.props.persistent = {
     type: Boolean,
-    default: false,
+    default: true,
 }
 
 ElSelectV2.props.showArrow = {

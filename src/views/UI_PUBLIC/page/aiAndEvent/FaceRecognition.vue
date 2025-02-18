@@ -331,9 +331,9 @@
                                                 </div>
                                             </el-popover>
                                         </template>
-                                        <template #default="scope: TableColumn<AlarmFaceGroupDto>">
+                                        <template #default="{ row }: TableColumn<AlarmFaceGroupDto>">
                                             <BaseNumberInput
-                                                v-model="scope.row.similarity"
+                                                v-model="row.similarity"
                                                 :min="1"
                                                 :max="100"
                                                 @keyup.enter="blurInput"

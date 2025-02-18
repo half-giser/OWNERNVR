@@ -135,20 +135,20 @@
                             width="170"
                             :label="Translate('IDCS_RECIPIENT')"
                         >
-                            <template #default="scope: TableColumn<AlarmPassLinesEmailReceiverDto>">
-                                {{ formatAddress(scope.row) }}
+                            <template #default="{ row }: TableColumn<AlarmPassLinesEmailReceiverDto>">
+                                {{ formatAddress(row) }}
                             </template>
                         </el-table-column>
                         <el-table-column>
-                            <template #default="scope: TableColumn<AlarmPassLinesEmailReceiverDto>">
-                                {{ formatSchedule(scope.row) }}
+                            <template #default="{ row }: TableColumn<AlarmPassLinesEmailReceiverDto>">
+                                {{ formatSchedule(row) }}
                             </template>
                         </el-table-column>
                         <el-table-column
                             :label="Translate('IDCS_DELETE')"
                             width="70"
                         >
-                            <template #default="scope: TableColumn<AlarmPassLinesEmailReceiverDto>">
+                            <template #default="{ row }: TableColumn<AlarmPassLinesEmailReceiverDto>">
                                 <BaseImgSprite
                                     file="del"
                                     :chunk="4"
@@ -157,7 +157,7 @@
                                     :active-index="1"
                                     :disabled-index="3"
                                     :disabled="!pageData.data.sendEmailData.enableSwitch"
-                                    @click="delReceiver(scope.row)"
+                                    @click="delReceiver(row)"
                                 />
                             </template>
                         </el-table-column>

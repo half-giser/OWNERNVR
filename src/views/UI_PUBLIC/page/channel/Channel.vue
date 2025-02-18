@@ -21,8 +21,8 @@
                     :label="Translate('IDCS_CHANNEL_NAME')"
                     min-width="200"
                 >
-                    <template #default="scope: TableColumn<ChannelInfoDto>">
-                        {{ formatDisplayName(scope.row) }}
+                    <template #default="{ row }: TableColumn<ChannelInfoDto>">
+                        {{ formatDisplayName(row) }}
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -34,21 +34,21 @@
                     :label="Translate('IDCS_PORT')"
                     width="80"
                 >
-                    <template #default="scope: TableColumn<ChannelInfoDto>">
+                    <template #default="{ row }: TableColumn<ChannelInfoDto>">
                         <!-- 模拟通道端口置空 -->
-                        {{ scope.row.ip === '' ? '' : scope.row.port }}
+                        {{ row.ip === '' ? '' : row.port }}
                     </template>
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_CONNECT_STATUS')"
                     width="100"
                 >
-                    <template #default="scope: TableColumn<ChannelInfoDto>">
+                    <template #default="{ row }: TableColumn<ChannelInfoDto>">
                         <span
                             class="status"
-                            :class="[scope.row.isOnline ? 'text-online' : 'text-offline']"
+                            :class="[row.isOnline ? 'text-online' : 'text-offline']"
                         >
-                            {{ scope.row.ip === '' ? '' : scope.row.isOnline ? Translate('IDCS_ONLINE') : Translate('IDCS_OFFLINE') }}
+                            {{ row.ip === '' ? '' : row.isOnline ? Translate('IDCS_ONLINE') : Translate('IDCS_OFFLINE') }}
                         </span>
                     </template>
                 </el-table-column>
@@ -56,8 +56,8 @@
                     :label="Translate('IDCS_PROTOCOL')"
                     min-width="140"
                 >
-                    <template #default="scope: TableColumn<ChannelInfoDto>">
-                        {{ formatDisplayManufacturer(scope.row) }}
+                    <template #default="{ row }: TableColumn<ChannelInfoDto>">
+                        {{ formatDisplayManufacturer(row) }}
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -69,14 +69,14 @@
                     :label="Translate('IDCS_PREVIEW')"
                     width="80"
                 >
-                    <template #default="scope: TableColumn<ChannelInfoDto>">
+                    <template #default="{ row }: TableColumn<ChannelInfoDto>">
                         <BaseImgSprite
                             file="play (3)"
                             :chunk="4"
                             :index="0"
                             :hover-index="1"
                             :active-index="1"
-                            @click="handlePreview(scope.row)"
+                            @click="handlePreview(row)"
                         />
                     </template>
                 </el-table-column>
@@ -96,14 +96,14 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<ChannelInfoDto>">
+                    <template #default="{ row }: TableColumn<ChannelInfoDto>">
                         <BaseImgSprite
                             file="edit (2)"
                             :chunk="4"
                             :index="0"
                             :hover-index="1"
                             :active-index="1"
-                            @click="handleEditChannel(scope.row)"
+                            @click="handleEditChannel(row)"
                         />
                     </template>
                 </el-table-column>
@@ -123,17 +123,15 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<ChannelInfoDto>">
+                    <template #default="{ row }: TableColumn<ChannelInfoDto>">
                         <BaseImgSprite
                             file="del"
                             :chunk="4"
                             :index="0"
                             :hover-index="1"
                             :active-index="1"
-                            :class="{
-                                disabled: scope.row.delDisabled,
-                            }"
-                            @click="handleDelChannel(scope.row)"
+                            :disabled="row.delDisabled"
+                            @click="handleDelChannel(row)"
                         />
                     </template>
                 </el-table-column>
@@ -141,15 +139,15 @@
                     :label="Translate('IDCS_CONFIGURATION')"
                     width="80"
                 >
-                    <template #default="scope: TableColumn<ChannelInfoDto>">
+                    <template #default="{ row }: TableColumn<ChannelInfoDto>">
                         <BaseImgSprite
-                            v-show="scope.row.showSetting"
+                            v-show="row.showSetting"
                             file="localCfg"
                             :chunk="4"
                             :index="0"
                             :hover-index="1"
                             :active-index="1"
-                            @click="handleSettingChannel(scope.row)"
+                            @click="handleSettingChannel(row)"
                         />
                     </template>
                 </el-table-column>
@@ -169,33 +167,33 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<ChannelInfoDto>">
+                    <template #default="{ row }: TableColumn<ChannelInfoDto>">
                         <BaseImgSprite
-                            v-show="handleShowUpgradeBtn(scope.row) && scope.row.upgradeStatus === 'normal'"
+                            v-show="handleShowUpgradeBtn(row) && row.upgradeStatus === 'normal'"
                             file="upload"
                             :chunk="4"
                             :index="0"
                             :hover-index="1"
                             :active-index="1"
                             :disabled-index="3"
-                            :disabled="scope.row.upgradeDisabled"
-                            @click="handleUpgradeIPC(scope.row)"
+                            :disabled="row.upgradeDisabled"
+                            @click="handleUpgradeIPC(row)"
                         />
                         <BaseImgSprite
-                            v-show="scope.row.upgradeStatus === 'error'"
+                            v-show="row.upgradeStatus === 'error'"
                             file="error"
                             :chunk="1"
                             :index="0"
-                            @click="handleUpgradeIPC(scope.row)"
+                            @click="handleUpgradeIPC(row)"
                         />
                         <BaseImgSprite
-                            v-show="scope.row.upgradeStatus === 'success'"
+                            v-show="row.upgradeStatus === 'success'"
                             file="success"
                             :chunk="1"
                             :index="0"
-                            @click="handleUpgradeIPC(scope.row)"
+                            @click="handleUpgradeIPC(row)"
                         />
-                        <span v-show="scope.row.upgradeStatus === 'progress'">{{ scope.row.upgradeProgressText }}</span>
+                        <span v-show="row.upgradeStatus === 'progress'">{{ row.upgradeProgressText }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column

@@ -24,13 +24,16 @@
     --main-bg: #222;
     --main-border: #666;
 
-    --content-border: #898989;
+    --content-border: #999;
+    --live-border: #999;
+    --live-wasm-border: #4e535a;
 
     --subheading-text: #ddd;
     --subheading-bg: #343434;
 
     --header-bg: var(--main-bg);
     --header-text: var(--main-text);
+    --header-border: #666;
     --header-menu-text: #ddd;
     --header-menu-text-hover: #ddd;
     --header-menu-text-active: var(--primary);
@@ -41,8 +44,8 @@
     --header-menu-border-hover: #fff;
     --header-menu-border-active: var(--primary);
 
-    --footer-text: var(--header-menu-text);
-    --footer-bg: unset;
+    --footer-text: #676767;
+    --footer-bg: #fff;
 
     --input-text: #fff;
     --input-text-disabled: #545454;
@@ -83,12 +86,14 @@
     --table-border: #5c5c5c;
     --table-stripe: #343434;
     --table-expand-bg: #343434;
+    --table-wrap-bg: #343434;
 
     --table-tbody-border: #5c5c5c;
 
     --table-thead-text: #fff;
     --table-thead-bg: #343434;
-    --table-thead-border: #ccc;
+    --table-thead-border: #5c5c5c;
+    --table-thead-bottom-border: #ccc;
     --table-checkbox-border-checked: #e9efff;
 
     --dialog-title: #ddd;

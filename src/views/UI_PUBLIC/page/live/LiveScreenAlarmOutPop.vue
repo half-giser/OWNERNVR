@@ -31,15 +31,15 @@
                         prop="name"
                     />
                     <el-table-column :label="Translate('IDCS_STATE')">
-                        <template #default="scope: TableColumn<LiveAlarmList>">
-                            {{ displaySwitch(scope.row.switch) }}
+                        <template #default="{ row }: TableColumn<LiveAlarmList>">
+                            {{ displaySwitch(row.switch) }}
                         </template>
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_MANUAL_TRIGGER')">
-                        <template #default="scope: TableColumn<LiveAlarmList>">
+                        <template #default="{ row, $index }: TableColumn<LiveAlarmList>">
                             <el-button
                                 :disabled
-                                @click="setStatus(scope.row.id, scope.$index, true)"
+                                @click="setStatus(row.id, $index, true)"
                             >
                                 {{ Translate('IDCS_MANUAL_TRIGGER') }}
                             </el-button>
@@ -67,9 +67,9 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope: TableColumn<LiveAlarmList>">
+                        <template #default="{ row }: TableColumn<LiveAlarmList>">
                             <el-select-v2
-                                v-model="scope.row.delay"
+                                v-model="row.delay"
                                 :disabled
                                 :options="pageData.delayList"
                             />
@@ -88,10 +88,10 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope: TableColumn<LiveAlarmList>">
+                        <template #default="{ row, $index }: TableColumn<LiveAlarmList>">
                             <el-button
                                 :disabled
-                                @click="setStatus(scope.row.id, scope.$index, false)"
+                                @click="setStatus(row.id, $index, false)"
                             >
                                 {{ Translate('IDCS_CLEAR_AWAY') }}
                             </el-button>

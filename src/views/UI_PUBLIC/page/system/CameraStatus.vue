@@ -15,26 +15,26 @@
                 prop="name"
             />
             <el-table-column :label="Translate('IDCS_CONNECT_STATUS')">
-                <template #default="scope: TableColumn<SystemChannelStatusList>">
-                    <span :class="{ 'text-error': !scope.row.online }">{{ scope.row.online ? Translate('IDCS_ONLINE') : Translate('IDCS_OFFLINE') }}</span>
+                <template #default="{ row }: TableColumn<SystemChannelStatusList>">
+                    <span :class="{ 'text-error': !row.online }">{{ row.online ? Translate('IDCS_ONLINE') : Translate('IDCS_OFFLINE') }}</span>
                 </template>
             </el-table-column>
             <el-table-column :label="Translate('IDCS_MOTION_DETECTION')">
-                <template #default="scope: TableColumn<SystemChannelStatusList>">
-                    {{ formatMotionStatus(scope.row) }}
+                <template #default="{ row }: TableColumn<SystemChannelStatusList>">
+                    {{ formatMotionStatus(row) }}
                 </template>
             </el-table-column>
             <el-table-column
                 v-if="systemCaps.ipChlMaxCount > 0"
                 :label="Translate('IDCS_AI')"
             >
-                <template #default="scope: TableColumn<SystemChannelStatusList>">
-                    {{ formatIntelligentStatus(scope.row) }}
+                <template #default="{ row }: TableColumn<SystemChannelStatusList>">
+                    {{ formatIntelligentStatus(row) }}
                 </template>
             </el-table-column>
             <el-table-column :label="Translate('IDCS_RECORD')">
-                <template #default="scope: TableColumn<SystemChannelStatusList>">
-                    <span :class="{ 'text-error': scope.row.online && scope.row.recStatus === 'recordingAbnormal' }">{{ formatRecStatus(scope.row) }}</span>
+                <template #default="{ row }: TableColumn<SystemChannelStatusList>">
+                    <span :class="{ 'text-error': row.online && row.recStatus === 'recordingAbnormal' }">{{ formatRecStatus(row) }}</span>
                 </template>
             </el-table-column>
         </el-table>

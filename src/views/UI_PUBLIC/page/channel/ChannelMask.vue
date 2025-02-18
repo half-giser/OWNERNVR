@@ -69,10 +69,10 @@
                         label=" "
                         width="50"
                     >
-                        <template #default="scope: TableColumn<ChannelMaskDto>">
+                        <template #default="{ row }: TableColumn<ChannelMaskDto>">
                             <BaseTableRowStatus
-                                :icon="scope.row.status"
-                                :error-text="scope.row.statusTip"
+                                :icon="row.status"
+                                :error-text="row.statusTip"
                             />
                         </template>
                     </el-table-column>
@@ -103,13 +103,13 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope: TableColumn<ChannelMaskDto>">
+                        <template #default="{ row }: TableColumn<ChannelMaskDto>">
                             <el-select-v2
-                                v-if="!scope.row.isSpeco"
-                                v-model="scope.row.switch"
-                                :disabled="scope.row.disabled"
+                                v-if="!row.isSpeco"
+                                v-model="row.switch"
+                                :disabled="row.disabled"
                                 :options="switchOptions"
-                                @focus="handleRowClick(scope.row)"
+                                @focus="handleRowClick(row)"
                                 @change="handleChangeSwitch()"
                             />
                         </template>
@@ -118,8 +118,8 @@
                         :label="Translate('IDCS_COLOR')"
                         min-width="120"
                     >
-                        <template #default="scope: TableColumn<ChannelMaskDto>">
-                            <span v-if="!scope.row.isSpeco">{{ colorMap[scope.row.color] }}</span>
+                        <template #default="{ row }: TableColumn<ChannelMaskDto>">
+                            <span v-if="!row.isSpeco">{{ colorMap[row.color] }}</span>
                         </template>
                     </el-table-column>
                 </el-table>

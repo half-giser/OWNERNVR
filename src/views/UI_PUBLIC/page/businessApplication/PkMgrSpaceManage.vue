@@ -22,9 +22,9 @@
                     min-width="200"
                     :label="Translate('IDCS_PARKING_TYPE')"
                 >
-                    <template #default="scope: TableColumn<BusinessPkMgrSpaceManageList>">
+                    <template #default="{ row }: TableColumn<BusinessPkMgrSpaceManageList>">
                         <el-select-v2
-                            v-model="scope.row.parkingType"
+                            v-model="row.parkingType"
                             :options="pageData.parkingTypeList"
                         />
                     </template>
@@ -33,12 +33,12 @@
                     width="200"
                     :label="Translate('IDCS_TOTAL_VEHICLE_NUM')"
                 >
-                    <template #default="scope: TableColumn<BusinessPkMgrSpaceManageList>">
+                    <template #default="{ row }: TableColumn<BusinessPkMgrSpaceManageList>">
                         <BaseNumberInput
-                            v-model="scope.row.groupTotalNum"
+                            v-model="row.groupTotalNum"
                             :min="0"
                             :max="10000"
-                            :disabled="scope.row.parkingType !== 'usingGroup'"
+                            :disabled="row.parkingType !== 'usingGroup'"
                         />
                     </template>
                 </el-table-column>
@@ -46,12 +46,12 @@
                     width="200"
                     :label="Translate('IDCS_REMAIN_VEHICLE_NUM')"
                 >
-                    <template #default="scope: TableColumn<BusinessPkMgrSpaceManageList>">
+                    <template #default="{ row }: TableColumn<BusinessPkMgrSpaceManageList>">
                         <BaseNumberInput
-                            v-model="scope.row.groupRemainNum"
+                            v-model="row.groupRemainNum"
                             :min="0"
                             :max="10000"
-                            :disabled="scope.row.parkingType !== 'usingGroup'"
+                            :disabled="row.parkingType !== 'usingGroup'"
                         />
                     </template>
                 </el-table-column>
@@ -74,11 +74,11 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<BusinessPkMgrSpaceManageList>">
+                    <template #default="{ row }: TableColumn<BusinessPkMgrSpaceManageList>">
                         <el-select-v2
-                            v-model="scope.row.groupSchedule"
+                            v-model="row.groupSchedule"
                             :options="pageData.scheduleList"
-                            @change="changeSingleSchedule(scope.row)"
+                            @change="changeSingleSchedule(row)"
                         />
                     </template>
                 </el-table-column>
@@ -86,8 +86,8 @@
                     min-width="200"
                     :label="Translate('IDCS_EMAIL')"
                 >
-                    <template #default="scope: TableColumn<BusinessPkMgrSpaceManageList>">
-                        <el-input v-model="scope.row.linkEmail" />
+                    <template #default="{ row }: TableColumn<BusinessPkMgrSpaceManageList>">
+                        <el-input v-model="row.linkEmail" />
                     </template>
                 </el-table-column>
             </el-table>

@@ -42,12 +42,12 @@ export default defineComponent({
             systemList: [
                 {
                     id: 'main',
-                    label: `${Translate('IDCS_MAIN_SYSTEM').formatForLang('1')} :`,
+                    label: `${Translate('IDCS_MAIN_SYSTEM').formatForLang(1)} :`,
                     value: '',
                 },
                 {
                     id: 'backup',
-                    label: `${Translate('IDCS_MAIN_SYSTEM').formatForLang('2')} :`,
+                    label: `${Translate('IDCS_MAIN_SYSTEM').formatForLang(2)} :`,
                     value: '',
                 },
             ],

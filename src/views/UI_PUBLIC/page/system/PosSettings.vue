@@ -31,9 +31,9 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<SystemPosList>">
+                    <template #default="{ row }: TableColumn<SystemPosList>">
                         <el-select-v2
-                            v-model="scope.row.switch"
+                            v-model="row.switch"
                             :options="pageData.switchOption"
                         />
                     </template>
@@ -58,9 +58,9 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<SystemPosList>">
+                    <template #default="{ row }: TableColumn<SystemPosList>">
                         <el-select-v2
-                            v-model="scope.row.connectionType"
+                            v-model="row.connectionType"
                             :options="pageData.connectionTypeList"
                         />
                     </template>
@@ -70,8 +70,8 @@
                     :label="Translate('IDCS_CONNECTION_SETTINGS')"
                     width="150"
                 >
-                    <template #default="scope: TableColumn<SystemPosList>">
-                        <el-button @click="setConnection(scope.$index)">{{ Translate('IDCS_CONFIG') }}</el-button>
+                    <template #default="{ $index }: TableColumn<SystemPosList>">
+                        <el-button @click="setConnection($index)">{{ Translate('IDCS_CONFIG') }}</el-button>
                     </template>
                 </el-table-column>
                 <!-- 协议 -->
@@ -94,9 +94,9 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<SystemPosList>">
+                    <template #default="{ row }: TableColumn<SystemPosList>">
                         <el-select-v2
-                            v-model="scope.row.manufacturers"
+                            v-model="row.manufacturers"
                             :options="pageData.manufacturersList"
                         />
                     </template>
@@ -106,15 +106,15 @@
                     :label="Translate('IDCS_CHANNEL_TRGGER')"
                     width="150"
                 >
-                    <template #default="scope: TableColumn<SystemPosList>">
+                    <template #default="{ row, $index }: TableColumn<SystemPosList>">
                         <div class="base-cell-box">
                             <el-checkbox
-                                v-model="scope.row.triggerChl.switch"
-                                @change="changeTriggerChannel(scope.$index)"
+                                v-model="row.triggerChl.switch"
+                                @change="changeTriggerChannel($index)"
                             />
                             <el-button
-                                :disabled="!scope.row.triggerChl.switch"
-                                @click="setTriggerChannel(scope.$index)"
+                                :disabled="!row.triggerChl.switch"
+                                @click="setTriggerChannel($index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
@@ -128,8 +128,8 @@
                             {{ Translate('IDCS_DISPLAY_SETTINGS') }}
                         </BaseTableDropdownLink>
                     </template>
-                    <template #default="scope: TableColumn<SystemPosList>">
-                        <el-button @click="setDisplay(scope.$index)">{{ Translate('IDCS_CONFIG') }}</el-button>
+                    <template #default="{ $index }: TableColumn<SystemPosList>">
+                        <el-button @click="setDisplay($index)">{{ Translate('IDCS_CONFIG') }}</el-button>
                     </template>
                 </el-table-column>
                 <!-- 编码格式 -->
@@ -152,9 +152,9 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<SystemPosList>">
+                    <template #default="{ row }: TableColumn<SystemPosList>">
                         <el-select-v2
-                            v-model="scope.row.encodeFormat"
+                            v-model="row.encodeFormat"
                             :options="pageData.encodeList"
                         />
                     </template>

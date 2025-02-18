@@ -12,6 +12,10 @@ export default defineComponent({
         //去掉在控制面板不需要显示的菜单项，并排序
         const configModules = ref<RouteRecordRawExtends[]>([])
         const layoutStore = useLayoutStore()
+        const systemCaps = useCababilityStore()
+
+        // 以下菜单不会在UI2-A的三级菜单中显示
+        const HIDDEN_ROUTES = ['channelGroupAdd', 'cruiseGroup', 'trace', 'ptzTask', 'ptzProtocol', 'permissionGroupAdd']
 
         const pageData = ref({
             // 选中的一级菜单
@@ -25,6 +29,11 @@ export default defineComponent({
          */
         const getConfigModule = () => {
             configModules.value = getMenuItems(layoutStore.configMenu?.children || []).filter((item) => !!item.meta?.groups)
+            configModules.value.forEach((item) => {
+                item.children = item.children.filter((child) => {
+                    return (!child.meta.hasCap || child.meta.hasCap(systemCaps)) && !HIDDEN_ROUTES.includes(child.name as string)
+                })
+            })
 
             const menuIndex = configModules.value.findIndex((item) => !getMenuDisabled(item))
             if (menuIndex > -1) {
@@ -39,9 +48,13 @@ export default defineComponent({
             if (!configModules.value[pageData.value.mainMenuIndex]?.meta.groups) {
                 return []
             }
-            return Object.entries(configModules.value[pageData.value.mainMenuIndex].meta.groups!).toSorted((a, b) => {
-                return a[1].sort! - b[1].sort!
-            })
+            return Object.entries(configModules.value[pageData.value.mainMenuIndex].meta.groups!)
+                .filter((item) => {
+                    return configModules.value[pageData.value.mainMenuIndex].children.filter((child) => item[0] === child.meta.group).length > 0
+                })
+                .toSorted((a, b) => {
+                    return a[1].sort! - b[1].sort!
+                })
         })
 
         // 三级菜单

@@ -106,6 +106,9 @@
                                         :key="index - 1"
                                         :label="index"
                                         :value="index - 1"
+                                        :class="{
+                                            checked: pageData.warnAreaChecked.includes(pageData.warnArea),
+                                        }"
                                     />
                                 </el-radio-group>
                             </el-form-item>

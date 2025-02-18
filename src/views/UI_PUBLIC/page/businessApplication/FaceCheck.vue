@@ -131,8 +131,8 @@
         <div class="base-table-box">
             <el-table :data="sliceTableData">
                 <el-table-column :label="Translate('No.')">
-                    <template #default="scope: TableColumn<BusinessFaceCheckList>">
-                        {{ displayIndex(scope.$index) }}
+                    <template #default="{ $index }: TableColumn<BusinessFaceCheckList>">
+                        {{ displayIndex($index) }}
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -144,23 +144,23 @@
                     prop="groupName"
                 />
                 <el-table-column :label="Translate('IDCS_ATTENDANCE_CHECKED')">
-                    <template #default="scope: TableColumn<BusinessFaceCheckList>">
-                        {{ displayStatus(scope.row.checked) }}
+                    <template #default="{ row }: TableColumn<BusinessFaceCheckList>">
+                        {{ displayStatus(row.checked) }}
                     </template>
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_ATTENDANCE_UNCHECK')">
-                    <template #default="scope: TableColumn<BusinessFaceCheckList>">
-                        <span class="text-error">{{ displayStatus(scope.row.unchecked) }}</span>
+                    <template #default="{ row }: TableColumn<BusinessFaceCheckList>">
+                        <span class="text-error">{{ displayStatus(row.unchecked) }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_DETAIL')">
-                    <template #default="scope: TableColumn<BusinessFaceCheckList>">
+                    <template #default="{ $index }: TableColumn<BusinessFaceCheckList>">
                         <BaseImgSprite
                             file="edit (2)"
                             :index="0"
                             :hover-index="1"
                             :chunk="4"
-                            @click="showDetail(scope.$index)"
+                            @click="showDetail($index)"
                         />
                     </template>
                 </el-table-column>

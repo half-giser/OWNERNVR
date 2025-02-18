@@ -23,12 +23,12 @@
                 width="178"
                 :label="Translate('IDCS_PRESET_NAME')"
             >
-                <template #default="scope: TableColumn<SelectOption<string, string>>">
+                <template #default="{ row }: TableColumn<SelectOption<string, string>>">
                     <el-select-v2
-                        :model-value="selected[scope.row.value]"
-                        :options="pageData.presetList[scope.row.value]"
-                        @visible-change="getPresetList(scope.row)"
-                        @update:model-value="change(scope.row, $event)"
+                        :model-value="selected[row.value]"
+                        :options="pageData.presetList[row.value]"
+                        @visible-change="getPresetList(row)"
+                        @update:model-value="change(row, $event)"
                     />
                 </template>
             </el-table-column>

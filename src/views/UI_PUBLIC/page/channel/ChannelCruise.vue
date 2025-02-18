@@ -122,7 +122,7 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope: TableColumn<ChannelPtzCruisePresetDto>">
+                        <template #default="{ $index }: TableColumn<ChannelPtzCruisePresetDto>">
                             <div class="base-cell-box">
                                 <BaseImgSprite
                                     file="edit (2)"
@@ -130,7 +130,7 @@
                                     :hover-index="0"
                                     :disabled-index="3"
                                     :chunk="4"
-                                    @click="editPreset(scope.$index)"
+                                    @click="editPreset($index)"
                                 />
                                 <BaseImgSprite
                                     file="del"
@@ -138,7 +138,7 @@
                                     :hover-index="0"
                                     :disabled-index="3"
                                     :chunk="4"
-                                    @click="deletePreset(scope.$index)"
+                                    @click="deletePreset($index)"
                                 />
                             </div>
                         </template>
@@ -178,24 +178,25 @@
                     :expand-row-key="pageData.expandRowKey"
                     highlight-current-row
                     show-overflow-tooltip
+                    :border="false"
                     @row-click="handleRowClick"
                     @expand-change="handleExpandChange"
                 >
                     <el-table-column prop="chlName" />
                     <el-table-column>
-                        <template #default="scope: TableColumn<ChannelPtzCruiseChlDto>">
-                            {{ Translate('IDCS_CRUISE_NUM_D').formatForLang(scope.row.cruiseCount) }}
+                        <template #default="{ row }: TableColumn<ChannelPtzCruiseChlDto>">
+                            {{ Translate('IDCS_CRUISE_NUM_D').formatForLang(row.cruiseCount) }}
                         </template>
                     </el-table-column>
                     <el-table-column type="expand">
-                        <template #default="scope: TableColumn<ChannelPtzCruiseChlDto>">
-                            <ChannelPtzTableExpandPanel @add="addCruise(scope.$index)">
+                        <template #default="{ row, $index }: TableColumn<ChannelPtzCruiseChlDto>">
+                            <ChannelPtzTableExpandPanel @add="addCruise($index)">
                                 <ChannelPtzTableExpandItem
-                                    v-for="(item, index) in scope.row.cruise"
+                                    v-for="(item, index) in row.cruise"
                                     :key="item.index"
                                     :text="`${item.index}. ${item.name}`"
                                     file="cruise"
-                                    @delete="deleteCruise(scope.$index, index)"
+                                    @delete="deleteCruise($index, index)"
                                 />
                             </ChannelPtzTableExpandPanel>
                         </template>

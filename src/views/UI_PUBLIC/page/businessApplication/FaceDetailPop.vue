@@ -63,19 +63,19 @@
                         prop="day"
                     />
                     <el-table-column :label="Translate('IDCS_TYPE')">
-                        <template #default="scope: TableColumn<BusinessFaceDetailList>">
+                        <template #default="{ row }: TableColumn<BusinessFaceDetailList>">
                             <span
                                 :class="{
-                                    'text-error': scope.row.alarm,
+                                    'text-error': row.alarm,
                                 }"
                             >
-                                {{ scope.row.type }}
+                                {{ row.type }}
                             </span>
                         </template>
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_ATTENDANCE_DETAIL')">
-                        <template #default="scope: TableColumn<BusinessFaceDetailList>">
-                            {{ displayDetail(scope.row.detail) }}
+                        <template #default="{ row }: TableColumn<BusinessFaceDetailList>">
+                            {{ displayDetail(row.detail) }}
                         </template>
                     </el-table-column>
                 </el-table>

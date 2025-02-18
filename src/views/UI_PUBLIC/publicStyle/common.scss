@@ -365,6 +365,17 @@ input[type='number'] {
         }
     }
 
+    .el-input {
+        &.middle {
+            line-height: 27px;
+            height: 27px;
+
+            .el-input__wrapper {
+                padding-inline: 10px;
+            }
+        }
+    }
+
     .el-input-number {
         &.is-without-controls {
             .el-input__inner {
@@ -568,6 +579,13 @@ input[type='number'] {
 
                 & + .el-radio-button .el-radio-button__inner {
                     border: 1px solid var(--btn-border);
+                }
+
+                &.checked:not(.is-active, :hover) {
+                    .el-radio-button__inner {
+                        color: var(--primary);
+                        border-color: var(--primary);
+                    }
                 }
             }
         }
@@ -850,11 +868,4 @@ input[type='number'] {
     to {
         opacity: 0;
     }
-}
-
-.base-tooltip {
-    max-width: 50vw;
-    color: var(--tooltip-text) !important;
-    padding: 2px 8px !important;
-    border-color: var(--tooltip-border) !important;
 }

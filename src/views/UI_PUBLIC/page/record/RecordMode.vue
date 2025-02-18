@@ -9,7 +9,7 @@
         <el-form
             :style="{
                 '--form-input-width': '250px',
-                '--form-label-width': 'auto',
+                '--form-label-width': '200px',
             }"
         >
             <el-form-item :label="Translate('IDCS_MODE')">
@@ -59,9 +59,9 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope: TableColumn<RecordScheduleDto>">
+                        <template #default="{ row }: TableColumn<RecordScheduleDto>">
                             <el-select-v2
-                                v-model="scope.row.alarmRec"
+                                v-model="row.alarmRec"
                                 :options="pageData.scheduleList"
                             />
                         </template>
@@ -87,9 +87,9 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope: TableColumn<RecordScheduleDto>">
+                        <template #default="{ row }: TableColumn<RecordScheduleDto>">
                             <el-select-v2
-                                v-model="scope.row.motionRec"
+                                v-model="row.motionRec"
                                 :options="pageData.scheduleList"
                             />
                         </template>
@@ -115,9 +115,9 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope: TableColumn<RecordScheduleDto>">
+                        <template #default="{ row }: TableColumn<RecordScheduleDto>">
                             <el-select-v2
-                                v-model="scope.row.intelligentRec"
+                                v-model="row.intelligentRec"
                                 :options="pageData.scheduleList"
                             />
                         </template>
@@ -143,9 +143,9 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope: TableColumn<RecordScheduleDto>">
+                        <template #default="{ row }: TableColumn<RecordScheduleDto>">
                             <el-select-v2
-                                v-model="scope.row.posRec"
+                                v-model="row.posRec"
                                 :options="pageData.scheduleList"
                             />
                         </template>
@@ -171,9 +171,9 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope: TableColumn<RecordScheduleDto>">
+                        <template #default="{ row }: TableColumn<RecordScheduleDto>">
                             <el-select-v2
-                                v-model="scope.row.scheduleRec"
+                                v-model="row.scheduleRec"
                                 :options="pageData.scheduleList"
                             />
                         </template>
@@ -230,7 +230,7 @@
         <el-form
             :style="{
                 '--form-input-width': '250px',
-                '--form-label-width': 'auto',
+                '--form-label-width': '200px',
             }"
         >
             <el-form-item :label="Translate('IDCS_MANUAL_RECORD_OPTION')">

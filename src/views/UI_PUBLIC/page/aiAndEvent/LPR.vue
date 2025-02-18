@@ -97,6 +97,9 @@
                                                 :key="index"
                                                 :label="index + 1"
                                                 :value="index"
+                                                :class="{
+                                                    checked: detectionPageData.regionAreaChecked.includes(detectionPageData.regionArea),
+                                                }"
                                             />
                                         </el-radio-group>
                                     </el-form-item>
@@ -111,6 +114,9 @@
                                                 :key="index"
                                                 :label="index + 1"
                                                 :value="index"
+                                                :class="{
+                                                    checked: detectionPageData.maskAreaChecked.includes(detectionPageData.maskArea),
+                                                }"
                                             />
                                         </el-radio-group>
                                     </el-form-item>

@@ -190,18 +190,18 @@
             >
                 <el-table-column prop="label" />
                 <el-table-column type="expand">
-                    <template #default="scope: TableColumn<NetPlatformSipList>">
+                    <template #default="{ row, $index }: TableColumn<NetPlatformSipList>">
                         <el-table
-                            :data="scope.row.list"
+                            :data="row.list"
                             class="expand-table"
                             :row-class-name="handleRowClassName"
                         >
                             <el-table-column
-                                :label="scope.row.value === 'chl' ? Translate('IDCS_CHANNEL_NAME') : Translate('IDCS_NAME')"
+                                :label="row.value === 'chl' ? Translate('IDCS_CHANNEL_NAME') : Translate('IDCS_NAME')"
                                 prop="text"
                             />
                             <el-table-column
-                                :label="scope.row.value === 'chl' ? Translate('IDCS_CAMERA_CODE_ID') : Translate('IDCS_ALARM_IN_CODE_ID')"
+                                :label="row.value === 'chl' ? Translate('IDCS_CAMERA_CODE_ID') : Translate('IDCS_ALARM_IN_CODE_ID')"
                                 prop="gbId"
                             />
                             <el-table-column :label="Translate('IDCS_EDIT')">
@@ -213,7 +213,7 @@
                                         :chunk="4"
                                         :disabled-index="3"
                                         :disabled="!formData.gb28181Switch"
-                                        @click="editCodeId(scope.$index, item.row)"
+                                        @click="editCodeId($index, item.row)"
                                     />
                                 </template>
                             </el-table-column>

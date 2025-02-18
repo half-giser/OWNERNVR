@@ -33,14 +33,14 @@
                 :row-class-name="handleRowClassName"
             >
                 <el-table-column :label="Translate('IDCS_PORT_TYPE')">
-                    <template #default="scope: TableColumn<NetUPnPPortDto>">
-                        {{ displayPortType(scope.row.portType) }}
+                    <template #default="{ row }: TableColumn<NetUPnPPortDto>">
+                        {{ displayPortType(row.portType) }}
                     </template>
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_EXT_PORT')">
-                    <template #default="scope: TableColumn<NetUPnPPortDto>">
+                    <template #default="{ row }: TableColumn<NetUPnPPortDto>">
                         <BaseNumberInput
-                            v-model="scope.row.externalPort"
+                            v-model="row.externalPort"
                             :min="10"
                             :max="65535"
                             :disabled="pageData.wirelessSwitch || !formData.switch || formData.mappingType !== 'manually'"

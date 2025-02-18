@@ -22,6 +22,7 @@
     --el-component-size: 21px;
     --el-border-radius-small: 0;
     --el-checkbox-height: 21px;
+    --el-text-color-placeholder: #777;
 }
 
 #n9web {
@@ -256,9 +257,13 @@
         --el-table-current-row-bg-color: var(--primary);
         --el-table-expanded-cell-bg-color: var(--main-bg);
 
+        &:not(.el-table--border) {
+            border: 1px solid var(--table-border);
+        }
+
         &__body {
             &-wrapper {
-                background-color: var(--main-bg);
+                background-color: var(--table-wrap-bg);
             }
 
             .el-form-item__content {
@@ -274,12 +279,14 @@
 
         th.el-table__cell {
             border-right-color: var(--table-thead-border);
-            border-bottom-color: var(--table-thead-border);
+            border-bottom-color: var(--table-thead-bottom-border);
+            padding: 8px 0;
         }
 
         td.el-table__cell {
             border-right-color: var(--table-tbody-border);
             border-bottom-color: var(--table-tbody-border);
+            padding: 11px 0;
         }
 
         thead.is-group th.el-table__cell {
@@ -300,7 +307,15 @@
         }
 
         &__expand-icon {
-            color: var(--main-text);
+            @include sprite($img-open, 0, 2);
+
+            svg {
+                display: none;
+            }
+
+            &--expanded {
+                transform: rotate(-180deg);
+            }
         }
 
         .el-table__row {
@@ -308,7 +323,7 @@
                 color: var(--table-text-disabled);
 
                 .el-table__expand-icon {
-                    color: var(--table-text-disabled);
+                    @include sprite($img-open, 1, 2);
                 }
             }
 
@@ -319,10 +334,6 @@
                     .el-table__cell {
                         background-color: var(--primary);
                     }
-                }
-
-                .el-table__expand-icon {
-                    color: var(--main-text-active);
                 }
             }
 
@@ -432,6 +443,13 @@
 
         &__arrow {
             display: none;
+        }
+
+        &[role='tooltip']:not(:has(div)) {
+            max-width: 50vw;
+            color: var(--tooltip-text);
+            padding: 2px 8px;
+            border-color: var(--tooltip-border);
         }
     }
 

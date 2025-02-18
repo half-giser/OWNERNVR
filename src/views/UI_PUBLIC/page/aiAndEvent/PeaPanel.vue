@@ -125,7 +125,7 @@
                                     <!-- 警戒区域 -->
                                     <el-form-item :label="Translate('IDCS_WARN_AREA')">
                                         <el-radio-group
-                                            v-model="pageData.chosenWarnAreaIndex"
+                                            v-model="pageData.warnAreaIndex"
                                             class="small-btn"
                                             @change="changeWarnArea()"
                                         >
@@ -134,6 +134,9 @@
                                                 :key="index"
                                                 :value="index"
                                                 :label="index + 1"
+                                                :class="{
+                                                    checked: pageData.warnAreaChecked.includes(pageData.warnAreaIndex),
+                                                }"
                                             />
                                         </el-radio-group>
                                     </el-form-item>

@@ -159,9 +159,9 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<NetFTPList>">
+                    <template #default="{ row }: TableColumn<NetFTPList>">
                         <el-select-v2
-                            v-model="scope.row.schedule"
+                            v-model="row.schedule"
                             :disabled="!formData.switch"
                             :options="pageData.scheduleOptions"
                         />
@@ -189,9 +189,9 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<NetFTPList>">
+                    <template #default="{ row }: TableColumn<NetFTPList>">
                         <el-select-v2
-                            v-model="scope.row.motion"
+                            v-model="row.motion"
                             :disabled="!formData.switch"
                             :options="pageData.switchOptions"
                         />
@@ -217,9 +217,9 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<NetFTPList>">
+                    <template #default="{ row }: TableColumn<NetFTPList>">
                         <el-select-v2
-                            v-model="scope.row.inteligence"
+                            v-model="row.inteligence"
                             :options="pageData.switchOptions"
                             :disabled="!formData.switch"
                         />
@@ -245,9 +245,9 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<NetFTPList>">
+                    <template #default="{ row }: TableColumn<NetFTPList>">
                         <el-select-v2
-                            v-model="scope.row.sensor"
+                            v-model="row.sensor"
                             :disabled="!formData.switch"
                             :options="pageData.switchOptions"
                         />
@@ -273,9 +273,9 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<NetFTPList>">
+                    <template #default="{ row }: TableColumn<NetFTPList>">
                         <el-select-v2
-                            v-model="scope.row.streamType"
+                            v-model="row.streamType"
                             :disabled="!formData.switch"
                             :options="pageData.streamTypeOptions"
                         />
@@ -303,9 +303,9 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<NetFTPList>">
+                    <template #default="{ row }: TableColumn<NetFTPList>">
                         <el-select-v2
-                            v-model="scope.row.ftpSnapSwitch"
+                            v-model="row.ftpSnapSwitch"
                             :disabled="!formData.switch"
                             :options="pageData.switchOptions"
                         />
@@ -333,9 +333,9 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<NetFTPList>">
+                    <template #default="{ row }: TableColumn<NetFTPList>">
                         <el-select-v2
-                            v-model="scope.row.ftpAlarmInfoSwitch"
+                            v-model="row.ftpAlarmInfoSwitch"
                             :disabled="!formData.switch"
                             :options="pageData.switchOptions"
                         />

@@ -49,7 +49,7 @@ const getHTML = (langKey: keyof typeof OCX_Plugin_Notice_Map, downloadUrl?: stri
     const item = OCX_Plugin_Notice_Map[langKey]
     return {
         warning: item.warning,
-        html: item.downloadUrl ? getPluginLoadLang(langKey).formatForLang(downloadUrl) : getPluginLoadLang(langKey),
+        html: item.downloadUrl ? getPluginLoadLang(langKey).formatForLang(downloadUrl!) : getPluginLoadLang(langKey),
     }
 }
 

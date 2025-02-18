@@ -75,7 +75,8 @@ export default defineComponent({
             scheduleList: [] as SelectOption<string, string>[],
             isSchedulePop: false,
             warnArea: 0,
-            configuredArea: [] as boolean[],
+            warnAreaChecked: [] as number[],
+            // configuredArea: [] as boolean[],
             // 声音列表
             voiceList: prop.voiceList,
         })
@@ -291,12 +292,11 @@ export default defineComponent({
 
         // 检测和屏蔽区域的样式初始化
         const refreshInitPage = () => {
-            formData.value.boundary.forEach((item, index) => {
-                if (item.points && item.points.length) {
-                    pageData.value.configuredArea[index] = true
-                } else {
-                    pageData.value.configuredArea[index] = false
+            pageData.value.warnAreaChecked = formData.value.boundary.map((item, index) => {
+                if (item.points.length) {
+                    return index
                 }
+                return -1
             })
             // 是否显示全部区域切换按钮和清除全部按钮（区域数量大于等于2时才显示）
             if (formData.value.boundary && formData.value.boundary.length > 1) {

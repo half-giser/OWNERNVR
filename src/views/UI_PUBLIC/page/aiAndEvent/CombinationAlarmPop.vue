@@ -28,11 +28,11 @@
                 width="150"
                 :label="Translate('IDCS_TYPE')"
             >
-                <template #default="scope: TableColumn<AlarmCombinedItemDto>">
+                <template #default="{ row, $index }: TableColumn<AlarmCombinedItemDto>">
                     <el-select-v2
-                        v-model="scope.row.alarmSourceType"
-                        :options="pageData.alarmSourceTypeList[scope.$index]"
-                        @change="changeType(scope.row, scope.$index)"
+                        v-model="row.alarmSourceType"
+                        :options="pageData.alarmSourceTypeList[$index]"
+                        @change="changeType(row, $index)"
                     />
                 </template>
             </el-table-column>
@@ -41,11 +41,11 @@
                 width="150"
                 :label="Translate('IDCS_ALARM_SOURCE')"
             >
-                <template #default="scope: TableColumn<AlarmCombinedItemDto>">
+                <template #default="{ row, $index }: TableColumn<AlarmCombinedItemDto>">
                     <el-select-v2
-                        v-model="scope.row.alarmSourceEntity.value"
-                        :options="pageData.alarmSourceEntityList[scope.$index]"
-                        @change="changeEntity(scope.row)"
+                        v-model="row.alarmSourceEntity.value"
+                        :options="pageData.alarmSourceEntityList[$index]"
+                        @change="changeEntity(row)"
                     />
                 </template>
             </el-table-column>
@@ -54,15 +54,15 @@
                 width="98"
                 :label="Translate('IDCS_OPERATION')"
             >
-                <template #default="scope: TableColumn<AlarmCombinedItemDto>">
+                <template #default="{ row }: TableColumn<AlarmCombinedItemDto>">
                     <BaseImgSprite
-                        v-show="scope.row.alarmSourceType === 'FaceMatch'"
+                        v-show="row.alarmSourceType === 'FaceMatch'"
                         file="edit (2)"
                         :chunk="4"
                         :index="0"
                         :hover-index="1"
                         :active-index="1"
-                        @click="editFaceMatch(scope.row.alarmSourceEntity.value)"
+                        @click="editFaceMatch(row.alarmSourceEntity.value)"
                     />
                 </template>
             </el-table-column>

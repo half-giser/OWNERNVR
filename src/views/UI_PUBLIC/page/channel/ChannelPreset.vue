@@ -96,6 +96,7 @@
                     :data="tableData"
                     :row-key="getRowKey"
                     :expand-row-key="pageData.expandRowKey"
+                    :border="false"
                     highlight-current-row
                     show-overflow-tooltip
                     @row-click="handleRowClick"
@@ -104,14 +105,14 @@
                     <el-table-column prop="chlName" />
                     <el-table-column :formatter="(row) => Translate('IDCS_PRESET_NUM_D').formatForLang(row.presetCount)" />
                     <el-table-column type="expand">
-                        <template #default="scope: TableColumn<ChannelPtzPresetChlDto>">
-                            <ChannelPtzTableExpandPanel @add="addPreset(scope.$index)">
+                        <template #default="{ row, $index }: TableColumn<ChannelPtzPresetChlDto>">
+                            <ChannelPtzTableExpandPanel @add="addPreset($index)">
                                 <ChannelPtzTableExpandItem
-                                    v-for="(item, index) in scope.row.presets"
+                                    v-for="(item, index) in row.presets"
                                     :key="item.index"
                                     :text="`${item.index}. ${item.name}`"
                                     file="preset"
-                                    @delete="deletePreset(scope.$index, index)"
+                                    @delete="deletePreset($index, index)"
                                 />
                             </ChannelPtzTableExpandPanel>
                         </template>

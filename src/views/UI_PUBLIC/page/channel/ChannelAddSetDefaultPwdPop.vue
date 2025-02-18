@@ -30,13 +30,13 @@
                     min-width="240"
                     class-name="cell-with-form-rule"
                 >
-                    <template #default="scope: TableColumn<ChannelDefaultPwdDto>">
+                    <template #default="{ row, $index }: TableColumn<ChannelDefaultPwdDto>">
                         <el-form-item
-                            :prop="`params.${scope.$index}.userName`"
+                            :prop="`params.${$index}.userName`"
                             :rules="rules.userName"
                         >
                             <el-input
-                                v-model="scope.row.userName"
+                                v-model="row.userName"
                                 :validate-event="false"
                                 :formatter="formatInputMaxLength"
                                 :parser="formatInputMaxLength"
@@ -49,19 +49,19 @@
                     :label="Translate('IDCS_PASSWORD')"
                     width="240"
                 >
-                    <template #default="scope: TableColumn<ChannelDefaultPwdDto>">
+                    <template #default="{ row, $index }: TableColumn<ChannelDefaultPwdDto>">
                         <span
-                            v-show="!scope.row.showInput"
-                            @click="handlePwdViewChange(scope.$index, scope.row)"
-                            >{{ scope.row.password ? Array(scope.row.password.length).fill('*').join('') : '******' }}</span
+                            v-show="!row.showInput"
+                            @click="handlePwdViewChange($index, row)"
+                            >{{ row.password ? Array(row.password.length).fill('*').join('') : '******' }}</span
                         >
                         <el-input
-                            v-show="scope.row.showInput"
-                            :ref="(ref) => (passwordInputRef[scope.$index] = ref)"
-                            v-model="scope.row.password"
+                            v-show="row.showInput"
+                            :ref="(ref) => (passwordInputRef[$index] = ref)"
+                            v-model="row.password"
                             type="password"
                             maxlength="64"
-                            @blur="handlePwdViewChange(scope.$index, scope.row)"
+                            @blur="handlePwdViewChange($index, row)"
                         />
                     </template>
                 </el-table-column>

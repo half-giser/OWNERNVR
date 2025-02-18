@@ -91,7 +91,8 @@ export default defineComponent({
             // activityType 1:perimeter 2:entry 3:leave
             activityType: 'perimeter',
             // 选择的警戒面index
-            chosenWarnAreaIndex: 0,
+            warnAreaIndex: 0,
+            warnAreaChecked: [] as number[],
             // 支持的活动类型列表
             supportList: [] as string[],
             // 云台锁定状态
@@ -330,14 +331,13 @@ export default defineComponent({
             const regulation = $param('content/chl/perimeter/param/boundary').attr('regulation') === '1'
             areaData.regulation = regulation
 
-            const boundaryInfo: { point: CanvasBasePoint[]; maxCount: number; configured: boolean }[] = []
+            const boundaryInfo: { point: CanvasBasePoint[]; maxCount: number }[] = []
             const regionInfo: CanvasBaseArea[] = []
             $param('boundary/item').forEach((element) => {
                 const $element = queryXml(element.element)
                 const boundary = {
                     point: [] as CanvasBasePoint[],
                     maxCount: $param('point').attr('maxCount').num(),
-                    configured: false,
                 }
                 const region = { X1: 0, Y1: 0, X2: 0, Y2: 0 }
                 $element('point/item').forEach((point, index) => {
@@ -352,23 +352,6 @@ export default defineComponent({
                 boundaryInfo.push(boundary)
                 regionInfo.push(region)
             })
-            if (regulation) {
-                regionInfo.forEach((ele, idx) => {
-                    if (ele.X1 || ele.Y1 || ele.X2 || ele.Y2) {
-                        boundaryInfo[idx].configured = true
-                    } else {
-                        boundaryInfo[idx].configured = false
-                    }
-                })
-            } else {
-                boundaryInfo.forEach((ele) => {
-                    if (ele.point.length > 0) {
-                        ele.configured = true
-                    } else {
-                        ele.configured = false
-                    }
-                })
-            }
 
             areaData.boundaryInfo = boundaryInfo
             areaData.regionInfo = regionInfo
@@ -656,7 +639,7 @@ export default defineComponent({
         const changeTab = () => {
             if (pageData.value.tab === 'param') {
                 const type = pageData.value.activityType
-                const area = pageData.value.chosenWarnAreaIndex
+                const area = pageData.value.warnAreaIndex
                 const boundaryInfo = formData.value[type].boundaryInfo
                 if (mode.value === 'h5') {
                     peaDrawer.setEnable(true)
@@ -703,13 +686,13 @@ export default defineComponent({
             if (pageData.value.currentRegulation) {
                 // 画矩形
                 const regionInfoList = formData.value[type].regionInfo
-                regionInfoList.forEach((ele, idx) => {
+                pageData.value.warnAreaChecked = regionInfoList.map((ele, index) => {
                     if (ele.X1 || ele.Y1 || ele.X2 || ele.Y2) {
-                        formData.value[type].boundaryInfo[idx].configured = true
-                    } else {
-                        formData.value[type].boundaryInfo[idx].configured = false
+                        return index
                     }
+                    return -1
                 })
+
                 // 是否显示全部区域切换按钮和清除全部按钮（区域数量大于等于2时才显示）
                 if (regionInfoList && regionInfoList.length > 1) {
                     pageData.value.showAllAreaVisible = true
@@ -721,13 +704,13 @@ export default defineComponent({
             } else {
                 // 画点
                 const boundaryInfoList = formData.value[type].boundaryInfo
-                boundaryInfoList.forEach((ele, idx) => {
-                    if (ele.point.length > 0) {
-                        formData.value[type].boundaryInfo[idx].configured = true
-                    } else {
-                        formData.value[type].boundaryInfo[idx].configured = false
+                pageData.value.warnAreaChecked = boundaryInfoList.map((ele, index) => {
+                    if (ele.point.length) {
+                        return index
                     }
+                    return -1
                 })
+
                 // 是否显示全部区域切换按钮和清除全部按钮（区域数量大于等于2时才显示）
                 if (boundaryInfoList && boundaryInfoList.length > 1) {
                     pageData.value.showAllAreaVisible = true
@@ -787,7 +770,7 @@ export default defineComponent({
 
         // pea选择警戒区域
         const changeWarnArea = () => {
-            // pageData.value.chosenWarnAreaIndex = index
+            // pageData.value.warnAreaIndex = index
             setPeaOcxData()
         }
 
@@ -831,7 +814,7 @@ export default defineComponent({
         // pea绘图
         const changePea = (points: CanvasBaseArea | CanvasBasePoint[]) => {
             const type = pageData.value.activityType
-            const area = pageData.value.chosenWarnAreaIndex
+            const area = pageData.value.warnAreaIndex
             if (formData.value[type].regulation) {
                 if (!Array.isArray(points)) {
                     formData.value[type].boundaryInfo[area].point = getRegionPoints(points)
@@ -854,7 +837,7 @@ export default defineComponent({
             peaDrawer && peaDrawer.setEnableShowAll(isShowAll)
             if (isShowAll) {
                 const type = pageData.value.activityType
-                const index = pageData.value.chosenWarnAreaIndex
+                const index = pageData.value.warnAreaIndex
                 if (pageData.value.currentRegulation) {
                     // 画矩形
                     const regionInfoList = formData.value[type].regionInfo
@@ -913,7 +896,7 @@ export default defineComponent({
         // pea显示
         const setPeaOcxData = () => {
             const type = pageData.value.activityType
-            const area = pageData.value.chosenWarnAreaIndex
+            const area = pageData.value.warnAreaIndex
             const boundaryInfo = formData.value[type].boundaryInfo
             const regionInfo = formData.value[type].regionInfo
             if (boundaryInfo.length) {
@@ -942,7 +925,7 @@ export default defineComponent({
         // 区域关闭
         const closePath = (points: CanvasBasePoint[]) => {
             const currType = pageData.value.activityType
-            const area = pageData.value.chosenWarnAreaIndex
+            const area = pageData.value.warnAreaIndex
             formData.value[currType].boundaryInfo[area].point = points
             formData.value[currType].boundaryInfo[area].point.forEach((ele) => {
                 ele.isClosed = true
@@ -959,7 +942,7 @@ export default defineComponent({
         // 清空当前区域对话框
         const clearCurrentArea = () => {
             const currType = pageData.value.activityType
-            const area = pageData.value.chosenWarnAreaIndex
+            const area = pageData.value.warnAreaIndex
             // const length = cloneDeep(formData.value[currType]['boundaryInfo'][area]['point'].length)
             // if (length == 6) {
             openMessageBox({
@@ -977,7 +960,6 @@ export default defineComponent({
                     plugin.ExecuteCmd(sendXML)
                 }
 
-                formData.value[currType].boundaryInfo[area].configured = false
                 if (pageData.value.isShowAllArea) {
                     showAllPeaArea(true)
                 }
@@ -988,9 +970,8 @@ export default defineComponent({
         // 清空当前区域按钮
         const clearArea = () => {
             const currType = pageData.value.activityType
-            const area = pageData.value.chosenWarnAreaIndex
+            const area = pageData.value.warnAreaIndex
             formData.value[currType].boundaryInfo[area].point = []
-            formData.value[currType].boundaryInfo[area].configured = false
             formData.value[currType].regionInfo[area] = { X1: 0, Y1: 0, X2: 0, Y2: 0 }
             if (mode.value === 'h5') {
                 peaDrawer.clear()
@@ -1023,7 +1004,6 @@ export default defineComponent({
                 // 画点
                 boundaryInfoList.forEach((ele) => {
                     ele.point = []
-                    ele.configured = false
                 })
             }
 
@@ -1060,7 +1040,7 @@ export default defineComponent({
                         const Y = element.attr('Y').num()
                         return { X, Y }
                     })
-                    const area = pageData.value.chosenWarnAreaIndex
+                    const area = pageData.value.warnAreaIndex
                     if (pageData.value.currentRegulation) {
                         formData.value[currType].boundaryInfo[area].point = points
                         formData.value[currType].regionInfo[area] = {

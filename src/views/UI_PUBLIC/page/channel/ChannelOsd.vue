@@ -90,10 +90,10 @@
                         label=" "
                         width="50"
                     >
-                        <template #default="scope: TableColumn<ChannelOsdDto>">
+                        <template #default="{ row }: TableColumn<ChannelOsdDto>">
                             <BaseTableRowStatus
-                                :icon="scope.row.status"
-                                :error-text="scope.row.statusTip"
+                                :icon="row.status"
+                                :error-text="row.statusTip"
                             />
                         </template>
                     </el-table-column>
@@ -101,14 +101,14 @@
                         :label="Translate('IDCS_CHANNEL_NAME')"
                         min-width="120"
                     >
-                        <template #default="scope: TableColumn<ChannelOsdDto>">
+                        <template #default="{ row }: TableColumn<ChannelOsdDto>">
                             <el-input
-                                v-model="scope.row.name"
+                                v-model="row.name"
                                 maxlength="63"
-                                :disabled="scope.row.disabled"
-                                @focus="tempName = scope.row.name"
-                                @blur="handleNameBlur(scope.row.id, scope.row.name)"
-                                @change="handleInputChange(scope.row.id)"
+                                :disabled="row.disabled"
+                                @focus="tempName = row.name"
+                                @blur="handleNameBlur(row.id, row.name)"
+                                @change="handleInputChange(row.id)"
                             />
                         </template>
                     </el-table-column>
@@ -132,14 +132,14 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope: TableColumn<ChannelOsdDto>">
+                        <template #default="{ row }: TableColumn<ChannelOsdDto>">
                             <el-select-v2
-                                v-show="!scope.row.isSpeco"
-                                v-model="scope.row.displayName"
-                                :disabled="scope.row.disabled"
+                                v-show="!row.isSpeco"
+                                v-model="row.displayName"
+                                :disabled="row.disabled"
                                 :options="switchOptions"
-                                @focus="handleRowClick(scope.row)"
-                                @change="handleChangeSwitch(scope.row.displayName, scope.row.id, 'displayName')"
+                                @focus="handleRowClick(row)"
+                                @change="handleChangeSwitch(row.displayName, row.id, 'displayName')"
                             />
                         </template>
                     </el-table-column>
@@ -163,14 +163,14 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope: TableColumn<ChannelOsdDto>">
+                        <template #default="{ row }: TableColumn<ChannelOsdDto>">
                             <el-select-v2
-                                v-show="!scope.row.isSpeco"
-                                v-model="scope.row.displayTime"
-                                :disabled="scope.row.disabled"
+                                v-show="!row.isSpeco"
+                                v-model="row.displayTime"
+                                :disabled="row.disabled"
                                 :options="switchOptions"
-                                @focus="handleRowClick(scope.row)"
-                                @change="handleChangeSwitch(scope.row.displayTime, scope.row.id, 'displayTime')"
+                                @focus="handleRowClick(row)"
+                                @change="handleChangeSwitch(row.displayTime, row.id, 'displayTime')"
                             />
                         </template>
                     </el-table-column>
@@ -196,8 +196,8 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope: TableColumn<ChannelOsdDto>">
-                            {{ scope.row.supportDateFormat ? dateFormatTip[scope.row.dateFormat] : '--' }}
+                        <template #default="{ row }: TableColumn<ChannelOsdDto>">
+                            {{ row.supportDateFormat ? dateFormatTip[row.dateFormat] : '--' }}
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -222,8 +222,8 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope: TableColumn<ChannelOsdDto>">
-                            {{ scope.row.supportTimeFormat ? timeFormatTip[scope.row.timeFormat] : '--' }}
+                        <template #default="{ row }: TableColumn<ChannelOsdDto>">
+                            {{ row.supportTimeFormat ? timeFormatTip[row.timeFormat] : '--' }}
                         </template>
                     </el-table-column>
                     <el-table-column
@@ -253,13 +253,13 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope: TableColumn<ChannelOsdDto>">
+                        <template #default="{ row }: TableColumn<ChannelOsdDto>">
                             <el-select-v2
-                                v-model="scope.row.remarkSwitch"
-                                :disabled="scope.row.remarkDisabled"
+                                v-model="row.remarkSwitch"
+                                :disabled="row.remarkDisabled"
                                 :options="switchOptions"
-                                @focus="handleRowClick(scope.row)"
-                                @change="handleChangeSwitch(scope.row.remarkSwitch, scope.row.id, 'remarkSwitch')"
+                                @focus="handleRowClick(row)"
+                                @change="handleChangeSwitch(row.remarkSwitch, row.id, 'remarkSwitch')"
                             />
                         </template>
                     </el-table-column>
@@ -267,15 +267,15 @@
                         :label="Translate('IDCS_WATER_MARK_CHAR')"
                         min-width="200"
                     >
-                        <template #default="scope: TableColumn<ChannelOsdDto>">
+                        <template #default="{ row }: TableColumn<ChannelOsdDto>">
                             <el-input
-                                v-model="scope.row.remarkNote"
-                                :disabled="scope.row.remarkDisabled"
+                                v-model="row.remarkNote"
+                                :disabled="row.remarkDisabled"
                                 maxlength="15"
                                 :formatter="handleRemarkNoteInput"
                                 :parser="handleRemarkNoteInput"
-                                @blur="handleRemarkNoteBlur(scope.row.remarkNote, scope.row.id)"
-                                @change="handleInputChange(scope.row.id)"
+                                @blur="handleRemarkNoteBlur(row.remarkNote, row.id)"
+                                @change="handleInputChange(row.id)"
                                 @keydown.enter="handleKeydownEnter($event)"
                             />
                         </template>

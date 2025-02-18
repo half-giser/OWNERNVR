@@ -108,8 +108,8 @@
                 :label="Translate('IDCS_IP_CHANNEL')"
                 min-width="150"
             >
-                <template #default="scope: TableColumn<ChannelRecorderDto>">
-                    {{ scope.row.name || '' }}
+                <template #default="{ row }: TableColumn<ChannelRecorderDto>">
+                    {{ row.name || '' }}
                 </template>
             </el-table-column>
             <el-table-column

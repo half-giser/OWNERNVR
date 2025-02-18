@@ -454,7 +454,7 @@ export default defineComponent({
         const setTriggerChannel = (index: number) => {
             const item = tableData.value[index]
             pageData.value.triggerChannelDialogIndex = index
-            pageData.value.triggerChannels = tableData.value[index].triggerChl.chls.map((item) => item.value)
+            pageData.value.triggerChannels = item.triggerChl.chls.map((item) => item.value)
             nextTick(() => {
                 if (item.manufacturers === 'Hayley' && item.connectionType === 'Multicast') {
                     pageData.value.isHayleyTriggerChannleDialog = true

@@ -17,8 +17,8 @@
                     :label="Translate('IDCS_CHANNEL_NAME')"
                     min-width="240"
                 >
-                    <template #default="scope: TableColumn<number>">
-                        {{ tableData[scope.$index].name }}
+                    <template #default="{ row }: TableColumn<number>">
+                        {{ tableData[row].name }}
                     </template>
                 </el-table-column>
                 <!-- 码流类型 -->
@@ -26,8 +26,8 @@
                     :label="Translate('IDCS_CODE_STREAM_TYPE')"
                     min-width="100"
                 >
-                    <template #default="scope: TableColumn<number>">
-                        {{ displayStreamType(tableData[scope.$index].streamType) }}
+                    <template #default="{ row }: TableColumn<number>">
+                        {{ displayStreamType(tableData[row].streamType) }}
                     </template>
                 </el-table-column>
                 <!-- 视频编码 -->
@@ -54,15 +54,15 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<number>">
-                        <div v-if="RecordSubResAdaptive">{{ displayStreamType(tableData[scope.$index].videoEncodeType) }}</div>
-                        <div v-else-if="tableData[scope.$index].isRTSPChl || !tableData[scope.$index].videoEncodeType">--</div>
+                    <template #default="{ row }: TableColumn<number>">
+                        <div v-if="RecordSubResAdaptive">{{ displayStreamType(tableData[row].videoEncodeType) }}</div>
+                        <div v-else-if="tableData[row].isRTSPChl || !tableData[row].videoEncodeType">--</div>
                         <el-select-v2
                             v-else
-                            v-model="tableData[scope.$index].videoEncodeType"
-                            :disabled="tableData[scope.$index].disabled"
-                            :options="tableData[scope.$index].subCaps.supEnct"
-                            @change="changeVideoEncodeType(tableData[scope.$index])"
+                            v-model="tableData[row].videoEncodeType"
+                            :disabled="tableData[row].disabled"
+                            :options="tableData[row].subCaps.supEnct"
+                            @change="changeVideoEncodeType(tableData[row])"
                         />
                     </template>
                 </el-table-column>
@@ -95,19 +95,19 @@
                                     @expand-change="handleExpandChange($event, pageData.expands)"
                                 >
                                     <el-table-column width="220">
-                                        <template #default="scope: TableColumn<RecordStreamResolutionDto>">
+                                        <template #default="{ row }: TableColumn<RecordStreamResolutionDto>">
                                             <el-select-v2
-                                                v-model="scope.row.res"
-                                                :options="scope.row.resGroup"
+                                                v-model="row.res"
+                                                :options="row.resGroup"
                                                 @visible-change="handleResolutionVisibleChange"
                                             />
                                         </template>
                                     </el-table-column>
                                     <el-table-column type="expand">
-                                        <template #default="scope: TableColumn<RecordStreamResolutionDto>">
+                                        <template #default="{ row }: TableColumn<RecordStreamResolutionDto>">
                                             <div class="chl-box">
                                                 <div
-                                                    v-for="(item, index) in scope.row.chls.data"
+                                                    v-for="(item, index) in row.chls.data"
                                                     :key="index"
                                                     :span="12"
                                                     class="chl-item"
@@ -131,15 +131,15 @@
                             </div>
                         </el-popover>
                     </template>
-                    <template #default="scope: TableColumn<number>">
-                        <div v-if="RecordSubResAdaptive">{{ tableData[scope.$index].resolution || '--' }}</div>
-                        <div v-else-if="tableData[scope.$index].isRTSPChl || !tableData[scope.$index].resolution">--</div>
+                    <template #default="{ row }: TableColumn<number>">
+                        <div v-if="RecordSubResAdaptive">{{ tableData[row].resolution || '--' }}</div>
+                        <div v-else-if="tableData[row].isRTSPChl || !tableData[row].resolution">--</div>
                         <el-select-v2
                             v-else
-                            v-model="tableData[scope.$index].resolution"
-                            :disabled="tableData[scope.$index].disabled"
-                            :options="tableData[scope.$index].subCaps.res"
-                            @change="changeResolution(tableData[scope.$index], tableData[scope.$index].resolution)"
+                            v-model="tableData[row].resolution"
+                            :disabled="tableData[row].disabled"
+                            :options="tableData[row].subCaps.res"
+                            @change="changeResolution(tableData[row], tableData[row].resolution)"
                         />
                     </template>
                 </el-table-column>
@@ -170,15 +170,15 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<number>">
-                        <div v-if="RecordSubResAdaptive">{{ tableData[scope.$index].frameRate || '--' }}</div>
-                        <div v-else-if="tableData[scope.$index].isRTSPChl || !tableData[scope.$index].frameRate">--</div>
+                    <template #default="{ row }: TableColumn<number>">
+                        <div v-if="RecordSubResAdaptive">{{ tableData[row].frameRate || '--' }}</div>
+                        <div v-else-if="tableData[row].isRTSPChl || !tableData[row].frameRate">--</div>
                         <el-select-v2
                             v-else
-                            v-model="tableData[scope.$index].frameRate"
-                            :disabled="tableData[scope.$index].disabled"
-                            :options="getFrameRateSingleList(tableData[scope.$index])"
-                            @change="changeVideoEncodeType(tableData[scope.$index])"
+                            v-model="tableData[row].frameRate"
+                            :disabled="tableData[row].disabled"
+                            :options="getFrameRateSingleList(tableData[row])"
+                            @change="changeVideoEncodeType(tableData[row])"
                         />
                     </template>
                 </el-table-column>
@@ -206,16 +206,16 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<number>">
+                    <template #default="{ row }: TableColumn<number>">
                         <!-- 在码率上限中不可修改情况下，有数据的行不可选项也要设置为-- -->
-                        <div v-if="RecordSubResAdaptive && isVideoQualityDisabled(scope.$index)">--</div>
-                        <div v-else-if="RecordSubResAdaptive">{{ tableData[scope.$index].videoQuality ? `${tableData[scope.$index].videoQuality}Kbps` : '--' }}</div>
-                        <div v-else-if="tableData[scope.$index].isRTSPChl || !tableData[scope.$index].videoQuality">--</div>
+                        <div v-if="RecordSubResAdaptive && isVideoQualityDisabled(row)">--</div>
+                        <div v-else-if="RecordSubResAdaptive">{{ tableData[row].videoQuality ? `${tableData[row].videoQuality}Kbps` : '--' }}</div>
+                        <div v-else-if="tableData[row].isRTSPChl || !tableData[row].videoQuality">--</div>
                         <el-select-v2
                             v-else
-                            v-model="tableData[scope.$index].videoQuality"
-                            :disabled="isVideoQualityDisabled(scope.$index)"
-                            :options="getQualityList(tableData[scope.$index])"
+                            v-model="tableData[row].videoQuality"
+                            :disabled="isVideoQualityDisabled(row)"
+                            :options="getQualityList(tableData[row])"
                         />
                     </template>
                 </el-table-column>

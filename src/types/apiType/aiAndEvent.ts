@@ -534,7 +534,7 @@ export class AlarmPeaDto {
     holdTimeList: SelectOption<number, string>[] = []
     // 区别联咏ipc标志
     regulation = false
-    boundaryInfo: { point: CanvasBasePoint[]; maxCount: number; configured: boolean }[] = []
+    boundaryInfo: { point: CanvasBasePoint[]; maxCount: number }[] = []
     regionInfo: CanvasBaseArea[] = []
     mutexList: AlarmMutexDto[] = []
     mutexListEx: AlarmMutexDto[] = []
@@ -574,7 +574,7 @@ export type CanvasPasslineDirection = 'none' | 'rightortop' | 'leftorbotton'
  * @description 越界
  */
 export class AlarmTripwireDto {
-    lineInfo: { direction: CanvasPasslineDirection; startPoint: { X: number; Y: number }; endPoint: { X: number; Y: number }; configured: boolean }[] = []
+    lineInfo: { direction: CanvasPasslineDirection; startPoint: { X: number; Y: number }; endPoint: { X: number; Y: number } }[] = []
     // 方向
     direction: CanvasPasslineDirection = 'none'
     // 方向列表
@@ -661,7 +661,6 @@ export class AlarmPassLinesDto {
         direction: CanvasPasslineDirection
         startPoint: { X: number; Y: number }
         endPoint: { X: number; Y: number }
-        configured: boolean
     }[] = []
     // OSD
     countOSD = {

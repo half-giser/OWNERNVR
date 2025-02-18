@@ -93,10 +93,10 @@
                         label=" "
                         width="50"
                     >
-                        <template #default="scope: TableColumn<ChannelMotionDto>">
+                        <template #default="{ row }: TableColumn<ChannelMotionDto>">
                             <BaseTableRowStatus
-                                :icon="scope.row.status"
-                                :error-text="scope.row.statusTip"
+                                :icon="row.status"
+                                :error-text="row.statusTip"
                             />
                         </template>
                     </el-table-column>
@@ -127,12 +127,12 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope: TableColumn<ChannelMotionDto>">
+                        <template #default="{ row }: TableColumn<ChannelMotionDto>">
                             <el-select-v2
-                                v-model="scope.row.switch"
-                                :disabled="scope.row.disabled"
+                                v-model="row.switch"
+                                :disabled="row.disabled"
                                 :options="switchOptions"
-                                @focus="handleRowClick(scope.row)"
+                                @focus="handleRowClick(row)"
                             />
                         </template>
                     </el-table-column>
@@ -140,12 +140,12 @@
                         :label="Translate('IDCS_SENSITIVITY')"
                         min-width="180"
                     >
-                        <template #default="scope: TableColumn<ChannelMotionDto>">
+                        <template #default="{ row }: TableColumn<ChannelMotionDto>">
                             <BaseNumberInput
-                                v-model="scope.row.sensitivity"
-                                :min="scope.row.sensitivityMinValue"
-                                :max="scope.row.sensitivityMaxValue"
-                                :disabled="scope.row.disabled"
+                                v-model="row.sensitivity"
+                                :min="row.sensitivityMinValue"
+                                :max="row.sensitivityMaxValue"
+                                :disabled="row.disabled"
                             />
                         </template>
                     </el-table-column>
@@ -171,12 +171,12 @@
                                 </template>
                             </el-dropdown>
                         </template>
-                        <template #default="scope: TableColumn<ChannelMotionDto>">
+                        <template #default="{ row }: TableColumn<ChannelMotionDto>">
                             <el-select-v2
-                                v-model="scope.row.holdTime"
-                                :disabled="scope.row.disabled"
-                                :options="scope.row.holdTimeList"
-                                @focus="handleRowClick(scope.row)"
+                                v-model="row.holdTime"
+                                :disabled="row.disabled"
+                                :options="row.holdTimeList"
+                                @focus="handleRowClick(row)"
                             />
                         </template>
                     </el-table-column>

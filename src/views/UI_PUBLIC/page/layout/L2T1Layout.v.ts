@@ -17,6 +17,9 @@ export default defineComponent({
         const menu3Items = computed(() => layoutStore.menu3Items)
         const menu3Item = computed(() => layoutStore.menu3Item)
 
+        const disabledIconIndex = import.meta.env.VITE_UI_TYPE === 'UI2-A' ? 0 : 1
+        const normalIconIndex = import.meta.env.VITE_UI_TYPE === 'UI2-A' ? 1 : 0
+
         /**
          * @description 排序后的菜单分组
          */
@@ -168,6 +171,8 @@ export default defineComponent({
             getMenuDisabled,
             getMenuGroupDisabled,
             goToPath,
+            normalIconIndex,
+            disabledIconIndex,
         }
     },
 })

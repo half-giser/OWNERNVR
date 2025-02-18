@@ -16,8 +16,8 @@
                     :label="Translate('IDCS_EVENT_TYPE')"
                     width="375"
                 >
-                    <template #default="scope: TableColumn<AlarmExceptionDto>">
-                        {{ formatEventType(scope.row.eventType) }}
+                    <template #default="{ row }: TableColumn<AlarmExceptionDto>">
+                        {{ formatEventType(row.eventType) }}
                     </template>
                 </el-table-column>
                 <!-- 音频   -->
@@ -40,9 +40,9 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<AlarmExceptionDto>">
+                    <template #default="{ row }: TableColumn<AlarmExceptionDto>">
                         <el-select-v2
-                            v-model="scope.row.sysAudio"
+                            v-model="row.sysAudio"
                             :options="pageData.audioList"
                         />
                     </template>
@@ -67,9 +67,9 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<AlarmExceptionDto>">
+                    <template #default="{ row }: TableColumn<AlarmExceptionDto>">
                         <el-select-v2
-                            v-model="scope.row.msgPush"
+                            v-model="row.msgPush"
                             :options="pageData.enableList"
                         />
                     </template>
@@ -84,15 +84,15 @@
                             @confirm="changeAlarmOut"
                         />
                     </template>
-                    <template #default="scope: TableColumn<AlarmExceptionDto>">
+                    <template #default="{ row, $index }: TableColumn<AlarmExceptionDto>">
                         <div class="base-cell-box">
                             <el-checkbox
-                                v-model="scope.row.alarmOut.switch"
-                                @change="switchAlarmOut(scope.$index)"
+                                v-model="row.alarmOut.switch"
+                                @change="switchAlarmOut($index)"
                             />
                             <el-button
-                                :disabled="!scope.row.alarmOut.switch"
-                                @click="openAlarmOut(scope.$index)"
+                                :disabled="!row.alarmOut.switch"
+                                @click="openAlarmOut($index)"
                             >
                                 {{ Translate('IDCS_CONFIG') }}
                             </el-button>
@@ -119,9 +119,9 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<AlarmExceptionDto>">
+                    <template #default="{ row }: TableColumn<AlarmExceptionDto>">
                         <el-select-v2
-                            v-model="scope.row.beeper"
+                            v-model="row.beeper"
                             :options="pageData.enableList"
                         />
                     </template>
@@ -146,9 +146,9 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<AlarmExceptionDto>">
+                    <template #default="{ row }: TableColumn<AlarmExceptionDto>">
                         <el-select-v2
-                            v-model="scope.row.msgBoxPopup"
+                            v-model="row.msgBoxPopup"
                             :options="pageData.enableList"
                         />
                     </template>
@@ -171,10 +171,10 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<AlarmExceptionDto>">
+                    <template #default="{ row }: TableColumn<AlarmExceptionDto>">
                         <el-select-v2
-                            v-model="scope.row.email"
-                            :disabled="scope.row.emailDisable"
+                            v-model="row.email"
+                            :disabled="row.emailDisable"
                             :options="pageData.enableList"
                         />
                     </template>

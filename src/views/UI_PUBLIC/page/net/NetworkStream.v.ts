@@ -42,7 +42,7 @@ export default defineComponent({
         const virtualTableData = computed<number[]>(() => {
             return Array(tableData.value.length)
                 .fill(1)
-                .map((item, index) => item + index)
+                .map((item, key) => item + key)
         })
 
         /**

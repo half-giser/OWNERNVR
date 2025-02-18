@@ -128,31 +128,31 @@
                     :label="Translate('IDCS_RIGHT_GROUP')"
                     min-width="150"
                 >
-                    <template #default="scope: TableColumn<UserList>">
-                        {{ displayAuthGroup(scope.row.authGroupName) }}
+                    <template #default="{ row }: TableColumn<UserList>">
+                        {{ displayAuthGroup(row.authGroupName) }}
                     </template>
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_EDIT')">
-                    <template #default="scope: TableColumn<UserList>">
+                    <template #default="{ row }: TableColumn<UserList>">
                         <BaseImgSprite
-                            v-show="scope.row.edit"
+                            v-show="row.edit"
                             file="edit (2)"
                             :index="0"
                             :hover-index="1"
                             :chunk="4"
-                            @click.stop="openEditUserPop(scope.row)"
+                            @click.stop="openEditUserPop(row)"
                         />
                     </template>
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_DELETE')">
-                    <template #default="scope: TableColumn<UserList>">
+                    <template #default="{ row }: TableColumn<UserList>">
                         <BaseImgSprite
-                            v-show="scope.row.del"
+                            v-show="row.del"
                             file="del"
                             :index="0"
                             :hover-index="1"
                             :chunk="4"
-                            @click.stop="deleteUser(scope.row)"
+                            @click.stop="deleteUser(row)"
                         />
                     </template>
                 </el-table-column>

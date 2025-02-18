@@ -12,8 +12,8 @@
                     label=" "
                     width="50"
                 >
-                    <template #default="scope: TableColumn<AlarmOutDto>">
-                        <BaseTableRowStatus :icon="scope.row.status" />
+                    <template #default="{ row }: TableColumn<AlarmOutDto>">
+                        <BaseTableRowStatus :icon="row.status" />
                     </template>
                 </el-table-column>
 
@@ -23,19 +23,19 @@
                     width="268"
                     show-overflow-tooltip
                 >
-                    <template #default="scope: TableColumn<AlarmOutDto>">
-                        {{ displaySerialNum(scope.row) }}
+                    <template #default="{ row }: TableColumn<AlarmOutDto>">
+                        {{ displaySerialNum(row) }}
                     </template>
                 </el-table-column>
 
                 <!-- 名称 -->
                 <el-table-column :label="Translate('IDCS_NAME')">
-                    <template #default="scope: TableColumn<AlarmOutDto>">
+                    <template #default="{ row }: TableColumn<AlarmOutDto>">
                         <el-input
-                            v-model="scope.row.name"
-                            :disabled="scope.row.disabled"
-                            @focus="focusName(scope.row.name)"
-                            @blur="blurName(scope.row)"
+                            v-model="row.name"
+                            :disabled="row.disabled"
+                            @focus="focusName(row.name)"
+                            @blur="blurName(row)"
                             @keyup.enter="blurInput"
                         />
                     </template>
@@ -61,10 +61,10 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<AlarmOutDto>">
+                    <template #default="{ row }: TableColumn<AlarmOutDto>">
                         <el-select-v2
-                            v-model="scope.row.delayTime"
-                            :disabled="scope.row.disabled"
+                            v-model="row.delayTime"
+                            :disabled="row.disabled"
                             :options="pageData.delayList"
                         />
                     </template>
@@ -90,12 +90,12 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="scope: TableColumn<AlarmOutDto>">
+                    <template #default="{ row }: TableColumn<AlarmOutDto>">
                         <el-select-v2
-                            v-model="scope.row.scheduleId"
-                            :disabled="scope.row.disabled"
+                            v-model="row.scheduleId"
+                            :disabled="row.disabled"
                             :options="pageData.scheduleList"
-                            @change="changeSchedule(scope.row)"
+                            @change="changeSchedule(row)"
                         />
                     </template>
                 </el-table-column>

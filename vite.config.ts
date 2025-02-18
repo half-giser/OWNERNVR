@@ -12,8 +12,7 @@ import { envDir, sourceDir, manualChunks, getSourceDir } from './scripts/build'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import GenerateSprite from './scripts/generateSprite'
-import MinifyXmlTemplateStrings from './scripts/minifyXmlTemplateStrings'
-import MinifyWorkers from './scripts/minifyWorkers'
+import { transpileVueTemplatePropTypes, minifyXmlTemplateStrings, postMinifyCodes } from './scripts/transformers'
 import { cleanUpTempFiles } from './scripts/cleanTempFiles'
 import BasicSSL from '@vitejs/plugin-basic-ssl'
 import PostCssVariableCompress from 'postcss-variable-compress'
@@ -103,7 +102,8 @@ export default defineConfig(({ mode }) => {
             GenerateSprite({
                 src: `sprite/${VITE_UI_TYPE}-sprite/sprite/*.png`,
             }),
-            MinifyXmlTemplateStrings(),
+            minifyXmlTemplateStrings(),
+            transpileVueTemplatePropTypes(),
             Vue({
                 features: {
                     optionsAPI: false,
@@ -207,7 +207,7 @@ export default defineConfig(({ mode }) => {
                           : [],
                   )
                 : [
-                      MinifyWorkers({
+                      postMinifyCodes({
                           src: `dist/${VITE_UI_TYPE}/**/*.js`,
                           ui: VITE_UI_TYPE,
                       }),
@@ -225,8 +225,8 @@ export default defineConfig(({ mode }) => {
             chunkSizeWarningLimit: 1024,
             rollupOptions: {
                 output: {
-                    chunkFileNames: '[hash].js',
-                    entryFileNames: '[hash].js',
+                    chunkFileNames: split[0] === 'dev' ? '[name].[hash].js' : '[hash].js',
+                    entryFileNames: split[0] === 'dev' ? '[name].[hash].js' : '[hash].js',
                     assetFileNames: '[name].[ext]',
                     manualChunks,
                 },

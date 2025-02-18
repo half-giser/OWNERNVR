@@ -24,12 +24,15 @@
     --main-border: #666;
 
     --content-border: #999;
+    --live-border: #999;
+    --live-wasm-border: #999;
 
     --subheading-text: #000;
     --subheading-bg: #ccc;
 
     --header-bg: #000;
     --header-text: #cbcbcb;
+    --header-border: #666;
     --header-menu-text: #666;
     --header-menu-text-hover: #fff;
     --header-menu-text-active: var(--primary);
@@ -82,12 +85,14 @@
     --table-bg-hover: #f7f7f7;
     --table-stripe: #eee;
     --table-expand-bg: #fff;
+    --table-wrap-bg: var(--main-bg);
 
     --table-tbody-border: #f0f0f0;
 
     --table-thead-text: #000;
     --table-thead-bg: #e5e5e5;
     --table-thead-border: #ccc;
+    --table-thead-bottom-border: #ccc;
     --table-checkbox-border-checked: #e9efff;
 
     --dialog-title: #666;
