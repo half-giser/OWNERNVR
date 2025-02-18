@@ -216,7 +216,7 @@ const handleBlur = () => {
     cursor: text;
     display: inline-flex;
     justify-content: flex-start;
-    padding: 0 11px;
+    padding: 0 5px;
     transform: translateZ(0);
     transition: var(--el-transition-box-shadow);
     font-size: var(--el-font-size-base);
@@ -250,11 +250,10 @@ const handleBlur = () => {
     }
 
     input {
-        max-width: 25%;
         font-size: inherit;
         line-height: calc(var(--el-component-size) - 2px);
         height: calc(var(--el-component-size) - 2px);
-        width: 25px;
+        width: 22px;
         border: none;
         outline: 0;
         text-align: center;

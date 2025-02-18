@@ -213,11 +213,10 @@ const handleBlur = (index: number) => {
     cursor: text;
     display: inline-flex;
     justify-content: flex-start;
-    padding: 0 11px;
+    padding: 0 5px;
     transform: translateZ(0);
     transition: var(--el-transition-box-shadow);
     font-size: var(--el-font-size-base);
-    line-height: var(--el-component-size);
     width: var(--el-input-width);
     box-sizing: border-box;
     background: var(--input-bg);
@@ -247,8 +246,7 @@ const handleBlur = (index: number) => {
     }
 
     input {
-        max-width: 25%;
-        width: 25px;
+        width: 20px;
         font-size: inherit;
         line-height: calc(var(--el-component-size) - 2px);
         height: calc(var(--el-component-size) - 2px);
@@ -257,6 +255,7 @@ const handleBlur = (index: number) => {
         text-align: center;
         background: transparent;
         color: var(--input-text);
+        padding: 0;
 
         &:disabled {
             color: var(--el-disabled-text-color);
@@ -266,6 +265,7 @@ const handleBlur = (index: number) => {
 
     span {
         color: var(--input-text);
+        line-height: calc(var(--el-component-size) - 2px);
     }
 }
 </style>

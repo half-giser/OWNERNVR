@@ -28,7 +28,7 @@ withDefaults(
 )
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .BaseListBox {
     width: 100%;
     height: calc(100% - 50px);
