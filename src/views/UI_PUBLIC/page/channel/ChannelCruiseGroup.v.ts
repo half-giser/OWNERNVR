@@ -198,12 +198,21 @@ export default defineComponent({
                     </condition>
                 `
                 const result = await editChlPtzGroup(sendXml)
+                const $ = queryXml(result)
 
                 closeLoading()
-                commSaveResponseHandler(result, () => {
-                    tableData.value[chlIndex].cruise.splice(cruiseIndex, 1)
-                    tableData.value[chlIndex].cruiseCount--
-                })
+
+                if ($('status').text() === 'success') {
+                    openMessageBox({
+                        type: 'success',
+                        message: Translate('IDCS_DELETE_SUCCESS'),
+                    }).finally(() => {
+                        tableData.value[chlIndex].cruise.splice(cruiseIndex, 1)
+                        tableData.value[chlIndex].cruiseCount--
+                    })
+                } else {
+                    openMessageBox(Translate('IDCS_DELETE_FAIL'))
+                }
             })
         }
 

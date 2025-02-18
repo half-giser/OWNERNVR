@@ -318,12 +318,20 @@ export default defineComponent({
                     </condition>
                 `
                 const result = await delChlPreset(sendXml)
+                const $ = queryXml(result)
 
                 closeLoading()
-                commSaveResponseHandler(result, () => {
-                    tableData.value[chlIndex].presets.splice(presetIndex, 1)
-                    tableData.value[chlIndex].presetCount--
-                })
+                if ($('status').text() === 'success') {
+                    openMessageBox({
+                        type: 'success',
+                        message: Translate('IDCS_DELETE_SUCCESS'),
+                    }).finally(() => {
+                        tableData.value[chlIndex].presets.splice(presetIndex, 1)
+                        tableData.value[chlIndex].presetCount--
+                    })
+                } else {
+                    openMessageBox(Translate('IDCS_DELETE_FAIL'))
+                }
             })
         }
 
