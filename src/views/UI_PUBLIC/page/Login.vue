@@ -148,6 +148,10 @@
             }
         }
     }
+
+    @if $GLOBAL_UI_TYPE == UI1-E {
+        height: 236px;
+    }
 }
 
 .login-lang {

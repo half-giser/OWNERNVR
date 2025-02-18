@@ -64,6 +64,7 @@
 <style lang="scss" scoped>
 .el-menu {
     border: 1px solid var(--table-border);
+    background-color: var(--radio-btn-bg);
 
     --el-menu-horizontal-height: 30px;
 }
@@ -73,13 +74,13 @@
 
     &.is-active,
     &.is-active:hover {
-        background-color: var(--primary);
-        color: var(--main-text-active) !important;
+        background-color: var(--radio-btn-bg-active) !important;
+        color: var(--radio-btn-text-active) !important;
     }
 
     &:hover {
-        color: var(--primary);
-        background-color: var(--primary-light);
+        color: var(--radio-btn-text-hover);
+        background-color: var(--radio-btn-bg-hover);
     }
 }
 
@@ -100,6 +101,6 @@
 }
 
 .row_bandwidth {
-    margin-top: 10px;
+    margin-right: 10px;
 }
 </style>

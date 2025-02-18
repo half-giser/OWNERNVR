@@ -192,21 +192,19 @@
                         :value="item.id"
                         :label="item.text"
                     >
-                        <div class="radio">{{ item.text }}</div>
-
-                        <span
-                            v-for="(icon, index) in pageData.icons[item.id]"
-                            :key="index"
-                        >
-                            <span>&nbsp;</span>
-                            <BaseImgSprite
-                                :file="icon"
-                                :index="0"
-                                :hover-index="0"
-                                :chunk="1"
-                            />
-                            <span v-if="index !== pageData.icons[item.id].length - 1">&nbsp;+</span>
-                        </span>
+                        <div class="radio">
+                            <div class="radio-text">{{ item.text }}</div>
+                            <div class="radio-icon">
+                                <BaseImgSprite
+                                    v-for="(icon, index) in getIcons(item)"
+                                    :key="index"
+                                    :file="icon"
+                                    :index="0"
+                                    :hover-index="0"
+                                    :chunk="1"
+                                />
+                            </div>
+                        </div>
                     </el-radio>
                 </el-radio-group>
                 <el-radio-group
@@ -284,6 +282,30 @@
         margin-bottom: 10px;
         padding: 0 15px;
         box-sizing: border-box;
+    }
+}
+
+.radio {
+    display: flex;
+    width: 100%;
+    line-height: 30px;
+
+    &-text {
+        width: 600px;
+        flex-shrink: 0;
+    }
+
+    &-icon {
+        display: flex;
+
+        .Sprite + .Sprite {
+            margin-left: 20px;
+
+            &::before {
+                margin-left: -15px;
+                content: '+';
+            }
+        }
     }
 }
 
