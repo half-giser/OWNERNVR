@@ -734,7 +734,7 @@ export default defineComponent({
                     pageData.value.timeSliceList.forEach((item) => {
                         if (data.taskId.toUpperCase() === item.taskId) {
                             item.imgUrl = data.imgUrl
-                            item.frameTime = data.frameTime * 1000
+                            item.frameTime = data.frameTime
                             pageData.value.timeSliceCount++
                         }
                     })
@@ -770,7 +770,7 @@ export default defineComponent({
                         startTime: item.startTime * 1000,
                         endTime: item.endTime * 1000,
                         taskId,
-                        frameTime: 0,
+                        frameTime: item.startTime * 1000,
                         imgUrl: '',
                     })
                 })

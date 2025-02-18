@@ -130,7 +130,7 @@
                 <el-table-column
                     :label="Translate('IDCS_CHANNEL_NUMBER')"
                     prop="chlNum"
-                    width="60"
+                    width="80"
                 />
                 <!-- 通道名称 -->
                 <el-table-column

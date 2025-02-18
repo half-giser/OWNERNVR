@@ -210,37 +210,28 @@ const handleBlur = () => {
 
 <style lang="scss">
 .IpInput {
-    align-items: left;
     border-radius: var(--el-input-border-radius, var(--el-border-radius-base));
     box-shadow: 0 0 0 1px var(--input-border) inset;
     cursor: text;
     display: inline-flex;
     justify-content: flex-start;
     padding: 0 5px;
-    transform: translateZ(0);
     transition: var(--el-transition-box-shadow);
     font-size: var(--el-font-size-base);
-    line-height: var(--el-component-size);
     width: var(--el-input-width);
     box-sizing: border-box;
     background: var(--input-bg);
     color: var(--input-text);
 
-    &:hover,
-    &.is-focus {
+    &:hover:not(.disabled),
+    &.is-focus:not(.disabled) {
         box-shadow: 0 0 0 1px var(--primary) inset;
         border-color: var(--primary);
-
-        &.disabled {
-            background-color: var(--input-bg-disabled);
-            border-color: var(--input-border-disabled);
-        }
     }
 
     &.disabled {
-        box-shadow: none;
+        box-shadow: 0 0 0 1px var(--input-border-disabled) inset;
         background-color: var(--input-bg-disabled);
-        border-color: var(--input-border-disabled);
         cursor: not-allowed;
         color: var(--el-disabled-text-color);
 
@@ -259,6 +250,7 @@ const handleBlur = () => {
         text-align: center;
         background: transparent;
         color: var(--input-text);
+        padding: 0;
 
         &:disabled {
             color: var(--el-disabled-text-color);
@@ -268,6 +260,7 @@ const handleBlur = () => {
 
     span {
         color: var(--input-text);
+        line-height: calc(var(--el-component-size) - 2px);
     }
 }
 </style>

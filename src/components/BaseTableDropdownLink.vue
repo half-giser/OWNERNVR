@@ -37,6 +37,7 @@ withDefaults(
     align-items: center;
     color: var(--el-table-header-text-color);
     cursor: pointer;
+    user-select: none;
 
     &.effect-plain {
         color: var(--main-text);

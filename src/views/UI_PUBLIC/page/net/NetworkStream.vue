@@ -85,7 +85,7 @@
                                 <el-table-column>
                                     <template #default="{ row, $index }: TableColumn<NetSubStreamResolutionList>">
                                         <el-select-v2
-                                            v-model="tableData[$index].value"
+                                            v-model="tableData[$index].resolution"
                                             :options="row.resolution"
                                             @visible-change="handleResolutionVisibleChange"
                                         />
