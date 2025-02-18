@@ -25,10 +25,7 @@ export default defineComponent({
             showAlarmTransfer: false,
             alarmList: [] as SelectOption<string, string>[],
             linkedAlarmList: [] as string[],
-            // 多UI
-            CustomerID: '',
-            maxDeviceIdLength: 6,
-            isAnothorUI: false,
+            showAdditionalServerSetting: false,
             supportAdditionalServerSetting: false,
             deviceIdShow: false,
             isProtocolXML: false,
@@ -65,7 +62,7 @@ export default defineComponent({
             deviceId: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if ((pageData.value.isAnothorUI || pageData.value.deviceIdShow) && formData.value.enable && !formData.value.deviceId.trim()) {
+                        if ((pageData.value.showAdditionalServerSetting || pageData.value.deviceIdShow) && formData.value.enable && !formData.value.deviceId.trim()) {
                             if (!value.trim()) {
                                 callback(new Error(Translate('IDCS_PROMPT_ID_OR_TOKEN_EMPTY')))
                                 return
@@ -79,7 +76,7 @@ export default defineComponent({
             token: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if (pageData.value.isAnothorUI && formData.value.enable && !formData.value.token.trim()) {
+                        if (pageData.value.showAdditionalServerSetting && formData.value.enable && !formData.value.token.trim()) {
                             if (!value.trim()) {
                                 callback(new Error(Translate('IDCS_PROMPT_ID_OR_TOKEN_EMPTY')))
                                 return
@@ -153,10 +150,9 @@ export default defineComponent({
         const getBasicCfg = async () => {
             const result = await queryBasicCfg()
             const $ = queryXml(result)
-            pageData.value.CustomerID = $('content/CustomerID').text()
-            if (pageData.value.CustomerID === '6') {
+            const CustomerID = $('content/CustomerID').text()
+            if (CustomerID === '6') {
                 pageData.value.supportAdditionalServerSetting = true
-                pageData.value.maxDeviceIdLength = 16
             }
         }
 
@@ -211,7 +207,7 @@ export default defineComponent({
             if (pageData.value.heartEnableDisabled === true) {
                 formData.value.heartEnable = false
             }
-            pageData.value.isAnothorUI = pageData.value.supportAdditionalServerSetting === true && pageData.value.isArisanProtocol
+            pageData.value.showAdditionalServerSetting = pageData.value.supportAdditionalServerSetting === true && pageData.value.isArisanProtocol
             pageData.value.deviceIdShow = pageData.value.isJSONProtocol ? true : false
         }
 
