@@ -111,6 +111,8 @@ export default defineComponent({
                     }).finally(() => {
                         getList()
                     })
+                } else {
+                    openMessageBox(Translate('IDCS_DELETE_FAIL'))
                 }
             })
         }

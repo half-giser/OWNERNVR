@@ -182,8 +182,7 @@ export default defineComponent({
         // 是否有巡航线组和轨迹的权限
         const hasTraceAuth = computed(() => {
             return (
-                import.meta.env.VITE_UI_TYPE === 'UI1-E' ||
-                (hasAuth.value && systemCaps.supportPtzGroupAndTrace && prop.chl[prop.winData.chlID]?.supportPtz && prop.chl[prop.winData.chlID]?.supportPTZGroupTraceTask)
+                import.meta.env.VITE_UI_TYPE === 'UI1-E' || (systemCaps.supportPtzGroupAndTrace && prop.chl[prop.winData.chlID]?.supportPtz && prop.chl[prop.winData.chlID]?.supportPTZGroupTraceTask)
             )
         })
 

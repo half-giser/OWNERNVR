@@ -46,6 +46,7 @@
 
         min-width: 80px;
         height: 26px;
+        padding: 0 15px;
 
         &.is-link {
             min-width: unset;
@@ -146,6 +147,20 @@
     .el-dialog {
         background-color: var(--dialog-bg);
 
+        &__headerbtn {
+            @include sprite($img-close, 0, 2);
+
+            position: unset;
+
+            &:hover {
+                @include sprite($img-close, 1, 2);
+            }
+        }
+
+        &__close {
+            display: none;
+        }
+
         &__body {
             color: var(--main-text);
         }
@@ -155,6 +170,20 @@
         background-color: var(--dialog-bg);
         --el-messagebox-content-color: var(--main-text);
         --el-messagebox-border-radius: 0;
+
+        &__headerbtn {
+            @include sprite($img-close, 0, 2);
+
+            position: unset;
+
+            &:hover {
+                @include sprite($img-close, 1, 2);
+            }
+        }
+
+        &__close {
+            display: none;
+        }
     }
 
     .el-radio-button {

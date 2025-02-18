@@ -4,8 +4,8 @@
  * @Description: 现场预览-云台视图-预置点
 -->
 <template>
-    <div class="ptz-preset">
-        <BaseListBox class="ptz-preset-content">
+    <div class="base-home-ptz">
+        <BaseListBox>
             <BaseListBoxItem
                 v-for="(item, index) in listData"
                 :key="item.index"
@@ -15,23 +15,23 @@
                 @dblclick="callPreset(item.index, index)"
                 @click="pageData.active = index"
             >
-                <span class="ptz-preset-text text-ellipsis">{{ item.name }}</span>
+                <span class="base-home-ptz-text text-ellipsis">{{ item.name }}</span>
                 <BaseImgSprite
                     file="call"
                     :title="Translate('IDCS_CALL')"
-                    :index="0"
+                    :index="pageData.active === index ? 0 : 1"
                     :chunk="2"
                     @click.stop="callPreset(item.index, index)"
                 />
             </BaseListBoxItem>
         </BaseListBox>
-        <div class="ptz-preset-btns">
+        <div class="base-home-ptz-btns">
             <BaseImgSprite
                 file="preset_Add"
                 :title="Translate('IDCS_ADD')"
                 :index="0"
                 :hover-index="1"
-                :disabled-index="0"
+                :disabled-index="3"
                 :chunk="4"
                 :disabled="!enabled"
                 @click="addPreset"
@@ -42,7 +42,7 @@
                 :index="0"
                 :hover-index="1"
                 :chunk="4"
-                :disabled-index="0"
+                :disabled-index="3"
                 :disabled="!enabled"
                 @click="deletePreset"
             />
@@ -51,7 +51,7 @@
                 :title="Translate('IDCS_SAVE_POSITION')"
                 :index="0"
                 :hover-index="1"
-                :disabled-index="0"
+                :disabled-index="3"
                 :chunk="4"
                 :disabled="!enabled"
                 @click="savePreset"
@@ -69,36 +69,3 @@
 </template>
 
 <script lang="ts" src="./LivePtzPresetPanel.v.ts"></script>
-
-<style lang="scss" scoped>
-.ptz-preset {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 10px;
-
-    &-content {
-        height: 100%;
-    }
-
-    &-btns {
-        display: flex;
-        justify-content: flex-end;
-        flex-shrink: 0;
-        width: 90%;
-        margin: 0 5%;
-        padding-top: 5px;
-        border-top: 1px solid var(--btn-border);
-
-        span {
-            margin-left: 5px;
-        }
-    }
-
-    &-text {
-        width: 100%;
-        height: 100%;
-    }
-}
-</style>

@@ -116,7 +116,7 @@ export default function ImageRender(option: ImageRenderOption) {
         cav.width = 800
         cav.height = 600
         const context = cav.getContext('2d')!
-        context.drawImage(canvas, 0, 0, canvas.width, canvas.height)
+        context.drawImage(canvas, 0, 0, cav.width, cav.height)
         const dataURL = cav.toDataURL()
         return dataURL
     }

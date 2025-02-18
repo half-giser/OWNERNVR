@@ -116,19 +116,13 @@ input[type='number'] {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 20px 10px;
+            padding: 10px 20px;
             border-bottom: 1px solid var(--main-border);
 
             .el-message-box__title {
                 font-size: 15px;
                 font-weight: bold;
                 color: var(--dialog-title);
-            }
-
-            .el-message-box__headerbtn {
-                position: unset;
-                width: 22px;
-                height: 22px;
             }
         }
 
@@ -183,19 +177,13 @@ input[type='number'] {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 20px 10px;
+            padding: 10px 20px;
             border-bottom: 1px solid var(--main-border);
 
             .el-dialog__title {
                 font-size: 15px;
                 font-weight: bold;
                 color: var(--dialog-title);
-            }
-
-            .el-dialog__headerbtn {
-                position: unset;
-                width: 22px;
-                height: 22px;
             }
         }
 
