@@ -135,8 +135,6 @@
 
 .el-select {
     width: 102px;
-    height: 30px;
-    line-height: 30px;
     margin: 5px 10px;
 }
 
@@ -144,5 +142,6 @@
     border-radius: 0;
     font-size: 12px;
     text-align: center;
+    height: 26px;
 }
 </style>

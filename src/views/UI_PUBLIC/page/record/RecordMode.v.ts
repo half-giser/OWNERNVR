@@ -182,12 +182,6 @@ export default defineComponent({
             advanceRecModeMap[item.id] = item
         })
 
-        // const genIconMap = (modes: RecordModeDto[]) => {
-        //     pageData.value.icons = {}
-        //     modes.forEach((item) => {
-        //         pageData.value.icons[item.id] = ICON_MAPPING.filter((icon) => item.events.includes(icon.event)).map((icon) => icon.icon)
-        //     })
-        // }
         const getIcons = (mode: RecordModeDto) => {
             return ICON_MAPPING.filter((icon) => mode.type.includes(icon.event) || mode.events.includes(icon.event)).map((icon) => icon.icon)
         }

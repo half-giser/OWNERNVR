@@ -30,7 +30,6 @@
                         :placeholder="Translate('IDCS_USERNAME_TIP')"
                         type="text"
                         tabindex="1"
-                        size="large"
                     />
                 </el-form-item>
                 <el-form-item prop="password">
@@ -39,7 +38,6 @@
                         :placeholder="Translate('IDCS_PASSWORD_TIP')"
                         type="password"
                         tabindex="2"
-                        size="large"
                         show-password
                         @paste.capture.prevent=""
                         @copy.capture.prevent=""
@@ -48,7 +46,6 @@
                 <el-form-item>
                     <el-button
                         class="login-submit"
-                        size="large"
                         :disabled="pageData.btnDisabled"
                         @click="handleLogin"
                         @keyup.enter="keyUp"
