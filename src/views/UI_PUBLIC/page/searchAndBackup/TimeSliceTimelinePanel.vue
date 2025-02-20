@@ -138,7 +138,7 @@
                         v-for="item in pageData.timeSliceList"
                         :key="item.taskId"
                         mode="thumbnail"
-                        :time="displayThumbnailTime(item.startTime)"
+                        :time="displayThumbnailTime(item.frameTime)"
                         :pic="item.imgUrl"
                         :size="pageData.sliceType === 'minute' ? 'small' : 'normal'"
                         :active="!!pageData.activeTimeSlice && pageData.activeTimeSlice === item.taskId"

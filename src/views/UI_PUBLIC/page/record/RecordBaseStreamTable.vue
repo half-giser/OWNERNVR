@@ -440,7 +440,7 @@
 }
 
 .row_bandwidth {
-    margin-top: 10px;
+    margin-right: 10px;
 }
 
 .gop_btn {

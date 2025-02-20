@@ -43,7 +43,7 @@ export default defineComponent({
                 event: 'INTELLIGENT',
             },
             {
-                icon: 'POS',
+                icon: 'pos_2',
                 event: 'POS',
             },
         ]
@@ -90,6 +90,7 @@ export default defineComponent({
                     text: Translate('IDCS_INTENSIVE_RECORD'),
                     type: REC_MODE_TYPE.INTENSIVE,
                     events: [REC_MODE_TYPE.INTENSIVE],
+                    icon: [''],
                     index: 0,
                 },
                 {
@@ -151,7 +152,7 @@ export default defineComponent({
                     index: 7,
                 },
             ] as RecordModeDto[],
-            icons: {} as Record<string, string[]>,
+            // icons: {} as Record<string, string[]>,
             // 根据UI选择是否显示icon
             showIcon: import.meta.env.VITE_UI_TYPE === 'UI1-E',
             // 特定客户的需求
@@ -181,11 +182,8 @@ export default defineComponent({
             advanceRecModeMap[item.id] = item
         })
 
-        const genIconMap = (modes: RecordModeDto[]) => {
-            pageData.value.icons = {}
-            modes.forEach((item) => {
-                pageData.value.icons[item.id] = ICON_MAPPING.filter((icon) => item.events.includes(icon.event)).map((icon) => icon.icon)
-            })
+        const getIcons = (mode: RecordModeDto) => {
+            return ICON_MAPPING.filter((icon) => mode.type.includes(icon.event) || mode.events.includes(icon.event)).map((icon) => icon.icon)
         }
 
         const changeAllSchedule = (value: string, field: keyof RecordScheduleDto) => {
@@ -345,7 +343,7 @@ export default defineComponent({
             pageData.value.advanceModeCurrent = advanceModeCurrent
 
             pageData.value.advanceRecModeId = advanceModeCurrent.id
-            genIconMap(recAutoModeList.value.concat([advanceModeCurrent]))
+            // genIconMap(recAutoModeList.value.concat([advanceModeCurrent]))
 
             return true
         }
@@ -535,7 +533,7 @@ export default defineComponent({
         )
 
         onMounted(async () => {
-            genIconMap(recAutoModeList.value)
+            // genIconMap(recAutoModeList.value)
             await getRecModeData()
             await initChlScheduldTb()
             watchEdit.listen()
@@ -552,6 +550,7 @@ export default defineComponent({
             confirmAdvancePop,
             closeStreamPop,
             setData,
+            getIcons,
         }
     },
 })

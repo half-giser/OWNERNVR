@@ -548,26 +548,40 @@ export const checkChlListCaps = async (route: string) => {
     return supportFlag
 }
 
+export const commResponseHandler = (response: ApiResult) => {
+    return new Promise((resolve: ($: XMLQuery) => void, reject: ($: XMLQuery) => void) => {
+        const $ = queryXml(response)
+        if ($('status').text() === 'success') {
+            resolve($)
+        } else {
+            reject($)
+        }
+    })
+}
+
 /**
  * @description 通用的加载数据请求处理
  * @param {XMLDocument} $response 响应数据
  * @param {Function} successHandler 成功回调
  * @param {Function} failedHandler 失败回调
  */
-export const commLoadResponseHandler = ($response: any, successHandler?: (result: (path: string) => XmlResult) => void, failedHandler?: (result: (path: string) => XmlResult) => void) => {
-    return new Promise((resolve: ($: (path: string) => XmlResult) => void, reject: ($: (path: string) => XmlResult) => void) => {
-        const Translate = useLangStore().Translate
-        const $ = queryXml($response)
-        if ($('status').text() === 'success') {
+export const commLoadResponseHandler = (
+    $response: ApiResult,
+    successHandler?: (result: (path: string) => XmlResult) => void,
+    failedHandler?: (result: (path: string) => XmlResult) => void,
+): Promise<XMLQuery> => {
+    const Translate = useLangStore().Translate
+    return commResponseHandler($response)
+        .then(($) => {
             successHandler && successHandler($)
-            resolve($)
-        } else {
+            return Promise.resolve($)
+        })
+        .catch(($) =>
             openMessageBox(Translate('IDCS_QUERY_DATA_FAIL')).then(() => {
                 failedHandler && failedHandler($)
-                reject($)
-            })
-        }
-    })
+                return Promise.reject($)
+            }),
+        )
 }
 
 /**
@@ -576,25 +590,46 @@ export const commLoadResponseHandler = ($response: any, successHandler?: (result
  * @param {Function} successHandler 成功回调
  * @param {Function} failedHandler 失败回调
  */
-export const commSaveResponseHandler = ($response: ApiResult, successHandler?: (result: (path: string) => XmlResult) => void, failedHandler?: (result: (path: string) => XmlResult) => void) => {
-    return new Promise((resolve: ($: (path: string) => XmlResult) => void, reject: ($: (path: string) => XmlResult) => void) => {
-        const Translate = useLangStore().Translate
-        const $ = queryXml($response)
-        if ($('status').text() === 'success') {
+export const commSaveResponseHandler = ($response: ApiResult, successHandler?: (result: XMLQuery) => void, failedHandler?: (result: XMLQuery) => void) => {
+    const Translate = useLangStore().Translate
+    commResponseHandler($response)
+        .then(($) =>
             openMessageBox({
                 type: 'success',
                 message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-            }).then(() => {
+            }).finally(() => {
                 successHandler && successHandler($)
-                resolve($)
-            })
-        } else {
-            openMessageBox(Translate('IDCS_SAVE_DATA_FAIL')).then(() => {
+            }),
+        )
+        .catch(($) =>
+            openMessageBox(Translate('IDCS_SAVE_DATA_FAIL')).finally(() => {
                 failedHandler && failedHandler($)
-                reject($)
-            })
-        }
-    })
+            }),
+        )
+}
+
+/**
+ * @description 通用的删除数据请求处理
+ * @param {XMLDocument} $response 响应数据
+ * @param {Function} successHandler 成功回调
+ * @param {Function} failedHandler 失败回调
+ */
+export const commDelResponseHandler = ($response: ApiResult, successHandler?: (result: XMLQuery) => void, failedHandler?: (result: XMLQuery) => void) => {
+    const Translate = useLangStore().Translate
+    commResponseHandler($response)
+        .then(($) =>
+            openMessageBox({
+                type: 'success',
+                message: Translate('IDCS_DELETE_SUCCESS'),
+            }).finally(() => {
+                successHandler && successHandler($)
+            }),
+        )
+        .catch(($) =>
+            openMessageBox(Translate('IDCS_DELETE_FAIL')).finally(() => {
+                failedHandler && failedHandler($)
+            }),
+        )
 }
 
 /**
@@ -604,15 +639,11 @@ export const commSaveResponseHandler = ($response: ApiResult, successHandler?: (
  * @param failedHandler 失败回调
  * @returns 结果的promise对象
  */
-export const commMutiSaveResponseHandler = (
-    responseList: ApiResult[],
-    successHandler?: (result: ((path: string) => XmlResult)[]) => void,
-    failedHandler?: (result: ((path: string) => XmlResult)[]) => void,
-) => {
+export const commMutiSaveResponseHandler = (responseList: ApiResult[], successHandler?: (result: XMLQuery[]) => void, failedHandler?: (result: XMLQuery[]) => void) => {
     let allSuccess = true
-    const responseXmlList: ((path: string) => XmlResult)[] = []
+    const responseXmlList: XMLQuery[] = []
     responseList.forEach((item) => {
-        const $ = queryXml(item as ApiResult)
+        const $ = queryXml(item)
         responseXmlList.push($)
         if ($('status').text() !== 'success') {
             allSuccess = false
@@ -621,17 +652,17 @@ export const commMutiSaveResponseHandler = (
     })
     const Translate = useLangStore().Translate
 
-    return new Promise((resolve: (responseXmlList: ((path: string) => XmlResult)[]) => void, reject: (responseXmlList: ((path: string) => XmlResult)[]) => void) => {
+    return new Promise((resolve: (responseXmlList: XMLQuery[]) => void, reject: (responseXmlList: XMLQuery[]) => void) => {
         if (allSuccess) {
             openMessageBox({
                 type: 'success',
                 message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-            }).then(() => {
+            }).finally(() => {
                 successHandler && successHandler(responseXmlList)
                 resolve(responseXmlList)
             })
         } else {
-            openMessageBox(Translate('IDCS_SAVE_DATA_FAIL')).then(() => {
+            openMessageBox(Translate('IDCS_SAVE_DATA_FAIL')).finally(() => {
                 failedHandler && failedHandler(responseXmlList)
                 reject(responseXmlList)
             })

@@ -5,7 +5,7 @@
 -->
 <template>
     <el-dialog
-        :title="Translate('IDCS_BACKUP')"
+        :title="Translate('IDCS_EXPORT')"
         :width="500"
     >
         <el-form
@@ -20,7 +20,7 @@
                 />
             </el-form-item>
             <el-form-item v-show="formData.destination === 'local'">
-                <el-text class="text-error">{{ Translate('IDCS_AVI_UNENCRYPTED_TIP') }}</el-text>
+                <el-text class="text-error">{{ Translate('IDCS_IMG_UNENCRYPTED_TIP') }}</el-text>
             </el-form-item>
             <el-form-item
                 v-show="formData.destination === 'remote'"

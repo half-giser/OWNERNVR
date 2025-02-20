@@ -305,19 +305,11 @@ export default defineComponent({
             `
 
             const result = await editPosList(sendXml)
-            const $ = queryXml(result)
 
             closeLoading()
-
-            if ($('status').text() === 'success') {
-                openMessageBox({
-                    type: 'success',
-                    message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                })
+            commSaveResponseHandler(result, () => {
                 watchEdit.update()
-            } else {
-                openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
-            }
+            })
         }
 
         /**

@@ -22,22 +22,21 @@
                     :label="Translate('IDCS_ENABLE')"
                 />
             </el-form-item>
-            <!-- 多UI -->
             <el-form-item
-                v-if="pageData.isAnothorUI || pageData.deviceIdShow"
+                v-if="pageData.showAdditionalServerSetting || pageData.deviceIdShow"
                 prop="deviceId"
                 :label="Translate('IDCS_ID')"
             >
                 <el-input
                     v-model="formData.deviceId"
-                    :maxlength="pageData.isAnothorUI ? 16 : 6"
+                    :maxlength="pageData.supportAdditionalServerSetting ? 16 : 6"
                     :disabled="!formData.enable"
                 />
             </el-form-item>
             <!-- Token  -->
             <el-form-item
-                v-if="pageData.isAnothorUI"
-                prop="Token"
+                v-if="pageData.showAdditionalServerSetting"
+                prop="token"
                 :label="Translate('Token')"
             >
                 <el-input

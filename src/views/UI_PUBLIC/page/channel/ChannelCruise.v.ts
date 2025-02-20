@@ -525,20 +525,12 @@ export default defineComponent({
                     </condition>
                 `
                 const result = await delChlCruise(sendXml)
-                const $ = queryXml(result)
 
                 closeLoading()
-                if ($('status').text() === 'success') {
-                    openMessageBox({
-                        type: 'success',
-                        message: Translate('IDCS_DELETE_SUCCESS'),
-                    }).finally(() => {
-                        tableData.value[chlIndex].cruise.splice(cruiseIndex, 1)
-                        tableData.value[chlIndex].cruiseCount--
-                    })
-                } else {
-                    openMessageBox(Translate('IDCS_DELETE_FAIL'))
-                }
+                commDelResponseHandler(result, () => {
+                    tableData.value[chlIndex].cruise.splice(cruiseIndex, 1)
+                    tableData.value[chlIndex].cruiseCount--
+                })
             })
         }
 

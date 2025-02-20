@@ -56,7 +56,6 @@
                         v-model="formData.startTime"
                         format="HH:mm"
                         value-format="HH:mm"
-                        popper-class="base-chl-timepicker"
                         :disabled="!tableData.length"
                     />
                 </el-form-item>
@@ -68,7 +67,6 @@
                         v-model="formData.endTime"
                         format="HH:mm"
                         value-format="HH:mm"
-                        popper-class="base-chl-timepicker"
                         :disabled="!tableData.length"
                     />
                 </el-form-item>

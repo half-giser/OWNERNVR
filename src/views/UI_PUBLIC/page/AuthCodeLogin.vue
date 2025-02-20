@@ -124,8 +124,8 @@
 
     &-lang {
         position: absolute;
-        top: 20px;
-        right: 30px;
+        top: 10px;
+        right: 15px;
         width: 180px;
 
         .el-select {

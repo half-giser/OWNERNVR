@@ -207,7 +207,6 @@ const handleBlur = (index: number) => {
 
 <style lang="scss">
 .MacInput {
-    align-items: left;
     border-radius: var(--el-input-border-radius, var(--el-border-radius-base));
     box-shadow: 0 0 0 1px var(--input-border) inset;
     cursor: text;
@@ -222,21 +221,15 @@ const handleBlur = (index: number) => {
     background: var(--input-bg);
     color: var(--input-text);
 
-    &:hover,
-    &.is-focus {
+    &:hover:not(.disabled),
+    &.is-focus:not(.disabled) {
         box-shadow: 0 0 0 1px var(--primary) inset;
         border-color: var(--primary);
-
-        &.disabled {
-            background-color: var(--input-bg-disabled);
-            border-color: var(--input-border-disabled);
-        }
     }
 
     &.disabled {
-        box-shadow: none;
+        box-shadow: 0 0 0 1px var(--input-border-disabled) inset;
         background-color: var(--input-bg-disabled);
-        border-color: var(--input-border-disabled);
         color: var(--el-disabled-text-color);
         cursor: not-allowed;
 

@@ -51,7 +51,6 @@ export default defineComponent({
         },
     },
     setup(props) {
-        const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
 
         const playerRef = ref<PlayerInstance>()
@@ -291,21 +290,14 @@ export default defineComponent({
 
             openLoading()
             const res = await editSmartFireConfig(sendXml)
-            const $ = queryXml(res)
             closeLoading()
-            if ($('status').text() === 'success') {
+            commSaveResponseHandler(res, () => {
                 if (formData.value.detectionEnable) {
                     // 开关为开把originalSwitch置为true避免多次弹出互斥提示
                     formData.value.originalEnable = true
                 }
-                openMessageBox({
-                    type: 'success',
-                    message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                })
                 watchEdit.update()
-            } else {
-                openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
-            }
+            })
         }
 
         // 应用

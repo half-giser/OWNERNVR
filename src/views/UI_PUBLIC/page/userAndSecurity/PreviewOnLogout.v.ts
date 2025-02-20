@@ -8,8 +8,6 @@ import type { TableInstance } from 'element-plus'
 
 export default defineComponent({
     setup() {
-        const { Translate } = useLangStore()
-
         const playerRef = ref<PlayerInstance>()
 
         const tableRef = ref<TableInstance>()
@@ -135,19 +133,11 @@ export default defineComponent({
                 </content>
             `
             const result = await editLogoutChlPreviewAuth(sendXML)
-            const $ = queryXml(result)
 
             closeLoading()
-
-            if ($('status').text() === 'success') {
-                openMessageBox({
-                    type: 'success',
-                    message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                })
+            commSaveResponseHandler(result, () => {
                 watchEdit.update()
-            } else {
-                openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
-            }
+            })
         }
 
         /**

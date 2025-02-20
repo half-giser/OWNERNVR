@@ -74,8 +74,10 @@ export default defineComponent({
                 },
             ],
         })
+        const watchEditPortForm = useWatchEditData(portFormData)
 
         const apiServerFormData = ref(new NetPortApiServerForm())
+        const watchEditApiServerForm = useWatchEditData(apiServerFormData)
 
         const rtspServerFormRef = useFormRef()
         const rtspServerFormData = ref(new NetPortRtspServerForm())
@@ -94,6 +96,7 @@ export default defineComponent({
                 },
             ],
         })
+        const watchEditRtspServerForm = useWatchEditData(rtspServerFormData)
 
         const pageData = ref({
             // UI1-E客户定制，页面不显示apiserver
@@ -110,14 +113,6 @@ export default defineComponent({
             isPosPort: systemCaps.supportPOS,
             // 是否显示启用虚拟主机选项
             isVirtualPortEnabled: systemCaps.poeChlMaxCount > 0,
-            // 端口表单发生改变
-            isPortFormChanged: false,
-            // API服务表单发生改变
-            isApiServerFormChanged: false,
-            // RTSP服务表单发生改变
-            isRtspServerFormChanged: false,
-            // 是否请求数据借宿
-            mounted: false,
             // API服务认证方式选项
             apiVerificationOptions: [] as SelectOption<string, string>[],
             // RTSP服务认证方式选项
@@ -128,6 +123,10 @@ export default defineComponent({
          * @description 获取数据
          */
         const getData = async () => {
+            watchEditPortForm.reset()
+            watchEditRtspServerForm.reset()
+            watchEditApiServerForm.reset()
+
             openLoading()
 
             await getPortData()
@@ -137,10 +136,9 @@ export default defineComponent({
             await getRtspServerData()
 
             closeLoading()
-
-            nextTick(() => {
-                pageData.value.mounted = true
-            })
+            watchEditPortForm.listen()
+            watchEditApiServerForm.listen()
+            watchEditRtspServerForm.listen()
         }
 
         /**
@@ -193,10 +191,9 @@ export default defineComponent({
                 openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
             }
 
-            pageData.value.mounted = false
-            pageData.value.isPortFormChanged = false
-            pageData.value.isApiServerFormChanged = false
-            pageData.value.isRtspServerFormChanged = false
+            watchEditPortForm.update()
+            watchEditRtspServerForm.update()
+            watchEditApiServerForm.update()
 
             getData()
         }
@@ -282,7 +279,7 @@ export default defineComponent({
          * @description 提交端口表单数据
          */
         const setPortData = async () => {
-            if (!pageData.value.isPortFormChanged) {
+            if (watchEditPortForm.disabled.value) {
                 return true
             }
             const sendXml = rawXml`
@@ -338,7 +335,7 @@ export default defineComponent({
          * @description 更新UPnP数据
          */
         const setUPnPData = async () => {
-            if (!pageData.value.isPortFormChanged && !pageData.value.isApiServerFormChanged && !pageData.value.isRtspServerFormChanged) {
+            if (watchEditPortForm.disabled.value && watchEditApiServerForm.disabled.value && watchEditRtspServerForm.disabled.value) {
                 return true
             }
             const portTypeMapping: Record<string, number> = {
@@ -409,7 +406,7 @@ export default defineComponent({
          * @description 更新API服务表单数据
          */
         const setApiServerData = async () => {
-            if (!pageData.value.isApiServerFormChanged) {
+            if (watchEditApiServerForm.disabled.value) {
                 return true
             }
 
@@ -464,7 +461,7 @@ export default defineComponent({
          * @description 更新RTSP表单数据
          */
         const setRtspServerData = async () => {
-            if (!pageData.value.isRtspServerFormChanged) {
+            if (watchEditRtspServerForm.disabled.value) {
                 return true
             }
 
@@ -499,42 +496,6 @@ export default defineComponent({
                 openMessageBox(Translate('IDCS_ANONYMOUS_LOGIN_REMIND'))
             }
         }
-
-        watch(
-            portFormData,
-            () => {
-                if (pageData.value.mounted) {
-                    pageData.value.isPortFormChanged = true
-                }
-            },
-            {
-                deep: true,
-            },
-        )
-
-        watch(
-            apiServerFormData,
-            () => {
-                if (pageData.value.mounted) {
-                    pageData.value.isApiServerFormChanged = true
-                }
-            },
-            {
-                deep: true,
-            },
-        )
-
-        watch(
-            rtspServerFormData,
-            () => {
-                if (pageData.value.mounted) {
-                    pageData.value.isRtspServerFormChanged = true
-                }
-            },
-            {
-                deep: true,
-            },
-        )
 
         onMounted(() => {
             getData()

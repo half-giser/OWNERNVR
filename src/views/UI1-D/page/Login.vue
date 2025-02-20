@@ -29,7 +29,6 @@
                         :placeholder="Translate('IDCS_USERNAME_TIP')"
                         type="text"
                         tabindex="1"
-                        size="large"
                     />
                 </el-form-item>
                 <el-form-item prop="password">
@@ -38,7 +37,6 @@
                         :placeholder="Translate('IDCS_PASSWORD_TIP')"
                         type="password"
                         tabindex="2"
-                        size="large"
                         show-password
                         @paste.capture.prevent=""
                         @copy.capture.prevent=""
@@ -48,7 +46,6 @@
                     <el-radio
                         v-for="item in pageData.qualityOptions"
                         :key="item.value"
-                        size="large"
                         :value="item.value"
                         :label="item.label"
                     />
@@ -56,7 +53,6 @@
                 <div class="login-btns">
                     <el-button
                         class="login-submit"
-                        size="large"
                         :disabled="pageData.btnDisabled"
                         @click="handleLogin"
                         @keyup.enter="keyUp"
@@ -64,10 +60,7 @@
                         <span v-clean-html="Translate('IDCS_LOGIN_NBSP')"></span>
                     </el-button>
                     <!-- 点击不会有任何作用 -->
-                    <el-button
-                        class="login-submit"
-                        size="large"
-                    >
+                    <el-button class="login-submit">
                         {{ Translate('IDCS_CANCEL') }}
                     </el-button>
                 </div>
@@ -121,6 +114,7 @@
 
         :deep(.el-input__inner) {
             color: var(--login-input-text);
+            font-size: 16px;
         }
 
         :deep(.el-form-item) {
@@ -169,8 +163,8 @@
 
 .login-lang {
     position: absolute;
-    top: 20px;
-    right: 30px;
+    top: 10px;
+    right: 15px;
     width: 180px;
 
     .el-select {

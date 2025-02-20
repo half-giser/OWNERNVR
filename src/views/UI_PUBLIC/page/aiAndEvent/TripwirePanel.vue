@@ -143,7 +143,7 @@
                                     :label="Translate('IDCS_DETECTION_ONLY_ONE_OBJECT').formatForLang(Translate('IDCS_BEYOND_DETECTION'), Translate('IDCS_DETECTION_PERSON'))"
                                 />
                                 <!-- 云台 -->
-                                <div v-if="chlData.supportAutoTrack">
+                                <template v-if="chlData.supportAutoTrack">
                                     <div class="base-ai-subheading">
                                         {{ Translate('IDCS_PTZ') }}
                                     </div>
@@ -151,19 +151,19 @@
                                         :chl-id="currChlId || ''"
                                         @speed="setSpeed"
                                     />
-                                    <div class="base-btn-box flex-start padding">
+                                    <el-form-item>
                                         <el-button @click="editLockStatus">
                                             {{ pageData.lockStatus ? Translate('IDCS_UNLOCK') : Translate('IDCS_LOCKED') }}
                                         </el-button>
                                         <span>{{ Translate('IDCS_LOCK_PTZ_TIP') }}</span>
-                                    </div>
-                                    <div class="base-btn-box flex-start padding collapse">
+                                    </el-form-item>
+                                    <el-form-item>
                                         <el-checkbox
                                             v-model="formData.autoTrack"
                                             :label="Translate('IDCS_TRIGGER_TRACK')"
                                         />
-                                    </div>
-                                </div>
+                                    </el-form-item>
+                                </template>
                             </el-form>
                         </div>
                     </el-tab-pane>

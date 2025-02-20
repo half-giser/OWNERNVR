@@ -141,6 +141,7 @@
 
         :deep(.el-input__inner) {
             color: var(--login-input-text);
+            font-size: 16px;
         }
 
         :deep(.el-form-item) {
@@ -177,8 +178,8 @@
 
 .login-lang {
     position: absolute;
-    top: 20px;
-    right: 30px;
+    top: 10px;
+    right: 15px;
     width: 180px;
 
     .el-select {
