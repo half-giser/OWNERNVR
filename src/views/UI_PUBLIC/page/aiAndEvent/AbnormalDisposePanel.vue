@@ -84,7 +84,7 @@
             <!-- 联动方式 -->
             <el-tab-pane
                 :label="Translate('IDCS_LINKAGE_MODE')"
-                name="linkage"
+                name="trigger"
             >
                 <el-form
                     v-if="supportAlarmAudioConfig"

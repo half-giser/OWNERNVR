@@ -3,7 +3,6 @@
  * @Date: 2024-08-27 14:27:13
  * @Description: 业务应用-人脸签到
  */
-import { cloneDeep } from 'lodash-es'
 import dayjs from 'dayjs'
 import { type BusinessFaceGroupList, BusinessFaceCheckList, BusinessFaceCheckForm } from '@/types/apiType/business'
 import FaceDetailPop from './FaceDetailPop.vue'

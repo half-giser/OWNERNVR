@@ -3,7 +3,6 @@
  * @Date: 2024-07-29 18:07:29
  * @Description: 现场预览
  */
-import { cloneDeep } from 'lodash-es'
 import { type LiveChannelList, type LiveCustomViewChlList, LiveSharedWinData } from '@/types/apiType/live'
 import WebsocketState from '@/utils/websocket/websocketState'
 import { type XMLQuery } from '@/utils/xmlParse'
@@ -323,7 +322,7 @@ const usePos = (mode: Ref<string>) => {
         })
         $('content/item').forEach((ele) => {
             const $ele = queryXml(ele.element)
-            const $position = queryXml($('param/displaySetting/displayPosition')[0].element)
+            const $position = queryXml($ele('param/displaySetting/displayPosition')[0].element)
             const $triggerChls = $ele('trigger/triggerChl/chls/item')
             const timeout = $ele('param/displaySetting/common/timeOut').text()
             if (!$triggerChls.length) return

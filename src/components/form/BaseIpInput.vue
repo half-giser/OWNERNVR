@@ -91,7 +91,7 @@ const updateValue = (value: number, index: number) => {
             current = address.value[index]
         }
     } else if (prop.invalidateMode === 'REPLACE') {
-        current = Math.min(MAX_VALUE, Math.max(MIN_VALUE, current))
+        current = clamp(current, MIN_VALUE, MAX_VALUE)
     }
 
     const split: (string | number)[] = [...address.value]

@@ -3,9 +3,8 @@
  * @Date: 2024-09-13 09:18:41
  * @Description: AI 事件——更多——温度检测
  */
-import { cloneDeep } from 'lodash-es'
 import { AlarmTemperatureDetectionBoundryDto, type AlarmChlDto, AlarmTemperatureDetectionDto } from '@/types/apiType/aiAndEvent'
-import CanvasPolygon from '@/utils/canvas/canvasTemperature'
+import CanvasTemperature from '@/utils/canvas/canvasTemperature'
 import { type CanvasBaseArea, type CanvasBasePoint } from '@/utils/canvas/canvasBase'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import { type TableInstance } from 'element-plus'
@@ -164,10 +163,7 @@ export default defineComponent({
 
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
-        // 车牌侦测绘制的Canvas
-        let tempDrawer = CanvasPolygon({
-            el: document.createElement('canvas'),
-        })
+        let drawer = CanvasTemperature()
 
         /**
          * @description 播放器就绪时回调
@@ -177,9 +173,9 @@ export default defineComponent({
             plugin = playerRef.value!.plugin
 
             if (mode.value === 'h5') {
-                const canvas = player.getDrawbordCanvas(0)
-                tempDrawer = CanvasPolygon({
-                    el: canvas,
+                drawer.destroy()
+                drawer = CanvasTemperature({
+                    el: player.getDrawbordCanvas(),
                     onchange: changeArea,
                     closePath: closePath,
                     forceClosePath: forceClosePath,
@@ -193,7 +189,7 @@ export default defineComponent({
             }
         }
 
-        // tempDrawer初始化时绑定以下函数
+        // drawer初始化时绑定以下函数
         const changeArea = (points: CanvasBasePoint[] | CanvasBaseArea) => {
             pageData.value.currRowData.points = points as CanvasBasePoint[]
             if (pageData.value.isShowAllArea) {
@@ -223,7 +219,7 @@ export default defineComponent({
                 pageData.value.currRowData.points = []
 
                 if (mode.value === 'h5') {
-                    tempDrawer.clear()
+                    drawer.clear()
                 }
 
                 if (mode.value === 'ocx') {
@@ -285,35 +281,6 @@ export default defineComponent({
                 const $param = queryXml($('content/chl/param')[0].element)
                 const $trigger = queryXml($('content/chl/trigger')[0].element)
 
-                const boundaryData = $param('boundary/item').map((item) => {
-                    const $item = queryXml(item.element)
-                    return {
-                        id: $item('ruleId').text(),
-                        ruleId: $item('ruleId').text().num(),
-                        switch: $item('switch').text().bool(),
-                        ruleName: $item('ruleName').text(),
-                        ruleType: $item('ruleType').text(),
-                        emissivity: getRealValueByRatio($item('emissivity').text()),
-                        emissivityDefault: getRealValueByRatio($item('emissivity').attr('default')),
-                        distance: getRealValueByRatio($item('distance').text()),
-                        distanceDefault: getRealValueByRatio($item('distance').attr('default')),
-                        reflectTemper: getRealValueByRatio($item('reflectTemper').text()),
-                        reflectTemperDefault: getRealValueByRatio($item('reflectTemper').attr('default')),
-                        alarmRule: $item('alarmRule').text(),
-                        alarmTemper: getRealValueByRatio($item('alarmTemper').text()),
-                        alarmTemperDefault: getRealValueByRatio($item('alarmTemper').attr('default')),
-                        maxCount: $item('point').attr('maxCount').num(),
-                        points: $item('point/item').map((ele) => {
-                            const $ele = queryXml(ele.element)
-                            return {
-                                X: $ele('X').text().num(),
-                                Y: $ele('Y').text().num(),
-                                isClosed: true,
-                            }
-                        }),
-                    }
-                })
-
                 formData.value = {
                     enabledSwitch: $param('switch').text().bool(),
                     holdTime: $param('alarmHoldTime').text().num(),
@@ -354,7 +321,34 @@ export default defineComponent({
                         return $trigger(item).text().bool()
                     }),
                     sysAudio: $('sysAudio').attr('id'),
-                    boundaryData,
+                    boundaryData: $param('boundary/item').map((item) => {
+                        const $item = queryXml(item.element)
+                        return {
+                            id: $item('ruleId').text(),
+                            ruleId: $item('ruleId').text().num(),
+                            switch: $item('switch').text().bool(),
+                            ruleName: $item('ruleName').text(),
+                            ruleType: $item('ruleType').text(),
+                            emissivity: getRealValueByRatio($item('emissivity').text()),
+                            emissivityDefault: getRealValueByRatio($item('emissivity').attr('default')),
+                            distance: getRealValueByRatio($item('distance').text()),
+                            distanceDefault: getRealValueByRatio($item('distance').attr('default')),
+                            reflectTemper: getRealValueByRatio($item('reflectTemper').text()),
+                            reflectTemperDefault: getRealValueByRatio($item('reflectTemper').attr('default')),
+                            alarmRule: $item('alarmRule').text(),
+                            alarmTemper: getRealValueByRatio($item('alarmTemper').text()),
+                            alarmTemperDefault: getRealValueByRatio($item('alarmTemper').attr('default')),
+                            maxCount: $item('point').attr('maxCount').num(),
+                            points: $item('point/item').map((ele) => {
+                                const $ele = queryXml(ele.element)
+                                return {
+                                    X: $ele('X').text().num(),
+                                    Y: $ele('Y').text().num(),
+                                    isClosed: true,
+                                }
+                            }),
+                        }
+                    }),
                 }
 
                 if (prop.chlData.supportAudio && formData.value.triggerAudio) {
@@ -391,13 +385,13 @@ export default defineComponent({
         }
 
         // 切换行
-        const boundaryRowClick = (row: AlarmTemperatureDetectionBoundryDto) => {
+        const changeBoundary = (row: AlarmTemperatureDetectionBoundryDto) => {
             pageData.value.currRowData = row
             // 切换另一个区域前先封闭其他可闭合的区域（“area”）
             setOtherAreaClosed()
 
             if (mode.value === 'h5') {
-                tempDrawer.clear()
+                drawer.clear()
             }
 
             if (mode.value === 'ocx') {
@@ -414,8 +408,8 @@ export default defineComponent({
             if (pageData.value.currRowData?.points) {
                 if (mode.value === 'h5') {
                     const isFoucusClosePath = pageData.value.currRowData.ruleType === 'area'
-                    tempDrawer.setCurrAreaIndex(pageData.value.currRowData.ruleId, 'detectionArea')
-                    tempDrawer.setPointList(pageData.value.currRowData.points, isFoucusClosePath)
+                    drawer.setCurrAreaIndex(pageData.value.currRowData.ruleId, 'detectionArea')
+                    drawer.setPointList(pageData.value.currRowData.points, isFoucusClosePath)
                 }
 
                 if (mode.value === 'ocx') {
@@ -431,24 +425,24 @@ export default defineComponent({
 
         // 是否显示全部区域
         const showAllArea = () => {
-            tempDrawer && tempDrawer.setEnableShowAll(pageData.value.isShowAllArea)
+            if (mode.value === 'h5') {
+                drawer.setEnableShowAll(pageData.value.isShowAllArea)
+            }
+
             if (pageData.value.isShowAllArea) {
-                const detectAreaInfo = [] as CanvasBasePoint[][]
-                formData.value.boundaryData.forEach((item, index) => {
-                    detectAreaInfo[index] = item.points
-                })
+                const detectAreaInfo = formData.value.boundaryData.map((item) => item.points)
 
                 if (mode.value === 'h5') {
                     const index = pageData.value.currRowData.ruleId
-                    tempDrawer.setCurrAreaIndex(index, 'detectionArea')
-                    tempDrawer.drawAllPolygon(detectAreaInfo, {}, 'detectionArea', index, true)
+                    drawer.setCurrAreaIndex(index, 'detectionArea')
+                    drawer.drawAllPolygon(detectAreaInfo, [], 'detectionArea', index, true)
                 }
 
                 if (mode.value === 'ocx') {
                     const pluginDetectAreaInfo = cloneDeep(detectAreaInfo)
                     pluginDetectAreaInfo[pageData.value.currRowData.ruleId] = [] // 插件端下发全部区域需要过滤掉当前区域数据
-                    const sendXML = OCX_XML_SetAllArea({ detectAreaInfo: pluginDetectAreaInfo }, 'IrregularPolygon', 'TYPE_WATCH_DETECTION', '', true)
-                    plugin.ExecuteCmd(sendXML!)
+                    const sendXML = OCX_XML_SetAllArea({ detectAreaInfo: pluginDetectAreaInfo }, 'IrregularPolygon', OCX_AI_EVENT_TYPE_WATCH_DETECTION, '', true)
+                    plugin.ExecuteCmd(sendXML)
                 }
             } else {
                 if (mode.value === 'h5') {
@@ -456,8 +450,8 @@ export default defineComponent({
                 }
 
                 if (mode.value === 'ocx') {
-                    const sendXML = OCX_XML_SetAllArea({ detectAreaInfo: [] }, 'IrregularPolygon', 'TYPE_WATCH_DETECTION', '', false)
-                    plugin.ExecuteCmd(sendXML!)
+                    const sendXML = OCX_XML_SetAllArea({}, 'IrregularPolygon', OCX_AI_EVENT_TYPE_WATCH_DETECTION, '', false)
+                    plugin.ExecuteCmd(sendXML)
                 }
             }
         }
@@ -465,16 +459,13 @@ export default defineComponent({
         // 清空
         const clearArea = () => {
             if (mode.value === 'h5') {
-                tempDrawer.clear()
+                drawer.clear()
             }
 
             if (mode.value === 'ocx') {
                 const sendXML = OCX_XML_SetOscAreaAction('NONE')
                 plugin.ExecuteCmd(sendXML)
             }
-
-            if (!formData.value.boundaryData.length) return
-            pageData.value.currRowData.points = []
 
             if (pageData.value.isShowAllArea) {
                 showAllArea()
@@ -486,12 +477,13 @@ export default defineComponent({
             formData.value.boundaryData.forEach((item) => {
                 item.points = []
             })
+
             if (mode.value === 'h5') {
-                tempDrawer.clear()
+                drawer.clear()
             }
 
             if (mode.value === 'ocx') {
-                const sendXMLAll = OCX_XML_SetAllArea({ detectAreaInfo: [], maskAreaInfo: [] }, 'IrregularPolygon', 'TYPE_WATCH_DETECTION', '', pageData.value.isShowAllArea)
+                const sendXMLAll = OCX_XML_SetAllArea({}, 'IrregularPolygon', OCX_AI_EVENT_TYPE_WATCH_DETECTION, '', pageData.value.isShowAllArea)
                 plugin.ExecuteCmd(sendXMLAll!)
 
                 const sendXML = OCX_XML_SetPeaAreaAction('NONE')
@@ -509,7 +501,7 @@ export default defineComponent({
         }
 
         // 类型改变
-        const ruleTypeChange = (row: AlarmTemperatureDetectionBoundryDto) => {
+        const changeRuleType = (row: AlarmTemperatureDetectionBoundryDto) => {
             // pageData.value.alarmRuleTypeList[index] = value === 'point' ? alarmRuleTypeList2 : alarmRuleTypeList1
             pageData.value.currRowData = row
             boundaryTableRef.value!.setCurrentRow(row)
@@ -547,7 +539,7 @@ export default defineComponent({
             }
 
             if (mode.value === 'h5') {
-                tempDrawer.setPointCount(pointToValueMap[rowData.ruleType], 'temperatureDetect')
+                drawer.setPointCount(pointToValueMap[rowData.ruleType], 'temperatureDetect')
             }
 
             if (mode.value === 'ocx') {
@@ -566,13 +558,11 @@ export default defineComponent({
         const setOtherAreaClosed = () => {
             if (mode.value === 'h5') {
                 // 画点-区域
-                if (formData.value.boundaryData && formData.value.boundaryData.length > 0) {
-                    formData.value.boundaryData.forEach((item) => {
-                        if (item.ruleType === 'area' && item.points.length >= 3 && tempDrawer.judgeAreaCanBeClosed(item.points)) {
-                            setClosed(item.points)
-                        }
-                    })
-                }
+                formData.value.boundaryData.forEach((item) => {
+                    if (item.ruleType === 'area' && item.points.length >= 3 && drawer.judgeAreaCanBeClosed(item.points)) {
+                        setClosed(item.points)
+                    }
+                })
             }
         }
 
@@ -580,7 +570,7 @@ export default defineComponent({
         const verification = () => {
             const count = formData.value.boundaryData.length
             for (const item of formData.value.boundaryData) {
-                if (count > 2 && !tempDrawer.judgeAreaCanBeClosed(item.points)) {
+                if (count > 2 && !drawer.judgeAreaCanBeClosed(item.points)) {
                     openMessageBox(Translate('IDCS_INTERSECT'))
                     return false
                 }
@@ -710,7 +700,7 @@ export default defineComponent({
                     play()
 
                     if (mode.value === 'h5') {
-                        tempDrawer.setEnable(true)
+                        drawer.setEnable(true)
                     }
 
                     if (mode.value === 'ocx') {
@@ -727,7 +717,7 @@ export default defineComponent({
 
         const notify = ($: XMLQuery, stateType: string) => {
             // 温度报警检测
-            if (stateType === 'OscArea') {
+            if (stateType === 'PeaArea') {
                 if ($('statenotify/points').length) {
                     pageData.value.currRowData.points = $('statenotify/points/item').map((item) => {
                         return {
@@ -769,16 +759,14 @@ export default defineComponent({
                 const sendMinXML = OCX_XML_SetOscAreaAction('NONE')
                 plugin.ExecuteCmd(sendMinXML)
 
-                const sendXMLAll = OCX_XML_SetAllArea({ detectAreaInfo: [] }, 'IrregularPolygon', 'TYPE_WATCH_DETECTION', '', false)
+                const sendXMLAll = OCX_XML_SetAllArea({}, 'IrregularPolygon', OCX_AI_EVENT_TYPE_WATCH_DETECTION, '', false)
                 plugin.ExecuteCmd(sendXMLAll!)
 
                 const sendXML = OCX_XML_StopPreview('ALL')
                 plugin.ExecuteCmd(sendXML)
             }
 
-            if (mode.value === 'h5') {
-                tempDrawer.destroy()
-            }
+            drawer.destroy()
         })
 
         return {
@@ -794,9 +782,9 @@ export default defineComponent({
             showAllArea,
             clearArea,
             clearAllArea,
-            boundaryRowClick,
+            changeBoundary,
             blurInput,
-            ruleTypeChange,
+            changeRuleType,
             focusValue,
             inputValue,
             blurValue,

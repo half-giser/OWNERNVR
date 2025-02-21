@@ -4,7 +4,6 @@
  * @Date: 2024-08-23 10:58:27
  */
 import { type AlarmPresetItem, AlarmSensorEventDto } from '@/types/apiType/aiAndEvent'
-import { cloneDeep } from 'lodash-es'
 import AlarmBasePresetPop from './AlarmBasePresetPop.vue'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import AlarmBaseSnapPop from './AlarmBaseSnapPop.vue'

@@ -5,7 +5,6 @@
  */
 import { ChannelImageDto, ChannelLensCtrlDto, type ChannelScheduleInfoDto } from '@/types/apiType/channel'
 import { type TableInstance } from 'element-plus'
-import { cloneDeep } from 'lodash-es'
 
 export default defineComponent({
     setup() {

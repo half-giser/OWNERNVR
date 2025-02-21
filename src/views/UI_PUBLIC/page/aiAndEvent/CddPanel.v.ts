@@ -48,8 +48,6 @@ export default defineComponent({
 
         const playerRef = ref<PlayerInstance>()
 
-        let cddDrawer: ReturnType<typeof CanvasVfd>
-
         const pageData = ref({
             // 是否支持声音设置
             supportAlarmAudioConfig: systemCaps.supportAlarmAudioConfig,
@@ -71,6 +69,7 @@ export default defineComponent({
 
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
+        let drawer = CanvasVfd()
 
         const ready = computed(() => {
             return playerRef.value?.ready || false
@@ -93,9 +92,9 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 if (playerRef.value) {
-                    const canvas = player.getDrawbordCanvas(0)
-                    cddDrawer = CanvasVfd({
-                        el: canvas,
+                    drawer.destroy()
+                    drawer = CanvasVfd({
+                        el: player.getDrawbordCanvas(),
                         onchange: (data) => {
                             formData.value.regionInfo = [data]
                         },
@@ -133,7 +132,7 @@ export default defineComponent({
                     play()
 
                     if (mode.value === 'h5') {
-                        cddDrawer.setEnable(true)
+                        drawer.setEnable(true)
                     }
 
                     if (mode.value === 'ocx') {
@@ -340,7 +339,7 @@ export default defineComponent({
         const setArea = () => {
             if (formData.value.regionInfo.length) {
                 if (mode.value === 'h5') {
-                    cddDrawer.setArea(formData.value.regionInfo[0])
+                    drawer.setArea(formData.value.regionInfo[0])
                 }
 
                 if (mode.value === 'ocx') {
@@ -352,7 +351,7 @@ export default defineComponent({
 
         const clearArea = () => {
             if (mode.value === 'h5') {
-                cddDrawer.clear()
+                drawer.clear()
             }
 
             if (mode.value === 'ocx') {
@@ -395,6 +394,8 @@ export default defineComponent({
                 const sendXML = OCX_XML_StopPreview('ALL')
                 plugin.ExecuteCmd(sendXML)
             }
+
+            drawer.destroy()
         })
 
         return {

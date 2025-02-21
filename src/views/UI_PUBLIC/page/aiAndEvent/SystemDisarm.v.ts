@@ -5,7 +5,7 @@
  */
 import { AlarmSystemDisarmDto, type AlarmSystemDisarmChlAndSensorSrcDto } from '@/types/apiType/aiAndEvent'
 import { type TableInstance } from 'element-plus'
-import { cloneDeep } from 'lodash-es'
+
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()

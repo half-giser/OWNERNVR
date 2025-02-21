@@ -177,7 +177,7 @@ export default defineComponent({
             const item = prop.backupList[taskIndex]
             const progress = Math.floor(((frameTime - item.startTime) / (item.endTime - item.startTime)) * 100)
             // 返回的frameTime值可能小于startTime或大于endTime，因此这里需要clamp
-            pageData.value.progress = Math.min(100, Math.max(0, progress))
+            pageData.value.progress = clamp(progress, 0, 100)
             pageData.value.currentTask = taskIndex + 1
         }
 

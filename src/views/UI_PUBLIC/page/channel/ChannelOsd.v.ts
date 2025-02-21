@@ -5,7 +5,6 @@
  */
 import { type XMLQuery } from '@/utils/xmlParse'
 import { ChannelOsdDto } from '@/types/apiType/channel'
-import { cloneDeep } from 'lodash-es'
 import CanvasOSD, { type CanvasOSDOptionNameConfig, type CanvasOSDOptionTimeConfig } from '@/utils/canvas/canvasOsd'
 import { type OcxXmlSetOSDInfo } from '@/utils/ocx/ocxCmd'
 import { type TableInstance } from 'element-plus'
@@ -44,7 +43,8 @@ export default defineComponent({
         })
 
         let nameMapping: Record<string, string> = {}
-        let osdDrawer: ReturnType<typeof CanvasOSD>
+        let drawer = CanvasOSD()
+
         const editRows = useWatchEditRows<ChannelOsdDto>()
 
         const handleChlSel = (chlId: string) => {
@@ -547,8 +547,9 @@ export default defineComponent({
             plugin = playerRef.value!.plugin
 
             if (mode.value === 'h5') {
-                osdDrawer = CanvasOSD({
-                    el: player.getDrawbordCanvas(0),
+                drawer.destroy()
+                drawer = CanvasOSD({
+                    el: player.getDrawbordCanvas(),
                     onchange: handleOSDChange,
                 })
             }
@@ -560,7 +561,7 @@ export default defineComponent({
         }
 
         const onTime = (_winIndex: number, _data: TVTPlayerWinDataListItem, timeStamp: number) => {
-            if (!supportSHDB) osdDrawer && osdDrawer.setTime(timeStamp)
+            if (!supportSHDB) drawer.setTime(timeStamp)
         }
 
         const handleOSDChange = (nameCfg: CanvasOSDOptionNameConfig, timeCfg: CanvasOSDOptionTimeConfig) => {
@@ -639,7 +640,7 @@ export default defineComponent({
         }
 
         const setCanvasDrawerData = (rowData: ChannelOsdDto) => {
-            osdDrawer?.setCfg({
+            drawer.setCfg({
                 nameCfg: {
                     value: rowData.name,
                     switch: rowData.displayName,
@@ -680,9 +681,7 @@ export default defineComponent({
                 plugin?.ExecuteCmd(sendXML)
             }
 
-            if (mode.value === 'h5') {
-                osdDrawer?.destroy()
-            }
+            drawer.destroy()
         })
 
         return {

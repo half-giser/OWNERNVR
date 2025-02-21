@@ -34,6 +34,7 @@
                             :class="{
                                 active: item.id === modelValue,
                             }"
+                            :title="item.name"
                             @click="change(item.id)"
                         >
                             {{ item.name }}

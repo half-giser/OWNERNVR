@@ -9,7 +9,6 @@ import CanvasPassline from '@/utils/canvas/canvasPassline'
 import CanvasCpc from '@/utils/canvas/canvasCpc'
 import { type CanvasBaseArea } from '@/utils/canvas/canvasBase'
 import PassLineEmailPop from './PassLineEmailPop.vue'
-import { cloneDeep } from 'lodash-es'
 import { type XMLQuery } from '@/utils/xmlParse'
 export default defineComponent({
     components: {
@@ -53,8 +52,6 @@ export default defineComponent({
         const systemCaps = useCababilityStore()
 
         const playerRef = ref<PlayerInstance>()
-        let passLineDrawer: ReturnType<typeof CanvasPassline>
-        let cpcDrawer: ReturnType<typeof CanvasCpc>
 
         const directionTypeTip: Record<string, string> = {
             none: 'A<->B',
@@ -139,6 +136,8 @@ export default defineComponent({
 
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
+        let passLineDrawer = CanvasPassline()
+        let cpcDrawer = CanvasCpc()
 
         const ready = computed(() => {
             return playerRef.value?.ready || false
@@ -157,8 +156,9 @@ export default defineComponent({
             plugin = playerRef.value!.plugin
 
             if (mode.value === 'h5') {
-                const canvas = player.getDrawbordCanvas(0)
+                const canvas = player.getDrawbordCanvas()
                 if (props.chlData.supportPassLine) {
+                    passLineDrawer.destroy()
                     passLineDrawer = CanvasPassline({
                         el: canvas,
                         enableOSD: true,
@@ -166,6 +166,7 @@ export default defineComponent({
                         onchange: changePassLine,
                     })
                 } else if (props.chlData.supportCpc) {
+                    cpcDrawer.destroy()
                     cpcDrawer = CanvasCpc({
                         el: canvas,
                         enable: false,
@@ -937,13 +938,15 @@ export default defineComponent({
 
         // 执行是否显示全部区域
         const togglePassLineShowAllArea = () => {
-            // passLineDrawer && passLineDrawer.setEnableShowAll(pageData.value.isShowAllArea)
             showAllPassLineArea(pageData.value.isShowAllArea)
         }
 
         // passLine显示全部区域
         const showAllPassLineArea = (isShowAllArea: boolean) => {
-            passLineDrawer && passLineDrawer.setEnableShowAll(isShowAllArea)
+            if (mode.value === 'h5') {
+                passLineDrawer.setEnableShowAll(isShowAllArea)
+            }
+
             if (isShowAllArea) {
                 const lineInfoList = formData.value.line
                 const currentAlarmLine = pageData.value.surfaceIndex
@@ -1005,11 +1008,11 @@ export default defineComponent({
             })
 
             if (mode.value === 'h5') {
-                passLineDrawer && passLineDrawer.clear()
+                passLineDrawer.clear()
             }
 
             if (mode.value === 'ocx') {
-                const sendXML1 = OCX_XML_SetAllArea({ lineInfoList: [] }, 'WarningLine', 'TYPE_TRIPWIRE_LINE', undefined, pageData.value.isShowAllArea)
+                const sendXML1 = OCX_XML_SetAllArea({}, 'WarningLine', OCX_AI_EVENT_TYPE_TRIPWIRE_LINE, '', pageData.value.isShowAllArea)
                 if (sendXML1) {
                     plugin.ExecuteCmd(sendXML1)
                 }
@@ -1143,6 +1146,9 @@ export default defineComponent({
                 const sendXML = OCX_XML_StopPreview('ALL')
                 plugin.ExecuteCmd(sendXML)
             }
+
+            passLineDrawer.destroy()
+            cpcDrawer.destroy()
         })
 
         return {

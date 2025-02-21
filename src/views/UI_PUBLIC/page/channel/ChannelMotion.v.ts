@@ -24,7 +24,7 @@ export default defineComponent({
         const selectedChlId = ref('')
         const editRows = useWatchEditRows<ChannelMotionDto>()
         const switchOptions = getTranslateOptions(DEFAULT_BOOL_SWITCH_OPTIONS)
-        let motionDrawer: ReturnType<typeof CanvasMotion>
+
         let motionAlarmList: string[] = []
 
         const ready = computed(() => {
@@ -41,6 +41,7 @@ export default defineComponent({
 
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
+        let drawer = CanvasMotion()
 
         const REFRESH_INTERVAL = 3000
         const alarmStatusTimer = useRefreshTimer(() => {
@@ -301,7 +302,7 @@ export default defineComponent({
             if (rowData.disabled) return
 
             if (mode.value === 'h5') {
-                motionDrawer?.selectAll()
+                drawer.selectAll()
             }
 
             if (mode.value === 'ocx') {
@@ -314,7 +315,7 @@ export default defineComponent({
 
         const handleSelReverse = () => {
             if (mode.value === 'h5') {
-                motionDrawer?.reverse()
+                drawer.reverse()
             }
 
             if (mode.value === 'ocx') {
@@ -327,7 +328,7 @@ export default defineComponent({
 
         const handleClear = () => {
             if (mode.value === 'h5') {
-                motionDrawer?.clear()
+                drawer.clear()
             }
 
             if (mode.value === 'ocx') {
@@ -342,7 +343,7 @@ export default defineComponent({
             const rowData = getRowById(selectedChlId.value)!
             const areaInfo: string[] = (rowData.areaInfo = [])
             if (mode.value === 'h5') {
-                const arr = netArr || motionDrawer!.getArea()
+                const arr = netArr || drawer.getArea()
                 arr.forEach((ele) => {
                     areaInfo.push(ele.join(''))
                 })
@@ -364,8 +365,9 @@ export default defineComponent({
             plugin = playerRef.value!.plugin
 
             if (mode.value === 'h5') {
-                motionDrawer = CanvasMotion({
-                    el: player.getDrawbordCanvas(0),
+                drawer.destroy()
+                drawer = CanvasMotion({
+                    el: player.getDrawbordCanvas(),
                     onchange: motionAreaChange,
                 })
             }
@@ -403,7 +405,7 @@ export default defineComponent({
                 }
 
                 if (mode.value === 'h5') {
-                    motionDrawer?.setOption(motion)
+                    drawer.setOption(motion)
                 }
 
                 if (mode.value === 'ocx') {
@@ -438,9 +440,7 @@ export default defineComponent({
                 plugin.ExecuteCmd(sendXML)
             }
 
-            if (mode.value === 'h5') {
-                motionDrawer?.destroy()
-            }
+            drawer.destroy()
         })
 
         return {

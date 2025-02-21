@@ -3,7 +3,6 @@
  * @Date: 2024-08-21 15:34:24
  * @Description: 异常报警
  */
-import { cloneDeep } from 'lodash-es'
 import { AlarmExceptionDto } from '@/types/apiType/aiAndEvent'
 import AlarmBasePresetPop from './AlarmBasePresetPop.vue'
 import AlarmBaseAlarmOutPop from './AlarmBaseAlarmOutPop.vue'

@@ -134,7 +134,7 @@ export default defineComponent({
 
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
-        let vfdDrawer: ReturnType<typeof CanvasVfd>
+        let drawer = CanvasVfd()
 
         const chlData = computed(() => {
             return pageData.value.chlList.find((item) => item.id === pageData.value.curChl) || new AlarmFaceChlDto()
@@ -148,9 +148,9 @@ export default defineComponent({
             plugin = playerRef.value!.plugin
 
             if (mode.value === 'h5') {
-                const canvas = player.getDrawbordCanvas(0)
-                vfdDrawer = CanvasVfd({
-                    el: canvas,
+                drawer.destroy()
+                drawer = CanvasVfd({
+                    el: player.getDrawbordCanvas(),
                     onchange: (area) => {
                         detectionFormData.value.regionInfo = [area]
                     },
@@ -182,7 +182,7 @@ export default defineComponent({
             if (chlData.value.supportVfd) {
                 // 设置视频区域可编辑
                 if (mode.value === 'h5') {
-                    vfdDrawer.setEnable(true)
+                    drawer.setEnable(true)
                 }
 
                 if (mode.value === 'ocx') {
@@ -192,7 +192,7 @@ export default defineComponent({
             } else {
                 // 设置视频区域不可编辑
                 if (mode.value === 'h5') {
-                    vfdDrawer.setEnable(false)
+                    drawer.setEnable(false)
                 }
 
                 if (mode.value === 'ocx') {
@@ -493,30 +493,30 @@ export default defineComponent({
             if (type === 'vfdArea') {
                 if (detectionFormData.value.regionInfo && detectionFormData.value.regionInfo.length > 0) {
                     if (mode.value === 'h5') {
-                        vfdDrawer.setArea(detectionFormData.value.regionInfo[0])
+                        drawer.setArea(detectionFormData.value.regionInfo[0])
                     }
 
                     if (mode.value === 'ocx') {
-                        const sendXML = OCX_XML_SetVfdArea(detectionFormData.value.regionInfo[0], type, '#00ff00', 'TYPE_VFD_BLOCK')
+                        const sendXML = OCX_XML_SetVfdArea(detectionFormData.value.regionInfo[0], type, '#00ff00', OCX_AI_EVENT_TYPE_VFD_BLOCK)
                         plugin.ExecuteCmd(sendXML)
                     }
                 }
             } else if (type === 'faceMax') {
                 if (mode.value === 'h5') {
-                    vfdDrawer.setRangeMax(detectionFormData.value.maxRegionInfo[0])
+                    drawer.setRangeMax(detectionFormData.value.maxRegionInfo[0])
                 }
 
                 if (mode.value === 'ocx') {
-                    const sendXML = OCX_XML_SetVfdArea(detectionFormData.value.maxRegionInfo[0], type, '#00ff00', 'TYPE_VFD_BLOCK')
+                    const sendXML = OCX_XML_SetVfdArea(detectionFormData.value.maxRegionInfo[0], type, '#00ff00', OCX_AI_EVENT_TYPE_VFD_BLOCK)
                     plugin.ExecuteCmd(sendXML)
                 }
             } else if (type === 'faceMin') {
                 if (mode.value === 'h5') {
-                    vfdDrawer.setRangeMin(detectionFormData.value.minRegionInfo[0])
+                    drawer.setRangeMin(detectionFormData.value.minRegionInfo[0])
                 }
 
                 if (mode.value === 'ocx') {
-                    const sendXML = OCX_XML_SetVfdArea(detectionFormData.value.minRegionInfo[0], type, '#00ff00', 'TYPE_VFD_BLOCK')
+                    const sendXML = OCX_XML_SetVfdArea(detectionFormData.value.minRegionInfo[0], type, '#00ff00', OCX_AI_EVENT_TYPE_VFD_BLOCK)
                     plugin.ExecuteCmd(sendXML)
                 }
             }
@@ -581,11 +581,11 @@ export default defineComponent({
                 detectionFormData.value.maxRegionInfo.push(maxRegionInfo)
                 setCurrChlView('faceMax')
                 if (mode.value === 'h5') {
-                    vfdDrawer.toggleRange(true)
+                    drawer.toggleRange(true)
                 }
             } else {
                 if (mode.value === 'h5') {
-                    vfdDrawer.toggleRange(false)
+                    drawer.toggleRange(false)
                 }
 
                 if (mode.value === 'ocx') {
@@ -603,7 +603,7 @@ export default defineComponent({
          */
         const clearDrawArea = () => {
             if (mode.value === 'h5') {
-                vfdDrawer.clear()
+                drawer.clear()
             }
 
             if (mode.value === 'ocx') {
@@ -611,7 +611,14 @@ export default defineComponent({
                 plugin.ExecuteCmd(sendXML)
             }
 
-            detectionFormData.value.regionInfo = [{ X1: 0, Y1: 0, X2: 0, Y2: 0 }]
+            detectionFormData.value.regionInfo = [
+                {
+                    X1: 0,
+                    Y1: 0,
+                    X2: 0,
+                    Y2: 0,
+                },
+            ]
         }
 
         /**
@@ -805,7 +812,7 @@ export default defineComponent({
             if (ready.value && watchDetection.ready.value) {
                 nextTick(() => {
                     if (mode.value === 'h5') {
-                        vfdDrawer.clear()
+                        drawer.clear()
                     }
 
                     if (mode.value === 'ocx') {
@@ -1299,9 +1306,7 @@ export default defineComponent({
                 plugin.ExecuteCmd(sendXML)
             }
 
-            if (mode.value === 'h5') {
-                vfdDrawer.destroy()
-            }
+            drawer.destroy()
         })
 
         return {

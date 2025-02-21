@@ -7,7 +7,6 @@ import { type AlarmChlDto, type AlarmOnlineChlDto, AlarmTripwireDto, type Canvas
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import CanvasPassline, { type CanvasPasslinePassline } from '@/utils/canvas/canvasPassline'
 import ChannelPtzCtrlPanel from '@/views/UI_PUBLIC/page/channel/ChannelPtzCtrlPanel.vue'
-import { cloneDeep } from 'lodash-es'
 import { type XMLQuery } from '@/utils/xmlParse'
 import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
 import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
@@ -58,7 +57,6 @@ export default defineComponent({
     setup(props) {
         const systemCaps = useCababilityStore()
         const playerRef = ref<PlayerInstance>()
-        let tripwireDrawer: ReturnType<typeof CanvasPassline>
 
         const directionTypeTip: Record<string, string> = {
             none: 'A<->B',
@@ -97,6 +95,7 @@ export default defineComponent({
 
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
+        let drawer = CanvasPassline()
 
         const ready = computed(() => {
             return playerRef.value?.ready || false
@@ -115,9 +114,9 @@ export default defineComponent({
             plugin = playerRef.value!.plugin
 
             if (mode.value === 'h5') {
-                const canvas = player.getDrawbordCanvas(0)
-                tripwireDrawer = CanvasPassline({
-                    el: canvas,
+                drawer.destroy()
+                drawer = CanvasPassline({
+                    el: player.getDrawbordCanvas(),
                     enableOSD: true,
                     enableShowAll: false,
                     onchange: changeTripwire,
@@ -174,11 +173,16 @@ export default defineComponent({
             formData.value.schedule = getScheduleId(pageData.value.scheduleList, formData.value.schedule)
         }
 
+        // 此类ipc不支持请求param
+        const supportPeaTrigger = computed(() => {
+            return !props.chlData.supportTripwire && !props.chlData.supportBackTripwire && props.chlData.supportPeaTrigger
+        })
+
         // 获取越界检测数据
         const getTripwireData = async () => {
             openLoading()
 
-            if (!props.chlData.supportTripwire && !props.chlData.supportBackTripwire && props.chlData.supportPeaTrigger) {
+            if (supportPeaTrigger.value) {
                 const sendXML = rawXml`
                     <condition>
                         <chlId>${props.currChlId}</chlId>
@@ -377,7 +381,7 @@ export default defineComponent({
         // 保存越界检测数据
         const saveData = async () => {
             let paramXml = ''
-            if (props.chlData.supportTripwire || props.chlData.supportBackTripwire) {
+            if (!supportPeaTrigger) {
                 paramXml = rawXml`
                     <param>
                         <switch>${formData.value.detectionEnable}</switch>
@@ -544,7 +548,7 @@ export default defineComponent({
             if (pageData.value.tab === 'param') {
                 if (mode.value === 'h5') {
                     setTripwireOcxData()
-                    tripwireDrawer.setEnable('line', true)
+                    drawer.setEnable('line', true)
                 }
 
                 if (mode.value === 'ocx') {
@@ -563,8 +567,8 @@ export default defineComponent({
                 showAllArea(false)
 
                 if (mode.value === 'h5') {
-                    tripwireDrawer.clear()
-                    tripwireDrawer.setEnable('line', false)
+                    drawer.clear()
+                    drawer.setEnable('line', false)
                 }
 
                 if (mode.value === 'ocx') {
@@ -599,7 +603,6 @@ export default defineComponent({
 
         // tripwire执行是否显示全部区域
         const toggleShowAllArea = () => {
-            tripwireDrawer && tripwireDrawer.setEnableShowAll(pageData.value.isShowAllArea)
             showAllArea(pageData.value.isShowAllArea)
         }
 
@@ -669,26 +672,29 @@ export default defineComponent({
 
         // tripwire是否显示所有区域
         const showAllArea = (isShowAll: boolean) => {
-            tripwireDrawer && tripwireDrawer.setEnableShowAll(isShowAll)
+            if (mode.value === 'h5') {
+                drawer.setEnableShowAll(isShowAll)
+            }
+
             if (isShowAll) {
                 const lineInfoList = formData.value.lineInfo
                 const currentSurface = pageData.value.surfaceIndex
 
                 if (mode.value === 'h5') {
-                    tripwireDrawer.setCurrentSurfaceOrAlarmLine(currentSurface)
-                    tripwireDrawer.drawAllPassline(lineInfoList, currentSurface)
+                    drawer.setCurrentSurfaceOrAlarmLine(currentSurface)
+                    drawer.drawAllPassline(lineInfoList, currentSurface)
                 }
 
                 if (mode.value === 'ocx') {
                     const pluginLineInfoList = cloneDeep(lineInfoList)
                     pluginLineInfoList.splice(currentSurface, 1) // 插件端下发全部区域需要过滤掉当前区域数据
 
-                    const sendXML = OCX_XML_SetAllArea({ lineInfoList: pluginLineInfoList }, 'WarningLine', 'TYPE_TRIPWIRE_LINE', undefined, true)
+                    const sendXML = OCX_XML_SetAllArea({ lineInfoList: pluginLineInfoList }, 'WarningLine', OCX_AI_EVENT_TYPE_TRIPWIRE_LINE, '', true)
                     plugin.ExecuteCmd(sendXML)
                 }
             } else {
                 if (mode.value === 'ocx') {
-                    const sendXML = OCX_XML_SetAllArea({ lineInfoList: [] }, 'WarningLine', 'TYPE_TRIPWIRE_LINE', undefined, false)
+                    const sendXML = OCX_XML_SetAllArea({}, 'WarningLine', OCX_AI_EVENT_TYPE_TRIPWIRE_LINE, '', false)
                     plugin.ExecuteCmd(sendXML)
                 }
                 setTripwireOcxData()
@@ -701,9 +707,9 @@ export default defineComponent({
                 const surface = pageData.value.surfaceIndex
                 if (formData.value.lineInfo.length > 0) {
                     if (mode.value === 'h5') {
-                        tripwireDrawer.setCurrentSurfaceOrAlarmLine(surface)
-                        tripwireDrawer.setDirection(formData.value.lineInfo[surface].direction)
-                        tripwireDrawer.setPassline({
+                        drawer.setCurrentSurfaceOrAlarmLine(surface)
+                        drawer.setDirection(formData.value.lineInfo[surface].direction)
+                        drawer.setPassline({
                             startX: formData.value.lineInfo[surface].startPoint.X,
                             startY: formData.value.lineInfo[surface].startPoint.Y,
                             endX: formData.value.lineInfo[surface].endPoint.X,
@@ -726,7 +732,7 @@ export default defineComponent({
         // 清空当前区域
         const clearArea = () => {
             if (mode.value === 'h5') {
-                tripwireDrawer.clear()
+                drawer.clear()
             }
 
             if (mode.value === 'ocx') {
@@ -743,7 +749,7 @@ export default defineComponent({
                 X: 0,
                 Y: 0,
             }
-            tripwireDrawer.clear()
+            drawer.clear()
         }
 
         // 清空所有区域
@@ -760,11 +766,11 @@ export default defineComponent({
             })
 
             if (mode.value === 'h5') {
-                tripwireDrawer.clear()
+                drawer.clear()
             }
 
             if (mode.value === 'ocx') {
-                const sendXML1 = OCX_XML_SetAllArea({ lineInfoList: [] }, 'WarningLine', 'TYPE_TRIPWIRE_LINE', undefined, pageData.value.isShowAllArea)
+                const sendXML1 = OCX_XML_SetAllArea({}, 'WarningLine', OCX_AI_EVENT_TYPE_TRIPWIRE_LINE, '', pageData.value.isShowAllArea)
                 plugin.ExecuteCmd(sendXML1)
 
                 const sendXML2 = OCX_XML_SetTripwireLineAction('NONE')
@@ -810,12 +816,14 @@ export default defineComponent({
                 const sendAreaXML = OCX_XML_SetTripwireLineAction('NONE')
                 plugin.ExecuteCmd(sendAreaXML)
 
-                const sendAllAreaXML = OCX_XML_SetAllArea({ lineInfoList: [] }, 'WarningLine', 'TYPE_TRIPWIRE_LINE', undefined, false)
-                plugin.ExecuteCmd(sendAllAreaXML!)
+                const sendAllAreaXML = OCX_XML_SetAllArea({}, 'WarningLine', OCX_AI_EVENT_TYPE_TRIPWIRE_LINE, '', false)
+                plugin.ExecuteCmd(sendAllAreaXML)
 
                 const sendXML = OCX_XML_StopPreview('ALL')
                 plugin.ExecuteCmd(sendXML)
             }
+
+            drawer.destroy()
         })
 
         return {
@@ -835,6 +843,7 @@ export default defineComponent({
             editLockStatus,
             clearArea,
             clearAllArea,
+            supportPeaTrigger,
         }
     },
 })

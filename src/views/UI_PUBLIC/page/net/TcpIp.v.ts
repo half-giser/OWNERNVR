@@ -5,7 +5,6 @@
  */
 import { NetTcpIpForm, NetTcpIpDhcpList, NetTcpIpBondsList, type NetTcpIpNicConfigList, type NetTcpIpAdvanceForm } from '@/types/apiType/net'
 import { type CheckboxValueType } from 'element-plus'
-import { cloneDeep } from 'lodash-es'
 import TcpIpAdvancePop from './TcpIpAdvancePop.vue'
 
 export default defineComponent({

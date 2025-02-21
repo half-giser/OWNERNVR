@@ -50,6 +50,7 @@
 
         &.is-link {
             min-width: unset;
+            padding: unset;
         }
 
         & + .el-button {
@@ -682,10 +683,11 @@
             flex-direction: row-reverse;
         }
 
-        .el-input__prefix-inner {
-            .el-input__icon {
-                width: 16px;
-                margin-right: 0;
+        .el-input__prefix {
+            @include sprite($img-calendar, 0, 1);
+
+            &-inner {
+                display: none;
             }
         }
     }

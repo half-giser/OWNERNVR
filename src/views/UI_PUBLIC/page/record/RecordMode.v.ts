@@ -7,7 +7,6 @@ import { type RecordModeDto, RecordDistributeInfoDto, type RecordScheduleDto } f
 import RecordModeAdvancePop from './RecordModeAdvancePop.vue'
 import RecordModeStreamPop from './RecordModeStreamPop.vue'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
-import { cloneDeep } from 'lodash-es'
 
 export default defineComponent({
     components: {

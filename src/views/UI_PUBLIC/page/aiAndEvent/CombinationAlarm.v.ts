@@ -4,7 +4,6 @@
  * @Date: 2024-08-22 16:04:47
  */
 import { type AlarmCombinedDto, type AlarmCombinedItemDto, type AlarmCombinedFaceMatchDto, type AlarmPresetItem } from '@/types/apiType/aiAndEvent'
-import { cloneDeep } from 'lodash-es'
 import AlarmBasePresetPop from './AlarmBasePresetPop.vue'
 import AlarmBaseSnapPop from './AlarmBaseSnapPop.vue'
 import AlarmBaseRecordPop from './AlarmBaseRecordPop.vue'

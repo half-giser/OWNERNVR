@@ -11,11 +11,24 @@ import fs from 'node:fs/promises'
 import { minify } from '@swc/core'
 import Chalk from 'chalk'
 
+// function compressXml(xml: string) {
+//     return xml
+//         .replace(/<!--[\s\S]*?-->/g, '')
+//         .replace(/>\s+</g, '><')
+//         .replace(/\s*([^\s=]+)\s*=\s*"([^"]*)"/g, ' $1="$2"')
+//         .trim()
+// }
+
 function compressXml(xml: string) {
+    const tagPattern = /(?<=<\/?[^?!\s\/>]+\b(?:\s+[^=\s>]+\s*=\s*(?:"[^"]*"|'[^']*'))*%1)/.source
+
     return xml
-        .replace(/<!--[\s\S]*?-->/g, '')
-        .replace(/>\s+</g, '><')
-        .replace(/\s*([^\s=]+)\s*=\s*"([^"]*)"/g, ' $1="$2"')
+        .replace(/<!\s*(?:--(?:[^-]|-[^-])*--\s*)>/g, '') // remove comments
+        .replace(/>\s+</g, '><') // remove whitespace between tags
+        .replace(/<([^\s\/>]+)([^<]*?)(?<!\/)><\/\1\s*>/g, '<$1$2/>') // collapse elements with start / end tags and no content to empty element tags
+        .replace(new RegExp(tagPattern.replace('%1', '') + /\s+/.source, 'g'), ' ') // collapse whitespace between attributes
+        .replace(new RegExp(tagPattern.replace('%1', /\s+[^=\s>]+/.source) + /\s*=\s*/.source, 'g'), '=') // remove leading / tailing whitespace around attribute equal signs
+        .replace(new RegExp(tagPattern.replace('%1', '') + /\s+(?=[/?]?>)/.source, 'g'), '') // remove whitespace before closing > /> ?> of tags
         .trim()
 }
 

@@ -3,7 +3,6 @@
  * @Date: 2024-07-02 09:08:32
  * @Description: POS配置
  */
-import { cloneDeep } from 'lodash-es'
 import type { SystemPosList, SystemPosListChls, SystemPostColorData, SystemPosConnectionForm, SystemPosDisplaySetting } from '@/types/apiType/system'
 import { SystemPostDisplaySet } from '@/types/apiType/system'
 import PosConnectionSettingsPop from './PosConnectionSettingsPop.vue'

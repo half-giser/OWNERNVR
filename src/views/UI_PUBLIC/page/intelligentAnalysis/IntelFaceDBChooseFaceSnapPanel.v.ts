@@ -3,7 +3,6 @@
  * @Date: 2024-08-30 18:47:52
  * @Description: 智能分析 - 选择人脸 - 从抓拍库选择
  */
-import { cloneDeep } from 'lodash-es'
 import { type IntelFaceDBSnapFaceList } from '@/types/apiType/intelligentAnalysis'
 import IntelBaseFaceItem from './IntelBaseFaceItem.vue'
 

@@ -10,6 +10,8 @@ import { type ApiResult } from '@/api/api'
 import { type XMLQuery, type XmlResult } from './xmlParse'
 import JSZip from 'jszip'
 
+export { clamp, cloneDeep } from 'lodash-es'
+
 /**
  * @description: 获取客户端操作系统
  * @return {SystemInfo} platform/version

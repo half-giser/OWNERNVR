@@ -1652,11 +1652,11 @@ export const OCX_XML_SetCddAreaAction = (action: 'EDIT_ON' | 'EDIT_OFF' | 'NONE'
  * @param eventType
  * @returns {string}
  */
-export const OCX_XML_SetVfdArea = (points: { X1: number; X2: number; Y1: number; Y2: number }, type: string, lineColor: string, eventType: keyof typeof AIEventTypeMap) => {
+export const OCX_XML_SetVfdArea = (points: { X1: number; X2: number; Y1: number; Y2: number }, type: string, lineColor: string, eventType?: number) => {
     return wrapXml(rawXml`
         <cmd type="SetVfdArea">
             ${lineColor ? `<LineColor>${lineColor}</LineColor>` : ''}
-            ${eventType ? `<EventType>${AIEventTypeMap[eventType]}</EventType>` : ''}
+            ${eventType !== undefined ? `<EventType>${eventType}</EventType>` : ''}
             <item type="${type}">
                 <X1>${points.X1}</X1>
                 <X2>${points.X2}</X2>
@@ -1750,11 +1750,11 @@ export const OCX_XML_SetPeaAreaAction = (action: 'EDIT_ON' | 'EDIT_OFF' | 'NONE'
  * @param eventType
  * @returns {string}
  */
-export const OCX_XML_SetPeaArea = (points: { X: number; Y: number }[], regulation?: boolean, lineColor?: string, eventType?: keyof typeof AIEventTypeMap) => {
+export const OCX_XML_SetPeaArea = (points: { X: number; Y: number }[], regulation?: boolean, lineColor?: string, eventType?: number) => {
     return wrapXml(rawXml`
         <cmd type="SetPeaArea">
             ${lineColor ? `<LineColor>${lineColor}</LineColor>` : ''}
-            ${eventType ? `<EventType>${AIEventTypeMap[eventType]}</EventType>` : ''}
+            ${eventType !== undefined ? `<EventType>${eventType}</EventType>` : ''}
             <points>
                 ${points.map((item) => `<item X="${item.X}" Y="${item.Y}" />`).join('')}
             </points>
@@ -1888,21 +1888,19 @@ interface OcxXmlSetAllAreaAreaInfoOption {
 export const OCX_XML_SetAllArea = (
     areaInfo: OcxXmlSetAllAreaAreaInfoOption,
     areaType: 'IrregularPolygon' | 'Rectangle' | 'WarningLine',
-    eventType: keyof typeof AIEventTypeMap,
+    eventType: number,
     maxMinXml?: string,
     isShowAll?: boolean,
 ) => {
     const cmd = rawXml`<cmd type="SetAllArea">
         <AreaType>${areaType}</AreaType>
-        <EventType>${AIEventTypeMap[eventType]}</EventType>
+        <EventType>${eventType}</EventType>
         ${isShowAll ? `<IsShowAllArea>${isShowAll}</IsShowAllArea>` : ''}
         ${maxMinXml ?? ''}
     `
 
     if (areaType === 'IrregularPolygon') {
-        // const detectAreaInfo = areaInfo.detectAreaInfo?.flat() || []
         const detectAreaInfo = areaInfo.detectAreaInfo || []
-        // const maskAreaInfo = areaInfo.maskAreaInfo?.flat() || []
         const maskAreaInfo = areaInfo.maskAreaInfo || []
         let index = 0
         return wrapXml(rawXml`

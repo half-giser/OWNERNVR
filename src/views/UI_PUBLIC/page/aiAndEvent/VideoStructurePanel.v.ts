@@ -151,10 +151,7 @@ export default defineComponent({
 
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
-        // 车牌侦测绘制的Canvas
-        let vsdDrawer = CanvasPolygon({
-            el: document.createElement('canvas'),
-        })
+        let drawer = CanvasPolygon()
 
         /**
          * @description 播放器就绪时回调
@@ -164,12 +161,12 @@ export default defineComponent({
             plugin = playerRef.value!.plugin
 
             if (mode.value === 'h5') {
-                const canvas = player.getDrawbordCanvas(0)
-                vsdDrawer = CanvasPolygon({
-                    el: canvas,
+                drawer.destroy()
+                drawer = CanvasPolygon({
+                    el: player.getDrawbordCanvas(),
                     enable: true,
                     enableOSD: formData.value.countOSD.switch,
-                    onchange: changeVsd,
+                    onchange: changeArea,
                     closePath: closePath,
                     forceClosePath: forceClosePath,
                     clearCurrentArea: clearCurrentArea,
@@ -182,8 +179,8 @@ export default defineComponent({
             }
         }
 
-        // vsdDrawer初始化时绑定以下函数
-        const changeVsd = (area: CanvasBaseArea | CanvasBasePoint[], osdInfo?: CanvasPolygonOSDInfo) => {
+        // drawer初始化时绑定以下函数
+        const changeArea = (area: CanvasBaseArea | CanvasBasePoint[], osdInfo?: CanvasPolygonOSDInfo) => {
             // 检测区域/屏蔽区域
             if (currAreaType === 'detectionArea') {
                 formData.value.detectAreaInfo[pageData.value.detectArea] = area as CanvasBasePoint[]
@@ -225,7 +222,7 @@ export default defineComponent({
                 }
 
                 if (mode.value === 'h5') {
-                    vsdDrawer.clear()
+                    drawer.clear()
                 }
 
                 if (mode.value === 'ocx') {
@@ -290,43 +287,7 @@ export default defineComponent({
                         label: algoChkType[item.text()],
                     }
                 })
-                // 侦测区域
-                const detectAreaInfo: Record<number, CanvasBasePoint[]> = {}
-                $param('boundary/item').forEach((item, index) => {
-                    detectAreaInfo[index] = []
-                    const $item = queryXml(item.element)
-                    $item('point/item').forEach((ele) => {
-                        const $ele = queryXml(ele.element)
-                        const detectArea = {
-                            X: $ele('X').text().num(),
-                            Y: $ele('Y').text().num(),
-                            isClosed: true,
-                        }
-                        detectAreaInfo[index].push(detectArea)
-                    })
-                })
-                // 屏蔽区域
-                const maskAreaInfo: Record<number, CanvasBasePoint[]> = {}
-                $param('maskArea/item').forEach((item, index) => {
-                    maskAreaInfo[index] = []
-                    const $item = queryXml(item.element)
-                    $item('point/item').forEach((ele) => {
-                        const $ele = queryXml(ele.element)
-                        const maskArea = {
-                            X: $ele('X').text().num(),
-                            Y: $ele('Y').text().num(),
-                            isClosed: true,
-                        }
-                        maskAreaInfo[index].push(maskArea)
-                    })
-                })
-                const mutexList = $('mutexList/item').map((item) => {
-                    const $item = queryXml(item.element)
-                    return {
-                        object: $item('object').text(),
-                        status: $item('status').text().bool(),
-                    }
-                })
+
                 // 重置信息（循环模式列表）
                 $('types/countCycleType/enum').forEach((item) => {
                     if (item.text() !== 'off') {
@@ -413,9 +374,35 @@ export default defineComponent({
                     intervalCheck: $param('algoModel/intervalCheck').text().num(),
                     intervalCheckMin: $param('algoModel/intervalCheck').attr('min').num(),
                     intervalCheckMax: $param('algoModel/intervalCheck').attr('max').num(),
-                    detectAreaInfo,
-                    maskAreaInfo,
-                    mutexList,
+                    detectAreaInfo: $param('boundary/item').map((item) => {
+                        const $item = queryXml(item.element)
+                        return $item('point/item').map((ele) => {
+                            const $ele = queryXml(ele.element)
+                            return {
+                                X: $ele('X').text().num(),
+                                Y: $ele('Y').text().num(),
+                                isClosed: true,
+                            }
+                        })
+                    }),
+                    maskAreaInfo: $param('maskArea/item').map((item) => {
+                        const $item = queryXml(item.element)
+                        return $item('point/item').map((ele) => {
+                            const $ele = queryXml(ele.element)
+                            return {
+                                X: $ele('X').text().num(),
+                                Y: $ele('Y').text().num(),
+                                isClosed: true,
+                            }
+                        })
+                    }),
+                    mutexList: $('mutexList/item').map((item) => {
+                        const $item = queryXml(item.element)
+                        return {
+                            object: $item('object').text(),
+                            status: $item('status').text().bool(),
+                        }
+                    }),
                     countOSD,
                     countPeriod: {
                         countTimeType: $param('countPeriod/countTimeType').text(),
@@ -464,14 +451,14 @@ export default defineComponent({
         // 检测和屏蔽区域的样式初始化
         const refreshInitPage = () => {
             // 区域状态
-            pageData.value.detectAreaChecked = Object.values(formData.value.detectAreaInfo).map((item, index) => {
+            pageData.value.detectAreaChecked = formData.value.detectAreaInfo.map((item, index) => {
                 if (item.length > 0) {
                     return index
                 }
                 return -1
             })
 
-            pageData.value.maskAreaChecked = Object.values(formData.value.maskAreaInfo).map((item, index) => {
+            pageData.value.maskAreaChecked = formData.value.maskAreaInfo.map((item, index) => {
                 if (item.length > 0) {
                     return index
                 }
@@ -495,9 +482,9 @@ export default defineComponent({
             if (pageData.value.tab === 'param') {
                 setAreaView(currAreaType)
                 if (mode.value === 'h5') {
-                    vsdDrawer.setEnable(true)
-                    vsdDrawer.setOSDEnable(formData.value.countOSD.switch)
-                    vsdDrawer.init(true)
+                    drawer.setEnable(true)
+                    drawer.setOSDEnable(formData.value.countOSD.switch)
+                    drawer.init(true)
                 }
 
                 if (mode.value === 'ocx') {
@@ -518,10 +505,10 @@ export default defineComponent({
                 }
             } else if (pageData.value.tab === 'detection') {
                 if (mode.value === 'h5') {
-                    vsdDrawer.clear()
-                    vsdDrawer.setEnable(false)
-                    vsdDrawer.setOSDEnable(false)
-                    vsdDrawer.init(true)
+                    drawer.clear()
+                    drawer.setEnable(false)
+                    drawer.setOSDEnable(false)
+                    drawer.init(true)
                 }
 
                 if (mode.value === 'ocx') {
@@ -542,10 +529,10 @@ export default defineComponent({
                 showAllArea(false)
             } else if (pageData.value.tab === 'image') {
                 if (mode.value === 'h5') {
-                    vsdDrawer.clear()
-                    vsdDrawer.setEnable(false)
-                    vsdDrawer.setOSDEnable(false)
-                    vsdDrawer.init(true)
+                    drawer.clear()
+                    drawer.setEnable(false)
+                    drawer.setOSDEnable(false)
+                    drawer.init(true)
                 }
 
                 if (mode.value === 'ocx') {
@@ -569,7 +556,10 @@ export default defineComponent({
 
         // 是否显示全部区域
         const showAllArea = (value: CheckboxValueType) => {
-            vsdDrawer.setEnableShowAll(value as boolean)
+            if (mode.value === 'h5') {
+                drawer.setEnableShowAll(value as boolean)
+            }
+
             if (value) {
                 const detectAreaInfo = formData.value.detectAreaInfo
                 const maskAreaInfo = formData.value.maskAreaInfo
@@ -580,24 +570,24 @@ export default defineComponent({
                     } else if (currAreaType === 'maskArea') {
                         index = pageData.value.maskArea
                     }
-                    vsdDrawer.setCurrAreaIndex(index, currAreaType)
-                    vsdDrawer.drawAllPolygon(detectAreaInfo, maskAreaInfo, currAreaType, index, true)
+                    drawer.setCurrAreaIndex(index, currAreaType)
+                    drawer.drawAllPolygon(detectAreaInfo, maskAreaInfo, currAreaType, index, true)
                 }
 
                 if (mode.value === 'ocx') {
                     setTimeout(() => {
-                        const sendXML = OCX_XML_SetAllArea({ detectAreaInfo: Object.values(detectAreaInfo), maskAreaInfo: Object.values(maskAreaInfo) }, 'IrregularPolygon', 'TYPE_VSD', '', true)
+                        const sendXML = OCX_XML_SetAllArea({ detectAreaInfo, maskAreaInfo }, 'IrregularPolygon', OCX_AI_EVENT_TYPE_VSD, '', true)
                         plugin.ExecuteCmd(sendXML)
                     }, 100)
                 }
             } else {
                 if (mode.value === 'ocx') {
-                    const sendXML = OCX_XML_SetAllArea({ detectAreaInfo: [], maskAreaInfo: [] }, 'IrregularPolygon', 'TYPE_VSD', '', false)
-                    plugin.ExecuteCmd(sendXML!)
+                    const sendXML = OCX_XML_SetAllArea({}, 'IrregularPolygon', OCX_AI_EVENT_TYPE_VSD, '', false)
+                    plugin.ExecuteCmd(sendXML)
                 }
 
                 if (pageData.value.tab === 'param') {
-                    changeArea()
+                    changeAreaType()
                 }
             }
         }
@@ -611,7 +601,7 @@ export default defineComponent({
             }
 
             if (mode.value === 'h5') {
-                vsdDrawer.clear()
+                drawer.clear()
             }
 
             if (mode.value === 'ocx') {
@@ -635,14 +625,14 @@ export default defineComponent({
             }
 
             if (mode.value === 'h5') {
-                vsdDrawer.clear()
+                drawer.clear()
             }
 
             if (mode.value === 'ocx') {
                 // const sendXML = OCX_XML_SetVsdAreaAction("CLEARALL");
                 // plugin.ExecuteCmd(sendXML, sendXML.length);
 
-                const sendXML1 = OCX_XML_SetAllArea({ detectAreaInfo: [], maskAreaInfo: [] }, 'IrregularPolygon', 'TYPE_VSD', '', pageData.value.isShowAllArea)
+                const sendXML1 = OCX_XML_SetAllArea({}, 'IrregularPolygon', OCX_AI_EVENT_TYPE_VSD, '', pageData.value.isShowAllArea)
                 plugin.ExecuteCmd(sendXML1)
 
                 const sendXML2 = OCX_XML_SetVsdAreaAction('NONE')
@@ -658,24 +648,24 @@ export default defineComponent({
         const changeDetectArea = () => {
             currAreaType = 'detectionArea'
             pageData.value.maskArea = -1
-            changeArea()
+            changeAreaType()
         }
 
         const changeMaskArea = () => {
             currAreaType = 'maskArea'
             pageData.value.detectArea = -1
-            changeArea()
+            changeAreaType()
         }
 
-        const changeArea = () => {
+        const changeAreaType = () => {
             // 切换另一个区域前先封闭其他可闭合的区域（“area”）
             setOtherAreaClosed()
             // 检测区域/屏蔽区域
             if (currAreaType === 'detectionArea') {
-                vsdDrawer.setLineStyle('#00ff00', 1.5)
+                drawer.setLineStyle('#00ff00', 1.5)
                 setAreaView('detectionArea')
             } else if (currAreaType === 'maskArea') {
-                vsdDrawer.setLineStyle('#d9001b', 1.5)
+                drawer.setLineStyle('#d9001b', 1.5)
                 setAreaView('maskArea')
             }
         }
@@ -686,8 +676,8 @@ export default defineComponent({
                 const index = pageData.value.detectArea
                 if (formData.value.detectAreaInfo[index]) {
                     if (mode.value === 'h5') {
-                        vsdDrawer.setCurrAreaIndex(index, type)
-                        vsdDrawer.setPointList(formData.value.detectAreaInfo[index], true)
+                        drawer.setCurrAreaIndex(index, type)
+                        drawer.setPointList(formData.value.detectAreaInfo[index], true)
                     }
 
                     if (mode.value === 'ocx') {
@@ -703,8 +693,8 @@ export default defineComponent({
                 const index = pageData.value.maskArea
                 if (formData.value.maskAreaInfo[index]) {
                     if (mode.value === 'h5') {
-                        vsdDrawer.setCurrAreaIndex(index, type)
-                        vsdDrawer.setPointList(formData.value.maskAreaInfo[index], true)
+                        drawer.setCurrAreaIndex(index, type)
+                        drawer.setPointList(formData.value.maskAreaInfo[index], true)
                     }
 
                     if (mode.value === 'ocx') {
@@ -726,8 +716,8 @@ export default defineComponent({
             const enable = formData.value.countOSD.switch
 
             if (mode.value === 'h5') {
-                vsdDrawer.setOSDEnable(enable)
-                vsdDrawer.setOSD(formData.value.countOSD)
+                drawer.setOSDEnable(enable)
+                drawer.setOSD(formData.value.countOSD)
             }
 
             if (mode.value === 'ocx') {
@@ -748,24 +738,17 @@ export default defineComponent({
         const setOtherAreaClosed = () => {
             if (mode.value === 'h5') {
                 // 画点-区域
-                const boundaryInfoList: CanvasBasePoint[][] = []
-                const detectAreaInfo = formData.value.detectAreaInfo
-                const maskAreaInfo = formData.value.maskAreaInfo
-                for (const key in detectAreaInfo) {
-                    boundaryInfoList.push(detectAreaInfo[key])
-                }
+                formData.value.detectAreaInfo.forEach((points) => {
+                    if (points.length >= 3 && drawer.judgeAreaCanBeClosed(points)) {
+                        setClosed(points)
+                    }
+                })
 
-                for (const key in maskAreaInfo) {
-                    boundaryInfoList.push(maskAreaInfo[key])
-                }
-
-                if (boundaryInfoList && boundaryInfoList.length > 0) {
-                    boundaryInfoList.forEach((boundaryInfo) => {
-                        if (boundaryInfo.length >= 3 && vsdDrawer.judgeAreaCanBeClosed(boundaryInfo)) {
-                            setClosed(boundaryInfo)
-                        }
-                    })
-                }
+                formData.value.maskAreaInfo.forEach((points) => {
+                    if (points.length >= 3 && drawer.judgeAreaCanBeClosed(points)) {
+                        setClosed(points)
+                    }
+                })
             }
         }
 
@@ -886,23 +869,14 @@ export default defineComponent({
         // 区域为多边形时，检测区域合法性(温度检测页面一个点为画点，两个点为画线，大于两个小于8个为区域，只需要检测区域的合法性)
         const verification = () => {
             // 检测区域合法性(视频结构化AI事件中：检测和屏蔽区域都为多边形)
-            const detectAreaInfo = formData.value.detectAreaInfo
-            const maskAreaInfo = formData.value.maskAreaInfo
-            const allRegionList = []
-            for (const key in detectAreaInfo) {
-                allRegionList.push(detectAreaInfo[key])
-            }
-
-            for (const key in maskAreaInfo) {
-                allRegionList.push(maskAreaInfo[key])
-            }
+            const allRegionList = [...formData.value.detectAreaInfo, ...formData.value.maskAreaInfo]
 
             for (const i in allRegionList) {
                 const count = allRegionList[i].length
                 if (count > 0 && count < 4) {
                     openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_INPUT_LIMIT_FOUR_POIONT'))
                     return false
-                } else if (count > 0 && !vsdDrawer.judgeAreaCanBeClosed(allRegionList[i])) {
+                } else if (count > 0 && !drawer.judgeAreaCanBeClosed(allRegionList[i])) {
                     openMessageBox(Translate('IDCS_INTERSECT'))
                     return false
                 }
@@ -931,13 +905,12 @@ export default defineComponent({
                                 <intervalCheck type='int' min='${formData.value.intervalCheckMin}' max='${formData.value.intervalCheckMax}'>${formData.value.intervalCheck}</intervalCheck>
                             </algoModel>
                             <boundary type='list' count='4'>
-                                ${Object.keys(formData.value.detectAreaInfo)
-                                    .map((key) => {
-                                        const count = formData.value.detectAreaInfo[Number(key)].length
+                                ${formData.value.detectAreaInfo
+                                    .map((points) => {
                                         return rawXml`
                                             <item>
-                                                <point type='list' maxCount='8' count='${count}'>
-                                                    ${formData.value.detectAreaInfo[Number(key)]
+                                                <point type='list' maxCount='8' count='${points.length}'>
+                                                    ${points
                                                         .map((item) => {
                                                             return rawXml`
                                                                 <item>
@@ -954,13 +927,12 @@ export default defineComponent({
                                     .join('')}
                             </boundary>
                             <maskArea type='list' count='4'>
-                                ${Object.keys(formData.value.maskAreaInfo)
-                                    .map((key) => {
-                                        const count = formData.value.maskAreaInfo[Number(key)].length
+                                ${formData.value.maskAreaInfo
+                                    .map((points) => {
                                         return rawXml`
                                         <item>
-                                            <point type='list' maxCount='8' count='${count}'>
-                                                ${formData.value.maskAreaInfo[Number(key)]
+                                            <point type='list' maxCount='8' count='${points.length}'>
+                                                ${points
                                                     .map((item) => {
                                                         return rawXml`
                                                             <item>
@@ -1153,15 +1125,15 @@ export default defineComponent({
                 const sendAreaXML = OCX_XML_SetVsdAreaAction('NONE')
                 plugin.ExecuteCmd(sendAreaXML)
 
-                const sendAllAreaXML = OCX_XML_SetAllArea({ detectAreaInfo: [], maskAreaInfo: [] }, 'IrregularPolygon', 'TYPE_VSD', '', false)
-                plugin.ExecuteCmd(sendAllAreaXML!)
+                const sendAllAreaXML = OCX_XML_SetAllArea({}, 'IrregularPolygon', OCX_AI_EVENT_TYPE_VSD, '', false)
+                plugin.ExecuteCmd(sendAllAreaXML)
 
                 const sendXML = OCX_XML_StopPreview('ALL')
                 plugin.ExecuteCmd(sendXML)
             }
 
             if (mode.value === 'h5') {
-                vsdDrawer.destroy()
+                drawer.destroy()
             }
         })
 

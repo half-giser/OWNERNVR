@@ -801,7 +801,7 @@ export class AlarmVehicleDetectionDto {
     exposureMax = 50
     capturePlateAbsenceVehicle = false
     regionInfo: CanvasBaseArea[] = []
-    maskAreaInfo: Record<number, CanvasBasePoint[]> = {}
+    maskAreaInfo: CanvasBasePoint[][] = []
     mutexList: AlarmMutexDto[] = []
     plateSize = {
         minWidth: 0,
@@ -929,8 +929,8 @@ export class AlarmVideoStructureDto {
     intervalCheck = 1
     intervalCheckMin = 1
     intervalCheckMax = 1
-    detectAreaInfo: Record<number, CanvasBasePoint[]> = {}
-    maskAreaInfo: Record<number, CanvasBasePoint[]> = {}
+    detectAreaInfo: CanvasBasePoint[][] = []
+    maskAreaInfo: CanvasBasePoint[][] = []
     mutexList: AlarmMutexDto[] = []
     countOSD = {
         switch: false,

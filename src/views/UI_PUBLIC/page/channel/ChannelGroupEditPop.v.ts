@@ -5,7 +5,6 @@
  */
 
 import { ChannelGroupDto } from '@/types/apiType/channel'
-import { cloneDeep } from 'lodash-es'
 import { type FormRules } from 'element-plus'
 
 export default defineComponent({

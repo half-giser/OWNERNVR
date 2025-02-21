@@ -86,7 +86,7 @@
 
 <script lang="ts" setup>
 import CanvasBase from '@/utils/canvas/canvasBase'
-import { ref } from 'vue'
+
 export interface Props {
     width: number
     timeMode?: number

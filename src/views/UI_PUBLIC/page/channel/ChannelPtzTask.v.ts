@@ -3,7 +3,6 @@
  * @Date: 2024-08-22 15:15:52
  * @Description: 云台-任务
  */
-import { cloneDeep } from 'lodash-es'
 import { ChannelPtzTaskDto, type ChannelPtzTaskChlDto, ChannelPtzTaskForm } from '@/types/apiType/channel'
 import { type TableInstance, type FormRules } from 'element-plus'
 import ChannelPtzTaskEditPop from './ChannelPtzTaskEditPop.vue'

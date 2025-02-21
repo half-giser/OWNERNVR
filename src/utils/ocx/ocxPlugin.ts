@@ -5,13 +5,28 @@
  * 原项目中MAC插件和TimeSliderPlugin相关逻辑不保留
  */
 import WebsocketPlugin from '@/utils/websocket/websocketPlugin'
-import { ClientPort, P2PClientPort, P2PACCESSTYPE, getPluginPath, PluginSizeModeMapping, type OCX_Plugin_Notice_Map } from '@/utils/ocx/ocxUtil'
 import { type XMLQuery } from '../xmlParse'
 import { generateAsyncRoutes } from '../../router'
 
 type PluginStatus = 'Unloaded' | 'Loaded' | 'InitialComplete' | 'Connected' | 'Disconnected' | 'Reconnecting'
+type PluginSizeMode = 'relativeToScreen' | 'relativeToDom' | 'relativeToBrowser' | 'absolute'
 
 const getSingletonPlugin = () => {
+    const RELATIVE_TO_SCREEN = 'relativeToScreen' // relativeToScreen：显示器左上角为0,0
+    const RELATIVE_TO_DOM = 'relativeToDom' // relativeToBrowser: 浏览器左上角为0, 0;
+    const RELATIVE_TO_BROWSER = 'relativeToBrowser' // relativeToDom：文档流里左上角为0, 0;
+
+    const PluginSizeModeMapping: Record<BrowserType, PluginSizeMode> = {
+        ie: RELATIVE_TO_SCREEN,
+        lowEdge: RELATIVE_TO_SCREEN,
+        firefox: RELATIVE_TO_BROWSER,
+        unknow: RELATIVE_TO_DOM,
+        opera: RELATIVE_TO_DOM,
+        edge: RELATIVE_TO_DOM,
+        chrome: RELATIVE_TO_DOM,
+        safari: RELATIVE_TO_DOM,
+    }
+
     const pluginStore = usePluginStore()
     const { Translate, getLangTypes, getLangItems, langItems } = useLangStore()
     const router = useRouter()
@@ -259,7 +274,7 @@ const getSingletonPlugin = () => {
                             const authCodeIndex = errorDescription
                             userSession.authCodeIndex = authCodeIndex
                             if (curRoutUrl.includes('authCodeLogin')) {
-                                execLoginTypeCallback(P2PACCESSTYPE.P2P_AUTHCODE_LOGIN, authCodeIndex)
+                                execLoginTypeCallback(P2P_ACCESS_TYPE_AUTHCODE_LOGIN, authCodeIndex)
                             } else {
                                 layoutStore.isInitial = true
                                 router.push('/authCodeLogin')
@@ -642,13 +657,9 @@ const getSingletonPlugin = () => {
                 pluginStore.ready = false
                 pluginStore.currPluginMode = null
                 if (pluginStore.manuaClosePlugin) return
-                // 开发环境 热模块更新时，会关闭插件再重新启动
-                if (import.meta.env.DEV) {
-                    console.log('ocx closed on hmr')
-                } else {
-                    setPluginNoResponse()
-                    showPluginNoResponse()
-                }
+
+                setPluginNoResponse()
+                showPluginNoResponse()
             },
         })
     }
@@ -984,21 +995,20 @@ const getSingletonPlugin = () => {
             }
         }
 
-        // // 获取浏览器的缩放比率
+        // 获取浏览器的缩放比率
         const ratio = window.devicePixelRatio
         // 视频插件占位符尺寸
-        const divOcxRect = pluginRefDiv.getBoundingClientRect(),
-            divOcxLeft = divOcxRect.left * ratio,
-            divOcxTop = divOcxRect.top * ratio
-        let refW = divOcxRect.width * ratio,
-            refH = divOcxRect.height * ratio
-        const navHeight = 100 * ratio // 页面顶部导航栏高度
+        const divOcxRect = pluginRefDiv.getBoundingClientRect()
+        const divOcxLeft = divOcxRect.left * ratio
+        const divOcxTop = divOcxRect.top * ratio
+        const navHeight = document.getElementById('layoutMainHeader')!.clientHeight
         const browserType = browserInfo.type // 浏览器类型
-
         const ocxMode = PluginSizeModeMapping[browserType]
-        let winLeft = 0,
-            winTop = 0,
-            menuH = 0 // 浏览器工具栏高度（包含了地址栏、书签栏）
+        let refW = divOcxRect.width * ratio
+        let refH = divOcxRect.height * ratio
+        let winLeft = 0
+        let winTop = 0
+        let menuH = 0 // 浏览器工具栏高度（包含了地址栏、书签栏）
         if (browserInfo.type === 'firefox') {
             const offset = (window.outerWidth - window.innerWidth) / 2 // 外宽和内宽偏差值
             let diffVersion = 0 // 火狐版本偏差值
@@ -1029,9 +1039,8 @@ const getSingletonPlugin = () => {
         }
 
         // 视频插件窗口的顶部越过页面导航菜单区域（顶部收缩）
-        // && $.inArray(pluginPlaceholderId, ['divPopRecOCX', 'popLiveOCX']) == -1
         if (divOcxTop <= navHeight) {
-            winTop = ocxMode === 'relativeToBrowser' || browserType === 'lowEdge' ? navHeight + menuH : navHeight
+            winTop = ocxMode === RELATIVE_TO_BROWSER || browserType === 'lowEdge' ? navHeight + menuH : navHeight
             refH -= navHeight - divOcxTop
         }
 
@@ -1046,7 +1055,7 @@ const getSingletonPlugin = () => {
             refW += divOcxLeft
         }
 
-        if (ocxMode === 'relativeToScreen') {
+        if (ocxMode === RELATIVE_TO_SCREEN) {
             winLeft = window.screenLeft * ratio + winLeft
             winTop = window.screenTop * ratio + winTop
         }
@@ -1058,8 +1067,8 @@ const getSingletonPlugin = () => {
             }
             return size
         }
-        const domWidth = ocxMode === 'relativeToDom' ? window.innerWidth * ratio : 0
-        const domHeight = ocxMode === 'relativeToDom' ? window.innerHeight * ratio : 0
+        const domWidth = ocxMode === RELATIVE_TO_DOM ? window.innerWidth * ratio : 0
+        const domHeight = ocxMode === RELATIVE_TO_DOM ? window.innerHeight * ratio : 0
         const sendXML = OCX_XML_SetPluginSize(winLeft, winTop, adjust(refW), adjust(refH), ocxMode, domWidth, domHeight)
         pluginObj.ExecuteCmd(sendXML)
     }
@@ -1448,22 +1457,22 @@ const getSingletonPlugin = () => {
     }
 }
 
-let plugin: ReturnType<typeof getSingletonPlugin> | null = null
+export type PluginType = ReturnType<typeof getSingletonPlugin>
 
 /**
  * @description 确保plugin对象是个单例
  * @returns
  */
 export const usePlugin = (data?: PluginHookOptions) => {
-    if (!plugin) {
-        plugin = getSingletonPlugin()
+    if (!window.__RUNTIME_OCX_PLUGIN__) {
+        window.__RUNTIME_OCX_PLUGIN__ = getSingletonPlugin()
     }
 
     if (data) {
-        setupPlugin(plugin, data)
+        setupPlugin(window.__RUNTIME_OCX_PLUGIN__, data)
     }
 
-    return plugin
+    return window.__RUNTIME_OCX_PLUGIN__
 }
 
 interface PluginHookOptions {

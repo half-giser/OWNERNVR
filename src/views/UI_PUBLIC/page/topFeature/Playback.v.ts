@@ -1190,7 +1190,7 @@ export default defineComponent({
                 const startTime = startTimeStamp.value / 1000
                 const endTime = endTimeStamp.value / 1000
                 const distTime = currentTime + seconds
-                seek(Math.min(endTime, Math.max(startTime, distTime)))
+                seek(clamp(distTime, startTime, endTime))
             }
 
             if (mode.value === 'ocx') {

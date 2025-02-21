@@ -3,7 +3,6 @@
  * @Date: 2024-09-13 09:25:37
  * @Description: 智能分析 - 人脸搜索 - 轨迹
  */
-import { cloneDeep } from 'lodash-es'
 import IntelFaceSearchTrackMapColorPop from './IntelFaceSearchTrackMapColorPop.vue'
 import type { IntelFaceTrackMapList } from '@/types/apiType/intelligentAnalysis'
 
@@ -149,8 +148,8 @@ export default defineComponent({
             if (movingPoint < 0) {
                 return
             }
-            const deltaX = Math.max(0, Math.min(pageData.value.width, e.clientX - movingX + pageData.value.points[movingPoint].X))
-            const deltaY = Math.max(0, Math.min(pageData.value.height, e.clientY - movingY + pageData.value.points[movingPoint].Y))
+            const deltaX = clamp(e.clientX - movingX + pageData.value.points[movingPoint].X, 0, pageData.value.width)
+            const deltaY = clamp(e.clientY - movingY + pageData.value.points[movingPoint].Y, 0, pageData.value.height)
             const element = document.querySelector('.map-point-' + movingPoint) as HTMLElement
             element.style.transform = `translate(${deltaX}px,${deltaY}px)`
         }

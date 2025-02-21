@@ -14,15 +14,15 @@ export interface CanvasMaskMaskItem {
 }
 
 interface CanvasMaskOption {
-    el: HTMLCanvasElement
+    el?: HTMLCanvasElement
     maxCount?: number
     fillStyle?: string | CanvasGradient | CanvasPattern
     maskList?: CanvasMaskMaskItem[]
     enable?: boolean
-    onchange: (maskList: CanvasMaskMaskItem[]) => void
+    onchange?: (maskList: CanvasMaskMaskItem[]) => void
 }
 
-export default function CanvasMask(option: CanvasMaskOption) {
+export default function CanvasMask(option: CanvasMaskOption = {}) {
     const DEFAULT_COLOR = '#0f08' // 默认填充色值
     const DEFAULT_MAX = 4 // 绘制最大数量
     const RELATIVE_WIDTH = 640 // 万分比宽度
@@ -38,7 +38,6 @@ export default function CanvasMask(option: CanvasMaskOption) {
     const canvas = ctx.getCanvas()
     const cavWidth = canvas.width // 画布宽
     const cavHeight = canvas.height // 画布高
-    let onMouseDown: ((e: MouseEvent) => void) | undefined = undefined
 
     /**
      * @description 根据数据绘制区域
@@ -47,7 +46,6 @@ export default function CanvasMask(option: CanvasMaskOption) {
      */
     const setArea = (maskList: CanvasMaskMaskItem[]) => {
         ctx.ClearRect(0, 0, cavWidth, cavHeight)
-        if (!(maskList && maskList.length)) return
         for (let i = 0; i < maskList.length; i++) {
             if (i === maxCount) {
                 break
@@ -65,64 +63,59 @@ export default function CanvasMask(option: CanvasMaskOption) {
         enable = bool
     }
 
+    const onMouseDown = (e: MouseEvent) => {
+        if (!enable || maskList.length === maxCount) {
+            return
+        }
+        const startX = e.offsetX
+        const startY = e.offsetY
+        const clientX = e.clientX
+        const clientY = e.clientY
+        let endX = 0
+        let endY = 0
+        let finalX = 0
+        let finalY = 0
+        let width = 0
+        let height = 0
+        document.body.style.setProperty('user-select', 'none')
+
+        const onMouseMove = (e1: MouseEvent) => {
+            endX = clamp(e1.clientX - clientX + startX, 0, cavWidth)
+            endY = clamp(e1.clientY - clientY + startY, 0, cavHeight)
+            width = Math.abs(endX - startX)
+            height = Math.abs(endY - startY)
+            finalX = Math.min(startX, endX)
+            finalY = Math.min(startY, endY)
+            setArea(maskList)
+            ctx.FillRect(finalX, finalY, width, height, fillStyle)
+        }
+
+        const onMouseUp = () => {
+            if (!isInnerRect(finalX, finalY, width, height)) {
+                maskList.push(
+                    getRelativeItemByReal({
+                        X: finalX,
+                        Y: finalY,
+                        width: width,
+                        height: height,
+                    }),
+                )
+            }
+            setArea(maskList)
+            onchange && onchange(maskList)
+            document.removeEventListener('mousemove', onMouseMove)
+            document.removeEventListener('mouseup', onMouseUp)
+            document.body.style.setProperty('user-select', 'unset')
+        }
+
+        document.addEventListener('mousemove', onMouseMove)
+        document.addEventListener('mouseup', onMouseUp)
+    }
+
     /**
      * @description 绑定事件
      */
     const bindEvent = () => {
-        if (!onMouseDown) {
-            onMouseDown = (e: MouseEvent) => {
-                if (!enable || maskList.length === maxCount) {
-                    return
-                }
-                const startX = e.offsetX,
-                    startY = e.offsetY
-                const clientX = e.clientX,
-                    clientY = e.clientY
-                let endX = 0,
-                    endY = 0
-                let finalX = 0,
-                    finalY = 0
-                let width = 0,
-                    height = 0
-                document.body.style.setProperty('user-select', 'none')
-
-                const onMouseMove = (e1: MouseEvent) => {
-                    endX = e1.clientX - clientX + startX
-                    endY = e1.clientY - clientY + startY
-                    if (endX < 0) endX = 0
-                    if (endX > cavWidth) endX = cavWidth
-                    if (endY < 0) endY = 0
-                    if (endY > cavHeight) endY = cavHeight
-                    width = Math.abs(endX - startX)
-                    height = Math.abs(endY - startY)
-                    finalX = endX > startX ? startX : endX
-                    finalY = endY > startY ? startY : endY
-                    setArea(maskList)
-                    ctx.FillRect(finalX, finalY, width, height, fillStyle)
-                }
-
-                const onMouseUp = () => {
-                    if (!isInnerRect(finalX, finalY, width, height)) {
-                        maskList.push(
-                            getRelativeItemByReal({
-                                X: finalX,
-                                Y: finalY,
-                                width: width,
-                                height: height,
-                            }),
-                        )
-                    }
-                    setArea(maskList)
-                    onchange && onchange(maskList)
-                    document.removeEventListener('mousemove', onMouseMove)
-                    document.removeEventListener('mouseup', onMouseUp)
-                    document.body.style.setProperty('user-select', 'unset')
-                }
-
-                document.addEventListener('mousemove', onMouseMove)
-                document.addEventListener('mouseup', onMouseUp)
-            }
-        }
         canvas.removeEventListener('mousedown', onMouseDown)
         canvas.addEventListener('mousedown', onMouseDown)
     }
@@ -227,9 +220,7 @@ export default function CanvasMask(option: CanvasMaskOption) {
      * @description 组件生命周期结束时执行
      */
     const destroy = () => {
-        if (onMouseDown) {
-            canvas.removeEventListener('mousedown', onMouseDown)
-        }
+        canvas.removeEventListener('mousedown', onMouseDown)
     }
 
     setArea(maskList)

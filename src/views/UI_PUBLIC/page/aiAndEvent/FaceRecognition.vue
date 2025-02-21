@@ -170,7 +170,7 @@
                         <el-tab-pane
                             v-if="detectionFormData.supportVfd"
                             :label="Translate('IDCS_LINKAGE_MODE')"
-                            name="linkage"
+                            name="trigger"
                         >
                             <el-form
                                 :style="{

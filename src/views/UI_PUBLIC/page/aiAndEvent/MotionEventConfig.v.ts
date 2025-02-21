@@ -3,7 +3,6 @@
  * @Date: 2024-08-16 18:13:56
  * @Description: 移动侦测
  */
-import { cloneDeep } from 'lodash-es'
 import { AlarmEventDto, type AlarmPresetItem } from '@/types/apiType/aiAndEvent'
 import AlarmBasePresetPop from './AlarmBasePresetPop.vue'
 import AlarmBaseSnapPop from './AlarmBaseSnapPop.vue'

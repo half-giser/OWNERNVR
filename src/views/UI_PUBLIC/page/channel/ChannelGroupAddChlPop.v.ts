@@ -5,7 +5,6 @@
  */
 import { ChannelInfoDto, type ChannelGroupDto } from '@/types/apiType/channel'
 import { type TableInstance } from 'element-plus'
-import { cloneDeep } from 'lodash-es'
 
 export default defineComponent({
     props: {
