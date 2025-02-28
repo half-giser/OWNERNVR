@@ -112,11 +112,8 @@
                 />
                 <el-table-column :label="Translate('IDCS_BROWSE')">
                     <template #default="{ $index }: TableColumn<PlaybackSearchImgList>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             file="browser"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
                             @click="browseImg($index)"
                         />
                     </template>
@@ -136,11 +133,8 @@
                         </el-dropdown>
                     </template>
                     <template #default="{ row }: TableColumn<PlaybackSearchImgList>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             file="export"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
                             @click="exportImg(row)"
                         />
                     </template>
@@ -159,11 +153,8 @@
                         </el-dropdown>
                     </template>
                     <template #default="{ row }: TableColumn<PlaybackSearchImgList>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             file="del"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
                             @click="deleteImg(row)"
                         />
                     </template>

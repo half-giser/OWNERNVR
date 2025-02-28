@@ -62,7 +62,6 @@
                     class="osd"
                 >
                     <BaseImgSprite
-                        class="osd-icon"
                         file="inteligenceState"
                         :class="{
                             hide: !item.isInteligenceIcon,
@@ -70,7 +69,6 @@
                         }"
                     />
                     <BaseImgSprite
-                        class="osd-icon"
                         file="motionState"
                         :class="{
                             hide: !item.isMotionIcon,
@@ -78,7 +76,6 @@
                         }"
                     />
                     <BaseImgSprite
-                        class="osd-icon"
                         :file="item.recordIconStatus"
                         :class="{
                             invisible: !item.isRecordIconVisible,
@@ -87,14 +84,12 @@
                         :data-event="item.recordIconStatus"
                     />
                     <BaseImgSprite
-                        class="osd-icon"
                         file="ptz (2)"
                         :class="{
                             hide: !item.isPtzIcon,
                         }"
                     />
                     <BaseImgSprite
-                        class="osd-icon"
                         :file="`ZoomState__${item.zoomIconData}`"
                         :class="{
                             hide: item.zoomIconData === 1 || !item.isZoomIcon,
@@ -102,7 +97,6 @@
                         :data-zoom="item.zoomIconData"
                     />
                     <BaseImgSprite
-                        class="osd-icon"
                         file="AudioState"
                         :class="{
                             hide: !item.isAudioIcon,
@@ -175,7 +169,6 @@
 
 <script lang="ts" setup>
 import { type XMLQuery } from '@/utils/xmlParse'
-import WasmPlayer from '@/utils/wasmPlayer/wasmPlayer'
 
 export interface PlayerWinDataListItem {
     PLAY_STATUS: 'play' | 'stop' | 'error'
@@ -2793,10 +2786,8 @@ defineExpose({
             display: flex;
             justify-content: flex-end;
 
-            &-icon {
+            .Sprite {
                 margin-left: 10px;
-                width: 24px;
-                height: 24px;
 
                 &.hide {
                     display: none;

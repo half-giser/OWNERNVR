@@ -4,7 +4,6 @@
  * @Description: 现场预览-云台视图-巡航线
  */
 import ChannelCruiseAddPop from '../channel/ChannelCruiseAddPop.vue'
-import { type ChannelPtzCruiseDto } from '@/types/apiType/channel'
 
 export default defineComponent({
     components: {
@@ -85,10 +84,6 @@ export default defineComponent({
          * @param {string} cruiseName
          */
         const deleteCruise = (index: number, cruiseName: string) => {
-            if (!prop.enabled) {
-                return
-            }
-
             openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_CRUISE_S').formatForLang(Translate('IDCS_CHANNEL'), getShortString(prop.chlName, 10), getShortString(cruiseName, 10)),
@@ -113,10 +108,6 @@ export default defineComponent({
          * @description 当开新增巡航线弹窗
          */
         const addCruise = () => {
-            if (!prop.enabled) {
-                return
-            }
-
             // 巡航线数量达到上限8个
             if (listData.value.length >= CRUISE_MAX_COUNT) {
                 openMessageBox(Translate('IDCS_OVER_MAX_NUMBER_LIMIT'))

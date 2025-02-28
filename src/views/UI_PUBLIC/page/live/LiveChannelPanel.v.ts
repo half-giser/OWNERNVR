@@ -5,8 +5,6 @@
  */
 import ChannelGroupEditPop from '../channel/ChannelGroupEditPop.vue'
 import ChannelGroupAddPop from '../channel/ChannelGroupAddPop.vue'
-import { type LiveChannelList, type LiveChannelGroupList, type LiveChlOfChannelGroupList, type LiveCustomViewList, type LiveCustomViewChlList } from '@/types/apiType/live'
-import { ChannelGroupDto } from '@/types/apiType/channel'
 
 export interface ChannelPanelExpose {
     getOnlineChlList: () => string[]

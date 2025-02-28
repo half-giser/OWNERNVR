@@ -3,9 +3,6 @@
  * @Date: 2024-06-03 10:00:44
  * @Description: 业务应用-门禁管理-门禁配置
  */
-
-import { BusinessAccessConfigForm, BusinessAccessLockDataItem } from '@/types/apiType/business'
-
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
@@ -267,8 +264,8 @@ export default defineComponent({
                             <id type="uint32">${item.id}</id>
                             <OpenDelayTime type="uint8" min="${item.openDelayTimeMin}" max="${item.openDelayTimeMax}" default="${item.openDelayTimeDefault}">${item.openDelayTime}</OpenDelayTime>
                             <OpenHoldTime type="uint8" min="${item.openHoldTimeMin}" max="${item.openHoldTimeMax}" default="${item.openHoldTimeDefault}">${item.openHoldTime}</OpenHoldTime>
-                            ${ternary(!!item.doorLockConfig, `<doorLockConfig type="doorLockType">${item.doorLockConfig}</doorLockConfig>`)}
-                            ${ternary(!!item.alarmAction, `<alarmAction type="doorLockAction">${item.alarmAction}</alarmAction>`)}
+                            ${item.doorLockConfig ? `<doorLockConfig type="doorLockType">${item.doorLockConfig}</doorLockConfig>` : ''}
+                            ${item.alarmAction ? `<alarmAction type="doorLockAction">${item.alarmAction}</alarmAction>` : ''}
                         </item>
                     `
                 })
@@ -276,9 +273,9 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <chl id="${pageData.value.chlId}">
-                        ${ternary(formData.value.wearMaskOpen, '<wearmaskOpen>true</wearmaskOpen>')}
-                        ${ternary(!!formData.value.accessListType, `<accessListType type="accessListType">${formData.value.accessListType}</accessListType>`)}
-                        ${ternary(!!lockDataLength, `<doorLock type="list" count="${lockDataLength}">${accessLockData}</doorLock>`)}
+                        ${formData.value.wearMaskOpen ? '<wearmaskOpen>true</wearmaskOpen>' : ''}
+                        ${formData.value.accessListType ? `<accessListType type="accessListType">${formData.value.accessListType}</accessListType>` : ''}
+                        ${lockDataLength ? `<doorLock type="list" count="${lockDataLength}">${accessLockData}</doorLock>` : ''}
                     </chl>
                 </content>
             `

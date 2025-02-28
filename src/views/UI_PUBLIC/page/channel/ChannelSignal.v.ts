@@ -3,9 +3,6 @@
  * @Date: 2024-06-19 15:16:08
  * @Description: 通道 - 信号接入配置
  */
-
-import { ChannelSignalDto } from '@/types/apiType/channel'
-
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
@@ -160,7 +157,7 @@ export default defineComponent({
 
         const getChlListData = () => {
             openLoading()
-            getChlList({}).then((res) => {
+            getChlList().then((res) => {
                 closeLoading()
                 commLoadResponseHandler(res, ($) => {
                     $('content/item').forEach((ele) => {
@@ -223,7 +220,7 @@ export default defineComponent({
                             }
                             return {
                                 id: i,
-                                name: Translate('IDCS_ANALOG_PREFIX').formatForLang(i + 1 > 9 ? i + 1 : '0' + (i + 1)),
+                                name: Translate('IDCS_ANALOG_PREFIX').formatForLang(padStart(i + 1, 2)),
                                 lite: channelSignalLiteList[i].bool(),
                                 signalType: channelSignalTypeList[i],
                                 chlSupSignalTypeArray: chlSupSignalType,

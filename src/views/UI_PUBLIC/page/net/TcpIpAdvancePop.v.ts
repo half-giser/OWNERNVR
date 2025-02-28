@@ -3,7 +3,6 @@
  * @Date: 2024-08-20 10:41:09
  * @Description: TCP/IP高级配置弹窗
  */
-import { type NetTcpIpForm, NetTcpIpAdvanceForm } from '@/types/apiType/net'
 import type { FormRules } from 'element-plus'
 
 export default defineComponent({

@@ -45,12 +45,8 @@
                     width="110"
                 >
                     <template #default="{ row }: TableColumn<SystenSHDBImageUploadDto>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             file="del"
-                            :chunk="4"
-                            :index="0"
-                            :hover-index="1"
-                            :active-index="1"
                             @click="clearChannelAllTime(row)"
                         />
                     </template>
@@ -72,13 +68,14 @@
                                 <BaseImgSprite
                                     file="delItem"
                                     class="expand-del"
+                                    :hover-index="0"
                                     @click="deleteTimeItem(row, index)"
                                 />
                             </div>
                             <BaseImgSprite
                                 class="expand-add"
                                 file="addItem"
-                                :index="0"
+                                :hover-index="0"
                                 :chunk="2"
                                 @click="openAddTimeDialog(row)"
                             />
@@ -140,7 +137,6 @@
 
     &-add {
         margin-left: 6px;
-        cursor: pointer;
     }
 
     &-item {
@@ -164,7 +160,6 @@
 
     .expand-del {
         opacity: 0;
-        cursor: pointer;
         margin-left: 5px;
     }
 }

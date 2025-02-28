@@ -4,7 +4,6 @@
  * @Description: OCX插件模块
  * 原项目中MAC插件和TimeSliderPlugin相关逻辑不保留
  */
-import WebsocketPlugin from '@/utils/websocket/websocketPlugin'
 import { type XMLQuery } from '../xmlParse'
 import { generateAsyncRoutes } from '../../router'
 
@@ -1169,7 +1168,25 @@ const getSingletonPlugin = () => {
     }
 
     /**
-     * @description 监听浏览器窗口的移动，控制插件随之一起移动
+     * @description 判断两个元素是否重合
+     * @param {DOMRect} rect1
+     * @param {DOMRect} rect2
+     * @returns {boolean}
+     */
+    const isOverlap = (rect1: DOMRect, rect2: DOMRect) => {
+        const { top, left, right, bottom } = rect1
+        const { top: top2, left: left2, right: right2, bottom: bottom2 } = rect2
+
+        const leftTop = left2 > left && left2 < right && top2 > top && top2 < bottom
+        const rightTop = right2 > left && right2 < right && top2 > top && top2 < bottom
+        const leftBottom = left2 > left && left2 < right && bottom2 > top && bottom2 < bottom
+        const rightBottom = right2 > left && right2 < right && bottom2 > top && bottom2 < bottom
+
+        return leftTop || rightTop || leftBottom || rightBottom
+    }
+
+    /**
+     * @description 监听浏览器窗口的移动、插件被遮挡等，控制插件移动/显隐
      * @param {HTMLElement} pluginPlaceholderId
      * @param {number} updateInterval
      */
@@ -1181,10 +1198,11 @@ const getSingletonPlugin = () => {
         const browserScrollCallback = () => {
             setPluginSize(pluginPlaceholderId, getVideoPlugin())
         }
-        let oldX = 0,
-            oldY = 0,
-            oldWidth = 0,
-            oldHeihgt = 0
+
+        let oldX = 0
+        let oldY = 0
+        let oldWidth = 0
+        let oldHeihgt = 0
 
         const browserMoveTimer = setInterval(() => {
             // 最小化浏览器时, screenX会变成-32000, 此时不重新设置尺寸
@@ -1214,7 +1232,7 @@ const getSingletonPlugin = () => {
             }
         }, interval)
 
-        // 观察弹窗样式变化 重新设置插件大小
+        // 观察弹窗样式变化 重新设置插件大小、显示隐藏
         const mutationObserver = new MutationObserver((mutationsList) => {
             let flag = false
             for (const mutation of mutationsList) {
@@ -1230,7 +1248,12 @@ const getSingletonPlugin = () => {
             if (flag) {
                 const data = browserEventMap.get(pluginPlaceholderId)
                 if (data) {
+                    const rect = data.element.getBoundingClientRect()
                     const hasPop = data.observerList.some((item) => {
+                        if (item.classList.contains('el-popover')) {
+                            const observeRect = item.getBoundingClientRect()
+                            return item.style.display !== 'none' && isOverlap(rect, observeRect)
+                        }
                         return item.style.display !== 'none'
                     })
                     if (!hasPop && browserEventMap.data.length) {
@@ -1262,10 +1285,6 @@ const getSingletonPlugin = () => {
         }
 
         for (const popper of poppers) {
-            // 有keep-ocx类的popover在显示时不会遮挡插件. 所以这里不监听keep-ocx的popover的显示隐藏
-            if (popper.classList.contains('keep-ocx')) {
-                continue
-            }
             mutationObserver.observe(popper, { attributes: true })
             observerList.push(popper as HTMLElement)
         }
@@ -1307,7 +1326,7 @@ const getSingletonPlugin = () => {
         } else {
             displayTimer = setTimeout(() => {
                 if (browserEventMap.data.length && !forcedHidden) displayOCX(true)
-            }, 500)
+            }, 50)
         }
     }
 

@@ -3,7 +3,6 @@
  * @Date: 2024-08-16 18:56:58
  * @Description: TCP/IP配置页
  */
-import { NetTcpIpForm, NetTcpIpDhcpList, NetTcpIpBondsList, type NetTcpIpNicConfigList, type NetTcpIpAdvanceForm } from '@/types/apiType/net'
 import { type CheckboxValueType } from 'element-plus'
 import TcpIpAdvancePop from './TcpIpAdvancePop.vue'
 
@@ -219,7 +218,7 @@ export default defineComponent({
                     subLengthV6: $item('subLengthV6').text().num(),
                     ipv4DnsDhcpSwitch: $item('dhcpSwitch').text().bool() ? $item('ipv4DnsDhcpSwitch').text().bool() : false,
                     dns1: $item('dns1').text(),
-                    dns2: $item('dns2').text() || '0.0.0.0',
+                    dns2: $item('dns2').text() || DEFAULT_EMPTY_IP,
                     ipv6DnsDhcpSwitch: $item('dhcpSwitch').text().bool() ? $item('ipv6DnsDhcpSwitch').text().bool() : false,
                     ipv6Dns1: $item('ipv6Dns1').text(),
                     ipv6Dns2: $item('ipv6Dns2').text(),
@@ -251,7 +250,7 @@ export default defineComponent({
                     isOnline: $item('isOnline').text().bool(),
                     ipv4DnsDhcpSwitch: $item('dhcpSwitch').text().bool() ? $item('ipv4DnsDhcpSwitch').text().bool() : false,
                     dns1: $item('dns1').text(),
-                    dns2: $item('dns2').text() || '0.0.0.0',
+                    dns2: $item('dns2').text() || DEFAULT_EMPTY_IP,
                     ipv6DnsDhcpSwitch: $item('ipv6DnsDhcpSwitch').text().bool(),
                     ipv6Dns1: $item('ipv6Dns1').text(),
                     ipv6Dns2: $item('ipv6Dns2').text(),
@@ -680,28 +679,28 @@ export default defineComponent({
                                 <subLengthV6>${item.subLengthV6}</subLengthV6>
                                 <ipv4DnsDhcpSwitch>${item.ipv4DnsDhcpSwitch}</ipv4DnsDhcpSwitch>
                                 <dns1>${item.dns1}</dns1>
-                                <dns2>${item.dns2 === '0.0.0.0' ? '' : item.dns2}</dns2>
+                                <dns2>${item.dns2 === DEFAULT_EMPTY_IP ? '' : item.dns2}</dns2>
                                 <ipv6DnsDhcpSwitch>${item.ipv6DnsDhcpSwitch}</ipv6DnsDhcpSwitch>
                                 <ipv6Dns1>${item.ipv6Dns1}</ipv6Dns1>
                                 <ipv6Dns2>${item.ipv6Dns2}</ipv6Dns2>
-                                ${ternary(item.isSupSecondIP, `<secondIpSwitch>${item.dhcpSwitch ? false : item.secondIpSwitch}</secondIpSwitch>`)}
-                                ${ternary(item.isSupSecondIP, `<secondIp>${item.secondIp}</secondIp>`)}
-                                ${ternary(item.isSupSecondIP, `<secondMask>${item.secondMask}</secondMask>`)}
+                                ${item.isSupSecondIP ? `<secondIpSwitch>${item.dhcpSwitch ? false : item.secondIpSwitch}</secondIpSwitch>` : ''}
+                                ${item.isSupSecondIP ? `<secondIp>${item.secondIp}</secondIp>` : ''}
+                                ${item.isSupSecondIP ? `<secondMask>${item.secondMask}</secondMask>` : ''}
                             </item>
                         `
                     })
                     .join('')
                 sendXml = rawXml`
                     <nicConfigs>${nic}</nicConfigs>
-                    ${ternary(!pageData.value.pppoeSwitch, `<defaultNic>${formData.value.netConfig.defaultNic}</defaultNic>`)}
+                    ${!pageData.value.pppoeSwitch ? `<defaultNic>${formData.value.netConfig.defaultNic}</defaultNic>` : ''}
                 `
             }
             sendXml = rawXml`
                 <content>
                     ${sendXml}
-                    ${ternary(pageData.value.hasPoeNic, `<poeMode>${formData.value.netConfig.poeMode}</poeMode>`)}
-                    ${ternary(formData.value.netConfig.toeEnable, '<toeEnable>true</toeEnable>')}
-                    ${ternary(!pageData.value.pppoeSwitch, `<curWorkMode>${formData.value.netConfig.curWorkMode}</curWorkMode>`)}
+                    ${pageData.value.hasPoeNic ? `<poeMode>${formData.value.netConfig.poeMode}</poeMode>` : ''}
+                    ${formData.value.netConfig.toeEnable ? '<toeEnable>true</toeEnable>' : ''}
+                    ${!pageData.value.pppoeSwitch ? `<curWorkMode>${formData.value.netConfig.curWorkMode}</curWorkMode>` : ''}
                 </content>
             `
 

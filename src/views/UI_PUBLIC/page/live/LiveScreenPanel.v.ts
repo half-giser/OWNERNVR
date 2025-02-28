@@ -4,7 +4,6 @@
  * @Description: 现场预览-底部菜单栏视图
  */
 import LiveScreenAlarmOutPop from './LiveScreenAlarmOutPop.vue'
-import { type LiveSharedWinData } from '@/types/apiType/live'
 
 export default defineComponent({
     components: {
@@ -155,9 +154,6 @@ export default defineComponent({
          * @param {Boolean} bool
          */
         const recordRemote = async (bool: boolean) => {
-            if (remoteRecordDisabled.value) {
-                return
-            }
             const sendXml = rawXml`
                 <content>
                     <switch>${bool}</switch>

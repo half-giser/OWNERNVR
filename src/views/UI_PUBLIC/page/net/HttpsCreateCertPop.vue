@@ -46,10 +46,7 @@
                 <el-text>{{ Translate('IDCS_DAYS') }} *</el-text>
             </el-form-item>
             <el-form-item :label="Translate('IDCS_PASSWORD')">
-                <el-input
-                    v-model="formData.password"
-                    type="password"
-                />
+                <BasePasswordInput v-model="formData.password" />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_STATE_OR_PROVINCE')">
                 <el-input v-model="formData.stateOrProvinceName" />

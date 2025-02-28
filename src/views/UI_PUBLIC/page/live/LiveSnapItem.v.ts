@@ -3,7 +3,6 @@
  * @Date: 2024-07-29 16:10:18
  * @Description: 现场预览-目标检测视图-渲染单个抓拍元素组件
  */
-import { type WebsocketSnapOnSuccessSnap } from '@/utils/websocket/websocketSnap'
 
 export default defineComponent({
     props: {

@@ -3,8 +3,6 @@
  * @Date: 2024-09-19 17:29:31
  * @Description: POE电源管理
  */
-import type { SystemPoeList } from '@/types/apiType/system'
-
 export default defineComponent({
     setup() {
         const indexMapping: Record<string, number> = {}
@@ -47,7 +45,7 @@ export default defineComponent({
                     tableData.value = $('content/poePort/item').map((item, index) => {
                         const $item = queryXml(item.element)
                         const id = item.attr('index')
-                        const poeName = index < 10 ? '0' + index : '' + index
+                        const poeName = padStart(index, 2)
                         indexMapping[id] = index
                         return {
                             id,

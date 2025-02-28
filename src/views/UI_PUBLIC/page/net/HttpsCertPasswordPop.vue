@@ -29,8 +29,7 @@
                 </el-radio-group>
             </el-form-item>
             <el-form-item prop="password">
-                <el-input
-                    type="password"
+                <BasePasswordInput
                     maxlength="64"
                     :disabled="formData.encryption === 'unencrypted'"
                     :placeholder="Translate('IDCS_ENTER_CERT_ENCRY_PWD')"

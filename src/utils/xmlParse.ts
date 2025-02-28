@@ -195,5 +195,5 @@ export const compileXml = (xml: string) => {
  * @return {string}
  */
 export const rawXml = (strings: TemplateStringsArray, ...values: (string | number | boolean)[]) => {
-    return String.raw({ raw: strings }, ...(values || []))
+    return String.raw({ raw: strings }, ...values)
 }

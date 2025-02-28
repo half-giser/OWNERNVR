@@ -4,7 +4,6 @@
  * @Description: 添加通道 - 激活IPC弹窗
  */
 import { type FormRules } from 'element-plus'
-import { type ChannelQuickAddDto } from '@/types/apiType/channel'
 
 export default defineComponent({
     props: {
@@ -80,7 +79,7 @@ export default defineComponent({
                                     return rawXml`
                                         <item>
                                             <userPassword>
-                                                <password type='string' encryptType='md5' maxLen='16'${getSecurityVer()}><![CDATA[${useDefaultPwdSwitch.value ? '' : AES_encrypt(formData.value.password, userSessionStore.sesionKey)}]]></password>
+                                                <password type='string' encryptType='md5' maxLen='16'${getSecurityVer()}>${wrapCDATA(useDefaultPwdSwitch.value ? '' : AES_encrypt(formData.value.password, userSessionStore.sesionKey))}</password>
                                             </userPassword>
                                             <name>${ele.devName}</name>
                                             <ip>${ele.ip}</ip>

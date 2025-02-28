@@ -3,8 +3,6 @@
  * @Date: 2024-06-21 14:31:40
  * @Description: 通道状态
  */
-import { type SystemChannelStatusList } from '@/types/apiType/system'
-
 export default defineComponent({
     setup(_prop, ctx) {
         const { Translate } = useLangStore()

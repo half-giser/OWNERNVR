@@ -4,7 +4,6 @@
  * @Description: 现场预览-云台视图-轨迹
  */
 import ChannelTraceAddPop from '../channel/ChannelTraceAddPop.vue'
-import { type ChannelPtzTraceDto } from '@/types/apiType/channel'
 
 export default defineComponent({
     components: {
@@ -166,10 +165,6 @@ export default defineComponent({
          * @param {string} name
          */
         const deleteTrace = (index: number, name: string) => {
-            if (!prop.enabled) {
-                return
-            }
-
             openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_TRACE_S').formatForLang(Translate('IDCS_CHANNEL'), getShortString(name, 10)),
@@ -226,10 +221,6 @@ export default defineComponent({
          * @description 开始录像
          */
         const startRecord = async () => {
-            if (!prop.enabled) {
-                return
-            }
-
             const index = pageData.value.active
             const item = listData.value[pageData.value.active]
             if (!item) {
@@ -282,10 +273,6 @@ export default defineComponent({
          * @param {number} index
          */
         const stopRecord = async (index: number) => {
-            if (!prop.enabled) {
-                return
-            }
-
             const item = listData.value[index]
             if (!item) {
                 return

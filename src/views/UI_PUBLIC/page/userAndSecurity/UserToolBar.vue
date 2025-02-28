@@ -12,11 +12,13 @@
     <BaseImgSprite
         file="toolbar_search"
         class="base-toolbar-btn"
+        :title="Translate('IDCS_SEARCH_USER')"
         @click="search"
     />
     <BaseImgSprite
         file="toolbar_add"
         class="base-toolbar-btn"
+        :title="Translate('IDCS_ADD_USER')"
         @click="add"
     />
 </template>

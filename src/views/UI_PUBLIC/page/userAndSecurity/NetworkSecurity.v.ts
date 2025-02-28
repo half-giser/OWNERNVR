@@ -3,8 +3,6 @@
  * @Date: 2024-06-18 18:41:51
  * @Description: 网络安全
  */
-import { type UserNetworkSecurityForm } from '@/types/apiType/userAndSecurity'
-
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
@@ -96,9 +94,9 @@ export default defineComponent({
          */
         const changeAutoGetGatewayMac = (row: UserNetworkSecurityForm) => {
             if (row.autoGetGatewayMac) {
-                row.getGatewayMac = row.gatewayMac || '00:00:00:00:00:00'
+                row.getGatewayMac = row.gatewayMac || DEFAULT_EMPTY_MAC
             } else {
-                row.getGatewayMac = row.manualInputGatewayMac || '00:00:00:00:00:00'
+                row.getGatewayMac = row.manualInputGatewayMac || DEFAULT_EMPTY_MAC
             }
         }
 

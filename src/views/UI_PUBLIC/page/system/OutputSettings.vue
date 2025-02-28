@@ -140,7 +140,6 @@
                             >
                                 <BaseImgSprite
                                     file="SpeedQuick"
-                                    :index="0"
                                     :chunk="4"
                                 />
                             </div>
@@ -175,24 +174,19 @@
                         <!-- 分屏切换按钮 -->
                         <div class="panel-btns">
                             <el-tooltip :content="Translate('IDCS_FAVOURITE')">
-                                <BaseImgSprite
+                                <BaseImgSpriteBtn
                                     v-show="pageData.tabId === 0 && pageData.outputIdx === 0"
                                     class="panel-collect"
-                                    :index="0"
-                                    :hover-index="1"
-                                    :chunk="4"
                                     file="collect (2)"
                                     @click="collectView"
                                 />
                             </el-tooltip>
                             <div class="panel-seg">
-                                <BaseImgSprite
+                                <BaseImgSpriteBtn
                                     v-for="seg in pageData.segList"
                                     :key="seg"
                                     :file="`seg_${seg}`"
-                                    :index="currentSegment === seg ? 2 : 0"
-                                    :hover-index="currentSegment === seg ? 2 : 1"
-                                    :chunk="4"
+                                    :active="currentSegment === seg"
                                     @click="changeSplit(seg)"
                                 />
                             </div>
@@ -204,12 +198,9 @@
                                 @change="changeTimeInterval"
                             />
                             <el-tooltip :content="Translate('IDCS_CLEAR_AWAY')">
-                                <BaseImgSprite
+                                <BaseImgSpriteBtn
                                     class="panel-clear"
                                     file="clear"
-                                    :index="0"
-                                    :hover-index="1"
-                                    :chunk="4"
                                     @click="clearAllSplitData"
                                 />
                             </el-tooltip>
@@ -541,10 +532,6 @@
         display: flex;
         align-items: center;
         border-left: 1px solid var(--content-border);
-
-        span {
-            cursor: pointer;
-        }
     }
 
     &-collect {

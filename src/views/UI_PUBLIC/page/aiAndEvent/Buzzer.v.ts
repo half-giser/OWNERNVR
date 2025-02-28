@@ -3,8 +3,6 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-07-30 15:55:38
  */
-import { AlarmBuzzerForm } from '@/types/apiType/aiAndEvent'
-
 export default defineComponent({
     setup() {
         const formData = ref(new AlarmBuzzerForm())

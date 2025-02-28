@@ -3,7 +3,6 @@
  * @Date: 2024-06-17 17:21:49
  * @Description: 编辑用户信息弹窗
  */
-import { UserEditForm } from '@/types/apiType/userAndSecurity'
 import { type FormRules } from 'element-plus'
 
 export default defineComponent({
@@ -177,7 +176,7 @@ export default defineComponent({
                     <authGroup id="${formData.value.authGroup}"></authGroup>
                     <bindMacSwitch>false</bindMacSwitch>
                     <modifyPassword>${formData.value.allowModifyPassword}</modifyPassword>
-                    <mac>${wrapCDATA('00:00:00:00:00:00')}</mac>
+                    <mac>${wrapCDATA(DEFAULT_EMPTY_MAC)}</mac>
                     <email>${wrapCDATA(formData.value.email)}</email>
                     <enabled>${formData.value.enabled}</enabled>
                     <authEffective>${formData.value.authEffective}</authEffective>

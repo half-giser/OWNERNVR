@@ -4,7 +4,6 @@
  * @Description: 搜索与备份-图片管理
  */
 import dayjs from 'dayjs'
-import { type PlaybackChlList, type PlaybackRecLogList, PlaybackSearchImgForm, PlaybackSearchImgList } from '@/types/apiType/playback'
 import { type TableInstance } from 'element-plus'
 import BackupImgPop from './BackupImgPop.vue'
 import BackupImgPlayerPop from './BackupImgPlayerPop.vue'

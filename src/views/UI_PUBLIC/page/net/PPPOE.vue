@@ -41,13 +41,10 @@
                         :disabled="!formData.switch || pageData.wirelessSwitch"
                     />
                 </template>
-                <el-input
+                <BasePasswordInput
                     v-model.trim="formData.password"
-                    type="password"
                     :disabled="!formData.switch || !pageData.passwordSwitch || pageData.wirelessSwitch"
                     :maxlength="32"
-                    @copy.capture.prevent=""
-                    @paste.capture.prevent=""
                 />
             </el-form-item>
             <div class="base-btn-box">

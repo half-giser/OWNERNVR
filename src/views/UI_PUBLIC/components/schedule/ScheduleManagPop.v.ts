@@ -4,7 +4,6 @@
  * @Description: 排程管理弹窗
  */
 import ScheduleEditPop from './ScheduleEditPop.vue'
-import { ScheduleInfo, type ScheduleDto } from '@/types/apiType/schedule'
 import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
@@ -132,12 +131,11 @@ export default defineComponent({
                 pageData.value.dayEnum.forEach((day, index) => {
                     pageData.value.currentScheduleInfo!.timespan[index] = $('content/period/item')
                         .filter((item) => {
-                            return queryXml(item.element)('day').text() === day // xmlParse('./day', item.element).text() === day
+                            return queryXml(item.element)('day').text() === day
                         })
                         .map((item) => {
                             const $item = queryXml(item.element)
                             return [$item('start').text(), $item('end').text()]
-                            // return [xmlParse('./start', item.element).text(), xmlParse('./end', item.element).text()]
                         })
                 })
                 return true

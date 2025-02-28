@@ -4,7 +4,6 @@
  * @Description: P2P授权码登录
  */
 import type { FormRules } from 'element-plus'
-import { UserAuthCodeLoginForm } from '@/types/apiType/user'
 import progress from '@bassist/progress'
 
 export default defineComponent({

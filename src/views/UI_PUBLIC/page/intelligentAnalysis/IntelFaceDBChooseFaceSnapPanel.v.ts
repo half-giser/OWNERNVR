@@ -3,7 +3,6 @@
  * @Date: 2024-08-30 18:47:52
  * @Description: 智能分析 - 选择人脸 - 从抓拍库选择
  */
-import { type IntelFaceDBSnapFaceList } from '@/types/apiType/intelligentAnalysis'
 import IntelBaseFaceItem from './IntelBaseFaceItem.vue'
 
 export default defineComponent({
@@ -134,7 +133,7 @@ export default defineComponent({
                     return {
                         faceFeatureId: hexToDec(textArr[0]) + '',
                         timestamp,
-                        frameTime: localToUtc(timestamp) + ':' + ('0000000' + hexToDec(textArr[2])).slice(-7),
+                        frameTime: localToUtc(timestamp) + ':' + padStart(hexToDec(textArr[2]), 7),
                         imgId: hexToDec(textArr[3]),
                         chlId,
                         chlName: chlMap[chlId],

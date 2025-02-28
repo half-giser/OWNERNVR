@@ -3,8 +3,6 @@
  * @Date: 2024-11-06 20:23:39
  * @Description: AI资源按钮与详情
  */
-import { type AlarmAIResourceDto } from '@/types/apiType/aiAndEvent'
-
 export default defineComponent({
     props: {
         /**

@@ -3,8 +3,6 @@
  * @Date: 2024-05-30 11:18:21
  * @Description: websocket下载类
  */
-import WebsocketBase from './websocketBase'
-import { type CmdDownloadFileOpenOption } from './websocketCmd'
 
 export interface WebsocketDownloadOption {
     config: CmdDownloadFileOpenOption
@@ -13,8 +11,8 @@ export interface WebsocketDownloadOption {
     error?: (code: number) => void
 }
 
-export default function WebsocketDownload(option: WebsocketDownloadOption) {
-    let fileBuffer: ArrayBuffer | null | Uint8Array<ArrayBuffer> = null
+export const WebsocketDownload = (option: WebsocketDownloadOption) => {
+    let fileBuffer: ArrayBuffer | null = null
     let downloadIndex = 0
 
     const config = option.config

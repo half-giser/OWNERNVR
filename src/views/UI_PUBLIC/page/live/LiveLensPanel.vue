@@ -17,10 +17,9 @@
                     @mousedown="addCmd('ZoomOut')"
                     @mouseup="addCmd('Stop')"
                 >
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         file="SpeedSlow"
-                        :index="0"
-                        :chunk="4"
+                        :index="[0, 2, 2, 3]"
                     />
                 </div>
 
@@ -38,10 +37,9 @@
                     @mousedown="addCmd('ZoomIn')"
                     @mouseup="addCmd('Stop')"
                 >
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         file="SpeedQuick"
-                        :index="0"
-                        :chunk="4"
+                        :index="[0, 2, 2, 3]"
                     />
                 </div>
             </div>
@@ -69,11 +67,9 @@
                     @mousedown="addCmd('Far')"
                     @mouseup="addCmd('Stop')"
                 >
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         file="SpeedSlow"
-                        :index="0"
-                        :hover-index="2"
-                        :chunk="4"
+                        :index="[0, 2, 2, 3]"
                     />
                 </div>
                 <BaseImgSprite
@@ -90,11 +86,9 @@
                     @mousedown="addCmd('Near')"
                     @mouseup="addCmd('Stop')"
                 >
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         file="SpeedQuick"
-                        :index="0"
-                        :hover-index="2"
-                        :chunk="4"
+                        :index="[0, 2, 2, 3]"
                     />
                 </div>
                 <el-button

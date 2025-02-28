@@ -3,14 +3,12 @@
  * @Date: 2024-07-09 18:39:25
  * @Description: 添加通道 - 手动添加IPC通道(普通通道+热成像通道)
  */
-import { ChannelInfoDto, type ChannelDefaultPwdDto, ChannelMultiChlCheckedInfoDto, type ChannelMultiChlIPCAddDto } from '@/types/apiType/channel'
-
 export interface channelAddMultiChlIPCAddPop {
     init: (
         rowDatas: Record<string, any>[],
         _mapping: Record<string, ChannelDefaultPwdDto>,
         _manufacturerMap: Record<string, string>,
-        _protocolList: Array<Record<string, string>>,
+        _protocolList: ChannelRTSPPropertyDto[],
         _callback: (sendXml: string) => void,
     ) => void
 }
@@ -24,16 +22,17 @@ export default defineComponent({
         const multiChlIPCCfgDialogVisiable = ref(false)
         const tableData = ref<ChannelMultiChlIPCAddDto[]>([])
 
-        const defaultParam =
-            '<rec per="5" post="10"/>' +
-            '<snapSwitch>true</snapSwitch>' +
-            '<buzzerSwitch>false</buzzerSwitch>' +
-            '<popVideoSwitch>false</popVideoSwitch>' +
-            '<frontEndOffline_popMsgSwitch>false</frontEndOffline_popMsgSwitch>'
+        const defaultParam = rawXml`
+            <rec per="5" post="10"/>
+            <snapSwitch>true</snapSwitch>
+            <buzzerSwitch>false</buzzerSwitch>
+            <popVideoSwitch>false</popVideoSwitch>
+            <frontEndOffline_popMsgSwitch>false</frontEndOffline_popMsgSwitch>
+        `
 
         let chlMapping: Record<string, ChannelDefaultPwdDto> = {}
         let manufacturerMap: Record<string, string> = {}
-        let protocolList: Array<Record<string, string>> = []
+        let protocolList: ChannelRTSPPropertyDto[] = []
         let callback: (sendXml: string) => void
         let numName = 1
         let RTSPData: ChannelMultiChlIPCAddDto[] = [] // RTSP通道类型数据
@@ -47,10 +46,10 @@ export default defineComponent({
         }
 
         const init = (
-            rowDatas: Record<string, any>[],
+            rowDatas: { isArray: boolean; element: ChannelManualAddDto }[],
             _mapping: Record<string, ChannelDefaultPwdDto>,
             _manufacturerMap: Record<string, string>,
-            _protocolList: Array<Record<string, string>>,
+            _protocolList: ChannelRTSPPropertyDto[],
             _callback: (sendXml: string) => void,
         ) => {
             chlMapping = _mapping
@@ -65,16 +64,22 @@ export default defineComponent({
             multichannelIpcData = []
 
             rowDatas.forEach((item) => {
-                const isArray = Boolean(item.isArray)
-                const element = item.element as ChannelMultiChlIPCAddDto
-                if (isArray && ((element.addrType === 'ip' && element.ip !== '0.0.0.0') || (element.addrType !== 'ip' && element.domain))) {
+                const isArray = item.isArray
+                const element = {
+                    ...item.element,
+                    type: '',
+                    multichannelCheckedInfoList: [],
+                }
+
+                if (isArray && ((element.addrType === 'ip' && element.ip !== DEFAULT_EMPTY_IP) || (element.addrType !== 'ip' && element.domain))) {
                     RTSPData.push(element)
                 }
 
-                if (!isArray && ((element.addrType === 'ip' && element.ip !== '0.0.0.0') || (element.addrType !== 'ip' && element.domain)) && Number(element.port) !== 0 && element.userName) {
+                if (!isArray && ((element.addrType === 'ip' && element.ip !== DEFAULT_EMPTY_IP) || (element.addrType !== 'ip' && element.domain)) && element.port !== 0 && element.userName) {
                     nonRTSPData.push(element)
                 }
             })
+
             if (!nonRTSPData) {
                 saveData() // 仅添加RTSP通道
                 return
@@ -100,7 +105,7 @@ export default defineComponent({
                             normalChlData = []
                             thermalChlData = []
                             multichannelIpcData = []
-                            nonRTSPData.forEach((item, index) => {
+                            nonRTSPData.forEach((item) => {
                                 const resArr: ChannelInfoDto[] = []
                                 allExistChlData.forEach((ele) => {
                                     if (ele.ip === item.ip) resArr.push(ele)
@@ -113,6 +118,7 @@ export default defineComponent({
                                         visibleLight.operateIndex = 0
                                         visibleLight.chlType = 'visibleLight'
                                         visibleLight.chlLabel = Translate('IDCS_VISIBLE_LIGHT')
+
                                         const thermal = new ChannelMultiChlCheckedInfoDto()
                                         thermal.operateIndex = 1
                                         thermal.chlType = 'thermal'
@@ -127,12 +133,12 @@ export default defineComponent({
                                                 thermal.disabled = true
                                                 break
                                         }
+
                                         item.multichannelCheckedInfoList.push(visibleLight)
                                         item.multichannelCheckedInfoList.push(thermal)
-
-                                        item.index = index
                                         item.name = item.ip
                                         item.type = 'THERMAL_DOUBLE' // 标识该通道为“热成像双目IPC”
+
                                         thermalChlData.push(item)
                                     }
                                     multichannelIpcData = thermalChlData
@@ -162,7 +168,6 @@ export default defineComponent({
          */
         const createLanDeviceRequest = (element: ChannelMultiChlIPCAddDto) => {
             let ipXmlStr = ''
-            let domainXmlStr = ''
             if (element.addrType === 'ip') {
                 ipXmlStr = `<ip>${element.ip}</ip>`
             } else if (element.addrType === 'ipv6') {
@@ -171,18 +176,19 @@ export default defineComponent({
                 if (checkIpV4(element.domain)) {
                     ipXmlStr = `<ip>${element.domain}</ip>`
                 } else {
-                    domainXmlStr = `<domain><![CDATA[${element.domain}]]></domain>`
+                    ipXmlStr = `<domain>${wrapCDATA(element.domain)}</domain>`
                 }
             }
+
             const data = rawXml`
                 <content>
                     <manufacturer>${element.manufacturer}</manufacturer>
                     ${ipXmlStr}
-                    ${domainXmlStr}
                     <port>${element.port}</port>
-                    <userName maxByteLen="63"><![CDATA[${cutStringByByte(element.userName, nameByteMaxLen)}]]></userName>
-                    ${element.password === '******' ? '' : '<password' + getSecurityVer() + '><![CDATA[' + AES_encrypt(element.password, userSessionStore.sesionKey) + ']]></password>'}
+                    <userName maxByteLen="63">${wrapCDATA(cutStringByByte(element.userName, nameByteMaxLen))}</userName>
+                    ${element.password === '******' ? '' : `<password${getSecurityVer()}>${wrapCDATA(AES_encrypt(element.password, userSessionStore.sesionKey))}</password>`}
                 </content>`
+
             return queryLanDevice(data)
         }
 
@@ -190,7 +196,7 @@ export default defineComponent({
          * 获取已添加的通道数据
          * @param cb
          */
-        const getExistChl = (cb: Function) => {
+        const getExistChl = (cb: (data: ChannelInfoDto[]) => void) => {
             const data = rawXml`
                 <requireField>
                     <name/>
@@ -297,7 +303,7 @@ export default defineComponent({
                 if (checkIpV4(element.domain)) {
                     ipXmlStr = `<ip>${element.domain}</ip>`
                 } else {
-                    domainXmlStr = `<domain><![CDATA[${element.domain}]]></domain>`
+                    domainXmlStr = `<domain>${wrapCDATA(element.domain)}</domain>`
                 }
             }
 
@@ -313,12 +319,12 @@ export default defineComponent({
                 })
                 return rawXml`
                     <item>
-                        <name><![CDATA[${name}]]></name>
+                        <name>${wrapCDATA(name)}</name>
                         ${ipXmlStr}
                         ${domainXmlStr}
                         <port>0</port>
-                        <userName><![CDATA[${cutStringByByte(element.userName, nameByteMaxLen)}]]></userName>
-                        <password${getSecurityVer()}><![CDATA[${AES_encrypt(element.password, userSessionStore.sesionKey)}]]></password>
+                        <userName>${wrapCDATA(cutStringByByte(element.userName, nameByteMaxLen))}</userName>
+                        <password${getSecurityVer()}>${wrapCDATA(AES_encrypt(element.password, userSessionStore.sesionKey))}</password>
                         <index>0</index>
                         <manufacturer>RTSP_${manufacturerID}</manufacturer>
                         <protocolType>RTSP</protocolType>
@@ -328,11 +334,11 @@ export default defineComponent({
             } else {
                 return rawXml`
                     <item>
-                        <name><![CDATA[${name}]]></name>
+                        <name>${wrapCDATA(name)}</name>
                         ${ipXmlStr}
                         ${domainXmlStr}
                         <port>${element.port}</port>
-                        <userName><![CDATA[${cutStringByByte(element.userName, nameByteMaxLen)}]]></userName>
+                        <userName>${wrapCDATA(cutStringByByte(element.userName, nameByteMaxLen))}</userName>
                         ${element.password === '******' ? '' : `<password ${getSecurityVer()}>${wrapCDATA(AES_encrypt(element.password, userSessionStore.sesionKey))}</password>`}
                         <index>0</index>
                         <manufacturer>${element.manufacturer}</manufacturer>
@@ -347,7 +353,7 @@ export default defineComponent({
         const calChlName = () => {
             numName++
             const defalutName = Translate('IDCS_IP_CHANNEL')
-            const chlIndex = numName.toString().length < 2 ? '0' + numName : numName
+            const chlIndex = padStart(numName, 2)
             const chlName = defalutName + ' ' + chlIndex
             return chlName
         }

@@ -3,8 +3,6 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-07-31 10:13:57
  */
-
-import { type RecordStreamResolutionDto, type RecordSubStreamList, type RecordStreamQualityCapsDto } from '@/types/apiType/record'
 import { type TableInstance } from 'element-plus'
 
 export default defineComponent({

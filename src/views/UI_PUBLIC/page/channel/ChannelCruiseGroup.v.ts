@@ -4,7 +4,6 @@
  * @Description: 巡航线组
  */
 import { type TableInstance } from 'element-plus'
-import { type ChannelPtzCruiseGroupChlDto, ChannelPtzCruiseGroupCruiseDto } from '@/types/apiType/channel'
 import ChannelCruiseGroupAddPop from './ChannelCruiseGroupAddPop.vue'
 import ChannelPtzTableExpandPanel from './ChannelPtzTableExpandPanel.vue'
 import ChannelPtzTableExpandItem from './ChannelPtzTableExpandItem.vue'

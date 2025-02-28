@@ -149,13 +149,8 @@
                             width="70"
                         >
                             <template #default="{ row }: TableColumn<AlarmPassLinesEmailReceiverDto>">
-                                <BaseImgSprite
+                                <BaseImgSpriteBtn
                                     file="del"
-                                    :chunk="4"
-                                    :index="0"
-                                    :hover-index="1"
-                                    :active-index="1"
-                                    :disabled-index="3"
                                     :disabled="!pageData.data.sendEmailData.enableSwitch"
                                     @click="delReceiver(row)"
                                 />

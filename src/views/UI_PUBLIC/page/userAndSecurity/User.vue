@@ -134,25 +134,19 @@
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_EDIT')">
                     <template #default="{ row }: TableColumn<UserList>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             v-show="row.edit"
                             file="edit (2)"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
-                            @click.stop="openEditUserPop(row)"
+                            @click="openEditUserPop(row)"
                         />
                     </template>
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_DELETE')">
                     <template #default="{ row }: TableColumn<UserList>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             v-show="row.del"
                             file="del"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
-                            @click.stop="deleteUser(row)"
+                            @click="deleteUser(row)"
                         />
                     </template>
                 </el-table-column>

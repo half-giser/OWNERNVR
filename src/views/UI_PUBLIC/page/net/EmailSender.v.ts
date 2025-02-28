@@ -4,7 +4,6 @@
  * @Description: E-mail发送
  */
 import { type FormRules } from 'element-plus'
-import { NetEmailForm } from '@/types/apiType/net'
 import EmailSenderTestPop from './EmailSenderTestPop.vue'
 
 export default defineComponent({

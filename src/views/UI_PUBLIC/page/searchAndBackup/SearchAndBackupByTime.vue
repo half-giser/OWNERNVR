@@ -55,12 +55,8 @@
         </div>
         <div class="main">
             <div class="center">
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     file="large_backup"
-                    :index="0"
-                    :hover-index="1"
-                    :chunk="4"
-                    :disabled-index="3"
                     :disabled="!formData.chls.length"
                     @click="backUp"
                 />

@@ -3,7 +3,6 @@
  * @Date: 2024-07-04 16:47:11
  * @Description: 健康状态检测
  */
-import { type DiskHealthInfoDiskList, type DiskHealthInfoDiskDetailList } from '@/types/apiType/disk'
 
 export default defineComponent({
     setup() {

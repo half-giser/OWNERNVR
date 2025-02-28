@@ -284,9 +284,9 @@ export const OCX_XML_SetLoginInfo = (ip: string, port: number, id: string) => {
 export const OCX_XML_SetPasswordLogin_P2P = (username: string, pwd: string, sn: string) => {
     return wrapXml(rawXml`
         <cmd type="SetLoginInfo" loginType="password">
-            <username><![CDATA[${username}]]></username>
-            <password><![CDATA[${pwd}]]></password>
-            <sn><![CDATA[${sn}]]></sn>
+            <username>${wrapCDATA(username)}</username>
+            <password>${wrapCDATA(pwd)}</password>
+            <sn>${wrapCDATA(sn)}</sn>
         </cmd>
     `)
 }
@@ -301,9 +301,9 @@ export const OCX_XML_SetPasswordLogin_P2P = (username: string, pwd: string, sn: 
 export const OCX_XML_SetAuthCodeLogin_P2P = (authCode: string, authIndex: string, sn: string) => {
     return wrapXml(rawXml`
         <cmd type="SetLoginInfo" loginType="authCode">
-            <authCode><![CDATA[${authCode}]]></authCode>
-            <authIndex><![CDATA[${authIndex}]]></authIndex>
-            <sn><![CDATA[${sn}]]></sn>
+            <authCode>${wrapCDATA(authCode)}</authCode>
+            <authIndex>${wrapCDATA(authIndex)}</authIndex>
+            <sn>${wrapCDATA(sn)}</sn>
         </cmd>
     `)
 }
@@ -317,8 +317,8 @@ export const OCX_XML_SetAuthCodeLogin_P2P = (authCode: string, authIndex: string
 export const OCX_XML_SetSessionIdLogin_P2P = (sessionId: string, sn: string) => {
     return wrapXml(rawXml`
         <cmd type="SetLoginInfo" loginType="sessionId">
-            <sessionId><![CDATA[${sessionId}]]></sessionId>
-            <sn><![CDATA[${sn}]]></sn>
+            <sessionId>${wrapCDATA(sessionId)}</sessionId>
+            <sn>${wrapCDATA(sn)}</sn>
         </cmd>
     `)
 }
@@ -750,7 +750,7 @@ export const OCX_XML_BackUpRecord = (
         <cmd type="BackUpRec">
             <type>${type}</type>
             <format>${format}</format>
-            <path><![CDATA[${path}]]></path>
+            <path>${wrapCDATA(path)}</path>
             <recList>
                 ${recList.map((item) => `<item chlId="${item.chlId}" chlIndex="${item.chlIndex}" chlName="${item.chlName}" event="${item.event}" startTime="${item.startTime}" endTime="${item.endTime}" />`).join('')}
             </recList>
@@ -1233,8 +1233,8 @@ export const OCX_XML_SetLocalCfg = (snapCount?: number, liveSnapSavePath?: strin
 export const OCX_XML_SaveLocalFile = (filePath: string, content: string) => {
     return wrapXml(rawXml`
         <cmd type="SaveLocalFile">
-            <filePath><![CDATA[${filePath}]]></filePath>
-            <content><![CDATA[${content}]]></content>
+            <filePath>${wrapCDATA(filePath)}</filePath>
+            <content>${wrapCDATA(content)}</content>
         </cmd>
     `)
 }

@@ -35,6 +35,7 @@ function generateSprite(option: GenerateSpriteOption) {
             let scss = ''
             scss += `$sprite-width: ${result.properties.width}px;`
             scss += `$sprite-height: ${result.properties.height}px;`
+            scss += `$sprite-version: ${Math.ceil(Date.now() / 1000 / 60).toString(36)};`
 
             const coordinates: Record<string, number[]> = {}
             Object.keys(result.coordinates).forEach((key) => {

@@ -33,16 +33,24 @@
 }
 
 .base-chl-icon-btn {
+    position: relative;
     flex-shrink: 0;
-    background-color: var(--ptz-btn);
+    width: 20px;
+    height: 20px;
     border: 1px solid var(--ptz-btn);
+
+    .Sprite {
+        position: absolute;
+        top: -5px;
+        left: -5px;
+    }
 
     &:hover {
         background-color: var(--ptz-btn);
         border-color: var(--primary);
     }
 
-    &.disabled {
+    &:has(.disabled) {
         background-color: var(--ptz-btn-disabled);
 
         &:hover {

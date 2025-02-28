@@ -3,8 +3,8 @@
  * @Date: 2024-09-13 11:32:17
  * @Description: 过线检测邮件设置弹窗
  */
-import { type AlarmPassLinesEmailDto, type AlarmPassLinesEmailReceiverDto } from '@/types/apiType/aiAndEvent'
 import { type FormRules } from 'element-plus'
+
 export default defineComponent({
     props: {
         scheduleList: {
@@ -155,7 +155,7 @@ export default defineComponent({
             pageData.value.data.saveSourcePicture = props.emailData.saveSourcePicture
             pageData.value.data.sendEmailData = props.emailData.sendEmailData
             pageData.value.data.receiverData = props.emailData.receiverData
-            pageData.value.time = `${('0' + props.emailData.sendEmailData.reportHour).slice(-2)}:${('0' + props.emailData.sendEmailData.reportMin).slice(-2)}`
+            pageData.value.time = `${padStart(props.emailData.sendEmailData.reportHour, 2)}:${padStart(props.emailData.sendEmailData.reportMin, 2)}`
             pageData.value.scheduleList = props.scheduleList
             pageData.value.currentRow = {
                 schedule: '',

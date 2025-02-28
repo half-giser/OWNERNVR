@@ -4,7 +4,6 @@
  * @Description: 加密密码弹窗
  */
 import { type FormRules } from 'element-plus'
-import { UserInputEncryptPwdForm } from '@/types/apiType/user'
 
 export default defineComponent({
     props: {

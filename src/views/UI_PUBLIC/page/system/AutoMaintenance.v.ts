@@ -4,7 +4,6 @@
  * @Description: 自动维护
  */
 import { type FormRules } from 'element-plus'
-import { SystemAutoMaintenanceForm } from '@/types/apiType/system'
 
 export default defineComponent({
     setup() {

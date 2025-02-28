@@ -4,8 +4,6 @@
  * @Description: 通道 - OSD配置
  */
 import { type XMLQuery } from '@/utils/xmlParse'
-import { ChannelOsdDto } from '@/types/apiType/channel'
-import CanvasOSD, { type CanvasOSDOptionNameConfig, type CanvasOSDOptionTimeConfig } from '@/utils/canvas/canvasOsd'
 import { type OcxXmlSetOSDInfo } from '@/utils/ocx/ocxCmd'
 import { type TableInstance } from 'element-plus'
 
@@ -109,14 +107,6 @@ export default defineComponent({
                 if (!rowData.supportDateFormat) nameDisabled.value = true
             }
             tableRef.value!.setCurrentRow(getRowById(selectedChlId.value))
-        }
-
-        /**
-         * @description 回车时失去焦点
-         * @param {Event} event
-         */
-        const handleKeydownEnter = (event: Event) => {
-            ;(event.target as HTMLElement).blur()
         }
 
         const handleChangeSwitch = (flag: boolean, chlId: string, type: 'displayName' | 'displayTime' | 'remarkSwitch') => {
@@ -464,8 +454,8 @@ export default defineComponent({
         const setIPChlORChlOSD = async (rowData: ChannelOsdDto) => {
             const sendXml = rawXml`
                 <types>
-                    ${ternary(rowData.supportDateFormat, `<dateFormat>${wrapEnums(rowData.dateEnum)}</dateFormat>`)}
-                    ${ternary(rowData.supportTimeFormat, `<timeFormat>${wrapEnums(rowData.timeEnum)}</timeFormat>`)}
+                    ${rowData.supportDateFormat ? `<dateFormat>${wrapEnums(rowData.dateEnum)}</dateFormat>` : ''}
+                    ${rowData.supportTimeFormat ? `<timeFormat>${wrapEnums(rowData.timeEnum)}</timeFormat>` : ''}
                 </types>
                 <content>
                     <chl id='${rowData.id}'>
@@ -711,7 +701,6 @@ export default defineComponent({
             handleRemarkNoteInput,
             handleRemarkNoteBlur,
             handleInputChange,
-            handleKeydownEnter,
             save,
             onReady,
             onTime,

@@ -4,7 +4,6 @@
  * @Description: UPnP上报
  */
 import { type FormRules } from 'element-plus'
-import { NetUPnPReportForm } from '@/types/apiType/net'
 
 export default defineComponent({
     setup() {
@@ -100,7 +99,6 @@ export default defineComponent({
             formData,
             formRule,
             setData,
-            formatInputMaxLength,
             changeSwitch,
         }
     },

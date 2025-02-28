@@ -36,10 +36,7 @@
                 <el-button @click="addReceiver">{{ Translate('IDCS_ADD_ECIPIENT') }}</el-button>
             </el-form-item>
             <el-form-item :label="Translate('IDCS_PASSWORD')">
-                <el-input
-                    v-model="formData.password"
-                    type="password"
-                />
+                <BasePasswordInput v-model="formData.password" />
             </el-form-item>
         </el-form>
         <div class="base-btn-box">

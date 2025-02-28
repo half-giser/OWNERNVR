@@ -55,13 +55,9 @@
                 :label="Translate('IDCS_OPERATION')"
             >
                 <template #default="{ row }: TableColumn<AlarmCombinedItemDto>">
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         v-show="row.alarmSourceType === 'FaceMatch'"
                         file="edit (2)"
-                        :chunk="4"
-                        :index="0"
-                        :hover-index="1"
-                        :active-index="1"
                         @click="editFaceMatch(row.alarmSourceEntity.value)"
                     />
                 </template>

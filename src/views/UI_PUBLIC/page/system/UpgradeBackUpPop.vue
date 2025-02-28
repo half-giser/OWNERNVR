@@ -27,11 +27,7 @@
                     readonly
                 />
                 <el-button @click="chooseFile">
-                    <BaseImgSprite
-                        file="filechooser"
-                        :index="1"
-                        :chunk="4"
-                    />
+                    <BaseImgSpriteBtn file="filechooser" />
                 </el-button>
             </el-form-item>
         </el-form>

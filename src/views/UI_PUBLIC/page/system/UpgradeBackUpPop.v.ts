@@ -4,7 +4,6 @@
  * @Description: 系统升级-备份弹窗
  */
 import type { FormRules } from 'element-plus'
-import { SystemUpgradeBackUpForm } from '@/types/apiType/system'
 
 export default defineComponent({
     emits: {

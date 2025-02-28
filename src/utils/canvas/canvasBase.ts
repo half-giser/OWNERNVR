@@ -60,7 +60,7 @@ interface CanvaseBaseArrowOption {
     }
 }
 
-export default function CanvasBase(element?: HTMLCanvasElement) {
+export const CanvasBase = (element?: HTMLCanvasElement) => {
     const el = element ? (isRef(element) ? toRaw(element) : element) : document.createElement('canvas')
     const ctx = el.getContext('2d')!
 

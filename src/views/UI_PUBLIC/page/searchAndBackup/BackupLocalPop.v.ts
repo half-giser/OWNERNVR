@@ -3,8 +3,6 @@
  * @Date: 2024-08-06 20:35:59
  * @Description: 本地备份任务 进度弹窗
  */
-import type { PlaybackBackUpRecList } from '@/types/apiType/playback'
-import WebsocketRecordBackup, { type WebsocketRecordBackupOnMessageParam } from '@/utils/websocket/websocketRecordBackup'
 import { type DownloadZipOptions } from '@/utils/tools'
 
 export default defineComponent({
@@ -143,7 +141,7 @@ export default defineComponent({
             } else {
                 zipNameMapping[name] = 1
             }
-            return `${name}(${('000' + zipNameMapping[name]).slice(-3)}).avi`
+            return `${name}(${padStart(zipNameMapping[name], 3)}).avi`
         }
 
         /**

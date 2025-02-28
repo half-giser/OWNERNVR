@@ -4,7 +4,6 @@
  * @Description: 云台-智能追踪
  */
 import { type TableInstance } from 'element-plus'
-import { ChannelPtzSmartTrackDto } from '@/types/apiType/channel'
 
 export default defineComponent({
     setup() {

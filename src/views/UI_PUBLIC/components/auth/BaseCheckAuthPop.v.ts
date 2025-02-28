@@ -4,7 +4,6 @@
  * @Description: 账号密码权限认证弹窗
  */
 import { type FormRules } from 'element-plus'
-import { UserCheckAuthForm } from '@/types/apiType/user'
 
 export default defineComponent({
     props: {

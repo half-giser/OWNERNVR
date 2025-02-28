@@ -39,11 +39,8 @@
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_EDIT')">
                     <template #default="{ row }: TableColumn<NetOnvifUserList>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             file="edit (2)"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
                             @click="editUser(row)"
                         />
                     </template>
@@ -62,11 +59,8 @@
                         </el-dropdown>
                     </template>
                     <template #default="{ row }: TableColumn<NetOnvifUserList>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             file="del"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
                             @click="deleteUser(row)"
                         />
                     </template>

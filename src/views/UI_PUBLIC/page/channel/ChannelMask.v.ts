@@ -3,8 +3,6 @@
  * @Date: 2024-07-16 17:39:53
  * @Description: 通道 - 视频遮挡配置
  */
-import { ChannelMaskDto, ChannelPrivacyMaskDto } from '@/types/apiType/channel'
-import CanvasMask, { type CanvasMaskMaskItem } from '@/utils/canvas/canvasMask'
 import { type XMLQuery } from '@/utils/xmlParse'
 import { type TableInstance } from 'element-plus'
 

@@ -4,8 +4,6 @@
  * @Description: 云升级
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import { NetCloudUpgradeForm } from '@/types/apiType/net'
-import type { UserCheckAuthForm } from '@/types/apiType/user'
 
 export default defineComponent({
     components: {

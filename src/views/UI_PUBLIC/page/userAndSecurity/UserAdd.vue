@@ -31,12 +31,7 @@
                 prop="password"
                 :label="Translate('IDCS_PASSWORD')"
             >
-                <el-input
-                    v-model="formData.password"
-                    type="password"
-                    @copy.capture.prevent=""
-                    @paste.capture.prevent=""
-                />
+                <BasePasswordInput v-model="formData.password" />
             </el-form-item>
             <el-form-item>
                 <BasePasswordStrength
@@ -48,12 +43,7 @@
                 prop="confirmPassword"
                 :label="Translate('IDCS_CONFIRM_PASSWORD')"
             >
-                <el-input
-                    v-model="formData.confirmPassword"
-                    type="password"
-                    @copy.capture.prevent=""
-                    @paste.capture.prevent=""
-                />
+                <BasePasswordInput v-model="formData.confirmPassword" />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_ALLOW_CHANGE_PWD')">
                 <el-checkbox v-model="formData.allowModifyPassword" />

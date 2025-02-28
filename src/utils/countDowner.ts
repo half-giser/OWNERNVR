@@ -72,24 +72,15 @@ export function CountDowner(opts: CountDownerOption) {
         const disminites = Math.floor((distime - disdays * 3600 * 24 - dishours * 3600) / 60)
         const disseconds = Math.floor(distime - disdays * 3600 * 24 - dishours * 3600 - disminites * 60)
         const countDownTime = {
-            disdays: addZelo(disdays),
-            dishours: addZelo(dishours),
-            disminites: addZelo(disminites),
-            disseconds: addZelo(disseconds),
+            disdays: padStart(disdays, 2),
+            dishours: padStart(dishours, 2),
+            disminites: padStart(disminites, 2),
+            disseconds: padStart(disseconds, 2),
         }
         callback && callback(countDownTime)
         if (distime === 0) {
             overFn && overFn()
         }
-    }
-
-    /**
-     * @description 不足2位补0
-     * @param {number} n
-     * @returns {string}
-     */
-    const addZelo = (n: number) => {
-        return ('00' + n).slice(-2)
     }
 
     /**

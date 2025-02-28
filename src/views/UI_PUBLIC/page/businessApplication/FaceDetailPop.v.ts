@@ -3,7 +3,6 @@
  * @Date: 2024-08-27 14:25:04
  * @Description: 业务应用-人脸考勤-详情弹窗
  */
-import { type BusinessFaceList, BusinessFaceDetailList, BusinessFaceResultList } from '@/types/apiType/business'
 import { type TableInstance } from 'element-plus'
 import dayjs from 'dayjs'
 

@@ -3,8 +3,6 @@
  * @Date: 2024-05-31 17:18:13
  * @Description: 打点绘制闭合多边形、点、线，支持业务：温度检测
  */
-import CanvasBase from './canvasBase'
-import type { CanvasBaseLineStyleOption, CanvasBasePoint, CanvasBaseArea, CanvasBaseRect } from './canvasBase'
 
 interface CanvasTemperatureOSDInfo {
     X: number
@@ -60,7 +58,7 @@ interface CanvasTemperatureOption {
     clearCurrentArea?: (pointList: CanvasBasePoint[]) => void
 }
 
-export default function CanvasTemperature(option: CanvasTemperatureOption = {}) {
+export const CanvasTemperature = (option: CanvasTemperatureOption = {}) => {
     const DEFAULT_LINE_COLOR = '#0f0' // 画线默认色值
     const DEFAULT_POINT_COLOR = '#f11' // 打点的颜色
     const DEFAULT_TEXT_COLOR = '#f00' // 文字默认色值

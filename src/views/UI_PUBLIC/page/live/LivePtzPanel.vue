@@ -6,23 +6,17 @@
 <template>
     <div class="ptz">
         <div class="pane">
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 v-for="item in pageData.steer"
                 :key="item.file"
                 :file="item.file"
-                :index="0"
-                :hover-index="1"
-                :chunk="4"
                 @mousedown="addCmd(item)"
                 @mouseup="stopCmd()"
             />
         </div>
         <div class="speed">
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 file="SpeedSlow"
-                :index="0"
-                :hover-index="1"
-                :chunk="4"
                 @click="decreaseSpeed()"
             />
             <el-slider
@@ -31,11 +25,8 @@
                 :max="pageData.maxSpeed"
                 :step="1"
             />
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 file="SpeedQuick"
-                :index="0"
-                :hover-index="1"
-                :chunk="4"
                 @click="increaseSpeed()"
             />
         </div>
@@ -44,30 +35,23 @@
             :key="item.name"
             class="row"
         >
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 :file="item.control[0].file"
-                :index="0"
-                :hover-index="1"
-                :chunk="4"
                 @mousedown="addCmd(item.control[0])"
                 @mouseup="stopCmd()"
             />
             <span>{{ item.name }}</span>
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 :file="item.control[1].file"
-                :index="0"
-                :hover-index="1"
-                :chunk="4"
                 @mousedown="addCmd(item.control[1])"
                 @mouseup="stopCmd()"
             />
         </div>
         <div class="list">
             <div class="list-menu">
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     file="left"
-                    :index="1"
-                    :hover-index="0"
+                    :index="[1, 0, 0, 1]"
                     :chunk="2"
                     @click="changeMenu(pageData.activeMenu - 1)"
                 />
@@ -78,10 +62,9 @@
                 >
                     {{ item.label }}
                 </div>
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     file="right"
-                    :index="1"
-                    :hover-index="0"
+                    :index="[1, 0, 0, 1]"
                     :chunk="2"
                     @click="changeMenu(pageData.activeMenu + 1)"
                 />

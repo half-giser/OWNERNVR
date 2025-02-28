@@ -3,7 +3,6 @@
  * @Date: 2024-08-29 10:46:13
  * @Description: 人脸库- 新增/编辑分组
  */
-import { IntelFaceDBGroupList } from '@/types/apiType/intelligentAnalysis'
 import { type FormRules } from 'element-plus'
 
 export default defineComponent({

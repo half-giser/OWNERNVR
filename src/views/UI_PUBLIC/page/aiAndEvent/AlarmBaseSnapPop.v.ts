@@ -3,8 +3,6 @@
  * @Date: 2024-11-08 13:37:46
  * @Description: 普通事件-联动-抓图
  */
-import { type AlarmSnapPopDto } from '@/types/apiType/aiAndEvent'
-
 export default defineComponent({
     props: {
         /**

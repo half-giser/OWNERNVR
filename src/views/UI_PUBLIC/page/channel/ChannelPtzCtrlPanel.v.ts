@@ -139,8 +139,7 @@ export default defineComponent({
             maxSpeed: 8,
         })
 
-        const cmdQueue: CmdItem[] = []
-        let cmdLock = false // 锁定标识：当前命令没有返回时，不能发送新的命令
+        const cmdQueue = useCmdQueue()
 
         /**
          * @description 新增命令到命令队列
@@ -151,13 +150,17 @@ export default defineComponent({
                 return
             }
 
-            if (cmdQueue.length > 1000) {
-                return
-            }
-            cmdQueue.push(cmd)
-            if (cmdQueue.length && !cmdLock) {
-                executeCmd()
-            }
+            cmdQueue.add(async () => {
+                const sendXml = rawXml`
+                    <content>
+                        <chlId>${prop.chlId}</chlId>
+                        <actionType>${cmd.actionType}</actionType>
+                        <speed>${pageData.value.speed}</speed>
+                        <type>${cmd.type}</type>
+                    </content>
+                `
+                await ptzMoveCall(sendXml)
+            })
         }
 
         /**
@@ -168,33 +171,6 @@ export default defineComponent({
                 file: 'Stop (2)',
                 actionType: 'StopAction',
                 type: 'stop',
-            })
-        }
-
-        /**
-         * @description 执行命令
-         */
-        const executeCmd = () => {
-            if (!prop.chlId || prop.disabled) {
-                return
-            }
-
-            if (!cmdQueue.length || cmdLock) {
-                return
-            }
-            cmdLock = true
-            const cmdItem = cmdQueue.shift()!
-            const sendXml = rawXml`
-                <content>
-                    <chlId>${prop.chlId}</chlId>
-                    <actionType>${cmdItem.actionType}</actionType>
-                    <speed>${pageData.value.speed}</speed>
-                    <type>${cmdItem.type}</type>
-                </content>
-            `
-            ptzMoveCall(sendXml).finally(() => {
-                cmdLock = false
-                executeCmd()
             })
         }
 

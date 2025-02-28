@@ -3,7 +3,6 @@
  * @Date: 2024-06-18 18:43:27
  * @Description: 登出后预览
  */
-import { type UserPreviewOnLogoutChannelList } from '@/types/apiType/userAndSecurity'
 import type { TableInstance } from 'element-plus'
 
 export default defineComponent({

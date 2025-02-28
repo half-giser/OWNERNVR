@@ -3,10 +3,8 @@
  * @Date: 2024-07-08 18:01:16
  * @Description: 创建磁盘阵列弹窗
  */
-import { type DiskPhysicalList, DiskCreateRaidForm } from '@/types/apiType/disk'
 import { type FormRules } from 'element-plus'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import type { UserCheckAuthForm } from '@/types/apiType/user'
 
 export default defineComponent({
     components: {

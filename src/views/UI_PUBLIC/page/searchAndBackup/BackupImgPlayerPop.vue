@@ -28,65 +28,45 @@
             />
             <div class="btns">
                 <el-tooltip :content="Translate('IDCS_EXPORT')">
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         file="image_preview_export"
-                        :index="0"
-                        :hover-index="1"
-                        :chunk="4"
                         :disabled="!pageData.paused"
                         @click="$emit('export')"
                     />
                 </el-tooltip>
                 <el-tooltip :content="Translate('IDCS_PREVIOUS_IMAGE')">
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         file="image_preview_pre"
-                        :index="0"
-                        :hover-index="1"
-                        :chunk="4"
                         :disabled="item.index === 1 || !pageData.paused"
                         :disabled-index="3"
                         @click="$emit('prev')"
                     />
                 </el-tooltip>
                 <el-tooltip :content="Translate('IDCS_PLAY')">
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         v-show="pageData.paused"
                         file="image_preview_play"
-                        :index="0"
-                        :hover-index="1"
-                        :chunk="4"
                         @click="play"
                     />
                 </el-tooltip>
                 <el-tooltip :content="Translate('IDCS_PAUSE')">
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         v-show="!pageData.paused"
                         file="image_preview_pause"
-                        :index="0"
-                        :hover-index="1"
-                        :chunk="4"
                         @click="pause"
                     />
                 </el-tooltip>
                 <el-tooltip :content="Translate('IDCS_NEXT_IMAGE')">
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         file="image_preview_next"
-                        :index="0"
-                        :hover-index="1"
-                        :chunk="4"
                         :disabled="item.index === total || !pageData.paused"
-                        :disabled-index="3"
                         @click="$emit('next')"
                     />
                 </el-tooltip>
                 <el-tooltip :content="Translate('IDCS_DELETE')">
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         file="image_preview_delete"
-                        :index="0"
-                        :hover-index="1"
-                        :chunk="4"
                         :disabled="!pageData.paused"
-                        :disabled-index="3"
                         @click="$emit('delete')"
                     />
                 </el-tooltip>

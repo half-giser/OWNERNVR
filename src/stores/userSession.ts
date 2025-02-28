@@ -4,7 +4,6 @@
  * @Description: 用户会话信息
  */
 import { type XMLQuery } from '@/utils/xmlParse'
-import { type UserLoginForm, type UserLoginReqData } from '@/types/apiType/user'
 import { generateAsyncRoutes } from '@/router'
 
 export const useUserSessionStore = defineStore(

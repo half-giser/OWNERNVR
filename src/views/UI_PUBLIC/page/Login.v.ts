@@ -4,7 +4,6 @@
  * @Description: 登录界面
  */
 import { type FormRules } from 'element-plus'
-import { UserLoginForm, UserLoginReqData } from '@/types/apiType/user'
 import LoginPrivacyPop from './LoginPrivacyPop.vue'
 import progress from '@bassist/progress'
 

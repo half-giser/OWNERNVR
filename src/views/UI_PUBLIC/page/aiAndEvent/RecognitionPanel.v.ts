@@ -4,7 +4,6 @@
  * @Description:识别成功（1,2,3）/陌生人tab页/陌生车牌tab页，用于人脸识别和车牌识别的识别tab下
  */
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
-import { type AlarmRecognitionTaskDto } from '@/types/apiType/aiAndEvent'
 import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
 import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
 import AlarmBaseTriggerSelector from './AlarmBaseTriggerSelector.vue'

@@ -3,7 +3,6 @@
  * @Date: 2024-08-27 15:43:32
  * @Description: 周界防范/人车检测
  */
-import { AlarmChlDto, type AlarmOnlineChlDto } from '@/types/apiType/aiAndEvent'
 import AlarmBaseChannelSelector from './AlarmBaseChannelSelector.vue'
 import TripwirePanel from './TripwirePanel.vue'
 import PeaPanel from './PeaPanel.vue'

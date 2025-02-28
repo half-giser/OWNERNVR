@@ -4,7 +4,6 @@
  * @Description: 证书加密密码弹窗
  */
 import { type FormRules } from 'element-plus'
-import { NetHTTPSCertPasswordForm } from '@/types/apiType/net'
 
 export default defineComponent({
     emits: {

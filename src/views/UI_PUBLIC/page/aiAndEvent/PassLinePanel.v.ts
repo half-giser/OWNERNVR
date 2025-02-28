@@ -3,13 +3,10 @@
  * @Date: 2024-09-11 15:00:19
  * @Description: 过线检测
  */
-import { type AlarmChlDto, type AlarmOnlineChlDto, AlarmPassLinesEmailDto, AlarmPassLinesDto } from '@/types/apiType/aiAndEvent'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
-import CanvasPassline from '@/utils/canvas/canvasPassline'
-import CanvasCpc from '@/utils/canvas/canvasCpc'
-import { type CanvasBaseArea } from '@/utils/canvas/canvasBase'
 import PassLineEmailPop from './PassLineEmailPop.vue'
 import { type XMLQuery } from '@/utils/xmlParse'
+
 export default defineComponent({
     components: {
         ScheduleManagPop,

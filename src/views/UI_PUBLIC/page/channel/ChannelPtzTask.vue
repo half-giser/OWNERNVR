@@ -88,6 +88,7 @@
                     :data="tableData"
                     :row-key="getRowKey"
                     :expand-row-key="pageData.expandRowKey"
+                    :border="false"
                     highlight-current-row
                     @row-click="handleRowClick"
                     @expand-change="handleExpandChange"
@@ -165,11 +166,8 @@
                                         </el-dropdown>
                                     </template>
                                     <template #default="{ row }: TableColumn<ChannelPtzTaskDto>">
-                                        <BaseImgSprite
+                                        <BaseImgSpriteBtn
                                             file="edit (2)"
-                                            :index="0"
-                                            :hover-index="1"
-                                            :chunk="4"
                                             @click="editTask(row)"
                                         />
                                     </template>

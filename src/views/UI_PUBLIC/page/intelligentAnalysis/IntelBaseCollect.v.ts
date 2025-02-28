@@ -3,7 +3,6 @@
  * @Date: 2024-09-06 16:38:42
  * @Description: 智能分析 - 添加收藏
  */
-import { IntelSearchCollectList } from '@/types/apiType/intelligentAnalysis'
 import type { FormRules } from 'element-plus'
 
 export default defineComponent({

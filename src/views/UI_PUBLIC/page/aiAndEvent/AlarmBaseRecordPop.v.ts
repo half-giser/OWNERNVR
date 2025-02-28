@@ -3,8 +3,6 @@
  * @Date: 2024-11-08 13:37:33
  * @Description: 普通事件-联动-录像
  */
-import { type AlarmRecordPopDto } from '@/types/apiType/aiAndEvent'
-
 export default defineComponent({
     props: {
         /**

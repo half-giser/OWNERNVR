@@ -4,9 +4,7 @@
  * @Description: 磁盘阵列
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import { DiskRaidList } from '@/types/apiType/disk'
 import RaidRebuildPop from './RaidRebuildPop.vue'
-import type { UserCheckAuthForm } from '@/types/apiType/user'
 
 export default defineComponent({
     components: {
@@ -200,13 +198,9 @@ export default defineComponent({
 
         /**
          * @description 打开重建阵列弹窗
-         * @param {DiskRaidList} row
          * @param {number} index
          */
-        const rebuildRaid = (row: DiskRaidList, index: number) => {
-            if (row.raidState !== 'downgrade') {
-                return
-            }
+        const rebuildRaid = (index: number) => {
             pageData.value.isRebuild = true
             pageData.value.activeIndex = index
         }

@@ -4,8 +4,6 @@
  * @Description: 按时间搜索
  */
 import dayjs from 'dayjs'
-import { type PlaybackChlList } from '@/types/apiType/playback'
-import { type PlaybackBackUpRecList } from '@/types/apiType/playback'
 import BackupPop from '../searchAndBackup/BackupPop.vue'
 import BackupLocalPop from '../searchAndBackup/BackupLocalPop.vue'
 

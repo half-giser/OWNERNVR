@@ -1,4 +1,11 @@
+/*
+ * @Date: 2025-02-27 11:33:57
+ * @Description: 工具mixin
+ * @Author: yejiahao yejiahao@tvt.net.cn
+ */
+
 @use 'sass:map';
+@use '@/scss/function' as *;
 
 /**
  * 雪碧图mixin
@@ -9,7 +16,7 @@
 @mixin sprite($img, $index: 0, $chunk: 1) {
     width: calc(map.get($img, 'width') / $chunk);
     height: map.get($img, 'height');
-    background-image: url('@/components/sprite/sprites.png');
+    background-image: img-url('@/components/sprite/sprites.png');
     background-repeat: no-repeat;
     background-position-x: -1 * (map.get($img, 'x') + calc($index / $chunk) * map.get($img, 'width'));
     background-position-y: -1 * map.get($img, 'y');

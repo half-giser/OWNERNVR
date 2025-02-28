@@ -4,8 +4,6 @@
  * @Description: 绘制pos信息
  */
 
-import CanvasBase from './canvasBase'
-
 /**
  * 绘制pos信息
  * @param {Object} option
@@ -23,7 +21,7 @@ export interface CanvasPosOption {
     posList?: CanvasPosItem[]
 }
 
-export default function CanvasPos(options: CanvasPosOption = {}) {
+export const CanvasPos = (options: CanvasPosOption = {}) => {
     const DEFAULT_TEXT_COLOR = '#fff' // 画线默认色值
 
     let posList = options.posList || []

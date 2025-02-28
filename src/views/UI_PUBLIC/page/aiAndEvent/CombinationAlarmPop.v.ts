@@ -3,7 +3,6 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-23 15:03:09
  */
-import { type AlarmCombinedItemDto, type AlarmCombinedFaceMatchDto } from '@/types/apiType/aiAndEvent'
 import CombinationAlarmFaceMatchPop from './CombinationAlarmFaceMatchPop.vue'
 
 export default defineComponent({

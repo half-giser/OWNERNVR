@@ -4,7 +4,6 @@
  * @Description: 备份录像弹窗
  */
 import BackupRemoteEncryptPop from './BackupRemoteEncryptPop.vue'
-import type { PlaybackBackUpRecList } from '@/types/apiType/playback'
 import { type FormRules } from 'element-plus'
 
 export default defineComponent({
@@ -182,7 +181,7 @@ export default defineComponent({
                                     <backupFileFormat>${formData.value.remoteFormat}</backupFileFormat>
                                     <backupPath>${formData.value.remoteDeviceName}</backupPath>
                                     <IsMainStream>${item.streamType === 0}</IsMainStream>
-                                    ${ternary(password, `<encryptPassword>${password}</encryptPassword>`)}
+                                    ${password ? `<encryptPassword>${password}</encryptPassword>` : ''}
                                 </item>
                             `
                         })

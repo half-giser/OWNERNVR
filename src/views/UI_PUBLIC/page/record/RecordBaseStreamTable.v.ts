@@ -3,9 +3,9 @@
  * @Date: 2024-10-15 10:04:36
  * @Description: 录像码流通用组件
  */
-import { RecordStreamInfoDto, type RecordStreamInfoAttrDto, type RecordStreamResolutionDto } from '@/types/apiType/record'
 import { type XmlResult } from '@/utils/xmlParse'
 import type { TableInstance } from 'element-plus'
+
 export default defineComponent({
     props: {
         mode: {
@@ -130,7 +130,7 @@ export default defineComponent({
          * @description 获取通道列表
          */
         const getChlListData = async () => {
-            const res = await getChlList({})
+            const res = await getChlList()
             const $ = queryXml(res)
             pageData.value.chls = $('content/item').map((ele) => {
                 const eleXml = queryXml(ele.element)

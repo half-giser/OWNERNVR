@@ -37,28 +37,22 @@
                         :props="{ label: 'index' }"
                     />
                     <el-tooltip :content="Translate('IDCS_START_CRUISE')">
-                        <BaseImgSprite
-                            class="base-chl-icon-btn"
-                            file="play"
-                            :index="0"
-                            :hover-index="2"
-                            :disabled-index="3"
-                            :chunk="4"
-                            :disabled="!cruiseOptions.length"
-                            @click="playCruise"
-                        />
+                        <div class="base-chl-icon-btn">
+                            <BaseImgSpriteBtn
+                                file="play"
+                                :disabled="!cruiseOptions.length"
+                                @click="playCruise"
+                            />
+                        </div>
                     </el-tooltip>
                     <el-tooltip :content="Translate('IDCS_STOP_CRUISE')">
-                        <BaseImgSprite
-                            class="base-chl-icon-btn"
-                            file="stop"
-                            :index="0"
-                            :hover-index="2"
-                            :disabled-index="3"
-                            :chunk="4"
-                            :disabled="!tableData.length"
-                            @click="stopCruise"
-                        />
+                        <div class="base-chl-icon-btn">
+                            <BaseImgSpriteBtn
+                                file="stop"
+                                :disabled="!tableData.length"
+                                @click="stopCruise"
+                            />
+                        </div>
                     </el-tooltip>
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_CRUISE_NAME')">
@@ -69,16 +63,13 @@
                         :parser="formatInputMaxLength"
                     />
                     <el-tooltip :content="Translate('IDCS_SAVE_CHANGE')">
-                        <BaseImgSprite
-                            class="base-chl-icon-btn"
-                            file="save"
-                            :index="0"
-                            :hover-index="2"
-                            :disabled-index="3"
-                            :chunk="4"
-                            :disabled="!formData.name.trim() || !cruiseOptions.length"
-                            @click="saveName"
-                        />
+                        <div class="base-chl-icon-btn">
+                            <BaseImgSpriteBtn
+                                file="save"
+                                :disabled="!formData.name.trim() || !cruiseOptions.length"
+                                @click="saveName"
+                            />
+                        </div>
                     </el-tooltip>
                 </el-form-item>
             </el-form>
@@ -124,20 +115,12 @@
                         </template>
                         <template #default="{ $index }: TableColumn<ChannelPtzCruisePresetDto>">
                             <div class="base-cell-box">
-                                <BaseImgSprite
+                                <BaseImgSpriteBtn
                                     file="edit (2)"
-                                    :index="2"
-                                    :hover-index="0"
-                                    :disabled-index="3"
-                                    :chunk="4"
                                     @click="editPreset($index)"
                                 />
-                                <BaseImgSprite
+                                <BaseImgSpriteBtn
                                     file="del"
-                                    :index="2"
-                                    :hover-index="0"
-                                    :disabled-index="3"
-                                    :chunk="4"
                                     @click="deletePreset($index)"
                                 />
                             </div>

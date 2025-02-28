@@ -3,9 +3,6 @@
  * @Date: 2024-07-12 18:19:55
  * @Description: HTTPS
  */
-import WebsocketUpload from '@/utils/websocket/websocketUpload'
-import WebsocketDownload from '@/utils/websocket/websocketDownload'
-import { type NetHTTPSCertPasswordForm } from '@/types/apiType/net'
 import HttpsCertPasswordPop from './HttpsCertPasswordPop.vue'
 import HttpsCreateCertPop from './HttpsCreateCertPop.vue'
 

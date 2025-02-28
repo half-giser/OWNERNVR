@@ -3,8 +3,6 @@
  * @Date: 2024-07-29 16:07:59
  * @Description: 现场预览-底部视图-手动报警
  */
-import { type LiveAlarmList } from '@/types/apiType/live'
-
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()

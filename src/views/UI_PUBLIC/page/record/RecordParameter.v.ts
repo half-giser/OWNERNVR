@@ -5,7 +5,6 @@
  */
 
 import RecordParameterCustomPop from './RecordParameterCustomPop.vue'
-import { RecordParamDto } from '@/types/apiType/record'
 
 export default defineComponent({
     components: {

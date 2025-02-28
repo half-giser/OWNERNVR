@@ -33,85 +33,60 @@
                         v-model="formData.paletteCode"
                         :disabled="formData.disabled"
                         :options="formData.paletteList"
-                        @change="handlePaletteCode()"
+                        @change="changePaletteCode()"
                     />
                 </el-form-item>
                 <el-form-item
                     v-show="!formData.isSupportThermal"
                     :label="Translate('IDCS_BRIGHTNESS')"
                 >
-                    <div class="slider_wrap">
-                        <el-slider
-                            v-model="formData.bright"
-                            :min="formData.brightMinValue === undefined ? 0 : formData.brightMinValue"
-                            :max="formData.brightMaxValue === undefined ? 100 : formData.brightMaxValue"
-                            :disabled="formData.disabled || formData.brightMinValue === formData.brightMaxValue || formData.bright === -1"
-                            @change="handleInputChange(formData.bright, formData.id, 'bright')"
-                        />
-                        <el-input
-                            :model-value="formData.bright"
-                            readonly
-                        />
-                    </div>
+                    <el-slider
+                        v-model="formData.bright"
+                        :min="formData.brightMin"
+                        :max="formData.brightMax"
+                        :disabled="formData.disabled || formData.bright === undefined"
+                        show-input
+                        @change="changeHSL(formData.bright, formData.id, 'bright')"
+                    />
                 </el-form-item>
                 <el-form-item
                     v-show="!formData.isSupportThermal"
                     :label="Translate('IDCS_CONTRAST')"
                 >
-                    <div class="slider_wrap">
-                        <el-slider
-                            v-model="formData.contrast"
-                            :min="formData.contrastMinValue === undefined ? 0 : formData.contrastMinValue"
-                            :max="formData.contrastMaxValue === undefined ? 100 : formData.contrastMaxValue"
-                            :disabled="formData.disabled || formData.contrastMinValue === formData.contrastMaxValue || formData.contrast === -1"
-                            @change="handleInputChange(formData.contrast, formData.id, 'contrast')"
-                        />
-                        <el-input
-                            :model-value="formData.contrast"
-                            readonly
-                        />
-                    </div>
+                    <el-slider
+                        v-model="formData.contrast"
+                        :min="formData.contrastMin"
+                        :max="formData.contrastMax"
+                        :disabled="formData.disabled || formData.contrast === undefined"
+                        show-input
+                        @change="changeHSL(formData.contrast, formData.id, 'contrast')"
+                    />
                 </el-form-item>
                 <el-form-item
                     v-show="!formData.isSupportThermal"
                     :label="Translate('IDCS_SATURATION')"
                 >
-                    <div class="slider_wrap">
-                        <el-slider
-                            v-model="formData.saturation"
-                            :min="formData.saturationMinValue === undefined ? 0 : formData.saturationMinValue"
-                            :max="formData.saturationMaxValue === undefined ? 100 : formData.saturationMaxValue"
-                            :disabled="formData.disabled || formData.saturationMinValue === formData.saturationMaxValue || formData.saturation === -1"
-                            @change="handleInputChange(formData.saturation, formData.id, 'saturation')"
-                        />
-                        <el-input
-                            :model-value="formData.saturation"
-                            readonly
-                        />
-                    </div>
+                    <el-slider
+                        v-model="formData.saturation"
+                        :min="formData.saturationMin"
+                        :max="formData.saturationMax"
+                        :disabled="formData.disabled || formData.saturation === undefined"
+                        show-input
+                        @change="changeHSL(formData.saturation, formData.id, 'saturation')"
+                    />
                 </el-form-item>
                 <el-form-item
                     v-show="!formData.isSupportThermal"
                     :label="Translate('IDCS_TONE')"
                 >
-                    <div class="slider_wrap">
-                        <el-slider
-                            v-model="formData.hue"
-                            :min="formData.hueMinValue === undefined ? 0 : formData.hue === -1 ? -1 : formData.hueMinValue"
-                            :max="formData.hueMaxValue === undefined ? 100 : formData.hueMaxValue"
-                            :disabled="formData.disabled || formData.hueMinValue === formData.hueMaxValue || formData.hue === -1"
-                            @change="handleInputChange(formData.hue, formData.id, 'hue')"
-                        />
-                        <el-input
-                            v-if="formData.hue !== -1"
-                            :model-value="formData.hue"
-                            readonly
-                        />
-                        <div
-                            v-else
-                            class="empty_content"
-                        ></div>
-                    </div>
+                    <el-slider
+                        v-model="formData.hue"
+                        :min="formData.hueMin"
+                        :max="formData.hueMax"
+                        :disabled="formData.disabled || formData.hue === undefined"
+                        show-input
+                        @change="changeHSL(formData.hue, formData.id, 'hue')"
+                    />
                 </el-form-item>
             </el-form>
             <div class="base-btn-box space-between">
@@ -126,13 +101,13 @@
                 <div>
                     <el-button
                         :disabled="formData.disabled || formData.isSupportThermal"
-                        @click="handleAdvanced"
+                        @click="showMore"
                     >
                         {{ Translate('IDCS_ADVANCED') }}
                     </el-button>
                     <el-button
                         :disabled="formData.disabled"
-                        @click="handleRestoreVal"
+                        @click="resetData"
                     >
                         {{ Translate('IDCS_RESTORE_VALUE') }}
                     </el-button>
@@ -177,11 +152,11 @@
                             <BaseNumberInput
                                 v-else
                                 v-model="row.bright"
-                                :min="row.brightMinValue"
-                                :max="row.brightMaxValue"
+                                :min="row.brightMin"
+                                :max="row.brightMax"
                                 :disabled="row.disabled"
-                                @change="handleInputChange(row.bright, row.id, 'bright')"
-                                @keydown.enter="handleKeydownEnter($event)"
+                                @change="changeHSL(row.bright, row.id, 'bright')"
+                                @keyup.enter="blurInput"
                             />
                         </template>
                     </el-table-column>
@@ -195,11 +170,11 @@
                             <BaseNumberInput
                                 v-else
                                 v-model="row.contrast"
-                                :min="row.contrastMinValue"
-                                :max="row.contrastMaxValue"
+                                :min="row.contrastMin"
+                                :max="row.contrastMax"
                                 :disabled="row.disabled"
-                                @change="handleInputChange(row.contrast, row.id, 'contrast')"
-                                @keydown.enter="handleKeydownEnter($event)"
+                                @change="changeHSL(row.contrast, row.id, 'contrast')"
+                                @keyup.enter="blurInput"
                             />
                         </template>
                     </el-table-column>
@@ -213,11 +188,11 @@
                             <BaseNumberInput
                                 v-else
                                 v-model="row.saturation"
-                                :min="row.saturationMinValue"
-                                :max="row.saturationMaxValue"
+                                :min="row.saturationMin"
+                                :max="row.saturationMax"
                                 :disabled="row.disabled"
-                                @change="handleInputChange(row.saturation, row.id, 'saturation')"
-                                @keydown.enter="handleKeydownEnter($event)"
+                                @change="changeHSL(row.saturation, row.id, 'saturation')"
+                                @keyup.enter="blurInput"
                             />
                         </template>
                     </el-table-column>
@@ -227,22 +202,22 @@
                     >
                         <template #default="{ row }: TableColumn<ChannelImageDto>">
                             <span v-if="row.isSpeco"></span>
-                            <span v-else-if="row.isSupportThermal || row.hue === -1">--</span>
+                            <span v-else-if="row.isSupportThermal || row.hue === undefined">--</span>
                             <BaseNumberInput
                                 v-else
                                 v-model="row.hue"
-                                :min="row.hueMinValue"
-                                :max="row.hueMaxValue"
+                                :min="row.hueMin"
+                                :max="row.hueMax"
                                 :disabled="row.disabled"
-                                @change="handleInputChange(row.hue, row.id, 'hue')"
-                                @keydown.enter="handleKeydownEnter($event)"
+                                @change="changeHSL(row.hue, row.id, 'hue')"
+                                @keyup.enter="blurInput"
                             />
                         </template>
                     </el-table-column>
                     <el-table-column
                         type="expand"
                         :label="Translate('IDCS_ADVANCED')"
-                        min-width="160"
+                        width="100"
                     >
                         <template #default="{ row }: TableColumn<ChannelImageDto>">
                             <div class="expandContent">
@@ -261,9 +236,9 @@
                                                 <el-form-item :label="Translate('IDCS_CONFIG_FILE')">
                                                     <el-select-v2
                                                         v-model="row.cfgFile"
-                                                        :disabled="row.configFileTypeEnum.length === 0"
-                                                        :options="row.configFileTypeEnum"
-                                                        @change="handleCfgFileChange"
+                                                        :disabled="!row.cfgFileList.length"
+                                                        :options="row.cfgFileList"
+                                                        @change="changeCfgFile"
                                                     />
                                                 </el-form-item>
                                                 <el-divider />
@@ -273,138 +248,100 @@
                                                             v-if="row.sharpenSwitchEnable"
                                                             v-model="row.sharpenSwitch"
                                                             :label="Translate('IDCS_SHARPNESS')"
-                                                            :disabled="row.sharpenMaxValue === undefined"
+                                                            :disabled="row.sharpen === undefined"
                                                             @change="setAZData()"
                                                         />
                                                         <span v-else>{{ Translate('IDCS_SHARPNESS') }}</span>
                                                     </template>
-                                                    <div class="slider_wrap">
-                                                        <el-slider
-                                                            v-model="row.sharpenValue"
-                                                            :disabled="!row.sharpenSwitch || row.sharpenMaxValue === undefined"
-                                                            :min="row.sharpenMinValue === undefined ? 0 : row.sharpenMinValue"
-                                                            :max="row.sharpenMaxValue === undefined ? 100 : row.sharpenMaxValue"
-                                                            @change="setAZData()"
-                                                        />
-                                                        <el-input
-                                                            :model-value="row.sharpenMaxValue === undefined ? 0 : row.sharpenValue"
-                                                            readonly
-                                                        />
-                                                    </div>
+                                                    <el-slider
+                                                        v-model="row.sharpen"
+                                                        :disabled="!row.sharpenSwitch || row.sharpen === undefined"
+                                                        :min="row.sharpenMin"
+                                                        :max="row.sharpenMax"
+                                                        show-input
+                                                        @change="setAZData()"
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item>
                                                     <template #label>
                                                         <el-checkbox
                                                             v-model="row.WDRSwitch"
                                                             :label="Translate('IDCS_WDR')"
-                                                            :disabled="row.WDRMaxValue === undefined"
+                                                            :disabled="row.WDR === undefined"
                                                             @change="setAZData()"
                                                         />
                                                     </template>
-                                                    <div class="slider_wrap">
-                                                        <el-slider
-                                                            v-model="row.WDRValue"
-                                                            :disabled="!row.WDRSwitch || row.WDRMaxValue === undefined"
-                                                            :min="row.WDRMinValue === undefined ? 0 : row.WDRMinValue"
-                                                            :max="row.WDRMaxValue === undefined ? 100 : row.WDRMaxValue"
-                                                            @change="setAZData()"
-                                                        />
-                                                        <el-input
-                                                            :model-value="row.WDRMaxValue === undefined ? 0 : row.WDRValue"
-                                                            readonly
-                                                        />
-                                                    </div>
+                                                    <el-slider
+                                                        v-model="row.WDR"
+                                                        :disabled="!row.WDRSwitch || row.WDR === undefined"
+                                                        :min="row.WDRMin"
+                                                        :max="row.WDRMax"
+                                                        show-input
+                                                        @change="setAZData()"
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item>
                                                     <template #label>
                                                         <el-checkbox
                                                             v-model="row.denoiseSwitch"
                                                             :label="Translate('IDCS_DENOISE')"
-                                                            :disabled="row.denoiseMaxValue === undefined"
+                                                            :disabled="row.denoise === undefined"
                                                             @change="setAZData()"
                                                         />
                                                     </template>
-                                                    <div class="slider_wrap">
-                                                        <el-slider
-                                                            v-model="row.denoiseValue"
-                                                            :disabled="!row.denoiseSwitch || row.denoiseMaxValue === undefined"
-                                                            :min="row.denoiseMinValue === undefined ? 0 : row.denoiseMinValue"
-                                                            :max="row.denoiseMaxValue === undefined ? 100 : row.denoiseMaxValue"
-                                                            @change="setAZData()"
-                                                        />
-                                                        <el-input
-                                                            :model-value="row.denoiseMaxValue === undefined ? 0 : row.denoiseValue"
-                                                            readonly
-                                                        />
-                                                    </div>
+                                                    <el-slider
+                                                        v-model="row.denoise"
+                                                        :disabled="!row.denoiseSwitch || row.denoise === undefined"
+                                                        :min="row.denoiseMin"
+                                                        :max="row.denoiseMax"
+                                                        show-input
+                                                        @change="setAZData()"
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item>
                                                     <template #label>
                                                         <el-checkbox
-                                                            v-if="row.defogSwitch !== undefined"
                                                             v-model="row.defogSwitch"
                                                             :label="Translate('IDCS_DEFOG')"
+                                                            :disabled="row.defog === undefined"
                                                             @change="setAZData()"
-                                                        />
-                                                        <el-checkbox
-                                                            v-else
-                                                            :label="Translate('IDCS_DEFOG')"
-                                                            disabled
                                                         />
                                                     </template>
-                                                    <div
-                                                        v-if="row.defogSwitch !== undefined"
-                                                        class="slider_wrap"
-                                                    >
-                                                        <el-slider
-                                                            v-model="row.defogValue"
-                                                            :disabled="!row.defogSwitch"
-                                                            :min="row.defogMinValue === undefined ? 0 : row.defogMinValue"
-                                                            :max="row.defogMaxValue === undefined ? 100 : row.defogMaxValue"
-                                                            @change="setAZData()"
-                                                        />
-                                                        <el-input
-                                                            :model-value="row.defogValue"
-                                                            readonly
-                                                        />
-                                                    </div>
-                                                    <div
-                                                        v-else
-                                                        class="slider_wrap"
-                                                    >
-                                                        <el-slider disabled />
-                                                        <el-input
-                                                            :model-value="0"
-                                                            readonly
-                                                        />
-                                                    </div>
+                                                    <el-slider
+                                                        v-model="row.defog"
+                                                        :disabled="!row.defogSwitch || row.defog === undefined"
+                                                        :min="row.defogMin"
+                                                        :max="row.defogMax"
+                                                        show-input
+                                                        @change="setAZData()"
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item :label="Translate('IDCS_IMAGE_SHIFT')">
-                                                    <div class="slider_wrap with-btn">
+                                                    <div class="slider_wrap">
                                                         <el-slider
-                                                            v-model="row.imageValue"
-                                                            :min="row.imageMinValue === undefined ? 0 : row.imageMinValue"
-                                                            :max="row.imageMaxValue === undefined ? 100 : row.imageMaxValue"
-                                                            :disabled="row.chlType !== 'analog' || row.imageMaxValue === undefined"
-                                                            class="slider slider_sp"
+                                                            v-model="row.imageShift"
+                                                            :min="row.imageShiftMin"
+                                                            :max="row.imageShiftMax"
+                                                            :disabled="row.chlType !== 'analog' || row.imageShift === undefined"
+                                                            show-input
                                                             @change="setAZData()"
                                                         />
                                                         <div class="custom_btn_slider_wrap">
                                                             <div
                                                                 class="custom_btn_slider custom_btn_slider_decr"
-                                                                :class="{ disabled: row.chlType !== 'analog' || row.imageMaxValue === undefined }"
-                                                                @click="handleImageValueChange(-1)"
+                                                                :class="{
+                                                                    disabled: row.chlType !== 'analog' || row.imageShift === undefined,
+                                                                }"
+                                                                @click="changeImageShift(-1)"
                                                             ></div>
                                                             <div
                                                                 class="custom_btn_slider custom_btn_slider_incr"
-                                                                :class="{ disabled: row.chlType !== 'analog' || row.imageMaxValue === undefined }"
-                                                                @click="handleImageValueChange(1)"
+                                                                :class="{
+                                                                    disabled: row.chlType !== 'analog' || row.imageShift === undefined,
+                                                                }"
+                                                                @click="changeImageShift(1)"
                                                             ></div>
                                                         </div>
-                                                        <el-input
-                                                            :model-value="row.chlType !== 'analog' || row.imageMaxValue === undefined ? 0 : row.imageValue"
-                                                            readonly
-                                                        />
                                                     </div>
                                                 </el-form-item>
                                                 <el-form-item :label="Translate('IDCS_BACKLIGHT_COMPENSATION')">
@@ -417,7 +354,7 @@
                                                     <el-select-v2
                                                         v-else
                                                         v-model="row.BLCMode"
-                                                        :options="row.BLCModeArray"
+                                                        :options="row.BLCModeList"
                                                         @change="setAZData()"
                                                     />
                                                 </el-form-item>
@@ -428,7 +365,7 @@
                                                     <el-select-v2
                                                         v-model="row.HWDRLevel"
                                                         :disabled="row.HWDRLevel === undefined"
-                                                        :options="row.HWDRLevelArray"
+                                                        :options="row.HWDRLevelList"
                                                         @change="setAZData()"
                                                     />
                                                 </el-form-item>
@@ -436,7 +373,7 @@
                                                     <el-select-v2
                                                         v-model="row.whiteBalanceMode"
                                                         :disabled="row.whiteBalanceMode === undefined"
-                                                        :options="row.whiteBalanceModeEnum"
+                                                        :options="row.whiteBalanceModeList"
                                                         @change="setAZData()"
                                                     />
                                                 </el-form-item>
@@ -444,55 +381,45 @@
                                                     v-if="row.whiteBalanceMode === 'manual'"
                                                     :label="Translate('IDCS_RED_GAIN')"
                                                 >
-                                                    <div class="slider_wrap">
-                                                        <el-slider
-                                                            v-model="row.redValue"
-                                                            :min="row.redMinValue === undefined ? 0 : row.redMinValue"
-                                                            :max="row.redMaxValue === undefined ? 100 : row.redMaxValue"
-                                                            :disabled="row.redMaxValue === undefined"
-                                                            @change="setAZData()"
-                                                        />
-                                                        <el-input
-                                                            :model-value="row.redMaxValue === undefined ? 0 : row.redValue"
-                                                            readonly
-                                                        />
-                                                    </div>
+                                                    <el-slider
+                                                        v-model="row.red"
+                                                        :min="row.redMin"
+                                                        :max="row.redMax"
+                                                        :disabled="row.red === undefined"
+                                                        show-input
+                                                        @change="setAZData()"
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item
                                                     v-if="row.whiteBalanceMode === 'manual'"
                                                     :label="Translate('IDCS_BLUE_GAIN')"
                                                 >
-                                                    <div class="slider_wrap">
-                                                        <el-slider
-                                                            v-model="row.blueValue"
-                                                            :min="row.blueMinValue === undefined ? 0 : row.blueMinValue"
-                                                            :max="row.blueMaxValue === undefined ? 100 : row.blueMaxValue"
-                                                            :disabled="row.blueMaxValue === undefined"
-                                                            @change="setAZData()"
-                                                        />
-                                                        <el-input
-                                                            :model-value="row.blueMaxValue === undefined ? 0 : row.blueValue"
-                                                            readonly
-                                                        />
-                                                    </div>
+                                                    <el-slider
+                                                        v-model="row.blue"
+                                                        :min="row.blueMin"
+                                                        :max="row.blueMax"
+                                                        :disabled="row.blue === undefined"
+                                                        show-input
+                                                        @change="setAZData()"
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item :label="Translate('IDCS_ANTI_FLICKER')">
                                                     <el-select-v2
                                                         v-model="row.antiflicker"
                                                         :disabled="row.antiflicker === undefined"
-                                                        :options="row.antiflickerModeArray"
+                                                        :options="row.antiflickerModeList"
                                                         @change="setAZData()"
                                                     />
                                                 </el-form-item>
                                                 <el-form-item
-                                                    v-if="row.exposureModeArray.length > 0"
+                                                    v-if="row.exposureModeList.length"
                                                     :label="Translate('IDCS_EXPOSURE_MODE')"
                                                 >
                                                     <el-select-v2
                                                         v-model="row.exposureMode"
                                                         :disabled="row.exposureMode === undefined"
-                                                        :options="row.exposureModeArray"
-                                                        @change="handleExposureModeChange"
+                                                        :options="row.exposureModeList"
+                                                        @change="changeExposureMode"
                                                     />
                                                 </el-form-item>
                                                 <el-form-item
@@ -500,20 +427,20 @@
                                                     :label="Translate('IDCS_EXPOSURE_VALUE')"
                                                 >
                                                     <el-select-v2
-                                                        v-model="row.exposureModeValue"
-                                                        :disabled="row.exposureModeValue === undefined"
-                                                        :options="row.exposureValueArray"
+                                                        v-model="row.exposureMode"
+                                                        :disabled="row.exposureMode === undefined"
+                                                        :options="row.exposureList"
                                                         @change="setAZData()"
                                                     />
                                                 </el-form-item>
                                                 <!-- 1、NT2-3947 当有ShowGainMode字段且为false时，为4.2.1版本的ipc，认为不支持隐藏增益模式，，隐藏增益模式下拉框，否则认为是支持；2、协议返回增益模式的枚举只有一个，则为5.2版本的ipc，隐藏增益模式下拉框-->
                                                 <el-form-item
-                                                    v-if="row.ShowGainMode && row.gainModeEnum.length > 1"
+                                                    v-if="row.ShowGainMode && row.gainModeList.length > 1"
                                                     :label="Translate('IDCS_GAIN_MODE')"
                                                 >
                                                     <el-select-v2
                                                         v-model="row.gainMode"
-                                                        :options="row.gainModeEnum"
+                                                        :options="row.gainModeList"
                                                         :disabled="row.BLCMode === 'HWDR' || (row.BLCMode !== 'HWDR' && row.gainMode === undefined)"
                                                     />
                                                 </el-form-item>
@@ -521,37 +448,27 @@
                                                     v-if="row.gainMode === '1'"
                                                     :label="Translate('IDCS_GAIN')"
                                                 >
-                                                    <div class="slider_wrap">
-                                                        <el-slider
-                                                            v-model="row.gainValue"
-                                                            :min="row.gainMinValue === undefined ? 0 : row.gainMinValue"
-                                                            :max="row.gainMaxValue === undefined ? 100 : row.gainMaxValue"
-                                                            :disabled="row.BLCMode === 'HWDR' || (row.BLCMode !== 'HWDR' && row.gainMode === undefined)"
-                                                            @change="setAZData()"
-                                                        />
-                                                        <el-input
-                                                            :model-value="row.gainValue"
-                                                            readonly
-                                                        />
-                                                    </div>
+                                                    <el-slider
+                                                        v-model="row.gain"
+                                                        :min="row.gainMin"
+                                                        :max="row.gainMax"
+                                                        :disabled="row.BLCMode === 'HWDR' || (row.BLCMode !== 'HWDR' && row.gainMode === undefined)"
+                                                        show-input
+                                                        @change="setAZData()"
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item
                                                     v-if="row.gainMode === '0'"
                                                     :label="Translate('IDCS_GAIN_LIMIT')"
                                                 >
-                                                    <div class="slider_wrap">
-                                                        <el-slider
-                                                            v-model="row.gainAGC"
-                                                            :min="row.gainMinValue === undefined ? 0 : row.gainMinValue"
-                                                            :max="row.gainMaxValue === undefined ? 100 : row.gainMaxValue"
-                                                            :disabled="row.BLCMode === 'HWDR' || (row.BLCMode !== 'HWDR' && row.gainMode === undefined)"
-                                                            @change="setAZData()"
-                                                        />
-                                                        <el-input
-                                                            :model-value="row.gainAGC"
-                                                            readonly
-                                                        />
-                                                    </div>
+                                                    <el-slider
+                                                        v-model="row.gainAGC"
+                                                        :min="row.gainMin"
+                                                        :max="row.gainMax"
+                                                        :disabled="row.BLCMode === 'HWDR' || (row.BLCMode !== 'HWDR' && row.gainMode === undefined)"
+                                                        show-input
+                                                        @change="setAZData()"
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item
                                                     v-if="row.isSupportHallway"
@@ -565,8 +482,8 @@
                                                 </el-form-item>
                                                 <el-form-item :label="Translate('IDCS_MIRROR')">
                                                     <el-radio-group
-                                                        v-if="row.mirrorSwitch !== undefined"
                                                         v-model="row.mirrorSwitch"
+                                                        :disabled="row.mirrorSwitch === undefined"
                                                         @change="setAZData()"
                                                     >
                                                         <el-radio
@@ -574,26 +491,13 @@
                                                             :key="item.label"
                                                             :value="item.value"
                                                             :label="item.label"
-                                                            :disabled="row.mirrorSwitch === undefined"
-                                                        />
-                                                    </el-radio-group>
-                                                    <el-radio-group
-                                                        v-else
-                                                        v-model="defaultRadioVal"
-                                                    >
-                                                        <el-radio
-                                                            v-for="item in pageData.switchOptions"
-                                                            :key="item.label"
-                                                            :value="item.value"
-                                                            :label="item.label"
-                                                            :disabled="row.mirrorSwitch === undefined"
                                                         />
                                                     </el-radio-group>
                                                 </el-form-item>
                                                 <el-form-item :label="Translate('IDCS_FLIP')">
                                                     <el-radio-group
-                                                        v-if="row.flipSwitch !== undefined"
                                                         v-model="row.flipSwitch"
+                                                        :disabled="row.flipSwitch === undefined"
                                                         @change="setAZData()"
                                                     >
                                                         <el-radio
@@ -601,19 +505,6 @@
                                                             :key="item.label"
                                                             :value="item.value"
                                                             :label="item.label"
-                                                            :disabled="row.flipSwitch === undefined"
-                                                        />
-                                                    </el-radio-group>
-                                                    <el-radio-group
-                                                        v-else
-                                                        v-model="defaultRadioVal"
-                                                    >
-                                                        <el-radio
-                                                            v-for="item in pageData.switchOptions"
-                                                            :key="item.label"
-                                                            :value="item.value"
-                                                            :label="item.label"
-                                                            :disabled="row.flipSwitch === undefined"
                                                         />
                                                     </el-radio-group>
                                                 </el-form-item>
@@ -632,15 +523,15 @@
                                                         v-if="row.isSupportIRCutMode && row.IRCutMode !== undefined"
                                                         v-model="row.IRCutMode"
                                                         :disabled="!row.isSupportIRCutMode"
-                                                        :options="row.IRCutModeArray.length ? row.IRCutModeArray : pageData.icCutModeOptions"
+                                                        :options="row.IRCutModeList.length ? row.IRCutModeList : pageData.icCutModeOptions"
                                                         @change="setAZData()"
                                                     />
                                                     <el-select-v2
                                                         v-else-if="row.isSupportIRCutMode"
                                                         v-model="defaultIRCutMode"
                                                         :disabled="!row.isSupportIRCutMode"
-                                                        :options="row.IRCutModeArray.length ? row.IRCutModeArray : pageData.icCutModeOptions"
-                                                        @change="handleIRCutModeChange"
+                                                        :options="row.IRCutModeList.length ? row.IRCutModeList : pageData.icCutModeOptions"
+                                                        @change="changeIRCutMode"
                                                     />
                                                     <el-select-v2
                                                         v-else
@@ -656,7 +547,7 @@
                                                     <el-select-v2
                                                         v-model="row.IRCutConvSen"
                                                         :disabled="!row.isSupportIRCutMode"
-                                                        :options="row.IRCutConvSenArray.length ? row.IRCutConvSenArray : pageData.irCutConvSenOptions"
+                                                        :options="row.IRCutConvSenList.length ? row.IRCutConvSenList : pageData.irCutConvSenOptions"
                                                         @change="setAZData()"
                                                     />
                                                 </el-form-item>
@@ -683,23 +574,26 @@
                                                     />
                                                 </el-form-item>
                                                 <el-form-item
-                                                    v-if="row.smartIrMode || row.smartIrSwitch !== undefined"
+                                                    v-if="row.smartIrMode !== undefined"
                                                     :label="Translate('IDCS_SMART_IR')"
                                                 >
                                                     <el-select-v2
-                                                        v-if="row.smartIrMode"
                                                         v-model="row.smartIrMode"
-                                                        :options="row.SmartIrArray"
+                                                        :options="row.SmartIrList"
                                                     />
+                                                </el-form-item>
+                                                <el-form-item
+                                                    v-if="row.smartIrSwitch !== undefined"
+                                                    :label="Translate('IDCS_SMART_IR')"
+                                                >
                                                     <el-select-v2
-                                                        v-else
                                                         v-model="row.smartIrSwitch"
                                                         :options="pageData.switchOptions"
                                                         @change="setAZData()"
                                                     />
                                                 </el-form-item>
                                                 <el-form-item
-                                                    v-if="(row.smartIrMode || row.smartIrSwitch !== undefined) && row.smartIrSwitch"
+                                                    v-if="row.smartIrMode && row.smartIrSwitch"
                                                     :label="Translate('IDCS_GRADE')"
                                                 >
                                                     <el-select-v2
@@ -709,44 +603,34 @@
                                                     />
                                                 </el-form-item>
                                                 <el-form-item
-                                                    v-if="(row.smartIrMode || row.smartIrSwitch !== undefined) && row.smartIrMode === 'manual'"
+                                                    v-if="row.smartIrSwitch !== undefined && row.smartIrMode === 'manual'"
                                                     :label="Translate('IDCS_LIGHT_LEVEL')"
                                                 >
-                                                    <div class="slider_wrap">
-                                                        <el-slider
-                                                            v-model="row.lightLevelValue"
-                                                            :min="row.lightLevelMinValue === undefined ? 0 : row.lightLevelMinValue"
-                                                            :max="row.lightLevelMaxValue === undefined ? 100 : row.lightLevelMaxValue"
-                                                            @change="setAZData()"
-                                                        />
-                                                        <el-input
-                                                            :model-value="row.lightLevelValue"
-                                                            readonly
-                                                        />
-                                                    </div>
+                                                    <el-slider
+                                                        v-model="row.lightLevel"
+                                                        :min="row.lightLevelMin"
+                                                        :max="row.lightLevelMax"
+                                                        show-input
+                                                        @change="setAZData()"
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item
-                                                    v-if="row.isSupportIRCutMode && row.IRCutMode === 'auto' && row.delayTimeValue !== undefined"
+                                                    v-if="row.isSupportIRCutMode && row.IRCutMode === 'auto' && row.delayTime !== undefined"
                                                     :label="Translate('IDCS_DELAY_TIME_SECOND')"
                                                 >
-                                                    <div class="slider_wrap">
-                                                        <el-slider
-                                                            v-model="row.delayTimeValue"
-                                                            :min="row.delayTimeMinValue === undefined ? 0 : row.delayTimeMinValue"
-                                                            :max="row.delayTimeMaxValue === undefined ? 100 : row.delayTimeMaxValue"
-                                                            @change="setAZData()"
-                                                        />
-                                                        <el-input
-                                                            :model-value="row.delayTimeValue"
-                                                            readonly
-                                                        />
-                                                    </div>
+                                                    <el-slider
+                                                        v-model="row.delayTime"
+                                                        :min="row.delayTimeMin"
+                                                        :max="row.delayTimeMax"
+                                                        show-input
+                                                        @change="setAZData()"
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item :label="Translate('IDCS_SHUTTER_MODE')">
                                                     <el-select-v2
                                                         v-model="row.shutterMode"
                                                         :disabled="row.shutterMode === undefined"
-                                                        :options="row.shutterModeEnum"
+                                                        :options="row.shutterModeList"
                                                         @change="setAZData()"
                                                     />
                                                 </el-form-item>
@@ -755,9 +639,9 @@
                                                     :label="Translate('IDCS_SHUTTER')"
                                                 >
                                                     <el-select-v2
-                                                        v-model="row.shutterValue"
+                                                        v-model="row.shutter"
                                                         :disabled="row.shutterMode === undefined"
-                                                        :options="row.shutterValueEnum"
+                                                        :options="row.shutterList"
                                                         @change="setAZData()"
                                                     />
                                                 </el-form-item>
@@ -768,8 +652,8 @@
                                                     <el-select-v2
                                                         v-model="row.shutterUpLimit"
                                                         :disabled="row.shutterMode === undefined"
-                                                        :options="row.shutterValueEnum"
-                                                        @change="handleShutterUpLimitChange"
+                                                        :options="row.shutterList"
+                                                        @change="changeShutterUpLimit"
                                                     />
                                                 </el-form-item>
                                                 <el-form-item
@@ -779,15 +663,15 @@
                                                     <el-select-v2
                                                         v-model="row.shutterLowLimit"
                                                         :disabled="row.shutterMode === undefined"
-                                                        :options="row.shutterValueEnum"
-                                                        @change="handleShutterLowLimitChange"
+                                                        :options="row.shutterList"
+                                                        @change="changeShutterLowLimit"
                                                     />
                                                 </el-form-item>
                                                 <el-form-item :label="Translate('IDCS_INFRARE_MODE')">
                                                     <el-select-v2
                                                         v-model="row.InfraredMode"
                                                         :disabled="row.InfraredMode === undefined"
-                                                        :options="row.InfraredModeArray"
+                                                        :options="row.InfraredModeList"
                                                         @change="setAZData()"
                                                     />
                                                 </el-form-item>
@@ -802,24 +686,19 @@
                                                     />
                                                 </el-form-item>
                                                 <el-form-item
-                                                    v-if="row.whitelightMode && row.whitelightMode === 'manual'"
+                                                    v-if="row.whitelightMode === 'manual'"
                                                     :label="Translate('IDCS_WHITE_STRENGTH')"
                                                 >
-                                                    <div class="slider_wrap">
-                                                        <el-slider
-                                                            v-model="row.whitelightStrength"
-                                                            :min="row.whitelightStrengthMin === undefined ? 0 : row.whitelightStrengthMin"
-                                                            :max="row.whitelightStrengthMax === undefined ? 100 : row.whitelightStrengthMax"
-                                                            @change="setAZData()"
-                                                        />
-                                                        <el-input
-                                                            :model-value="row.whitelightStrength"
-                                                            readonly
-                                                        />
-                                                    </div>
+                                                    <el-slider
+                                                        v-model="row.whitelightStrength"
+                                                        :min="row.whitelightStrengthMin"
+                                                        :max="row.whitelightStrengthMax"
+                                                        show-input
+                                                        @change="setAZData()"
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item
-                                                    v-if="row.whitelightMode && row.whitelightMode === 'manual'"
+                                                    v-if="row.whitelightMode === 'manual'"
                                                     :label="Translate('IDCS_START_TIME')"
                                                 >
                                                     <el-time-picker
@@ -830,7 +709,7 @@
                                                     />
                                                 </el-form-item>
                                                 <el-form-item
-                                                    v-if="row.whitelightMode && row.whitelightMode === 'manual'"
+                                                    v-if="row.whitelightMode === 'manual'"
                                                     :label="Translate('IDCS_END_TIME')"
                                                 >
                                                     <el-time-picker
@@ -866,7 +745,7 @@
                                                         v-model="row.scheduleInfo.program"
                                                         :disabled="!row.supportSchedule"
                                                         :options="filteredScheduleInfoEnum(row.scheduleInfo.scheduleInfoEnum, true)"
-                                                        @change="handleProgramChange(row)"
+                                                        @change="changeProgram(row)"
                                                     />
                                                 </el-form-item>
                                                 <el-form-item
@@ -880,14 +759,14 @@
                                                         v-model="row.scheduleInfo.dayTime"
                                                         :format="timeMode === 24 ? 'HH:mm' : 'hh:mm A'"
                                                         value-format="HH:mm"
-                                                        @change="handleChangeTime('day')"
+                                                        @change="changeTimeType('day')"
                                                     />
                                                     <el-text class="time-splitter"> -- </el-text>
                                                     <el-time-picker
                                                         v-model="row.scheduleInfo.nightTime"
                                                         :format="timeMode === 24 ? 'HH:mm' : 'hh:mm A'"
                                                         value-format="HH:mm"
-                                                        @change="handleChangeTime('night')"
+                                                        @change="changeTimeType('night')"
                                                     />
                                                 </el-form-item>
                                                 <div
@@ -933,41 +812,25 @@
                                                         @mousedown="addCmd('ZoomOut', curLensCtrl.id)"
                                                         @mouseup="addCmd('Stop', curLensCtrl.id)"
                                                     >
-                                                        <BaseImgSprite
+                                                        <BaseImgSpriteBtn
                                                             file="SpeedSlow"
-                                                            :chunk="4"
-                                                            :index="1"
-                                                            :hover-index="0"
-                                                            :active-index="0"
+                                                            :index="[1, 0, 2, 1]"
                                                             :disabled="!curLensCtrl.supportAz"
-                                                            :disabled-index="curLensCtrl.supportAz ? -1 : 1"
                                                         />
                                                     </div>
-                                                    <BaseImgSprite
-                                                        file="arr_left"
-                                                        :chunk="1"
-                                                        :index="0"
-                                                    />
+                                                    <BaseImgSprite file="arr_left" />
                                                     <div>{{ Translate('IDCS_ZOOM') }}</div>
-                                                    <BaseImgSprite
-                                                        file="arr_right"
-                                                        :chunk="1"
-                                                        :index="0"
-                                                    />
+                                                    <BaseImgSprite file="arr_right" />
                                                     <div
                                                         class="scene_control_btn_wrap"
                                                         :class="{ disabled: !curLensCtrl.supportAz }"
                                                         @mousedown="addCmd('ZoomIn', curLensCtrl.id)"
                                                         @mouseup="addCmd('Stop', curLensCtrl.id)"
                                                     >
-                                                        <BaseImgSprite
+                                                        <BaseImgSpriteBtn
                                                             file="SpeedQuick"
-                                                            :chunk="4"
-                                                            :index="1"
-                                                            :hover-index="0"
-                                                            :active-index="0"
+                                                            :index="[1, 0, 2, 1]"
                                                             :disabled="!curLensCtrl.supportAz"
-                                                            :disabled-index="curLensCtrl.supportAz ? -1 : 1"
                                                         />
                                                     </div>
                                                 </div>
@@ -995,41 +858,25 @@
                                                         @mousedown="addCmd('Far', curLensCtrl.id)"
                                                         @mouseup="addCmd('Stop', curLensCtrl.id)"
                                                     >
-                                                        <BaseImgSprite
+                                                        <BaseImgSpriteBtn
                                                             file="SpeedSlow"
-                                                            :chunk="4"
-                                                            :index="1"
-                                                            :hover-index="0"
-                                                            :active-index="0"
+                                                            :index="[1, 0, 2, 1]"
                                                             :disabled="!curLensCtrl.supportAz"
-                                                            :disabled-index="curLensCtrl.supportAz ? -1 : 1"
                                                         />
                                                     </div>
-                                                    <BaseImgSprite
-                                                        file="arr_left"
-                                                        :chunk="1"
-                                                        :index="0"
-                                                    />
+                                                    <BaseImgSprite file="arr_left" />
                                                     <div>{{ Translate('IDCS_FOCUS') }}</div>
-                                                    <BaseImgSprite
-                                                        file="arr_right"
-                                                        :chunk="1"
-                                                        :index="0"
-                                                    />
+                                                    <BaseImgSprite file="arr_right" />
                                                     <div
                                                         class="scene_control_btn_wrap"
                                                         :class="{ disabled: !curLensCtrl.supportAz }"
                                                         @mousedown="addCmd('Near', curLensCtrl.id)"
                                                         @mouseup="addCmd('Stop', curLensCtrl.id)"
                                                     >
-                                                        <BaseImgSprite
+                                                        <BaseImgSpriteBtn
                                                             file="SpeedQuick"
-                                                            :chunk="4"
-                                                            :index="1"
-                                                            :hover-index="0"
-                                                            :active-index="0"
+                                                            :index="[1, 0, 2, 1]"
                                                             :disabled="!curLensCtrl.supportAz"
-                                                            :disabled-index="curLensCtrl.supportAz ? -1 : 1"
                                                         />
                                                     </div>
                                                     <el-button
@@ -1104,8 +951,8 @@
                     v-model:current-page="pageIndex"
                     v-model:page-size="pageSize"
                     :total="pageTotal"
-                    @size-change="handleSizeChange"
-                    @current-change="handleCurrentChange"
+                    @size-change="changePageSize"
+                    @current-change="changePage"
                 />
             </div>
         </div>
@@ -1119,13 +966,16 @@
     width: 100%;
     display: flex;
     align-items: center;
+    position: relative;
 
     .custom_btn_slider_wrap {
         display: flex;
-        width: 40px;
+        width: 35px;
         justify-content: space-between;
-        margin-right: 10px;
         flex-shrink: 0;
+        position: absolute;
+        left: 170px;
+        margin-left: 0 !important;
 
         .custom_btn_slider {
             width: 0;
@@ -1153,42 +1003,6 @@
             &.disabled {
                 border-color: transparent transparent transparent var(--slider-btn-border-disabled);
             }
-        }
-    }
-
-    :deep(.el-input) {
-        --form-input-width: 46px;
-
-        padding: 0;
-        flex-shrink: 0;
-    }
-
-    :deep(.el-input__wrapper) {
-        padding: 0;
-    }
-
-    :deep(.el-input__inner) {
-        text-align: center;
-    }
-
-    .empty_content {
-        width: 46px;
-        flex-shrink: 0;
-    }
-
-    .slider_opertion {
-        display: flex;
-        align-items: center;
-    }
-
-    .el-slider {
-        flex-grow: 1;
-        padding: 0 10px 0 0;
-    }
-
-    &.with-btn {
-        .el-slider {
-            padding: 0;
         }
     }
 }

@@ -3,9 +3,7 @@
  * @Date: 2024-05-10 16:49:52
  * @Description: 业务应用-停车场管理-基础配置
  */
-
 import { type FormRules } from 'element-plus'
-import { BusinessPkMgrBasicConfigForm } from '@/types/apiType/business'
 
 export default defineComponent({
     setup() {

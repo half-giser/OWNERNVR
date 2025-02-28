@@ -3,15 +3,16 @@
  * @Date: 2024-09-23 17:41:52
  * @Description: UI1-D 主题样式
  */
+@use '@/scss/function' as *;
 
 #n9web {
-    --img-login-content: url('@ui/publicStyle/img/LoginContent.png');
-    --img-logo: url('@ui/publicStyle/img/appName.png');
-    --img-login-btn: url('@ui/publicStyle/img/loginBtn.png');
-    --img-motion-note: url('@ui/publicStyle/img/motionNote.gif');
-    --img-loading: url('@ui/publicStyle/img/loading.gif');
-    --img-spinner: url('@/views/UI_PUBLIC/publicStyle/img/spinner.gif');
-    --img-initview: url('@/views/UI_PUBLIC/publicStyle/img/initview.gif');
+    --img-login-content: #{img-url('@ui/publicStyle/img/LoginContent.png')};
+    --img-logo: #{img-url('@ui/publicStyle/img/appName.png')};
+    --img-login-btn: #{img-url('@ui/publicStyle/img/loginBtn.png')};
+    --img-motion-note: #{img-url('@ui/publicStyle/img/motionNote.gif')};
+    --img-loading: #{img-url('@ui/publicStyle/img/loading.gif')};
+    --img-spinner: #{img-url('@/views/UI_PUBLIC/publicStyle/img/spinner.gif')};
+    --img-initview: #{img-url('@/views/UI_PUBLIC/publicStyle/img/initview.gif')};
     --img-favicon: url('@/views/UI_PUBLIC/publicStyle/img/favicon.ico');
 
     --content-height: calc(100vh - 238px);

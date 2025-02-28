@@ -158,3 +158,14 @@ export class PlaybackChlTimeSliceList {
 //     value = ''
 //     imgUrl = ''
 // }
+
+/**
+ * @description 回放弹窗 通道列表
+ */
+export class PlaybackPopList {
+    chlId = ''
+    chlName = ''
+    eventList: string[] = []
+    startTime = 0 // 时间戳 （毫秒）
+    endTime = 0 // 时间戳 （毫秒）
+}

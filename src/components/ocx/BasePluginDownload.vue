@@ -15,7 +15,6 @@
         >
             <BaseImgSprite
                 file="plugin"
-                :index="0"
                 :hover-index="1"
                 :chunk="2"
             />

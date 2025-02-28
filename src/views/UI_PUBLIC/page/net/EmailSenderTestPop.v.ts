@@ -4,7 +4,6 @@
  * @Description: Email测试发送弹窗
  */
 import { type FormRules } from 'element-plus'
-import { type NetEmailForm, NetEmailTestForm, type NetEmailReceiverDto } from '@/types/apiType/net'
 
 export default defineComponent({
     props: {

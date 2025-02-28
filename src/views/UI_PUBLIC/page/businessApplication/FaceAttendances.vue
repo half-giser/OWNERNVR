@@ -182,11 +182,8 @@
 
                 <el-table-column :label="Translate('IDCS_DETAIL')">
                     <template #default="{ $index }: TableColumn<BusinessFaceAttendanceList>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             file="edit (2)"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
                             @click="showDetail($index)"
                         />
                     </template>

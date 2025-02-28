@@ -3,7 +3,6 @@
  * @Date: 2024-07-26 16:38:37
  * @Description: 现场预览-右侧视图 Layout
  */
-import { type LiveChannelList, type LiveSharedWinData } from '@/types/apiType/live'
 import { type SlotsType } from 'vue'
 
 export default defineComponent({

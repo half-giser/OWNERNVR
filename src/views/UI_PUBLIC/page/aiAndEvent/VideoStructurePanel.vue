@@ -332,14 +332,13 @@
                 <el-popover
                     v-model:visible="advancedVisible"
                     width="400"
-                    popper-class="no-padding keep-ocx"
+                    popper-class="no-padding"
                 >
                     <template #reference>
                         <div class="base-ai-advance-btn">
                             <span>{{ Translate('IDCS_ADVANCED') }}</span>
                             <BaseImgSprite
                                 file="arrow"
-                                :index="0"
                                 :chunk="4"
                             />
                         </div>

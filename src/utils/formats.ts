@@ -350,3 +350,12 @@ export const hideSensitiveInfo = (value: string, level: 'low' | 'high' | 'medium
     }
     return str
 }
+
+/**
+ * @description Pads the current number with a given number (possibly repeated) so that the resulting string reaches a given length
+ * @param {number} num
+ * @returns {string}
+ */
+export const padStart = (num: number, maxLength: number, fillNumber = 0) => {
+    return (num + '').padStart(maxLength, fillNumber + '')
+}

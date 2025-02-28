@@ -3,7 +3,6 @@
  * @Date: 2024-08-22 15:16:17
  * @Description: 云台-任务-编辑弹窗
  */
-import { type ChannelPtzTaskDto, ChannelPtzTaskForm } from '@/types/apiType/channel'
 import { type FormRules } from 'element-plus'
 
 export default defineComponent({

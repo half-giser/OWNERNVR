@@ -3,7 +3,6 @@
  * @Date: 2024-08-23 10:59:14
  * @Description: 系统撤防
  */
-import { AlarmSystemDisarmDto, type AlarmSystemDisarmChlAndSensorSrcDto } from '@/types/apiType/aiAndEvent'
 import { type TableInstance } from 'element-plus'
 
 export default defineComponent({

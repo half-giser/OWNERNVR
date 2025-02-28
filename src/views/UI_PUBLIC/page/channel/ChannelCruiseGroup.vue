@@ -64,12 +64,8 @@
                     />
                     <el-table-column :label="Translate('IDCS_EDIT')">
                         <template #default="{ $index }: TableColumn<ChannelPtzCruiseGroupCruiseDto>">
-                            <BaseImgSprite
+                            <BaseImgSpriteBtn
                                 file="del"
-                                :index="2"
-                                :hover-index="0"
-                                :disabled-index="3"
-                                :chunk="4"
                                 @click="deleteCruise(pageData.tableIndex, $index)"
                             />
                         </template>

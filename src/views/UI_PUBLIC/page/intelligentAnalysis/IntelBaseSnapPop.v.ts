@@ -3,8 +3,6 @@
  * @Date: 2024-09-09 19:24:00
  * @Description: 智能分析 - 抓拍详情弹窗
  */
-import CanvasBase from '@/utils/canvas/canvasBase'
-import { IntelSnapPopList } from '@/types/apiType/intelligentAnalysis'
 import { DEFAULT_BODY_STRUCT_MAPPING, DEFAULT_NON_VEHICLE_STRUCT_MAPPING, DEFAULT_VEHICLE_STRUCT_MAPPING, DEFAULT_VEHICLE_PLATE_STRUCT_MAPPING } from '@/utils/const/snap'
 
 export default defineComponent({

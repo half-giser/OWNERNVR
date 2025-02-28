@@ -4,7 +4,6 @@
  * @Description: 添加通道 - 编辑IPC IP弹窗
  */
 import { type FormRules } from 'element-plus'
-import { ChannelAddEditIPCIpDto, type ChannelQuickAddDto, type ChannelDefaultPwdDto } from '@/types/apiType/channel'
 
 export default defineComponent({
     props: {
@@ -27,14 +26,20 @@ export default defineComponent({
         const userSessionStore = useUserSessionStore()
         const formRef = useFormRef()
         const formData = ref(new ChannelAddEditIPCIpDto())
-        const maskDisabled = ref(false)
-        const gatewayDisabled = ref(false)
+
+        const maskDisabled = computed(() => {
+            return formData.value.mask === DEFAULT_EMPTY_IP
+        })
+
+        const gatewayDisabled = computed(() => {
+            return formData.value.gateway === DEFAULT_EMPTY_IP
+        })
 
         const rules = ref<FormRules>({
             ip: [
                 {
                     validator: (_, value: string, callback) => {
-                        if (!value || value === '0.0.0.0') {
+                        if (!value || value === DEFAULT_EMPTY_IP) {
                             callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_INVALID')))
                             return
                         }
@@ -46,7 +51,7 @@ export default defineComponent({
             mask: [
                 {
                     validator: (_, value: string, callback) => {
-                        if (!maskDisabled.value && (!value || value === '0.0.0.0')) {
+                        if (!maskDisabled.value && (!value || value === DEFAULT_EMPTY_IP)) {
                             callback(new Error(Translate('IDCS_PROMPT_SUBNET_MASK_INVALID')))
                             return
                         }
@@ -58,7 +63,7 @@ export default defineComponent({
             gateway: [
                 {
                     validator: (_, value: string, callback) => {
-                        if (!gatewayDisabled.value && (!value || value === '0.0.0.0')) {
+                        if (!gatewayDisabled.value && (!value || value === DEFAULT_EMPTY_IP)) {
                             callback(new Error(Translate('IDCS_PROMPT_GATEWAY_INVALID')))
                             return
                         }
@@ -95,7 +100,7 @@ export default defineComponent({
                                 <netmask>${formData.value.mask}</netmask>
                                 <gateway>${formData.value.gateway}</gateway>
                                 <username>${formData.value.userName}</username>
-                                <password${getSecurityVer()}><![CDATA[${AES_encrypt(formData.value.password, userSessionStore.sesionKey)}]]></password>
+                                <password${getSecurityVer()}>${wrapCDATA(AES_encrypt(formData.value.password, userSessionStore.sesionKey))}</password>
                             </item>
                         </device>
                     </content>`
@@ -139,8 +144,6 @@ export default defineComponent({
             formData.value.mask = props.editItem.mask
             formData.value.gateway = props.editItem.gateway
             formData.value.userName = props.mapping[props.editItem.manufacturer].userName
-            maskDisabled.value = formData.value.mask === '0.0.0.0'
-            gatewayDisabled.value = formData.value.gateway === '0.0.0.0'
         }
 
         const close = () => {

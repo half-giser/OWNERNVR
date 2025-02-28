@@ -3,7 +3,6 @@
  * @Date: 2024-05-31 17:19:50
  * @Description: 支持业务：人脸识别侦测: 警戒区域 + 最大值&最小值;车牌识别侦测: 警戒区域 + 最大值&最小值;人群密度检测: 警戒区域
  */
-import CanvasBase, { type CanvasBaseLineStyleOption, type CanvasBaseArea } from './canvasBase'
 
 /**
  * @param {Object} option
@@ -27,7 +26,7 @@ interface CanvasVfdOption {
     onchange?: (area: CanvasBaseArea) => void
 }
 
-export default function CanvasVfd(option: CanvasVfdOption = {}) {
+export const CanvasVfd = (option: CanvasVfdOption = {}) => {
     const DEFAULT_LINE_COLOR = '#0f0' // 画线默认色值
     const DEFAULT_TEXT_COLOR = '#ff0' // 文字默认色值
     const RELATIVE_WIDTH = 10000 // 万分比宽度

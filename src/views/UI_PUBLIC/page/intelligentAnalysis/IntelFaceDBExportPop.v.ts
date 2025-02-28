@@ -3,8 +3,6 @@
  * @Date: 2024-08-30 18:46:39
  * @Description: 导出人脸库弹窗
  */
-import WebsocketFaceLib, { type WebsocketFaceLibFaceDataDatum } from '@/utils/websocket/websocketFacelib'
-
 export default defineComponent({
     props: {
         /**

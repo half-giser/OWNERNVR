@@ -3,7 +3,6 @@
  * @Date: 2024-08-08 17:43:50
  * @Description: OCX备份列表模块
  */
-import { type PlaybackBackUpTaskList, type PlaybackBackUpRecList } from '@/types/apiType/playback'
 import { type XMLQuery } from '@/utils/xmlParse'
 import dayjs from 'dayjs'
 

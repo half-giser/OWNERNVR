@@ -3,7 +3,6 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-10-24 10:03:25
  */
-import { type SystenSHDBImageUploadDto } from '@/types/apiType/system'
 import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
@@ -26,7 +25,7 @@ export default defineComponent({
 
         const pageData = ref({
             // 添加的时间数据
-            addTimeData: '00:00:00',
+            addTimeData: DEFAULT_EMPTY_TIME,
             // 全选
             selectAll: true,
             // 反选
@@ -34,7 +33,7 @@ export default defineComponent({
         })
 
         const open = () => {
-            pageData.value.addTimeData = '00:00:00'
+            pageData.value.addTimeData = DEFAULT_EMPTY_TIME
             pageData.value.selectAll = true
             pageData.value.reverseSelect = false
             selectAll()

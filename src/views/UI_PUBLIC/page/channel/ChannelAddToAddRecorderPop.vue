@@ -17,6 +17,7 @@
             class="stripe"
             :style="{
                 '--form-label-width': '150px',
+                '--form-input-width': '150px',
             }"
         >
             <el-form-item>
@@ -69,13 +70,9 @@
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_PASSWORD')">
-                    <el-input
+                    <BasePasswordInput
                         v-model="formData.password"
-                        type="password"
-                        autocomplete="new-password"
                         :disabled="formData.useDefaultPwd"
-                        @paste.capture.prevent=""
-                        @copy.capture.prevent=""
                     />
                 </el-form-item>
             </el-form-item>

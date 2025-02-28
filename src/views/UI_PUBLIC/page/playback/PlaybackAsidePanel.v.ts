@@ -3,7 +3,6 @@
  * @Date: 2024-08-06 20:35:43
  * @Description: 回放-右侧视图
  */
-import { type LiveSharedWinData } from '@/types/apiType/live'
 import { type SlotsType } from 'vue'
 
 export default defineComponent({

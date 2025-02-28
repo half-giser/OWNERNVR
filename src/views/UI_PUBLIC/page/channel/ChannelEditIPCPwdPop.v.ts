@@ -3,7 +3,6 @@
  * @Date: 2024-05-23 10:00:43
  * @Description: 通道 - 编辑IPC密码弹窗
  */
-import { type ChannelInfoDto } from '@/types/apiType/channel'
 import { type TableInstance, type FormRules } from 'element-plus'
 
 export default defineComponent({

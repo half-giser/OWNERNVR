@@ -3,8 +3,6 @@
  * @Date: 2024-10-10 16:03:56
  * @Description: 通道 - 移动侦测配置
  */
-import { ChannelMotionDto } from '@/types/apiType/channel'
-import CanvasMotion from '@/utils/canvas/canvasMotion'
 import { type XMLQuery } from '@/utils/xmlParse'
 import { type TableInstance } from 'element-plus'
 
@@ -245,15 +243,16 @@ export default defineComponent({
                             <switch>${rowData.switch}</switch>
                             <sensitivity min='${rowData.sensitivityMinValue}' max='${rowData.sensitivityMaxValue}'>${rowData.sensitivity}</sensitivity>
                             <holdTime unit='s'>${rowData.holdTime}</holdTime>
-                            ${ternary(
-                                rowData.supportSMD,
-                                rawXml`
-                                    <objectFilter>
-                                        ${ternary(rowData.objectFilterCar, `<car><switch>${rowData.objectFilterCar}</switch></car>`)}
-                                        ${ternary(rowData.objectFilterPerson, `<person><switch>${rowData.objectFilterPerson}</switch></person>`)}
-                                    </objectFilter>
-                                `,
-                            )}
+                            ${
+                                rowData.supportSMD
+                                    ? rawXml`
+                                        <objectFilter>
+                                            ${rowData.objectFilterCar ? `<car><switch>${rowData.objectFilterCar}</switch></car>` : ''}
+                                            ${rowData.objectFilterPerson ? `<person><switch>${rowData.objectFilterPerson}</switch></person>` : ''}
+                                        </objectFilter>
+                                    `
+                                    : ''
+                            }
                             <area type='list' count='${rowData.row}'>
                                 <itemType minLen='${rowData.column}' maxLen='${rowData.column}'/>
                                 ${rowData.areaInfo.map((ele) => `<item>${ele}</item>`).join('')}

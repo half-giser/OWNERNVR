@@ -3,7 +3,6 @@
  * @Date: 2024-08-06 20:37:55
  * @Description: 回放-事件列表
  */
-import type { PlaybackRecLogList, PlaybackChlList, PlaybackRecList } from '@/types/apiType/playback'
 import dayjs from 'dayjs'
 
 export default defineComponent({

@@ -4,10 +4,8 @@
  * @Description: 报警状态
  */
 import { type XMLQuery } from '@/utils/xmlParse'
-import type { SystemAlarmStatusListData, SystemAlarmStatusList } from '@/types/apiType/system'
 import dayjs from 'dayjs'
 import type { TableInstance } from 'element-plus'
-import { type PlaybackPopList } from '@/components/player/BasePlaybackPop.vue'
 
 export default defineComponent({
     setup() {

@@ -33,14 +33,11 @@
                     />
                 </el-form-item>
                 <el-form-item prop="password">
-                    <el-input
+                    <BasePasswordInput
                         v-model="formData.password"
                         :placeholder="Translate('IDCS_PASSWORD_TIP')"
-                        type="password"
                         tabindex="2"
                         show-password
-                        @paste.capture.prevent=""
-                        @copy.capture.prevent=""
                     />
                 </el-form-item>
                 <el-form-item>

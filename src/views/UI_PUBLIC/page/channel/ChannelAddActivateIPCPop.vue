@@ -27,26 +27,20 @@
                 :label="Translate('IDCS_PASSWORD')"
                 prop="password"
             >
-                <el-input
+                <BasePasswordInput
                     v-model.trim="formData.password"
-                    type="password"
                     maxlength="16"
                     :disabled="useDefaultPwdSwitch"
-                    @paste.capture.prevent=""
-                    @copy.capture.prevent=""
                 />
             </el-form-item>
             <el-form-item
                 :label="Translate('IDCS_CONFIRM_PASSWORD')"
                 prop="confirmPassword"
             >
-                <el-input
+                <BasePasswordInput
                     v-model.trim="formData.confirmPassword"
-                    type="password"
                     maxlength="16"
                     :disabled="useDefaultPwdSwitch"
-                    @paste.capture.prevent=""
-                    @copy.capture.prevent=""
                 />
             </el-form-item>
         </el-form>

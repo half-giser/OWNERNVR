@@ -4,8 +4,6 @@
  * @Description: canvas视频遮挡配置（透明矩形区域×4）
  */
 
-import CanvasBase from './canvasBase'
-
 export interface CanvasMaskMaskItem {
     X: number
     Y: number
@@ -22,7 +20,7 @@ interface CanvasMaskOption {
     onchange?: (maskList: CanvasMaskMaskItem[]) => void
 }
 
-export default function CanvasMask(option: CanvasMaskOption = {}) {
+export const CanvasMask = (option: CanvasMaskOption = {}) => {
     const DEFAULT_COLOR = '#0f08' // 默认填充色值
     const DEFAULT_MAX = 4 // 绘制最大数量
     const RELATIVE_WIDTH = 640 // 万分比宽度

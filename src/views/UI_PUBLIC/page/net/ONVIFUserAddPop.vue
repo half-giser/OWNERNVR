@@ -33,13 +33,10 @@
                         v-model="pageData.passwordSwitch"
                     />
                 </template>
-                <el-input
+                <BasePasswordInput
                     v-model="formData.password"
-                    type="password"
                     :disabled="type === 'edit' && !pageData.passwordSwitch"
                     :placeholder="Translate('IDCS_PASSWORD_TIP')"
-                    @paste.capture.prevent=""
-                    @copy.capture.prevent=""
                 />
             </el-form-item>
             <BasePasswordStrength :strength />
@@ -50,13 +47,10 @@
                 :label="Translate('IDCS_CONFIRM_PASSWORD')"
                 prop="confirmPassword"
             >
-                <el-input
+                <BasePasswordInput
                     v-model="formData.confirmPassword"
-                    type="password"
                     :disabled="type === 'edit' && !pageData.passwordSwitch"
                     :placeholder="Translate('IDCS_PASSWORD_TIP')"
-                    @paste.capture.prevent=""
-                    @copy.capture.prevent=""
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_USER_TYPE')">

@@ -4,7 +4,6 @@
  * @Description: 创建私有证书弹窗
  */
 import { type FormRules } from 'element-plus'
-import { NetHTTPSPrivateCertForm } from '@/types/apiType/net'
 
 export default defineComponent({
     props: {

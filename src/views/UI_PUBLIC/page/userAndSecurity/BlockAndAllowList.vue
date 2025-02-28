@@ -48,12 +48,9 @@
                     width="150"
                 >
                     <template #default="{ row, $index }: TableColumn<UserEditBlackAllowListForm>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             file="edit (2)"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
-                            @click.stop="openEditPop(row, $index)"
+                            @click="openEditPop(row, $index)"
                         />
                     </template>
                 </el-table-column>
@@ -62,12 +59,9 @@
                     width="150"
                 >
                     <template #default="{ $index }: TableColumn<UserEditBlackAllowListForm>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             file="del"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
-                            @click.stop="delItem($index)"
+                            @click="delItem($index)"
                         />
                     </template>
                 </el-table-column>

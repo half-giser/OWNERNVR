@@ -14,13 +14,10 @@
         >
             <div class="notification-title">
                 <div>{{ Translate('IDCS_INFO_TIP') }}</div>
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     file="close"
                     :chunk="2"
-                    :index="0"
-                    :hover-index="1"
-                    :active-index="1"
-                    class="remove-button"
+                    :index="[0, 1, 1, 1]"
                     @click="hideNotification"
                 />
             </div>

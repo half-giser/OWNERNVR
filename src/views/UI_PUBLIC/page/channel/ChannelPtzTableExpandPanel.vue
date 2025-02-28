@@ -9,7 +9,7 @@
         <BaseImgSprite
             class="expand-add"
             file="addItem"
-            :index="0"
+            :hover-index="0"
             :chunk="2"
             @click="$emit('add')"
         />

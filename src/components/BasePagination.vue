@@ -5,23 +5,17 @@
 -->
 <template>
     <div class="Pagination">
-        <div
-            class="btn"
-            @click="firstPage"
-        >
+        <div class="btn">
             <BaseImgSprite
                 file="pageBtn"
-                :index="0"
                 :hover-index="1"
                 :disabled-index="3"
                 :chunk="16"
                 :disabled="currentPage <= 1"
+                @click="firstPage"
             />
         </div>
-        <div
-            class="btn"
-            @click="prevPage"
-        >
+        <div class="btn">
             <BaseImgSprite
                 file="pageBtn"
                 :index="4"
@@ -29,6 +23,7 @@
                 :disabled-index="7"
                 :chunk="16"
                 :disabled="currentPage <= 1"
+                @click="prevPage"
             />
         </div>
         <BaseNumberInput
@@ -36,13 +31,10 @@
             :min="1"
             :max="totalPage"
             :disabled="totalPage <= 1"
-            @keydown.enter="keydownPage(inputNumber)"
+            @keyup.enter="keydownPage(inputNumber)"
         />
         <div class="page-info">{{ currentPage }} / {{ totalPage }}</div>
-        <div
-            class="btn"
-            @click="nextPage"
-        >
+        <div class="btn">
             <BaseImgSprite
                 file="pageBtn"
                 :index="8"
@@ -50,12 +42,10 @@
                 :disabled-index="11"
                 :chunk="16"
                 :disabled="currentPage >= totalPage"
+                @click="nextPage"
             />
         </div>
-        <div
-            class="btn"
-            @click="lastPage"
-        >
+        <div class="btn">
             <BaseImgSprite
                 file="pageBtn"
                 :index="12"
@@ -63,6 +53,7 @@
                 :disabled-index="15"
                 :chunk="16"
                 :disabled="currentPage >= totalPage"
+                @click="lastPage"
             />
         </div>
         <el-select-v2
@@ -176,10 +167,6 @@ const changeCurrentPage = (currentPage: number) => {
  * @description 跳转首页
  */
 const firstPage = () => {
-    if (prop.currentPage <= 1) {
-        return
-    }
-
     changeCurrentPage(1)
 }
 
@@ -187,10 +174,6 @@ const firstPage = () => {
  * @description 上一页
  */
 const prevPage = () => {
-    if (prop.currentPage <= 1) {
-        return
-    }
-
     changeCurrentPage(prop.currentPage - 1)
 }
 
@@ -198,10 +181,6 @@ const prevPage = () => {
  * @description 下一页
  */
 const nextPage = () => {
-    if (prop.currentPage >= totalPage.value) {
-        return
-    }
-
     changeCurrentPage(prop.currentPage + 1)
 }
 
@@ -209,10 +188,6 @@ const nextPage = () => {
  * @description 跳转尾页
  */
 const lastPage = () => {
-    if (prop.currentPage >= totalPage.value) {
-        return
-    }
-
     changeCurrentPage(totalPage.value)
 }
 

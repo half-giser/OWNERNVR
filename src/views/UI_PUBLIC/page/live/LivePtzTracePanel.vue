@@ -23,7 +23,7 @@
                     :disabled-index="0"
                     :chunk="2"
                     :disabled="!enabled"
-                    @click.stop="deleteTrace(item.index, item.name)"
+                    @click="deleteTrace(item.index, item.name)"
                 />
             </BaseListBoxItem>
         </BaseListBox>
@@ -37,53 +37,35 @@
                 </el-text>
             </div>
             <div>
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     file="preset_Add"
                     :title="Translate('IDCS_ADD')"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="4"
                     :disabled="!enabled"
                     @click="addTrace"
                 />
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     v-show="!pageData.playStatus"
                     file="start_cruise"
                     :title="Translate('IDCS_TRACK_PLAY')"
-                    :index="0"
-                    :hover-index="1"
-                    :chunk="4"
                     @click="playTrace"
                 />
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     v-show="pageData.playStatus"
                     file="stop_cruise"
                     :title="Translate('IDCS_TRACK_STOP')"
-                    :index="0"
-                    :hover-index="1"
-                    :chunk="4"
                     @click="stopTrace"
                 />
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     v-show="!pageData.recordStatus"
                     file="noRecord"
                     :title="Translate('IDCS_START_RECORD')"
-                    :index="0"
-                    :hover-index="1"
-                    :chunk="4"
-                    :disabled-index="3"
                     :disabled="!enabled"
                     @click="startRecord"
                 />
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     v-show="pageData.recordStatus"
                     file="record"
                     :title="Translate('IDCS_STOP_RECORD')"
-                    :index="0"
-                    :hover-index="1"
-                    :chunk="4"
-                    :disabled-index="3"
                     :disabled="!enabled"
                     @click="stopRecord(pageData.active)"
                 />

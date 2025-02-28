@@ -4,7 +4,6 @@
  * @Description: 巡航线组 新增巡航线弹窗
  */
 import type { FormRules } from 'element-plus'
-import { type ChannelPtzCruiseDto } from '@/types/apiType/channel'
 
 export default defineComponent({
     props: {

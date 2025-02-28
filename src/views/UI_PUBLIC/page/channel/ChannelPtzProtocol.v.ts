@@ -4,7 +4,6 @@
  * @Description: 云台-协议
  */
 import { type TableInstance } from 'element-plus'
-import { ChannelPtzProtocolDto } from '@/types/apiType/channel'
 
 export default defineComponent({
     setup(_prop, ctx) {

@@ -3,7 +3,6 @@
  * @Date: 2024-08-30 18:46:48
  * @Description: 人脸库
  */
-import { IntelFaceDBGroupList, IntelFaceDBFaceInfo } from '@/types/apiType/intelligentAnalysis'
 import { type TableInstance } from 'element-plus'
 import IntelBaseFaceItem from './IntelBaseFaceItem.vue'
 import IntelFaceDBEditPop from './IntelFaceDBEditPop.vue'
@@ -399,7 +398,7 @@ export default defineComponent({
                         <faceFeatureGroups type="list">
                             <item id="${groupId}"></item>
                         </faceFeatureGroups>
-                        ${(ternary(!!formData.value.name), `<name>${formData.value.name}</name>`)}
+                        ${formData.value.name ? `<name>${formData.value.name}</name>` : ''}
                     </condition>
                 `
                 const result = await queryFacePersonnalInfoList(sendXml)

@@ -3,9 +3,6 @@
  * @Date: 2024-07-03 15:01:51
  * @Description: POS显示设置
  */
-import { SystemPosDisplaySetting, SystemPosDisplayPosition, type SystemPosListStartEndChar, type SystemPostDisplaySet, type SystemPostColorData } from '@/types/apiType/system'
-import CanvasPos from '@/utils/canvas/canvasPos'
-
 export default defineComponent({
     props: {
         /**
@@ -163,9 +160,6 @@ export default defineComponent({
          * @param {number} index
          */
         const deleteStartEndChar = (index: number) => {
-            if (index === startEndCharTableList.value.length - 1) {
-                return
-            }
             startEndCharTableList.value.splice(index, 1)
         }
 
@@ -187,9 +181,6 @@ export default defineComponent({
          * @param {number} index
          */
         const deleteLineBreak = (index: number) => {
-            if (index === lineBreakTableList.value.length - 1) {
-                return
-            }
             lineBreakTableList.value.splice(index, 1)
         }
 
@@ -211,9 +202,6 @@ export default defineComponent({
          * @param {number} index
          */
         const deleteIgnoreChar = (index: number) => {
-            if (index === ignoreChareTableList.value.length - 1) {
-                return
-            }
             ignoreChareTableList.value.splice(index, 1)
         }
 

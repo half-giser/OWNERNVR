@@ -20,11 +20,8 @@
                 prop="currentPassword"
                 :label="Translate('IDCS_CURRENT_PASSWORD')"
             >
-                <el-input
+                <BasePasswordInput
                     v-model="formData.currentPassword"
-                    type="password"
-                    @paste.capture.prevent=""
-                    @copy.capture.prevent=""
                     @change="changePassword"
                 />
             </el-form-item>
@@ -32,24 +29,14 @@
                 prop="newPassword"
                 :label="Translate('IDCS_NEW_PASSWORD')"
             >
-                <el-input
-                    v-model="formData.newPassword"
-                    type="password"
-                    @paste.capture.prevent=""
-                    @copy.capture.prevent=""
-                />
+                <BasePasswordInput v-model="formData.newPassword" />
             </el-form-item>
             <BasePasswordStrength :strength />
             <el-form-item
                 prop="confirmNewPassword"
                 :label="Translate('IDCS_CONFIRM_NEW_PASSWORD')"
             >
-                <el-input
-                    v-model="formData.confirmNewPassword"
-                    type="password"
-                    @paste.capture.prevent=""
-                    @copy.capture.prevent=""
-                />
+                <BasePasswordInput v-model="formData.confirmNewPassword" />
             </el-form-item>
             <el-form-item>{{ noticeMsg }}</el-form-item>
         </el-form>

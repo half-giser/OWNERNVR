@@ -113,7 +113,6 @@
                                                 >
                                                     <BaseImgSprite
                                                         file="chl_icon"
-                                                        :index="0"
                                                         :chunk="4"
                                                     />
                                                     <span class="text-ellipsis">{{ item.label }}</span>

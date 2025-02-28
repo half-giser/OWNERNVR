@@ -4,7 +4,6 @@
  * @Description: 通道编辑 弹窗
  */
 import { type FormRules } from 'element-plus'
-import { ChannelInfoDto } from '@/types/apiType/channel'
 
 export default defineComponent({
     props: {
@@ -13,7 +12,7 @@ export default defineComponent({
             required: true,
         },
         protocolList: {
-            type: Array as PropType<Record<string, string>[]>,
+            type: Array as PropType<ChannelRTSPPropertyDto[]>,
             required: true,
         },
         manufacturerMap: {
@@ -26,13 +25,10 @@ export default defineComponent({
         },
     },
     emits: {
-        updateNameMapping(id: string, name: string) {
-            return typeof id === 'string' && typeof name === 'string'
-        },
         close(isRefresh = false) {
             return typeof isRefresh === 'boolean'
         },
-        setDataCallBack(item: ChannelInfoDto) {
+        confirm(item: ChannelInfoDto) {
             return !!item
         },
     },
@@ -71,7 +67,7 @@ export default defineComponent({
                     editItem.value.name = $('content/name').text()
                     editItem.value.port = $('content/port').text().num()
                     // editItem.value.manufacturer = $('content/manufacturer').text()
-                    const filterPropertyList = filterProperty(props.protocolList, 'index')
+                    const filterPropertyList = props.protocolList.map((item) => item.index)
                     const factoryName = $('content/productModel').attr('factoryName')
                     const manufacturer = $('content/manufacturer').text()
                     if (factoryName) {
@@ -236,25 +232,24 @@ export default defineComponent({
                             <id>${props.rowData.id}</id>
                             <manufacturer type="manufacturer">${editItem.value.manufacturer}</manufacturer>
                             <name>${wrapCDATA(editItem.value.name.trim())}</name>
-                            ${ternary(!isAnolog.value && !portDisabled.value, `<ip>${isIp || isIpv6 ? editItem.value.ip : ''}</ip>`)}
-                            ${ternary(!isAnolog.value && !portDisabled.value && isDomain, `<domain>${wrapCDATA(editItem.value.ip)}</domain>`)}
-                            ${ternary(!isAnolog.value && !portDisabled.value, `<port>${editItem.value.port}</port>`)}
-                            ${ternary(!isAnolog.value && editPwdSwitch.value, `<password ${getSecurityVer()}>${wrapCDATA(AES_encrypt(editItem.value.password, userSessionStore.sesionKey))}</password>`)}
-                            ${ternary(!isAnolog.value, `<userName>${editItem.value.userName}</userName>`)}
+                            ${!isAnolog.value && !portDisabled.value ? `<ip>${isIp || isIpv6 ? editItem.value.ip : ''}</ip>` : ''}
+                            ${!isAnolog.value && !portDisabled.value && isDomain ? `<domain>${wrapCDATA(editItem.value.ip)}</domain>` : ''}
+                            ${!isAnolog.value && !portDisabled.value ? `<port>${editItem.value.port}</port>` : ''}
+                            ${!isAnolog.value && editPwdSwitch.value ? `<password ${getSecurityVer()}>${wrapCDATA(AES_encrypt(editItem.value.password, userSessionStore.sesionKey))}</password>` : ''}
+                            ${!isAnolog.value ? `<userName>${editItem.value.userName}</userName>` : ''}
                         </content>
                     `
                     editDev(sendXml).then((res) => {
                         const $ = queryXml(res)
                         if ($('status').text() === 'success') {
-                            emit('updateNameMapping', props.rowData.id, editItem.value.name)
                             openMessageBox({
                                 type: 'success',
                                 message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                             }).then(() => {
-                                if (editItem.value.ip === '0.0.0.0') {
+                                if (editItem.value.ip === DEFAULT_EMPTY_IP) {
                                     editItem.value.ip = ''
                                 }
-                                emit('setDataCallBack', editItem.value)
+                                emit('confirm', editItem.value)
                                 emit('close', true)
                             })
                         } else {
@@ -315,7 +310,6 @@ export default defineComponent({
             portDisabled,
             opened,
             save,
-            formatInputMaxLength,
         }
     },
 })

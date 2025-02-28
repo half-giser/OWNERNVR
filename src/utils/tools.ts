@@ -4,8 +4,6 @@
  * @Description: 工具方法
  */
 
-import { type ChannelQueryNodeListDto } from '@/types/apiType/channel'
-import { type AlarmMutexDto, type AlarmOnlineChlDto } from '@/types/apiType/aiAndEvent'
 import { type ApiResult } from '@/api/api'
 import { type XMLQuery, type XmlResult } from './xmlParse'
 import JSZip from 'jszip'
@@ -252,7 +250,7 @@ const createExcelTemplate = (titleArr: string[], contentArr: string[][], xlsDesc
     return rawXml`
         <table cellspacing='0' cellpadding='0' border='1' style='display:none' class="excelTable">
             <thead>
-                ${ternary(!!xlsDesc, `<tr><th colspan="${xlsDesc?.colspan}">${xlsDesc?.content}</th></tr>`, '')}
+                ${xlsDesc ? `<tr><th colspan="${xlsDesc.colspan}">${xlsDesc.content}</th></tr>` : ''}
                 <tr>${titleArr.map((item) => `<th>${item}</th>`).join('')}</tr>
             </thead>
             <tbody>${content}</tbody>
@@ -332,20 +330,6 @@ export const downloadZip = (options: DownloadZipOptions) => {
 }
 
 /**
- * @description
- * @param arrayObject
- * @param property
- * @returns {Array}
- */
-export const filterProperty = (arrayObject: Record<string, string>[], property: string): Array<string> => {
-    const array: string[] = []
-    arrayObject.forEach((ele) => {
-        array.push(ele[property])
-    })
-    return array
-}
-
-/**
  * @description XML注入securityVer属性
  * @returns {string}
  */
@@ -384,16 +368,12 @@ export const wrapBase64Img = (str: string) => {
     return 'data:image/png;base64,' + str
 }
 
-export const ternary = (condition: boolean | number | string | undefined | null, trueResult = '', falseResult = '') => {
-    return condition ? trueResult : falseResult
-}
-
 /**
  * @description 获取通道列表
  * @param options（options为过滤条件）
  * @returns {promise}
  */
-export const getChlList = (options: Partial<ChannelQueryNodeListDto>) => {
+export const getChlList = (options: Partial<ChannelQueryNodeListDto> = {}) => {
     const data = rawXml`
         <types>
             <nodeType>
@@ -407,44 +387,44 @@ export const getChlList = (options: Partial<ChannelQueryNodeListDto>) => {
                 <enum>all</enum>
             </chlType>
         </types>
-        ${ternary(options.pageIndex, `<pageIndex>${options.pageIndex}</pageIndex>`)}
-        ${ternary(options.pageSize, `<pageSize>${options.pageSize}</pageSize>`)}
+        ${options.pageIndex ? `<pageIndex>${options.pageIndex}</pageIndex>` : ''}
+        ${options.pageSize ? `<pageSize>${options.pageSize}</pageSize>` : ''}
         <nodeType type='nodeType'>${options.nodeType || 'chls'}</nodeType>
         <condition>
-            ${ternary(options.chlName, `<name>${wrapCDATA(options.chlName!)}</name>`)}
-            ${ternary(options.isSupportPtz, '<supportPtz/>')}
-            ${ternary(options.isSupportPtzGroupTraceTask, '<supportPTZGroupTraceTask/>')}
-            ${ternary(options.isSupportTalkback, '<supportTalkback/>')}
-            ${ternary(options.isSupportOsc, '<supportOsc/>')}
-            ${ternary(options.isSupportSnap, '<supportSnap/>')}
-            ${ternary(options.isSupportVfd, '<supportVfd/>')}
-            ${ternary(options.isSupportBackEndVfd, '<supportBackEndVfd/>')}
-            ${ternary(options.isSupportCpc, '<supportCpc/>')}
-            ${ternary(options.isSupportCdd, '<supportCdd/>')}
-            ${ternary(options.isSupportIpd, '<supportIpd/>')}
-            ${ternary(options.isSupportAvd, '<supportAvd/>')}
-            ${ternary(options.isSupportPea, '<supportPea/>')}
-            ${ternary(options.isSupportTripwire, '<supportTripwire/>')}
-            ${ternary(options.isSupportImageRotate, '<supportImageRotate/>')}
-            ${ternary(options.isSupportFishEye, '<supportFishEye/>')}
-            ${ternary(options.isSupportMotion, '<supportMotion/>')}
-            ${ternary(options.isSupportOsd, '<supportOsd/>')}
-            ${ternary(options.isSupportAudioSetting, '<supportAudioSetting/>')}
-            ${ternary(options.isSupportMaskSetting, '<supportMaskSetting/>')}
-            ${ternary(options.isSupportImageSetting, '<supportImageSetting/>')}
-            ${ternary(options.isSupportWhiteLightAlarmOut, '<supportWhiteLightAlarmOut/>')}
-            ${ternary(options.isSupportAudioAlarmOut, '<supportAudioAlarmOut/>')}
-            ${ternary(options.isSupportAudioDev, '<supportAudioDev/>')}
-            ${ternary(options.isSupportAOIEntry, '<supportAOIEntry/>')}
-            ${ternary(options.isSupportAOILeave, '<supportAOILeave/>')}
-            ${ternary(options.isSupportPassLine, '<supportPassLine/>')}
-            ${ternary(options.isSupportVehiclePlate, '<supportVehiclePlate/>')}
-            ${ternary(options.isSupportAutoTrack, '<supportAutoTrack/>')}
-            ${ternary(options.isSupportAccessControl, '<supportAccessControl/>')}
-            ${ternary(options.isContainsDeletedItem, '<containsDeletedItem/>')}
-            ${ternary(options.authList, `<auth relation='or'>${options.authList}</auth>`)}
-            ${ternary(options.chlType, `<chlType type='chlType'>${options.chlType}</chlType>`)}
-            ${ternary(options.ignoreNdChl, '<ignoreNdChl/>')}
+            ${options.chlName ? `<name>${wrapCDATA(options.chlName)}</name>` : ''}
+            ${options.isSupportPtz ? '<supportPtz/>' : ''}
+            ${options.isSupportPtzGroupTraceTask ? '<supportPTZGroupTraceTask/>' : ''}
+            ${options.isSupportTalkback ? '<supportTalkback/>' : ''}
+            ${options.isSupportOsc ? '<supportOsc/>' : ''}
+            ${options.isSupportSnap ? '<supportSnap/>' : ''}
+            ${options.isSupportVfd ? '<supportVfd/>' : ''}
+            ${options.isSupportBackEndVfd ? '<supportBackEndVfd/>' : ''}
+            ${options.isSupportCpc ? '<supportCpc/>' : ''}
+            ${options.isSupportCdd ? '<supportCdd/>' : ''}
+            ${options.isSupportIpd ? '<supportIpd/>' : ''}
+            ${options.isSupportAvd ? '<supportAvd/>' : ''}
+            ${options.isSupportPea ? '<supportPea/>' : ''}
+            ${options.isSupportTripwire ? '<supportTripwire/>' : ''}
+            ${options.isSupportImageRotate ? '<supportImageRotate/>' : ''}
+            ${options.isSupportFishEye ? '<supportFishEye/>' : ''}
+            ${options.isSupportMotion ? '<supportMotion/>' : ''}
+            ${options.isSupportOsd ? '<supportOsd/>' : ''}
+            ${options.isSupportAudioSetting ? '<supportAudioSetting/>' : ''}
+            ${options.isSupportMaskSetting ? '<supportMaskSetting/>' : ''}
+            ${options.isSupportImageSetting ? '<supportImageSetting/>' : ''}
+            ${options.isSupportWhiteLightAlarmOut ? '<supportWhiteLightAlarmOut/>' : ''}
+            ${options.isSupportAudioAlarmOut ? '<supportAudioAlarmOut/>' : ''}
+            ${options.isSupportAudioDev ? '<supportAudioDev/>' : ''}
+            ${options.isSupportAOIEntry ? '<supportAOIEntry/>' : ''}
+            ${options.isSupportAOILeave ? '<supportAOILeave/>' : ''}
+            ${options.isSupportPassLine ? '<supportPassLine/>' : ''}
+            ${options.isSupportVehiclePlate ? '<supportVehiclePlate/>' : ''}
+            ${options.isSupportAutoTrack ? '<supportAutoTrack/>' : ''}
+            ${options.isSupportAccessControl ? '<supportAccessControl/>' : ''}
+            ${options.isContainsDeletedItem ? '<containsDeletedItem/>' : ''}
+            ${options.authList ? `<auth relation='or'>${options.authList}</auth>` : ''}
+            ${options.chlType ? `<chlType type='chlType'>${options.chlType}</chlType>` : ''}
+            ${options.ignoreNdChl ? '<ignoreNdChl/>' : ''}
         </condition>
         <requireField>
             ${Array.from(new Set(['name', 'chlIndex', 'chlType'].concat(options.requireField || [])))
@@ -1450,4 +1430,12 @@ export const objectToOptions = <T extends 'number' | 'string' | 'boolean', K ext
             value: (valueType === 'number' ? item[0].num() : valueType === 'boolean' ? item[0].bool() : item[0]) as K,
         }
     })
+}
+
+/**
+ * @description INPUT输入框失去焦点
+ * @param {Event} event
+ */
+export const blurInput = (event: Event) => {
+    ;(event.target as HTMLInputElement).blur()
 }

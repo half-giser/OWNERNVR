@@ -4,7 +4,6 @@
  * @Description: 收藏视图
  */
 import { type FormRules } from 'element-plus'
-import { SystemOutputSettingAddViewForm } from '@/types/apiType/system'
 
 export interface ChlsDto {
     id: string

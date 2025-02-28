@@ -3,7 +3,6 @@
  * @Date: 2024-07-12 18:20:34
  * @Description: FTP配置
  */
-import { NetFTPForm, type NetFTPList } from '@/types/apiType/net'
 import { type FormRules } from 'element-plus'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 

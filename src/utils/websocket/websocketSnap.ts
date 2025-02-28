@@ -4,8 +4,6 @@
  * @Description: websocket 订阅实时抓拍
  */
 
-import WebsocketBase from './websocketBase'
-
 type SnapDataConfig = Partial<{
     channel_id: string
     face_detect: {
@@ -205,7 +203,7 @@ const PIC_KEY_MAP = {
     },
 }
 
-export default function WebsocketSnap(option: WebsocketSnapOption) {
+export const WebsocketSnap = (option: WebsocketSnapOption) => {
     const config = option.config
     const onsuccess = option.onsuccess
 

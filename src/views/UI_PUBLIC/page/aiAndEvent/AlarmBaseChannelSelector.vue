@@ -13,14 +13,13 @@
             <el-popover
                 v-model:visible="pageData.isPop"
                 width="430"
-                popper-class="no-padding keep-ocx"
+                popper-class="no-padding"
             >
                 <template #reference>
                     <div class="alarm-chl">
                         <div class="text-ellipsis">{{ content }}</div>
                         <BaseImgSprite
                             file="arrow"
-                            :index="0"
                             :chunk="4"
                         />
                     </div>

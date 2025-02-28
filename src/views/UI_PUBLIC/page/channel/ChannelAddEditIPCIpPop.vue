@@ -60,15 +60,11 @@
                 prop="password"
                 :label="Translate('IDCS_PASSWORD')"
             >
-                <el-input
+                <BasePasswordInput
                     v-model="formData.password"
-                    type="password"
                     maxlength="16"
-                    autocomplete="new-password"
                     :placeholder="Translate('IDCS_PASSWORD_TIP')"
                     :title="Translate('IDCS_PASSWORD_TIP')"
-                    @paste.capture.prevent=""
-                    @copy.capture.prevent=""
                 />
             </el-form-item>
         </el-form>

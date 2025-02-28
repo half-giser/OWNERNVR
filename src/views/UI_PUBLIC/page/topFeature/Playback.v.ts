@@ -9,8 +9,6 @@ import PlaybackAsidePanel from '../playback/PlaybackAsidePanel.vue'
 import PlaybackControlPanel from '../playback/PlaybackControlPanel.vue'
 import PlaybackScreenPanel from '../playback/PlaybackScreenPanel.vue'
 import PlaybackFisheyePanel, { type FishEyePanelExpose } from '../playback/PlaybackFisheyePanel.vue'
-import { type PlaybackEventList, type PlaybackRecList, type PlaybackChlList, type PlaybackBackUpRecList, type PlaybackRecLogList } from '@/types/apiType/playback'
-import { LiveSharedWinData } from '@/types/apiType/live'
 import PlaybackBackUpPanel from '../playback/PlaybackBackUpPanel.vue'
 import PlaybackRecLogPanel from '../playback/PlaybackRecLogPanel.vue'
 import BackupPop from '../searchAndBackup/BackupPop.vue'
@@ -197,7 +195,7 @@ export default defineComponent({
             // 最长时间条的最大X轴坐标,
             timelineMaxCoordinateX: 0,
             // 当前指针对应的时间
-            timelineCurrentPointerTime: '00:00:00',
+            timelineCurrentPointerTime: DEFAULT_EMPTY_TIME,
             // 当前时间轴剪切范围
             timelineClipRange: [] as number[],
             // 全局播放状态
@@ -237,8 +235,8 @@ export default defineComponent({
         const getRecSection = async (chlList: string[]) => {
             if (chlList.length) {
                 const year = dayjs().year()
-                const startTime = dayjs(`${year - 10}-01-01 00:00:00`, DEFAULT_DATE_FORMAT)
-                const endTime = dayjs(`${year + 10}-01-01 00:00:00`, DEFAULT_DATE_FORMAT)
+                const startTime = dayjs(`${year - 10}-01-01`, DEFAULT_YMD_FORMAT)
+                const endTime = dayjs(`${year + 10}-01-01`, DEFAULT_YMD_FORMAT)
                 const spaceTime = 60 * 60 * 24
                 const spaceNum = (endTime.valueOf() - startTime.valueOf()) / 1000 / spaceTime
                 const sendXml = rawXml`

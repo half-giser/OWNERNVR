@@ -3,8 +3,6 @@
  * @Date: 2024-07-29 18:07:29
  * @Description: 现场预览
  */
-import { type LiveChannelList, type LiveCustomViewChlList, LiveSharedWinData } from '@/types/apiType/live'
-import WebsocketState from '@/utils/websocket/websocketState'
 import { type XMLQuery } from '@/utils/xmlParse'
 import LiveChannelPanel, { type ChannelPanelExpose } from '../live/LiveChannelPanel.vue'
 import LiveScreenPanel from '../live/LiveScreenPanel.vue'
@@ -68,7 +66,7 @@ const useStateSubscribe = (
                 channel_state_info: true,
                 alarm_state_info: userSession.hasAuth('alarmMgr'),
             },
-            onmessage(data: any) {
+            onmessage(data) {
                 handleChlState(data.channel_state_info)
                 handleAlarmState(data.alarm_state_info)
             },

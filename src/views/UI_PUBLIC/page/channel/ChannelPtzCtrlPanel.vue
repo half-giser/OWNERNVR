@@ -11,14 +11,10 @@
         }"
     >
         <div class="steer">
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 v-for="item in pageData.steer"
                 :key="item.file"
                 :file="item.file"
-                :index="0"
-                :hover-index="1"
-                :chunk="4"
-                :disabled-index="3"
                 :disabled="!chlId || disabled"
                 @mousedown="addCmd(item)"
                 @mouseup="stopCmd()"
@@ -26,12 +22,8 @@
         </div>
         <div class="value">
             <div class="speed">
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     file="SpeedSlow"
-                    :index="0"
-                    :hover-index="1"
-                    :chunk="4"
-                    :disabled-index="3"
                     :disabled="!chlId || disabled"
                     @click="decreaseSpeed()"
                 />
@@ -44,12 +36,8 @@
                     :show-tooltip="!chlId || disabled ? false : true"
                     placement="bottom"
                 />
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     file="SpeedQuick"
-                    :index="0"
-                    :hover-index="1"
-                    :chunk="4"
-                    :disabled-index="3"
                     :disabled="!chlId || disabled"
                     @click="increaseSpeed()"
                 />
@@ -59,23 +47,15 @@
                 :key="item.name"
                 class="row"
             >
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     :file="item.control[0].file"
-                    :index="0"
-                    :hover-index="1"
-                    :chunk="4"
-                    :disabled-index="3"
                     :disabled="!chlId || disabled"
                     @mousedown="addCmd(item.control[0])"
                     @mouseup="stopCmd()"
                 />
                 <span>{{ item.name }}</span>
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     :file="item.control[1].file"
-                    :index="0"
-                    :hover-index="1"
-                    :chunk="4"
-                    :disabled-index="3"
                     :disabled="!chlId || disabled"
                     @mousedown="addCmd(item.control[1])"
                     @mouseup="stopCmd()"

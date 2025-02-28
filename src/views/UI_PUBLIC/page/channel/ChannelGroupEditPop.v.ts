@@ -3,8 +3,6 @@
  * @Date: 2024-06-18 14:20:56
  * @Description: 通道组 - 编辑弹窗
  */
-
-import { ChannelGroupDto } from '@/types/apiType/channel'
 import { type FormRules } from 'element-plus'
 
 export default defineComponent({
@@ -101,7 +99,6 @@ export default defineComponent({
             rules,
             opened,
             save,
-            formatInputMaxLength,
         }
     },
 })

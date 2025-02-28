@@ -40,7 +40,7 @@
                                 :validate-event="false"
                                 :formatter="formatInputMaxLength"
                                 :parser="formatInputMaxLength"
-                                @keydown.enter="handleKeydownEnter($event)"
+                                @keyup.enter="blurInput"
                             />
                         </el-form-item>
                     </template>
@@ -52,25 +52,24 @@
                     <template #default="{ row, $index }: TableColumn<ChannelDefaultPwdDto>">
                         <span
                             v-show="!row.showInput"
-                            @click="handlePwdViewChange($index, row)"
+                            @click="togglePwd($index, row)"
                             >{{ row.password ? Array(row.password.length).fill('*').join('') : '******' }}</span
                         >
-                        <el-input
+                        <BasePasswordInput
                             v-show="row.showInput"
                             :ref="(ref) => (passwordInputRef[$index] = ref)"
                             v-model="row.password"
-                            type="password"
                             maxlength="64"
-                            @blur="handlePwdViewChange($index, row)"
+                            @blur="togglePwd($index, row)"
                         />
                     </template>
                 </el-table-column>
             </el-table>
         </el-form>
         <BaseCheckAuthPop
-            v-model="baseCheckAuthPopVisiable"
+            v-model="isCheckAuthPop"
             @confirm="setData"
-            @close="baseCheckAuthPopVisiable = false"
+            @close="isCheckAuthPop = false"
         />
         <div class="base-btn-box">
             <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>

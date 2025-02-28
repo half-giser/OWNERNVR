@@ -3,9 +3,6 @@
  * @Date: 2024-09-13 09:18:41
  * @Description: AI 事件——更多——温度检测
  */
-import { AlarmTemperatureDetectionBoundryDto, type AlarmChlDto, AlarmTemperatureDetectionDto } from '@/types/apiType/aiAndEvent'
-import CanvasTemperature from '@/utils/canvas/canvasTemperature'
-import { type CanvasBaseArea, type CanvasBasePoint } from '@/utils/canvas/canvasBase'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import { type TableInstance } from 'element-plus'
 import { type XMLQuery } from '@/utils/xmlParse'
@@ -495,11 +492,6 @@ export default defineComponent({
             }
         }
 
-        // 回车键失去焦点
-        const blurInput = (event: Event) => {
-            ;(event.target as HTMLElement).blur()
-        }
-
         // 类型改变
         const changeRuleType = (row: AlarmTemperatureDetectionBoundryDto) => {
             // pageData.value.alarmRuleTypeList[index] = value === 'point' ? alarmRuleTypeList2 : alarmRuleTypeList1
@@ -585,8 +577,8 @@ export default defineComponent({
                         <param>
                             <switch>${formData.value.enabledSwitch}</switch>
                             <alarmHoldTime>${formData.value.holdTime}</alarmHoldTime>
-                            ${ternary(formData.value.triggerAudio && prop.chlData.supportAudio, `<triggerAudio>${formData.value.trigger.includes('triggerAudio')}</triggerAudio>`)}
-                            ${ternary(formData.value.triggerWhiteLight && prop.chlData.supportWhiteLight, `<triggerWhiteLight>${formData.value.trigger.includes('triggerWhiteLight')}</triggerWhiteLight>`)}
+                            ${formData.value.triggerAudio && prop.chlData.supportAudio ? `<triggerAudio>${formData.value.trigger.includes('triggerAudio')}</triggerAudio>` : ''}
+                            ${formData.value.triggerWhiteLight && prop.chlData.supportWhiteLight ? `<triggerWhiteLight>${formData.value.trigger.includes('triggerWhiteLight')}</triggerWhiteLight>` : ''}
                             <boundary type='list' count='10' maxCount='10'>
                                 ${formData.value.boundaryData
                                     .map((item) => {
@@ -783,14 +775,12 @@ export default defineComponent({
             clearArea,
             clearAllArea,
             changeBoundary,
-            blurInput,
             changeRuleType,
             focusValue,
             inputValue,
             blurValue,
             getRuleTypeList,
             setData,
-            formatInputMaxLength,
             closeSchedulePop,
         }
     },

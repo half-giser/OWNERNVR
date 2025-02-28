@@ -69,10 +69,6 @@ declare global {
         // systemInfo: SystemInfo
         browserInfo: BrowserInfo
         serverIp: string
-        LoadingTarget: Record<string, string>
-        openLoading: Function
-        closeLoading: Function
-        notify: Function
     }
 
     interface TableColumn<T> {
@@ -190,6 +186,10 @@ declare global {
 declare module 'vue' {
     interface ComponentCustomProperties {
         Translate: (key: string) => string
+        formatInputMaxLength: (str: string) => string
+        formatInputUserName: (str: string) => string
+        blurInput: (e: Event) => void
+        formatDigit: (str: string) => string
     }
 
     interface GlobalComponents {}

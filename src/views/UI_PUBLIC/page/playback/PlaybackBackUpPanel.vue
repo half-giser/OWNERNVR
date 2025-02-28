@@ -13,13 +13,9 @@
             @update:visible="$emit('update:visible', $event)"
         >
             <template #reference>
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     file="backUpTask"
                     :title="Translate('IDCS_BACKUP_TASKS')"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="4"
                 />
             </template>
             <el-table

@@ -3,7 +3,6 @@
  * @Date: 2024-08-28 14:12:55
  * @Description: 实时过车记录 - 详情弹窗
  */
-import { BusinessParkingLotList, type BusinessParkingLotRelevantList } from '@/types/apiType/business'
 import dayjs from 'dayjs'
 import IntelLicencePlateDBAddPlatePop from '../intelligentAnalysis/IntelLicencePlateDBAddPlatePop.vue'
 

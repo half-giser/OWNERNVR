@@ -6,11 +6,6 @@
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import BaseInputEncryptPwdPop from '../../components/auth/BaseInputEncryptPwdPop.vue'
 import UpgradeBackUpPop from './UpgradeBackUpPop.vue'
-import WebsocketUpload from '@/utils/websocket/websocketUpload'
-import WebsocketDownload from '@/utils/websocket/websocketDownload'
-import { type CmdUploadFileOpenOption } from '@/utils/websocket/websocketCmd'
-import { SystemUpgradeForm } from '@/types/apiType/system'
-import { UserCheckAuthForm, UserInputEncryptPwdForm } from '@/types/apiType/user'
 
 export default defineComponent({
     components: {

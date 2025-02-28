@@ -3,7 +3,6 @@
  * @Date: 2024-06-17 21:17:45
  * @Description: 通道组
  */
-import { ChannelGroupDto } from '@/types/apiType/channel'
 import ChannelGroupEditPop from './ChannelGroupEditPop.vue'
 import ChannelGroupAddChlPop from './ChannelGroupAddChlPop.vue'
 import ChannelPtzTableExpandPanel from './ChannelPtzTableExpandPanel.vue'
@@ -58,12 +57,12 @@ export default defineComponent({
             return Translate('IDCS_STAY_TIME_D').formatForLang(getTranslateForSecond(value), '')
         }
 
-        const handleEditChlGroup = (rowData: ChannelGroupDto) => {
+        const editChlGroup = (rowData: ChannelGroupDto) => {
             editItem.value = rowData
             isEditPop.value = true
         }
 
-        const handleDelChlGroup = (rowData: ChannelGroupDto) => {
+        const deleteChlGroup = (rowData: ChannelGroupDto) => {
             openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_GROUP_S').formatForLang(getShortString(rowData.name, 10)),
@@ -86,12 +85,12 @@ export default defineComponent({
             })
         }
 
-        const handleSizeChange = (val: number) => {
+        const changePageSize = (val: number) => {
             pageSize.value = val
             getData()
         }
 
-        const handleCurrentChange = (val: number) => {
+        const changePage = (val: number) => {
             pageIndex.value = val
             getData()
         }
@@ -152,12 +151,12 @@ export default defineComponent({
             })
         }
 
-        const handleAddChl = (rowData: ChannelGroupDto) => {
+        const addChl = (rowData: ChannelGroupDto) => {
             editItemForAddChl.value = rowData
             isAddChlPop.value = true
         }
 
-        const handleDelChl = (rowData: ChannelGroupDto, chlId: string | boolean) => {
+        const deleteChl = (rowData: ChannelGroupDto, chlId: string | boolean) => {
             if (rowData.chlCount <= 1) {
                 openMessageBox(Translate('IDCS_PROMPT_CHANNEL_GROUP_DELETE_CHANNEL_ERROR'))
                 return
@@ -210,13 +209,13 @@ export default defineComponent({
             closeChlGroupAddChlPop,
             setDataCallBack,
             formatDwellTime,
-            handleEditChlGroup,
-            handleDelChlGroup,
-            handleSizeChange,
-            handleCurrentChange,
+            editChlGroup,
+            deleteChlGroup,
+            changePageSize,
+            changePage,
             handleExpandChange,
-            handleAddChl,
-            handleDelChl,
+            addChl,
+            deleteChl,
         }
     },
 })

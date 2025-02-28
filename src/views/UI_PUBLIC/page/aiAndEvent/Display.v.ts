@@ -3,8 +3,6 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-07-30 09:23:37
  */
-import { AlarmDisplayPopVideoForm, AlarmDisplayPopMsgForm } from '@/types/apiType/aiAndEvent'
-
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()

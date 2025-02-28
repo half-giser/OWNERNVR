@@ -4,9 +4,9 @@
  * @Description: 日期相关常量
  */
 
-export const DEFAULT_DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss'
-
+export const DEFAULT_YMD_FORMAT = 'YYYY-MM-DD'
 export const DEFAULT_TIME_FORMAT = 'HH:mm:ss'
+export const DEFAULT_DATE_FORMAT = DEFAULT_YMD_FORMAT + ' ' + DEFAULT_TIME_FORMAT
 
 const TIME_ZONE = [
     'GMT+12',

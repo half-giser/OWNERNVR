@@ -3,7 +3,6 @@
  * @Date: 2024-07-22 20:03:07
  * @Description: 用户权限相关常量
  */
-import { type UserPermissionAuthKey } from '@/types/apiType/userAndSecurity'
 
 /**
  * @description 默认权限组的名字映射

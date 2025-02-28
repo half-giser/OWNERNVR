@@ -23,20 +23,15 @@
                 <el-input
                     v-model="formData.userName"
                     :placeholder="Translate('IDCS_ACCOUNT_TIP')"
-                    @paste.capture.prevent=""
-                    @copy.capture.prevent=""
                 />
             </el-form-item>
             <el-form-item
                 prop="password"
                 :label="Translate('IDCS_PASSWORD')"
             >
-                <el-input
+                <BasePasswordInput
                     v-model="formData.password"
-                    type="password"
                     :placeholder="Translate('IDCS_PASSWORD_TIP')"
-                    @paste.capture.prevent=""
-                    @copy.capture.prevent=""
                 />
             </el-form-item>
             <el-form-item v-show="tip">

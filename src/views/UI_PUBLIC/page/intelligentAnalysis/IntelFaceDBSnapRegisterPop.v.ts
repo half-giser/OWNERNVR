@@ -5,7 +5,6 @@
  */
 import type { FormRules } from 'element-plus'
 import IntelFaceDBEditPop from './IntelFaceDBEditPop.vue'
-import { type IntelFaceDBGroupDto, IntelFaceDBSnapRegisterForm } from '@/types/apiType/intelligentAnalysis'
 
 export default defineComponent({
     components: {
@@ -137,7 +136,7 @@ export default defineComponent({
             const groupItemId = pageData.value.faceDatabaseList.find((item) => item.groupId === formData.value.groupId)!.id
             const sendXml = rawXml`
                 <content>
-                    ${ternary(pageData.value.forceCreate, '<force>true</force>')}
+                    ${pageData.value.forceCreate ? '<force>true</force>' : ''}
                     <name>${formData.value.name}</name>
                     <sex>${formData.value.sex}</sex>
                     <birthday>${formatDate(formData.value.birthday, dateTime.dateFormat, 'YYYY-MM-DD')}</birthday>
@@ -260,7 +259,6 @@ export default defineComponent({
             getFaceDatabaseList,
             confirmAddGroup,
             verify,
-            formatDigit,
         }
     },
 })

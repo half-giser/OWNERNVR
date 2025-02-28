@@ -3,7 +3,6 @@
  * @Date: 2024-07-31 11:11:05
  * @Description: 自动模式通道码流参数配置
  */
-import { type RecordModeDto, type RecordStreamTableExpose } from '@/types/apiType/record'
 import RecordBaseStreamTable from './RecordBaseStreamTable.vue'
 
 export default defineComponent({

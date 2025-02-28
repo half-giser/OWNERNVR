@@ -3,9 +3,7 @@
  * @Date: 2024-08-27 18:22:21
  * @Description: 实时过车记录
  */
-import WebsocketSnap, { type WebsocketSnapOnSuccessPlate } from '@/utils/websocket/websocketSnap'
-import { dayjs } from 'element-plus'
-import { BusinessParkingLotList } from '@/types/apiType/business'
+import dayjs from 'dayjs'
 import PKMgrParkLotPop from './PKMgrParkLotPop.vue'
 
 export default defineComponent({

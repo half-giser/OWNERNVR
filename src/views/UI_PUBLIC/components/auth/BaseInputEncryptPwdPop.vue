@@ -20,12 +20,10 @@
                 prop="password"
                 :label="Translate('IDCS_PASSWORD')"
             >
-                <el-input
+                <BasePasswordInput
                     v-model="formData.password"
-                    :type="isShowPassord ? 'text' : 'password'"
+                    :show-text="isShowPassord"
                     :placeholder="Translate('IDCS_PASSWORD_TIP')"
-                    @paste.capture.prevent=""
-                    @copy.capture.prevent=""
                 />
             </el-form-item>
             <el-form-item

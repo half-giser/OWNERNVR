@@ -3,8 +3,6 @@
  * @Date: 2024-07-29 16:09:44
  * @Description: 现场预览-目标检测视图-人脸比对项组件
  */
-import { type WebsocketSnapOnSuccessSnap } from '@/utils/websocket/websocketSnap'
-
 export default defineComponent({
     props: {
         /**

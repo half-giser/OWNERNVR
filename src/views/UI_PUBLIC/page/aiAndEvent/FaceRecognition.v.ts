@@ -4,9 +4,7 @@
  * @Description: AI 事件——人脸识别
  */
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
-import { AlarmFaceChlDto, AlarmFaceDetectionDto, AlarmFaceMatchDto, AlarmFaceRecognitionDto, type AlarmRecognitionTaskDto } from '@/types/apiType/aiAndEvent'
 import { type TabPaneName, type CheckboxValueType } from 'element-plus'
-import CanvasVfd from '@/utils/canvas/canvasVfd'
 import RecognitionPanel from './RecognitionPanel.vue'
 import { type XMLQuery } from '@/utils/xmlParse'
 import AlarmBaseChannelSelector from './AlarmBaseChannelSelector.vue'
@@ -741,12 +739,12 @@ export default defineComponent({
                         <trigger>
                             <sysRec>
                                 <chls type='list'>
-                                    ${detectionFormData.value.record.map((item) => `<item id='${item.value}'><![CDATA[${item.label}]]></item>`).join('')}
+                                    ${detectionFormData.value.record.map((item) => `<item id='${item.value}'>${wrapCDATA(item.label)}</item>`).join('')}
                                 </chls>
                             </sysRec>
                             <alarmOut>
                                 <alarmOuts type='list'>
-                                    ${detectionFormData.value.alarmOut.map((item) => `<item id='${item.value}'><![CDATA[${item.label}]]></item>`).join('')}
+                                    ${detectionFormData.value.alarmOut.map((item) => `<item id='${item.value}'>${wrapCDATA(item.label)}</item>`).join('')}
                                 </alarmOuts>
                             </alarmOut>
                             <preset>
@@ -756,8 +754,8 @@ export default defineComponent({
                                             return rawXml`
                                                 <item>
                                                     <index>${item.index}</index>
-                                                    <name><![CDATA[${item.name}]]></name>
-                                                    <chl id='${item.chl.value}'><![CDATA[${item.chl.label}]]></chl>
+                                                    <name>${wrapCDATA(item.name)}</name>
+                                                    <chl id='${item.chl.value}'>${wrapCDATA(item.chl.label)}</chl>
                                                 </item>
                                             `
                                         })
@@ -974,14 +972,6 @@ export default defineComponent({
         }
 
         /**
-         * @description 回车键失去焦点
-         * @param {Event} event
-         */
-        const blurInput = (event: Event) => {
-            ;(event.target as HTMLInputElement).blur()
-        }
-
-        /**
          * @description 提交人脸匹配数据
          */
         const setMatchData = async () => {
@@ -1175,8 +1165,8 @@ export default defineComponent({
                                                                 return rawXml`
                                                                     <item>
                                                                         <index>${ele.index}</index>
-                                                                        <name><![CDATA[${ele.name}]]></name>
-                                                                        <chl id='${ele.chl.value}'><![CDATA[${ele.chl.label}]]></chl>
+                                                                        <name>${wrapCDATA(ele.name)}</name>
+                                                                        <chl id='${ele.chl.value}'>${wrapCDATA(ele.chl.label)}</chl>
                                                                     </item>
                                                                 `
                                                             })
@@ -1338,7 +1328,6 @@ export default defineComponent({
             removeTask,
             // tabChange,
             changeAllSimilarity,
-            blurInput,
             applyRecognitionData,
             handleAIResourceError,
             handleAIResourceDel,

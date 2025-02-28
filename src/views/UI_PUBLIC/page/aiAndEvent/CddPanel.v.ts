@@ -3,10 +3,8 @@
  * @Date: 2024-09-19 17:51:22
  * @Description: 人群密度检测
  */
-import { type AlarmChlDto, AlarmCddDto } from '@/types/apiType/aiAndEvent'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { type XMLQuery } from '@/utils/xmlParse'
-import CanvasVfd from '@/utils/canvas/canvasVfd'
 import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
 import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
 import AlarmBaseTriggerSelector from './AlarmBaseTriggerSelector.vue'
@@ -276,12 +274,12 @@ export default defineComponent({
                         <trigger>
                             <sysRec>
                                 <chls type="list">
-                                    ${formData.value.record.map((element) => `<item id="${element.value}"><![CDATA[${element.label}]]></item>`).join('')}
+                                    ${formData.value.record.map((element) => `<item id="${element.value}">${wrapCDATA(element.label)}</item>`).join('')}
                                 </chls>
                             </sysRec>
                             <alarmOut>
                                 <alarmOuts type="list">
-                                    ${formData.value.alarmOut.map((element) => `<item id="${element.value}"><![CDATA[${element.label}]]></item>`).join('')}
+                                    ${formData.value.alarmOut.map((element) => `<item id="${element.value}">${wrapCDATA(element.label)}</item>`).join('')}
                                 </alarmOuts>
                             </alarmOut>
                             <preset>
@@ -291,8 +289,8 @@ export default defineComponent({
                                             return rawXml`
                                                 <item>
                                                     <index>${item.index}</index>
-                                                    <name><![CDATA[${item.name}]]></name>
-                                                    <chl id='${item.chl.value}'><![CDATA[${item.chl.label}]]></chl>
+                                                    <name>${wrapCDATA(item.name)}</name>
+                                                    <chl id='${item.chl.value}'>${wrapCDATA(item.chl.label)}</chl>
                                                 </item>`
                                         })
                                         .join('')}

@@ -4,7 +4,6 @@
  * @Description: 业务应用-人脸考勤
  */
 import dayjs from 'dayjs'
-import { type BusinessFaceGroupList, BusinessFaceAttendanceList, BusinessFaceAttendanceForm } from '@/types/apiType/business'
 import FaceDetailPop from './FaceDetailPop.vue'
 
 export default defineComponent({
@@ -327,7 +326,7 @@ export default defineComponent({
                     return {
                         faceFeatureId: hexToDec(textArr[0]) + '',
                         timestamp,
-                        frameTime: localToUtc(timestamp) + ':' + ('0000000' + hexToDec(textArr[2])).slice(-7),
+                        frameTime: localToUtc(timestamp) + ':' + padStart(hexToDec(textArr[2]), 7),
                         imgId: hexToDec(textArr[3]),
                         chlId,
                         chlName: chlMap[chlId],

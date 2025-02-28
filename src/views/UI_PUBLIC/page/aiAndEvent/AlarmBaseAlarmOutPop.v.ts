@@ -3,8 +3,6 @@
  * @Date: 2024-11-08 13:37:15
  * @Description: 普通事件-联动-报警输出
  */
-import { type AlarmOutPopDto } from '@/types/apiType/aiAndEvent'
-
 export default defineComponent({
     props: {
         /**

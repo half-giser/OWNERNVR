@@ -3,10 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-20 10:15:52
  */
-import { AlarmVideoStructureDto, type AlarmChlDto, type AlarmVideoStructureCfgDto } from '@/types/apiType/aiAndEvent'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
-import CanvasPolygon, { type CanvasPolygonOSDInfo } from '@/utils/canvas/canvasPolygon'
-import type { CanvasBaseArea, CanvasBasePoint } from '@/utils/canvas/canvasBase'
 import { type CheckboxValueType, type CheckboxGroupValueType } from 'element-plus'
 import { type XMLQuery } from '@/utils/xmlParse'
 

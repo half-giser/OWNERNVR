@@ -30,12 +30,9 @@
                     @click="changeChlMenu(index)"
                     @dblclick="changeChlMenu(index)"
                 >
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         :file="item.file"
-                        :index="pageData.activeChlMenu === index ? 1 : 0"
-                        :hover-index="1"
-                        :disabled-index="3"
-                        :chunk="4"
+                        :active="pageData.activeChlMenu === index"
                     />
                 </div>
             </div>
@@ -51,7 +48,7 @@
                             v-model="pageData.chlKeyword"
                             class="middle"
                             :placeholder="Translate('IDCS_SEARCH_CHANNEL')"
-                            @keydown.enter="searchChl"
+                            @keyup.enter="searchChl"
                         />
                         <BaseImgSprite
                             class="left-chl-search"
@@ -147,24 +144,18 @@
             </div>
             <div class="left-btns">
                 <div :title="Translate('IDCS_SEARCH')">
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         file="search"
-                        :index="0"
-                        :hover-index="2"
-                        :chunk="4"
+                        :index="[0, 2, 2, 3]"
                         :disabled="!pageData.selectedChl.length"
-                        :disabled-index="3"
                         @click="search"
                     />
                 </div>
                 <div :title="Translate('IDCS_PLAY')">
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         file="play (2)"
-                        :index="0"
-                        :hover-index="2"
-                        :chunk="4"
+                        :index="[0, 2, 2, 3]"
                         :disabled="!pageData.selectedChl.length"
-                        :disabled-index="3"
                         @click="play"
                     />
                 </div>

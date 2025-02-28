@@ -4,7 +4,7 @@
  * @Description: 闪灯
  */
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
-import { AlarmWhiteLightDto } from '@/types/apiType/aiAndEvent'
+
 export default defineComponent({
     components: {
         ScheduleManagPop,
@@ -191,10 +191,6 @@ export default defineComponent({
             })
         }
 
-        const blurDurationTime = (e: Event) => {
-            ;(e.target as HTMLInputElement).blur()
-        }
-
         const changeSchedule = () => {
             pageData.value.scheduleChanged = true
             pageData.value.scheduleName = pageData.value.schedule === DEFAULT_EMPTY_ID ? '' : pageData.value.scheduleList.find((item) => item.value === pageData.value.schedule)!.label
@@ -224,7 +220,6 @@ export default defineComponent({
             changePaginationSize,
             changeAllEnable,
             changeAllFrequencyType,
-            blurDurationTime,
             changeSchedule,
             openSchedulePop,
             closeSchedulePop,

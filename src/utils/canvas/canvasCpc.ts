@@ -4,8 +4,6 @@
  * @Description: 人数统计画线：可拖动单箭头 + 可拖动矩形框
  */
 
-import CanvasBase, { type CanvasBaseLineStyleOption, type CanvasBaseArea } from './canvasBase'
-
 interface CanvasCpcOption {
     el?: HTMLCanvasElement
     regionlineStyle?: CanvasBaseLineStyleOption
@@ -16,7 +14,7 @@ interface CanvasCpcOption {
     onchange?: (regionInfo: CanvasBaseArea, arrowlineInfo: CanvasBaseArea) => void
 }
 
-export default function CanvasCpc(option: CanvasCpcOption = {}) {
+export const CanvasCpc = (option: CanvasCpcOption = {}) => {
     const DEFAULT_REGION_LINE_COLOR = '#0f0' // 区域画线默认色值
     const DEFAULT_ARROW_LINE_COLOR = '#f00' // 箭头默认色值
     // const DEFAULT_TEXT_COLOR = '#f00' // 文字默认色值

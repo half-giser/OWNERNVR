@@ -3,7 +3,6 @@
  * @Date: 2024-05-31 16:36:04
  * @Description: canvas绘制osd配置
  */
-import CanvasBase, { type CanvasBaseRect } from './canvasBase'
 
 export interface CanvasOSDOptionNameConfig {
     value: string // 通道名
@@ -36,7 +35,7 @@ interface CanvasOSDOption {
     onchange?: (nameCfg: CanvasOSDOptionNameConfig, timeCfg: CanvasOSDOptionTimeConfig) => void
 }
 
-export default function CanvasOSD(option: CanvasOSDOption = {}) {
+export const CanvasOSD = (option: CanvasOSDOption = {}) => {
     const OSD_COLOR: string | CanvasGradient | CanvasPattern = '#f00' // osd颜色
     const OSD_FONT_SIZE = 14 // osd字体大小
     const OSD_FONT = OSD_FONT_SIZE + 'px Arial'

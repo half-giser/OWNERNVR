@@ -3,7 +3,6 @@
  * @Date: 2024-09-18 09:33:12
  * @Description: 开机向导
  */
-import { SystemGuideLangForm, SysmteGuidePrivacyForm, SystemGuideUserForm, SystemGuideDateTimeForm, SystemGuideQuestionForm, type SystemGuideDiskList } from '@/types/apiType/system'
 import dayjs from 'dayjs'
 
 export default defineComponent({
@@ -353,9 +352,9 @@ export default defineComponent({
             })
             qaFormData.value.id = pageData.value.questionOptions[0]?.id || ''
 
-            stepList.languageAndRegion = !$('content/showLanguage').length || $('content/showLanguage').text().bool()
-            stepList.privacy = !$('content/showPrivacyStatement').length || $('content/showPrivacyStatement').text().bool()
-            stepList.dateAndTimezone = !$('content/showDateTime').length || $('content/showDateTime').text().bool()
+            stepList.languageAndRegion = $('content/showLanguage').text().bool()
+            stepList.privacy = $('content/showPrivacyStatement').text().bool()
+            stepList.dateAndTimezone = $('content/showDateTime').text().bool()
 
             steps.value = Object.keys(stepList).filter((item) => stepList[item])
         }

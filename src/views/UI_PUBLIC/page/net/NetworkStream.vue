@@ -100,7 +100,6 @@
                                             >
                                                 <BaseImgSprite
                                                     file="chl_icon"
-                                                    :index="0"
                                                     :chunk="4"
                                                 />
                                                 <span>{{ item.chlName }}</span>

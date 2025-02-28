@@ -70,12 +70,8 @@
                     width="80"
                 >
                     <template #default="{ row }: TableColumn<ChannelInfoDto>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             file="play (3)"
-                            :chunk="4"
-                            :index="0"
-                            :hover-index="1"
-                            :active-index="1"
                             @click="handlePreview(row)"
                         />
                     </template>
@@ -91,19 +87,15 @@
                             </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
-                                    <el-dropdown-item @click="handleEditIPCPwd">{{ Translate('IDCS_MODIFY_IPC_PASSWORD') }}</el-dropdown-item>
+                                    <el-dropdown-item @click="editIPCPwd">{{ Translate('IDCS_MODIFY_IPC_PASSWORD') }}</el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
                         </el-dropdown>
                     </template>
                     <template #default="{ row }: TableColumn<ChannelInfoDto>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             file="edit (2)"
-                            :chunk="4"
-                            :index="0"
-                            :hover-index="1"
-                            :active-index="1"
-                            @click="handleEditChannel(row)"
+                            @click="editChannel(row)"
                         />
                     </template>
                 </el-table-column>
@@ -118,36 +110,29 @@
                             </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
-                                    <el-dropdown-item @click="handleDelChannelAll">{{ Translate('IDCS_DELETE_ALL') }}</el-dropdown-item>
+                                    <el-dropdown-item @click="delAllChannel">{{ Translate('IDCS_DELETE_ALL') }}</el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
                         </el-dropdown>
                     </template>
                     <template #default="{ row }: TableColumn<ChannelInfoDto>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             file="del"
-                            :chunk="4"
-                            :index="0"
-                            :hover-index="1"
-                            :active-index="1"
                             :disabled="row.delDisabled"
-                            @click="handleDelChannel(row)"
+                            @click="delChannel(row)"
                         />
                     </template>
                 </el-table-column>
                 <el-table-column
+                    v-if="userSession.appType !== 'P2P'"
                     :label="Translate('IDCS_CONFIGURATION')"
                     width="80"
                 >
                     <template #default="{ row }: TableColumn<ChannelInfoDto>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             v-show="row.showSetting"
                             file="localCfg"
-                            :chunk="4"
-                            :index="0"
-                            :hover-index="1"
-                            :active-index="1"
-                            @click="handleSettingChannel(row)"
+                            @click="setChannel(row)"
                         />
                     </template>
                 </el-table-column>
@@ -162,36 +147,27 @@
                             </BaseTableDropdownLink>
                             <template #dropdown>
                                 <el-dropdown-menu>
-                                    <el-dropdown-item @click="handleBatchUpgradeIPC">{{ Translate('IDCS_IPC_BATCH_UPGRADE') }}</el-dropdown-item>
+                                    <el-dropdown-item @click="upgradeIPCBatch">{{ Translate('IDCS_IPC_BATCH_UPGRADE') }}</el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
                         </el-dropdown>
                     </template>
                     <template #default="{ row }: TableColumn<ChannelInfoDto>">
-                        <BaseImgSprite
-                            v-show="handleShowUpgradeBtn(row) && row.upgradeStatus === 'normal'"
+                        <BaseImgSpriteBtn
+                            v-show="isShowUpgradeBtn(row) && row.upgradeStatus === 'normal'"
                             file="upload"
-                            :chunk="4"
-                            :index="0"
-                            :hover-index="1"
-                            :active-index="1"
-                            :disabled-index="3"
                             :disabled="row.upgradeDisabled"
-                            @click="handleUpgradeIPC(row)"
+                            @click="upgradeIPC(row)"
                         />
                         <BaseImgSprite
                             v-show="row.upgradeStatus === 'error'"
                             file="error"
-                            :chunk="1"
-                            :index="0"
-                            @click="handleUpgradeIPC(row)"
+                            @click="upgradeIPC(row)"
                         />
                         <BaseImgSprite
                             v-show="row.upgradeStatus === 'success'"
                             file="success"
-                            :chunk="1"
-                            :index="0"
-                            @click="handleUpgradeIPC(row)"
+                            @click="upgradeIPC(row)"
                         />
                         <span v-show="row.upgradeStatus === 'progress'">{{ row.upgradeProgressText }}</span>
                     </template>
@@ -215,7 +191,7 @@
             :protocol-list="protocolList"
             :manufacturer-map="manufacturerMap"
             :name-mapping="editNameMapping"
-            :set-data-call-back="setDataCallBack"
+            @confirm="confirmEditChannel"
             @close="closeEditChannelPop"
         />
         <ChannelEditIPCPwdPop

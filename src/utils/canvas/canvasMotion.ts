@@ -4,8 +4,6 @@
  * @Description: canvas移动侦测配置（网格线）
  */
 
-import CanvasBase, { type CanvasBaseLineStyleOption } from './canvasBase'
-
 interface CanvasMotionOption {
     el?: HTMLCanvasElement
     rowNum?: number
@@ -15,7 +13,7 @@ interface CanvasMotionOption {
     onchange?: (netArr: string[][]) => void
 }
 
-export default function CanvasMotion(option: CanvasMotionOption = {}) {
+export const CanvasMotion = (option: CanvasMotionOption = {}) => {
     const DEFAULT_COLOR = '#0f0' // 默认网格颜色
     const DEFAULT_LINE_WIDTH = 1 // 默认网格线宽
     const DEFAULT_ROWS = 15 // 默认网格行数

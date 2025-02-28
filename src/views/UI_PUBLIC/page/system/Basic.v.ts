@@ -5,7 +5,6 @@
  */
 import QRCode from 'qrcode'
 import { type QRCodeToDataURLOptions } from 'qrcode'
-import { SystemBaseInfoForm } from '@/types/apiType/system'
 import LoginPrivacyPop from '../LoginPrivacyPop.vue'
 
 export default defineComponent({

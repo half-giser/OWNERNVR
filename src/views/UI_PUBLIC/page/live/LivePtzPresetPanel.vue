@@ -19,40 +19,29 @@
                 <BaseImgSprite
                     file="call"
                     :title="Translate('IDCS_CALL')"
-                    :index="pageData.active === index ? 0 : 1"
+                    :active="pageData.active === index"
+                    :active-index="1"
                     :chunk="2"
-                    @click.stop="callPreset(item.index, index)"
+                    @click="callPreset(item.index, index)"
                 />
             </BaseListBoxItem>
         </BaseListBox>
         <div class="base-home-ptz-btns">
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 file="preset_Add"
                 :title="Translate('IDCS_ADD')"
-                :index="0"
-                :hover-index="1"
-                :disabled-index="3"
-                :chunk="4"
                 :disabled="!enabled"
                 @click="addPreset"
             />
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 file="preset_Delete"
                 :title="Translate('IDCS_DELETE')"
-                :index="0"
-                :hover-index="1"
-                :chunk="4"
-                :disabled-index="3"
                 :disabled="!enabled"
                 @click="deletePreset"
             />
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 file="preset_SavePosition"
                 :title="Translate('IDCS_SAVE_POSITION')"
-                :index="0"
-                :hover-index="1"
-                :disabled-index="3"
-                :chunk="4"
                 :disabled="!enabled"
                 @click="savePreset"
             />

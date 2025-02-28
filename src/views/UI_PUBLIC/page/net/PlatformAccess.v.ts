@@ -3,7 +3,6 @@
  * @Date: 2024-08-15 18:19:00
  * @Description: 平台接入
  */
-import { NetPlatformAccessForm, type NetPlatformSipList, NetPlatformSipCodeList } from '@/types/apiType/net'
 import PlatformAccessCodeIdPop from './PlatformAccessCodeIdPop.vue'
 import type { FormRules } from 'element-plus'
 
@@ -359,9 +358,6 @@ export default defineComponent({
          * @param {NetPlatformSipCodeList} item
          */
         const editCodeId = (index: number, item: NetPlatformSipCodeList) => {
-            if (!formData.value.gb28181Switch) {
-                return
-            }
             pageData.value.codeData = item
             pageData.value.codeListIndex = index
             pageData.value.isCodePop = true
@@ -418,7 +414,7 @@ export default defineComponent({
                                 <port>${formData.value.sipPort}</port>
                                 <deviceId>${formData.value.sipDeviceId}</deviceId>
                                 <username>${formData.value.sipUserName}</username>
-                                ${ternary(formData.value.sipPassword === '******' || !formData.value.sipPassword, '', `<password${getSecurityVer()}>${wrapCDATA(AES_encrypt(formData.value.sipPassword, userSession.sesionKey))}</password>`)}
+                                ${formData.value.sipPassword === '******' || !formData.value.sipPassword ? '' : `<password${getSecurityVer()}>${wrapCDATA(AES_encrypt(formData.value.sipPassword, userSession.sesionKey))}</password>`}
                                 <expireTime>${formData.value.sipExpireTime}</expireTime>
                             </sipServerInfo>
                         </item>
@@ -484,8 +480,6 @@ export default defineComponent({
             formData,
             formRules,
             tableData,
-            formatDigit,
-            formatInputMaxLength,
             editCodeId,
             confirmEditCodeId,
             verify,

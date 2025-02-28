@@ -3,8 +3,6 @@
  * @Date: 2024-06-27 09:03:07
  * @Description: 录像机OSD配置
  */
-import { SystemRecorderOSDSettingsForm } from '@/types/apiType/system'
-
 export default defineComponent({
     setup() {
         const pageData = ref({

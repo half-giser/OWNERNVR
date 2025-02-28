@@ -3,7 +3,6 @@
  * @Date: 2024-07-31 16:36:16
  * @Description: 排程编辑弹框
  */
-import { ScheduleInfo } from '@/types/apiType/schedule'
 import { type FormRules } from 'element-plus'
 
 export default defineComponent({
@@ -55,7 +54,6 @@ export default defineComponent({
                 {
                     validator: (_rule, _value, callback) => {
                         if (!(formData.value.timespan.length && formData.value.timespan.find((o) => o.length > 0))) {
-                            callback(new Error(''))
                             openMessageBox(Translate('IDCS_PROMPT_SCHEDULE_PERIOD_EMPTY'))
                             return
                         }
@@ -130,7 +128,7 @@ export default defineComponent({
                         </weekDay>
                     </types>
                     <content>
-                        ${ternary(!!props.scheduleDtail, `<id>${props.scheduleDtail?.id || ''}</id>`)}
+                        ${props.scheduleDtail ? `<id>${props.scheduleDtail.id}</id>` : ''}
                         <name maxByteLen="63">${wrapCDATA(formData.value.name)}</name>
                         <period type="list">
                             <itemType>
@@ -142,12 +140,12 @@ export default defineComponent({
                                     return dayValue
                                         .map((item) => {
                                             return rawXml`
-                                                <item>
-                                                    <mode>weekly</mode>
-                                                    <start>${item[0]}</start>
-                                                    <end>${item[1]}</end>
-                                                    <day>${props.dayEnum[index]}</day>
-                                                </item>`
+                                            <item>
+                                                <mode>weekly</mode>
+                                                <start>${item[0]}</start>
+                                                <end>${item[1]}</end>
+                                                <day>${props.dayEnum[index]}</day>
+                                            </item>`
                                         })
                                         .join('')
                                 })
@@ -174,11 +172,9 @@ export default defineComponent({
             formRule,
             scheduleWeekRef,
             onOpen,
-            // manualTimeInputOpen,
             manualTimeInputClose,
             manualTimeInputOk,
             save,
-            formatInputMaxLength,
         }
     },
 })

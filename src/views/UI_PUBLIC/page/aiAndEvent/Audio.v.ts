@@ -3,7 +3,6 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-13 09:23:25
  */
-import { AlarmAudioAlarmOutDto, AlarmAudioDevice, type AlarmLocalAudioDto } from '@/types/apiType/aiAndEvent'
 import AudioUploadPop from './AudioUploadPop.vue'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import { type TableInstance } from 'element-plus'
@@ -280,7 +279,7 @@ export default defineComponent({
                         <content>
                             <chl id='${item.id}'>
                             <param>
-                                <name><![CDATA[${item.name}]]></name>
+                                <name>${wrapCDATA(item.name)}</name>
                                 <switch>${item.audioSwitch}</switch>
                                 <audioType>${item.audioType}</audioType>
                                 <alarmTimes>${item.alarmTimes || ''}</alarmTimes>
@@ -396,15 +395,15 @@ export default defineComponent({
                         <content>
                             <chl id='${item.id}'>
                                 <param>
-                                    ${ternary(item.audioInSwitch, `<audioInSwitch>${item.audioInSwitch}</audioInSwitch>`)}
-                                    ${ternary(item.audioInput, `<audioInput>${item.audioInput}</audioInput>`)}
-                                    ${ternary(item.audioOutput, `<audioOutput>${item.audioOutput}</audioOutput>`)}
-                                    ${ternary(item.loudSpeaker, `<loudSpeaker>${item.loudSpeaker}</loudSpeaker>`)}
-                                    ${ternary(item.audioEncode, `<audioEncode>${item.audioEncode}</audioEncode>`)}
+                                    ${item.audioInSwitch ? `<audioInSwitch>${item.audioInSwitch}</audioInSwitch>` : ''}
+                                    ${item.audioInput ? `<audioInput>${item.audioInput}</audioInput>` : ''}
+                                    ${item.audioOutput ? `<audioOutput>${item.audioOutput}</audioOutput>` : ''}
+                                    ${item.loudSpeaker ? `<loudSpeaker>${item.loudSpeaker}</loudSpeaker>` : ''}
+                                    ${item.audioEncode ? `<audioEncode>${item.audioEncode}</audioEncode>` : ''}
                                     <volume>
-                                        ${ternary(item.micInVolume >= 0, `<micInVolume>${item.micInVolume}</micInVolume>`)}
-                                        ${ternary(item.linInVolume >= 0, `<linInVolume>${item.linInVolume}</linInVolume>`)}
-                                        ${ternary(item.audioOutVolume >= 0, `<audioOutVolume>${item.audioOutVolume}</audioOutVolume>`)}
+                                        ${item.micInVolume >= 0 ? `<micInVolume>${item.micInVolume}</micInVolume>` : ''}
+                                        ${item.linInVolume >= 0 ? `<linInVolume>${item.linInVolume}</linInVolume>` : ''}
+                                        ${item.audioOutVolume >= 0 ? `<audioOutVolume>${item.audioOutVolume}</audioOutVolume>` : ''}
                                     </volume>
                                 </param>
                             </chl>

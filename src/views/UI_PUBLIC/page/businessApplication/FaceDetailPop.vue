@@ -37,11 +37,7 @@
                         :disabled="!current.date"
                         @click="search"
                     >
-                        <BaseImgSprite
-                            file="toolbar_search"
-                            :index="0"
-                            :chunk="1"
-                        />
+                        <BaseImgSprite file="toolbar_search" />
                     </el-button>
                 </div>
             </div>

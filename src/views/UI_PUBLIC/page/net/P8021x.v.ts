@@ -4,7 +4,6 @@
  * @Description: 802.1x配置
  */
 import { type FormRules } from 'element-plus'
-import { Net8021xForm } from '@/types/apiType/net'
 
 export default defineComponent({
     setup() {

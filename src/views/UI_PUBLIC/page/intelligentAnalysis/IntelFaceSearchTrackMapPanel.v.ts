@@ -4,7 +4,6 @@
  * @Description: 智能分析 - 人脸搜索 - 轨迹
  */
 import IntelFaceSearchTrackMapColorPop from './IntelFaceSearchTrackMapColorPop.vue'
-import type { IntelFaceTrackMapList } from '@/types/apiType/intelligentAnalysis'
 
 export default defineComponent({
     components: {
@@ -211,9 +210,6 @@ export default defineComponent({
          * @description 播放上一个录像
          */
         const prevFrame = () => {
-            if (prevFrameDisabled.value) {
-                return
-            }
             pageData.value.playingIndex--
             play()
         }
@@ -222,9 +218,6 @@ export default defineComponent({
          * @description 播放下一个录像
          */
         const nextFrame = () => {
-            if (nextFrameDisabled.value) {
-                return
-            }
             pageData.value.playingIndex++
             play()
         }

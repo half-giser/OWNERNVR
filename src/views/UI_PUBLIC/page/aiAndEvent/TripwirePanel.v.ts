@@ -3,9 +3,7 @@
  * @Date: 2024-09-19 11:16:22
  * @Description: 越界
  */
-import { type AlarmChlDto, type AlarmOnlineChlDto, AlarmTripwireDto, type CanvasPasslineDirection } from '@/types/apiType/aiAndEvent'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
-import CanvasPassline, { type CanvasPasslinePassline } from '@/utils/canvas/canvasPassline'
 import ChannelPtzCtrlPanel from '@/views/UI_PUBLIC/page/channel/ChannelPtzCtrlPanel.vue'
 import { type XMLQuery } from '@/utils/xmlParse'
 import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
@@ -457,28 +455,12 @@ export default defineComponent({
                         <trigger>
                             <sysRec>
                                 <chls type="list">
-                                    ${formData.value.record
-                                        .map(
-                                            (element) => rawXml`
-                                                <item id="${element.value}">
-                                                    <![CDATA[${element.label}]]>
-                                                </item>
-                                            `,
-                                        )
-                                        .join('')}
+                                    ${formData.value.record.map((element) => `<item id="${element.value}">${wrapCDATA(element.label)}</item>`).join('')}
                                 </chls>
                             </sysRec>
                             <alarmOut>
                                 <alarmOuts type="list">
-                                    ${formData.value.alarmOut
-                                        .map(
-                                            (element) => rawXml`
-                                                <item id="${element.value}">
-                                                    <![CDATA[${element.label}]]>
-                                                </item>
-                                            `,
-                                        )
-                                        .join('')}
+                                    ${formData.value.alarmOut.map((element) => `<item id="${element.value}">${wrapCDATA(element.label)}</item>`).join('')}
                                 </alarmOuts>
                             </alarmOut>
                             <preset>
@@ -488,8 +470,8 @@ export default defineComponent({
                                             return rawXml`
                                                 <item>
                                                     <index>${item.index}</index>
-                                                    <name><![CDATA[${item.name}]]></name>
-                                                    <chl id='${item.chl.value}'><![CDATA[${item.chl.label}]]></chl>
+                                                    <name>${wrapCDATA(item.name)}</name>
+                                                    <chl id='${item.chl.value}'>${wrapCDATA(item.chl.label)}</chl>
                                                 </item>`
                                         })
                                         .join('')}

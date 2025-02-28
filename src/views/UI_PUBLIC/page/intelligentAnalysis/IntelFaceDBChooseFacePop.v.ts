@@ -5,7 +5,6 @@
  */
 import IntelFaceDBChooseFaceSnapPanel from './IntelFaceDBChooseFaceSnapPanel.vue'
 import IntelFaceDBChooseFaceImportPanel from './IntelFaceDBChooseFaceImportPanel.vue'
-import { type IntelFaceDBSnapFaceList, type IntelFaceDBImportFaceDto } from '@/types/apiType/intelligentAnalysis'
 
 export default defineComponent({
     components: {

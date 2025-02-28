@@ -3,7 +3,6 @@
  * @Date: 2024-06-17 20:32:26
  * @Description: 添加权限组
  */
-import { UserPermissionSystemAuthList, UserPermissionChannelAuthList, type UserPermissionAuthKey, UserPermissionGroupAddForm } from '@/types/apiType/userAndSecurity'
 import { type FormRules } from 'element-plus'
 import type { XMLQuery } from '@/utils/xmlParse'
 import PermissionGroupInfoPop from './PermissionGroupInfoPop.vue'
@@ -84,7 +83,7 @@ export default defineComponent({
             }
             // 从新建入口进来，所有选项默认为false
             else {
-                const result = await getChlList({})
+                const result = await getChlList()
                 commLoadResponseHandler(result, ($) => {
                     getChannelAuth($, false)
                 })
@@ -205,7 +204,7 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <name maxByteLen="63">${wrapCDATA(formData.value.name)}</name>
-                    <chlAuthNote><![CDATA[local: [_lp:live preview, _spr: search and play record, _bk:backup, _ptz:PTZ control],remote: [@lp:live preview, @spr: search and play record, @bk:backup, @ptz: PTZ control]]]></chlAuthNote>
+                    <chlAuthNote>${wrapCDATA('local: [_lp:live preview, _spr: search and play record, _bk:backup, _ptz:PTZ control],remote: [@lp:live preview, @spr: search and play record, @bk:backup, @ptz: PTZ control]')}</chlAuthNote>
                     <chlAuth type="list">
                         <itemType>
                             <name/>
@@ -283,7 +282,6 @@ export default defineComponent({
             formRef,
             formData,
             rules,
-            formatInputMaxLength,
             systemAuthList,
             channelAuthList,
             pageData,

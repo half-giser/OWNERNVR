@@ -4,9 +4,6 @@
  * @Description: 打点绘制闭合多边形, 绘制矩形；支持业务：区域入侵、车牌侦测，视频结构化，物品遗留与看护
  */
 
-import CanvasBase from './canvasBase'
-import type { CanvasBaseLineStyleOption, CanvasBasePoint, CanvasBaseArea, CanvasBaseRect } from './canvasBase'
-
 export interface CanvasPolygonOSDInfo {
     X: number
     Y: number
@@ -56,7 +53,7 @@ interface CanvasPolygonOption {
     clearCurrentArea?: (pointList: CanvasBasePoint[]) => void
 }
 
-export default function CanvasPolygon(option: CanvasPolygonOption = {}) {
+export const CanvasPolygon = (option: CanvasPolygonOption = {}) => {
     const DEFAULT_LINE_COLOR = '#0f0'
     const DEFAULT_POINT_COLOR = '#f11' // 打点的颜色
     const DEFAULT_TEXT_COLOR = '#f00' // 文字默认色值

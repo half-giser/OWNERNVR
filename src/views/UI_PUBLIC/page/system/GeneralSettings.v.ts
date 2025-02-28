@@ -4,7 +4,6 @@
  * @Description: 基本配置
  */
 import { type FormRules } from 'element-plus'
-import { SystemGeneralSettingForm } from '@/types/apiType/system'
 
 export default defineComponent({
     setup() {
@@ -404,7 +403,6 @@ export default defineComponent({
             getResolutionDisabled,
             getResolutionOptions,
             displayDecoderLabel,
-            formatInputMaxLength,
             verify,
             arrayToOptions,
         }

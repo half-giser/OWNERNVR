@@ -4,7 +4,6 @@
  * @Description: 云台-巡航线
  */
 import { type TableInstance } from 'element-plus'
-import { type ChannelPtzCruiseChlDto, ChannelPtzCruiseDto, type ChannelPtzCruisePresetDto } from '@/types/apiType/channel'
 import ChannelCruiseAddPop from './ChannelCruiseAddPop.vue'
 import ChannelCruiseEditPresetPop from './ChannelCruiseEditPresetPop.vue'
 import ChannelPtzTableExpandPanel from './ChannelPtzTableExpandPanel.vue'
@@ -136,14 +135,15 @@ export default defineComponent({
             closeLoading()
 
             if ($('status').text() === 'success') {
-                tableData.value[index].cruise = $('content/cruises/item').map((item) => {
+                const item = tableData.value[index]
+                item.cruise = $('content/cruises/item').map((item) => {
                     return {
                         index: item.attr('index').num(),
                         name: item.text(),
                     }
                 })
-                tableData.value[index].maxCount = CRUISE_MAX_COUNT // Number($('content/cruises').attr('maxCount'))
-                tableData.value[index].cruiseCount = tableData.value[index].cruise.length
+                item.maxCount = CRUISE_MAX_COUNT // Number($('content/cruises').attr('maxCount'))
+                item.cruiseCount = item.cruise.length
             }
         }
 
@@ -294,10 +294,6 @@ export default defineComponent({
          * @description 修改巡航线名称
          */
         const saveName = async () => {
-            if (!formData.value.name || !cruiseOptions.value.length) {
-                return
-            }
-
             openLoading()
 
             const sendXml = rawXml`
@@ -538,9 +534,6 @@ export default defineComponent({
          * @description 播放巡航线
          */
         const playCruise = () => {
-            if (!cruiseOptions.value.length) {
-                return
-            }
             const sendXml = rawXml`
                 <content>
                     <chlId>${tableData.value[pageData.value.tableIndex].chlId}</chlId>
@@ -555,9 +548,6 @@ export default defineComponent({
          * @description 停止播放巡航线
          */
         const stopCruise = () => {
-            if (!tableData.value.length) {
-                return
-            }
             const sendXml = rawXml`
                 <content>
                     <chlId>${tableData.value[pageData.value.tableIndex].chlId}</chlId>
@@ -636,7 +626,6 @@ export default defineComponent({
             addCruise,
             confirmAddCruise,
             deleteCruise,
-            formatInputMaxLength,
         }
     },
 })

@@ -4,7 +4,6 @@
  * @Description: 监听和收集表格发生变化的行
  */
 import { type WatchStopHandle } from 'vue'
-import { type TableRowStatus } from '@/types/apiType/base'
 
 export const useWatchEditRows = <T extends TableRowStatus>() => {
     const editRows = ref<Set<T>>(new Set())
@@ -38,6 +37,7 @@ export const useWatchEditRows = <T extends TableRowStatus>() => {
             watch(
                 () => item,
                 () => {
+                    unref(item)
                     editRows.value.add(item as any)
                 },
                 {

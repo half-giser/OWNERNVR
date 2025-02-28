@@ -3,8 +3,6 @@
  * @Date: 2024-08-14 15:48:05
  * @Description: 事件通知——声音——ipc/local添加语音文件弹窗
  */
-import { AlarmAudioAlarmOutDto } from '@/types/apiType/aiAndEvent'
-
 export default defineComponent({
     props: {
         type: {
@@ -79,79 +77,81 @@ export default defineComponent({
                 // 过滤非mp3文件
                 openMessageBox(Translate('IDCS_SELECT_MP3_FILE'))
                 return
-            } else if (prop.type === 'ipcAudio' && files[0].name.indexOf('.wav') === -1) {
+            }
+
+            if (prop.type === 'ipcAudio' && files[0].name.indexOf('.wav') === -1) {
                 openMessageBox(Translate('IDCS_NO_CHOOSE_TDB_FILE').formatForLang('wav'))
                 return
             }
+
             rawFile = files[0]
             pageData.value.uploadFileName = files[0].name
             pageData.value.btnApplyDisabled = false
         }
 
-        const apply = () => {
+        const apply = async () => {
             const _file = rawFile
             if (!_file) {
                 return
             }
             const blob = new Blob([_file])
-            fileToBase64(blob, async (data: string) => {
-                const fileSize = base64FileSize(data)
-                if (prop.type === 'ipcAudio') {
-                    // let audioFileLimitSize = prop.ipcRowData.audioFileLimitSize
-                    const audioFileLimitSize = (Number(prop.ipcRowData.audioFileLimitSize) / 1024).toFixed(2)
-                    if (fileSize > audioFileLimitSize) {
-                        openMessageBox(Translate('IDCS_OUT_FILE_SIZE'))
-                        return
-                    }
-                    const sendXml = rawXml`
-                        <content>
-                            <chl id='${prop.ipcAudioChl}'>
-                                <param>
-                                    <addAudioAlarm>
-                                        <audioName><![CDATA[${pageData.value.uploadFileName}]]></audioName>
-                                        <audioFileSize>${fileSize}</audioFileSize>
-                                        <audioFileData><![CDATA[${data}]]></audioFileData>
-                                    </addAudioAlarm>
-                                </param>
-                            </chl>
-                        </content>
-                    `
-                    const result = await addCustomizeAudioAlarm(sendXml)
-                    const $ = queryXml(result)
-
-                    if ($('status').text() === 'success') {
-                        ctx.emit('close')
-                        const audioId = $('content/param/id').text().num()
-                        ctx.emit('apply', audioId, pageData.value.uploadFileName)
-                    } else {
-                        const errorCode = $('errorCode').text().num()
-                        handleErrorMsg(errorCode)
-                    }
-                } else {
-                    if (Number(fileSize) > 1.5) {
-                        // 上传的音乐文件必须小于1.5MB
-                        openMessageBox(Translate('IDCS_OUT_FILE_SIZE'))
-                        return
-                    }
-                    const sendXml = rawXml`
-                        <content>
-                            <item>
-                                <name><![CDATA[${pageData.value.uploadFileName}]]></name>
-                                <fileData><![CDATA[${data}]]></fileData>
-                            </item>
-                        </content>
-                    `
-                    const result = await addAlarmAudioCfg(sendXml)
-                    const $ = queryXml(result)
-
-                    if ($('status').text() === 'success') {
-                        ctx.emit('close')
-                    } else {
-                        const errorCode = $('errorCode').text().num()
-                        handleErrorMsg(errorCode)
-                    }
+            const data = await fileToBase64(blob)
+            const fileSize = base64FileSize(data)
+            if (prop.type === 'ipcAudio') {
+                // let audioFileLimitSize = prop.ipcRowData.audioFileLimitSize
+                const audioFileLimitSize = (Number(prop.ipcRowData.audioFileLimitSize) / 1024).toFixed(2)
+                if (fileSize > audioFileLimitSize) {
+                    openMessageBox(Translate('IDCS_OUT_FILE_SIZE'))
+                    return
                 }
-            })
+                const sendXml = rawXml`
+                    <content>
+                        <chl id='${prop.ipcAudioChl}'>
+                            <param>
+                                <addAudioAlarm>
+                                    <audioName>${wrapCDATA(pageData.value.uploadFileName)}</audioName>
+                                    <audioFileSize>${fileSize}</audioFileSize>
+                                    <audioFileData>${wrapCDATA(data)}</audioFileData>
+                                </addAudioAlarm>
+                            </param>
+                        </chl>
+                    </content>
+                `
+                const result = await addCustomizeAudioAlarm(sendXml)
+                const $ = queryXml(result)
+
+                if ($('status').text() === 'success') {
+                    ctx.emit('close')
+                    const audioId = $('content/param/id').text().num()
+                    ctx.emit('apply', audioId, pageData.value.uploadFileName)
+                } else {
+                    const errorCode = $('errorCode').text().num()
+                    handleErrorMsg(errorCode)
+                }
+            } else {
+                if (Number(fileSize) > 1.5) {
+                    // 上传的音乐文件必须小于1.5MB
+                    openMessageBox(Translate('IDCS_OUT_FILE_SIZE'))
+                    return
+                }
+                const sendXml = rawXml`
+                    <content>
+                        <item>
+                            <name>${wrapCDATA(pageData.value.uploadFileName)}</name>
+                            <fileData>${wrapCDATA(data)}</fileData>
+                        </item>
+                    </content>
+                `
+                const result = await addAlarmAudioCfg(sendXml)
+                const $ = queryXml(result)
+
+                if ($('status').text() === 'success') {
+                    ctx.emit('close')
+                } else {
+                    const errorCode = $('errorCode').text().num()
+                    handleErrorMsg(errorCode)
+                }
+            }
         }
 
         const handleErrorMsg = (errorCode: number) => {

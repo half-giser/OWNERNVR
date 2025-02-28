@@ -47,20 +47,18 @@
                 prop="password"
                 :label="Translate('IDCS_NEW_PASSWORD')"
             >
-                <el-input
+                <BasePasswordInput
                     v-model="formData.password"
                     :placeholder="Translate('IDCS_PASSWORD_TIP')"
-                    type="password"
                 />
             </el-form-item>
             <el-form-item
                 prop="confirmPassword"
                 :label="Translate('IDCS_CONFIRM_PASSWORD')"
             >
-                <el-input
+                <BasePasswordInput
                     v-model="formData.confirmPassword"
                     :placeholder="Translate('IDCS_PASSWORD_TIP')"
-                    type="password"
                 />
             </el-form-item>
         </el-form>

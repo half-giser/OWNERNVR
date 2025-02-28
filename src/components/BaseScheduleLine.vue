@@ -85,8 +85,6 @@
 </template>
 
 <script lang="ts" setup>
-import CanvasBase from '@/utils/canvas/canvasBase'
-
 export interface Props {
     width: number
     timeMode?: number

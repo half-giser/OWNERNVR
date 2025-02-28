@@ -3,11 +3,8 @@
  * @Date: 2024-09-19 13:36:26
  * @Description: 区域入侵
  */
-import { type AlarmChlDto, type AlarmOnlineChlDto, AlarmPeaDto } from '@/types/apiType/aiAndEvent'
 import ChannelPtzCtrlPanel from '@/views/UI_PUBLIC/page/channel/ChannelPtzCtrlPanel.vue'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
-import CanvasPolygon from '@/utils/canvas/canvasPolygon'
-import type { CanvasBasePoint, CanvasBaseArea } from '@/utils/canvas/canvasBase'
 import { type XMLQuery, type XmlElement } from '@/utils/xmlParse'
 import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
 import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
@@ -505,12 +502,12 @@ export default defineComponent({
                                         <trigger>
                                             <sysRec>
                                                 <chls type="list">
-                                                    ${data.recordChls.map((element) => `<item id="${element.value}"><![CDATA[${element.label}]]></item>`).join('')}
+                                                    ${data.recordChls.map((element) => `<item id="${element.value}">${wrapCDATA(element.label)}</item>`).join('')}
                                                 </chls>
                                             </sysRec>
                                             <alarmOut>
                                                 <alarmOuts type="list">
-                                                    ${data.alarmOutChls.map((element) => `<item id="${element.value}"><![CDATA[${element.label}]]></item>`).join('')}
+                                                    ${data.alarmOutChls.map((element) => `<item id="${element.value}">${wrapCDATA(element.label)}</item>`).join('')}
                                                 </alarmOuts>
                                             </alarmOut>
                                             <preset>
@@ -520,8 +517,8 @@ export default defineComponent({
                                                             return rawXml`
                                                             <item>
                                                                 <index>${item.index}</index>
-                                                                <name><![CDATA[${item.name}]]></name>
-                                                                <chl id='${item.chl.value}'><![CDATA[${item.chl.label}]]></chl>
+                                                                <name>${wrapCDATA(item.name)}</name>
+                                                                <chl id='${item.chl.value}'>${wrapCDATA(item.chl.label)}</chl>
                                                             </item>`
                                                         })
                                                         .join('')}

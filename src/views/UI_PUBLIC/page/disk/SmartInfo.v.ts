@@ -3,8 +3,6 @@
  * @Date: 2024-07-04 16:45:27
  * @Description: S.M.A.R.T信息
  */
-import { type DiskSmartInfoList, type DiskSmartInfoDiskList } from '@/types/apiType/disk'
-
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
@@ -168,7 +166,7 @@ export default defineComponent({
                 tableData.value = $('content/smartItems/item').map((item) => {
                     const $item = queryXml(item.element)
                     let id = item.attr('id').num().toString(16)
-                    id = `${id.length === 1 ? '0x0' : '0x'}${id}`
+                    id = '0x' + id.padStart(2, '0')
                     return {
                         id,
                         attribute: ATTRIBUTE_MAPPING[id],

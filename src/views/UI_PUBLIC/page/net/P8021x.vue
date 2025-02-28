@@ -46,12 +46,9 @@
                 :label="Translate('IDCS_PASSWORD')"
                 prop="password"
             >
-                <el-input
+                <BasePasswordInput
                     v-model="formData.password"
                     :disabled="!formData.switch || !pageData.passwordSwitch"
-                    type="password"
-                    @copy.capture.prevent=""
-                    @paste.capture.prevent=""
                 />
                 <el-checkbox
                     v-model="pageData.passwordSwitch"

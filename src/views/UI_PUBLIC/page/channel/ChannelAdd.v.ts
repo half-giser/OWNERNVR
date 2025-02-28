@@ -3,8 +3,6 @@
  * @Date: 2024-07-09 18:39:25
  * @Description: 新增通道
  */
-import { ChannelManualAddDto, ChannelDefaultPwdDto } from '@/types/apiType/channel'
-import { ChannelAddRecorderDto, ChannelQuickAddDto } from '@/types/apiType/channel'
 import ChannelAddActivateIPCPop from './ChannelAddActivateIPCPop.vue'
 import ChannelAddSetDefaultPwdPop from './ChannelAddSetDefaultPwdPop.vue'
 import ChannelAddEditIPCIpPop from './ChannelAddEditIPCIpPop.vue'
@@ -39,9 +37,21 @@ export default defineComponent({
         }
         const tabs = computed(() => {
             return [
-                { key: tabKeys.quickAdd, text: Translate('IDCS_QUICK_ADD'), show: true },
-                { key: tabKeys.manualAdd, text: Translate('IDCS_MANUAL_ADD'), show: true },
-                { key: tabKeys.addRecorder, text: Translate('IDCS_ADD_RECORDER'), show: supportRecorder.value },
+                {
+                    key: tabKeys.quickAdd,
+                    text: Translate('IDCS_QUICK_ADD'),
+                    show: true,
+                },
+                {
+                    key: tabKeys.manualAdd,
+                    text: Translate('IDCS_MANUAL_ADD'),
+                    show: true,
+                },
+                {
+                    key: tabKeys.addRecorder,
+                    text: Translate('IDCS_ADD_RECORDER'),
+                    show: supportRecorder.value,
+                },
             ]
         })
         const activeTab = ref(tabKeys.quickAdd)
@@ -56,7 +66,7 @@ export default defineComponent({
         const manufacturerMap = ref<Record<string, string>>({})
         const manufacturerList = ref<SelectOption<string, string>[]>([])
         const nameList = ref<SelectOption<string, string>[]>([])
-        const protocolList = ref<{ displayName: string; index: string }[]>([])
+        const protocolList = ref<ChannelRTSPPropertyDto[]>([])
         const quickAddEditRowData = ref(new ChannelQuickAddDto())
         const chlCountLimit = ref(128) // 通道个数上限
         const faceMatchLimitMaxChlNum = ref(0)
@@ -69,9 +79,18 @@ export default defineComponent({
 
         // 手动添加
         const manualAddTypeOptions = ref([
-            { value: 'ip', label: 'IPv4' },
-            { value: 'ipv6', label: 'IPv6' },
-            { value: 'domain', label: Translate('IDCS_DOMAIN') },
+            {
+                value: 'ip',
+                label: 'IPv4',
+            },
+            {
+                value: 'ipv6',
+                label: 'IPv6',
+            },
+            {
+                value: 'domain',
+                label: Translate('IDCS_DOMAIN'),
+            },
         ])
 
         const getSystemCaps = () => {
@@ -89,36 +108,35 @@ export default defineComponent({
                         .num()
                     supportRecorder.value = $('content/supportRecorder').text().bool()
                     faceMatchLimitMaxChlNum.value = $('content/faceMatchLimitMaxChlNum').text().num()
-                    let remainBandwidth = (totalBandwidth * 1024 - usedBandwidth) / 1024
-                    if (remainBandwidth < 0) remainBandwidth = 0
+                    const remainBandwidth = Math.max(0, (totalBandwidth * 1024 - usedBandwidth) / 1024)
                     txtBandwidth.value = Translate('IDCS_CURRENT_BANDWIDTH_ALL_D_D').formatForLang(remainBandwidth.toFixed(0), totalBandwidth.toFixed(0))
                 })
             })
         }
 
-        const getDefaultPwd = (callback?: () => void) => {
+        const getDefaultPwd = async () => {
             openLoading()
-            queryDevDefaultPwd().then((res) => {
-                closeLoading()
-                const $ = queryXml(res)
-                if ($('status').text() === 'success') {
-                    defaultPwdList.value = []
-                    mapping.value = {}
-                    $('content/item').forEach((ele) => {
-                        const $item = queryXml(ele.element)
-                        const defaultPwdData = new ChannelDefaultPwdDto()
-                        defaultPwdData.id = ele.attr('id')
-                        defaultPwdData.userName = $item('userName').text()
-                        defaultPwdData.password = $item('password').text()
-                        defaultPwdData.displayName = $item('displayName').text()
-                        defaultPwdData.protocolType = $item('protocolType').text()
-                        defaultPwdList.value.push(defaultPwdData)
 
-                        mapping.value[defaultPwdData.id] = defaultPwdData
-                    })
-                    if (callback) callback()
-                }
-            })
+            const res = await queryDevDefaultPwd()
+            const $ = queryXml(res)
+
+            closeLoading()
+
+            if ($('status').text() === 'success') {
+                mapping.value = {}
+                defaultPwdList.value = $('content/item').map((ele) => {
+                    const $item = queryXml(ele.element)
+                    const defaultPwdData = new ChannelDefaultPwdDto()
+                    defaultPwdData.id = ele.attr('id')
+                    defaultPwdData.userName = $item('userName').text()
+                    defaultPwdData.password = $item('password').text()
+                    defaultPwdData.displayName = $item('displayName').text()
+                    defaultPwdData.protocolType = $item('protocolType').text()
+
+                    mapping.value[defaultPwdData.id] = defaultPwdData
+                    return defaultPwdData
+                })
+            }
         }
 
         const getLanFreeDevs = () => {
@@ -155,7 +173,7 @@ export default defineComponent({
                         })
                     }
                     manualAddFormData.value = []
-                    manualAddNewRow(0)
+                    addManualAddRow()
                     const rowData = $('content/item').map((ele) => {
                         const eleXml = queryXml(ele.element)
                         return {
@@ -227,7 +245,6 @@ export default defineComponent({
                 $('content/item').forEach((ele) => {
                     const eleXml = queryXml(ele.element)
                     if (eleXml('enabled').text().bool()) {
-                        // todo key、value相同？
                         const displayName = eleXml('displayName').text()
                         manufacturerMap.value[displayName] = displayName
                         rtspMapping.push(displayName)
@@ -249,7 +266,11 @@ export default defineComponent({
             if (isRefresh) getData()
         }
 
-        const manualAddNewRow = (rowCount: number) => {
+        const addManualAddRow = (length = -1) => {
+            if (length !== manualAddFormData.value.length - 1) {
+                return
+            }
+
             const defaultPwdData = defaultPwdList.value[0]
             let defaultPort = 80
             if (defaultPwdData.protocolType === 'TVT_IPCAMERA') {
@@ -258,15 +279,12 @@ export default defineComponent({
                 } else {
                     defaultPort = 9008
                 }
-            } else {
-                defaultPort = 80
             }
             const newData = new ChannelManualAddDto()
-            newData.ip = '0.0.0.0'
+            newData.ip = DEFAULT_EMPTY_IP
             newData.port = defaultPort
             newData.userName = defaultPwdData.userName
             newData.password = '******'
-            newData.index = rowCount // todo 感觉没用处，甚至使用此index可能出现问题（删除数据行时后面数据行的index不会修改）
             newData.manufacturer = defaultPwdData.id
             newData.protocolType = defaultPwdData.protocolType
             newData.addrType = 'ip'
@@ -282,72 +300,56 @@ export default defineComponent({
             }
         }
 
-        const handleRowClick = (rowData: ChannelQuickAddDto) => {
+        const handleQuickAddRowClick = (rowData: ChannelQuickAddDto) => {
             quickAddTableRef.value!.clearSelection()
             quickAddTableRef.value!.toggleRowSelection(rowData, true)
         }
 
-        const rowDelClass = (index: number) => {
+        const isDelManualAddRowDisabled = (index: number) => {
             return index === manualAddFormData.value.length - 1
         }
 
-        const rowDel = (index: number) => {
-            if (rowDelClass(index)) return
+        const delManualAddRow = (index: number) => {
             manualAddFormData.value.splice(index, 1)
         }
 
-        const cellChange = (val: any, index: number, row: ChannelManualAddDto, tag?: string) => {
-            if (tag) {
-                if (tag === 'manufacturer') {
-                    if (val === 'ProtocolMgr') {
-                        setProtocolPopVisiable.value = true
-                        nextTick(() => {
-                            row.manufacturer = tempManualProtocolData[index]
-                        })
-                    } else {
-                        if (index < tempManualProtocolData.length) tempManualProtocolData[index] = val
-                        const filters = filterProperty(protocolList.value, 'displayName')
-                        let isArray = false
-                        filters.forEach((ele) => {
-                            //解决中间有空格不相等的问题
-                            if (trimAllSpace(ele) === trimAllSpace(val)) isArray = true
-                        })
-                        if (isArray) {
-                            row.port = 0
-                            row.userName = ''
-                            row.password = ''
-                            row.portDisabled = true
+        const changeManufacturer = (index: number, row: ChannelManualAddDto) => {
+            const val = row.manufacturer
+            if (val === 'ProtocolMgr') {
+                setProtocolPopVisiable.value = true
+                nextTick(() => {
+                    row.manufacturer = tempManualProtocolData[index]
+                })
+            } else {
+                if (index < tempManualProtocolData.length) tempManualProtocolData[index] = val
+                const isArray = protocolList.value
+                    .map((item) => item.displayName)
+                    .some((ele) => {
+                        return trimAllSpace(ele) === trimAllSpace(val)
+                    })
+                if (isArray) {
+                    row.port = 0
+                    row.userName = ''
+                    row.password = ''
+                    row.portDisabled = true
+                } else {
+                    let defaultPort = 80
+                    if (mapping.value[val].protocolType === 'TVT_IPCAMERA') {
+                        if (mapping.value[val].displayName === 'Speco') {
+                            defaultPort = 554
                         } else {
-                            let defaultPort = 80
-                            if (mapping.value[val].protocolType === 'TVT_IPCAMERA') {
-                                if (mapping.value[val].displayName === 'Speco') {
-                                    defaultPort = 554
-                                } else {
-                                    defaultPort = 9008
-                                }
-                            } else {
-                                defaultPort = 80
-                            }
-                            row.port = defaultPort
-                            row.userName = mapping.value[val].userName
-                            row.password = '******'
-                            row.portDisabled = false
+                            defaultPort = 9008
                         }
+                    } else {
+                        defaultPort = 80
                     }
+                    row.port = defaultPort
+                    row.userName = mapping.value[val].userName
+                    row.password = '******'
+                    row.portDisabled = false
                 }
             }
-            if (index === manualAddFormData.value.length - 1) manualAddNewRow(manualAddFormData.value.length)
-        }
-
-        const in_array = (stringToSearch: string, arrayToSearch: string[]) => {
-            for (let s = 0; s < arrayToSearch.length; s++) {
-                const thisEntry = arrayToSearch[s]
-                //解决中间有空格不相等的问题
-                if (trimAllSpace(thisEntry) === trimAllSpace(stringToSearch)) {
-                    return true
-                }
-            }
-            return false
+            addManualAddRow(index)
         }
 
         const handleRefresh = () => {
@@ -363,66 +365,63 @@ export default defineComponent({
             }
         }
 
-        const activateVerify = () => {
+        // 激活IPC
+        const isActivateIPCPop = ref(false)
+
+        const activateIPC = () => {
             const selectedRows: Array<ChannelQuickAddDto> = quickAddTableRef.value!.getSelectionRows()
-            const unActivateData: Array<ChannelQuickAddDto> = []
+            const unActivateData = selectedRows.filter((ele) => ele.activateStatus === 'UNACTIVATED')
+
             if (!selectedRows.length) {
                 openMessageBox(Translate('IDCS_SEL_ACTIVATE_CHANNEL'))
                 return false
             }
-            selectedRows.forEach((ele) => {
-                if (ele.activateStatus === 'UNACTIVATED') unActivateData.push(ele)
-            })
+
             if (!unActivateData.length) {
                 openMessageBox(Translate('IDCS_NO_CHANNEL_TO_ACTIVATE'))
                 return false
             }
+
             activateIpcData.value = unActivateData
-            return true
-        }
-
-        // 激活IPC
-        const activateIPCVisable = ref(false)
-
-        const handleActivate = () => {
-            if (!activateVerify()) return
-            activateIPCVisable.value = true
+            isActivateIPCPop.value = true
         }
 
         const closeActivateIPCPop = () => {
-            activateIPCVisable.value = false
+            isActivateIPCPop.value = false
         }
 
         // 设置默认密码
-        const setDefaultPwdPopVisiable = ref(false)
-        const handleSetDefaultPwd = () => {
-            setDefaultPwdPopVisiable.value = true
+        const isSetDefaultPwdPop = ref(false)
+
+        const setDefaultPwd = () => {
+            isSetDefaultPwdPop.value = true
         }
 
         const closeSetDefaultPwdPop = () => {
-            setDefaultPwdPopVisiable.value = false
+            isSetDefaultPwdPop.value = false
         }
 
         // 快速添加编辑通道ip
-        const editIPCIpPopVisiable = ref(false)
+        const isEditIPCIpPop = ref(false)
+
         const openEditIPCIpPop = (row: ChannelQuickAddDto) => {
             quickAddEditRowData.value = row
-            editIPCIpPopVisiable.value = true
+            isEditIPCIpPop.value = true
         }
 
         const closeEditIPCIpPop = () => {
-            editIPCIpPopVisiable.value = false
+            isEditIPCIpPop.value = false
         }
 
-        const handleSelectionChange = () => {
+        const handleQuickAddSelectionChange = () => {
             selNum.value = quickAddTableRef.value!.getSelectionRows().length
         }
 
-        const handleCancel = () => {
+        const goBack = () => {
             router.push('list')
         }
 
-        const handleUpdateMapping = (rows: Array<ChannelDefaultPwdDto>) => {
+        const changeDefaultPwd = (rows: Array<ChannelDefaultPwdDto>) => {
             defaultPwdList.value = rows
             mapping.value = {}
             rows.forEach((ele) => {
@@ -433,23 +432,26 @@ export default defineComponent({
         // 添加录像机
         const cloneRecoderEditItem = new ChannelAddRecorderDto()
         const recoderEditItem = ref<ChannelAddRecorderDto>(cloneRecoderEditItem)
+        const isAddRecorderPop = ref(false)
+
         let selectedRecoder: ChannelAddRecorderDto | null = null
+
         const handleRecorderRowClick = (rowData: ChannelAddRecorderDto) => {
             selectedRecoder = rowData
         }
 
         const handleRecorderRowDbClick = (rowData: ChannelAddRecorderDto) => {
             recoderEditItem.value = selectedRecoder = rowData
-            toAddRecorderPopVisiable.value = true
-        }
-        const toAddRecorderPopVisiable = ref(false)
-        const closeToAddRecorderPopVisiable = () => {
-            toAddRecorderPopVisiable.value = false
+            isAddRecorderPop.value = true
         }
 
-        const handleManualAdd = () => {
+        const closeAddRecorderPop = () => {
+            isAddRecorderPop.value = false
+        }
+
+        const addRecorder = () => {
             recoderEditItem.value = cloneRecoderEditItem
-            toAddRecorderPopVisiable.value = true
+            isAddRecorderPop.value = true
         }
 
         const save = () => {
@@ -461,101 +463,101 @@ export default defineComponent({
                 case tabKeys.addRecorder:
                     if (selectedRecoder) {
                         recoderEditItem.value = selectedRecoder
-                        toAddRecorderPopVisiable.value = true
+                        isAddRecorderPop.value = true
                     }
                     break
             }
         }
 
-        const setData = () => {
-            getDefaultPwd(() => {
-                if (activeTab.value === tabKeys.quickAdd) {
-                    let addChlCount = 0
+        const setData = async () => {
+            await getDefaultPwd()
 
-                    const manufacturer = Object.entries(manufacturerMap.value)
-                        .map((item) => {
-                            return `<enum displayName='${item[1]}'>${item[0]}</enum>`
+            if (activeTab.value === tabKeys.quickAdd) {
+                let addChlCount = 0
+
+                const manufacturer = Object.entries(manufacturerMap.value)
+                    .map((item) => {
+                        return `<enum displayName='${item[1]}'>${item[0]}</enum>`
+                    })
+                    .join('')
+                let numName = Number(localStorage.getItem(LocalCacheKey.KEY_DEFAULT_CHL_MAX_VALUE))
+                const selection = quickAddTableRef.value!.getSelectionRows() as ChannelQuickAddDto[]
+                const items = selection
+                    .map((ele) => {
+                        let data = ''
+                        // 处理IPC设备名称为空格的情况
+                        const devName = ele.devName.trim()
+                        const defaultName = devName ? devName : Translate('IDCS_IP_CHANNEL')
+                        // 添加IPC时，若设备有名称，则使用设备的名称；若设备无名称，则使用默认的名称+序号(自动计数)
+                        let normalName = defaultName
+                        let thermalName = defaultName
+                        if (!devName) {
+                            numName++
+                            normalName = padStart(numName, 2)
+                            thermalName = padStart(numName + 1, 2)
+                            normalName = defaultName + ' ' + normalName
+                            thermalName = defaultName + ' ' + thermalName
+                        }
+
+                        if (ele.industryProductType === 'THERMAL_DOUBLE') {
+                            data += getXmlDataByQuickAdd(ele, 'NORMAL', normalName)
+                            data += getXmlDataByQuickAdd(ele, 'THERMAL_DOUBLE', thermalName)
+                            numName++
+                            addChlCount += 2
+                        } else {
+                            data += getXmlDataByQuickAdd(ele, 'NORMAL', normalName)
+                            addChlCount++
+                        }
+                        return data
+                    })
+                    .join('')
+
+                if (!addChlCount) {
+                    router.push('list')
+                    return
+                }
+
+                const sendXml = rawXml`
+                    <types>
+                        <manufacturer>
+                            ${manufacturer}
+                        </manufacturer>
+                        <protocolType>
+                            <enum>TVT_IPCAMERA</enum>
+                            <enum>ONVIF</enum>
+                        </protocolType>
+                    </types>
+                    <content type='list'>
+                        <itemType>
+                            <manufacturer type='manufacturer'/>
+                            <protocolType type='protocolType'/>
+                        </itemType>
+                        ${items}
+                    </content>
+                `
+                addIPCDev(sendXml)
+            } else {
+                const allDatas: { isArray: boolean; element: ChannelManualAddDto }[] = []
+                for (const element of manualAddFormData.value) {
+                    const isArray = protocolList.value
+                        .map((item) => item.displayName)
+                        .some((ele) => {
+                            return trimAllSpace(ele) === trimAllSpace(element.manufacturer)
                         })
-                        .join('')
-                    let numName = Number(localStorage.getItem(LocalCacheKey.KEY_DEFAULT_CHL_MAX_VALUE))
-                    const selection = quickAddTableRef.value!.getSelectionRows() as ChannelQuickAddDto[]
-                    const items = selection
-                        .map((ele) => {
-                            let data = ''
-                            // 处理IPC设备名称为空格的情况
-                            const devName = ele.devName.trim()
-                            const defaultName = devName ? devName : Translate('IDCS_IP_CHANNEL')
-                            // 添加IPC时，若设备有名称，则使用设备的名称；若设备无名称，则使用默认的名称+序号(自动计数)
-                            let normalName = defaultName
-                            let thermalName = defaultName
-                            if (!devName) {
-                                numName++
-                                normalName = String(String(numName).length < 2 ? '0' + numName : numName)
-                                thermalName = String(String(numName + 1).length < 2 ? '0' + (numName + 1) : numName + 1)
-                                normalName = defaultName + ' ' + normalName
-                                thermalName = defaultName + ' ' + thermalName
-                            }
-
-                            if (ele.industryProductType === 'THERMAL_DOUBLE') {
-                                data += getXmlDataByQuickAdd(ele, 'NORMAL', normalName)
-                                data += getXmlDataByQuickAdd(ele, 'THERMAL_DOUBLE', thermalName)
-                                numName++
-                                addChlCount += 2
-                            } else {
-                                data += getXmlDataByQuickAdd(ele, 'NORMAL', normalName)
-                                addChlCount++
-                            }
-                            return data
-                        })
-                        .join('')
-
-                    if (!addChlCount) {
-                        router.push('list')
-                        return
+                    element.userName = cutStringByByte(element.userName, nameByteMaxLen)
+                    if (!element.userName && rtspMapping.every((thisEntry) => trimAllSpace(thisEntry) !== trimAllSpace(element.manufacturer))) {
+                        continue
                     }
 
-                    const sendXml = rawXml`
-                        <types>
-                            <manufacturer>
-                                ${manufacturer}
-                            </manufacturer>
-                            <protocolType>
-                                <enum>TVT_IPCAMERA</enum>
-                                <enum>ONVIF</enum>
-                            </protocolType>
-                        </types>
-                        <content type='list'>
-                            <itemType>
-                                <manufacturer type='manufacturer'/>
-                                <protocolType type='protocolType'/>
-                            </itemType>
-                            ${items}
-                        </content>
-                    `
-                    addIPCDev(sendXml)
-                } else {
-                    const allDatas: Record<string, any>[] = []
-                    for (const element of manualAddFormData.value) {
-                        const filters = filterProperty(protocolList.value, 'displayName')
-                        let isArray = false
-                        filters.forEach((ele) => {
-                            //解决中间有空格不相等的问题
-                            if (trimAllSpace(ele) === trimAllSpace(element.manufacturer)) {
-                                isArray = true
-                            }
-                        })
-                        element.userName = cutStringByByte(element.userName, nameByteMaxLen)
-                        if (!element.userName && !in_array(element.manufacturer, rtspMapping)) continue
-                        allDatas.push({
-                            isArray: isArray,
-                            element: element,
-                        })
-                    }
-                    multiChlIPCAddRef.value?.init(allDatas, mapping.value, manufacturerMap.value, protocolList.value, (sendXml: string) => {
-                        addIPCDev(sendXml)
+                    allDatas.push({
+                        isArray: isArray,
+                        element: element,
                     })
                 }
-            })
+                multiChlIPCAddRef.value?.init(allDatas, mapping.value, manufacturerMap.value, protocolList.value, (sendXml: string) => {
+                    addIPCDev(sendXml)
+                })
+            }
         }
 
         const getXmlDataByQuickAdd = (element: ChannelQuickAddDto, supportType: string, chlName: string) => {
@@ -569,7 +571,7 @@ export default defineComponent({
                     <manufacturer>${element.manufacturer}</manufacturer>
                     <protocolType>${mapping.value[element.manufacturer].protocolType}</protocolType>
                     <productModel ${element.productModel.factoryName ? `factoryName="${element.productModel.identity || element.productModel.factoryName}"` : ''}>${element.productModel.innerText}</productModel>
-                    ${ternary(!!element.poeIndex, `<poeIndex>${element.poeIndex}</poeIndex>`)}
+                    ${element.poeIndex ? `<poeIndex>${element.poeIndex}</poeIndex>` : ''}
                     <accessType>${supportType === 'THERMAL_DOUBLE' ? 'THERMAL' : 'NORMAL'}</accessType>
                     <rec per='5' post='10' />
                     <snapSwitch>true</snapSwitch>
@@ -640,13 +642,12 @@ export default defineComponent({
             })
         }
 
-        const getData = () => {
+        const getData = async () => {
             mapping.value = {}
             defaultPwdList.value = []
-            getDefaultPwd(() => {
-                getLanFreeDevs()
-                getLanRecorders()
-            })
+            await getDefaultPwd()
+            getLanFreeDevs()
+            getLanRecorders()
             getSystemCaps()
         }
 
@@ -669,24 +670,25 @@ export default defineComponent({
             supportsIPCActivation,
             txtBandwidth,
             formatDisplayManufacturer,
-            handleRowClick,
+            handleQuickAddRowClick,
             manualAddTypeOptions,
             manufacturerList,
-            rowDelClass,
-            rowDel,
-            cellChange,
+            isDelManualAddRowDisabled,
+            addManualAddRow,
+            delManualAddRow,
+            changeManufacturer,
             handleRefresh,
-            handleActivate,
+            activateIPC,
             activateIpcData,
-            activateIPCVisable,
+            isActivateIPCPop,
             closeActivateIPCPop,
-            handleCancel,
-            handleSelectionChange,
-            setDefaultPwdPopVisiable,
-            handleSetDefaultPwd,
+            goBack,
+            handleQuickAddSelectionChange,
+            isSetDefaultPwdPop,
+            setDefaultPwd,
             closeSetDefaultPwdPop,
-            handleUpdateMapping,
-            editIPCIpPopVisiable,
+            changeDefaultPwd,
+            isEditIPCIpPop,
             openEditIPCIpPop,
             closeEditIPCIpPop,
             quickAddEditRowData,
@@ -695,11 +697,11 @@ export default defineComponent({
             recoderEditItem,
             handleRecorderRowClick,
             handleRecorderRowDbClick,
-            toAddRecorderPopVisiable,
-            closeToAddRecorderPopVisiable,
+            isAddRecorderPop,
+            closeAddRecorderPop,
             chlCountLimit,
             faceMatchLimitMaxChlNum,
-            handleManualAdd,
+            addRecorder,
             setProtocolPopVisiable,
             closeSetProtocolPop,
             nameList,

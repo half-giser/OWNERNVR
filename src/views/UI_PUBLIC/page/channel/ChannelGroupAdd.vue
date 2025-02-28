@@ -65,12 +65,8 @@
                     min-width="140"
                 >
                     <template #default="{ row }: TableColumn<ChannelInfoDto>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             file="play (3)"
-                            :chunk="4"
-                            :index="0"
-                            :hover-index="1"
-                            :active-index="1"
                             @click="handlePreview(row)"
                         />
                     </template>

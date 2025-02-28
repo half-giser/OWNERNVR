@@ -34,24 +34,20 @@
                 :label="Translate('IDCS_PASSWORD')"
                 prop="password"
             >
-                <el-input
+                <BasePasswordInput
                     v-model="formData.password"
-                    :type="pageData.showPassword ? 'text' : 'password'"
+                    :show-text="pageData.showPassword"
                     :disabled="formData.encrypt === 'unencrypted'"
-                    @paste.capture.prevent=""
-                    @copy.capture.prevent=""
                 />
             </el-form-item>
             <el-form-item
                 :label="Translate('IDCS_CONFIRM_PASSWORD')"
                 prop="confirmPassword"
             >
-                <el-input
+                <BasePasswordInput
                     v-model="formData.confirmPassword"
-                    :type="pageData.showPassword ? 'text' : 'password'"
+                    :show-text="pageData.showPassword"
                     :disabled="formData.encrypt === 'unencrypted'"
-                    @paste.capture.prevent=""
-                    @copy.capture.prevent=""
                 />
             </el-form-item>
             <el-form-item>

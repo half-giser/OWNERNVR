@@ -3,7 +3,6 @@
  * @Date: 2024-09-02 15:04:43
  * @Description: 车牌库- 新增/编辑分组
  */
-import { IntelPlateDBGroupList } from '@/types/apiType/intelligentAnalysis'
 import { type FormRules } from 'element-plus'
 
 export default defineComponent({

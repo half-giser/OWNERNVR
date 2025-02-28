@@ -4,7 +4,6 @@
  * @Description: 云台-巡航线-新增/编辑预置点弹窗
  */
 import type { FormRules } from 'element-plus'
-import { ChannelPtzCruisePresetDto, ChannelPtzCruisePresetForm } from '@/types/apiType/channel'
 
 export default defineComponent({
     props: {

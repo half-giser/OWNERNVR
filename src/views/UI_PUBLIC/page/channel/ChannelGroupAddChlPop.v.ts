@@ -3,7 +3,6 @@
  * @Date: 2024-06-18 18:07:21
  * @Description: 通道组 - 新增通道弹窗
  */
-import { ChannelInfoDto, type ChannelGroupDto } from '@/types/apiType/channel'
 import { type TableInstance } from 'element-plus'
 
 export default defineComponent({

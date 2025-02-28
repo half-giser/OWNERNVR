@@ -3,8 +3,6 @@
  * @Date: 2024-08-06 20:37:40
  * @Description: 回放-鱼眼视图
  */
-import { type LiveSharedWinData } from '@/types/apiType/live'
-
 export interface FishEyePanelExpose {
     exitAdjust: (chlId: string) => void
 }

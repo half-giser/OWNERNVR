@@ -4,8 +4,6 @@
  * @Description: 恢复出厂设置
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import { SystemFactoryDefaultForm } from '@/types/apiType/system'
-import type { UserCheckAuthForm } from '@/types/apiType/user'
 
 export default defineComponent({
     components: {

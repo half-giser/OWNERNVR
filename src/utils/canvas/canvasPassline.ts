@@ -3,7 +3,6 @@
  * @Date: 2024-05-31 17:08:25
  * @Description: 支持业务：越界、过线统计画线；三种模式：A->B、A<->B、A<-B
  */
-import CanvasBase, { type CanvasBaseLineStyleOption } from './canvasBase'
 
 export interface CanvasPasslinePassline {
     startX: number
@@ -53,7 +52,7 @@ interface CanvasPasslineOption {
     onchange?: (passline: CanvasPasslinePassline, osdInfo: CanvasPasslineOsdInfo) => void
 }
 
-export default function CanvasPassline(option: CanvasPasslineOption = {}) {
+export const CanvasPassline = (option: CanvasPasslineOption = {}) => {
     const DEFAULT_LINE_COLOR = '#0f0'
     const DEFAULT_TEXT_COLOR = '#f00'
     const RELATIVE_WIDTH = 10000

@@ -44,13 +44,11 @@
                         />
                         <span>{{ item.count }}</span>
                     </div>
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         v-show="pageData.isEdit"
                         class="close"
                         file="list_close"
-                        :index="0"
-                        :chunk="4"
-                        @click.stop="deletePoint(key)"
+                        @click="deletePoint(key)"
                     />
                 </div>
             </div>
@@ -59,92 +57,66 @@
             <div class="control-btns">
                 <!-- 停止播放 -->
                 <el-tooltip :content="Translate('IDCS_STOP')">
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         file="stop (3)"
-                        :index="0"
-                        :hover-index="1"
-                        :disabled-index="3"
                         :disabled="pageData.playStatus === 'stop'"
-                        :chunk="4"
                         @click="stop"
                     />
                 </el-tooltip>
                 <!-- 暂停播放 -->
                 <el-tooltip :content="Translate('IDCS_PAUSE')">
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         v-show="pageData.playStatus === 'play'"
                         file="pause"
-                        :index="0"
-                        :hover-index="1"
-                        :disabled-index="3"
-                        :chunk="4"
                         @click="pause"
                     />
                 </el-tooltip>
                 <!-- 播放 -->
                 <el-tooltip :content="Translate('IDCS_PLAY_FORWARD')">
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         v-show="pageData.playStatus !== 'play'"
                         file="fwPlay"
-                        :index="0"
-                        :hover-index="1"
-                        :disabled-index="3"
-                        :chunk="4"
                         @click="play"
                     />
                 </el-tooltip>
                 <!-- 上一个 -->
                 <el-tooltip :content="Translate('IDCS_PREVIOUS')">
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         file="preFrame"
-                        :index="0"
-                        :hover-index="1"
-                        :disabled-index="3"
-                        :chunk="4"
                         :disabled="prevFrameDisabled"
                         @click="prevFrame"
                     />
                 </el-tooltip>
                 <!-- 下一个 -->
                 <el-tooltip :content="Translate('IDCS_NEXT')">
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         file="nextFrame"
-                        :index="0"
-                        :hover-index="1"
-                        :disabled-index="3"
-                        :chunk="4"
                         :disabled="nextFrameDisabled"
                         @click="nextFrame"
                     />
                 </el-tooltip>
                 <!-- 轨迹播放 -->
                 <el-tooltip :content="Translate('IDCS_TRACK_PLAY')">
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         v-show="pageData.trackStatus === 'stop'"
                         file="start_track"
-                        :index="0"
-                        :hover-index="2"
-                        :chunk="4"
+                        :index="[0, 2, 2, 3]"
                         @click="playTrack"
                     />
                 </el-tooltip>
                 <!-- 停止轨迹播放 -->
                 <el-tooltip :content="Translate('IDCS_TRACK_STOP')">
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         v-show="pageData.trackStatus === 'play'"
                         file="stop_track"
-                        :index="0"
-                        :hover-index="2"
-                        :chunk="4"
+                        :index="[0, 2, 2, 3]"
                         @click="stopTrack"
                     />
                 </el-tooltip>
                 <el-tooltip :content="Translate('IDCS_EDIT_COLOR')">
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         file="track_color_edit"
-                        :index="0"
-                        :hover-index="2"
-                        :chunk="4"
+                        :index="[0, 2, 2, 3]"
                         @click="pageData.isColorPop = true"
                     />
                 </el-tooltip>

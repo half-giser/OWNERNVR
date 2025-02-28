@@ -3,12 +3,9 @@
  * @Date: 2024-09-09 09:56:33
  * @Description: AI 事件——车牌识别
  */
-import { type AlarmRecognitionTaskDto, AlarmVehicleDetectionDto, AlarmVehicleChlDto, AlarmVehicleRecognitionDto } from '@/types/apiType/aiAndEvent'
-import CanvasPolygon from '@/utils/canvas/canvasPolygon'
 import AlarmBaseChannelSelector from './AlarmBaseChannelSelector.vue'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import RecognitionPanel from './RecognitionPanel.vue'
-import { type CanvasBasePoint, type CanvasBaseArea } from '@/utils/canvas/canvasBase'
 import { type XMLQuery } from '@/utils/xmlParse'
 
 export default defineComponent({
@@ -1289,8 +1286,8 @@ export default defineComponent({
                                                                 return rawXml`
                                                                     <item>
                                                                         <index>${ele.index}</index>
-                                                                        <name><![CDATA[${ele.name}]]></name>
-                                                                        <chl id='${ele.chl.value}'><![CDATA[${ele.chl.label}]]></chl>
+                                                                        <name>${wrapCDATA(ele.name)}</name>
+                                                                        <chl id='${ele.chl.value}'>${wrapCDATA(ele.chl.label)}</chl>
                                                                     </item>
                                                                 `
                                                             })

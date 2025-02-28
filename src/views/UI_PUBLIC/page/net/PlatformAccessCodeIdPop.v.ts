@@ -101,7 +101,6 @@ export default defineComponent({
             verify,
             close,
             confirm,
-            formatDigit,
         }
     },
 })

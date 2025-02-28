@@ -3,7 +3,6 @@
  * @Date: 2024-08-21 15:34:24
  * @Description: 视频丢失配置
  */
-import { AlarmEventDto, type AlarmPresetItem } from '@/types/apiType/aiAndEvent'
 import AlarmBasePresetPop from './AlarmBasePresetPop.vue'
 import AlarmBaseSnapPop from './AlarmBaseRecordPop.vue'
 import AlarmBaseAlarmOutPop from './AlarmBaseAlarmOutPop.vue'
@@ -317,13 +316,13 @@ export default defineComponent({
                     <sysSnap>
                         <switch>${rowData.snap.switch}</switch>
                         <chls type="list">
-                            ${rowData.snap.chls.map((item) => `<item id="${item.value}"><![CDATA[${item.label}]]></item>`).join('')}
+                            ${rowData.snap.chls.map((item) => `<item id="${item.value}">${wrapCDATA(item.label)}</item>`).join('')}
                         </chls>
                     </sysSnap>
                     <alarmOut>
                         <switch>${rowData.alarmOut.switch}</switch>
                         <alarmOuts type="list">
-                            ${rowData.alarmOut.alarmOuts.map((item) => `<item id="${item.value}"><![CDATA[${item.label}]]></item>`).join('')}
+                            ${rowData.alarmOut.alarmOuts.map((item) => `<item id="${item.value}">${wrapCDATA(item.label)}</item>`).join('')}
                         </alarmOuts>
                     </alarmOut>
                     <preset>
@@ -335,8 +334,8 @@ export default defineComponent({
                                         return rawXml`
                                             <item>
                                                 <index>${item.index}</index>
-                                                <name><![CDATA[${item.name}]]></name>
-                                                <chl id="${item.chl.value}"><![CDATA[${item.chl.label}]]></chl>
+                                                <name>${wrapCDATA(item.name)}</name>
+                                                <chl id="${item.chl.value}">${wrapCDATA(item.chl.label)}</chl>
                                             </item>
                                         `
                                     }

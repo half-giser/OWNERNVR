@@ -3,7 +3,6 @@
  * @Date: 2024-06-20 10:38:53
  * @Description: 编辑黑白名单弹窗
  */
-import { UserEditBlackAllowListForm } from '@/types/apiType/userAndSecurity'
 import { type FormRules } from 'element-plus'
 
 export default defineComponent({
@@ -52,7 +51,7 @@ export default defineComponent({
                             return
                         }
 
-                        if (!value || value === '0.0.0.0') {
+                        if (!value || value === DEFAULT_EMPTY_IP) {
                             callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_EMPTY')))
                             return
                         }
@@ -123,7 +122,7 @@ export default defineComponent({
                             return
                         }
 
-                        if (value === '00:00:00:00:00:00') {
+                        if (value === DEFAULT_EMPTY_MAC) {
                             callback(new Error(Translate('IDCS_PROMPT_MACADDRESS_INVALID')))
                             return
                         }

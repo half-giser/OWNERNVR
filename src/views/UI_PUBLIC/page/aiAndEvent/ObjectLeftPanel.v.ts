@@ -3,10 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-18 09:43:49
  */
-import { AlarmObjectLeftDto, type AlarmChlDto } from '@/types/apiType/aiAndEvent'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
-import CanvasPolygon from '@/utils/canvas/canvasPolygon'
-import { type CanvasBasePoint, type CanvasBaseArea } from '@/utils/canvas/canvasBase'
 import { type XMLQuery } from '@/utils/xmlParse'
 import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
 import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
@@ -418,11 +415,6 @@ export default defineComponent({
             return cutStringByByte(value, formData.value.maxNameLength)
         }
 
-        // 回车键失去焦点
-        const blurInput = (event: Event) => {
-            ;(event.target as HTMLInputElement).blur()
-        }
-
         // 检测区域合法性(物品遗留看护AI事件中：区域为多边形)
         const verification = () => {
             for (const item of formData.value.boundary) {
@@ -454,7 +446,7 @@ export default defineComponent({
                                     .map((item) => {
                                         return rawXml`
                                             <item>
-                                                <name maxLen='${formData.value.maxNameLength}'><![CDATA[${item.areaName}]]></name>
+                                                <name maxLen='${formData.value.maxNameLength}'>${wrapCDATA(item.areaName)}</name>
                                                 <point type='list' maxCount='6' count='${item.points.length}'>
                                                     ${item.points
                                                         .map((ele) => {
@@ -477,7 +469,7 @@ export default defineComponent({
                                 <chls type='list'>
                                     ${formData.value.record
                                         .map((item) => {
-                                            return `<item id='${item.value}'><![CDATA[${item.label}]]></item>`
+                                            return `<item id='${item.value}'>${wrapCDATA(item.label)}</item>`
                                         })
                                         .join('')}
                                 </chls>
@@ -486,7 +478,7 @@ export default defineComponent({
                                 <alarmOuts type='list'>
                                     ${formData.value.alarmOut
                                         .map((item) => {
-                                            return `<item id='${item.value}'><![CDATA[${item.label}]]></item>`
+                                            return `<item id='${item.value}'>${wrapCDATA(item.label)}</item>`
                                         })
                                         .join('')}
                                 </alarmOuts>
@@ -498,8 +490,8 @@ export default defineComponent({
                                             return rawXml`
                                                 <item>
                                                     <index>${item.index}</index>
-                                                    <name><![CDATA[${item.name}]]></name>
-                                                    <chl id='${item.chl.value}'><![CDATA[${item.chl.label}]]></chl>
+                                                    <name>${wrapCDATA(item.name)}</name>
+                                                    <chl id='${item.chl.value}'>${wrapCDATA(item.chl.label)}</chl>
                                                 </item>`
                                         })
                                         .join('')}
@@ -626,7 +618,6 @@ export default defineComponent({
             // 警戒区域切换
             changeWarnArea,
             formatAreaName,
-            blurInput,
             // 提交物品遗留与看护数据
             applyData,
             closeSchedulePop,

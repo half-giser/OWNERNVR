@@ -21,13 +21,13 @@ export class ChannelInfoDto {
     protocolType = ''
     addType = ''
     accessType = ''
-    poeIndex = ''
+    poeIndex = 0
     manufacturer = ''
     productModel = {
         factoryName: '',
         innerText: '',
     }
-    index = ''
+    index = 0
     chlIndex = ''
     isOnline = false
     chlType = ''
@@ -91,7 +91,6 @@ export class ChannelManualAddDto {
     port = 10
     userName = ''
     password = ''
-    index = 0
     manufacturer = ''
     protocolType = ''
     addrType = ''
@@ -130,7 +129,7 @@ export class ChannelAddEditIPCIpDto {
  * @description 录像通道列表项
  */
 export class ChannelRecorderDto {
-    index = ''
+    index = 0
     name = ''
     isAdded = false
     bandWidth = ''
@@ -151,6 +150,11 @@ export class ChannelRecorderAddDto {
     password = ''
     useDefaultPwd = true
     recorderList: Array<ChannelRecorderDto> = []
+}
+
+export class ChannelRTSPPropertyDto {
+    displayName = ''
+    index = ''
 }
 
 /**
@@ -310,159 +314,194 @@ export class ChannelImageDto extends TableRowStatus {
     id = ''
     name = ''
     chlType = ''
-    bright: number | undefined = undefined
-    contrast: number | undefined = undefined
-    saturation: number | undefined = undefined
-    hue: number | undefined = undefined
+
     isSupportHallway = false //是否支持走廊模式
     isSupportIRCutMode = false //是否支持日夜模式
     isSupportThermal = false // 是否热成像通道
     isSpeco = false
+
+    bright: number | undefined = undefined
+    brightMin = 0
+    brightMax = 100
+    brightDefault = 0
+
+    contrast: number | undefined = undefined
+    contrastMin = 0
+    contrastMax = 100
+    contrastDefault = 0
+
+    saturation: number | undefined = undefined
+    saturationMin = 0
+    saturationMax = 100
+    saturationDefault = 0
+
+    hue: number | undefined = undefined
+    hueMin: number | undefined = undefined
+    hueMax: number | undefined = undefined
+    hueDefault: number | undefined = undefined
+
     paletteCode: string | undefined = undefined
-    defaultPaletteCode: string | undefined = undefined
-    brightMinValue: number | undefined = undefined
-    brightMaxValue: number | undefined = undefined
-    brightDefaultValue: number | undefined = undefined
-    contrastMinValue: number | undefined = undefined
-    contrastMaxValue: number | undefined = undefined
-    contrastDefaultValue: number | undefined = undefined
-    hueMinValue: number | undefined = undefined
-    hueMaxValue: number | undefined = undefined
-    hueDefaultValue: number | undefined = undefined
-    saturationMinValue: number | undefined = undefined
-    saturationMaxValue: number | undefined = undefined
-    saturationDefaultValue: number | undefined = undefined
+    defaultPaletteCode = ''
+
     cfgFile: string | undefined = undefined
-    cfgFileDefault: string | undefined = undefined
-    denoiseValue: number | undefined = undefined
-    denoiseDefaultValue: number | undefined = undefined
-    denoiseMinValue: number | undefined = undefined
-    denoiseMaxValue: number | undefined = undefined
-    denoiseSwitch: boolean | undefined = false
+    cfgFileDefault = ''
+
+    denoise: number | undefined = undefined
+    denoiseDefault = 0
+    denoiseMin = 0
+    denoiseMax = 100
+    denoiseSwitch = false
+
     ShowGainMode: boolean | undefined = false
-    WDRDefaultValue: number | undefined = undefined
-    WDRMinValue: number | undefined = undefined
-    WDRMaxValue: number | undefined = undefined
-    WDRSwitch: boolean | undefined = undefined
-    WDRValue: number | undefined = undefined
+
+    WDR: number | undefined = undefined
+    WDRDefault = 0
+    WDRMin = 0
+    WDRMax = 100
+    WDRSwitch = false
+
     HFR: boolean | undefined = undefined
+
     whiteBalanceMode: string | undefined = undefined
-    redDefaultValue: number | undefined = undefined
-    redMinValue: number | undefined = undefined
-    redMaxValue: number | undefined = undefined
-    redValue: number | undefined = undefined
-    blueDefaultValue: number | undefined = undefined
-    blueMinValue: number | undefined = undefined
-    blueMaxValue: number | undefined = undefined
-    blueValue: number | undefined = undefined
+
+    red: number | undefined = undefined
+    redDefault = 0
+    redMin = 0
+    redMax = 100
+
+    blue: number | undefined = undefined
+    blueDefault = 0
+    blueMin = 0
+    blueMax = 100
+
     IRCutMode: string | undefined = undefined
-    IRCutModeDef: string | undefined = undefined
+    IRCutModeDefault = ''
     IRCutConvSen: string | undefined = undefined
     IRCutConvSen2: string | undefined = undefined // 只用于判断
-    IRCutConvSenDef: string | undefined = undefined
+    IRCutConvSenDefault = ''
     IRCutDayTime: string | undefined = undefined
     IRCutNightTime: string | undefined = undefined
-    sharpenDefaultValue: number | undefined = undefined
-    sharpenMinValue: number | undefined = undefined
-    sharpenMaxValue: number | undefined = undefined
-    sharpenValue: number | undefined = undefined
-    sharpenSwitch: boolean | undefined = undefined
+
+    sharpen: number | undefined = undefined
+    sharpenDefault = 0
+    sharpenMin = 0
+    sharpenMax = 100
+    sharpenSwitch = false
     sharpenSwitchEnable: boolean | undefined = undefined
+
     mirrorSwitch: boolean | undefined = undefined
     flipSwitch: boolean | undefined = undefined
+
     imageRotate: string | undefined = undefined
-    imageRotateDef: string | undefined = undefined
-    imageDefaultValue: number | undefined = undefined
-    imageMinValue: number | undefined = undefined
-    imageMaxValue: number | undefined = undefined
-    imageValue: number | undefined = undefined
+    imageRotateDefault = ''
+
+    imageShift: number | undefined = undefined
+    imageShiftDefault = 0
+    imageShiftMin = 0
+    imageShiftMax = 100
+
     BLCMode: string | undefined = undefined
     BLCModeDefault: string | undefined = undefined
+
     HWDRLevel: string | undefined = undefined
     HWDRLevelDefault: string | undefined = undefined
+
     smartIrMode: string | undefined = undefined
     smartIrModeDefault: string | undefined = undefined
-    lightLevelDefaultValue: number | undefined = undefined
-    lightLevelMinValue: number | undefined = undefined
-    lightLevelMaxValue: number | undefined = undefined
-    lightLevelValue: number | undefined = undefined
+
+    lightLevel: number | undefined = undefined
+    lightLevelDefault = 0
+    lightLevelMin = 0
+    lightLevelMax = 100
+
     smartIrSwitch: boolean | undefined = undefined
-    smartIrSwitchDefault: boolean | undefined = undefined
+    smartIrSwitchDefault = false
+
     smartIrLevel: string | undefined = undefined
-    smartIrLevelDefault: string | undefined = undefined
+    smartIrLevelDefault = ''
+
     // 透雾
-    defogValue: number | undefined = undefined
-    defogDefaultValue: number | undefined = undefined
-    defogMinValue: number | undefined = undefined
-    defogMaxValue: number | undefined = undefined
-    defogSwitch: boolean | undefined = undefined
+    defog: number | undefined = undefined
+    defogDefault = 0
+    defogMin = 0
+    defogMax = 100
+    defogSwitch = false
+
     // 抗闪
     antiflicker: string | undefined = undefined
-    antiflickerDefault: string | undefined = undefined
+    antiflickerDefault = ''
+
     // 曝光模式
     exposureMode: string | undefined = undefined
-    exposureModeDefault: string | undefined = undefined
-    exposureModeValue: number | undefined = undefined
-    exposureModeDefaultValue: number | undefined = undefined
-    exposureModeMinValue: number | undefined = undefined
-    exposureModeMaxValue: number | undefined = undefined
+    exposureModeDefault = ''
+    exposure: number | undefined = undefined
+    exposureDefault = 0
+    exposureMin = 0
+    exposureMax = 100
+
     // 延迟时间
-    delayTimeValue: number | undefined = undefined
-    delayTimeDefaultValue: number | undefined = undefined
-    delayTimeMinValue: number | undefined = undefined
-    delayTimeMaxValue: number | undefined = undefined
+    delayTime: number | undefined = undefined
+    delayTimeDefault = 0
+    delayTimeMin = 0
+    delayTimeMax = 100
+
     // 红外模式
     InfraredMode: string | undefined = undefined
     InfraredModeDefault: string | undefined = undefined
+
     // 增益限制
     gainMode: string | undefined = undefined
-    gainModeDefault: string | undefined = undefined
-    gainValue: number | undefined = undefined
+    gainModeDefault = ''
     gainAGC: number | undefined = undefined
-    gainAGCDefaultValue: number | undefined = undefined
-    gainDefaultValue: number | undefined = undefined
-    gainMinValue: number | undefined = undefined
-    gainMaxValue: number | undefined = undefined
+    gainAGCDefault = 0
+    gain: number | undefined = undefined
+    gainDefault = 0
+    gainMin = 0
+    gainMax = 100
+
     IPCVersion = ''
+
     // 快门
     shutterMode: string | undefined = undefined
-    shutterModeDefault: string | undefined = undefined
-    shutterValue: string | undefined = undefined
-    shutterValueDefault: string | undefined = undefined
+    shutterModeDefault = ''
+    shutter: string | undefined = undefined
+    shutterDefault = ''
     shutterLowLimit: string | undefined = undefined
-    shutterLowLimitDefault: string | undefined = undefined
+    shutterLowLimitDefault = ''
     shutterUpLimit: string | undefined = undefined
-    shutterUpLimitDefault: string | undefined = undefined
+    shutterUpLimitDefault = ''
 
     supportSchedule = false
     scheduleInfo = new ChannelScheduleInfoDto()
+
     // 白光灯
     whitelightMode: string | undefined = undefined
-    whitelightModeDefault: string | undefined = undefined
+    whitelightModeDefault = ''
     whitelightStrength: number | undefined = undefined
-    whitelightStrengthMin: number | undefined = undefined
-    whitelightStrengthMax: number | undefined = undefined
-    whitelightStrengthDefault: number | undefined = undefined
+    whitelightStrengthMin = 0
+    whitelightStrengthMax = 100
+    whitelightStrengthDefault = 0
     whitelightOnTime: string | undefined = undefined
-    whitelightOnTimeDefault: string | undefined = undefined
+    whitelightOnTimeDefault = ''
     whitelightOffTime: string | undefined = undefined
-    whitelightOffTimeDefault: string | undefined = undefined
+    whitelightOffTimeDefault = ''
 
-    configFileTypeEnum: SelectOption<string, string>[] = []
-    shutterModeEnum: SelectOption<string, string>[] = []
-    shutterValueEnum: SelectOption<string, string>[] = []
-    whiteBalanceModeEnum: SelectOption<string, string>[] = []
-    BLCModeArray: SelectOption<string, string>[] = []
-    HWDRLevelArray: SelectOption<string, string>[] = []
-    IRCutModeArray: SelectOption<string, string>[] = []
-    IRCutConvSenArray: SelectOption<string, string>[] = []
-    SmartIrArray: SelectOption<string, string>[] = []
-    antiflickerModeArray: SelectOption<string, string>[] = []
-    InfraredModeArray: SelectOption<string, string>[] = []
-    exposureModeArray: SelectOption<string, string>[] = []
-    exposureValueArray: SelectOption<number, string>[] = []
-    gainModeEnum: SelectOption<string, string>[] = []
+    cfgFileList: SelectOption<string, string>[] = []
+    shutterModeList: SelectOption<string, string>[] = []
+    shutterList: SelectOption<string, string>[] = []
+    whiteBalanceModeList: SelectOption<string, string>[] = []
+    BLCModeList: SelectOption<string, string>[] = []
+    HWDRLevelList: SelectOption<string, string>[] = []
+    IRCutModeList: SelectOption<string, string>[] = []
+    IRCutConvSenList: SelectOption<string, string>[] = []
+    SmartIrList: SelectOption<string, string>[] = []
+    antiflickerModeList: SelectOption<string, string>[] = []
+    InfraredModeList: SelectOption<string, string>[] = []
+    exposureModeList: SelectOption<string, string>[] = []
+    exposureList: SelectOption<number, string>[] = []
+    gainModeList: SelectOption<string, string>[] = []
     paletteList: SelectOption<string, string>[] = []
+
     activeTab = 'imageAdjust'
 }
 

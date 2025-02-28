@@ -6,7 +6,6 @@
 import UserEditPop from './UserEditPop.vue'
 import UserEditPasswordPop from './UserEditPasswordPop.vue'
 import type { XMLQuery } from '@/utils/xmlParse'
-import { type UserList, UserPermissionChannelAuthList, UserPermissionSystemAuthList } from '@/types/apiType/userAndSecurity'
 import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
@@ -77,7 +76,7 @@ export default defineComponent({
                     getChannelAuth($result, true)
                 })
             } else {
-                const result = await getChlList({})
+                const result = await getChlList()
                 commLoadResponseHandler(result, ($) => {
                     getChannelAuth($, false)
                 })

@@ -3,7 +3,6 @@
  * @Date: 2024-08-20 18:26:39
  * @Description: 新增预置点弹窗
  */
-import { type ChannelPtzPresetDto } from '@/types/apiType/channel'
 import type { FormRules } from 'element-plus'
 
 export default defineComponent({
@@ -168,7 +167,6 @@ export default defineComponent({
             open,
             verify,
             close,
-            formatInputMaxLength,
         }
     },
 })

@@ -5,8 +5,6 @@
  */
 import ChannelGroupEditPop from '../channel/ChannelGroupEditPop.vue'
 import ChannelGroupAddPop from '../channel/ChannelGroupAddPop.vue'
-import { ChannelGroupDto } from '@/types/apiType/channel'
-import { type PlaybackChlList, type PlaybackChannelGroupList } from '@/types/apiType/playback'
 
 export interface ChannelPanelExpose {
     removeChls(chl: string[]): void

@@ -4,7 +4,6 @@
  * @Description: 系统重启
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import type { UserCheckAuthForm } from '@/types/apiType/user'
 
 export default defineComponent({
     components: {

@@ -3,20 +3,7 @@
  * @Date: 2024-08-29 09:54:23
  * @Description: 智能分析-人脸搜索
  */
-import {
-    IntelFaceImgDto,
-    IntelSearchFaceList,
-    type IntelSnapPopList,
-    type IntelFaceDBGroupDto,
-    IntelFaceDBFaceInfo,
-    IntelFaceDBSnapFaceList,
-    type IntelFaceMatchPopList,
-    type IntelFaceDBGroupList,
-    type IntelFaceDBImportFaceDto,
-    type IntelFaceTrackMapList,
-} from '@/types/apiType/intelligentAnalysis'
 import type { TableInstance, CheckboxValueType } from 'element-plus'
-import { type PlaybackPopList } from '@/components/player/BasePlaybackPop.vue'
 import BackupPop from '../searchAndBackup/BackupPop.vue'
 import BackupLocalPop from '../searchAndBackup/BackupLocalPop.vue'
 import IntelBaseSnapPop from './IntelBaseSnapPop.vue'
@@ -25,7 +12,6 @@ import IntelBaseSnapItem from './IntelBaseSnapItem.vue'
 import IntelBaseFaceMatchPop from './IntelBaseFaceMatchPop.vue'
 import IntelFaceSearchChooseFacePop from './IntelFaceSearchChooseFacePop.vue'
 import IntelFaceSearchTrackMapPanel from './IntelFaceSearchTrackMapPanel.vue'
-import { type PlaybackBackUpRecList } from '@/types/apiType/playback'
 import { type DownloadZipOptions } from '@/utils/tools'
 import dayjs from 'dayjs'
 
@@ -721,7 +707,7 @@ export default defineComponent({
                             <chlId>${row.chlId}</chlId>
                             <frameTime>${row.frameTime}</frameTime>
                             <featureStatus>true</featureStatus>
-                            ${ternary(isPanorama, '<isPanorama />')}
+                            ${isPanorama ? '<isPanorama />' : ''}
                         </condition>
                     `
                     const result = await requestChSnapFaceImage(sendXml)
@@ -976,10 +962,10 @@ export default defineComponent({
                         )
                         .join('')
                     faceXml = rawXml`
-                        ${ternary(faceType === 'face', `<faceFeatures type="list">${formData.value.featureFace.map((item) => `<item>${item.id}</item>`).join('')}</faceFeatures>`)}
-                        ${ternary(faceType === 'group', `<faceFeatureGroups type="list">${formData.value.featureFaceGroup.map((item) => `<item id="${item.groupId}"></item>`).join('')}</faceFeatureGroups>`)}
-                        ${ternary(faceType === 'snap', `<faceImgs type="list">${snapData}</faceImgs>`)}
-                        <faceImgData>${ternary(faceType === 'import', imgData)}</faceImgData>
+                        ${faceType === 'face' ? `<faceFeatures type="list">${formData.value.featureFace.map((item) => `<item>${item.id}</item>`).join('')}</faceFeatures>` : ''}
+                        ${faceType === 'group' ? `<faceFeatureGroups type="list">${formData.value.featureFaceGroup.map((item) => `<item id="${item.groupId}"></item>`).join('')}</faceFeatureGroups>` : ''}
+                        ${faceType === 'snap' ? `<faceImgs type="list">${snapData}</faceImgs>` : ''}
+                        <faceImgData>${faceType === 'import' ? imgData : ''}</faceImgData>
                     `
                     pageData.value.isMultiFaceSearch =
                         formData.value.featureFaceGroup.length > 0 || formData.value.featureFace.length > 1 || formData.value.snapFace.length > 1 || formData.value.importFace.length > 1
@@ -1026,7 +1012,7 @@ export default defineComponent({
                         isNoData: false,
                         imgId: hexToDec(split[3]) + '',
                         timestamp,
-                        frameTime: localToUtc(timestamp) + ':' + ('0000000' + hexToDec(split[2])).slice(-7),
+                        frameTime: localToUtc(timestamp) + ':' + padStart(hexToDec(split[2]), 7),
                         guid,
                         chlId,
                         chlName: chlMap[chlId],

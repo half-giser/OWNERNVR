@@ -3,8 +3,6 @@
  * @Date: 2024-06-21 15:12:48
  * @Description: 录像状态
  */
-import { type SystemRecordStatusList } from '@/types/apiType/system'
-
 export default defineComponent({
     setup(_prop, ctx) {
         const { Translate } = useLangStore()
