@@ -37,7 +37,7 @@
                 >
                     <template #default="{ row }: TableColumn<ChannelGroupDto>">
                         <BaseImgSpriteBtn
-                            file="edit (2)"
+                            file="edit2"
                             @click="editChlGroup(row)"
                         />
                     </template>

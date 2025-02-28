@@ -75,7 +75,7 @@
                 >
                     <template #default="{ row }: TableColumn<ChannelQuickAddDto>">
                         <BaseImgSpriteBtn
-                            file="edit (2)"
+                            file="edit2"
                             @click="openEditIPCIpPop(row)"
                         />
                     </template>

@@ -58,7 +58,7 @@
                 <!-- 停止播放 -->
                 <el-tooltip :content="Translate('IDCS_STOP')">
                     <BaseImgSpriteBtn
-                        file="stop (3)"
+                        file="stop_rec"
                         :disabled="pageData.playStatus === 'stop'"
                         @click="stop"
                     />

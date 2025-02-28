@@ -27,7 +27,7 @@
                 <el-table-column :label="Translate('IDCS_EDIT')">
                     <template #default="{ row }: TableColumn<IntelPlateDBGroupList>">
                         <BaseImgSpriteBtn
-                            file="edit (2)"
+                            file="edit2"
                             @click="editGroup(row)"
                         />
                     </template>
@@ -89,7 +89,7 @@
                                 <el-table-column :label="Translate('IDCS_EDIT')">
                                     <template #default="data: TableColumn<IntelPlateDBPlateInfo>">
                                         <BaseImgSpriteBtn
-                                            file="edit (2)"
+                                            file="edit2"
                                             @click="editPlate(data.row)"
                                         />
                                     </template>

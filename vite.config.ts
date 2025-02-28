@@ -101,6 +101,7 @@ export default defineConfig(({ mode }) => {
             cleanUpTempFiles(),
             GenerateSprite({
                 src: `sprite/${VITE_UI_TYPE}-sprite/sprite/*.png`,
+                minify: process.env.NODE_ENV !== 'development',
             }),
             minifyXmlTemplateStrings(),
             transpileVueTemplatePropTypes(),

@@ -71,7 +71,7 @@
                 >
                     <template #default="{ row }: TableColumn<ChannelInfoDto>">
                         <BaseImgSpriteBtn
-                            file="play (3)"
+                            file="preview"
                             @click="handlePreview(row)"
                         />
                     </template>
@@ -94,7 +94,7 @@
                     </template>
                     <template #default="{ row }: TableColumn<ChannelInfoDto>">
                         <BaseImgSpriteBtn
-                            file="edit (2)"
+                            file="edit2"
                             @click="editChannel(row)"
                         />
                     </template>

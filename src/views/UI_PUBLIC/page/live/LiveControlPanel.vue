@@ -22,7 +22,7 @@
             />
             <!-- 本地录像 -->
             <BaseImgSpriteBtn
-                :file="winData.localRecording ? 'recing' : 'rec (2)'"
+                :file="winData.localRecording ? 'recing' : 'rec_client'"
                 :title="winData.localRecording ? Translate('IDCS_CLIENT_RECORD_OFF') : Translate('IDCS_CLIENT_RECORD_ON')"
                 :active="winData.localRecording"
                 :disabled="localRecordDisabled"

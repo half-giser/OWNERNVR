@@ -156,7 +156,7 @@
                 <el-table-column :label="Translate('IDCS_DETAIL')">
                     <template #default="{ $index }: TableColumn<BusinessFaceCheckList>">
                         <BaseImgSpriteBtn
-                            file="edit (2)"
+                            file="edit2"
                             @click="showDetail($index)"
                         />
                     </template>

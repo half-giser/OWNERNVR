@@ -31,7 +31,7 @@
                 <el-table-column :label="Translate('IDCS_EDIT')">
                     <template #default="{ row }: TableColumn<IntelFaceDBGroupList>">
                         <BaseImgSpriteBtn
-                            file="edit (2)"
+                            file="edit2"
                             @click="editGroup(row)"
                         />
                     </template>

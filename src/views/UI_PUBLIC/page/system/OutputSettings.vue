@@ -177,7 +177,7 @@
                                 <BaseImgSpriteBtn
                                     v-show="pageData.tabId === 0 && pageData.outputIdx === 0"
                                     class="panel-collect"
-                                    file="collect (2)"
+                                    file="collect_view"
                                     @click="collectView"
                                 />
                             </el-tooltip>

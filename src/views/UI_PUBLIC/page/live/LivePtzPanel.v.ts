@@ -87,7 +87,7 @@ export default defineComponent({
                     type: 'direction',
                 },
                 {
-                    file: 'Stop (2)',
+                    file: 'stop_ptz',
                     actionType: 'StopAction',
                     type: 'activeStop',
                 },
@@ -217,7 +217,7 @@ export default defineComponent({
          */
         const stopCmd = () => {
             return addCmd({
-                file: 'Stop (2)',
+                file: 'stop_ptz',
                 actionType: 'StopAction',
                 type: 'stop',
             })

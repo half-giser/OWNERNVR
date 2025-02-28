@@ -57,7 +57,7 @@
         <div class="ctrl-center">
             <!-- 停止播放 -->
             <BaseImgSpriteBtn
-                file="stop (3)"
+                file="stop_rec"
                 :title="Translate('IDCS_STOP')"
                 :disabled
                 @click="$emit('stop')"

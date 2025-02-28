@@ -204,7 +204,7 @@
                             <el-table-column :label="Translate('IDCS_EDIT')">
                                 <template #default="item">
                                     <BaseImgSpriteBtn
-                                        file="edit (2)"
+                                        file="edit2"
                                         :disabled="!formData.gb28181Switch"
                                         @click="editCodeId($index, item.row)"
                                     />

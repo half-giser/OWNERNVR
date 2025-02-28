@@ -57,7 +57,7 @@
                 <template #default="{ row }: TableColumn<AlarmCombinedItemDto>">
                     <BaseImgSpriteBtn
                         v-show="row.alarmSourceType === 'FaceMatch'"
-                        file="edit (2)"
+                        file="edit2"
                         @click="editFaceMatch(row.alarmSourceEntity.value)"
                     />
                 </template>

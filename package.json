@@ -75,6 +75,7 @@
     "rollup-plugin-visualizer": "^5.12.0",
     "sass": "^1.75.0",
     "sass-loader": "^14.2.1",
+    "sharp": "^0.33.5",
     "spritesmith": "^3.4.1",
     "stylelint": "^16.10.0",
     "stylelint-config-recommended-scss": "^14.1.0",

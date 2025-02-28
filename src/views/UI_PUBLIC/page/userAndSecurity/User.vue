@@ -136,7 +136,7 @@
                     <template #default="{ row }: TableColumn<UserList>">
                         <BaseImgSpriteBtn
                             v-show="row.edit"
-                            file="edit (2)"
+                            file="edit2"
                             @click="openEditUserPop(row)"
                         />
                     </template>

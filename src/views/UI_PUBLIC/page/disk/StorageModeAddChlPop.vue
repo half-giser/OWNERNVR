@@ -36,7 +36,7 @@
                 <el-table-column :label="Translate('IDCS_PREVIEW')">
                     <template #default="{ row }: TableColumn<StorageModeChlList>">
                         <BaseImgSpriteBtn
-                            file="play (3)"
+                            file="preview"
                             @click="preview(row)"
                         />
                     </template>
