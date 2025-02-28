@@ -43,12 +43,8 @@
                 />
                 <el-table-column :label="Translate('IDCS_HOT_TO_DISK')">
                     <template #default="{ row, $index }: TableColumn<DiskPhysicalList>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             file="transform"
-                            :index="0"
-                            :hover-index="2"
-                            :chunk="4"
-                            :disabled-index="3"
                             :disabled="row.type === 'array'"
                             @click="transformDisk(row, $index)"
                         />

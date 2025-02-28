@@ -69,12 +69,8 @@
                         </el-dropdown>
                     </template>
                     <template #default="{ row }: TableColumn<{ date: string }>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             file="del"
-                            :chunk="4"
-                            :index="0"
-                            :hover-index="1"
-                            :active-index="1"
                             @click="handleDelDate(row)"
                         />
                     </template>

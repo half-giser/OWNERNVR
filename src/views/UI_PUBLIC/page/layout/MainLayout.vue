@@ -34,10 +34,9 @@
                             class="icon_aq"
                             file="aq"
                             :title="Translate('IDCS_PLUGIN_DOWNLOAD_INSTRUCTIONS')"
-                            :index="pageData.hoverPluginIconIndex"
+                            :index="1"
+                            :hover-index="2"
                             :chunk="3"
-                            @mouseenter="pageData.hoverPluginIconIndex = 2"
-                            @mouseleave="pageData.hoverPluginIconIndex = 1"
                         />
                     </div>
                     <div class="nav-item">
@@ -67,7 +66,6 @@
                     >
                         <BaseImgSprite
                             file="localCfg"
-                            :index="0"
                             :chunk="4"
                         />
                         <a
@@ -188,7 +186,6 @@
     color: var(--header-text);
 
     .icon_aq {
-        cursor: pointer;
         margin-left: 5px;
     }
 

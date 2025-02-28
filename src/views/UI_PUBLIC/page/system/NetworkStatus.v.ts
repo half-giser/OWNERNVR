@@ -3,8 +3,6 @@
  * @Date: 2024-06-21 16:31:50
  * @Description: 网络状态
  */
-import { type SystemNetStatusList } from '@/types/apiType/system'
-
 export default defineComponent({
     setup(_prop, ctx) {
         const { Translate } = useLangStore()

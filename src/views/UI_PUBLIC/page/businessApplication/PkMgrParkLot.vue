@@ -30,10 +30,9 @@
                 </div>
                 <div class="back">
                     <el-tooltip :content="Translate('IDCS_PLATFORM_OPERATE_RETURN')">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             file="park_back"
-                            :index="0"
-                            :hover-index="1"
+                            :index="[0, 1, 1, 0]"
                             :chunk="2"
                             @click="goBack"
                         />
@@ -109,11 +108,8 @@
             <div class="base-btn-box space-between padding">
                 <div>{{ Translate('IDCS_MORE_VEHICLE_RECORD') }}</div>
                 <el-tooltip :content="Translate('IDCS_VEHICLE_RECORD_REARCH')">
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         file="park_record"
-                        :index="0"
-                        :hover-index="1"
-                        :chunk="4"
                         @click="search"
                     />
                 </el-tooltip>

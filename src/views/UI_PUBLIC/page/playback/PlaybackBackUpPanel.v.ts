@@ -3,7 +3,6 @@
  * @Date: 2024-08-06 20:36:12
  * @Description: 回放-备份任务列表
  */
-import { type PlaybackBackUpTaskList } from '@/types/apiType/playback'
 import dayjs from 'dayjs'
 
 export default defineComponent({

@@ -32,7 +32,7 @@
                             maxlength="32"
                             @focus="focusName(row.name)"
                             @blur="blurName(row)"
-                            @keyup.enter="keydownEnterName($event)"
+                            @keyup.enter="blurInput"
                         />
                     </template>
                 </el-table-column>

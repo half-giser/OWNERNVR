@@ -36,13 +36,9 @@
                     width="60"
                 >
                     <template #default="{ row }: TableColumn<ChannelGroupDto>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             file="edit (2)"
-                            :chunk="4"
-                            :index="0"
-                            :hover-index="1"
-                            :active-index="1"
-                            @click="handleEditChlGroup(row)"
+                            @click="editChlGroup(row)"
                         />
                     </template>
                 </el-table-column>
@@ -51,13 +47,9 @@
                     width="60"
                 >
                     <template #default="{ row }: TableColumn<ChannelGroupDto>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             file="del"
-                            :chunk="4"
-                            :index="0"
-                            :hover-index="1"
-                            :active-index="1"
-                            @click="handleDelChlGroup(row)"
+                            @click="deleteChlGroup(row)"
                         />
                     </template>
                 </el-table-column>
@@ -66,12 +58,12 @@
                     width="100"
                 >
                     <template #default="{ row }: TableColumn<ChannelGroupDto>">
-                        <ChannelPtzTableExpandPanel @add="handleAddChl(row)">
+                        <ChannelPtzTableExpandPanel @add="addChl(row)">
                             <ChannelPtzTableExpandItem
                                 v-for="item in row.chls"
                                 :key="String(item.value)"
                                 :text="String(item.text)"
-                                @delete="handleDelChl(row, item.value)"
+                                @delete="deleteChl(row, item.value)"
                             />
                         </ChannelPtzTableExpandPanel>
                     </template>
@@ -83,8 +75,8 @@
                 v-model:current-page="pageIndex"
                 v-model:page-size="pageSize"
                 :total="pageTotal"
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
+                @size-change="changePageSize"
+                @current-change="changePage"
             />
         </div>
         <ChannelGroupEditPop

@@ -3,8 +3,6 @@
  * @Date: 2024-05-29 21:21:34
  * @Description: 业务应用-停车场管理-出入口
  */
-import { type BusinessPkMgrEnterExitManageList } from '@/types/apiType/business'
-
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
@@ -107,8 +105,8 @@ export default defineComponent({
                                         <channelName>${item.channelName}</channelName>
                                         <direction>${item.direction}</direction>
                                         <ip>${item.ip}</ip>
-                                        ${ternary(item.enableLEDScreenValid, `<enableLEDScreen>${item.enableLEDScreen}</enableLEDScreen>`)}
-                                        ${ternary(item.LEDScreenTypeValid, `<LEDScreenType>${item.LEDScreenType}</LEDScreenType>`)}
+                                        ${item.enableLEDScreenValid ? `<enableLEDScreen>${item.enableLEDScreen}</enableLEDScreen>` : ''}
+                                        ${item.LEDScreenTypeValid ? `<LEDScreenType>${item.LEDScreenType}</LEDScreenType>` : ''}
                                     </item>
                                 `
                             })

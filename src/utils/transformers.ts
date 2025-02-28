@@ -150,7 +150,7 @@ export const base64ToFile = (base64: string, fileName: string) => {
  * @param {Blob} file
  * @param callback
  */
-export const fileToBase64 = (file: Blob, callback: Function) => {
+export const fileToBase64 = (file: Blob) => {
     // base64 每76位加一个换行
     const formatBase64 = (param: string) => {
         let result = ''
@@ -163,14 +163,14 @@ export const fileToBase64 = (file: Blob, callback: Function) => {
         return result
     }
 
-    const reader = new FileReader()
-    reader.onload = (e) => {
-        const data = (e.target!.result as string).split(',')
-        const base64 = data[1]
-        const base64Str = formatBase64(base64)
-        if (typeof callback === 'function') {
-            callback(base64Str)
+    return new Promise((resolve: (str: string) => void) => {
+        const reader = new FileReader()
+        reader.onload = (e) => {
+            const data = (e.target!.result as string).split(',')
+            const base64 = data[1]
+            const base64Str = formatBase64(base64)
+            resolve(base64Str)
         }
-    }
-    reader.readAsDataURL(file)
+        reader.readAsDataURL(file)
+    })
 }

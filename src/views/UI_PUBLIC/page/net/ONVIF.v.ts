@@ -3,7 +3,6 @@
  * @Date: 2024-08-15 18:18:50
  * @Description: OVNIF
  */
-import { NetOnvifForm, NetOnvifUserList } from '@/types/apiType/net'
 import ONVIFUserAddPop from './ONVIFUserAddPop.vue'
 
 export default defineComponent({
@@ -161,7 +160,7 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <switch>${formData.value.switch}</switch>
-                    ${ternary(isAutoOpenRtsp, '<autoOpenRtsp>true</autoOpenRtsp>', '')}
+                    ${isAutoOpenRtsp ? '<autoOpenRtsp>true</autoOpenRtsp>' : ''}
                 </content>
             `
             await editOnvifCfg(sendXml)

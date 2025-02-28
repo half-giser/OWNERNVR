@@ -3,8 +3,6 @@
  * @Date: 2024-05-31 17:18:13
  * @Description: 打点绘制闭合多边形、点、线，支持业务：温度检测
  */
-import CanvasBase from './canvasBase'
-import type { CanvasBaseLineStyleOption, CanvasBasePoint, CanvasBaseArea, CanvasBaseRect } from './canvasBase'
 
 interface CanvasTemperatureOSDInfo {
     X: number
@@ -22,7 +20,7 @@ interface CanvasTemperaturePassline {
 type CanvasTemperatureType = 'temperatureDetect' | 'detectionArea' | ''
 
 // 当前区域类型: 侦测-"detectionArea"/屏蔽-"maskArea"/矩形-"regionArea"
-type CanvasTemperatureAreaType = 'detectionArea' | 'maskArea' | 'regionArea' // 侦测-"detectionArea"/屏蔽-"maskArea"/矩形-"regionArea"
+export type CanvasTemperatureAreaType = 'detectionArea' | 'maskArea' | 'regionArea' // 侦测-"detectionArea"/屏蔽-"maskArea"/矩形-"regionArea"
 
 /**
  * 打点绘制闭合多边形
@@ -43,7 +41,7 @@ type CanvasTemperatureAreaType = 'detectionArea' | 'maskArea' | 'regionArea' // 
  *      @property {Object} area 警戒区域数据 { X1, Y1, X2, Y2 }
  */
 interface CanvasTemperatureOption {
-    el: HTMLCanvasElement
+    el?: HTMLCanvasElement
     lineStyle?: Partial<CanvasBaseLineStyleOption>
     pointList?: CanvasBasePoint[]
     enableOSD?: boolean
@@ -60,7 +58,7 @@ interface CanvasTemperatureOption {
     clearCurrentArea?: (pointList: CanvasBasePoint[]) => void
 }
 
-export default function CanvasPolygon(option: CanvasTemperatureOption) {
+export const CanvasTemperature = (option: CanvasTemperatureOption = {}) => {
     const DEFAULT_LINE_COLOR = '#0f0' // 画线默认色值
     const DEFAULT_POINT_COLOR = '#f11' // 打点的颜色
     const DEFAULT_TEXT_COLOR = '#f00' // 文字默认色值
@@ -81,8 +79,8 @@ export default function CanvasPolygon(option: CanvasTemperatureOption) {
     }
     let enable = true
     let isClosed = false // 多边形是否已闭合，若为true则不能继续绘制
-    let detectAreaInfo: Record<number, CanvasBasePoint[]> = {}
-    let maskAreaInfo: Record<number, CanvasBasePoint[]> = {}
+    let detectAreaInfo: CanvasBasePoint[][] = []
+    let maskAreaInfo: CanvasBasePoint[][] = []
     let temperatureFlag = false // 温度检测事件绘图标记
     // let dragFlag = false
     let osdRect: CanvasBaseRect = {
@@ -94,8 +92,6 @@ export default function CanvasPolygon(option: CanvasTemperatureOption) {
     }
     let currAreaIndex = 0
     let currAreaType: CanvasTemperatureAreaType = 'detectionArea'
-    let onMouseDown: ((e: MouseEvent) => void) | undefined = undefined
-    let onDoubleClick: (() => void) | undefined = undefined
 
     let lineStyle = {
         strokeStyle: DEFAULT_LINE_COLOR,
@@ -127,7 +123,10 @@ export default function CanvasPolygon(option: CanvasTemperatureOption) {
         ...(option.area || {}),
     }
 
-    // 根据数据绘制区域
+    /**
+     * @description 根据数据绘制区域
+     * @param {boolean} isFoucusClosePath
+     */
     const init = (isFoucusClosePath = false) => {
         clearRect()
         if (regulation) {
@@ -143,19 +142,28 @@ export default function CanvasPolygon(option: CanvasTemperatureOption) {
         }
     }
 
-    // 绘制警戒区域（矩形）
+    /**
+     * @description 绘制警戒区域（矩形）
+     */
     const drawArea = () => {
         const item = getRealAreaItemByRelative(area)
         ctx.Point2Rect(item.X1, item.Y1, item.X2, item.Y2, lineStyle)
     }
 
-    // 设置警戒区域（矩形）
+    /**
+     * @description 设置警戒区域（矩形）
+     * @param {CanvasBaseArea} info
+     */
     const setArea = (info: CanvasBaseArea) => {
         area = info
         init()
     }
 
-    // 绘制警戒线
+    /**
+     * @description 绘制警戒线
+     * @param {CanvasTemperaturePassline} item
+     * @returns
+     */
     const drawLine = (item: CanvasTemperaturePassline) => {
         clear()
         ctx.Circle(item.startX, item.startY, 4, lineStyle)
@@ -166,14 +174,22 @@ export default function CanvasPolygon(option: CanvasTemperatureOption) {
         return item
     }
 
-    // 设置最大顶点数(点、线、面)
+    /**
+     * @description 设置最大顶点数(点、线、面)
+     * @param num
+     * @param type
+     */
     const setPointCount = (num: number, type: CanvasTemperatureType) => {
         temperatureFlag = type === 'temperatureDetect'
         max = num
         init()
     }
 
-    // 获取初始区域坐标点
+    /**
+     * @description 获取初始区域坐标点
+     * @param points
+     * @returns
+     */
     const getRealAreaItemByRelative = ({ X1, Y1, X2, Y2 }: CanvasBaseArea) => {
         return {
             X1: getRealSizeByRelative(X1, 'x'),
@@ -183,7 +199,11 @@ export default function CanvasPolygon(option: CanvasTemperatureOption) {
         }
     }
 
-    // 获取绘制区域坐标点
+    /**
+     * @description 获取绘制区域坐标点
+     * @param points
+     * @returns
+     */
     const getRelativeAreaItemByReal = ({ X1, Y1, X2, Y2 }: CanvasBaseArea) => {
         return {
             X1: getRelativeSizeByReal(X1, 'x'),
@@ -193,7 +213,10 @@ export default function CanvasPolygon(option: CanvasTemperatureOption) {
         }
     }
 
-    // 绘制多边形, isFoucusClosePath: 是否强制闭合
+    /**
+     * @description 绘制多边形, isFoucusClosePath: 是否强制闭合
+     * @param {boolean} isFoucusClosePath
+     */
     const drawPolygon = (isFoucusClosePath = false) => {
         if (!pointList.length) return
         const startPoint = getRealItemByRelative(pointList[0])
@@ -229,93 +252,75 @@ export default function CanvasPolygon(option: CanvasTemperatureOption) {
      * @property {Boolean} isFoucusClosePath 是否强制闭合
      */
     const drawAllPolygon = (
-        newDetectAreaInfo: Record<number, CanvasBasePoint[]>,
-        newMaskAreaInfo: Record<number, CanvasBasePoint[]>,
+        newDetectAreaInfo: CanvasBasePoint[][],
+        newMaskAreaInfo: CanvasBasePoint[][],
         currAreaType: CanvasTemperatureAreaType,
         currAreaIndex: number,
         isFoucusClosePath = false,
     ) => {
-        const allRegionList = []
-        for (const key in newDetectAreaInfo) {
-            allRegionList.push(newDetectAreaInfo[key])
+        if (!newDetectAreaInfo.length && !newMaskAreaInfo.length) {
+            return
         }
 
-        for (const key in newMaskAreaInfo) {
-            allRegionList.push(newMaskAreaInfo[key])
-        }
-        if (!allRegionList.length) return
         detectAreaInfo = newDetectAreaInfo // 画点多边形 - 侦测区域
         maskAreaInfo = newMaskAreaInfo // 画点多边形 - 屏蔽区域
+
         // 两种颜色的线框
-        if (detectAreaInfo) {
-            const allDetectRegionList = []
-            for (const key in detectAreaInfo) {
-                allDetectRegionList.push(detectAreaInfo[key])
-            }
+        detectAreaInfo.forEach((areaInfo, j) => {
+            if (areaInfo.length) {
+                const startPoint = getRealItemByRelative(areaInfo[0])
+                for (let i = 0; i < areaInfo.length; i++) {
+                    const point = areaInfo[i]
+                    const item = getRealItemByRelative(point)
+                    const lineStyle = {
+                        strokeStyle: DEFAULT_LINE_COLOR,
+                        lineWidth: 1.5,
+                    }
+                    if (currAreaType === 'detectionArea' && currAreaIndex === j) {
+                        lineStyle.lineWidth = 3
+                    }
+                    ctx.Circle(item.X, item.Y, 4, lineStyle)
+                    ctx.FillCircle(item.X, item.Y, 3.5, DEFAULT_POINT_COLOR)
+                    if (i > 0) {
+                        const itemPre = getRealItemByRelative(areaInfo[i - 1])
+                        ctx.Line(itemPre.X, itemPre.Y, item.X, item.Y, lineStyle)
+                    }
 
-            // this.allDetectRegionList = allDetectRegionList
-            for (let j = 0; j < allDetectRegionList.length; j++) {
-                if (allDetectRegionList[j].length) {
-                    const startPoint = getRealItemByRelative(allDetectRegionList[j][0])
-                    for (let i = 0; i < allDetectRegionList[j].length; i++) {
-                        const item = getRealItemByRelative(allDetectRegionList[j][i])
-                        const lineStyle = {
-                            strokeStyle: DEFAULT_LINE_COLOR,
-                            lineWidth: 1.5,
-                        }
-                        if (currAreaType === 'detectionArea' && currAreaIndex === j) {
-                            lineStyle.lineWidth = 3
-                        }
-                        ctx.Circle(item.X, item.Y, 4, lineStyle)
-                        ctx.FillCircle(item.X, item.Y, 3.5, DEFAULT_POINT_COLOR)
-                        if (i > 0) {
-                            const itemPre = getRealItemByRelative(allDetectRegionList[j][i - 1])
-                            ctx.Line(itemPre.X, itemPre.Y, item.X, item.Y, lineStyle)
-                        }
-
-                        // 绘制的最后一个点是最大点数，或者强制闭合为true时，才绘制闭合线段
-                        if (i === allDetectRegionList[j].length - 1 && (i === max - 1 || isFoucusClosePath) && allDetectRegionList[j][i].isClosed) {
-                            ctx.Line(startPoint.X, startPoint.Y, item.X, item.Y, lineStyle)
-                        }
+                    // 绘制的最后一个点是最大点数，或者强制闭合为true时，才绘制闭合线段
+                    if (i === areaInfo.length - 1 && (i === max - 1 || isFoucusClosePath) && point.isClosed) {
+                        ctx.Line(startPoint.X, startPoint.Y, item.X, item.Y, lineStyle)
                     }
                 }
             }
-        }
+        })
 
-        if (maskAreaInfo) {
-            const allMaskRegionList = []
-            for (const key in maskAreaInfo) {
-                allMaskRegionList.push(maskAreaInfo[key])
-            }
+        maskAreaInfo.forEach((araeInfo, j) => {
+            if (araeInfo.length) {
+                const startPoint = getRealItemByRelative(araeInfo[0])
+                for (let i = 0; i < araeInfo.length; i++) {
+                    const point = araeInfo[i]
+                    const item = getRealItemByRelative(point)
+                    const lineStyle = {
+                        strokeStyle: '#d9001b',
+                        lineWidth: 1.5,
+                    }
+                    if (currAreaType === 'maskArea' && currAreaIndex === j) {
+                        lineStyle.lineWidth = 3
+                    }
+                    ctx.Circle(item.X, item.Y, 4, lineStyle)
+                    ctx.FillCircle(item.X, item.Y, 3.5, DEFAULT_POINT_COLOR)
+                    if (i > 0) {
+                        const itemPre = getRealItemByRelative(araeInfo[i - 1])
+                        ctx.Line(itemPre.X, itemPre.Y, item.X, item.Y, lineStyle)
+                    }
 
-            // this.allMaskRegionList = allMaskRegionList
-            for (let j = 0; j < allMaskRegionList.length; j++) {
-                if (allMaskRegionList[j].length) {
-                    const startPoint = getRealItemByRelative(allMaskRegionList[j][0])
-                    for (let i = 0; i < allMaskRegionList[j].length; i++) {
-                        const item = getRealItemByRelative(allMaskRegionList[j][i])
-                        const lineStyle = {
-                            strokeStyle: '#d9001b',
-                            lineWidth: 1.5,
-                        }
-                        if (currAreaType === 'maskArea' && currAreaIndex === j) {
-                            lineStyle.lineWidth = 3
-                        }
-                        ctx.Circle(item.X, item.Y, 4, lineStyle)
-                        ctx.FillCircle(item.X, item.Y, 3.5, DEFAULT_POINT_COLOR)
-                        if (i > 0) {
-                            const itemPre = getRealItemByRelative(allMaskRegionList[j][i - 1])
-                            ctx.Line(itemPre.X, itemPre.Y, item.X, item.Y, lineStyle)
-                        }
-
-                        // 绘制的最后一个点是最大点数，或者强制闭合为true时，才绘制闭合线段
-                        if (i === allMaskRegionList[j].length - 1 && (i === max - 1 || isFoucusClosePath) && allMaskRegionList[j][i].isClosed) {
-                            ctx.Line(startPoint.X, startPoint.Y, item.X, item.Y, lineStyle)
-                        }
+                    // 绘制的最后一个点是最大点数，或者强制闭合为true时，才绘制闭合线段
+                    if (i === araeInfo.length - 1 && (i === max - 1 || isFoucusClosePath) && point.isClosed) {
+                        ctx.Line(startPoint.X, startPoint.Y, item.X, item.Y, lineStyle)
                     }
                 }
             }
-        }
+        })
 
         if (pointList.length >= 3 && pointList[0].isClosed) {
             isClosed = true
@@ -340,7 +345,12 @@ export default function CanvasPolygon(option: CanvasTemperatureOption) {
         }
     }
 
-    // 判断新绘制线段是否和已有线段相交
+    /**
+     * @description 判断新绘制线段是否和已有线段相交
+     * @param newPoint
+     * @param isFoucusClosePath
+     * @returns
+     */
     const judgeIntersect = (newPoint: CanvasBasePoint, isFoucusClosePath = false) => {
         let flag = false
         const lastPoint = pointList.at(-1)!
@@ -371,7 +381,11 @@ export default function CanvasPolygon(option: CanvasTemperatureOption) {
         return flag
     }
 
-    // 判断画点多边形区域是否可闭合（通过判断区域中的第一个点和最后一个点的连线是否与其他线相交）- true:可闭合; false:不可闭合
+    /**
+     * @description 判断画点多边形区域是否可闭合（通过判断区域中的第一个点和最后一个点的连线是否与其他线相交）- true:可闭合; false:不可闭合
+     * @param pointList
+     * @returns
+     */
     const judgeAreaCanBeClosed = (pointList: CanvasBasePoint[]) => {
         let flag = true
         const startPoint = pointList.at(0)!
@@ -433,10 +447,8 @@ export default function CanvasPolygon(option: CanvasTemperatureOption) {
         if (!osdInfo) return
         const X = getRealSizeByRelative(osdInfo.X, 'x')
         const Y = getRealSizeByRelative(osdInfo.Y, 'y')
-
-        const // 兼容字符串里有\n和直接回车的换行
-            splitStr = osdInfo.osdFormat && osdInfo.osdFormat.includes('\\n') ? '\\n' : '\n'
-
+        // 兼容字符串里有\n和直接回车的换行
+        const splitStr = osdInfo.osdFormat && osdInfo.osdFormat.includes('\\n') ? '\\n' : '\n'
         const osdList = osdInfo.osdFormat ? osdInfo.osdFormat.split(splitStr) : []
         let longestStrLen = 0
         for (let i = 0; i < osdList.length; i++) {
@@ -464,184 +476,179 @@ export default function CanvasPolygon(option: CanvasTemperatureOption) {
         }
     }
 
-    // 绑定事件
+    const onMouseDown = (e: MouseEvent) => {
+        if (regulation) {
+            if (!enable) {
+                return
+            }
+            const startX = e.offsetX
+            const startY = e.offsetY
+            const clientX = e.clientX
+            const clientY = e.clientY
+            let endX: number
+            let endY: number
+            let finalX: number
+            let finalY: number
+            document.body.style.setProperty('user-select', 'none')
+
+            const onMouseMove = (e1: MouseEvent) => {
+                endX = clamp(e1.clientX - clientX + startX, 0, cavWidth)
+                endY = clamp(e1.clientY - clientY + startY, 0, cavHeight)
+
+                finalX = startX
+                finalY = startY
+
+                if (endX < startX) {
+                    finalX = endX
+                    endX = startX
+                }
+
+                if (endY < startY) {
+                    finalY = endY
+                    endY = startY
+                }
+
+                setArea(
+                    getRelativeAreaItemByReal({
+                        X1: finalX,
+                        Y1: finalY,
+                        X2: endX,
+                        Y2: endY,
+                    }),
+                )
+            }
+
+            const onMouseUp = () => {
+                onchange && onchange(area)
+                document.removeEventListener('mousemove', onMouseMove)
+                document.removeEventListener('mouseup', onMouseUp)
+                document.body.style.setProperty('user-select', 'unset')
+            }
+
+            document.addEventListener('mousemove', onMouseMove)
+            document.addEventListener('mouseup', onMouseUp)
+        } else {
+            if (!enable) {
+                return
+            }
+
+            document.body.style.setProperty('user-select', 'none')
+            const startX = e.offsetX
+            const startY = e.offsetY
+            const clientX = e.clientX
+            const clientY = e.clientY
+            // 先判断鼠标是否在osd矩形区域内
+            const osdRectX = osdRect.x
+            const osdRectY = osdRect.y
+            const osdRectW = osdRect.width
+            const osdRectH = osdRect.height
+            let endX: number
+            let endY: number
+
+            const onMouseMove = (e2: MouseEvent) => {
+                endX = e2.clientX - clientX + startX
+                endY = e2.clientY - clientY + startY
+                // 若绘制线条，允许拖拽绘制
+                if (temperatureFlag && max === 2) {
+                    endX = clamp(endX, 0, cavWidth)
+                    endY = clamp(endY, 0, cavHeight)
+
+                    const startPoint = getRelativeItemByReal({
+                        X: startX,
+                        Y: startY,
+                    })
+                    const endPoint = getRelativeItemByReal({
+                        X: endX,
+                        Y: endY,
+                    })
+                    drawLine({ startX, startY, endX, endY })
+                    pointList = [
+                        {
+                            X: startPoint.X,
+                            Y: startPoint.Y,
+                        },
+                        {
+                            X: endPoint.X,
+                            Y: endPoint.Y,
+                        },
+                    ]
+                    onchange && onchange(pointList, osdInfo)
+                }
+            }
+
+            const onMouseUp = ({ offsetX, offsetY }: MouseEvent) => {
+                document.removeEventListener('mousemove', onMouseMove)
+                document.removeEventListener('mouseup', onMouseUp)
+                document.body.style.setProperty('user-select', 'unset')
+                // 绘制区域闭合之后再次点击绘制弹框提示：已绘制，是否需要清除绘制？
+                if (isClosed && !ctx.IsInRect(startX, startY, osdRectX, osdRectY, osdRectW, osdRectH)) {
+                    clearCurrentArea && clearCurrentArea(pointList)
+                    return
+                }
+
+                // 温度检测事件重新绘制（点/线）时，清除图形
+                if (temperatureFlag) {
+                    if (max === 1) {
+                        pointList = []
+                        clear()
+                    }
+
+                    if (max === 2 && pointList.length === 2) {
+                        return
+                    }
+
+                    if (pointList.length >= max) {
+                        return
+                    }
+                }
+                // 当前绘制点
+                const newPoint = getRelativeItemByReal({
+                    X: offsetX,
+                    Y: offsetY,
+                })
+
+                // 禁止一个点位于相同的坐标
+                if (pointList.some(({ X, Y }) => X === newPoint.X && Y === newPoint.Y)) return
+
+                // 绘制最后一个点时首先判断区域是否可闭合
+                if (pointList.length === max - 1 && judgeIntersect(newPoint)) {
+                    forceClosePath && forceClosePath(false) // 区域不可闭合
+                    return
+                }
+
+                // 绘制过程中如果区域不可闭合（有相交的直线）则不可绘制
+                if (pointList.length >= 3 && judgeIntersect(newPoint)) {
+                    forceClosePath && forceClosePath(false) // 区域不可闭合
+                    return
+                }
+                // 绘制当前点
+                pointList.push(newPoint)
+                init()
+                onchange && onchange(pointList)
+            }
+
+            document.addEventListener('mousemove', onMouseMove)
+            document.addEventListener('mouseup', onMouseUp)
+        }
+    }
+
+    const onDoubleClick = () => {
+        const isIntersect = pointList.length >= 3 ? judgeIntersect(pointList.at(-1)!, true) : true
+        if (pointList.length >= 3 && !isIntersect && !isClosed) {
+            init(true)
+            forceClosePath && forceClosePath(true) // 区域可闭合
+            onchange && onchange(pointList)
+        } else {
+            if (isIntersect && pointList.length >= 3) {
+                forceClosePath && forceClosePath(false) // 区域不可闭合
+            }
+        }
+    }
+
+    /**
+     * @description 绑定事件
+     */
     const bindEvent = () => {
-        if (!onMouseDown) {
-            onMouseDown = (e: MouseEvent) => {
-                if (regulation) {
-                    if (!enable) {
-                        return
-                    }
-                    const startX = e.offsetX,
-                        startY = e.offsetY
-                    const clientX = e.clientX,
-                        clientY = e.clientY
-                    let endX, endY
-                    let finalX, finalY
-                    document.body.style.setProperty('user-select', 'none')
-
-                    const onMouseMove = (e1: MouseEvent) => {
-                        endX = e1.clientX - clientX + startX
-                        endY = e1.clientY - clientY + startY
-                        if (endX < 0) endX = 0
-                        if (endX > cavWidth) endX = cavWidth
-                        if (endY < 0) endY = 0
-                        if (endY > cavHeight) endY = cavHeight
-                        finalX = startX
-                        finalY = startY
-                        if (endX < startX) {
-                            finalX = endX
-                            endX = startX
-                        }
-
-                        if (endY < startY) {
-                            finalY = endY
-                            endY = startY
-                        }
-                        setArea(
-                            getRelativeAreaItemByReal({
-                                X1: finalX,
-                                Y1: finalY,
-                                X2: endX,
-                                Y2: endY,
-                            }),
-                        )
-                    }
-
-                    const onMouseUp = () => {
-                        onchange && onchange(area)
-                        document.removeEventListener('mousemove', onMouseMove)
-                        document.removeEventListener('mouseup', onMouseUp)
-                        document.body.style.setProperty('user-select', 'unset')
-                    }
-
-                    document.addEventListener('mousemove', onMouseMove)
-                    document.addEventListener('mouseup', onMouseUp)
-                } else {
-                    if (!enable) {
-                        return
-                    }
-
-                    document.body.style.setProperty('user-select', 'none')
-                    const startX = e.offsetX,
-                        startY = e.offsetY
-                    const clientX = e.clientX,
-                        clientY = e.clientY
-                    let endX, endY
-                    // 先判断鼠标是否在osd矩形区域内
-                    const osdRectX = osdRect.x,
-                        osdRectY = osdRect.y,
-                        osdRectW = osdRect.width,
-                        osdRectH = osdRect.height
-
-                    const onMouseMove = (e2: MouseEvent) => {
-                        // this.dragFlag = true
-                        endX = e2.clientX - clientX + startX
-                        endY = e2.clientY - clientY + startY
-                        // 若绘制线条，允许拖拽绘制
-                        if (temperatureFlag && max === 2) {
-                            if (endX < 0) endX = 0
-                            if (endX > cavWidth) endX = cavWidth
-                            if (endY < 0) endY = 0
-                            if (endY > cavHeight) endY = cavHeight
-                            const startPoint = getRelativeItemByReal({
-                                X: startX,
-                                Y: startY,
-                            })
-                            const endPoint = getRelativeItemByReal({
-                                X: endX,
-                                Y: endY,
-                            })
-                            drawLine({ startX, startY, endX, endY })
-                            pointList = [
-                                {
-                                    X: startPoint.X,
-                                    Y: startPoint.Y,
-                                },
-                                {
-                                    X: endPoint.X,
-                                    Y: endPoint.Y,
-                                },
-                            ]
-                            onchange && onchange(pointList, osdInfo)
-                        }
-                    }
-
-                    const onMouseUp = ({ offsetX, offsetY }: MouseEvent) => {
-                        document.removeEventListener('mousemove', onMouseMove)
-                        document.removeEventListener('mouseup', onMouseUp)
-                        document.body.style.setProperty('user-select', 'unset')
-                        // 绘制区域闭合之后再次点击绘制弹框提示：已绘制，是否需要清除绘制？
-                        if (max > 2 && isClosed && !ctx.IsInRect(startX, startY, osdRectX, osdRectY, osdRectW, osdRectH)) {
-                            clearCurrentArea && clearCurrentArea(pointList)
-                            return
-                        }
-
-                        // 温度检测事件重新绘制（点/线）时，清除图形
-                        if (temperatureFlag) {
-                            if (max === 1) {
-                                pointList = []
-                                clear()
-                            }
-
-                            if (max === 2 && pointList.length === 2) {
-                                // this.dragFlag = false
-                                return
-                            }
-
-                            if (pointList.length >= max) {
-                                return
-                            }
-                        }
-                        // 当前绘制点
-                        const newPoint = getRelativeItemByReal({
-                            X: offsetX,
-                            Y: offsetY,
-                        })
-                        // 禁止一个点位于相同的坐标
-                        let repeatFlag = false
-                        pointList.forEach(({ X, Y }: CanvasBasePoint) => {
-                            if (X === newPoint.X && Y === newPoint.Y) repeatFlag = true
-                        })
-                        if (repeatFlag) return
-                        // 绘制最后一个点时首先判断区域是否可闭合
-                        if (pointList.length === max - 1 && judgeIntersect(newPoint)) {
-                            forceClosePath && forceClosePath(false) // 区域不可闭合
-                            return
-                        }
-
-                        // 绘制过程中如果区域不可闭合（有相交的直线）则不可绘制
-                        if (pointList.length >= 3 && judgeIntersect(newPoint)) {
-                            return
-                        }
-                        // 绘制当前点
-                        pointList.push(newPoint)
-                        init()
-                        onchange && onchange(pointList)
-                    }
-
-                    document.addEventListener('mousemove', onMouseMove)
-                    document.addEventListener('mouseup', onMouseUp)
-                }
-            }
-        }
-
-        if (!onDoubleClick) {
-            onDoubleClick = () => {
-                // const pointList = pointList || []
-                const isIntersect = pointList.length >= 3 ? judgeIntersect(pointList.at(-1)!, true) : true
-                if (pointList.length >= 3 && !isIntersect && !isClosed) {
-                    init(true)
-                    forceClosePath && forceClosePath(true) // 区域可闭合
-                    onchange && onchange(pointList)
-                } else {
-                    if (isIntersect && pointList.length >= 3) {
-                        forceClosePath && forceClosePath(false) // 区域不可闭合
-                    }
-                }
-            }
-        }
-
         canvas.removeEventListener('mousedown', onMouseDown)
         canvas.addEventListener('mousedown', onMouseDown)
 
@@ -652,7 +659,12 @@ export default function CanvasPolygon(option: CanvasTemperatureOption) {
         }
     }
 
-    // 根据万分比尺寸获取画布尺寸
+    /**
+     * @description 根据万分比尺寸获取画布尺寸
+     * @param size
+     * @param type
+     * @returns {number}
+     */
     const getRealSizeByRelative = (size: number, type: 'x' | 'y') => {
         if (type === 'x') {
             return (cavWidth * size) / RELATIVE_WIDTH
@@ -661,7 +673,12 @@ export default function CanvasPolygon(option: CanvasTemperatureOption) {
         }
     }
 
-    // 根据画布尺寸获取对应万分比尺寸
+    /**
+     * @description 根据画布尺寸获取对应万分比尺寸
+     * @param size
+     * @param type
+     * @returns {number}
+     */
     const getRelativeSizeByReal = (size: number, type: 'x' | 'y') => {
         if (type === 'x') {
             return (RELATIVE_WIDTH * size) / cavWidth
@@ -684,24 +701,35 @@ export default function CanvasPolygon(option: CanvasTemperatureOption) {
         }
     }
 
-    // 清空画布
+    /**
+     * @description 清空画布
+     */
     const clearRect = () => {
         ctx.ClearRect(0, 0, cavWidth, cavHeight)
     }
 
-    // 获取绘制数据
+    /**
+     * @description 获取绘制数据
+     * @returns
+     */
     const getArea = () => {
         return pointList
     }
 
-    // 设置当前区域 索引/类型
+    /**
+     * @description 设置当前区域 索引/类型
+     * @param index
+     * @param type
+     */
     const setCurrAreaIndex = (index: number, type: CanvasTemperatureAreaType) => {
         currAreaIndex = index // 当前区域索引
         currAreaType = type // 当前区域类型 - 侦测/屏蔽/矩形
         clearRect() // 清空画布
     }
 
-    // 清空区域
+    /**
+     * @description 清空区域
+     */
     const clear = () => {
         if (regulation) {
             area = DEFAULT_AREA
@@ -712,16 +740,13 @@ export default function CanvasPolygon(option: CanvasTemperatureOption) {
         }
     }
 
-    // 销毁
+    /**
+     * @description 销毁
+     */
     const destroy = () => {
         clear()
-        if (onMouseDown) {
-            canvas.removeEventListener('mousedown', onMouseDown)
-        }
-
-        if (onDoubleClick) {
-            canvas.removeEventListener('dblclick', onDoubleClick)
-        }
+        canvas.removeEventListener('mousedown', onMouseDown)
+        canvas.removeEventListener('dblclick', onDoubleClick)
     }
 
     bindEvent()

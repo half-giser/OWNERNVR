@@ -3,10 +3,7 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-18 09:43:49
  */
-import { AlarmObjectLeftDto, type AlarmChlDto } from '@/types/apiType/aiAndEvent'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
-import CanvasPolygon from '@/utils/canvas/canvasPolygon'
-import { type CanvasBasePoint, type CanvasBaseArea } from '@/utils/canvas/canvasBase'
 import { type XMLQuery } from '@/utils/xmlParse'
 import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
 import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
@@ -95,10 +92,7 @@ export default defineComponent({
 
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
-        // 物品遗留与看护绘制的Canvas
-        let objDrawer = CanvasPolygon({
-            el: document.createElement('canvas'),
-        })
+        let drawer = CanvasPolygon()
 
         /**
          * @description 播放器就绪时回调
@@ -108,9 +102,9 @@ export default defineComponent({
             plugin = playerRef.value!.plugin
 
             if (mode.value === 'h5') {
-                const canvas = player.getDrawbordCanvas(0)
-                objDrawer = CanvasPolygon({
-                    el: canvas,
+                drawer.destroy()
+                drawer = CanvasPolygon({
+                    el: player.getDrawbordCanvas(),
                     onchange: changeArea,
                     closePath: closePath,
                     forceClosePath: forceClosePath,
@@ -124,7 +118,7 @@ export default defineComponent({
             }
         }
 
-        // objDrawer初始化时绑定以下函数
+        // drawer初始化时绑定以下函数
         const changeArea = (points: CanvasBasePoint[] | CanvasBaseArea) => {
             formData.value.boundary[pageData.value.warnArea].points = points as CanvasBasePoint[]
             if (pageData.value.isShowAllArea) {
@@ -152,7 +146,7 @@ export default defineComponent({
                 formData.value.boundary[pageData.value.warnArea].points = []
 
                 if (mode.value === 'h5') {
-                    objDrawer.clear()
+                    drawer.clear()
                 }
 
                 if (mode.value === 'ocx') {
@@ -184,7 +178,7 @@ export default defineComponent({
             }
 
             if (mode.value === 'h5') {
-                objDrawer.setEnable(true)
+                drawer.setEnable(true)
             }
 
             if (mode.value === 'ocx') {
@@ -310,16 +304,18 @@ export default defineComponent({
 
         // 视频区域
         const showAllArea = () => {
-            objDrawer && objDrawer.setEnableShowAll(pageData.value.isShowAllArea)
+            if (mode.value === 'h5') {
+                drawer.setEnableShowAll(pageData.value.isShowAllArea)
+            }
+
             if (pageData.value.isShowAllArea) {
-                const detectAreaInfo: Record<number, CanvasBasePoint[]> = {}
-                formData.value.boundary.forEach((item, index) => {
-                    detectAreaInfo[index] = item.points
+                const detectAreaInfo = formData.value.boundary.map((item) => {
+                    return item.points
                 })
                 if (mode.value === 'h5') {
                     const index = pageData.value.warnArea
-                    objDrawer.setCurrAreaIndex(index, 'detectionArea')
-                    objDrawer.drawAllPolygon(detectAreaInfo, {}, 'detectionArea', index, true)
+                    drawer.setCurrAreaIndex(index, 'detectionArea')
+                    drawer.drawAllPolygon(detectAreaInfo, [], 'detectionArea', index, true)
                 }
 
                 if (mode.value === 'ocx') {
@@ -337,7 +333,7 @@ export default defineComponent({
 
         const clearArea = () => {
             if (mode.value === 'h5') {
-                objDrawer.clear()
+                drawer.clear()
             }
 
             if (mode.value === 'ocx') {
@@ -358,7 +354,7 @@ export default defineComponent({
             })
 
             if (mode.value === 'h5') {
-                objDrawer && objDrawer.clear()
+                drawer.clear()
             }
 
             if (mode.value === 'ocx') {
@@ -379,10 +375,10 @@ export default defineComponent({
 
         // 设置区域图形
         const setAreaView = () => {
-            if (formData.value.boundary && formData.value.boundary.length > 0 && formData.value.boundary[pageData.value.warnArea]) {
+            if (formData.value.boundary.length && formData.value.boundary[pageData.value.warnArea]) {
                 if (mode.value === 'h5') {
-                    objDrawer.setCurrAreaIndex(pageData.value.warnArea, 'detectionArea')
-                    objDrawer.setPointList(formData.value.boundary[pageData.value.warnArea].points, true)
+                    drawer.setCurrAreaIndex(pageData.value.warnArea, 'detectionArea')
+                    drawer.setPointList(formData.value.boundary[pageData.value.warnArea].points, true)
                 }
 
                 if (mode.value === 'ocx') {
@@ -406,24 +402,17 @@ export default defineComponent({
         const setOtherAreaClosed = () => {
             if (mode.value === 'h5') {
                 // 画点-区域
-                if (formData.value.boundary && formData.value.boundary.length > 0) {
-                    formData.value.boundary.forEach((item) => {
-                        if (item.points.length >= 3 && objDrawer.judgeAreaCanBeClosed(item.points)) {
-                            setClosed(item.points)
-                        }
-                    })
-                }
+                formData.value.boundary.forEach((item) => {
+                    if (item.points.length >= 3 && drawer.judgeAreaCanBeClosed(item.points)) {
+                        setClosed(item.points)
+                    }
+                })
             }
         }
 
         // 名称输入限制
         const formatAreaName = (value: string) => {
             return cutStringByByte(value, formData.value.maxNameLength)
-        }
-
-        // 回车键失去焦点
-        const blurInput = (event: Event) => {
-            ;(event.target as HTMLInputElement).blur()
         }
 
         // 检测区域合法性(物品遗留看护AI事件中：区域为多边形)
@@ -433,7 +422,7 @@ export default defineComponent({
                 if (count > 0 && count < 4) {
                     openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_INPUT_LIMIT_FOUR_POIONT'))
                     return false
-                } else if (count > 0 && !objDrawer.judgeAreaCanBeClosed(item.points)) {
+                } else if (count > 0 && !drawer.judgeAreaCanBeClosed(item.points)) {
                     openMessageBox(Translate('IDCS_INTERSECT'))
                     return false
                 }
@@ -457,7 +446,7 @@ export default defineComponent({
                                     .map((item) => {
                                         return rawXml`
                                             <item>
-                                                <name maxLen='${formData.value.maxNameLength}'><![CDATA[${item.areaName}]]></name>
+                                                <name maxLen='${formData.value.maxNameLength}'>${wrapCDATA(item.areaName)}</name>
                                                 <point type='list' maxCount='6' count='${item.points.length}'>
                                                     ${item.points
                                                         .map((ele) => {
@@ -480,7 +469,7 @@ export default defineComponent({
                                 <chls type='list'>
                                     ${formData.value.record
                                         .map((item) => {
-                                            return `<item id='${item.value}'><![CDATA[${item.label}]]></item>`
+                                            return `<item id='${item.value}'>${wrapCDATA(item.label)}</item>`
                                         })
                                         .join('')}
                                 </chls>
@@ -489,7 +478,7 @@ export default defineComponent({
                                 <alarmOuts type='list'>
                                     ${formData.value.alarmOut
                                         .map((item) => {
-                                            return `<item id='${item.value}'><![CDATA[${item.label}]]></item>`
+                                            return `<item id='${item.value}'>${wrapCDATA(item.label)}</item>`
                                         })
                                         .join('')}
                                 </alarmOuts>
@@ -501,8 +490,8 @@ export default defineComponent({
                                             return rawXml`
                                                 <item>
                                                     <index>${item.index}</index>
-                                                    <name><![CDATA[${item.name}]]></name>
-                                                    <chl id='${item.chl.value}'><![CDATA[${item.chl.label}]]></chl>
+                                                    <name>${wrapCDATA(item.name)}</name>
+                                                    <chl id='${item.chl.value}'>${wrapCDATA(item.chl.label)}</chl>
                                                 </item>`
                                         })
                                         .join('')}
@@ -610,9 +599,7 @@ export default defineComponent({
                 plugin.ExecuteCmd(sendXML)
             }
 
-            if (mode.value === 'h5') {
-                objDrawer.destroy()
-            }
+            drawer.destroy()
         })
 
         return {
@@ -631,7 +618,6 @@ export default defineComponent({
             // 警戒区域切换
             changeWarnArea,
             formatAreaName,
-            blurInput,
             // 提交物品遗留与看护数据
             applyData,
             closeSchedulePop,

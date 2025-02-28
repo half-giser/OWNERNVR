@@ -4,7 +4,6 @@
  * @Description: email通知
  */
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
-import { AlarmEmailReceiverDto } from '@/types/apiType/aiAndEvent'
 import { type FormRules, type TableInstance } from 'element-plus'
 
 export default defineComponent({

@@ -24,7 +24,9 @@
                     >
                         <BaseImgSprite
                             file="chl_icon"
-                            :index="index === pageData.chlIndex ? 1 : 0"
+                            :index="0"
+                            :active-index="1"
+                            :active="index === pageData.chlIndex"
                             :chunk="4"
                         />
                         <span>{{ listItem.chlName }}</span>
@@ -60,40 +62,27 @@
             <div class="control-btns">
                 <span class="current-time">{{ currentTime }}</span>
                 <el-tooltip :content="Translate('IDCS_PAUSE')">
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         v-show="!pageData.paused"
                         class="btn"
                         file="image_preview_pause"
-                        :index="0"
-                        :hover-index="1"
-                        :disabled-index="3"
-                        :disabled="pageData.iconDisabled"
-                        :chunk="4"
                         @click="pause"
                     />
                 </el-tooltip>
                 <el-tooltip :content="Translate('IDCS_PLAY')">
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         v-show="pageData.paused"
                         class="btn"
                         file="image_preview_play"
-                        :index="0"
-                        :hover-index="1"
-                        :disabled-index="3"
                         :disabled="pageData.iconDisabled"
-                        :chunk="4"
                         @click="play"
                     />
                 </el-tooltip>
                 <el-tooltip :content="Translate('IDCS_STOP')">
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         file="image_preview_stop"
                         class="btn"
-                        :index="0"
-                        :hover-index="1"
-                        :disabled-index="3"
                         :disabled="pageData.iconDisabled"
-                        :chunk="4"
                         @click="stop"
                     />
                 </el-tooltip>
@@ -278,10 +267,6 @@ const play = () => {
  * @description 播放器暂停
  */
 const pause = () => {
-    if (pageData.value.iconDisabled) {
-        return
-    }
-
     if (playerRef.value?.mode === 'h5') {
         playerRef.value.player.pause(0)
         pageData.value.paused = true
@@ -324,10 +309,6 @@ const pause = () => {
  * @description 播放器停止播放
  */
 const stop = () => {
-    if (pageData.value.iconDisabled) {
-        return
-    }
-
     if (mode.value === 'h5') {
         playerRef.value!.player.stop(0)
         pageData.value.progress = startTimeStamp.value
@@ -451,7 +432,7 @@ const changeChannel = (index: number) => {
  * @description 获取通道列表
  */
 const getChannelList = async () => {
-    getChlList({}).then((result) => {
+    getChlList().then((result) => {
         commLoadResponseHandler(result, ($) => {
             $('content/item').forEach((item) => {
                 const $item = queryXml(item.element)
@@ -505,6 +486,7 @@ const ocxNotify = ($: XMLQuery, stateType: string) => {
             reset()
         }
     }
+
     // StartViewChl
     if (stateType === 'StartViewChl') {
         const status = $('statenotify/status').text()
@@ -522,16 +504,6 @@ const ocxNotify = ($: XMLQuery, stateType: string) => {
 onMounted(() => {
     getChannelList()
 })
-</script>
-
-<script lang="ts">
-export class PlaybackPopList {
-    chlId = ''
-    chlName = ''
-    eventList: string[] = []
-    startTime = 0 // 时间戳 （毫秒）
-    endTime = 0 // 时间戳 （毫秒）
-}
 </script>
 
 <style lang="scss" scoped>

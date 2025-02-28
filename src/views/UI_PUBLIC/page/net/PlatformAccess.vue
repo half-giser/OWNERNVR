@@ -136,12 +136,9 @@
                         :label="Translate('IDCS_SIP_PASSWORD')"
                         prop="sipPassword"
                     >
-                        <el-input
+                        <BasePasswordInput
                             v-model="formData.sipPassword"
-                            type="password"
                             :disabled="!formData.gb28181Switch"
-                            @paste.capture.prevent=""
-                            @copy.capture.prevent=""
                             @focus="handlePasswordFocus"
                         />
                     </el-form-item>
@@ -206,12 +203,8 @@
                             />
                             <el-table-column :label="Translate('IDCS_EDIT')">
                                 <template #default="item">
-                                    <BaseImgSprite
+                                    <BaseImgSpriteBtn
                                         file="edit (2)"
-                                        :index="0"
-                                        :hover-index="1"
-                                        :chunk="4"
-                                        :disabled-index="3"
                                         :disabled="!formData.gb28181Switch"
                                         @click="editCodeId($index, item.row)"
                                     />

@@ -3,7 +3,6 @@
  * @Date: 2024-05-30 18:48:05
  * @Description: websocket导出车牌库
  */
-import WebsocketBase from './websocketBase'
 
 export interface WebsocketPlateLibOption {
     onsuccess?: (param: WebsocketPlateLibOnSuccessParam[] | number) => void
@@ -29,7 +28,7 @@ export interface WebsocketPlateLibOnSuccessParam {
     phoneValue: string
 }
 
-export default function WebsocketPlateLib(option: WebsocketPlateLibOption) {
+export const WebsocketPlateLib = (option: WebsocketPlateLibOption) => {
     let taskId: string | null = null
 
     const onsuccess = option.onsuccess

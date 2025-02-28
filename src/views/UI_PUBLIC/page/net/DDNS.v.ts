@@ -3,7 +3,6 @@
  * @Date: 2024-07-10 09:13:17
  * @Description: DDNS
  */
-import { NetDDNSForm, NetDDNSServerTypeList } from '@/types/apiType/net'
 import { type FormRules } from 'element-plus'
 
 export default defineComponent({
@@ -363,7 +362,6 @@ export default defineComponent({
             test,
             setData,
             formatDomainName,
-            formatInputUserName,
         }
     },
 })

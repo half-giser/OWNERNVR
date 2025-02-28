@@ -54,16 +54,13 @@
                         :parser="formatInputMaxLength"
                     />
                     <el-tooltip :content="Translate('IDCS_SAVE_CHANGE')">
-                        <BaseImgSprite
-                            class="base-chl-icon-btn"
-                            file="save"
-                            :index="0"
-                            :hover-index="2"
-                            :disabled-index="3"
-                            :chunk="4"
-                            :disabled="!formData.name.trim() || !presetOptions.length"
-                            @click="saveName"
-                        />
+                        <div class="base-chl-icon-btn">
+                            <BaseImgSpriteBtn
+                                file="save"
+                                :disabled="!formData.name.trim() || !presetOptions.length"
+                                @click="saveName"
+                            />
+                        </div>
                     </el-tooltip>
                 </el-form-item>
                 <div class="base-btn-box">

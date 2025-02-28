@@ -3,7 +3,6 @@
  * @Date: 2024-07-08 18:01:29
  * @Description: 存储模式配置
  */
-import type { StorageModeDiskGroupListDatum, StorageModeDiskGroupList } from '@/types/apiType/disk'
 import StorageModeAddDiskPop from './StorageModeAddDiskPop.vue'
 import StorageModeAddChlPop from './StorageModeAddChlPop.vue'
 
@@ -136,9 +135,6 @@ export default defineComponent({
          * @description 打开新增通道弹窗
          */
         const addChl = () => {
-            if (!currentItem.value.diskList.length) {
-                return
-            }
             pageData.value.isAddChl = true
         }
 
@@ -200,18 +196,19 @@ export default defineComponent({
                     <actionType>${wrapEnums(['add', 'remove'])}</actionType>
                 </types>
                 <content>
-                    ${ternary(
-                        elementName === 'chls',
-                        rawXml`
-                            <diskGroup>
-                                <action type="actionType">remove</action>
-                                <id>${currentItem.value.id}</id>
-                                <chls type="list">
-                                    <item id="${elementId}" />
-                                </chls>
-                            </diskGroup>
-                        `,
-                    )}
+                    ${
+                        elementName === 'chls'
+                            ? rawXml`
+                                <diskGroup>
+                                    <action type="actionType">remove</action>
+                                    <id>${currentItem.value.id}</id>
+                                    <chls type="list">
+                                        <item id="${elementId}" />
+                                    </chls>
+                                </diskGroup>
+                            `
+                            : ''
+                    }
                     <diskGroup>
                         <action type="actionType">add</action>
                         <id>${pageData.value.diskGroupList[0].id}</id>

@@ -17,7 +17,6 @@
                 <BaseImgSprite
                     :file="pageData.eventList.includes(item.value) ? item.checked : item.unchecked"
                     :title="item.name"
-                    :index="0"
                     :chunk="4"
                 />
             </div>
@@ -28,11 +27,9 @@
                 popper-class="no-padding"
             >
                 <template #reference>
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         v-show="pageData.isEventPopBtn"
                         file="event_type_menu"
-                        :chunk="4"
-                        :hover-index="1"
                         class="btn"
                     />
                 </template>
@@ -121,7 +118,6 @@ fieldset {
 .btn {
     position: absolute;
     right: -5px;
-    cursor: pointer;
 }
 
 .event {

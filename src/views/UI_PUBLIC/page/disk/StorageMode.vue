@@ -60,6 +60,7 @@
                             <BaseImgSprite
                                 v-show="pageData.activeIndex !== 0"
                                 class="del"
+                                :hover-index="0"
                                 file="delItem"
                                 @click="deleteDisk(item.id)"
                             />
@@ -67,7 +68,6 @@
                         <BaseImgSprite
                             class="add"
                             file="addItem"
-                            :index="0"
                             :hover-index="0"
                             :chunk="2"
                             @click="addDisk"
@@ -87,6 +87,7 @@
                             <BaseImgSprite
                                 v-show="pageData.activeIndex !== 0"
                                 class="del"
+                                :hover-index="0"
                                 file="delItem"
                                 @click="deleteChl(item.id)"
                             />
@@ -94,7 +95,6 @@
                         <BaseImgSprite
                             class="add"
                             file="addItem"
-                            :index="0"
                             :hover-index="0"
                             :disabled-index="1"
                             :disabled="!currentItem.diskList.length"
@@ -259,7 +259,6 @@
 
 .del {
     margin-left: 5px;
-    cursor: pointer;
 }
 
 .add {

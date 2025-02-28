@@ -4,9 +4,6 @@
  * @Description: websocket上传类
  */
 
-import WebsocketBase from './websocketBase'
-import { CMD_UPLOAD_FILE_OPEN, type CmdUploadFileOpenOption, CMD_UPLOAD_FILE_HEADER, CMD_UPLOAD_FILE_CLOSE } from './websocketCmd'
-
 interface WebsocketUploadOption {
     config: CmdUploadFileOpenOption
     file: Blob
@@ -15,7 +12,7 @@ interface WebsocketUploadOption {
     error?: (param: number) => void
 }
 
-export default function WebsocketUpload(option: WebsocketUploadOption) {
+export const WebsocketUpload = (option: WebsocketUploadOption) => {
     let ws: ReturnType<typeof WebsocketBase>
 
     const maxSingleSize = 50 * 1024 // 单个分片最大32k

@@ -4,8 +4,6 @@
  * @Description: 绘制pos信息
  */
 
-import CanvasBase from './canvasBase'
-
 /**
  * 绘制pos信息
  * @param {Object} option
@@ -19,12 +17,11 @@ interface CanvasPosItem {
 }
 
 export interface CanvasPosOption {
-    el: HTMLCanvasElement
+    el?: HTMLCanvasElement
     posList?: CanvasPosItem[]
-    // onchange: () => void
 }
 
-export default function CanvasPos(options: CanvasPosOption) {
+export const CanvasPos = (options: CanvasPosOption = {}) => {
     const DEFAULT_TEXT_COLOR = '#fff' // 画线默认色值
 
     let posList = options.posList || []
@@ -34,15 +31,18 @@ export default function CanvasPos(options: CanvasPosOption) {
     const cavWidth = canvas.width // 画布宽
     const cavHeight = canvas.height // 画布高
 
-    // 根据数据绘制区域
+    /**
+     * @description 根据数据绘制区域
+     */
     const init = () => {
         ctx.ClearRect(0, 0, cavWidth, cavHeight)
         drawPos()
     }
 
-    // 绘制pos
+    /**
+     * @description 绘制pos
+     */
     const drawPos = () => {
-        if (!posList.length) return
         for (let i = 0; i < posList.length; i++) {
             const item = posList[i]
             ctx.Text({
@@ -56,13 +56,18 @@ export default function CanvasPos(options: CanvasPosOption) {
         }
     }
 
-    // 设置posList
+    /**
+     * @description 设置posList
+     * @param {CanvasPosItem[]} list
+     */
     const setPosList = (list: CanvasPosItem[]) => {
         posList = list
         init()
     }
 
-    // 清空区域
+    /**
+     * @description 清空区域
+     */
     const clear = () => {
         posList = []
         setPosList(posList)

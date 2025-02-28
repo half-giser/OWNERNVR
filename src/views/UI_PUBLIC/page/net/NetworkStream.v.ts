@@ -3,8 +3,6 @@
  * @Date: 2024-08-15 18:17:14
  * @Description: 网络码流设置
  */
-import { type NetSubStreamList, type NetSubStreamResolutionList } from '@/types/apiType/net'
-
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
@@ -159,7 +157,7 @@ export default defineComponent({
 
         // 分析代码后发现 本页面并没有用到此接口的数据
         // const getChannelList = async () => {
-        //     const result = await getChlList({})
+        //     const result = await getChlList()
         //     commLoadResponseHandler(result, ($) => {
         //         pageData.value.chlList = $('content/item').map((item) => {
         //             const $item = queryXml(item.element)

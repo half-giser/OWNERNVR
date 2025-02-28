@@ -3,8 +3,6 @@
  * @Date: 2024-07-16 17:39:53
  * @Description: 通道 - 视频遮挡配置
  */
-import { ChannelMaskDto, ChannelPrivacyMaskDto } from '@/types/apiType/channel'
-import CanvasMask, { type CanvasMaskMaskItem } from '@/utils/canvas/canvasMask'
 import { type XMLQuery } from '@/utils/xmlParse'
 import { type TableInstance } from 'element-plus'
 
@@ -23,7 +21,6 @@ export default defineComponent({
         const editRows = useWatchEditRows<ChannelMaskDto>()
         const editStatus = ref(false)
         const switchOptions = getTranslateOptions(DEFAULT_SWITCH_OPTIONS)
-        let maskDrawer: ReturnType<typeof CanvasMask>
 
         const ready = computed(() => {
             return playerRef.value?.ready || false
@@ -39,6 +36,7 @@ export default defineComponent({
 
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
+        let drawer = CanvasMask()
 
         const colorMap: Record<string, string> = {
             black: Translate('IDCS_BLACK'),
@@ -87,7 +85,7 @@ export default defineComponent({
             if (!selectedChlId.value) return
 
             if (mode.value === 'h5') {
-                maskDrawer?.setEnable(editStatus.value)
+                drawer.setEnable(editStatus.value)
             }
 
             if (mode.value === 'ocx') {
@@ -98,8 +96,8 @@ export default defineComponent({
 
         const handleClearArea = () => {
             if (mode.value === 'h5') {
-                maskDrawer?.clear()
-                maskDrawer?.setEnable(false)
+                drawer.clear()
+                drawer.setEnable(false)
             }
 
             if (mode.value === 'ocx') {
@@ -348,7 +346,7 @@ export default defineComponent({
             })
 
             if (mode.value === 'h5') {
-                maskDrawer?.setArea(masks)
+                drawer.setArea(masks)
             }
 
             if (mode.value === 'ocx') {
@@ -362,8 +360,9 @@ export default defineComponent({
             plugin = playerRef.value!.plugin
 
             if (mode.value === 'h5') {
-                maskDrawer = CanvasMask({
-                    el: player.getDrawbordCanvas(0),
+                drawer.destroy()
+                drawer = CanvasMask({
+                    el: player.getDrawbordCanvas(),
                     onchange: handleMaskChange,
                 })
             }
@@ -386,7 +385,7 @@ export default defineComponent({
                     chlID: rowData.id,
                     streamType: 2,
                 })
-                maskDrawer && maskDrawer.clear()
+                drawer.clear()
             }
 
             if (mode.value === 'ocx') {
@@ -426,9 +425,7 @@ export default defineComponent({
                 plugin.ExecuteCmd(sendXML)
             }
 
-            if (mode.value === 'h5') {
-                maskDrawer?.destroy()
-            }
+            drawer.destroy()
         })
 
         return {

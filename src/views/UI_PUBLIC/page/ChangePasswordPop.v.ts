@@ -1,4 +1,8 @@
-import { UserChangePasswordForm } from '@/types/apiType/user'
+/*
+ * @Date: 2024-07-09 18:39:25
+ * @Description: 修改密码弹窗
+ * @Author: yejiahao yejiahao@tvt.net.cn
+ */
 import { type FormRules } from 'element-plus'
 
 export default defineComponent({

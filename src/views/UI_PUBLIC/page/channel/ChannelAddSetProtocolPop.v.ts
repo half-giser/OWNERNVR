@@ -3,7 +3,6 @@
  * @Date: 2024-06-05 17:19:32
  * @Description: 添加通道 - 设置协议弹窗
  */
-import { ChannelProtocolManageDto } from '@/types/apiType/channel'
 import type { TableInstance, FormRules } from 'element-plus'
 
 export default defineComponent({
@@ -51,7 +50,7 @@ export default defineComponent({
             ],
         })
 
-        let tempProtocolLogo: string = ''
+        let tempProtocolLogo = ''
         let manufacturerArray: string[] = []
         let displayNameList: string[] = []
 
@@ -106,7 +105,7 @@ export default defineComponent({
                         //     }
                         // } else {
                         //     let ip = trim(formData.value.ip)
-                        //     if (!ip || ip == '0.0.0.0') {
+                        //     if (!ip || ip == DEFAULT_EMPTY_IP) {
                         //         callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_INVALID')))
                         //         return
                         //     }

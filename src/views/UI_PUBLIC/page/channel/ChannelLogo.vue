@@ -121,7 +121,7 @@
                                 :disabled="row.disabled"
                                 :min="row.minOpacity"
                                 :max="row.maxOpacity"
-                                @keydown.enter="handleKeydownEnter($event)"
+                                @keyup.enter="blurInput"
                             />
                         </template>
                     </el-table-column>

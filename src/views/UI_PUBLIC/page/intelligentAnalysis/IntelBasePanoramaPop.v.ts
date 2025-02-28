@@ -3,9 +3,6 @@
  * @Date: 2024-09-12 20:39:26
  * @Description: 智能分析 - 查看原图弹窗
  */
-import { type IntelPanoramaPopList } from '@/types/apiType/intelligentAnalysis'
-import CanvasBase from '@/utils/canvas/canvasBase'
-
 export default defineComponent({
     props: {
         /**

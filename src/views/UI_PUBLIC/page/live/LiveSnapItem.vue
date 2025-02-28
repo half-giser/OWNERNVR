@@ -15,37 +15,25 @@
             >
                 <img :src="displayBase64Img(data.snap_pic)" />
                 <div class="item-menu">
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         v-show="isAddBtn"
                         file="live_add"
                         :title="Translate('IDCS_REGISTER')"
-                        :index="0"
-                        :hover-index="1"
-                        :chunk="4"
-                        @click.stop="$emit('add')"
+                        @click="$emit('add')"
                     />
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         file="live_search"
                         :title="Translate('IDCS_SEARCH')"
-                        :index="0"
-                        :hover-index="1"
-                        :chunk="4"
-                        @click.stop="$emit('search')"
+                        @click="$emit('search')"
                     />
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         file="live_play"
                         :title="Translate('IDCS_REPLAY')"
-                        :index="0"
-                        :hover-index="1"
-                        :chunk="4"
                         @click="$emit('playRec')"
                     />
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         file="live_more"
                         :title="Translate('IDCS_MORE')"
-                        :index="0"
-                        :hover-index="1"
-                        :chunk="4"
                         @click="$emit('detail')"
                     />
                 </div>
@@ -122,7 +110,6 @@
 
         span {
             margin: 0 1px;
-            cursor: pointer;
         }
     }
 

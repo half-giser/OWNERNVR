@@ -3,10 +3,8 @@
  * @Date: 2024-09-19 17:51:22
  * @Description: 人群密度检测
  */
-import { type AlarmChlDto, AlarmCddDto } from '@/types/apiType/aiAndEvent'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { type XMLQuery } from '@/utils/xmlParse'
-import CanvasVfd from '@/utils/canvas/canvasVfd'
 import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
 import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
 import AlarmBaseTriggerSelector from './AlarmBaseTriggerSelector.vue'
@@ -48,8 +46,6 @@ export default defineComponent({
 
         const playerRef = ref<PlayerInstance>()
 
-        let cddDrawer: ReturnType<typeof CanvasVfd>
-
         const pageData = ref({
             // 是否支持声音设置
             supportAlarmAudioConfig: systemCaps.supportAlarmAudioConfig,
@@ -71,6 +67,7 @@ export default defineComponent({
 
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
+        let drawer = CanvasVfd()
 
         const ready = computed(() => {
             return playerRef.value?.ready || false
@@ -93,9 +90,9 @@ export default defineComponent({
 
             if (mode.value === 'h5') {
                 if (playerRef.value) {
-                    const canvas = player.getDrawbordCanvas(0)
-                    cddDrawer = CanvasVfd({
-                        el: canvas,
+                    drawer.destroy()
+                    drawer = CanvasVfd({
+                        el: player.getDrawbordCanvas(),
                         onchange: (data) => {
                             formData.value.regionInfo = [data]
                         },
@@ -133,7 +130,7 @@ export default defineComponent({
                     play()
 
                     if (mode.value === 'h5') {
-                        cddDrawer.setEnable(true)
+                        drawer.setEnable(true)
                     }
 
                     if (mode.value === 'ocx') {
@@ -277,12 +274,12 @@ export default defineComponent({
                         <trigger>
                             <sysRec>
                                 <chls type="list">
-                                    ${formData.value.record.map((element) => `<item id="${element.value}"><![CDATA[${element.label}]]></item>`).join('')}
+                                    ${formData.value.record.map((element) => `<item id="${element.value}">${wrapCDATA(element.label)}</item>`).join('')}
                                 </chls>
                             </sysRec>
                             <alarmOut>
                                 <alarmOuts type="list">
-                                    ${formData.value.alarmOut.map((element) => `<item id="${element.value}"><![CDATA[${element.label}]]></item>`).join('')}
+                                    ${formData.value.alarmOut.map((element) => `<item id="${element.value}">${wrapCDATA(element.label)}</item>`).join('')}
                                 </alarmOuts>
                             </alarmOut>
                             <preset>
@@ -292,8 +289,8 @@ export default defineComponent({
                                             return rawXml`
                                                 <item>
                                                     <index>${item.index}</index>
-                                                    <name><![CDATA[${item.name}]]></name>
-                                                    <chl id='${item.chl.value}'><![CDATA[${item.chl.label}]]></chl>
+                                                    <name>${wrapCDATA(item.name)}</name>
+                                                    <chl id='${item.chl.value}'>${wrapCDATA(item.chl.label)}</chl>
                                                 </item>`
                                         })
                                         .join('')}
@@ -340,7 +337,7 @@ export default defineComponent({
         const setArea = () => {
             if (formData.value.regionInfo.length) {
                 if (mode.value === 'h5') {
-                    cddDrawer.setArea(formData.value.regionInfo[0])
+                    drawer.setArea(formData.value.regionInfo[0])
                 }
 
                 if (mode.value === 'ocx') {
@@ -352,7 +349,7 @@ export default defineComponent({
 
         const clearArea = () => {
             if (mode.value === 'h5') {
-                cddDrawer.clear()
+                drawer.clear()
             }
 
             if (mode.value === 'ocx') {
@@ -395,6 +392,8 @@ export default defineComponent({
                 const sendXML = OCX_XML_StopPreview('ALL')
                 plugin.ExecuteCmd(sendXML)
             }
+
+            drawer.destroy()
         })
 
         return {

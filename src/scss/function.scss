@@ -1,0 +1,18 @@
+/*
+ * @Date: 2025-02-27 11:33:57
+ * @Description: 工具函数
+ * @Author: yejiahao yejiahao@tvt.net.cn
+ */
+@use '@/components/sprite/sprites' as *;
+
+/**
+ * 图片URL增加版本号
+ * @param $img 雪碧图的变量，见sprites/sprites.scss
+ * @param $index 雪碧图分块的索引，下标从0开始
+ * @param $chunk 雪碧图分块数量
+ */
+@function img-url($src) {
+    $url: $src + '?v=' + $sprite-version;
+
+    @return url($url);
+}

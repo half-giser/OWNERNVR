@@ -5,7 +5,6 @@
  */
 import QRCode from 'qrcode'
 import { type QRCodeToDataURLOptions } from 'qrcode'
-import { NetNatForm } from '@/types/apiType/net'
 
 export default defineComponent({
     setup() {

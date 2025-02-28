@@ -3,8 +3,6 @@
  * @Date: 2024-06-21 18:46:23
  * @Description: 磁盘状态
  */
-import { type SystemDiskStatusList } from '@/types/apiType/system'
-
 export default defineComponent({
     setup(_prop, ctx) {
         const { Translate } = useLangStore()

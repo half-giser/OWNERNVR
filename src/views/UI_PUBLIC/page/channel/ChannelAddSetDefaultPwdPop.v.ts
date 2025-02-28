@@ -3,10 +3,8 @@
  * @Date: 2024-07-09 18:39:25
  * @Description: 添加通道 - 设置通道默认密码弹窗
  */
-import { type ChannelDefaultPwdDto } from '@/types/apiType/channel'
 import { type FormRules } from 'element-plus'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import type { UserCheckAuthForm } from '@/types/apiType/user'
 
 export default defineComponent({
     components: {
@@ -45,9 +43,10 @@ export default defineComponent({
 
         const passwordInputRef = ref<Array<Element | globalThis.ComponentPublicInstance | null>>([])
 
-        const baseCheckAuthPopVisiable = ref(false)
+        const isCheckAuthPop = ref(false)
+
         const handleBaseCheckAuthPopClose = () => {
-            baseCheckAuthPopVisiable.value = false
+            isCheckAuthPop.value = false
         }
 
         const getData = () => {
@@ -71,19 +70,21 @@ export default defineComponent({
             })
         }
 
-        const handlePwdViewChange = (index: number, rowData: ChannelDefaultPwdDto) => {
+        const togglePwd = (index: number, rowData: ChannelDefaultPwdDto) => {
             const flag = rowData.showInput
             rowData.showInput = !rowData.showInput
             if (!flag) {
-                const curPwdInput = passwordInputRef.value[index]
-                if (curPwdInput) (curPwdInput as HTMLInputElement).focus()
+                nextTick(() => {
+                    const curPwdInput = passwordInputRef.value[index]
+                    if (curPwdInput) (curPwdInput as HTMLInputElement).focus()
+                })
             }
         }
 
         const save = () => {
             formRef.value!.validate((valid) => {
                 if (valid) {
-                    baseCheckAuthPopVisiable.value = true
+                    isCheckAuthPop.value = true
                 }
             })
         }
@@ -96,7 +97,7 @@ export default defineComponent({
                             return rawXml`
                                 <item id='${ele.id}'>
                                     <userName maxByteLen="63">${ele.userName}</userName>
-                                    ${ternary(!!ele.password, `<password maxLen='64' ${getSecurityVer()}><![CDATA[${AES_encrypt(ele.password, userSessionStore.sesionKey)}]]></password>`)}
+                                    ${ele.password ? `<password maxLen='64' ${getSecurityVer()}>${wrapCDATA(AES_encrypt(ele.password, userSessionStore.sesionKey))}</password>` : ''}
                                 </item>
                             `
                         })
@@ -123,7 +124,7 @@ export default defineComponent({
                         }
                     })
                     emit('change', defaultPwdData)
-                    baseCheckAuthPopVisiable.value = false
+                    isCheckAuthPop.value = false
                     emit('close')
                 } else {
                     const errorCode = $('errorCode').text().num()
@@ -138,16 +139,12 @@ export default defineComponent({
                             openMessageBox(Translate('IDCS_NO_AUTH'))
                             break
                         default:
-                            baseCheckAuthPopVisiable.value = false
+                            isCheckAuthPop.value = false
                             emit('close')
                             break
                     }
                 }
             })
-        }
-
-        const handleKeydownEnter = (event: Event) => {
-            ;(event.target as HTMLElement).blur()
         }
 
         const opened = () => {
@@ -160,13 +157,11 @@ export default defineComponent({
             formData,
             rules,
             passwordInputRef,
-            handlePwdViewChange,
+            togglePwd,
             save,
-            baseCheckAuthPopVisiable,
+            isCheckAuthPop,
             handleBaseCheckAuthPopClose,
             setData,
-            handleKeydownEnter,
-            formatInputMaxLength,
         }
     },
 })

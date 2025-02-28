@@ -199,9 +199,7 @@
                                     v-for="(icon, index) in getIcons(item)"
                                     :key="index"
                                     :file="icon"
-                                    :index="0"
                                     :hover-index="0"
-                                    :chunk="1"
                                 />
                             </div>
                         </div>

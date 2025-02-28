@@ -112,11 +112,8 @@
                     <template #default="{ row, $index }: TableColumn<SystemLogList>">
                         <div class="detail-info">
                             <div>{{ row.content }}</div>
-                            <BaseImgSprite
+                            <BaseImgSpriteBtn
                                 file="detail"
-                                :index="0"
-                                :hover-index="1"
-                                :chunk="4"
                                 @click="showLogDetail($index)"
                             />
                         </div>
@@ -127,12 +124,9 @@
                     width="60"
                 >
                     <template #default="{ row }: TableColumn<SystemLogList>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             v-show="displayPlayIcon(row)"
                             file="play (3)"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
                             @click="playRec(row)"
                         />
                     </template>

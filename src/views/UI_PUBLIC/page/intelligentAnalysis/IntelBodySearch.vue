@@ -174,12 +174,9 @@
                         :label="Translate('IDCS_DETAIL_INFO')"
                     >
                         <template #default="{ $index }: TableColumn<IntelSearchList>">
-                            <BaseImgSprite
+                            <BaseImgSpriteBtn
                                 file="browser"
-                                :index="0"
-                                :hover-index="1"
-                                :chunk="4"
-                                @click.stop="showDetail($index)"
+                                @click="showDetail($index)"
                             />
                         </template>
                     </el-table-column>

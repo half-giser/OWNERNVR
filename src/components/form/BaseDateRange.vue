@@ -7,9 +7,8 @@
     <div class="date-range">
         <BaseImgSprite
             file="datePicker"
-            :index="0"
-            :hover-index="0"
             :chunk="7"
+            :hover-index="0"
             @click="handlePrev"
         />
         <div class="date-range-box">

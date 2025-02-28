@@ -3,8 +3,6 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-22 16:04:47
  */
-import { type AlarmCombinedDto, type AlarmCombinedItemDto, type AlarmCombinedFaceMatchDto, type AlarmPresetItem } from '@/types/apiType/aiAndEvent'
-import { cloneDeep } from 'lodash-es'
 import AlarmBasePresetPop from './AlarmBasePresetPop.vue'
 import AlarmBaseSnapPop from './AlarmBaseSnapPop.vue'
 import AlarmBaseRecordPop from './AlarmBaseRecordPop.vue'
@@ -301,11 +299,6 @@ export default defineComponent({
             }
         }
 
-        // 回车键失去焦点
-        const keydownEnterName = (event: Event) => {
-            ;(event.target as HTMLElement).blur()
-        }
-
         // 组合报警弹窗打开
         const openCombinedAlarmPop = (row: AlarmCombinedDto) => {
             pageData.value.combinedAlarmLinkedId = row.id
@@ -474,7 +467,7 @@ export default defineComponent({
                 <content type='list'>
                     <item id='${row.id}'>
                         <param>
-                            <name><![CDATA[${row.name}]]></name>
+                            <name>${wrapCDATA(row.name)}</name>
                             <switch>${row.combinedAlarm.switch}</switch>
                             <alarmSource>
                                 ${row.combinedAlarm.item
@@ -482,7 +475,7 @@ export default defineComponent({
                                         return rawXml`
                                             <item>
                                                 <alarmSourceType>${item.alarmSourceType}</alarmSourceType>
-                                                <alarmSourceEntity id='${item.alarmSourceEntity.value}'><![CDATA[${item.alarmSourceEntity.label}]]></alarmSourceEntity>
+                                                <alarmSourceEntity id='${item.alarmSourceEntity.value}'>${wrapCDATA(item.alarmSourceEntity.label)}</alarmSourceEntity>
                                             </item>
                                         `
                                     })
@@ -493,31 +486,19 @@ export default defineComponent({
                             <sysRec>
                                 <switch>${row.record.switch}</switch>
                                 <chls>
-                                    ${row.record.chls
-                                        .map((item) => {
-                                            return `<item id='${item.value}'>${item.label}</item>`
-                                        })
-                                        .join('')}
+                                    ${row.record.chls.map((item) => `<item id='${item.value}'>${wrapCDATA(item.label)}</item>`).join('')}
                                 </chls>
                             </sysRec>
                             <sysSnap>
                                 <switch>${row.snap.switch}</switch>
                                 <chls>
-                                    ${row.snap.chls
-                                        .map((item) => {
-                                            return `<item id='${item.value}'>${item.label}</item>`
-                                        })
-                                        .join('')}
+                                    ${row.snap.chls.map((item) => `<item id='${item.value}'>${wrapCDATA(item.label)}</item>`).join('')}
                                 </chls>
                             </sysSnap>
                             <alarmOut>
                                 <switch>${row.alarmOut.switch}</switch>
                                 <alarmOuts>
-                                    ${row.alarmOut.alarmOuts
-                                        .map((item) => {
-                                            return `<item id='${item.value}'>${item.label}</item>`
-                                        })
-                                        .join('')}
+                                    ${row.alarmOut.alarmOuts.map((item) => `<item id='${item.value}'>${wrapCDATA(item.label)}</item>`).join('')}
                                 </alarmOuts>
                             </alarmOut>
                             <popVideo>
@@ -532,7 +513,7 @@ export default defineComponent({
                                             return rawXml`
                                                 <item>
                                                     <index>${item.index}</index>
-                                                    <name><![CDATA[${item.index}]]></name>
+                                                    <name>${wrapCDATA(item.name)}</name>
                                                     <chl id='${item.chl.value}'>${item.chl.label}</chl>
                                                 </item>
                                             `
@@ -675,7 +656,6 @@ export default defineComponent({
             changeCombinedAlarmInfo,
             focusName,
             blurName,
-            keydownEnterName,
             openCombinedAlarmPop,
             confirmCombinedAlarm,
             closeCombinedAlarmPop,

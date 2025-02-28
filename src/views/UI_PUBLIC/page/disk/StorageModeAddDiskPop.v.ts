@@ -3,8 +3,6 @@
  * @Date: 2024-07-08 18:02:05
  * @Description: 存储模式新增磁盘弹窗
  */
-import { StorageModeDiskGroupList, type StorageModeDiskList } from '@/types/apiType/disk'
-
 export default defineComponent({
     props: {
         /**

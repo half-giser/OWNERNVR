@@ -3,7 +3,6 @@
  * @Date: 2024-07-10 09:12:25
  * @Description: PPPoE
  */
-import { NetPPPoEForm } from '@/types/apiType/net'
 import { type FormRules } from 'element-plus'
 
 export default defineComponent({
@@ -112,7 +111,6 @@ export default defineComponent({
             formRule,
             pageData,
             setData,
-            formatInputUserName,
         }
     },
 })

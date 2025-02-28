@@ -3,7 +3,6 @@
  * @Date: 2024-05-27 09:38:30
  * @Description: 业务应用-停车场管理-车位管理
  */
-import { type BusinessPkMgrSpaceManageList } from '@/types/apiType/business'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 
 export default defineComponent({

@@ -3,8 +3,8 @@
  * @Date: 2024-09-29 11:48:59
  * @Description: 水印设置
  */
-import { ChannelWaterMarkDto } from '@/types/apiType/channel'
 import { type TableInstance } from 'element-plus'
+
 export default defineComponent({
     setup() {
         const playerRef = ref<PlayerInstance>()

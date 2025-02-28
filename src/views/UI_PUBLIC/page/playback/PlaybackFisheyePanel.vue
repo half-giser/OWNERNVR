@@ -12,14 +12,11 @@
                 v-show="pageData.supportMenu.includes(item.value)"
                 :key="item.value"
             >
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     :file="item.file"
                     :title="item.label"
-                    :index="pageData.installType === item.value ? 2 : 0"
-                    :hover-index="1"
-                    :disabled-index="3"
+                    :active="pageData.installType === item.value"
                     :disabled="!supportFishEye"
-                    :chunk="4"
                     @click="changeInstallType(item.value)"
                 />
             </div>
@@ -36,13 +33,10 @@
                 v-show="pageData.supportMenu.includes(`${item.value}_${child.value}`)"
                 :key="child.value"
             >
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     :file="child.file"
                     :title="child.label"
-                    :index="pageData.fishEyeMode === child.value ? 2 : 0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="4"
+                    :active="pageData.fishEyeMode === child.value"
                     :disabled="!supportFishEye"
                     @click="changeFishEyeMode(child.value)"
                 />

@@ -73,13 +73,10 @@
                 :label="Translate('IDCS_PASSWORD')"
                 prop="password"
             >
-                <el-input
+                <BasePasswordInput
                     v-model="formData.password"
-                    type="password"
                     :disabled="!formData.switch || !current.requireParam.includes('password')"
                     :placeholder="Translate('IDCS_PASSWORD_TIP')"
-                    @copy.capture.prevent=""
-                    @paste.capture.prevent=""
                 />
             </el-form-item>
             <el-form-item

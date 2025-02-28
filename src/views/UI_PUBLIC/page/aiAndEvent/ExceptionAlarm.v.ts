@@ -3,8 +3,6 @@
  * @Date: 2024-08-21 15:34:24
  * @Description: 异常报警
  */
-import { cloneDeep } from 'lodash-es'
-import { AlarmExceptionDto } from '@/types/apiType/aiAndEvent'
 import AlarmBasePresetPop from './AlarmBasePresetPop.vue'
 import AlarmBaseAlarmOutPop from './AlarmBaseAlarmOutPop.vue'
 
@@ -197,7 +195,7 @@ export default defineComponent({
                                     <triggerAlarmOut>
                                         <switch>${alarmOutSwitch}</switch>
                                         <alarmOuts>
-                                            ${alarmOuts.map((item) => `<item id="${item.value}"><![CDATA[${item.label}]]></item>`).join('')}
+                                            ${alarmOuts.map((item) => `<item id="${item.value}">${wrapCDATA(item.label)}</item>`).join('')}
                                         </alarmOuts>
                                     </triggerAlarmOut>
                                     <msgPushSwitch>${item.msgPush}</msgPushSwitch>

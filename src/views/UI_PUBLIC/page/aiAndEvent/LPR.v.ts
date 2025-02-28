@@ -3,12 +3,9 @@
  * @Date: 2024-09-09 09:56:33
  * @Description: AI 事件——车牌识别
  */
-import { type AlarmRecognitionTaskDto, AlarmVehicleDetectionDto, AlarmVehicleChlDto, AlarmVehicleRecognitionDto } from '@/types/apiType/aiAndEvent'
-import CanvasPolygon from '@/utils/canvas/canvasPolygon'
 import AlarmBaseChannelSelector from './AlarmBaseChannelSelector.vue'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import RecognitionPanel from './RecognitionPanel.vue'
-import { type CanvasBasePoint, type CanvasBaseArea } from '@/utils/canvas/canvasBase'
 import { type XMLQuery } from '@/utils/xmlParse'
 
 export default defineComponent({
@@ -179,8 +176,7 @@ export default defineComponent({
 
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
-        // 车牌侦测绘制的Canvas
-        let vehicleDrawer: ReturnType<typeof CanvasPolygon>
+        let drawer = CanvasPolygon()
 
         const chlData = computed(() => {
             return pageData.value.chlList.find((item) => item.id === pageData.value.curChl) || new AlarmVehicleChlDto()
@@ -263,9 +259,9 @@ export default defineComponent({
             plugin = playerRef.value!.plugin
 
             if (mode.value === 'h5') {
-                const canvas = player.getDrawbordCanvas(0)
-                vehicleDrawer = CanvasPolygon({
-                    el: canvas,
+                drawer.destroy()
+                drawer = CanvasPolygon({
+                    el: player.getDrawbordCanvas(),
                     regulation: currentRegulation,
                     onchange: changeVehicle,
                     closePath: closePath,
@@ -280,7 +276,7 @@ export default defineComponent({
             }
         }
 
-        // vehicleDrawer初始化时绑定以下函数
+        // drawer初始化时绑定以下函数
         const changeVehicle = (area: CanvasBaseArea | CanvasBasePoint[]) => {
             if (currentRegulation) {
                 // 检测区域（矩形）
@@ -314,7 +310,7 @@ export default defineComponent({
                 detectionFormData.value.maskAreaInfo[detectionPageData.value.maskArea] = []
 
                 if (mode.value === 'h5') {
-                    vehicleDrawer.clear()
+                    drawer.clear()
                 }
 
                 if (mode.value === 'ocx') {
@@ -351,7 +347,7 @@ export default defineComponent({
             }, 0)
 
             if (mode.value === 'h5') {
-                vehicleDrawer.setEnable(true)
+                drawer.setEnable(true)
             }
 
             if (mode.value === 'ocx') {
@@ -439,22 +435,17 @@ export default defineComponent({
                             Y2: $item('Y2').text().num(),
                         }
                     }),
-                    maskAreaInfo: Object.fromEntries(
-                        $param('maskArea/item').map((item, index) => {
-                            const $item = queryXml(item.element)
-                            return [
-                                index,
-                                $item('point/item').map((ele) => {
-                                    const $ele = queryXml(ele.element)
-                                    return {
-                                        X: $ele('X').text().num(),
-                                        Y: $ele('Y').text().num(),
-                                        isClosed: true,
-                                    }
-                                }),
-                            ]
-                        }),
-                    ),
+                    maskAreaInfo: $param('maskArea/item').map((item) => {
+                        const $item = queryXml(item.element)
+                        return $item('point/item').map((ele) => {
+                            const $ele = queryXml(ele.element)
+                            return {
+                                X: $ele('X').text().num(),
+                                Y: $ele('Y').text().num(),
+                                isClosed: true,
+                            }
+                        })
+                    }),
                     mutexList: $param('mutexList/item').map((item) => {
                         const $item = queryXml(item.element)
                         return {
@@ -505,21 +496,23 @@ export default defineComponent({
 
         // 是否显示全部区域
         const showAllArea = () => {
-            vehicleDrawer && vehicleDrawer.setEnableShowAll(detectionPageData.value.isShowAllArea)
+            if (mode.value === 'h5') {
+                drawer.setEnableShowAll(detectionPageData.value.isShowAllArea)
+            }
+
             if (detectionPageData.value.isShowAllArea) {
                 if (mode.value === 'h5') {
                     const index = currAreaType === 'regionArea' ? detectionPageData.value.regionArea : detectionPageData.value.maskArea
-                    vehicleDrawer.setCurrAreaIndex(index, currAreaType)
-                    vehicleDrawer.drawAllRegion(detectionFormData.value.regionInfo, index)
-                    vehicleDrawer.drawAllPolygon({}, detectionFormData.value.maskAreaInfo, currAreaType, index, true)
+                    drawer.setCurrAreaIndex(index, currAreaType)
+                    drawer.drawAllRegion(detectionFormData.value.regionInfo, index)
+                    drawer.drawAllPolygon([], detectionFormData.value.maskAreaInfo, currAreaType, index, true)
                 }
 
                 if (mode.value === 'ocx') {
                     // (配合插件。。。)
                     // 插件在显示全部中：使用显示多边形的逻辑显示矩形
-                    const detectAreaInfo: Record<number, { X: number; Y: number }[]> = {}
-                    detectionFormData.value.regionInfo.forEach((item, index) => {
-                        detectAreaInfo[index] = [
+                    const detectAreaInfo: CanvasBasePoint[][] = detectionFormData.value.regionInfo.map((item) => {
+                        return [
                             {
                                 X: item.X1,
                                 Y: item.Y1,
@@ -554,11 +547,11 @@ export default defineComponent({
                     }
                     const sendXML = OCX_XML_SetAllArea(
                         {
-                            detectAreaInfo: Object.values(detectAreaInfo),
-                            maskAreaInfo: Object.values(detectionFormData.value.maskAreaInfo),
+                            detectAreaInfo: detectAreaInfo,
+                            maskAreaInfo: detectionFormData.value.maskAreaInfo,
                         },
                         'IrregularPolygon',
-                        'TYPE_PLATE_DETECTION',
+                        OCX_AI_EVENT_TYPE_PLATE_DETECTION,
                         sendMaxMinXml,
                         true,
                     )
@@ -570,14 +563,14 @@ export default defineComponent({
                 }
 
                 if (mode.value === 'ocx') {
-                    const sendXML = OCX_XML_SetAllArea({}, 'IrregularPolygon', 'TYPE_PLATE_DETECTION', '', false)
-                    plugin.ExecuteCmd(sendXML!)
+                    const sendXML = OCX_XML_SetAllArea({}, 'IrregularPolygon', OCX_AI_EVENT_TYPE_PLATE_DETECTION, '', false)
+                    plugin.ExecuteCmd(sendXML)
 
                     if (detectionPageData.value.isDispalyRangeChecked) {
-                        const sendXMLMax = OCX_XML_SetVfdArea(detectionFormData.value.maxRegionInfo[0], 'faceMax', 'green', 'TYPE_PLATE_DETECTION')
+                        const sendXMLMax = OCX_XML_SetVfdArea(detectionFormData.value.maxRegionInfo[0], 'faceMax', 'green', OCX_AI_EVENT_TYPE_PLATE_DETECTION)
                         plugin.ExecuteCmd(sendXMLMax)
 
-                        const sendXMLMin = OCX_XML_SetVfdArea(detectionFormData.value.minRegionInfo[0], 'faceMin', 'green', 'TYPE_PLATE_DETECTION')
+                        const sendXMLMin = OCX_XML_SetVfdArea(detectionFormData.value.minRegionInfo[0], 'faceMin', 'green', OCX_AI_EVENT_TYPE_PLATE_DETECTION)
                         plugin.ExecuteCmd(sendXMLMin)
                     }
                 }
@@ -587,7 +580,7 @@ export default defineComponent({
         // 清空
         const clearArea = () => {
             if (mode.value === 'h5') {
-                vehicleDrawer.clear()
+                drawer.clear()
             }
 
             if (mode.value === 'ocx') {
@@ -631,11 +624,11 @@ export default defineComponent({
             }
 
             if (mode.value === 'h5') {
-                vehicleDrawer.clear()
+                drawer.clear()
             }
 
             if (mode.value === 'ocx') {
-                const sendXMLAll = OCX_XML_SetAllArea({ detectAreaInfo: [], maskAreaInfo: [] }, 'IrregularPolygon', 'TYPE_PLATE_DETECTION', '', false)
+                const sendXMLAll = OCX_XML_SetAllArea({}, 'IrregularPolygon', OCX_AI_EVENT_TYPE_PLATE_DETECTION, '', false)
                 plugin.ExecuteCmd(sendXMLAll!)
 
                 const sendXMLVfd = OCX_XML_SetVfdAreaAction('NONE', 'vfdArea')
@@ -671,17 +664,17 @@ export default defineComponent({
         // 设置区域图形
         const setAreaView = (type: string) => {
             if (type === 'regionArea') {
-                if (detectionFormData.value.regionInfo && detectionFormData.value.regionInfo.length) {
+                if (detectionFormData.value.regionInfo.length) {
                     if (mode.value === 'h5') {
-                        vehicleDrawer.setCurrAreaIndex(detectionPageData.value.regionArea, currAreaType)
-                        vehicleDrawer.setArea(detectionFormData.value.regionInfo[detectionPageData.value.regionArea])
+                        drawer.setCurrAreaIndex(detectionPageData.value.regionArea, currAreaType)
+                        drawer.setArea(detectionFormData.value.regionInfo[detectionPageData.value.regionArea])
                     }
 
                     if (mode.value === 'ocx') {
                         // 从侦测区域切换到屏蔽区域时（反之同理），会先执行侦测区域的清空、不可编辑，再执行屏蔽区域的是否可编辑三个命令
                         // 最后执行渲染画线的命令，加延时的目的是这个过程执行命令过多，插件响应不过来
                         setTimeout(() => {
-                            const sendXML = OCX_XML_SetVfdArea(detectionFormData.value.regionInfo[detectionPageData.value.regionArea], type, 'green', 'TYPE_PLATE_DETECTION')
+                            const sendXML = OCX_XML_SetVfdArea(detectionFormData.value.regionInfo[detectionPageData.value.regionArea], type, 'green', OCX_AI_EVENT_TYPE_PLATE_DETECTION)
                             plugin.ExecuteCmd(sendXML)
                         }, 100)
                     }
@@ -689,35 +682,35 @@ export default defineComponent({
             } else if (type === 'maskArea') {
                 if (detectionFormData.value.maskAreaInfo) {
                     if (mode.value === 'h5') {
-                        vehicleDrawer.setCurrAreaIndex(detectionPageData.value.maskArea, currAreaType)
-                        vehicleDrawer.setPointList(detectionFormData.value.maskAreaInfo[detectionPageData.value.maskArea], true)
+                        drawer.setCurrAreaIndex(detectionPageData.value.maskArea, currAreaType)
+                        drawer.setPointList(detectionFormData.value.maskAreaInfo[detectionPageData.value.maskArea], true)
                     }
 
                     if (mode.value === 'ocx') {
                         setTimeout(() => {
-                            const sendXML = OCX_XML_SetPeaArea(detectionFormData.value.maskAreaInfo[detectionPageData.value.maskArea], false, 'red', 'TYPE_PLATE_DETECTION')
+                            const sendXML = OCX_XML_SetPeaArea(detectionFormData.value.maskAreaInfo[detectionPageData.value.maskArea], false, 'red', OCX_AI_EVENT_TYPE_PLATE_DETECTION)
                             plugin.ExecuteCmd(sendXML)
                         }, 100)
                     }
                 }
             } else if (type === 'vehicleMax') {
                 if (mode.value === 'h5') {
-                    vehicleDrawer.setRangeMax(detectionFormData.value.maxRegionInfo[0])
+                    drawer.setRangeMax(detectionFormData.value.maxRegionInfo[0])
                 }
 
                 if (mode.value === 'ocx') {
                     // (配合插件。。。)
-                    const sendXML = OCX_XML_SetVfdArea(detectionFormData.value.maxRegionInfo[0], 'faceMax', 'green', 'TYPE_PLATE_DETECTION')
+                    const sendXML = OCX_XML_SetVfdArea(detectionFormData.value.maxRegionInfo[0], 'faceMax', 'green', OCX_AI_EVENT_TYPE_PLATE_DETECTION)
                     plugin.ExecuteCmd(sendXML)
                 }
             } else if (type === 'vehicleMin') {
                 if (mode.value === 'h5') {
-                    vehicleDrawer.setRangeMin(detectionFormData.value.minRegionInfo[0])
+                    drawer.setRangeMin(detectionFormData.value.minRegionInfo[0])
                 }
 
                 if (mode.value === 'ocx') {
                     // (配合插件。。。)
-                    const sendXML = OCX_XML_SetVfdArea(detectionFormData.value.minRegionInfo[0], 'faceMin', 'green', 'TYPE_PLATE_DETECTION')
+                    const sendXML = OCX_XML_SetVfdArea(detectionFormData.value.minRegionInfo[0], 'faceMin', 'green', OCX_AI_EVENT_TYPE_PLATE_DETECTION)
                     plugin.ExecuteCmd(sendXML)
                 }
             }
@@ -736,7 +729,7 @@ export default defineComponent({
                 return -1
             })
 
-            detectionPageData.value.maskAreaChecked = Object.values(detectionFormData.value.maskAreaInfo).map((item, index) => {
+            detectionPageData.value.maskAreaChecked = detectionFormData.value.maskAreaInfo.map((item, index) => {
                 if (item.length) {
                     return index
                 }
@@ -769,9 +762,9 @@ export default defineComponent({
             if (currAreaType === 'regionArea') {
                 // 矩形侦测区域
                 if (mode.value === 'h5') {
-                    vehicleDrawer.setCurrAreaIndex(detectionPageData.value.regionArea, currAreaType)
-                    vehicleDrawer.setLineStyle('#00ff00', 1.5)
-                    vehicleDrawer.setRegulation(currentRegulation)
+                    drawer.setCurrAreaIndex(detectionPageData.value.regionArea, currAreaType)
+                    drawer.setLineStyle('#00ff00', 1.5)
+                    drawer.setRegulation(currentRegulation)
                 }
 
                 if (mode.value === 'ocx') {
@@ -787,9 +780,9 @@ export default defineComponent({
             } else if (currAreaType === 'maskArea') {
                 // 屏蔽区域
                 if (mode.value === 'h5') {
-                    vehicleDrawer.setCurrAreaIndex(detectionPageData.value.maskArea, currAreaType)
-                    vehicleDrawer.setLineStyle('#d9001b', 1.5)
-                    vehicleDrawer.setRegulation(currentRegulation)
+                    drawer.setCurrAreaIndex(detectionPageData.value.maskArea, currAreaType)
+                    drawer.setLineStyle('#d9001b', 1.5)
+                    drawer.setRegulation(currentRegulation)
                 }
 
                 if (mode.value === 'ocx') {
@@ -855,10 +848,8 @@ export default defineComponent({
 
         // 是否显示范围框
         const showDisplayRange = () => {
-            const detectAreaInfo: Record<number, { X: number; Y: number }[]> = {}
-            detectionFormData.value.regionInfo.forEach((item, index) => {
-                detectAreaInfo[index] = []
-                detectAreaInfo[index].push(
+            const detectAreaInfo = detectionFormData.value.regionInfo.map((item) => {
+                return [
                     {
                         X: item.X1,
                         Y: item.Y1,
@@ -875,7 +866,7 @@ export default defineComponent({
                         X: item.X1,
                         Y: item.Y2,
                     },
-                )
+                ]
             })
             if (currAreaType === 'regionArea') {
                 // 当前区域为矩形并且显示全部的时候过滤掉当前区域
@@ -884,7 +875,7 @@ export default defineComponent({
 
             if (detectionPageData.value.isDispalyRangeChecked) {
                 if (mode.value === 'h5') {
-                    vehicleDrawer.toggleRange(true)
+                    drawer.toggleRange(true)
                     setAreaView('vehicleMax')
                     setAreaView('vehicleMin')
                 }
@@ -900,32 +891,23 @@ export default defineComponent({
                     if (detectionPageData.value.isShowAllArea) {
                         const sendXML = OCX_XML_SetAllArea(
                             {
-                                detectAreaInfo: Object.values(detectAreaInfo),
-                                maskAreaInfo: Object.values(detectionFormData.value.maskAreaInfo),
+                                detectAreaInfo: detectAreaInfo,
+                                maskAreaInfo: detectionFormData.value.maskAreaInfo,
                             },
                             'IrregularPolygon',
-                            'TYPE_PLATE_DETECTION',
+                            OCX_AI_EVENT_TYPE_PLATE_DETECTION,
                             sendMaxMinXml,
                             true,
                         )
                         plugin.ExecuteCmd(sendXML)
                     } else {
-                        const sendXML = OCX_XML_SetAllArea(
-                            {
-                                detectAreaInfo: [],
-                                maskAreaInfo: [],
-                            },
-                            'IrregularPolygon',
-                            'TYPE_PLATE_DETECTION',
-                            sendMaxMinXml,
-                            false,
-                        )
+                        const sendXML = OCX_XML_SetAllArea({}, 'IrregularPolygon', OCX_AI_EVENT_TYPE_PLATE_DETECTION, sendMaxMinXml, false)
                         plugin.ExecuteCmd(sendXML)
                     }
                 }
             } else {
                 if (mode.value === 'h5') {
-                    vehicleDrawer.toggleRange(false)
+                    drawer.toggleRange(false)
                 }
 
                 if (mode.value === 'ocx') {
@@ -933,27 +915,18 @@ export default defineComponent({
                     if (detectionPageData.value.isShowAllArea) {
                         const sendXML = OCX_XML_SetAllArea(
                             {
-                                detectAreaInfo: Object.values(detectAreaInfo),
-                                maskAreaInfo: Object.values(detectionFormData.value.maskAreaInfo),
+                                detectAreaInfo: detectAreaInfo,
+                                maskAreaInfo: detectionFormData.value.maskAreaInfo,
                             },
                             'IrregularPolygon',
-                            'TYPE_PLATE_DETECTION',
+                            OCX_AI_EVENT_TYPE_PLATE_DETECTION,
                             sendMaxMinXml,
                             true,
                         )
-                        plugin.ExecuteCmd(sendXML!)
+                        plugin.ExecuteCmd(sendXML)
                     } else {
-                        const sendXML = OCX_XML_SetAllArea(
-                            {
-                                detectAreaInfo: [],
-                                maskAreaInfo: [],
-                            },
-                            'IrregularPolygon',
-                            'TYPE_PLATE_DETECTION',
-                            sendMaxMinXml,
-                            false,
-                        )
-                        plugin.ExecuteCmd(sendXML!)
+                        const sendXML = OCX_XML_SetAllArea({}, 'IrregularPolygon', OCX_AI_EVENT_TYPE_PLATE_DETECTION, sendMaxMinXml, false)
+                        plugin.ExecuteCmd(sendXML)
                     }
 
                     const sendXMLMin = OCX_XML_SetVfdAreaAction('NONE', 'faceMin')
@@ -988,7 +961,7 @@ export default defineComponent({
                     if (count > 0 && count < 4) {
                         openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_INPUT_LIMIT_FOUR_POIONT'))
                         return false
-                    } else if (count > 0 && !vehicleDrawer.judgeAreaCanBeClosed(detectionFormData.value.maskAreaInfo[key])) {
+                    } else if (count > 0 && !drawer.judgeAreaCanBeClosed(detectionFormData.value.maskAreaInfo[key])) {
                         openMessageBox(Translate('IDCS_INTERSECT'))
                         return false
                     }
@@ -1033,13 +1006,12 @@ export default defineComponent({
                                 <exposureValue>${detectionFormData.value.exposureValue}</exposureValue>
                             </plateExposure>
                             <maskArea>
-                                ${Object.keys(detectionFormData.value.maskAreaInfo)
-                                    .map((key) => {
-                                        const item = detectionFormData.value.maskAreaInfo[Number(key)]
+                                ${detectionFormData.value.maskAreaInfo
+                                    .map((points) => {
                                         return rawXml`
                                             <item>
-                                                <point type='list' maxCount='8' count='${item.length}'>
-                                                    ${item
+                                                <point type='list' maxCount='8' count='${points.length}'>
+                                                    ${points
                                                         .map((ele) => {
                                                             return rawXml`
                                                             <item>
@@ -1314,8 +1286,8 @@ export default defineComponent({
                                                                 return rawXml`
                                                                     <item>
                                                                         <index>${ele.index}</index>
-                                                                        <name><![CDATA[${ele.name}]]></name>
-                                                                        <chl id='${ele.chl.value}'><![CDATA[${ele.chl.label}]]></chl>
+                                                                        <name>${wrapCDATA(ele.name)}</name>
+                                                                        <chl id='${ele.chl.value}'>${wrapCDATA(ele.chl.label)}</chl>
                                                                     </item>
                                                                 `
                                                             })
@@ -1459,9 +1431,7 @@ export default defineComponent({
                 plugin.ExecuteCmd(sendXML)
             }
 
-            if (mode.value === 'h5') {
-                vehicleDrawer.destroy()
-            }
+            drawer.destroy()
         })
 
         return {

@@ -62,7 +62,6 @@
                     class="osd"
                 >
                     <BaseImgSprite
-                        class="osd-icon"
                         file="inteligenceState"
                         :class="{
                             hide: !item.isInteligenceIcon,
@@ -70,7 +69,6 @@
                         }"
                     />
                     <BaseImgSprite
-                        class="osd-icon"
                         file="motionState"
                         :class="{
                             hide: !item.isMotionIcon,
@@ -78,7 +76,6 @@
                         }"
                     />
                     <BaseImgSprite
-                        class="osd-icon"
                         :file="item.recordIconStatus"
                         :class="{
                             invisible: !item.isRecordIconVisible,
@@ -87,14 +84,12 @@
                         :data-event="item.recordIconStatus"
                     />
                     <BaseImgSprite
-                        class="osd-icon"
                         file="ptz (2)"
                         :class="{
                             hide: !item.isPtzIcon,
                         }"
                     />
                     <BaseImgSprite
-                        class="osd-icon"
                         :file="`ZoomState__${item.zoomIconData}`"
                         :class="{
                             hide: item.zoomIconData === 1 || !item.isZoomIcon,
@@ -102,7 +97,6 @@
                         :data-zoom="item.zoomIconData"
                     />
                     <BaseImgSprite
-                        class="osd-icon"
                         file="AudioState"
                         :class="{
                             hide: !item.isAudioIcon,
@@ -175,7 +169,6 @@
 
 <script lang="ts" setup>
 import { type XMLQuery } from '@/utils/xmlParse'
-import WasmPlayer from '@/utils/wasmPlayer/wasmPlayer'
 
 export interface PlayerWinDataListItem {
     PLAY_STATUS: 'play' | 'stop' | 'error'
@@ -616,7 +609,7 @@ const handleMouseWheel = (e: Event) => {
     if (!isMouseInScreen || (winIndex === currIndex && !pageData.value[winIndex].isZoom3D) || is3DControl) return
     is3DControl = true
     const wheel = (e as any).originalEvent.wheelDelta || -(e as any).originalEvent.detail // IE、chrome监听wheelDelta, 火狐监听detail
-    const delta = Math.max(-1, Math.min(1, wheel))
+    const delta = clamp(wheel, -1, 1)
     const zoom3DType = delta < 0 ? 'zoom3DIn' : 'zoom3DOut' // 缩小 放大
     setMagnify3D(
         winIndex,
@@ -880,7 +873,7 @@ const getVideoWrapDiv = (winIndex: number) => {
  * @description 根据窗口索引获取视频画面canvas元素
  * @param {number} winIndex
  */
-const getVideoCanvas = (winIndex: number) => {
+const getVideoCanvas = (winIndex = 0) => {
     return $screen.value!.children[winIndex].querySelector('.play-canvas') as HTMLCanvasElement
 }
 
@@ -888,7 +881,7 @@ const getVideoCanvas = (winIndex: number) => {
  * @description 根据窗口索引获取视频覆盖层canvas元素
  * @param {number} winIndex
  */
-const getOverlayCanvas = (winIndex: number) => {
+const getOverlayCanvas = (winIndex = 0) => {
     return $screen.value!.children[winIndex].querySelector('.draw') as HTMLCanvasElement
 }
 
@@ -2793,10 +2786,8 @@ defineExpose({
             display: flex;
             justify-content: flex-end;
 
-            &-icon {
+            .Sprite {
                 margin-left: 10px;
-                width: 24px;
-                height: 24px;
 
                 &.hide {
                     display: none;

@@ -4,7 +4,6 @@
  * @Description: 现场预览-云台视图-预置点
  */
 import ChannelPresetAddPop from '../channel/ChannelPresetAddPop.vue'
-import { type ChannelPtzPresetDto } from '@/types/apiType/channel'
 
 export default defineComponent({
     components: {
@@ -82,10 +81,6 @@ export default defineComponent({
          * @description 打开新增预置点弹窗
          */
         const addPreset = () => {
-            if (!prop.enabled) {
-                return
-            }
-
             if (listData.value.length >= pageData.value.maxCount) {
                 openMessageBox(Translate('IDCS_OVER_MAX_NUMBER_LIMIT'))
                 return
@@ -105,10 +100,6 @@ export default defineComponent({
          * @description 删除预置点
          */
         const deletePreset = () => {
-            if (!prop.enabled) {
-                return
-            }
-
             const item = listData.value[pageData.value.active]
             if (!item) {
                 openMessageBox(Translate('IDCS_PROMPT_CHANNEL_PRESET_EMPTY'))
@@ -139,10 +130,6 @@ export default defineComponent({
          * @description 保存预置点
          */
         const savePreset = async () => {
-            if (!prop.enabled) {
-                return
-            }
-
             const item = listData.value[pageData.value.active]
             if (!item) {
                 openMessageBox(Translate('IDCS_PROMPT_CHANNEL_PRESET_EMPTY'))

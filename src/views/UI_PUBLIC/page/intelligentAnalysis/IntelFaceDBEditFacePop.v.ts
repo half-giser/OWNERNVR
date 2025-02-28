@@ -3,7 +3,6 @@
  * @Date: 2024-08-30 18:48:06
  * @Description: 人脸库 - 编辑人脸弹窗
  */
-import { IntelFaceDBFaceForm, type IntelFaceDBGroupDto, type IntelFaceDBSnapFaceList, type IntelFaceDBFaceInfo } from '@/types/apiType/intelligentAnalysis'
 import IntelBaseFaceItem from './IntelBaseFaceItem.vue'
 import IntelFaceDBChooseFacePop from './IntelFaceDBChooseFacePop.vue'
 
@@ -296,7 +295,6 @@ export default defineComponent({
             confirmChooseFace,
             verify,
             close,
-            formatDigit,
             formatName,
         }
     },

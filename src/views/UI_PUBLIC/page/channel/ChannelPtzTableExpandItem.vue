@@ -13,6 +13,7 @@
         <BaseImgSprite
             file="delItem"
             class="expand-del"
+            :hover-index="0"
             @click="$emit('delete')"
         />
     </div>
@@ -41,7 +42,6 @@
 
 .expand-del {
     opacity: 0;
-    cursor: pointer;
     margin-left: 5px;
 }
 </style>

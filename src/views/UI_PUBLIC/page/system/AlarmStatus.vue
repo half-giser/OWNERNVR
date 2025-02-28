@@ -75,12 +75,10 @@
                                     v-if="row.data[row.index - 1]?.img"
                                     :src="row.data[row.index - 1]?.img"
                                 />
-                                <BaseImgSprite
+                                <BaseImgSpriteBtn
                                     v-if="row.data[row.index - 1]?.rec.length"
                                     file="large_play"
-                                    :index="0"
-                                    :hover-index="2"
-                                    :chunk="4"
+                                    :index="[0, 2, 2, 4]"
                                     @click="playRec(row.data[row.index - 1])"
                                 />
                             </div>

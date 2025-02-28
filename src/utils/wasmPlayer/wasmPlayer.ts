@@ -3,25 +3,7 @@
  * @Date: 2024-05-31 10:35:00
  * @Description: 基于webAssembly + canvas的视频播放器
  */
-import WebGLPlayer from './webglPlayer'
-import PCMPlayer, { type PCMPlayerOptionEncoding } from './pcmPlayer'
-import {
-    getWebsocketOpenUrl,
-    CMD_PREVIEW,
-    type CmdPreviewOption,
-    REC_EVENT_TYPES,
-    CMD_PLAYBACK_OPEN,
-    type CmdPlaybackOpenOption,
-    CMD_PLAYBACK_KEY_FRAME,
-    CMD_PLAYBACK_ALL_FRAME,
-    CMD_PREVIEW_AUDIO_OPEN,
-    CMD_PLAYBACK_AUDIO_OPEN,
-    CMD_PREVIEW_AUDIO_CLOSE,
-    CMD_PLAYBACK_AUDIO_CLOSE,
-    CMD_PLAYBACK_REFRESH_FRAME_INDEX,
-    CMD_STOP_PREVIEW,
-    CMD_PLAYBACK_CLOSE,
-} from '../websocket/websocketCmd'
+
 export interface WasmPlayerVideoFrame {
     buffer: Iterable<number>
     width: number
@@ -85,7 +67,7 @@ interface WasmPlayerOption {
     volume: number
 }
 
-export default function WasmPlayer(options: WasmPlayerOption) {
+export const WasmPlayer = (options: WasmPlayerOption) => {
     let wasmReady = false // wasm文件是否加载成功
     let videoQueue: WasmPlayerVideoFrame[] = [] // 缓存视频帧队列
     const maxVideoQueueLength = 8 // 缓存视频帧队列最大长度

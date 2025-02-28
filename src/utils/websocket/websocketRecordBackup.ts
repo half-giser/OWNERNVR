@@ -3,9 +3,6 @@
  * @Date: 2024-05-30 14:33:04
  * @Description: websocket 备份录像
  */
-import WebsocketBase from './websocketBase'
-import RecordBuilder from '../wasmPlayer/recordBuilder'
-import { type CmdPlaybackOpenOption } from './websocketCmd'
 
 export interface WebsocketRecordBackupOption {
     onready?: () => void
@@ -31,7 +28,7 @@ type CmdQueueDatum = {
     taskIndex: number
 }
 
-export default function WebsocketRecordBackup(option: WebsocketRecordBackupOption) {
+export const WebsocketRecordBackup = (option: WebsocketRecordBackupOption) => {
     let ws: ReturnType<typeof WebsocketBase>
     let ready = false
     let taskId: string | null = null
@@ -50,7 +47,7 @@ export default function WebsocketRecordBackup(option: WebsocketRecordBackupOptio
     const onFrameTime = option.onFrameTime
     const onerror = option.onerror
     const onclose = option.onclose
-    const recordBuilder = RecordBuilder({
+    const recordBuilder = WasmRecordBuilder({
         maxSingleSize: option.maxSingleSize,
         ready: () => init(),
         onFrameIndex: (currentFrameIndex: number, currentFrameTime: number) => {

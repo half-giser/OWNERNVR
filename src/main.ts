@@ -3,7 +3,6 @@
  * @Date: 2024-04-16 13:47:54
  * @Description: 项目入口
  */
-import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from '@/App.vue'
 import router from '@/router'
@@ -11,6 +10,7 @@ import { createPersistedState } from 'pinia-plugin-persistedstate'
 import './plugin/elementPlus'
 import i18nPlugin from './plugin/i18n'
 import typeEnhance from './plugin/typeEnhance'
+import toolsPlugin from './plugin/tools'
 import './plugin/css'
 import datePlugin from './plugin/date'
 import { regAllDirective } from './directives'
@@ -36,6 +36,7 @@ const session = useUserSessionStore()
 
 app.use(i18nPlugin, lang)
 app.use(datePlugin)
+app.use(toolsPlugin)
 
 // 加载自定义插件
 app.use(typeEnhance)

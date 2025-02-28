@@ -5,7 +5,6 @@
  */
 import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
 import IntelBaseEventSelector from './IntelBaseEventSelector.vue'
-import { type IntelPersonStatsList, IntelPersonStatsForm, type IntelStatsBarChartDataDto } from '@/types/apiType/intelligentAnalysis'
 import { type BarChartXValueOptionItem } from '@/components/chart/BaseBarChart.vue'
 
 export default defineComponent({

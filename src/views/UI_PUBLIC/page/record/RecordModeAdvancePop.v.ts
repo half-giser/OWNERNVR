@@ -3,8 +3,6 @@
  * @Date: 2024-07-29 14:15:46
  * @Description: 新建录像模式
  */
-import { type RecordModeDto } from '@/types/apiType/record'
-
 export default defineComponent({
     props: {
         advanceRecModes: {

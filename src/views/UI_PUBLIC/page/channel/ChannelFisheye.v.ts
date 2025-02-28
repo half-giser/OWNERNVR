@@ -3,7 +3,6 @@
  * @Date: 2024-07-18 13:54:46
  * @Description: 通道 - 鱼眼设置
  */
-import { ChannelFisheyeDto } from '@/types/apiType/channel'
 import { type TableInstance } from 'element-plus'
 
 export default defineComponent({

@@ -6,11 +6,9 @@
 <template>
     <div>
         <span>{{ Translate('IDCS_USAGE_RATE') }} {{ pageData.totalResourceOccupancy }}%</span>
-        <BaseImgSprite
+        <BaseImgSpriteBtn
             class="detailBtn"
             file="detail"
-            :index="0"
-            :chunk="4"
             @click="pageData.isPop = true"
         />
         <el-dialog
@@ -51,12 +49,8 @@
                     width="118"
                 >
                     <template #default="{ row }: TableColumn<AlarmAIResourceDto>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             file="del"
-                            :chunk="4"
-                            :index="0"
-                            :hover-index="1"
-                            :active-index="1"
                             @click="deleteResource(row)"
                         />
                     </template>

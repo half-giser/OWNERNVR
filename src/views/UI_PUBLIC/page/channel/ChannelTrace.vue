@@ -45,28 +45,22 @@
                         :height="170"
                     />
                     <el-tooltip :content="Translate('IDCS_TRACK_PLAY')">
-                        <BaseImgSprite
-                            class="base-chl-icon-btn"
-                            file="play"
-                            :index="0"
-                            :hover-index="2"
-                            :disabled-index="3"
-                            :chunk="4"
-                            :disabled="!traceOptions.length"
-                            @click="playTrace"
-                        />
+                        <div class="base-chl-icon-btn">
+                            <BaseImgSpriteBtn
+                                file="play"
+                                :disabled="!traceOptions.length"
+                                @click="playTrace"
+                            />
+                        </div>
                     </el-tooltip>
                     <el-tooltip :content="Translate('IDCS_TRACK_STOP')">
-                        <BaseImgSprite
-                            class="base-chl-icon-btn"
-                            file="stop"
-                            :index="0"
-                            :hover-index="2"
-                            :disabled-index="3"
-                            :chunk="4"
-                            :disabled="!tableData.length"
-                            @click="stopTrace"
-                        />
+                        <div class="base-chl-icon-btn">
+                            <BaseImgSpriteBtn
+                                file="stop"
+                                :disabled="!tableData.length"
+                                @click="stopTrace"
+                            />
+                        </div>
                     </el-tooltip>
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_TRACE_NAME')">
@@ -77,16 +71,13 @@
                         :parser="formatInputMaxLength"
                     />
                     <el-tooltip :content="Translate('IDCS_SAVE_CHANGE')">
-                        <BaseImgSprite
-                            class="base-chl-icon-btn"
-                            file="save"
-                            :index="0"
-                            :hover-index="2"
-                            :disabled-index="3"
-                            :chunk="4"
-                            :disabled="!formData.name.trim() || !traceOptions.length"
-                            @click="saveName"
-                        />
+                        <div class="base-chl-icon-btn">
+                            <BaseImgSpriteBtn
+                                file="save"
+                                :disabled="!formData.name.trim() || !traceOptions.length"
+                                @click="saveName"
+                            />
+                        </div>
                     </el-tooltip>
                 </el-form-item>
                 <div class="base-btn-box">

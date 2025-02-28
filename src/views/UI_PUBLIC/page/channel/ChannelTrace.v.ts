@@ -8,7 +8,6 @@ import ChannelPtzCtrlPanel from './ChannelPtzCtrlPanel.vue'
 import ChannelTraceAddPop from './ChannelTraceAddPop.vue'
 import ChannelPtzTableExpandPanel from './ChannelPtzTableExpandPanel.vue'
 import ChannelPtzTableExpandItem from './ChannelPtzTableExpandItem.vue'
-import { type ChannelPtzTraceChlDto, ChannelPtzTraceDto } from '@/types/apiType/channel'
 
 export default defineComponent({
     components: {
@@ -364,10 +363,6 @@ export default defineComponent({
          * @description 修改轨迹名称
          */
         const saveName = async () => {
-            if (!formData.value.name || !traceOptions.value.length) {
-                return
-            }
-
             openLoading()
 
             const sendXml = rawXml`
@@ -475,9 +470,6 @@ export default defineComponent({
          * @description 播放轨迹
          */
         const playTrace = async () => {
-            if (!traceOptions.value.length) {
-                return
-            }
             const sendXml = rawXml`
                 <content>
                     <chlId>${tableData.value[pageData.value.tableIndex].chlId}</chlId>
@@ -491,9 +483,6 @@ export default defineComponent({
          * @description 停止播放轨迹
          */
         const stopTrace = async () => {
-            if (!tableData.value.length) {
-                return
-            }
             const sendXml = rawXml`
                 <content>
                     <chlId>${tableData.value[pageData.value.tableIndex].chlId}</chlId>
@@ -541,7 +530,6 @@ export default defineComponent({
             stopRecord,
             playTrace,
             stopTrace,
-            formatInputMaxLength,
         }
     },
 })

@@ -3,8 +3,6 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-23 10:58:27
  */
-import { type AlarmPresetItem, AlarmSensorEventDto } from '@/types/apiType/aiAndEvent'
-import { cloneDeep } from 'lodash-es'
 import AlarmBasePresetPop from './AlarmBasePresetPop.vue'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import AlarmBaseSnapPop from './AlarmBaseSnapPop.vue'
@@ -80,7 +78,7 @@ export default defineComponent({
 
         // 获取chl通道数据
         const getVideoPopupChlList = () => {
-            getChlList({}).then((result) => {
+            getChlList().then((result) => {
                 commLoadResponseHandler(result, ($) => {
                     pageData.value.videoPopupChlList.push({
                         value: '',
@@ -279,11 +277,6 @@ export default defineComponent({
             }
         }
 
-        // 回车键失去焦点
-        const blurInput = (event: Event) => {
-            ;(event.target as HTMLElement).blur()
-        }
-
         const switchRecord = (index: number) => {
             const row = tableData.value[index].record
             if (row.switch) {
@@ -441,7 +434,7 @@ export default defineComponent({
                 </types>
                 <content id='${row.id}'>
                     <param>
-                        <name><![CDATA[${row.name}]]></name>
+                        <name>${wrapCDATA(row.name)}</name>
                         <voltage type='alarmInVoltage'>${row.type}</voltage>
                         <switch>${row.switch}</switch>
                         <holdTime unit='s'>${row.holdTime}</holdTime>
@@ -450,19 +443,19 @@ export default defineComponent({
                         <sysRec>
                             <switch>${row.record.switch}</switch>
                             <chls type='list'>
-                                ${row.record.chls.map((item) => `<item id='${item.value}'><![CDATA[${item.label}]]></item>`).join('')}
+                                ${row.record.chls.map((item) => `<item id='${item.value}'>${wrapCDATA(item.label)}</item>`).join('')}
                             </chls>
                         </sysRec>
                         <sysSnap>
                             <switch>${row.snap.switch}</switch>
                             <chls type='list'>
-                                ${row.snap.chls.map((item) => `<item id='${item.value}'><![CDATA[${item.label}]]></item>`).join('')}
+                                ${row.snap.chls.map((item) => `<item id='${item.value}'>${wrapCDATA(item.label)}</item>`).join('')}
                             </chls>
                         </sysSnap>
                         <alarmOut>
                             <switch>${row.alarmOut.switch}</switch>
                             <alarmOuts type='list'>
-                                ${row.alarmOut.alarmOuts.map((item) => `<item id='${item.value}'><![CDATA[${item.label}]]></item>`).join('')}
+                                ${row.alarmOut.alarmOuts.map((item) => `<item id='${item.value}'>${wrapCDATA(item.label)}</item>`).join('')}
                             </alarmOuts>
                         </alarmOut>
                         <preset>
@@ -473,9 +466,8 @@ export default defineComponent({
                                         return rawXml`
                                             <item>
                                                 <index>${item.index}</index>
-                                                <name><![CDATA[${item.index}]]></name>
-                                                <chl id='${item.chl.value}'>
-                                                <![CDATA[${item.chl.label}]]></chl>
+                                                <name>${wrapCDATA(item.name)}</name>
+                                                <chl id='${item.chl.value}'>${wrapCDATA(item.chl.label)}</chl>
                                             </item>
                                         `
                                     })
@@ -551,7 +543,6 @@ export default defineComponent({
             changePagination,
             focusName,
             blurName,
-            blurInput,
             changeScheduleAll,
             changeSchedule,
             switchRecord,

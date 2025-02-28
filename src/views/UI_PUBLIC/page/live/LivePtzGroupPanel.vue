@@ -23,35 +23,25 @@
                     :disabled-index="0"
                     :chunk="2"
                     :disabled="!enabled"
-                    @click.stop="deleteCruiseGroup(item.index, item.name)"
+                    @click="deleteCruiseGroup(item.index, item.name)"
                 />
             </BaseListBoxItem>
         </BaseListBox>
         <div class="base-home-ptz-btns">
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 file="preset_Add"
                 :title="Translate('IDCS_ADD')"
-                :index="0"
-                :hover-index="1"
-                :disabled-index="3"
-                :chunk="4"
                 :disabled="!enabled"
                 @click="addCruiseGroup"
             />
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 file="start_cruise"
                 :title="Translate('IDCS_START')"
-                :index="0"
-                :hover-index="1"
-                :chunk="4"
                 @click="playCruiseGroup"
             />
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 file="stop_cruise"
                 :title="Translate('IDCS_PAUSE')"
-                :index="0"
-                :hover-index="1"
-                :chunk="4"
                 @click="stopCruiseGroup"
             />
         </div>

@@ -18,11 +18,9 @@
                 prop="newPassword"
                 :label="Translate('IDCS_NEW_PASSWORD')"
             >
-                <el-input
+                <BasePasswordInput
                     v-model="formData.newPassword"
-                    type="password"
-                    @paste.capture.prevent=""
-                    @copy.capture.prevent=""
+                    maxlength="16"
                 />
             </el-form-item>
             <BasePasswordStrength :strength />
@@ -30,12 +28,9 @@
                 prop="confirmNewPassword"
                 :label="Translate('IDCS_CONFIRM_NEW_PASSWORD')"
             >
-                <el-input
+                <BasePasswordInput
                     v-model="formData.confirmNewPassword"
-                    type="password"
                     maxlength="16"
-                    @paste.capture.prevent=""
-                    @copy.capture.prevent=""
                 />
             </el-form-item>
             <div>

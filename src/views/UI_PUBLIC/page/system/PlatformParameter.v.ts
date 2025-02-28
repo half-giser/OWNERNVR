@@ -5,7 +5,6 @@
  */
 
 import type { FormRules } from 'element-plus'
-import { SystemSHDBPlatformParameterForm } from '@/types/apiType/system'
 
 export default defineComponent({
     setup() {
@@ -43,7 +42,7 @@ export default defineComponent({
                                 return
                             }
                         } else {
-                            if (!value || value === '0.0.0.0') {
+                            if (!value || value === DEFAULT_EMPTY_IP) {
                                 callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_EMPTY')))
                                 return
                             } else if (!checkIpV4(value)) {
@@ -121,10 +120,8 @@ export default defineComponent({
                 <content>
                     <platformParam>
                         <switch>${formData.value.enable}</switch>
-                        <proxyId><![CDATA[${formData.value.proxyId}]]></proxyId>
-                        <serverAddr default='${pageData.value.defaultServerAddress}'>
-                            <![CDATA[${formData.value.isDomain ? formData.value.domain : formData.value.ip}]]>
-                        </serverAddr>
+                        <proxyId>${wrapCDATA(formData.value.proxyId)}</proxyId>
+                        <serverAddr default='${pageData.value.defaultServerAddress}'>${wrapCDATA(formData.value.isDomain ? formData.value.domain : formData.value.ip)}</serverAddr>
                         <port default='${pageData.value.defaultPort}'>${formData.value.port}</port>
                     </platformParam>
                     <snapParam>

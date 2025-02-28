@@ -256,10 +256,10 @@ export class UserBlackAllowListForm {
 export class UserEditBlackAllowListForm {
     switch = true // 是否启用
     addressType = 'ip' // 地址类型
-    ip = '0.0.0.0' // IP地址
-    startIp = '0.0.0.0' // 开始IP段
-    endIp = '0.0.0.0' // 结束IP段
-    mac = '00:00:00:00:00:00' // MAC地址
+    ip = DEFAULT_EMPTY_IP // IP地址
+    startIp = DEFAULT_EMPTY_IP // 开始IP段
+    endIp = DEFAULT_EMPTY_IP // 结束IP段
+    mac = DEFAULT_EMPTY_MAC // MAC地址
 }
 
 /**
@@ -267,13 +267,13 @@ export class UserEditBlackAllowListForm {
  */
 export class UserNetworkSecurityForm {
     id = ''
-    gateway = '0.0.0.0'
-    gatewayMac = '00.00.00.00.00.00'
+    gateway = DEFAULT_EMPTY_IP
+    gatewayMac = DEFAULT_EMPTY_MAC
     arpSwitch = false
     autoGetGatewayMac = false
-    manualInputGatewayMac = '00.00.00.00.00.00'
+    manualInputGatewayMac = DEFAULT_EMPTY_MAC
     preventDetection = false
-    getGatewayMac = '00.00.00.00.00.00'
+    getGatewayMac = DEFAULT_EMPTY_MAC
 }
 
 /**

@@ -26,22 +26,16 @@
                 <el-table-column />
                 <el-table-column :label="Translate('IDCS_EDIT')">
                     <template #default="{ row }: TableColumn<IntelPlateDBGroupList>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             file="edit (2)"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
                             @click="editGroup(row)"
                         />
                     </template>
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_DELETE')">
                     <template #default="{ row }: TableColumn<IntelPlateDBGroupList>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             file="del"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
                             @click="deleteGroup(row)"
                         />
                     </template>
@@ -63,7 +57,7 @@
                                     :placeholder="Translate('IDCS_SEARCH_TARGET_LICENSE_PLATE')"
                                     @focus="handleNameFocus"
                                     @blur="searchPlate(row.id)"
-                                    @keydown.enter="searchPlate(row.id)"
+                                    @keyup.enter="searchPlate(row.id)"
                                 />
                                 <el-button @click="addPlate(row.id)">{{ Translate('IDCS_ADD_LICENSE_PLATE') }}</el-button>
                             </div>
@@ -94,22 +88,16 @@
                                 </el-table-column>
                                 <el-table-column :label="Translate('IDCS_EDIT')">
                                     <template #default="data: TableColumn<IntelPlateDBPlateInfo>">
-                                        <BaseImgSprite
+                                        <BaseImgSpriteBtn
                                             file="edit (2)"
-                                            :index="0"
-                                            :hover-index="1"
-                                            :chunk="4"
                                             @click="editPlate(data.row)"
                                         />
                                     </template>
                                 </el-table-column>
                                 <el-table-column :label="Translate('IDCS_DELETE')">
                                     <template #default="data: TableColumn<IntelPlateDBPlateInfo>">
-                                        <BaseImgSprite
+                                        <BaseImgSpriteBtn
                                             file="del"
-                                            :index="0"
-                                            :hover-index="1"
-                                            :chunk="4"
                                             @click="deletePlate(data.row)"
                                         />
                                     </template>

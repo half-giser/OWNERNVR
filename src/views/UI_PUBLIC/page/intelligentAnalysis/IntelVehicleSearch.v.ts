@@ -3,7 +3,6 @@
  * @Date: 2024-09-10 09:15:27
  * @Description: 智能分析 - 车辆搜索
  */
-import { type IntelSearchCollectList, type IntelSearchList, IntelSnapImgDto, IntelSearchVehicleForm, type IntelSnapPopList } from '@/types/apiType/intelligentAnalysis'
 import IntelBaseChannelSelector from './IntelBaseChannelSelector.vue'
 import IntelBaseDateTimeSelector from './IntelBaseDateTimeSelector.vue'
 import IntelBaseEventSelector from './IntelBaseEventSelector.vue'
@@ -15,10 +14,8 @@ import IntelBaseSnapPop from './IntelBaseSnapPop.vue'
 import IntelBaseVehicleDirectionSelector from './IntelBaseVehicleDirectionSelector.vue'
 import IntelLicencePlateDBAddPlatePop from './IntelLicencePlateDBAddPlatePop.vue'
 import type { TableInstance, CheckboxValueType } from 'element-plus'
-import { type PlaybackPopList } from '@/components/player/BasePlaybackPop.vue'
 import BackupPop from '../searchAndBackup/BackupPop.vue'
 import BackupLocalPop from '../searchAndBackup/BackupLocalPop.vue'
-import { type PlaybackBackUpRecList } from '@/types/apiType/playback'
 import { type DownloadZipOptions } from '@/utils/tools'
 import dayjs from 'dayjs'
 
@@ -403,7 +400,7 @@ export default defineComponent({
                             <blockNo>${row.bolckNo}</blockNo>
                             <offset>${row.offset}</offset>
                             <eventType>${row.eventTypeID}</eventType>
-                            ${ternary(isPanorama, '<isPanorama />')}
+                            ${isPanorama ? '<isPanorama />' : ''}
                         </condition>
                     `
                     const result = await requestSmartTargetSnapImage(sendXml)
@@ -553,7 +550,7 @@ export default defineComponent({
                         isNoData: false,
                         imgId: hexToDec(split[2]) + '',
                         timestamp,
-                        frameTime: localToUtc(timestamp) + ':' + ('0000000' + hexToDec(split[1])).slice(-7),
+                        frameTime: localToUtc(timestamp) + ':' + padStart(hexToDec(split[1]), 7),
                         guid,
                         chlId,
                         chlName: chlMap[chlId],

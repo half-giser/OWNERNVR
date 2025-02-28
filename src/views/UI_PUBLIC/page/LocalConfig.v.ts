@@ -4,7 +4,6 @@
  * @Description: 本地配置
  */
 import type { FormRules } from 'element-plus'
-import { SystemLocalConfig } from '@/types/apiType/system'
 
 export default defineComponent({
     setup() {

@@ -3,7 +3,6 @@
  * @Date: 2024-10-25 18:38:09
  * @Description: 平台操作管理
  */
-import { type SystemSHDBPlatformOperatorDto } from '@/types/apiType/system'
 import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
@@ -255,7 +254,7 @@ export default defineComponent({
 
         const getData = async () => {
             openLoading()
-            const result = await getChlList({})
+            const result = await getChlList()
             closeLoading()
             commLoadResponseHandler(result, ($) => {
                 tableData.value = $('content/item').map((item) => {
@@ -355,7 +354,7 @@ export default defineComponent({
                     <item id='errorRepair'>
                         <errorType>${formData.value.faultType}</errorType>
                         <errorParts>${formData.value.chooseFaultType.join(',')}</errorParts>
-                        <comment><![CDATA[${formData.value.faultRecord}]]></comment>
+                        <comment>${wrapCDATA(formData.value.faultRecord)}</comment>
                     </item>
                 </content>
             `
@@ -384,7 +383,7 @@ export default defineComponent({
                     <item id='keeperAssign'>
                         <keepType>${formData.value.maintenance}</keepType>
                         <operationItem>${formData.value.chooseMaintenanceType.join(',')}</operationItem>
-                        <comment><![CDATA[${formData.value.maintenanceRecord}]]></comment>
+                        <comment>${wrapCDATA(formData.value.maintenanceRecord)}</comment>
                     </item>
                 </content>
             `
@@ -398,7 +397,7 @@ export default defineComponent({
                     <item id='repairAssign'>
                         <repairResult>${formData.value.repair}</repairResult>
                         <operationItem>${formData.value.chooseRepairType.join(',')}</operationItem>
-                        <comment><![CDATA[${formData.value.repairRecord}]]></comment>
+                        <comment>${wrapCDATA(formData.value.repairRecord)}</comment>
                     </item>
                 </content>
             `

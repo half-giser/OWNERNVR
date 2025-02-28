@@ -4,9 +4,7 @@
  * @Description: 新增用户
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import { UserAddForm } from '@/types/apiType/userAndSecurity'
 import { type FormRules } from 'element-plus'
-import type { UserCheckAuthForm } from '@/types/apiType/user'
 
 export default defineComponent({
     components: {
@@ -184,7 +182,7 @@ export default defineComponent({
                     <modifyPassword>${formData.value.allowModifyPassword}</modifyPassword>
                     <authGroupId>${formData.value.authGroup}</authGroupId>
                     <bindMacSwitch>false</bindMacSwitch>
-                    <mac>${wrapCDATA('00:00:00:00:00:00')}</mac>
+                    <mac>${wrapCDATA(DEFAULT_EMPTY_MAC)}</mac>
                     <enabled>true</enabled>
                     <authEffective>true</authEffective>
                 </content>
@@ -256,8 +254,6 @@ export default defineComponent({
             verify,
             goBack,
             noticeMsg,
-            formatInputMaxLength,
-            formatInputUserName,
         }
     },
 })

@@ -380,7 +380,6 @@
                     {{ Translate('IDCS_ADVANCED') }}
                     <BaseImgSprite
                         file="arrow"
-                        :index="0"
                         :chunk="4"
                     />
                 </div>

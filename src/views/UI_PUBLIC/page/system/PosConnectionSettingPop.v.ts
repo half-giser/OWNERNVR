@@ -4,7 +4,6 @@
  * @Description: POS连接设置
  */
 import { type FormRules } from 'element-plus'
-import { SystemPosList, SystemPosConnectionForm } from '@/types/apiType/system'
 
 export default defineComponent({
     props: {
@@ -34,7 +33,7 @@ export default defineComponent({
             ip: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if (!value || value === '0.0.0.0') {
+                        if (!value || value === DEFAULT_EMPTY_IP) {
                             callback(new Error(Translate('IDCS_POS_IP_EMPTY')))
                             return
                         }
@@ -97,7 +96,7 @@ export default defineComponent({
          * @description 打开弹窗时，初始化弹窗数据
          */
         const open = () => {
-            formData.value.ip = prop.data.connectionSetting.posIp || '0.0.0.0'
+            formData.value.ip = prop.data.connectionSetting.posIp || DEFAULT_EMPTY_IP
             formData.value.switch = prop.data.connectionSetting.filterPostPortSwitch
             if (prop.data.connectionType === 'TCP-Listen') {
                 formData.value.port = formData.value.switch ? prop.data.connectionSetting.posPort : undefined

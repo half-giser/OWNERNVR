@@ -797,10 +797,10 @@ const clear = () => {
  */
 const formatTime = (second: number, format = 'HH:mm') => {
     if (minTime > 0) {
-        return dayjs.utc('1970-01-01 00:00:00', DEFAULT_DATE_FORMAT).add(second, 'second').local().format(format)
+        return dayjs.utc('1970-01-01', DEFAULT_YMD_FORMAT).add(second, 'second').local().format(format)
         // return dayjs.utc(second * 1000).format(format)
     } else {
-        return dayjs.utc('1970-01-01 00:00:00', DEFAULT_DATE_FORMAT).add(second, 'second').format(format)
+        return dayjs.utc('1970-01-01', DEFAULT_YMD_FORMAT).add(second, 'second').format(format)
         // return dayjs.utc(0).add(second, 'second').format(format)
     }
 }
@@ -1243,9 +1243,9 @@ const setDstDayTime = (currentDayStartTime: string) => {
     dstEndHour = 0
 
     for (let i = 1; i < 24; i++) {
-        const timeStrPre = `${timeDay} ${('0' + (i - 1)).slice(-2)}:00:00`
-        const timeStrNext = `${timeDay} ${('0' + (i + 1)).slice(-2)}:00:00`
-        const timeStrCur = `${timeDay} ${('0' + i).slice(-2)}:00:00`
+        const timeStrPre = `${timeDay} ${padStart(i - 1, 2)}:00:00`
+        const timeStrNext = `${timeDay} ${padStart(i + 1, 2)}:00:00`
+        const timeStrCur = `${timeDay} ${padStart(i, 2)}:00:00`
 
         // 夏令时开始时间（当天为23小时）
         if (isDST(timeStrCur) && !isDST(timeStrPre) && isDST(timeStrNext)) {

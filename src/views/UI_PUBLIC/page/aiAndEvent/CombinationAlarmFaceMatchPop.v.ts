@@ -3,7 +3,6 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-08-26 16:19:02
  */
-import { type AlarmCombinedFaceMatchDto } from '@/types/apiType/aiAndEvent'
 export default defineComponent({
     props: {
         linkedEntity: {

@@ -33,13 +33,10 @@
                     :title="item.label"
                     @click="changeCtrlMenu(index)"
                 >
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         :file="item.file"
-                        :index="pageData.activeMenu === index ? 1 : 0"
-                        :hover-index="1"
-                        :disabled-index="3"
+                        :active="pageData.activeMenu === index"
                         :disabled="!getMenuEnable(item.value)"
-                        :chunk="4"
                     />
                 </div>
             </div>

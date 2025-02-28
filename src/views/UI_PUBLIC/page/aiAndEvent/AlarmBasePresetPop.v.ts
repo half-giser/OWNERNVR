@@ -3,8 +3,6 @@
  * @Date: 2024-08-20 17:19:56
  * @Description: 预置点名称配置
  */
-import { type AlarmPresetPopDto, type AlarmPresetItem } from '@/types/apiType/aiAndEvent'
-
 export default defineComponent({
     props: {
         /**

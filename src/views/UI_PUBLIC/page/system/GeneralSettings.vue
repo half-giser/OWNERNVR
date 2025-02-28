@@ -43,8 +43,11 @@
                     @change="hanelChangeVideoFormat"
                 />
             </el-form-item>
-            <el-form-item :label="Translate('IDCS_OUTPUT_ADAPT')">
-                <el-checkbox v-model="formData.outputAdapt" />
+            <el-form-item>
+                <el-checkbox
+                    v-model="formData.outputAdapt"
+                    :label="Translate('IDCS_OUTPUT_ADAPT')"
+                />
             </el-form-item>
             <!-- <el-form-item :label="Translate('IDCS_LOCAL')"></el-form-item> -->
             <!-- 主副屏选项 -->

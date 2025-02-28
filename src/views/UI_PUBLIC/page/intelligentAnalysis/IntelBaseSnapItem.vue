@@ -23,12 +23,10 @@
                     v-show="play"
                     file="track_camera_on_play"
                 />
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     file="face_search_more"
-                    :index="3"
-                    :hover-index="2"
-                    :chunk="4"
-                    @click.stop="$emit('detail')"
+                    :index="[3, 2, 2, 0]"
+                    @click="$emit('detail')"
                 />
             </div>
             <div class="snap-pic">

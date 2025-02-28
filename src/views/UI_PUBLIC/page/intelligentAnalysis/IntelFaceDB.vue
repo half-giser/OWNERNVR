@@ -30,22 +30,16 @@
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_EDIT')">
                     <template #default="{ row }: TableColumn<IntelFaceDBGroupList>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             file="edit (2)"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
                             @click="editGroup(row)"
                         />
                     </template>
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_DELETE')">
                     <template #default="{ row }: TableColumn<IntelFaceDBGroupList>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             file="del"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
                             @click="deleteGroup(row)"
                         />
                     </template>

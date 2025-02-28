@@ -3,7 +3,6 @@
  * @Date: 2024-07-29 16:10:28
  * @Description: 现场预览-目标检测视图
  */
-import WebsocketSnap, { type WebsocketSnapOnSuccessSnap } from '@/utils/websocket/websocketSnap'
 import LiveSnapFaceMatchItem from './LiveSnapFaceMatchItem.vue'
 import LiveSnapItem from './LiveSnapItem.vue'
 import LiveSnapStructItem from './LiveSnapStructItem.vue'
@@ -11,7 +10,6 @@ import IntelFaceDBSnapRegisterPop from '../intelligentAnalysis/IntelFaceDBSnapRe
 import IntelLicencePlateDBAddPlatePop from '../intelligentAnalysis/IntelLicencePlateDBAddPlatePop.vue'
 import IntelBaseFaceMatchPop from '../intelligentAnalysis/IntelBaseFaceMatchPop.vue'
 import IntelBaseSnapPop from '../intelligentAnalysis/IntelBaseSnapPop.vue'
-import type { IntelFaceMatchPopList, IntelSnapPopList } from '@/types/apiType/intelligentAnalysis'
 
 export default defineComponent({
     components: {

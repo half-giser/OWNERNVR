@@ -3,10 +3,8 @@
  * @Date: 2024-07-09 13:43:11
  * @Description: 磁盘阵列重建弹窗
  */
-import { DiskRaidList, DiskRaidRebuildForm } from '@/types/apiType/disk'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import { type FormRules } from 'element-plus'
-import type { UserCheckAuthForm } from '@/types/apiType/user'
 
 export default defineComponent({
     props: {

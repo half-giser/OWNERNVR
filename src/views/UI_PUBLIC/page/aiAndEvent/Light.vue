@@ -58,7 +58,7 @@
                             :disabled="!row.enable"
                             :min="1"
                             :max="60"
-                            @keydown.enter="blurDurationTime($event)"
+                            @keyup.enter="blurInput"
                         />
                     </template>
                 </el-table-column>

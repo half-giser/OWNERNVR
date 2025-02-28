@@ -4,9 +4,6 @@
  * @Description: AI/事件的类型定义，类型命名的前缀统一为Alaram*
  */
 
-import { TableRowStatus } from './base'
-import type { CanvasBasePoint, CanvasBaseArea } from '@/utils/canvas/canvasBase'
-
 /**
  * @description 报警输出
  */
@@ -635,15 +632,15 @@ export class AlarmPassLinesDto {
     countPeriod = {
         day: {
             date: 0,
-            dateTime: '00:00:00',
+            dateTime: DEFAULT_EMPTY_TIME,
         },
         week: {
             date: 0,
-            dateTime: '00:00:00',
+            dateTime: DEFAULT_EMPTY_TIME,
         },
         month: {
             date: 1,
-            dateTime: '00:00:00',
+            dateTime: DEFAULT_EMPTY_TIME,
         },
     }
     // 是否启用侦测
@@ -801,7 +798,7 @@ export class AlarmVehicleDetectionDto {
     exposureMax = 50
     capturePlateAbsenceVehicle = false
     regionInfo: CanvasBaseArea[] = []
-    maskAreaInfo: Record<number, CanvasBasePoint[]> = {}
+    maskAreaInfo: CanvasBasePoint[][] = []
     mutexList: AlarmMutexDto[] = []
     plateSize = {
         minWidth: 0,
@@ -929,8 +926,8 @@ export class AlarmVideoStructureDto {
     intervalCheck = 1
     intervalCheckMin = 1
     intervalCheckMax = 1
-    detectAreaInfo: Record<number, CanvasBasePoint[]> = {}
-    maskAreaInfo: Record<number, CanvasBasePoint[]> = {}
+    detectAreaInfo: CanvasBasePoint[][] = []
+    maskAreaInfo: CanvasBasePoint[][] = []
     mutexList: AlarmMutexDto[] = []
     countOSD = {
         switch: false,
@@ -950,15 +947,15 @@ export class AlarmVideoStructureDto {
         countTimeType: 'day',
         day: {
             date: 0,
-            dateTime: '00:00:00',
+            dateTime: DEFAULT_EMPTY_TIME,
         },
         week: {
             date: 0,
-            dateTime: '00:00:00',
+            dateTime: DEFAULT_EMPTY_TIME,
         },
         month: {
             date: 0,
-            dateTime: '00:00:00',
+            dateTime: DEFAULT_EMPTY_TIME,
         },
     }
     objectFilter = {

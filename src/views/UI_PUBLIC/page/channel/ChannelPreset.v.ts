@@ -8,7 +8,6 @@ import ChannelPtzCtrlPanel from './ChannelPtzCtrlPanel.vue'
 import ChannelPresetAddPop from './ChannelPresetAddPop.vue'
 import ChannelPtzTableExpandPanel from './ChannelPtzTableExpandPanel.vue'
 import ChannelPtzTableExpandItem from './ChannelPtzTableExpandItem.vue'
-import { type ChannelPtzPresetChlDto, ChannelPtzPresetDto } from '@/types/apiType/channel'
 
 export default defineComponent({
     components: {
@@ -331,10 +330,6 @@ export default defineComponent({
          * @description 修改预置点名称
          */
         const saveName = async () => {
-            if (!formData.value.name || !presetOptions.value.length) {
-                return
-            }
-
             openLoading()
 
             const sendXml = rawXml`
@@ -446,7 +441,6 @@ export default defineComponent({
             savePosition,
             deletePreset,
             setSpeed,
-            formatInputMaxLength,
         }
     },
 })

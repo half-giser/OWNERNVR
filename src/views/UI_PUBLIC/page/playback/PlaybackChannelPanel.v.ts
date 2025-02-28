@@ -5,8 +5,6 @@
  */
 import ChannelGroupEditPop from '../channel/ChannelGroupEditPop.vue'
 import ChannelGroupAddPop from '../channel/ChannelGroupAddPop.vue'
-import { ChannelGroupDto } from '@/types/apiType/channel'
-import { type PlaybackChlList, type PlaybackChannelGroupList } from '@/types/apiType/playback'
 
 export interface ChannelPanelExpose {
     removeChls(chl: string[]): void
@@ -354,7 +352,7 @@ export default defineComponent({
         const mousemoveChlGroupPosition = (event: MouseEvent) => {
             if (mousedown) {
                 const rect = chlGroupElement.value!.getBoundingClientRect()
-                const position = Math.max(20, Math.min(80, ((event.clientY - rect.top) / rect.height) * 100))
+                const position = clamp(((event.clientY - rect.top) / rect.height) * 100, 20, 80)
                 pageData.value.chlGroupHeight = `${position}%`
             }
         }

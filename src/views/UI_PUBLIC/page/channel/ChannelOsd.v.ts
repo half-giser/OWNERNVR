@@ -4,9 +4,6 @@
  * @Description: 通道 - OSD配置
  */
 import { type XMLQuery } from '@/utils/xmlParse'
-import { ChannelOsdDto } from '@/types/apiType/channel'
-import { cloneDeep } from 'lodash-es'
-import CanvasOSD, { type CanvasOSDOptionNameConfig, type CanvasOSDOptionTimeConfig } from '@/utils/canvas/canvasOsd'
 import { type OcxXmlSetOSDInfo } from '@/utils/ocx/ocxCmd'
 import { type TableInstance } from 'element-plus'
 
@@ -44,7 +41,8 @@ export default defineComponent({
         })
 
         let nameMapping: Record<string, string> = {}
-        let osdDrawer: ReturnType<typeof CanvasOSD>
+        let drawer = CanvasOSD()
+
         const editRows = useWatchEditRows<ChannelOsdDto>()
 
         const handleChlSel = (chlId: string) => {
@@ -109,14 +107,6 @@ export default defineComponent({
                 if (!rowData.supportDateFormat) nameDisabled.value = true
             }
             tableRef.value!.setCurrentRow(getRowById(selectedChlId.value))
-        }
-
-        /**
-         * @description 回车时失去焦点
-         * @param {Event} event
-         */
-        const handleKeydownEnter = (event: Event) => {
-            ;(event.target as HTMLElement).blur()
         }
 
         const handleChangeSwitch = (flag: boolean, chlId: string, type: 'displayName' | 'displayTime' | 'remarkSwitch') => {
@@ -464,8 +454,8 @@ export default defineComponent({
         const setIPChlORChlOSD = async (rowData: ChannelOsdDto) => {
             const sendXml = rawXml`
                 <types>
-                    ${ternary(rowData.supportDateFormat, `<dateFormat>${wrapEnums(rowData.dateEnum)}</dateFormat>`)}
-                    ${ternary(rowData.supportTimeFormat, `<timeFormat>${wrapEnums(rowData.timeEnum)}</timeFormat>`)}
+                    ${rowData.supportDateFormat ? `<dateFormat>${wrapEnums(rowData.dateEnum)}</dateFormat>` : ''}
+                    ${rowData.supportTimeFormat ? `<timeFormat>${wrapEnums(rowData.timeEnum)}</timeFormat>` : ''}
                 </types>
                 <content>
                     <chl id='${rowData.id}'>
@@ -547,8 +537,9 @@ export default defineComponent({
             plugin = playerRef.value!.plugin
 
             if (mode.value === 'h5') {
-                osdDrawer = CanvasOSD({
-                    el: player.getDrawbordCanvas(0),
+                drawer.destroy()
+                drawer = CanvasOSD({
+                    el: player.getDrawbordCanvas(),
                     onchange: handleOSDChange,
                 })
             }
@@ -560,7 +551,7 @@ export default defineComponent({
         }
 
         const onTime = (_winIndex: number, _data: TVTPlayerWinDataListItem, timeStamp: number) => {
-            if (!supportSHDB) osdDrawer && osdDrawer.setTime(timeStamp)
+            if (!supportSHDB) drawer.setTime(timeStamp)
         }
 
         const handleOSDChange = (nameCfg: CanvasOSDOptionNameConfig, timeCfg: CanvasOSDOptionTimeConfig) => {
@@ -639,7 +630,7 @@ export default defineComponent({
         }
 
         const setCanvasDrawerData = (rowData: ChannelOsdDto) => {
-            osdDrawer?.setCfg({
+            drawer.setCfg({
                 nameCfg: {
                     value: rowData.name,
                     switch: rowData.displayName,
@@ -680,9 +671,7 @@ export default defineComponent({
                 plugin?.ExecuteCmd(sendXML)
             }
 
-            if (mode.value === 'h5') {
-                osdDrawer?.destroy()
-            }
+            drawer.destroy()
         })
 
         return {
@@ -712,7 +701,6 @@ export default defineComponent({
             handleRemarkNoteInput,
             handleRemarkNoteBlur,
             handleInputChange,
-            handleKeydownEnter,
             save,
             onReady,
             onTime,

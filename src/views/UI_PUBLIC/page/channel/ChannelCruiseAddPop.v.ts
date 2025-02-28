@@ -3,7 +3,6 @@
  * @Date: 2024-08-21 17:51:18
  * @Description: 云台-巡航线-新增弹窗
  */
-import { type ChannelPtzCruiseDto, type ChannelPtzCruisePresetDto } from '@/types/apiType/channel'
 import type { FormRules, TableInstance } from 'element-plus'
 import ChannelCruiseEditPresetPop from './ChannelCruiseEditPresetPop.vue'
 
@@ -286,7 +285,6 @@ export default defineComponent({
             deleteAllPreset,
             moveUpPreset,
             moveDownPreset,
-            formatInputMaxLength,
         }
     },
 })

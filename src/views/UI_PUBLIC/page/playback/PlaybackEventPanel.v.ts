@@ -3,8 +3,6 @@
  * @Date: 2024-08-06 20:37:25
  * @Description: 回放-事件类型视图
  */
-import { type PlaybackEventList } from '@/types/apiType/playback'
-
 export default defineComponent({
     props: {
         /**

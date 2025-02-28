@@ -5,7 +5,7 @@
  */
 
 import type { Action, MessageBoxState } from 'element-plus'
-import type { usePlugin } from '@/utils/ocx/ocxPlugin'
+import type { PluginType as _PluginType } from '@/utils/ocx/ocxPlugin'
 import type { UserChlAuth as _UserChlAuth } from '@/hooks/useUserChlAuth'
 import type { PlayerWinDataListItem, PlayerPosInfoItem, PlayerReturnsType } from '@/components/player/BaseVideoPlayer.vue'
 import type { ScheduleLineReturnsType } from '@/components/BaseScheduleLine.vue'
@@ -69,10 +69,6 @@ declare global {
         // systemInfo: SystemInfo
         browserInfo: BrowserInfo
         serverIp: string
-        LoadingTarget: Record<string, string>
-        openLoading: Function
-        closeLoading: Function
-        notify: Function
     }
 
     interface TableColumn<T> {
@@ -81,7 +77,7 @@ declare global {
         $index: number
     }
 
-    type PluginType = ReturnType<typeof usePlugin>
+    type PluginType = _PluginType
 
     interface ConfigToolBarEvent<T> {
         type: string
@@ -175,6 +171,13 @@ declare global {
     declare const natPort: string
     declare const natIp_2_0: string
     declare const natPort_2_0: string
+    // declare const OCX_PLUGIN: undefined | PluginType
+
+    interface WindowExtends {
+        __RUNTIME_OCX_PLUGIN__: undefined | _PluginType
+    }
+
+    interface Window extends WindowExtends {}
 }
 
 /**
@@ -183,6 +186,10 @@ declare global {
 declare module 'vue' {
     interface ComponentCustomProperties {
         Translate: (key: string) => string
+        formatInputMaxLength: (str: string) => string
+        formatInputUserName: (str: string) => string
+        blurInput: (e: Event) => void
+        formatDigit: (str: string) => string
     }
 
     interface GlobalComponents {}

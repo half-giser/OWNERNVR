@@ -95,7 +95,7 @@ const updateValue = (value: number, index: number) => {
             current = hexToDec(address.value[index])
         }
     } else if (prop.invalidateMode === 'REPLACE') {
-        current = Math.min(MAX_VALUE, Math.max(MIN_VALUE, current))
+        current = clamp(current, MIN_VALUE, MAX_VALUE)
     }
     const split = [...address.value]
     const hex = decToHex(current)

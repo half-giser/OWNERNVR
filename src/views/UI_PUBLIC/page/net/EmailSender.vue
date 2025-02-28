@@ -92,12 +92,9 @@
                         :disabled="formData.anonymousSwitch"
                     />
                 </template>
-                <el-input
+                <BasePasswordInput
                     v-model="formData.password"
-                    type="password"
                     :disabled="!pageData.passwordSwitch || formData.anonymousSwitch"
-                    @copy.capture.prevent=""
-                    @paste.capture.prevent=""
                 />
             </el-form-item>
             <div class="base-btn-box">

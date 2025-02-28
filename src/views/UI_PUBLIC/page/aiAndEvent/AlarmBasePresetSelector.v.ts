@@ -3,8 +3,6 @@
  * @Date: 2024-11-06 17:40:53
  * @Description: AI-联动-预置点-选择面板
  */
-import { type AlarmPresetItem } from '@/types/apiType/aiAndEvent'
-
 export default defineComponent({
     props: {
         /**

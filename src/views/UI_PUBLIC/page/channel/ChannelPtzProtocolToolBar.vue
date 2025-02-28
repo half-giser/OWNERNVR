@@ -8,11 +8,12 @@
         v-model="msg"
         class="base-toolbar-input"
         :placeholder="Translate('IDCS_SEARCH_CHANNEL')"
-        @keydown.enter="search"
+        @keyup.enter="search"
     />
     <BaseImgSprite
         file="toolbar_search"
         class="base-toolbar-btn"
+        :title="Translate('IDCS_SEARCH_CHANNEL')"
         @click="search"
     />
 </template>

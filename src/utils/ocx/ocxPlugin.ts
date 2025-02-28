@@ -4,14 +4,28 @@
  * @Description: OCX插件模块
  * 原项目中MAC插件和TimeSliderPlugin相关逻辑不保留
  */
-import WebsocketPlugin from '@/utils/websocket/websocketPlugin'
-import { ClientPort, P2PClientPort, P2PACCESSTYPE, getPluginPath, PluginSizeModeMapping, type OCX_Plugin_Notice_Map } from '@/utils/ocx/ocxUtil'
 import { type XMLQuery } from '../xmlParse'
 import { generateAsyncRoutes } from '../../router'
 
 type PluginStatus = 'Unloaded' | 'Loaded' | 'InitialComplete' | 'Connected' | 'Disconnected' | 'Reconnecting'
+type PluginSizeMode = 'relativeToScreen' | 'relativeToDom' | 'relativeToBrowser' | 'absolute'
 
 const getSingletonPlugin = () => {
+    const RELATIVE_TO_SCREEN = 'relativeToScreen' // relativeToScreen：显示器左上角为0,0
+    const RELATIVE_TO_DOM = 'relativeToDom' // relativeToBrowser: 浏览器左上角为0, 0;
+    const RELATIVE_TO_BROWSER = 'relativeToBrowser' // relativeToDom：文档流里左上角为0, 0;
+
+    const PluginSizeModeMapping: Record<BrowserType, PluginSizeMode> = {
+        ie: RELATIVE_TO_SCREEN,
+        lowEdge: RELATIVE_TO_SCREEN,
+        firefox: RELATIVE_TO_BROWSER,
+        unknow: RELATIVE_TO_DOM,
+        opera: RELATIVE_TO_DOM,
+        edge: RELATIVE_TO_DOM,
+        chrome: RELATIVE_TO_DOM,
+        safari: RELATIVE_TO_DOM,
+    }
+
     const pluginStore = usePluginStore()
     const { Translate, getLangTypes, getLangItems, langItems } = useLangStore()
     const router = useRouter()
@@ -259,7 +273,7 @@ const getSingletonPlugin = () => {
                             const authCodeIndex = errorDescription
                             userSession.authCodeIndex = authCodeIndex
                             if (curRoutUrl.includes('authCodeLogin')) {
-                                execLoginTypeCallback(P2PACCESSTYPE.P2P_AUTHCODE_LOGIN, authCodeIndex)
+                                execLoginTypeCallback(P2P_ACCESS_TYPE_AUTHCODE_LOGIN, authCodeIndex)
                             } else {
                                 layoutStore.isInitial = true
                                 router.push('/authCodeLogin')
@@ -642,13 +656,9 @@ const getSingletonPlugin = () => {
                 pluginStore.ready = false
                 pluginStore.currPluginMode = null
                 if (pluginStore.manuaClosePlugin) return
-                // 开发环境 热模块更新时，会关闭插件再重新启动
-                if (import.meta.env.DEV) {
-                    console.log('ocx closed on hmr')
-                } else {
-                    setPluginNoResponse()
-                    showPluginNoResponse()
-                }
+
+                setPluginNoResponse()
+                showPluginNoResponse()
             },
         })
     }
@@ -984,21 +994,20 @@ const getSingletonPlugin = () => {
             }
         }
 
-        // // 获取浏览器的缩放比率
+        // 获取浏览器的缩放比率
         const ratio = window.devicePixelRatio
         // 视频插件占位符尺寸
-        const divOcxRect = pluginRefDiv.getBoundingClientRect(),
-            divOcxLeft = divOcxRect.left * ratio,
-            divOcxTop = divOcxRect.top * ratio
-        let refW = divOcxRect.width * ratio,
-            refH = divOcxRect.height * ratio
-        const navHeight = 100 * ratio // 页面顶部导航栏高度
+        const divOcxRect = pluginRefDiv.getBoundingClientRect()
+        const divOcxLeft = divOcxRect.left * ratio
+        const divOcxTop = divOcxRect.top * ratio
+        const navHeight = document.getElementById('layoutMainHeader')!.clientHeight
         const browserType = browserInfo.type // 浏览器类型
-
         const ocxMode = PluginSizeModeMapping[browserType]
-        let winLeft = 0,
-            winTop = 0,
-            menuH = 0 // 浏览器工具栏高度（包含了地址栏、书签栏）
+        let refW = divOcxRect.width * ratio
+        let refH = divOcxRect.height * ratio
+        let winLeft = 0
+        let winTop = 0
+        let menuH = 0 // 浏览器工具栏高度（包含了地址栏、书签栏）
         if (browserInfo.type === 'firefox') {
             const offset = (window.outerWidth - window.innerWidth) / 2 // 外宽和内宽偏差值
             let diffVersion = 0 // 火狐版本偏差值
@@ -1029,9 +1038,8 @@ const getSingletonPlugin = () => {
         }
 
         // 视频插件窗口的顶部越过页面导航菜单区域（顶部收缩）
-        // && $.inArray(pluginPlaceholderId, ['divPopRecOCX', 'popLiveOCX']) == -1
         if (divOcxTop <= navHeight) {
-            winTop = ocxMode === 'relativeToBrowser' || browserType === 'lowEdge' ? navHeight + menuH : navHeight
+            winTop = ocxMode === RELATIVE_TO_BROWSER || browserType === 'lowEdge' ? navHeight + menuH : navHeight
             refH -= navHeight - divOcxTop
         }
 
@@ -1046,7 +1054,7 @@ const getSingletonPlugin = () => {
             refW += divOcxLeft
         }
 
-        if (ocxMode === 'relativeToScreen') {
+        if (ocxMode === RELATIVE_TO_SCREEN) {
             winLeft = window.screenLeft * ratio + winLeft
             winTop = window.screenTop * ratio + winTop
         }
@@ -1058,8 +1066,8 @@ const getSingletonPlugin = () => {
             }
             return size
         }
-        const domWidth = ocxMode === 'relativeToDom' ? window.innerWidth * ratio : 0
-        const domHeight = ocxMode === 'relativeToDom' ? window.innerHeight * ratio : 0
+        const domWidth = ocxMode === RELATIVE_TO_DOM ? window.innerWidth * ratio : 0
+        const domHeight = ocxMode === RELATIVE_TO_DOM ? window.innerHeight * ratio : 0
         const sendXML = OCX_XML_SetPluginSize(winLeft, winTop, adjust(refW), adjust(refH), ocxMode, domWidth, domHeight)
         pluginObj.ExecuteCmd(sendXML)
     }
@@ -1160,7 +1168,25 @@ const getSingletonPlugin = () => {
     }
 
     /**
-     * @description 监听浏览器窗口的移动，控制插件随之一起移动
+     * @description 判断两个元素是否重合
+     * @param {DOMRect} rect1
+     * @param {DOMRect} rect2
+     * @returns {boolean}
+     */
+    const isOverlap = (rect1: DOMRect, rect2: DOMRect) => {
+        const { top, left, right, bottom } = rect1
+        const { top: top2, left: left2, right: right2, bottom: bottom2 } = rect2
+
+        const leftTop = left2 > left && left2 < right && top2 > top && top2 < bottom
+        const rightTop = right2 > left && right2 < right && top2 > top && top2 < bottom
+        const leftBottom = left2 > left && left2 < right && bottom2 > top && bottom2 < bottom
+        const rightBottom = right2 > left && right2 < right && bottom2 > top && bottom2 < bottom
+
+        return leftTop || rightTop || leftBottom || rightBottom
+    }
+
+    /**
+     * @description 监听浏览器窗口的移动、插件被遮挡等，控制插件移动/显隐
      * @param {HTMLElement} pluginPlaceholderId
      * @param {number} updateInterval
      */
@@ -1172,10 +1198,11 @@ const getSingletonPlugin = () => {
         const browserScrollCallback = () => {
             setPluginSize(pluginPlaceholderId, getVideoPlugin())
         }
-        let oldX = 0,
-            oldY = 0,
-            oldWidth = 0,
-            oldHeihgt = 0
+
+        let oldX = 0
+        let oldY = 0
+        let oldWidth = 0
+        let oldHeihgt = 0
 
         const browserMoveTimer = setInterval(() => {
             // 最小化浏览器时, screenX会变成-32000, 此时不重新设置尺寸
@@ -1205,7 +1232,7 @@ const getSingletonPlugin = () => {
             }
         }, interval)
 
-        // 观察弹窗样式变化 重新设置插件大小
+        // 观察弹窗样式变化 重新设置插件大小、显示隐藏
         const mutationObserver = new MutationObserver((mutationsList) => {
             let flag = false
             for (const mutation of mutationsList) {
@@ -1221,7 +1248,12 @@ const getSingletonPlugin = () => {
             if (flag) {
                 const data = browserEventMap.get(pluginPlaceholderId)
                 if (data) {
+                    const rect = data.element.getBoundingClientRect()
                     const hasPop = data.observerList.some((item) => {
+                        if (item.classList.contains('el-popover')) {
+                            const observeRect = item.getBoundingClientRect()
+                            return item.style.display !== 'none' && isOverlap(rect, observeRect)
+                        }
                         return item.style.display !== 'none'
                     })
                     if (!hasPop && browserEventMap.data.length) {
@@ -1253,10 +1285,6 @@ const getSingletonPlugin = () => {
         }
 
         for (const popper of poppers) {
-            // 有keep-ocx类的popover在显示时不会遮挡插件. 所以这里不监听keep-ocx的popover的显示隐藏
-            if (popper.classList.contains('keep-ocx')) {
-                continue
-            }
             mutationObserver.observe(popper, { attributes: true })
             observerList.push(popper as HTMLElement)
         }
@@ -1298,7 +1326,7 @@ const getSingletonPlugin = () => {
         } else {
             displayTimer = setTimeout(() => {
                 if (browserEventMap.data.length && !forcedHidden) displayOCX(true)
-            }, 500)
+            }, 50)
         }
     }
 
@@ -1448,22 +1476,22 @@ const getSingletonPlugin = () => {
     }
 }
 
-let plugin: ReturnType<typeof getSingletonPlugin> | null = null
+export type PluginType = ReturnType<typeof getSingletonPlugin>
 
 /**
  * @description 确保plugin对象是个单例
  * @returns
  */
 export const usePlugin = (data?: PluginHookOptions) => {
-    if (!plugin) {
-        plugin = getSingletonPlugin()
+    if (!window.__RUNTIME_OCX_PLUGIN__) {
+        window.__RUNTIME_OCX_PLUGIN__ = getSingletonPlugin()
     }
 
     if (data) {
-        setupPlugin(plugin, data)
+        setupPlugin(window.__RUNTIME_OCX_PLUGIN__, data)
     }
 
-    return plugin
+    return window.__RUNTIME_OCX_PLUGIN__
 }
 
 interface PluginHookOptions {

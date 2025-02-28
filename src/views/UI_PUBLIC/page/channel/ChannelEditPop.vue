@@ -78,12 +78,9 @@
                         :disabled="inputDisabled"
                     />
                 </template>
-                <el-input
+                <BasePasswordInput
                     v-model="editItem.password"
-                    type="password"
                     :disabled="!editPwdSwitch"
-                    @paste.capture.prevent=""
-                    @copy.capture.prevent=""
                 />
             </el-form-item>
         </el-form>

@@ -3,8 +3,6 @@
  * @Date: 2024-05-30 14:08:47
  * @Description: websocket 导入车牌库
  */
-import WebsocketBase from './websocketBase'
-import { type CmdPlateLibImportDataList } from './websocketCmd'
 
 export interface WebsocketImportPlateLibOption {
     // onopen?: () => void
@@ -16,7 +14,7 @@ export interface WebsocketImportPlateLibOption {
     limitNum?: number
 }
 
-export default function WebsocketImportPlateLib(option: WebsocketImportPlateLibOption) {
+export const WebsocketImportPlateLib = (option: WebsocketImportPlateLibOption) => {
     let importIdx = 0
     let taskId: string | null = null
 

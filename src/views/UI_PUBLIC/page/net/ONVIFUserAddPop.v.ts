@@ -4,7 +4,6 @@
  * @Description: OVNIF 新增/编辑用户弹窗
  */
 import type { FormRules } from 'element-plus'
-import { NetOnvifUserForm, NetOnvifUserList } from '@/types/apiType/net'
 
 export default defineComponent({
     props: {
@@ -186,7 +185,7 @@ export default defineComponent({
                     <item id="${prop.userData.id}">
                         <userLevel>${formData.value.userLevel}</userLevel>
                         <userName>${formData.value.userName}</userName>
-                        ${ternary(pageData.value.passwordSwitch, `<password${getSecurityVer()}>${wrapCDATA(AES_encrypt(formData.value.password, userSession.sesionKey))}</password>`, '')}
+                        ${pageData.value.passwordSwitch ? `<password${getSecurityVer()}>${wrapCDATA(AES_encrypt(formData.value.password, userSession.sesionKey))}</password>` : ''}
                     </item>
                 </content>
             `

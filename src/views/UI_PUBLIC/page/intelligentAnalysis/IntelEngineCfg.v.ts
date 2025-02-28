@@ -3,9 +3,7 @@
  * @Date: 2024-08-29 09:41:34
  * @Description: 智能分析-引擎配置
  */
-import { IntelEngineConfigForm, type IntelEngineConfigList } from '@/types/apiType/intelligentAnalysis'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import type { UserCheckAuthForm } from '@/types/apiType/user'
 
 export default defineComponent({
     components: {
@@ -111,7 +109,7 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <supportAI>${formData.value.supportAI}</supportAI>
-                    ${ternary(!pageData.value.is3536Amode, '<openSubOutput>false</openSubOutput>')}
+                    ${!pageData.value.is3536Amode ? '<openSubOutput>false</openSubOutput>' : ''}
                 </content>
                 <auth>
                     <userName>${e.userName}</userName>

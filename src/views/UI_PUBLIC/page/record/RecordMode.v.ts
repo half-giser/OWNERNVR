@@ -3,11 +3,9 @@
  * @Date: 2024-07-17 15:44:13
  * @Description: 录像-模式配置
  */
-import { type RecordModeDto, RecordDistributeInfoDto, type RecordScheduleDto } from '@/types/apiType/record'
 import RecordModeAdvancePop from './RecordModeAdvancePop.vue'
 import RecordModeStreamPop from './RecordModeStreamPop.vue'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
-import { cloneDeep } from 'lodash-es'
 
 export default defineComponent({
     components: {
@@ -468,7 +466,7 @@ export default defineComponent({
                         .map((row) => {
                             return rawXml`
                                 <item id="${row.id}">
-                                    <name><![CDATA[${row.name}]]></name>
+                                    <name>${wrapCDATA(row.name)}</name>
                                     <scheduleRec>
                                         <switch>${getSwitch(row.scheduleRec)}</switch>
                                         <schedule id="${row.scheduleRec}"></schedule>

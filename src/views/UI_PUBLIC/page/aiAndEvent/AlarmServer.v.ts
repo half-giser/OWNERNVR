@@ -5,7 +5,7 @@
  */
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { type FormRules } from 'element-plus'
-import { AlarmServerForm } from '@/types/apiType/aiAndEvent'
+
 export default defineComponent({
     components: {
         ScheduleManagPop,
@@ -261,10 +261,10 @@ export default defineComponent({
                     ${
                         pageData.value.supportAdditionalServerSetting
                             ? rawXml`
-                                <deviceId><![CDATA[${formData.value.deviceId}]]></deviceId>
-                                <token><![CDATA[${formData.value.token}]]></token>
+                                <deviceId>${wrapCDATA(formData.value.deviceId)}</deviceId>
+                                <token>${wrapCDATA(formData.value.token)}</token>
                             `
-                            : `<deviceId><![CDATA[${formData.value.deviceId}]]></deviceId>`
+                            : `<deviceId>${wrapCDATA(formData.value.deviceId)}</deviceId>`
                     }
                 </content>
             `

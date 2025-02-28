@@ -28,22 +28,18 @@
             v-show="needPagination"
             class="pagination"
         >
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 file="prev_page"
                 :chunk="3"
-                :index="0"
-                :hover-index="1"
-                :disabled-index="2"
-                :disabled="pageIndex === 0"
+                :index="[0, 1, 1, 2]"
+                :disabled="pageIndex <= 0"
                 @click="prevPage"
             />
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 file="next_page"
                 :chunk="3"
-                :index="0"
-                :hover-index="1"
-                :disabled-index="2"
-                :disabled="pageIndex === pageCount - 1"
+                :index="[0, 1, 1, 2]"
+                :disabled="pageIndex >= pageCount - 1"
                 @click="nextPage"
             />
         </div>
@@ -169,7 +165,6 @@ const pageCount = computed(() => {
  * @description 上一页
  */
 const prevPage = () => {
-    if (pageIndex.value <= 0) return
     pageIndex.value--
     render()
 }
@@ -178,9 +173,6 @@ const prevPage = () => {
  * @description 下一页
  */
 const nextPage = () => {
-    if (pageIndex.value >= pageCount.value - 1) {
-        return
-    }
     pageIndex.value++
     render()
 }

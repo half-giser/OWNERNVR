@@ -4,7 +4,6 @@
  * @Date: 2024-10-23 11:43:19
  */
 import dayjs from 'dayjs'
-import { SystenSHDBImageUploadDto } from '@/types/apiType/system'
 import { type TableInstance } from 'element-plus'
 import ImageUploadAddTimePop from './ImageUploadAddTimePop.vue'
 
@@ -25,7 +24,7 @@ export default defineComponent({
             // 当前行
             currentRow: new SystenSHDBImageUploadDto(),
             // 添加项时间
-            addTimeData: '00:00:00',
+            addTimeData: DEFAULT_EMPTY_TIME,
             // 添加单个时间项弹窗开关
             addSignTimeDialogOpen: false,
             // 添加时间项弹窗
@@ -165,7 +164,7 @@ export default defineComponent({
             })
             orderTimeList(pageData.value.currentRow)
             pageData.value.currentRow.timeCount = timeList.length
-            pageData.value.addTimeData = '00:00:00'
+            pageData.value.addTimeData = DEFAULT_EMPTY_TIME
             pageData.value.addSignTimeDialogOpen = false
         }
 
@@ -191,7 +190,7 @@ export default defineComponent({
          * @description 计算秒时间戳
          * @param {String} formatString HH:mm
          */
-        const getSeconds = (formatString = '00:00:00') => {
+        const getSeconds = (formatString = DEFAULT_EMPTY_TIME) => {
             const split = formatString.split(':')
             return Number(split[0]) * 3600 + Number(split[1]) * 60
         }

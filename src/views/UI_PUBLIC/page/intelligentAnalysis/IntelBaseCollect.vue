@@ -22,7 +22,7 @@
                             <div class="text-ellipsis">{{ item.name }}</div>
                             <BaseImgSprite
                                 file="delete"
-                                @click.stop="deleteCollect(index)"
+                                @click="deleteCollect(index)"
                             />
                         </div>
                     </el-dropdown-item>

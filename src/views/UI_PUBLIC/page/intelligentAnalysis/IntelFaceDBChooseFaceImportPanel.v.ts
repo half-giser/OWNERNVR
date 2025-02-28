@@ -3,8 +3,6 @@
  * @Date: 2024-08-30 18:47:22
  * @Description: 智能分析 - 选择人脸 - 从外部导入
  */
-import { type IntelFaceDBImportImgDto, IntelFaceDBImportFaceDto } from '@/types/apiType/intelligentAnalysis'
-
 export default defineComponent({
     props: {
         /**

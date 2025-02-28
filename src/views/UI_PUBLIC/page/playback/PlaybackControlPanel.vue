@@ -7,59 +7,39 @@
     <div class="ctrl">
         <div class="ctrl-btns">
             <!-- 抓拍 -->
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 file="capture"
                 :title="Translate('IDCS_SNAP')"
-                :index="0"
-                :hover-index="1"
-                :disabled-index="3"
-                :chunk="4"
                 :disabled="disabled"
-                @click="snap"
+                @click="$emit('snap')"
             />
             <!-- 关闭图像 -->
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 file="close_chl"
                 :title="Translate('IDCS_CLOSE_IMAGE')"
-                :index="0"
-                :hover-index="1"
-                :disabled-index="3"
-                :chunk="4"
                 :disabled="disabled"
-                @click="closeImg"
+                @click="$emit('closeImg')"
             />
             <!-- 放大 -->
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 file="magnify"
                 :title="Translate('IDCS_ZOOM_IN')"
-                :index="0"
-                :hover-index="1"
-                :disabled-index="3"
                 :disabled
-                :chunk="4"
-                @click="zoomIn"
+                @click="$emit('zoomIn')"
             />
             <!-- 缩小 -->
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 file="minify"
                 :title="Translate('IDCS_ZOOM_OUT')"
-                :index="0"
-                :hover-index="1"
-                :disabled-index="3"
                 :disabled
-                :chunk="4"
-                @click="zoomOut"
+                @click="$emit('zoomOut')"
             />
             <!-- 原始比例 -->
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 :file="winData.original ? 'originalDisplaying' : 'originalDisplay'"
                 :title="Translate('IDCS_ORIGINAL_DISPLAY')"
-                :index="0"
-                :hover-index="1"
-                :disabled-index="3"
-                :chunk="4"
                 :disabled="originalDisplayDisabled"
-                @click="originalDisplay"
+                @click="$emit('originalDisplay', !winData.original)"
             />
         </div>
         <!-- 音量控制 -->
@@ -125,7 +105,6 @@
         display: flex;
         justify-content: center;
         margin: 10px auto;
-        cursor: pointer;
     }
 }
 </style>

@@ -54,12 +54,8 @@
                 />
                 <el-table-column :label="Translate('IDCS_EDIT')">
                     <template #default="{ $index }: TableColumn<ChannelPtzCruisePresetDto>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             file="edit (2)"
-                            :index="2"
-                            :hover-index="0"
-                            :disabled-index="3"
-                            :chunk="4"
                             @click="editPreset($index)"
                         />
                     </template>
@@ -78,12 +74,8 @@
                         </el-dropdown>
                     </template>
                     <template #default="{ $index }: TableColumn<ChannelPtzCruisePresetDto>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             file="del"
-                            :index="2"
-                            :hover-index="0"
-                            :disabled-index="3"
-                            :chunk="4"
                             @click="deletePreset($index)"
                         />
                     </template>

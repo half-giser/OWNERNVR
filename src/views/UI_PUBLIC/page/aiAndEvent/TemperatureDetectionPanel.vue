@@ -90,7 +90,7 @@
                                 highlight-current-row
                                 width="100%"
                                 height="280"
-                                @row-click="boundaryRowClick"
+                                @row-click="changeBoundary"
                             >
                                 <!-- 序号 -->
                                 <el-table-column
@@ -130,7 +130,7 @@
                                         <el-select-v2
                                             v-model="row.ruleType"
                                             :options="ruleShapeTypeList"
-                                            @change="ruleTypeChange(row)"
+                                            @change="changeRuleType(row)"
                                         />
                                     </template>
                                 </el-table-column>
@@ -223,7 +223,7 @@
                 <!-- 联动方式 -->
                 <el-tab-pane
                     :label="Translate('IDCS_LINKAGE_MODE')"
-                    name="linkage"
+                    name="trigger"
                 >
                     <el-form
                         v-if="supportAlarmAudioConfig"

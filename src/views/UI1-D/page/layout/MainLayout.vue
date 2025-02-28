@@ -35,10 +35,9 @@
                             class="icon_aq"
                             file="aq"
                             :title="Translate('IDCS_PLUGIN_DOWNLOAD_INSTRUCTIONS')"
-                            :index="pageData.hoverPluginIconIndex"
+                            :index="1"
+                            :hover-index="2"
                             :chunk="3"
-                            @mouseenter="pageData.hoverPluginIconIndex = 2"
-                            @mouseleave="pageData.hoverPluginIconIndex = 1"
                         />
                     </div>
                     <div class="nav-item">
@@ -68,7 +67,6 @@
                     >
                         <BaseImgSprite
                             file="localCfg"
-                            :index="0"
                             :chunk="4"
                         />
                         <a
@@ -98,7 +96,8 @@
                     >
                         <BaseImgSprite
                             :file="route.meta.icon"
-                            :index="isMenu1Active(route) ? 1 : 0"
+                            :active="isMenu1Active(route)"
+                            :active-index="1"
                             :chunk="2"
                         />
                         {{ Translate(String(route?.meta?.lk)) }}
@@ -213,10 +212,6 @@
     font-size: 14px;
     margin: 0 60px 0 0;
     display: flex;
-
-    .icon_aq {
-        cursor: pointer;
-    }
 
     .effective {
         cursor: pointer;

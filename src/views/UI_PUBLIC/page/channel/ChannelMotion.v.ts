@@ -3,8 +3,6 @@
  * @Date: 2024-10-10 16:03:56
  * @Description: 通道 - 移动侦测配置
  */
-import { ChannelMotionDto } from '@/types/apiType/channel'
-import CanvasMotion from '@/utils/canvas/canvasMotion'
 import { type XMLQuery } from '@/utils/xmlParse'
 import { type TableInstance } from 'element-plus'
 
@@ -24,7 +22,7 @@ export default defineComponent({
         const selectedChlId = ref('')
         const editRows = useWatchEditRows<ChannelMotionDto>()
         const switchOptions = getTranslateOptions(DEFAULT_BOOL_SWITCH_OPTIONS)
-        let motionDrawer: ReturnType<typeof CanvasMotion>
+
         let motionAlarmList: string[] = []
 
         const ready = computed(() => {
@@ -41,6 +39,7 @@ export default defineComponent({
 
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
+        let drawer = CanvasMotion()
 
         const REFRESH_INTERVAL = 3000
         const alarmStatusTimer = useRefreshTimer(() => {
@@ -244,15 +243,16 @@ export default defineComponent({
                             <switch>${rowData.switch}</switch>
                             <sensitivity min='${rowData.sensitivityMinValue}' max='${rowData.sensitivityMaxValue}'>${rowData.sensitivity}</sensitivity>
                             <holdTime unit='s'>${rowData.holdTime}</holdTime>
-                            ${ternary(
-                                rowData.supportSMD,
-                                rawXml`
-                                    <objectFilter>
-                                        ${ternary(rowData.objectFilterCar, `<car><switch>${rowData.objectFilterCar}</switch></car>`)}
-                                        ${ternary(rowData.objectFilterPerson, `<person><switch>${rowData.objectFilterPerson}</switch></person>`)}
-                                    </objectFilter>
-                                `,
-                            )}
+                            ${
+                                rowData.supportSMD
+                                    ? rawXml`
+                                        <objectFilter>
+                                            ${rowData.objectFilterCar ? `<car><switch>${rowData.objectFilterCar}</switch></car>` : ''}
+                                            ${rowData.objectFilterPerson ? `<person><switch>${rowData.objectFilterPerson}</switch></person>` : ''}
+                                        </objectFilter>
+                                    `
+                                    : ''
+                            }
                             <area type='list' count='${rowData.row}'>
                                 <itemType minLen='${rowData.column}' maxLen='${rowData.column}'/>
                                 ${rowData.areaInfo.map((ele) => `<item>${ele}</item>`).join('')}
@@ -301,7 +301,7 @@ export default defineComponent({
             if (rowData.disabled) return
 
             if (mode.value === 'h5') {
-                motionDrawer?.selectAll()
+                drawer.selectAll()
             }
 
             if (mode.value === 'ocx') {
@@ -314,7 +314,7 @@ export default defineComponent({
 
         const handleSelReverse = () => {
             if (mode.value === 'h5') {
-                motionDrawer?.reverse()
+                drawer.reverse()
             }
 
             if (mode.value === 'ocx') {
@@ -327,7 +327,7 @@ export default defineComponent({
 
         const handleClear = () => {
             if (mode.value === 'h5') {
-                motionDrawer?.clear()
+                drawer.clear()
             }
 
             if (mode.value === 'ocx') {
@@ -342,7 +342,7 @@ export default defineComponent({
             const rowData = getRowById(selectedChlId.value)!
             const areaInfo: string[] = (rowData.areaInfo = [])
             if (mode.value === 'h5') {
-                const arr = netArr || motionDrawer!.getArea()
+                const arr = netArr || drawer.getArea()
                 arr.forEach((ele) => {
                     areaInfo.push(ele.join(''))
                 })
@@ -364,8 +364,9 @@ export default defineComponent({
             plugin = playerRef.value!.plugin
 
             if (mode.value === 'h5') {
-                motionDrawer = CanvasMotion({
-                    el: player.getDrawbordCanvas(0),
+                drawer.destroy()
+                drawer = CanvasMotion({
+                    el: player.getDrawbordCanvas(),
                     onchange: motionAreaChange,
                 })
             }
@@ -403,7 +404,7 @@ export default defineComponent({
                 }
 
                 if (mode.value === 'h5') {
-                    motionDrawer?.setOption(motion)
+                    drawer.setOption(motion)
                 }
 
                 if (mode.value === 'ocx') {
@@ -438,9 +439,7 @@ export default defineComponent({
                 plugin.ExecuteCmd(sendXML)
             }
 
-            if (mode.value === 'h5') {
-                motionDrawer?.destroy()
-            }
+            drawer.destroy()
         })
 
         return {

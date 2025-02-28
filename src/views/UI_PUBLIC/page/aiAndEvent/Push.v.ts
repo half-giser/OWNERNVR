@@ -3,7 +3,6 @@
  * @Date: 2024-08-12 15:28:16
  * @Description: AI/事件——事件通知——推送
  */
-import { AlarmPushForm } from '@/types/apiType/aiAndEvent'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 
 export default defineComponent({

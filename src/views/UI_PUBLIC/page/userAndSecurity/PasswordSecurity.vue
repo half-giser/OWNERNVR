@@ -7,8 +7,9 @@
     <div>
         <el-form
             :style="{
-                '--form-input-width': '340px',
+                '--form-input-width': '200px',
             }"
+            class="stripe"
         >
             <el-form-item :label="Translate('IDCS_MINIMUM_PASSWORD_LEVEL')">
                 <el-select-v2

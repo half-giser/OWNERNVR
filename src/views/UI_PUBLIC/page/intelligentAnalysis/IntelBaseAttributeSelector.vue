@@ -15,7 +15,6 @@
                     <div class="text-ellipsis">{{ content }}</div>
                     <BaseImgSprite
                         file="arrow"
-                        :index="0"
                         :chunk="4"
                     />
                 </div>

@@ -4,7 +4,6 @@
  * @Date: 2024-08-05 16:26:27
  */
 import dayjs from 'dayjs'
-import { type RecordParamDto } from '@/types/apiType/record'
 
 export default defineComponent({
     props: {

@@ -3,8 +3,6 @@
  * @Date: 2024-06-18 18:40:47
  * @Description: 密码安全
  */
-import { UserPasswordSecurityForm } from '@/types/apiType/userAndSecurity'
-
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()

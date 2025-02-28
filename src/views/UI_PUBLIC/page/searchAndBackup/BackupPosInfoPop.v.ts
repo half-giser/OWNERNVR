@@ -3,8 +3,6 @@
  * @Date: 2024-08-12 16:13:26
  * @Description: POS信息弹窗
  */
-import { type PlaybackRecLogList } from '@/types/apiType/playback'
-
 export default defineComponent({
     props: {
         /**

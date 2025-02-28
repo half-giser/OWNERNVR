@@ -4,7 +4,6 @@
  * @Description: 黑白名单
  */
 import BlockAndAllowEditPop from './BlockAndAllowEditPop.vue'
-import { UserBlackAllowListForm, UserEditBlackAllowListForm } from '@/types/apiType/userAndSecurity'
 
 export default defineComponent({
     components: {

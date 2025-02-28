@@ -111,36 +111,27 @@
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_EDIT')">
                     <template #default="{ row }: TableColumn<UserAuthGroupList>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             v-show="row.enableEdit"
                             file="edit (2)"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
-                            @click.stop="openEditAuthGroupPop(row)"
+                            @click="openEditAuthGroupPop(row)"
                         />
                     </template>
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_SAVE_AS')">
                     <template #default="{ row }: TableColumn<UserAuthGroupList>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             file="saveas"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
-                            @click.stop="copyAuthGroup(row)"
+                            @click="copyAuthGroup(row)"
                         />
                     </template>
                 </el-table-column>
                 <el-table-column :label="Translate('IDCS_DELETE')">
                     <template #default="{ row }: TableColumn<UserAuthGroupList>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             v-show="!row.isDefault"
                             file="del"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
-                            @click.stop="deleteAuthGroup(row)"
+                            @click="deleteAuthGroup(row)"
                         />
                     </template>
                 </el-table-column>

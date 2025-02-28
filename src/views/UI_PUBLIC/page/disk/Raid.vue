@@ -45,24 +45,17 @@
             </el-table-column>
             <el-table-column :label="Translate('IDCS_REPAIR')">
                 <template #default="{ row, $index }: TableColumn<DiskRaidList>">
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         file="repair"
-                        :index="0"
-                        :hover-index="1"
-                        :disabled-index="3"
                         :disabled="row.raidState !== 'downgrade'"
-                        :chunk="4"
-                        @click="rebuildRaid(row, $index)"
+                        @click="rebuildRaid($index)"
                     />
                 </template>
             </el-table-column>
             <el-table-column :label="Translate('IDCS_DELETE')">
                 <template #default="{ row, $index }: TableColumn<DiskRaidList>">
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         file="del"
-                        :index="0"
-                        :hover-index="1"
-                        :chunk="4"
                         @click="deleteRaid(row, $index)"
                     />
                 </template>

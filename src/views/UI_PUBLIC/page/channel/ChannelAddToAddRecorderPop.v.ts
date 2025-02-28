@@ -3,7 +3,6 @@
  * @Date: 2024-05-29 20:39:11
  * @Description: 添加通道 - 添加录像机通道弹窗
  */
-import { type ChannelAddRecorderDto, type ChannelDefaultPwdDto, ChannelRecorderAddDto, ChannelRecorderDto } from '@/types/apiType/channel'
 import { type TableInstance, type FormRules } from 'element-plus'
 
 export default defineComponent({
@@ -46,7 +45,7 @@ export default defineComponent({
         const eleChlCountDisabled = ref(true)
         const eleBtnTestDisabled = ref(true)
 
-        const DEFAULT_RECORDER_IP = '0.0.0.0'
+        const DEFAULT_RECORDER_IP = DEFAULT_EMPTY_IP
         const DEFAULT_RECORDER_SERVER_PORT = 6036
         const DEFAULT_RECORDER_HTTP_PORT = 80
         const DEFAULT_RECORDER_CHANNEL_COUNT = 8
@@ -78,7 +77,7 @@ export default defineComponent({
                         <version>${props.editItem.version || ''}</version>
                         <httpPort>${formData.value.httpPort}</httpPort>
                         <userName>${formData.value.userName}</userName>
-                        ${formData.value.useDefaultPwd ? '' : '<password' + getSecurityVer() + '><![CDATA[' + AES_encrypt(formData.value.password, userSessionStore.sesionKey) + ']]></password>'}
+                        ${formData.value.useDefaultPwd ? '' : `<password ${getSecurityVer()}>${wrapCDATA(AES_encrypt(formData.value.password, userSessionStore.sesionKey))}</password>`}
                     </condition>
                 `
                 queryRecorder(data).then((res) => {
@@ -91,26 +90,30 @@ export default defineComponent({
                                 message: Translate('IDCS_TEST_SUCCESS'),
                             })
                         }
+
                         formData.value.ip = $('content/ip').text() || DEFAULT_RECORDER_IP
                         formData.value.chkDomain = !!$('content/ip').text()
                         if ($('content/domain').text()) {
-                            const isIp = checkIpV4($('content/domain').text())
-                            if (isIp) formData.value.ip = $('content/domain').text()
+                            const domain = $('content/domain').text()
+                            const isIp = checkIpV4(domain)
                             formData.value.chkDomain = !isIp
-                            formData.value.domain = isIp ? '' : $('content/domain').text()
+                            formData.value.ip = isIp ? domain : formData.value.ip
+                            formData.value.domain = isIp ? '' : domain
                         }
                         formData.value.servePort = $('content/port').text().num()
+
                         const chlCount = $('content/chlList').attr('total').num()
                         if (chlCount > 0) {
                             formData.value.channelCount = chlCount
                         } else {
                             eleChlCountDisabled.value = false
                         }
+
                         const productModel = $('content/productModel').text() || props.editItem.productModel
                         formData.value.recorderList = $('content/chlList/item').map((ele) => {
                             const $item = queryXml(ele.element)
                             const newData = new ChannelRecorderDto()
-                            newData.index = ele.attr('index')
+                            newData.index = ele.attr('index').num()
                             newData.name = $item('name').text()
                             newData.isAdded = $item('isAdded').text().bool()
                             newData.bandWidth = $item('bandWidth').text()
@@ -118,16 +121,17 @@ export default defineComponent({
                             return newData
                         })
                         formData.value.recorderList.sort((a, b) => {
-                            return Number(a.index) - Number(b.index)
+                            return a.index - b.index
                         })
                     } else {
                         const errorCode = $('errorCode').text().num()
                         openMessageBox(errorMap[errorCode] || Translate('IDCS_LOGIN_OVERTIME')).then(() => {
                             const chlCount = formData.value.channelCount
                             formData.value.recorderList = Array(chlCount)
-                                .fill(new ChannelRecorderDto())
-                                .map((item, index) => {
-                                    item.index = (index + 1).toString()
+                                .fill(0)
+                                .map((_, index) => {
+                                    const item = new ChannelRecorderDto()
+                                    item.index = index + 1
                                     item.productModel = props.editItem.productModel
                                     return item
                                 })
@@ -152,7 +156,7 @@ export default defineComponent({
                             }
                         } else {
                             const ip = value.trim()
-                            if (!ip || ip === '0.0.0.0') {
+                            if (!ip || ip === DEFAULT_EMPTY_IP) {
                                 callback(new Error(Translate('IDCS_PROMPT_IPADDRESS_INVALID')))
                                 return
                             }
@@ -165,10 +169,12 @@ export default defineComponent({
         })
 
         const loadNoRecoderData = (chlCount: number) => {
+            console.log('loadNoRecoderData')
             formData.value.recorderList = Array(chlCount)
-                .fill(new ChannelRecorderDto())
-                .map((item, index) => {
-                    item.index = (index + 1).toString()
+                .fill(0)
+                .map((_, index) => {
+                    const item = new ChannelRecorderDto()
+                    item.index = index + 1
                     return item
                 })
         }
@@ -176,10 +182,10 @@ export default defineComponent({
         const getTestData = () => {
             const sendXml = rawXml`
                 <content>
-                    ${ternary(formData.value.chkDomain, `<domain>${wrapCDATA(formData.value.domain)}</domain>`, `<ip>${formData.value.ip}</ip>`)}
+                    ${formData.value.chkDomain ? `<domain>${wrapCDATA(formData.value.domain)}</domain>` : `<ip>${formData.value.ip}</ip>`}
                     <port>${formData.value.servePort ? formData.value.servePort : ''}</port>
                     <userName>${formData.value.userName}</userName>
-                    ${ternary(!props.editItem.ip || (props.editItem.ip && !formData.value.useDefaultPwd), `<password${getSecurityVer()}><![CDATA[${AES_encrypt(formData.value.password, userSessionStore.sesionKey)}]]></password>`)}
+                    ${!props.editItem.ip || (props.editItem.ip && !formData.value.useDefaultPwd) ? `<password${getSecurityVer()}>${wrapCDATA(AES_encrypt(formData.value.password, userSessionStore.sesionKey))}</password>` : ''}
                 </content>
             `
             return sendXml
@@ -213,7 +219,7 @@ export default defineComponent({
         const setData = () => {
             formRef.value!.validate((valid) => {
                 if (valid) {
-                    getChlList({}).then((res) => {
+                    getChlList().then((res) => {
                         closeLoading()
                         commLoadResponseHandler(res, () => {
                             const $ = queryXml(res)
@@ -235,36 +241,43 @@ export default defineComponent({
                                     })
                                 } else {
                                     const errorCdoe = $('errorCode').text().num()
-                                    if (errorCdoe === ErrorCode.USER_ERROR_NODE_ID_EXISTS) {
-                                        openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_CAMERA_EXISTED'))
-                                    } else if (errorCdoe === ErrorCode.USER_ERROR_OVER_LIMIT) {
-                                        openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT')).then(() => {
-                                            emit('close')
-                                        })
-                                    } else if (errorCdoe === ErrorCode.USER_ERROR_OVER_BANDWIDTH_LIMIT) {
-                                        openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_BANDWIDTH_LIMIT'))
-                                    } else if (errorCdoe === ErrorCode.USER_ERROR_SPECIAL_CHAR) {
-                                        const poePort = $('poePort').text()
-                                        // POE连接冲突提示
-                                        openMessageBox(Translate('IDCS_POE_RESOURCE_CONFLICT_TIP').formatForLang(poePort))
-                                    } else if (errorCdoe === ErrorCode.USER_ERROR_LIMITED_PLATFORM_TYPE_MISMATCH) {
-                                        openMessageBox(Translate('IDCS_ADD_CHANNEL_FAIL').formatForLang(props.faceMatchLimitMaxChlNum))
-                                    } else if (errorCdoe === ErrorCode.USER_ERROR_PC_LICENSE_MISMATCH) {
-                                        const msg =
-                                            Translate('IDCS_ADD_CHANNEL_FAIL').formatForLang(props.faceMatchLimitMaxChlNum) + Translate('IDCS_REBOOT_DEVICE').formatForLang(Translate('IDCS_KEEP_ADD'))
-                                        openMessageBox({
-                                            type: 'question',
-                                            message: msg,
-                                        }).then(() => {
-                                            const sendXml = rawXml`
-                                                <content>
-                                                    <AISwitch>false</AISwitch>
-                                                </content>
-                                            `
-                                            editBasicCfg(sendXml)
-                                        })
-                                    } else {
-                                        openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
+                                    switch (errorCdoe) {
+                                        case ErrorCode.USER_ERROR_NODE_ID_EXISTS:
+                                            openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_CAMERA_EXISTED'))
+                                            break
+                                        case ErrorCode.USER_ERROR_OVER_LIMIT:
+                                            openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT')).then(() => {
+                                                emit('close')
+                                            })
+                                            break
+                                        case ErrorCode.USER_ERROR_OVER_BANDWIDTH_LIMIT:
+                                            openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_BANDWIDTH_LIMIT'))
+                                            break
+                                        case ErrorCode.USER_ERROR_SPECIAL_CHAR:
+                                            // POE连接冲突提示
+                                            openMessageBox(Translate('IDCS_POE_RESOURCE_CONFLICT_TIP').formatForLang($('poePort').text()))
+                                            break
+                                        case ErrorCode.USER_ERROR_LIMITED_PLATFORM_TYPE_MISMATCH:
+                                            openMessageBox(Translate('IDCS_ADD_CHANNEL_FAIL').formatForLang(props.faceMatchLimitMaxChlNum))
+                                            break
+                                        case ErrorCode.USER_ERROR_PC_LICENSE_MISMATCH:
+                                            openMessageBox({
+                                                type: 'question',
+                                                message:
+                                                    Translate('IDCS_ADD_CHANNEL_FAIL').formatForLang(props.faceMatchLimitMaxChlNum) +
+                                                    Translate('IDCS_REBOOT_DEVICE').formatForLang(Translate('IDCS_KEEP_ADD')),
+                                            }).then(() => {
+                                                const sendXml = rawXml`
+                                                    <content>
+                                                        <AISwitch>false</AISwitch>
+                                                    </content>
+                                                `
+                                                editBasicCfg(sendXml)
+                                            })
+                                            break
+                                        default:
+                                            openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
+                                            break
                                     }
                                 }
                             })
@@ -304,15 +317,15 @@ export default defineComponent({
                             return rawXml`
                                 <item>
                                     <name maxByteLen="63">${wrapCDATA(ele.name || defalutNamePrefix + ele.index)}</name>
-                                    ${ternary(formData.value.chkDomain, `<domain>${wrapCDATA(formData.value.domain)}</domain>`, `<ip>${formData.value.ip}</ip>`)}
+                                    ${formData.value.chkDomain ? `<domain>${wrapCDATA(formData.value.domain)}</domain>` : `<ip>${formData.value.ip}</ip>`}
                                     <port>${formData.value.servePort}</port>
                                     <userName>${formData.value.userName}</userName>
-                                    ${ternary(!props.editItem.ip || (props.editItem.ip && !formData.value.useDefaultPwd), `<password${getSecurityVer()}><![CDATA[${AES_encrypt(formData.value.password, userSessionStore.sesionKey)}]]></password>`)}
-                                    <index>${Number(ele.index) - 1}</index>
+                                    ${!props.editItem.ip || (props.editItem.ip && !formData.value.useDefaultPwd) ? `<password${getSecurityVer()}>${wrapCDATA(AES_encrypt(formData.value.password, userSessionStore.sesionKey))}</password>` : ''}
+                                    <index>${ele.index - 1}</index>
                                     <manufacturer>RECORDER</manufacturer>
                                     <protocolType>RECORDER</protocolType>
                                     <productModel factoryName='Customer'>${ele.productModel}</productModel>
-                                    ${ternary(ele.bandWidth, `<bandWidth>${ele.bandWidth}</bandWidth>`)}
+                                    ${ele.bandWidth ? `<bandWidth>${ele.bandWidth}</bandWidth>` : ''}
                                     <rec per='5' post='10'/>
                                     <snapSwitch>false</snapSwitch>
                                     <buzzerSwitch>false</buzzerSwitch>

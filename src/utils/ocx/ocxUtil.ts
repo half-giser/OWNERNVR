@@ -784,23 +784,30 @@ export const OCX_Plugin_Load_Lang: Record<string, Record<string, string>> = {
 }
 
 // AI事件类型映射（AI事件中插件绘制需要使用此类型）
-export const AIEventTypeMap = {
-    TYPE_NULL: 0,
-    TYPE_MOTION: 1, // 移动侦测区域
-    TYPE_OSD_TIME: 2, // 画osd位置
-    TYPE_VIDEO_BLOCK: 3, // 画视频遮挡区域
-    TYPE_WATCH_DETECTION: 4, // 画物品看护
-    TYPE_PEA_DETECTION: 5, // 画区域入侵
-    TYPE_TRIPWIRE_LINE: 6, // 越界侦测
-    TYPE_LOGO: 7, // 画Logo位置
-    TYPE_WATER_MASK: 8, // 画水印
-    TYPE_VFD_BLOCK: 9, // 画人脸识别区域
-    TYPE_CDD_BLOCK: 10, // 画人群密度区域
-    TYPE_CPC_BLOCK: 11, // 画人数统计区域
-    TYPE_POSRGB_SET: 12, //pos颜色配置界面
-    TYPE_VSD: 13, //视频结构化
-    TYPE_PLATE_DETECTION: 14, // 车牌侦测
-}
+export const OCX_AI_EVENT_TYPE_NULL = 0
+export const OCX_AI_EVENT_TYPE_MOTION = 1 // 移动侦测区域
+export const OCX_AI_EVENT_TYPE_OSD_TIME = 2 // 画osd位置
+export const OCX_AI_EVENT_TYPE_VIDEO_BLOCK = 3 // 画视频遮挡区域
+export const OCX_AI_EVENT_TYPE_WATCH_DETECTION = 4 // 画物品看护
+export const OCX_AI_EVENT_TYPE_PEA_DETECTION = 5 // 画区域入侵
+export const OCX_AI_EVENT_TYPE_TRIPWIRE_LINE = 6 // 越界侦测
+export const OCX_AI_EVENT_TYPE_LOGO = 7 // 画Logo位置
+export const OCX_AI_EVENT_TYPE_WATER_MASK = 8 // 画水印
+export const OCX_AI_EVENT_TYPE_VFD_BLOCK = 9 // 画人脸识别区域
+export const OCX_AI_EVENT_TYPE_CDD_BLOCK = 10 // 画人群密度区域
+export const OCX_AI_EVENT_TYPE_CPC_BLOCK = 11 // 画人数统计区域
+export const OCX_AI_EVENT_TYPE_POSRGB_SET = 12 //pos颜色配置界面
+export const OCX_AI_EVENT_TYPE_VSD = 13 //视频结构化
+export const OCX_AI_EVENT_TYPE_PLATE_DETECTION = 14 // 车牌侦测
+
+// export const TIMESLIDER_PLUGIN = 'TimeSlider'
+// export const VIDEO_PLUGIN = 'VideoPlugin'
+
+// 设备P2P访问方式
+export const P2P_ACCESS_TYPE_SMALL_PLUGIN = 'p2pSmallPlugin' // 区分由P2P登录页跳转小插件查询版本号后再进行跳转登录
+export const P2P_ACCESS_TYPE_LARGE_PLUGIN = 'p2pLargePlugin' // 区分由P2P登录页直接进行跳转大插件登录
+export const P2P_ACCESS_TYPE_USERNAME_LOGIN = 'UserName' // 设备P2P访问方式为：用户名+密码+SN
+export const P2P_ACCESS_TYPE_AUTHCODE_LOGIN = 'AuthCode' // 设备P2P访问方式为：授权码+SN
 
 export const OCX_Plugin_Notice_Map = {
     IDCS_PLUGIN_VERSION_UPDATE: {
@@ -853,16 +860,6 @@ export const OCX_Plugin_Notice_Map = {
     // },
 }
 
-// export const TIMESLIDER_PLUGIN = 'TimeSlider'
-// export const VIDEO_PLUGIN = 'VideoPlugin'
-
-export const P2PACCESSTYPE = {
-    P2P_SMALL_PLUGIN: 'p2pSmallPlugin', // 区分由P2P登录页跳转小插件查询版本号后再进行跳转登录
-    P2P_LARGE_PLUGIN: 'p2pLargePlugin', // 区分由P2P登录页直接进行跳转大插件登录
-    P2P_USERNAME_LOGIN: 'UserName', // 设备P2P访问方式为：用户名+密码+SN
-    P2P_AUTHCODE_LOGIN: 'AuthCode', // 设备P2P访问方式为：授权码+SN
-}
-
 export const getPluginPath = () => {
     let _ClientPluDownLoadPath = ClientPluDownLoadPath
     let _P2PClientPluDownLoadPath = P2PClientPluDownLoadPath
@@ -893,18 +890,4 @@ export const getPluginPath = () => {
         P2PClientPluVer: _P2PClientPluVer,
         ClientPluVer: _ClientPluVer,
     }
-}
-
-export type PluginSizeMode = 'relativeToScreen' | 'relativeToDom' | 'relativeToBrowser' | 'absolute'
-
-// 浏览器类型与插件尺寸定位模式关系映射
-export const PluginSizeModeMapping: Record<BrowserType, PluginSizeMode> = {
-    ie: 'relativeToScreen',
-    lowEdge: 'relativeToScreen', // relativeToScreen：显示器左上角为0,0
-    firefox: 'relativeToBrowser', // relativeToBrowser: 浏览器左上角为0, 0;
-    unknow: 'relativeToDom', // relativeToDom：文档流里左上角为0, 0;
-    opera: 'relativeToDom',
-    edge: 'relativeToDom',
-    chrome: 'relativeToDom',
-    safari: 'relativeToDom',
 }

@@ -7,7 +7,7 @@
     <div>
         <el-form
             :style="{
-                '--form-input-width': '250px',
+                '--form-input-width': '200px',
                 '--form-label-width': '100px',
             }"
         >
@@ -53,7 +53,7 @@
         </el-form>
         <el-form
             :style="{
-                '--form-input-width': '250px',
+                '--form-input-width': '200px',
                 '--form-label-width': '100px',
             }"
         >

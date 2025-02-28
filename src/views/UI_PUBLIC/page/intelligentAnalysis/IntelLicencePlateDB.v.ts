@@ -4,7 +4,6 @@
  * @Description: 车牌库
  */
 import { type TableInstance } from 'element-plus'
-import { IntelPlateDBGroupList, IntelPlateDBPlateInfo } from '@/types/apiType/intelligentAnalysis'
 import IntelLicencePlateDBEditPop from './IntelLicencePlateDBEditPop.vue'
 import IntelLicencePlateDBExportPop from './IntelLicencePlateDBExportPop.vue'
 import IntelLicencePlateDBAddPlatePop from './IntelLicencePlateDBAddPlatePop.vue'
@@ -343,7 +342,7 @@ export default defineComponent({
                 <pageSize>${formData.value.pageSize}</pageSize>
                 <condition>
                     <groupId>${groupId}</groupId>
-                    ${ternary(!!formData.value.name, `<plateInfoKeyword>${wrapCDATA(formData.value.name)}</plateInfoKeyword>`)}
+                    ${formData.value.name ? `<plateInfoKeyword>${wrapCDATA(formData.value.name)}</plateInfoKeyword>` : ''}
                 </condition>
             `
             const result = await queryPlateNumber(sendXml)

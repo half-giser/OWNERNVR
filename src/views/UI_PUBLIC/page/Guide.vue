@@ -171,26 +171,18 @@
                             />
                         </el-form-item>
                         <el-form-item :label="Translate('IDCS_NEW_PASSWORD')">
-                            <el-input
+                            <BasePasswordInput
                                 v-model="userFormData.password"
-                                type="password"
-                                autocomplete="new-password"
                                 maxlength="16"
-                                @paste.capture.prevent=""
-                                @copy.capture.prevent=""
                             />
                         </el-form-item>
                         <el-form-item>
                             <BasePasswordStrength :strength="passwordStrength" />
                         </el-form-item>
                         <el-form-item :label="Translate('IDCS_CONFIRM_NEW_PASSWORD')">
-                            <el-input
+                            <BasePasswordInput
                                 v-model="userFormData.confirmPassword"
-                                type="password"
-                                autocomplete="new-password"
                                 maxlength="16"
-                                @paste.capture.prevent=""
-                                @copy.capture.prevent=""
                             />
                         </el-form-item>
                         <el-form-item>
@@ -261,12 +253,8 @@
                                 :label="Translate('IDCS_DELETE')"
                             >
                                 <template #default="{ $index }: TableColumn<SystemGuideQuestionForm>">
-                                    <BaseImgSprite
+                                    <BaseImgSpriteBtn
                                         file="del"
-                                        :chunk="4"
-                                        :index="0"
-                                        :hover-index="1"
-                                        :active-index="1"
                                         @click="deleteQuestion($index)"
                                     />
                                 </template>

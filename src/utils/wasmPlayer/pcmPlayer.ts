@@ -21,7 +21,7 @@ export interface PCMPlayerOption {
     volume: number // pcm初始化音量（0-1）
 }
 
-export default function PCMPlayer(options: PCMPlayerOption) {
+export const PCMPlayer = (options: PCMPlayerOption) => {
     const CACHE_BUFFER_NUM = 4000 // 缓存的buffer数量
     const encodings: Record<PCMPlayerOptionEncoding, number> = {
         '8bitInt': 128,

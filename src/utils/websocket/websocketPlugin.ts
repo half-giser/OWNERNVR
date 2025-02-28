@@ -25,7 +25,7 @@ export interface WebSocketPluginOption {
  *    @property {Function} onerror   ws错误回调
  *    @property {Function} onclose   ws关闭回调
  */
-export default function WebsocketPlugin(option: WebSocketPluginOption) {
+export const WebsocketPlugin = (option: WebSocketPluginOption) => {
     const logInfoMapping = {
         pluginMainProcess: {
             openTip: 'ocx 2.0 main process websocket success',

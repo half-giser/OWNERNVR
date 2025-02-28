@@ -4,19 +4,17 @@
  * @Description: 人数统计画线：可拖动单箭头 + 可拖动矩形框
  */
 
-import CanvasBase, { type CanvasBaseLineStyleOption, type CanvasBaseArea } from './canvasBase'
-
 interface CanvasCpcOption {
-    el: HTMLCanvasElement
+    el?: HTMLCanvasElement
     regionlineStyle?: CanvasBaseLineStyleOption
     arrowlineStyle?: CanvasBaseLineStyleOption
-    enable: boolean
+    enable?: boolean
     regionInfo?: Partial<CanvasBaseArea>
     arrowlineInfo?: Partial<CanvasBaseArea>
     onchange?: (regionInfo: CanvasBaseArea, arrowlineInfo: CanvasBaseArea) => void
 }
 
-export default function CanvasCpc(option: CanvasCpcOption) {
+export const CanvasCpc = (option: CanvasCpcOption = {}) => {
     const DEFAULT_REGION_LINE_COLOR = '#0f0' // 区域画线默认色值
     const DEFAULT_ARROW_LINE_COLOR = '#f00' // 箭头默认色值
     // const DEFAULT_TEXT_COLOR = '#f00' // 文字默认色值
@@ -35,7 +33,6 @@ export default function CanvasCpc(option: CanvasCpcOption) {
         Y2: 0,
     }
 
-    // const el = option.el
     const regionlineStyle = {
         strokeStyle: DEFAULT_REGION_LINE_COLOR,
         lineWidth: 1.5,
@@ -46,7 +43,7 @@ export default function CanvasCpc(option: CanvasCpcOption) {
         lineWidth: 1.5,
         ...(option.arrowlineStyle || {}),
     }
-    let enable = option.enable
+    let enable = option.enable || false
     let regionInfo = {
         ...DEFAULT_REGION_INFO,
         ...(option.regionInfo || {}),
@@ -60,7 +57,6 @@ export default function CanvasCpc(option: CanvasCpcOption) {
     const cavWidth = canvas.width // 画布宽
     const cavHeight = canvas.height // 画布高
     const onchange = option.onchange
-    let onMouseDown: undefined | ((e: MouseEvent) => void) = undefined
 
     /**
      * @description 根据数据绘制区域
@@ -142,6 +138,118 @@ export default function CanvasCpc(option: CanvasCpcOption) {
         }
     }
 
+    const onMouseDown = (e: MouseEvent) => {
+        if (!enable) return
+        const lineX1 = arrowlineInfo.X1
+        const lineY1 = arrowlineInfo.Y1
+        const lineX2 = arrowlineInfo.X2
+        const lineY2 = arrowlineInfo.Y2
+        const regionX1 = regionInfo.X1
+        const regionY1 = regionInfo.Y1
+        const regionX2 = regionInfo.X2
+        const regionY2 = regionInfo.Y2
+        const lineInfo = getRealItemByRelative(arrowlineInfo)
+        const region = getRealItemByRelative(regionInfo)
+        const lineStartX = Math.min(lineInfo.X1, lineInfo.X2) // 箭头线所在矩形区域左上角坐标X
+        const lineStartY = Math.min(lineInfo.Y1, lineInfo.Y2) // 箭头线所在矩形区域左上角坐标Y
+        const regionStartX = Math.min(region.X1, region.X2) // 矩形框左上角坐标
+        const regionStartY = Math.min(region.Y1, region.Y2)
+        const lineWidth = Math.abs(lineInfo.X1 - lineInfo.X2) // 箭头线所在矩形区域宽
+        const lineHeight = Math.abs(lineInfo.Y1 - lineInfo.Y2) // 箭头线所在矩形区域高
+        const regionWidth = Math.abs(region.X1 - region.X2)
+        const regionHeight = Math.abs(region.Y1 - region.Y2)
+        const isDragMode = region.X1 || region.X2 || region.Y1 || region.Y2
+        const startX = e.offsetX
+        const startY = e.offsetY
+        const clientX = e.clientX
+        const clientY = e.clientY
+        const OFFSET = 10
+        let isMovePoint = false
+        let isMoveArrow = false
+        let isMoveLine = false
+        let isMoveRegion = false
+        if (isDragMode) {
+            const lineInfo = getRealItemByRelative(arrowlineInfo)
+            const areaPoint = getPointArea(lineInfo.X2, lineInfo.Y2, OFFSET)
+            const arrowPoint = getPointArea(lineInfo.X1, lineInfo.Y1, OFFSET)
+
+            // 落点在箭头线没有箭头的端点
+            if (ctx.IsInRect(startX, startY, areaPoint.x, areaPoint.y, areaPoint.width, areaPoint.height)) {
+                isMovePoint = true
+            }
+            // 落点在箭头线有箭头的端点
+            else if (ctx.IsInRect(startX, startY, arrowPoint.x, arrowPoint.y, arrowPoint.width, arrowPoint.height)) {
+                isMoveArrow = true
+            }
+            // 落点在箭头线上
+            else if (ctx.GetVerticalDistance({ X: lineInfo.X1, Y: lineInfo.Y1 }, { X: lineInfo.X2, Y: lineInfo.Y2 }, { X: startX, Y: startY }) <= OFFSET) {
+                isMoveLine = true
+            }
+            // 落点在矩形框范围
+            else if (ctx.IsInRect(startX, startY, region.X1, region.Y1, regionWidth, regionHeight)) {
+                isMoveRegion = true
+            }
+            //
+            else {
+                return
+            }
+        }
+        let endX: number
+        let endY: number
+        document.body.style.setProperty('user-select', 'none')
+
+        const onMouseMove = (e1: MouseEvent) => {
+            endX = clamp(e1.clientX - clientX + startX, 0, cavWidth)
+            endY = clamp(e1.clientY - clientY + startY, 0, cavHeight)
+            if (isDragMode) {
+                if (isMovePoint) {
+                    arrowlineInfo.X2 = getRelativeSizeByReal(endX, 'x')
+                    arrowlineInfo.Y2 = getRelativeSizeByReal(endY, 'y')
+                } else if (isMoveArrow) {
+                    arrowlineInfo.X1 = getRelativeSizeByReal(endX, 'x')
+                    arrowlineInfo.Y1 = getRelativeSizeByReal(endY, 'y')
+                } else if (isMoveLine) {
+                    const newStartX = clamp(lineStartX + endX - startX, 0, cavWidth - lineWidth)
+                    const newStartY = clamp(lineStartY + endY - startY, 0, cavHeight - lineHeight)
+                    const offsetX = getRelativeSizeByReal(newStartX - lineStartX, 'x')
+                    const offsetY = getRelativeSizeByReal(newStartY - lineStartY, 'y')
+                    arrowlineInfo.X1 = offsetX + lineX1
+                    arrowlineInfo.Y1 = offsetY + lineY1
+                    arrowlineInfo.X2 = offsetX + lineX2
+                    arrowlineInfo.Y2 = offsetY + lineY2
+                } else if (isMoveRegion) {
+                    const newStartX = clamp(regionStartX + endX - startX, 0, cavWidth - regionWidth)
+                    const newStartY = clamp(regionStartY + endY - startY, 0, cavHeight - regionHeight)
+                    const offsetX = getRelativeSizeByReal(newStartX - regionStartX, 'x')
+                    const offsetY = getRelativeSizeByReal(newStartY - regionStartY, 'y')
+                    regionInfo.X1 = offsetX + regionX1
+                    regionInfo.Y1 = offsetY + regionY1
+                    regionInfo.X2 = offsetX + regionX2
+                    regionInfo.Y2 = offsetY + regionY2
+                }
+            } else {
+                // 非拖动模式，则绘制新的矩形区域
+                regionInfo = getRelativeItemByReal({
+                    X1: startX,
+                    Y1: startY,
+                    X2: endX,
+                    Y2: endY,
+                })
+            }
+            init()
+        }
+
+        const onMouseUp = () => {
+            onchange && onchange(regionInfo, arrowlineInfo)
+            document.removeEventListener('mousemove', onMouseMove)
+            document.removeEventListener('mouseup', onMouseUp)
+            document.body.style.setProperty('user-select', 'unset')
+        }
+
+        document.addEventListener('mousemove', onMouseMove)
+        document.addEventListener('mouseup', onMouseUp)
+    }
+
     /**
      * @description 绑定事件
      * 画布禁用或者已有矩形框时，不允许绘制只能进行拖动
@@ -152,120 +260,6 @@ export default function CanvasCpc(option: CanvasCpcOption) {
      * (4) 如果以上都不满足，则不进行任何交互
      */
     const bindEvent = () => {
-        if (!onMouseDown) {
-            onMouseDown = (e: MouseEvent) => {
-                if (!enable) return
-                const lineX1 = arrowlineInfo.X1,
-                    lineY1 = arrowlineInfo.Y1
-                const lineX2 = arrowlineInfo.X2,
-                    lineY2 = arrowlineInfo.Y2
-                const regionX1 = regionInfo.X1,
-                    regionY1 = regionInfo.Y1
-                const regionX2 = regionInfo.X2,
-                    regionY2 = regionInfo.Y2
-                const lineInfo = getRealItemByRelative(arrowlineInfo)
-                const region = getRealItemByRelative(regionInfo)
-                const lineStartX = lineInfo.X1 < lineInfo.X2 ? lineInfo.X1 : lineInfo.X2 // 箭头线所在矩形区域左上角坐标X
-                const lineStartY = lineInfo.Y1 < lineInfo.Y2 ? lineInfo.Y1 : lineInfo.Y2 // 箭头线所在矩形区域左上角坐标Y
-                const regionStartX = region.X1 < region.X2 ? region.X1 : region.X2 // 矩形框左上角坐标
-                const regionStartY = region.Y1 < region.Y2 ? region.Y1 : region.Y2
-                const lineWidth = Math.abs(lineInfo.X1 - lineInfo.X2) // 箭头线所在矩形区域宽
-                const lineHeight = Math.abs(lineInfo.Y1 - lineInfo.Y2) // 箭头线所在矩形区域高
-                const regionWidth = Math.abs(region.X1 - region.X2)
-                const regionHeight = Math.abs(region.Y1 - region.Y2)
-                const isDragMode = region.X1 || region.X2 || region.Y1 || region.Y2
-                const startX = e.offsetX,
-                    startY = e.offsetY
-                const clientX = e.clientX,
-                    clientY = e.clientY
-                let isMovePoint = false,
-                    isMoveArrow = false,
-                    isMoveLine = false,
-                    isMoveRegion = false
-                const OFFSET = 10
-                if (isDragMode) {
-                    const lineInfo = getRealItemByRelative(arrowlineInfo)
-                    const areaPoint = getPointArea(lineInfo.X2, lineInfo.Y2, OFFSET)
-                    const arrowPoint = getPointArea(lineInfo.X1, lineInfo.Y1, OFFSET)
-                    if (ctx.IsInRect(startX, startY, areaPoint.x, areaPoint.y, areaPoint.width, areaPoint.height)) {
-                        isMovePoint = true // 落点在箭头线没有箭头的端点
-                    } else if (ctx.IsInRect(startX, startY, arrowPoint.x, arrowPoint.y, arrowPoint.width, arrowPoint.height)) {
-                        isMoveArrow = true // 落点在箭头线有箭头的端点
-                    } else if (ctx.GetVerticalDistance({ X: lineInfo.X1, Y: lineInfo.Y1 }, { X: lineInfo.X2, Y: lineInfo.Y2 }, { X: startX, Y: startY }) <= OFFSET) {
-                        isMoveLine = true // 落点在箭头线上
-                    } else if (ctx.IsInRect(startX, startY, region.X1, region.Y1, regionWidth, regionHeight)) {
-                        isMoveRegion = true // 落点在矩形框范围
-                    } else {
-                        return
-                    }
-                }
-                let endX: number
-                let endY: number
-                document.body.style.setProperty('user-select', 'none')
-                const onMouseMove = (e1: MouseEvent) => {
-                    endX = e1.clientX - clientX + startX
-                    endY = e1.clientY - clientY + startY
-                    if (endX < 0) endX = 0
-                    if (endX > cavWidth) endX = cavWidth
-                    if (endY < 0) endY = 0
-                    if (endY > cavHeight) endY = cavHeight
-                    if (isDragMode) {
-                        if (isMovePoint) {
-                            arrowlineInfo.X2 = getRelativeSizeByReal(endX, 'x')
-                            arrowlineInfo.Y2 = getRelativeSizeByReal(endY, 'y')
-                        } else if (isMoveArrow) {
-                            arrowlineInfo.X1 = getRelativeSizeByReal(endX, 'x')
-                            arrowlineInfo.Y1 = getRelativeSizeByReal(endY, 'y')
-                        } else if (isMoveLine) {
-                            let newStartX = lineStartX + endX - startX
-                            let newStartY = lineStartY + endY - startY
-                            if (newStartX <= 0) newStartX = 0
-                            if (newStartX + lineWidth >= cavWidth) newStartX = cavWidth - lineWidth
-                            if (newStartY <= 0) newStartY = 0
-                            if (newStartY + lineHeight >= cavHeight) newStartY = cavHeight - lineHeight
-                            const offsetX = getRelativeSizeByReal(newStartX - lineStartX, 'x')
-                            const offsetY = getRelativeSizeByReal(newStartY - lineStartY, 'y')
-                            arrowlineInfo.X1 = offsetX + lineX1
-                            arrowlineInfo.Y1 = offsetY + lineY1
-                            arrowlineInfo.X2 = offsetX + lineX2
-                            arrowlineInfo.Y2 = offsetY + lineY2
-                        } else if (isMoveRegion) {
-                            let newStartX = regionStartX + endX - startX
-                            let newStartY = regionStartY + endY - startY
-                            if (newStartX <= 0) newStartX = 0
-                            if (newStartX + regionWidth >= cavWidth) newStartX = cavWidth - regionWidth
-                            if (newStartY <= 0) newStartY = 0
-                            if (newStartY + regionHeight >= cavHeight) newStartY = cavHeight - regionHeight
-                            const offsetX = getRelativeSizeByReal(newStartX - regionStartX, 'x')
-                            const offsetY = getRelativeSizeByReal(newStartY - regionStartY, 'y')
-                            regionInfo.X1 = offsetX + regionX1
-                            regionInfo.Y1 = offsetY + regionY1
-                            regionInfo.X2 = offsetX + regionX2
-                            regionInfo.Y2 = offsetY + regionY2
-                        }
-                    } else {
-                        // 非拖动模式，则绘制新的矩形区域
-                        regionInfo = getRelativeItemByReal({
-                            X1: startX,
-                            Y1: startY,
-                            X2: endX,
-                            Y2: endY,
-                        })
-                    }
-                    init()
-                }
-
-                const onMouseUp = () => {
-                    onchange && onchange(regionInfo, arrowlineInfo)
-                    document.removeEventListener('mousemove', onMouseMove)
-                    document.removeEventListener('mouseup', onMouseUp)
-                    document.body.style.setProperty('user-select', 'unset')
-                }
-
-                document.addEventListener('mousemove', onMouseMove)
-                document.addEventListener('mouseup', onMouseUp)
-            }
-        }
         canvas.removeEventListener('mousedown', onMouseDown)
         canvas.addEventListener('mousedown', onMouseDown)
     }
@@ -274,9 +268,7 @@ export default function CanvasCpc(option: CanvasCpcOption) {
      * @description 组件生命周期结束时执行
      */
     const destroy = () => {
-        if (onMouseDown) {
-            canvas.removeEventListener('mousedown', onMouseDown)
-        }
+        canvas.removeEventListener('mousedown', onMouseDown)
     }
 
     /**

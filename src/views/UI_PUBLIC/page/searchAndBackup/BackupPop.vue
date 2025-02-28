@@ -48,11 +48,7 @@
                     class="path-btn"
                     @click="openFolder"
                 >
-                    <BaseImgSprite
-                        file="filechooser"
-                        :index="1"
-                        :chunk="4"
-                    />
+                    <BaseImgSpriteBtn file="filechooser" />
                 </el-button>
             </el-form-item>
             <el-form-item v-show="formData.destination === 'local'">

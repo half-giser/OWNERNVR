@@ -156,8 +156,18 @@ export default defineConfig(({ mode }) => {
                     './src/stores',
                     './src/utils',
                     './src/utils/ocx',
-                    './src/utils/websocket',
-                    './src/utils/canvas',
+                    {
+                        glob: './src/utils/websocket',
+                        types: true,
+                    },
+                    {
+                        glob: './src/utils/canvas',
+                        types: true,
+                    },
+                    {
+                        glob: './src/utils/wasmPlayer',
+                        types: true,
+                    },
                     './src/components/*.vue',
                     './src/components/**/*.vue',
                     {
@@ -227,7 +237,12 @@ export default defineConfig(({ mode }) => {
                 output: {
                     chunkFileNames: split[0] === 'dev' ? '[name].[hash].js' : '[hash].js',
                     entryFileNames: split[0] === 'dev' ? '[name].[hash].js' : '[hash].js',
-                    assetFileNames: '[name].[ext]',
+                    assetFileNames: (assetInfo) => {
+                        if (assetInfo.names && assetInfo.names.some((item) => item.endsWith('.css'))) {
+                            return '[hash].[ext]'
+                        }
+                        return '[name].[ext]'
+                    },
                     manualChunks,
                 },
             },

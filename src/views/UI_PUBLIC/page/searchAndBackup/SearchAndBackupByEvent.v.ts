@@ -4,11 +4,9 @@
  * @Description: 按事件搜索
  */
 import dayjs from 'dayjs'
-import { type PlaybackChlList, type PlaybackBackUpRecList, PlaybackRecLogList } from '@/types/apiType/playback'
 import BackupPop from '../searchAndBackup/BackupPop.vue'
 import BackupLocalPop from '../searchAndBackup/BackupLocalPop.vue'
 import { type TableInstance } from 'element-plus'
-import { type PlaybackPopList } from '@/components/player/BasePlaybackPop.vue'
 import BackupPosInfoPop from './BackupPosInfoPop.vue'
 
 export default defineComponent({

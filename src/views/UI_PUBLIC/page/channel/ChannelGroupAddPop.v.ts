@@ -4,6 +4,7 @@
  * @Description: 新增通道组弹窗
  */
 import ChannelGroupAdd from './ChannelGroupAdd.vue'
+
 export default defineComponent({
     components: {
         ChannelGroupAdd,

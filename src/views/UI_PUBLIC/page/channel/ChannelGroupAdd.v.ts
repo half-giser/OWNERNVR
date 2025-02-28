@@ -3,7 +3,6 @@
  * @Date: 2024-06-19 09:52:27
  * @Description: 新增通道组
  */
-import { ChannelInfoDto, ChannelGroupDto } from '@/types/apiType/channel'
 import type { TableInstance, FormRules } from 'element-plus'
 
 export default defineComponent({
@@ -98,7 +97,7 @@ export default defineComponent({
             const selection = tableRef.value!.getSelectionRows() as ChannelInfoDto[]
             const sendXml = rawXml`
                 <content>
-                    <name><![CDATA[${formData.value.name}]]></name>
+                    <name>${wrapCDATA(formData.value.name)}</name>
                     <dwellTime unit='s'>${formData.value.dwellTime}</dwellTime>
                     <chlIdList type='list'>
                         ${selection.map((ele) => `<item>${ele.id}</item>`).join('')}
@@ -190,7 +189,6 @@ export default defineComponent({
             save,
             handleCancel,
             chlGroupCountLimit,
-            formatInputMaxLength,
         }
     },
 })

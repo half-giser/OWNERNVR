@@ -3,7 +3,6 @@
  * @Date: 2024-05-31 17:08:25
  * @Description: 支持业务：越界、过线统计画线；三种模式：A->B、A<->B、A<-B
  */
-import CanvasBase, { type CanvasBaseLineStyleOption } from './canvasBase'
 
 export interface CanvasPasslinePassline {
     startX: number
@@ -40,20 +39,20 @@ interface CanvasPasslineRect {
 type CanvasPasslineDirection = 'none' | 'rightortop' | 'leftorbotton'
 
 interface CanvasPasslineOption {
-    el: HTMLCanvasElement
+    el?: HTMLCanvasElement
     lineStyle?: Partial<CanvasBaseLineStyleOption>
     textIn?: string
     textOut?: string
     enableLine?: boolean
-    enableOSD: boolean
-    enableShowAll: boolean
+    enableOSD?: boolean
+    enableShowAll?: boolean
     direction?: CanvasPasslineDirection
     passline?: CanvasPasslinePassline
     osdInfo?: CanvasPasslineOsdInfo
-    onchange: (passline: CanvasPasslinePassline, osdInfo: CanvasPasslineOsdInfo) => void
+    onchange?: (passline: CanvasPasslinePassline, osdInfo: CanvasPasslineOsdInfo) => void
 }
 
-export default function CanvasPassline(option: CanvasPasslineOption) {
+export const CanvasPassline = (option: CanvasPasslineOption = {}) => {
     const DEFAULT_LINE_COLOR = '#0f0'
     const DEFAULT_TEXT_COLOR = '#f00'
     const RELATIVE_WIDTH = 10000
@@ -78,8 +77,6 @@ export default function CanvasPassline(option: CanvasPasslineOption) {
         osdFormat: '',
     }
 
-    let onMouseDown: ((e: MouseEvent) => void) | undefined = undefined
-
     let osdRect: CanvasPasslineRect = {
         // osd所在矩形区域 {x,y,width,height}
         x: 0,
@@ -99,8 +96,8 @@ export default function CanvasPassline(option: CanvasPasslineOption) {
     // const textIn = option.textIn || TEXT_IN
     // const textOut = option.textOut || TEXT_OUT
     let enableLine = typeof option.enableLine === 'boolean' ? option.enableLine : true
-    let enableOSD = option.enableOSD
-    let enableShowAll = option.enableShowAll
+    let enableOSD = option.enableOSD || false
+    let enableShowAll = option.enableShowAll || false
     let direction = option.direction || 'rightortop'
     let passline = {
         ...DEFAULT_PASSLINE,
@@ -117,7 +114,9 @@ export default function CanvasPassline(option: CanvasPasslineOption) {
     const cavWidth = canvas.width // 画布宽
     const cavHeight = canvas.height // 画布高
 
-    // 全量绘制
+    /**
+     * @description 全量绘制
+     */
     const init = () => {
         ctx.ClearRect(0, 0, cavWidth, cavHeight)
         const realItem = drawPassline(passline)
@@ -128,14 +127,22 @@ export default function CanvasPassline(option: CanvasPasslineOption) {
         }
     }
 
-    // 绘制警戒线
+    /**
+     * @description 绘制警戒线
+     * @param {CanvasPasslinePassline} linePoints
+     * @returns
+     */
     const drawPassline = (linePoints: CanvasPasslinePassline) => {
         const item = getRealItemByRelative(linePoints)
         ctx.Line(item.startX, item.startY, item.endX, item.endY, lineStyle)
         return item
     }
 
-    // 绘制所有区域警戒线
+    /**
+     * @description 绘制所有区域警戒线
+     * @param newLineInfoList
+     * @param currentSurfaceOrAlarmLine
+     */
     const drawAllPassline = (newLineInfoList: CanvasPasslineLineItem[], currentSurfaceOrAlarmLine: number) => {
         ctx.ClearRect(0, 0, cavWidth, cavHeight)
         // 遍历所有警戒面进行全部显示
@@ -165,7 +172,9 @@ export default function CanvasPassline(option: CanvasPasslineOption) {
         }
     }
 
-    // 实时绘制全部区域（显示全部区域时，绘制当前区域的同时显示其余区域）
+    /**
+     * @description 实时绘制全部区域（显示全部区域时，绘制当前区域的同时显示其余区域）
+     */
     const drawConstantly = () => {
         if (enableShowAll && lineInfoList) {
             lineInfoList[currentSurfaceOrAlarmLine].direction = direction
@@ -181,22 +190,35 @@ export default function CanvasPassline(option: CanvasPasslineOption) {
         }
     }
 
-    // 是否显示全部警戒面
+    /**
+     * @description 是否显示全部警戒面
+     * @param {boolean} enable
+     */
     const setEnableShowAll = (enable: boolean) => {
         enableShowAll = enable
     }
 
-    // 绘制方向
+    /**
+     * @description 绘制方向
+     * @param {CanvasPasslinePassline} item
+     */
     const drawDirection = (item: CanvasPasslinePassline) => {
-        const startX = item.startX,
-            startY = item.startY,
-            endX = item.endX,
-            endY = item.endY
+        const startX = item.startX
+        const startY = item.startY
+        const endX = item.endX
+        const endY = item.endY
+
         if (startX === endX && startY === endY) return
+
         const centerPointX = (startX + endX) / 2
         const centerPointY = (startY + endY) / 2
+
         // 垂线两端点
-        let direStartX, direStartY, direEndX, direEndY
+        let direStartX: number
+        let direStartY: number
+        let direEndX: number
+        let direEndY: number
+
         if (startY === endY) {
             // 警戒线和x轴平行时
             direStartX = direEndX = centerPointX
@@ -233,8 +255,8 @@ export default function CanvasPassline(option: CanvasPasslineOption) {
         // 分别计算中点相对坐标相对垂线端点相对坐标的向量叉乘，判断中点是否在起点的顺时针方向
         // 若结果为true, 则端点起止坐标不变，否则互换位置
         const startIsClockwise = ctx.isClockwise(relaDireStartP.x, relaDireStartP.y, relaCenterP.x, relaCenterP.y)
-        let finalStartX = direStartX,
-            finalStartY = direStartY
+        let finalStartX = direStartX
+        let finalStartY = direStartY
         if (!startIsClockwise) {
             finalStartX = direEndX
             finalStartY = direEndY
@@ -245,7 +267,13 @@ export default function CanvasPassline(option: CanvasPasslineOption) {
         drawArrow(finalStartX, finalStartY, direEndX, direEndY)
     }
 
-    // 画箭头和文字
+    /**
+     * @description 画箭头和文字
+     * @param finalStartX
+     * @param finalStartY
+     * @param direEndX
+     * @param direEndY
+     */
     const drawArrow = (finalStartX: number, finalStartY: number, direEndX: number, direEndY: number) => {
         const currentDirection = DIRECTION_MAP[direction]
         if (currentDirection === 'A_TO_B') {
@@ -311,23 +339,36 @@ export default function CanvasPassline(option: CanvasPasslineOption) {
         }
     }
 
-    // 设置警戒区域
+    /**
+     * @description 设置警戒区域
+     * @param info
+     */
     const setPassline = (info: CanvasPasslinePassline) => {
         passline = info
         init()
     }
 
-    // 设置方向
+    /**
+     * @description 设置方向
+     * @param info
+     */
     const setDirection = (info: CanvasPasslineDirection) => {
         direction = info
     }
 
-    // 设置当前警戒面索引
+    /**
+     * @description 设置当前警戒面索引
+     * @param info
+     */
     const setCurrentSurfaceOrAlarmLine = (info: number) => {
         currentSurfaceOrAlarmLine = info
     }
 
-    // 设置警戒线/osd是否可绘制 type: line警戒线 osd: OSD显示
+    /**
+     * @description 设置警戒线/osd是否可绘制 type: line警戒线 osd: OSD显示
+     * @param type
+     * @param enable
+     */
     const setEnable = (type: 'line' | 'osd', enable: boolean) => {
         if (type === 'line') {
             enableLine = enable
@@ -336,35 +377,39 @@ export default function CanvasPassline(option: CanvasPasslineOption) {
         }
     }
 
-    // 设置osdInfo: { osdFormat: '111\n222', X: 100, Y: 100 }
+    /**
+     * @description 设置osdInfo: { osdFormat: '111\n222', X: 100, Y: 100 }
+     * @param info
+     */
     const setOSD = (info: CanvasPasslineOsdInfo) => {
         osdInfo = info
         init()
         drawConstantly()
     }
 
-    // 绘制OSD
+    /**
+     * @description 绘制OSD
+     * @returns
+     */
     const drawOSD = () => {
         if (!osdInfo) return
-        let X = getRealSizeByRelative(osdInfo.X, 'x')
-        let Y = getRealSizeByRelative(osdInfo.Y, 'y')
 
-        const // 兼容字符串里有\n和直接回车的换行
-            splitStr = osdInfo.osdFormat && osdInfo.osdFormat.includes('\\n') ? '\\n' : '\n'
-
+        // 兼容字符串里有\n和直接回车的换行
+        const splitStr = osdInfo.osdFormat && osdInfo.osdFormat.includes('\\n') ? '\\n' : '\n'
         const osdList = osdInfo.osdFormat ? osdInfo.osdFormat.split(splitStr) : []
-        let longestStrLen = 0
         const osdWidth = getOSDWH(osdInfo).osdWidth
         const osdHeight = getOSDWH(osdInfo).osdHeight
-        if (X + osdWidth >= cavWidth) X = cavWidth - osdWidth
-        if (Y + osdHeight >= cavHeight) Y = cavHeight - osdHeight
+        const X = clamp(getRealSizeByRelative(osdInfo.X, 'x'), cavWidth - osdWidth)
+        const Y = clamp(getRealSizeByRelative(osdInfo.Y, 'y'), cavHeight - osdHeight)
+        let longestStrLen = 0
+
         for (let i = 0; i < osdList.length; i++) {
             const item = osdList[i].trim()
             // 空白符占5.8px，小写字母占7.5px，大写字母、数字等其他占9px
             const lowerStrCount = item.match(/[a-z]/g)?.length || 0
             const spaceStrCount = item.match(/\s/g)?.length || 0
             const itemStrLength = spaceStrCount * 5.8 + lowerStrCount * 7.5 + (item.length - lowerStrCount - spaceStrCount) * 9
-            longestStrLen = itemStrLength > longestStrLen ? itemStrLength : longestStrLen
+            longestStrLen = Math.max(itemStrLength, longestStrLen)
             ctx.Text({
                 text: item,
                 startX: X,
@@ -383,11 +428,14 @@ export default function CanvasPassline(option: CanvasPasslineOption) {
         }
     }
 
-    // 获取OSD宽度和高度
+    /**
+     * @description 获取OSD宽度和高度
+     * @param options
+     * @returns
+     */
     const getOSDWH = ({ osdFormat }: CanvasPasslineOsdInfo) => {
-        const // 兼容字符串里有\n和直接回车的换行
-            splitStr = osdFormat && osdFormat.includes('\\n') ? '\\n' : '\n'
-
+        // 兼容字符串里有\n和直接回车的换行
+        const splitStr = osdFormat && osdFormat.includes('\\n') ? '\\n' : '\n'
         const osdList = osdFormat ? osdFormat.split(splitStr) : []
         let longestStrLen = 0
         for (let i = 0; i < osdList.length; i++) {
@@ -396,7 +444,7 @@ export default function CanvasPassline(option: CanvasPasslineOption) {
             const lowerStrCount = item.match(/[a-z]/g)?.length || 0
             const spaceStrCount = item.match(/\s/g)?.length || 0
             const itemStrLength = spaceStrCount * 5.8 + lowerStrCount * 7.5 + (item.length - lowerStrCount - spaceStrCount) * 9
-            longestStrLen = itemStrLength > longestStrLen ? itemStrLength : longestStrLen
+            longestStrLen = Math.max(itemStrLength, longestStrLen)
         }
         return {
             osdWidth: longestStrLen,
@@ -404,87 +452,89 @@ export default function CanvasPassline(option: CanvasPasslineOption) {
         }
     }
 
-    // 绑定事件
-    const bindEvent = () => {
-        if (!onMouseDown) {
-            onMouseDown = (e: MouseEvent) => {
-                if (!enableLine && !enableOSD) {
-                    return
-                }
-                const startX = e.offsetX,
-                    startY = e.offsetY
-                const clientX = e.clientX,
-                    clientY = e.clientY
-                let endX, endY
-                // 先判断是否在osd矩形区域内
-                let isInOSD = false
-                const osdRectX = osdRect.x,
-                    osdRectY = osdRect.y,
-                    osdRectW = osdRect.width,
-                    osdRectH = osdRect.height
-                if (enableOSD && ctx.IsInRect(startX, startY, osdRectX, osdRectY, osdRectW, osdRectH)) {
-                    isInOSD = true
-                }
+    const onMouseDown = (e: MouseEvent) => {
+        if (!enableLine && !enableOSD) {
+            return
+        }
+        const startX = e.offsetX
+        const startY = e.offsetY
+        const clientX = e.clientX
+        const clientY = e.clientY
+        const osdRectX = osdRect.x
+        const osdRectY = osdRect.y
+        const osdRectW = osdRect.width
+        const osdRectH = osdRect.height
 
-                if (!isInOSD && !enableLine) {
-                    return
-                }
-                document.body.style.setProperty('user-select', 'none')
+        let endX, endY
+        // 先判断是否在osd矩形区域内
+        let isInOSD = false
 
-                const onMouseMove = (e1: MouseEvent) => {
-                    endX = e1.clientX - clientX + startX
-                    endY = e1.clientY - clientY + startY
-                    if (isInOSD) {
-                        // osd跟随鼠标移动
-                        let newStartX = osdRectX + endX - startX
-                        let newStartY = osdRectY + endY - startY
-                        if (newStartX <= 0) newStartX = 0
-                        if (newStartX + osdRectW >= cavWidth) newStartX = cavWidth - osdRectW
-                        if (newStartY <= 0) newStartY = 0
-                        if (newStartY + osdRectH >= cavHeight) newStartY = cavHeight - osdRectH
-                        const X = getRelativeSizeByReal(newStartX, 'x')
-                        const Y = getRelativeSizeByReal(newStartY, 'y')
-                        setOSD({
-                            X,
-                            Y,
-                            osdFormat: osdInfo.osdFormat,
-                        })
-                        drawConstantly()
-                    } else {
-                        // 绘制警戒线
-                        if (endX < 0) endX = 0
-                        if (endX > cavWidth) endX = cavWidth
-                        if (endY < 0) endY = 0
-                        if (endY > cavHeight) endY = cavHeight
-                        const item = getRelativeItemByReal({ startX, startY, endX, endY })
-                        setPassline(item)
-                        drawConstantly()
-                    }
-                }
+        if (enableOSD && ctx.IsInRect(startX, startY, osdRectX, osdRectY, osdRectW, osdRectH)) {
+            isInOSD = true
+        }
 
-                const onMouseUp = () => {
-                    onchange && onchange(passline, osdInfo)
-                    document.removeEventListener('mousemove', onMouseMove)
-                    document.removeEventListener('mouseup', onMouseUp)
-                    document.body.style.setProperty('user-select', 'unset')
-                }
+        if (!isInOSD && !enableLine) {
+            return
+        }
+        document.body.style.setProperty('user-select', 'none')
 
-                document.addEventListener('mousemove', onMouseMove)
-                document.addEventListener('mouseup', onMouseUp)
+        const onMouseMove = (e1: MouseEvent) => {
+            endX = e1.clientX - clientX + startX
+            endY = e1.clientY - clientY + startY
+            if (isInOSD) {
+                // osd跟随鼠标移动
+                const newStartX = clamp(osdRectX + endX - startX, 0, cavWidth - osdRectW)
+                const newStartY = clamp(osdRectY + endY - startY, 0, cavHeight - osdRectH)
+                const X = getRelativeSizeByReal(newStartX, 'x')
+                const Y = getRelativeSizeByReal(newStartY, 'y')
+                setOSD({
+                    X,
+                    Y,
+                    osdFormat: osdInfo.osdFormat,
+                })
+                drawConstantly()
+            } else {
+                // 绘制警戒线
+                endX = clamp(endX, 0, cavWidth)
+                endY = clamp(endY, 0, cavHeight)
+                const item = getRelativeItemByReal({ startX, startY, endX, endY })
+                setPassline(item)
+                drawConstantly()
             }
         }
+
+        const onMouseUp = () => {
+            onchange && onchange(passline, osdInfo)
+            document.removeEventListener('mousemove', onMouseMove)
+            document.removeEventListener('mouseup', onMouseUp)
+            document.body.style.setProperty('user-select', 'unset')
+        }
+
+        document.addEventListener('mousemove', onMouseMove)
+        document.addEventListener('mouseup', onMouseUp)
+    }
+
+    /**
+     * @description 绑定事件
+     */
+    const bindEvent = () => {
         canvas.removeEventListener('mousedown', onMouseDown)
         canvas.addEventListener('mousedown', onMouseDown)
     }
 
-    // 组件生命周期结束时执行
+    /**
+     * @description 组件生命周期结束时执行
+     */
     const destroy = () => {
-        if (onMouseDown) {
-            canvas.removeEventListener('mousedown', onMouseDown)
-        }
+        canvas.removeEventListener('mousedown', onMouseDown)
     }
 
-    // 根据万分比尺寸获取画布尺寸
+    /**
+     * @description 根据万分比尺寸获取画布尺寸
+     * @param size
+     * @param type
+     * @returns
+     */
     const getRealSizeByRelative = (size: number, type: 'x' | 'y') => {
         if (type === 'x') {
             return (cavWidth * size) / RELATIVE_WIDTH
@@ -493,7 +543,12 @@ export default function CanvasPassline(option: CanvasPasslineOption) {
         }
     }
 
-    // 根据画布尺寸获取对应万分比尺寸
+    /**
+     * @description 根据画布尺寸获取对应万分比尺寸
+     * @param size
+     * @param type
+     * @returns
+     */
     const getRelativeSizeByReal = (size: number, type: 'x' | 'y') => {
         if (type === 'x') {
             return (RELATIVE_WIDTH * size) / cavWidth
@@ -520,12 +575,17 @@ export default function CanvasPassline(option: CanvasPasslineOption) {
         }
     }
 
-    // 获取绘制数据
+    /**
+     * @description 获取绘制数据
+     * @returns
+     */
     const getPassline = () => {
         return passline
     }
 
-    // 清空区域
+    /**
+     * @description 清空区域
+     */
     const clear = () => {
         passline = {
             ...DEFAULT_PASSLINE,

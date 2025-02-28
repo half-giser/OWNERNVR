@@ -3,7 +3,6 @@
  * @Date: 2024-10-23 14:11:24
  * @Description: LOGO设置
  */
-import { ChannelLogoSetDto } from '@/types/apiType/channel'
 import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
@@ -255,10 +254,6 @@ export default defineComponent({
             tableRef.value!.setCurrentRow(tableData.value[pageData.value.tableIndex])
         }
 
-        const handleKeydownEnter = (e: KeyboardEvent) => {
-            ;(e.target as HTMLInputElement).blur()
-        }
-
         // 首次加载成功 播放视频
         const stopWatchFirstPlay = watchEffect(() => {
             if (ready.value && tableData.value.length) {
@@ -296,7 +291,6 @@ export default defineComponent({
             getData,
             handleRowClick,
             changeAllSwitch,
-            handleKeydownEnter,
             editRows,
         }
     },

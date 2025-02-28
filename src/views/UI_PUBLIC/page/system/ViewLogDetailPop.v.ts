@@ -3,8 +3,6 @@
  * @Date: 2024-07-01 19:23:38
  * @Description: 查看日志详情
  */
-import { SystemLogList } from '@/types/apiType/system'
-
 export default defineComponent({
     props: {
         /**

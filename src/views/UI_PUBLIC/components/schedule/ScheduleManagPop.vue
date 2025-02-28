@@ -16,6 +16,7 @@
                     <span class="scheduleTitle">{{ scheduleTitle }}</span>
                     <BaseImgSprite
                         file="toolbar_add"
+                        :hover-index="0"
                         @click="openScheduleEditPop()"
                     />
                 </div>
@@ -45,13 +46,9 @@
                         width="80"
                     >
                         <template #default="{ row }: TableColumn<ScheduleDto>">
-                            <BaseImgSprite
+                            <BaseImgSpriteBtn
                                 v-if="pageData.defaultSchedules.indexOf(row.name)"
                                 file="edit (2)"
-                                :chunk="4"
-                                :index="0"
-                                :hover-index="1"
-                                :active-index="1"
                                 @click="openScheduleEditPop(row)"
                             />
                         </template>
@@ -62,13 +59,9 @@
                         width="80"
                     >
                         <template #default="{ row }: TableColumn<ScheduleDto>">
-                            <BaseImgSprite
+                            <BaseImgSpriteBtn
                                 v-if="pageData.defaultSchedules.indexOf(row.name)"
                                 file="del"
-                                :chunk="4"
-                                :index="0"
-                                :hover-index="1"
-                                :active-index="1"
                                 @click="deleteSchedule(row)"
                             />
                         </template>
@@ -107,7 +100,6 @@
 
     .Sprite {
         margin: 5px 10px 0 0;
-        cursor: pointer;
     }
 }
 </style>

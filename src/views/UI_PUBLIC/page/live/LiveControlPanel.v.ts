@@ -3,8 +3,6 @@
  * @Date: 2024-07-26 17:04:12
  * @Description: 现场预览-操作视图
  */
-import { type LiveChannelList, type LiveResolutionOptions, type LiveQualityOptions, LiveStreamForm, type LiveSharedWinData } from '@/types/apiType/live'
-
 export default defineComponent({
     props: {
         /**
@@ -179,30 +177,10 @@ export default defineComponent({
             return false
         })
 
-        /**
-         * @description 抓图
-         */
-        const snap = () => {
-            if (snapDisabled.value) {
-                return
-            }
-            ctx.emit('snap')
-        }
-
         // 是否禁用关闭图像
         const closeImgDisabled = computed(() => {
             return snapDisabled.value
         })
-
-        /**
-         * @description 关闭图像
-         */
-        const closeImg = () => {
-            if (closeImgDisabled.value) {
-                return
-            }
-            ctx.emit('closeImg')
-        }
 
         // 是否禁用3D放大
         const zoom3DDisabled = computed(() => {
@@ -212,50 +190,10 @@ export default defineComponent({
             return !enableMagnify3D
         })
 
-        /**
-         * @description 3D放大
-         */
-        const zoom3D = () => {
-            if (zoom3DDisabled.value) {
-                return
-            }
-            ctx.emit('zoom', !prop.winData.magnify3D)
-        }
-
-        /**
-         * @description 放大
-         */
-        const zoomIn = () => {
-            if (disabled.value) {
-                return
-            }
-            ctx.emit('zoomIn')
-        }
-
-        /**
-         * @description 缩小
-         */
-        const zoomOut = () => {
-            if (disabled.value) {
-                return
-            }
-            ctx.emit('zoomOut')
-        }
-
         // 是否禁用原始比例
         const originalDisplayDisabled = computed(() => {
             return !systemCaps.supportOriginalDisplay || disabled.value
         })
-
-        /**
-         * @description 原始比例
-         */
-        const originalDisplay = () => {
-            if (originalDisplayDisabled.value) {
-                return
-            }
-            ctx.emit('originalDisplay', !prop.winData.original)
-        }
 
         // 是否禁用手动开门
         const openDoorDisabled = computed(() => {
@@ -271,9 +209,6 @@ export default defineComponent({
          * @description 手动开门
          */
         const openDoor = async () => {
-            if (openDoorDisabled.value) {
-                return
-            }
             const sendXml = rawXml`
                 <content>
                     <chl id="${chlID.value}"></chl>
@@ -302,9 +237,6 @@ export default defineComponent({
          * @param {Boolean} bool
          */
         const localRecord = (bool: boolean) => {
-            if (localRecordDisabled.value) {
-                return
-            }
             ctx.emit('localRecord', bool)
         }
 
@@ -318,9 +250,6 @@ export default defineComponent({
          * @param {Boolean} bool
          */
         const remoteRecord = async (bool: boolean) => {
-            if (remoteRecordDisabled.value) {
-                return
-            }
             const sendXml = rawXml`
                 <content>
                     <chlId>${chlID.value}</chlId>
@@ -610,17 +539,6 @@ export default defineComponent({
             return !enableTalked
         })
 
-        /**
-         * @description 开启/关闭对讲
-         * @param {Boolean} bool
-         */
-        const talk = (bool: boolean) => {
-            if (talkDisabled.value) {
-                return
-            }
-            ctx.emit('talk', bool)
-        }
-
         const fpsOptions = computed(() => {
             return Array(pageData.value.maxFps)
                 .fill(1)
@@ -649,16 +567,10 @@ export default defineComponent({
         return {
             pageData,
             disabled,
-            snap,
             snapDisabled,
             closeImgDisabled,
-            closeImg,
             zoom3DDisabled,
-            zoom3D,
-            zoomIn,
-            zoomOut,
             originalDisplayDisabled,
-            originalDisplay,
             openDoorDisabled,
             openDoor,
             localRecordDisabled,
@@ -676,7 +588,6 @@ export default defineComponent({
             changeResolution,
             displayQualityOptions,
             audioDisabled,
-            talk,
             talkDisabled,
             fpsOptions,
         }

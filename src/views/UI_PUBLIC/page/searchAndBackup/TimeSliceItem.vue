@@ -21,7 +21,6 @@
             <BaseImgSprite
                 class="item-thumbnail-404"
                 file="empty"
-                :index="0"
             />
             <img :src="pic" />
         </div>
@@ -30,7 +29,6 @@
                 <BaseImgSprite
                     v-show="mode === 'icon'"
                     file="chl_s"
-                    :index="0"
                     :chunk="2"
                 />
                 <span class="text-ellipsis">{{ chlName }}</span>

@@ -30,12 +30,9 @@
             />
             <el-table-column :label="Translate('IDCS_DETAIL_INFO')">
                 <template #default="{ $index }: TableColumn<UserOnlineList>">
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         file="detail"
-                        :index="0"
-                        :hover-index="1"
-                        :chunk="4"
-                        @click.stop="showDetailInfo($index)"
+                        @click="showDetailInfo($index)"
                     />
                 </template>
             </el-table-column>

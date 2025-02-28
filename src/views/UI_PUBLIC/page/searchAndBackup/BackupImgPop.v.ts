@@ -3,8 +3,6 @@
  * @Date: 2024-08-12 13:46:24
  * @Description: 备份图像弹窗
  */
-import { type PlaybackSearchImgList } from '@/types/apiType/playback'
-
 export default defineComponent({
     props: {
         /**

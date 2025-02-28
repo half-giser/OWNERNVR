@@ -6,14 +6,10 @@
 <template>
     <div class="VoiceCtrl">
         <el-tooltip :content="mute ? Translate('IDCS_AUDIO_ON') : Translate('IDCS_AUDIO_OFF')">
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 class="icon"
                 :file="iconFile"
-                :index="mute ? 0 : 2"
-                :hover-index="1"
-                :disabled-index="3"
                 :disabled="disabled"
-                :chunk="4"
                 @click="handleSwitchMute"
             />
         </el-tooltip>
@@ -81,9 +77,6 @@ const handleChangevolume = () => {
  * @description 开关静音回调
  */
 const handleSwitchMute = () => {
-    if (prop.disabled) {
-        return
-    }
     emits('update:mute', !prop.mute)
 }
 

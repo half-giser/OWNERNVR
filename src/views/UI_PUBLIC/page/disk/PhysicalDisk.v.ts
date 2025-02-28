@@ -4,9 +4,7 @@
  * @Description: 物理磁盘
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import { type DiskPhysicalList } from '@/types/apiType/disk'
 import PhysicalDiskCreateRaidPop from './PhysicalDiskCreateRaidPop.vue'
-import type { UserCheckAuthForm } from '@/types/apiType/user'
 
 export default defineComponent({
     components: {
@@ -88,9 +86,6 @@ export default defineComponent({
          * @param {number} index
          */
         const transformDisk = (row: DiskPhysicalList, index: number) => {
-            if (row.type === 'array') {
-                return
-            }
             openMessageBox({
                 type: 'question',
                 message: row.type === 'normal' ? Translate('IDCS_NOTE_SET_TO_SPARE') : Translate('IDCS_NOTE_SET_TO_FREE'),

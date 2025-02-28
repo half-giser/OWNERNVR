@@ -3,7 +3,6 @@
  * @Date: 2024-07-08 18:01:51
  * @Description: 存储模式新增通道弹窗
  */
-import { StorageModeDiskGroupList, type StorageModeChlList } from '@/types/apiType/disk'
 
 export default defineComponent({
     props: {

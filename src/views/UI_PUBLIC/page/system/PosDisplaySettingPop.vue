@@ -53,13 +53,9 @@
                                 </el-table-column>
                                 <el-table-column :label="Translate('IDCS_DELETE')">
                                     <template #default="{ $index }: TableColumn<SystemPosListStartEndChar>">
-                                        <BaseImgSprite
+                                        <BaseImgSpriteBtn
                                             file="del"
-                                            :index="2"
-                                            :hover-index="0"
-                                            :disabled-index="3"
                                             :disabled="$index === startEndCharTableList.length - 1"
-                                            :chunk="4"
                                             @click="deleteStartEndChar($index)"
                                         />
                                     </template>
@@ -84,13 +80,9 @@
                                 </el-table-column>
                                 <el-table-column :label="Translate('IDCS_DELETE')">
                                     <template #default="{ $index }: TableColumn<{ value: string }>">
-                                        <BaseImgSprite
+                                        <BaseImgSpriteBtn
                                             file="del"
-                                            :index="2"
-                                            :hover-index="0"
-                                            :disabled-index="3"
                                             :disabled="$index === lineBreakTableList.length - 1"
-                                            :chunk="4"
                                             @click="deleteLineBreak($index)"
                                         />
                                     </template>
@@ -113,13 +105,9 @@
                                 </el-table-column>
                                 <el-table-column :label="Translate('IDCS_DELETE')">
                                     <template #default="{ $index }: TableColumn<{ value: string }>">
-                                        <BaseImgSprite
+                                        <BaseImgSpriteBtn
                                             file="del"
-                                            :index="0"
-                                            :hover-index="2"
-                                            :disabled-index="3"
                                             :disabled="$index === ignoreChareTableList.length - 1"
-                                            :chunk="4"
                                             @click="deleteIgnoreChar($index)"
                                         />
                                     </template>
@@ -130,7 +118,7 @@
                     <el-form
                         label-width="150"
                         :style="{
-                            '--form-input-width': '340px',
+                            '--form-input-width': '220px',
                         }"
                     >
                         <el-form-item :label="Translate('IDCS_IGNORE_UPPER')">
@@ -196,13 +184,12 @@
                             }"
                         >
                             <el-form-item :label="Translate('IDCS_FONT_COLOR')">
-                                <BaseImgSprite
+                                <BaseImgSpriteBtn
                                     v-for="item in pageData.colorOption"
                                     :key="item.file"
                                     class="color"
                                     :file="item.file"
-                                    :index="colorTableList[pageData.colorTableIndex].colorList.includes(item.value) ? 2 : 0"
-                                    :chunk="4"
+                                    :active="colorTableList[pageData.colorTableIndex].colorList.includes(item.value)"
                                     @click="changeColor(item.value)"
                                 />
                             </el-form-item>

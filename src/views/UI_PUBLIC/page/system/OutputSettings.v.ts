@@ -9,8 +9,6 @@ import OutputAddViewPop, { type ChlsDto, type ChlGroupData } from './OutputAddVi
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import ChannelGroupEditPop from '../channel/ChannelGroupEditPop.vue'
 import ChannelGroupAddPop from '../channel/ChannelGroupAddPop.vue'
-import { ChannelGroupDto } from '@/types/apiType/channel'
-import type { UserCheckAuthForm } from '@/types/apiType/user'
 
 type ChlItem = {
     id: string

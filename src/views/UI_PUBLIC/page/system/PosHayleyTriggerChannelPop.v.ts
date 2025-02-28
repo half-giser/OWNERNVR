@@ -3,8 +3,6 @@
  * @Date: 2024-07-02 17:13:17
  * @Description: POS联动通道设置（Hayley）
  */
-import { type SystemPosListChls } from '@/types/apiType/system'
-
 export default defineComponent({
     props: {
         /**

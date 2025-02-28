@@ -4,8 +4,6 @@
  * @Description: 收藏视图
  */
 import { type FormRules } from 'element-plus'
-import { SystemOutputSettingAddViewForm } from '@/types/apiType/system'
-import { type PropType } from 'vue'
 
 export interface ChlsDto {
     id: string

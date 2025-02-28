@@ -3,7 +3,6 @@
  * @Date: 2024-07-12 18:21:09
  * @Description: SNMP配置
  */
-import { NetSNMPForm } from '@/types/apiType/net'
 import { type FormRules } from 'element-plus'
 
 export default defineComponent({
@@ -58,7 +57,7 @@ export default defineComponent({
                                 return
                             }
 
-                            if (value === '0.0.0.0' || !checkIpV4(value)) {
+                            if (value === DEFAULT_EMPTY_IP || !checkIpV4(value)) {
                                 callback(new Error(Translate('IDCS_PROMPT_TRAP_ADDRESS_INVALID')))
                                 return
                             }

@@ -36,12 +36,9 @@
                     @click="changeChlMenu(index)"
                     @dblclick="changeChlMenu(index)"
                 >
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         :file="item.file"
-                        :index="pageData.activeChlMenu === index ? 1 : 0"
-                        :hover-index="1"
-                        :disabled-index="3"
-                        :chunk="4"
+                        :active="pageData.activeChlMenu === index"
                     />
                 </div>
             </div>
@@ -56,7 +53,7 @@
                             v-model="pageData.chlKeyword"
                             class="middle"
                             :placeholder="Translate('IDCS_SEARCH_CHANNEL')"
-                            @keydown.enter="searchChl"
+                            @keyup.enter="searchChl"
                         />
                         <div class="left-chl-search">
                             <BaseImgSprite

@@ -276,7 +276,7 @@
                                 :parser="handleRemarkNoteInput"
                                 @blur="handleRemarkNoteBlur(row.remarkNote, row.id)"
                                 @change="handleInputChange(row.id)"
-                                @keydown.enter="handleKeydownEnter($event)"
+                                @keyup.enter="blurInput"
                             />
                         </template>
                     </el-table-column>

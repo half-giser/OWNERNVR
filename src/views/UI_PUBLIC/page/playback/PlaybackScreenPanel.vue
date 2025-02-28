@@ -8,14 +8,11 @@
         <div class="ctrl-left">
             <!-- 分屏切换按钮 -->
             <template v-if="mode === 'h5'">
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     v-for="seg in pageData.wasmSeg"
                     :key="`${seg.type}_${seg.split}`"
                     :file="`seg_${seg.split}`"
-                    :index="seg.split === split ? 2 : 0"
-                    :hover-index="1"
-                    :disabled-index="2"
-                    :chunk="4"
+                    :active="seg.split === split"
                     @click="$emit('update:split', seg.split, seg.type)"
                 />
             </template>
@@ -25,268 +22,186 @@
                     trigger="hover"
                     :width="pageData.ocxSeg.length * 45 + 22"
                     :disabled="winData.isDwellPlay"
-                    popper-class="keep-ocx"
                 >
                     <template #reference>
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             file="seg_selector"
-                            :index="0"
-                            :hover-index="1"
-                            :disabled-index="2"
                             :disabled="winData.isDwellPlay"
-                            :chunk="4"
                         />
                     </template>
                     <div class="segs">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             v-for="seg in pageData.ocxSeg"
                             :key="`${seg.type}_${seg.split}`"
                             :file="`seg_${seg.split}`"
-                            :index="seg.split === split ? 2 : 0"
-                            :hover-index="1"
-                            :disabled-index="2"
-                            :chunk="4"
+                            :active="seg.split === split"
                             @click="$emit('update:split', seg.split, seg.type)"
                         />
                     </div>
                 </el-popover>
             </template>
             <!-- OSD按钮 -->
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 file="OSD"
                 :title="osd ? Translate('IDCS_OSD_CLOSE') : Translate('IDCS_OSD_OPEN')"
-                :index="osd ? 2 : 0"
-                :hover-index="1"
-                :chunk="4"
+                :active="osd"
                 @click="$emit('update:osd', !osd)"
             />
             <!-- 全屏按钮 -->
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 file="full_screen"
                 :title="Translate('IDCS_FULLSCREEN')"
-                :index="0"
-                :hover-index="1"
-                :chunk="4"
                 @click="$emit('fullscreen')"
             />
         </div>
         <div class="ctrl-center">
             <!-- 停止播放 -->
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 file="stop (3)"
                 :title="Translate('IDCS_STOP')"
-                :index="0"
-                :hover-index="1"
-                :disabled-index="3"
-                :chunk="4"
                 :disabled
-                @click="stop"
+                @click="$emit('stop')"
             />
             <!-- 倒放 -->
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 v-if="mode === 'ocx'"
                 v-show="['stop', 'pause', 'play'].includes(playStatus)"
                 file="bkPlay"
                 :title="Translate('IDCS_PLAY_FORWARD')"
-                :index="0"
-                :hover-index="1"
-                :disabled-index="3"
-                :chunk="4"
                 :disabled
-                @click="backwards"
+                @click="$emit('backwards')"
             />
             <!-- 暂停播放 -->
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 v-show="playStatus === 'play' || playStatus === 'backwards'"
                 file="pause"
                 :title="Translate('IDCS_PAUSE')"
-                :index="0"
-                :hover-index="1"
-                :disabled-index="3"
-                :chunk="4"
                 :disabled
                 @click="pause"
             />
             <!-- 播放 -->
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 v-show="['stop', 'pause', 'backwards'].includes(playStatus)"
                 file="fwPlay"
                 :title="Translate('IDCS_PLAY_FORWARD')"
-                :index="0"
-                :hover-index="1"
-                :disabled-index="3"
-                :chunk="4"
                 :disabled
-                @click="resume"
+                @click="$emit('resume')"
             />
             <!-- 慢进 -->
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 file="bkSpeed"
                 :title="Translate('IDCS_PLAY_FAST_REWIND')"
-                :index="0"
-                :hover-index="1"
-                :disabled-index="3"
-                :chunk="4"
                 :disabled="rewindDisabled"
                 @click="rewind"
             />
             <!-- 快进 -->
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 file="fwSpeed"
                 :title="Translate('IDCS_PLAY_FAST_FORWARD')"
-                :index="0"
-                :hover-index="1"
-                :disabled-index="3"
-                :chunk="4"
                 :disabled="forwardDisabled"
                 @click="forward"
             />
             <!-- 1倍速 -->
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 file="playOriginIcon"
                 :title="Translate('IDCS_NORMAL_SPEED')"
-                :index="0"
-                :hover-index="1"
-                :disabled-index="3"
-                :chunk="4"
                 :disabled="resetSpeedDisabled"
                 @click="resetSpeed"
             />
             <!-- 上一帧 -->
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 v-if="mode === 'ocx'"
                 file="preFrame"
                 :title="Translate('IDCS_PLAY_PREVIOUS_FRAME')"
-                :index="0"
-                :hover-index="1"
-                :disabled-index="3"
-                :chunk="4"
                 :disabled="nextFrameDisabled"
-                @click="prevFrame"
+                @click="$emit('prevFrame')"
             />
             <!-- 下一帧 -->
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 file="nextFrame"
                 :title="Translate('IDCS_PLAY_NEXT_FRAME')"
-                :index="0"
-                :hover-index="1"
-                :disabled-index="3"
-                :chunk="4"
                 :disabled="nextFrameDisabled"
-                @click="nextFrame"
+                @click="$emit('nextFrame')"
             />
             <!-- 跳转播放 -->
             <div class="seek">
                 <BaseImgSprite
                     file="30s_bk"
-                    :index="0"
                     :disabled-index="1"
                     :disabled
                     :chunk="2"
                 />
                 <div>
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         file="bk30s"
                         :title="Translate('IDCS_PLAY_DEC_30_SECONDS')"
-                        :index="0"
-                        :hover-index="1"
-                        :disabled-index="3"
-                        :chunk="4"
                         :disabled
-                        @click="jump(-30)"
+                        @click="$emit('jump', -30)"
                     />
-                    <BaseImgSprite
+                    <BaseImgSpriteBtn
                         file="fw30s"
                         :title="Translate('IDCS_PLAY_INC_30_SECONDS')"
-                        :index="0"
-                        :hover-index="1"
-                        :disabled-index="3"
-                        :chunk="4"
                         :disabled
-                        @click="jump(30)"
+                        @click="$emit('jump', 30)"
                     />
                 </div>
             </div>
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 v-show="playStatus === 'backwards'"
                 file="bkPlay"
                 :class="{ hide: disabled }"
-                :index="2"
-                :disabled-index="3"
-                :chunk="4"
+                active
             />
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 v-show="playStatus !== 'play' && playStatus !== 'backwards'"
                 file="pause"
                 :class="{ hide: disabled }"
-                :index="2"
-                :disabled-index="3"
-                :chunk="4"
+                active
             />
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 v-show="playStatus === 'play'"
                 file="fwPlay"
                 :class="{ hide: disabled }"
-                :index="2"
-                :disabled-index="3"
-                :chunk="4"
+                active
             />
             <p :class="{ hide: disabled }">{{ displaySpeed }}</p>
         </div>
         <div class="ctrl-right">
             <!-- POS按钮 -->
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 v-show="pageData.isPosBtn"
                 file="POS"
                 :title="pos ? Translate('IDCS_CANCEL_POS') : Translate('IDCS_VIEW_POS')"
-                :index="pos ? 2 : 0"
-                :hover-index="1"
-                :disabled-index="3"
-                :chunk="4"
+                :active="pos"
                 :disabled="posDisabled"
-                @click="togglePos(!pos)"
+                @click="$emit('update:pos', !pos)"
             />
             <!-- 水印按钮 -->
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 file="backupWaterMark"
                 :title="watermark ? Translate('IDCS_CANCEL_WATER_MARK') : Translate('IDCS_VIEW_WATER_MARK')"
-                :index="watermark ? 2 : 0"
-                :hover-index="1"
-                :disabled-index="3"
-                :chunk="4"
+                :active="watermark"
                 :disabled
                 @click="$emit('update:watermark', !watermark)"
             />
             <!-- 开始裁切 -->
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 file="backupStart"
                 :title="Translate('IDCS_BACKUP_START_TIME')"
-                :index="0"
-                :hover-index="1"
-                :disabled-index="3"
-                :chunk="4"
                 :disabled
-                @click="setClipStart"
+                @click="$emit('clipStart')"
             />
             <!-- 结束裁切 -->
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 file="backupEnd"
                 :title="Translate('IDCS_BACKUP_END_TIME')"
-                :index="0"
-                :hover-index="1"
-                :disabled-index="3"
-                :chunk="4"
                 :disabled
-                @click="setClipEnd"
+                @click="$emit('clipEnd')"
             />
             <!-- 备份 -->
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 file="backup"
                 :title="Translate('IDCS_BACKUP')"
-                :index="0"
-                :hover-index="1"
-                :disabled-index="3"
-                :chunk="4"
                 :disabled="backUpDisabled"
                 @click="backUp"
             />

@@ -12,13 +12,9 @@
             placement="top-end"
         >
             <template #reference>
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     file="list"
                     :title="Translate('IDCS_EVENT_LIST')"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="4"
                 />
             </template>
             <el-table
@@ -46,7 +42,7 @@
                     <template #header>
                         <el-popover
                             v-model:visible="pageData.eventVisible"
-                            popper-class="keep-ocx no-padding"
+                            popper-class="no-padding"
                             width="fit-content"
                         >
                             <template #reference>
@@ -98,11 +94,8 @@
 
                 <el-table-column :label="Translate('IDCS_PLAY')">
                     <template #default="{ row }: TableColumn<PlaybackRecLogList>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             file="play (3)"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
                             @click="play(row)"
                         />
                     </template>
@@ -113,11 +106,8 @@
                     :label="Translate('IDCS_DOWNLOAD')"
                 >
                     <template #default="{ row }: TableColumn<PlaybackRecLogList>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             file="download"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
                             @click="download(row)"
                         />
                     </template>

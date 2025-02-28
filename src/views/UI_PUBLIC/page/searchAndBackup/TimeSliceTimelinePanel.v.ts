@@ -5,9 +5,6 @@
  */
 import dayjs from 'dayjs'
 import TimeSliceItem from './TimeSliceItem.vue'
-import WebsocketKeyframe from '@/utils/websocket/websocketKeyframe'
-import { type WebsocketKeyframeOnMessageParam } from '@/utils/websocket/websocketKeyframe'
-import { type PlaybackChlTimeSliceList, type PlaybackRecList, type PlaybackBackUpRecList } from '@/types/apiType/playback'
 import BackupPop from '../searchAndBackup/BackupPop.vue'
 import BackupLocalPop from '../searchAndBackup/BackupLocalPop.vue'
 import TimeSliceTimeRangePop from './TimeSliceTimeRangePop.vue'

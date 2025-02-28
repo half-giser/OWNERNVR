@@ -3,8 +3,6 @@
  * @Date: 2024-09-02 16:42:46
  * @Description: 车牌导出弹窗
  */
-import WebsocketPlateLib, { type WebsocketPlateLibOnSuccessParam } from '@/utils/websocket/websocketPlatelib'
-
 export default defineComponent({
     props: {
         /**

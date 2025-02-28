@@ -3,9 +3,7 @@
  * @Date: 2024-07-04 16:41:45
  * @Description: 磁盘模式
  */
-import { DiskModeForm } from '@/types/apiType/disk'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import type { UserCheckAuthForm } from '@/types/apiType/user'
 
 export default defineComponent({
     components: {

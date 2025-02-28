@@ -12,6 +12,9 @@ export * from './const/record'
 export * from './const/auth'
 
 export const DEFAULT_EMPTY_ID = '{00000000-0000-0000-0000-000000000000}'
+export const DEFAULT_EMPTY_IP = '0.0.0.0'
+export const DEFAULT_EMPTY_TIME = '00:00:00'
+export const DEFAULT_EMPTY_MAC = '00:00:00:00:00:00'
 
 /**
  * API返回状态

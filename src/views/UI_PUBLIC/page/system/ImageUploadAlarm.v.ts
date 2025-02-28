@@ -3,8 +3,6 @@
  * @Date: 2024-10-23 15:30:55
  * @Description: 报警图像上传
  */
-import { SystemImageUploadAlarmItem } from '@/types/apiType/system'
-import { cloneDeep } from 'lodash-es'
 export default defineComponent({
     setup() {
         const router = useRouter()

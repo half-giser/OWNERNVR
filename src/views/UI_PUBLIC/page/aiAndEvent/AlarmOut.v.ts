@@ -3,7 +3,6 @@
  * @Date: 2024-08-10 11:05:51
  * @Description: 报警输出
  */
-import { AlarmOutDto } from '@/types/apiType/aiAndEvent'
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 
 export default defineComponent({
@@ -235,14 +234,6 @@ export default defineComponent({
         }
 
         /**
-         * @description 回车键失去焦点
-         * @param {Event} event
-         */
-        const blurInput = (event: Event) => {
-            ;(event.target as HTMLInputElement).blur()
-        }
-
-        /**
          * @description: 改变所有项的值
          * @param {string} value 值
          * @param {string} field 字段名
@@ -290,7 +281,7 @@ export default defineComponent({
                 const sendXml = rawXml`
                     <content>
                         <id>${rowItem.id}</id>
-                        <name><![CDATA[${rowItem.name}]]></name>
+                        <name>${wrapCDATA(rowItem.name)}</name>
                         <delayTime unit='s'>${rowItem.delayTime}</delayTime>
                         <schedule id='${rowItem.scheduleId}'></schedule>
                     </content>
@@ -349,7 +340,6 @@ export default defineComponent({
             changeAllValue,
             focusName,
             blurName,
-            blurInput,
             changeScheduleAll,
             changeSchedule,
             closeSchedulePop,

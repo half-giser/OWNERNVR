@@ -4,10 +4,8 @@
  * @Description: canvas移动侦测配置（网格线）
  */
 
-import CanvasBase, { type CanvasBaseLineStyleOption } from './canvasBase'
-
 interface CanvasMotionOption {
-    el: HTMLCanvasElement
+    el?: HTMLCanvasElement
     rowNum?: number
     colNum?: number
     lineStyle?: Partial<CanvasBaseLineStyleOption>
@@ -15,7 +13,7 @@ interface CanvasMotionOption {
     onchange?: (netArr: string[][]) => void
 }
 
-export default function CanvasMotion(option: CanvasMotionOption) {
+export const CanvasMotion = (option: CanvasMotionOption = {}) => {
     const DEFAULT_COLOR = '#0f0' // 默认网格颜色
     const DEFAULT_LINE_WIDTH = 1 // 默认网格线宽
     const DEFAULT_ROWS = 15 // 默认网格行数
@@ -27,7 +25,6 @@ export default function CanvasMotion(option: CanvasMotionOption) {
     let h = 0
     let scaleW = 0
     let scaleH = 0
-    let onMouseDown: ((e: MouseEvent) => void) | undefined = undefined
     let rowNum = option.rowNum || DEFAULT_ROWS // 网格行数
     let colNum = option.colNum || DEFAULT_COLS // 网格列数
     let netArr: string[][] = []
@@ -59,9 +56,9 @@ export default function CanvasMotion(option: CanvasMotionOption) {
      */
     const setOption = (option: { column: number; row: number; areaInfo: string[] }) => {
         const areaInfo = option.areaInfo
-        if (!(areaInfo && areaInfo.length)) return
-        rowNum = option.row * 1 || rowNum
-        colNum = option.column * 1 || colNum
+        if (!areaInfo.length) return
+        rowNum = option.row || rowNum
+        colNum = option.column || colNum
         const arr = []
         for (let i = 0; i < areaInfo.length; i++) {
             const item = areaInfo[i].split('')
@@ -89,44 +86,40 @@ export default function CanvasMotion(option: CanvasMotionOption) {
         return arr
     }
 
+    const onMouseDown = (e: MouseEvent) => {
+        const startX = e.offsetX
+        const startY = e.offsetY
+        const clientX = e.clientX
+        const clientY = e.clientY
+
+        document.body.style.setProperty('user-select', 'none')
+        const onMouseMove = (e1: MouseEvent) => {
+            const endX = clamp(e1.clientX - clientX + startX, 0, w)
+            const endY = clamp(e1.clientY - clientY + startY, 0, h)
+
+            let status = STATUS_ON
+            if (startX > endX && startY > endY) {
+                status = STATUS_OFF
+            }
+            setNetArrByRect(startX, startY, endX, endY, status)
+            setArea(netArr)
+            onchange && onchange(netArr)
+        }
+
+        const onMouseUp = () => {
+            document.removeEventListener('mousemove', onMouseMove)
+            document.removeEventListener('mouseup', onMouseUp)
+            document.body.style.setProperty('user-select', 'unset')
+        }
+
+        document.addEventListener('mousemove', onMouseMove)
+        document.addEventListener('mouseup', onMouseUp)
+    }
+
     /**
      * @description 绑定事件
      */
     const bindEvent = () => {
-        if (!onMouseDown) {
-            onMouseDown = (e: MouseEvent) => {
-                const startX = e.offsetX
-                const startY = e.offsetY
-                const clientX = e.clientX
-                const clientY = e.clientY
-
-                document.body.style.setProperty('user-select', 'none')
-                const onMouseMove = (e1: MouseEvent) => {
-                    let endX = e1.clientX - clientX + startX
-                    let endY = e1.clientY - clientY + startY
-                    if (endX < 0) endX = 0
-                    if (endX > w) endX = w
-                    if (endY < 0) endY = 0
-                    if (endY > h) endY = h
-                    let status = STATUS_ON
-                    if (startX > endX && startY > endY) {
-                        status = STATUS_OFF
-                    }
-                    setNetArrByRect(startX, startY, endX, endY, status)
-                    setArea(netArr)
-                    onchange && onchange(netArr)
-                }
-
-                const onMouseUp = () => {
-                    document.removeEventListener('mousemove', onMouseMove)
-                    document.removeEventListener('mouseup', onMouseUp)
-                    document.body.style.setProperty('user-select', 'unset')
-                }
-
-                document.addEventListener('mousemove', onMouseMove)
-                document.addEventListener('mouseup', onMouseUp)
-            }
-        }
         canvas.removeEventListener('mousedown', onMouseDown)
         canvas.addEventListener('mousedown', onMouseDown)
     }
@@ -191,8 +184,8 @@ export default function CanvasMotion(option: CanvasMotionOption) {
         // 计算矩形区域内格子的行数和列数
         const rowNum = Math.ceil(Math.abs(endY - startY) / scaleH)
         const colNum = Math.ceil(Math.abs(endX - startX) / scaleW)
-        const _startX = startX < endX ? startX : endX
-        const _startY = startY < endY ? startY : endY
+        const _startX = Math.min(startX, endX)
+        const _startY = Math.min(startY, endY)
         for (let i = 0; i < rowNum; i++) {
             for (let j = 0; j < colNum; j++) {
                 const rowIndex = Math.floor((_startY + i * scaleH) / scaleH)
@@ -208,8 +201,7 @@ export default function CanvasMotion(option: CanvasMotionOption) {
      */
     const setArea = (netArr: string[][]) => {
         ctx.ClearRect(0, 0, w, h)
-        const len = netArr.length
-        for (let i = 0; i < len; i++) {
+        for (let i = 0; i < netArr.length; i++) {
             const row = netArr[i]
             for (let j = 0; j < row.length; j++) {
                 const item = row[j]
@@ -270,9 +262,7 @@ export default function CanvasMotion(option: CanvasMotionOption) {
      * @description 组件生命周期结束时执行
      */
     const destroy = () => {
-        if (onMouseDown) {
-            canvas.removeEventListener('mousedown', onMouseDown)
-        }
+        canvas.removeEventListener('mousedown', onMouseDown)
     }
 
     netArr = option.netArr || buildNetArr(rowNum, colNum, STATUS_OFF)

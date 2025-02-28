@@ -4,7 +4,6 @@
  * @Description: 现场预览-目标检测视图-渲染单个结构化抓拍元素
  */
 import { DEFAULT_BODY_STRUCT_MAPPING, DEFAULT_NON_VEHICLE_STRUCT_MAPPING, DEFAULT_VEHICLE_STRUCT_MAPPING } from '@/utils/const/snap'
-import { type WebsocketSnapOnSuccessSnap } from '@/utils/websocket/websocketSnap'
 
 export default defineComponent({
     props: {

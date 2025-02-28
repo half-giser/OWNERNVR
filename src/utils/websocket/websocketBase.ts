@@ -11,7 +11,7 @@ export interface WebsocketBaseOption {
     binaryType?: BinaryType
 }
 
-export default function WebsocketBase(option: WebsocketBaseOption) {
+export const WebsocketBase = (option: WebsocketBaseOption) => {
     const HEART_BEAT_TIME = 30000 * 1000 // 心跳频率
     const RETRY_TIME = 5000 // 重试频率
     const MAX_RETRY = 10 // 最大重试次数

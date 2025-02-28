@@ -7,114 +7,78 @@
     <div class="ctrl">
         <div class="ctrl-btns">
             <!-- 抓拍 -->
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 file="capture"
                 :title="Translate('IDCS_SNAP')"
-                :index="0"
-                :hover-index="1"
-                :disabled-index="3"
-                :chunk="4"
                 :disabled="snapDisabled"
-                @click="snap"
+                @click="$emit('snap')"
             />
             <!-- 关闭图像 -->
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 file="close_chl"
                 :title="Translate('IDCS_CLOSE_IMAGE')"
-                :index="0"
-                :hover-index="1"
-                :disabled-index="3"
-                :chunk="4"
                 :disabled="closeImgDisabled"
-                @click="closeImg"
+                @click="$emit('closeImg')"
             />
             <!-- 本地录像 -->
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 :file="winData.localRecording ? 'recing' : 'rec (2)'"
                 :title="winData.localRecording ? Translate('IDCS_CLIENT_RECORD_OFF') : Translate('IDCS_CLIENT_RECORD_ON')"
-                :index="winData.localRecording ? 2 : 0"
-                :hover-index="1"
-                :disabled-index="3"
-                :chunk="4"
+                :active="winData.localRecording"
                 :disabled="localRecordDisabled"
-                @click="localRecord(!winData.localRecording)"
+                @click="$emit('localRecord', !winData.localRecording)"
             />
             <!-- 远程录像 -->
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 :file="remote ? 'remote_recing' : 'remote_rec'"
                 :title="remote ? Translate('IDCS_REMOTE_MANUAL_RECORD_OFF') : Translate('IDCS_REMOTE_MANUAL_RECORD_ON')"
-                :index="remote ? 2 : 0"
-                :hover-index="1"
-                :disabled-index="3"
-                :chunk="4"
+                :active="remote"
                 :disabled="remoteRecordDisabled"
-                @click="remoteRecord(!remote)"
+                @click="$emit('remoteRecord', !remote)"
             />
             <!-- 放大 -->
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 file="magnify"
                 :title="Translate('IDCS_ZOOM_IN')"
-                :index="0"
-                :hover-index="1"
-                :disabled-index="3"
                 :disabled
-                :chunk="4"
-                @click="zoomIn"
+                @click="$emit('zoomIn')"
             />
             <!-- 缩小 -->
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 file="minify"
                 :title="Translate('IDCS_ZOOM_OUT')"
-                :index="0"
-                :hover-index="1"
-                :disabled-index="3"
                 :disabled
-                :chunk="4"
-                @click="zoomOut"
+                @click="$emit('zoomOut')"
             />
             <!-- 3D放大 -->
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 file="magnify3d"
                 :title="Translate('IDCS_3D_ZOOM_IN')"
-                :index="winData.magnify3D ? 2 : 0"
-                :hover-index="1"
-                :disabled-index="3"
+                :active="winData.magnify3D"
                 :disabled="zoom3DDisabled"
-                :chunk="4"
-                @click="zoom3D"
+                @click="$emit('zoom', !winData.magnify3D)"
             />
             <!-- 对讲 -->
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 v-show="mode === 'ocx'"
                 :file="winData.talk ? 'ipcTalkBacking' : 'ipcTalkBack'"
                 :title="winData.talk ? Translate('IDCS_TALKBACK_OFF') : Translate('IDCS_TALKBACK_ON')"
-                :index="winData.talk ? 2 : 0"
-                :hover-index="1"
-                :disabled-index="3"
+                :active="winData.talk"
                 :disabled="talkDisabled"
-                :chunk="4"
-                @click="talk(!winData.talk)"
+                @click="$emit('talk', !winData.talk)"
             />
             <!-- 原始比例 -->
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 :file="winData.original ? 'originalDisplaying' : 'originalDisplay'"
                 :title="Translate('IDCS_ORIGINAL_DISPLAY')"
-                :index="0"
-                :hover-index="1"
-                :disabled-index="3"
-                :chunk="4"
                 :disabled="originalDisplayDisabled"
-                @click="originalDisplay"
+                @click="$emit('originalDisplay', !winData.original)"
             />
             <!-- 开门 -->
-            <BaseImgSprite
+            <BaseImgSpriteBtn
                 v-show="!openDoorDisabled"
                 file="openDoor"
                 :title="Translate('IDCS_MANU_OPEN_DOOR')"
-                :index="0"
-                :hover-index="1"
-                :disabled-index="3"
-                :chunk="4"
                 :disabled="openDoorDisabled"
                 @click="openDoor"
             />

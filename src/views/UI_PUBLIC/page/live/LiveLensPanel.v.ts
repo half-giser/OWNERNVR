@@ -3,8 +3,6 @@
  * @Date: 2024-07-29 15:43:32
  * @Description: 现场预览-镜头控制视图
  */
-import { LiveLensForm, type LiveSharedWinData } from '@/types/apiType/live'
-
 export default defineComponent({
     props: {
         /**
@@ -34,8 +32,7 @@ export default defineComponent({
 
         const formData = ref(new LiveLensForm())
 
-        const cmdQueue: string[] = []
-        let cmdLock = false // 锁定标识：当前命令没有返回时，不能发送新的命令
+        const cmdQueue = useCmdQueue()
 
         /**
          * @description 新增命令到命令队列
@@ -46,37 +43,14 @@ export default defineComponent({
                 return
             }
 
-            if (cmdQueue.length > 1000) {
-                return
-            }
-            cmdQueue.push(cmd)
-            if (cmdQueue.length && !cmdLock) {
-                executeCmd()
-            }
-        }
-
-        /**
-         * @description 执行命令
-         */
-        const executeCmd = () => {
-            if (!prop.winData.chlID) {
-                return
-            }
-
-            if (!cmdQueue.length || cmdLock) {
-                return
-            }
-            cmdLock = true
-            const cmdItem = cmdQueue.shift()!
-            const sendXml = rawXml`
-                <content>
-                    <chlId>${prop.winData.chlID}</chlId>
-                    <actionType>${cmdItem}</actionType>
-                </content>
-            `
-            cameraLensCtrlCall(sendXml).finally(() => {
-                cmdLock = false
-                executeCmd()
+            cmdQueue.add(async () => {
+                const sendXml = rawXml`
+                    <content>
+                        <chlId>${prop.winData.chlID}</chlId>
+                        <actionType>${cmd}</actionType>
+                    </content>
+                `
+                await cameraLensCtrlCall(sendXml)
             })
         }
 
@@ -199,7 +173,7 @@ export default defineComponent({
             (newVal) => {
                 if (newVal) {
                     getSupportAz()
-                    cmdQueue.splice(0, cmdQueue.length)
+                    cmdQueue.clean()
                 }
             },
             {

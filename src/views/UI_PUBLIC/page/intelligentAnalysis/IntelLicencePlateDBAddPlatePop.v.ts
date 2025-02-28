@@ -3,10 +3,8 @@
  * @Date: 2024-09-03 09:09:06
  * @Description: 新增车牌弹窗
  */
-import { IntelPlateDBAddPlateForm, IntelPlateDBPlateInfo } from '@/types/apiType/intelligentAnalysis'
 import IntelLicenceDBEditPop from './IntelLicencePlateDBEditPop.vue'
 import { type FormRules } from 'element-plus'
-import WebsocketImportPlate from '@/utils/websocket/websocketImportplate'
 
 export default defineComponent({
     components: {
@@ -511,7 +509,7 @@ export default defineComponent({
             }
         }
 
-        let ws: ReturnType<typeof WebsocketImportPlate> | null = null
+        let ws: ReturnType<typeof WebsocketImportPlateLib> | null = null
 
         /**
          * @description 批量新增车牌
@@ -531,7 +529,7 @@ export default defineComponent({
             if (!plateList.length) {
                 openMessageBox(Translate('IDCS_IMPORT_FAIL'))
             }
-            ws = WebsocketImportPlate({
+            ws = WebsocketImportPlateLib({
                 plateDataList: plateList,
                 onsuccess() {
                     closeLoading()

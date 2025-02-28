@@ -4,9 +4,7 @@
  * @Description: 更改其他用户密码的弹窗
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import { UserEditPasswordForm } from '@/types/apiType/userAndSecurity'
 import { type FormRules } from 'element-plus'
-import type { UserCheckAuthForm } from '@/types/apiType/user'
 
 export default defineComponent({
     components: {

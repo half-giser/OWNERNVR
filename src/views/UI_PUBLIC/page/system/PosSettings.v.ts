@@ -3,9 +3,6 @@
  * @Date: 2024-07-02 09:08:32
  * @Description: POS配置
  */
-import { cloneDeep } from 'lodash-es'
-import type { SystemPosList, SystemPosListChls, SystemPostColorData, SystemPosConnectionForm, SystemPosDisplaySetting } from '@/types/apiType/system'
-import { SystemPostDisplaySet } from '@/types/apiType/system'
 import PosConnectionSettingsPop from './PosConnectionSettingsPop.vue'
 import PosHayleyTriggerChannelPop from './PosHayleyTriggerChannelPop.vue'
 import PosDisplaySettingPop from './PosDisplaySettingPop.vue'
@@ -221,14 +218,15 @@ export default defineComponent({
                                         <triggerChl>
                                             <switch>${item.triggerChl.switch}</switch>
                                             <chls>
-                                                ${ternary(
-                                                    item.triggerChl.switch,
-                                                    item.triggerChl.chls
-                                                        .map((chl) => {
-                                                            return `<item id="${chl.value}" ${chl.till && Number(chl.till) > 0 ? `till="${chl.till}"` : ''}>${wrapCDATA(chl.label)}</item>`
-                                                        })
-                                                        .join(''),
-                                                )}
+                                                ${
+                                                    item.triggerChl.switch
+                                                        ? item.triggerChl.chls
+                                                              .map((chl) => {
+                                                                  return `<item id="${chl.value}" ${chl.till && Number(chl.till) > 0 ? `till="${chl.till}"` : ''}>${wrapCDATA(chl.label)}</item>`
+                                                              })
+                                                              .join('')
+                                                        : ''
+                                                }
                                             </chls>
                                         </triggerChl>
                                     </trigger>

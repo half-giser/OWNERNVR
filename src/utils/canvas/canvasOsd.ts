@@ -3,7 +3,6 @@
  * @Date: 2024-05-31 16:36:04
  * @Description: canvas绘制osd配置
  */
-import CanvasBase, { type CanvasBaseRect } from './canvasBase'
 
 export interface CanvasOSDOptionNameConfig {
     value: string // 通道名
@@ -30,13 +29,13 @@ export interface CanvasOSDOptionTimeConfig {
 }
 
 interface CanvasOSDOption {
-    el: HTMLCanvasElement
+    el?: HTMLCanvasElement
     nameCfg?: Partial<CanvasOSDOptionNameConfig>
     timeCfg?: Partial<CanvasOSDOptionTimeConfig>
     onchange?: (nameCfg: CanvasOSDOptionNameConfig, timeCfg: CanvasOSDOptionTimeConfig) => void
 }
 
-export default function CanvasOSD(option: CanvasOSDOption) {
+export const CanvasOSD = (option: CanvasOSDOption = {}) => {
     const OSD_COLOR: string | CanvasGradient | CanvasPattern = '#f00' // osd颜色
     const OSD_FONT_SIZE = 14 // osd字体大小
     const OSD_FONT = OSD_FONT_SIZE + 'px Arial'
@@ -84,9 +83,6 @@ export default function CanvasOSD(option: CanvasOSDOption) {
         height: 0,
     }
 
-    let onMouseDown: ((e: MouseEvent) => void) | undefined = undefined
-    let onMouseMove: ((e: MouseEvent) => void) | undefined = undefined
-
     const onchange = option.onchange
     let nameCfg = {
         ...DEFAULT_NAME_CONFIG,
@@ -102,7 +98,9 @@ export default function CanvasOSD(option: CanvasOSDOption) {
     const cavWidth = canvas.width // 画布宽
     const cavHeight = canvas.height // 画布高
 
-    // 初始化
+    /**
+     * @description 初始化
+     */
     const init = () => {
         clear()
         if (nameCfg.switch) {
@@ -114,7 +112,12 @@ export default function CanvasOSD(option: CanvasOSDOption) {
         }
     }
 
-    // 根据万分比尺寸获取画布尺寸
+    /**
+     * @description 根据万分比尺寸获取画布尺寸
+     * @param size
+     * @param type
+     * @returns {number}
+     */
     const getRealSizeByRelative = (size: number, type: 'x' | 'y') => {
         if (type === 'x') {
             return (cavWidth * size) / RELATIVE_WIDTH
@@ -123,7 +126,12 @@ export default function CanvasOSD(option: CanvasOSDOption) {
         }
     }
 
-    // 根据画布尺寸获取对应万分比尺寸
+    /**
+     * @description 根据画布尺寸获取对应万分比尺寸
+     * @param size
+     * @param type
+     * @returns {number}
+     */
     const getRelativeSizeByReal = (size: number, type: 'x' | 'y') => {
         if (type === 'x') {
             return (RELATIVE_WIDTH * size) / cavWidth
@@ -132,7 +140,10 @@ export default function CanvasOSD(option: CanvasOSDOption) {
         }
     }
 
-    // 设置osd配置
+    /**
+     * @description 设置osd配置
+     * @param config
+     */
     const setCfg = (config: { nameCfg?: Partial<CanvasOSDOptionNameConfig>; timeCfg?: Partial<CanvasOSDOptionTimeConfig> }) => {
         nameCfg = {
             ...nameCfg,
@@ -145,13 +156,18 @@ export default function CanvasOSD(option: CanvasOSDOption) {
         init()
     }
 
-    // 设置时间osd时间戳
+    /**
+     * @description 设置时间osd时间戳
+     * @param {number} timestamp
+     */
     const setTime = (timestamp: number) => {
         timeCfg.timestamp = timestamp
         init()
     }
 
-    // 绘制通道名osd
+    /**
+     * @description 绘制通道名osd
+     */
     const drawName = () => {
         const text = nameCfg.value
         const startX = getRealSizeByRelative(nameCfg.X, 'x')
@@ -175,7 +191,9 @@ export default function CanvasOSD(option: CanvasOSDOption) {
         }
     }
 
-    // 绘制时间osd
+    /**
+     * @description 绘制时间osd
+     */
     const drawTime = () => {
         const format = DEFAULT_MOMENT_MAPPING[timeCfg.dateFormat] + ' ' + DEFAULT_MOMENT_MAPPING[timeCfg.timeFormat]
         const text = formatDate(timeCfg.timestamp, format)
@@ -200,90 +218,76 @@ export default function CanvasOSD(option: CanvasOSDOption) {
         }
     }
 
-    // 绑定事件
+    const onMouseDown = (e: MouseEvent) => {
+        const isInName = ctx.IsInRect(e.offsetX, e.offsetY, nameRect.x, nameRect.y, nameRect.width, nameRect.height)
+        const isInTime = ctx.IsInRect(e.offsetX, e.offsetY, timeRect.x, timeRect.y, timeRect.width, timeRect.height)
+        if (!isInName && !isInTime) return
+        const targetRect = isInName ? nameRect : timeRect
+        const targetCfg = isInName ? nameCfg : timeCfg
+        const clientX = e.clientX
+        const clientY = e.clientY
+        const startX = targetRect.x
+        const startY = targetRect.y
+        const cavWidth = canvas.width
+        const cavHeight = canvas.height
+        document.body.style.setProperty('user-select', 'none')
+        const onMouseMove = (ev: MouseEvent) => {
+            const newX = clamp(startX + ev.clientX - clientX, 0, cavWidth - targetRect.width)
+            const newY = clamp(startY + ev.clientY - clientY, 0, cavHeight - targetRect.height)
+            targetCfg.X = getRelativeSizeByReal(newX, 'x')
+            targetCfg.Y = getRelativeSizeByReal(newY, 'y')
+            init()
+            onchange && onchange(nameCfg, timeCfg)
+        }
+
+        const onMouseUp = () => {
+            document.removeEventListener('mousemove', onMouseMove)
+            document.removeEventListener('mouseup', onMouseUp)
+            document.body.style.setProperty('user-select', 'unset')
+        }
+
+        document.addEventListener('mousemove', onMouseMove)
+        document.addEventListener('mouseup', onMouseUp)
+    }
+
+    // 监听鼠标移动事件，进入osd覆盖层时改变鼠标形态为move状态
+    const onMouseMove = (e: MouseEvent) => {
+        const isInName = ctx.IsInRect(e.offsetX, e.offsetY, nameRect.x, nameRect.y, nameRect.width, nameRect.height)
+        const isInTime = ctx.IsInRect(e.offsetX, e.offsetY, timeRect.x, timeRect.y, timeRect.width, timeRect.height)
+        canvas.style.setProperty('cursor', 'default')
+        if (!isInName && !isInTime) return
+        canvas.style.setProperty('cursor', 'move')
+    }
+
+    /**
+     * @description 绑定事件
+     */
     const bindEvent = () => {
-        if (!onMouseDown) {
-            onMouseDown = (e: MouseEvent) => {
-                const isInName = ctx.IsInRect(e.offsetX, e.offsetY, nameRect.x, nameRect.y, nameRect.width, nameRect.height)
-                const isInTime = ctx.IsInRect(e.offsetX, e.offsetY, timeRect.x, timeRect.y, timeRect.width, timeRect.height)
-                if (!isInName && !isInTime) return
-                const targetRect = isInName ? nameRect : timeRect
-                const targetCfg = isInName ? nameCfg : timeCfg
-                const clientX = e.clientX
-                const clientY = e.clientY
-                const startX = targetRect.x
-                const startY = targetRect.y
-                const cavWidth = canvas.width
-                const cavHeight = canvas.height
-                document.body.style.setProperty('user-select', 'none')
-                const onMouseMove = (ev: MouseEvent) => {
-                    let newX = startX + ev.clientX - clientX
-                    let newY = startY + ev.clientY - clientY
-                    if (newX <= 0) {
-                        newX = 0
-                    }
-
-                    if (newX + targetRect.width >= cavWidth) {
-                        newX = cavWidth - targetRect.width
-                    }
-
-                    if (newY <= 0) {
-                        newY = 0
-                    }
-
-                    if (newY + targetRect.height >= cavHeight) {
-                        newY = cavHeight - targetRect.height
-                    }
-                    targetCfg.X = getRelativeSizeByReal(newX, 'x')
-                    targetCfg.Y = getRelativeSizeByReal(newY, 'y')
-                    init()
-                    onchange && onchange(nameCfg, timeCfg)
-                }
-
-                const onMouseUp = () => {
-                    document.removeEventListener('mousemove', onMouseMove)
-                    document.removeEventListener('mouseup', onMouseUp)
-                    document.body.style.setProperty('user-select', 'unset')
-                }
-
-                document.addEventListener('mousemove', onMouseMove)
-                document.addEventListener('mouseup', onMouseUp)
-            }
-        }
-
-        if (!onMouseMove) {
-            // 监听鼠标移动事件，进入osd覆盖层时改变鼠标形态为move状态
-            onMouseMove = (e: MouseEvent) => {
-                const isInName = ctx.IsInRect(e.offsetX, e.offsetY, nameRect.x, nameRect.y, nameRect.width, nameRect.height)
-                const isInTime = ctx.IsInRect(e.offsetX, e.offsetY, timeRect.x, timeRect.y, timeRect.width, timeRect.height)
-                canvas.style.setProperty('cursor', 'default')
-                if (!isInName && !isInTime) return
-                canvas.style.setProperty('cursor', 'move')
-            }
-        }
         canvas.removeEventListener('mousedown', onMouseDown)
         canvas.removeEventListener('mousemove', onMouseMove)
         canvas.addEventListener('mousedown', onMouseDown)
         canvas.addEventListener('mousemove', onMouseMove)
     }
 
-    // 组件生命周期结束时执行
+    /**
+     * @description 组件生命周期结束时执行
+     */
     const destroy = () => {
-        if (onMouseDown) {
-            canvas.removeEventListener('mousedown', onMouseDown)
-        }
-
-        if (onMouseMove) {
-            canvas.removeEventListener('mousemove', onMouseMove)
-        }
+        canvas.removeEventListener('mousedown', onMouseDown)
+        canvas.removeEventListener('mousemove', onMouseMove)
     }
 
-    // 清除指定矩形区域的画布
+    /**
+     * @description 清除指定矩形区域的画布
+     */
     const clear = () => {
         ctx.ClearRect(0, 0, cavWidth, cavHeight)
     }
 
-    // 获取绘制信息
+    /**
+     * @description 获取绘制信息
+     * @returns
+     */
     const getOSDInfo = () => {
         return {
             nameCfg: nameCfg,

@@ -3,7 +3,6 @@
  * @Date: 2024-07-29 15:38:29
  * @Description: 现场预览-鱼眼视图
  */
-import { type LiveSharedWinData } from '@/types/apiType/live'
 
 export interface FishEyePanelExpose {
     exitAdjust: (chlId: string) => void
@@ -250,7 +249,7 @@ export default defineComponent({
          * @param {string} installType
          */
         const changeInstallType = (installType: string) => {
-            if (!supportFishEye.value || pageData.value.installType === installType) {
+            if (pageData.value.installType === installType) {
                 return
             }
             pageData.value.installType = installType
@@ -269,7 +268,7 @@ export default defineComponent({
          * @param {string} fishEyeMode
          */
         const changeFishEyeMode = (fishEyeMode: string) => {
-            if (!supportFishEye.value || pageData.value.fishEyeMode === fishEyeMode) {
+            if (pageData.value.fishEyeMode === fishEyeMode) {
                 return
             }
 

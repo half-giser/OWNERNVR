@@ -170,7 +170,7 @@
                         <el-tab-pane
                             v-if="detectionFormData.supportVfd"
                             :label="Translate('IDCS_LINKAGE_MODE')"
-                            name="linkage"
+                            name="trigger"
                         >
                             <el-form
                                 :style="{
@@ -206,7 +206,7 @@
                     <el-popover
                         v-model:visible="pageData.isAdvance"
                         width="300"
-                        popper-class="no-padding keep-ocx"
+                        popper-class="no-padding"
                     >
                         <template #reference>
                             <div
@@ -216,7 +216,6 @@
                                 <span>{{ Translate('IDCS_ADVANCED') }}</span>
                                 <BaseImgSprite
                                     file="arrow"
-                                    :index="0"
                                     :chunk="4"
                                 />
                             </div>

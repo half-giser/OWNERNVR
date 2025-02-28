@@ -32,8 +32,8 @@
                 :data="quickAddTableData"
                 show-overflow-tooltip
                 highlight-current-row
-                @row-click="handleRowClick"
-                @selection-change="handleSelectionChange"
+                @row-click="handleQuickAddRowClick"
+                @selection-change="handleQuickAddSelectionChange"
             >
                 <el-table-column
                     type="index"
@@ -74,12 +74,8 @@
                     align="center"
                 >
                     <template #default="{ row }: TableColumn<ChannelQuickAddDto>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             file="edit (2)"
-                            :chunk="4"
-                            :index="0"
-                            :hover-index="1"
-                            :active-index="1"
                             @click="openEditIPCIpPop(row)"
                         />
                     </template>
@@ -129,18 +125,18 @@
                             <el-select-v2
                                 v-model="row.addrType"
                                 :options="manualAddTypeOptions"
-                                @change="cellChange($event, $index, row, 'addrType')"
+                                @change="addManualAddRow($index)"
                             />
                             <BaseIpInput
                                 v-show="row.addrType === 'ip'"
                                 v-model="row.ip"
                                 class="ipInput"
-                                @change="cellChange($event, $index, row, 'ip')"
+                                @change="addManualAddRow($index)"
                             />
                             <el-input
                                 v-show="row.addrType !== 'ip'"
                                 v-model="row.domain"
-                                @change="cellChange($event, $index, row, 'ip')"
+                                @change="addManualAddRow($index)"
                             />
                         </div>
                     </template>
@@ -155,7 +151,7 @@
                             :min="10"
                             :max="65535"
                             :disabled="row.portDisabled"
-                            @change="cellChange($event, $index, row, 'port')"
+                            @change="addManualAddRow($index)"
                         />
                     </template>
                 </el-table-column>
@@ -167,7 +163,7 @@
                         <el-input
                             v-model="row.userName"
                             maxlength="63"
-                            @change="cellChange($event, $index, row, 'userName')"
+                            @change="addManualAddRow($index)"
                         />
                     </template>
                 </el-table-column>
@@ -176,10 +172,9 @@
                     min-width="300"
                 >
                     <template #default="{ row, $index }: TableColumn<ChannelManualAddDto>">
-                        <el-input
+                        <BasePasswordInput
                             v-model="row.password"
-                            type="password"
-                            @blur="cellChange($event, $index, row, 'password')"
+                            @blur="addManualAddRow($index)"
                             @focus="row.password === '******' ? (row.password = '') : ''"
                         />
                     </template>
@@ -192,7 +187,7 @@
                         <el-select-v2
                             v-model="row.manufacturer"
                             :options="manufacturerList"
-                            @change="cellChange($event, $index, row, 'manufacturer')"
+                            @change="changeManufacturer($index, row)"
                         />
                     </template>
                 </el-table-column>
@@ -201,14 +196,10 @@
                     width="100"
                 >
                     <template #default="{ $index }: TableColumn<ChannelManualAddDto>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             file="del"
-                            :index="0"
-                            :hover-index="1"
-                            :chunk="4"
-                            :disabled-index="3"
-                            :disabled="rowDelClass($index)"
-                            @click="rowDel($index)"
+                            :disabled="isDelManualAddRowDisabled($index)"
+                            @click="delManualAddRow($index)"
                         />
                     </template>
                 </el-table-column>
@@ -264,44 +255,44 @@
             <div>
                 <el-button
                     v-show="supportsIPCActivation && activeTab === tabKeys.quickAdd"
-                    @click="handleActivate"
+                    @click="activateIPC"
                 >
                     {{ Translate('IDCS_ACTIVATE') }}
                 </el-button>
-                <el-button @click="handleSetDefaultPwd">{{ Translate('IDCS_DEV_DEFAULT_PWD') }}</el-button>
+                <el-button @click="setDefaultPwd">{{ Translate('IDCS_DEV_DEFAULT_PWD') }}</el-button>
                 <el-button
                     v-show="activeTab === tabKeys.addRecorder"
-                    @click="handleManualAdd"
+                    @click="addRecorder"
                 >
                     {{ Translate('IDCS_RECORD_MANUAL_ADD') }}
                 </el-button>
                 <el-button @click="save">{{ Translate('IDCS_ADD') }}</el-button>
-                <el-button @click="handleCancel">{{ Translate('IDCS_CANCEL') }}</el-button>
+                <el-button @click="goBack">{{ Translate('IDCS_CANCEL') }}</el-button>
             </div>
         </div>
         <ChannelAddActivateIPCPop
-            v-model="activateIPCVisable"
+            v-model="isActivateIPCPop"
             :activate-ipc-data="activateIpcData"
             @close="closeActivateIPCPop"
         />
         <ChannelAddSetDefaultPwdPop
-            v-model="setDefaultPwdPopVisiable"
+            v-model="isSetDefaultPwdPop"
             @close="closeSetDefaultPwdPop"
-            @change="handleUpdateMapping"
+            @change="changeDefaultPwd"
         />
         <ChannelAddEditIPCIpPop
-            v-model="editIPCIpPopVisiable"
+            v-model="isEditIPCIpPop"
             :edit-item="quickAddEditRowData"
             :mapping="mapping"
             @close="closeEditIPCIpPop"
         />
         <ChannelAddToAddRecorderPop
-            v-model="toAddRecorderPopVisiable"
+            v-model="isAddRecorderPop"
             :edit-item="recoderEditItem"
             :mapping="mapping"
             :chl-count-limit="chlCountLimit"
             :face-match-limit-max-chl-num="faceMatchLimitMaxChlNum"
-            @close="closeToAddRecorderPopVisiable"
+            @close="closeAddRecorderPop"
         />
         <ChannelAddSetProtocolPop
             v-model="setProtocolPopVisiable"

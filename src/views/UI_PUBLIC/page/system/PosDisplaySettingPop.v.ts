@@ -3,10 +3,6 @@
  * @Date: 2024-07-03 15:01:51
  * @Description: POS显示设置
  */
-import { cloneDeep } from 'lodash-es'
-import { SystemPosDisplaySetting, SystemPosDisplayPosition, type SystemPosListStartEndChar, type SystemPostDisplaySet, type SystemPostColorData } from '@/types/apiType/system'
-import CanvasPos from '@/utils/canvas/canvasPos'
-
 export default defineComponent({
     props: {
         /**
@@ -164,9 +160,6 @@ export default defineComponent({
          * @param {number} index
          */
         const deleteStartEndChar = (index: number) => {
-            if (index === startEndCharTableList.value.length - 1) {
-                return
-            }
             startEndCharTableList.value.splice(index, 1)
         }
 
@@ -188,9 +181,6 @@ export default defineComponent({
          * @param {number} index
          */
         const deleteLineBreak = (index: number) => {
-            if (index === lineBreakTableList.value.length - 1) {
-                return
-            }
             lineBreakTableList.value.splice(index, 1)
         }
 
@@ -212,9 +202,6 @@ export default defineComponent({
          * @param {number} index
          */
         const deleteIgnoreChar = (index: number) => {
-            if (index === ignoreChareTableList.value.length - 1) {
-                return
-            }
             ignoreChareTableList.value.splice(index, 1)
         }
 
@@ -258,8 +245,8 @@ export default defineComponent({
         const handleCanvasMouseMove = (event: MouseEvent) => {
             if (isCanvasMoving) {
                 event.preventDefault()
-                const currentX = Math.min(Math.max(0, Math.ceil(event.clientX) - rectX), rectWidth)
-                const currentY = Math.min(Math.max(0, Math.ceil(event.clientY) - rectY), rectHeight)
+                const currentX = clamp(Math.ceil(event.clientX) - rectX, 0, rectWidth)
+                const currentY = clamp(Math.ceil(event.clientY) - rectY, 0, rectHeight)
                 drawingPosition.value.X = Math.min(currentX, originX)
                 drawingPosition.value.Y = Math.min(currentY, originY)
                 drawingPosition.value.width = Math.abs(currentX - originX)
@@ -287,23 +274,40 @@ export default defineComponent({
         useEventListener(document.body, 'mousemove', handleCanvasMouseMove, false)
         useEventListener(document.body, 'mouseup', handleCanvasMouseUp, false)
 
-        // pos绘制的Canvas
-        let posDrawer: ReturnType<typeof CanvasPos>
+        let player: PlayerInstance['player']
+        let plugin: PlayerInstance['plugin']
+        let drawer = CanvasPos()
+
+        const ready = computed(() => {
+            return playerRef.value?.ready || false
+        })
+
+        // 播放模式
+        const mode = computed(() => {
+            if (!ready.value) {
+                return ''
+            }
+            return playerRef.value!.mode
+        })
+
         /**
          * @description 视频插件ready回调
          */
         const handlePlayerReady = () => {
-            if (playerRef.value?.mode === 'ocx') {
-                const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
-                playerRef.value.plugin.ExecuteCmd(sendXML)
-            }
+            player = playerRef.value!.player
+            plugin = playerRef.value!.plugin
 
-            if (playerRef.value?.mode === 'h5') {
-                const canvas = playerRef.value.player.getDrawbordCanvas(0)
-                posDrawer = CanvasPos({
-                    el: canvas,
+            if (mode.value === 'h5') {
+                drawer = CanvasPos({
+                    el: player.getDrawbordCanvas(),
                 })
             }
+
+            if (mode.value === 'ocx') {
+                const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
+                plugin.ExecuteCmd(sendXML)
+            }
+
             play()
             drawPos()
         }
@@ -314,21 +318,21 @@ export default defineComponent({
         const play = () => {
             const data = colorTableList.value[pageData.value.colorTableIndex]
 
-            if (playerRef.value?.mode === 'h5') {
-                playerRef.value.player.play({
+            if (mode.value === 'h5') {
+                player.play({
                     chlID: data.chlId,
                     streamType: 2,
                 })
             }
 
-            if (playerRef.value?.mode === 'ocx') {
-                playerRef.value.plugin.RetryStartChlView(data.chlId, data.name)
+            if (mode.value === 'ocx') {
+                plugin.RetryStartChlView(data.chlId, data.name)
             }
         }
 
         const toggleOCX = (bool: boolean) => {
-            if (playerRef.value?.mode === 'ocx') {
-                playerRef.value.plugin.DisplayOCX(!bool)
+            if (mode.value === 'ocx') {
+                plugin.DisplayOCX(!bool)
             }
         }
 
@@ -357,13 +361,13 @@ export default defineComponent({
                 }
             })
 
-            if (playerRef.value?.mode === 'h5') {
-                posDrawer.setPosList(ocxData)
+            if (mode.value === 'h5') {
+                drawer.setPosList(ocxData)
             }
 
-            if (playerRef.value?.mode === 'ocx') {
+            if (mode.value === 'ocx') {
                 const sendXml = OCX_XML_SETPosColor(ocxData)
-                playerRef.value.plugin.ExecuteCmd(sendXml)
+                plugin.ExecuteCmd(sendXml)
             }
         }
 

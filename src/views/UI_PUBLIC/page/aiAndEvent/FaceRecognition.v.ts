@@ -4,9 +4,7 @@
  * @Description: AI 事件——人脸识别
  */
 import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
-import { AlarmFaceChlDto, AlarmFaceDetectionDto, AlarmFaceMatchDto, AlarmFaceRecognitionDto, type AlarmRecognitionTaskDto } from '@/types/apiType/aiAndEvent'
 import { type TabPaneName, type CheckboxValueType } from 'element-plus'
-import CanvasVfd from '@/utils/canvas/canvasVfd'
 import RecognitionPanel from './RecognitionPanel.vue'
 import { type XMLQuery } from '@/utils/xmlParse'
 import AlarmBaseChannelSelector from './AlarmBaseChannelSelector.vue'
@@ -134,7 +132,7 @@ export default defineComponent({
 
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
-        let vfdDrawer: ReturnType<typeof CanvasVfd>
+        let drawer = CanvasVfd()
 
         const chlData = computed(() => {
             return pageData.value.chlList.find((item) => item.id === pageData.value.curChl) || new AlarmFaceChlDto()
@@ -148,9 +146,9 @@ export default defineComponent({
             plugin = playerRef.value!.plugin
 
             if (mode.value === 'h5') {
-                const canvas = player.getDrawbordCanvas(0)
-                vfdDrawer = CanvasVfd({
-                    el: canvas,
+                drawer.destroy()
+                drawer = CanvasVfd({
+                    el: player.getDrawbordCanvas(),
                     onchange: (area) => {
                         detectionFormData.value.regionInfo = [area]
                     },
@@ -182,7 +180,7 @@ export default defineComponent({
             if (chlData.value.supportVfd) {
                 // 设置视频区域可编辑
                 if (mode.value === 'h5') {
-                    vfdDrawer.setEnable(true)
+                    drawer.setEnable(true)
                 }
 
                 if (mode.value === 'ocx') {
@@ -192,7 +190,7 @@ export default defineComponent({
             } else {
                 // 设置视频区域不可编辑
                 if (mode.value === 'h5') {
-                    vfdDrawer.setEnable(false)
+                    drawer.setEnable(false)
                 }
 
                 if (mode.value === 'ocx') {
@@ -493,30 +491,30 @@ export default defineComponent({
             if (type === 'vfdArea') {
                 if (detectionFormData.value.regionInfo && detectionFormData.value.regionInfo.length > 0) {
                     if (mode.value === 'h5') {
-                        vfdDrawer.setArea(detectionFormData.value.regionInfo[0])
+                        drawer.setArea(detectionFormData.value.regionInfo[0])
                     }
 
                     if (mode.value === 'ocx') {
-                        const sendXML = OCX_XML_SetVfdArea(detectionFormData.value.regionInfo[0], type, '#00ff00', 'TYPE_VFD_BLOCK')
+                        const sendXML = OCX_XML_SetVfdArea(detectionFormData.value.regionInfo[0], type, '#00ff00', OCX_AI_EVENT_TYPE_VFD_BLOCK)
                         plugin.ExecuteCmd(sendXML)
                     }
                 }
             } else if (type === 'faceMax') {
                 if (mode.value === 'h5') {
-                    vfdDrawer.setRangeMax(detectionFormData.value.maxRegionInfo[0])
+                    drawer.setRangeMax(detectionFormData.value.maxRegionInfo[0])
                 }
 
                 if (mode.value === 'ocx') {
-                    const sendXML = OCX_XML_SetVfdArea(detectionFormData.value.maxRegionInfo[0], type, '#00ff00', 'TYPE_VFD_BLOCK')
+                    const sendXML = OCX_XML_SetVfdArea(detectionFormData.value.maxRegionInfo[0], type, '#00ff00', OCX_AI_EVENT_TYPE_VFD_BLOCK)
                     plugin.ExecuteCmd(sendXML)
                 }
             } else if (type === 'faceMin') {
                 if (mode.value === 'h5') {
-                    vfdDrawer.setRangeMin(detectionFormData.value.minRegionInfo[0])
+                    drawer.setRangeMin(detectionFormData.value.minRegionInfo[0])
                 }
 
                 if (mode.value === 'ocx') {
-                    const sendXML = OCX_XML_SetVfdArea(detectionFormData.value.minRegionInfo[0], type, '#00ff00', 'TYPE_VFD_BLOCK')
+                    const sendXML = OCX_XML_SetVfdArea(detectionFormData.value.minRegionInfo[0], type, '#00ff00', OCX_AI_EVENT_TYPE_VFD_BLOCK)
                     plugin.ExecuteCmd(sendXML)
                 }
             }
@@ -581,11 +579,11 @@ export default defineComponent({
                 detectionFormData.value.maxRegionInfo.push(maxRegionInfo)
                 setCurrChlView('faceMax')
                 if (mode.value === 'h5') {
-                    vfdDrawer.toggleRange(true)
+                    drawer.toggleRange(true)
                 }
             } else {
                 if (mode.value === 'h5') {
-                    vfdDrawer.toggleRange(false)
+                    drawer.toggleRange(false)
                 }
 
                 if (mode.value === 'ocx') {
@@ -603,7 +601,7 @@ export default defineComponent({
          */
         const clearDrawArea = () => {
             if (mode.value === 'h5') {
-                vfdDrawer.clear()
+                drawer.clear()
             }
 
             if (mode.value === 'ocx') {
@@ -611,7 +609,14 @@ export default defineComponent({
                 plugin.ExecuteCmd(sendXML)
             }
 
-            detectionFormData.value.regionInfo = [{ X1: 0, Y1: 0, X2: 0, Y2: 0 }]
+            detectionFormData.value.regionInfo = [
+                {
+                    X1: 0,
+                    Y1: 0,
+                    X2: 0,
+                    Y2: 0,
+                },
+            ]
         }
 
         /**
@@ -734,12 +739,12 @@ export default defineComponent({
                         <trigger>
                             <sysRec>
                                 <chls type='list'>
-                                    ${detectionFormData.value.record.map((item) => `<item id='${item.value}'><![CDATA[${item.label}]]></item>`).join('')}
+                                    ${detectionFormData.value.record.map((item) => `<item id='${item.value}'>${wrapCDATA(item.label)}</item>`).join('')}
                                 </chls>
                             </sysRec>
                             <alarmOut>
                                 <alarmOuts type='list'>
-                                    ${detectionFormData.value.alarmOut.map((item) => `<item id='${item.value}'><![CDATA[${item.label}]]></item>`).join('')}
+                                    ${detectionFormData.value.alarmOut.map((item) => `<item id='${item.value}'>${wrapCDATA(item.label)}</item>`).join('')}
                                 </alarmOuts>
                             </alarmOut>
                             <preset>
@@ -749,8 +754,8 @@ export default defineComponent({
                                             return rawXml`
                                                 <item>
                                                     <index>${item.index}</index>
-                                                    <name><![CDATA[${item.name}]]></name>
-                                                    <chl id='${item.chl.value}'><![CDATA[${item.chl.label}]]></chl>
+                                                    <name>${wrapCDATA(item.name)}</name>
+                                                    <chl id='${item.chl.value}'>${wrapCDATA(item.chl.label)}</chl>
                                                 </item>
                                             `
                                         })
@@ -805,7 +810,7 @@ export default defineComponent({
             if (ready.value && watchDetection.ready.value) {
                 nextTick(() => {
                     if (mode.value === 'h5') {
-                        vfdDrawer.clear()
+                        drawer.clear()
                     }
 
                     if (mode.value === 'ocx') {
@@ -964,14 +969,6 @@ export default defineComponent({
                 item.similarity = recognitionPageData.value.similarity
             })
             recognitionPageData.value.isSimilarityPop = false
-        }
-
-        /**
-         * @description 回车键失去焦点
-         * @param {Event} event
-         */
-        const blurInput = (event: Event) => {
-            ;(event.target as HTMLInputElement).blur()
         }
 
         /**
@@ -1168,8 +1165,8 @@ export default defineComponent({
                                                                 return rawXml`
                                                                     <item>
                                                                         <index>${ele.index}</index>
-                                                                        <name><![CDATA[${ele.name}]]></name>
-                                                                        <chl id='${ele.chl.value}'><![CDATA[${ele.chl.label}]]></chl>
+                                                                        <name>${wrapCDATA(ele.name)}</name>
+                                                                        <chl id='${ele.chl.value}'>${wrapCDATA(ele.chl.label)}</chl>
                                                                     </item>
                                                                 `
                                                             })
@@ -1299,9 +1296,7 @@ export default defineComponent({
                 plugin.ExecuteCmd(sendXML)
             }
 
-            if (mode.value === 'h5') {
-                vfdDrawer.destroy()
-            }
+            drawer.destroy()
         })
 
         return {
@@ -1333,7 +1328,6 @@ export default defineComponent({
             removeTask,
             // tabChange,
             changeAllSimilarity,
-            blurInput,
             applyRecognitionData,
             handleAIResourceError,
             handleAIResourceDel,

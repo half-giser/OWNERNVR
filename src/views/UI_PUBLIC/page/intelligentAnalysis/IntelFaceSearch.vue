@@ -49,10 +49,9 @@
                                 v-show="formData.face === ''"
                                 class="face-pic-add"
                             >
-                                <BaseImgSprite
+                                <BaseImgSpriteBtn
                                     file="addFF"
-                                    :hover-index="2"
-                                    :chunk="4"
+                                    :index="[0, 2, 2, 3]"
                                 />
                             </div>
                             <div v-show="formData.face !== ''">
@@ -350,12 +349,9 @@
                         :label="Translate('IDCS_DETAIL_INFO')"
                     >
                         <template #default="{ row }: TableColumn<IntelSearchFaceList>">
-                            <BaseImgSprite
+                            <BaseImgSpriteBtn
                                 file="browser"
-                                :index="0"
-                                :hover-index="1"
-                                :chunk="4"
-                                @click.stop="showDetail(row)"
+                                @click="showDetail(row)"
                             />
                         </template>
                     </el-table-column>

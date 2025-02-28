@@ -3,7 +3,6 @@
  * @Date: 2024-09-19 09:27:33
  * @Description: AI 事件——更多——异常侦测
  */
-import { AlarmAbnormalDisposeDto, type AlarmChlDto } from '@/types/apiType/aiAndEvent'
 import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
 import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
 import AlarmBaseTriggerSelector from './AlarmBaseTriggerSelector.vue'
@@ -200,7 +199,7 @@ export default defineComponent({
                                 <chls type='list'>
                                     ${formData.value.record
                                         .map((item) => {
-                                            return `<item id='${item.value}'><![CDATA[${item.label}]]></item>`
+                                            return `<item id='${item.value}'>${wrapCDATA(item.label)}</item>`
                                         })
                                         .join('')}
                                 </chls>
@@ -209,7 +208,7 @@ export default defineComponent({
                                 <alarmOuts type='list'>
                                     ${formData.value.alarmOut
                                         .map((item) => {
-                                            return `<item id='${item.value}'><![CDATA[${item.label}]]></item>`
+                                            return `<item id='${item.value}'>${wrapCDATA(item.label)}</item>`
                                         })
                                         .join('')}
                                 </alarmOuts>
@@ -221,8 +220,8 @@ export default defineComponent({
                                             return rawXml`
                                                 <item>
                                                     <index>${item.index}</index>
-                                                    <name><![CDATA[${item.name}]]></name>
-                                                    <chl id='${item.chl.value}'><![CDATA[${item.chl.label}]]></chl>
+                                                    <name>${wrapCDATA(item.name)}</name>
+                                                    <chl id='${item.chl.value}'>${wrapCDATA(item.chl.label)}</chl>
                                                 </item>`
                                         })
                                         .join('')}

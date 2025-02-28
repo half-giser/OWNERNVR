@@ -12,12 +12,10 @@
             popper-class="no-padding"
         >
             <template #reference>
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     file="manual_trigger_alarm"
                     :title="Translate('IDCS_MANUAL_ALARM')"
-                    :index="pageData.isAlarmPop ? 2 : 0"
-                    :hover-index="1"
-                    :chunk="4"
+                    :active="pageData.isAlarmPop"
                 />
             </template>
             <div>

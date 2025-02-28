@@ -32,14 +32,11 @@
                         <div class="authCodeLogin-item">
                             <div class="authCodeLogin-icon icon-code"></div>
                             <div class="authCodeLogin-input">
-                                <el-input
+                                <BasePasswordInput
                                     v-model="formData.code"
                                     :placeholder="`${Translate('IDCS_AUTHCODE_TIP')} ${pageData.authCodeIndex}`"
                                     tabindex="2"
                                     size="large"
-                                    type="password"
-                                    @paste.capture.prevent=""
-                                    @copy.capture.prevent=""
                                 />
                             </div>
                             <div class="authCodeLogin-btns">

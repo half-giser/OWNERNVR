@@ -13,7 +13,10 @@
         </div>
         <div v-if="pageData.tab">
             <!-- nvr/ipc检测开启及ai按钮 -->
-            <div class="base-btn-box space-between padding collapse">
+            <div
+                v-if="!supportPeaTrigger"
+                class="base-btn-box space-between padding collapse"
+            >
                 <el-checkbox
                     v-model="formData.detectionEnable"
                     :label="Translate('IDCS_DETECTION_BY_DEVICE').formatForLang(chlData.supportTripwire ? 'IPC' : 'NVR')"
@@ -38,7 +41,7 @@
                         @message="notify"
                     />
                 </div>
-                <div v-if="pageData.tab === 'param'">
+                <div v-if="pageData.tab === 'param' && !supportPeaTrigger">
                     <div class="base-btn-box space-between">
                         <div>
                             <el-checkbox
@@ -77,6 +80,7 @@
                         <div class="base-ai-param-box-left"></div>
                         <div class="base-ai-param-box-right">
                             <el-form
+                                v-if="!supportPeaTrigger"
                                 :style="{
                                     '--form-input-width': '215px',
                                 }"
@@ -177,6 +181,7 @@
                         <div class="base-ai-param-box-left"></div>
                         <div class="base-ai-param-box-right">
                             <el-form
+                                v-if="!supportPeaTrigger"
                                 :style="{
                                     '--form-input-width': '300px',
                                 }"
@@ -282,7 +287,7 @@
                 <el-popover
                     v-model:visible="pageData.moreDropDown"
                     width="300"
-                    popper-class="no-padding keep-ocx"
+                    popper-class="no-padding"
                 >
                     <template #reference>
                         <div
@@ -292,7 +297,6 @@
                             <span>{{ Translate('IDCS_ADVANCED') }}</span>
                             <BaseImgSprite
                                 file="arrow"
-                                :index="0"
                                 :chunk="4"
                             />
                         </div>

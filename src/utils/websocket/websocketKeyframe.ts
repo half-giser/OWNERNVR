@@ -3,9 +3,6 @@
  * @Date: 2024-05-30 18:00:36
  * @Description: websocket 请求通道关键帧
  */
-import WebsocketBase from './websocketBase'
-import ImgRender from '../wasmPlayer/imageRender'
-import { type CmdKeyframeStartOption } from './websocketCmd'
 
 export interface WebsocketKeyframeOption {
     onready?: () => void
@@ -21,7 +18,7 @@ export interface WebsocketKeyframeOnMessageParam {
     imgUrl: string
 }
 
-export default function WebsocketKeyframe(option: WebsocketKeyframeOption) {
+export const WebsocketKeyframe = (option: WebsocketKeyframeOption) => {
     let ws: ReturnType<typeof WebsocketBase>
     let taskId: string | null = null
     let cmdQueue: ReturnType<typeof CMD_KEYFRAME_START>[] = []
@@ -31,7 +28,7 @@ export default function WebsocketKeyframe(option: WebsocketKeyframeOption) {
     const onmessage = option.onmessage
     const onerror = option.onerror
     const onclose = option.onclose
-    const imgRender = ImgRender({
+    const imgRender = WasmImageRender({
         ready: () => {
             init()
         },

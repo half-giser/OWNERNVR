@@ -3,7 +3,6 @@
  * @Date: 2024-08-30 18:47:04
  * @Description: 人脸库 - 添加人脸
  */
-import { IntelFaceDBFaceForm, type IntelFaceDBGroupDto, type IntelFaceDBSnapFaceList, type IntelFaceDBImportFaceDto } from '@/types/apiType/intelligentAnalysis'
 import IntelBaseFaceItem from './IntelBaseFaceItem.vue'
 import IntelFaceDBChooseFacePop from './IntelFaceDBChooseFacePop.vue'
 
@@ -172,9 +171,6 @@ export default defineComponent({
          * @description 图片列表上一页
          */
         const handlePrev = () => {
-            if (pageData.value.swiperIndex === 0) {
-                return
-            }
             pageData.value.swiperIndex--
         }
 
@@ -182,9 +178,6 @@ export default defineComponent({
          * @description 图片列表下一页
          */
         const handleNext = () => {
-            if (pageData.value.swiperIndex === swiperSize.value - 1) {
-                return
-            }
             pageData.value.swiperIndex++
         }
 
@@ -357,7 +350,7 @@ export default defineComponent({
                     <property>${wrapEnums(['allow', 'reject', 'limited'])}</property>
                 </types>
                 <content>
-                    ${ternary(force, '<force>true</force>', '')}
+                    ${force ? '<force>true</force>' : ''}
                     <name>${item.name}</name>
                     <sex type="sex">${item.sex}</sex>
                     <birthday>${formatDate(item.birthday, 'YYYY-MM-DD', dateTime.dateFormat)}</birthday>
@@ -474,7 +467,6 @@ export default defineComponent({
             successCount,
             picList,
             swiperSize,
-            formatDigit,
         }
     },
 })

@@ -15,16 +15,8 @@
                 class="loading"
             ></div>
             <BaseImgSprite
-                v-else-if="icon === 'success'"
-                file="success"
-                :chunk="1"
-                :index="0"
-            />
-            <BaseImgSprite
-                v-else-if="icon === 'error'"
-                file="error"
-                :chunk="1"
-                :index="0"
+                v-else-if="icon"
+                :file="icon"
             />
             <span v-else></span>
         </el-tooltip>
@@ -35,7 +27,7 @@
 const prop = withDefaults(
     defineProps<{
         /**
-         * @property {'loading' | 'success' | 'error'} 图标
+         * @property {'loading' | 'success' | 'error' | ''} 图标
          */
         icon?: string
         /**

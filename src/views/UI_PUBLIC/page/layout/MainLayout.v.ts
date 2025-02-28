@@ -33,8 +33,6 @@ export default defineComponent({
             mustBeModifiedPassword: false,
             passwordDialogTitle: 'IDCS_CHANGE_PWD',
             passwordStrength: 'weak' as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING,
-            // 顶部插件icon状态
-            hoverPluginIconIndex: 1,
             // 是否显示插件下载
             isPluginDownloadBtn: false,
             // 插件下载URL

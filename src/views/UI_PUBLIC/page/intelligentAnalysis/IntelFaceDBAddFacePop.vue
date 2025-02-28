@@ -83,11 +83,9 @@
                 </el-form-item>
             </el-form>
             <div class="swiper">
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     file="prev_page"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="2"
+                    :index="[0, 1, 1, 2]"
                     :chunk="3"
                     :disabled="pageData.swiperIndex === 0"
                     @click="handlePrev"
@@ -110,11 +108,9 @@
                     </div>
                     <div>{{ pageData.errorTip }}</div>
                 </div>
-                <BaseImgSprite
+                <BaseImgSpriteBtn
                     file="next_page"
-                    :index="0"
-                    :hover-index="1"
-                    :disabled-index="2"
+                    :index="[0, 1, 1, 2]"
                     :chunk="3"
                     :disabled="pageData.swiperIndex === swiperSize - 1"
                     @click="handleNext"

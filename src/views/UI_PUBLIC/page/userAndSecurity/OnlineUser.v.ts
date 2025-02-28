@@ -3,8 +3,6 @@
  * @Date: 2024-06-18 18:42:30
  * @Description: 在线用户
  */
-import type { UserOnlineList } from '@/types/apiType/userAndSecurity'
-
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()

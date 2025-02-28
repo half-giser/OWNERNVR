@@ -7,6 +7,7 @@
     <BaseImgSprite
         file="toolbar_add"
         class="base-toolbar-btn"
+        :title="Translate('IDCS_ADD_USER_RIGHT')"
         @click="add"
     />
 </template>

@@ -4,9 +4,7 @@
  * @Description: 时间切片-概览界面(按通道/按时间)
  */
 import dayjs from 'dayjs'
-import { type PlaybackTimeSliceChlList, type PlaybackTimeSliceList } from '@/types/apiType/playback'
 import TimeSliceItem from './TimeSliceItem.vue'
-import WebsocketKeyframe, { type WebsocketKeyframeOnMessageParam } from '@/utils/websocket/websocketKeyframe'
 
 export default defineComponent({
     components: {
@@ -125,8 +123,8 @@ export default defineComponent({
          */
         const getRecSection = async () => {
             const year = dayjs().year()
-            const startTime = dayjs(`${year - 10}-01-01 00:00:00`, DEFAULT_DATE_FORMAT)
-            const endTime = dayjs(`${year + 10}-01-01 00:00:00`, DEFAULT_DATE_FORMAT)
+            const startTime = dayjs(`${year - 10}-01-01`, DEFAULT_YMD_FORMAT)
+            const endTime = dayjs(`${year + 10}-01-01`, DEFAULT_YMD_FORMAT)
             const spaceTime = 60 * 60 * 24
             const spaceNum = (endTime.valueOf() - startTime.valueOf()) / 1000 / spaceTime
 

@@ -3,10 +3,8 @@
  * @Date: 2024-07-01 11:01:12
  * @Description: 查看日志
  */
-import { SystemLogForm, type SystemLogList } from '@/types/apiType/system'
 import dayjs from 'dayjs'
 import ViewLogDetailPop from './ViewLogDetailPop.vue'
-import { type PlaybackPopList } from '@/components/player/BasePlaybackPop.vue'
 
 export default defineComponent({
     components: {

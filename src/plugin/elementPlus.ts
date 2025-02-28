@@ -5,7 +5,6 @@
  */
 import { ElDialog, ElInputNumber, ElForm, ElTooltip, ElSelectV2, ElTable, ElDropdown, ElPopover, ElDatePicker, ElTimePicker, ElSlider, ElScrollbar } from 'element-plus'
 import { type PropType } from 'vue'
-import BaseCalendarIcon from '@/components/icon/BaseCalendarIcon.vue'
 
 ElInputNumber.props.controls = {
     type: Boolean,
@@ -190,11 +189,6 @@ ElDatePicker.props.cellClassName = {
 ElDatePicker.props.clearable = {
     type: Boolean,
     default: false,
-}
-
-ElDatePicker.props.prefixIcon = {
-    type: Object,
-    default: BaseCalendarIcon,
 }
 
 // ElDatePicker.props.showNow = {

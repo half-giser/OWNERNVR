@@ -19,8 +19,7 @@
         }"
         @mouseenter="isHover = true"
         @mouseleave="isHover = false"
-        @mousedown="isMouseDown = true"
-        @mouseup="isMouseDown = false"
+        @click="click"
     ></span>
 </template>
 
@@ -35,10 +34,6 @@ const prop = withDefaults(
          */
         file: string
         /**
-         * @property 缩放值
-         */
-        // scale?: number
-        /**
          * @property 分块 (由于雪碧大图可能由雪碧小图生成，此值对雪碧小图分块. 这里假定了小雪碧图都是水平平均分块的形式，如果不是这种模式，需特殊处理)
          */
         chunk?: number
@@ -49,63 +44,64 @@ const prop = withDefaults(
         /**
          * @property :hover索引值, number时是hover的下标索引，string时是hover的文件
          */
-        hoverIndex?: number | string
+        hoverIndex?: number
         /**
-         * @property :active索引值, number时是active的下标索引，string时是active的文件
+         * @property 是否高亮
          */
-        activeIndex?: number | string
+        active?: boolean
+        /**
+         * @property 高亮索引值, number时是active的下标索引，string时是active的文件
+         */
+        activeIndex?: number
         /**
          * @property 禁用状态索引值. number时是disabled的下标索引，string时是disabled的文件
          */
-        disabledIndex?: number | string
+        disabledIndex?: number
         /**
-         * @property 是否禁用
+         * @property 是否禁用, 优先级比active高
          */
         disabled?: boolean
     }>(),
     {
-        // scale: 1,
         chunk: 1,
         index: 0,
         hoverIndex: -1,
+        active: false,
         activeIndex: -1,
         disabledIndex: -1,
         disabled: false,
     },
 )
 
+const emits = defineEmits<{
+    (e: 'click'): void
+}>()
+
+const instance = getCurrentInstance()
+
 const isHover = ref(false)
-const isMouseDown = ref(false)
 
 // 当前索引值
 const currentIndex = computed(() => {
-    if (typeof prop.disabledIndex === 'number' && prop.disabled && prop.disabledIndex > -1) return prop.disabledIndex
-    if (isMouseDown.value && typeof prop.activeIndex === 'number' && prop.activeIndex !== -1) return prop.activeIndex
-    if (isHover.value && typeof prop.hoverIndex === 'number' && prop.hoverIndex !== -1) return prop.hoverIndex
+    if (prop.disabled && prop.disabledIndex > -1) return prop.disabledIndex
+    if (prop.active && prop.activeIndex !== -1) return prop.activeIndex
+    if (isHover.value && prop.hoverIndex !== -1) return prop.hoverIndex
     return prop.index
-})
-
-// 当前图标
-const currentFile = computed(() => {
-    if (typeof prop.disabledIndex === 'string' && prop.disabled) return prop.disabledIndex
-    if (isMouseDown.value && typeof prop.activeIndex === 'string') return prop.activeIndex
-    if (isHover.value && typeof prop.hoverIndex === 'string') return prop.hoverIndex
-    return prop.file
 })
 
 // hover状态
 const isHoverClass = computed(() => {
-    return !prop.disabled && ((typeof prop.hoverIndex === 'number' && prop.hoverIndex > -1) || (typeof prop.hoverIndex === 'string' && prop.hoverIndex.length))
+    return !prop.disabled && prop.hoverIndex > -1
 })
 
 // 当前图标文件
 const item = computed(() => {
-    return sprites.coordinates[currentFile.value] || [0, 0, 0, 0]
+    return sprites.coordinates[prop.file] || [0, 0, 0, 0]
 })
 
 // 非标准的图标
 const custom = computed(() => {
-    const customFn = customSprites[currentFile.value]
+    const customFn = customSprites[prop.file]
     if (customFn) {
         return customFn(currentIndex.value)
     }
@@ -143,12 +139,26 @@ const height = computed(() => {
     }
     return `${item.value[3]}px`
 })
+
+const click = (e: Event) => {
+    if (instance?.vnode?.props?.onClick) {
+        e.stopPropagation()
+    }
+
+    if (prop.disabled) {
+        return
+    }
+
+    emits('click')
+}
 </script>
 
 <style lang="scss" scoped>
+@use '@/scss/function' as *;
+
 .Sprite {
     display: inline-block;
-    background-image: url('@/components/sprite/sprites.png');
+    background-image: img-url('@/components/sprite/sprites.png');
     background-repeat: no-repeat;
     vertical-align: middle;
 

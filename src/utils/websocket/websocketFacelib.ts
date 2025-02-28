@@ -3,7 +3,6 @@
  * @Date: 2024-05-30 11:53:45
  * @Description: websocket 导出人脸库
  */
-import WebsocketBase from './websocketBase'
 
 export interface WebsocketFaceLibOption {
     onsuccess?: (param: number | WebsocketFaceLibFaceDataDatum[]) => void
@@ -28,7 +27,7 @@ export type WebsocketFaceLibFaceDataDatum = {
     index: string
 }
 
-export default function WebsocketFaceLib(option: WebsocketFaceLibOption) {
+export const WebsocketFaceLib = (option: WebsocketFaceLibOption) => {
     let taskId: string | null = null
     let abnormalIndex = 0
 

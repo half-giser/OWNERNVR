@@ -3,7 +3,7 @@
  * @Date: 2024-05-30 14:46:09
  * @Description: 生成视频文件 (串行处理，即一次只处理一个输出任务)
  */
-export interface RecordBuilderOption {
+export interface WasmRecordBuilderOption {
     ready?: () => void
     maxSingleSize: number
     onFrameIndex?: (frameIndex: number, frameTime: number) => void
@@ -12,7 +12,7 @@ export interface RecordBuilderOption {
 
 type DoneCallback = (recordFile: ArrayBuffer, manul: boolean, fileIndex: number) => void
 
-export default function RecordBuilder(option: RecordBuilderOption) {
+export const WasmRecordBuilder = (option: WasmRecordBuilderOption) => {
     const type = 0 // 解码类型，0表示回放
 
     let doneCallback: DoneCallback | null = null // 执行完录像录制任务后的回调

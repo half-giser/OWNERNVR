@@ -4,7 +4,6 @@
  * @Description: P2P授权码登录
  */
 import type { FormRules } from 'element-plus'
-import { UserAuthCodeLoginForm } from '@/types/apiType/user'
 import progress from '@bassist/progress'
 
 export default defineComponent({
@@ -30,7 +29,7 @@ export default defineComponent({
             // auth code 过期时间
             expireTime: 0,
             // 登录类型
-            loginType: P2PACCESSTYPE.P2P_AUTHCODE_LOGIN,
+            loginType: P2P_ACCESS_TYPE_AUTHCODE_LOGIN,
             // 日历选项
             calendarOptions: [] as SelectOption<string, string>[],
         })
@@ -254,7 +253,7 @@ export default defineComponent({
          */
         const checkIsLocking = () => {
             let lockTime = 5 * 60 * 1000
-            if (pageData.value.loginType === P2PACCESSTYPE.P2P_AUTHCODE_LOGIN) {
+            if (pageData.value.loginType === P2P_ACCESS_TYPE_AUTHCODE_LOGIN) {
                 return
             }
 

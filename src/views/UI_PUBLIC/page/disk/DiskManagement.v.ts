@@ -3,10 +3,8 @@
  * @Date: 2024-07-05 13:42:37
  * @Description: 磁盘管理
  */
-import { type DiskManagememtList } from '@/types/apiType/disk'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 import BaseInputEncryptPwdPop from '../../components/auth/BaseInputEncryptPwdPop.vue'
-import type { UserCheckAuthForm, UserInputEncryptPwdForm } from '@/types/apiType/user'
 
 export default defineComponent({
     components: {

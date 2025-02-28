@@ -47,7 +47,7 @@ class Texture {
     }
 }
 
-export default function WebGLPlayer(canvas: HTMLCanvasElement, option: Record<string, any>) {
+export function WebGLPlayer(canvas: HTMLCanvasElement, option: Record<string, any>) {
     const gl = (canvas.getContext('webgl', { preserveDrawingBuffer: true, ...option }) ||
         canvas.getContext('experimental-webgl', { preserveDrawingBuffer: true, ...option })) as WebGLRenderingContextExtends
     let viewWidth = gl.canvas.width // gl上下文窗口宽度

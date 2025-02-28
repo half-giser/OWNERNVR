@@ -96,12 +96,8 @@
                         </el-dropdown>
                     </template>
                     <template #default="{ row }: TableColumn<AlarmEmailReceiverDto>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             file="del"
-                            :chunk="4"
-                            :index="0"
-                            :hover-index="1"
-                            :active-index="1"
                             @click="delReceiver(row)"
                         />
                     </template>

@@ -3,8 +3,6 @@
  * @Date: 2024-07-11 08:56:08
  * @Description: UPnP配置
  */
-import { NetUPnPForm, type NetUPnPPortDto } from '@/types/apiType/net'
-
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()

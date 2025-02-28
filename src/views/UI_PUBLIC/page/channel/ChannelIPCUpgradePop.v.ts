@@ -3,10 +3,6 @@
  * @Date: 2024-06-13 16:05:05
  * @Description: 通道 - IPC升级弹窗
  */
-import { type ChannelInfoDto } from '@/types/apiType/channel'
-import WebsocketState from '@/utils/websocket/websocketState'
-import WebsocketUpload from '@/utils/websocket/websocketUpload'
-
 export default defineComponent({
     setup(_prop, { expose }) {
         const { Translate } = useLangStore()
@@ -113,9 +109,9 @@ export default defineComponent({
                     config: {
                         ipc_upgrade_state_info: true,
                     },
-                    onmessage: (data: any) => {
-                        if (data && data.ipc_upgrade_state_info) {
-                            data.ipc_upgrade_state_info.forEach((ele: any) => {
+                    onmessage: (data) => {
+                        if (data.ipc_upgrade_state_info) {
+                            data.ipc_upgrade_state_info.forEach((ele) => {
                                 const chlId = ele.node_id
                                 const status = ele.chl_upgrade_status
                                 const progress = ele.pack_upload_precent

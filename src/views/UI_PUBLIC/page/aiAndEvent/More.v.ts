@@ -3,7 +3,6 @@
  * @Date: 2024-09-10 17:50:35
  * @Description: 更多功能页面的框架
  */
-import { AlarmChlDto, type AlarmOnlineChlDto } from '@/types/apiType/aiAndEvent'
 import AlarmBaseChannelSelector from './AlarmBaseChannelSelector.vue'
 import FireDetectionPanel from './FireDetectionPanel.vue'
 import TemperatureDetectionPanel from './TemperatureDetectionPanel.vue'

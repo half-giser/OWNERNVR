@@ -3,7 +3,6 @@
  * @Date: 2024-09-12 09:22:23
  * @Description: 智能分析 - 人脸比对结果弹窗
  */
-import { IntelFaceMatchPopList } from '@/types/apiType/intelligentAnalysis'
 import IntelBasePanoramaPop from './IntelBasePanoramaPop.vue'
 
 export default defineComponent({

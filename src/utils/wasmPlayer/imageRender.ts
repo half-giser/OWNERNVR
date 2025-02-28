@@ -3,14 +3,13 @@
  * @Date: 2024-05-30 18:07:24
  * @Description: 基于wasm的单帧图片渲染(串行处理，即一次只处理一张渲染)
  */
-import WebGLPlayer from './webglPlayer'
 
-export interface ImageRenderOption {
+export interface WasmImageRenderOption {
     ready?: () => void
     onerror?: (code?: number, url?: string) => void
 }
 
-interface ImageRenderVideoFrame {
+interface WasmImageRenderVideoFrame {
     buffer: ArrayBuffer
     timestamp: number
     width: number
@@ -29,7 +28,7 @@ type TaskType = {
     cb: (str: string, realTimestamp: number) => void
 }
 
-export default function ImageRender(option: ImageRenderOption) {
+export const WasmImageRender = (option: WasmImageRenderOption) => {
     const type = 0 // 解码类型，0表示回放
 
     let curTask: TaskType // 执行完渲染后的回调
@@ -91,7 +90,7 @@ export default function ImageRender(option: ImageRenderOption) {
      * @description 渲染图像
      * @param {ImageRenderVideoFrame} frame
      */
-    const renderVideoFrame = (frame: ImageRenderVideoFrame) => {
+    const renderVideoFrame = (frame: WasmImageRenderVideoFrame) => {
         if (!webglPlayer) {
             return
         }

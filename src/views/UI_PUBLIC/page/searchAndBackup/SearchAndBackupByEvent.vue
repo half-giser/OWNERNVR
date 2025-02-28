@@ -41,7 +41,6 @@
                         <el-tooltip :content="item.label">
                             <BaseImgSprite
                                 :file="formData.events.includes(item.value) ? item.checked : item.unchecked"
-                                :index="0"
                                 :chunk="4"
                             />
                         </el-tooltip>
@@ -171,23 +170,17 @@
                         />
                         <el-table-column :label="Translate('IDCS_PLAY')">
                             <template #default="{ row }: TableColumn<PlaybackRecLogList>">
-                                <BaseImgSprite
+                                <BaseImgSpriteBtn
                                     file="play (3)"
-                                    :index="0"
-                                    :hover-index="1"
-                                    :chunk="4"
-                                    @click.stop="playRec(row)"
+                                    @click="playRec(row)"
                                 />
                             </template>
                         </el-table-column>
                         <el-table-column :label="Translate('IDCS_INFORMATION')">
                             <template #default="{ row }: TableColumn<PlaybackRecLogList>">
-                                <BaseImgSprite
+                                <BaseImgSpriteBtn
                                     v-if="row.event === 'POS'"
                                     file="detail"
-                                    :index="0"
-                                    :hover-index="1"
-                                    :chunk="4"
                                     @click="showPosInfo(row)"
                                 />
                                 <el-text v-else>--</el-text>

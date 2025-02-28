@@ -5,7 +5,6 @@
  */
 import PermissionGroupEditPop from './PermissionGroupEditPop.vue'
 import { delAuthGroup } from '@/api/userAndSecurity'
-import { type UserAuthGroupList, UserPermissionChannelAuthList, UserPermissionSystemAuthList } from '@/types/apiType/userAndSecurity'
 import { type TableInstance } from 'element-plus'
 
 export default defineComponent({

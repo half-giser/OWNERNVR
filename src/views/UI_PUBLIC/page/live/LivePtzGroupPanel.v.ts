@@ -4,7 +4,6 @@
  * @Description: 现场预览-云台视图-巡航线组
  */
 import ChannelCruiseGroupAddPop from '../channel/ChannelCruiseGroupAddPop.vue'
-import { type ChannelPtzCruiseDto } from '@/types/apiType/channel'
 
 export default defineComponent({
     components: {
@@ -71,10 +70,6 @@ export default defineComponent({
          * @description 新增巡航线组
          */
         const addCruiseGroup = () => {
-            if (!prop.enabled) {
-                return
-            }
-
             // 巡航线数量达到上限8个
             if (listData.value.length >= CRUISE_MAX_COUNT) {
                 openMessageBox(Translate('IDCS_OVER_MAX_NUMBER_LIMIT'))
@@ -97,10 +92,6 @@ export default defineComponent({
          * @param {string} name
          */
         const deleteCruiseGroup = (index: number, name: string) => {
-            if (!prop.enabled) {
-                return
-            }
-
             openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_DELETE_MP_CRUISE_BY_GROUP_S').formatForLang(getShortString(name, 10)),

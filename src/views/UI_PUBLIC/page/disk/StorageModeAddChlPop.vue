@@ -35,11 +35,8 @@
                 />
                 <el-table-column :label="Translate('IDCS_PREVIEW')">
                     <template #default="{ row }: TableColumn<StorageModeChlList>">
-                        <BaseImgSprite
+                        <BaseImgSpriteBtn
                             file="play (3)"
-                            :chunk="4"
-                            :index="0"
-                            :hover-index="1"
                             @click="preview(row)"
                         />
                     </template>

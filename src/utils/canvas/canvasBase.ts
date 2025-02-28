@@ -60,8 +60,8 @@ interface CanvaseBaseArrowOption {
     }
 }
 
-export default function CanvasBase(element: HTMLCanvasElement) {
-    const el = isRef(element) ? toRaw(element) : element
+export const CanvasBase = (element?: HTMLCanvasElement) => {
+    const el = element ? (isRef(element) ? toRaw(element) : element) : document.createElement('canvas')
     const ctx = el.getContext('2d')!
 
     ctx.imageSmoothingEnabled = false
@@ -79,13 +79,8 @@ export default function CanvasBase(element: HTMLCanvasElement) {
         ctx.beginPath()
         ctx.moveTo(startX, startY)
         ctx.lineTo(endX, endY)
-        if (lineStyle) {
-            ctx.lineWidth = lineStyle.lineWidth || 1
-            ctx.strokeStyle = lineStyle.strokeStyle || '#000'
-        } else {
-            ctx.lineWidth = 1
-            ctx.strokeStyle = '#000'
-        }
+        ctx.lineWidth = lineStyle.lineWidth || 1
+        ctx.strokeStyle = lineStyle.strokeStyle || '#000'
         ctx.stroke()
     }
 
@@ -100,10 +95,8 @@ export default function CanvasBase(element: HTMLCanvasElement) {
     const Rect = (startX: number, startY: number, width: number, height: number, lineStyle: Partial<CanvasBaseLineStyleOption>) => {
         ctx.beginPath()
         ctx.rect(startX, startY, width, height)
-        if (lineStyle) {
-            ctx.lineWidth = lineStyle.lineWidth || 1
-            ctx.strokeStyle = lineStyle.strokeStyle || '#000'
-        }
+        ctx.lineWidth = lineStyle.lineWidth || 1
+        ctx.strokeStyle = lineStyle.strokeStyle || '#000'
         ctx.stroke()
     }
 
@@ -140,10 +133,8 @@ export default function CanvasBase(element: HTMLCanvasElement) {
         ctx.lineTo(X2, Y2)
         ctx.lineTo(X1, Y2)
         ctx.lineTo(X1, Y1)
-        if (lineStyle) {
-            ctx.lineWidth = lineStyle.lineWidth || 1
-            ctx.strokeStyle = lineStyle.strokeStyle || '#000'
-        }
+        ctx.lineWidth = lineStyle.lineWidth || 1
+        ctx.strokeStyle = lineStyle.strokeStyle || '#000'
         ctx.stroke()
     }
 
@@ -171,10 +162,8 @@ export default function CanvasBase(element: HTMLCanvasElement) {
     const Circle = (x: number, y: number, r: number, lineStyle: CanvasBaseLineStyleOption) => {
         ctx.beginPath()
         ctx.arc(x, y, r, 0, 2 * Math.PI)
-        if (lineStyle) {
-            ctx.lineWidth = lineStyle.lineWidth || 1
-            ctx.strokeStyle = lineStyle.strokeStyle || '#000'
-        }
+        ctx.lineWidth = lineStyle.lineWidth || 1
+        ctx.strokeStyle = lineStyle.strokeStyle || '#000'
         ctx.stroke()
         ctx.closePath()
     }
@@ -283,13 +272,15 @@ export default function CanvasBase(element: HTMLCanvasElement) {
      *      @property {Object} textCfg 箭头两端点的文字配置 { textStart, textEnd, fillStyle, strokeStyle, font, textBaseline }, 详细见Text方法
      */
     const Arrow = (option: CanvaseBaseArrowOption) => {
-        const startX = option.startX,
-            startY = option.startY,
-            endX = option.endX,
-            endY = option.endY
+        const startX = option.startX
+        const startY = option.startY
+        const endX = option.endX
+        const endY = option.endY
+
         if (startX === endX && startY === endY) return
-        const pointX = option.pointX,
-            pointY = option.pointY
+
+        const pointX = option.pointX
+        const pointY = option.pointY
         const size = option.size || 5
         const direction = option.direction || 'toEnd'
         const lineStyle = {
@@ -297,10 +288,12 @@ export default function CanvasBase(element: HTMLCanvasElement) {
             strokeStyle: '#0f0',
             ...(option.lineStyle || {}),
         }
+
         // 箭头两端点
         let arrowStartX, arrowStartY, arrowEndX, arrowEndY
         // 箭头端点投影在线段上的坐标
         let onlinePointX, onlinePointY
+
         if (startY === endY) {
             // 线段和x轴平行时
             onlinePointX = pointX - size

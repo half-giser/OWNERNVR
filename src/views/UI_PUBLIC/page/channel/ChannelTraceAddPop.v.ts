@@ -3,7 +3,6 @@
  * @Date: 2024-08-21 10:40:04
  * @Description: 新增轨迹弹窗
  */
-import { type ChannelPtzTraceDto } from '@/types/apiType/channel'
 import type { FormRules } from 'element-plus'
 
 export default defineComponent({
@@ -151,7 +150,6 @@ export default defineComponent({
             open,
             verify,
             close,
-            formatInputMaxLength,
         }
     },
 })

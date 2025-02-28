@@ -3,12 +3,8 @@
  * @Date: 2024-09-19 13:36:26
  * @Description: 区域入侵
  */
-import { type AlarmChlDto, type AlarmOnlineChlDto, AlarmPeaDto } from '@/types/apiType/aiAndEvent'
 import ChannelPtzCtrlPanel from '@/views/UI_PUBLIC/page/channel/ChannelPtzCtrlPanel.vue'
 import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
-import CanvasPolygon from '@/utils/canvas/canvasPolygon'
-import type { CanvasBasePoint, CanvasBaseArea } from '@/utils/canvas/canvasBase'
-import { cloneDeep } from 'lodash-es'
 import { type XMLQuery, type XmlElement } from '@/utils/xmlParse'
 import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
 import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
@@ -62,9 +58,6 @@ export default defineComponent({
         const systemCaps = useCababilityStore()
         const { Translate } = useLangStore()
         const playerRef = ref<PlayerInstance>()
-        let peaDrawer = CanvasPolygon({
-            el: document.createElement('canvas'),
-        })
 
         const AREA_TYPE_MAPPING: Record<string, string> = {
             perimeter: 'perimeter',
@@ -137,6 +130,7 @@ export default defineComponent({
 
         let player: PlayerInstance['player']
         let plugin: PlayerInstance['plugin']
+        let drawer = CanvasPolygon()
 
         const ready = computed(() => {
             return playerRef.value?.ready || false
@@ -158,11 +152,10 @@ export default defineComponent({
             plugin = playerRef.value!.plugin
 
             if (mode.value === 'h5') {
-                const canvas = player.getDrawbordCanvas(0)
-                const regulation = pageData.value.currentRegulation
-                peaDrawer = CanvasPolygon({
-                    el: canvas,
-                    regulation: regulation,
+                drawer.destroy()
+                drawer = CanvasPolygon({
+                    el: player.getDrawbordCanvas(),
+                    regulation: pageData.value.currentRegulation,
                     onchange: changePea,
                     closePath: closePath,
                     forceClosePath: forceClosePath,
@@ -509,12 +502,12 @@ export default defineComponent({
                                         <trigger>
                                             <sysRec>
                                                 <chls type="list">
-                                                    ${data.recordChls.map((element) => `<item id="${element.value}"><![CDATA[${element.label}]]></item>`).join('')}
+                                                    ${data.recordChls.map((element) => `<item id="${element.value}">${wrapCDATA(element.label)}</item>`).join('')}
                                                 </chls>
                                             </sysRec>
                                             <alarmOut>
                                                 <alarmOuts type="list">
-                                                    ${data.alarmOutChls.map((element) => `<item id="${element.value}"><![CDATA[${element.label}]]></item>`).join('')}
+                                                    ${data.alarmOutChls.map((element) => `<item id="${element.value}">${wrapCDATA(element.label)}</item>`).join('')}
                                                 </alarmOuts>
                                             </alarmOut>
                                             <preset>
@@ -524,8 +517,8 @@ export default defineComponent({
                                                             return rawXml`
                                                             <item>
                                                                 <index>${item.index}</index>
-                                                                <name><![CDATA[${item.name}]]></name>
-                                                                <chl id='${item.chl.value}'><![CDATA[${item.chl.label}]]></chl>
+                                                                <name>${wrapCDATA(item.name)}</name>
+                                                                <chl id='${item.chl.value}'>${wrapCDATA(item.chl.label)}</chl>
                                                             </item>`
                                                         })
                                                         .join('')}
@@ -626,7 +619,7 @@ export default defineComponent({
                     if (count > 0 && count < 4) {
                         openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_INPUT_LIMIT_FOUR_POIONT'))
                         return false
-                    } else if (count > 0 && !peaDrawer.judgeAreaCanBeClosed(allRegionList[i])) {
+                    } else if (count > 0 && !drawer.judgeAreaCanBeClosed(allRegionList[i])) {
                         openMessageBox(Translate('IDCS_INTERSECT'))
                         return false
                     }
@@ -642,7 +635,7 @@ export default defineComponent({
                 const area = pageData.value.warnAreaIndex
                 const boundaryInfo = formData.value[type].boundaryInfo
                 if (mode.value === 'h5') {
-                    peaDrawer.setEnable(true)
+                    drawer.setEnable(true)
                     setPeaOcxData()
                 }
 
@@ -664,8 +657,8 @@ export default defineComponent({
             } else if (pageData.value.tab === 'target') {
                 showAllPeaArea(false)
                 if (mode.value === 'h5') {
-                    peaDrawer.clear()
-                    peaDrawer.setEnable(false)
+                    drawer.clear()
+                    drawer.setEnable(false)
                 }
 
                 if (mode.value === 'ocx') {
@@ -737,7 +730,6 @@ export default defineComponent({
 
         // pea执行是否显示全部区域
         const toggleShowAllArea = () => {
-            peaDrawer && peaDrawer.setEnableShowAll(pageData.value.isShowAllArea)
             showAllPeaArea(pageData.value.isShowAllArea)
         }
 
@@ -834,7 +826,10 @@ export default defineComponent({
 
         // pea是否显示所有区域
         const showAllPeaArea = (isShowAll: boolean) => {
-            peaDrawer && peaDrawer.setEnableShowAll(isShowAll)
+            if (mode.value === 'h5') {
+                drawer.setEnableShowAll(isShowAll)
+            }
+
             if (isShowAll) {
                 const type = pageData.value.activityType
                 const index = pageData.value.warnAreaIndex
@@ -843,14 +838,14 @@ export default defineComponent({
                     const regionInfoList = formData.value[type].regionInfo
 
                     if (mode.value === 'h5') {
-                        peaDrawer.setCurrAreaIndex(index, pageData.value.currAreaType)
-                        peaDrawer.drawAllRegion(regionInfoList, index)
+                        drawer.setCurrAreaIndex(index, pageData.value.currAreaType)
+                        drawer.drawAllRegion(regionInfoList, index)
                     }
 
                     if (mode.value === 'ocx') {
                         const pluginRegionInfoList = cloneDeep(regionInfoList)
                         pluginRegionInfoList.splice(index, 1) // 插件端下发全部区域需要过滤掉当前区域数据
-                        const sendXML = OCX_XML_SetAllArea({ regionInfoList: pluginRegionInfoList }, 'Rectangle', 'TYPE_PEA_DETECTION', undefined, true)
+                        const sendXML = OCX_XML_SetAllArea({ regionInfoList: pluginRegionInfoList }, 'Rectangle', OCX_AI_EVENT_TYPE_PEA_DETECTION, '', true)
                         plugin.ExecuteCmd(sendXML)
                     }
                 } else {
@@ -868,12 +863,12 @@ export default defineComponent({
                     })
 
                     if (mode.value === 'h5') {
-                        peaDrawer.setCurrAreaIndex(index, pageData.value.currAreaType)
-                        peaDrawer.drawAllPolygon(boundaryInfo, {}, pageData.value.currAreaType, index, true)
+                        drawer.setCurrAreaIndex(index, pageData.value.currAreaType)
+                        drawer.drawAllPolygon(boundaryInfo, [], pageData.value.currAreaType, index, true)
                     }
 
                     if (mode.value === 'ocx') {
-                        const sendXML = OCX_XML_SetAllArea({ detectAreaInfo: boundaryInfo }, 'IrregularPolygon', 'TYPE_PEA_DETECTION', undefined, true)
+                        const sendXML = OCX_XML_SetAllArea({ detectAreaInfo: boundaryInfo }, 'IrregularPolygon', OCX_AI_EVENT_TYPE_PEA_DETECTION, '', true)
                         plugin.ExecuteCmd(sendXML)
                     }
                 }
@@ -881,11 +876,11 @@ export default defineComponent({
                 if (mode.value === 'ocx') {
                     if (pageData.value.currentRegulation) {
                         // 画矩形
-                        const sendXML = OCX_XML_SetAllArea({ regionInfoList: [] }, 'Rectangle', 'TYPE_PEA_DETECTION', undefined, false)
+                        const sendXML = OCX_XML_SetAllArea({}, 'Rectangle', OCX_AI_EVENT_TYPE_PEA_DETECTION, '', false)
                         plugin.ExecuteCmd(sendXML)
                     } else {
                         // 画点
-                        const sendXML = OCX_XML_SetAllArea({ detectAreaInfo: [] }, 'IrregularPolygon', 'TYPE_PEA_DETECTION', undefined, false)
+                        const sendXML = OCX_XML_SetAllArea({}, 'IrregularPolygon', OCX_AI_EVENT_TYPE_PEA_DETECTION, '', false)
                         plugin.ExecuteCmd(sendXML)
                     }
                 }
@@ -901,13 +896,13 @@ export default defineComponent({
             const regionInfo = formData.value[type].regionInfo
             if (boundaryInfo.length) {
                 if (mode.value === 'h5') {
-                    peaDrawer.setCurrAreaIndex(area, pageData.value.currAreaType)
+                    drawer.setCurrAreaIndex(area, pageData.value.currAreaType)
                     if (pageData.value.currentRegulation) {
                         // 画矩形
-                        peaDrawer.setArea(regionInfo[area])
+                        drawer.setArea(regionInfo[area])
                     } else {
                         // 画点
-                        peaDrawer.setPointList(boundaryInfo[area].point, true)
+                        drawer.setPointList(boundaryInfo[area].point, true)
                     }
                 }
 
@@ -952,7 +947,7 @@ export default defineComponent({
                 formData.value[currType].boundaryInfo[area].point = []
 
                 if (mode.value === 'h5') {
-                    peaDrawer && peaDrawer.clear()
+                    drawer.clear()
                 }
 
                 if (mode.value === 'ocx') {
@@ -973,8 +968,9 @@ export default defineComponent({
             const area = pageData.value.warnAreaIndex
             formData.value[currType].boundaryInfo[area].point = []
             formData.value[currType].regionInfo[area] = { X1: 0, Y1: 0, X2: 0, Y2: 0 }
+
             if (mode.value === 'h5') {
-                peaDrawer.clear()
+                drawer.clear()
             }
 
             if (mode.value === 'ocx') {
@@ -1008,17 +1004,17 @@ export default defineComponent({
             }
 
             if (mode.value === 'h5') {
-                peaDrawer.clear()
+                drawer.clear()
             }
 
             if (mode.value === 'ocx') {
                 if (pageData.value.currentRegulation) {
                     // 画矩形
-                    const sendXML = OCX_XML_SetAllArea({ regionInfoList: [] }, 'Rectangle', 'TYPE_PEA_DETECTION', undefined, pageData.value.isShowAllArea)
+                    const sendXML = OCX_XML_SetAllArea({}, 'Rectangle', OCX_AI_EVENT_TYPE_PEA_DETECTION, '', pageData.value.isShowAllArea)
                     plugin.ExecuteCmd(sendXML)
                 } else {
                     // 画点
-                    const sendXML = OCX_XML_SetAllArea({ detectAreaInfo: [] }, 'IrregularPolygon', 'TYPE_PEA_DETECTION', undefined, pageData.value.isShowAllArea)
+                    const sendXML = OCX_XML_SetAllArea({}, 'IrregularPolygon', OCX_AI_EVENT_TYPE_PEA_DETECTION, '', pageData.value.isShowAllArea)
                     plugin.ExecuteCmd(sendXML)
                 }
                 const sendXML = OCX_XML_SetPeaAreaAction('NONE')
@@ -1078,16 +1074,18 @@ export default defineComponent({
                 plugin.ExecuteCmd(sendAreaXML)
                 if (pageData.value.currentRegulation) {
                     // 画矩形
-                    const sendAllAreaXML = OCX_XML_SetAllArea({ regionInfoList: [] }, 'Rectangle', 'TYPE_PEA_DETECTION', undefined, false)
+                    const sendAllAreaXML = OCX_XML_SetAllArea({}, 'Rectangle', OCX_AI_EVENT_TYPE_PEA_DETECTION, '', false)
                     plugin.ExecuteCmd(sendAllAreaXML)
                 } else {
                     // 画点
-                    const sendAllAreaXML = OCX_XML_SetAllArea({ detectAreaInfo: undefined }, 'IrregularPolygon', 'TYPE_PEA_DETECTION', undefined, false)
+                    const sendAllAreaXML = OCX_XML_SetAllArea({}, 'IrregularPolygon', OCX_AI_EVENT_TYPE_PEA_DETECTION, '', false)
                     plugin.ExecuteCmd(sendAllAreaXML)
                 }
                 const sendXML = OCX_XML_StopPreview('ALL')
                 plugin.ExecuteCmd(sendXML)
             }
+
+            drawer.destroy()
         })
 
         return {
