@@ -153,7 +153,7 @@ export default {
                 lk: 'FTP',
                 group: 'network',
                 hasCap(systemCaps) {
-                    return import.meta.env.VITE_UI_TYPE !== 'UI1-E' && systemCaps.supportFTP
+                    return systemCaps.supportFTP
                 },
             },
         },
@@ -166,7 +166,7 @@ export default {
                 lk: 'IDCS_SNMP',
                 group: 'network',
                 hasCap(systemCaps) {
-                    return import.meta.env.VITE_UI_TYPE !== 'UI1-E' && systemCaps.supportSnmp
+                    return systemCaps.supportSnmp
                 },
             },
         },

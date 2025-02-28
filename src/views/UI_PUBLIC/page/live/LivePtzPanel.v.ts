@@ -175,14 +175,12 @@ export default defineComponent({
 
         // 是否有权限
         const hasAuth = computed(() => {
-            return import.meta.env.VITE_UI_TYPE === 'UI1-E' || userSession.hasAuth('remoteChlMgr')
+            return userSession.hasAuth('remoteChlMgr')
         })
 
         // 是否有巡航线组和轨迹的权限
         const hasTraceAuth = computed(() => {
-            return (
-                import.meta.env.VITE_UI_TYPE === 'UI1-E' || (systemCaps.supportPtzGroupAndTrace && prop.chl[prop.winData.chlID]?.supportPtz && prop.chl[prop.winData.chlID]?.supportPTZGroupTraceTask)
-            )
+            return systemCaps.supportPtzGroupAndTrace && prop.chl[prop.winData.chlID]?.supportPtz && prop.chl[prop.winData.chlID]?.supportPTZGroupTraceTask
         })
 
         // 最大菜单数量

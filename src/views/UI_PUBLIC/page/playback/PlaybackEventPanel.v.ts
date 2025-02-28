@@ -253,7 +253,7 @@ export default defineComponent({
                 ].join(': '),
             ],
             // UI1-B客户不支持选第二种模式
-            isEventPopBtn: true,
+            isEventPopBtn: systemCaps.IntelAndFaceConfigHide,
             // 是否显示POS输入框
             isPosInput: systemCaps.supportPOS,
             // POS关键字
@@ -349,10 +349,6 @@ export default defineComponent({
 
         onMounted(() => {
             pageData.value.eventList = pageData.value.events[0].map((item) => item.value)
-            // UI1-B客户不支持选第二种模式
-            if (import.meta.env.VITE_UI_TYPE === 'UI1-B') {
-                pageData.value.isEventPopBtn = false
-            }
         })
 
         return {
