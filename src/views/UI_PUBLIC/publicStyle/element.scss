@@ -279,21 +279,27 @@
         }
 
         &__input {
-            &.is-checked + .el-radio__label {
+            &.is-checked:not(.is-disabled) + .el-radio__label {
                 color: inherit;
-            }
-
-            &.is-checked .el-radio__inner {
-                background-color: var(--primary);
             }
 
             &.is-disabled.is-checked .el-radio__inner {
                 background-color: var(--input-bg-disabled);
+
+                &::after {
+                    background-color: var(--input-border-disabled);
+                }
             }
         }
 
         &__inner {
             background-color: var(--input-bg);
+
+            &::after {
+                background-color: var(--primary);
+                width: 8px;
+                height: 8px;
+            }
         }
     }
 
