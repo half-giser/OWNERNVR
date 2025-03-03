@@ -142,8 +142,8 @@
                         :pic="item.imgUrl"
                         :size="pageData.sliceType === 'minute' ? 'small' : 'normal'"
                         :active="!!pageData.activeTimeSlice && pageData.activeTimeSlice === item.taskId"
-                        @click="playTimeSlice(item.startTime, item.endTime, item.taskId)"
-                        @dblclick="changeTimeSlice(item.startTime)"
+                        @click="playTimeSlice(item.frameTime, item.endTime, item.taskId)"
+                        @dblclick="changeTimeSlice(item.frameTime)"
                     />
                 </div>
             </el-scrollbar>

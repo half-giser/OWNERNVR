@@ -75,7 +75,7 @@
                         class="btn"
                         file="image_preview_play"
                         :disabled="pageData.iconDisabled"
-                        @click="play"
+                        @click="resume"
                     />
                 </el-tooltip>
                 <el-tooltip :content="Translate('IDCS_STOP')">
@@ -124,12 +124,19 @@ const chlMapping: Record<
 
 const playerRef = ref<PlayerInstance>()
 
+let player: PlayerInstance['player']
+let plugin: PlayerInstance['plugin']
+
+const ready = computed(() => {
+    return playerRef.value?.ready || false
+})
+
 // 播放模式
 const mode = computed(() => {
-    if (!playerRef.value) {
+    if (!ready.value) {
         return ''
     }
-    return playerRef.value.mode
+    return playerRef.value!.mode
 })
 
 const posInfo = usePosInfo(mode)
@@ -202,18 +209,21 @@ const endTimeStamp = computed(() => {
  * @description 播放器ready时的回调
  */
 const handleReady = () => {
+    player = playerRef.value!.player
+    plugin = playerRef.value!.plugin
+
     if (mode.value === 'h5') {
         play()
     }
 
     if (mode.value === 'ocx') {
-        playerRef.value!.plugin.ExecuteCmd(OCX_XML_SetPluginModel('ReadOnly', 'Playback'))
-        playerRef.value!.plugin.ExecuteCmd(
+        plugin.ExecuteCmd(OCX_XML_SetPluginModel('ReadOnly', 'Playback'))
+        plugin.ExecuteCmd(
             OCX_XML_SetProperty({
                 calendarType: userSession.calendarType,
             }),
         )
-        playerRef.value!.plugin.ExecuteCmd(OCX_XML_SetRecPlayMode('SYNC'))
+        plugin.ExecuteCmd(OCX_XML_SetRecPlayMode('SYNC'))
         play()
     }
 }
@@ -226,7 +236,7 @@ const play = () => {
         pageData.value.progress = startTimeStamp.value
         pageData.value.stop = false
         pageData.value.paused = false
-        playerRef.value!.player.play({
+        player.play({
             chlID: current.value.chlId,
             chlName: current.value.chlName,
             startTime: startTimeStamp.value,
@@ -258,7 +268,7 @@ const play = () => {
             localToUtc(current.value.startTime, DEFAULT_DATE_FORMAT),
             localToUtc(current.value.endTime, DEFAULT_DATE_FORMAT),
         )
-        playerRef.value!.plugin.ExecuteCmd(sendXML)
+        plugin.ExecuteCmd(sendXML)
         seek(startTimeStamp.value)
     }
 }
@@ -267,14 +277,14 @@ const play = () => {
  * @description 播放器暂停
  */
 const pause = () => {
-    if (playerRef.value?.mode === 'h5') {
-        playerRef.value.player.pause(0)
+    if (mode.value === 'h5') {
+        player.pause(0)
         pageData.value.paused = true
     }
 
-    if (playerRef.value?.mode === 'ocx') {
+    if (mode.value === 'ocx') {
         const sendXML = OCX_XML_SetPlayStatus('FORWARDS_PAUSE', 0)
-        playerRef.value.plugin.ExecuteCmd(sendXML)
+        plugin.ExecuteCmd(sendXML)
         pageData.value.paused = true
     }
 }
@@ -282,35 +292,33 @@ const pause = () => {
 /**
  * @description 播放器恢复播放
  */
-// const resume = () => {
-//     if (pageData.value.iconDisabled) {
-//         return
-//     }
-//     if (playerRef.value?.mode === 'h5') {
-//         if (pageData.value.stop) {
-//             play()
-//         } else {
-//             playerRef.value.player.resume(0)
-//             pageData.value.paused = false
-//         }
-//     }
-//     if (playerRef.value?.mode === 'ocx') {
-//         if (pageData.value.stop) {
-//             play()
-//         } else {
-//             const sendXML = OCX_XML_SetPlayStatus('FORWARDS', 0)
-//             playerRef.value.plugin.ExecuteCmd(sendXML)
-//             pageData.value.paused = false
-//         }
-//     }
-// }
+const resume = () => {
+    if (mode.value === 'h5') {
+        if (pageData.value.stop) {
+            play()
+        } else {
+            player.resume(0)
+            pageData.value.paused = false
+        }
+    }
+
+    if (mode.value === 'ocx') {
+        if (pageData.value.stop) {
+            play()
+        } else {
+            const sendXML = OCX_XML_SetPlayStatus('FORWARDS', 0)
+            plugin.ExecuteCmd(sendXML)
+            pageData.value.paused = false
+        }
+    }
+}
 
 /**
  * @description 播放器停止播放
  */
 const stop = () => {
     if (mode.value === 'h5') {
-        playerRef.value!.player.stop(0)
+        player.stop(0)
         pageData.value.progress = startTimeStamp.value
         pageData.value.paused = true
         pageData.value.stop = true
@@ -318,7 +326,7 @@ const stop = () => {
 
     if (mode.value === 'ocx') {
         const sendXML = OCX_XML_SetPlayStatus('STOP')
-        playerRef.value!.plugin.ExecuteCmd(sendXML)
+        plugin.ExecuteCmd(sendXML)
         pageData.value.progress = startTimeStamp.value
         pageData.value.paused = true
         pageData.value.stop = true
@@ -331,7 +339,7 @@ const stop = () => {
  */
 const seek = (timestamp: number) => {
     if (mode.value === 'h5') {
-        playerRef.value!.player.seek(Math.floor(timestamp))
+        player.seek(Math.floor(timestamp))
         pageData.value.paused = false
     }
 
@@ -342,7 +350,7 @@ const seek = (timestamp: number) => {
                 time: Math.floor(timestamp),
             },
         ])
-        playerRef.value!.plugin.ExecuteCmd(sendXML)
+        plugin.ExecuteCmd(sendXML)
         pageData.value.paused = false
     }
 }
@@ -462,7 +470,7 @@ const ocxNotify = ($: XMLQuery, stateType: string) => {
     if (stateType === 'connectstate') {
         if ($('statenotify').text() === 'success') {
             const sendXML = OCX_XML_SetRecPlayMode('SYNC')
-            playerRef.value!.plugin.ExecuteCmd(sendXML)
+            plugin.ExecuteCmd(sendXML)
             play()
         }
     }
@@ -495,7 +503,7 @@ const ocxNotify = ($: XMLQuery, stateType: string) => {
         if (status.trim() === 'success') {
             if (systemCaps.supportPOS) {
                 //设置通道是否显示POS信息
-                playerRef.value!.plugin.ExecuteCmd(posInfo(true, chlId, winIndex))
+                plugin.ExecuteCmd(posInfo(true, chlId, winIndex))
             }
         }
     }

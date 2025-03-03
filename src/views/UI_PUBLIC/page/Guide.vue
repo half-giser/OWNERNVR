@@ -13,7 +13,7 @@
             >
                 <div class="title">{{ Translate('IDCS_WIZARD') }}</div>
                 <div class="box">
-                    <div>
+                    <div ref="langRef">
                         <div class="lang-title">{{ Translate('IDCS_LANGUAGE') }}</div>
                         <BaseListBox
                             class="lang-list"
@@ -29,7 +29,7 @@
                             </BaseListBoxItem>
                         </BaseListBox>
                     </div>
-                    <div>
+                    <div ref="regionRef">
                         <div class="lang-title">{{ Translate('IDCS_LOCALITY') }}</div>
                         <BaseListBox
                             class="region-list"
@@ -134,6 +134,7 @@
                                 v-model="dateTimeFormData.timeServer"
                                 :options="pageData.timeServerOptions"
                                 filterable
+                                :disabled="dateTimeFormData.syncType !== 'NTP'"
                             />
                         </el-form-item>
                         <el-form-item :label="Translate('IDCS_VIDEO_FORMAT')">
@@ -286,7 +287,7 @@
                         />
                         <el-table-column
                             :label="Translate('IDCS_TYPE')"
-                            prop="combinedStatus"
+                            prop="type"
                         />
                         <el-table-column
                             :label="Translate('IDCS_CAPACITY')"
@@ -403,6 +404,10 @@
 
     .el-checkbox {
         margin-right: 15px;
+    }
+
+    .base-btn-box {
+        align-items: center;
     }
 }
 

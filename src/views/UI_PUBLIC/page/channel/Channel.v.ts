@@ -21,6 +21,11 @@ export default defineComponent({
         const plugin = usePlugin()
 
         const tableData = ref<ChannelInfoDto[]>([])
+        const virtualTableData = computed<number[]>(() => {
+            return Array(tableData.value.length)
+                .fill(1)
+                .map((item, key) => item + key)
+        })
         const channelEditPopVisable = ref(false)
         const editRowData = ref(new ChannelInfoDto())
         const protocolList = ref<ChannelRTSPPropertyDto[]>([])
@@ -166,12 +171,11 @@ export default defineComponent({
         }
 
         const isShowUpgradeBtn = (rowData: ChannelInfoDto) => {
-            if (rowData.protocolType === 'TVT_IPCAMERA') rowData.showUpgradeBtn = true
-            return rowData.showUpgradeBtn
+            return rowData.protocolType === 'TVT_IPCAMERA'
         }
 
         const upgradeIPC = (rowData: ChannelInfoDto) => {
-            if (rowData.upgradeStatus === 'success' || rowData.upgradeDisabled) return
+            if (rowData.upgradeStatus === 'success' || isUpgradeDisabled(rowData)) return
             openUpgradePop('single', [rowData])
         }
 
@@ -295,34 +299,23 @@ export default defineComponent({
             })
         }
 
+        const isUpgradeDisabled = (channelInfo: ChannelInfoDto) => {
+            return channelInfo.accessType === '1' || !channelInfo.isOnline
+        }
+
         const getOnlineChlList = () => {
             queryOnlineChlList().then((res) => {
                 const $ = queryXml(res)
                 if ($('status').text() === 'success') {
-                    if (!tableData.value.length) return
+                    const onlineChlList = $('content/item').map((element) => element.attr('id'))
                     tableData.value.forEach((ele) => {
                         //模拟通道，状态置为空
-                        if (!ele.ip) return
-                        let isOnline = false
-                        $('content/item').forEach((element) => {
-                            const chlId = element.attr('id')
-                            if (ele.id === chlId) {
-                                if (!ele.isOnline) {
-                                    ele.isOnline = true
-                                    ele.upgradeDisabled = false
-                                }
-                                isOnline = true
-                                getIPChlInfo(ele)
-                            }
-                        })
-                        if (!isOnline && ele.isOnline) {
-                            ele.isOnline = false
-                            ele.upgradeDisabled = true
+                        if (!ele.ip) {
+                            return
                         }
-
-                        if (ele.accessType === '1') {
-                            ele.upgradeDisabled = true
-                            ele.showUpgradeBtn = true
+                        ele.isOnline = onlineChlList.includes(ele.id)
+                        if (ele.isOnline) {
+                            getIPChlInfo(ele)
                         }
                     })
                 }
@@ -448,6 +441,7 @@ export default defineComponent({
         return {
             userSession,
             tableData,
+            virtualTableData,
             channelEditPopVisable,
             editRowData,
             protocolList,
@@ -473,6 +467,7 @@ export default defineComponent({
             confirmEditChannel,
             baseLivePopRef,
             channelIPCUpgradePopRef,
+            isUpgradeDisabled,
         }
     },
 })

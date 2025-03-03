@@ -115,8 +115,10 @@ export default defineComponent({
             disk: true,
         }
 
+        // 开机向导步骤
         const steps = ref<string[]>([])
 
+        // 当前步骤索引
         const currentStepIndex = computed(() => {
             return steps.value.indexOf(pageData.value.current)
         })
@@ -131,6 +133,9 @@ export default defineComponent({
 
         const qaFormData = ref(new SystemGuideQuestionForm())
         const qaTableData = ref<SystemGuideQuestionForm[]>([])
+
+        const langRef = ref<HTMLDivElement>()
+        const regionRef = ref<HTMLDivElement>()
 
         // IL03开机向导的密保存在默认的问题，其他UI无此要求
         const isDefeultQuestion = computed(() => {
@@ -264,7 +269,7 @@ export default defineComponent({
                         return rawXml`
                             <item id="${item.id}">
                                 <question>${wrapCDATA(item.question)}</question>
-                                <answer>${wrapCDATA(item.answer)}</answer>
+                                <answer>${wrapCDATA(RSA_encrypt(pubkey, item.answer) + '')}</answer>
                             </item>
                         `
                     })
@@ -275,7 +280,7 @@ export default defineComponent({
                         return rawXml`
                             <item id="${index + 1}">
                                 <question>${wrapCDATA(item.question)}</question>
-                                <answer>${wrapCDATA(item.answer)}</answer>
+                                <answer>${wrapCDATA(RSA_encrypt(pubkey, item.answer) + '')}</answer>
                             </item>
                         `
                     })
@@ -352,9 +357,9 @@ export default defineComponent({
             })
             qaFormData.value.id = pageData.value.questionOptions[0]?.id || ''
 
-            stepList.languageAndRegion = $('content/showLanguage').text().bool()
-            stepList.privacy = $('content/showPrivacyStatement').text().bool()
-            stepList.dateAndTimezone = $('content/showDateTime').text().bool()
+            stepList.languageAndRegion = !$('content/showLanguage').text() || $('content/showLanguage').text().bool()
+            stepList.privacy = !$('content/showPrivacyStatement').text() || $('content/showPrivacyStatement').text().bool()
+            stepList.dateAndTimezone = !$('content/showDateTime').text() || $('content/showDateTime').text().bool()
 
             steps.value = Object.keys(stepList).filter((item) => stepList[item])
         }
@@ -579,7 +584,7 @@ export default defineComponent({
             const $ = queryXml(result)
             if ($('status').text() === 'success') {
                 pageData.value.passwordStrength = ($('content/pwdSecureSetting/pwdSecLevel').text() as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING & null) ?? 'weak'
-                getPasswordNoticeMsg()
+                pageData.value.passwordNoticeMsg = getPasswordNoticeMsg()
             } else {
                 const errorCode = $('errorCode').text().num()
                 if (errorCode === ErrorCode.USER_ERROR_FAIL) {
@@ -688,8 +693,10 @@ export default defineComponent({
          * @description 获取磁盘信息
          */
         const getDiskData = async () => {
+            openLoading()
+
             const storage = await queryStorageDevInfo(false)
-            const $storage = queryXml(queryXml(storage)('content')[0].element)
+            const $storage = queryXml(storage)
 
             const errorCode = $storage('errorCode').text().num()
             if (errorCode === ErrorCode.USER_ERROR_FAIL) {
@@ -699,6 +706,9 @@ export default defineComponent({
 
             const result = await queryDiskStatus(false)
             const $ = queryXml(result)
+
+            closeLoading()
+
             $storage('content/diskList/item').map((item) => {
                 const $item = queryXml(item.element)
 
@@ -804,10 +814,10 @@ export default defineComponent({
             await getRegionList()
             sortRegionList()
             nextTick(() => {
-                document.querySelector('.lang-list li.active')?.scrollIntoView({
+                langRef.value?.querySelector('li.active')?.scrollIntoView({
                     block: 'center',
                 })
-                document.querySelector('.region-list li.active')?.scrollIntoView({
+                regionRef.value?.querySelector('li.active')?.scrollIntoView({
                     block: 'center',
                 })
             })
@@ -842,6 +852,8 @@ export default defineComponent({
             changeQuestion,
             deleteQuestion,
             formatCurrentDisk,
+            langRef,
+            regionRef,
         }
     },
 })

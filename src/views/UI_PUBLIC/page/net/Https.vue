@@ -154,12 +154,12 @@
             <!-- 导出证书请求 -->
             <el-form-item :label="Translate('IDCS_CERT_REQ_DOWNLOAD')">
                 <el-input
-                    v-show="!isSupportH5"
+                    v-if="!isSupportH5"
                     :model-value="reqCertFormData.exportFileName"
                     readonly
                 />
                 <el-button
-                    v-show="!isSupportH5"
+                    v-if="!isSupportH5"
                     :disabled="pageData.isBrowseExportCertReqDisabled"
                     @click="browseExportCertificateRequest"
                 >

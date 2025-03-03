@@ -27,7 +27,7 @@
             name="vehicleDetection"
             :disabled="pageData.notSupport"
         >
-            <div>
+            <div v-if="!pageData.notSupport">
                 <div class="base-btn-box flex-start padding collapse">
                     <el-checkbox
                         v-model="detectionFormData.enabledSwitch"
@@ -249,7 +249,7 @@
             name="vehicleCompare"
             :disabled="pageData.notSupport"
         >
-            <div>
+            <div v-if="!pageData.notSupport">
                 <el-form
                     :style="{
                         '--form-label-width': 'auto',

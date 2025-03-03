@@ -1075,6 +1075,7 @@ export const getTranslateForSecond = (value: number) => {
  * @return {*}
  */
 const getTranslateForTime = (value: number, unit1: string, unit1s: string, unit2: string, unit2s: string) => {
+    value = Math.round(value)
     const t1 = Math.floor(value / 60)
     const t2 = value % 60
 

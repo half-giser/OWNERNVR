@@ -55,6 +55,7 @@
                     v-model="formData.timeServer"
                     :options="pageData.timeServerOptions"
                     filterable
+                    :disabled="formData.syncType !== 'NTP'"
                 />
             </el-form-item>
             <div class="base-subheading-box">{{ Translate('IDCS_TIMEZONE_DST') }}</div>

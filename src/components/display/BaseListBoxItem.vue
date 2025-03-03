@@ -33,16 +33,22 @@ const emits = defineEmits<{
     (e: 'dblclick'): void
 }>()
 
+const instance = getCurrentInstance()
+
 let timer: NodeJS.Timeout | number = 0
 
 /**
  * @description 拦截点击事件，在非双击时回调
  */
 const handleClick = () => {
-    clearTimeout(timer)
-    timer = setTimeout(() => {
+    if (instance?.vnode?.props?.onDblclick) {
+        clearTimeout(timer)
+        timer = setTimeout(() => {
+            emits('click')
+        }, 300)
+    } else {
         emits('click')
-    }, 300)
+    }
 }
 
 /**
