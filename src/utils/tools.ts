@@ -971,9 +971,10 @@ export const buildAudioList = async () => {
     const result = await queryAlarmAudioCfg()
     const $ = await commLoadResponseHandler(result)
     const audioList = $('content/audioList/item').map((item) => {
+        const $item = queryXml(item.element)
         return {
             value: item.attr('id'),
-            label: item.text(),
+            label: $item('name').text(),
         }
     })
     audioList.push({
@@ -984,10 +985,18 @@ export const buildAudioList = async () => {
 }
 
 /**
+ * @description 判断本地声音ID是否在声音列表中存在，若存在，返回本地声音ID，否则返回默认ID
+ * @param {SelectOption<string, string>[]} voiceList
+ * @param {string} audioId
+ * @param {string} defaultAudioId
+ * @return {string}
+ */
+export const getSystemAudioID = getScheduleId
+
+/**
  * @description 构建报警输出通道列表
  */
 export const buildAlarmOutChlList = async () => {
-    // const Translate = useLangStore().Translate
     const result = await getChlList({
         requireField: ['device'],
         nodeType: 'alarmOuts',
@@ -1096,8 +1105,8 @@ const getTranslateForTime = (value: number, unit1: string, unit1s: string, unit2
 export const getTranslateForPasswordStrength = (key: keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING) => {
     const Translate = useLangStore().Translate
     switch (key) {
-        case 'weak':
-            return Translate('IDCS_PASSWORD_STRONG_WEAK').formatForLang(1, 16)
+        // case 'weak':
+        //     return Translate('IDCS_PASSWORD_STRONG_WEAK').formatForLang(1, 16)
         case 'medium':
             return Translate('IDCS_PASSWORD_STRONG_MIDDLE').formatForLang(8, 16)
         case 'strong':

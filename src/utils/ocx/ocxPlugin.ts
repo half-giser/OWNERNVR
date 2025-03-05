@@ -241,7 +241,7 @@ const getSingletonPlugin = () => {
                             const userInfoArr = userSession.getAuthInfo()
                             const sendXML = OCX_XML_SetLang()
                             getVideoPlugin().ExecuteCmd(sendXML)
-                            const result = await doLogin('', {}, false)
+                            const result = await doLogin('')
                             if (queryXml(result)('status').text() === 'success') {
                                 if (userInfoArr) {
                                     setCookie('lastSN', userInfoArr[2], 36500)
@@ -1412,22 +1412,13 @@ const getSingletonPlugin = () => {
                 return
             }
 
-            // const checkNatIp = () => {
-            //     if (typeof natIp_2_0 === 'string') {
-            //         userSession.p2pSessionId = null
-            //         startV2Process()
-            //     } else {
-            //         requestAnimationFrame(checkNatIp)
-            //     }
-            // }
-
             // siteDictionary.js 在根目录下
             const script = document.createElement('script')
             script.onload = () => {
                 userSession.p2pSessionId = null
                 startV2Process()
             }
-            script.src = '/siteDictionary.js'
+            script.src = `${import.meta.env.VITE_P2P_URL}/siteDictionary.js?v=${import.meta.env.VITE_PACKAGE_VER}`
             document.body.appendChild(script)
         }
     })

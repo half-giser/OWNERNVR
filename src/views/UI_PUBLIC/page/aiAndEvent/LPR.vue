@@ -110,7 +110,7 @@
                                             @change="changeMaskArea"
                                         >
                                             <el-radio-button
-                                                v-for="(_value, _name, index) in detectionFormData.maskAreaInfo"
+                                                v-for="(_value, index) in detectionFormData.maskAreaInfo"
                                                 :key="index"
                                                 :label="index + 1"
                                                 :value="index"

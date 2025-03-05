@@ -14,56 +14,6 @@ export default defineComponent({
         // 时区及是否支持夏令时
         const TIME_ZONE = DEFAULT_TIME_ZONE
 
-        // 同步方式与显示文本映射
-        const SYNC_TYPE_MAPPING: Record<string, string> = {
-            manually: Translate('IDCS_MANUAL'),
-            NTP: Translate('IDCS_TIME_SERVER_SYNC'),
-        }
-
-        // 日期格式与显示文本映射
-        const DATE_FORMAT_MAPPING = getTranslateMapping(DEFAULT_DATE_FORMAT_MAPPING)
-        const TIME_FORMAT_MAPPING = getTranslateMapping(DEFAULT_TIME_FORMAT_MAPPING)
-
-        // 磁盘名字与显示文本的映射
-        const DISK_TYPE_MAPPING: Record<string, string> = {
-            hotplug: Translate('IDCS_DISK'),
-            esata: Translate('IDCS_ESATA'),
-            sata: Translate('IDCS_DISK'),
-            sas: Translate('IDCS_SAS'),
-            removable: 'UDisk-',
-        }
-
-        // 磁盘类型与显示文本的映射
-        const TYPE_MAPPING: Record<string, string> = {
-            hotplug: Translate('IDCS_NORMAL_DISK'),
-            esata: Translate('IDCS_NORMAL_DISK'),
-            sata: Translate('IDCS_NORMAL_DISK'),
-            sas: Translate('IDCS_NORMAL_DISK'),
-            raid: Translate('IDCS_ARRAY'),
-            removable: 'UDISK',
-        }
-
-        // 显示文本的映射
-        const TRANS_MAPPING: Record<string, string> = {
-            loadingTip: Translate('IDCS_DEVC_REQUESTING_DATA'),
-            bad: Translate('IDCS_NOT_AVAILABLE'),
-            local: Translate('IDCS_LOCAL'),
-            net: Translate('IDCS_REMOTE'),
-            read: Translate('IDCS_READ'),
-            'read/write': Translate('IDCS_READ_WRITE'),
-            true: Translate('IDCS_ENABLE'),
-            false: Translate('IDCS_DISABLE'),
-            disk: Translate('IDCS_DISK'),
-        }
-
-        // 磁盘状态与显示文本的映射
-        const ENCRYPT_STATUS_MAPPING: Record<string, string> = {
-            locked: Translate('IDCS_LOCKED'),
-            unknown: Translate('IDCS_ENCRYPT_UNKNOWN'),
-            encrypted: Translate('IDCS_ENCRYPTED'),
-            notEncrypted: Translate('IDCS_NOT_ENCRYPTED'),
-        }
-
         // 从设备获取公钥
         let pubkey = ''
 
@@ -348,7 +298,7 @@ export default defineComponent({
             userFormData.value.userName = $('content/userName').text()
 
             pageData.value.questionMaxCount = $('content/maxQuestionNum').text().num() || 7
-            pageData.value.questionOptions = $('content/question').map((item) => {
+            pageData.value.questionOptions = $('content/questions/question').map((item) => {
                 return {
                     id: item.attr('index'),
                     question: item.text(),
@@ -363,6 +313,14 @@ export default defineComponent({
 
             steps.value = Object.keys(stepList).filter((item) => stepList[item])
         }
+
+        // 带翻译的问题
+        const questionOptions = computed(() => {
+            return pageData.value.questionOptions.map((item) => ({
+                ...item,
+                question: Translate(item.question),
+            }))
+        })
 
         /**
          * @description 更改语言
@@ -477,6 +435,16 @@ export default defineComponent({
         const getTimeConfig = async () => {
             const result = await queryTimeCfg(false)
             const $ = queryXml(result)
+
+            // 同步方式与显示文本映射
+            const SYNC_TYPE_MAPPING: Record<string, string> = {
+                manually: Translate('IDCS_MANUAL'),
+                NTP: Translate('IDCS_TIME_SERVER_SYNC'),
+            }
+
+            // 日期格式与显示文本映射
+            const DATE_FORMAT_MAPPING = getTranslateMapping(DEFAULT_DATE_FORMAT_MAPPING)
+            const TIME_FORMAT_MAPPING = getTranslateMapping(DEFAULT_TIME_FORMAT_MAPPING)
 
             if ($('status').text() === 'success') {
                 pageData.value.syncTypeOptions = $('types/synchronizeType/enum').map((item) => {
@@ -695,6 +663,46 @@ export default defineComponent({
         const getDiskData = async () => {
             openLoading()
 
+            // 磁盘名字与显示文本的映射
+            const DISK_TYPE_MAPPING: Record<string, string> = {
+                hotplug: Translate('IDCS_DISK'),
+                esata: Translate('IDCS_ESATA'),
+                sata: Translate('IDCS_DISK'),
+                sas: Translate('IDCS_SAS'),
+                removable: 'UDisk-',
+            }
+
+            // 磁盘类型与显示文本的映射
+            const TYPE_MAPPING: Record<string, string> = {
+                hotplug: Translate('IDCS_NORMAL_DISK'),
+                esata: Translate('IDCS_NORMAL_DISK'),
+                sata: Translate('IDCS_NORMAL_DISK'),
+                sas: Translate('IDCS_NORMAL_DISK'),
+                raid: Translate('IDCS_ARRAY'),
+                removable: 'UDISK',
+            }
+
+            // 显示文本的映射
+            const TRANS_MAPPING: Record<string, string> = {
+                loadingTip: Translate('IDCS_DEVC_REQUESTING_DATA'),
+                bad: Translate('IDCS_NOT_AVAILABLE'),
+                local: Translate('IDCS_LOCAL'),
+                net: Translate('IDCS_REMOTE'),
+                read: Translate('IDCS_READ'),
+                'read/write': Translate('IDCS_READ_WRITE'),
+                true: Translate('IDCS_ENABLE'),
+                false: Translate('IDCS_DISABLE'),
+                disk: Translate('IDCS_DISK'),
+            }
+
+            // 磁盘状态与显示文本的映射
+            const ENCRYPT_STATUS_MAPPING: Record<string, string> = {
+                locked: Translate('IDCS_LOCKED'),
+                unknown: Translate('IDCS_ENCRYPT_UNKNOWN'),
+                encrypted: Translate('IDCS_ENCRYPTED'),
+                notEncrypted: Translate('IDCS_NOT_ENCRYPTED'),
+            }
+
             const storage = await queryStorageDevInfo(false)
             const $storage = queryXml(storage)
 
@@ -809,10 +817,9 @@ export default defineComponent({
         onMounted(async () => {
             await getActivationStatus()
             const langTypes = await langStore.getLangTypes()
-            langFormData.value.lang = langStore.langId
             pageData.value.langTypes = unref(langTypes)
             await getRegionList()
-            sortRegionList()
+            await changeLangType(langStore.devLandId)
             nextTick(() => {
                 langRef.value?.querySelector('li.active')?.scrollIntoView({
                     block: 'center',
@@ -854,6 +861,7 @@ export default defineComponent({
             formatCurrentDisk,
             langRef,
             regionRef,
+            questionOptions,
         }
     },
 })

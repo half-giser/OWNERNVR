@@ -606,6 +606,10 @@ export default defineComponent({
                     pageData.value.reqFail = true
                     pageData.value.tab = ''
                 }
+            } else {
+                pageData.value.reqFail = true
+                pageData.value.tab = ''
+                closeLoading()
             }
         }
 

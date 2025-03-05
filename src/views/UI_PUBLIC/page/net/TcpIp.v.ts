@@ -123,7 +123,7 @@ export default defineComponent({
             } else {
                 formData.value.bonds.forEach((bond) => {
                     const data = { ...DEFAULT_DATA }
-                    const item = $(`content/bonds/item[@id="${bond.id}"]`)
+                    const item = $(`content/ipGroup/bonds/item[@id="${bond.id}"]`)
                     if (!item.length) {
                         return
                     }
@@ -264,12 +264,16 @@ export default defineComponent({
             pageData.value.toleranceAndPoe = pageData.value.hasPoeNic && formData.value.netConfig.supportNetworkFaultTolerance
         }
 
+        const defaultData = new NetTcpIpBondsList()
+
         /**
          * @description 当前表单显示数据
          */
         const current = computed(() => {
             const mode = formData.value.netConfig.curWorkMode
-            let item, dhcp
+            let item
+            let dhcp: NetTcpIpDhcpList
+
             if (mode === 'multiple_address_setting' && formData.value.nicConfigs.length) {
                 item = { ...formData.value.nicConfigs[pageData.value.nicIndex] }
                 dhcp = dhcpData.value.nicConfigs[item.index]
@@ -281,14 +285,18 @@ export default defineComponent({
                     item = { ...formData.value.bonds[pageData.value.bondIndex] }
                     dhcp = dhcpData.value.bonds[item.index]
                 } else {
-                    return new NetTcpIpBondsList()
+                    return defaultData
                 }
             } else {
-                return new NetTcpIpBondsList()
+                return defaultData
+            }
+
+            if (!dhcp) {
+                return defaultData
             }
 
             if (item.dhcpSwitch) {
-                item.ip = dhcp.ip
+                item.ip = dhcp.ip || ''
                 item.mask = dhcp.mask
                 item.gateway = dhcp.gateway
                 item.ipV6 = dhcp.ipV6

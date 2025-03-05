@@ -25,76 +25,76 @@
                     v-model="pageData.accessLockCurrentIndex"
                     :disabled="!pageData.accessLockEnabled"
                     :props="{
-                        value: 'id',
+                        value: 'index',
                         label: 'name',
                     }"
-                    :options="formData.accessLockData"
+                    :options="accessLockformData.doorLock"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_UNLOCKING_CONDITION')">
                 <el-checkbox
-                    v-model="formData.wearMaskOpen"
+                    v-model="accessLockformData.wearMaskOpen"
                     :label="Translate('IDCS_MASK_ON')"
                     :disabled="!pageData.wearMaskOpenEnable"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_UNLOCKING_GROUP')">
                 <el-select-v2
-                    v-model="formData.accessListType"
-                    :disabled="!formData.accessListType"
+                    v-model="accessLockformData.accessListType"
+                    :disabled="!accessLockformData.accessListType"
                     :options="pageData.accessListTypeEnum"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_UNLOCKING_DELAY_TIME')">
                 <el-slider
-                    v-model="formData.accessLockData[pageData.accessLockCurrentIndex].openDelayTime"
-                    :min="formData.accessLockData[pageData.accessLockCurrentIndex].openDelayTimeMin"
-                    :max="formData.accessLockData[pageData.accessLockCurrentIndex].openDelayTimeMax"
-                    :disabled="!formData.accessLockData[pageData.accessLockCurrentIndex].openDelayTimeEnabled"
+                    v-model="accessLockformData.doorLock[pageData.accessLockCurrentIndex].openDelayTime"
+                    :min="accessLockformData.doorLock[pageData.accessLockCurrentIndex].openDelayTimeMin"
+                    :max="accessLockformData.doorLock[pageData.accessLockCurrentIndex].openDelayTimeMax"
+                    :disabled="!accessLockformData.doorLock[pageData.accessLockCurrentIndex].openDelayTimeEnabled"
                     show-input
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_UNLOCKING_DURATION')">
                 <el-slider
-                    v-model="formData.accessLockData[pageData.accessLockCurrentIndex].openHoldTime"
-                    :min="formData.accessLockData[pageData.accessLockCurrentIndex].openHoldTimeMin"
-                    :max="formData.accessLockData[pageData.accessLockCurrentIndex].openHoldTimeMax"
-                    :disabled="!formData.accessLockData[pageData.accessLockCurrentIndex].openHoldTimeEnabled"
+                    v-model="accessLockformData.doorLock[pageData.accessLockCurrentIndex].openHoldTime"
+                    :min="accessLockformData.doorLock[pageData.accessLockCurrentIndex].openHoldTimeMin"
+                    :max="accessLockformData.doorLock[pageData.accessLockCurrentIndex].openHoldTimeMax"
+                    :disabled="!accessLockformData.doorLock[pageData.accessLockCurrentIndex].openHoldTimeEnabled"
                     show-input
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_DOOR_LOCK_SETTING')">
                 <el-select-v2
-                    v-model="formData.accessLockData[pageData.accessLockCurrentIndex].doorLockConfig"
-                    :disabled="!formData.accessLockData[pageData.accessLockCurrentIndex].doorLockConfig"
+                    v-model="accessLockformData.doorLock[pageData.accessLockCurrentIndex].doorLockConfig"
+                    :disabled="!accessLockformData.doorLock[pageData.accessLockCurrentIndex].doorLockConfig"
                     :options="pageData.doorLockTypeEnum"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_ALARM_LINKAGE_TYPE')">
                 <el-select-v2
-                    v-model="formData.accessLockData[pageData.accessLockCurrentIndex].alarmAction"
-                    :disabled="!formData.accessLockData[pageData.accessLockCurrentIndex].alarmAction"
+                    v-model="accessLockformData.doorLock[pageData.accessLockCurrentIndex].alarmAction"
+                    :disabled="!accessLockformData.doorLock[pageData.accessLockCurrentIndex].alarmAction"
                     :options="pageData.doorLockActionEnum"
                 />
             </el-form-item>
             <div class="base-business-subheading">{{ Translate('IDCS_WIEGAND_CONFIG') }}</div>
             <el-form-item :label="Translate('IDCS_TRANSPORT_DIR')">
                 <el-select-v2
-                    v-model="formData.wiegandIOType"
-                    :disabled="!formData.wiegandIOType"
+                    v-model="wiegandFormData.IOType"
+                    :disabled="!wiegandFormData.IOType"
                     :options="pageData.wiegandIOTypeEnum"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_WIEGAND_MODE')">
                 <el-select-v2
-                    v-model="formData.wiegandMode"
-                    :disabled="!formData.wiegandMode"
+                    v-model="wiegandFormData.mode"
+                    :disabled="!wiegandFormData.mode"
                     :options="pageData.wiegandModeEnum"
                 />
             </el-form-item>
             <div class="base-btn-box">
                 <el-button
-                    :disabled="!pageData.chlId"
+                    :disabled="!pageData.chlId || (editAccessLock.disabled.value && editWiegand.disabled.value)"
                     @click="apply()"
                 >
                     {{ Translate('IDCS_APPLY') }}

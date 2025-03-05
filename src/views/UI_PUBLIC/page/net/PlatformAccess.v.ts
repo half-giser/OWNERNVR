@@ -470,6 +470,18 @@ export default defineComponent({
             return formData.value.gb28181Switch ? '' : 'disabled'
         }
 
+        const blurSipId = () => {
+            if (formData.value.sipId.length < 20) {
+                formData.value.sipId = '10000000000000000000'
+            }
+        }
+
+        const blurSipDeviceId = () => {
+            if (formData.value.sipDeviceId.length < 20) {
+                formData.value.sipDeviceId = '10000000000000000000'
+            }
+        }
+
         onMounted(() => {
             getData()
         })
@@ -487,6 +499,8 @@ export default defineComponent({
             handlePasswordFocus,
             changeNWMS5000Switch,
             handleRowClassName,
+            blurSipId,
+            blurSipDeviceId,
         }
     },
 })

@@ -290,8 +290,6 @@
             v-model="isAddRecorderPop"
             :edit-item="recoderEditItem"
             :mapping="mapping"
-            :chl-count-limit="chlCountLimit"
-            :face-match-limit-max-chl-num="faceMatchLimitMaxChlNum"
             @close="closeAddRecorderPop"
         />
         <ChannelAddSetProtocolPop

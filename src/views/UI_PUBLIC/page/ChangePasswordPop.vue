@@ -5,7 +5,7 @@
 -->
 <template>
     <el-dialog
-        :title="Translate(title)"
+        :title="Translate('IDCS_CHANGE_PWD')"
         width="600"
         :before-close="handleBeforeClose"
         @close="close"

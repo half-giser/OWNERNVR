@@ -221,7 +221,7 @@
                             <el-select-v2
                                 v-else
                                 v-model="qaFormData.id"
-                                :options="pageData.questionOptions"
+                                :options="questionOptions"
                                 :props="{
                                     label: 'question',
                                     value: 'id',
@@ -239,10 +239,12 @@
                             :data="qaTableData"
                             show-overflow-tooltip
                         >
-                            <el-table-column
-                                :label="Translate('IDCS_QUESTION')"
-                                prop="question"
-                            />
+                            <el-table-column :label="Translate('IDCS_QUESTION')">
+                                <template #default="{ row }: TableColumn<SystemGuideQuestionForm>">
+                                    <template v-if="isDefeultQuestion">{{ Translate(row.question) }}</template>
+                                    <template v-else>{{ row.question }}</template>
+                                </template>
+                            </el-table-column>
                             <el-table-column :label="Translate('IDCS_ANSWER')">
                                 <template #default="{ row }: TableColumn<SystemGuideQuestionForm>">
                                     <template v-if="!isDefeultQuestion || (isDefeultQuestion && !row.answer)">******</template>

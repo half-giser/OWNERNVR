@@ -246,7 +246,7 @@ export default defineComponent({
                         }
                     } else {
                         // 网络容错模式显示
-                        if (netStatusContentNicPoe !== item.attr('id')) {
+                        if (netStatusContentNicPoe === item.attr('id')) {
                             array.push({
                                 i: 2,
                                 k: 'IPv4 ' + Translate('IDCS_IP_ADDRESS'),

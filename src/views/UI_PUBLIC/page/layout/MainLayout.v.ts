@@ -31,7 +31,7 @@ export default defineComponent({
             // 更改密码弹窗状态
             isPasswordDialogVisible: false,
             mustBeModifiedPassword: false,
-            passwordDialogTitle: 'IDCS_CHANGE_PWD',
+            // passwordDialogTitle: 'IDCS_CHANGE_PWD',
             passwordStrength: 'weak' as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING,
             // 是否显示插件下载
             isPluginDownloadBtn: false,
@@ -53,7 +53,7 @@ export default defineComponent({
          * @description 打开修改密码弹窗
          */
         const showChangePwdPop = () => {
-            pageData.value.passwordDialogTitle = 'IDCS_CHANGE_PWD'
+            // pageData.value.passwordDialogTitle = 'IDCS_CHANGE_PWD'
             // mustBeModifiedPassword.value = false
             pageData.value.isPasswordDialogVisible = true
         }
@@ -109,7 +109,7 @@ export default defineComponent({
             const $ = queryXml(result)
             if ($('status').text() === 'success') {
                 strength = ($('content/pwdSecureSetting/pwdSecLevel').text() as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING & null) ?? 'weak'
-                if (systemCaps.supportPwdSecurityConfig) {
+                if (!systemCaps.supportPwdSecurityConfig) {
                     strength = 'strong'
                 }
             }
@@ -118,12 +118,21 @@ export default defineComponent({
         }
 
         /**
-         * @description 强制修改密码，打开修改密码弹窗
+         * @description 弹出密码需修改提示
+         * @param {string} message
+         * @param {boolean} force 是否强制修改
          */
-        const forceModifyPassword = () => {
-            pageData.value.mustBeModifiedPassword = true
-            pageData.value.passwordDialogTitle = userSession.defaultPwd ? 'IDCS_WARNING_DEFAULT_PASSWORD' : 'IDCS_PWD_STRONG_ERROR'
-            pageData.value.isPasswordDialogVisible = true
+        const handleModifyPassword = (message: string, force = false) => {
+            openMessageBox({
+                type: force ? 'info' : 'question',
+                message,
+            }).then(() => {
+                if (force) {
+                    pageData.value.mustBeModifiedPassword = true
+                }
+
+                pageData.value.isPasswordDialogVisible = true
+            })
         }
 
         /**
@@ -138,9 +147,7 @@ export default defineComponent({
             const isDefaultPwd = userSession.defaultPwd
             const isChangedPwd = userSession.isChangedPwd
             if (userSession.pwdExpired) {
-                pageData.value.mustBeModifiedPassword = true
-                pageData.value.passwordDialogTitle = 'IDCS_PASSWORD_EXPIRED'
-                pageData.value.isPasswordDialogVisible = true
+                handleModifyPassword(Translate('IDCS_PASSWORD_EXPIRED'), true)
             } else if (isDefaultPwd) {
                 // 密码判断策略为：
                 // （1）如果是IL03\INW48，默认密码（123456）必现修改（ NT - 5497）
@@ -149,32 +156,31 @@ export default defineComponent({
                 // IL03客户ID：12
                 // INW48客户ID：100
                 if (systemCaps.CustomerID === 12 || systemCaps.CustomerID === 100) {
-                    forceModifyPassword()
+                    handleModifyPassword(userSession.defaultPwd ? Translate('IDCS_WARNING_DEFAULT_PASSWORD') : Translate('IDCS_PWD_STRONG_ERROR'), true)
                 } else {
                     // 当前登录密码强度
                     const currentPwdStrength = userSession.pwdSaftyStrength // DEFAULT_PASSWORD_STREMGTH_MAPPING[userSession.pwdSaftyStrength]
                     // 系统要求密码强度
                     const pwdStrengthReqiured = DEFAULT_PASSWORD_STREMGTH_MAPPING[passwordStrength]
                     // 比较当前密码等级是否符合要求
+                    // 符合强度要求，提示默认密码是否修改
                     if (currentPwdStrength >= pwdStrengthReqiured) {
-                        // 符合强度要求，提示默认密码是否修改
-                        pageData.value.passwordDialogTitle = userSession.defaultPwd ? 'IDCS_WARNING_DEFAULT_PASSWORD' : 'IDCS_PWD_STRONG_ERROR'
-                        pageData.value.isPasswordDialogVisible = true
-                    } else {
-                        // 不符合强度要求，需要强制修改
-                        forceModifyPassword()
+                        handleModifyPassword(Translate('IDCS_WARNING_DEFAULT_PASSWORD'))
+                    }
+                    // 不符合强度要求，需要强制修改
+                    else {
+                        handleModifyPassword(userSession.defaultPwd ? Translate('IDCS_WARNING_DEFAULT_PASSWORD') : Translate('IDCS_PWD_STRONG_ERROR'), true)
+                        // forceModifyPassword()
                     }
                 }
             } else if (passwordStrength === 'weak') {
                 if (isDefaultPwd && !isChangedPwd) {
-                    pageData.value.isPasswordDialogVisible = true
-                    pageData.value.passwordDialogTitle = 'IDCS_WARNING_DEFAULT_PASSWORD'
+                    handleModifyPassword(Translate('IDCS_WARNING_DEFAULT_PASSWORD'))
                     userSession.defaultPwd = false
                 }
             } else {
                 if (!isChangedPwd && userSession.pwdSaftyStrength < DEFAULT_PASSWORD_STREMGTH_MAPPING[passwordStrength]) {
-                    pageData.value.mustBeModifiedPassword = true
-                    pageData.value.passwordDialogTitle = 'IDCS_PWD_STRONG_ERROR'
+                    handleModifyPassword(Translate('IDCS_PWD_STRONG_ERROR'), true)
                 }
             }
         }

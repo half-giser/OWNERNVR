@@ -132,5 +132,6 @@ declare global {
         }
         children: RouteRecordRawExtends[]
         redirect: string
+        alias?: string
     }
 }

@@ -241,7 +241,7 @@
                 </div>
             </div>
             <el-form-item
-                v-show="formData.netConfig.curWorkMode === 'network_fault_tolerance' && formData.bonds.length > 1"
+                v-show="formData.netConfig.curWorkMode === 'network_fault_tolerance'"
                 :label="Translate('IDCS_PROMPT_DEFAULT_NIC')"
             >
                 <el-select-v2
@@ -304,7 +304,7 @@
 
 .advance-btn {
     position: absolute;
-    top: -35px;
+    top: -32px;
     right: 10px;
 }
 

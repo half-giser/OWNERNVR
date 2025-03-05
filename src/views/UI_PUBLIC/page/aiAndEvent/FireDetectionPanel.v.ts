@@ -181,7 +181,7 @@ export default defineComponent({
                         return $trigger(item).text().bool()
                     }),
                     triggerList: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch', 'popMsgSwitch'],
-                    sysAudio: $trigger('sysAudio').attr('id') === '' ? $trigger('sysAudio').attr('id') : '',
+                    sysAudio: $trigger('sysAudio').attr('id'),
                     record: $trigger('sysRec/chls/item').map((item) => {
                         return {
                             value: item.attr('id'),

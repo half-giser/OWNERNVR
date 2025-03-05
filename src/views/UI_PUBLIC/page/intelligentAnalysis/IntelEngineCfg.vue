@@ -5,7 +5,11 @@
 -->
 <template>
     <div class="base-flex-box">
-        <el-form>
+        <el-form
+            :style="{
+                '--form-label-width': '300px',
+            }"
+        >
             <el-form-item>
                 <template #label>
                     <el-checkbox

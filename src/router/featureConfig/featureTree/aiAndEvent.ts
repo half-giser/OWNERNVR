@@ -266,6 +266,7 @@ export default {
                     }
                 }
             },
+            alias: '/intelligent-analysis/sample-data-base/sample-data-base-licence-plate',
         },
         aiEventMore: {
             //更多
@@ -420,6 +421,7 @@ export default {
                     return systemCaps.supportFaceMatch && import.meta.env.VITE_UI_TYPE === 'UI2-A'
                 },
             },
+            alias: '/intelligent-analysis/sample-data-base/sample-data-base-face',
         },
         vehicleDatabase: {
             // 车牌库
@@ -433,6 +435,7 @@ export default {
                     return systemCaps.supportPlateMatch && import.meta.env.VITE_UI_TYPE === 'UI2-A'
                 },
             },
+            alias: '/intelligent-analysis/sample-data-base/sample-data-base-licence-plate',
         },
         // 以下页面只有在UI3-A才有
         // alarmVfd: {

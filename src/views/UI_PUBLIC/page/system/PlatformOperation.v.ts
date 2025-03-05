@@ -288,6 +288,7 @@ export default defineComponent({
             if (pageData.value.selectAll) {
                 tableRef.value!.toggleAllSelection()
             }
+            pageData.value.reverseSelect = false
         }
 
         // 反选
@@ -316,7 +317,7 @@ export default defineComponent({
                 case 'testScreenshot':
                 case 'maintenanceScreenshot':
                 case 'acceptScreenshot':
-                    return tableRef.value!.getSelectionRows().length === 0
+                    return tableRef.value?.getSelectionRows().length === 0
                 case 'faultRepair':
                     return formData.value.chooseFaultType.length === 0
                 case 'maintenanceSign':

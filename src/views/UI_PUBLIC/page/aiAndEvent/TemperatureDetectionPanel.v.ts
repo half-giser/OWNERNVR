@@ -274,6 +274,9 @@ export default defineComponent({
 
             closeLoading()
 
+            const alarmRuleType1 = alarmRuleTypeList1.map((item) => item.value)
+            const alarmRuleType2 = alarmRuleTypeList2.map((item) => item.value)
+
             if ($('status').text() === 'success') {
                 const $param = queryXml($('content/chl/param')[0].element)
                 const $trigger = queryXml($('content/chl/trigger')[0].element)
@@ -317,22 +320,31 @@ export default defineComponent({
                     trigger: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch', 'popMsgSwitch'].filter((item) => {
                         return $trigger(item).text().bool()
                     }),
-                    sysAudio: $('sysAudio').attr('id'),
+                    sysAudio: $trigger('sysAudio').attr('id'),
                     boundaryData: $param('boundary/item').map((item) => {
                         const $item = queryXml(item.element)
+
+                        const ruleType = $item('ruleType').text()
+                        let alarmRule = $item('alarmRule').text()
+                        if (ruleType === 'point' && !alarmRuleType2.includes(alarmRule)) {
+                            alarmRule = 'avgtemperabove'
+                        } else if (ruleType !== 'point' && !alarmRuleType1.includes(alarmRule)) {
+                            alarmRule = 'avgtemperabove'
+                        }
+
                         return {
                             id: $item('ruleId').text(),
                             ruleId: $item('ruleId').text().num(),
                             switch: $item('switch').text().bool(),
                             ruleName: $item('ruleName').text(),
-                            ruleType: $item('ruleType').text(),
+                            ruleType: ruleType,
                             emissivity: getRealValueByRatio($item('emissivity').text()),
                             emissivityDefault: getRealValueByRatio($item('emissivity').attr('default')),
                             distance: getRealValueByRatio($item('distance').text()),
                             distanceDefault: getRealValueByRatio($item('distance').attr('default')),
                             reflectTemper: getRealValueByRatio($item('reflectTemper').text()),
                             reflectTemperDefault: getRealValueByRatio($item('reflectTemper').attr('default')),
-                            alarmRule: $item('alarmRule').text(),
+                            alarmRule: alarmRule,
                             alarmTemper: getRealValueByRatio($item('alarmTemper').text()),
                             alarmTemperDefault: getRealValueByRatio($item('alarmTemper').attr('default')),
                             maxCount: $item('point').attr('maxCount').num(),

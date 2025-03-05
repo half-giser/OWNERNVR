@@ -16,6 +16,7 @@ import { SPRITE_PNG_FILE_PATH, SPRITE_JSON_FILE_PATH, SPRITE_SASS_FILE_PATH } fr
 interface GenerateSpriteOption {
     src: string
     minify: boolean
+    additionalData?: string
 }
 
 function generateSprite(option: GenerateSpriteOption) {
@@ -41,7 +42,10 @@ function generateSprite(option: GenerateSpriteOption) {
                 let scss = ''
                 scss += `$sprite-width: ${result.properties.width}px;`
                 scss += `$sprite-height: ${result.properties.height}px;`
-                scss += `$sprite-version: ${Math.ceil(Date.now() / 1000 / 60).toString(36)};`
+
+                if (option.additionalData) {
+                    scss += option.additionalData
+                }
 
                 const coordinates: Record<string, number[]> = {}
                 Object.keys(result.coordinates).forEach((key) => {

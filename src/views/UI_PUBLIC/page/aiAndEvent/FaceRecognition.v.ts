@@ -628,21 +628,12 @@ export default defineComponent({
             //     play()
             // } else
             if (name === 'faceLibrary') {
-                if (import.meta.env.VITE_UI_TYPE === 'UI2-A') {
-                    router.push({
-                        path: '/config/alarm/faceFeature',
-                        state: {
-                            backChlId: pageData.value.curChl,
-                        },
-                    })
-                } else {
-                    router.push({
-                        path: '/intelligent-analysis/sample-data-base/sample-data-base-face',
-                        state: {
-                            backChlId: pageData.value.curChl,
-                        },
-                    })
-                }
+                router.push({
+                    path: '/intelligent-analysis/sample-data-base/sample-data-base-face',
+                    state: {
+                        backChlId: pageData.value.curChl,
+                    },
+                })
             }
         }
 

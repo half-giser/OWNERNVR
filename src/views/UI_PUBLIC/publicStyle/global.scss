@@ -17,16 +17,16 @@
     // --img-motion-note: url('@/views/UI_PUBLIC/publicStyle/img/motionNote.gif');
 
     /**
-     * 授权码登录素材 （请求服务器的素材）
+     * 授权码登录素材 （请求P2P服务器的素材）
      */
-    --img-authcodelogin-bg: #{img-url('/public/css/pictures/mainBg.png')};
-    --img-authcodelogin-mask: #{img-url('/public/css/pictures/mainBgMask.png')};
-    --img-authcodelogin-icon: #{img-url('/public/css/pictures/loginIcon.png')};
+    --img-authcodelogin-bg: #{p2p-img-url('/css/pictures/mainBg.png')};
+    --img-authcodelogin-mask: #{p2p-img-url('/css/pictures/mainBgMask.png')};
+    --img-authcodelogin-icon: #{p2p-img-url('/css/pictures/loginIcon.png')};
 
-    --img-authcodelogin-content: #{img-url('/public/css/pictures/LoginContent.png')};
-    --img-authcodelogin-question: #{img-url('/public/css/pictures/question.png')};
-    --img-authcodelogin-btn: #{img-url('/public/css/pictures/loginBtn.png')};
-    --img-authcodelogin-logo: #{img-url('/public/css/pictures/appName.png')};
+    --img-authcodelogin-content: #{p2p-img-url('/css/pictures/LoginContent.png')};
+    --img-authcodelogin-question: #{p2p-img-url('/css/pictures/question.png')};
+    --img-authcodelogin-btn: #{p2p-img-url('/css/pictures/loginBtn.png')};
+    --img-authcodelogin-logo: #{p2p-img-url('/css/pictures/appName.png')};
 
     /***********
      * 变量

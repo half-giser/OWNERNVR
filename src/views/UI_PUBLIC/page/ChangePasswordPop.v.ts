@@ -8,13 +8,6 @@ import { type FormRules } from 'element-plus'
 export default defineComponent({
     props: {
         /**
-         * @property 弹窗标题
-         */
-        title: {
-            type: String,
-            required: true,
-        },
-        /**
          * @property 是否强制修改密码，若是，则修改密码才能关闭弹窗
          */
         forced: {

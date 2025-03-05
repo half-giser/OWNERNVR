@@ -70,14 +70,7 @@ export default defineComponent({
                             return
                         }
                         row.eventType = $item('abnormalType').text()
-                        row.sysAudio = $item('sysAudio').attr('id') || DEFAULT_EMPTY_ID
-                        // 设置的声音文件被删除时，显示为none
-                        const audioData = pageData.value.audioList.filter((element) => {
-                            return element.value === row.sysAudio
-                        })
-                        if (!audioData.length) {
-                            row.sysAudio = DEFAULT_EMPTY_ID
-                        }
+                        row.sysAudio = getSystemAudioID(pageData.value.audioList, $item('sysAudio').attr('id'))
                         row.msgPush = $item('msgPushSwitch').text()
                         row.alarmOut.switch = $item('triggerAlarmOut/switch').text().bool()
                         row.alarmOut.alarmOuts = $item('triggerAlarmOut/alarmOuts/item').map((item) => {
