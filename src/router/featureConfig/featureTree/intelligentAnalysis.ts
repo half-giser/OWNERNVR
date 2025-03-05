@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 10:51:34
  * @Description: 智能与分析 路由配置
  */
-export default {
+const intelligentAnalysisRoutes: FeatureItem = {
     component: 'layout/L2T2Layout.vue',
     meta: {
         sort: 40,
@@ -14,8 +14,8 @@ export default {
         icon: 'search_menu',
     },
     children: {
+        //引擎配置
         egineCfg: {
-            //引擎配置
             component: 'intelligentAnalysis/IntelEngineCfg.vue',
             meta: {
                 sort: 10,
@@ -25,16 +25,16 @@ export default {
                 },
             },
         },
+        //搜索
         search: {
-            //搜索
             component: 'layout/L2T2L3T1Layout.vue',
             meta: {
                 sort: 20,
                 lk: 'IDCS_SEARCH',
             },
             children: {
+                // 人脸
                 face: {
-                    //人脸
                     name: 'searchFace',
                     component: 'intelligentAnalysis/IntelFaceSearch.vue',
                     meta: {
@@ -46,8 +46,8 @@ export default {
                         },
                     },
                 },
+                // 人体
                 body: {
-                    //人体
                     name: 'searchBody',
                     component: 'intelligentAnalysis/IntelBodySearch.vue',
                     meta: {
@@ -56,8 +56,8 @@ export default {
                         icon: 'event_search_body',
                     },
                 },
+                // 车辆
                 vehicle: {
-                    //车辆
                     name: 'searchVehicle',
                     component: 'intelligentAnalysis/IntelVehicleSearch.vue',
                     meta: {
@@ -66,8 +66,8 @@ export default {
                         icon: 'event_search_car',
                     },
                 },
+                // 组合
                 combine: {
-                    //组合
                     name: 'searchCombine',
                     component: 'intelligentAnalysis/IntelCombineSearch.vue',
                     meta: {
@@ -78,16 +78,16 @@ export default {
                 },
             },
         },
+        // 统计
         statistics: {
-            //统计
             component: 'layout/L2T2L3T1Layout.vue',
             meta: {
                 sort: 30,
                 lk: 'IDCS_STATISTICS',
             },
             children: {
+                // 人员
                 person: {
-                    //人员
                     name: 'statisticsPerson',
                     component: 'intelligentAnalysis/IntelPersonStats.vue',
                     meta: {
@@ -96,8 +96,8 @@ export default {
                         icon: 'event_search_body',
                     },
                 },
+                // 车辆
                 vehicle: {
-                    //车辆
                     name: 'statisticsVehicle',
                     component: 'intelligentAnalysis/IntelVehicleStats.vue',
                     meta: {
@@ -106,8 +106,8 @@ export default {
                         icon: 'event_search_car',
                     },
                 },
+                // 组合
                 combine: {
-                    //组合
                     name: 'statisticsCombine',
                     component: 'intelligentAnalysis/IntelCombineStats.vue',
                     meta: {
@@ -118,19 +118,19 @@ export default {
                 },
             },
         },
+        // 样本库
         sampleDataBase: {
-            //样本库
             component: 'layout/L2T2L3T1Layout.vue',
             meta: {
                 sort: 40,
                 lk: 'IDCS_SAMPLE_DATABASE',
                 hasCap(systemCaps) {
-                    return import.meta.env.VITE_UI_TYPE !== 'UI2-A' && (systemCaps.supportFaceMatch || systemCaps.supportPlateMatch)
+                    return systemCaps.supportFaceMatch || systemCaps.supportPlateMatch
                 },
             },
             children: {
+                // 人脸
                 face: {
-                    //人脸
                     name: 'sampleDataBaseFace',
                     component: 'intelligentAnalysis/IntelFaceDB.vue',
                     meta: {
@@ -142,8 +142,8 @@ export default {
                         },
                     },
                 },
+                // 车牌
                 licencePlate: {
-                    //车牌
                     name: 'sampleDataBaseLicencePlate',
                     component: 'intelligentAnalysis/IntelLicencePlateDB.vue',
                     meta: {
@@ -158,4 +158,6 @@ export default {
             },
         },
     },
-} as FeatureItem
+}
+
+export default intelligentAnalysisRoutes

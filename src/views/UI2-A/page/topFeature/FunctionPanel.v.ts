@@ -14,9 +14,6 @@ export default defineComponent({
         const layoutStore = useLayoutStore()
         const systemCaps = useCababilityStore()
 
-        // 以下菜单不会在UI2-A的三级菜单中显示
-        const HIDDEN_ROUTES = ['channelGroupAdd', 'cruiseGroup', 'trace', 'ptzTask', 'ptzProtocol', 'permissionGroupAdd']
-
         const pageData = ref({
             // 选中的一级菜单
             mainMenuIndex: 0,
@@ -31,7 +28,7 @@ export default defineComponent({
             configModules.value = getMenuItems(layoutStore.configMenu?.children || []).filter((item) => !!item.meta?.groups)
             configModules.value.forEach((item) => {
                 item.children = item.children.filter((child) => {
-                    return (!child.meta.hasCap || child.meta.hasCap(systemCaps)) && !HIDDEN_ROUTES.includes(child.name as string)
+                    return child.meta.inHome !== 'hidden' && (!child.meta.hasCap || child.meta.hasCap(systemCaps))
                 })
             })
 

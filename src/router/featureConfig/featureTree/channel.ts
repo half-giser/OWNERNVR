@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 11:47:13
  * @Description: 功能面板-通道
  */
-export default {
+const channelRoutes: FeatureItem = {
     component: 'layout/L2T1Layout.vue',
     meta: {
         sort: 10,
@@ -30,12 +30,6 @@ export default {
                 lk: 'IDCS_SMART_SETTINGS',
                 icon: 'motion_s',
             },
-            // 智能侦测
-            // intelligence: {
-            //     sort: 40,
-            //     lk: 'IDCS_SMART_SETTINGS',
-            //     icon: 'intelligent_s',
-            // },
             //云台
             ptz: {
                 sort: 50,
@@ -45,9 +39,9 @@ export default {
         },
     },
     children: {
+        // 添加通道
         channelAdd: {
             path: 'add',
-            //添加通道
             component: 'channel/ChannelAdd.vue',
             meta: {
                 sort: 10,
@@ -59,8 +53,8 @@ export default {
                 },
             },
         },
+        // 查看或更改通道
         channelList: {
-            //查看或更改通道
             path: 'list',
             components: {
                 toolBar: 'channel/ChannelToolBar.vue',
@@ -79,8 +73,8 @@ export default {
                 },
             },
         },
+        // 添加分组
         channelGroupAdd: {
-            //添加分组
             path: 'group/add',
             component: 'channel/ChannelGroupAdd.vue',
             meta: {
@@ -94,8 +88,8 @@ export default {
                 },
             },
         },
+        // 查看或更改分组
         channelGroupList: {
-            //查看或更改分组
             path: 'group/list',
             components: {
                 toolBar: 'channel/ChannelGroupToolBar.vue',
@@ -110,8 +104,8 @@ export default {
                 },
             },
         },
+        // 信号接入配置
         signal: {
-            //信号接入配置
             component: 'channel/ChannelSignal.vue',
             meta: {
                 sort: 50,
@@ -122,8 +116,8 @@ export default {
                 },
             },
         },
+        // OSD配置
         osd: {
-            //OSD配置
             path: 'settings/osd',
             component: 'channel/ChannelOsd.vue',
             meta: {
@@ -133,8 +127,8 @@ export default {
                 default: true,
             },
         },
+        // 图像参数配置
         displaySet: {
-            //图像参数配置
             path: 'settings/image',
             component: 'channel/ChannelImage.vue',
             meta: {
@@ -145,8 +139,8 @@ export default {
                 homeSort: 20,
             },
         },
+        // 视频遮挡配置
         videoMask: {
-            //视频遮挡配置
             path: 'settings/mask',
             component: 'channel/ChannelMask.vue',
             meta: {
@@ -166,8 +160,8 @@ export default {
         //         group: 'image',
         //     },
         // },
+        // LOGO设置
         logoSet: {
-            // logo设置
             path: 'settings/logoSet',
             component: 'channel/ChannelLogo.vue',
             meta: {
@@ -180,8 +174,8 @@ export default {
                 },
             },
         },
+        // 信号遮挡配置
         // signalShelter: {
-        //     // 信号遮挡配置
         //     path: 'settings/signalshelter',
         //     component: 'channel/ChannelSignalShelter.vue',
         //     meta: {
@@ -190,8 +184,8 @@ export default {
         //         group: 'image',
         //     },
         // },
+        // 水印设置
         watermark: {
-            // 水印设置
             path: 'settings/waterMark',
             component: 'channel/ChannelWaterMark.vue',
             meta: {
@@ -203,8 +197,8 @@ export default {
                 },
             },
         },
+        // 鱼眼设置
         fishEye: {
-            //鱼眼设置
             path: 'settings/fisheye',
             component: 'channel/ChannelFisheye.vue',
             meta: {
@@ -217,8 +211,8 @@ export default {
                 },
             },
         },
+        // 移动侦测配置
         motion: {
-            //移动侦测配置
             path: 'settings/motion',
             component: 'channel/ChannelMotion.vue',
             meta: {
@@ -230,8 +224,8 @@ export default {
                 homeSort: 30,
             },
         },
+        // 预置点
         preset: {
-            //预置点
             path: 'ptz/preset',
             component: 'channel/ChannelPreset.vue',
             meta: {
@@ -243,8 +237,8 @@ export default {
                 homeSort: 40,
             },
         },
+        // 巡航线
         cruise: {
-            //巡航线
             path: 'ptz/cruise',
             component: 'channel/ChannelCruise.vue',
             meta: {
@@ -253,8 +247,8 @@ export default {
                 group: 'ptz',
             },
         },
+        // 巡航线组
         cruiseGroup: {
-            //巡航线组
             path: 'ptz/cruise/group',
             component: 'channel/ChannelCruiseGroup.vue',
             meta: {
@@ -266,8 +260,8 @@ export default {
                 },
             },
         },
+        // 轨迹
         trace: {
-            //轨迹
             path: 'ptz/trace',
             component: 'channel/ChannelTrace.vue',
             meta: {
@@ -279,8 +273,8 @@ export default {
                 },
             },
         },
+        // 任务
         ptzTask: {
-            //任务
             path: 'ptz/task',
             component: 'channel/ChannelPtzTask.vue',
             meta: {
@@ -292,8 +286,8 @@ export default {
                 },
             },
         },
+        // 智能追踪
         smartTrack: {
-            //智能追踪
             path: 'ptz/smart-track',
             component: 'channel/ChannelSmartTrack.vue',
             meta: {
@@ -302,8 +296,8 @@ export default {
                 group: 'ptz',
             },
         },
+        // 协议
         ptzProtocol: {
-            //协议
             path: 'ptz/protocol',
             components: {
                 toolBar: 'channel/ChannelPtzProtocolToolBar.vue',
@@ -318,110 +312,7 @@ export default {
                 },
             },
         },
-        // 以下页面只有在UI3-A才有
-        // vfd: {
-        //     // 人脸侦测
-        //     path: 'intelligence/vfd',
-        //     component: 'channel/ChannelVfd.vue',
-        //     meta: {
-        //         sort: 10,
-        //         lk: 'IDCS_FACE_DETECTION',
-        //         group: 'intelligence',
-        //         auth(systemCaps, ui) {
-        //             return ui === 'UI3-A'
-        //         },
-        //     },
-        // },
-        // cdd: {
-        //     // 人群密度检测
-        //     path: 'intelligence/cdd',
-        //     component: 'channel/ChannelCDD.vue',
-        //     meta: {
-        //         sort: 20,
-        //         lk: 'IDCS_CROWD_DENSITY_DETECTION',
-        //         group: 'intelligence',
-        //         auth(systemCaps, ui) {
-        //             return ui === 'UI3-A'
-        //         },
-        //     },
-        // },
-        // ipd: {
-        //     // 人员入侵侦测
-        //     path: 'intelligence/ipd',
-        //     component: 'channel/ChannelIpd.vue',
-        //     meta: {
-        //         sort: 30,
-        //         lk: 'IDCS_PEOPLE_INSTRUSION_DETECTION',
-        //         group: 'intelligence',
-        //         auth(systemCaps, ui) {
-        //             return ui === 'UI3-A'
-        //         },
-        //     },
-        // },
-        // cpc: {
-        //     // 人数统计
-        //     path: 'intelligence/cpc',
-        //     component: 'channel/ChannelCpc.vue',
-        //     meta: {
-        //         sort: 40,
-        //         lk: 'IDCS_PEOPLE_COUNT_DETECTION',
-        //         group: 'intelligence',
-        //         auth(systemCaps, ui) {
-        //             return ui === 'UI3-A'
-        //         },
-        //     },
-        // },
-        // osc: {
-        //     // 物品遗留与看护
-        //     path: 'intelligence/osc',
-        //     component: 'channel/ChannelOSC.vue',
-        //     meta: {
-        //         sort: 50,
-        //         lk: 'IDCS_WATCH_DETECTION',
-        //         group: 'intelligence',
-        //         auth(systemCaps, ui) {
-        //             return ui === 'UI3-A'
-        //         },
-        //     },
-        // },
-        // avd: {
-        //     // 异常
-        //     path: 'intelligence/avd',
-        //     component: 'channel/ChannelAVD.vue',
-        //     meta: {
-        //         sort: 60,
-        //         lk: 'IDCS_ABNORMAL_DETECTION',
-        //         group: 'intelligence',
-        //         auth(systemCaps, ui) {
-        //             return ui === 'UI3-A'
-        //         },
-        //     },
-        // },
-        // tripwire: {
-        //     // 越界
-        //     path: 'intelligence/tripwire',
-        //     component: 'channel/ChannelTripwire.vue',
-        //     meta: {
-        //         sort: 70,
-        //         lk: 'IDCS_BEYOND_DETECTION',
-        //         group: 'intelligence',
-        //         auth(systemCaps, ui) {
-        //             return ui === 'UI3-A'
-        //         },
-        //     },
-        // },
-        // pea: {
-        //     // 区域入侵
-        //     path: 'intelligence/pea',
-        //     component: 'channel/ChannelPEA.vue',
-        //     meta: {
-        //         sort: 80,
-        //         lk: 'IDCS_INVADE_DETECTION',
-        //         group: 'intelligence',
-        //         auth(systemCaps, ui) {
-        //             return ui === 'UI3-A'
-        //         },
-        //     },
-        // },
     },
-} as FeatureItem
+}
+
+export default channelRoutes

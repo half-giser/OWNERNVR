@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 11:47:13
  * @Description: 功能面板-AI/事件
  */
-export default {
+const aiAndEventRoutes: FeatureItem = {
     path: 'alarm',
     component: 'layout/L2T1Layout.vue',
     meta: {
@@ -25,34 +25,12 @@ export default {
                 lk: 'IDCS_AI_EVENT',
                 icon: 'intelligentAlarm_s',
             },
-            // 样本库
-            database: {
-                sort: 30,
-                lk: 'IDCS_FACE_LIBRARY_SELECT',
-                icon: 'database_s',
-            },
-            // 智能事件
-            // smartAlarm: {
-            //     sort: 40,
-            //     lk: 'IDCS_SMART_ALARM',
-            //     icon: 'intelligentAlarm_s',
-            // },
             //普通事件
             generalEvent: {
                 sort: 50,
                 lk: 'IDCS_GENERAL_EVENT',
                 icon: 'motionAlarm_s',
             },
-            // combination: {
-            //     sort: 60,
-            //     lk: 'IDCS_COMBINATION_ALARM',
-            //     icon: 'combinedAlarm_s',
-            // },
-            // abnormal: {
-            //     sort: 70,
-            //     lk: 'IDCS_ABNORMAL_ALARM',
-            //     icon: 'abnormalAlarm_s',
-            // },
             //系统撤防
             systemDisarm: {
                 sort: 80,
@@ -68,8 +46,8 @@ export default {
         },
     },
     children: {
+        // 报警输出
         alarmOut: {
-            //报警输出
             path: 'alarm_out',
             component: 'aiAndEvent/AlarmOut.vue',
             meta: {
@@ -82,8 +60,8 @@ export default {
                 homeDefault: true,
             },
         },
+        // E-Mail
         alarmEmailReceiver: {
-            //E-Mail
             path: 'email',
             component: 'aiAndEvent/EmailReceiver.vue',
             meta: {
@@ -92,8 +70,8 @@ export default {
                 group: 'eventNotify',
             },
         },
+        // 显示
         alarmDisplay: {
-            //显示
             path: 'display',
             component: 'aiAndEvent/Display.vue',
             meta: {
@@ -102,8 +80,8 @@ export default {
                 group: 'eventNotify',
             },
         },
+        // 蜂鸣器
         alarmBuzzer: {
-            //蜂鸣器
             path: 'beeper',
             component: 'aiAndEvent/Buzzer.vue',
             meta: {
@@ -112,8 +90,8 @@ export default {
                 group: 'eventNotify',
             },
         },
+        // 推送
         alarmPush: {
-            //推送
             path: 'push',
             component: 'aiAndEvent/Push.vue',
             meta: {
@@ -122,8 +100,8 @@ export default {
                 group: 'eventNotify',
             },
         },
+        // 声音
         alarmAudio: {
-            //声音
             path: 'audioAlarmOut',
             component: 'aiAndEvent/Audio.vue',
             meta: {
@@ -131,12 +109,12 @@ export default {
                 lk: 'IDCS_AUDIO',
                 group: 'eventNotify',
                 hasCap(systemCaps) {
-                    return import.meta.env.VITE_UI_TYPE !== 'UI3-A' || systemCaps.supportAlarmAudioConfig
+                    return systemCaps.supportAlarmAudioConfig
                 },
             },
         },
+        // 闪动
         alarmLight: {
-            //闪动
             path: 'whiteLightAlarmOut',
             component: 'aiAndEvent/Light.vue',
             meta: {
@@ -145,8 +123,8 @@ export default {
                 group: 'eventNotify',
             },
         },
+        // 报警服务器
         alarmServer: {
-            //报警服务器
             path: 'server',
             component: 'aiAndEvent/AlarmServer.vue',
             meta: {
@@ -158,29 +136,8 @@ export default {
                 },
             },
         },
-        // 以下页面只有在UI3-A才有
-        // alaramScheduleAdd: {
-        //     //
-        //     path: 'schedule/add',
-        //     component: 'aiAndEvent/ScheduleAdd.vue',
-        //     meta: {
-        //         sort: 90,
-        //         lk: 'IDCS_ADD_SCHEDULE',
-        //         group: 'eventNotify',
-        //     },
-        // },
-        // alaramScheduleManage: {
-        //     //
-        //     path: 'schedule/manager',
-        //     component: 'aiAndEvent/ScheduleManage.vue',
-        //     meta: {
-        //         sort: 100,
-        //         lk: 'IDCS_SCHEDULE_MANAGE',
-        //         group: 'eventNotify',
-        //     },
-        // },
+        // 周界防范
         perimeterDetection: {
-            //周界防范
             path: 'boundary',
             component: 'aiAndEvent/PerimeterDetection.vue',
             meta: {
@@ -209,8 +166,8 @@ export default {
                 }
             },
         },
+        // 人脸识别
         faceRecognition: {
-            //人脸识别
             path: 'faceRecognition',
             component: 'aiAndEvent/FaceRecognition.vue',
             meta: {
@@ -238,8 +195,8 @@ export default {
                 }
             },
         },
+        // 车牌识别
         lrp: {
-            //车牌识别
             path: 'vehicleRecognition',
             component: 'aiAndEvent/LPR.vue',
             meta: {
@@ -268,8 +225,8 @@ export default {
             },
             alias: '/intelligent-analysis/sample-data-base/sample-data-base-licence-plate',
         },
+        // 更多
         aiEventMore: {
-            //更多
             path: 'more',
             component: 'aiAndEvent/More.vue',
             meta: {
@@ -295,8 +252,8 @@ export default {
                 }
             },
         },
+        // 移动侦测
         motionEventConfig: {
-            //移动侦测
             path: 'motion',
             component: 'aiAndEvent/MotionEventConfig.vue',
             meta: {
@@ -308,8 +265,8 @@ export default {
                 homeSort: 60,
             },
         },
+        // 传感器
         sensorEventConfig: {
-            //传感器
             path: 'sensor',
             component: 'aiAndEvent/SensorEventConfig.vue',
             meta: {
@@ -320,8 +277,8 @@ export default {
                 homeSort: 40,
             },
         },
+        // 组合报警
         combinationAlarm: {
-            //组合报警
             path: 'combined',
             component: 'aiAndEvent/CombinationAlarm.vue',
             meta: {
@@ -330,8 +287,8 @@ export default {
                 group: 'generalEvent',
             },
         },
+        // 前端掉线
         ipcOffline: {
-            //前端掉线
             path: 'offline',
             component: 'aiAndEvent/IpcOffline.vue',
             meta: {
@@ -343,8 +300,8 @@ export default {
                 },
             },
         },
+        // 异常报警
         exceptionAlarm: {
-            //异常报警
             path: 'abnormal',
             component: 'aiAndEvent/ExceptionAlarm.vue',
             meta: {
@@ -356,8 +313,8 @@ export default {
                 },
             },
         },
+        // 视频丢失
         alarmVideoLoss: {
-            // 视频丢失
             path: 'video/loss',
             component: 'aiAndEvent/VideoLoss.vue',
             meta: {
@@ -369,8 +326,8 @@ export default {
                 },
             },
         },
+        // 系统撤防
         systemDisarm: {
-            //系统撤防
             path: 'systemDisarm',
             component: 'aiAndEvent/SystemDisarm.vue',
             meta: {
@@ -397,8 +354,8 @@ export default {
                 }
             },
         },
+        // 报警状态
         alarmsStatus: {
-            //报警状态
             path: 'status',
             component: 'system/AlarmStatus.vue',
             meta: {
@@ -408,138 +365,7 @@ export default {
                 default: true,
             },
         },
-        faceFeatureLibrary: {
-            // 人脸库
-            path: 'faceFeature',
-            component: 'intelligentAnalysis/IntelFaceDB.vue',
-            meta: {
-                sort: 10,
-                lk: 'IDCS_FEATURE_LIBRARY',
-                group: 'database',
-                default: true,
-                hasCap(systemCaps) {
-                    return systemCaps.supportFaceMatch && import.meta.env.VITE_UI_TYPE === 'UI2-A'
-                },
-            },
-            alias: '/intelligent-analysis/sample-data-base/sample-data-base-face',
-        },
-        vehicleDatabase: {
-            // 车牌库
-            path: 'vehicleDatabase',
-            component: 'intelligentAnalysis/IntelLicencePlateDB.vue',
-            meta: {
-                sort: 10,
-                lk: 'IDCS_VEHICLE_DATABASE',
-                group: 'database',
-                hasCap(systemCaps) {
-                    return systemCaps.supportPlateMatch && import.meta.env.VITE_UI_TYPE === 'UI2-A'
-                },
-            },
-            alias: '/intelligent-analysis/sample-data-base/sample-data-base-licence-plate',
-        },
-        // 以下页面只有在UI3-A才有
-        // alarmVfd: {
-        //     path: 'vfd',
-        //     component: 'aiAndEvent/Vfd.vue',
-        //     meta: {
-        //         sort: 10,
-        //         lk: 'IDCS_FACE_DETECTION',
-        //         group: 'smartAlarm',
-        //         auth(systemCaps, ui) {
-        //             return ui === 'UI3-A'
-        //         },
-        //     },
-        // },
-        // alarmCdd: {
-        //     // 人群密度检测
-        //     path: 'cdd',
-        //     component: 'aiAndEvent/Cdd.vue',
-        //     meta: {
-        //         sort: 20,
-        //         lk: 'IDCS_CROWD_DENSITY_DETECTION',
-        //         group: 'smartAlarm',
-        //         auth(systemCaps, ui) {
-        //             return ui === 'UI3-A'
-        //         },
-        //     },
-        // },
-        // alarmIpd: {
-        //     // 人员入侵侦测
-        //     path: 'ipd',
-        //     component: 'aiAndEvent/Ipd.vue',
-        //     meta: {
-        //         sort: 30,
-        //         lk: 'IDCS_PEOPLE_INSTRUSION_DETECTION',
-        //         group: 'smartAlarm',
-        //         auth(systemCaps, ui) {
-        //             return ui === 'UI3-A'
-        //         },
-        //     },
-        // },
-        // alarmCpc: {
-        //     // 人数统计
-        //     path: 'cpc',
-        //     component: 'aiAndEvent/Cpc.vue',
-        //     meta: {
-        //         sort: 40,
-        //         lk: 'IDCS_PEOPLE_COUNT_DETECTION',
-        //         group: 'smartAlarm',
-        //         auth(systemCaps, ui) {
-        //             return ui === 'UI3-A'
-        //         },
-        //     },
-        // },
-        // alarmOsc: {
-        //     // 物品遗留与看护
-        //     path: 'osc',
-        //     component: 'aiAndEvent/Osc.vue',
-        //     meta: {
-        //         sort: 50,
-        //         lk: 'IDCS_WATCH_DETECTION',
-        //         group: 'smartAlarm',
-        //         auth(systemCaps, ui) {
-        //             return ui === 'UI3-A'
-        //         },
-        //     },
-        // },
-        // alarmAvd: {
-        //     // 异常
-        //     path: 'avd',
-        //     component: 'aiAndEvent/Avd.vue',
-        //     meta: {
-        //         sort: 60,
-        //         lk: 'IDCS_ABNORMAL_DETECTION',
-        //         group: 'smartAlarm',
-        //         auth(systemCaps, ui) {
-        //             return ui === 'UI3-A'
-        //         },
-        //     },
-        // },
-        // alarmTripwire: {
-        //     // 越界
-        //     path: 'tripwire',
-        //     component: 'aiAndEvent/Tripwire.vue',
-        //     meta: {
-        //         sort: 70,
-        //         lk: 'IDCS_BEYOND_DETECTION',
-        //         group: 'smartAlarm',
-        //         auth(systemCaps, ui) {
-        //             return ui === 'UI3-A'
-        //         },
-        //     },
-        // },
-        // alarmPea: {
-        //     // 区域入侵
-        //     path: 'pea',
-        //     component: 'aiAndEvent/Pea.vue',
-        //     meta: {
-        //         sort: 80,
-        //         lk: 'IDCS_INVADE_DETECTION',
-        //         group: 'smartAlarm',
-        //         auth(systemCaps, ui) {
-        //             return ui === 'UI3-A'
-        //         },
-        //     },
-        // },
     },
-} as FeatureItem
+}
+
+export default aiAndEventRoutes

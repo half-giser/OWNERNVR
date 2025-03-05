@@ -10,7 +10,6 @@
  *
  */
 
-import topFeature from './topFeature'
 import channel from './channel'
 import record from './record'
 import aiAndEvent from './aiAndEvent'
@@ -18,26 +17,29 @@ import disk from './disk'
 import net from './net'
 import userAndSecurity from './userAndSecurity'
 import system from './system'
+import searchAndBackup from './searchAndBackup'
+import intelligentAnalysis from './intelligentAnalysis'
+import businessApplication from './businessApplication'
 
 export default {
+    // 登录
     login: {
-        // 登录
         path: '/login',
         component: 'Login.vue',
         meta: {
             noToken: true,
         },
     },
+    // 授权码登录
     authCodeLogin: {
-        // authCode登录
         path: '/authCodeLogin',
         component: 'AuthCodeLogin.vue',
         meta: {
             noToken: true,
         },
     },
+    // 开机向导
     guide: {
-        // 开机向导
         path: '/guide',
         component: 'Guide.vue',
         meta: {
@@ -49,7 +51,40 @@ export default {
         component: 'layout/MainLayout.vue',
         meta: {},
         children: {
-            ...topFeature,
+            // 现场预览
+            live: {
+                component: 'topFeature/Live.vue',
+                meta: {
+                    sort: 10,
+                    lk: 'IDCS_LIVE_PREVIEW',
+                    icon: 'live_menu',
+                },
+            },
+            // 回放
+            playback: {
+                component: 'topFeature/Playback.vue',
+                meta: {
+                    sort: 20,
+                    lk: 'IDCS_REPLAY',
+                    icon: 'rec_menu',
+                },
+            },
+            // 功能面板
+            functionPanel: {
+                component: 'topFeature/FunctionPanel.vue',
+                meta: {
+                    sort: 50,
+                    lk: 'IDCS_FUNCTION_PANEL',
+                    icon: 'cfgHome_menu',
+                },
+            },
+            // 搜索与备份
+            searchAndBackup,
+            //智能分析
+            intelligentAnalysis,
+            //业务应用
+            businessApplication,
+            // 配置
             config: {
                 meta: {
                     noMenu: true,
@@ -62,6 +97,7 @@ export default {
                     net,
                     userAndSecurity,
                     system,
+                    // 本地配置
                     localConfig: {
                         path: 'local',
                         component: 'LocalConfig.vue',
@@ -71,8 +107,8 @@ export default {
             },
         },
     },
+    //停车场
     parkLot: {
-        //停车场
         path: '/business-application/park-lot-manage/park-lot',
         component: 'businessApplication/PkMgrParkLot.vue',
         meta: {

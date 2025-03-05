@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 11:47:13
  * @Description: 功能面板-磁盘
  */
-export default {
+const diskRoutes: FeatureItem = {
     path: 'disk',
     component: 'layout/L2T1Layout.vue',
     meta: {
@@ -32,13 +32,10 @@ export default {
                 icon: 'diskInfo_s',
             },
         },
-        hasCap() {
-            return import.meta.env.VITE_UI_TYPE !== 'UI3-A'
-        },
     },
     children: {
+        // 磁盘管理
         diskManagement: {
-            //磁盘管理
             path: 'management',
             component: 'disk/DiskManagement.vue',
             meta: {
@@ -52,8 +49,8 @@ export default {
                 auth: 'diskMgr',
             },
         },
+        // 磁盘模式
         diskMode: {
-            //磁盘模式
             path: 'diskMode',
             component: 'disk/DiskMode.vue',
             meta: {
@@ -66,8 +63,8 @@ export default {
                 },
             },
         },
+        // 物理磁盘
         physicalDiskCfg: {
-            // 物理磁盘
             path: 'physicalDiskCfg',
             component: 'disk/PhysicalDisk.vue',
             meta: {
@@ -80,8 +77,8 @@ export default {
                 },
             },
         },
+        // 磁盘阵列
         diskArray: {
-            // 磁盘阵列
             path: 'diskArray',
             component: 'disk/Raid.vue',
             meta: {
@@ -94,8 +91,8 @@ export default {
                 },
             },
         },
+        // 存储模式配置
         storageMode: {
-            //存储模式配置
             path: 'storage/mode',
             component: 'disk/StorageMode.vue',
             meta: {
@@ -108,14 +105,13 @@ export default {
                 auth: 'diskMgr',
             },
         },
+        // 查看磁盘信息
         viewDiskInfo: {
-            //查看磁盘信息
             path: 'information',
             components: {
                 toolBar: 'system/SystemToolBar.vue',
                 default: 'system/DiskStatus.vue',
             },
-            // component: 'disk/ViewDiskInfo.vue',
             meta: {
                 sort: 10,
                 lk: 'IDCS_VIEW_DISK_INFORMATION',
@@ -123,8 +119,8 @@ export default {
                 default: true,
             },
         },
+        // SMART信息
         smartInfo: {
-            //SMART信息
             path: 'information/smart',
             component: 'disk/SmartInfo.vue',
             meta: {
@@ -133,8 +129,8 @@ export default {
                 group: 'diskInfo',
             },
         },
+        // 健康状态检测
         healthStatusCheck: {
-            //健康状态检测
             path: 'information/health',
             component: 'disk/HealthStatusCheck.vue',
             meta: {
@@ -144,4 +140,6 @@ export default {
             },
         },
     },
-} as FeatureItem
+}
+
+export default diskRoutes
