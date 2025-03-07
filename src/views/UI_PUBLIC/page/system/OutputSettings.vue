@@ -17,11 +17,11 @@
                 {{ Translate('IDCS_LOCAL') }}
             </div>
             <div
-                v-for="key in Object.keys(decoderCardMap)"
+                v-for="(item, key) in formData.decoder"
                 :key
                 :class="{
                     active: pageData.tabId === Number(key),
-                    disabled: !decoderCardMap[Number(key)].onlineStatus,
+                    disabled: !item.onlineStatus,
                 }"
                 @click="changeTab(Number(key))"
             >
@@ -35,12 +35,18 @@
         >
             <div class="top-tabs">
                 <div
-                    v-for="i in pageData.outputScreenCount"
-                    :key="i"
-                    :class="{ active: pageData.outputIdx === i - 1 }"
-                    @click="changeOutput(i - 1)"
+                    :class="{ active: pageData.outputIdx === -1 }"
+                    @click="changeOutput(-1)"
                 >
-                    {{ displayTabName(i) }}
+                    {{ displayTabName(1) }}
+                </div>
+                <div
+                    v-for="(item, index) in formData.sub"
+                    :key="item.id"
+                    :class="{ active: pageData.outputIdx === index }"
+                    @click="changeOutput(index)"
+                >
+                    {{ displayTabName(index + 2) }}
                 </div>
             </div>
             <!-- 3535A是否显示辅输出控制开关，只在主输出可能显示 -->
@@ -56,7 +62,7 @@
             >
                 <span>{{ Translate('IDCS_HDMI_IN_EXPORT_TO') }}</span>
                 <el-select-v2
-                    v-model="decoderCardMap[pageData.tabId].ShowHdmiIn"
+                    v-model="formData.decoder[pageData.tabId].ShowHdmiIn"
                     :options="hdmiInOptions"
                 />
             </div>
@@ -74,18 +80,25 @@
                     >
                         <template v-if="pageData.tabId === -1">
                             <div
-                                v-for="i in pageData.outputScreenCount"
-                                :key="i"
+                                :class="{ active: pageData.outputIdx === -1 }"
                                 class="typeBtn"
-                                :class="{ active: pageData.outputIdx === i - 1 }"
-                                @click="changeOutput(i - 1)"
+                                @click="changeOutput(-1)"
                             >
-                                {{ displayTabName(i) }}
+                                {{ displayTabName(1) }}
+                            </div>
+                            <div
+                                v-for="(item, index) in formData.sub"
+                                :key="item.id"
+                                class="typeBtn"
+                                :class="{ active: pageData.outputIdx === index }"
+                                @click="changeOutput(index)"
+                            >
+                                {{ displayTabName(index + 2) }}
                             </div>
                         </template>
-                        <template v-else-if="decoderCardMap[pageData.tabId]">
+                        <template v-else-if="formData.decoder[pageData.tabId]">
                             <div
-                                v-for="key in Object.keys(decoderCardMap[pageData.tabId].decoderDwellData)"
+                                v-for="(_item, key) in formData.decoder[pageData.tabId].output"
                                 :key
                                 class="typeBtn"
                                 :class="{ active: pageData.decoderIdx === Number(key) }"
@@ -108,7 +121,7 @@
                     >
                         <span>{{ Translate('IDCS_HDMI_IN_EXPORT_TO') }}</span>
                         <el-select-v2
-                            v-model="decoderCardMap[pageData.tabId].ShowHdmiIn"
+                            v-model="formData.decoder[pageData.tabId].ShowHdmiIn"
                             :options="hdmiInOptions"
                         />
                     </div>
@@ -116,7 +129,7 @@
                 <div class="panel">
                     <div class="panel-top">
                         <div
-                            v-show="(pageData.tabId === -1 && pageData.outputIdx === 0) || outputTypeCheck"
+                            v-show="(pageData.tabId === -1 && pageData.outputIdx === -1) || isDwell"
                             class="panel-left"
                         >
                             <!-- 轮询 -->
@@ -124,7 +137,7 @@
                             <!-- 缩略图列表 -->
                             <el-scrollbar class="panel-thumbnail">
                                 <div
-                                    v-for="(item, key) in currentViewList.chlGroups"
+                                    v-for="(item, key) in getCurrentOutput().chlGroups"
                                     :key="`${pageData.tabId}-${pageData.outputIdx}-${key}`"
                                     class="panel-thumbnail-item"
                                     @click="changeView(key)"
@@ -179,8 +192,8 @@
                         <!-- 轮询开关 -->
                         <div class="panel-dwell">
                             <el-checkbox
-                                v-show="pageData.tabId !== -1 || pageData.outputIdx !== 0"
-                                :model-value="outputTypeCheck"
+                                v-show="pageData.tabId !== -1 || pageData.outputIdx !== -1"
+                                :model-value="isDwell"
                                 :label="Translate('IDCS_DWELL')"
                                 @update:model-value="changeOutputType"
                             />
@@ -189,7 +202,7 @@
                         <div class="panel-btns">
                             <el-tooltip :content="Translate('IDCS_FAVOURITE')">
                                 <BaseImgSpriteBtn
-                                    v-show="pageData.tabId === -1 && pageData.outputIdx === 0"
+                                    v-show="pageData.tabId === -1 && pageData.outputIdx === -1"
                                     class="panel-collect"
                                     file="collect_view"
                                     @click="collectView"
@@ -205,7 +218,7 @@
                                 />
                             </div>
                             <el-select-v2
-                                v-show="outputType === 'dwell'"
+                                v-show="(pageData.tabId !== -1 && pageData.outputIdx !== -1) || isDwell"
                                 :model-value="currentTimeInterval"
                                 :options="pageData.dwellTimeOptions"
                                 class="panel-dwell-time"

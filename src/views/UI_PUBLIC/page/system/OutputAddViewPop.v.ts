@@ -5,23 +5,13 @@
  */
 import { type FormRules } from 'element-plus'
 
-export interface ChlsDto {
-    id: string
-    winindex: number
-}
-
-export interface ChlGroupData {
-    segNum: number
-    chls: ChlsDto[]
-}
-
 export default defineComponent({
     props: {
         /**
          * @property 当前通道数据
          */
         chl: {
-            type: Object as PropType<ChlGroupData>,
+            type: Object as PropType<SystemOutputSettingChlGroup>,
             required: true,
         },
     },
