@@ -33,11 +33,6 @@
         align-items: center;
         color: var(--panel-header-text);
         background-color: var(--panel-header-bg);
-        // border-bottom: 1px solid var(--main-border);
-
-        // &.margin {
-        //     margin-bottom: 20px;
-        // }
 
         .left & {
             justify-content: space-between;

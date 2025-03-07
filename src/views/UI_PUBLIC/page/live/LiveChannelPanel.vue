@@ -298,6 +298,16 @@
                 border-top: 1px solid var(--content-border);
             }
         }
+
+        .BaseListBox {
+            li.active {
+                background-color: var(--primary);
+
+                &:hover {
+                    background-color: var(--primary);
+                }
+            }
+        }
     }
 
     .BaseListBox {

@@ -25,6 +25,7 @@
 所以其他UI可能会产生自己的vue文件，并且可能引用public的html和js文件。
 */
 
+// @ts-expect-error
 import featureTree from '@ui/router'
 import type { RouteMeta, RouteRecordRaw } from 'vue-router'
 

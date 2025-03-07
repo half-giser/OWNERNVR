@@ -45,7 +45,7 @@ const handleClick = () => {
         clearTimeout(timer)
         timer = setTimeout(() => {
             emits('click')
-        }, 300)
+        }, 250)
     } else {
         emits('click')
     }

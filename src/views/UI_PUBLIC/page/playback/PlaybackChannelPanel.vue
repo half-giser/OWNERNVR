@@ -153,7 +153,7 @@
                 </div>
                 <div :title="Translate('IDCS_PLAY')">
                     <BaseImgSpriteBtn
-                        file="play (2)"
+                        file="play_rec"
                         :index="[0, 2, 2, 3]"
                         :disabled="!pageData.selectedChl.length"
                         @click="play"

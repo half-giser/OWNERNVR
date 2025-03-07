@@ -7,7 +7,7 @@
     <el-form
         ref="pushRef"
         :style="{
-            '--form-input-width': '215px',
+            '--form-input-width': '258px',
             '--form-label-width': '200px',
         }"
     >

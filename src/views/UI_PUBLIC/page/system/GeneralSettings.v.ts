@@ -13,8 +13,6 @@ export default defineComponent({
         const formRef = useFormRef()
         const formData = ref(new SystemGeneralSettingForm())
 
-        const decoderCardMap: Record<number, { [index: number]: string; onlineStatus: boolean }> = {}
-
         const pageData = ref({
             // 是否显示输出配置
             isOutputConfig: systemCaps.supportHdmiVgaSeparate,
@@ -48,7 +46,7 @@ export default defineComponent({
             // 语言类型选项
             langType: [] as string[],
             // 解码器选项
-            decoderOptions: {} as Record<number, Record<number, string[]>>,
+            decoderOptions: {} as Record<number, Record<number, SelectOption<string, string>[]>>,
         })
 
         // 表单验证规则
@@ -256,67 +254,34 @@ export default defineComponent({
                 }
             })
 
-            // TODO 解码卡输出部分需要测试数据才能测试
-            // 解码卡输出排序
-            const decoderResolutionEnumXml = $('types/DecoderResolution/decoder')
-            decoderResolutionEnumXml.sort(($a, $b) => {
-                return $a.attr('id').num() - $b.attr('id').num()
-            })
-            const decoderEnum: Record<number, Record<number, string[]>> = {}
-
-            decoderResolutionEnumXml.forEach((item) => {
+            const decoderEnum: Record<number, Record<number, SelectOption<string, string>[]>> = {}
+            $('types/DecoderResolution/decoder').forEach((item) => {
                 const $item = queryXml(item.element)
                 const id = item.attr('id').num()
-
-                if (!decoderEnum[id]) {
-                    decoderEnum[id] = {}
-                }
-                $item('output').forEach((element) => {
-                    const $element = queryXml(element.element)
-                    const outputIndex = element.attr('index').num()
-
-                    if (!decoderCardMap[id]) {
-                        // 用id区分属于哪一解码卡的输出
-                        decoderCardMap[id] = {
-                            onlineStatus: false,
-                        }
-                    }
-                    decoderCardMap[id][outputIndex] = '1920x1080' // 兼容解码卡未配置的情况，默认分辨率为
-                    if (!decoderEnum[id][outputIndex]) {
-                        decoderEnum[id][outputIndex] = []
-                    }
-                    $element('enum').forEach((output) => {
-                        decoderEnum[id][outputIndex].push(output.text())
-                    })
+                decoderEnum[id] = {}
+                $item('output').forEach((output) => {
+                    const $output = queryXml(output.element)
+                    const index = output.attr('index').num()
+                    decoderEnum[id][index] = $output('enum').map((value) => ({
+                        label: value.text(),
+                        value: value.text(),
+                    }))
                 })
             })
+            pageData.value.decoderOptions = decoderEnum
 
-            $('content/decoderResolution/decoder').forEach((item) => {
+            formData.value.decoderResolution = $('content/decoderResolution/decoder').map((item) => {
                 const $item = queryXml(item.element)
-                const decoderId = item.attr('id').num()
-                const onlineStatus = item.attr('onlineStatus').bool()
-                decoderCardMap[decoderId].onlineStatus = onlineStatus
-
-                if (!$item('item').length) {
-                    return // 如果解码卡未配置，则取默认值，不更新decoderCardMap
+                return {
+                    id: item.attr('id').num(),
+                    onlineStatus: item.attr('onlineStatus').bool(),
+                    decoder: $item('item').map((decoder) => {
+                        return {
+                            index: decoder.attr('index').num(),
+                            value: decoder.text(),
+                        }
+                    }),
                 }
-
-                $item('item').forEach((element) => {
-                    const index = element.attr('index').num() // 解码卡的输出序号
-                    const value = element.text()
-                    decoderCardMap[decoderId][index] = value
-                })
-            })
-            Object.keys(decoderEnum).forEach((key) => {
-                const id = Number(key)
-                pageData.value.decoderOptions[id] = []
-                if (!decoderCardMap[id].onlineStatus) return // 解码卡不在线，则页面不显示解码卡
-                Object.keys(decoderEnum[id]).forEach((key2) => {
-                    const outputIndex = Number(key2)
-                    const element = decoderEnum[id][outputIndex]
-                    pageData.value.decoderOptions[id][outputIndex] = element
-                    formData.value.decoder[id][outputIndex] = decoderCardMap[id][outputIndex]
-                })
             })
 
             pageData.value.langType = $('types/langType/enum').map((item) => item.text())
@@ -342,21 +307,10 @@ export default defineComponent({
         const setData = async () => {
             openLoading()
 
-            const getDecoderItem = (key: number) => {
-                return Object.keys(formData.value.decoder[key])
-                    .map((outputIndex) => {
-                        if (decoderCardMap[key].onlineStatus) {
-                            return `<item index="${outputIndex}">${formData.value.decoder[key][Number(outputIndex)]}</item>`
-                        }
-                        return ''
-                    })
-                    .join('')
-            }
-
             const sendXml = rawXml`
                 <types>
-                    <langType>${pageData.value.langType.map((item) => `<enum>${item}</enum>`).join('')}</langType>
-                    <resolutionType>${pageData.value.resolutionType.map((item) => `<enum>${item}</enum>`).join('')}</resolutionType>
+                    <langType>${wrapEnums(pageData.value.langType)}</langType>
+                    <resolutionType>${wrapEnums(pageData.value.resolutionType)}</resolutionType>
                 </types>
                 <content>
                     <name maxByteLen="63">${wrapCDATA(formData.value.deviceName)}</name>
@@ -370,9 +324,13 @@ export default defineComponent({
                     <mobileStreamAdaption>${formData.value.mobileStreamAdaption}</mobileStreamAdaption>
                     ${pageData.value.isZeroOrAddIpc ? `<bootZeroCfgAddSwitch>${formData.value.zeroOrAddIpc}</bootZeroCfgAddSwitch>` : ''}
                     <decoderResolution>
-                        ${Object.keys(formData.value.decoder)
-                            .map((key) => {
-                                return `<decoder id="${key}">${getDecoderItem(Number(key))}</decoder>`
+                        ${formData.value.decoderResolution
+                            .map((item) => {
+                                return rawXml`
+                                    <decoder id="${item.id}">
+                                        ${item.decoder.map((decoder) => (item.onlineStatus ? `<item index="${decoder.index}">${decoder.value}</item>` : '')).join('')}
+                                    </decoder>
+                                `
                             })
                             .join('')}
                     </decoderResolution>

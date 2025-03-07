@@ -344,7 +344,11 @@
         th.el-table__cell {
             border-right-color: var(--table-thead-border);
             border-bottom-color: var(--table-thead-bottom-border);
-            padding: 8px 0;
+            padding: 0;
+
+            .cell:not(:has(.dropdown-btn)) {
+                padding: 8px 0;
+            }
         }
 
         td.el-table__cell {
