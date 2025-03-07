@@ -95,7 +95,7 @@
                 <el-table-column :label="Translate('IDCS_PLAY')">
                     <template #default="{ row }: TableColumn<PlaybackRecLogList>">
                         <BaseImgSpriteBtn
-                            file="play (3)"
+                            file="preview"
                             @click="play(row)"
                         />
                     </template>

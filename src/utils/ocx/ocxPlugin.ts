@@ -35,7 +35,7 @@ const getSingletonPlugin = () => {
 
     // 通知相关
     const isPluginAvailable = ref(true) //插件是否有效
-    const pluginNoticeHtml = ref<keyof typeof OCX_Plugin_Notice_Map | ''>('')
+    const pluginNoticeHtml = ref('')
     const pluginDownloadUrl = ref('')
     const pluginNoticeContainer = ref('')
     const isInstallPlugin = ref(false) // 插件已安装运行标记
@@ -241,7 +241,7 @@ const getSingletonPlugin = () => {
                             const userInfoArr = userSession.getAuthInfo()
                             const sendXML = OCX_XML_SetLang()
                             getVideoPlugin().ExecuteCmd(sendXML)
-                            const result = await doLogin('', {}, false)
+                            const result = await doLogin('')
                             if (queryXml(result)('status').text() === 'success') {
                                 if (userInfoArr) {
                                     setCookie('lastSN', userInfoArr[2], 36500)
@@ -872,7 +872,7 @@ const getSingletonPlugin = () => {
         const sendXML = OCX_XML_SetPluginSize(0, 0, 0, 0)
         getVideoPlugin().ExecuteCmd(sendXML)
         getVideoPlugin().Destroy()
-        // }
+
         pluginStore.ocxPort = 0
         pluginStore.currPluginMode = null
         videoPlugin = null
@@ -1097,7 +1097,7 @@ const getSingletonPlugin = () => {
         browserMoveTimer: NodeJS.Timeout
         mutationObserver: MutationObserver
         resizeObserver: ResizeObserver
-        observerList: HTMLElement[]
+        observerList: Map<HTMLElement, 'intersect' | 'visible'> // HTMLElement[]
     }
 
     const browserEventMap = {
@@ -1249,13 +1249,20 @@ const getSingletonPlugin = () => {
                 const data = browserEventMap.get(pluginPlaceholderId)
                 if (data) {
                     const rect = data.element.getBoundingClientRect()
-                    const hasPop = data.observerList.some((item) => {
-                        if (item.classList.contains('el-popover')) {
-                            const observeRect = item.getBoundingClientRect()
-                            return item.style.display !== 'none' && isOverlap(rect, observeRect)
+                    let hasPop = false
+                    data.observerList.forEach((type, element) => {
+                        if (hasPop) {
+                            return
                         }
-                        return item.style.display !== 'none'
+
+                        if (type === 'intersect') {
+                            const observeRect = element.getBoundingClientRect()
+                            hasPop = element.style.display !== 'none' && isOverlap(rect, observeRect)
+                        }
+
+                        hasPop = element.style.display !== 'none'
                     })
+
                     if (!hasPop && browserEventMap.data.length) {
                         forcedHidden = false
                         displayOCX(true)
@@ -1269,24 +1276,30 @@ const getSingletonPlugin = () => {
             }
         })
 
-        const observerList: HTMLElement[] = []
-        const overlays = document.querySelectorAll('.el-overlay')
+        /**
+         * @notice 这里自动获取同步加载的对话框组件，并把它们添加进观察列表
+         * 如果是异步方式加载的组件，这里将添加失败，需要手动地执行ObserverElement来添加
+         */
+
+        const observerList = new Map<HTMLElement, 'intersect' | 'visible'>()
+
         const dialogs = document.querySelectorAll('.el-dialog')
-        const poppers = document.querySelectorAll('.el-popover')
         for (const dialog of dialogs) {
             if (dialog.querySelector('.PluginPlayer') !== null) {
                 mutationObserver.observe(dialog, { attributes: true })
             }
         }
 
+        const overlays = document.querySelectorAll('.el-overlay')
         for (const overlay of overlays) {
             mutationObserver.observe(overlay, { attributes: true })
-            observerList.push(overlay as HTMLElement)
+            observerList.set(overlay as HTMLElement, 'visible')
         }
 
+        const poppers = document.querySelectorAll('.el-popover')
         for (const popper of poppers) {
             mutationObserver.observe(popper, { attributes: true })
-            observerList.push(popper as HTMLElement)
+            observerList.set(popper as HTMLElement, 'intersect')
         }
 
         // 观察容器大小变化 重新设置插件大小
@@ -1306,6 +1319,56 @@ const getSingletonPlugin = () => {
             resizeObserver: resizeObserver,
             observerList: observerList,
         })
+    }
+
+    /**
+     * @description 监听元素变化，控制插件移动/显隐
+     * @param {HTMLElement} pluginRefDiv
+     * @param {HTMLElement} observeElement
+     * @param {string} observeType
+     */
+    const observeElement = (pluginRefDiv: HTMLElement | null, observeElement: HTMLElement, observeType: 'visible' | 'intersect' | 'scroll') => {
+        if (!pluginRefDiv) {
+            if (browserEventMap.data.length) {
+                pluginRefDiv = browserEventMap.data[0].element
+            } else {
+                return
+            }
+        }
+
+        if (browserEventMap.get(pluginRefDiv)) {
+            if (browserEventMap.get(pluginRefDiv)!.observerList.has(observeElement)) {
+                return
+            }
+
+            browserEventMap.get(pluginRefDiv)!.mutationObserver.observe(observeElement, { attributes: true })
+            if (observeType === 'intersect' || observeType === 'visible') {
+                browserEventMap.get(pluginRefDiv)!.observerList.set(observeElement, observeType)
+            }
+        }
+    }
+
+    /**
+     * @description 移除对元素变化的监听
+     * @param pluginDiv
+     * @param unobserveElement
+     */
+    const unobserveElement = (pluginRefDiv: HTMLElement | null, unobserveElement: HTMLElement) => {
+        if (!pluginRefDiv) {
+            if (browserEventMap.data.length) {
+                pluginRefDiv = browserEventMap.data[0].element
+            } else {
+                return
+            }
+        }
+
+        if (browserEventMap.get(pluginRefDiv)) {
+            if (browserEventMap.get(pluginRefDiv)!.observerList.has(unobserveElement)) {
+                return
+            }
+
+            browserEventMap.get(pluginRefDiv)!.observerList.delete(unobserveElement)
+        }
     }
 
     let displayTimer: NodeJS.Timeout | number = 0
@@ -1412,22 +1475,13 @@ const getSingletonPlugin = () => {
                 return
             }
 
-            // const checkNatIp = () => {
-            //     if (typeof natIp_2_0 === 'string') {
-            //         userSession.p2pSessionId = null
-            //         startV2Process()
-            //     } else {
-            //         requestAnimationFrame(checkNatIp)
-            //     }
-            // }
-
             // siteDictionary.js 在根目录下
             const script = document.createElement('script')
             script.onload = () => {
                 userSession.p2pSessionId = null
                 startV2Process()
             }
-            script.src = '/siteDictionary.js'
+            script.src = `${import.meta.env.VITE_P2P_URL}/siteDictionary.js?v=${import.meta.env.VITE_PACKAGE_VER}`
             document.body.appendChild(script)
         }
     })
@@ -1473,6 +1527,8 @@ const getSingletonPlugin = () => {
         pluginNoticeContainer,
         BackUpTask: backupTask,
         ExecuteCmd: executeCmd,
+        ObserveElement: observeElement,
+        UnobserveElement: unobserveElement,
     }
 }
 

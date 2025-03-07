@@ -218,7 +218,7 @@ export const queryDefaultInitData = (data: string) => fetch('queryDefaultInitDat
  * @param {string} data
  * @returns
  */
-export const activateDev = (data: string) => fetch('queryDefaultInitData', data, {}, false)
+export const activateDev = (data: string) => fetch('activateDev', data, {}, false)
 
 /**
  * @description 获取Poe电源配置

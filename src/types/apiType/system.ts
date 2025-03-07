@@ -132,6 +132,12 @@ export class SystemFactoryDefaultForm {
     exceptNetworkConfigSwitch = 'false'
 }
 
+class SystemGeneralSettingDecoderResolution {
+    id = 0
+    onlineStatus = false
+    decoder: { index: number; value: string }[] = []
+}
+
 /**
  * @description 全局配置表单
  */
@@ -147,7 +153,8 @@ export class SystemGeneralSettingForm {
     enableAutoDwell = false // 自动轮询
     waitTime = 0 // 等待时长
     zeroOrAddIpc = false //
-    decoder: Record<number, Record<number, string>> = {}
+    decoderResolution: SystemGeneralSettingDecoderResolution[] = []
+    // decoder: Record<number, Record<number, string>> = {}
 }
 
 /**

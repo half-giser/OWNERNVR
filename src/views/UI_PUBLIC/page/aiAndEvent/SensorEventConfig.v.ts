@@ -194,7 +194,7 @@ export default defineComponent({
                         }
                     }),
                 }
-                rowData.sysAudio = $trigger('sysAudio').attr('id') || DEFAULT_EMPTY_ID
+                rowData.sysAudio = getSystemAudioID(pageData.value.audioList, $trigger('sysAudio').attr('id'))
                 rowData.snap = {
                     switch: $trigger('sysSnap/switch').text().bool(),
                     chls: $trigger('sysSnap/chls/item').map((item) => {
@@ -228,14 +228,6 @@ export default defineComponent({
                 rowData.buzzerSwitch = $trigger('buzzerSwitch').text()
                 rowData.emailSwitch = $trigger('emailSwitch').text()
                 rowData.popMsgSwitch = $trigger('popMsgSwitch').text()
-
-                const audioData = pageData.value.audioList.filter((item) => {
-                    item.value === rowData.sysAudio
-                })
-
-                if (!audioData.length) {
-                    rowData.sysAudio = DEFAULT_EMPTY_ID
-                }
 
                 $trigger('preset/presets/item').forEach((item) => {
                     const $item = queryXml(item.element)

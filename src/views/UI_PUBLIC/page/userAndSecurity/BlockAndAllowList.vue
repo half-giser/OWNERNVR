@@ -49,7 +49,7 @@
                 >
                     <template #default="{ row, $index }: TableColumn<UserEditBlackAllowListForm>">
                         <BaseImgSpriteBtn
-                            file="edit (2)"
+                            file="edit2"
                             @click="openEditPop(row, $index)"
                         />
                     </template>

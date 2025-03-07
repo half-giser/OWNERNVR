@@ -55,7 +55,7 @@
                 <el-table-column :label="Translate('IDCS_EDIT')">
                     <template #default="{ $index }: TableColumn<ChannelPtzCruisePresetDto>">
                         <BaseImgSpriteBtn
-                            file="edit (2)"
+                            file="edit2"
                             @click="editPreset($index)"
                         />
                     </template>

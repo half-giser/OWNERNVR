@@ -116,7 +116,7 @@
                         <template #default="{ $index }: TableColumn<ChannelPtzCruisePresetDto>">
                             <div class="base-cell-box">
                                 <BaseImgSpriteBtn
-                                    file="edit (2)"
+                                    file="edit2"
                                     @click="editPreset($index)"
                                 />
                                 <BaseImgSpriteBtn

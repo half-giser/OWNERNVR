@@ -71,8 +71,8 @@ declare global {
             icon?: string
             /** 是否不显示在菜单列表中， true不显示，false 和 undefined 显示 */
             noMenu?: boolean
-            /** 是否显示在功能面板中, self：显示，且名称为自己的翻译。 group：显示，且名称为分组的翻译。 undefined 不显示*/
-            inHome?: 'self' | 'group' | undefined
+            /** 是否显示在功能面板中, self: 显示，且名称为自己的翻译. group: 显示，且名称为分组的翻译. hidden: 不显示. undefined/null 未定义，由UI决定显示规则*/
+            inHome?: 'self' | 'group' | null | 'hidden'
             /** 菜单在功能面板的排序 */
             homeSort?: number
             /** 功能面板上显示样式类，只有配置模块项有效，即config的下一级 */
@@ -87,6 +87,7 @@ declare global {
             groups?: Record<string, FeatureItemGroupMeta>
             /** 是否控制面板的默认菜单项 */
             homeDefault?: boolean
+            remove?: boolean
         }
         /** 子路由配置项 */
         children?: FeatureTree
@@ -127,10 +128,11 @@ declare global {
             groups?: Record<string, FeatureItemGroupMeta>
             homeSort?: number
             sort?: number
-            inHome?: 'self' | 'group'
+            inHome?: 'self' | 'group' | null | 'hidden'
             homeDefault?: boolean
         }
         children: RouteRecordRawExtends[]
         redirect: string
+        alias?: string
     }
 }

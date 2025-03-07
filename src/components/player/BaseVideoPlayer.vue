@@ -84,7 +84,7 @@
                         :data-event="item.recordIconStatus"
                     />
                     <BaseImgSprite
-                        file="ptz (2)"
+                        file="ptzState"
                         :class="{
                             hide: !item.isPtzIcon,
                         }"
@@ -315,7 +315,7 @@ const SCHEDULE_CHLIDREN = ['schedule']
  */
 const REC_EVENT_ICON_MAP: readonly { icon: string; events: string[] }[] = [
     { icon: 'rec_manual', events: MAUNUAL_CHLIDREN },
-    { icon: 'rec', events: REC_CHLIDREN },
+    { icon: 'rec_continuous', events: REC_CHLIDREN },
     {
         icon: 'rec_inteligence',
         events: INTELIGENCE_CHLIDREN,

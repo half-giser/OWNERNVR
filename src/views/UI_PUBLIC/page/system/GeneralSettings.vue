@@ -66,19 +66,21 @@
             </template>
             <!-- 解码卡选项 -->
             <template
-                v-for="(item, key) in pageData.decoderOptions"
-                :key
+                v-for="item in formData.decoderResolution"
+                :key="item.id"
             >
-                <el-form-item
-                    v-for="(item2, key2) in item"
-                    :key="key2"
-                    :label="displayDecoderLabel(key, key2)"
-                >
-                    <el-select-v2
-                        v-model="formData.decoder[key][key2]"
-                        :options="arrayToOptions(item2)"
-                    />
-                </el-form-item>
+                <template v-if="item.onlineStatus">
+                    <el-form-item
+                        v-for="decoder in item.decoder"
+                        :key="decoder.index"
+                        :label="displayDecoderLabel(item.id, decoder.index)"
+                    >
+                        <el-select-v2
+                            v-model="decoder.value"
+                            :options="pageData.decoderOptions[item.id][decoder.index]"
+                        />
+                    </el-form-item>
+                </template>
             </template>
             <el-form-item
                 v-if="pageData.isOutputConfig"

@@ -11,16 +11,19 @@
             class="eth_list"
         >
             <div
-                :class="{ active: pageData.tabId === 0 }"
-                @click="changeTab(0)"
+                :class="{ active: pageData.tabId === -1 }"
+                @click="changeTab(-1)"
             >
                 {{ Translate('IDCS_LOCAL') }}
             </div>
             <div
                 v-for="key in Object.keys(decoderCardMap)"
                 :key
-                :class="{ active: pageData.tabId === Number(key) + 1 }"
-                @click="changeTab(Number(key) + 1)"
+                :class="{
+                    active: pageData.tabId === Number(key),
+                    disabled: !decoderCardMap[Number(key)].onlineStatus,
+                }"
+                @click="changeTab(Number(key))"
             >
                 {{ Translate('IDCS_DECODE_CARD') + (Number(key) + 1) }}
             </div>
@@ -43,12 +46,12 @@
             <!-- 3535A是否显示辅输出控制开关，只在主输出可能显示 -->
             <div class="top-config">
                 <el-switch
-                    v-show="pageData.tabId === 0 && pageData.isConfigSwitch"
+                    v-show="pageData.tabId === -1 && pageData.isConfigSwitch"
                     v-model="pageData.configSwitch"
                 />
             </div>
             <div
-                v-if="pageData.tabId !== 0"
+                v-if="pageData.tabId !== -1"
                 class="top-hdmi"
             >
                 <span>{{ Translate('IDCS_HDMI_IN_EXPORT_TO') }}</span>
@@ -69,7 +72,18 @@
                         v-if="pageData.hasDecoder"
                         class="top-tabs"
                     >
-                        <template v-if="decoderCardMap[pageData.tabId]">
+                        <template v-if="pageData.tabId === -1">
+                            <div
+                                v-for="i in pageData.outputScreenCount"
+                                :key="i"
+                                class="typeBtn"
+                                :class="{ active: pageData.outputIdx === i - 1 }"
+                                @click="changeOutput(i - 1)"
+                            >
+                                {{ displayTabName(i) }}
+                            </div>
+                        </template>
+                        <template v-else-if="decoderCardMap[pageData.tabId]">
                             <div
                                 v-for="key in Object.keys(decoderCardMap[pageData.tabId].decoderDwellData)"
                                 :key
@@ -84,12 +98,12 @@
                     <!-- 3535A是否显示辅输出控制开关，只在主输出可能显示 -->
                     <div class="top-config">
                         <el-switch
-                            v-show="pageData.tabId === 0 && pageData.isConfigSwitch"
+                            v-show="pageData.tabId === -1 && pageData.isConfigSwitch"
                             v-model="pageData.configSwitch"
                         />
                     </div>
                     <div
-                        v-if="pageData.tabId !== 0"
+                        v-if="pageData.tabId !== -1"
                         class="top-hdmi"
                     >
                         <span>{{ Translate('IDCS_HDMI_IN_EXPORT_TO') }}</span>
@@ -102,7 +116,7 @@
                 <div class="panel">
                     <div class="panel-top">
                         <div
-                            v-show="(pageData.tabId === 0 && pageData.outputIdx === 0) || pageData.dwellCheckbox"
+                            v-show="(pageData.tabId === -1 && pageData.outputIdx === 0) || outputTypeCheck"
                             class="panel-left"
                         >
                             <!-- 轮询 -->
@@ -165,19 +179,19 @@
                         <!-- 轮询开关 -->
                         <div class="panel-dwell">
                             <el-checkbox
-                                v-show="pageData.tabId !== 0 || pageData.outputIdx !== 0"
-                                v-model="pageData.dwellCheckbox"
+                                v-show="pageData.tabId !== -1 || pageData.outputIdx !== 0"
+                                :model-value="outputTypeCheck"
                                 :label="Translate('IDCS_DWELL')"
-                                @change="changeOutputType"
+                                @update:model-value="changeOutputType"
                             />
                         </div>
                         <!-- 分屏切换按钮 -->
                         <div class="panel-btns">
                             <el-tooltip :content="Translate('IDCS_FAVOURITE')">
                                 <BaseImgSpriteBtn
-                                    v-show="pageData.tabId === 0 && pageData.outputIdx === 0"
+                                    v-show="pageData.tabId === -1 && pageData.outputIdx === 0"
                                     class="panel-collect"
-                                    file="collect (2)"
+                                    file="collect_view"
                                     @click="collectView"
                                 />
                             </el-tooltip>
@@ -347,6 +361,11 @@
         &.active {
             border-color: var(--primary);
         }
+
+        &.disabled {
+            color: var(--table-text-disabled);
+            cursor: not-allowed;
+        }
     }
 }
 
@@ -374,6 +393,8 @@
     height: 60px;
     flex-shrink: 0;
     background-color: var(--output-tab-bg);
+    justify-content: space-between;
+    align-items: center;
 
     &.no-decoder {
         border: 1px solid var(--content-border);
@@ -406,12 +427,22 @@
     }
 
     &-config {
-        margin-left: 10px;
+        align-items: center;
+        // margin-left: 10px;
     }
 
     &-hdmi {
-        margin-left: 10px;
-        width: 100px;
+        align-items: center;
+        display: flex;
+        justify-content: flex-end;
+        width: 250px;
+        margin-right: 10px;
+
+        & > span {
+            flex-shrink: 0;
+            margin-right: 10px;
+        }
+        // width: 100px;
     }
 }
 

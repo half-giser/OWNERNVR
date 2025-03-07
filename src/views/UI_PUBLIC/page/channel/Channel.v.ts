@@ -21,6 +21,11 @@ export default defineComponent({
         const plugin = usePlugin()
 
         const tableData = ref<ChannelInfoDto[]>([])
+        const virtualTableData = computed<number[]>(() => {
+            return Array(tableData.value.length)
+                .fill(1)
+                .map((item, key) => item + key)
+        })
         const channelEditPopVisable = ref(false)
         const editRowData = ref(new ChannelInfoDto())
         const protocolList = ref<ChannelRTSPPropertyDto[]>([])
@@ -166,12 +171,11 @@ export default defineComponent({
         }
 
         const isShowUpgradeBtn = (rowData: ChannelInfoDto) => {
-            if (rowData.protocolType === 'TVT_IPCAMERA') rowData.showUpgradeBtn = true
-            return rowData.showUpgradeBtn
+            return rowData.protocolType === 'TVT_IPCAMERA'
         }
 
         const upgradeIPC = (rowData: ChannelInfoDto) => {
-            if (rowData.upgradeStatus === 'success' || rowData.upgradeDisabled) return
+            if (rowData.upgradeStatus === 'success' || isUpgradeDisabled(rowData)) return
             openUpgradePop('single', [rowData])
         }
 
@@ -192,7 +196,7 @@ export default defineComponent({
             })
         }
 
-        const getDataList = (chlName?: string) => {
+        const getDataList = async (chlName?: string) => {
             const sendXml = rawXml`
                 ${
                     chlName
@@ -217,69 +221,64 @@ export default defineComponent({
                     <chlNum/>
                 </requireField>
             `
-            openLoading()
-            queryDevList(sendXml).then((res) => {
-                closeLoading()
-                const $ = queryXml(res)
-                getIpAnalogCout()
-                getProtocolList(() => {
-                    if ($('status').text() === 'success') {
-                        manufacturerMap = Object.fromEntries(
-                            $('types/manufacturer/enum').map((ele) => {
-                                return [ele.text(), ele.attr('displayName')]
-                            }),
-                        )
+            const res = await queryDevList(sendXml)
+            const $ = queryXml(res)
 
-                        nameMapping = {}
-                        tableData.value = $('content/item').map((ele) => {
-                            const eleXml = queryXml(ele.element)
-                            nameMapping[ele.attr('id')] = eleXml('name').text()
-                            const channelInfo = new ChannelInfoDto()
-                            channelInfo.id = ele.attr('id')
-                            channelInfo.chlNum = eleXml('chlNum').text()
-                            channelInfo.name = eleXml('name').text()
-                            channelInfo.devID = eleXml('devID').text()
-                            channelInfo.ip = eleXml('ip').text()
-                            channelInfo.port = eleXml('port').text().num()
-                            channelInfo.poePort = eleXml('poePort').text()
-                            channelInfo.userName = eleXml('userName').text()
-                            channelInfo.password = eleXml('password').text()
-                            channelInfo.protocolType = eleXml('protocolType').text()
-                            channelInfo.addType = eleXml('addType').text()
-                            channelInfo.accessType = eleXml('AccessType').text()
-                            channelInfo.poeIndex = eleXml('poeIndex').text().num()
-                            channelInfo.manufacturer = eleXml('manufacturer').text()
-                            channelInfo.productModel = {
-                                factoryName: eleXml('productModel').attr('factoryName'),
-                                innerText: eleXml('productModel').text(),
-                            }
-                            channelInfo.index = eleXml('index').text().num()
-                            channelInfo.chlIndex = eleXml('chlIndex').text()
-                            channelInfo.chlType = eleXml('chlType').text()
+            if ($('status').text() === 'success') {
+                manufacturerMap = Object.fromEntries(
+                    $('types/manufacturer/enum').map((ele) => {
+                        return [ele.text(), ele.attr('displayName')]
+                    }),
+                )
 
-                            return channelInfo
-                        })
-                        saveMaxValueForDefaultChl()
-                        tableData.value.forEach((ele) => {
-                            //UI1-E POE通道可删除，其他UI不能删除
-                            if ((ele.addType === 'poe' && import.meta.env.VITE_UI_TYPE !== 'UI1-E') || !ele.ip) {
-                                ele.delDisabled = true
-                            }
+                nameMapping = {}
+                tableData.value = $('content/item').map((ele) => {
+                    const eleXml = queryXml(ele.element)
+                    nameMapping[ele.attr('id')] = eleXml('name').text()
+                    const channelInfo = new ChannelInfoDto()
+                    channelInfo.id = ele.attr('id')
+                    channelInfo.chlNum = eleXml('chlNum').text()
+                    channelInfo.name = eleXml('name').text()
+                    channelInfo.devID = eleXml('devID').text()
+                    channelInfo.ip = eleXml('ip').text()
+                    channelInfo.port = eleXml('port').text().num()
+                    channelInfo.poePort = eleXml('poePort').text()
+                    channelInfo.userName = eleXml('userName').text()
+                    channelInfo.password = eleXml('password').text()
+                    channelInfo.protocolType = eleXml('protocolType').text()
+                    channelInfo.addType = eleXml('addType').text()
+                    channelInfo.accessType = eleXml('AccessType').text()
+                    channelInfo.poeIndex = eleXml('poeIndex').text().num()
+                    channelInfo.manufacturer = eleXml('manufacturer').text()
+                    channelInfo.productModel = {
+                        factoryName: eleXml('productModel').attr('factoryName'),
+                        innerText: eleXml('productModel').text(),
+                    }
+                    channelInfo.index = eleXml('index').text().num()
+                    channelInfo.chlIndex = eleXml('chlIndex').text()
+                    channelInfo.chlType = eleXml('chlType').text()
 
-                            if (ele.addType === 'poe') {
-                                if (!virtualHostEnabled) ele.showSetting = false
-                            } else if (ele.protocolType === 'RTSP') {
-                                ele.showSetting = false
-                            }
-                        })
+                    return channelInfo
+                })
+                saveMaxValueForDefaultChl()
+                tableData.value.forEach((ele) => {
+                    //UI1-E POE通道可删除，其他UI不能删除
+                    if ((ele.addType === 'poe' && import.meta.env.VITE_UI_TYPE !== 'UI1-E') || !ele.ip) {
+                        ele.delDisabled = true
+                    }
 
-                        channelIPCUpgradePopRef.value!.initWsState(tableData.value)
-
-                        //获取在线通道列表
-                        getOnlineChlList()
+                    if (ele.addType === 'poe') {
+                        if (!virtualHostEnabled) ele.showSetting = false
+                    } else if (ele.protocolType === 'RTSP') {
+                        ele.showSetting = false
                     }
                 })
-            })
+
+                channelIPCUpgradePopRef.value!.initWsState(tableData.value)
+
+                //获取在线通道列表
+                getOnlineChlList()
+            }
         }
 
         const getIPChlInfo = (channelInfo: ChannelInfoDto) => {
@@ -295,34 +294,23 @@ export default defineComponent({
             })
         }
 
+        const isUpgradeDisabled = (channelInfo: ChannelInfoDto) => {
+            return channelInfo.accessType === '1' || !channelInfo.isOnline
+        }
+
         const getOnlineChlList = () => {
             queryOnlineChlList().then((res) => {
                 const $ = queryXml(res)
                 if ($('status').text() === 'success') {
-                    if (!tableData.value.length) return
+                    const onlineChlList = $('content/item').map((element) => element.attr('id'))
                     tableData.value.forEach((ele) => {
                         //模拟通道，状态置为空
-                        if (!ele.ip) return
-                        let isOnline = false
-                        $('content/item').forEach((element) => {
-                            const chlId = element.attr('id')
-                            if (ele.id === chlId) {
-                                if (!ele.isOnline) {
-                                    ele.isOnline = true
-                                    ele.upgradeDisabled = false
-                                }
-                                isOnline = true
-                                getIPChlInfo(ele)
-                            }
-                        })
-                        if (!isOnline && ele.isOnline) {
-                            ele.isOnline = false
-                            ele.upgradeDisabled = true
+                        if (!ele.ip) {
+                            return
                         }
-
-                        if (ele.accessType === '1') {
-                            ele.upgradeDisabled = true
-                            ele.showUpgradeBtn = true
+                        ele.isOnline = onlineChlList.includes(ele.id)
+                        if (ele.isOnline) {
+                            getIPChlInfo(ele)
                         }
                     })
                 }
@@ -331,68 +319,56 @@ export default defineComponent({
             })
         }
 
-        const getIpAnalogCout = () => {
-            openLoading()
-            queryBasicCfg().then((res) => {
-                closeLoading()
-                const $ = queryXml(res)
-                if ($('status').text() === 'success') {
-                    ipChlMaxCountOriginal = $('content/channelSignalType')
-                        .text()
-                        .array(':')
-                        .filter((ele) => ele === 'D').length
-                }
-                getBandwidth()
-            })
+        const getIpAnalogCout = async () => {
+            const res = await queryBasicCfg()
+            const $ = queryXml(res)
+            if ($('status').text() === 'success') {
+                ipChlMaxCountOriginal = $('content/channelSignalType')
+                    .text()
+                    .array(':')
+                    .filter((ele) => ele === 'D').length
+            }
         }
 
-        const getBandwidth = () => {
-            openLoading()
-            queryRecordDistributeInfo().then((res1) => {
-                closeLoading()
-                const $ = queryXml(res1)
-                const mode = $('content/recMode/mode').text()
-                openLoading()
-                querySystemCaps().then((res2) => {
-                    closeLoading()
-                    const $ = queryXml(res2)
-                    if ($('status').text() === 'success') {
-                        const totalBandwidth = $('content/totalBandwidth').text().num()
-                        const usedBandwidth = $('content/' + (mode === 'auto' ? 'usedAutoBandwidth' : 'usedManualBandwidth'))
-                            .text()
-                            .num()
-                        const remainBandwidth = Math.max(0, (totalBandwidth * 1024 - usedBandwidth) / 1024)
-                        const switchableIpChlMaxCount = $('content/switchableIpChlMaxCount').text().num()
-                        ipChlMaxCount = ipChlMaxCountOriginal + $('content/ipChlMaxCount').text().num()
-                        txtBrandwidth.value = Translate('IDCS_CURRENT_BANDWIDTH_ALL_D_D').formatForLang(remainBandwidth.toFixed(0), totalBandwidth.toFixed(0))
+        const getBandwidth = async () => {
+            const res1 = await queryRecordDistributeInfo()
+            const $res1 = queryXml(res1)
+            const mode = $res1('content/recMode/mode').text()
 
-                        if ((switchableIpChlMaxCount > 0 && cababilityStore.analogChlCount > 0) || cababilityStore.analogChlCount === 0) {
-                            ipNumVisable.value = true
-                            ipNum.value = ' : ' + ipChlMaxCount
-                        } else {
-                            ipNumVisable.value = false
-                        }
+            const res2 = await querySystemCaps()
+            const $ = queryXml(res2)
+
+            if ($('status').text() === 'success') {
+                const totalBandwidth = $('content/totalBandwidth').text().num()
+                const usedBandwidth = $('content/' + (mode === 'auto' ? 'usedAutoBandwidth' : 'usedManualBandwidth'))
+                    .text()
+                    .num()
+                const remainBandwidth = Math.max(0, (totalBandwidth * 1024 - usedBandwidth) / 1024)
+                const switchableIpChlMaxCount = $('content/switchableIpChlMaxCount').text().num()
+                ipChlMaxCount = ipChlMaxCountOriginal + $('content/ipChlMaxCount').text().num()
+                txtBrandwidth.value = Translate('IDCS_CURRENT_BANDWIDTH_ALL_D_D').formatForLang(remainBandwidth.toFixed(0), totalBandwidth.toFixed(0))
+
+                if ((switchableIpChlMaxCount > 0 && cababilityStore.analogChlCount > 0) || cababilityStore.analogChlCount === 0) {
+                    ipNumVisable.value = true
+                    ipNum.value = ' : ' + ipChlMaxCount
+                } else {
+                    ipNumVisable.value = false
+                }
+            }
+        }
+
+        const getProtocolList = async () => {
+            const res = await queryRtspProtocolList()
+            const $ = queryXml(res)
+            if ($('status').text() === 'success') {
+                protocolList.value = $('content/item').map((ele) => {
+                    const eleXml = queryXml(ele.element)
+                    return {
+                        displayName: eleXml('displayName').text(),
+                        index: ele.attr('id'),
                     }
                 })
-            })
-        }
-
-        const getProtocolList = (callback: () => void) => {
-            openLoading()
-            queryRtspProtocolList().then((res) => {
-                closeLoading()
-                const $ = queryXml(res)
-                if ($('status').text() === 'success') {
-                    protocolList.value = $('content/item').map((ele) => {
-                        const eleXml = queryXml(ele.element)
-                        return {
-                            displayName: eleXml('displayName').text(),
-                            index: ele.attr('id'),
-                        }
-                    })
-                    if (callback) callback()
-                }
-            })
+            }
         }
 
         const saveMaxValueForDefaultChl = () => {
@@ -437,8 +413,13 @@ export default defineComponent({
         }
 
         onMounted(async () => {
+            openLoading()
             await getNetPortCfg()
-            getDataList()
+            await getIpAnalogCout()
+            await getBandwidth()
+            await getProtocolList()
+            await getDataList()
+            closeLoading()
         })
 
         ctx.expose({
@@ -448,6 +429,7 @@ export default defineComponent({
         return {
             userSession,
             tableData,
+            virtualTableData,
             channelEditPopVisable,
             editRowData,
             protocolList,
@@ -473,6 +455,7 @@ export default defineComponent({
             confirmEditChannel,
             baseLivePopRef,
             channelIPCUpgradePopRef,
+            isUpgradeDisabled,
         }
     },
 })

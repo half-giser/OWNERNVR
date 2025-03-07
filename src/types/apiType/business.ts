@@ -46,6 +46,7 @@ export class BusinessPkMgrEnterExitManageList {
  * @description 门禁管理-门禁配置-门禁信息
  */
 export class BusinessAccessLockDataItem {
+    index = 0
     id = 0
     name = ' '
     openDelayTimeMin = 0 // 开门延时时间-最小值
@@ -63,14 +64,20 @@ export class BusinessAccessLockDataItem {
 }
 
 /**
- * @description 业务应用-门禁管理表单
+ * @description 业务应用-门禁门锁表单
  */
-export class BusinessAccessConfigForm {
-    accessLockData = [new BusinessAccessLockDataItem()]
+export class BusinessAccessLockForm {
+    doorLock = [new BusinessAccessLockDataItem()]
     accessListType = ''
     wearMaskOpen = false
-    wiegandIOType = ''
-    wiegandMode = ''
+}
+
+/**
+ * @description 业务应用-韦根配置表单
+ */
+export class BusinessWiegandForm {
+    IOType = ''
+    mode = ''
 }
 
 /**

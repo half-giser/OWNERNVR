@@ -195,7 +195,7 @@ export default defineComponent({
                     <chl id='${item.id}'>
                     <param>
                         <deleteAudioAlarm>
-                        <id>${item.audioType}</id>
+                            <id>${item.audioType}</id>
                         </deleteAudioAlarm>
                     </param>
                     </chl>
@@ -497,7 +497,9 @@ export default defineComponent({
                 `
 
                 const result = await deleteAlarmAudio(sendXml)
-                commSaveResponseHandler(result)
+                commSaveResponseHandler(result, () => {
+                    localList.value = localList.value.filter((item) => !selectedId.includes(item.id))
+                })
             }
         }
 

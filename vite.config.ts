@@ -31,6 +31,7 @@ export default defineConfig(({ mode }) => {
     console.log(env.VITE_UI_TYPE)
 
     const { VITE_APP_IP, VITE_UI_TYPE } = env
+    const VITE_PACKAGE_VER = Math.ceil(Date.now() / 1000 / 60).toString(36)
 
     return {
         // envDir,
@@ -39,6 +40,8 @@ export default defineConfig(({ mode }) => {
             'import.meta.env.VITE_UI_TYPE': JSON.stringify(env.VITE_UI_TYPE),
             'import.meta.env.VITE_BASE_URL': JSON.stringify(env.VITE_BASE_URL),
             'import.meta.env.VITE_APP_IP': JSON.stringify(env.VITE_APP_IP || ''),
+            'import.meta.env.VITE_PACKAGE_VER': JSON.stringify(VITE_PACKAGE_VER),
+            'import.meta.env.VITE_P2P_URL': JSON.stringify(env.VITE_P2P_URL || ''),
         },
         base: './',
         server: {
@@ -101,6 +104,8 @@ export default defineConfig(({ mode }) => {
             cleanUpTempFiles(),
             GenerateSprite({
                 src: `sprite/${VITE_UI_TYPE}-sprite/sprite/*.png`,
+                minify: process.env.NODE_ENV !== 'development',
+                additionalData: `$sprite-version:'${VITE_PACKAGE_VER}';$sprite-p2p-url:'${env.VITE_P2P_URL}';`,
             }),
             minifyXmlTemplateStrings(),
             transpileVueTemplatePropTypes(),

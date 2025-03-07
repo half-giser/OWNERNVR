@@ -13,7 +13,7 @@
             >
                 <div class="title">{{ Translate('IDCS_WIZARD') }}</div>
                 <div class="box">
-                    <div>
+                    <div ref="langRef">
                         <div class="lang-title">{{ Translate('IDCS_LANGUAGE') }}</div>
                         <BaseListBox
                             class="lang-list"
@@ -29,7 +29,7 @@
                             </BaseListBoxItem>
                         </BaseListBox>
                     </div>
-                    <div>
+                    <div ref="regionRef">
                         <div class="lang-title">{{ Translate('IDCS_LOCALITY') }}</div>
                         <BaseListBox
                             class="region-list"
@@ -134,6 +134,7 @@
                                 v-model="dateTimeFormData.timeServer"
                                 :options="pageData.timeServerOptions"
                                 filterable
+                                :disabled="dateTimeFormData.syncType !== 'NTP'"
                             />
                         </el-form-item>
                         <el-form-item :label="Translate('IDCS_VIDEO_FORMAT')">
@@ -220,7 +221,7 @@
                             <el-select-v2
                                 v-else
                                 v-model="qaFormData.id"
-                                :options="pageData.questionOptions"
+                                :options="questionOptions"
                                 :props="{
                                     label: 'question',
                                     value: 'id',
@@ -238,10 +239,12 @@
                             :data="qaTableData"
                             show-overflow-tooltip
                         >
-                            <el-table-column
-                                :label="Translate('IDCS_QUESTION')"
-                                prop="question"
-                            />
+                            <el-table-column :label="Translate('IDCS_QUESTION')">
+                                <template #default="{ row }: TableColumn<SystemGuideQuestionForm>">
+                                    <template v-if="isDefeultQuestion">{{ Translate(row.question) }}</template>
+                                    <template v-else>{{ row.question }}</template>
+                                </template>
+                            </el-table-column>
                             <el-table-column :label="Translate('IDCS_ANSWER')">
                                 <template #default="{ row }: TableColumn<SystemGuideQuestionForm>">
                                     <template v-if="!isDefeultQuestion || (isDefeultQuestion && !row.answer)">******</template>
@@ -286,7 +289,7 @@
                         />
                         <el-table-column
                             :label="Translate('IDCS_TYPE')"
-                            prop="combinedStatus"
+                            prop="type"
                         />
                         <el-table-column
                             :label="Translate('IDCS_CAPACITY')"
@@ -403,6 +406,10 @@
 
     .el-checkbox {
         margin-right: 15px;
+    }
+
+    .base-btn-box {
+        align-items: center;
     }
 }
 

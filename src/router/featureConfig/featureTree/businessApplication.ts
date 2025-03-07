@@ -4,7 +4,7 @@
  * @Description: 业务应用-路由
  */
 
-export default {
+const businessApplicationRoutes: FeatureItem = {
     component: 'layout/L2T2Layout.vue',
     meta: {
         sort: 60,
@@ -12,8 +12,8 @@ export default {
         icon: 'business_menu',
     },
     children: {
+        // 停车场管理
         parkLotManage: {
-            // 停车场管理
             component: 'layout/L2T2L3T1Layout.vue',
             meta: {
                 sort: 10,
@@ -24,8 +24,8 @@ export default {
                 },
             },
             children: {
+                // 基础配置
                 basicConfig: {
-                    // 基础配置
                     component: 'businessApplication/PkMgrBasicConfig.vue',
                     meta: {
                         sort: 10,
@@ -33,8 +33,8 @@ export default {
                         icon: 'park_baiscCfg',
                     },
                 },
+                // 车位管理
                 spaceManage: {
-                    // 车位管理
                     component: 'businessApplication/PkMgrSpaceManage.vue',
                     meta: {
                         sort: 20,
@@ -42,8 +42,8 @@ export default {
                         icon: 'park_spaceMgr',
                     },
                 },
+                // 出入口
                 enterExitManage: {
-                    // 出入口
                     component: 'businessApplication/PkMgrEnterExitManage.vue',
                     meta: {
                         sort: 30,
@@ -61,6 +61,7 @@ export default {
                 },
             },
         },
+        // 门禁管理
         accessControl: {
             // 门禁管理
             component: 'layout/L2T2L3T1Layout.vue',
@@ -70,8 +71,8 @@ export default {
                 auth: 'AccessControlMgr',
             },
             children: {
+                // 门禁配置
                 config: {
-                    // 门禁配置
                     name: 'accessControlConfig',
                     path: 'config',
                     component: 'businessApplication/ActConfigs.vue',
@@ -83,8 +84,8 @@ export default {
                 },
             },
         },
+        // 人脸考勤
         faceAttendance: {
-            // 人脸考勤
             component: 'businessApplication/FaceAttendances.vue',
             meta: {
                 sort: 30,
@@ -94,8 +95,8 @@ export default {
                 },
             },
         },
+        // 人脸签到
         faceCheck: {
-            // 人脸签到
             component: 'businessApplication/FaceCheck.vue',
             meta: {
                 sort: 40,
@@ -132,4 +133,6 @@ export default {
             next()
         }
     },
-} as FeatureItem
+}
+
+export default businessApplicationRoutes

@@ -23,7 +23,7 @@ export const reqLogin = () => fetch('reqLogin', '')
  * @param checkCommonErrorSwitch
  * @returns
  */
-export const doLogin = (data: string, config?: AxiosRequestConfig, checkCommonErrorSwitch = true) => fetch('doLogin', data, config, checkCommonErrorSwitch)
+export const doLogin = (data: string, config?: AxiosRequestConfig, checkCommonErrorSwitch = false) => fetch('doLogin', data, config, checkCommonErrorSwitch)
 
 /**
  * @description 退出登录

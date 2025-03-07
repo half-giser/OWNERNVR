@@ -86,6 +86,7 @@
                             :formatter="formatDigit"
                             :parser="formatDigit"
                             :disabled="!formData.gb28181Switch"
+                            @blur="blurSipId"
                         />
                     </el-form-item>
                     <el-form-item
@@ -99,6 +100,7 @@
                             :formatter="formatDigit"
                             :parser="formatDigit"
                             :disabled="!formData.gb28181Switch"
+                            @blur="blurSipDeviceId"
                         />
                     </el-form-item>
                 </el-form-item>
@@ -204,7 +206,7 @@
                             <el-table-column :label="Translate('IDCS_EDIT')">
                                 <template #default="item">
                                     <BaseImgSpriteBtn
-                                        file="edit (2)"
+                                        file="edit2"
                                         :disabled="!formData.gb28181Switch"
                                         @click="editCodeId($index, item.row)"
                                     />

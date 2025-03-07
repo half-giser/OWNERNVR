@@ -34,8 +34,6 @@ export class ChannelInfoDto {
     version = ''
     delDisabled = false
     showSetting = true
-    showUpgradeBtn = false
-    upgradeDisabled = true
     upgradeStatus: 'normal' | 'notActive' | 'progress' | 'error' | 'success' = 'normal' // normal：初始状态， notActive：未激活， progress：正在升级， error：升级失败/校验头文件失败, success：升级成功
     upgradeProgressText = '' // 升级进度
 }

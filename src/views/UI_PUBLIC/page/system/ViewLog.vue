@@ -126,7 +126,7 @@
                     <template #default="{ row }: TableColumn<SystemLogList>">
                         <BaseImgSpriteBtn
                             v-show="displayPlayIcon(row)"
-                            file="play (3)"
+                            file="preview"
                             @click="playRec(row)"
                         />
                     </template>

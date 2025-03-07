@@ -106,7 +106,7 @@ ElSelectV2.props.emptyValues = {
 
 ElSelectV2.props.persistent = {
     type: Boolean,
-    default: true,
+    default: false,
 }
 
 ElSelectV2.props.showArrow = {
@@ -176,10 +176,10 @@ ElPopover.props.showArrow = {
     default: false,
 }
 
-ElPopover.props.offset = {
-    type: Number,
-    default: 0,
-}
+// ElPopover.props.offset = {
+//     type: Number,
+//     default: 15,
+// }
 
 ElDatePicker.props.cellClassName = {
     type: Function as PropType<(data: Date) => string>,

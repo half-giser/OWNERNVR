@@ -187,7 +187,7 @@ export default defineComponent({
                     detectionEnable: $param('switch').text().bool(),
                     originalEnable: $param('switch').text().bool(),
                     schedule: getScheduleId(pageData.value.scheduleList, $('content/chl').attr('scheduleGuid')),
-                    holdTime: $param('alarmHoldTime').text().num(),
+                    holdTime: $param('holdTime').text().num(),
                     holdTimeList: getAlarmHoldTimeList($param('holdTimeNote').text(), $param('alarmHoldTime').text().num()),
                     refreshFrequency: $param('detectFrequency').text().num(),
                     refreshFrequencyList: $('types/refreshFrequency/enum').map((item) => {
@@ -240,7 +240,7 @@ export default defineComponent({
                             },
                         }
                     }),
-                    sysAudio: $trigger('sysAudio').attr('id') === '' ? $trigger('sysAudio').attr('id') : '',
+                    sysAudio: $trigger('sysAudio').attr('id'),
                 }
 
                 watchEdit.listen()

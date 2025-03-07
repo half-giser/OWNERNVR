@@ -49,7 +49,7 @@ export const useP2PLang = () => {
             langId.value = localStorage.getItem(LocalCacheKey.KEY_LANG_ID) || ''
         }
 
-        return fetch('/public/LanguageInfo/LanguageIndex.js')
+        return fetch(`${import.meta.env.VITE_P2P_URL}/public/LanguageInfo/LanguageIndex.js?v=${import.meta.env.VITE_PACKAGE_VER}`)
             .then((res) => res.json())
             .then((res: LanguageResult) => {
                 langTypes.value = Object.entries(res.languages).map((item) => {
@@ -90,7 +90,7 @@ export const useP2PLang = () => {
     const requestLangItems = () => {
         const find = langTypes.value.find((item) => item.id === langId.value)
         if (find) {
-            return fetch(`/public/LanguageInfo/${find.dir}.js`)
+            return fetch(`${import.meta.env.VITE_P2P_URL}/public/LanguageInfo/${find.dir}.js?v=${import.meta.env.VITE_PACKAGE_VER}`)
                 .then((res) => res.json())
                 .then((res: LanguageItemResult) => {
                     langItems.value = res.text

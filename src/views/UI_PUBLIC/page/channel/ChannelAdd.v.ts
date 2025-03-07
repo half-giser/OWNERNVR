@@ -22,10 +22,9 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
-        const cababilityStore = useCababilityStore()
+        const systemCaps = useCababilityStore()
         const router = useRouter()
-        const supportsIPCActivation = cababilityStore.supportsIPCActivation ? cababilityStore.supportsIPCActivation : true
-        const supportRecorder = ref(false)
+        const supportsIPCActivation = systemCaps.supportsIPCActivation
 
         const quickAddTableRef = ref<TableInstance>()
         const manualAddTableRef = ref<TableInstance>()
@@ -50,7 +49,7 @@ export default defineComponent({
                 {
                     key: tabKeys.addRecorder,
                     text: Translate('IDCS_ADD_RECORDER'),
-                    show: supportRecorder.value,
+                    show: systemCaps.supportRecorder,
                 },
             ]
         })
@@ -68,8 +67,8 @@ export default defineComponent({
         const nameList = ref<SelectOption<string, string>[]>([])
         const protocolList = ref<ChannelRTSPPropertyDto[]>([])
         const quickAddEditRowData = ref(new ChannelQuickAddDto())
-        const chlCountLimit = ref(128) // 通道个数上限
-        const faceMatchLimitMaxChlNum = ref(0)
+        const chlCountLimit = systemCaps.chlMaxCount // 通道个数上限
+        const faceMatchLimitMaxChlNum = systemCaps.faceMatchLimitMaxChlNum
         const activateIpcData = ref<ChannelQuickAddDto[]>([])
         const setProtocolPopVisiable = ref(false)
         const multiChlIPCAddRef = ref<channelAddMultiChlIPCAddPop>()
@@ -93,34 +92,24 @@ export default defineComponent({
             },
         ])
 
-        const getSystemCaps = () => {
-            openLoading()
-            queryRecordDistributeInfo().then((res) => {
-                const $ = queryXml(res)
-                const mode = $('content/recMode/mode').text()
-                querySystemCaps().then((res) => {
-                    closeLoading()
-                    const $ = queryXml(res)
-                    chlCountLimit.value = $('content/chlMaxCount').text().num()
-                    const totalBandwidth = $('content/totalBandwidth').text().num()
-                    const usedBandwidth = $('content/' + (mode === 'auto' ? 'usedAutoBandwidth' : 'usedManualBandwidth'))
-                        .text()
-                        .num()
-                    supportRecorder.value = $('content/supportRecorder').text().bool()
-                    faceMatchLimitMaxChlNum.value = $('content/faceMatchLimitMaxChlNum').text().num()
-                    const remainBandwidth = Math.max(0, (totalBandwidth * 1024 - usedBandwidth) / 1024)
-                    txtBandwidth.value = Translate('IDCS_CURRENT_BANDWIDTH_ALL_D_D').formatForLang(remainBandwidth.toFixed(0), totalBandwidth.toFixed(0))
-                })
-            })
+        const getSystemCaps = async () => {
+            const res1 = await queryRecordDistributeInfo()
+            const $res1 = queryXml(res1)
+            const mode = $res1('content/recMode/mode').text()
+
+            const res = await querySystemCaps()
+            const $ = queryXml(res)
+            const totalBandwidth = $('content/totalBandwidth').text().num()
+            const usedBandwidth = $('content/' + (mode === 'auto' ? 'usedAutoBandwidth' : 'usedManualBandwidth'))
+                .text()
+                .num()
+            const remainBandwidth = Math.max(0, (totalBandwidth * 1024 - usedBandwidth) / 1024)
+            txtBandwidth.value = Translate('IDCS_CURRENT_BANDWIDTH_ALL_D_D').formatForLang(remainBandwidth.toFixed(0), totalBandwidth.toFixed(0))
         }
 
         const getDefaultPwd = async () => {
-            openLoading()
-
             const res = await queryDevDefaultPwd()
             const $ = queryXml(res)
-
-            closeLoading()
 
             if ($('status').text() === 'success') {
                 mapping.value = {}
@@ -139,101 +128,98 @@ export default defineComponent({
             }
         }
 
-        const getLanFreeDevs = () => {
-            openLoading()
-            queryLanFreeDeviceList().then(async (res) => {
-                closeLoading()
-                const $ = queryXml(res)
-                if ($('status').text() === 'success') {
-                    manufacturerMap.value = {}
-                    manufacturerList.value = []
-                    nameList.value = []
-                    $('types/manufacturer/enum').forEach((ele) => {
-                        const value = ele.text()
-                        const label = ele.attr('displayName')
-                        manufacturerMap.value[value] = label
-                        manufacturerList.value.push({
-                            value,
-                            label,
-                        })
-                        nameList.value.push({
-                            value,
-                            label,
-                        })
+        const getLanFreeDevs = async () => {
+            const res = await queryLanFreeDeviceList()
+            const $ = queryXml(res)
+
+            if ($('status').text() === 'success') {
+                manufacturerMap.value = {}
+                manufacturerList.value = []
+                nameList.value = []
+                $('types/manufacturer/enum').forEach((ele) => {
+                    const value = ele.text()
+                    const label = ele.attr('displayName')
+                    manufacturerMap.value[value] = label
+                    manufacturerList.value.push({
+                        value,
+                        label,
                     })
-                    await getProtocolList()
-                    if (cababilityStore.analogChlCount * 1 <= 0) {
-                        manufacturerList.value.push({
-                            value: 'ProtocolMgr',
-                            label: Translate('IDCS_PROTOCOL_MANAGE'),
-                        })
-                        nameList.value.push({
-                            value: 'ProtocolMgr',
-                            label: Translate('IDCS_PROTOCOL_MANAGE'),
-                        })
-                    }
-                    manualAddFormData.value = []
-                    addManualAddRow()
-                    const rowData = $('content/item').map((ele) => {
-                        const eleXml = queryXml(ele.element)
-                        return {
-                            ip: eleXml('ip').text(),
-                            port: eleXml('port').text(),
-                            httpPort: eleXml('httpPort').text(), // IPC激活时需要
-                            mask: eleXml('mask').text(),
-                            gateway: eleXml('gateway').text(),
-                            manufacturer: eleXml('manufacturer').text(),
-                            poeIndex: eleXml('poeIndex').text(),
-                            productModel: {
-                                factoryName: eleXml('productModel').attr('factoryName'),
-                                identity: eleXml('productModel').attr('identity'),
-                                innerText: eleXml('productModel').text(),
-                            },
-                            devName: eleXml('devName').text(),
-                            version: eleXml('version').text(),
-                            mac: eleXml('mac').text(),
-                            industryProductType: eleXml('industryProductType').text(),
-                            protocolType: eleXml('protocolType').text(),
-                            activateStatus: eleXml('activateStatus').text(),
-                        }
+                    nameList.value.push({
+                        value,
+                        label,
                     })
-                    rowData.sort((ele1, ele2) => {
-                        return getIpNumber(ele2.ip) - getIpNumber(ele1.ip)
+                })
+
+                await getProtocolList()
+
+                if (systemCaps.analogChlCount <= 0) {
+                    manufacturerList.value.push({
+                        value: 'ProtocolMgr',
+                        label: Translate('IDCS_PROTOCOL_MANAGE'),
                     })
-                    rowData.sort((ele1, ele2) => {
-                        const activate1 = ele1.activateStatus === 'UNACTIVATED' ? 1 : ele1.activateStatus === 'UNKNOWN' ? 0 : -1
-                        const activate2 = ele2.activateStatus === 'UNACTIVATED' ? 1 : ele2.activateStatus === 'UNKNOWN' ? 0 : -1
-                        return activate2 - activate1
+                    nameList.value.push({
+                        value: 'ProtocolMgr',
+                        label: Translate('IDCS_PROTOCOL_MANAGE'),
                     })
-                    quickAddTableData.value = rowData
-                    total.value = rowData.length
                 }
-            })
+                manualAddFormData.value = []
+                addManualAddRow()
+                const rowData = $('content/item').map((ele) => {
+                    const eleXml = queryXml(ele.element)
+                    return {
+                        ip: eleXml('ip').text(),
+                        port: eleXml('port').text(),
+                        httpPort: eleXml('httpPort').text(), // IPC激活时需要
+                        mask: eleXml('mask').text(),
+                        gateway: eleXml('gateway').text(),
+                        manufacturer: eleXml('manufacturer').text(),
+                        poeIndex: eleXml('poeIndex').text(),
+                        productModel: {
+                            factoryName: eleXml('productModel').attr('factoryName'),
+                            identity: eleXml('productModel').attr('identity'),
+                            innerText: eleXml('productModel').text(),
+                        },
+                        devName: eleXml('devName').text(),
+                        version: eleXml('version').text(),
+                        mac: eleXml('mac').text(),
+                        industryProductType: eleXml('industryProductType').text(),
+                        protocolType: eleXml('protocolType').text(),
+                        activateStatus: eleXml('activateStatus').text(),
+                    }
+                })
+                rowData.sort((ele1, ele2) => {
+                    return getIpNumber(ele2.ip) - getIpNumber(ele1.ip)
+                })
+                rowData.sort((ele1, ele2) => {
+                    const activate1 = ele1.activateStatus === 'UNACTIVATED' ? 1 : ele1.activateStatus === 'UNKNOWN' ? 0 : -1
+                    const activate2 = ele2.activateStatus === 'UNACTIVATED' ? 1 : ele2.activateStatus === 'UNKNOWN' ? 0 : -1
+                    return activate2 - activate1
+                })
+                quickAddTableData.value = rowData
+                total.value = rowData.length
+            }
         }
 
-        const getLanRecorders = () => {
-            openLoading()
-            queryLanRecorderList().then((res) => {
-                closeLoading()
-                const $ = queryXml(res)
-                if ($('status').text() === 'success') {
-                    addRecorderTableData.value = $('content/item').map((ele) => {
-                        const eleXml = queryXml(ele.element)
-                        return {
-                            ip: eleXml('ip').text(),
-                            port: eleXml('port').text().num(),
-                            version: eleXml('version').text(),
-                            name: eleXml('name').text(),
-                            serialNum: eleXml('serialNum').text(),
-                            chlTotalCount: eleXml('chlTotalCount').text().num(),
-                            httpPort: eleXml('httpPort').text().num(),
-                            chlAddedCount: eleXml('chlAddedCount').text().num(),
-                            productModel: eleXml('productModel').text(),
-                            displayName: eleXml('name').text() + (eleXml('chlTotalCount').text().num() > 0 ? '(' + eleXml('chlAddedCount').text() + '/' + eleXml('chlTotalCount').text() + ')' : ''),
-                        }
-                    })
-                }
-            })
+        const getLanRecorders = async () => {
+            const res = await queryLanRecorderList()
+            const $ = queryXml(res)
+            if ($('status').text() === 'success') {
+                addRecorderTableData.value = $('content/item').map((ele) => {
+                    const eleXml = queryXml(ele.element)
+                    return {
+                        ip: eleXml('ip').text(),
+                        port: eleXml('port').text().num(),
+                        version: eleXml('version').text(),
+                        name: eleXml('name').text(),
+                        serialNum: eleXml('serialNum').text(),
+                        chlTotalCount: eleXml('chlTotalCount').text().num(),
+                        httpPort: eleXml('httpPort').text().num(),
+                        chlAddedCount: eleXml('chlAddedCount').text().num(),
+                        productModel: eleXml('productModel').text(),
+                        displayName: eleXml('name').text() + (eleXml('chlTotalCount').text().num() > 0 ? '(' + eleXml('chlAddedCount').text() + '/' + eleXml('chlTotalCount').text() + ')' : ''),
+                    }
+                })
+            }
         }
 
         const getProtocolList = async () => {
@@ -355,12 +341,16 @@ export default defineComponent({
         const handleRefresh = () => {
             switch (activeTab.value) {
                 case tabKeys.quickAdd:
-                    getDefaultPwd()
-                    getLanFreeDevs()
+                    openLoading()
+                    Promise.all([getDefaultPwd(), getLanFreeDevs()]).then(() => {
+                        closeLoading()
+                    })
                     break
                 case tabKeys.addRecorder:
-                    getDefaultPwd()
-                    getLanRecorders()
+                    openLoading()
+                    Promise.all([getDefaultPwd(), getLanRecorders()]).then(() => {
+                        closeLoading()
+                    })
                     break
             }
         }
@@ -582,73 +572,72 @@ export default defineComponent({
             `
         }
 
-        const addIPCDev = (sendXml: string) => {
+        const addIPCDev = async (sendXml: string) => {
             openLoading()
-            createDevList(sendXml).then((res) => {
-                closeLoading()
-                const $ = queryXml(res)
-                getSystemCaps()
-                if ($('status').text() === 'success') {
-                    openMessageBox({
-                        type: 'success',
-                        message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                    }).then(() => {
-                        router.push('list')
-                    })
-                } else {
-                    const errorCode = $('errorCode').text().num()
-                    switch (errorCode) {
-                        case ErrorCode.USER_ERROR_NODE_ID_EXISTS:
-                            openMessageBox(Translate('IDCS_PROMPT_CHANNEL_EXIST'))
-                            break
-                        case ErrorCode.USER_ERROR_OVER_LIMIT:
-                            openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT')).then(() => {
-                                router.push('list')
-                            })
-                            break
-                        case ErrorCode.USER_ERROR_OVER_BANDWIDTH_LIMIT:
-                            openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_BANDWIDTH_LIMIT'))
-                            break
-                        case ErrorCode.USER_ERROR_SPECIAL_CHAR:
-                            const poePort = $('poePort').text()
-                            // POE连接冲突提示
-                            openMessageBox(Translate('IDCS_POE_RESOURCE_CONFLICT_TIP').formatForLang(poePort))
-                            break
-                        case ErrorCode.USER_ERROR_LIMITED_PLATFORM_TYPE_MISMATCH:
-                            openMessageBox(Translate('IDCS_ADD_CHANNEL_FAIL').formatForLang(faceMatchLimitMaxChlNum.value))
-                            break
-                        case ErrorCode.USER_ERROR_INVALID_IP:
-                            openMessageBox(Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID'))
-                            break
-                        case ErrorCode.USER_ERROR_PC_LICENSE_MISMATCH:
-                            const msg = Translate('IDCS_ADD_CHANNEL_FAIL').formatForLang(faceMatchLimitMaxChlNum.value) + Translate('IDCS_REBOOT_DEVICE').formatForLang(Translate('IDCS_KEEP_ADD'))
-                            openMessageBox({
-                                type: 'question',
-                                message: msg,
-                            }).then(() => {
-                                const data = rawXml`
-                                    <content>
-                                        <AISwitch>false</AISwitch>
-                                    </content>
-                                `
-                                editBasicCfg(data)
-                            })
-                            break
-                        default:
-                            openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
-                            break
-                    }
+            const res = await createDevList(sendXml)
+            await getSystemCaps()
+            closeLoading()
+            const $ = queryXml(res)
+            if ($('status').text() === 'success') {
+                openMessageBox({
+                    type: 'success',
+                    message: Translate('IDCS_SAVE_DATA_SUCCESS'),
+                }).then(() => {
+                    router.push('list')
+                })
+            } else {
+                const errorCode = $('errorCode').text().num()
+                switch (errorCode) {
+                    case ErrorCode.USER_ERROR_NODE_ID_EXISTS:
+                        openMessageBox(Translate('IDCS_PROMPT_CHANNEL_EXIST'))
+                        break
+                    case ErrorCode.USER_ERROR_OVER_LIMIT:
+                        openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT')).then(() => {
+                            router.push('list')
+                        })
+                        break
+                    case ErrorCode.USER_ERROR_OVER_BANDWIDTH_LIMIT:
+                        openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_BANDWIDTH_LIMIT'))
+                        break
+                    case ErrorCode.USER_ERROR_SPECIAL_CHAR:
+                        const poePort = $('poePort').text()
+                        // POE连接冲突提示
+                        openMessageBox(Translate('IDCS_POE_RESOURCE_CONFLICT_TIP').formatForLang(poePort))
+                        break
+                    case ErrorCode.USER_ERROR_LIMITED_PLATFORM_TYPE_MISMATCH:
+                        openMessageBox(Translate('IDCS_ADD_CHANNEL_FAIL').formatForLang(faceMatchLimitMaxChlNum))
+                        break
+                    case ErrorCode.USER_ERROR_INVALID_IP:
+                        openMessageBox(Translate('IDCS_PROMPT_IPADDRESS_V6_INVALID'))
+                        break
+                    case ErrorCode.USER_ERROR_PC_LICENSE_MISMATCH:
+                        const msg = Translate('IDCS_ADD_CHANNEL_FAIL').formatForLang(faceMatchLimitMaxChlNum) + Translate('IDCS_REBOOT_DEVICE').formatForLang(Translate('IDCS_KEEP_ADD'))
+                        openMessageBox({
+                            type: 'question',
+                            message: msg,
+                        }).then(() => {
+                            const data = rawXml`
+                                <content>
+                                    <AISwitch>false</AISwitch>
+                                </content>
+                            `
+                            editBasicCfg(data)
+                        })
+                        break
+                    default:
+                        openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
+                        break
                 }
-            })
+            }
         }
 
         const getData = async () => {
             mapping.value = {}
             defaultPwdList.value = []
-            await getDefaultPwd()
-            getLanFreeDevs()
-            getLanRecorders()
-            getSystemCaps()
+            openLoading()
+            Promise.all([getDefaultPwd(), getLanFreeDevs(), getLanRecorders(), getSystemCaps()]).then(() => {
+                closeLoading()
+            })
         }
 
         onMounted(() => {

@@ -13,6 +13,16 @@
             :name="pageTabs[0].name"
             :label="pageTabs[0].label"
         >
+            <el-radio-group v-model="pageData.ipcAudioTab">
+                <el-radio-button
+                    value="audioAlarm"
+                    :label="Translate('IDCS_IPC_VOICE_BROADCAST')"
+                />
+                <el-radio-button
+                    value="audioDevice"
+                    :label="Translate('IDCS_AUDIO_DEVICE')"
+                />
+            </el-radio-group>
             <el-form
                 class="stripe"
                 :style="{
@@ -20,18 +30,6 @@
                     '--form-label-width': '220px',
                 }"
             >
-                <el-form-item>
-                    <el-radio-group v-model="pageData.ipcAudioTab">
-                        <el-radio-button
-                            value="audioAlarm"
-                            :label="Translate('IDCS_IPC_VOICE_BROADCAST')"
-                        />
-                        <el-radio-button
-                            value="audioDevice"
-                            :label="Translate('IDCS_AUDIO_DEVICE')"
-                        />
-                    </el-radio-group>
-                </el-form-item>
                 <!-- 语音播报 -->
                 <template v-if="pageData.ipcAudioTab === 'audioAlarm'">
                     <!-- 通道 -->
@@ -238,7 +236,7 @@
             :name="pageTabs[1].name"
             :label="pageTabs[1].label"
         >
-            <p>{{ Translate('IDCS_FILE_LIST') }}</p>
+            <div class="base-btn-box flex-start collapse">{{ Translate('IDCS_FILE_LIST') }}</div>
             <div class="local">
                 <el-table
                     ref="localTableRef"
@@ -326,6 +324,7 @@
 
 .local {
     display: flex;
+    margin-top: 10px;
 
     .el-table {
         width: 450px;

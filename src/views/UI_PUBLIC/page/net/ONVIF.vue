@@ -40,7 +40,7 @@
                 <el-table-column :label="Translate('IDCS_EDIT')">
                     <template #default="{ row }: TableColumn<NetOnvifUserList>">
                         <BaseImgSpriteBtn
-                            file="edit (2)"
+                            file="edit2"
                             @click="editUser(row)"
                         />
                     </template>

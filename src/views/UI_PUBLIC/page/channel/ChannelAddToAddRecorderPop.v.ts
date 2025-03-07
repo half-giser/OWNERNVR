@@ -15,14 +15,6 @@ export default defineComponent({
             type: Object as PropType<Record<string, ChannelDefaultPwdDto>>,
             required: true,
         },
-        chlCountLimit: {
-            type: Number,
-            default: 128,
-        },
-        faceMatchLimitMaxChlNum: {
-            type: Number,
-            default: 0,
-        },
     },
     emits: {
         callBack() {
@@ -35,6 +27,7 @@ export default defineComponent({
     setup(props, { emit }) {
         const { Translate } = useLangStore()
         const userSessionStore = useUserSessionStore()
+        const systemCaps = useCababilityStore()
         const router = useRouter()
         const formRef = useFormRef()
         const formData = ref(new ChannelRecorderAddDto())
@@ -169,7 +162,6 @@ export default defineComponent({
         })
 
         const loadNoRecoderData = (chlCount: number) => {
-            console.log('loadNoRecoderData')
             formData.value.recorderList = Array(chlCount)
                 .fill(0)
                 .map((_, index) => {
@@ -224,7 +216,7 @@ export default defineComponent({
                         commLoadResponseHandler(res, () => {
                             const $ = queryXml(res)
                             const addedChlNum = $('content/item').length
-                            if (addedChlNum + tableRef.value!.getSelectionRows().length > props.chlCountLimit) {
+                            if (addedChlNum + tableRef.value!.getSelectionRows().length > systemCaps.chlMaxCount) {
                                 openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT'))
                                 return
                             }
@@ -258,13 +250,13 @@ export default defineComponent({
                                             openMessageBox(Translate('IDCS_POE_RESOURCE_CONFLICT_TIP').formatForLang($('poePort').text()))
                                             break
                                         case ErrorCode.USER_ERROR_LIMITED_PLATFORM_TYPE_MISMATCH:
-                                            openMessageBox(Translate('IDCS_ADD_CHANNEL_FAIL').formatForLang(props.faceMatchLimitMaxChlNum))
+                                            openMessageBox(Translate('IDCS_ADD_CHANNEL_FAIL').formatForLang(systemCaps.faceMatchLimitMaxChlNum))
                                             break
                                         case ErrorCode.USER_ERROR_PC_LICENSE_MISMATCH:
                                             openMessageBox({
                                                 type: 'question',
                                                 message:
-                                                    Translate('IDCS_ADD_CHANNEL_FAIL').formatForLang(props.faceMatchLimitMaxChlNum) +
+                                                    Translate('IDCS_ADD_CHANNEL_FAIL').formatForLang(systemCaps.faceMatchLimitMaxChlNum) +
                                                     Translate('IDCS_REBOOT_DEVICE').formatForLang(Translate('IDCS_KEEP_ADD')),
                                             }).then(() => {
                                                 const sendXml = rawXml`

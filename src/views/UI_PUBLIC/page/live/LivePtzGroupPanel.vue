@@ -17,7 +17,7 @@
             >
                 <span class="base-home-ptz-text text-ellipsis">{{ item.name }}</span>
                 <BaseImgSprite
-                    file="delete (2)"
+                    file="delete_ptz"
                     :title="Translate('IDCS_DELETE')"
                     :index="1"
                     :disabled-index="0"

@@ -66,7 +66,7 @@
                 >
                     <template #default="{ row }: TableColumn<ChannelInfoDto>">
                         <BaseImgSpriteBtn
-                            file="play (3)"
+                            file="preview"
                             @click="handlePreview(row)"
                         />
                     </template>

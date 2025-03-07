@@ -167,7 +167,7 @@
                                     </template>
                                     <template #default="{ row }: TableColumn<ChannelPtzTaskDto>">
                                         <BaseImgSpriteBtn
-                                            file="edit (2)"
+                                            file="edit2"
                                             @click="editTask(row)"
                                         />
                                     </template>

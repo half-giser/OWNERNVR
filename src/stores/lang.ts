@@ -19,9 +19,12 @@ export const useLangStore = defineStore(
         const langItems = ref<Record<string, string>>({})
         // 需要文本右对齐的语言列表（如: 波斯语、阿拉伯语）
         const rtlLangList = ref<string[]>([])
+        // 设备默认语言
+        const devLandId = ref('')
 
         /**
          * @description: 从设备请求指定语言类型列表
+         * @param {boolean} activated 激活状态
          */
         const requestLangTypes = async () => {
             if (!langType.value) {
@@ -40,28 +43,31 @@ export const useLangStore = defineStore(
                 langTypesTemp[item.attr('id')] = queryXml(item.element)('name').text()
             })
             langTypes.value = langTypesTemp
+            devLandId.value = $('content').attr('currentLangType')
 
             if (!langId.value || langId.value === 'null' || langId.value === 'undefined') {
                 const $ = queryXml(result)
-                const devLandId = $('content').attr('currentLangType')
+
                 langType.value = navigator.language.toLowerCase()
                 langId.value = LANG_MAPPING[langType.value]
+
                 if (!langId.value) {
                     // 如果map中不存在，则尝试只比较前2位
                     langId.value = LANG_MAPPING[langType.value.substring(0, 2)]
                 }
 
                 if (!langId.value) {
-                    langId.value = devLandId
+                    langId.value = devLandId.value
                 }
 
                 if (!langTypes.value[langId.value]) {
-                    langId.value = devLandId
+                    langId.value = devLandId.value
                 }
 
                 rtlLangList.value = $('content/item[@alignRight="true"]').map((item) => {
                     return item.attr('id')
                 })
+
                 if (!rtlLangList.value.length) {
                     rtlLangList.value = ['0x0429', '0x0c01']
                 }
@@ -97,8 +103,9 @@ export const useLangStore = defineStore(
          * @return {Ref<Record<string, string>>}
          */
         const getLangTypes = async () => {
-            if (Object.keys(langTypes.value).length) return langTypes
-            await requestLangTypes()
+            if (!Object.keys(langTypes.value).length) {
+                await requestLangTypes()
+            }
             return langTypes
         }
 
@@ -325,6 +332,7 @@ export const useLangStore = defineStore(
             updateLangId,
             rtlLangList,
             getTextDir,
+            devLandId,
         }
     },
     {

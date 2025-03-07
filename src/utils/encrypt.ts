@@ -4,7 +4,6 @@
  * @Description: 加解密相关方法
  */
 
-import { encode as Base64Encode, decode as Base64Decode } from 'js-base64'
 import 'crypto-js/enc-base64'
 import MD5 from 'crypto-js/md5'
 import WordArray from 'crypto-js/lib-typedarrays'
@@ -15,15 +14,6 @@ import ECB from 'crypto-js/mode-ecb'
 import UTF8 from 'crypto-js/enc-utf8'
 import AES from 'crypto-js/aes'
 import RSA from 'jsencrypt'
-// import MD5 from 'js-md5'
-
-/**
- * MD5加密
- * @param {MD5.message} word 明文
- */
-// export const MD5_encrypt = (word: MD5.message) => {
-//     return MD5(word).toUpperCase()
-// }
 
 /**
  * @description MD5加密
@@ -169,7 +159,17 @@ export const getNonce = () => {
  * @param {string} str
  */
 export const base64Encode = (str: string) => {
-    return Base64Encode(str, true)
+    const u8a = new TextEncoder().encode(str)
+    const maxargs = 0x1000
+    const strs: string[] = []
+    for (let i = 0, l = u8a.length; i < l; i += maxargs) {
+        strs.push(String.fromCharCode(...u8a.subarray(i, i + maxargs)))
+    }
+    return btoa(strs.join(''))
+        .replace(/=/g, '')
+        .replace(/[+\/]/g, (m0) => {
+            return m0 === '+' ? '-' : '_'
+        })
 }
 
 /**
@@ -177,5 +177,13 @@ export const base64Encode = (str: string) => {
  * @param {string} str
  */
 export const base64Decode = (str: string) => {
-    return Base64Decode(str)
+    const text = str.replace(/[-_]/g, (m0) => {
+        return m0 === '-' ? '+' : '/'
+    })
+    const u8a = Uint8Array.from(
+        atob(text)
+            .split('')
+            .map((c) => c.charCodeAt(0)),
+    )
+    return new TextDecoder().decode(u8a)
 }

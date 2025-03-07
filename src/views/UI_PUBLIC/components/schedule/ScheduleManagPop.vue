@@ -48,7 +48,7 @@
                         <template #default="{ row }: TableColumn<ScheduleDto>">
                             <BaseImgSpriteBtn
                                 v-if="pageData.defaultSchedules.indexOf(row.name)"
-                                file="edit (2)"
+                                file="edit2"
                                 @click="openScheduleEditPop(row)"
                             />
                         </template>

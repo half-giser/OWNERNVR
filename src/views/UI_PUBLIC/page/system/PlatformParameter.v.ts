@@ -50,6 +50,7 @@ export default defineComponent({
                                 return
                             }
                         }
+                        callback()
                     },
                     trigger: 'manual',
                 },
@@ -134,15 +135,16 @@ export default defineComponent({
             return sendXml
         }
 
-        const setData = async () => {
-            const valid = await formRef.value!.validate()
-            if (!valid) return
-
-            const sendXml = getSavaData()
-            openLoading()
-            const result = await editSHDBParam(sendXml)
-            commSaveResponseHandler(result)
-            closeLoading()
+        const setData = () => {
+            formRef.value!.validate(async (valid) => {
+                if (valid) {
+                    const sendXml = getSavaData()
+                    openLoading()
+                    const result = await editSHDBParam(sendXml)
+                    commSaveResponseHandler(result)
+                    closeLoading()
+                }
+            })
         }
 
         // 根据获取到的地址设置ip或者域名

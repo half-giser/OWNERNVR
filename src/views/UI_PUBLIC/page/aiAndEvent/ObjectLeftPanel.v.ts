@@ -271,7 +271,7 @@ export default defineComponent({
                             },
                         }
                     }),
-                    sysAudio: $('sysAudio').attr('id'),
+                    sysAudio: $trigger('sysAudio').attr('id'),
                     trigger: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch'].filter((item) => {
                         return $trigger(item).text().bool()
                     }),

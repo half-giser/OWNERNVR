@@ -105,6 +105,7 @@ export const getMenuItem = (item: RouteRecordRawExtends) => {
         },
         children: item.children ? getMenuItems(item.children) : [],
         redirect: item.redirect || '',
+        alias: item.alias,
     }
 }
 

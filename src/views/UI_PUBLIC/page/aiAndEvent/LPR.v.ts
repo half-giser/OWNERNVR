@@ -476,21 +476,12 @@ export default defineComponent({
             if (pageData.value.tab === 'vehicleDetection') {
                 play()
             } else if (pageData.value.tab === 'vehicleLibrary') {
-                if (import.meta.env.VITE_UI_TYPE === 'UI2-A') {
-                    router.push({
-                        path: '/config/alarm/vehicleDatabase',
-                        state: {
-                            backChlId: pageData.value.curChl,
-                        },
-                    })
-                } else {
-                    router.push({
-                        path: '/intelligent-analysis/sample-data-base/sample-data-base-licence-plate',
-                        state: {
-                            backChlId: pageData.value.curChl,
-                        },
-                    })
-                }
+                router.push({
+                    path: '/intelligent-analysis/sample-data-base/sample-data-base-licence-plate',
+                    state: {
+                        backChlId: pageData.value.curChl,
+                    },
+                })
             }
         }
 

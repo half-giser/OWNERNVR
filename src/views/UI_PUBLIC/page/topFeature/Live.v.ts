@@ -483,14 +483,11 @@ export default defineComponent({
 
         // 抓拍视图是否显示
         const isSnapPanel = computed(() => {
-            if (mode.value === 'h5') {
-                return true
+            if (userSession.appType === 'P2P') {
+                return false
             }
 
-            if (mode.value === 'ocx' && userSession.appType === 'STANDARD') {
-                return true
-            }
-            return false
+            return true
         })
 
         // 鱼眼视图是否显示

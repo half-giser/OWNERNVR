@@ -113,7 +113,7 @@
                     <template #default="{ row }: TableColumn<UserAuthGroupList>">
                         <BaseImgSpriteBtn
                             v-show="row.enableEdit"
-                            file="edit (2)"
+                            file="edit2"
                             @click="openEditAuthGroupPop(row)"
                         />
                     </template>

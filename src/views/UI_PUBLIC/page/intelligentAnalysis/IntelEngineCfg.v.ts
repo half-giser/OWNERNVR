@@ -88,7 +88,6 @@ export default defineComponent({
 
             let message = Translate('IDCS_OPEN_AI_TIP')
             if (pageData.value.is3536Amode) {
-                // TODO: IDCS_OPEN_AI_REBOOT_TIP 和 IDCS_CLOSE_AI_REBOOT_TIP 的文本不存在
                 message = formData.value.supportAI ? Translate('IDCS_OPEN_AI_REBOOT_TIP') : Translate('IDCS_CLOSE_AI_REBOOT_TIP')
             }
 

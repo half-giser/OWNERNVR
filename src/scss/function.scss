@@ -16,3 +16,12 @@
 
     @return url($url);
 }
+
+/**
+ * P2P图片URL
+ */
+@function p2p-img-url($src) {
+    $url: $sprite-p2p-url + '/public' + $src + '?v=' + $sprite-version;
+
+    @return url($url);
+}

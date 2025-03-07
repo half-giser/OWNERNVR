@@ -50,16 +50,21 @@ const openLiveWin = (_chlId: string, _chlName: string, _isOnline = true) => {
  */
 const play = () => {
     if (!playerRef.value || !playerRef.value.ready) return
+
     if (playerRef.value.mode === 'ocx') {
-        let sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
+        const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
         playerRef.value.plugin.ExecuteCmd(sendXML)
-        sendXML = OCX_XML_SetProperty({
+
+        const sendXML2 = OCX_XML_SetProperty({
             calendarType: userSessionStore.calendarType,
             supportRecStatus: false,
         })
-        playerRef.value.plugin.ExecuteCmd(sendXML)
-        playerRef.value!.plugin.RetryStartChlView(chlId, chlName)
-    } else {
+        playerRef.value.plugin.ExecuteCmd(sendXML2)
+
+        playerRef.value.plugin.RetryStartChlView(chlId, chlName)
+    }
+
+    if (playerRef.value.mode === 'h5') {
         playerRef.value.player.play({
             chlID: chlId,
             streamType: 2,

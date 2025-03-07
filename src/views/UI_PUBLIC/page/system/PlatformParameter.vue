@@ -44,6 +44,7 @@
                     v-else
                     v-model="formData.domain"
                     :disabled="!formData.enable"
+                    :placeholder="Translate('IDCS_DOMAIN_TIP')"
                 />
                 <el-checkbox
                     v-model="formData.isDomain"

@@ -30,8 +30,11 @@ export default defineComponent({
             wiegandModeEnum: [] as SelectOption<string, string>[],
         })
 
-        const formData = ref(new BusinessAccessConfigForm())
-        let originalFormData = new BusinessAccessConfigForm()
+        const accessLockformData = ref(new BusinessAccessLockForm())
+        const editAccessLock = useWatchEditData(accessLockformData)
+
+        const wiegandFormData = ref(new BusinessWiegandForm())
+        const editWiegand = useWatchEditData(wiegandFormData)
 
         // 门锁配置与文本映射
         const DOOR_LOCK_TYPE_MAPPING: Record<string, string> = {
@@ -96,6 +99,7 @@ export default defineComponent({
          * @param {string} chlId
          */
         const getAccessControlCfg = async (chlId: string) => {
+            editAccessLock.reset()
             const sendXml = rawXml`
                 <condition>
                     <chlId>${chlId}</chlId>
@@ -124,13 +128,14 @@ export default defineComponent({
                 })
                 pageData.value.wearMaskOpenEnable = $('content/chl/wearMaskOpen').length > 0
 
-                formData.value.accessListType = $('content/chl/accessListType').text()
-                formData.value.wearMaskOpen = $('content/chl/wearMaskOpen').text().bool()
+                accessLockformData.value.accessListType = $('content/chl/accessListType').text()
+                accessLockformData.value.wearMaskOpen = $('content/chl/wearMaskOpen').text().bool()
 
-                formData.value.accessLockData = $('content/chl/doorLock/item').map((item) => {
+                accessLockformData.value.doorLock = $('content/chl/doorLock/item').map((item, index) => {
                     const $item = queryXml(item.element)
                     const id = $item('id').text().num()
                     return {
+                        index,
                         id,
                         name: `${Translate('IDCS_DOOR_LOCK')}${id + 1}`,
                         openDelayTimeMin: $item('OpenDelayTime').attr('min').num(),
@@ -148,7 +153,7 @@ export default defineComponent({
                     }
                 })
 
-                pageData.value.accessLockEnabled = formData.value.accessLockData.length > 0
+                pageData.value.accessLockEnabled = accessLockformData.value.doorLock.length > 0
             } else {
                 pageData.value.doorLockTypeEnum = []
                 pageData.value.doorLockActionEnum = []
@@ -156,12 +161,13 @@ export default defineComponent({
                 pageData.value.wearMaskOpenEnable = false
                 pageData.value.accessLockEnabled = false
 
-                formData.value.accessListType = ''
-                formData.value.wearMaskOpen = false
-                formData.value.accessLockData = [new BusinessAccessLockDataItem()]
+                accessLockformData.value.accessListType = ''
+                accessLockformData.value.wearMaskOpen = false
+                accessLockformData.value.doorLock = [new BusinessAccessLockDataItem()]
             }
 
-            pageData.value.accessLockCurrentIndex = formData.value.accessLockData[0].id
+            pageData.value.accessLockCurrentIndex = accessLockformData.value.doorLock[0].id
+            editAccessLock.listen()
         }
 
         /**
@@ -169,36 +175,39 @@ export default defineComponent({
          * @param {string} chlId
          */
         const getAccessDataComCfg = async (chlId: string) => {
+            editWiegand.reset()
             const sendXml = rawXml`
                 <condition>
                     <chlId>${chlId}</chlId>
                 </condition>
             `
-            const result = await queryAccessControlCfg(sendXml)
+            const result = await queryAccessDataComCfg(sendXml)
             const $ = queryXml(result)
             if ($('status').text() === 'success') {
-                pageData.value.doorLockTypeEnum = $('types/wiegandIOType/enum').map((item) => {
+                pageData.value.wiegandIOTypeEnum = $('types/wiegandIOType/enum').map((item) => {
                     return {
                         value: item.text(),
                         label: WIEGAND_IO_TYPE_MAPPING[item.text()],
                     }
                 })
-                pageData.value.doorLockActionEnum = $('types/wiegandMode/enum').map((item) => {
+                pageData.value.wiegandModeEnum = $('types/wiegandMode/enum').map((item) => {
                     return {
                         value: item.text(),
                         label: item.text(),
                     }
                 })
 
-                formData.value.wiegandIOType = $('content/chl/accessDataComDev/wiegand/IOType').text()
-                formData.value.wiegandMode = $('content/chl/accessDataComDev/wiegand/mode').text()
+                wiegandFormData.value.IOType = $('content/chl/accessDataComDev/wiegand/IOType').text()
+                wiegandFormData.value.mode = $('content/chl/accessDataComDev/wiegand/mode').text()
             } else {
-                pageData.value.doorLockTypeEnum = []
-                pageData.value.doorLockActionEnum = []
+                pageData.value.wiegandIOTypeEnum = []
+                pageData.value.wiegandModeEnum = []
 
-                formData.value.wiegandIOType = ''
-                formData.value.wiegandMode = ''
+                wiegandFormData.value.IOType = ''
+                wiegandFormData.value.mode = ''
             }
+
+            editWiegand.listen()
         }
 
         /**
@@ -212,8 +221,6 @@ export default defineComponent({
             await getAccessDataComCfg(chlId)
 
             closeLoading()
-
-            originalFormData = cloneDeep(formData.value)
         }
 
         /**
@@ -224,40 +231,12 @@ export default defineComponent({
         }
 
         /**
-         * @description 校验数据是否被修改
-         * @returns {boolean[]}
-         */
-        const compareDataChange = () => {
-            let changeDoorCfgFlg = false
-            let changeWiegandFlg = false
-
-            // 韦根-判断韦根配置是否被修改（'韦根配置'和'韦根模式'）
-            if (formData.value.wiegandIOType !== originalFormData.wiegandIOType || formData.value.wiegandMode !== originalFormData.wiegandMode) {
-                changeWiegandFlg = true
-            }
-
-            // 门锁-判断门锁配置是否被修改（'开门验证名单'和'开门条件'）、（门锁配置中，未修改'开门验证名单'或'开门条件'，再进行（'开门延时时间'、'开门持续时间'、'门锁配置'、'报警联动类型'）是否修改的校验）
-            if (formData.value.accessListType !== originalFormData.accessListType || formData.value.wearMaskOpen !== originalFormData.wearMaskOpen) {
-                changeDoorCfgFlg = true
-            }
-
-            if (!changeDoorCfgFlg) {
-                changeDoorCfgFlg = formData.value.accessLockData.some((item, index) => {
-                    const o = originalFormData.accessLockData[index]
-                    return item.openDelayTime !== o.openDelayTime || item.openHoldTime !== o.openHoldTime || item.doorLockConfig !== o.doorLockConfig || item.alarmAction !== o.alarmAction
-                })
-            }
-
-            return [changeDoorCfgFlg, changeWiegandFlg]
-        }
-
-        /**
          * @description 更新门锁配置
          * @returns {Promise<XMLQuery>}
          */
         const setAccessControl = async () => {
-            const lockDataLength = formData.value.accessLockData.length
-            const accessLockData = formData.value.accessLockData
+            const doorLockDataLength = accessLockformData.value.doorLock.length
+            const doorLock = accessLockformData.value.doorLock
                 .map((item) => {
                     return rawXml`
                         <item>
@@ -273,9 +252,9 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <chl id="${pageData.value.chlId}">
-                        ${formData.value.wearMaskOpen ? '<wearmaskOpen>true</wearmaskOpen>' : ''}
-                        ${formData.value.accessListType ? `<accessListType type="accessListType">${formData.value.accessListType}</accessListType>` : ''}
-                        ${lockDataLength ? `<doorLock type="list" count="${lockDataLength}">${accessLockData}</doorLock>` : ''}
+                        ${accessLockformData.value.wearMaskOpen ? '<wearmaskOpen>true</wearmaskOpen>' : ''}
+                        ${accessLockformData.value.accessListType ? `<accessListType type="accessListType">${accessLockformData.value.accessListType}</accessListType>` : ''}
+                        ${doorLockDataLength ? `<doorLock type="list" count="${doorLockDataLength}">${doorLock}</doorLock>` : ''}
                     </chl>
                 </content>
             `
@@ -293,8 +272,8 @@ export default defineComponent({
                     <chl id="${pageData.value.chlId}">
                         <accessDataComDev>
                             <wiegand>
-                                <IOType>${formData.value.wiegandIOType}</IOType>
-                                <mode>${formData.value.wiegandMode}</mode>
+                                <IOType>${wiegandFormData.value.IOType}</IOType>
+                                <mode>${wiegandFormData.value.mode}</mode>
                             </wiegand>
                         </accessDataComDev>
                     </chl>
@@ -308,8 +287,7 @@ export default defineComponent({
          * @description 编辑-下发编辑协议
          */
         const apply = async () => {
-            const [changeDoorCfgFlg, changeWiegandFlg] = compareDataChange()
-            if (!changeDoorCfgFlg && !changeWiegandFlg) {
+            if (editAccessLock.disabled.value && editWiegand.disabled.value) {
                 return
             }
 
@@ -317,7 +295,7 @@ export default defineComponent({
 
             let success = true
             let errorCode = 0
-            if (changeDoorCfgFlg) {
+            if (!editAccessLock.disabled.value) {
                 const $ = await setAccessControl()
                 success = $('status').text() === 'success'
                 if (!success) {
@@ -325,7 +303,7 @@ export default defineComponent({
                 }
             }
 
-            if (success && changeWiegandFlg) {
+            if (success && !editWiegand.disabled.value) {
                 const $ = await setAccessDataCom()
                 success = $('status').text() === 'success'
                 if (!success) {
@@ -359,9 +337,12 @@ export default defineComponent({
 
         return {
             pageData,
-            formData,
+            accessLockformData,
+            wiegandFormData,
             handleChlChange,
             apply,
+            editAccessLock,
+            editWiegand,
         }
     },
 })

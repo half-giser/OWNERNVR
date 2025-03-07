@@ -189,19 +189,12 @@ export default defineComponent({
                             switch: $trigger('preset/switch').text().bool(),
                             presets: [],
                         },
-                        sysAudio: $trigger('sysAudio').attr('id') || DEFAULT_EMPTY_ID,
+                        sysAudio: getSystemAudioID(pageData.value.audioList, $trigger('sysAudio').attr('id')), //|| DEFAULT_EMPTY_ID,
                         msgPush: $trigger('msgPushSwitch').text(),
                         beeper: $trigger('buzzerSwitch').text(),
                         email: $trigger('emailSwitch').text(),
                         msgBoxPopup: $trigger('popMsgSwitch').text(),
                         videoPopup: $trigger('popVideo/switch').text() === 'false' ? '' : $trigger('popVideo/chl').attr('id'),
-                    }
-
-                    const audioData = pageData.value.audioList.filter((item) => {
-                        return item.value === row.sysAudio
-                    })
-                    if (!audioData.length) {
-                        row.sysAudio = DEFAULT_EMPTY_ID
                     }
 
                     const currCombinedId = item.attr('id')

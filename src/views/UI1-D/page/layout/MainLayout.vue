@@ -117,7 +117,6 @@
         <ChangePasswordPop
             v-model="pageData.isPasswordDialogVisible"
             :forced="pageData.mustBeModifiedPassword"
-            :title="pageData.passwordDialogTitle"
             :password-strength="pageData.passwordStrength"
             @close="closeChangePwdPop"
         />

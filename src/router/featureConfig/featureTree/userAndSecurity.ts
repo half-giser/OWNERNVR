@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 11:47:13
  * @Description: 功能面板-账户和安全
  */
-export default {
+const userAndSecurityRoutes: FeatureItem = {
     component: 'layout/L2T1Layout.vue',
     path: 'security',
     meta: {
@@ -34,8 +34,8 @@ export default {
         },
     },
     children: {
+        // 添加用户
         userAdd: {
-            //添加用户
             path: 'user/add',
             component: 'userAndSecurity/UserAdd.vue',
             meta: {
@@ -47,8 +47,8 @@ export default {
                 homeSort: 10,
             },
         },
+        // 查看或更改用户
         userlist: {
-            //查看或更改用户
             path: 'user/list',
             components: {
                 toolBar: 'userAndSecurity/UserToolBar.vue',
@@ -64,8 +64,8 @@ export default {
                 homeSort: 20,
             },
         },
+        // 添加权限组
         permissionGroupAdd: {
-            //添加权限组
             path: 'auth_group/add',
             component: 'userAndSecurity/PermissionGroupAdd.vue',
             meta: {
@@ -75,8 +75,8 @@ export default {
                 group: 'account',
             },
         },
+        // 查看或更改权限组
         permissionGroup: {
-            //查看或更改权限组
             path: 'auth_group/list',
             components: {
                 toolBar: 'userAndSecurity/PermissionToolBar.vue',
@@ -90,8 +90,8 @@ export default {
                 homeSort: 30,
             },
         },
+        // 黑白名单
         blockAndAllowList: {
-            //黑白名单
             path: 'rule/filter',
             component: 'userAndSecurity/BlockAndAllowList.vue',
             meta: {
@@ -103,8 +103,8 @@ export default {
                 homeSort: 40,
             },
         },
+        // 登出后预览
         previewOnLogout: {
-            //登出后预览
             path: 'preview/logout',
             component: 'userAndSecurity/PreviewOnLogout.vue',
             meta: {
@@ -113,8 +113,8 @@ export default {
                 group: 'security',
             },
         },
+        // 网络安全
         networkSecurity: {
-            //网络安全
             path: 'network/security',
             component: 'userAndSecurity/NetworkSecurity.vue',
             meta: {
@@ -123,8 +123,8 @@ export default {
                 group: 'security',
             },
         },
+        // 密码安全
         passwordSecurity: {
-            //密码安全
             path: 'passwordSecurity',
             component: 'userAndSecurity/PasswordSecurity.vue',
             meta: {
@@ -136,8 +136,8 @@ export default {
                 },
             },
         },
+        // 在线用户
         onlineUser: {
-            //在线用户
             path: 'user/status',
             component: 'userAndSecurity/OnlineUser.vue',
             meta: {
@@ -148,4 +148,6 @@ export default {
             },
         },
     },
-} as FeatureItem
+}
+
+export default userAndSecurityRoutes

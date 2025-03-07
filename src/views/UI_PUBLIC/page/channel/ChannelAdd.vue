@@ -75,7 +75,7 @@
                 >
                     <template #default="{ row }: TableColumn<ChannelQuickAddDto>">
                         <BaseImgSpriteBtn
-                            file="edit (2)"
+                            file="edit2"
                             @click="openEditIPCIpPop(row)"
                         />
                     </template>
@@ -290,8 +290,6 @@
             v-model="isAddRecorderPop"
             :edit-item="recoderEditItem"
             :mapping="mapping"
-            :chl-count-limit="chlCountLimit"
-            :face-match-limit-max-chl-num="faceMatchLimitMaxChlNum"
             @close="closeAddRecorderPop"
         />
         <ChannelAddSetProtocolPop

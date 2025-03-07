@@ -25,7 +25,8 @@
 所以其他UI可能会产生自己的vue文件，并且可能引用public的html和js文件。
 */
 
-import featureTree from './featureTree'
+// @ts-expect-error
+import featureTree from '@ui/router'
 import type { RouteMeta, RouteRecordRaw } from 'vue-router'
 
 export const camel2Kebab = (name: string) => {
@@ -145,6 +146,10 @@ function routeSortFun(a: RouteRecordRaw, b: RouteRecordRaw): number {
  */
 function resolveRouteTree(tree: FeatureTree, routes: RouteRecordRaw[], parent: RouteRecordRaw | null) {
     for (const key in tree) {
+        if (tree[key].meta?.remove) {
+            continue
+        }
+
         //如果没有设置name，用key作为默认的name
         if (tree[key].name === undefined) {
             tree[key].name = key

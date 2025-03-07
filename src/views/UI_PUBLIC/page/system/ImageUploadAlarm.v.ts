@@ -55,6 +55,14 @@ export default defineComponent({
             }
         }
 
+        const getTranslateForSecond = (value: number) => {
+            if (value > 1) {
+                return value + Translate('IDCS_SECONDS')
+            } else {
+                return value + Translate('IDCS_SECOND')
+            }
+        }
+
         const getData = async () => {
             openLoading()
             const res = await querySHDBEventUploadCfg()
@@ -80,14 +88,14 @@ export default defineComponent({
                     .array()
                     .map((item) => ({
                         value: item.trim(),
-                        label: getTranslateForSecond(Number(item.trim())),
+                        label: getTranslateForSecond(item.trim().num()),
                     }))
                 pageData.value.saveTimeList = $('content/param/holdTimeNote')
                     .text()
                     .array()
                     .map((item) => ({
                         value: item.trim(),
-                        label: getTranslateForSecond(Number(item.trim())),
+                        label: getTranslateForSecond(item.trim().num()),
                     }))
                 pageData.value.preUnit = $('content/param/chlParams/itemType/preTime').attr('unit') || 's'
                 pageData.value.saveUnit = $('content/param/chlParams/itemType/holdTime').attr('unit') || 's'

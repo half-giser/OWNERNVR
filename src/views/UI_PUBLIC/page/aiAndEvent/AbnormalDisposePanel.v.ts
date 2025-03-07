@@ -161,7 +161,7 @@ export default defineComponent({
                     trigger: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch'].filter((item) => {
                         return $trigger(item).text().bool()
                     }),
-                    sysAudio: $('sysAudio').attr('id'),
+                    sysAudio: $trigger('sysAudio').attr('id'),
                 }
 
                 watchEdit.listen()

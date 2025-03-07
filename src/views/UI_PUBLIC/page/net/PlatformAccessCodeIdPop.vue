@@ -30,6 +30,7 @@
                     :maxlength="20"
                     :formatter="formatDigit"
                     :parser="formatDigit"
+                    @blur="blurCode"
                 />
             </el-form-item>
         </el-form>

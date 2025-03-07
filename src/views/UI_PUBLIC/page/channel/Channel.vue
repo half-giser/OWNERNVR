@@ -8,47 +8,52 @@
         <div class="base-table-box">
             <el-table
                 ref="tableRef"
-                :data="tableData"
+                :data="virtualTableData"
                 show-overflow-tooltip
                 highlight-current-row
             >
                 <el-table-column
-                    prop="chlNum"
                     :label="Translate('IDCS_CHANNEL_NUMBER')"
                     width="80"
-                />
+                >
+                    <template #default="{ $index }: TableColumn<number>">
+                        {{ tableData[$index].chlNum }}
+                    </template>
+                </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_CHANNEL_NAME')"
                     min-width="200"
                 >
-                    <template #default="{ row }: TableColumn<ChannelInfoDto>">
-                        {{ formatDisplayName(row) }}
+                    <template #default="{ $index }: TableColumn<number>">
+                        {{ formatDisplayName(tableData[$index]) }}
                     </template>
                 </el-table-column>
                 <el-table-column
-                    prop="ip"
                     :label="Translate('IDCS_ADDRESS')"
                     min-width="140"
-                />
+                >
+                    <template #default="{ $index }: TableColumn<number>">
+                        {{ tableData[$index].ip }}
+                    </template>
+                </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_PORT')"
                     width="80"
                 >
-                    <template #default="{ row }: TableColumn<ChannelInfoDto>">
-                        <!-- 模拟通道端口置空 -->
-                        {{ row.ip === '' ? '' : row.port }}
+                    <template #default="{ $index }: TableColumn<number>">
+                        {{ tableData[$index].ip === '' ? '' : tableData[$index].port }}
                     </template>
                 </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_CONNECT_STATUS')"
                     width="100"
                 >
-                    <template #default="{ row }: TableColumn<ChannelInfoDto>">
+                    <template #default="{ $index }: TableColumn<number>">
                         <span
                             class="status"
-                            :class="[row.isOnline ? 'text-online' : 'text-offline']"
+                            :class="tableData[$index].isOnline ? 'text-online' : 'text-offline'"
                         >
-                            {{ row.ip === '' ? '' : row.isOnline ? Translate('IDCS_ONLINE') : Translate('IDCS_OFFLINE') }}
+                            {{ tableData[$index].ip === '' ? '' : tableData[$index].isOnline ? Translate('IDCS_ONLINE') : Translate('IDCS_OFFLINE') }}
                         </span>
                     </template>
                 </el-table-column>
@@ -56,23 +61,26 @@
                     :label="Translate('IDCS_PROTOCOL')"
                     min-width="140"
                 >
-                    <template #default="{ row }: TableColumn<ChannelInfoDto>">
-                        {{ formatDisplayManufacturer(row) }}
+                    <template #default="{ $index }: TableColumn<number>">
+                        {{ formatDisplayManufacturer(tableData[$index]) }}
                     </template>
                 </el-table-column>
                 <el-table-column
-                    prop="productModel.innerText"
                     :label="Translate('IDCS_PRODUCT_MODEL')"
                     min-width="140"
-                />
+                >
+                    <template #default="{ $index }: TableColumn<number>">
+                        {{ tableData[$index].productModel.innerText }}
+                    </template>
+                </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_PREVIEW')"
                     width="80"
                 >
-                    <template #default="{ row }: TableColumn<ChannelInfoDto>">
+                    <template #default="{ $index }: TableColumn<number>">
                         <BaseImgSpriteBtn
-                            file="play (3)"
-                            @click="handlePreview(row)"
+                            file="preview"
+                            @click="handlePreview(tableData[$index])"
                         />
                     </template>
                 </el-table-column>
@@ -92,10 +100,10 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="{ row }: TableColumn<ChannelInfoDto>">
+                    <template #default="{ $index }: TableColumn<number>">
                         <BaseImgSpriteBtn
-                            file="edit (2)"
-                            @click="editChannel(row)"
+                            file="edit2"
+                            @click="editChannel(tableData[$index])"
                         />
                     </template>
                 </el-table-column>
@@ -115,11 +123,11 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="{ row }: TableColumn<ChannelInfoDto>">
+                    <template #default="{ $index }: TableColumn<number>">
                         <BaseImgSpriteBtn
                             file="del"
-                            :disabled="row.delDisabled"
-                            @click="delChannel(row)"
+                            :disabled="tableData[$index].delDisabled"
+                            @click="delChannel(tableData[$index])"
                         />
                     </template>
                 </el-table-column>
@@ -128,11 +136,11 @@
                     :label="Translate('IDCS_CONFIGURATION')"
                     width="80"
                 >
-                    <template #default="{ row }: TableColumn<ChannelInfoDto>">
+                    <template #default="{ $index }: TableColumn<number>">
                         <BaseImgSpriteBtn
-                            v-show="row.showSetting"
+                            v-show="tableData[$index].showSetting"
                             file="localCfg"
-                            @click="setChannel(row)"
+                            @click="setChannel(tableData[$index])"
                         />
                     </template>
                 </el-table-column>
@@ -152,31 +160,33 @@
                             </template>
                         </el-dropdown>
                     </template>
-                    <template #default="{ row }: TableColumn<ChannelInfoDto>">
+                    <template #default="{ $index }: TableColumn<ChannelInfoDto>">
                         <BaseImgSpriteBtn
-                            v-show="isShowUpgradeBtn(row) && row.upgradeStatus === 'normal'"
+                            v-show="isShowUpgradeBtn(tableData[$index]) && tableData[$index].upgradeStatus === 'normal'"
                             file="upload"
-                            :disabled="row.upgradeDisabled"
-                            @click="upgradeIPC(row)"
+                            :disabled="isUpgradeDisabled(tableData[$index])"
+                            @click="upgradeIPC(tableData[$index])"
                         />
                         <BaseImgSprite
-                            v-show="row.upgradeStatus === 'error'"
+                            v-show="tableData[$index].upgradeStatus === 'error'"
                             file="error"
-                            @click="upgradeIPC(row)"
+                            @click="upgradeIPC(tableData[$index])"
                         />
                         <BaseImgSprite
-                            v-show="row.upgradeStatus === 'success'"
+                            v-show="tableData[$index].upgradeStatus === 'success'"
                             file="success"
-                            @click="upgradeIPC(row)"
                         />
-                        <span v-show="row.upgradeStatus === 'progress'">{{ row.upgradeProgressText }}</span>
+                        <span v-show="tableData[$index].upgradeStatus === 'progress'">{{ tableData[$index].upgradeProgressText }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column
-                    prop="version"
                     :label="Translate('IDCS_VERSION')"
                     min-width="140"
-                />
+                >
+                    <template #default="{ $index }: TableColumn<number>">
+                        {{ tableData[$index].version }}
+                    </template>
+                </el-table-column>
             </el-table>
         </div>
         <div class="base-btn-box flex-start">

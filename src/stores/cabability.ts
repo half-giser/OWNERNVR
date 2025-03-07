@@ -65,6 +65,7 @@ export const useCababilityStore = defineStore(
         const chlSupSignalType = ref<string[]>([])
         const switchIpChlRange = ref<number[]>([])
         const mainStreamLimitFps = ref(1)
+        const supportRecorder = ref(false)
 
         const CustomerID = ref(0)
         const AISwitch = ref<boolean | undefined>()
@@ -93,6 +94,7 @@ export const useCababilityStore = defineStore(
             previewMaxWinForOutputSetting.value = $('previewMaxWin').text().num() // NT2-3582：主/辅输出配置web端与设备端保持一致
             previewMaxWin.value = $('previewMaxWin').text().num()
             previewMaxWin.value = previewMaxWin.value > 36 ? 36 : previewMaxWin.value // 最多支持36路 NT2-825
+            supportRecorder.value = $('content/supportRecorder').text().bool()
 
             sub1OutputMaxWin.value = $('subOutputMaxWin').text().num()
             sub2OutputMaxWin.value = $('sub2OutputMaxWin').text().num()
@@ -216,6 +218,7 @@ export const useCababilityStore = defineStore(
             switchIpChlRange,
             productModel,
             mainStreamLimitFps,
+            supportRecorder,
         }
     },
     {

@@ -93,6 +93,12 @@ export default defineComponent({
             })
         }
 
+        const blurCode = () => {
+            if (formData.value.code.length < 20) {
+                formData.value.code = '10000000000000000000'
+            }
+        }
+
         return {
             formRef,
             formData,
@@ -101,6 +107,7 @@ export default defineComponent({
             verify,
             close,
             confirm,
+            blurCode,
         }
     },
 })

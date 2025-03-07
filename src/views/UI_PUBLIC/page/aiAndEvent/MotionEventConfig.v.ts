@@ -116,7 +116,7 @@ export default defineComponent({
                                 }
                             }),
                         }
-                        row.sysAudio = $trigger('sysAudio').attr('id') || DEFAULT_EMPTY_ID
+                        row.sysAudio = getSystemAudioID(pageData.value.audioList, $trigger('sysAudio').attr('id'))
                         row.snap = {
                             switch: $trigger('sysSnap/switch').text().bool(),
                             chls: $trigger('sysSnap/chls/item').map((item) => {
@@ -151,13 +151,6 @@ export default defineComponent({
                                 },
                             }
                         })
-                        // 设置的声音文件被删除时，显示为none
-                        const audioList = pageData.value.audioList.filter((element) => {
-                            return element.value === row.sysAudio
-                        })
-                        if (!audioList.length) {
-                            row.sysAudio = DEFAULT_EMPTY_ID
-                        }
 
                         editRows.listen(row)
                     } else {

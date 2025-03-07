@@ -27,7 +27,7 @@
             name="faceDetection"
             :disabled="pageData.detectionDisabled"
         >
-            <div>
+            <div v-if="!pageData.notSupport">
                 <div class="base-btn-box space-between padding collapse">
                     <el-checkbox
                         v-model="detectionFormData.enabledSwitch"
@@ -257,7 +257,7 @@
             name="faceCompare"
             :disabled="pageData.recognitionDisabled"
         >
-            <div>
+            <div v-if="!pageData.notSupport">
                 <div class="base-btn-box space-between collapse padding">
                     <div>
                         <el-text class="checkbox-label">{{ Translate('IDCS_ENABLE') }}</el-text>

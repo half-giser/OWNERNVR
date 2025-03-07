@@ -197,9 +197,6 @@ export default defineComponent({
 
         // 是否禁用手动开门
         const openDoorDisabled = computed(() => {
-            if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
-                return true
-            }
             // 用户权限、通道accessControl能力集、enable
             const enableOpenDoor = (prop.auth.hasAll || prop.auth.accessControl) && prop.chl[chlID.value]?.supportAccessControl && !disabled.value
             return !enableOpenDoor

@@ -3,7 +3,7 @@
  * @Date: 2024-04-20 11:47:13
  * @Description: 功能面板-系统
  */
-export default {
+const systemRoutes: FeatureItem = {
     component: 'layout/L2T1Layout.vue',
     path: 'system',
     meta: {
@@ -13,25 +13,19 @@ export default {
         icon: 'system',
         auth: 'remoteSysCfgAndMaintain',
         groups: {
-            //基本配置
+            // 基本配置
             basicConfig: {
                 sort: 10,
                 lk: 'IDCS_BASIC_CONFIG',
                 icon: 'basicCfg_s',
             },
-            //系统维护
+            // 系统维护
             maintenance: {
                 sort: 20,
                 lk: 'IDCS_SYSTEM_MAINTENANCE',
                 icon: 'systemMaintenance_s',
             },
-            //磁盘管理
-            diskInfo: {
-                sort: 30,
-                lk: 'IDCS_SYSTEM_INFORMATION',
-                icon: 'diskInfo_s',
-            },
-            //系统信息
+            // 系统信息
             info: {
                 sort: 40,
                 lk: 'IDCS_SYSTEM_INFORMATION',
@@ -46,8 +40,8 @@ export default {
         },
     },
     children: {
+        // 通用配置
         generalSettings: {
-            //通用配置
             path: 'common',
             component: 'system/GeneralSettings.vue',
             meta: {
@@ -61,8 +55,8 @@ export default {
                 auth: 'remoteSysCfgAndMaintain',
             },
         },
+        // 日期和时间
         dateAndTime: {
-            //日期和时间
             path: 'time',
             component: 'system/DateAndTime.vue',
             meta: {
@@ -72,8 +66,8 @@ export default {
                 auth: 'remoteSysCfgAndMaintain',
             },
         },
+        // 输出配置
         outputSettings: {
-            //输出配置
             path: 'outputSetting',
             component: 'system/OutputSettings.vue',
             meta: {
@@ -81,13 +75,10 @@ export default {
                 lk: 'IDCS_OUTPUT_CONFIG',
                 group: 'basicConfig',
                 auth: 'remoteSysCfgAndMaintain',
-                hasCap() {
-                    return import.meta.env.VITE_UI_TYPE !== 'UI3-A'
-                },
             },
         },
+        // POS配置
         posSettings: {
-            //POS配置
             path: 'pos',
             component: 'system/PosSettings.vue',
             meta: {
@@ -100,8 +91,8 @@ export default {
                 },
             },
         },
+        // POE电源设置
         poeSettings: {
-            // POE电源设置
             path: 'poePower',
             component: 'system/PoeSettings.vue',
             meta: {
@@ -110,12 +101,12 @@ export default {
                 group: 'basicConfig',
                 auth: 'remoteSysCfgAndMaintain',
                 hasCap(systemCaps) {
-                    return systemCaps.supportPoePowerManage && import.meta.env.VITE_UI_TYPE !== 'UI3-A'
+                    return systemCaps.supportPoePowerManage
                 },
             },
         },
+        // 录像机OSD配置
         recorderOsdSettings: {
-            //录像机OSD配置
             path: 'osd',
             component: 'system/RecorderOsdSettings.vue',
             meta: {
@@ -123,13 +114,10 @@ export default {
                 lk: 'IDCS_OSD_CONFIG',
                 group: 'basicConfig',
                 auth: 'remoteSysCfgAndMaintain',
-                hasCap() {
-                    return import.meta.env.VITE_UI_TYPE !== 'UI3-A'
-                },
             },
         },
+        // 查看日志
         viewLog: {
-            //查看日志
             path: 'log',
             component: 'system/ViewLog.vue',
             meta: {
@@ -142,8 +130,8 @@ export default {
                 auth: 'remoteSysCfgAndMaintain',
             },
         },
+        // 恢复出厂配置
         factoryDefault: {
-            //恢复出厂配置
             path: 'restore_factory_settings',
             component: 'system/FactoryDefault.vue',
             meta: {
@@ -153,8 +141,8 @@ export default {
                 auth: 'remoteSysCfgAndMaintain',
             },
         },
+        // 升级
         upgrade: {
-            //升级
             path: 'upgrade',
             component: 'system/Upgrade.vue',
             meta: {
@@ -164,8 +152,8 @@ export default {
                 auth: 'remoteSysCfgAndMaintain',
             },
         },
+        // 备份和还原配置
         backupAndRestore: {
-            //备份和还原配置
             path: 'backup_and_restore',
             component: 'system/BackupAndRestore.vue',
             meta: {
@@ -177,8 +165,8 @@ export default {
                 auth: 'remoteSysCfgAndMaintain',
             },
         },
+        // 系统重启
         reboot: {
-            //系统重启
             path: 'reboot',
             component: 'system/Reboot.vue',
             meta: {
@@ -188,8 +176,8 @@ export default {
                 auth: 'remoteSysCfgAndMaintain',
             },
         },
+        // 自动维护
         autoMaintenance: {
-            //自动维护
             path: 'maintenance/auto',
             component: 'system/AutoMaintenance.vue',
             meta: {
@@ -199,21 +187,8 @@ export default {
                 auth: 'remoteSysCfgAndMaintain',
             },
         },
-        upgradeOnline: {
-            //云升级
-            path: 'upgradeOnline',
-            component: 'net/CloudUpgrade.vue',
-            meta: {
-                sort: 70,
-                lk: 'IDCS_ONLINE_UPGRADE',
-                group: 'maintenance',
-                hasCap(systemCaps) {
-                    return systemCaps.showCloudUpgrade && import.meta.env.VITE_UI_TYPE === 'UI3-A'
-                },
-            },
-        },
+        // 设备基本信息
         basic: {
-            //设备基本信息
             path: 'information',
             component: 'system/Basic.vue',
             meta: {
@@ -223,8 +198,8 @@ export default {
                 default: true,
             },
         },
+        // 通道状态
         cameraStatus: {
-            //通道状态
             path: 'channel/status',
             components: {
                 toolBar: 'system/SystemToolBar.vue',
@@ -236,21 +211,18 @@ export default {
                 group: 'info',
             },
         },
+        // 报警状态
         alarmStatus: {
-            //报警状态
             path: 'alarm/status',
             component: 'system/AlarmStatus.vue',
             meta: {
                 sort: 30,
                 lk: 'IDCS_ALARM_STATE',
                 group: 'info',
-                hasCap() {
-                    return import.meta.env.VITE_UI_TYPE !== 'UI3-A'
-                },
             },
         },
+        // 录像状态
         recordStatus: {
-            //录像状态
             path: 'record/status',
             components: {
                 toolBar: 'system/SystemToolBar.vue',
@@ -260,13 +232,10 @@ export default {
                 sort: 40,
                 lk: 'IDCS_RECORD_STATE',
                 group: 'info',
-                hasCap() {
-                    return import.meta.env.VITE_UI_TYPE !== 'UI3-A'
-                },
             },
         },
+        // 网络状态
         networkStatus: {
-            //网络状态
             path: 'net/status',
             components: {
                 toolBar: 'system/SystemToolBar.vue',
@@ -276,13 +245,10 @@ export default {
                 sort: 50,
                 lk: 'IDCS_NETWORK_STATE',
                 group: 'info',
-                hasCap() {
-                    return import.meta.env.VITE_UI_TYPE !== 'UI3-A'
-                },
             },
         },
+        // 磁盘状态
         diskStatus: {
-            //磁盘状态
             path: 'disk/information',
             components: {
                 toolBar: 'system/SystemToolBar.vue',
@@ -292,78 +258,10 @@ export default {
                 sort: 60,
                 lk: 'IDCS_DISK_STATE_TOOLTIP',
                 group: 'info',
-                hasCap() {
-                    return import.meta.env.VITE_UI_TYPE !== 'UI3-A'
-                },
             },
         },
-        systemDiskManagement: {
-            //磁盘管理
-            path: 'disk/management',
-            component: 'disk/DiskManagement.vue',
-            meta: {
-                sort: 10,
-                lk: 'IDCS_DISK_MANAGE',
-                group: 'diskManagement',
-                default: true,
-                inHome: 'self',
-                homeSort: 70,
-                auth: 'diskMgr',
-                hasCap() {
-                    return import.meta.env.VITE_UI_TYPE === 'UI3-A'
-                },
-            },
-        },
-        systemStorageMode: {
-            //存储模式配置
-            path: 'disk/storage/mode',
-            component: 'disk/StorageMode.vue',
-            meta: {
-                sort: 20,
-                lk: 'IDCS_STORAGE_MODE_SET',
-                group: 'storageMode',
-                inHome: 'self',
-                homeSort: 80,
-                auth: 'diskMgr',
-                hasCap() {
-                    return import.meta.env.VITE_UI_TYPE === 'UI3-A'
-                },
-            },
-        },
-        systemViewDiskInfo: {
-            //查看磁盘信息
-            path: 'disk/information',
-            components: {
-                toolBar: 'system/SystemToolBar.vue',
-                default: 'system/DiskStatus.vue',
-            },
-            // component: 'disk/ViewDiskInfo.vue',
-            meta: {
-                sort: 30,
-                lk: 'IDCS_VIEW_DISK_INFORMATION',
-                group: 'diskInfo',
-                inHome: 'self',
-                homeSort: 90,
-                hasCap() {
-                    return import.meta.env.VITE_UI_TYPE === 'UI3-A'
-                },
-            },
-        },
-        systemSmartInfo: {
-            //SMART信息
-            path: 'disk/information/smart',
-            component: 'disk/SmartInfo.vue',
-            meta: {
-                sort: 40,
-                lk: 'IDCS_DISK_SMART_INFO',
-                group: 'diskInfo',
-                hasCap() {
-                    return import.meta.env.VITE_UI_TYPE === 'UI3-A'
-                },
-            },
-        },
+        // 地标平台参数
         platformParam: {
-            // 地标平台参数
             path: 'platform/parameter',
             component: 'system/PlatformParameter.vue',
             meta: {
@@ -376,8 +274,8 @@ export default {
                 },
             },
         },
+        // 定时图像上传
         imageUpload: {
-            // 定时图像上传
             path: 'upload/image/timing',
             components: {
                 toolBar: 'system/ImageUploadToolBar.vue',
@@ -393,8 +291,8 @@ export default {
                 },
             },
         },
+        // 报警图像上传
         imageUploadAlarm: {
-            // 报警图像上传
             path: 'upload/image/alarm',
             component: 'system/ImageUploadAlarm.vue',
             meta: {
@@ -407,8 +305,8 @@ export default {
                 },
             },
         },
+        // 平台操作管理
         platformOperation: {
-            // 平台操作管理
             path: 'platform/operation',
             component: 'system/PlatformOperation.vue',
             meta: {
@@ -422,4 +320,6 @@ export default {
             },
         },
     },
-} as FeatureItem
+}
+
+export default systemRoutes
