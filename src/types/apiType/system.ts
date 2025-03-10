@@ -171,6 +171,60 @@ export class SystemDateTimeForm {
     enableDST = false // 夏令时
 }
 
+export class SystemOutputSettingChlItem {
+    id = ''
+    winindex = 0
+}
+
+export class SystemOutputSettingChlGroup {
+    segNum = 1
+    chls: SystemOutputSettingChlItem[] = []
+}
+
+export class SystemOutputSettingDto {
+    id = 0
+    timeInterval = 0
+    chlGroups: SystemOutputSettingChlGroup[] = []
+}
+
+export class SystemOutputSettingItem {
+    id = 0
+    isDwell = false
+    // 轮询
+    dwell: SystemOutputSettingDto = {
+        id: 0,
+        timeInterval: 5,
+        chlGroups: [] as SystemOutputSettingChlGroup[],
+    }
+    // 预览
+    preview: SystemOutputSettingDto = {
+        id: 1,
+        timeInterval: 0,
+        chlGroups: [
+            {
+                segNum: 1,
+                chls: [],
+            },
+        ] as SystemOutputSettingChlGroup[],
+    }
+}
+
+export class SystemOutputSettingDecoderItem {
+    id = 0
+    onlineStatus = false
+    ShowHdmiIn = -1
+    output: SystemOutputSettingItem[] = []
+}
+
+export class SystemOutputSettingForm {
+    // 主输出
+    main = new SystemOutputSettingItem()
+    // 副输出
+    sub: SystemOutputSettingItem[] = []
+    // 解码卡
+    decoder: SystemOutputSettingDecoderItem[] = [] // SystemOutputSettingItem[][] = []
+}
+
 /**
  * @description 输出配置 自定义视图表单
  */
