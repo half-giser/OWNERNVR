@@ -71,6 +71,7 @@ li {
     display: flex;
     align-items: center;
     line-height: 30px;
+    user-select: none;
 
     :deep(.Sprite) {
         margin-right: 8px;

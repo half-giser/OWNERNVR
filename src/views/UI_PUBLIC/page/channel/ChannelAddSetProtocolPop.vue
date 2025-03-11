@@ -14,6 +14,9 @@
             ref="formRef"
             :model="formData"
             :rules="rules"
+            :style="{
+                '--form-input-width': '200px',
+            }"
         >
             <el-form-item>
                 <el-form-item :label="Translate('IDCS_PROTOCOL_LOGO')">

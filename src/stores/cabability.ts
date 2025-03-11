@@ -94,7 +94,7 @@ export const useCababilityStore = defineStore(
             previewMaxWinForOutputSetting.value = $('previewMaxWin').text().num() // NT2-3582：主/辅输出配置web端与设备端保持一致
             previewMaxWin.value = $('previewMaxWin').text().num()
             previewMaxWin.value = previewMaxWin.value > 36 ? 36 : previewMaxWin.value // 最多支持36路 NT2-825
-            supportRecorder.value = $('content/supportRecorder').text().bool()
+            supportRecorder.value = $('supportRecorder').text().bool()
 
             sub1OutputMaxWin.value = $('subOutputMaxWin').text().num()
             sub2OutputMaxWin.value = $('sub2OutputMaxWin').text().num()
@@ -143,7 +143,7 @@ export const useCababilityStore = defineStore(
             chlSupSignalType.value = $('chlSupSignalType').text().split(':')
             switchIpChlRange.value.push($('switchIpChlRange/start').text().num())
             switchIpChlRange.value.push($('switchIpChlRange/end').text().num())
-            mainStreamLimitFps.value = $('content/mainStreamLimitFps').text().num() || 1
+            mainStreamLimitFps.value = $('mainStreamLimitFps').text().num() || 1
 
             $('FishEyeCaps/installType/enum').forEach((item) => {
                 const text = item.text()

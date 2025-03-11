@@ -80,7 +80,7 @@ export default defineComponent({
                 }
             })
 
-            if (!nonRTSPData) {
+            if (!nonRTSPData.length) {
                 saveData() // 仅添加RTSP通道
                 return
             }
@@ -260,7 +260,7 @@ export default defineComponent({
             ].flat()
 
             if (!listXml.length) {
-                router.push('list')
+                router.push('/config/channel/list')
                 return
             }
 

@@ -88,7 +88,6 @@ export const openMessageBox = (opt: MessageTipBoxOption | string) => {
     })
         .then((e) => {
             if (layoutStore.messageBoxCount > 0) layoutStore.messageBoxCount--
-            console.log('resolve')
             return Promise.resolve(e)
         })
         .catch((e) => {

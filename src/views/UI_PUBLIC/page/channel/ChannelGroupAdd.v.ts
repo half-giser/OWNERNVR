@@ -135,6 +135,8 @@ export default defineComponent({
         const handleCancel = () => {
             if (prop.dialog) {
                 emit('close')
+                formRef.value!.resetFields()
+                tableRef.value!.clearSelection()
             } else {
                 router.push('list')
             }

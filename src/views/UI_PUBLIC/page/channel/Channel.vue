@@ -41,7 +41,7 @@
                     width="80"
                 >
                     <template #default="{ $index }: TableColumn<number>">
-                        {{ tableData[$index].ip === '' ? '' : tableData[$index].port }}
+                        {{ tableData[$index].ip === '' ? '' : tableData[$index].port || '' }}
                     </template>
                 </el-table-column>
                 <el-table-column

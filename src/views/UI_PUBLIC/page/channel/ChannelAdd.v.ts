@@ -408,7 +408,7 @@ export default defineComponent({
         }
 
         const goBack = () => {
-            router.push('list')
+            router.push('/config/channel/list')
         }
 
         const changeDefaultPwd = (rows: Array<ChannelDefaultPwdDto>) => {
@@ -503,7 +503,7 @@ export default defineComponent({
                     .join('')
 
                 if (!addChlCount) {
-                    router.push('list')
+                    goBack()
                     return
                 }
 
@@ -583,7 +583,7 @@ export default defineComponent({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 }).then(() => {
-                    router.push('list')
+                    goBack()
                 })
             } else {
                 const errorCode = $('errorCode').text().num()
@@ -593,7 +593,7 @@ export default defineComponent({
                         break
                     case ErrorCode.USER_ERROR_OVER_LIMIT:
                         openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_OVER_MAX_NUMBER_LIMIT')).then(() => {
-                            router.push('list')
+                            goBack()
                         })
                         break
                     case ErrorCode.USER_ERROR_OVER_BANDWIDTH_LIMIT:

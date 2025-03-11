@@ -85,7 +85,7 @@ export default defineComponent({
                         }
 
                         formData.value.ip = $('content/ip').text() || DEFAULT_RECORDER_IP
-                        formData.value.chkDomain = !!$('content/ip').text()
+                        formData.value.chkDomain = !$('content/ip').text()
                         if ($('content/domain').text()) {
                             const domain = $('content/domain').text()
                             const isIp = checkIpV4(domain)

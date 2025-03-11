@@ -38,12 +38,17 @@ export const useLangStore = defineStore(
             const result = await getSupportLangList()
             const $ = queryXml(result)
 
+            const langTypeList: string[] = []
             const langTypesTemp: Record<string, string> = {}
             $('content/item').forEach((item) => {
                 langTypesTemp[item.attr('id')] = queryXml(item.element)('name').text()
             })
             langTypes.value = langTypesTemp
             devLandId.value = $('content').attr('currentLangType')
+
+            if (!langTypeList.includes(langId.value)) {
+                langId.value = 'null'
+            }
 
             if (!langId.value || langId.value === 'null' || langId.value === 'undefined') {
                 const $ = queryXml(result)

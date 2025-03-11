@@ -67,7 +67,7 @@ if (session.appType === 'STANDARD') {
     // 标准登录此处请求语言翻译和时间日期配置，P2P登录则延后至插件连接成功后请求
     langStore
         .getLangTypes()
-        .then(() => langStore.getLangItems())
+        .then(() => langStore.getLangItems(true))
         .then(() => queryActivationStatus())
         .then((result) => {
             const checkActivationStatus = queryXml(result)('content/activated').text().bool()

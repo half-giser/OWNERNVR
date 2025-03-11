@@ -456,6 +456,7 @@
             height: 22px;
             text-align: left;
             pointer-events: none;
+            z-index: 2;
 
             &::before {
                 @include sprite($img-floatTip, 0, 5);
