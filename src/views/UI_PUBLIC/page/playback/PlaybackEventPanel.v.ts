@@ -253,7 +253,7 @@ export default defineComponent({
                 ].join(': '),
             ],
             // UI1-B客户不支持选第二种模式
-            isEventPopBtn: systemCaps.IntelAndFaceConfigHide,
+            isEventPopBtn: !systemCaps.IntelAndFaceConfigHide,
             // 是否显示POS输入框
             isPosInput: systemCaps.supportPOS,
             // POS关键字

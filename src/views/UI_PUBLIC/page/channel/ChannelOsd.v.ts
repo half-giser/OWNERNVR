@@ -58,7 +58,7 @@ export default defineComponent({
          * @param {stirng} chlId
          * @param {string} chlName
          */
-        const handleNameBlur = (chlId: string, chlName: string) => {
+        const blurName = (chlId: string, chlName: string) => {
             const rowData = getRowById(chlId)!
             const name = chlName.trim()
             if (!checkChlName(name)) {
@@ -80,6 +80,7 @@ export default defineComponent({
                             rowData.name = name
                             formData.value = cloneDeep(rowData)
                             chlList.value = cloneDeep(tableData.value)
+                            setOcxData(rowData)
                         })
                         .catch(() => {
                             rowData.name = nameMapping[rowData.id]
@@ -91,6 +92,7 @@ export default defineComponent({
                     rowData.name = name
                     formData.value = cloneDeep(rowData)
                     chlList.value = cloneDeep(tableData.value)
+                    setOcxData(rowData)
                 }
             }
         }
@@ -109,7 +111,7 @@ export default defineComponent({
             tableRef.value!.setCurrentRow(getRowById(selectedChlId.value))
         }
 
-        const handleChangeSwitch = (flag: boolean, chlId: string, type: 'displayName' | 'displayTime' | 'remarkSwitch') => {
+        const changeSwitch = (flag: boolean, chlId: string, type: 'displayName' | 'displayTime' | 'remarkSwitch') => {
             const rowData = getRowById(chlId)!
             rowData[type] = flag
             formData.value = cloneDeep(rowData)
@@ -159,15 +161,14 @@ export default defineComponent({
             return value.replace(/[^A-Za-z0-9]/g, '')
         }
 
-        const handleRemarkNoteBlur = (val: string, chlId: string) => {
+        const blurRemarkNote = (val: string, chlId: string) => {
             const rowData = getRowById(chlId)!
+            const isChanged = rowData.remarkNote !== val || formData.value.remarkNote !== val
             rowData.remarkNote = val
             formData.value.remarkNote = val
-        }
-
-        const handleInputChange = (chlId: string) => {
-            const rowData = getRowById(chlId)!
-            setOcxData(rowData)
+            if (isChanged) {
+                setOcxData(rowData)
+            }
         }
 
         // 检测名字是否已经存在
@@ -693,14 +694,13 @@ export default defineComponent({
             timeFormatTip,
             handleRowClick,
             handleChlSel,
-            handleNameBlur,
-            handleChangeSwitch,
+            blurName,
+            changeSwitch,
             changeSwitchAll,
             changeDateFormatAll,
             changeTimeFormatAll,
             handleRemarkNoteInput,
-            handleRemarkNoteBlur,
-            handleInputChange,
+            blurRemarkNote,
             save,
             onReady,
             onTime,

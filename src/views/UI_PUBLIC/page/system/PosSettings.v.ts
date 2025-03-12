@@ -146,8 +146,8 @@ export default defineComponent({
                         id: item.attr('id'),
                         name: $item('param/name').text(),
                         switch: $item('param/switch').text(),
-                        connectionType: $item('param/manufacturers').text(),
-                        manufacturers: $item('param/connectionType').text(),
+                        connectionType: $item('param/connectionType').text(),
+                        manufacturers: $item('param/manufacturers').text(),
                         connectionSetting: {
                             posIp: $item('param/connectionSetting/posIp').text(),
                             filterDstIpSwitch: $item('param/connectionSetting/filterDstIpSwitch').text().bool(),

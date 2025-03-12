@@ -121,7 +121,7 @@
                     </div>
                     <div class="legend">
                         <div
-                            v-for="item in pageData.legend"
+                            v-for="item in pageData.legend.toReversed()"
                             :key="item.value"
                         >
                             <span :style="{ backgroundColor: item.color }"></span>

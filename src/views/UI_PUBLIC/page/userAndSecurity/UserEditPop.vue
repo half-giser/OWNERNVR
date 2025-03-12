@@ -19,11 +19,10 @@
                 '--form-label-width': '200px',
             }"
         >
-            <el-form-item>
+            <el-form-item :label="Translate('IDCS_ENABLE')">
                 <el-checkbox
                     v-model="formData.enabled"
                     :disabled="pageData.isEnableDisabled"
-                    :label="Translate('IDCS_ENABLE')"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_USERNAME')">

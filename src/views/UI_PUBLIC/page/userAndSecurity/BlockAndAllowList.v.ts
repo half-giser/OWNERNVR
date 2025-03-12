@@ -95,7 +95,7 @@ export default defineComponent({
             commLoadResponseHandler(result, ($) => {
                 formData.value.switch = $('content/switch').text().bool()
                 formData.value.filterType = $('content/filterType').text()
-                tableData.value = $('content/filterList/itemType/item').map((item) => {
+                tableData.value = $('content/filterList/item').map((item) => {
                     const $item = queryXml(item.element)
                     return {
                         switch: $item('switch').text().bool(),
@@ -133,20 +133,20 @@ export default defineComponent({
                     <filterList type="list">
                         <itemType>
                             <addressType type="addressType" />
-                            ${tableData.value
-                                .map((item) => {
-                                    return rawXml`
-                                        <item>
-                                            <switch>${item.switch}</switch>
-                                            <addressType>${item.addressType}</addressType>
-                                            ${item.addressType === 'ip' ? `<ip>${item.ip}</ip>` : ''}
-                                            ${item.addressType === 'mac' ? `<mac>${item.mac}</mac>` : ''}
-                                            ${item.addressType === 'iprange' ? `<startIp>${item.startIp}</startIp><endIp>${item.endIp}</endIp>` : ''}
-                                        </item>
-                                    `
-                                })
-                                .join('')}
                         </itemType>
+                        ${tableData.value
+                            .map((item) => {
+                                return rawXml`
+                                    <item>
+                                        <switch>${item.switch}</switch>
+                                        <addressType>${item.addressType}</addressType>
+                                        ${item.addressType === 'ip' ? `<ip>${item.ip}</ip>` : ''}
+                                        ${item.addressType === 'mac' ? `<mac>${item.mac}</mac>` : ''}
+                                        ${item.addressType === 'iprange' ? `<startIp>${item.startIp}</startIp><endIp>${item.endIp}</endIp>` : ''}
+                                    </item>
+                                `
+                            })
+                            .join('')}
                     </filterList>
                 </content>
             `

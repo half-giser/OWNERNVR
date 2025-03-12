@@ -43,7 +43,7 @@ export default defineComponent({
             const $ = queryXml(result)
             if ($('status').text() === 'success') {
                 strength = ($('content/pwdSecureSetting/pwdSecLevel').text() as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING & null) ?? 'weak'
-                if (systemCaps.supportPwdSecurityConfig) {
+                if (!systemCaps.supportPwdSecurityConfig) {
                     strength = 'strong'
                 }
             }

@@ -7,6 +7,9 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const dateTime = useDateTimeStore()
+        const timer = useRefreshTimer(() => {
+            getData()
+        }, 30000)
 
         const pageData = ref({
             // 是否打开的详情
@@ -46,6 +49,8 @@ export default defineComponent({
                     }
                 })
             })
+
+            timer.repeat()
         }
 
         /**

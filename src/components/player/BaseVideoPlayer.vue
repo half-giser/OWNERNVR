@@ -1734,12 +1734,12 @@ const play = (params: PlayerPlayParams) => {
         volume: params.volume || 50,
         onopen: () => {},
         onsuccess: () => {
-            const winIndex = getWinIndexByCav(videoCav)
+            // const winIndex = getWinIndexByCav(videoCav)
             if (params.audioStatus) winDataList[winIndex].audio = Boolean(params.audioStatus)
             handlePlaySuccess(winIndex)
         },
         onstop: () => {
-            const winIndex = getWinIndexByCav(videoCav)
+            // const winIndex = getWinIndexByCav(videoCav)
             winDataList[winIndex].PLAY_STATUS = 'stop'
             winDataList[winIndex].seeking = false
             // this.winDataList[winIndex].audio = false  // NVR145-178 音频不重置
@@ -1768,11 +1768,11 @@ const play = (params: PlayerPlayParams) => {
             emits('playStatus', getPlayingChlList())
         },
         onfinished: () => {
-            const winIndex = getWinIndexByCav(videoCav)
+            // const winIndex = getWinIndexByCav(videoCav)
             if (params.callback) params.callback(winIndex)
         },
         onerror: (errorCode?: number, url?: string) => {
-            const winIndex = getWinIndexByCav(videoCav)
+            // const winIndex = getWinIndexByCav(videoCav)
             handlePlayError(winIndex, errorCode, url)
             winDataList[winIndex].PLAY_STATUS = 'error'
             emits('error', winIndex, winDataList[winIndex])
@@ -1780,7 +1780,7 @@ const play = (params: PlayerPlayParams) => {
         },
         ontime: (timestamp: number) => {
             noRecordFlag = false
-            const winIndex = getWinIndexByCav(videoCav)
+            // const winIndex = getWinIndexByCav(videoCav)
             handleOntime(winIndex, timestamp)
             if (winDataList[winIndex].PLAY_STATUS === 'error') {
                 hideErrorTips(winIndex)
@@ -1790,16 +1790,16 @@ const play = (params: PlayerPlayParams) => {
             }
         },
         onwatermark: (watermark: string) => {
-            const winIndex = getWinIndexByCav(videoCav)
+            // const winIndex = getWinIndexByCav(videoCav)
             setWatermark(winIndex, watermark)
         },
         onrecordFile: (recordBuf: ArrayBuffer) => {
-            const winIndex = getWinIndexByCav(videoCav)
+            // const winIndex = getWinIndexByCav(videoCav)
             emits('recordFile', recordBuf, winDataList[winIndex], recordStartTime[winIndex])
         },
         onpos: (posFrame: Uint8Array, posLength) => {
             if (!enablePos) return
-            const winIndex = getWinIndexByCav(videoCav)
+            // const winIndex = getWinIndexByCav(videoCav)
             handlePos(posFrame, posLength, params.chlID, winIndex)
         },
     })
@@ -2761,7 +2761,7 @@ defineExpose({
             &-tips {
                 font-size: 16px;
                 white-space: nowrap;
-                color: var(--color-white);
+                color: var(--player-error-text);
                 opacity: 0.8;
             }
 
@@ -2770,6 +2770,7 @@ defineExpose({
                 left: 5px;
                 top: 5px;
                 font-size: 14px;
+                color: var(--player-error-text);
             }
 
             &.mask {
@@ -2816,6 +2817,12 @@ defineExpose({
             font-weight: 400;
             user-select: none;
             letter-spacing: 1.2px;
+            color: var(--player-osd-text);
+            text-shadow:
+                -1px -1px 0 var(--player-osd-shadow),
+                1px -1px 0 var(--player-osd-shadow),
+                -1px 1px 0 var(--player-osd-shadow),
+                1px 1px 0 var(--player-osd-shadow);
 
             &.hide {
                 display: none;
@@ -2830,6 +2837,12 @@ defineExpose({
             font-weight: 400;
             user-select: none;
             letter-spacing: 1.2px;
+            color: var(--player-osd-text);
+            text-shadow:
+                -1px -1px 0 var(--player-osd-shadow),
+                1px -1px 0 var(--player-osd-shadow),
+                -1px 1px 0 var(--player-osd-shadow),
+                1px 1px 0 var(--player-osd-shadow);
 
             &.hide {
                 display: none;
@@ -2852,6 +2865,12 @@ defineExpose({
             justify-content: flex-start;
             overflow: hidden;
             box-sizing: border-box;
+            color: var(--player-pos-text);
+            text-shadow:
+                -1px -1px 0 var(--player-pos-shadow),
+                1px -1px 0 var(--player-pos-shadow),
+                -1px 1px 0 var(--player-pos-shadow),
+                1px 1px 0 var(--player-pos-shadow);
 
             &.hide {
                 display: none;
