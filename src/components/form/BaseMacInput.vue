@@ -216,7 +216,8 @@ const handleBlur = (index: number) => {
     transform: translateZ(0);
     transition: var(--el-transition-box-shadow);
     font-size: var(--el-font-size-base);
-    width: var(--el-input-width);
+    width: 100%;
+    height: var(--el-component-size);
     box-sizing: border-box;
     background: var(--input-bg);
     color: var(--input-text);
@@ -241,8 +242,8 @@ const handleBlur = (index: number) => {
     input {
         width: 20px;
         font-size: inherit;
-        line-height: calc(var(--el-component-size) - 2px);
-        height: calc(var(--el-component-size) - 2px);
+        line-height: var(--el-component-size);
+        height: var(--el-component-size);
         border: none;
         outline: 0;
         text-align: center;

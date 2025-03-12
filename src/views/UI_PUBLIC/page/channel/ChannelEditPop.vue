@@ -30,12 +30,12 @@
                 prop="ip"
             >
                 <BaseIpInput
-                    v-show="showIpInput"
+                    v-if="showIpInput"
                     v-model="editItem.ip"
                     :disabled="ipDisabled"
                 />
                 <el-input
-                    v-show="!showIpInput"
+                    v-else
                     v-model="editItem.ip"
                     :placeholder="ipPlaceholder"
                     :disabled="ipDisabled"

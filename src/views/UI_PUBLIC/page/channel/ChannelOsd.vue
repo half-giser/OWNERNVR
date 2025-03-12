@@ -25,13 +25,13 @@
                         v-model="formData.displayName"
                         :label="`${Translate('IDCS_NAME')}OSD`"
                         :disabled="nameDisabled || formData.isSpeco"
-                        @change="handleChangeSwitch(formData.displayName, formData.id, 'displayName')"
+                        @change="changeSwitch(formData.displayName, formData.id, 'displayName')"
                     />
                     <el-checkbox
                         v-model="formData.displayTime"
                         :label="`${Translate('IDCS_TIME')}OSD`"
                         :disabled="nameDisabled || formData.isSpeco"
-                        @change="handleChangeSwitch(formData.displayTime, formData.id, 'displayTime')"
+                        @change="changeSwitch(formData.displayTime, formData.id, 'displayTime')"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
@@ -46,8 +46,7 @@
                         v-model="formData.name"
                         maxlength="63"
                         :disabled="nameDisabled || formData.isSpeco"
-                        @blur="handleNameBlur(formData.id, formData.name)"
-                        @change="handleInputChange(formData.id)"
+                        @blur="blurName(formData.id, formData.name)"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_DATE_FORMAT')">
@@ -61,7 +60,7 @@
                         v-model="formData.remarkSwitch"
                         :disabled="formData.remarkDisabled"
                         :options="switchOptions"
-                        @change="handleChangeSwitch(formData.remarkSwitch, formData.id, 'remarkSwitch')"
+                        @change="changeSwitch(formData.remarkSwitch, formData.id, 'remarkSwitch')"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_WATER_MARK_CHAR')">
@@ -71,8 +70,7 @@
                         :disabled="formData.remarkDisabled"
                         :formatter="handleRemarkNoteInput"
                         :parser="handleRemarkNoteInput"
-                        @blur="handleRemarkNoteBlur(formData.remarkNote, formData.id)"
-                        @change="handleInputChange(formData.id)"
+                        @blur="blurRemarkNote(formData.remarkNote, formData.id)"
                     />
                 </el-form-item>
             </el-form>
@@ -107,8 +105,7 @@
                                 maxlength="63"
                                 :disabled="row.disabled"
                                 @focus="tempName = row.name"
-                                @blur="handleNameBlur(row.id, row.name)"
-                                @change="handleInputChange(row.id)"
+                                @blur="blurName(row.id, row.name)"
                             />
                         </template>
                     </el-table-column>
@@ -139,7 +136,7 @@
                                 :disabled="row.disabled"
                                 :options="switchOptions"
                                 @focus="handleRowClick(row)"
-                                @change="handleChangeSwitch(row.displayName, row.id, 'displayName')"
+                                @change="changeSwitch(row.displayName, row.id, 'displayName')"
                             />
                         </template>
                     </el-table-column>
@@ -170,7 +167,7 @@
                                 :disabled="row.disabled"
                                 :options="switchOptions"
                                 @focus="handleRowClick(row)"
-                                @change="handleChangeSwitch(row.displayTime, row.id, 'displayTime')"
+                                @change="changeSwitch(row.displayTime, row.id, 'displayTime')"
                             />
                         </template>
                     </el-table-column>
@@ -259,7 +256,7 @@
                                 :disabled="row.remarkDisabled"
                                 :options="switchOptions"
                                 @focus="handleRowClick(row)"
-                                @change="handleChangeSwitch(row.remarkSwitch, row.id, 'remarkSwitch')"
+                                @change="changeSwitch(row.remarkSwitch, row.id, 'remarkSwitch')"
                             />
                         </template>
                     </el-table-column>
@@ -274,8 +271,7 @@
                                 maxlength="15"
                                 :formatter="handleRemarkNoteInput"
                                 :parser="handleRemarkNoteInput"
-                                @blur="handleRemarkNoteBlur(row.remarkNote, row.id)"
-                                @change="handleInputChange(row.id)"
+                                @blur="blurRemarkNote(row.remarkNote, row.id)"
                                 @keyup.enter="blurInput"
                             />
                         </template>

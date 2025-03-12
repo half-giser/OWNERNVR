@@ -80,7 +80,7 @@ export default defineComponent({
                 formData.value.email = $('content/email').text()
                 formData.value.authGroup = $('content/authGroup').attr('id')
                 formData.value.allowModifyPassword = $('content/modifyPassword').text().bool()
-                formData.value.authEffective = $('content/authEffective').text().bool()
+                formData.value.authEffective = !$('content/authEffective').text().bool()
 
                 const authInfo = userSession.getAuthInfo()
                 const currentUserName = authInfo ? authInfo[0] : ''
@@ -179,7 +179,7 @@ export default defineComponent({
                     <mac>${wrapCDATA(DEFAULT_EMPTY_MAC)}</mac>
                     <email>${wrapCDATA(formData.value.email)}</email>
                     <enabled>${formData.value.enabled}</enabled>
-                    <authEffective>${formData.value.authEffective}</authEffective>
+                    <authEffective>${!formData.value.authEffective}</authEffective>
                 </content>
             `
             const result = await editUser(sendXml)

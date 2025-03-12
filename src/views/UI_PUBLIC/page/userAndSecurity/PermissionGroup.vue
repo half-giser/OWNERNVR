@@ -6,7 +6,7 @@
 <template>
     <div class="base-user-box">
         <div class="base-user-box-left">
-            <div class="base-subheading-box">{{ Translate('IDCS_GROUP') }}: {{ authGroupName }}</div>
+            <div class="base-subheading-box text-ellipsis">{{ Translate('IDCS_GROUP') }}: {{ authGroupName }}</div>
             <div class="base-user-auth">
                 <template
                     v-for="auth in systemAuthList"

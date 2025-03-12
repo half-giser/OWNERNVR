@@ -147,6 +147,12 @@
                 >
                     <template #default="{ row, $index }: TableColumn<ChannelManualAddDto>">
                         <BaseNumberInput
+                            v-if="row.port === 0"
+                            :model-value="undefined"
+                            disabled
+                        />
+                        <BaseNumberInput
+                            v-else
                             v-model="row.port"
                             :min="10"
                             :max="65535"

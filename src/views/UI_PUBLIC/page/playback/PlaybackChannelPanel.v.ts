@@ -245,7 +245,9 @@ export default defineComponent({
         const setWinFromChlGroup = async (id: string) => {
             await getChlListOfGroup(id)
             if (pageData.value.chlListOfGroup.length) {
-                ctx.emit('play', pageData.value.chlListOfGroup.slice(0, prop.mode === 'ocx' ? systemCaps.playbackMaxWin : 4))
+                const slice = pageData.value.chlListOfGroup.slice(0, prop.mode === 'ocx' ? systemCaps.playbackMaxWin : 4)
+                ctx.emit('play', slice)
+                pageData.value.selectedChl = slice.map((item) => item.id)
             }
         }
 

@@ -8,6 +8,7 @@
         :title="Translate('IDCS_ADD_CHANNEL')"
         width="600"
         @opened="opened"
+        @closed="tableRef?.clearSelection()"
     >
         <el-table
             ref="tableRef"
@@ -50,9 +51,9 @@
             </el-table-column>
         </el-table>
         <BaseLivePop ref="baseLivePopRef" />
-        <div class="base-btn-box">
+        <div class="base-btn-box space-between">
             <div>
-                <span>{{ Translate('IDCS_SELECT_CHANNEL_COUNT').formatForLang(selNum, tableData.length) }}</span>
+                {{ Translate('IDCS_SELECT_CHANNEL_COUNT').formatForLang(selNum, tableData.length) }}
             </div>
             <div>
                 <el-button @click="save()">{{ Translate('IDCS_OK') }}</el-button>

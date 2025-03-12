@@ -21,7 +21,7 @@ fi
 
 cd $WORK
 rm -rf dist
-npm run mirror:set
+# npm run mirror:set
 npm install
 #npm run generate bundle=UI1-A,UI2-A_IL03,UI1-E_USE44
 npm run generate bundle=${UI_STR}${PKGID_Suffix}

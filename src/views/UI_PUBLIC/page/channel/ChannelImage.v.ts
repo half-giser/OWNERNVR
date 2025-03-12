@@ -450,11 +450,13 @@ export default defineComponent({
             tableRef.value!.setCurrentRow(getRowById(selectedChlId.value))
         }
 
-        const changeCfgFile = () => {
+        const changeCfgFile = async () => {
             const rowData = getRowById(selectedChlId.value)
-            getData(selectedChlId.value, false, rowData.cfgFile, () => {
-                rowData.scheduleInfo.program = tmpScheduleInfoList[tableData.value.indexOf(rowData)].program
-            })
+            await getData(selectedChlId.value, false, rowData.cfgFile)
+            const index = tableData.value.indexOf(rowData)
+            if (index !== -1) {
+                rowData.scheduleInfo.program = tmpScheduleInfoList[index].program
+            }
         }
 
         const changeImageShift = (val: number) => {
@@ -746,7 +748,7 @@ export default defineComponent({
                         //请求显示设置数据
                         rowData.forEach((ele) => {
                             if (ele.chlType !== 'recorder') {
-                                getData(ele.id, true, false)
+                                getData(ele.id, true)
                             } else {
                                 ele.status = ''
                                 if (ele.id === selectedChlId.value) {
@@ -778,324 +780,322 @@ export default defineComponent({
         }
 
         let tmpScheduleInfoList: ChannelScheduleInfoDto[] = []
-        const getData = (chlId: string, needSchedule: boolean, cfgFile: string | boolean | undefined, callback?: Function) => {
+        const getData = async (chlId: string, needSchedule: boolean, cfgFile?: string) => {
             const data = rawXml`
                 <condition>
                     <chlId>${chlId}</chlId>
                     ${needSchedule ? '<scheduleInfo></scheduleInfo>' : ''}
                     ${cfgFile ? `<cfgFile>${cfgFile}</cfgFile>` : ''}
                 </condition>`
-            queryChlVideoParam(data).then((res) => {
-                const $ = queryXml(res)
-                const rowData = getRowById(chlId)
-                if (!rowData) {
-                    return
+            const res = await queryChlVideoParam(data)
+            const $ = queryXml(res)
+            const rowData = getRowById(chlId)
+            if (!rowData) {
+                return
+            }
+
+            if ($('status').text() === 'success') {
+                const $chl = queryXml($('content/chl')[0].element)
+
+                rowData.status = ''
+                rowData.disabled = false
+
+                rowData.bright = $chl('bright').text().undef()?.num()
+                rowData.brightMin = $chl('bright').attr('min').num()
+                rowData.brightMax = $chl('bright').attr('max').num() || 100
+                rowData.brightDefault = $chl('bright').attr('default').num()
+
+                rowData.contrast = $chl('contrast').text().undef()?.num()
+                rowData.contrastMin = $chl('contrast').attr('min').num()
+                rowData.contrastMax = $chl('contrast').attr('max').num() || 100
+                rowData.contrastDefault = $chl('contrast').attr('default').num()
+
+                // NT2-3481 设备接入海康IPC，协议不返回hue节点，“色调”配置项置灰
+                rowData.hue = $chl('hue').text().undef()?.num()
+                rowData.hueMin = $chl('hue').attr('min').num()
+                rowData.hueMax = $chl('hue').attr('max').num() || 100
+                rowData.hueDefault = $chl('hue').attr('default').num()
+
+                rowData.saturation = $chl('saturation').text().undef()?.num()
+                rowData.saturationMin = $chl('saturation').attr('min').num()
+                rowData.saturationMax = $chl('saturation').attr('max').num() || 100
+                rowData.saturationDefault = $chl('saturation').attr('default').num()
+
+                if (!$('content/chl').length || chlId !== $('content/chl').attr('id')) {
+                    rowData.isSpeco = true
                 }
+                rowData.disabled = rowData.isSpeco
 
-                if ($('status').text() === 'success') {
-                    const $chl = queryXml($('content/chl')[0].element)
+                rowData.paletteCode = $chl('palette/color').text().undef()
+                rowData.defaultPaletteCode = $chl('palette/color').attr('default')
 
-                    rowData.status = ''
-                    rowData.disabled = false
+                rowData.cfgFile = $chl('cfgFile').text().undef()
+                rowData.cfgFileDefault = $chl('cfgFile').attr('default')
 
-                    rowData.bright = $chl('bright').text().undef()?.num()
-                    rowData.brightMin = $chl('bright').attr('min').num()
-                    rowData.brightMax = $chl('bright').attr('max').num() || 100
-                    rowData.brightDefault = $chl('bright').attr('default').num()
+                rowData.denoise = $chl('denoise/value').text().undef()?.num()
+                rowData.denoiseDefault = $chl('denoise/value').attr('default').num()
+                rowData.denoiseMin = $chl('denoise/value').attr('min').num()
+                rowData.denoiseMax = $chl('denoise/value').attr('max').num() || 100
+                rowData.denoiseSwitch = $chl('denoise/switch').text().bool()
 
-                    rowData.contrast = $chl('contrast').text().undef()?.num()
-                    rowData.contrastMin = $chl('contrast').attr('min').num()
-                    rowData.contrastMax = $chl('contrast').attr('max').num() || 100
-                    rowData.contrastDefault = $chl('contrast').attr('default').num()
+                // NT2-3947 此节点为false, 则为4.2.1版本ipc，隐藏增益模式
+                rowData.ShowGainMode = $chl('ShowGainMode').text().bool()
 
-                    // NT2-3481 设备接入海康IPC，协议不返回hue节点，“色调”配置项置灰
-                    rowData.hue = $chl('hue').text().undef()?.num()
-                    rowData.hueMin = $chl('hue').attr('min').num()
-                    rowData.hueMax = $chl('hue').attr('max').num() || 100
-                    rowData.hueDefault = $chl('hue').attr('default').num()
+                rowData.WDR = $chl('WDR/value').text().undef()?.num()
+                rowData.WDRDefault = $chl('WDR/value').attr('default').num()
+                rowData.WDRMin = $chl('WDR/value').attr('min').num()
+                rowData.WDRMax = $chl('WDR/value').attr('max').num() || 100
+                rowData.WDRSwitch = $chl('WDR/switch').text().bool()
 
-                    rowData.saturation = $chl('saturation').text().undef()?.num()
-                    rowData.saturationMin = $chl('saturation').attr('min').num()
-                    rowData.saturationMax = $chl('saturation').attr('max').num() || 100
-                    rowData.saturationDefault = $chl('saturation').attr('default').num()
+                rowData.HFR = $chl('HFR').text().undef()?.bool()
 
-                    if (!$('content/chl').length || chlId !== $('content/chl').attr('id')) {
-                        rowData.isSpeco = true
-                    }
-                    rowData.disabled = rowData.isSpeco
+                rowData.whiteBalanceMode = $chl('whiteBalance/mode').text().undef()
 
-                    rowData.paletteCode = $chl('palette/color').text().undef()
-                    rowData.defaultPaletteCode = $chl('palette/color').attr('default')
+                rowData.red = $chl('whiteBalance/red').text().undef()?.num()
+                rowData.redDefault = $chl('whiteBalance/red').attr('default').num()
+                rowData.redMin = $chl('whiteBalance/red').attr('min').num()
+                rowData.redMax = $chl('whiteBalance/red').attr('max').num() || 100
 
-                    rowData.cfgFile = $chl('cfgFile').text().undef()
-                    rowData.cfgFileDefault = $chl('cfgFile').attr('default')
+                rowData.blue = $chl('whiteBalance/blue').text().undef()?.num()
+                rowData.blueDefault = $chl('whiteBalance/blue').attr('default').num()
+                rowData.blueMin = $chl('whiteBalance/blue').attr('min').num()
+                rowData.blueMax = $chl('whiteBalance/blue').attr('max').num() || 100
 
-                    rowData.denoise = $chl('denoise/value').text().undef()?.num()
-                    rowData.denoiseDefault = $chl('denoise/value').attr('default').num()
-                    rowData.denoiseMin = $chl('denoise/value').attr('min').num()
-                    rowData.denoiseMax = $chl('denoise/value').attr('max').num() || 100
-                    rowData.denoiseSwitch = $chl('denoise/switch').text().bool()
+                rowData.IRCutMode = $chl('IRCutMode').text().undef()
+                rowData.IRCutModeDefault = $chl('IRCutMode').attr('default')
+                rowData.IRCutConvSen = $chl('IRCutConvSen').text().undef() ?? 'mid'
+                rowData.IRCutConvSen2 = $chl('IRCutConvSen').text().undef()
+                rowData.IRCutConvSenDefault = $chl('IRCutConvSen').attr('default')
+                rowData.IRCutDayTime = $chl('IRCutDayTime').text().undef()
+                rowData.IRCutNightTime = $chl('IRCutNightTime').text().undef()
 
-                    // NT2-3947 此节点为false, 则为4.2.1版本ipc，隐藏增益模式
-                    rowData.ShowGainMode = $chl('ShowGainMode').text().bool()
+                rowData.sharpen = $chl('sharpen/value').text().undef()?.num()
+                rowData.sharpenDefault = $chl('sharpen/value').attr('default').num()
+                rowData.sharpenMin = $chl('sharpen/value').attr('min').num()
+                rowData.sharpenMax = $chl('sharpen/value').attr('max').num() || 100
+                rowData.sharpenSwitch = $chl('sharpen/switch').text().bool()
+                rowData.sharpenSwitchEnable = $chl('sharpen/switch').attr('switchEnabled').bool()
 
-                    rowData.WDR = $chl('WDR/value').text().undef()?.num()
-                    rowData.WDRDefault = $chl('WDR/value').attr('default').num()
-                    rowData.WDRMin = $chl('WDR/value').attr('min').num()
-                    rowData.WDRMax = $chl('WDR/value').attr('max').num() || 100
-                    rowData.WDRSwitch = $chl('WDR/switch').text().bool()
+                rowData.mirrorSwitch = $chl('mirrorSwitch').text().undef()?.bool()
+                rowData.flipSwitch = $chl('flipSwitch').text().undef()?.bool()
 
-                    rowData.HFR = $chl('HFR').text().undef()?.bool()
+                rowData.imageRotate = $chl('imageRotate').text().undef()
+                rowData.imageRotateDefault = $chl('imageRotate').attr('default')
 
-                    rowData.whiteBalanceMode = $chl('whiteBalance/mode').text().undef()
+                rowData.imageShift = $chl('imageShift').text().num()
+                rowData.imageShiftDefault = $chl('imageShift').attr('default').num()
+                rowData.imageShiftMin = $chl('imageShift').attr('min').num()
+                rowData.imageShiftMax = $chl('imageShift').attr('max').num() || 100
 
-                    rowData.red = $chl('whiteBalance/red').text().undef()?.num()
-                    rowData.redDefault = $chl('whiteBalance/red').attr('default').num()
-                    rowData.redMin = $chl('whiteBalance/red').attr('min').num()
-                    rowData.redMax = $chl('whiteBalance/red').attr('max').num() || 100
+                rowData.BLCMode = $chl('backlightCompensation/mode').text().undef()
+                rowData.BLCModeDefault = $chl('backlightCompensation/mode').attr('default')
 
-                    rowData.blue = $chl('whiteBalance/blue').text().undef()?.num()
-                    rowData.blueDefault = $chl('whiteBalance/blue').attr('default').num()
-                    rowData.blueMin = $chl('whiteBalance/blue').attr('min').num()
-                    rowData.blueMax = $chl('whiteBalance/blue').attr('max').num() || 100
+                rowData.HWDRLevel = $chl('backlightCompensation/HWDRLevel').text().undef()
+                rowData.HWDRLevelDefault = $chl('backlightCompensation/HWDRLevel').attr('default')
 
-                    rowData.IRCutMode = $chl('IRCutMode').text().undef()
-                    rowData.IRCutModeDefault = $chl('IRCutMode').attr('default')
-                    rowData.IRCutConvSen = $chl('IRCutConvSen').text().undef() ?? 'mid'
-                    rowData.IRCutConvSen2 = $chl('IRCutConvSen').text().undef()
-                    rowData.IRCutConvSenDefault = $chl('IRCutConvSen').attr('default')
-                    rowData.IRCutDayTime = $chl('IRCutDayTime').text().undef()
-                    rowData.IRCutNightTime = $chl('IRCutNightTime').text().undef()
+                rowData.smartIrMode = $chl('smartIr/mode').text().undef()
+                rowData.smartIrModeDefault = $chl('smartIr/mode').attr('default')
 
-                    rowData.sharpen = $chl('sharpen/value').text().undef()?.num()
-                    rowData.sharpenDefault = $chl('sharpen/value').attr('default').num()
-                    rowData.sharpenMin = $chl('sharpen/value').attr('min').num()
-                    rowData.sharpenMax = $chl('sharpen/value').attr('max').num() || 100
-                    rowData.sharpenSwitch = $chl('sharpen/switch').text().bool()
-                    rowData.sharpenSwitchEnable = $chl('sharpen/switch').attr('switchEnabled').bool()
+                rowData.lightLevel = $chl('smartIr/lightLevel_1').text().undef()?.num()
+                rowData.lightLevelDefault = $chl('smartIr/lightLevel_1').attr('default').num()
+                rowData.lightLevelMin = $chl('smartIr/lightLevel_1').attr('min').num()
+                rowData.lightLevelMax = $chl('smartIr/lightLevel_1').attr('max').num() || 100
 
-                    rowData.mirrorSwitch = $chl('mirrorSwitch').text().undef()?.bool()
-                    rowData.flipSwitch = $chl('flipSwitch').text().undef()?.bool()
+                rowData.smartIrSwitch = $chl('smartIR/switch').text().undef()?.bool()
+                rowData.smartIrSwitchDefault = $chl('smartIR/switch').attr('default').bool()
+                rowData.smartIrLevel = $chl('smartIR/level').text().undef()
+                rowData.smartIrLevelDefault = $chl('smartIR/level').attr('default')
 
-                    rowData.imageRotate = $chl('imageRotate').text().undef()
-                    rowData.imageRotateDefault = $chl('imageRotate').attr('default')
+                // 透雾
+                rowData.defog = $chl('fogReduction/value').text().undef()?.num()
+                rowData.defogDefault = $chl('fogReduction/value').attr('default').num()
+                rowData.defogMin = $chl('fogReduction/value').attr('min').num()
+                rowData.defogMax = $chl('fogReduction/value').attr('max').num() || 100
+                rowData.defogSwitch = $chl('fogReduction/switch').text().bool()
 
-                    rowData.imageShift = $chl('imageShift').text().num()
-                    rowData.imageShiftDefault = $chl('imageShift').attr('default').num()
-                    rowData.imageShiftMin = $chl('imageShift').attr('min').num()
-                    rowData.imageShiftMax = $chl('imageShift').attr('max').num() || 100
+                // 抗闪
+                rowData.antiflicker = $chl('antiflicker').text().undef()
+                rowData.antiflickerDefault = $chl('antiflicker').attr('default')
 
-                    rowData.BLCMode = $chl('backlightCompensation/mode').text().undef()
-                    rowData.BLCModeDefault = $chl('backlightCompensation/mode').attr('default')
+                // 曝光模式
+                rowData.exposureMode = $chl('autoExposureMode/mode').text().undef()
+                rowData.exposureModeDefault = $chl('autoExposureMode/mode').attr('default')
+                rowData.exposure = $chl('autoExposureMode/value').text().undef()?.num()
+                rowData.exposureDefault = $chl('autoExposureMode/value').attr('default').num()
+                rowData.exposureMin = $chl('autoExposureMode/value').attr('min').num()
+                rowData.exposureMax = $chl('autoExposureMode/value').attr('max').num() || 100
 
-                    rowData.HWDRLevel = $chl('backlightCompensation/HWDRLevel').text().undef()
-                    rowData.HWDRLevelDefault = $chl('backlightCompensation/HWDRLevel').attr('default')
+                // 延迟时间
+                rowData.delayTime = $chl('IRCutDelayTime').text().undef()?.num()
+                rowData.delayTimeDefault = $chl('IRCutDelayTime').attr('default').num()
+                rowData.delayTimeMin = $chl('IRCutDelayTime').attr('min').num()
+                rowData.delayTimeMax = $chl('IRCutDelayTime').attr('max').num() || 100
 
-                    rowData.smartIrMode = $chl('smartIr/mode').text().undef()
-                    rowData.smartIrModeDefault = $chl('smartIr/mode').attr('default')
+                // 红外模式
+                rowData.InfraredMode = $chl('InfraredMode').text().undef()
+                rowData.InfraredModeDefault = $chl('InfraredMode').attr('default')
 
-                    rowData.lightLevel = $chl('smartIr/lightLevel_1').text().undef()?.num()
-                    rowData.lightLevelDefault = $chl('smartIr/lightLevel_1').attr('default').num()
-                    rowData.lightLevelMin = $chl('smartIr/lightLevel_1').attr('min').num()
-                    rowData.lightLevelMax = $chl('smartIr/lightLevel_1').attr('max').num() || 100
+                // 增益限制
+                rowData.gainMode = $chl('gain/mode').text().undef()
+                rowData.gainModeDefault = $chl('gain/mode').attr('default')
+                rowData.gainAGC = $chl('gain/AGC').text().undef()?.num()
+                rowData.gainAGCDefault = $chl('gain/AGC').attr('default').num()
+                rowData.gain = $chl('gain/value').text().undef()?.num()
+                rowData.gainDefault = $chl('gain/value').attr('default').num()
+                rowData.gainMin = $chl('gain/value').attr('min').num()
+                rowData.gainMax = $chl('gain/value').attr('max').num() || 100
 
-                    rowData.smartIrSwitch = $chl('smartIR/switch').text().undef()?.bool()
-                    rowData.smartIrSwitchDefault = $chl('smartIR/switch').attr('default').bool()
-                    rowData.smartIrLevel = $chl('smartIR/level').text().undef()
-                    rowData.smartIrLevelDefault = $chl('smartIR/level').attr('default')
+                // 获取IPC设备版本号判断是否支持增益模式配置
+                rowData.IPCVersion = $chl('DetailedSoftwareVersion').text()
 
-                    // 透雾
-                    rowData.defog = $chl('fogReduction/value').text().undef()?.num()
-                    rowData.defogDefault = $chl('fogReduction/value').attr('default').num()
-                    rowData.defogMin = $chl('fogReduction/value').attr('min').num()
-                    rowData.defogMax = $chl('fogReduction/value').attr('max').num() || 100
-                    rowData.defogSwitch = $chl('fogReduction/switch').text().bool()
+                // 快门
+                rowData.shutterMode = $chl('shutter/mode').text().undef()
+                rowData.shutterModeDefault = $chl('shutter/mode').attr('default')
+                rowData.shutter = $chl('shutter/value').text().undef()
+                rowData.shutterDefault = $chl('shutter/value').attr('default')
+                rowData.shutterLowLimit = $chl('shutter/lowLimit').text().undef()
+                rowData.shutterLowLimitDefault = $chl('shutter/lowLimit').attr('default')
+                rowData.shutterUpLimit = $chl('shutter/upLimit').text().undef()
+                rowData.shutterUpLimitDefault = $chl('shutter/upLimit').attr('default')
 
-                    // 抗闪
-                    rowData.antiflicker = $chl('antiflicker').text().undef()
-                    rowData.antiflickerDefault = $chl('antiflicker').attr('default')
+                // 白光灯
+                rowData.whitelightMode = $chl('Whitelight/WhitelightMode').text().undef()
+                rowData.whitelightModeDefault = $chl('Whitelight/WhitelightMode').attr('default')
+                rowData.whitelightStrength = $chl('Whitelight/WhitelightStrength').text().undef()?.num()
+                rowData.whitelightStrengthMin = $chl('Whitelight/WhitelightStrength').attr('min').num()
+                rowData.whitelightStrengthMax = $chl('Whitelight/WhitelightStrength').attr('max').num() || 100
+                rowData.whitelightStrengthDefault = $chl('Whitelight/WhitelightStrength').attr('default').num()
+                rowData.whitelightOnTime = $chl('Whitelight/WhitelightOnTime').text().undef()
+                rowData.whitelightOnTimeDefault = $chl('Whitelight/WhitelightOnTime').attr('default')
+                rowData.whitelightOffTime = $chl('Whitelight/WhitelightOffTime').text().undef()
+                rowData.whitelightOffTimeDefault = $chl('Whitelight/WhitelightOffTime').attr('default')
 
-                    // 曝光模式
-                    rowData.exposureMode = $chl('autoExposureMode/mode').text().undef()
-                    rowData.exposureModeDefault = $chl('autoExposureMode/mode').attr('default')
-                    rowData.exposure = $chl('autoExposureMode/value').text().undef()?.num()
-                    rowData.exposureDefault = $chl('autoExposureMode/value').attr('default').num()
-                    rowData.exposureMin = $chl('autoExposureMode/value').attr('min').num()
-                    rowData.exposureMax = $chl('autoExposureMode/value').attr('max').num() || 100
+                if (needSchedule) {
+                    if ($chl('scheduleInfo').text()) {
+                        rowData.supportSchedule = true
+                        rowData.scheduleInfo.program = $chl('scheduleInfo/program').text()
+                        rowData.scheduleInfo.dayTime = $chl('scheduleInfo/dayTime').text()
+                        rowData.scheduleInfo.nightTime = $chl('scheduleInfo/nightTime').text()
+                        rowData.scheduleInfo.scheduleInfoEnum = $chl('scheduleInfo/types/progType/enum').map((ele) => {
+                            return ele.text()
+                        })
 
-                    // 延迟时间
-                    rowData.delayTime = $chl('IRCutDelayTime').text().undef()?.num()
-                    rowData.delayTimeDefault = $chl('IRCutDelayTime').attr('default').num()
-                    rowData.delayTimeMin = $chl('IRCutDelayTime').attr('min').num()
-                    rowData.delayTimeMax = $chl('IRCutDelayTime').attr('max').num() || 100
+                        if (rowData.scheduleInfo.program === 'time') rowData.scheduleInfo.scheduleType = 'time'
 
-                    // 红外模式
-                    rowData.InfraredMode = $chl('InfraredMode').text().undef()
-                    rowData.InfraredModeDefault = $chl('InfraredMode').attr('default')
-
-                    // 增益限制
-                    rowData.gainMode = $chl('gain/mode').text().undef()
-                    rowData.gainModeDefault = $chl('gain/mode').attr('default')
-                    rowData.gainAGC = $chl('gain/AGC').text().undef()?.num()
-                    rowData.gainAGCDefault = $chl('gain/AGC').attr('default').num()
-                    rowData.gain = $chl('gain/value').text().undef()?.num()
-                    rowData.gainDefault = $chl('gain/value').attr('default').num()
-                    rowData.gainMin = $chl('gain/value').attr('min').num()
-                    rowData.gainMax = $chl('gain/value').attr('max').num() || 100
-
-                    // 获取IPC设备版本号判断是否支持增益模式配置
-                    rowData.IPCVersion = $chl('DetailedSoftwareVersion').text()
-
-                    // 快门
-                    rowData.shutterMode = $chl('shutter/mode').text().undef()
-                    rowData.shutterModeDefault = $chl('shutter/mode').attr('default')
-                    rowData.shutter = $chl('shutter/value').text().undef()
-                    rowData.shutterDefault = $chl('shutter/value').attr('default')
-                    rowData.shutterLowLimit = $chl('shutter/lowLimit').text().undef()
-                    rowData.shutterLowLimitDefault = $chl('shutter/lowLimit').attr('default')
-                    rowData.shutterUpLimit = $chl('shutter/upLimit').text().undef()
-                    rowData.shutterUpLimitDefault = $chl('shutter/upLimit').attr('default')
-
-                    // 白光灯
-                    rowData.whitelightMode = $chl('Whitelight/WhitelightMode').text().undef()
-                    rowData.whitelightModeDefault = $chl('Whitelight/WhitelightMode').attr('default')
-                    rowData.whitelightStrength = $chl('Whitelight/WhitelightStrength').text().undef()?.num()
-                    rowData.whitelightStrengthMin = $chl('Whitelight/WhitelightStrength').attr('min').num()
-                    rowData.whitelightStrengthMax = $chl('Whitelight/WhitelightStrength').attr('max').num() || 100
-                    rowData.whitelightStrengthDefault = $chl('Whitelight/WhitelightStrength').attr('default').num()
-                    rowData.whitelightOnTime = $chl('Whitelight/WhitelightOnTime').text().undef()
-                    rowData.whitelightOnTimeDefault = $chl('Whitelight/WhitelightOnTime').attr('default')
-                    rowData.whitelightOffTime = $chl('Whitelight/WhitelightOffTime').text().undef()
-                    rowData.whitelightOffTimeDefault = $chl('Whitelight/WhitelightOffTime').attr('default')
-
-                    if (needSchedule) {
-                        if ($chl('scheduleInfo').text()) {
-                            rowData.supportSchedule = true
-                            rowData.scheduleInfo.program = $chl('scheduleInfo/program').text()
-                            rowData.scheduleInfo.dayTime = $chl('scheduleInfo/dayTime').text()
-                            rowData.scheduleInfo.nightTime = $chl('scheduleInfo/nightTime').text()
-                            rowData.scheduleInfo.scheduleInfoEnum = $chl('scheduleInfo/types/progType/enum').map((ele) => {
-                                return ele.text()
-                            })
-
-                            if (rowData.scheduleInfo.program === 'time') rowData.scheduleInfo.scheduleType = 'time'
-
-                            tmpScheduleInfoList[tableData.value.indexOf(rowData)] = cloneDeep(rowData.scheduleInfo)
-                        } else {
-                            rowData.supportSchedule = false
-                        }
+                        tmpScheduleInfoList[tableData.value.indexOf(rowData)] = cloneDeep(rowData.scheduleInfo)
                     } else {
-                        rowData.supportSchedule = rowData.supportSchedule || false
+                        rowData.supportSchedule = false
                     }
-
-                    rowData.paletteList = $('types/paletteType/enum').map((ele) => {
-                        return {
-                            value: ele.text(),
-                            label: paletteTypeMap[ele.text()],
-                        }
-                    })
-
-                    rowData.cfgFileList = $('types/configFileType/enum').map((ele) => {
-                        return {
-                            value: ele.text(),
-                            label: configFileTypeMap[ele.text()],
-                        }
-                    })
-                    rowData.shutterModeList = $('types/shutterMode/enum').map((ele) => {
-                        return {
-                            value: exposureModeKeyMap[ele.text()],
-                            label: exposureModeMap[ele.text()],
-                        }
-                    })
-                    rowData.shutterList = $('types/shutterValue/enum').map((ele, index) => {
-                        return {
-                            value: index + '',
-                            label: ele.text(),
-                        }
-                    })
-                    rowData.whiteBalanceModeList = $('types/whiteBalance/enum').map((ele) => {
-                        return {
-                            value: ele.text(),
-                            label: whiteBalanceMode[ele.text()],
-                        }
-                    })
-                    rowData.BLCModeList = $('types/BLCMode/enum').map((ele) => {
-                        return {
-                            value: ele.text(),
-                            label: BLCMode[ele.text()],
-                        }
-                    })
-                    rowData.HWDRLevelList = $('types/HWDRLevel/enum').map((ele) => {
-                        return {
-                            value: ele.text(),
-                            label: HWDRLevel[ele.text()],
-                        }
-                    })
-                    rowData.IRCutModeList = $('types/IRCutMode/enum')
-                        .map((ele) => {
-                            return {
-                                value: ele.text(),
-                                label: DayNightModeMap[ele.text()] || '',
-                            }
-                        })
-                        .filter((ele) => ele.label)
-                    rowData.IRCutConvSenList = $('types/IRCutConvSen/enum')
-                        .map((ele) => {
-                            return {
-                                value: ele.text(),
-                                label: SensortyMap[ele.text()] || '',
-                            }
-                        })
-                        .filter((ele) => ele.label)
-                    rowData.SmartIrList = $('types/SmartIRMode/enum').map((ele) => {
-                        return {
-                            value: ele.text(),
-                            label: SmartIRMap[ele.text()],
-                        }
-                    })
-                    rowData.antiflickerModeList = $('types/antiflickerMode/enum').map((ele) => {
-                        return {
-                            value: ele.text(),
-                            label: antiFlickerMap[ele.text()],
-                        }
-                    })
-                    rowData.InfraredModeList = $('types/InfraredMode/enum').map((ele) => {
-                        return {
-                            value: ele.text(),
-                            label: infraredModeMap[ele.text()],
-                        }
-                    })
-                    rowData.exposureModeList = $('types/autoExposureMode/enum').map((ele) => {
-                        return {
-                            value: ele.text(),
-                            label: exposureModeMap[ele.text()],
-                        }
-                    })
-                    rowData.exposureList = $('types/autoExposureValue/enum').map((ele) => {
-                        const text = ele.text()
-                        return {
-                            value: Math.floor(Number(rowData.exposureMax) / (text === '1' ? 1 : parseInt(text.split('/')[1]))),
-                            label: text,
-                        }
-                    })
-                    rowData.gainModeList = $('types/gainMode/enum').map((ele) => {
-                        return {
-                            value: exposureModeKeyMap[ele.text()],
-                            label: exposureModeMap[ele.text()],
-                        }
-                    })
-
-                    if (chlId === selectedChlId.value) {
-                        formData.value = cloneDeep(rowData)
-                    }
-                    if (callback) callback()
                 } else {
-                    rowData.status = ''
-                    if (chlId === selectedChlId.value) {
-                        formData.value = cloneDeep(rowData)
-                    }
+                    rowData.supportSchedule = rowData.supportSchedule || false
                 }
-            })
+
+                rowData.paletteList = $('types/paletteType/enum').map((ele) => {
+                    return {
+                        value: ele.text(),
+                        label: paletteTypeMap[ele.text()],
+                    }
+                })
+
+                rowData.cfgFileList = $('types/configFileType/enum').map((ele) => {
+                    return {
+                        value: ele.text(),
+                        label: configFileTypeMap[ele.text()],
+                    }
+                })
+                rowData.shutterModeList = $('types/shutterMode/enum').map((ele) => {
+                    return {
+                        value: exposureModeKeyMap[ele.text()],
+                        label: exposureModeMap[ele.text()],
+                    }
+                })
+                rowData.shutterList = $('types/shutterValue/enum').map((ele, index) => {
+                    return {
+                        value: index + '',
+                        label: ele.text(),
+                    }
+                })
+                rowData.whiteBalanceModeList = $('types/whiteBalance/enum').map((ele) => {
+                    return {
+                        value: ele.text(),
+                        label: whiteBalanceMode[ele.text()],
+                    }
+                })
+                rowData.BLCModeList = $('types/BLCMode/enum').map((ele) => {
+                    return {
+                        value: ele.text(),
+                        label: BLCMode[ele.text()],
+                    }
+                })
+                rowData.HWDRLevelList = $('types/HWDRLevel/enum').map((ele) => {
+                    return {
+                        value: ele.text(),
+                        label: HWDRLevel[ele.text()],
+                    }
+                })
+                rowData.IRCutModeList = $('types/IRCutMode/enum')
+                    .map((ele) => {
+                        return {
+                            value: ele.text(),
+                            label: DayNightModeMap[ele.text()] || '',
+                        }
+                    })
+                    .filter((ele) => ele.label)
+                rowData.IRCutConvSenList = $('types/IRCutConvSen/enum')
+                    .map((ele) => {
+                        return {
+                            value: ele.text(),
+                            label: SensortyMap[ele.text()] || '',
+                        }
+                    })
+                    .filter((ele) => ele.label)
+                rowData.SmartIrList = $('types/SmartIRMode/enum').map((ele) => {
+                    return {
+                        value: ele.text(),
+                        label: SmartIRMap[ele.text()],
+                    }
+                })
+                rowData.antiflickerModeList = $('types/antiflickerMode/enum').map((ele) => {
+                    return {
+                        value: ele.text(),
+                        label: antiFlickerMap[ele.text()],
+                    }
+                })
+                rowData.InfraredModeList = $('types/InfraredMode/enum').map((ele) => {
+                    return {
+                        value: ele.text(),
+                        label: infraredModeMap[ele.text()],
+                    }
+                })
+                rowData.exposureModeList = $('types/autoExposureMode/enum').map((ele) => {
+                    return {
+                        value: ele.text(),
+                        label: exposureModeMap[ele.text()],
+                    }
+                })
+                rowData.exposureList = $('types/autoExposureValue/enum').map((ele) => {
+                    const text = ele.text()
+                    return {
+                        value: Math.floor(Number(rowData.exposureMax) / (text === '1' ? 1 : parseInt(text.split('/')[1]))),
+                        label: text,
+                    }
+                })
+                rowData.gainModeList = $('types/gainMode/enum').map((ele) => {
+                    return {
+                        value: exposureModeKeyMap[ele.text()],
+                        label: exposureModeMap[ele.text()],
+                    }
+                })
+
+                if (chlId === selectedChlId.value) {
+                    formData.value = cloneDeep(rowData)
+                }
+            } else {
+                rowData.status = ''
+                if (chlId === selectedChlId.value) {
+                    formData.value = cloneDeep(rowData)
+                }
+            }
         }
 
         /**
@@ -1339,7 +1339,7 @@ export default defineComponent({
         const changeProgram = (rowData: ChannelImageDto) => {
             if (rowData.scheduleInfo.program === 'auto') return
             rowData.cfgFile = rowData.scheduleInfo.program
-            getData(rowData.id, false, rowData.cfgFile, () => {})
+            getData(rowData.id, false, rowData.cfgFile)
         }
 
         const changeTimeType = (timeType: 'day' | 'night') => {

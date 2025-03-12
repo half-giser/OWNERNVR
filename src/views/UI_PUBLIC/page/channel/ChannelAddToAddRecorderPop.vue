@@ -126,7 +126,12 @@
                 >
                     {{ Translate('IDCS_TEST') }}
                 </el-button>
-                <el-button @click="save">{{ Translate('IDCS_OK') }}</el-button>
+                <el-button
+                    :disabled="selNum <= 0"
+                    @click="save"
+                >
+                    {{ Translate('IDCS_OK') }}
+                </el-button>
                 <el-button @click="$emit('close')">{{ Translate('IDCS_CANCEL') }}</el-button>
             </div>
         </div>

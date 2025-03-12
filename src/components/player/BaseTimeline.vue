@@ -25,12 +25,14 @@
             class="scale"
         ></canvas>
         <!-- 录像条画布 -->
-        <div class="container">
-            <canvas
-                ref="$recordCanvas"
-                class="canvas"
-            ></canvas>
-        </div>
+        <el-scrollbar class="container">
+            <div>
+                <canvas
+                    ref="$recordCanvas"
+                    class="canvas"
+                ></canvas>
+            </div>
+        </el-scrollbar>
     </div>
 </template>
 
@@ -1414,7 +1416,6 @@ defineExpose(expose)
     position: relative;
     width: 100%;
     height: calc(100% - 40px);
-    overflow: hidden auto;
     vertical-align: top;
 }
 
