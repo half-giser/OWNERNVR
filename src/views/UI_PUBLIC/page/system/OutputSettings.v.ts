@@ -809,7 +809,7 @@ export default defineComponent({
                                         .map((output, index) => {
                                             const ShowHdmiIn = item.ShowHdmiIn === index
                                             return rawXml`
-                                                <item outIndex="${output.id}" ${ShowHdmiIn ? 'ShowHdmiIn="true"' : ''} validItem="${output.isDwell ? 0 : 1}">
+                                                <item outIndex="${output.id}" validItem="${output.isDwell ? 0 : 1}" ${ShowHdmiIn ? ' ShowHdmiIn="true"' : ''}>
                                                     <item1 id="0">
                                                         <displayMode>dwell</displayMode>
                                                         <timeInterval>${output.dwell.timeInterval}</timeInterval>

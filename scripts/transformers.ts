@@ -36,7 +36,7 @@ export function minifyXmlTemplateStrings(): Plugin {
     return {
         name: 'minify-raw-xml',
         enforce: 'pre',
-        apply: 'build',
+        // apply: 'build',
         transform(code) {
             let shouldTransform = false
             const templates = ParseLiterals.parseLiterals(code)

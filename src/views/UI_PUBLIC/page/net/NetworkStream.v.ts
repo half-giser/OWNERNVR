@@ -473,10 +473,17 @@ export default defineComponent({
                     pageData.value.bitTypeList.push(...bitTypeList)
 
                     const level = $item('sub').attr('level')
-
                     const bitType = $item('sub').attr('bitType')
-                    const resolution = $item('sub').attr('res')
-                    const videoEncodeType = $item('sub').attr('enct')
+
+                    let resolution = $item('sub').attr('res')
+                    if (!res.some((item) => item.value === resolution)) {
+                        resolution = res[0]?.value || resolution
+                    }
+
+                    let videoEncodeType = $item('sub').attr('enct')
+                    if (!supEnct.some((item) => item.value === videoEncodeType)) {
+                        videoEncodeType = supEnct[0]?.value || videoEncodeType
+                    }
 
                     const chlType = $item('chlType').text()
 

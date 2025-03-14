@@ -464,13 +464,13 @@ export const OCX_XML_SearchRec = (
     taskId?: string,
 ) => {
     return wrapXml(rawXml`
-        <cmd type="${cmdType}" ${taskId ? `taskId="${taskId}"` : ''} compatibilityMode='true'>
+        <cmd type="${cmdType}" compatibilityMode='true' ${taskId ? ` taskId="${taskId}"` : ''}>
             ${startTime ? `<startTime>${startTime}</startTime>` : ''}
             ${endTime ? `<endTime>${endTime}</endTime>` : ''}
             ${startTimeEx ? `<startTimeEx timeZone='UTC'>${startTimeEx}</startTimeEx>` : ''}
             ${endTimeEx ? `<endTimeEx timeZone='UTC'>${endTimeEx}</endTimeEx>` : ''}
             <chl>
-                ${chlIdList.map((item, index) => `<item id="${item}" ${winIndexList ? `winIndex="${winIndexList[index]}"` : ''}>${chlNameList[index]}</item>`).join('')}
+                ${chlIdList.map((item, index) => `<item id="${item}" ${winIndexList ? ` winIndex="${winIndexList[index]}"` : ''}>${chlNameList[index]}</item>`).join('')}
             </chl>
             <recType>
                 ${eventList.map((item) => `<item>${item}</item>`).join('')}
@@ -530,7 +530,7 @@ export const OCX_XML_TakePhotoByWinIndex = (winIndex: number) => {
  */
 export const OCX_XML_TalkSwitch = (status: 'ON' | 'OFF', chlId?: string) => {
     return wrapXml(rawXml`
-        <cmd type="TalkSwitch" ${chlId ? `chlId="${chlId}"` : ''}>${status}</cmd>
+        <cmd type="TalkSwitch" ${chlId ? ` chlId="${chlId}"` : ''}>${status}</cmd>
     `)
 }
 
@@ -1137,7 +1137,7 @@ export const OCX_XML_FileNetTransport = (action: 'UpgradeIPC' | 'ExportCert' | '
             <version>${obj.version}</version>
             ${obj.taskGUID ? `<taskGUID>${obj.taskGUID}</taskGUID>` : ''}
             <userName>${obj.authName || ''}</userName>
-            <password>${obj.authPwd || ''}</password>
+            <password>${obj.authPwd ? wrapCDATA(obj.authPwd) : ''}</password>
             <progressInterval>${obj.progressInterval || 1000}</progressInterval>
             ${obj.checkPassword ? `<checkPassword>${obj.checkPassword}</checkPassword>` : ''}
             ${obj.secPassword ? `<secPassword>${obj.secPassword}</secPassword>` : ''}
@@ -1410,7 +1410,17 @@ export const OCX_XML_SetOSD = (edit: string, osdList: OcxXmlSetOsdListDatum[] = 
     const osd = osdList
         .map(
             (item) => rawXml`
-                <item winIndex="${item.winIndex}" ${item.osd ? `osd="${item.osd}"` : `dateFormat="${item.dateFormat}" timeFormat="${item.timeFormat}" `} x="${item.x}" xMin="${item.xMin || 0}" xMax="${item.xMax || 1920}" y="${item.y}" yMin="${item.yMin || 0}" yMax="${item.yMax || 1080}" status="${item.status || 'OFF'}" />
+                <item 
+                    winIndex="${item.winIndex}" 
+                    ${item.osd ? ` osd="${item.osd}"` : ` dateFormat="${item.dateFormat}" timeFormat="${item.timeFormat}" `} 
+                    x="${item.x}"
+                    xMin="${item.xMin || 0}"
+                    xMax="${item.xMax || 1920}"
+                    y="${item.y}"
+                    yMin="${item.yMin || 0}"
+                    yMax="${item.yMax || 1080}"
+                    status="${item.status || 'OFF'}"
+                />
             `,
         )
         .join('')
@@ -1589,7 +1599,7 @@ export const OCX_XML_SetVideoLossSwitch = (chls: { id: number; switch: boolean }
  * @returns {string}
  */
 export const OCX_XML_SetOscAreaAction = (action: 'EDIT_ON' | 'EDIT_OFF' | 'NONE', pointCount?: number) => {
-    return wrapXml(rawXml`<cmd type="SetOscAreaAction" ${pointCount && action === 'EDIT_ON' ? `maxPointCount="${pointCount}"` : ''}>${action}</cmd>`)
+    return wrapXml(rawXml`<cmd type="SetOscAreaAction" ${pointCount && action === 'EDIT_ON' ? ` maxPointCount="${pointCount}"` : ''}>${action}</cmd>`)
 }
 
 /**
@@ -1626,7 +1636,7 @@ export const OCX_XML_GetOscArea = () => {
 export const OCX_XML_SetVfdAreaAction = (action: 'EDIT_ON' | 'EDIT_OFF' | 'NONE', type?: 'vfdArea' | 'faceMax' | 'faceMin') => {
     return wrapXml(rawXml`
         <cmd type="SetVfdAreaAction">
-            <action ${action === 'NONE' ? `type="${type}"` : ''}>${action}</action>
+            <action ${action === 'NONE' ? ` type="${type}"` : ''}>${action}</action>
         </cmd>
     `)
 }

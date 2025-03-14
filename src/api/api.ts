@@ -38,7 +38,7 @@ const getXmlWrapData = (data: string, url = '', refresh = false) => {
             xmlHeader +
             checkXml(rawXml`
                 <cmd type="NVMS_NAT_CMD">
-                    <request version="1.0" systemType="NVMS-9000" clientType="WEB-NAT" url="${url}" flag="1" ${refresh ? 'refresh="true"' : ''}>
+                    <request version="1.0" systemType="NVMS-9000" clientType="WEB-NAT" url="${url}" flag="1" ${refresh ? ' refresh="true"' : ''}>
                         ${tokenXml}
                         ${data}
                     </request>
@@ -49,7 +49,7 @@ const getXmlWrapData = (data: string, url = '', refresh = false) => {
         return (
             xmlHeader +
             checkXml(rawXml`
-                <request version="1.0" systemType="NVMS-9000" clientType="WEB" ${refresh ? 'refresh="true"' : ''}>
+                <request version="1.0" systemType="NVMS-9000" clientType="WEB" ${refresh ? ' refresh="true"' : ''}>
                     ${tokenXml}
                     ${data}
                 </request>
@@ -118,7 +118,7 @@ const fetch = (url: string, data: string, config?: AxiosRequestConfig, checkComm
                 ...BASE_CONFIG,
                 ...config,
                 url,
-                data: import.meta.env.DEV ? compressXml(getXmlWrapData(data)) : getXmlWrapData(data),
+                data: getXmlWrapData(data),
                 baseURL: BASE_URL,
             }).then(
                 (response) => {

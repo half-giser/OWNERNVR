@@ -414,12 +414,16 @@ export default defineComponent({
 
         onMounted(async () => {
             openLoading()
-            await getNetPortCfg()
-            await getIpAnalogCout()
-            await getBandwidth()
-            await getProtocolList()
-            await getDataList()
-            closeLoading()
+            try {
+                await getNetPortCfg()
+                await getIpAnalogCout()
+                await getBandwidth()
+                await getProtocolList()
+                await getDataList()
+            } catch {
+            } finally {
+                closeAllLoading()
+            }
         })
 
         ctx.expose({
