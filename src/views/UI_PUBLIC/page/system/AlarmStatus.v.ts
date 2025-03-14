@@ -75,8 +75,8 @@ export default defineComponent({
         // 回放视频长度（毫秒）
         const recDuration = 5 * 60 * 1000
         // 定时器，每隔一段时间自动刷新状态
-        const getAlarmStatusTimer = useRefreshTimer(() => {
-            getAlarmStatus()
+        const getAlarmStatusTimer = useRefreshTimer(async () => {
+            await getAlarmStatus()
             updatePagination()
         }, refreshInterval)
 
@@ -248,6 +248,7 @@ export default defineComponent({
          */
         const getAlarmStatus = async () => {
             const result = await queryAlarmStatus()
+
             commLoadResponseHandler(result, ($) => {
                 const types = tableList.value.map((item) => item.id)
 
@@ -278,7 +279,7 @@ export default defineComponent({
          */
         const updatePagination = () => {
             tableList.value.forEach((item) => {
-                if (item.index > item.data.length) {
+                if (item.index > item.data.length || item.index === 0) {
                     item.index = item.data.length
                 }
             })
@@ -1131,6 +1132,10 @@ export default defineComponent({
             pageData.value.isRecord = true
         }
 
+        const getRowKey = (item: SystemAlarmStatusList) => {
+            return item.id
+        }
+
         onMounted(async () => {
             openLoading()
             await getFaceFeatureGroupsName()
@@ -1150,6 +1155,7 @@ export default defineComponent({
             handleChangeRow,
             handleExpandChange,
             playRec,
+            getRowKey,
         }
     },
 })

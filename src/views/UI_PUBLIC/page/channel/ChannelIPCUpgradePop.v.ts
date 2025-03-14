@@ -38,11 +38,11 @@ export default defineComponent({
                 if (stateType === 'FileNetTransportProgress') {
                     const taskGUID = $('statenotify/taskGUID').text().toLowerCase()
                     if (taskGUIDMap[taskGUID]) {
-                        const progress = $('statenotify/progress').text().replace('%', '')
+                        const progress = Number($('statenotify/progress').text().replace('%', ''))
                         taskGUIDMap[taskGUID].forEach((ele) => {
                             changeStatus(ele, 'progress', progress)
                         })
-                        if (progress === '100') {
+                        if (progress === 100) {
                             openMessageBox(Translate('IDCS_UPGRADE_IPC_NOTE'))
                         }
                     }
@@ -114,7 +114,7 @@ export default defineComponent({
                             data.ipc_upgrade_state_info.forEach((ele) => {
                                 const chlId = ele.node_id
                                 const status = ele.chl_upgrade_status
-                                const progress = ele.pack_upload_precent
+                                const progress = Number(ele.pack_upload_precent)
                                 changeStatus(contextMap[chlId], statusMap[status], progress)
                             })
                         }
@@ -124,7 +124,7 @@ export default defineComponent({
         }
 
         // 更新IPC升级状态
-        const changeStatus = (rowData: ChannelInfoDto, status: string, progress: string) => {
+        const changeStatus = (rowData: ChannelInfoDto, status: string, progress: number) => {
             if (status === 'progress') {
                 rowData.upgradeStatus = status
                 rowData.upgradeProgressText = progress + '%'
@@ -173,7 +173,7 @@ export default defineComponent({
             destory()
         }
 
-        const handleChange = (e: Event) => {
+        const handleH5Upload = (e: Event) => {
             const files = (e.target as HTMLInputElement).files
             if (files && files.length) {
                 file = files[0]
@@ -182,7 +182,7 @@ export default defineComponent({
             }
         }
 
-        const handleOcxBtnClick = () => {
+        const handleOCXUpload = () => {
             const sendXML = OCX_XML_OpenFileBrowser('OPEN_FILE')
             plugin.AsynQueryInfo(sendXML, (result) => {
                 const path = OCX_XML_OpenFileBrowser_getpath(result).trim()
@@ -220,11 +220,9 @@ export default defineComponent({
                             ipc_ids: ids,
                         },
                     },
-                    error: (errorCode: number) => {
+                    error: (errorCode) => {
                         handleError(errorCode)
                     },
-                    success: () => {},
-                    progress: () => {},
                 })
             } else {
                 const taskGUID = getRandomGUID()
@@ -255,10 +253,10 @@ export default defineComponent({
             type,
             file,
             fileName,
-            handleChange,
+            handleH5Upload,
             btnOKDisabled,
             isSupportH5,
-            handleOcxBtnClick,
+            handleOCXUpload,
             save,
         }
     },

@@ -197,6 +197,10 @@
     width: 428px;
     display: flex;
     justify-content: space-between;
+
+    & > span {
+        padding-left: 10px;
+    }
 }
 
 .table_item {

@@ -108,7 +108,7 @@ export default defineComponent({
                             uploadTimer = reconnect()
                         } else {
                             closeAllLoading()
-                            pageData.value.upgradeNote = TRANS_MAPPING.uploading + '&nbsp;&nbsp;' + progress
+                            pageData.value.upgradeNote = TRANS_MAPPING.uploading + '  ' + progress
                         }
                     }
                 }
@@ -353,13 +353,12 @@ export default defineComponent({
                     config: obj,
                     progress: (step) => {
                         pageData.value.isCheckAuth = false
-                        pageData.value.upgradeNote = `${TRANS_MAPPING.uploading}&nbsp;&nbsp;${step}%`
+                        pageData.value.upgradeNote = `${TRANS_MAPPING.uploading}  ${step}%`
+                        closeLoading()
                         if (step === 100) {
                             pageData.value.upgradeNote = TRANS_MAPPING.uploadReboot
                             openLoading(LoadingTarget.FullScreen, TRANS_MAPPING.uploadReboot)
                             uploadTimer = reconnect()
-                        } else {
-                            closeLoading()
                         }
                     },
                     success: () => {

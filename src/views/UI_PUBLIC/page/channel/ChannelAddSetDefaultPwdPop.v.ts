@@ -5,6 +5,7 @@
  */
 import { type FormRules } from 'element-plus'
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
+import { type BasePasswordReturnsType } from '@/components/form/BasePasswordInput.vue'
 
 export default defineComponent({
     components: {
@@ -41,7 +42,7 @@ export default defineComponent({
             ],
         })
 
-        const passwordInputRef = ref<Array<Element | globalThis.ComponentPublicInstance | null>>([])
+        const passwordInputRef = ref<Array<Element | globalThis.ComponentPublicInstance | null | BasePasswordReturnsType>>([])
 
         const isCheckAuthPop = ref(false)
 
@@ -71,12 +72,11 @@ export default defineComponent({
         }
 
         const togglePwd = (index: number, rowData: ChannelDefaultPwdDto) => {
-            const flag = rowData.showInput
             rowData.showInput = !rowData.showInput
-            if (!flag) {
+            if (rowData.showInput) {
                 nextTick(() => {
                     const curPwdInput = passwordInputRef.value[index]
-                    if (curPwdInput) (curPwdInput as HTMLInputElement).focus()
+                    if (curPwdInput) (curPwdInput as BasePasswordReturnsType).focus()
                 })
             }
         }

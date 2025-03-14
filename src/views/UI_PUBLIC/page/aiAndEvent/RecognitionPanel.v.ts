@@ -76,6 +76,7 @@ export default defineComponent({
         // 初始化数据
         const initData = () => {
             pageData.value.selectAll = taskData.groupId.length > 0 && taskData.groupId.length === prop.groupData.length
+            pageData.value.groupSelection = prop.groupData.filter((item) => taskData.groupId.includes(item.guid))
         }
 
         // 分组选中名称拼接

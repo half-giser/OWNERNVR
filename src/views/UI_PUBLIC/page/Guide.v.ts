@@ -391,6 +391,13 @@ export default defineComponent({
             dateTimeFormData.value.dateFormat = $('content/timeCfg/formatInfo/data').text()
             dateTimeFormData.value.timeFormat = $('content/timeCfg/formatInfo/time').text()
 
+            pageData.value.timeZoneOption = TIME_ZONE.map((item, index) => {
+                return {
+                    ...item,
+                    label: Translate('IDCS_TIME_ZONE_' + (index + 1)),
+                }
+            })
+
             // NVR145-112 优先取initDataNtpServer
             const timeServer = $('content/timeCfg/synchronizeInfo/ntpServer').text()
             if (timeServer) {
@@ -427,6 +434,10 @@ export default defineComponent({
             const findItem = TIME_ZONE.find((item) => dateTimeFormData.value.timeZone === item.timeZone)
             if (findItem) return !findItem.enableDst
             return true
+        })
+
+        watch(isDSTDisabled, (val) => {
+            dateTimeFormData.value.enableDST = !val
         })
 
         /**

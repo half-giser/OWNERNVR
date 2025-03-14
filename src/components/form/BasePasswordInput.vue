@@ -5,6 +5,7 @@
 -->
 <template>
     <el-input
+        ref="input"
         :type="showText ? 'text' : 'password'"
         autocomplete="new-password"
         @copy.capture.prevent=""
@@ -13,6 +14,8 @@
 </template>
 
 <script setup lang="ts">
+import type { InputInstance } from 'element-plus'
+
 withDefaults(
     defineProps<{
         showText?: boolean
@@ -21,4 +24,23 @@ withDefaults(
         showText: false,
     },
 )
+
+const input = ref<InputInstance>()
+
+const focus = () => {
+    input.value?.focus()
+}
+
+const blur = () => {
+    input.value?.blur()
+}
+
+const expose = {
+    focus,
+    blur,
+}
+
+export type BasePasswordReturnsType = typeof expose
+
+defineExpose(expose)
 </script>

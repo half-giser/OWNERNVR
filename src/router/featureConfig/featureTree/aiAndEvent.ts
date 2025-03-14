@@ -108,9 +108,6 @@ const aiAndEventRoutes: FeatureItem = {
                 sort: 60,
                 lk: 'IDCS_AUDIO',
                 group: 'eventNotify',
-                hasCap(systemCaps) {
-                    return systemCaps.supportAlarmAudioConfig
-                },
             },
         },
         // 闪动

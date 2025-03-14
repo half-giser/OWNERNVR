@@ -165,7 +165,7 @@ export default defineComponent({
 
                 const index = $param('index').text().num() + 1
                 const devDescTemp = $param('devDesc').text()
-                const isEditable = $param('devDesc').attr('isEditable').bool()
+                const isEditable = $param('devDesc').attr('isEditable') ? $param('devDesc').attr('isEditable').bool() : true
                 let serialNum = ''
                 if (rowData.alarmInType === 'local') {
                     serialNum = Translate('IDCS_LOCAL') + '-' + rowData.nodeIndex

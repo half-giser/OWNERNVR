@@ -55,6 +55,8 @@ export default defineComponent({
         })
 
         let isTimePickerChange = false
+        let currentTimezone = ''
+        let currentDST = false
 
         // 显示时间格式
         const formatSystemTime = computed(() => {
@@ -151,6 +153,8 @@ export default defineComponent({
 
             formData.value.timeZone = $('content/timezoneInfo/timeZone').text()
             formData.value.enableDST = $('content/timezoneInfo/daylightSwitch').text().bool()
+            currentTimezone = formData.value.timeZone
+            currentDST = formData.value.enableDST
 
             let currentDate = dayjs($('content/synchronizeInfo/currentTime').text().trim(), formatSystemTime.value).toDate()
             if (currentDate < pageData.value.serverTimeStart) {
@@ -249,6 +253,18 @@ export default defineComponent({
         watch(formatSystemTime, (newFormat, oldFormat) => {
             formData.value.systemTime = dayjs(formData.value.systemTime, oldFormat).format(newFormat)
             pageData.value.systemTime = dayjs(pageData.value.systemTime, oldFormat).format(newFormat)
+        })
+
+        watch(isDSTDisabled, (val) => {
+            if (val) {
+                formData.value.enableDST = false
+            } else {
+                if (formData.value.timeZone === currentTimezone) {
+                    formData.value.enableDST = currentDST
+                } else {
+                    formData.value.enableDST = true
+                }
+            }
         })
 
         onMounted(() => {
