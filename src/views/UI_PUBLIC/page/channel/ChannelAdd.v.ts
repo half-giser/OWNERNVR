@@ -560,7 +560,7 @@ export default defineComponent({
                     <index>0</index>
                     <manufacturer>${element.manufacturer}</manufacturer>
                     <protocolType>${mapping.value[element.manufacturer].protocolType}</protocolType>
-                    <productModel ${element.productModel.factoryName ? `factoryName="${element.productModel.identity || element.productModel.factoryName}"` : ''}>${element.productModel.innerText}</productModel>
+                    <productModel ${element.productModel.factoryName ? ` factoryName="${element.productModel.identity || element.productModel.factoryName}"` : ''}>${element.productModel.innerText}</productModel>
                     ${element.poeIndex ? `<poeIndex>${element.poeIndex}</poeIndex>` : ''}
                     <accessType>${supportType === 'THERMAL_DOUBLE' ? 'THERMAL' : 'NORMAL'}</accessType>
                     <rec per='5' post='10' />

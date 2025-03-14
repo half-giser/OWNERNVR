@@ -46,6 +46,7 @@ export default defineComponent({
 
         const plugin = usePlugin({
             onReady: (mode, plugin) => {
+                console.log('onReady', mode.value)
                 if (mode.value === 'h5' && isHttpsLogin()) {
                     openNotify(formatHttpsTips(Translate('IDCS_BACKUP_AND_RESTORE_SET')), true)
                     pageData.value.isUploadDisabled = true
@@ -79,7 +80,7 @@ export default defineComponent({
                                 importTimer = reconnect()
                             } else {
                                 closeLoading()
-                                pageData.value.importNote = `${TRANS_MAPPING.uploading}&nbsp;&nbsp;${progress}`
+                                pageData.value.importNote = `${TRANS_MAPPING.uploading}  ${progress}`
                             }
                             break
                         case 'Export':
@@ -89,7 +90,7 @@ export default defineComponent({
                             if (progress === '100%') {
                                 pageData.value.exportNote = TRANS_MAPPING.downloadComplete
                             } else {
-                                pageData.value.exportNote = `${TRANS_MAPPING.downloading}&nbsp;&nbsp;${progress}`
+                                pageData.value.exportNote = `${TRANS_MAPPING.downloading}  ${progress}`
                             }
                             break
                     }
@@ -258,7 +259,7 @@ export default defineComponent({
                     },
                     progress: (step) => {
                         pageData.value.isCheckAuth = false
-                        pageData.value.importNote = `${TRANS_MAPPING.uploading}&nbsp;&nbsp;${step}%`
+                        pageData.value.importNote = `${TRANS_MAPPING.uploading}  ${step}%`
                         if (step === 100) {
                             pageData.value.importNote = TRANS_MAPPING.uploadReboot
                             openLoading(LoadingTarget.FullScreen, TRANS_MAPPING.uploadReboot)

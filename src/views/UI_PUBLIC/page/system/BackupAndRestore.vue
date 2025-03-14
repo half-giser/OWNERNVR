@@ -69,6 +69,7 @@
                 />
                 <el-button
                     v-if="!isSupportH5"
+                    :disabled="pageData.isUploadDisabled"
                     @click="handleBrowse"
                 >
                     {{ Translate('IDCS_BROWSE') }}

@@ -222,7 +222,7 @@ export default defineComponent({
                                                     item.triggerChl.switch
                                                         ? item.triggerChl.chls
                                                               .map((chl) => {
-                                                                  return `<item id="${chl.value}" ${chl.till && Number(chl.till) > 0 ? `till="${chl.till}"` : ''}>${wrapCDATA(chl.label)}</item>`
+                                                                  return `<item id="${chl.value}" ${chl.till && Number(chl.till) > 0 ? ` till="${chl.till}"` : ''}>${wrapCDATA(chl.label)}</item>`
                                                               })
                                                               .join('')
                                                         : ''

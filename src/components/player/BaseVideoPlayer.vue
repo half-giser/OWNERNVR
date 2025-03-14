@@ -119,7 +119,7 @@
                     height: `${item.posPosition.height}px`,
                     top: `${item.posPosition.top}px`,
                     left: `${item.posPosition.left}px`,
-                    'justify-content': `${item.posList.length * 20 > item.posPosition.height ? 'flex-end' : 'flex-start'}`,
+                    'justify-content': `${item.posList.length * 25 > item.posPosition.height ? 'flex-end' : 'flex-start'}`,
                 }"
                 :class="{
                     hide: !item.isPos,
@@ -2893,7 +2893,7 @@ defineExpose({
                 word-break: break-all;
                 white-space: pre-wrap;
                 font-size: 18px;
-                line-height: 20px;
+                line-height: 25px;
                 box-sizing: border-box;
             }
         }
