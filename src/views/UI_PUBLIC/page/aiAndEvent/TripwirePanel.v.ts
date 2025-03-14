@@ -260,6 +260,10 @@ export default defineComponent({
                         }
                     })
 
+                    formData.value.trigger = ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch'].filter((item) => {
+                        return $trigger(item).text().bool()
+                    })
+
                     formData.value.mutexList = $param('mutexList/item').map((item) => {
                         const $item = queryXml(item.element)
                         return {
@@ -379,7 +383,7 @@ export default defineComponent({
         // 保存越界检测数据
         const saveData = async () => {
             let paramXml = ''
-            if (!supportPeaTrigger) {
+            if (!supportPeaTrigger.value) {
                 paramXml = rawXml`
                     <param>
                         <switch>${formData.value.detectionEnable}</switch>
@@ -526,7 +530,7 @@ export default defineComponent({
         }
 
         // tripwire tab点击事件
-        const changeTab = () => {
+        const changeTab = async () => {
             if (pageData.value.tab === 'param') {
                 if (mode.value === 'h5') {
                     setTripwireOcxData()
@@ -545,7 +549,7 @@ export default defineComponent({
                 if (pageData.value.isShowAllArea) {
                     showAllArea(true)
                 }
-            } else if (pageData.value.tab === 'target') {
+            } else if (pageData.value.tab === 'target' || pageData.value.tab === 'trigger') {
                 showAllArea(false)
 
                 if (mode.value === 'h5') {

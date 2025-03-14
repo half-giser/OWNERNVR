@@ -140,9 +140,9 @@ export default defineComponent({
             if (raidSwitch) {
                 $storage('raidList/item').forEach((item) => {
                     const $item = queryXml(item.element)
-                    const logicDiskId = $item('logicDiskId').text()
+                    const logicDiskId = item.attr('logicDiskId')
 
-                    const diskStatus = $(`content/item[@id="${logicDiskId}"/diskStatus`).text()
+                    const diskStatus = $(`content/item[@id="${logicDiskId}"]/diskStatus`).text()
                     const diskEncryptStatus = $(`content/item[@id="${logicDiskId}"]/diskEncryptStatus`).text()
                     const recStartDate = formatDate($item('recStartDate').text(), dateTime.dateFormat, 'YYYY-MM-DD')
                     const recEndDate = formatDate($item('recEndDate').text(), dateTime.dateFormat, 'YYYY-MM-DD')
@@ -161,7 +161,7 @@ export default defineComponent({
                             break
                     }
 
-                    const size = String(Math.floor($item('size').text().num() / 1024))
+                    const size = String(Math.floor($item('realSize').text().num() / 1024))
                     const freeSpace = $item('freeSpace').text().num() / 1024
 
                     rowData.push({

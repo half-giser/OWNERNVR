@@ -116,9 +116,10 @@
                 class="pos"
                 :style="{
                     width: `${item.posPosition.width}px`,
-                    height: `${item.posPosition.width}px`,
-                    top: `${item.posPosition.width}px`,
-                    left: `${item.posPosition.width}px`,
+                    height: `${item.posPosition.height}px`,
+                    top: `${item.posPosition.top}px`,
+                    left: `${item.posPosition.left}px`,
+                    'justify-content': `${item.posList.length * 20 > item.posPosition.height ? 'flex-end' : 'flex-start'}`,
                 }"
                 :class="{
                     hide: !item.isPos,
@@ -1303,11 +1304,12 @@ const setPosWrapSize = (winIndex: number) => {
         return
     }
     const $screenItem = $screen.value!.children[winIndex]
-    const { width: realW, height: realH } = $screenItem.getBoundingClientRect()
+    const rect = $screenItem.getBoundingClientRect()
+
     const scaleX = displayPosition.width / posBaseSize.width
     const scaleY = displayPosition.height / posBaseSize.height
-    const width = scaleX * realW
-    const height = scaleY * realH
+    const width = scaleX * rect.width
+    const height = scaleY * rect.height
 
     pageData.value[winIndex].posPosition = {
         top: (height * displayPosition.y) / displayPosition.height,
@@ -1404,6 +1406,9 @@ const drawPos = (posFrame: Uint8Array, posLength: number, cfg: PlayerPosInfoItem
             // 先取出rgb颜色信息(若无则默认取白色)
             color: (posItem.match(rgbReg) && posItem.match(rgbReg)![1]) || '#FFFFFF',
         })
+        if (pageData.value[winIndex].posList.length > 50) {
+            pageData.value[winIndex].posList = pageData.value[winIndex].posList.slice(10)
+        }
     })
 }
 
@@ -2382,12 +2387,12 @@ const getPosCfg = () => {
     queryPosList().then((res) => {
         const $ = queryXml(res)
         if ($('status').text() !== 'success') return
-        const $systemX = $('content/itemType/coordinateSystem/X')
-        const $systemY = $('content/itemType/coordinateSystem/Y')
+        const $systemX = $('content/itemType/param/displaySetting/displayPosition/coordinateSystem/X')
+        const $systemY = $('content/itemType/param/displaySetting/displayPosition/coordinateSystem/Y')
         const width = $systemX.attr('max').num() - $systemX.attr('min').num()
         const height = $systemY.attr('max').num() - $systemY.attr('min').num()
         setPosBaseSize({ width, height })
-        const posInfo: Record<string, PlayerPosInfoItem> = {}
+        posInfo = {}
         $('channel/chl').forEach((ele) => {
             const chlId = ele.attr('id')
             const $ele = queryXml(ele.element)
@@ -2524,8 +2529,20 @@ const readyState = computed(() => {
     else return ready.value && pluginStore.ready
 })
 
+let lastScreenSize = 0
+
 const resizeObserver = new ResizeObserver(() => {
-    resize()
+    const rect = $screen.value!.getBoundingClientRect()
+    const currentScreenSize = rect.width * rect.height
+    if (rect.width && rect.height && lastScreenSize !== currentScreenSize) {
+        resize()
+        lastScreenSize = currentScreenSize
+        if (!ready.value) {
+            nextTick(() => {
+                ready.value = true
+            })
+        }
+    }
 })
 
 const handleOCXMessage = ($: XMLQuery, stateType: string) => {
@@ -2537,11 +2554,7 @@ createVideoPlayer()
 onMounted(() => {
     tryToGetVideoLossLogo(prop.type === 'live')
     splitValue.value = prop.split
-    nextTick(() => {
-        setItemSize()
-        resizeObserver.observe($screen.value!)
-        ready.value = true
-    })
+    resizeObserver.observe($screen.value!)
 })
 
 onBeforeUnmount(() => {
@@ -2880,6 +2893,7 @@ defineExpose({
                 word-break: break-all;
                 white-space: pre-wrap;
                 font-size: 18px;
+                line-height: 20px;
                 box-sizing: border-box;
             }
         }

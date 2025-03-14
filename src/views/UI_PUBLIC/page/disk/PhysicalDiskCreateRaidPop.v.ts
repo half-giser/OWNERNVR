@@ -83,6 +83,13 @@ export default defineComponent({
                                 break
                             case 'RAID_TYPE_6':
                                 if (length < 4) {
+                                    callback(new Error(Translate('IDCS_NOTE_RAID6_DISK_ERROR')))
+                                    return
+                                }
+
+                                break
+                            case 'RAID_TYPE_10':
+                                if (length < 4) {
                                     callback(new Error(Translate('IDCS_NOTE_RAID10_DISK_ERROR_MIN')))
                                     return
                                 }
@@ -154,11 +161,11 @@ export default defineComponent({
                         <disks>${formData.value.diskId.map((id) => `<item>${id}</item>`).join('')}</disks>
                         <isNeedFormat>true</isNeedFormat>
                     </raidInfo>
-                    <auth>
-                        <userName>${e.userName}</userName>
-                        <password>${e.hexHash}</password>
-                    </auth>
                 </content>
+                <auth>
+                    <userName>${e.userName}</userName>
+                    <password>${e.hexHash}</password>
+                </auth>
             `
 
             const result = await createRaid(sendXml)

@@ -25,7 +25,14 @@
                     v-model="fileName"
                     readonly
                 />
+                <el-button
+                    v-if="!isSupportH5"
+                    @click="handleOCXUpload"
+                >
+                    {{ Translate('IDCS_BROWSE') }}
+                </el-button>
                 <label
+                    v-if="isSupportH5"
                     class="el-button"
                     for="h5Import"
                 >
@@ -35,7 +42,7 @@
                     id="h5Import"
                     type="file"
                     hidden
-                    @change="handleChange"
+                    @change="handleH5Upload"
                 />
             </el-form-item>
         </el-form>

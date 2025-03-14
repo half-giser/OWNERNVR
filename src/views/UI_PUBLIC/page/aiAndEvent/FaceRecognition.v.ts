@@ -945,7 +945,6 @@ export default defineComponent({
                     notHitEnable: notHitEnable,
                     liveDisplaySwitch: !liveDisplaySwitch,
                     groupInfo,
-                    editFlag: false,
                 }
 
                 watchMatch.listen()
@@ -984,7 +983,7 @@ export default defineComponent({
                                 .join('')}
                         </groupId>
                     </chl>
-                </content
+                </content>
             `
 
             openLoading()
@@ -1212,11 +1211,11 @@ export default defineComponent({
         // 提交人脸识别数据
         const applyRecognitionData = async () => {
             // 识别中监听faceMatchData和recognitionFormData两个数据
-            if (faceMatchData.value.editFlag) {
+            if (!watchMatch.disabled.value) {
                 await setMatchData()
             }
 
-            if (recognitionFormData.value.editFlag) {
+            if (!watchRecognition.disabled.value) {
                 await setFaceCompareData()
             }
         }

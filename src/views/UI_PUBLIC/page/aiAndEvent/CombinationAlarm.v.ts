@@ -261,7 +261,9 @@ export default defineComponent({
                         }
                     })
                     tableData.value.push(row)
-                    editRows.listen(row)
+                })
+                tableData.value.forEach((item) => {
+                    editRows.listen(item)
                 })
             })
         }
@@ -300,17 +302,18 @@ export default defineComponent({
             pageData.value.isCombinedAlarmPop = true
         }
 
-        const confirmCombinedAlarm = (currId: string, combinedAlarmItems: AlarmCombinedItemDto[], entity: string, obj: AlarmCombinedFaceMatchDto) => {
+        const confirmCombinedAlarm = (currId: string, combinedAlarmItems: AlarmCombinedItemDto[], entity: string, obj?: AlarmCombinedFaceMatchDto) => {
             tableData.value.some((item) => {
                 if (item.id === currId) {
                     item.combinedAlarm.item = combinedAlarmItems
                     if (entity) {
                         pageData.value.faceObj[currId] = {}
                         pageData.value.faceObj[currId][entity] = {}
-                        pageData.value.faceObj[currId][entity].obj = obj
+                        pageData.value.faceObj[currId][entity].obj = obj!
                     }
                 }
             })
+            pageData.value.isCombinedAlarmPop = false
         }
 
         const closeCombinedAlarmPop = (id: string) => {

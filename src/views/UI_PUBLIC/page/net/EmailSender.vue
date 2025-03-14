@@ -18,15 +18,22 @@
             <el-form-item :label="Translate('IDCS_SENDER_NAME')">
                 <BaseSensitiveTextInput v-model="formData.name" />
             </el-form-item>
-            <el-form-item :label="Translate('IDCS_SENDER_ADDRESS')">
+            <el-form-item
+                prop="address"
+                :label="Translate('IDCS_SENDER_ADDRESS')"
+            >
                 <BaseSensitiveEmailInput
                     v-model="formData.address"
                     :show-value="pageData.showUserNameValue"
                     @focus="handleUserNameFocus"
                     @blur="handleUserNameBlur"
+                    @input="handleAddressInput"
                 />
             </el-form-item>
-            <el-form-item :label="Translate('IDCS_STMP_SERVER')">
+            <el-form-item
+                prop="server"
+                :label="Translate('IDCS_STMP_SERVER')"
+            >
                 <el-input
                     v-model="formData.server"
                     :formatter="formatSTMPServer"
@@ -70,7 +77,10 @@
                     :label="Translate('IDCS_ANONYMOUS_LOGIN')"
                 />
             </el-form-item>
-            <el-form-item :label="Translate('IDCS_USER_NAME')">
+            <el-form-item
+                prop="userName"
+                :label="Translate('IDCS_USER_NAME')"
+            >
                 <el-input
                     v-if="formData.anonymousSwitch"
                     disabled
@@ -80,11 +90,9 @@
                     v-model="formData.userName"
                     :disabled="formData.anonymousSwitch"
                     :show-value="pageData.showUserNameValue"
-                    @focus="handleUserNameFocus"
-                    @blur="handleUserNameBlur"
                 />
             </el-form-item>
-            <el-form-item>
+            <el-form-item prop="password">
                 <template #label>
                     {{ Translate('IDCS_PASSWORD') }}
                     <el-checkbox

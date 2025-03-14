@@ -83,7 +83,7 @@ export default defineComponent({
                         row.enable = $('content/chl/param/lightSwitch').text().bool()
                         row.durationTime = $('content/chl/param/durationTime').text().num()
                         row.frequencyType = $('content/chl/param/frequencyType').text()
-                        row.disabled = !!$('content/chl/param/lightSwitch').text()
+                        row.disabled = false
                         editRows.listen(row)
                     }
                 })

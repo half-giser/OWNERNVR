@@ -1153,12 +1153,13 @@ export const getTranslateOptions = <K extends string | number | boolean>(options
  * @returns {Record<string, string>}
  */
 export const getTranslateMapping = (options: Record<string, string>): Record<string, string> => {
+    const translatedOptions: Record<string, string> = {}
     const Translate = useLangStore().Translate
     const keys = Object.keys(options)
     keys.forEach((key) => {
-        options[key] = Translate(options[key])
+        translatedOptions[key] = Translate(options[key])
     })
-    return options
+    return translatedOptions
 }
 
 /**

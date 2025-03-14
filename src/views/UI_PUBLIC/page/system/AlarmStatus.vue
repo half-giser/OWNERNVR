@@ -11,7 +11,7 @@
             height="100%"
             :border="false"
             highlight-current-row
-            :row-key="(item) => item.id"
+            :row-key="getRowKey"
             :current-row-key="pageData.activeIndex"
             :expand-row-keys="pageData.activeRow"
             :show-header="false"
@@ -66,7 +66,7 @@
                                         `span${item.span}`,
                                     ]"
                                 >
-                                    <label>{{ Translate(item.key) }} :</label>
+                                    <label v-show="item.key">{{ Translate(item.key) }} :</label>
                                     <span>{{ item.value }}</span>
                                 </div>
                             </div>

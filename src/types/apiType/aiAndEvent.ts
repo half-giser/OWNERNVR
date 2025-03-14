@@ -442,7 +442,6 @@ export class AlarmFaceMatchDto {
     notHitEnable = false
     liveDisplaySwitch = false
     groupInfo: AlarmFaceGroupDto[] = []
-    editFlag = false
 }
 
 /**

@@ -15,7 +15,7 @@ import GenerateSprite from './scripts/generateSprite'
 import { transpileVueTemplatePropTypes, minifyXmlTemplateStrings, postMinifyCodes } from './scripts/transformers'
 import { cleanUpTempFiles } from './scripts/cleanTempFiles'
 import BasicSSL from '@vitejs/plugin-basic-ssl'
-import PostCssVariableCompress from 'postcss-variable-compress'
+// import PostCssVariableCompress from 'postcss-variable-compress'
 import PostCssPresetEnv from 'postcss-preset-env'
 import CssNano from 'cssnano'
 import { visualizer as Visualizer } from 'rollup-plugin-visualizer'
@@ -88,7 +88,7 @@ export default defineConfig(({ mode }) => {
                         ? []
                         : [
                               // 压缩的CSS变量只能在CSS/SCSS中使用，不能在template、typescript等样式外的文件中引用
-                              PostCssVariableCompress([(name: string) => !name.startsWith('--el')]),
+                              // PostCssVariableCompress([(name: string) => !name.startsWith('--el')]),
                               CssNano({
                                   preset: 'default',
                               }),

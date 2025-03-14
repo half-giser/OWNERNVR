@@ -10,7 +10,11 @@
         @open="open"
     >
         <div>
-            <el-form>
+            <el-form
+                :style="{
+                    '--form-input-width': '250px',
+                }"
+            >
                 <el-form-item>
                     <el-form-item :label="Translate('IDCS_NAME_PERSON')">
                         <el-input
@@ -119,7 +123,7 @@
             <IntelFaceDBChooseFacePop
                 v-model="pageData.isChooseFacePop"
                 @choose="confirmChooseFace"
-                @use-files="confirmImportFace"
+                @import-files="confirmImportFace"
                 @close="pageData.isChooseFacePop = false"
             />
         </div>

@@ -311,23 +311,25 @@ export default defineComponent({
                         statusTip: '',
                     }
                 })
-            })
 
-            // isVideoQualityDisabled当前行是否可进行修改
-            tableData.value.forEach((item) => {
-                if (item.chlType === 'recorder' || !item.subCaps.res.length || item.isRTSPChl) {
-                    item.disabled = true
-                } else {
-                    editRows.listen(item)
-                }
-            })
+                // isVideoQualityDisabled当前行是否可进行修改
+                tableData.value.forEach((item) => {
+                    console.log(item.chlType, item.subCaps.res, item.isRTSPChl)
+                    if (item.chlType === 'recorder' || !item.subCaps.res.length || item.isRTSPChl) {
+                        item.disabled = true
+                    } else {
+                        editRows.listen(item)
+                        console.log('here')
+                    }
+                })
 
-            // 排序 NT-9768
-            pageData.value.videoEncodeTypeList.sort((a, b) => {
-                return a.value.charCodeAt(0) - b.value.charCodeAt(0)
-            })
+                // 排序 NT-9768
+                pageData.value.videoEncodeTypeList.sort((a, b) => {
+                    return a.value.charCodeAt(0) - b.value.charCodeAt(0)
+                })
 
-            getResolutionDropdownData()
+                getResolutionDropdownData()
+            })
         }
 
         const setRecSubStreamData = async () => {

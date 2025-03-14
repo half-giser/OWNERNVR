@@ -1278,7 +1278,7 @@ const getSingletonPlugin = () => {
 
         /**
          * @notice 这里自动获取同步加载的对话框组件，并把它们添加进观察列表
-         * 如果是异步方式加载的组件，这里将添加失败，需要手动地执行ObserverElement来添加
+         * 如果是异步方式加载的组件，这里将添加失败，需要手动地执行ObserverElement()来添加
          */
 
         const observerList = new Map<HTMLElement, 'intersect' | 'visible'>()
@@ -1364,10 +1364,8 @@ const getSingletonPlugin = () => {
 
         if (browserEventMap.get(pluginRefDiv)) {
             if (browserEventMap.get(pluginRefDiv)!.observerList.has(unobserveElement)) {
-                return
+                browserEventMap.get(pluginRefDiv)!.observerList.delete(unobserveElement)
             }
-
-            browserEventMap.get(pluginRefDiv)!.observerList.delete(unobserveElement)
         }
     }
 

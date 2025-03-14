@@ -70,9 +70,9 @@ export default defineComponent({
          * @returns {string}
          */
         const formatIntelligentStatus = (row: SystemChannelStatusList) => {
-            if (!row.online || !row.motionStatus) {
+            if (!row.online || !row.intelligentStatus) {
                 return '--'
-            } else return TRANS_MAPPING[row.motionStatus === 'off' ? 'alarmOff' : row.intelligentStatus]
+            } else return TRANS_MAPPING[row.intelligentStatus === 'off' ? 'alarmOff' : row.intelligentStatus]
         }
 
         /**
@@ -81,9 +81,9 @@ export default defineComponent({
          * @returns {string}
          */
         const formatRecStatus = (row: SystemChannelStatusList) => {
-            if (!row.online || !row.motionStatus) {
+            if (!row.online || !row.recStatus) {
                 return '--'
-            } else return TRANS_MAPPING[row.motionStatus === 'off' ? 'recordingOff' : row.recStatus]
+            } else return TRANS_MAPPING[row.recStatus === 'off' ? 'recordingOff' : row.recStatus]
         }
 
         /**

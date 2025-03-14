@@ -24,8 +24,8 @@ export default defineComponent({
         },
     },
     emits: {
-        confirm(currId: string, combinedAlarmItems: AlarmCombinedItemDto[], entity: string, obj: AlarmCombinedFaceMatchDto) {
-            return typeof currId === 'string' && Array.isArray(combinedAlarmItems) && typeof entity === 'string' && typeof obj === 'object'
+        confirm(currId: string, combinedAlarmItems: AlarmCombinedItemDto[], entity: string, obj?: AlarmCombinedFaceMatchDto) {
+            return typeof currId === 'string' && Array.isArray(combinedAlarmItems) && typeof entity === 'string' && (typeof obj === 'object' || obj === undefined)
         },
         close(id: string) {
             return id
@@ -589,7 +589,7 @@ export default defineComponent({
             }
             if (isSameId) return false
 
-            tableData.value.some((item) => {
+            const flag = tableData.value.some((item) => {
                 if (item.alarmSourceType === 'FaceMatch' && pageData.value.faceMatchObj[item.alarmSourceEntity.value]) {
                     if (pageData.value.faceMatchObj[item.alarmSourceEntity.value]) {
                         const entity = item.alarmSourceEntity.value
@@ -599,7 +599,13 @@ export default defineComponent({
                         return true
                     }
                 }
+                return false
             })
+
+            if (!flag) {
+                ctx.emit('confirm', prop.linkedId, tableData.value, '')
+                ctx.emit('close', prop.linkedId)
+            }
         }
 
         const close = () => {

@@ -49,7 +49,9 @@
                     @change="handleH5Upload"
                 />
             </el-form-item>
-            <el-form-item>{{ pageData.importNote }} &nbsp;</el-form-item>
+            <el-form-item>
+                <span class="note">{{ pageData.importNote }} &nbsp;</span>
+            </el-form-item>
         </el-form>
         <el-form
             :style="{
@@ -89,7 +91,9 @@
                     />
                 </el-checkbox-group>
             </el-form-item>
-            <el-form-item>{{ pageData.exportNote }} &nbsp;</el-form-item>
+            <el-form-item>
+                <span class="note">{{ pageData.exportNote }} &nbsp;</span>
+            </el-form-item>
         </el-form>
         <BaseCheckAuthPop
             v-model="pageData.isCheckAuth"
@@ -108,3 +112,9 @@
 </template>
 
 <script lang="ts" src="./BackupAndRestore.v.ts"></script>
+
+<style lang="scss" scoped>
+.note {
+    color: var(--primary);
+}
+</style>

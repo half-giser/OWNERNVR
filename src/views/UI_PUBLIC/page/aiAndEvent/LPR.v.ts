@@ -261,7 +261,7 @@ export default defineComponent({
             if (mode.value === 'h5') {
                 drawer.destroy()
                 drawer = CanvasPolygon({
-                    el: player.getDrawbordCanvas(),
+                    el: player.getDrawbordCanvas(0),
                     regulation: currentRegulation,
                     onchange: changeVehicle,
                     closePath: closePath,
@@ -1161,35 +1161,37 @@ export default defineComponent({
                 matchFormData.value.task = $('content/chl/task/item').map((item) => {
                     const $item = queryXml(item.element)
                     const nameId = $item('param/nameId').text().num()
+                    const $param = queryXml($item('param')[0].element)
+                    const $trigger = queryXml($item('trigger')[0].element)
                     haveUseNameId.push(nameId)
                     return {
                         guid: item.attr('guid'),
                         id: item.attr('id'),
-                        ruleType: $item('param/ruleType').text(),
+                        ruleType: $param('ruleType').text(),
                         nameId,
-                        pluseSwitch: $item('param/pluseSwitch').text().bool(),
-                        groupId: $item('param/groupId/item').map((item) => item.attr('guid')),
-                        hintword: $item('param/hint/word').text(),
+                        pluseSwitch: $param('pluseSwitch').text().bool(),
+                        groupId: $param('groupId/item').map((item) => item.attr('guid')),
+                        hintword: $param('hint/word').text(),
                         schedule: getScheduleId(pageData.value.scheduleList, $item('schedule').attr('id')),
-                        record: $item('trigger/sysRec/chls/item').map((item) => {
+                        record: $trigger('sysRec/chls/item').map((item) => {
                             return {
                                 value: item.attr('id'),
                                 label: item.text(),
                             }
                         }),
-                        alarmOut: $item('trigger/alarmOut/alarmOuts/item').map((item) => {
+                        alarmOut: $trigger('alarmOut/alarmOuts/item').map((item) => {
                             return {
                                 value: item.attr('id'),
                                 label: item.text(),
                             }
                         }),
-                        snap: $item('trigger/sysSnap/chls/item').map((item) => {
+                        snap: $trigger('sysSnap/chls/item').map((item) => {
                             return {
                                 value: item.attr('id'),
                                 label: item.text(),
                             }
                         }),
-                        preset: $item('trigger/preset/presets/item').map((item) => {
+                        preset: $trigger('preset/presets/item').map((item) => {
                             const $item = queryXml(item.element)
                             return {
                                 index: $item('index').text(),
@@ -1201,9 +1203,9 @@ export default defineComponent({
                             }
                         }),
                         trigger: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'popMsgSwitch'].filter((item) => {
-                            return $item(item).text().bool()
+                            return $trigger(item).text().bool()
                         }),
-                        sysAudio: $item('trigger/sysAudio').attr('id'),
+                        sysAudio: $trigger('sysAudio').attr('id'),
                     }
                 })
                 matchFormData.value.task.forEach((item, index) => {
@@ -1234,10 +1236,12 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <chl id='${pageData.value.curChl}'>
+                        <hitEnable>${matchFormData.value.hitEnable}</hitEnable>
+                        <notHitEnable>${matchFormData.value.notHitEnable}</notHitEnable>
                         <task>
                             ${matchFormData.value.task
-                                .map((item) => {
-                                    rawXml`
+                                .map(
+                                    (item) => rawXml`
                                         <item guid='${item.guid}' id='${item.id}'>
                                             <param>
                                                 <ruleType>${item.ruleType}</ruleType>
@@ -1299,8 +1303,8 @@ export default defineComponent({
                                                 </sysSnap>
                                             </trigger>
                                         </item>
-                                    `
-                                })
+                                    `,
+                                )
                                 .join('')}
                         </task>
                     </chl>
@@ -1334,7 +1338,7 @@ export default defineComponent({
 
         // 车牌识别应用
         const applyMatchData = async () => {
-            if (matchFormData.value.editFlag) {
+            if (!watchMatch.disabled.value) {
                 await setMatchData()
             }
         }

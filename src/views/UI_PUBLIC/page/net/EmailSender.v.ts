@@ -67,6 +67,7 @@ export default defineComponent({
                     validator(_rule, value: string, callback) {
                         if (!formData.value.anonymousSwitch || !pageData.value.passwordSwitch) {
                             callback()
+                            return
                         }
 
                         if (!value.length) {
@@ -205,6 +206,16 @@ export default defineComponent({
         }
 
         /**
+         * @description 邮箱地址输入
+         */
+        const handleAddressInput = () => {
+            const diff = Math.abs(formData.value.address.length - formData.value.userName.length)
+            if ((formData.value.address.startsWith(formData.value.userName) || formData.value.userName.startsWith(formData.value.address)) && diff === 1) {
+                formData.value.userName = formData.value.address
+            }
+        }
+
+        /**
          * @description 用户名输入框获得焦点时触发
          */
         const handleUserNameFocus = () => {
@@ -226,30 +237,34 @@ export default defineComponent({
          * @description 更新数据
          */
         const setData = async () => {
-            openLoading()
+            formRef.value!.validate(async (valid) => {
+                if (valid) {
+                    openLoading()
 
-            const password = AES_encrypt(formData.value.password, userSession.sesionKey)
-            const sendXml = rawXml`
-                <content>
-                    <sender>
-                        <address>${wrapCDATA(formData.value.address)}</address>
-                        <name maxByteLen="63">${wrapCDATA(formData.value.name)}</name>
-                        <userName>${wrapCDATA(formData.value.userName)}</userName>
-                        ${formData.value.anonymousSwitch ? `<password ${getSecurityVer()}>${password}</password>` : ''}
-                        <anonymousSwitch>${formData.value.anonymousSwitch}</anonymousSwitch>
-                        <attachImg>${formData.value.attachImg}</attachImg>
-                        <imageNumber>${formData.value.imageNumber}</imageNumber>
-                        <smtp>
-                            <server>${wrapCDATA(formData.value.server)}</server>
-                            <port>${formData.value.port}</port>
-                            <ssl>${formData.value.ssl}</ssl>
-                        </smtp>
-                    </sender>
-                </content>
-            `
-            const result = await editEmailCfg(sendXml)
-            closeLoading()
-            commSaveResponseHandler(result)
+                    const password = AES_encrypt(formData.value.password, userSession.sesionKey)
+                    const sendXml = rawXml`
+                        <content>
+                            <sender>
+                                <address>${wrapCDATA(formData.value.address)}</address>
+                                <name maxByteLen="63">${wrapCDATA(formData.value.name)}</name>
+                                <userName>${wrapCDATA(formData.value.userName)}</userName>
+                                ${formData.value.anonymousSwitch ? `<password ${getSecurityVer()}>${password}</password>` : ''}
+                                <anonymousSwitch>${formData.value.anonymousSwitch}</anonymousSwitch>
+                                <attachImg>${formData.value.attachImg}</attachImg>
+                                <imageNumber>${formData.value.imageNumber}</imageNumber>
+                                <smtp>
+                                    <server>${wrapCDATA(formData.value.server)}</server>
+                                    <port>${formData.value.port}</port>
+                                    <ssl>${formData.value.ssl}</ssl>
+                                </smtp>
+                            </sender>
+                        </content>
+                    `
+                    const result = await editEmailCfg(sendXml)
+                    closeLoading()
+                    commSaveResponseHandler(result)
+                }
+            })
         }
 
         /**
@@ -277,6 +292,7 @@ export default defineComponent({
             changeSecurityConnection,
             handleUserNameFocus,
             handleUserNameBlur,
+            handleAddressInput,
             formatSTMPServer,
         }
     },
