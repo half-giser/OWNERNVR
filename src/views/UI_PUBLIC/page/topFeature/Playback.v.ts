@@ -277,7 +277,6 @@ export default defineComponent({
 
         const calendar = useCalendar()
         const userAuth = useUserChlAuth()
-        const pos = usePosInfo(mode)
 
         // 鱼眼视图是否显示
         const isFishEyePanel = computed(() => {
@@ -1020,8 +1019,14 @@ export default defineComponent({
 
             if (mode.value === 'ocx') {
                 ocxCacheWinMap.winMap.forEach((chlId, index) => {
-                    if (chlId) {
-                        cmd(pos(bool, chlId, index))
+                    const pos = player.getPosInfo(chlId)
+                    if (bool) {
+                        const area = pos.displayPosition
+                        const sendXml = OCX_XML_SetPOSDisplayArea(bool, index, area.x, area.y, area.width, area.height, pos.printMode)
+                        cmd(sendXml)
+                    } else {
+                        const sendXml = OCX_XML_SetPOSDisplayArea(false, index, 0, 0, 0, 0)
+                        cmd(sendXml)
                     }
                 })
             }
@@ -1579,7 +1584,9 @@ export default defineComponent({
                 if (status === 'success') {
                     if (systemCaps.supportPOS) {
                         //设置通道是否显示POS信息
-                        cmd(pos(true, chlId, winIndex))
+                        const pos = player.getPosInfo(chlId)
+                        const area = pos.displayPosition
+                        OCX_XML_SetPOSDisplayArea(true, winIndex, area.x, area.y, area.width, area.height, pos.printMode)
                     }
                 }
             }

@@ -187,7 +187,7 @@ export default defineComponent({
                         },
                         triggerChl: {
                             switch: $item('trigger/triggerChl/switch').text().bool(),
-                            chls: $item('triggerChl/chls/item').map((chl) => ({
+                            chls: $item('trigger/triggerChl/chls/item').map((chl) => ({
                                 value: chl.attr('id'),
                                 label: chl.text(),
                                 till: chl.attr('till'),
@@ -445,6 +445,7 @@ export default defineComponent({
             const item = tableData.value[index]
             pageData.value.triggerChannelDialogIndex = index
             pageData.value.triggerChannels = item.triggerChl.chls.map((item) => item.value)
+            console.log(pageData.value.triggerChannels)
             nextTick(() => {
                 if (item.manufacturers === 'Hayley' && item.connectionType === 'Multicast') {
                     pageData.value.isHayleyTriggerChannleDialog = true

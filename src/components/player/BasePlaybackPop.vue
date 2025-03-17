@@ -139,8 +139,6 @@ const mode = computed(() => {
     return playerRef.value!.mode
 })
 
-const posInfo = usePosInfo(mode)
-
 /**
  * @description 回放窗口宽度
  */
@@ -503,7 +501,10 @@ const ocxNotify = ($: XMLQuery, stateType: string) => {
         if (status.trim() === 'success') {
             if (systemCaps.supportPOS) {
                 //设置通道是否显示POS信息
-                plugin.ExecuteCmd(posInfo(true, chlId, winIndex))
+                const pos = player.getPosInfo(chlId)
+                const area = pos.displayPosition
+                const sendXml = OCX_XML_SetPOSDisplayArea(true, winIndex, area.x, area.y, area.width, area.height, pos.printMode)
+                plugin.ExecuteCmd(sendXml)
             }
         }
     }

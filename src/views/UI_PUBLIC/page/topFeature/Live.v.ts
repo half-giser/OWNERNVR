@@ -282,119 +282,6 @@ const useRecType = (mode: Ref<string>) => {
     return recType
 }
 
-/**
- * @description 是否显示POS信息
- */
-const usePos = (mode: Ref<string>) => {
-    const posInfo: Record<string, TVTPlayerPosInfoItem> = {}
-
-    /**
-     * @description 获取POS数据列表
-     */
-    const getData = async () => {
-        const result = await queryPosList()
-        const $ = queryXml(result)
-        if ($('status').text() !== 'success') return
-        const $systemX = $('content/itemType/coordinateSystem/X')
-        const $systemY = $('content/itemType/coordinateSystem/Y')
-        const width = $systemX.attr('max').num() - $systemX.attr('min').num()
-        const height = $systemY.attr('max').num() - $systemY.attr('min').num()
-
-        $('channel/chl').forEach((ele) => {
-            const chlId = ele.attr('id')
-            const $ele = queryXml(ele.element)
-            const previewDisplay = $ele('previewDisplay').text().bool()
-            const printMode = $ele('printMode').text()
-            posInfo[chlId] = {
-                previewDisplay: previewDisplay, // 现场预览是否显示pos
-                printMode: printMode as 'page' | 'scroll', // pos显示模式：page翻页/scroll滚屏
-                displayPosition: {
-                    // pos显示区域
-                    x: 0,
-                    y: 0,
-                    width: width,
-                    height: height,
-                },
-                timeout: 10, // pos超时隐藏时间，默认10秒
-            }
-        })
-        $('content/item').forEach((ele) => {
-            const $ele = queryXml(ele.element)
-            const $position = queryXml($ele('param/displaySetting/displayPosition')[0].element)
-            const $triggerChls = $ele('trigger/triggerChl/chls/item')
-            const timeout = $ele('param/displaySetting/common/timeOut').text()
-            if (!$triggerChls.length) return
-            const displayPosition = {
-                x: $position('X').text().num(),
-                y: $position('Y').text().num(),
-                width: $position('width').text().num(),
-                height: $position('height').text().num(),
-            }
-            $triggerChls.forEach((item) => {
-                const chlId = item.attr('id')
-                if (posInfo[chlId]) {
-                    posInfo[chlId].displayPosition = displayPosition
-                    posInfo[chlId].timeout = Number(timeout)
-                }
-            })
-        })
-    }
-
-    /**
-     * @description 查询通道的POS信息
-     * @param {string} chlId
-     */
-    const getPosInfo = (chlId: string) => {
-        if (posInfo[chlId]) {
-            return posInfo[chlId]
-        }
-        return {
-            previewDisplay: false,
-            printMode: 'page',
-            timeout: 10,
-            displayPosition: {
-                x: 0,
-                y: 0,
-                width: 0,
-                height: 0,
-            },
-        }
-    }
-
-    /**
-     * @description 生成OCX命令
-     * @param {Boolean} bool
-     * @param {String} chlId
-     * @param {Number} winIndex
-     */
-    const getCmd = (bool: boolean, chlId: string, winIndex: number) => {
-        const pos = getPosInfo(chlId)
-        if (pos.previewDisplay) {
-            const area = pos.displayPosition
-            return OCX_XML_SetPOSDisplayArea(bool, winIndex, area.x, area.y, area.width, area.height, pos.printMode)
-        } else {
-            return OCX_XML_SetPOSDisplayArea(false, winIndex, 0, 0, 0, 0)
-        }
-    }
-
-    const stopWatch = watch(
-        mode,
-        (newVal) => {
-            if (newVal === 'ocx') {
-                getData()
-                stopWatch()
-            } else if (newVal === 'h5') {
-                stopWatch()
-            }
-        },
-        {
-            immediate: true,
-        },
-    )
-
-    return getCmd
-}
-
 export default defineComponent({
     components: {
         LiveChannelPanel,
@@ -479,7 +366,6 @@ export default defineComponent({
                 pageData.value.allRemoteRecord = status
             },
         )
-        const pos = usePos(mode)
 
         // 抓拍视图是否显示
         const isSnapPanel = computed(() => {
@@ -1625,7 +1511,16 @@ export default defineComponent({
                         }
 
                         //设置通道是否显示POS信息
-                        plugin.ExecuteCmd(pos(true, chlId, winIndex))
+                        const pos = player.getPosInfo(chlId)
+                        if (pos.previewDisplay) {
+                            const area = pos.displayPosition
+                            const sendXml = OCX_XML_SetPOSDisplayArea(true, winIndex, area.x, area.y, area.width, area.height, pos.printMode)
+                            plugin.ExecuteCmd(sendXml)
+                        } else {
+                            const sendXml = OCX_XML_SetPOSDisplayArea(false, winIndex, 0, 0, 0, 0)
+                            plugin.ExecuteCmd(sendXml)
+                        }
+
                         setRecStatus()
                         break
                     case 'offline':

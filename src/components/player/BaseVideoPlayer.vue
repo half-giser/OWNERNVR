@@ -1674,7 +1674,7 @@ const createVideoPlayer = () => {
     }
 
     if (enablePos) {
-        getPosCfg()
+        getPosList()
     }
 }
 
@@ -1776,14 +1776,14 @@ const play = (params: PlayerPlayParams) => {
             // const winIndex = getWinIndexByCav(videoCav)
             if (params.callback) params.callback(winIndex)
         },
-        onerror: (errorCode?: number, url?: string) => {
+        onerror: (errorCode, url) => {
             // const winIndex = getWinIndexByCav(videoCav)
             handlePlayError(winIndex, errorCode, url)
             winDataList[winIndex].PLAY_STATUS = 'error'
             emits('error', winIndex, winDataList[winIndex])
             emits('playStatus', getPlayingChlList())
         },
-        ontime: (timestamp: number) => {
+        ontime: (timestamp) => {
             noRecordFlag = false
             // const winIndex = getWinIndexByCav(videoCav)
             handleOntime(winIndex, timestamp)
@@ -1794,7 +1794,7 @@ const play = (params: PlayerPlayParams) => {
                 emits('playStatus', getPlayingChlList())
             }
         },
-        onwatermark: (watermark: string) => {
+        onwatermark: (watermark) => {
             // const winIndex = getWinIndexByCav(videoCav)
             setWatermark(winIndex, watermark)
         },
@@ -2383,7 +2383,7 @@ const stopAllRecord = () => {
 /**
  * @description 获取pos配置
  */
-const getPosCfg = () => {
+const getPosList = () => {
     queryPosList().then((res) => {
         const $ = queryXml(res)
         if ($('status').text() !== 'success') return
@@ -2415,7 +2415,7 @@ const getPosCfg = () => {
             const $ele = queryXml(ele.element)
             const $position = 'param/displaySetting/displayPosition/'
             const $triggerChls = $ele('trigger/triggerChl/chls/item')
-            const timeout = $ele('param/displaySetting/common/timeOut').text()
+            const timeout = $ele('param/displaySetting/common/timeOut').text().num()
             if (!$triggerChls.length) return
             const displayPosition = {
                 x: $ele(`${$position}X`).text().num(),
@@ -2427,11 +2427,32 @@ const getPosCfg = () => {
                 const chlId = item.attr('id')
                 if (posInfo[chlId]) {
                     posInfo[chlId].displayPosition = displayPosition
-                    posInfo[chlId].timeout = Number(timeout)
+                    posInfo[chlId].timeout = timeout
                 }
             })
         })
     })
+}
+
+/**
+ * @description 查询通道的POS信息
+ * @param {string} chlId
+ */
+const getPosInfo = (chlId: string) => {
+    if (posInfo[chlId]) {
+        return posInfo[chlId]
+    }
+    return {
+        previewDisplay: false,
+        printMode: 'page',
+        timeout: 10,
+        displayPosition: {
+            x: 0,
+            y: 0,
+            width: 0,
+            height: 0,
+        },
+    }
 }
 
 /**
@@ -2619,6 +2640,7 @@ const player = {
     toggleOSD,
     toggleWatermark: toggleAllWatermark,
     togglePos: toggleAllPos,
+    getPosInfo,
     setRecordStatus,
     setAlarmStatus,
     fullscreen,
