@@ -44,7 +44,7 @@ export const formatSeconds = (seconds: number) => {
  * @returns {string}
  */
 export const getUTCDateByMilliseconds = (timestamp: number) => {
-    return dayjs.unix(timestamp).format(DEFAULT_DATE_FORMAT)
+    return dayjs.unix(timestamp).utc().format(DEFAULT_DATE_FORMAT)
 }
 
 /**

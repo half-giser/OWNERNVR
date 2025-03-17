@@ -15,6 +15,7 @@ import BackupPop from '../searchAndBackup/BackupPop.vue'
 import BackupLocalPop from '../searchAndBackup/BackupLocalPop.vue'
 import dayjs from 'dayjs'
 import { type XMLQuery } from '@/utils/xmlParse'
+import { isEqual } from 'lodash-es'
 
 /**
  * @description 日历组件hook
@@ -347,8 +348,12 @@ export default defineComponent({
          * @param {Array} chls
          */
         const handleChlChange = (chls: PlaybackChlList[]) => {
-            pageData.value.chls = chls
-            getRecSection(pageData.value.chls.map((item) => item.id))
+            const chlIds = chls.map((item) => item.id)
+            const oldChlIds = pageData.value.chls.map((item) => item.id)
+            if (!isEqual(chlIds, oldChlIds)) {
+                pageData.value.chls = chls
+                getRecSection(chlIds)
+            }
         }
 
         /**
@@ -376,6 +381,7 @@ export default defineComponent({
             pageData.value.mainStreamTypeChl = ''
             pageData.value.playStatus = 'play'
             await handleChlSearch(chls)
+            adjustSplit()
             playAll()
         }
 
@@ -408,27 +414,31 @@ export default defineComponent({
 
             toggleOSD(true)
             toggleWatermark(false)
-
-            if (history.state.chlId) {
-                pageData.value.startTime = dayjs(history.state.startTime).toDate()
-                pageData.value.playStatus = 'play'
-                handleChlSearch([
-                    {
-                        id: history.state.chlId,
-                        value: history.state.chlName,
-                    },
-                ])
-                if (mode.value === 'h5') {
-                    playAll(history.state.startTime, history.state.endTime)
-                }
-                nextTick(() => {
-                    delete history.state.chlId
-                    delete history.state.chlName
-                    delete history.state.startTime
-                    delete history.state.endTime
-                })
-            }
         }
+
+        const stopWatchPlayFromSearch = watchEffect(async () => {
+            if (ready.value) {
+                if (history.state.chlId) {
+                    pageData.value.startTime = dayjs(history.state.startTime).toDate()
+                    calendar.change(pageData.value.startTime)
+                    await handleChlSearch([
+                        {
+                            id: history.state.chlId,
+                            value: history.state.chlName,
+                        },
+                    ])
+                    playAll(history.state.startTime / 1000)
+                    chlRef.value?.setChls([history.state.chlId])
+                    nextTick(() => {
+                        delete history.state.chlId
+                        delete history.state.chlName
+                        delete history.state.startTime
+                        delete history.state.endTime
+                    })
+                }
+                stopWatchPlayFromSearch()
+            }
+        })
 
         /**
          * @description 播放时间戳更新
@@ -476,16 +486,8 @@ export default defineComponent({
         const handlePlayerStatus = (data: TVTPlayerWinDataListItem[]) => {
             const type = data.length ? 'play' : 'stop'
             pageData.value.playStatus = type
-
             // 设置通道列表图标显示状态
-            if (type === 'play') {
-                data.forEach((item) => {
-                    const chlId = item.CHANNEL_INFO!.chlID
-                    if (!pageData.value.playingList.includes(chlId)) {
-                        pageData.value.playingList.push(chlId)
-                    }
-                })
-            }
+            pageData.value.playingList = data.map((item) => item.CHANNEL_INFO!.chlID)
         }
 
         /**
@@ -1143,17 +1145,28 @@ export default defineComponent({
                 return
             }
 
+            pageData.value.playStatus = 'stop'
+            pageData.value.isFullScreen = false
+
             if (mode.value === 'h5') {
                 player.stopAll()
             }
 
             if (mode.value === 'ocx') {
                 cmd(OCX_XML_StopPreview('ALL'))
-                pageData.value.playStatus = 'stop'
-                pageData.value.isFullScreen = false
             }
+
             timelineRef.value!.clearClipRange()
-            pageData.value.chls = []
+            chlRef.value!.setChls([])
+        }
+
+        const adjustSplit = () => {
+            const splitList = [1, 4, 9, 16, 25, 36]
+            let i = 0
+            while (pageData.value.chls.length > splitList[i]) {
+                i++
+            }
+            setSplit(splitList[i])
         }
 
         /**
@@ -1212,11 +1225,28 @@ export default defineComponent({
             }
 
             if (mode.value === 'h5') {
-                player.seek(timestamp)
+                if (pageData.value.playStatus === 'stop') {
+                    playAll(timestamp)
+                } else {
+                    player.seek(timestamp)
+                }
             }
 
             if (mode.value === 'ocx') {
-                playAll(timestamp)
+                if (pageData.value.playingListNum === 0) {
+                    playAll(timestamp)
+                } else {
+                    const sendXML = OCX_XML_RecCurPlayTime(
+                        [
+                            {
+                                index: 4294967295,
+                                time: timestamp,
+                            },
+                        ],
+                        Math.floor(startTimeStamp.value / 1000),
+                    )
+                    cmd(sendXML)
+                }
             }
         }
 
@@ -1517,7 +1547,11 @@ export default defineComponent({
                 }
                 const playStatus = $item('playStatus').text()
                 if (['FORWARDS', 'BACKWARDS', 'BACKWARDS_PAUSE', 'FORWARDS_PAUSE'].includes(playStatus)) {
-                    pageData.value.winData.PLAY_STATUS = 'play'
+                    if (pageData.value.winData.chlID === DEFAULT_EMPTY_ID) {
+                        pageData.value.winData.PLAY_STATUS = 'stop'
+                    } else {
+                        pageData.value.winData.PLAY_STATUS = 'play'
+                    }
                 } else {
                     pageData.value.winData.PLAY_STATUS = 'stop'
                 }
@@ -1586,7 +1620,8 @@ export default defineComponent({
                         //设置通道是否显示POS信息
                         const pos = player.getPosInfo(chlId)
                         const area = pos.displayPosition
-                        OCX_XML_SetPOSDisplayArea(true, winIndex, area.x, area.y, area.width, area.height, pos.printMode)
+                        const sendXml = OCX_XML_SetPOSDisplayArea(true, winIndex, area.x, area.y, area.width, area.height, pos.printMode)
+                        cmd(sendXml)
                     }
                 }
             }
@@ -1611,16 +1646,11 @@ export default defineComponent({
             (newVal, oldVal) => {
                 timelineRef.value?.clearClipRange()
                 nextTick(() => {
-                    const splitList = [1, 4, 9, 16, 25, 36]
-                    let i = 0
-                    while (pageData.value.chls.length > splitList[i]) {
-                        i++
-                    }
-
-                    if (['play', 'pause', 'backwards'].includes(pageData.value.playStatus)) {
-                    } else {
-                        if (pageData.value.split !== splitList[i]) {
-                            setSplit(splitList[i])
+                    if (!['play', 'pause', 'backwards'].includes(pageData.value.playStatus)) {
+                        if (pageData.value.split < newVal.length) {
+                            adjustSplit()
+                        } else if (!newVal.length) {
+                            setSplit(1)
                         }
                     }
 

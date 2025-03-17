@@ -57,7 +57,10 @@
                     :label="Translate('IDCS_PROGRESS')"
                     prop="progress"
                 />
-                <el-table-column :label="Translate('IDCS_OPERATION')">
+                <el-table-column
+                    width="110"
+                    :label="Translate('IDCS_OPERATION')"
+                >
                     <template #header>
                         <el-dropdown :teleported="false">
                             <BaseTableDropdownLink>
@@ -87,7 +90,10 @@
                         <el-text v-else-if="row.status === 'failed'">{{ Translate('IDCS_FAILED') }}</el-text>
                     </template>
                 </el-table-column>
-                <el-table-column :label="Translate('IDCS_DELETE')">
+                <el-table-column
+                    :label="Translate('IDCS_DELETE')"
+                    width="110"
+                >
                     <template #header>
                         <el-dropdown :teleported="false">
                             <BaseTableDropdownLink>
@@ -135,15 +141,16 @@
     overflow: unset !important;
 }
 
-:deep(.cell) {
+:deep(.el-table__header .el-table__cell) {
+    z-index: 2;
+}
+
+:deep(.el-table__header .cell) {
+    position: relative;
     overflow: unset !important;
 }
 
 :deep(.el-dropdown-menu__item) {
     font-weight: normal;
 }
-
-// :deep(.el-dropdown__popper) .el-popper__arrow::before {
-//     background-color: var(--color-white) !important;
-// }
 </style>

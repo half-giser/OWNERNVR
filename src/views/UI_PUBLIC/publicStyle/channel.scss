@@ -38,6 +38,7 @@
     width: 20px;
     height: 20px;
     border: 1px solid var(--ptz-btn);
+    background-color: var(--ptz-btn);
 
     .Sprite {
         position: absolute;
@@ -46,8 +47,8 @@
     }
 
     &:hover {
-        background-color: var(--ptz-btn);
         border-color: var(--primary);
+        background-color: transparent;
     }
 
     &:has(.disabled) {

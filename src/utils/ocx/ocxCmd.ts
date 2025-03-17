@@ -11,86 +11,6 @@ export const OCX_XML_OpenFileBrowser_getpath = (xmlStr: string) => {
 }
 
 /**
- * @description 获取语言节点
- * @returns string
- */
-export const OCX_XML_GetLangNode = () => {
-    const langKeys = [
-        'IDCS_FULLSCREEN',
-        'IDCS_CLOSE_IMAGE',
-        'IDCS_AUDIO_ON',
-        'IDCS_AUDIO_OFF',
-        'IDCS_VIDEO_PENDING',
-        'IDCS_UNKNOWN_ERROR_CODE',
-        'IDCS_FAILED',
-        'IDCS_NODE_NOT_ONLINE',
-        'IDCS_INVALID_PARAMETER',
-        'IDCS_DEVICE_BUSY',
-        'IDCS_NO_PERMISSION',
-        'IDCS_NOT_SUPPORTFUNC',
-        'IDCS_DEVICE_TYPE_ERR',
-        'IDCS_CONNECT_LIMIT',
-        'IDCS_SYNC_WAITTING',
-        'IDCS_LOCAL',
-        'IDCS_PLAYBACK_END',
-        'IDCS_NO_RECORD_DATA',
-        'IDCS_MANUAL',
-        'IDCS_SCHEDULE',
-        'IDCS_INTELIGENCE_DETECTION',
-        'IDCS_AI',
-        'IDCS_MOTION_DETECTION',
-        'IDCS_SENSOR',
-        'IDCS_DEVICE_USER_NOTEXIST',
-        'IDCS_DEVICE_BUSY',
-        'IDCS_POS',
-        'IDCS_POE',
-        'IDCS_CHANNEL_NOTEXIST',
-        'IDCS_CONNECT_FAILED',
-        'IDCS_LOGIN_FAILED',
-        'IDCS_CHOOSE_FOLDER',
-        'IDCS_SET_CHANNEL_PALY_TIME_D',
-        'IDCS_SET_PALY_SYN_TIME_D',
-        'IDCS_NO_VIDEO_SIGNAL',
-        'IDCS_CALENDAR_JANUARY',
-        'IDCS_CALENDAR_FEBRUARY',
-        'IDCS_CALENDAR_MARCH',
-        'IDCS_CALENDAR_APRIL',
-        'IDCS_CALENDAR_MAY',
-        'IDCS_CALENDAR_JUNE',
-        'IDCS_CALENDAR_JULY',
-        'IDCS_CALENDAR_AUGUST',
-        'IDCS_CALENDAR_SEPTEMBER',
-        'IDCS_CALENDAR_OCTOBER',
-        'IDCS_CALENDAR_NOVEMBER',
-        'IDCS_CALENDAR_DECEMBER',
-        'IDCS_CALENDAR_SUNDAY',
-        'IDCS_CALENDAR_MONDAY',
-        'IDCS_CALENDAR_TUESDAY',
-        'IDCS_CALENDAR_WEDNESDAY',
-        'IDCS_CALENDAR_THURSDAY',
-        'IDCS_CALENDAR_FRIDAY',
-        'IDCS_CALENDAR_SATURDAY',
-        'IDCS_DISK_FULL',
-        'IDCS_EVENT_NORMAL_ALL',
-        'IDCS_FACE',
-        'IDCS_LICENSE_PLATE',
-        'IDCS_BEYOND_DETECTION',
-        'IDCS_INVADE_DETECTION',
-        'IDCS_MAINTENSIGN_ITEM_OTHERSYS',
-        'IDCS_REMOTE_USER_LOCKED',
-    ]
-    const { langItems } = useLangStore()
-    return Object.keys(langItems!)
-        .map((item) => {
-            if (langKeys.includes(item)) {
-                return `<item id="${item}">${langItems![item]}</item>`
-            }
-            return ''
-        })
-        .join('')
-}
-
-/**
  * @description 初始化OCX
  * @param {string} model Interactive(交互模式)/ReadOnly(只读模式)/Fixed
  * @param {string} notifyFunName 回调函数
@@ -660,9 +580,14 @@ export const OCX_XML_LightSwitch = (status: 'ON' | 'OFF') => {
  * @returns {string}
  */
 export const OCX_XML_SetLang = () => {
+    const { langItems } = useLangStore()
     return wrapXml(rawXml`
         <cmd type="SetLang">
-            ${OCX_XML_GetLangNode()}
+            ${Object.entries(langItems)
+                .map((item) => {
+                    return `<item id="${item[0]}">${item[1]}</item>`
+                })
+                .join('')}
         </cmd>
     `)
 }
@@ -809,15 +734,23 @@ export const OCX_XML_Skip = (time: number) => {
 /**
  * @description 设置当前播放时间点
  * @param winList
- * @param viewType
+ * @param startTime
  * @returns {string}
  */
-export const OCX_XML_RecCurPlayTime = (winList: { time: number; index: number }[]) => {
-    return wrapXml(rawXml`
-        <cmd type="RecCurPlayTime">
-            ${winList.map((item) => `<win index="${item.index}" time="${getUTCDateByMilliseconds(item.time)}">${item.time}</win>`).join('')}
-        </cmd>
-    `)
+export const OCX_XML_RecCurPlayTime = (winList: { time: number; index: number }[], startTime?: number) => {
+    if (startTime) {
+        return wrapXml(rawXml`
+            <cmd type="RecCurPlayTime" taskId="${Date.now()}">
+                ${winList.map((item) => `<win index="${item.index}" time="${getUTCDateByMilliseconds(item.time)}">${Math.round(item.time - startTime)}</win>`).join('')}
+            </cmd>
+        `)
+    } else {
+        return wrapXml(rawXml`
+            <cmd type="RecCurPlayTime">
+                ${winList.map((item) => `<win index="${item.index}" time="${getUTCDateByMilliseconds(item.time)}">${item.time}</win>`).join('')}
+            </cmd>
+        `)
+    }
 }
 
 /**

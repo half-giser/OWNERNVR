@@ -8,6 +8,7 @@ import ChannelGroupAddPop from '../channel/ChannelGroupAddPop.vue'
 
 export interface ChannelPanelExpose {
     removeChls(chl: string[]): void
+    setChls(chl: string[]): void
 }
 
 export default defineComponent({
@@ -396,6 +397,10 @@ export default defineComponent({
             pageData.value.selectedChl = selectedChl
         }
 
+        const setChls = (chls: string[]) => {
+            pageData.value.selectedChl = chls
+        }
+
         watch(
             () => pageData.value.selectedChl,
             () => {
@@ -405,11 +410,7 @@ export default defineComponent({
 
         onMounted(async () => {
             await getChlsList()
-            if (history.state && history.state.chlId) {
-                if (Object.keys(chlMap.value).includes(history.state.chlId as string)) {
-                    pageData.value.selectedChl.push(history.state.chlId as string)
-                }
-            }
+
             nextTick(() => {
                 ctx.emit('ready')
             })
@@ -417,6 +418,7 @@ export default defineComponent({
 
         ctx.expose({
             removeChls,
+            setChls,
         })
 
         return {

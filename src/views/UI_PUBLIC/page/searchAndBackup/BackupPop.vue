@@ -44,12 +44,10 @@
                     readonly
                     class="path-input"
                 />
-                <el-button
-                    class="path-btn"
+                <BaseImgSpriteBtn
+                    file="filechooser"
                     @click="openFolder"
-                >
-                    <BaseImgSpriteBtn file="filechooser" />
-                </el-button>
+                />
             </el-form-item>
             <el-form-item v-show="formData.destination === 'local'">
                 <el-text class="text-error">{{ Translate('IDCS_AVI_UNENCRYPTED_TIP') }}</el-text>

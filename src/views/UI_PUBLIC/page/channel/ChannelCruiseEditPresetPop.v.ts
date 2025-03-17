@@ -117,7 +117,7 @@ export default defineComponent({
         const confirm = () => {
             const data = {
                 ...formData.value,
-                index: pageData.value.nameOptions.findIndex((item) => item.label === formData.value.name) + 1,
+                index: pageData.value.nameOptions.find((item) => item.label === formData.value.name)!.value || 1,
                 id: prop.data.id,
             }
             ctx.emit('confirm', data)

@@ -1750,6 +1750,12 @@ const play = (params: PlayerPlayParams) => {
             // this.winDataList[winIndex].audio = false  // NVR145-178 音频不重置
             winDataList[winIndex].magnify3D = false
             winDataList[winIndex].timestamp = 0
+            winDataList[winIndex].CHANNEL_INFO = {
+                chlID: '',
+                chlName: '',
+                supportPtz: false,
+                streamType: 2,
+            }
             toggleAudioIcon(winIndex, false)
             togglePtzIcon(winIndex, false)
             zoom(winIndex, 1)
