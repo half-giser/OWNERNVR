@@ -22,6 +22,9 @@
                 <el-select-v2
                     v-model="formData.name"
                     :options="pageData.nameOptions"
+                    :props="{
+                        value: 'label',
+                    }"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_DURATION')">

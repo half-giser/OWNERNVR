@@ -7,7 +7,7 @@
     <div class="log">
         <el-popover
             v-model:visible="pageData.visible"
-            :width="800"
+            :width="950"
             popper-class="no-padding"
             placement="top-end"
         >
@@ -38,7 +38,10 @@
                 <el-table-column :label="Translate('IDCS_END_TIME')">
                     <template #default="{ row }: TableColumn<PlaybackRecLogList>">{{ displayTime(row.endTime) }}</template>
                 </el-table-column>
-                <el-table-column :label="Translate('IDCS_EVENT_TYPE')">
+                <el-table-column
+                    :label="Translate('IDCS_EVENT_TYPE')"
+                    width="180"
+                >
                     <template #header>
                         <el-popover
                             v-model:visible="pageData.eventVisible"
@@ -92,7 +95,10 @@
                     prop="duration"
                 />
 
-                <el-table-column :label="Translate('IDCS_PLAY')">
+                <el-table-column
+                    :label="Translate('IDCS_PLAY')"
+                    width="90"
+                >
                     <template #default="{ row }: TableColumn<PlaybackRecLogList>">
                         <BaseImgSpriteBtn
                             file="preview"
@@ -104,6 +110,7 @@
                 <el-table-column
                     v-show="!isMac"
                     :label="Translate('IDCS_DOWNLOAD')"
+                    width="90"
                 >
                     <template #default="{ row }: TableColumn<PlaybackRecLogList>">
                         <BaseImgSpriteBtn

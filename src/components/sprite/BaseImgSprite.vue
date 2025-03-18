@@ -161,6 +161,7 @@ const click = (e: Event) => {
     background-image: img-url('@/components/sprite/sprites.png');
     background-repeat: no-repeat;
     vertical-align: middle;
+    flex-shrink: 0;
 
     &.hover {
         cursor: pointer;

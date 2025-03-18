@@ -314,12 +314,10 @@ export default defineComponent({
 
                 // isVideoQualityDisabled当前行是否可进行修改
                 tableData.value.forEach((item) => {
-                    console.log(item.chlType, item.subCaps.res, item.isRTSPChl)
                     if (item.chlType === 'recorder' || !item.subCaps.res.length || item.isRTSPChl) {
                         item.disabled = true
                     } else {
                         editRows.listen(item)
-                        console.log('here')
                     }
                 })
 

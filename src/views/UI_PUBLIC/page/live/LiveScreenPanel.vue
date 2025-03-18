@@ -20,7 +20,7 @@
                 <el-popover
                     placement="right-start"
                     trigger="hover"
-                    :width="pageData.ocxSeg.length * 45 + 22"
+                    :width="(pageData.ocxSeg.length + pageData.ocxRotateSeg.length) * 45 + 22"
                     :disabled="winData.isDwellPlay"
                 >
                     <template #reference>
@@ -33,9 +33,20 @@
                         <BaseImgSpriteBtn
                             v-for="seg in pageData.ocxSeg"
                             :key="`${seg.type}_${seg.split}`"
-                            :file="seg.file ? seg.file : `seg_${seg.split}`"
-                            :active="seg.split === split"
-                            @click="$emit('update:split', seg.split, seg.type)"
+                            :file="seg.file"
+                            :active="seg.split === split && seg.type === pageData.splitType"
+                            @click="changeSplit(seg.split, seg.type)"
+                        />
+                        <div
+                            v-show="pageData.ocxRotateSeg.length"
+                            class="segs-split"
+                        ></div>
+                        <BaseImgSpriteBtn
+                            v-for="seg in pageData.ocxRotateSeg"
+                            :key="`${seg.type}_${seg.split}`"
+                            :file="seg.file"
+                            :active="seg.split === split && seg.type === pageData.splitType"
+                            @click="changeSplit(seg.split, seg.type)"
                         />
                     </div>
                 </el-popover>
@@ -139,6 +150,13 @@
     justify-content: flex-start;
 
     & > span {
+        margin: 0 5px;
+    }
+
+    &-split {
+        height: 34px;
+        width: 1px;
+        border-left: 1px solid var(--content-border);
         margin: 0 5px;
     }
 }

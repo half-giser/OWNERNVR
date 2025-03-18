@@ -129,6 +129,12 @@
             }
         }
 
+        span:first-child {
+            position: absolute;
+            top: 3px;
+            left: 0;
+        }
+
         span:last-child {
             position: absolute;
             top: 0;

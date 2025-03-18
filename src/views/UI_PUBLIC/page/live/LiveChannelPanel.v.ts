@@ -11,6 +11,7 @@ export interface ChannelPanelExpose {
     getOfflineChlList: () => string[]
     setOnlineChlList: (chls: string[]) => void
     getChlMap: () => Record<string, LiveChannelList>
+    switchChl: (split: number) => void
 }
 
 export default defineComponent({
@@ -60,6 +61,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
+        const systemCaps = useCababilityStore()
 
         const pageData = ref({
             // 通道列表是否初始化完毕
@@ -492,9 +494,11 @@ export default defineComponent({
         const setWinFormCustomView = (item: LiveCustomViewList) => {
             pageData.value.activeCustomView = item.id
 
-            if (item.segNum > 4) {
+            if ((prop.mode === 'h5' && item.segNum > 4) || (prop.mode === 'ocx' && item.segNum > systemCaps.previewMaxWin)) {
                 openMessageBox(Translate('IDCS_NO_SUPPORT_SEGMENTATION').formatForLang(item.segNum))
+                return
             }
+
             ctx.emit('custom', item.chlArr, item.segNum)
         }
 
@@ -518,6 +522,27 @@ export default defineComponent({
                     chlMap[id].chlIp = $item('ip').text()
                 }
             })
+        }
+
+        /**
+         * @description 切换通道
+         * @param split
+         */
+        const switchChl = (split: number) => {
+            const onlineChl = chlList.value.filter((chl) => pageData.value.onlineChlList.includes(chl.id))
+            let lastIndex = Math.max(...prop.playingList.map((chlId) => onlineChl.findIndex((chl) => chl.id === chlId)))
+            if (lastIndex === onlineChl.length - 1) {
+                lastIndex = -1
+            }
+            console.log(onlineChl, lastIndex)
+            ctx.emit(
+                'custom',
+                onlineChl.splice(lastIndex + 1, split).map((item, index) => ({
+                    chlId: item.id,
+                    chlIndex: index,
+                })),
+                split,
+            )
         }
 
         // const stopRefreshChlStatus = () => {
@@ -565,6 +590,7 @@ export default defineComponent({
             setOnlineChlList,
             getOfflineChlList,
             getChlMap,
+            switchChl,
         })
 
         return {

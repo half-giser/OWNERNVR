@@ -159,12 +159,11 @@
                 active
             />
             <BaseImgSpriteBtn
-                v-show="playStatus === 'play'"
+                v-show="playStatus === 'play' || playStatus === 'stop'"
                 file="fwPlay"
-                :class="{ hide: disabled }"
                 active
             />
-            <p :class="{ hide: disabled }">{{ displaySpeed }}</p>
+            <p>{{ displaySpeed }}</p>
         </div>
         <div class="ctrl-right">
             <!-- POS按钮 -->
@@ -247,10 +246,12 @@
             font-size: 22px;
             color: var(--primary);
             margin: 0;
+            width: 65px;
         }
 
         .hide {
-            visibility: hidden;
+            display: none;
+            // visibility: hidden;
         }
     }
 

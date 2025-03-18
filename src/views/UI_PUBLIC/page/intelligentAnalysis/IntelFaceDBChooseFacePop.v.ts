@@ -107,7 +107,6 @@ export default defineComponent({
          * @param {IntelFaceDBImportFaceDto[]} e
          */
         const importImg = (e: IntelFaceDBImportFaceDto[]) => {
-            console.log('importFiles', e)
             ctx.emit('importFiles', e)
         }
 

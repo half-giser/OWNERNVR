@@ -175,7 +175,7 @@ export default defineComponent({
          */
         const displayEvent = (row: PlaybackRecLogList) => {
             if (displayEventIcon(row)) {
-                return EVENT_TRANS_MAPPING.motion
+                return EVENT_TRANS_MAPPING.MOTION
             } else {
                 // INTELLIGENT、NORMALALL事件类型显示具体的子类型事件
                 return EVENT_TRANS_MAPPING[row.event] || EVENT_TRANS_MAPPING[row.recSubType]
@@ -214,7 +214,7 @@ export default defineComponent({
                     } else if (item.event === 'INVADE' || item.recSubType === 'INVADE') {
                         return events.includes('INVADE') || events.includes('AOIENTRY') || events.includes('AOILEAVE')
                     } else {
-                        return events.includes(item.event) || events.includes(item.recSubType)
+                        return events.includes(item.event) || events.includes(item.recSubType) || ['SMDHUMAN', 'SMDHUMAN'].includes(item.event) || ['SMDHUMAN', 'SMDHUMAN'].includes(item.recSubType)
                     }
                 })
                 .filter((item) => {
