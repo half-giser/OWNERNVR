@@ -26,7 +26,7 @@ export default defineComponent({
         close() {
             return true
         },
-        comfirm() {
+        confirm() {
             return true
         },
     },
@@ -131,7 +131,7 @@ export default defineComponent({
                 const $ = queryXml(result)
 
                 if ($('status').text() === 'success') {
-                    ctx.emit('comfirm')
+                    ctx.emit('confirm')
                 }
 
                 closeLoading()

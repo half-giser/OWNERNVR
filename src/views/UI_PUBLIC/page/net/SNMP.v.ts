@@ -87,14 +87,13 @@ export default defineComponent({
         const getData = async () => {
             const result = await querySNMPCfg()
             commLoadResponseHandler(result, ($) => {
-                const $content = queryXml($('content/content')[0].element)
-                formData.value.snmpv1Switch = $content('snmpv1Switch').text().bool()
-                formData.value.snmpv2Switch = $content('snmpv2Switch').text().bool()
-                formData.value.snmpPort = $content('snmpPort').text().num()
-                formData.value.readCommunity = $content('readCommunity').text()
-                formData.value.writeCommunity = $content('writeCommunity').text()
-                formData.value.trapPort = $content('trapPort').text().num()
-                formData.value.trapAddress = $content('trapAddress').text()
+                formData.value.snmpv1Switch = $('content/snmpv1Switch').text().bool()
+                formData.value.snmpv2Switch = $('content/snmpv2Switch').text().bool()
+                formData.value.snmpPort = $('content/snmpPort').text().num()
+                formData.value.readCommunity = $('content/readCommunity').text()
+                formData.value.writeCommunity = $('content/writeCommunity').text()
+                formData.value.trapPort = $('content/trapPort').text().num()
+                formData.value.trapAddress = $('content/trapAddress').text()
             })
         }
 

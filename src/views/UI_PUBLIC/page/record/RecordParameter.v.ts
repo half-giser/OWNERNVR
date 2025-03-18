@@ -15,19 +15,9 @@ export default defineComponent({
         const systemCaps = useCababilityStore()
 
         const supportANR = systemCaps.supportANR
-        // 保存原始数据，用来判断数据是否已被修改
-        const originalData = ref({
-            chlRecData: [] as RecordParamDto[],
-            streamRecSwitch: {
-                doubleStreamSwitch: '',
-                loopRecSwitch: '',
-            },
-        })
-
         const oldExpirationArr: string[] = []
 
         const pageData = ref({
-            doubleStreamRecSwitch: '',
             chkDoubleStreamRec: [
                 {
                     value: 'double',
@@ -42,8 +32,6 @@ export default defineComponent({
                     label: Translate('IDCS_RECORD_MODE_SUB'),
                 },
             ],
-            txtMSRecDuration: '',
-            chkLoopRec: true,
             IPCMap: {} as Record<string, string>,
             expirationList: [] as SelectOption<string, string>[],
             perList: [] as SelectOption<string, string>[],
@@ -53,44 +41,46 @@ export default defineComponent({
             isSetCustomization: false,
             expirationType: '',
             expirationData: new RecordParamDto(),
+            originalDoubleStreamSwitch: '',
         })
 
         const tableData = ref<RecordParamDto[]>([])
+        const editRows = useWatchEditRows<RecordParamDto>()
+
+        const formData = ref(new RecordParamForm())
+        const editForm = useWatchEditData(formData)
 
         const getDevRecParamData = async () => {
             const result = await queryRecordDistributeInfo()
-            const $dev = queryXml(result)
+            const $ = await commLoadResponseHandler(result)
 
-            commLoadResponseHandler(result, ($) => {
-                pageData.value.doubleStreamRecSwitch = $('content/doubleStreamRecSwitch').text()
-                switch (pageData.value.doubleStreamRecSwitch) {
-                    case 'main':
-                        break
-                    case 'sub':
-                        break
-                    default:
-                        pageData.value.doubleStreamRecSwitch = 'double'
-                }
+            console.log($('status').text())
 
-                pageData.value.txtMSRecDuration = $('content/mainStreamRecDuration').text()
-                pageData.value.chkLoopRec = $('content/loopRecSwitch').text().bool()
+            let doubleStreamRecSwitch = $('content/doubleStreamRecSwitch').text()
+            if (!['main', 'sub'].includes(doubleStreamRecSwitch)) {
+                doubleStreamRecSwitch = 'double'
+            }
+            formData.value.doubleStreamRecSwitch = doubleStreamRecSwitch
+            // pageData.value.txtMSRecDuration = $('content/mainStreamRecDuration').text()
+            formData.value.loopRecSwitch = $('content/loopRecSwitch').text().bool()
 
-                pageData.value.expirationList = $('content/expirationNote')
-                    .text()
-                    .array()
-                    .map((item) => {
-                        return {
-                            value: item,
-                            label: item === '0' ? Translate('IDCS_EXPIRE_OFF') : item === '1' ? '1 ' + Translate('IDCS_DAY_ALL') : item + ' ' + Translate('IDCS_DAYS'),
-                        }
-                    })
-                pageData.value.expirationList.push({
-                    value: 'customization',
-                    label: Translate('IDCS_REPLAY_CUSTOMIZE'),
+            pageData.value.originalDoubleStreamSwitch = doubleStreamRecSwitch
+
+            pageData.value.expirationList = $('content/expirationNote')
+                .text()
+                .array()
+                .map((item) => {
+                    return {
+                        value: item,
+                        label: item === '0' ? Translate('IDCS_EXPIRE_OFF') : item === '1' ? '1 ' + Translate('IDCS_DAY_ALL') : item + ' ' + Translate('IDCS_DAYS'),
+                    }
                 })
+            pageData.value.expirationList.push({
+                value: 'customization',
+                label: Translate('IDCS_REPLAY_CUSTOMIZE'),
             })
 
-            return $dev
+            return $
         }
 
         const getChlRecNodeList = async () => {
@@ -116,31 +106,29 @@ export default defineComponent({
                 </requireField>
             `
             const result = await queryNodeEncodeInfo(sendXML)
-            const $chl = queryXml(result)
+            const $ = await commLoadResponseHandler(result)
 
-            commLoadResponseHandler(result, ($) => {
-                pageData.value.perList = $('content/item/preRecordTimeNote')
-                    .text()
-                    .array()
-                    .map((item) => {
-                        return {
-                            value: item,
-                            label: item === '0' ? Translate('IDCS_NO_BEFOREHAND_RECORD') : getTranslateForSecond(Number(item)),
-                        }
-                    })
+            pageData.value.perList = $('content/item/preRecordTimeNote')
+                .text()
+                .array()
+                .map((item) => {
+                    return {
+                        value: item,
+                        label: item === '0' ? Translate('IDCS_NO_BEFOREHAND_RECORD') : getTranslateForSecond(Number(item)),
+                    }
+                })
 
-                pageData.value.postList = $('content/item/delayedRecordTimeNote')
-                    .text()
-                    .array()
-                    .map((item) => {
-                        return {
-                            value: item,
-                            label: item === '0' ? Translate('IDCS_NO_DELAY') : getTranslateForSecond(Number(item)),
-                        }
-                    })
-            })
+            pageData.value.postList = $('content/item/delayedRecordTimeNote')
+                .text()
+                .array()
+                .map((item) => {
+                    return {
+                        value: item,
+                        label: item === '0' ? Translate('IDCS_NO_DELAY') : getTranslateForSecond(Number(item)),
+                    }
+                })
 
-            return $chl
+            return $
         }
 
         const getData = async () => {
@@ -175,6 +163,9 @@ export default defineComponent({
                         week: '',
                         holiday: '',
                         singleExpirationUnit: '',
+                        disabled: false,
+                        status: '',
+                        statusTip: '',
                     }
                 })
                 $dev('content/chlParam/item').forEach((item) => {
@@ -205,14 +196,11 @@ export default defineComponent({
                             item.expirationDisplay = item.expiration
                         }
                     }
-                    oldExpirationArr.push(item.expirationDisplay!)
+                    oldExpirationArr.push(item.expirationDisplay)
+                    editRows.listen(item)
                 })
 
-                originalData.value.chlRecData = cloneDeep(tableData.value)
-                originalData.value.streamRecSwitch = {
-                    doubleStreamSwitch: $dev('content/doubleStreamRecSwitch').text(),
-                    loopRecSwitch: $dev('content/loopRecSwitch').text(),
-                }
+                editForm.listen()
             }
         }
 
@@ -234,8 +222,8 @@ export default defineComponent({
                     </autoRecModeType>
                 </types>
                 <content>
-                    <doubleStreamRecSwitch>${pageData.value.doubleStreamRecSwitch}</doubleStreamRecSwitch>
-                    <loopRecSwitch>${pageData.value.chkLoopRec}</loopRecSwitch>
+                    <doubleStreamRecSwitch>${formData.value.doubleStreamRecSwitch}</doubleStreamRecSwitch>
+                    <loopRecSwitch>${formData.value.loopRecSwitch}</loopRecSwitch>
                     <chlParam>
                         ${tableData.value
                             .map((item) => {
@@ -257,10 +245,11 @@ export default defineComponent({
             return result
         }
 
-        const setChlRecData = async (changeList: RecordParamDto[]) => {
+        const setChlRecData = async () => {
+            const rows = editRows.toArray()
             const sendXml = rawXml`
-                <content type='list' total='${changeList.length}'>
-                    ${changeList
+                <content type='list' total='${rows.length}'>
+                    ${rows
                         .map((item) => {
                             return rawXml`
                                 <item id='${item.id}'>
@@ -278,62 +267,30 @@ export default defineComponent({
         }
 
         const setRecParamCfgData = async () => {
-            // 判断修改过的选项
-            const chlChangeList: RecordParamDto[] = []
-            const devChangeList: RecordParamDto[] = []
-            tableData.value.forEach((item, index) => {
-                const element = originalData.value.chlRecData[index]
-                if (item.per !== element.per || item.post !== element.post || item.ANRSwitch !== element.ANRSwitch) {
-                    chlChangeList.push(item)
-                    element.per = item.per
-                    element.post = item.post
-                    element.ANRSwitch = item.ANRSwitch
-                }
+            let result: XMLDocument | Element | undefined
 
-                if (
-                    item.expiration !== element.expiration ||
-                    item.expirationUnit !== element.expirationUnit ||
-                    item.week !== element.week ||
-                    item.holiday !== element.holiday ||
-                    item.singleExpirationUnit !== element.singleExpirationUnit
-                ) {
-                    devChangeList.push(item)
-                    element.expiration = item.expiration
-                    element.expirationUnit = item.expirationUnit
-                    element.week = item.week
-                    element.holiday = item.holiday
-                    element.singleExpirationUnit = item.singleExpirationUnit
-                }
-            })
-            const doubleStreamSwitchChange = originalData.value.streamRecSwitch.doubleStreamSwitch !== pageData.value.doubleStreamRecSwitch
-            const loopRecSwitchChange = originalData.value.streamRecSwitch.loopRecSwitch !== String(pageData.value.chkLoopRec)
+            console.log(editForm.disabled.value)
 
-            let devResult
-            let chlResult
-            if (devChangeList.length || doubleStreamSwitchChange || loopRecSwitchChange) {
-                devResult = await setDevRecData()
+            if (editRows.size() || !editForm.disabled.value) {
+                result = await setDevRecData()
             }
 
-            if (chlChangeList.length) {
-                chlResult = await setChlRecData(chlChangeList)
+            if (editRows.size()) {
+                result = await setChlRecData()
             }
 
-            if (devResult && chlResult) {
-                commSaveResponseHandler(chlResult)
-            } else if (devResult) {
-                commSaveResponseHandler(devResult)
-            } else if (chlResult) {
-                // 只有chlResult才会走到这里
-                commSaveResponseHandler(chlResult)
-            } else {
-                openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
+            if (result) {
+                commSaveResponseHandler(result)
+                editForm.update()
+                editRows.clear()
+                pageData.value.originalDoubleStreamSwitch = formData.value.doubleStreamRecSwitch
             }
         }
 
         const setData = () => {
             openLoading()
 
-            if (originalData.value.streamRecSwitch.doubleStreamSwitch !== pageData.value.doubleStreamRecSwitch) {
+            if (pageData.value.originalDoubleStreamSwitch !== formData.value.doubleStreamRecSwitch) {
                 openMessageBox({
                     type: 'question',
                     message: Translate('IDCS_RECORD_MODE_CHANGE_AFTER_REBOOT'),
@@ -482,6 +439,9 @@ export default defineComponent({
             changeExpirationList,
             changeAllExpirationList,
             handleGetExpirationData,
+            formData,
+            editRows,
+            editForm,
         }
     },
 })

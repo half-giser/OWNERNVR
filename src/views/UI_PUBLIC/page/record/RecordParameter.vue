@@ -25,13 +25,13 @@
             </el-form-item> -->
             <el-form-item>
                 <el-checkbox
-                    v-model="pageData.chkLoopRec"
+                    v-model="formData.loopRecSwitch"
                     :label="Translate('IDCS_CYCLE_RECORD_TIP')"
                 />
             </el-form-item>
             <el-form-item>
                 <el-select-v2
-                    v-model="pageData.doubleStreamRecSwitch"
+                    v-model="formData.doubleStreamRecSwitch"
                     :options="pageData.chkDoubleStreamRec"
                 />
             </el-form-item>
@@ -180,7 +180,12 @@
             <div>
                 <span v-show="supportANR">{{ Translate('IDCS_OFFLINE_RECORDING_TIPS') }}</span>
             </div>
-            <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>
+            <el-button
+                :disabled="!editRows.size() && editForm.disabled.value"
+                @click="setData"
+            >
+                {{ Translate('IDCS_APPLY') }}
+            </el-button>
         </div>
         <RecordParameterCustomPop
             v-model="pageData.isSetCustomization"

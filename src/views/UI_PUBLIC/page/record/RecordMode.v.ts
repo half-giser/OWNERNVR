@@ -49,6 +49,9 @@ export default defineComponent({
         const formData = ref(new RecordDistributeInfoDto())
         const watchEdit = useWatchEditData(formData)
 
+        const tableData = ref<RecordScheduleDto[]>([])
+        const watchRows = useWatchEditRows<RecordScheduleDto>()
+
         const pageData = ref({
             //录像模式下拉列表
             recModeTypeList: [] as SelectOption<string, string>[],
@@ -172,7 +175,7 @@ export default defineComponent({
         /**
          * 缓存初始化查询时的列表数据，保存时对比变化了的行
          */
-        let recordScheduleListInit: RecordScheduleDto[] = []
+        // let recordScheduleListInit: RecordScheduleDto[] = []
 
         //高级录像模式列表转MAP
         const advanceRecModeMap: Record<string, RecordModeDto> = {}
@@ -184,8 +187,8 @@ export default defineComponent({
             return ICON_MAPPING.filter((icon) => mode.type.includes(icon.event) || mode.events.includes(icon.event)).map((icon) => icon.icon)
         }
 
-        const changeAllSchedule = (value: string, field: keyof RecordScheduleDto) => {
-            formData.value.recordScheduleList.forEach((item) => {
+        const changeAllSchedule = (value: string, field: 'alarmRec' | 'motionRec' | 'intelligentRec' | 'posRec' | 'scheduleRec') => {
+            tableData.value.forEach((item) => {
                 item[field] = value
             })
         }
@@ -206,14 +209,16 @@ export default defineComponent({
             formData.value.urgencyRecDuration = $('content/urgencyRecDuration').text().num()
 
             //TODO: CustomerID为100代表inw48客户,要求隐藏智能侦测
-            // if (pageData.value.isInw48) {
-            //     pageData.value.advanceRecModes = pageData.value.advanceRecModes.filter((item) => item.id !== 'INTELLIGENT')
-            //     pageData.value.basicRecModes.pop()
-            // }
+            if (pageData.value.isInw48) {
+                pageData.value.advanceRecModes = pageData.value.advanceRecModes.filter((item) => item.id !== 'INTELLIGENT')
+                pageData.value.basicRecModes.pop()
+            }
+
             //TODO: CustomerID为351代表USE44客户,要求将manual翻译为schedule
-            // if (CustomerID == 351) {
-            //     MODE_MAPPING.manually = Translate('IDCS_REC_MODE_MANUAL')
-            // }
+            if (CustomerID === 351) {
+                MODE_MAPPING.manually = Translate('IDCS_REC_MODE_MANUAL')
+            }
+
             //绑定录像模式下拉
             pageData.value.recModeTypeList = $('types/recModeType/enum').map((item) => {
                 return {
@@ -356,7 +361,7 @@ export default defineComponent({
         /**
          * 初始化通道的录像排程表格
          */
-        const initChlScheduldTb = async () => {
+        const getRecordScheduleList = async () => {
             openLoading()
 
             pageData.value.scheduleList = await buildScheduleList()
@@ -369,11 +374,13 @@ export default defineComponent({
             }
 
             // 通道的录像排程表格数据
-            formData.value.recordScheduleList = $('content/item').map((item) => {
+            tableData.value = $('content/item').map((item) => {
                 const $item = queryXml(item.element)
-                const switchType = $item('switch').text().bool()
                 const getRecScheduleSelectValue = (str: string) => {
-                    return switchType ? $item(str).text() : DEFAULT_EMPTY_ID
+                    const switchType = $item(str + '/switch')
+                        .text()
+                        .bool()
+                    return switchType ? $item(str + '/schedule').text() : DEFAULT_EMPTY_ID
                 }
                 return {
                     id: item.attr('id'),
@@ -383,9 +390,15 @@ export default defineComponent({
                     intelligentRec: getRecScheduleSelectValue('intelligentRec'),
                     posRec: getRecScheduleSelectValue('posRec'),
                     scheduleRec: getRecScheduleSelectValue('scheduleRec'),
+                    status: '',
+                    statusTip: '',
+                    disabled: false,
                 }
             })
-            recordScheduleListInit = cloneDeep(formData.value.recordScheduleList)
+
+            tableData.value.forEach((item) => {
+                watchRows.listen(item)
+            })
 
             closeLoading()
         }
@@ -504,7 +517,7 @@ export default defineComponent({
             const requestList = [setRecModeInfo()]
 
             if (formData.value.mode === 'manually') {
-                const diffRows = getArrayDiffRows(formData.value.recordScheduleList, recordScheduleListInit) as RecordScheduleDto[]
+                const diffRows = watchRows.toArray()
                 if (diffRows.length) requestList.push(setRecScheduleInfo(diffRows))
             }
             const resultList = await Promise.all(requestList)
@@ -531,16 +544,17 @@ export default defineComponent({
         )
 
         onMounted(async () => {
-            // genIconMap(recAutoModeList.value)
             await getRecModeData()
-            await initChlScheduldTb()
+            await getRecordScheduleList()
             watchEdit.listen()
         })
 
         return {
             formData,
+            tableData,
             pageData,
             watchEdit,
+            watchRows,
             recAutoModeList,
             advanceRecModeMap,
             supportPOS,

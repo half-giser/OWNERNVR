@@ -34,6 +34,8 @@ export default defineComponent({
             isBindUser: false,
             // NAT状态
             natServerState: '',
+            // NAT开启
+            natSwitch: false,
         })
 
         // 定时获取NAT状态
@@ -63,6 +65,7 @@ export default defineComponent({
             }
             return new Promise((resolve: (url: string) => void) => {
                 QRCode.toDataURL(str, options, (err, url) => {
+                    console.log(err, url)
                     if (err) resolve('')
                     else resolve(url)
                 })
@@ -75,7 +78,7 @@ export default defineComponent({
         const getBasicConfig = async () => {
             const result = await queryBasicCfg()
             const $ = queryXml(result)
-            pageData.value.snCode = await makeQRCode($('content/qrCodeContent').text())
+            pageData.value.snCode = await makeQRCode($('content/qrCodeContent').text() || ' ')
             pageData.value.snText = $('content/sn').text()
         }
 
@@ -108,6 +111,7 @@ export default defineComponent({
             formData.value.index = $('content/switch').attr('index')
             pageData.value.isBindUser = $('content/mode').text() === 'user'
             pageData.value.natServerState = STATUS_MAPPING[$('content/natServerState').text()]
+            pageData.value.natSwitch = formData.value.natSwitch
         }
 
         /**
@@ -126,6 +130,7 @@ export default defineComponent({
 
             closeLoading()
             getData()
+            getBasicConfig()
         }
 
         /**

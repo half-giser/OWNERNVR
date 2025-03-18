@@ -15,7 +15,10 @@
                     v-for="(item, key) in pageData.diskList"
                     :key="item.id"
                     class="diskcard"
-                    :class="{ warning: item.healthStatusValue === 'warning' }"
+                    :class="{
+                        warning: item.healthStatusValue === 'warning',
+                    }"
+                    :title="displayDiskName(key)"
                     @click="changeDiskCard(key)"
                 >
                     <div>
@@ -53,9 +56,23 @@
                 </div>
             </div>
             <div class="detail-info">
-                <span class="detail-num">{{ diskNum }}</span>
                 <span class="detail-sn">{{ diskName }}</span>
                 <span class="detail-status">{{ healthStatus }}</span>
+                <div class="detail-left">
+                    <div
+                        v-for="(item, key) in pageData.diskList"
+                        :key="item.id"
+                        class="detail-num"
+                        :class="{
+                            active: pageData.diskIndex === key,
+                            'text-error': item.healthStatusValue === 'warning',
+                        }"
+                        :title="displayDiskName(key)"
+                        @click="changeDiskCard(key)"
+                    >
+                        {{ item.name }}
+                    </div>
+                </div>
             </div>
             <div class="detail-table">
                 <div class="base-table-box">
@@ -115,7 +132,7 @@
 }
 
 .diskcard {
-    width: 450px;
+    width: 45%;
     border: 1px solid var(--content-border);
     border-radius: 6px;
     box-sizing: border-box;
@@ -126,6 +143,7 @@
     cursor: pointer;
     margin-right: 40px;
     margin-bottom: 40px;
+    overflow: hidden;
 
     & > div {
         display: flex;
@@ -204,6 +222,10 @@
         }
     }
 
+    &-right {
+        width: 100%;
+    }
+
     &-logo {
         display: flex;
         width: 200px;
@@ -217,6 +239,7 @@
         line-height: 36px;
         margin-bottom: 10px;
         flex-shrink: 0;
+        position: relative;
     }
 
     &-num {
@@ -224,13 +247,37 @@
         height: 36px;
         line-height: 36px;
         flex-shrink: 0;
-        background-color: var(--primary);
         text-align: center;
-        color: var(--main-text-active);
         font-size: 16px;
         margin-right: 20px;
         border-radius: 100%;
         margin-left: 20px;
+        border: 1px solid var(--btn-border);
+        margin-bottom: 18px;
+        cursor: pointer;
+
+        &:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        &.active {
+            color: var(--main-text-active);
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+    }
+
+    &-left {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 76px;
+        // flex-shrink: 0;
+    }
+
+    &-sn {
+        padding-left: 76px;
     }
 
     &-status {
