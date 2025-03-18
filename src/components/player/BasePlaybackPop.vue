@@ -345,7 +345,8 @@ const seek = (timestamp: number) => {
         const sendXML = OCX_XML_RecCurPlayTime([
             {
                 index: 0,
-                time: Math.floor(timestamp),
+                time: getUTCDateByMilliseconds(timestamp),
+                timeStamp: Math.floor(timestamp),
             },
         ])
         plugin.ExecuteCmd(sendXML)

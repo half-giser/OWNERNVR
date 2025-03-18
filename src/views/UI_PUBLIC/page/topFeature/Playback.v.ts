@@ -364,8 +364,25 @@ export default defineComponent({
             pageData.value.chls = chls
             pageData.value.startTime = dayjs(calendar.current.value).toDate()
             await getRecSection(pageData.value.chls.map((item) => item.id))
+
             if (mode.value === 'ocx') {
                 ocxCacheWinMap.update(pageData.value.chls)
+
+                if (pageData.value.playStatus !== 'play') {
+                    const sendXML = OCX_XML_SearchRec(
+                        'RecSearch',
+                        formatDate(startTimeStamp.value),
+                        formatDate(endTimeStamp.value),
+                        pageData.value.chls.map((_item, index) => index),
+                        pageData.value.chls.map((item) => item.id),
+                        pageData.value.chls.map((item) => item.value),
+                        pageData.value.eventList,
+                        localToUtc(startTimeStamp.value),
+                        localToUtc(endTimeStamp.value),
+                        Date.now() + '',
+                    )
+                    cmd(sendXML)
+                }
             }
 
             if (pageData.value.playStatus !== 'play') {
@@ -1240,10 +1257,11 @@ export default defineComponent({
                         [
                             {
                                 index: 4294967295,
-                                time: timestamp,
+                                time: getUTCDateByMilliseconds(timestamp),
+                                timeStamp: Math.round(timestamp - startTimeStamp.value / 1000),
                             },
                         ],
-                        Math.floor(startTimeStamp.value / 1000),
+                        Date.now(),
                     )
                     cmd(sendXML)
                 }

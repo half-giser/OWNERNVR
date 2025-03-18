@@ -737,20 +737,14 @@ export const OCX_XML_Skip = (time: number) => {
  * @param startTime
  * @returns {string}
  */
-export const OCX_XML_RecCurPlayTime = (winList: { time: number; index: number }[], startTime?: number) => {
-    if (startTime) {
-        return wrapXml(rawXml`
-            <cmd type="RecCurPlayTime" taskId="${Date.now()}">
-                ${winList.map((item) => `<win index="${item.index}" time="${getUTCDateByMilliseconds(item.time)}">${Math.round(item.time - startTime)}</win>`).join('')}
+export const OCX_XML_RecCurPlayTime = (winList: { time: string; timeStamp: number; index: number }[], taskId?: number) => {
+    return wrapXml(
+        rawXml`
+            <cmd type="RecCurPlayTime" ${taskId ? ` taskId="${taskId}"` : ''}>
+                ${winList.map((item) => `<win index="${item.index}" time="${item.time}">${item.timeStamp}</win>`).join('')}
             </cmd>
-        `)
-    } else {
-        return wrapXml(rawXml`
-            <cmd type="RecCurPlayTime">
-                ${winList.map((item) => `<win index="${item.index}" time="${getUTCDateByMilliseconds(item.time)}">${item.time}</win>`).join('')}
-            </cmd>
-        `)
-    }
+        `,
+    )
 }
 
 /**
