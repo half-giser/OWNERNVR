@@ -119,13 +119,14 @@ export default defineComponent({
                 type: 1,
                 file: 'seg_' + split,
             }))
-            .concat(ROTATE_SEG)
 
         const pageData = ref({
             // H5模式分屏
             wasmSeg: WASM_SEG,
             // OCX模式分屏
             ocxSeg: OCX_SEG,
+            ocxRotateSeg: ROTATE_SEG,
+            splitType: 1,
             // 码流类型1：主码流，2：子码流
             streamMenuOptions: [
                 {
@@ -186,6 +187,11 @@ export default defineComponent({
             ctx.emit('update:remoteRecord', remoteRecord)
         }
 
+        const changeSplit = (split: number, type: number) => {
+            pageData.value.splitType = type
+            ctx.emit('update:split', split, type)
+        }
+
         const changeStreamType = (value: string | number | boolean | undefined) => {
             ctx.emit('streamType', value as number)
         }
@@ -205,6 +211,7 @@ export default defineComponent({
             isTalk,
             changeStreamType,
             mainStreamDisabled,
+            changeSplit,
         }
     },
 })

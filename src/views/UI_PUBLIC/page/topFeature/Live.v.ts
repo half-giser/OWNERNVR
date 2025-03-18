@@ -783,9 +783,8 @@ export default defineComponent({
 
             stopPollingChlGroup()
 
-            pageData.value.split = segNum
-
             if (mode.value === 'h5') {
+                player.stopAll()
                 player.setSplit(segNum)
             }
 
@@ -794,6 +793,8 @@ export default defineComponent({
                 plugin.ExecuteCmd(sendXML)
             }
 
+            pageData.value.split = segNum
+            pageData.value.playingList = []
             playChls(arr.map((item) => item.chlId))
         }
 
@@ -853,14 +854,7 @@ export default defineComponent({
          * @param {TVTPlayerWinDataListItem} data
          */
         const handlePlayerStop = (index: number, data: TVTPlayerWinDataListItem) => {
-            const chlId = data.CHANNEL_INFO!.chlID
-
             updateWinData(index, data)
-
-            const findIndex = pageData.value.playingList.indexOf(chlId)
-            if (findIndex > -1) {
-                pageData.value.playingList.splice(findIndex, 1)
-            }
         }
 
         /**
@@ -874,9 +868,10 @@ export default defineComponent({
 
             // 设置通道列表图标显示状态
             if (type) {
+                pageData.value.playingList = []
                 data.forEach((item) => {
                     const chlId = item.CHANNEL_INFO!.chlID
-                    if (!pageData.value.playingList.includes(chlId)) {
+                    if (chlId) {
                         pageData.value.playingList.push(chlId)
                     }
                 })
@@ -1138,9 +1133,12 @@ export default defineComponent({
                 return
             }
 
+            // 点击相同分割数时切换通道
             if (pageData.value.split === split) {
+                chlRef.value?.switchChl(split)
                 return
             }
+
             pageData.value.split = split
             playSplitVideo(split)
         }
