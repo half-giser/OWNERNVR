@@ -105,12 +105,12 @@ export default defineComponent({
                 type: 1,
             })),
             // OCX模式分屏
-            ocxSeg: [3, 5, 7, 10]
-                .filter((split) => systemCaps.supportImageRotate && systemCaps.previewMaxWin >= split)
+            ocxSeg: [1, 4, 8, 9, 10, 16, 25, 36]
+                .filter((split) => systemCaps.previewMaxWin >= split)
                 .map((split) => ({
                     split,
-                    type: split === 10 ? 2 : 1,
-                    file: split === 10 ? 'hallway_seg_10' : 'seg_' + split,
+                    type: 1,
+                    file: 'seg_' + split,
                 })),
             // 支持旋转分屏
             ocxRotateSeg: [3, 5, 7, 10]

@@ -12,7 +12,7 @@
                 :class="{
                     active: pageData.active === index,
                 }"
-                @click="pageData.active = index"
+                @mouseup="pageData.active = index"
                 @dblclick="playCurrentCruiseGroup(item.index)"
             >
                 <span class="base-home-ptz-text text-ellipsis">{{ item.name }}</span>
