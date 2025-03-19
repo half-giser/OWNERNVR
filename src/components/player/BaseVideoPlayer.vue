@@ -1750,6 +1750,12 @@ const play = (params: PlayerPlayParams) => {
             // this.winDataList[winIndex].audio = false  // NVR145-178 音频不重置
             winDataList[winIndex].magnify3D = false
             winDataList[winIndex].timestamp = 0
+            winDataList[winIndex].CHANNEL_INFO = {
+                chlID: '',
+                chlName: '',
+                supportPtz: false,
+                streamType: 2,
+            }
             toggleAudioIcon(winIndex, false)
             togglePtzIcon(winIndex, false)
             zoom(winIndex, 1)
@@ -1768,14 +1774,8 @@ const play = (params: PlayerPlayParams) => {
             // 关闭通道ip信息
             toggleChlIp(winIndex, false)
             // 窗口停止播放时如果打开了原始比例按钮需要重置，否则切换通道时显示的还是上次设置的原始比例
-            winDataList[winIndex].original && displayOriginal(winIndex, false)
+            displayOriginal(winIndex, false)
             emits('stop', winIndex, winDataList[winIndex])
-            winDataList[winIndex].CHANNEL_INFO = {
-                chlID: '',
-                chlName: '',
-                supportPtz: false,
-                streamType: 2,
-            }
             emits('playStatus', getPlayingChlList())
         },
         onfinished: () => {

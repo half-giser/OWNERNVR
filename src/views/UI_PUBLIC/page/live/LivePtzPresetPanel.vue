@@ -13,7 +13,7 @@
                     active: pageData.active === index,
                 }"
                 @dblclick="callPreset(item.index, index)"
-                @click="pageData.active = index"
+                @mouseup="pageData.active = index"
             >
                 <span class="base-home-ptz-text text-ellipsis">{{ item.name }}</span>
                 <BaseImgSprite

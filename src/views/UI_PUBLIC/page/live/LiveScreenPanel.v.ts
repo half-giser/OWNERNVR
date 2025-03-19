@@ -98,34 +98,28 @@ export default defineComponent({
         const userSession = useUserSessionStore()
         const systemCaps = useCababilityStore()
 
-        const WASM_SEG = [1, 4].map((split) => ({
-            split,
-            type: 1,
-        }))
-
-        // 支持旋转分屏
-        const ROTATE_SEG = [3, 5, 7, 10]
-            .filter((split) => systemCaps.supportImageRotate && systemCaps.previewMaxWin >= split)
-            .map((split) => ({
-                split,
-                type: split === 10 ? 2 : 1,
-                file: split === 10 ? 'hallway_seg_10' : 'seg_' + split,
-            }))
-
-        const OCX_SEG = [1, 4, 8, 9, 10, 16, 25, 36]
-            .filter((split) => systemCaps.previewMaxWin >= split)
-            .map((split) => ({
-                split,
-                type: 1,
-                file: 'seg_' + split,
-            }))
-
         const pageData = ref({
             // H5模式分屏
-            wasmSeg: WASM_SEG,
+            wasmSeg: [1, 4].map((split) => ({
+                split,
+                type: 1,
+            })),
             // OCX模式分屏
-            ocxSeg: OCX_SEG,
-            ocxRotateSeg: ROTATE_SEG,
+            ocxSeg: [1, 4, 8, 9, 10, 16, 25, 36]
+                .filter((split) => systemCaps.previewMaxWin >= split)
+                .map((split) => ({
+                    split,
+                    type: 1,
+                    file: 'seg_' + split,
+                })),
+            // 支持旋转分屏
+            ocxRotateSeg: [3, 5, 7, 10]
+                .filter((split) => systemCaps.supportImageRotate && systemCaps.previewMaxWin >= split)
+                .map((split) => ({
+                    split,
+                    type: split === 10 ? 2 : 1,
+                    file: split === 10 ? 'hallway_seg_10' : 'seg_' + split,
+                })),
             splitType: 1,
             // 码流类型1：主码流，2：子码流
             streamMenuOptions: [

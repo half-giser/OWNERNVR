@@ -247,9 +247,13 @@ export default defineComponent({
 
         /**
          * @description 改变选中的磁盘组
+         * @param {} item
          * @param {number} index
          */
-        const changeDiskGroup = (index: number) => {
+        const changeDiskGroup = (item: StorageModeDiskGroupList, index: number) => {
+            if (!item.diskList.length && !item.chlList.length && index >= pageData.value.diskTotalNum) {
+                return
+            }
             pageData.value.activeIndex = index
         }
 

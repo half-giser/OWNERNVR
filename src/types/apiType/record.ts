@@ -14,13 +14,13 @@ export class RecordDistributeInfoDto {
     autoModeEvents: string[] = [] // 自动录像模式事件列表
     autoModeId = '' //自动模式Radio列表中选择的ID
     urgencyRecDuration = 0 // 手动录像时长
-    recordScheduleList: RecordScheduleDto[] = []
+    // recordScheduleList: RecordScheduleDto[] = []
 }
 
 /**
  * @description 通道的录像排程配置
  */
-export class RecordScheduleDto {
+export class RecordScheduleDto extends TableRowStatus {
     id = '' //通道ID
     name = '' //通道名称
     alarmRec = '' //传感器录像排程
@@ -44,7 +44,7 @@ export interface RecordModeDto {
 /**
  * @description 通道录像参数列表
  */
-export class RecordParamDto {
+export class RecordParamDto extends TableRowStatus {
     id = ''
     index = 0
     name = ''
@@ -61,6 +61,14 @@ export class RecordParamDto {
     week = ''
     holiday = ''
     singleExpirationUnit = ''
+}
+
+/**
+ * @description 通道录像参数表单
+ */
+export class RecordParamForm {
+    loopRecSwitch = false
+    doubleStreamRecSwitch = 'double'
 }
 
 /**

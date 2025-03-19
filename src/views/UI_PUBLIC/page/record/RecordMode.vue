@@ -29,7 +29,7 @@
                     </div>
                 </div>
                 <el-table
-                    :data="formData.recordScheduleList"
+                    :data="tableData"
                     height="390"
                 >
                     <el-table-column
@@ -238,7 +238,7 @@
         </el-form>
         <div class="base-btn-box">
             <el-button
-                :disabled="watchEdit.disabled.value"
+                :disabled="watchEdit.disabled.value && !watchRows.size()"
                 @click="setData(true)"
             >
                 {{ Translate('IDCS_APPLY') }}

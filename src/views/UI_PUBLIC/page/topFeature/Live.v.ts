@@ -816,11 +816,6 @@ export default defineComponent({
             const chlId = data.CHANNEL_INFO!.chlID
 
             updateWinData(index, data)
-
-            if (!pageData.value.playingList.includes(chlId)) {
-                pageData.value.playingList.push(chlId)
-            }
-
             setAlarmStatus(chlId)
             setRecStatus(chlId)
         }
@@ -867,15 +862,13 @@ export default defineComponent({
             pageData.value.allPreview = type
 
             // 设置通道列表图标显示状态
-            if (type) {
-                pageData.value.playingList = []
-                data.forEach((item) => {
-                    const chlId = item.CHANNEL_INFO!.chlID
-                    if (chlId) {
-                        pageData.value.playingList.push(chlId)
-                    }
-                })
-            }
+            pageData.value.playingList = []
+            data.forEach((item) => {
+                const chlId = item.CHANNEL_INFO!.chlID
+                if (chlId) {
+                    pageData.value.playingList.push(chlId)
+                }
+            })
         }
 
         /**

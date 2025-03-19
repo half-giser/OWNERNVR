@@ -46,16 +46,16 @@
                     <img :src="pageData.snCode" />
                     <!-- nat开关没有打开时二维码置灰BA-1856 -->
                     <div
-                        v-show="!formData.natSwitch"
+                        v-show="!pageData.natSwitch"
                         class="code-cover"
                     ></div>
-                    <div
-                        v-show="!formData.natSwitch"
+                    <el-button
+                        v-show="!pageData.natSwitch"
                         class="code-label"
                         @click="openNat"
                     >
-                        {{ Translate('IDCS_NAT_DISABLE') }}
-                    </div>
+                        {{ Translate('IDCS_ENABLE_NAT') }}
+                    </el-button>
                 </div>
                 <p class="code-text">{{ pageData.snText }}</p>
             </div>
@@ -112,10 +112,7 @@
         left: 50%;
         transform: translate(-50%, -50%);
         width: fit-content;
-        height: 30px;
-        line-height: 30px;
         padding: 0 10px;
-        background-color: var(--qrcode-label-bg);
     }
 
     &-text {

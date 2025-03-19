@@ -29,6 +29,7 @@
                         disabled: !item.diskList.length && !item.chlList.length && key >= pageData.diskTotalNum,
                         active: key === pageData.activeIndex,
                     }"
+                    @click="changeDiskGroup(item, key)"
                 >
                     <p>{{ key + 1 }}</p>
                     <div>
@@ -184,7 +185,7 @@
     }
 
     &.disabled {
-        color: var(--input-text-disabled);
+        color: var(--main-text-light);
         cursor: unset;
     }
 

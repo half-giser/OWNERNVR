@@ -12,7 +12,7 @@
                 :class="{
                     active: pageData.active === index,
                 }"
-                @click="changeActive(index)"
+                @mouseup="changeActive(index)"
                 @dblclick="playCurrentTrace(index)"
             >
                 <span class="base-home-ptz-text">{{ item.name }}</span>

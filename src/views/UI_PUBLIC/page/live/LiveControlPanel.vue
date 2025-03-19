@@ -34,7 +34,7 @@
                 :title="remote ? Translate('IDCS_REMOTE_MANUAL_RECORD_OFF') : Translate('IDCS_REMOTE_MANUAL_RECORD_ON')"
                 :active="remote"
                 :disabled="remoteRecordDisabled"
-                @click="$emit('remoteRecord', !remote)"
+                @click="remoteRecord(!remote)"
             />
             <!-- 放大 -->
             <BaseImgSpriteBtn

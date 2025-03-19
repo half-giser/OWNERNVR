@@ -534,7 +534,6 @@ export default defineComponent({
             if (lastIndex === onlineChl.length - 1) {
                 lastIndex = -1
             }
-            console.log(onlineChl, lastIndex)
             ctx.emit(
                 'custom',
                 onlineChl.splice(lastIndex + 1, split).map((item, index) => ({
