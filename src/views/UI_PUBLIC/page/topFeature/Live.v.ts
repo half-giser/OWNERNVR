@@ -1290,7 +1290,7 @@ export default defineComponent({
 
             if (mode.value === 'ocx') {
                 if (streamType === 1) {
-                    openLoading(document.querySelector('.right-content') as HTMLElement)
+                    openLoading(document.querySelector('.base-home-panel.right') as HTMLElement)
 
                     const sendXml = rawXml`
                         <condition>
@@ -1316,7 +1316,7 @@ export default defineComponent({
                     const sendXML = OCX_XML_SetStreamType(pageData.value.winData.winIndex, streamType, mainResolution.replace(/[x|X|*]/g, 'x'))
                     plugin.ExecuteCmd(sendXML)
 
-                    closeLoading(document.querySelector('.right-content') as HTMLElement)
+                    closeLoading(document.querySelector('.base-home-panel.right') as HTMLElement)
                 } else {
                     const sendXML = OCX_XML_SetStreamType(pageData.value.winData.winIndex, streamType)
                     plugin.ExecuteCmd(sendXML)

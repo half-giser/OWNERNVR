@@ -7,7 +7,7 @@
     <el-dialog
         :title="Translate('IDCS_SELECT_ENCRYPTION')"
         :width="500"
-        @opened="open"
+        @open="open"
         @closed="formRef?.resetFields()"
     >
         <el-form
@@ -31,6 +31,7 @@
                 </el-radio-group>
             </el-form-item>
             <el-form-item
+                v-show="formData.encrypt === 'encrypted'"
                 :label="Translate('IDCS_PASSWORD')"
                 prop="password"
             >
@@ -41,6 +42,7 @@
                 />
             </el-form-item>
             <el-form-item
+                v-show="formData.encrypt === 'encrypted'"
                 :label="Translate('IDCS_CONFIRM_PASSWORD')"
                 prop="confirmPassword"
             >
@@ -50,11 +52,14 @@
                     :disabled="formData.encrypt === 'unencrypted'"
                 />
             </el-form-item>
-            <el-form-item>
+            <el-form-item v-show="formData.encrypt === 'encrypted'">
                 <el-checkbox
                     v-model="pageData.showPassword"
                     :label="Translate('IDCS_SHOW_PASSWORD')"
                 />
+            </el-form-item>
+            <el-form-item v-show="formData.encrypt === 'unencrypted'">
+                {{ Translate('IDCS_PLAY_VIDEO_NO_PASSWORD') }}
             </el-form-item>
         </el-form>
         <div class="base-btn-box">

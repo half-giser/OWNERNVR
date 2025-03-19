@@ -381,7 +381,7 @@ const posNextPage: Record<string, boolean> = {}
 const fullTarget = ref(-1)
 const splitValue = ref(1)
 const selectedWinIndex = ref(0) // 当前选中窗口
-const isVideoLossWrap = ref(true) // 是否显示视频丢失logo
+const isVideoLossWrap = ref(false) // 是否显示视频丢失logo
 const dblclickToFull = ref(false) // 整屏状态
 const pageData = ref(
     Array(MAX_SPLIT)
@@ -1221,6 +1221,8 @@ const destroy = () => {
 const hideErrorTips = (winIndex: number) => {
     if (pageData.value[winIndex].isErrorTips) {
         pageData.value[winIndex].isErrorTips = false
+        pageData.value[winIndex].errorTipsText = ''
+        pageData.value[winIndex].errorTipsChlName = ''
     }
 }
 

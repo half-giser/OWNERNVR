@@ -70,13 +70,13 @@ export const WasmRecordBuilder = (option: WasmRecordBuilderOption) => {
      * @param {boolean} manul 是否手动停止录像
      * @param {number} fileIndex 录像任务的第几个文件
      */
-    const onRecordData = (data: ArrayBuffer, finished: boolean, manul: boolean, fileIndex: number) => {
+    const onRecordData = (data: ArrayBuffer, finished: boolean, manual: boolean, fileIndex: number) => {
         recordFile = appendBuffer(recordFile, data) as ArrayBuffer
         if (!finished) return
         // 回调返回封装完格式的录像
-        doneCallback && doneCallback(recordFile, manul, fileIndex)
-        // manul为true则说明当前任务所有文件已处理完, 执行下一个任务
-        if (manul) {
+        doneCallback && doneCallback(recordFile, manual, fileIndex)
+        // manual为true则说明当前任务所有文件已处理完, 执行下一个任务
+        if (manual) {
             execNextTask()
         }
         // 当前任务还有分批文件, 继续录像
@@ -109,8 +109,8 @@ export const WasmRecordBuilder = (option: WasmRecordBuilderOption) => {
      * @description 创建录像
      * @param {Function} doneCallback
      */
-    const createRecord = (doneCallback: DoneCallback) => {
-        callbackQueue.push(doneCallback)
+    const createRecord = (currentDoneCallback: DoneCallback) => {
+        callbackQueue.push(currentDoneCallback)
         if (callbackQueue.length === 1) {
             doneCallback = callbackQueue[0]
             startRecord()

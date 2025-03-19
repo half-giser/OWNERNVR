@@ -634,7 +634,13 @@
         &__text {
             font-size: 14px !important;
             width: 50px;
-            color: var(--main-text);
+            color: var(--primary);
+            text-align: center;
+        }
+
+        &-bar__inner {
+            transition-duration: 0.1s;
+            animation-duration: 0s !important;
         }
     }
 

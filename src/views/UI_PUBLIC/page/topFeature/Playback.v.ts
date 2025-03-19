@@ -4,7 +4,7 @@
  * @Description: 回放
  */
 import PlaybackChannelPanel, { type ChannelPanelExpose } from '../playback/PlaybackChannelPanel.vue'
-import PlaybackEventPanel from '../playback/PlaybackEventPanel.vue'
+import PlaybackEventPanel, { type EventPanelExpose } from '../playback/PlaybackEventPanel.vue'
 import PlaybackAsidePanel from '../playback/PlaybackAsidePanel.vue'
 import PlaybackControlPanel from '../playback/PlaybackControlPanel.vue'
 import PlaybackScreenPanel from '../playback/PlaybackScreenPanel.vue'
@@ -157,6 +157,7 @@ export default defineComponent({
         const chlRef = ref<ChannelPanelExpose>()
         const timelineRef = ref<TimelineInstance>()
         const fisheyeRef = ref<FishEyePanelExpose>()
+        const eventRef = ref<EventPanelExpose>()
 
         const ocxCacheWinMap = useOCXCacheWinMap(systemCaps.playbackMaxWin)
 
@@ -215,8 +216,6 @@ export default defineComponent({
             backupRecList: [] as PlaybackBackUpRecList[],
             // 是否打开备份列表
             isBackUpList: false,
-            // SMD
-            smdRecLogPlay: '',
             // 主码流的通道
             mainStreamTypeChl: '',
             // 是否打开本地备份弹窗（H5）
@@ -382,6 +381,23 @@ export default defineComponent({
                         Date.now() + '',
                     )
                     cmd(sendXML)
+                }
+            }
+
+            if (mode.value === 'h5') {
+                if (pageData.value.playStatus !== 'play') {
+                    const winIndex = player.getSelectedWinIndex()
+                    const winData = player.getWinData()
+                    const cloneData = cloneDeep(winData[winIndex])
+                    if (!cloneData.CHANNEL_INFO?.chlID && pageData.value.chls[winIndex]) {
+                        cloneData.CHANNEL_INFO = {
+                            chlID: pageData.value.chls[winIndex].id,
+                            supportPtz: false,
+                            chlName: '',
+                            streamType: 2,
+                        }
+                    }
+                    updateWinData(winIndex, cloneData)
                 }
             }
 
@@ -571,13 +587,18 @@ export default defineComponent({
          * @param {TVTPlayerWinDataListItem} data
          */
         const handlePlayerSelect = (index: number, data: TVTPlayerWinDataListItem) => {
-            updateWinData(index, data)
-            // if (RecSearchModule.recListMap[chlId] && winData.PLAY_STATUS === 'play') {
-            //     RecLogsTableModule.render(RecSearchModule.recListMap[chlId])
-            // } else {
-            //     RecLogsTableModule.clear()
-            //     RecLogsTableModule.render([])
-            // }
+            const cloneData = cloneDeep(data)
+            if (cloneData.PLAY_STATUS === 'stop' && !cloneData.CHANNEL_INFO?.chlID) {
+                if (pageData.value.chls[index]) {
+                    cloneData.CHANNEL_INFO = {
+                        chlID: pageData.value.chls[index].id,
+                        supportPtz: false,
+                        chlName: '',
+                        streamType: 2,
+                    }
+                }
+            }
+            updateWinData(index, cloneData)
         }
 
         /**
@@ -660,7 +681,7 @@ export default defineComponent({
          * @param {Array} eventList
          * @param {String} eventModeType
          */
-        const changeEvent = (legend: PlaybackEventList[], typeMask: string[], eventList: string[], eventModeType: string, posKeyword: string) => {
+        const changeEvent = (legend: PlaybackEventList[], typeMask: string[], eventList: string[], eventModeType: string, posKeyword: string, forced: boolean) => {
             pageData.value.legend = legend
             pageData.value.typeMask = typeMask
             pageData.value.eventList = eventList
@@ -668,10 +689,10 @@ export default defineComponent({
             pageData.value.posKeyword = posKeyword
 
             if (pageData.value.recLogList.length) {
-                renderTimeline()
+                renderTimeline(false)
             }
 
-            if (ready.value && ['play', 'pause'].includes(pageData.value.playStatus)) {
+            if (!forced && ready.value && ['play', 'pause'].includes(pageData.value.playStatus)) {
                 playAll()
             }
         }
@@ -792,7 +813,7 @@ export default defineComponent({
         /**
          * @description 渲染时间轴
          */
-        const renderTimeline = () => {
+        const renderTimeline = (autoPointer = true) => {
             if (!ready.value) {
                 return
             }
@@ -804,7 +825,7 @@ export default defineComponent({
             const sortChlList = sortTimelineChlList()
             timeline.setColorMap(pageData.value.legend)
             timeline.setDstDayTime(formatDate(calendar.current.value))
-            timeline.updateChlList(sortChlList, true, 'record')
+            timeline.updateChlList(sortChlList, autoPointer, 'record')
         }
 
         /**
@@ -1382,10 +1403,12 @@ export default defineComponent({
          * @param {Object} row
          */
         const handleRecLogPlay = (row: PlaybackRecLogList) => {
-            if (['MOTION', 'SMDHUMAN', 'SMDVEHICLE'].includes(row.event)) {
-                pageData.value.smdRecLogPlay = row.event
-            }
-            seek(Math.floor(row.startTime / 1000))
+            eventRef.value?.setEvent(row.event)
+
+            nextTick(() => {
+                timelineRef.value?.setTime(Math.floor(row.startTime / 1000))
+                playAll(Math.floor(row.startTime / 1000))
+            })
         }
 
         /**
@@ -1426,7 +1449,6 @@ export default defineComponent({
             pageData.value.pos = hasPosEvent
             pageData.value.hasPosEvent = hasPosEvent
             pageData.value.recLogList = list
-            pageData.value.smdRecLogPlay = ''
 
             if (pageData.value.playStatus === 'pending') {
                 pageData.value.playStatus = 'stop'
@@ -1530,6 +1552,7 @@ export default defineComponent({
                 pageData.value.isBackUpPop = false
             } else {
                 pageData.value.isBackUpPop = false
+                pageData.value.isBackUpList = true
             }
         }
 
@@ -1789,6 +1812,7 @@ export default defineComponent({
             playerRef,
             timelineRef,
             chlRef,
+            eventRef,
             calendar,
             snap,
             closeImg,

@@ -210,7 +210,7 @@
                             </el-tooltip>
                             <div class="panel-seg">
                                 <BaseImgSpriteBtn
-                                    v-for="seg in pageData.segList"
+                                    v-for="seg in segList"
                                     :key="seg"
                                     :file="`seg_${seg}`"
                                     :active="currentSegment === seg"

@@ -21,7 +21,7 @@ export class SystemRecordStatusList {
     name = ''
     resolution = ''
     frameRate = ''
-    quality = ''
+    quality = 0
     bitType = ''
     level = ''
     recStatus = ''
@@ -207,6 +207,7 @@ export class SystemOutputSettingItem {
             },
         ] as SystemOutputSettingChlGroup[],
     }
+    maxWin = 0
 }
 
 export class SystemOutputSettingDecoderItem {

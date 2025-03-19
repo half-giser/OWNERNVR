@@ -135,7 +135,7 @@
                             min-width="100"
                         >
                             <template #default="{ row }: TableColumn<PlaybackRecLogList>">
-                                <el-text>{{ displayEvent(row) }}</el-text>
+                                <span>{{ displayEvent(row) }}</span>
                                 <BaseImgSprite
                                     v-if="displayEventIcon(row)"
                                     :file="row.event"
@@ -183,7 +183,7 @@
                                     file="detail"
                                     @click="showPosInfo(row)"
                                 />
-                                <el-text v-else>--</el-text>
+                                <span v-else>--</span>
                             </template>
                         </el-table-column>
                     </el-table>

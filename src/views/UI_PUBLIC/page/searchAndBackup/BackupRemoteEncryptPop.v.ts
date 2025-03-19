@@ -111,7 +111,7 @@ export default defineComponent({
             if (prop.encrypt === false) {
                 formData.value.encrypt = 'unencrypted'
             } else {
-                formData.value.encrypt = 'encrypt'
+                formData.value.encrypt = 'encrypted'
             }
         }
 

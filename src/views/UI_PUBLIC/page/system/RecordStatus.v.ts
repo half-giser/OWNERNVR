@@ -60,7 +60,7 @@ export default defineComponent({
                         name: $item('chl').text(),
                         resolution: $item('resolution').text(),
                         frameRate: $item('frameRate').text(),
-                        quality: $item('quality').text(),
+                        quality: $item('quality').text().num(),
                         bitType: $item('bitType').text(),
                         level: $item('level').text(),
                         recStatus: $item('recStatus').text(),

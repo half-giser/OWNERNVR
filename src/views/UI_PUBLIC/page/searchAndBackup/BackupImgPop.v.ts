@@ -100,6 +100,7 @@ export default defineComponent({
                             })
                             .join('')}
                     </pictures>
+                    <backupPath>${formData.value.remoteDeviceName}</backupPath>
                 </condition>
             `
             const result = await backupPicture(sendXml)
