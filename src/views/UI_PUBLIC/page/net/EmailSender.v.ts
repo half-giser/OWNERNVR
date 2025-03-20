@@ -154,7 +154,13 @@ export default defineComponent({
                 formData.value.port = $sender('smtp/port').text().num()
                 formData.value.attachImg = $sender('attachImg').text().num()
                 formData.value.imageNumber = $sender('imageNumber').text().num()
-                formData.value.ssl = $sender('smtp/ssl').text().bool() ? 'SSL' : 'NO'
+                let ssl = $sender('smtp/ssl').text()
+                if (ssl === 'true') {
+                    ssl = 'SSL'
+                } else if (ssl === 'false') {
+                    ssl = 'NO'
+                }
+                formData.value.ssl = ssl
             })
 
             closeLoading()

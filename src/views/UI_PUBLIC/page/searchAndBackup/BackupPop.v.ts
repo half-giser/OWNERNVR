@@ -215,6 +215,7 @@ export default defineComponent({
 
                 if (errorInfo) {
                     openMessageBox(errorInfo)
+                    close()
                 }
             }
         }

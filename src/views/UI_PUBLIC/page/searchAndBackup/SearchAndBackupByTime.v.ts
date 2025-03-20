@@ -165,6 +165,9 @@ export default defineComponent({
                 pageData.value.isBackUpPop = false
             } else {
                 pageData.value.isBackUpPop = false
+                router.push({
+                    path: '/search-and-backup/backup-state',
+                })
             }
         }
 

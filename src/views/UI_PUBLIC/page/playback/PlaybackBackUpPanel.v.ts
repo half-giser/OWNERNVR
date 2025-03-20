@@ -113,6 +113,8 @@ export default defineComponent({
                         chlId: $item('chls/item').attr('id'),
                         streamType: 0,
                         groupby: '',
+                        disabled: false,
+                        statusTip: '',
                     }
                 })
                 if (remoteTableData.value.length) {
