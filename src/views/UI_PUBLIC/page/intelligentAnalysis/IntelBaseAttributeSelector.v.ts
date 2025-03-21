@@ -93,6 +93,7 @@ export default defineComponent({
          */
         const reset = () => {
             selectedVehicle.value = []
+            selectedPerson.value = []
         }
 
         // 打开选择框时，更新勾选值

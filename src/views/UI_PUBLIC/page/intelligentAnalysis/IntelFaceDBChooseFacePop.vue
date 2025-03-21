@@ -33,6 +33,7 @@
                 <IntelFaceDBChooseFaceImportPanel
                     v-if="type !== 'snap'"
                     v-show="pageData.type === 'import'"
+                    type="import"
                     @change="importImg"
                 />
             </div>

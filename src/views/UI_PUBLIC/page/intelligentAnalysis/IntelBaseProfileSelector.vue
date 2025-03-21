@@ -125,6 +125,7 @@
     text-align: center;
     font-size: 12px;
     border: 1px solid var(--input-border);
+    user-select: none;
 
     &.active {
         border-color: var(--primary);

@@ -228,6 +228,14 @@
         & + & &__inner {
             border-left: none;
         }
+
+        &.is-disabled {
+            .el-radio-button__inner {
+                background-color: var(--radio-btn-bg-disabled);
+                color: var(--radio-btn-text-disabled);
+                border-color: var(--radio-btn-border-disabled);
+            }
+        }
     }
 
     .el-radio-button__original-radio:checked + .el-radio-button__inner {

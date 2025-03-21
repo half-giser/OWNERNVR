@@ -9,7 +9,7 @@
             id="upload-import"
             type="file"
             hidden
-            :accept="type === 'both' ? '.csv,.txt,.jpg,.jpeg' : '.jpg,.jpeg'"
+            :accept="type === 'import' ? '.csv,.txt,.jpg,.jpeg' : '.jpg,.jpeg'"
             multiple
             @change="handleH5Import"
         />
@@ -18,15 +18,15 @@
             for="upload-import"
             class="el-button"
         >
-            {{ Translate('IDCS_IMPORT') }}
+            {{ btnName }}
         </label>
         <el-button
             v-show="mode === 'ocx'"
             @click="handleOCXImport"
         >
-            {{ Translate('IDCS_IMPORT') }}
+            {{ btnName }}
         </el-button>
-        <p>{{ Translate('IDCS_OPERATE_SNAPSHOT_MSPB') }} : *.jpg,*.jpeg {{ Translate('IDCS_FEATURE_LIBRARY_PICTRUE_LIMITE') }}</p>
+        <p>{{ tips }}</p>
     </div>
 </template>
 

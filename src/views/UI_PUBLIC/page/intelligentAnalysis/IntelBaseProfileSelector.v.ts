@@ -345,8 +345,8 @@ export default defineComponent({
          * @description 重置选项
          */
         const reset = () => {
-            Object(selected.value).keys((key1: string) => {
-                Object(selected.value[key1]).keys((key2: string) => {
+            Object.keys(selected.value).forEach((key1: string) => {
+                Object.keys(selected.value[key1]).forEach((key2: string) => {
                     selected.value[key1][key2] = []
                 })
             })

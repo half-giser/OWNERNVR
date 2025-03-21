@@ -204,6 +204,8 @@ export default defineComponent({
             // 当前播放的项
             playId: '',
             dateRangeType: 'date',
+            // 通道名称
+            chlName: '',
         })
 
         const playerRef = ref<PlayerInstance>()
@@ -516,6 +518,7 @@ export default defineComponent({
             playerData.value.playId = getUniqueKey(row)
             playerData.value.startTime = row.recStartTime
             playerData.value.endTime = row.recEndTime
+            playerData.value.chlName = row.chlName
 
             playerRef.value?.player.play({
                 chlID: row.chlId,
@@ -536,6 +539,7 @@ export default defineComponent({
             playerData.value.startTime = 0
             playerData.value.endTime = 0
             playerData.value.currentTime = 0
+            playerData.value.chlName = ''
             playerRef.value?.player.stop(0)
         }
 
@@ -1075,6 +1079,7 @@ export default defineComponent({
         // 人脸比对列表
         const matchList = computed(() => {
             if (pageData.value.isMatchPop) {
+                console.log(sliceTableData.value)
                 return sliceTableData.value
                     .filter((item) => item.faceFeatureId !== -1000)
                     .map((item) => {
@@ -1089,26 +1094,21 @@ export default defineComponent({
             return []
         })
 
+        // 抓拍数据列表
+        const snapList = computed(() => {
+            return sliceTableData.value.filter((item) => item.faceFeatureId !== -1000)
+        })
+
         /**
          * @description 查看抓拍详情
          * @param {IntelSearchFaceList} index
          */
         const showDetail = (row: IntelSearchFaceList) => {
-            const filterTable = sliceTableData.value.filter((item) => item.faceFeatureId !== -1000)
-            const index = filterTable.findIndex((item) => getUniqueKey(item) === getUniqueKey(row))
+            const index = snapList.value.findIndex((item) => getUniqueKey(item) === getUniqueKey(row))
             stop()
             if (formData.value.eventType === 'byWhiteList' || formData.value.faceType === 'face' || formData.value.faceType === 'group') {
-                // pageData.value.matchList = filterTable.map((item) => {
-                //     return {
-                //         ...item.info,
-                //         ...item,
-                //         info: '',
-                //         groupName: faceGroupMap[item.info.groupId],
-                //     }
-                // })
                 pageData.value.matchIndex = index
                 pageData.value.isMatchPop = true
-                // console.log(pageData.value.matchList)
             } else {
                 pageData.value.detailIndex = index
                 pageData.value.isDetailPop = true
@@ -1489,6 +1489,7 @@ export default defineComponent({
             getUniqueKey,
             register,
             matchList,
+            snapList,
         }
     },
 })

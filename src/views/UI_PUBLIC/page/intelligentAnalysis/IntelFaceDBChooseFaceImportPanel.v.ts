@@ -13,18 +13,11 @@ export default defineComponent({
             default: 10000,
         },
         /**
-         * @property {'both' | 'img-only'} 支持的文件类型 both: 支持jpg和csv、xls；img-only：只支持jpg
-         */
-        accept: {
-            type: String,
-            default: 'both',
-        },
-        /**
-         * @property {'both' | 'h5-only'} 上传的模式 both: 支持OCX与H5上传； h5-only: 只支持H5上传
+         * @property {'search' | 'import'} 上传的模式 search: 搜索人脸； import: 录入人脸
          */
         type: {
-            type: String,
-            default: 'both',
+            type: String as PropType<'search' | 'import'>,
+            default: 'search',
         },
     },
     emits: {
@@ -39,7 +32,7 @@ export default defineComponent({
 
         const plugin = usePlugin({
             onReady: (mode, plugin) => {
-                if (mode.value === 'ocx' && prop.type === 'both') {
+                if (mode.value === 'ocx' && prop.type === 'import') {
                     const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
                     plugin.ExecuteCmd(sendXML)
                 }
@@ -91,7 +84,23 @@ export default defineComponent({
         })
 
         const mode = computed(() => {
-            return plugin.IsSupportH5() || prop.type === 'h5-only' ? 'h5' : 'ocx'
+            return plugin.IsSupportH5() || prop.type === 'search' ? 'h5' : 'ocx'
+        })
+
+        const tips = computed(() => {
+            if (prop.type === 'search') {
+                return `${Translate('IDCS_OPERATE_SNAPSHOT_MSPB')}  : *.jpg,*.jpeg, ${Translate('IDCS_SEARCH_BY_EXTERNAL_FACES_TIP')}`
+            }
+
+            return `${Translate('IDCS_OPERATE_SNAPSHOT_MSPB')} : *.jpg,*.jpeg ${Translate('IDCS_FEATURE_LIBRARY_PICTRUE_LIMITE')}`
+        })
+
+        const btnName = computed(() => {
+            if (prop.type === 'search') {
+                return Translate('IDCS_SELECT')
+            }
+
+            return Translate('IDCS_IMPORT')
         })
 
         // 性别key值与value值的映射
@@ -242,7 +251,7 @@ export default defineComponent({
          * @param {FileList | File[]} files
          */
         const parseFiles = async (files: FileList | File[]) => {
-            const supportTypes = prop.accept === 'img-only' ? ['jpg', 'jpeg'] : ['csv', 'txt', 'jpg', 'jpeg'] // 支持导入的文件类型
+            const supportTypes = prop.type === 'search' ? ['jpg', 'jpeg'] : ['csv', 'txt', 'jpg', 'jpeg'] // 支持导入的文件类型
             let hasNotSupportedType = false
             let dataFileType = ''
             let dataFile = files[0]
@@ -373,6 +382,8 @@ export default defineComponent({
             mode,
             handleH5Import,
             handleOCXImport,
+            tips,
+            btnName,
         }
     },
 })

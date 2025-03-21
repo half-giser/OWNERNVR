@@ -2796,6 +2796,7 @@ defineExpose({
             display: flex;
             justify-content: center;
             align-items: center;
+            background-color: var(--player-bg);
 
             &.hide {
                 display: none;

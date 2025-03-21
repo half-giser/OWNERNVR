@@ -7,7 +7,8 @@
     <el-dialog
         :title="Translate('IDCS_SNAP_DETAIL')"
         :width="950"
-        @opened="open"
+        @open="open"
+        @opened="opened"
     >
         <div>
             <div class="info">
@@ -29,6 +30,7 @@
                     <img
                         :src="current.pic"
                         class="snap-img"
+                        @load="loadImg"
                     />
                 </div>
                 <div>
@@ -143,13 +145,11 @@
         width: 185px;
         height: 215px;
         margin: 10px 0 0 10px;
-        background-color: var(--bg-button-disabled);
     }
 }
 
 .panorama {
     position: relative;
-    background-color: var(--bg-button-disabled);
     width: 400px;
     height: 215px;
     margin: 10px 0 0 10px;

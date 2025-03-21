@@ -123,7 +123,7 @@
     align-items: center;
 
     & > div:first-child {
-        width: 185px;
+        width: 200px;
         flex-shrink: 0;
     }
 
@@ -136,7 +136,6 @@
         width: 185px;
         height: 215px;
         margin: 10px 0 0 10px;
-        background-color: var(--bg-button-disabled);
     }
 
     p {

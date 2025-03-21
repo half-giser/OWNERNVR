@@ -360,8 +360,13 @@ export default defineComponent({
          * @param {Array} chls
          */
         const handleChlSearch = async (chls: PlaybackChlList[]) => {
+            if (pageData.value.playStatus !== 'stop') {
+                stop(false)
+            }
             pageData.value.chls = chls
             pageData.value.startTime = dayjs(calendar.current.value).toDate()
+            timelineRef.value?.setTime(startTimeStamp.value / 1000)
+
             await getRecSection(pageData.value.chls.map((item) => item.id))
 
             if (mode.value === 'ocx') {
@@ -401,9 +406,11 @@ export default defineComponent({
                 }
             }
 
-            if (pageData.value.playStatus !== 'play') {
-                pageData.value.playStatus = 'pending'
-            }
+            pageData.value.playStatus = 'pending'
+
+            // if (pageData.value.playStatus !== 'play') {
+            //     pageData.value.playStatus = 'pending'
+            // }
         }
 
         /**
@@ -412,7 +419,8 @@ export default defineComponent({
          */
         const handleChlPlay = async (chls: PlaybackChlList[]) => {
             pageData.value.mainStreamTypeChl = ''
-            pageData.value.playStatus = 'play'
+            pageData.value.playStatus = 'stop'
+            // pageData.value.playStatus = 'play'
             await handleChlSearch(chls)
             adjustSplit()
             playAll()
@@ -1178,7 +1186,7 @@ export default defineComponent({
         /**
          * @description 停止播放
          */
-        const stop = () => {
+        const stop = (isResetChannel = true) => {
             if (!ready.value) {
                 return
             }
@@ -1195,7 +1203,10 @@ export default defineComponent({
             }
 
             timelineRef.value!.clearClipRange()
-            chlRef.value!.setChls([])
+
+            if (isResetChannel) {
+                chlRef.value!.setChls([])
+            }
         }
 
         const adjustSplit = () => {
@@ -1723,7 +1734,7 @@ export default defineComponent({
                                     closeImg(index)
                                 })
                             }
-                            renderTimeline()
+                            renderTimeline(false)
                             return
                         }
 
@@ -1767,7 +1778,7 @@ export default defineComponent({
                                 playAll(timestamp)
                             }
 
-                            renderTimeline()
+                            renderTimeline(false)
                             return
                         }
                         playAll(timelineRef.value!.getTime() || startTimeStamp.value / 1000)
@@ -1784,12 +1795,12 @@ export default defineComponent({
             () => pageData.value.recLogList,
             (newVal, oldVal) => {
                 if (!oldVal.length) {
-                    renderTimeline()
+                    renderTimeline(false)
                     return
                 }
 
                 if (!newVal.length) {
-                    renderTimeline()
+                    renderTimeline(true)
                     return
                 }
                 updateTimeline()

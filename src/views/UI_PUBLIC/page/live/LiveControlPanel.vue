@@ -98,20 +98,21 @@
             <el-radio-group
                 class="nowrap"
                 :model-value="winData.streamType"
-                :disabled="streamTypeDisabled || pageData.isRTSP || winData.PLAY_STATUS !== 'play'"
+                :disabled="pageData.isRTSP || winData.PLAY_STATUS !== 'play'"
                 @update:model-value="changeStreamType"
             >
                 <el-radio-button
                     v-for="item in pageData.streamMenuOptions"
                     :key="item.value"
                     :value="item.value"
+                    :disabled="streamTypeDisabled && item.value === 1"
                     :label="item.label"
                 />
             </el-radio-group>
         </div>
 
         <div
-            v-show="winData.streamType === 2 && !streamTypeDisabled && winData.PLAY_STATUS === 'play'"
+            v-show="winData.streamType === 2 && winData.PLAY_STATUS === 'play'"
             class="stream-param"
         >
             <el-form
