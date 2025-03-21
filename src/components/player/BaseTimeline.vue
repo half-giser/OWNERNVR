@@ -1007,7 +1007,7 @@ const drawRecord = () => {
         const serialNum = index + 1 > 9 ? index + 1 : '0' + (index + 1)
         drawText(recordCtx, serialNum + '', 15, 18 + 25 * index, scaleLineColor)
         // 绘制剪切层
-        if (chl) drawClipRange(index)
+        if (chl.records.length) drawClipRange(index)
         // 绘制通道之间的分割线
         if (chlList.length === 1 && minTime > 0) {
             return

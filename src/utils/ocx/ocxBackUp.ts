@@ -8,6 +8,7 @@ import dayjs from 'dayjs'
 
 export const useOcxBackUp = (cmd: (str: string) => void) => {
     const userSession = useUserSessionStore()
+    const { Translate } = useLangStore()
 
     // OCX本地下载任务限制
     const LOCAL_TASK_COUNT_LIMIT = 100
@@ -15,6 +16,9 @@ export const useOcxBackUp = (cmd: (str: string) => void) => {
 
     // 本地任务列表（OCX）
     const localTableData = ref<PlaybackBackUpTaskList[]>([])
+
+    const HEARTBEAT_TIME = 60000
+    let timer: NodeJS.Timeout | number = 0
 
     /**
      * @description 恢复所有任务
@@ -118,13 +122,17 @@ export const useOcxBackUp = (cmd: (str: string) => void) => {
         }
     }
 
+    const normalTaskNum = computed(() => {
+        return localTableData.value.filter((item) => !['failed', 'complete'].includes(item.status)).length
+    })
+
     /**
      * @description 判断本地下载数量是否超出限制
      * @param {Number} addNum
      * @returns {Boolean}
      */
     const isExeed = (addNum: number) => {
-        return localTableData.value.filter((item) => !['failed', 'complete'].includes(item.status)).length + addNum > LOCAL_TASK_COUNT_LIMIT
+        return normalTaskNum.value + addNum > LOCAL_TASK_COUNT_LIMIT
     }
 
     /**
@@ -177,6 +185,12 @@ export const useOcxBackUp = (cmd: (str: string) => void) => {
         }
     }
 
+    const errorCodeMap: Record<number, string> = {
+        [ErrorCode.USER_ERROR_NO_AUTH]: Translate('IDCS_NODE_NO_AUTH').formatForLang(''),
+        513: Translate('IDCS_NO_RECORD_DATA'),
+        [ErrorCode.USER_ERROR_SYSTEM_BUSY]: Translate('IDCS_DEVICE_BUSY'),
+    }
+
     /**
      * @description OCX通知回调
      * @param {XMLQuery} $
@@ -187,7 +201,7 @@ export const useOcxBackUp = (cmd: (str: string) => void) => {
             // var backupTaskGrid = $("#backupTaskGrid");
             const errorCode = $('statenotify/errorCode').text().num()
 
-            if ([ErrorCode.USER_ERROR_NO_AUTH, 513, ErrorCode.USER_ERROR_SYSTEM_BUSY].includes(errorCode)) {
+            if (errorCodeMap[errorCode]) {
                 const taskIds = $('statenotify/errorDescription').text().array()
                 if (errorCode === ErrorCode.USER_ERROR_SYSTEM_BUSY) {
                     resendTask(taskIds)
@@ -195,13 +209,23 @@ export const useOcxBackUp = (cmd: (str: string) => void) => {
                     localTableData.value.forEach((item) => {
                         if (taskIds.includes(item.taskId)) {
                             item.status = 'failed'
+                            item.statusTip = errorCodeMap[errorCode]
                             nextProcess()
                         }
                     })
                 }
+            } else if (errorCode === 2) {
+                openMessageBox($('statenotify/errorDescription').text())
             } else if (errorCode === ErrorCode.USER_ERROR_DISK_SPACE_NO_ENOUGH) {
                 const errorDescription = $('statenotify/errorDescription').text()
-                localTableData.value = []
+                // localTableData.value = []
+                // openMessageBox(errorDescription)
+                localTableData.value.forEach((item) => {
+                    if (item.status !== 'complete') {
+                        item.status = 'failed'
+                        item.statusTip = errorDescription
+                    }
+                })
                 openMessageBox(errorDescription)
             }
         }
@@ -284,10 +308,41 @@ export const useOcxBackUp = (cmd: (str: string) => void) => {
                 endTimeEx: localToUtc(item.endTime),
                 streamType: item.streamType,
                 groupby,
+                disabled: false,
+                statusTip: '',
             })
         })
         nextProcess()
     }
+
+    /**
+     * @description 开始心跳检测
+     */
+    const startHeartbeat = () => {
+        stopHeartbeat()
+        timer = setInterval(() => {
+            heartBeat()
+        }, HEARTBEAT_TIME)
+    }
+
+    /**
+     * @description 停止心跳检测
+     */
+    const stopHeartbeat = () => {
+        clearInterval(timer)
+    }
+
+    onBeforeUnmount(() => {
+        stopHeartbeat()
+    })
+
+    watch(normalTaskNum, (val, oldVal) => {
+        if (val === 0) {
+            stopHeartbeat()
+        } else if (val > 0 && oldVal === 0) {
+            startHeartbeat()
+        }
+    })
 
     return {
         localTableData,

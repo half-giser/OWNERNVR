@@ -160,13 +160,13 @@ export class UserPermissionSystemAuthList {
         value: {
             // 远程登录
             remoteLogin: {
-                key: 'IDCS_AUDIO_TALK',
+                key: 'IDCS_REMOTE_LOGIN',
                 value: false,
                 hidden: false,
             },
             // 语音对讲
             talk: {
-                key: 'IDCS_REMOTE_LOGIN',
+                key: 'IDCS_AUDIO_TALK',
                 value: false,
                 hidden: false,
             },

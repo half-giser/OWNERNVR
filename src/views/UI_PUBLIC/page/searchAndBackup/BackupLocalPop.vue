@@ -13,7 +13,7 @@
         <div>
             <el-progress
                 :percentage="pageData.progress"
-                :stroke-width="14"
+                :stroke-width="8"
             />
             <div class="chunk">{{ pageData.currentTask }} / {{ backupList.length }}</div>
             <p class="tip">{{ Translate('IDCS_BACKUP_HOLD_ON') }}</p>

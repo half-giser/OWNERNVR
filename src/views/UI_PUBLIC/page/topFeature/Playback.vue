@@ -13,7 +13,7 @@
             @play="handleChlPlay"
         >
             <PlaybackEventPanel
-                :smd-rec-log-play="pageData.smdRecLogPlay"
+                ref="eventRef"
                 @change="changeEvent"
             />
         </PlaybackChannelPanel>

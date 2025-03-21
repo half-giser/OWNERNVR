@@ -158,7 +158,7 @@
         </div>
         <BackupPop
             v-model="pageData.isBackUpPop"
-            :mode="mode"
+            :mode="pageData.playerMode"
             :backup-list="pageData.backupRecList"
             @confirm="confirmBackUp"
             @close="pageData.isBackUpPop = false"

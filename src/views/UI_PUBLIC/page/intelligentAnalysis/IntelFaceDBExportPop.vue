@@ -13,7 +13,7 @@
         <div>
             <el-progress
                 :percentage="progress"
-                :stroke-width="14"
+                :stroke-width="8"
             />
             <div class="chunk">{{ progress }} %</div>
             <p class="tip">{{ Translate('IDCS_DOWNLOADING') }}</p>

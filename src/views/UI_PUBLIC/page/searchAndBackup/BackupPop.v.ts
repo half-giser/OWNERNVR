@@ -122,6 +122,9 @@ export default defineComponent({
                     remainSize: $item('remainSize').text(),
                 }
             })
+            if (pageData.value.remoteDeviceOptions.length) {
+                formData.value.remoteDeviceName = pageData.value.remoteDeviceOptions[0].name
+            }
         }
 
         /**
@@ -212,6 +215,7 @@ export default defineComponent({
 
                 if (errorInfo) {
                     openMessageBox(errorInfo)
+                    close()
                 }
             }
         }

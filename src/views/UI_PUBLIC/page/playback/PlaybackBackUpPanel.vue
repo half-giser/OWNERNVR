@@ -24,6 +24,17 @@
                 show-overflow-tooltip
             >
                 <el-table-column
+                    label=" "
+                    width="50"
+                >
+                    <template #default="{ row }: TableColumn<PlaybackBackUpTaskList>">
+                        <BaseTableRowStatus
+                            :icon="row.status === 'failed' ? 'error' : ''"
+                            :error-text="row.statusTip"
+                        />
+                    </template>
+                </el-table-column>
+                <el-table-column
                     :label="Translate('IDCS_SERIAL_NUMBER')"
                     type="index"
                     width="50"
@@ -87,7 +98,6 @@
                         >
                             {{ Translate('IDCS_RESUME') }}
                         </el-button>
-                        <el-text v-else-if="row.status === 'failed'">{{ Translate('IDCS_FAILED') }}</el-text>
                     </template>
                 </el-table-column>
                 <el-table-column

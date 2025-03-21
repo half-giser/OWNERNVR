@@ -34,7 +34,7 @@ export class PlaybackEventList {
 /**
  * @description 回放 备份任务列表项
  */
-export class PlaybackBackUpTaskList {
+export class PlaybackBackUpTaskList extends TableRowStatus {
     taskId = ''
     startEndTime = ''
     duration = ''

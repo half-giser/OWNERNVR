@@ -170,6 +170,7 @@ export default defineComponent({
             backupRecList: [] as PlaybackBackUpRecList[],
             // 是否打开选择时间范围弹窗
             isTimeRangePop: false,
+            playerMode: 'h5',
         })
 
         const formData = ref({
@@ -207,6 +208,7 @@ export default defineComponent({
 
         const plugin = usePlugin({
             onReady: (mode, plugin) => {
+                pageData.value.playerMode = mode.value
                 if (mode.value === 'ocx') {
                     const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Playback')
                     plugin.ExecuteCmd(sendXML)
@@ -218,11 +220,6 @@ export default defineComponent({
                     plugin.ExecuteCmd(sendXML)
                 }
             },
-        })
-
-        // 播放器模式
-        const mode = computed(() => {
-            return plugin.IsSupportH5() ? 'h5' : 'ocx'
         })
 
         /**
@@ -792,7 +789,7 @@ export default defineComponent({
          * @description 备份
          */
         const backUp = () => {
-            if (mode.value === 'ocx' && plugin.BackUpTask.isExeed(1)) {
+            if (pageData.value.playerMode === 'ocx' && plugin.BackUpTask.isExeed(1)) {
                 openMessageBox(Translate('IDCS_BACKUP_TASK_NUM_LIMIT').formatForLang(plugin.BackUpTask.limit))
                 return
             }
@@ -818,11 +815,11 @@ export default defineComponent({
          */
         const confirmBackUp = (type: string, path: string, format: string) => {
             if (type === 'local') {
-                if (mode.value === 'h5') {
+                if (pageData.value.playerMode === 'h5') {
                     pageData.value.isLocalBackUpPop = true
                 }
 
-                if (mode.value === 'ocx') {
+                if (pageData.value.playerMode === 'ocx') {
                     plugin.BackUpTask.addTask(pageData.value.backupRecList, path, format)
                     router.push({
                         path: '/search-and-backup/backup-state',
@@ -831,6 +828,9 @@ export default defineComponent({
                 pageData.value.isBackUpPop = false
             } else {
                 pageData.value.isBackUpPop = false
+                router.push({
+                    path: '/search-and-backup/backup-state',
+                })
             }
         }
 

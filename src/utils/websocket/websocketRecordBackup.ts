@@ -164,15 +164,15 @@ export const WebsocketRecordBackup = (option: WebsocketRecordBackupOption) => {
      * @description 开启一个任务
      * @param {Array<CmdPlaybackOpenOption>} recordList 成员字段见startOneTask
      */
-    const start = (recordList: CmdPlaybackOpenOption[]) => {
-        if (!(recordList && recordList.length)) {
+    const start = (currentRecordList: CmdPlaybackOpenOption[]) => {
+        if (!currentRecordList.length) {
             return
         }
-        recordList = recordList
+        recordList = currentRecordList
         cmdQueue = []
         checkReady(() => {
-            for (let i = 0; i < recordList.length; i++) {
-                startOneTask(recordList[i], i)
+            for (let i = 0; i < currentRecordList.length; i++) {
+                startOneTask(currentRecordList[i], i)
             }
         })
     }

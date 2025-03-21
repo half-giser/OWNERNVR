@@ -7,6 +7,7 @@
     <el-dialog
         :title="Translate('IDCS_EXPORT')"
         :width="500"
+        @open="open"
     >
         <el-form
             :style="{
@@ -20,7 +21,7 @@
                 />
             </el-form-item>
             <el-form-item v-show="formData.destination === 'local'">
-                <el-text class="text-error">{{ Translate('IDCS_IMG_UNENCRYPTED_TIP') }}</el-text>
+                <span class="text-error">{{ Translate('IDCS_IMG_UNENCRYPTED_TIP') }}</span>
             </el-form-item>
             <el-form-item
                 v-show="formData.destination === 'remote'"

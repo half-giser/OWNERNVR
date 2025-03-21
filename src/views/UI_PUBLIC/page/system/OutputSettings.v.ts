@@ -58,8 +58,6 @@ export default defineComponent({
             configSwitch: false,
             // 是否显示开关
             isConfigSwitch: false,
-            // 分屏选项
-            segList: [1, 4, 6, 8, 9, 13, 16, 25, 32, 36, 64],
             // 当前视图列表选中的视图
             activeView: 0,
             // 当前视图中选中的分屏
@@ -556,6 +554,7 @@ export default defineComponent({
 
                     // 0/1 表示当前输出是轮询('0')还是预览('1')模式
                     formData.value.decoder[decoderId].output[outIndex].isDwell = outItem.attr('validItem').num() === 0
+                    formData.value.decoder[decoderId].output[outIndex].maxWin = systemCaps.decoderOutputMaxWin[decoderId]
 
                     $outItem('item1').forEach((element) => {
                         const $element = queryXml(element.element)
@@ -614,11 +613,19 @@ export default defineComponent({
                     }
                 }),
             }
+            formData.value.main.maxWin = systemCaps.previewMaxWinForOutputSetting
+
+            const subOutputMaxWinMap: Record<number, number> = {
+                1: systemCaps.sub1OutputMaxWin,
+                2: systemCaps.sub2OutputMaxWin,
+                3: systemCaps.sub3OutputMaxWin,
+            }
 
             // 获取副输出的配置
             for (let idx = 0; idx < systemCaps.outputScreensCount - 1; idx++) {
                 const item = new SystemOutputSettingItem()
                 item.id = idx + 1
+                item.maxWin = subOutputMaxWinMap[item.id]
                 formData.value.sub.push(item)
             }
 
@@ -936,6 +943,7 @@ export default defineComponent({
             }
         }
 
+        // hdmi输入选项
         const hdmiInOptions = computed(() => {
             if (pageData.value.tabId === -1) {
                 return []
@@ -953,6 +961,23 @@ export default defineComponent({
                     }
                 }),
             )
+        })
+
+        // 分屏选项
+        const segList = computed(() => {
+            let maxWin = 64
+
+            if (pageData.value.tabId === -1) {
+                if (pageData.value.outputIdx === -1) {
+                    maxWin = formData.value.main.maxWin
+                } else {
+                    maxWin = formData.value.sub[pageData.value.outputIdx].maxWin
+                }
+            } else {
+                maxWin = formData.value.decoder[pageData.value.tabId].output[pageData.value.decoderIdx].maxWin
+            }
+
+            return [1, 4, 6, 8, 9, 13, 16, 25, 32, 36, 64].filter((item) => item <= maxWin)
         })
 
         onMounted(async () => {
@@ -1012,6 +1037,7 @@ export default defineComponent({
             isDwell,
             formData,
             getCurrentOutput,
+            segList,
         }
     },
 })

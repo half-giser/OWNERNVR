@@ -99,12 +99,12 @@ export default defineComponent({
                         chlName: $item('chls/item').text(),
                         destination: 'remote', // Translate('IDCS_REMOTE'),
                         backupFileFormat: $item('backupFileFormat').text(),
-                        backupPath: $('backupPath').text(),
-                        creator: $('creator').text(),
+                        backupPath: $item('backupPath').text(),
+                        creator: $item('creator').text(),
                         dataSize: dataSize ? dataSize + 'MB' : '--',
-                        eventType: $('eventType').text(),
-                        progress: $('progress').text(),
-                        status: $('status').text(),
+                        eventType: $item('eventType').text(),
+                        progress: $item('progress').text(),
+                        status: $item('status').text(),
                         chlIndex: 0,
                         startTime: '',
                         endTime: '',
@@ -113,6 +113,8 @@ export default defineComponent({
                         chlId: $item('chls/item').attr('id'),
                         streamType: 0,
                         groupby: '',
+                        disabled: false,
+                        statusTip: '',
                     }
                 })
                 if (remoteTableData.value.length) {

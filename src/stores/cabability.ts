@@ -66,6 +66,7 @@ export const useCababilityStore = defineStore(
         const switchIpChlRange = ref<number[]>([])
         const mainStreamLimitFps = ref(1)
         const supportRecorder = ref(false)
+        const decoderOutputMaxWin = ref<Record<number, number>>({})
 
         const CustomerID = ref(0)
         const AISwitch = ref<boolean | undefined>()
@@ -99,6 +100,10 @@ export const useCababilityStore = defineStore(
             sub1OutputMaxWin.value = $('subOutputMaxWin').text().num()
             sub2OutputMaxWin.value = $('sub2OutputMaxWin').text().num()
             sub3OutputMaxWin.value = $('sub3OutputMaxWin').text().num()
+            $('decoderOutput/item').forEach((item) => {
+                const id = item.attr('id').num()
+                decoderOutputMaxWin.value[id] = item.text().num()
+            })
             outputScreensCount.value = $('outputScreens/item').length // 1：主输出；2:主输出/辅输出
             supportBootWorkMode.value = $('supportBootWorkMode').text().bool()
             supportModifyPoeMode.value = $('supportModifyPoeMode').text().bool()
@@ -219,6 +224,7 @@ export const useCababilityStore = defineStore(
             productModel,
             mainStreamLimitFps,
             supportRecorder,
+            decoderOutputMaxWin,
         }
     },
     {
