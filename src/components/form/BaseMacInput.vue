@@ -21,6 +21,7 @@
                 @input="handleInput($event, index)"
                 @focus="handleFocus"
                 @blur="handleBlur(index)"
+                @paste.prevent="handlePaste($event, index)"
             />
             <span v-if="index !== address.length - 1">:</span>
         </template>
@@ -126,8 +127,8 @@ const isTextSelected = (input: HTMLInputElement) => {
  * @param {Event} e
  * @param {number} index
  */
-const handleKeyDown = (e: Event, index: number) => {
-    const keyCode = (e as KeyboardEvent).key
+const handleKeyDown = (e: KeyboardEvent, index: number) => {
+    const keyCode = e.key
     let isPreventDefault = true
 
     switch (keyCode) {
@@ -155,6 +156,16 @@ const handleKeyDown = (e: Event, index: number) => {
             break
         case 'Backspace':
             isPreventDefault = false
+            break
+        case 'v':
+            if (e.ctrlKey) {
+                isPreventDefault = false
+            }
+            break
+        case 'c':
+            if (e.ctrlKey) {
+                isPreventDefault = false
+            }
             break
         default:
             if (/[0-9a-fA-F]/.test(keyCode)) {
@@ -202,6 +213,23 @@ const handleBlur = (index: number) => {
     const join = split.join(':')
     emits('update:modelValue', join)
     emits('change', join)
+}
+
+/**
+ * @description 粘贴
+ * @param {ClipboardEvent} e
+ * @param {number} index
+ */
+const handlePaste = (e: ClipboardEvent, index: number) => {
+    const text = e.clipboardData?.getData('text')?.trim()
+    if (text) {
+        if (/^[a-fA-F0-9]{1,2}$/.test(text)) {
+            updateValue(parseInt(text, 16), index)
+        } else if (/([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})/.test(text)) {
+            emits('update:modelValue', text.toUpperCase())
+            emits('change', text.toUpperCase())
+        }
+    }
 }
 </script>
 
