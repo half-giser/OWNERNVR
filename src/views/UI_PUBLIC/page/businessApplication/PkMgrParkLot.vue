@@ -51,7 +51,13 @@
                         </div>
                         <div class="panel-time">{{ displayDateTime(current.enterTime) }}</div>
                     </div>
-                    <img src="" />
+                    <img :src="current.enterImg" />
+                    <div
+                        v-show="!(current.isEnter && current.enterImg) && current.type === 'nonEnter-exit'"
+                        class="panel-wrap"
+                    >
+                        {{ Translate('IDCS_NONE_VEHICLE_IN_TIPS') }}
+                    </div>
                 </div>
                 <div class="panel">
                     <div
@@ -64,7 +70,13 @@
                         </div>
                         <div class="panel-time">{{ displayDateTime(current.exitTime) }}</div>
                     </div>
-                    <img src="" />
+                    <img :src="current.exitImg" />
+                    <div
+                        v-show="!(current.isExit && current.exitImg) && current.type === 'enter-nonExit'"
+                        class="panel-wrap"
+                    >
+                        {{ Translate('IDCS_NONE_VEHICLE_OUT_TIPS') }}
+                    </div>
                 </div>
                 <div class="data">
                     <el-form>
@@ -80,21 +92,21 @@
                     <div class="data-box">
                         <div class="data-item">
                             <label>{{ Translate('IDCS_DIRECTION') }}</label>
-                            <span>{{ displayDirection(current.direction) }}</span>
+                            <span class="bold">{{ displayDirection(current.direction) }}</span>
                         </div>
                     </div>
                     <div class="data-box">
                         <div class="data-item">
                             <label>{{ Translate('IDCS_VEHICLE_IN_TIME') }}</label>
-                            <span>{{ displayDateTime(current.enterTime) }}</span>
+                            <span>{{ current.type !== 'nonEnter-nonExit' ? displayDateTime(current.enterTime) : '--' }}</span>
                         </div>
                         <div class="data-item">
                             <label>{{ Translate('IDCS_VEHICLE_OUT_TIME') }}</label>
-                            <span>{{ displayDateTime(current.exitTime) }}</span>
+                            <span>{{ current.type !== 'nonEnter-nonExit' ? displayDateTime(current.exitTime) : '--' }}</span>
                         </div>
                         <div class="data-item">
                             <label>{{ Translate('IDCS_VEHICLE_PARKING_TIME') }}</label>
-                            <span>{{ displayDuration(current) }}</span>
+                            <span class="bold">{{ displayDuration(current) }}</span>
                         </div>
                     </div>
                     <div class="data-box">
@@ -115,7 +127,10 @@
                 </el-tooltip>
             </div>
             <div class="base-table-box">
-                <el-table :data="tableData">
+                <el-table
+                    :data="tableData"
+                    show-overflow-tooltip
+                >
                     <el-table-column :label="Translate('IDCS_LICENSE_PLATE_NUM')">
                         <template #default="{ row }: TableColumn<BusinessParkingLotList>">
                             {{ displayPlateNum(row.plateNum) }}
@@ -123,42 +138,42 @@
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_VEHICLE_PARKING_TIME')">
                         <template #default="{ row }: TableColumn<BusinessParkingLotList>">
-                            <span :class="{ 'text-error': row.abnormal }">{{ displayDuration(row) }}</span>
+                            {{ displayDuration(row) }}
                         </template>
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_VEHICLE_IN_OUT_RESULT')">
                         <template #default="{ row }: TableColumn<BusinessParkingLotList>">
-                            <span :class="{ 'text-error': row.abnormal }">{{ displayType(row.type) }}</span>
+                            {{ displayType(row.type) }}
                         </template>
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_VEHICLE_ENTRANCE')">
                         <template #default="{ row }: TableColumn<BusinessParkingLotList>">
-                            <span :class="{ 'text-error': row.abnormal }">{{ row.enterChl || '--' }}</span>
+                            {{ row.enterChl || '--' }}
                         </template>
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_VEHICLE_IN_TIME')">
                         <template #default="{ row }: TableColumn<BusinessParkingLotList>">
-                            <span :class="{ 'text-error': row.abnormal }">{{ displayDateTime(row.enterTime) }}</span>
+                            {{ row.type !== 'nonEnter-nonExit' ? displayDateTime(row.enterTime) : '--' }}
                         </template>
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_VEHICLE_IN_RELEASE_METHOD')">
                         <template #default="{ row }: TableColumn<BusinessParkingLotList>">
-                            <span :class="{ 'text-error': row.abnormal }">{{ displayOpenGateType(row.enterType) }}</span>
+                            {{ displayOpenGateType(row.enterType) }}
                         </template>
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_VEHICLE_EXIT')">
                         <template #default="{ row }: TableColumn<BusinessParkingLotList>">
-                            <span :class="{ 'text-error': row.abnormal }">{{ row.exitChl || '--' }}</span>
+                            {{ row.exitChl || '--' }}
                         </template>
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_VEHICLE_OUT_TIME')">
                         <template #default="{ row }: TableColumn<BusinessParkingLotList>">
-                            <span :class="{ 'text-error': row.abnormal }">{{ displayDateTime(row.exitTime) }}</span>
+                            {{ row.type !== 'nonEnter-nonExit' ? displayDateTime(row.exitTime) : '--' }}
                         </template>
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_VEHICLE_OUT_RELEASE_METHOD')">
                         <template #default="{ row }: TableColumn<BusinessParkingLotList>">
-                            <span :class="{ 'text-error': row.abnormal }">{{ displayOpenGateType(row.exitType) }}</span>
+                            {{ displayOpenGateType(row.exitType) }}
                         </template>
                     </el-table-column>
                     <el-table-column :label="Translate('IDCS_DETAIL')">
@@ -278,6 +293,7 @@
     height: 365px;
     margin: 5px;
     background-color: var(--parklog-box-bg);
+    position: relative;
 
     &-top {
         width: 100%;
@@ -289,6 +305,18 @@
         font-size: 16px;
         line-height: 40px;
         background: var(--parklog-title-bg);
+    }
+
+    &-wrap {
+        background-color: var(--parklog-box-bg);
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
     &-door {
@@ -333,7 +361,10 @@
 
         span {
             width: 100%;
-            font-weight: bolder;
+
+            &.bold {
+                font-weight: bolder;
+            }
         }
     }
 }

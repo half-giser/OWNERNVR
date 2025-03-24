@@ -73,10 +73,10 @@
             >
                 <el-table :data="pageData.tableData.data">
                     <el-table-column
-                        prop="chlName"
+                        prop="groupName"
                         width="150"
                         show-overflow-tooltip
-                        :label="Translate('IDCS_CHANNEL_NAME')"
+                        :label="Translate('IDCS_GROUP_NAME')"
                     />
                     <el-table-column
                         v-for="(label, index) in pageData.tableData.label"

@@ -27,6 +27,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
+        const uploadRef = ref<HTMLInputElement>()
 
         const DEFAULT_BIRTHDAY = formatDate(new Date(), 'YYYY/MM/DD')
 
@@ -169,7 +170,7 @@ export default defineComponent({
                 const split = item.split(separator)
 
                 return {
-                    name: split[dataIndexMap.name] || '',
+                    name: split[dataIndexMap.name] || Translate('IDCS_SAMPLE'),
                     sex: split[dataIndexMap.sex] ? SEX_MAPPING[Number(split[dataIndexMap.sex || 10000])] : 'male',
                     // 目前仅支持YYYY/MM/DD
                     birthday: split[dataIndexMap.birthday || 10000] || DEFAULT_BIRTHDAY,
@@ -219,13 +220,13 @@ export default defineComponent({
             return new Promise((resolve: (e: IntelFaceDBImportImgDto) => void, reject: (e: string) => void) => {
                 // NT2-3425 导入图片为0B
                 if (file.size === 0) {
-                    reject(Translate('IDCS_ADD_FACE_FAIL'))
+                    reject(`${Translate('IDCS_ADD_FACE_FAIL')},${Translate('IDCS_PICTURE_SIZE_LIMIT_TIP')}`)
                     return
                 }
 
                 // 图片小于200KB
                 if (file.size > 200 * 1024) {
-                    reject(Translate('IDCS_ADD_FACE_FAIL'))
+                    reject(`${Translate('IDCS_ADD_FACE_FAIL')},${Translate('IDCS_OUT_FILE_SIZE')}`)
                     return
                 }
 
@@ -320,10 +321,12 @@ export default defineComponent({
             const files = (e.target as HTMLInputElement).files
 
             if (files === null) {
+                resetOCXData()
                 return
             }
 
             if (!checkImportFaceImgCount(files.length)) {
+                resetOCXData()
                 return
             }
 
@@ -376,6 +379,9 @@ export default defineComponent({
             ocxData.fileList = []
             ocxData.fileIndex = 0
             ocxData.uploadFileList = []
+            if (uploadRef.value) {
+                uploadRef.value.value = ''
+            }
         }
 
         return {
@@ -384,6 +390,7 @@ export default defineComponent({
             handleOCXImport,
             tips,
             btnName,
+            uploadRef,
         }
     },
 })

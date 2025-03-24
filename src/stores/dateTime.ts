@@ -53,7 +53,7 @@ export const useDateTimeStore = defineStore('dateTime', () => {
      */
     const getTimeConfig = async (force = false) => {
         if (!force && ready.value) {
-            return true
+            return
         }
         // try {
         const result = await queryTimeCfg()
@@ -70,7 +70,7 @@ export const useDateTimeStore = defineStore('dateTime', () => {
             ready.value = true
         }
         // } catch(e) {}
-        return true
+        return $
     }
 
     return {

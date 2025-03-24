@@ -69,7 +69,7 @@ export default defineComponent({
 
         const pageData = ref({
             index: 0,
-            isAddPlatePop: true,
+            isAddPlatePop: false,
             plateNum: '',
             list: [] as BusinessParkingLotList[],
             relativeList: [] as BusinessParkingLotRelevantList[],

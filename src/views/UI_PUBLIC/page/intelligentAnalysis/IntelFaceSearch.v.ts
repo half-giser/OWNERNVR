@@ -1079,7 +1079,6 @@ export default defineComponent({
         // 人脸比对列表
         const matchList = computed(() => {
             if (pageData.value.isMatchPop) {
-                console.log(sliceTableData.value)
                 return sliceTableData.value
                     .filter((item) => item.faceFeatureId !== -1000)
                     .map((item) => {

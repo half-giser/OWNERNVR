@@ -16,25 +16,29 @@
                         v-show="item1.timestamp"
                         class="pic-item"
                     >
-                        <div>{{ Translate('IDCS_FIRST') }}</div>
+                        <div>{{ type === 'check' ? Translate('IDCS_FIRST') : Translate('IDCS_SIGN_IN') }}</div>
                         <img :src="pageData.pic1" />
-                        <div>{{ item1.chlName }}</div>
-                        <div>{{ displayTime(item1.timestamp) }}</div>
+                        <div>
+                            <span>{{ item1.chlName }}</span>
+                            <span>{{ displayTime(item1.timestamp) }}</span>
+                        </div>
                     </div>
                     <div
-                        v-show="item2.timestamp"
+                        v-show="item2.timestamp && type === 'check'"
                         class="pic-item"
                     >
                         <div>{{ Translate('IDCS_LAST') }}</div>
                         <img :src="pageData.pic2" />
-                        <div>{{ item2.chlName }}</div>
-                        <div>{{ displayTime(item2.timestamp) }}</div>
+                        <div>
+                            <span>{{ item2.chlName }}</span>
+                            <span>{{ displayTime(item2.timestamp) }}</span>
+                        </div>
                     </div>
                 </div>
                 <div class="base-btn-box space-between">
                     <div>{{ current?.date || '' }}</div>
                     <el-button
-                        :disabled="!current.date"
+                        :disabled="!current?.date"
                         @click="search"
                     >
                         <BaseImgSprite file="toolbar_search" />
@@ -45,9 +49,10 @@
                 <el-table
                     ref="tableRef"
                     highlight-current-row
+                    show-overflow-tooltip
                     :row-keys="getRowKey"
                     :data="data.detail"
-                    height="500"
+                    height="400"
                     @current-change="handleCurrentChange"
                 >
                     <el-table-column
@@ -62,7 +67,9 @@
                         <template #default="{ row }: TableColumn<BusinessFaceDetailList>">
                             <span
                                 :class="{
-                                    'text-error': row.alarm,
+                                    'text-error': row.alarm === 'leftEarly' || row.alarm === 'unchecked',
+                                    'text-online': row.alarm === 'late' || row.alarm === 'checked',
+                                    'text-exception': row.alarm === 'abnormal',
                                 }"
                             >
                                 {{ row.type }}
@@ -108,6 +115,15 @@
     img {
         width: 196px;
         height: 130px;
+    }
+
+    div:first-child {
+        text-align: left;
+    }
+
+    div:last-child {
+        display: flex;
+        justify-content: space-between;
     }
 }
 

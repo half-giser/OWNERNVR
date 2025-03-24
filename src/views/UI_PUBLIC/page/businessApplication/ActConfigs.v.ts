@@ -166,7 +166,7 @@ export default defineComponent({
                 accessLockformData.value.doorLock = [new BusinessAccessLockDataItem()]
             }
 
-            pageData.value.accessLockCurrentIndex = accessLockformData.value.doorLock[0].id
+            pageData.value.accessLockCurrentIndex = accessLockformData.value.doorLock[0].index
             editAccessLock.listen()
         }
 

@@ -20,9 +20,15 @@
                             <span class="panel-type">{{ current.type === 'nonEnter-nonExit' ? '' : Translate('IDCS_VEHICLE_IN') }}</span>
                             <span class="panel-door">{{ current.enterChl }}</span>
                         </div>
-                        <div class="panel-time">{{ displayDateTime(current.enterTime) }}</div>
+                        <div class="panel-time">{{ displayOpenGateType(current.enterType) }}</div>
                     </div>
-                    <img src="" />
+                    <img :src="current.enterImg" />
+                    <div
+                        v-show="!(current.isEnter && current.enterImg) && current.type === 'nonEnter-exit'"
+                        class="panel-wrap"
+                    >
+                        {{ Translate('IDCS_NONE_VEHICLE_IN_TIPS') }}
+                    </div>
                 </div>
                 <div class="panel">
                     <div
@@ -33,9 +39,15 @@
                             <span class="panel-type">{{ Translate('IDCS_VEHICLE_OUT') }}</span>
                             <span class="panel-door">{{ current.exitChl }}</span>
                         </div>
-                        <div class="panel-time">{{ displayDateTime(current.exitTime) }}</div>
+                        <div class="panel-time">{{ displayOpenGateType(current.exitType) }}</div>
                     </div>
-                    <img src="" />
+                    <img :src="current.exitImg" />
+                    <div
+                        v-show="!(current.isExit && current.exitImg) && current.type === 'enter-nonExit'"
+                        class="panel-wrap"
+                    >
+                        {{ Translate('IDCS_NONE_VEHICLE_OUT_TIPS') }}
+                    </div>
                 </div>
             </div>
             <div class="data">
@@ -51,21 +63,21 @@
                     </div>
                     <div class="data-item">
                         <label>{{ Translate('IDCS_DIRECTION') }}</label>
-                        <span>{{ displayDirection(current.direction) }}</span>
+                        <span class="bold">{{ displayDirection(current.direction) }}</span>
                     </div>
                 </div>
                 <div class="data-box">
                     <div class="data-item">
                         <label>{{ Translate('IDCS_VEHICLE_IN_TIME') }}</label>
-                        <span>{{ displayDateTime(current.enterTime) }}</span>
+                        <span>{{ current.type !== 'nonEnter-nonExit' ? displayDateTime(current.enterTime) : '--' }}</span>
                     </div>
                     <div class="data-item">
                         <label>{{ Translate('IDCS_VEHICLE_OUT_TIME') }}</label>
-                        <span>{{ displayDateTime(current.exitTime) }}</span>
+                        <span>{{ current.type !== 'nonEnter-nonExit' ? displayDateTime(current.exitTime) : '--' }}</span>
                     </div>
                     <div class="data-item">
                         <label>{{ Translate('IDCS_VEHICLE_PARKING_TIME') }}</label>
-                        <span>{{ displayDuration(current) }}</span>
+                        <span class="bold">{{ displayDuration(current) }}</span>
                     </div>
                 </div>
                 <div class="data-box">
@@ -97,26 +109,30 @@
             append-to-body
             @close="pageData.isAddPlatePop = false"
         />
-        <div class="base-btn-box">
-            <el-button
-                :disabled="!formData.plateNum"
-                @click="addPlate"
-            >
-                {{ Translate('IDCS_ENTRY') }}
-            </el-button>
-            <el-button @click="close">{{ Translate('IDCS_EXIT') }}</el-button>
-            <el-button
-                :disabled="pageData.index === pageData.list.length - 1"
-                @click="handleNext"
-            >
-                {{ Translate('IDCS_NEXT') }}
-            </el-button>
-            <el-button
-                :disabled="pageData.index === 0"
-                @click="handlePrev"
-            >
-                {{ Translate('IDCS_PREVIOUS') }}
-            </el-button>
+        <div class="base-btn-box space-between">
+            <div>
+                <el-button
+                    :disabled="!formData.plateNum"
+                    @click="addPlate"
+                >
+                    {{ Translate('IDCS_ENTRY') }}
+                </el-button>
+            </div>
+            <div>
+                <el-button
+                    :disabled="pageData.index === 0"
+                    @click="handlePrev"
+                >
+                    {{ Translate('IDCS_PREVIOUS') }}
+                </el-button>
+                <el-button
+                    :disabled="pageData.index === pageData.list.length - 1"
+                    @click="handleNext"
+                >
+                    {{ Translate('IDCS_NEXT') }}
+                </el-button>
+                <el-button @click="close">{{ Translate('IDCS_EXIT') }}</el-button>
+            </div>
         </div>
     </el-dialog>
 </template>
@@ -141,6 +157,8 @@
     height: 242px;
     border: 1px solid var(--subheading-bg);
     margin: 5px;
+    background-color: var(--parklog-box-bg);
+    position: relative;
 
     &-top {
         width: 100%;
@@ -158,6 +176,18 @@
         padding-left: 20px;
     }
 
+    &-wrap {
+        background-color: var(--parklog-box-bg);
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
     img {
         width: 100%;
         height: 214px;
@@ -169,11 +199,11 @@
 }
 
 .data {
-    width: 440px;
-    flex-shrink: 0;
+    width: 100%;
     padding: 0 20px;
     box-sizing: border-box;
-    margin: 5px 0;
+    margin: 5px 0 5px 10px;
+    background-color: var(--parklog-bg);
 
     &-box {
         padding: 10px 0;
@@ -196,7 +226,10 @@
 
         span {
             width: 100%;
-            font-weight: bolder;
+
+            &.bold {
+                font-weight: bolder;
+            }
         }
     }
 }

@@ -110,7 +110,7 @@ export class BusinessFaceDetailList {
     date = ''
     day = ''
     type = ''
-    alarm = false
+    alarm = ''
     detail: BusinessFaceResultList[] = []
 }
 

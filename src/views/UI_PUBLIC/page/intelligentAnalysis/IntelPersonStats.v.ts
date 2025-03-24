@@ -163,14 +163,14 @@ export default defineComponent({
                                 personOut: $chl('personOut').text().num(),
                             }
                         }),
-                        // groups: $item('groups/item').map((group) => {
-                        //     const $group = queryXml(group.element)
-                        //     return {
-                        //         groupId: group.attr('id'),
-                        //         name: $group('name').text() || Translate('IDCS_UNKNOWN_GROUP'),
-                        //         imageNum: $group('imageNum').text().num(),
-                        //     }
-                        // }),
+                        groups: $item('groups/item').map((group) => {
+                            const $group = queryXml(group.element)
+                            return {
+                                groupId: group.attr('id'),
+                                name: $group('name').text() || Translate('IDCS_UNKNOWN_GROUP'),
+                                imageNum: $group('imageNum').text().num(),
+                            }
+                        }),
                     }
                 })
                 showMaxSearchLimitTips($)
@@ -235,27 +235,30 @@ export default defineComponent({
          * @returns {Object}
          */
         const getTableData = () => {
-            const chls: Record<string, number[]> = {}
+            const groups: Record<string, { data: number[]; name: string }> = {}
             const label = stats.calLabel()
             tableData.value.forEach((item) => {
-                item.chl.forEach((chl) => {
-                    if (!chls[chl.chlId]) {
-                        chls[chl.chlId] = Array(label.length).fill(0)
+                item.groups.forEach((group) => {
+                    if (!groups[group.groupId]) {
+                        groups[group.groupId] = {
+                            data: Array(label.length).fill(0),
+                            name: group.name,
+                        }
                     }
                 })
             })
             tableData.value.forEach((item, index) => {
-                item.chl.forEach((chl) => {
-                    chls[chl.chlId][index] = chl.imageNum
+                item.groups.forEach((group) => {
+                    groups[group.groupId].data[index] = group.imageNum
                 })
             })
             return {
                 label: label,
-                data: Object.entries(chls).map((item) => {
+                data: Object.entries(groups).map((item) => {
                     return {
-                        chlId: item[0],
-                        chlName: chlMap[item[0]],
-                        data: item[1],
+                        groupId: item[0],
+                        groupName: item[1].name,
+                        data: item[1].data,
                     }
                 }),
             }

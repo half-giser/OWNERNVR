@@ -58,6 +58,10 @@ li {
     color: var(--color-offline);
 }
 
+.text-exception {
+    color: var(--color-purple);
+}
+
 /* 滚动条样式 */
 ::-webkit-scrollbar {
     width: 10px;

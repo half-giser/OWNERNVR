@@ -492,7 +492,16 @@ export default defineComponent({
          * @description 获取列表数据
          */
         const getData = async () => {
-            const eventXml = pageData.value.searchType === 'event' ? `<events type="list">${formData.value.event.map((item) => `<item>${item}</item>`).join('')}</events>` : ''
+            let eventXml = ''
+            if (pageData.value.searchType === 'park') {
+                eventXml = rawXml`
+                    <events type="list">
+                        <item>openGates</item>
+                    </events>
+                `
+            } else {
+                eventXml = `<events type="list">${formData.value.event.map((item) => `<item>${item}</item>`).join('')}</events>`
+            }
 
             const attributeXml = Object.keys(formData.value.attribute)
                 .filter((key) => formData.value.target.includes(key))
@@ -509,10 +518,8 @@ export default defineComponent({
                 })
                 .join('')
 
-            let vehicleXml = ''
-            if (pageData.value.searchType === 'event') {
-                vehicleXml += formData.value.target.map((item) => `<item>${item}</item>`).join('')
-            } else {
+            let vehicleXml = formData.value.target.map((item) => `<item>${item}</item>`).join('')
+            if (pageData.value.searchType === 'park') {
                 vehicleXml += formData.value.direction.map((item) => `<item directionType="${item}">plate</item>`).join('')
             }
 
@@ -523,8 +530,8 @@ export default defineComponent({
             const sendXml = rawXml`
                 <resultLimit>10000</resultLimit>
                 <condition>
-                    <startTime>${formatDate(formData.value.dateRange[0], DEFAULT_DATE_FORMAT)}</startTime>
-                    <endTime>${formatDate(formData.value.dateRange[1], DEFAULT_DATE_FORMAT)}</endTime>
+                    <startTime>${localToUtc(formData.value.dateRange[0], DEFAULT_DATE_FORMAT)}</startTime>
+                    <endTime>${localToUtc(formData.value.dateRange[1], DEFAULT_DATE_FORMAT)}</endTime>
                     <chls type="list">${formData.value.chl.map((item) => `<item id="${item}"></item>`).join('')}</chls>
                     ${eventXml}
                     <vehicle>${vehicleXml}</vehicle>
@@ -848,7 +855,7 @@ export default defineComponent({
 
         onMounted(() => {
             // 如果路由跳转包含搜索条件，则执行搜索
-            if (history.state.eventType || history.state.targetType) {
+            if (history.state.eventType || history.state.targetType || history.state.searchType) {
                 if (history.state.eventType) {
                     switch (history.state.eventType) {
                         case 'aoi_entry':
@@ -878,12 +885,19 @@ export default defineComponent({
                     delete history.state.eventType
                 }
 
-                if (history.state.targetType === 'vehicle') {
-                    formData.value.target.push('car')
-                } else {
-                    formData.value.target.push('motor')
+                if (history.state.targetType) {
+                    if (history.state.targetType === 'vehicle') {
+                        formData.value.target.push('car')
+                    } else {
+                        formData.value.target.push('motor')
+                    }
+                    delete history.state.targetType
                 }
-                delete history.state.targetType
+
+                if (history.state.searchType) {
+                    pageData.value.searchType = history.state.searchType
+                    delete history.state.searchType
+                }
 
                 getData()
             }

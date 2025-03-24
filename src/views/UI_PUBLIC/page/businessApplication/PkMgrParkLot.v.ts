@@ -68,6 +68,9 @@ export default defineComponent({
             currentTime: '',
         })
 
+        // 设备时间
+        let systemTime = dayjs()
+
         const cloneData = new BusinessParkingLotList()
 
         const tableData = ref<BusinessParkingLotList[]>([])
@@ -200,10 +203,6 @@ export default defineComponent({
             let type = ''
             if (isEnter && isExit) {
                 type = 'enter-exit'
-            } else if (isEnter && !isExit) {
-                type = 'enter-nonExit'
-            } else if (!isEnter && isExit) {
-                type = 'nonEnter-exit'
             }
             // 进场-拒绝放行
             else if (isEnter && (enterType === '0' || enterType === 'refuse')) {
@@ -212,7 +211,12 @@ export default defineComponent({
             // "出场拒绝放行"、"无进场和出场数据"时, 没有进出结果
             else if ((isExit && (exitType === '0' || exitType === 'refuse')) || (!isEnter && !isExit)) {
                 type = ''
+            } else if (isEnter && !isExit) {
+                type = 'enter-nonExit'
+            } else if (!isEnter && isExit) {
+                type = 'nonEnter-exit'
             }
+
             return type
         }
 
@@ -247,10 +251,10 @@ export default defineComponent({
                     const exitFrameTime = $exit ? $exit('time').text() : ''
                     const exitTime = exitFrameTime ? dayjs.utc(exitFrameTime.slice(0, -8), DEFAULT_DATE_FORMAT).valueOf() : 0
 
-                    const isEnter = enter.length > 0
+                    const isEnter = $enter.length > 0
                     const enterType = $enter ? $enter('openType').text() : ''
 
-                    const isExit = exit.length > 0
+                    const isExit = $exit.length > 0
                     const exitType = $exit ? $exit('openType').text() : ''
 
                     const type = getType(isEnter, enterType, isExit, exitType)
@@ -301,21 +305,21 @@ export default defineComponent({
                     },
                 ],
                 onsuccess(result) {
+                    if (result.length) {
+                        pageData.value.rest = (result[0] as WebsocketSnapOnSuccessPlate).restNum
+                        pageData.value.total = (result[0] as WebsocketSnapOnSuccessPlate).totalNum
+                        pageData.value.enterCount = (result[0] as WebsocketSnapOnSuccessPlate).enterNum
+                        pageData.value.exitCount = (result[0] as WebsocketSnapOnSuccessPlate).exitNum
+                    }
+
                     const data = (result as WebsocketSnapOnSuccessPlate[])
                         .filter((item) => {
                             return item.direction || item.isEnter || item.isExit
                         })
-                        .map((item, index) => {
+                        .map((item) => {
                             listIndex++
 
                             const type = getType(item.isEnter, item.enterType, item.isExit, item.exitType)
-
-                            if (index === 0) {
-                                pageData.value.rest = item.restNum
-                                pageData.value.total = item.totalNum
-                                pageData.value.enterCount = item.enterNum
-                                pageData.value.exitCount = item.exitNum
-                            }
 
                             return {
                                 index: listIndex,
@@ -408,6 +412,9 @@ export default defineComponent({
         const search = () => {
             router.push({
                 path: '/intelligent-analysis/search/search-vehicle',
+                state: {
+                    searchType: 'park',
+                },
             })
         }
 
@@ -462,14 +469,26 @@ export default defineComponent({
          * @description 定时更新当前时间
          */
         const timer = useClock(() => {
-            const date = dayjs()
-            pageData.value.currentTime = date.format(dateTime.dateTimeFormat)
+            // const date = dayjs()
+            systemTime = systemTime.add(1, 'second')
+            pageData.value.currentTime = systemTime.format(dateTime.dateTimeFormat) // date.format(dateTime.dateTimeFormat)
         }, 1000)
+
+        /**
+         * @description 获取当前设备时间
+         */
+        const getTimeConfig = async () => {
+            const $ = await dateTime.getTimeConfig(true)
+            if ($) {
+                systemTime = dayjs($('content/synchronizeInfo/currentTime').text(), dateTime.dateTimeFormat)
+            }
+        }
 
         onMounted(async () => {
             timer.repeat(true, true)
             await getParkingLotConfig()
             await getParkSnapConfig()
+            await getTimeConfig()
             createWebsoket()
             tableData.value.forEach(async (item) => {
                 if (item.isHistory) {

@@ -7,6 +7,7 @@
     <div class="upload">
         <input
             id="upload-import"
+            ref="uploadRef"
             type="file"
             hidden
             :accept="type === 'import' ? '.csv,.txt,.jpg,.jpeg' : '.jpg,.jpeg'"

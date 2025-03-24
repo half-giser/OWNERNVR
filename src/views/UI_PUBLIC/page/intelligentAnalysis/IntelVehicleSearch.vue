@@ -181,7 +181,7 @@
                         @click="play(item)"
                         @detail="showDetail(index)"
                     >
-                        {{ displayDateTime(item.timestamp) }}<br />{{ item.chlName }}
+                        {{ displayDateTime(item.timestamp) }}<br />{{ item.chlName }}<br />{{ item.plateNumber || '--' }}
                     </IntelBaseSnapItem>
                 </div>
             </el-scrollbar>

@@ -129,7 +129,10 @@
             </div>
         </div>
         <div class="base-table-box">
-            <el-table :data="sliceTableData">
+            <el-table
+                :data="sliceTableData"
+                highlight-current-row
+            >
                 <el-table-column :label="Translate('No.')">
                     <template #default="{ $index }: TableColumn<BusinessFaceCheckList>">
                         {{ displayIndex($index) }}
@@ -192,6 +195,7 @@
         <FaceDetailPop
             v-model="pageData.isDetailPop"
             :data="pageData.detail"
+            type="sign"
             @close="pageData.isDetailPop = false"
         />
     </div>
@@ -230,6 +234,8 @@
         width: 10%;
         align-items: flex-end;
         padding-bottom: 10px;
+        position: relative;
+        z-index: 1;
     }
 }
 
