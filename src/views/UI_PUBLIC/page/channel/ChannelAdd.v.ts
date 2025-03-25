@@ -187,7 +187,7 @@ export default defineComponent({
                     }
                 })
                 rowData.sort((ele1, ele2) => {
-                    return getIpNumber(ele2.ip) - getIpNumber(ele1.ip)
+                    return getIpNumber(ele1.ip) - getIpNumber(ele2.ip)
                 })
                 rowData.sort((ele1, ele2) => {
                     const activate1 = ele1.activateStatus === 'UNACTIVATED' ? 1 : ele1.activateStatus === 'UNKNOWN' ? 0 : -1
