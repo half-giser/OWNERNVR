@@ -230,7 +230,7 @@ watch(
         margin-left: 10px;
     }
 
-    .el-input-number {
+    #n9web & .el-input-number {
         width: 80px;
         margin: 0 5px;
     }
