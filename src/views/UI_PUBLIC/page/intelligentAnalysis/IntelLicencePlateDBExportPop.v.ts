@@ -42,7 +42,7 @@ export default defineComponent({
         })
 
         const progress = computed(() => {
-            return Math.ceil((pageData.value.currentTask / pageData.value.totalTask) * 100)
+            return Math.ceil((Math.min(pageData.value.currentTask, pageData.value.totalTask) / pageData.value.totalTask) * 100)
         })
 
         type ExportData = {
@@ -90,6 +90,8 @@ export default defineComponent({
                         }
                         return
                     }
+
+                    pageData.value.currentTask += data.length
 
                     data.forEach((item) => {
                         const groupName = prop.data[item.groupId]

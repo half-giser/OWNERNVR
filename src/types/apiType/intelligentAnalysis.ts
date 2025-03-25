@@ -158,6 +158,7 @@ export class IntelPlateDBPlateInfo {
  * @description 新增车牌表单
  */
 export class IntelPlateDBAddPlateForm {
+    id = ''
     plateNumber = ''
     groupId = ''
     owner = ''

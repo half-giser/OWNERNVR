@@ -278,6 +278,7 @@ export default defineComponent({
                 closeLoading()
 
                 if ($('status').text() === 'success') {
+                    await getGroupList()
                     searchPlate(row.groupId, true)
                 } else {
                     const errorCode = $('errorCode').text().num()
@@ -326,6 +327,8 @@ export default defineComponent({
             formData.value.pageIndex = 1
             await getPlate(1, groupId)
         }
+
+        const bounceSearchPlate = debounce((groupId: string) => searchPlate(groupId), 500)
 
         /**
          * @description 获取车牌列表
@@ -429,7 +432,7 @@ export default defineComponent({
             if (row === pageData.value.currentPlateRow) {
                 return row.owner
             }
-            return hideSensitiveInfo(row.ownerPhone, 'medium', 'name')
+            return hideSensitiveInfo(row.owner, 'medium', 'name')
         }
 
         /**
@@ -509,6 +512,7 @@ export default defineComponent({
             displayPhone,
             handleNameFocus,
             searchPlate,
+            bounceSearchPlate,
             handleVehicleRecognition,
         }
     },

@@ -15,8 +15,7 @@
                 :percentage="progress"
                 :stroke-width="8"
             />
-            <div class="chunk">{{ progress }} %</div>
-            <p class="tip">{{ Translate('IDCS_DOWNLOADING') }}</p>
+            <p class="tip">{{ Translate('IDCS_EXPORTING_FACE_LIB_INFO') }}</p>
         </div>
     </el-dialog>
 </template>
