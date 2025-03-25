@@ -155,7 +155,7 @@ export const useCababilityStore = defineStore(
                 fishEyeCap.value[text] = $(`FishEyeCaps/fishEyeMode/group[contains(@installType,'${text}')]/enum`).map((chl) => chl.text())
             })
 
-            return $
+            return queryXml(result)
         }
 
         return {

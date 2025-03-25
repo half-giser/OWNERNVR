@@ -97,8 +97,7 @@ export default defineComponent({
             const $res1 = queryXml(res1)
             const mode = $res1('content/recMode/mode').text()
 
-            const res = await querySystemCaps()
-            const $ = queryXml(res)
+            const $ = await systemCaps.updateCabability()
             const totalBandwidth = $('content/totalBandwidth').text().num()
             const usedBandwidth = $('content/' + (mode === 'auto' ? 'usedAutoBandwidth' : 'usedManualBandwidth'))
                 .text()

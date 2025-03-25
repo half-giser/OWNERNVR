@@ -84,6 +84,7 @@
     color: var(--btn-text);
     text-align: center;
     font-size: 12px;
+    user-select: none;
 
     &:nth-child(3n) {
         margin-right: 0;

@@ -117,6 +117,8 @@ export default defineComponent({
             isAddFacePop: false,
             // 注册人脸的图像数据
             addFacePic: '',
+            // 车牌侦测、车牌识别才下载CSV
+            isSupportCSV: false,
         })
 
         const formData = ref(new IntelSearchCombineForm())
@@ -143,11 +145,6 @@ export default defineComponent({
         const tableData = ref<IntelSearchList[]>([])
 
         const sliceTableData = ref<IntelSearchList[]>([])
-
-        // 车牌侦测、车牌识别才下载CSV
-        const isSupportCSV = computed(() => {
-            return !['plateDetection', 'plateMatchWhiteList', 'plateMatchStranger'].some((event) => !formData.value.event.includes(event))
-        })
 
         const attributeRange = computed(() => {
             if (formData.value.target.length) {
@@ -293,7 +290,6 @@ export default defineComponent({
          * @param {number} pageIndex
          */
         const changePage = async (pageIndex: number) => {
-            stop()
             tableRef.value!.clearSelection()
             formData.value.pageIndex = pageIndex
             sliceTableData.value = tableData.value.slice((pageIndex - 1) * formData.value.pageSize, pageIndex * formData.value.pageSize)
@@ -454,6 +450,8 @@ export default defineComponent({
          * @description 获取列表数据
          */
         const getData = async () => {
+            stop()
+
             const attributeXml = Object.keys(formData.value.attribute)
                 .filter((key) => attributeRange.value.includes(key))
                 .map((key) => {
@@ -487,6 +485,7 @@ export default defineComponent({
 
             openLoading()
             tableData.value = []
+            pageData.value.isSupportCSV = formData.value.event.every((item) => ['plateDetection', 'plateMatchWhiteList', 'plateMatchStranger'].includes(item))
 
             const result = await searchSmartTarget(sendXml)
             const $ = queryXml(result)
@@ -517,7 +516,6 @@ export default defineComponent({
                         bolckNo: hexToDec(split[9]),
                         offset: hexToDec(split[10]),
                         eventTypeID: hexToDec(split[11]),
-                        direction: split[13],
                         plateNumber: '--',
                         pic: '',
                         panorama: '',
@@ -761,7 +759,7 @@ export default defineComponent({
          */
         const downloadCSV = () => {
             // 车牌侦测、车牌识别才下载CSV
-            if (isSupportCSV.value) {
+            if (pageData.value.isSupportCSV) {
                 const csvContent: string[] = []
                 const csvTitle = [Translate('IDCS_SERIAL_NUMBER'), Translate('IDCS_LICENSE_PLATE_NUM'), Translate('IDCS_CHANNEL'), Translate('IDCS_DEVICE_NAME'), Translate('IDCS_SNAP_TIME')].join(',')
                 csvContent.push(csvTitle)
@@ -835,7 +833,6 @@ export default defineComponent({
             downloadVideo,
             auth,
             attributeRange,
-            isSupportCSV,
             getUniqueKey,
             cacheKey: LocalCacheKey.KEY_COMBINE_SEARCH_COLLECTION,
         }

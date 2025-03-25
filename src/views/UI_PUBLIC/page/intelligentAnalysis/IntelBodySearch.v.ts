@@ -281,7 +281,6 @@ export default defineComponent({
          * @param {number} pageIndex
          */
         const changePage = async (pageIndex: number) => {
-            stop()
             tableRef.value!.clearSelection()
             formData.value.pageIndex = pageIndex
             sliceTableData.value = tableData.value.slice((pageIndex - 1) * formData.value.pageSize, pageIndex * formData.value.pageSize)
@@ -441,6 +440,8 @@ export default defineComponent({
          * @description 获取列表数据
          */
         const getData = async () => {
+            stop()
+
             const attributeXml = Object.keys(formData.value.attribute)
                 .map((key) => {
                     const detail = Object.entries(formData.value.attribute[key])
@@ -489,7 +490,6 @@ export default defineComponent({
                         isDelSnap: isDelSnap,
                         isNoData: false,
                         plateNumber: '',
-                        direction: '',
                         imgId: hexToDec(split[2]) + '',
                         timestamp: hexToDec(split[0]) * 1000,
                         frameTime: localToUtc(timestamp) + ':' + padStart(hexToDec(split[1]), 7),

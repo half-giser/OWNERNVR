@@ -323,7 +323,15 @@ export class IntelSnapImgDto {
 }
 
 /**
- * @description 人脸搜索列表项
+ * @description 抓拍车辆图像
+ */
+export class IntelSnapVehicleImgDto extends IntelSnapImgDto {
+    owner = ''
+    ownerPhone = ''
+}
+
+/**
+ * @description 人体搜索列表项
  */
 export class IntelSearchList extends IntelSnapImgDto {
     imgId = ''
@@ -340,7 +348,14 @@ export class IntelSearchList extends IntelSnapImgDto {
     bolckNo = 0
     offset = 0
     eventTypeID = 0
-    direction: number | string = ''
+}
+
+export class IntelSearchVehicleList extends IntelSearchList {
+    direction = ''
+    openType = ''
+    isRelative = false
+    owner = ''
+    ownerPhone = ''
 }
 
 /**

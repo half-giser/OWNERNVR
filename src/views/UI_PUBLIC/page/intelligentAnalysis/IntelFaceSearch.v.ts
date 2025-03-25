@@ -607,7 +607,6 @@ export default defineComponent({
          * @param {number} pageIndex
          */
         const changePage = async (pageIndex: number) => {
-            stop()
             tableRef.value!.clearSelection()
             formData.value.pageIndex = pageIndex
             sliceTableData.value = tableData.value.slice((pageIndex - 1) * formData.value.pageSize, pageIndex * formData.value.pageSize)
@@ -922,6 +921,8 @@ export default defineComponent({
          * @description 获取列表数据
          */
         const getData = async () => {
+            stop()
+
             const chlXml = (formData.value.chls.length ? formData.value.chls : pageData.value.chlOptions)
                 .map((item) => {
                     return `<item id="${item.value}"></item>`

@@ -25,6 +25,13 @@ export default defineComponent({
             type: Number,
             required: true,
         },
+        /**
+         * @property {String} 弹窗类型 edit: 可编辑；read：不可编辑
+         */
+        type: {
+            type: String as PropType<'edit' | 'read'>,
+            default: 'edit',
+        },
     },
     emits: {
         updatePlate(index: number, plate: string) {
@@ -127,7 +134,7 @@ export default defineComponent({
                 phoneNum: data.ownerPhone,
                 // groupName: '',
                 isEnter: isDirectionIn,
-                enterImg: isDirectionIn ? data.panoramaContent : '',
+                enterImg: isDirectionIn ? data.panorama : '',
                 enterChl: isDirectionIn ? data.chlName : '',
                 enterChlId: '',
                 enterType: isDirectionIn ? data.openType : '',
@@ -135,7 +142,7 @@ export default defineComponent({
                 enterFrameTime: '',
                 enterVehicleId: '',
                 isExit: !isDirectionIn,
-                exitImg: !isDirectionIn ? data.panoramaContent : '',
+                exitImg: !isDirectionIn ? data.panorama : '',
                 exitChl: !isDirectionIn ? data.chlName : '',
                 exitChlId: '',
                 exitType: !isDirectionIn ? data.openType : '',
@@ -170,8 +177,8 @@ export default defineComponent({
                     obj.exitImg = img
                     obj.isExit = true
                 }
-                obj.type = getType(obj.isEnter, obj.enterType, obj.isExit, obj.exitType)
             }
+            obj.type = getType(obj.isEnter, obj.enterType, obj.isExit, obj.exitType)
             pageData.value.list[index] = obj
         }
 

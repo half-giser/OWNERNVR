@@ -262,7 +262,7 @@ export default defineComponent({
                     return {
                         index: listIndex,
                         plateNum: $item('plate').text(),
-                        eventType: $item('eventType').text(),
+                        eventType: $item('eventType').text().num(),
                         master: '',
                         phoneNum: '',
                         // groupName: '',
@@ -324,7 +324,7 @@ export default defineComponent({
                             return {
                                 index: listIndex,
                                 plateNum: item.plateNum,
-                                eventType: '',
+                                eventType: 0,
                                 master: item.master,
                                 phoneNum: item.phoneNum,
                                 // groupName: item.groupName,
@@ -422,10 +422,10 @@ export default defineComponent({
          * @description 抓拍图片
          * @param {String} chlId
          * @param {String} frameTime
-         * @param {String} eventType
+         * @param {number} eventType
          * @param {String} imgId
          */
-        const getParkImg = async (chlId: string, frameTime: string, eventType: string, imgId: string) => {
+        const getParkImg = async (chlId: string, frameTime: string, eventType: number, imgId: string) => {
             const sendXml = rawXml`
                 <condition>
                     <chlId>${chlId}</chlId>

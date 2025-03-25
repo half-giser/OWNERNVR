@@ -182,7 +182,7 @@ export class BusinessFaceCheckForm extends BusinessFaceForm {}
 export class BusinessParkingLotList {
     index = 0
     plateNum = ''
-    eventType = ''
+    eventType = 0
     master = ''
     phoneNum = ''
     // groupName = ''
@@ -213,8 +213,8 @@ export class BusinessParkingLotList {
  * @description 停车场-关联数据列表
  */
 export class BusinessParkingLotRelevantList {
-    eventTypeID = ''
-    panoramaContent = ''
+    eventTypeID = 0
+    panorama = ''
     chlName = ''
     openType = ''
     plateNumber = ''

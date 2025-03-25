@@ -214,7 +214,7 @@
                 <div>
                     <el-checkbox
                         v-model="pageData.isBackUpPic"
-                        :label="`${Translate('IDCS_BACKUP_PICTURE')}${sliceTableData.length && isSupportCSV ? ` (${Translate('IDCS_LICENSE_PLATE_NUM_LIST')})` : ''}`"
+                        :label="`${Translate('IDCS_BACKUP_PICTURE')}${sliceTableData.length && pageData.isSupportCSV ? ` (${Translate('IDCS_LICENSE_PLATE_NUM_LIST')})` : ''}`"
                     />
                     <el-checkbox
                         v-model="pageData.isBackUpVideo"

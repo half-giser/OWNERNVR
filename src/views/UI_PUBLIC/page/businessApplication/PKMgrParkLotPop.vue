@@ -54,12 +54,13 @@
                 <div class="data-box">
                     <div class="data-item">
                         <label>{{ Translate('IDCS_LICENSE_PLATE_NUM') }}</label>
-                        <span>
+                        <span v-if="type === 'edit'">
                             <el-input
                                 v-model="formData.plateNum"
                                 maxlength="31"
                             />
                         </span>
+                        <span v-else>{{ formData.plateNum }}</span>
                     </div>
                     <div class="data-item">
                         <label>{{ Translate('IDCS_DIRECTION') }}</label>
@@ -83,18 +84,21 @@
                 <div class="data-box">
                     <div class="data-item">
                         <label>{{ Translate('IDCS_VEHICLE_OWNER') }}</label>
-                        <span>{{ current.master }}</span>
+                        <span>{{ current.master || '--' }}</span>
                     </div>
                     <div class="data-item">
                         <label>{{ Translate('IDCS_PHONE_NUMBER') }}</label>
-                        <span>{{ current.phoneNum }}</span>
+                        <span>{{ current.phoneNum || '--' }}</span>
                     </div>
                     <div class="data-item">
                         <label>{{ Translate('IDCS_VEHICLE_IN_OUT_RESULT') }}</label>
                         <span>{{ displayType(current.type) }}</span>
                     </div>
                 </div>
-                <div class="base-btn-box">
+                <div
+                    v-if="type === 'edit'"
+                    class="base-btn-box"
+                >
                     <el-button @click="commit">{{ Translate('IDCS_EDIT_SUBMIT') }}</el-button>
                     <el-button @click="handleOpenGate">{{ Translate('IDCS_OPEN_GATE_RELEASE') }}</el-button>
                 </div>
