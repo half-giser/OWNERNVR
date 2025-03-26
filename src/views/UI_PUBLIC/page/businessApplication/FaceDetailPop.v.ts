@@ -15,6 +15,13 @@ export default defineComponent({
             type: Object as PropType<BusinessFaceList>,
             required: true,
         },
+        /**
+         * @property {string} check: 考勤 sign: 签到
+         */
+        type: {
+            type: String as PropType<'check' | 'sign'>,
+            default: 'check',
+        },
     },
     emits: {
         close() {
@@ -43,7 +50,9 @@ export default defineComponent({
         // 抓拍1数据
         const item1 = computed(() => {
             if (current.value?.detail?.length) {
-                return prop.data.searchData[current.value.date][0]
+                if (prop.data.searchData[current.value.date]?.length) {
+                    return prop.data.searchData[current.value.date][0]
+                }
             }
             return cloneData
         })
@@ -51,8 +60,9 @@ export default defineComponent({
         // 抓拍2数据
         const item2 = computed(() => {
             if (current.value?.detail?.length > 1) {
-                const item = prop.data.searchData[current.value.date]
-                return item.at(-1)!
+                if (prop.data.searchData[current.value.date]?.length) {
+                    return prop.data.searchData[current.value.date].at(-1)!
+                }
             }
             return cloneData
         })
@@ -136,6 +146,7 @@ export default defineComponent({
             if (prop.data.detail.length) {
                 tableRef.value?.setScrollTop(0)
                 tableRef.value?.setCurrentRow(prop.data.detail[0])
+                current.value = prop.data.detail[0]
             }
         }
 

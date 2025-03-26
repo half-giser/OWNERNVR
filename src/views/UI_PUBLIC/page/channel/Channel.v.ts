@@ -335,8 +335,7 @@ export default defineComponent({
             const $res1 = queryXml(res1)
             const mode = $res1('content/recMode/mode').text()
 
-            const res2 = await querySystemCaps()
-            const $ = queryXml(res2)
+            const $ = await cababilityStore.updateCabability()
 
             if ($('status').text() === 'success') {
                 const totalBandwidth = $('content/totalBandwidth').text().num()

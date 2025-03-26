@@ -75,6 +75,10 @@ export default defineComponent({
 
         // 时间范围日期数
         const daysInRange = computed(() => {
+            const today = dayjs()
+            if (today.isBefore(dayjs(formData.value.dateRange[1]))) {
+                return Math.ceil(today.diff(formData.value.dateRange[0], 'day', true))
+            }
             return Math.ceil(dayjs(formData.value.dateRange[1]).diff(formData.value.dateRange[0], 'day', true))
         })
 
@@ -279,6 +283,8 @@ export default defineComponent({
                 openMessageBox(Translate('IDCS_SELECT_GROUP_NOT_EMPTY'))
             }
 
+            openLoading()
+
             const sendXml = rawXml`
                 <condition>
                     <startTime>${localToUtc(formData.value.dateRange[0])}</startTime>
@@ -291,6 +297,8 @@ export default defineComponent({
             `
             const result = await searchImageByImageV2(sendXml)
             const $ = queryXml(result)
+
+            closeLoading()
 
             const tableRecord: Record<string, BusinessFaceCheckList> = {}
             formData.value.faceGroup.forEach((item) => {
@@ -343,7 +351,7 @@ export default defineComponent({
                         tableList[index].detail.push({
                             date: date.date,
                             day: date.day,
-                            alarm: true,
+                            alarm: 'unchecked',
                             type: TYPE_MAPPING.unchecked,
                             detail: [],
                         })
@@ -352,18 +360,18 @@ export default defineComponent({
 
                     const onTime = dayjs(date.date + ' ' + formData.value.startTime, DEFAULT_DATE_FORMAT).valueOf()
                     const offTime = dayjs(date.date + ' ' + formData.value.endTime, DEFAULT_DATE_FORMAT).valueOf()
-                    const find = item.searchData[date.date].find((data) => {
+                    const find = item.searchData[date.date].filter((data) => {
                         return data.timestamp > onTime && data.timestamp < offTime
                     })
-                    if (find) {
+                    if (find.length) {
                         tableList[index].checked++
                     }
                     tableList[index].detail.push({
                         date: date.date,
                         day: date.day,
-                        type: find ? TYPE_MAPPING.checked : TYPE_MAPPING.unchecked,
-                        alarm: !!find,
-                        detail: find ? [find] : [],
+                        type: find.length ? TYPE_MAPPING.checked : TYPE_MAPPING.unchecked,
+                        alarm: find.length ? 'checked' : 'unchecked',
+                        detail: find,
                     })
                 })
             })

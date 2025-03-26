@@ -117,6 +117,8 @@ export default defineComponent({
             lockSlider: false,
             // 当前播放的项
             playId: '',
+            // 通道名称
+            chlName: '',
         })
 
         const playerRef = ref<PlayerInstance>()
@@ -204,6 +206,7 @@ export default defineComponent({
             playerData.value.playId = getUniqueKey(row)
             playerData.value.startTime = row.recStartTime
             playerData.value.endTime = row.recEndTime
+            playerData.value.chlName = row.chlName
 
             playerRef.value?.player.play({
                 chlID: row.chlId,
@@ -224,6 +227,7 @@ export default defineComponent({
             playerData.value.startTime = 0
             playerData.value.endTime = 0
             playerData.value.currentTime = 0
+            playerData.value.chlName = ''
             playerRef.value?.player.stop(0)
         }
 
@@ -277,7 +281,6 @@ export default defineComponent({
          * @param {number} pageIndex
          */
         const changePage = async (pageIndex: number) => {
-            stop()
             tableRef.value!.clearSelection()
             formData.value.pageIndex = pageIndex
             sliceTableData.value = tableData.value.slice((pageIndex - 1) * formData.value.pageSize, pageIndex * formData.value.pageSize)
@@ -437,6 +440,8 @@ export default defineComponent({
          * @description 获取列表数据
          */
         const getData = async () => {
+            stop()
+
             const attributeXml = Object.keys(formData.value.attribute)
                 .map((key) => {
                     const detail = Object.entries(formData.value.attribute[key])
@@ -454,8 +459,8 @@ export default defineComponent({
             const sendXml = rawXml`
                 <resultLimit>10000</resultLimit>
                 <condition>
-                    <startTime>${formatDate(formData.value.dateRange[0], DEFAULT_DATE_FORMAT)}</startTime>
-                    <endTime>${formatDate(formData.value.dateRange[1], DEFAULT_DATE_FORMAT)}</endTime>
+                    <startTime>${localToUtc(formData.value.dateRange[0], DEFAULT_DATE_FORMAT)}</startTime>
+                    <endTime>${localToUtc(formData.value.dateRange[1], DEFAULT_DATE_FORMAT)}</endTime>
                     <chls type="list">${formData.value.chl.map((item) => `<item id="${item}"></item>`).join('')}</chls>
                     <events type="list">${formData.value.event.map((item) => `<item>${item}</item>`).join('')}</events>
                     <person type="list">
@@ -485,7 +490,6 @@ export default defineComponent({
                         isDelSnap: isDelSnap,
                         isNoData: false,
                         plateNumber: '',
-                        direction: '',
                         imgId: hexToDec(split[2]) + '',
                         timestamp: hexToDec(split[0]) * 1000,
                         frameTime: localToUtc(timestamp) + ':' + padStart(hexToDec(split[1]), 7),

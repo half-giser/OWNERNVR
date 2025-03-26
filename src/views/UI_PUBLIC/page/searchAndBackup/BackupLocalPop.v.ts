@@ -141,7 +141,7 @@ export default defineComponent({
             } else {
                 zipNameMapping[name] = 1
             }
-            return `${name}(${padStart(zipNameMapping[name], 3)}).avi`
+            return `${name}${zipNameMapping[name] === 1 ? '' : `(${padStart(zipNameMapping[name], 3)})`}.avi`
         }
 
         /**

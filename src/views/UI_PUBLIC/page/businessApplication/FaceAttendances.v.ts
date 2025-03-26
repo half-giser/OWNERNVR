@@ -80,6 +80,10 @@ export default defineComponent({
 
         // 时间范围日期数
         const daysInRange = computed(() => {
+            const today = dayjs()
+            if (today.isBefore(dayjs(formData.value.dateRange[1]))) {
+                return Math.ceil(today.diff(formData.value.dateRange[0], 'day', true))
+            }
             return Math.ceil(dayjs(formData.value.dateRange[1]).diff(formData.value.dateRange[0], 'day', true))
         })
 
@@ -286,6 +290,8 @@ export default defineComponent({
                 openMessageBox(Translate('IDCS_SELECT_GROUP_NOT_EMPTY'))
             }
 
+            openLoading()
+
             const sendXml = rawXml`
                 <condition>
                     <startTime>${localToUtc(formData.value.dateRange[0])}</startTime>
@@ -298,6 +304,8 @@ export default defineComponent({
             `
             const result = await searchImageByImageV2(sendXml)
             const $ = queryXml(result)
+
+            closeLoading()
 
             const tableRecord: Record<string, BusinessFaceAttendanceList> = {}
             formData.value.faceGroup.forEach((item) => {
@@ -370,7 +378,7 @@ export default defineComponent({
                             date: date.date,
                             day: date.day,
                             type: TYPE_MAPPING.absenteeism,
-                            alarm: true,
+                            alarm: '',
                             detail: [],
                         })
                         return
@@ -382,7 +390,7 @@ export default defineComponent({
                             type: TYPE_MAPPING.abnormal,
                             date: date.date,
                             day: date.day,
-                            alarm: false,
+                            alarm: 'abnormal',
                             detail: [item.searchData[date.date][0]],
                         })
                         return
@@ -401,12 +409,13 @@ export default defineComponent({
                         tableList[index].leftEarly++
                         types.push(TYPE_MAPPING.leftEarly)
                     }
+
                     tableList[index].detail.push({
                         date: date.date,
                         day: date.day,
                         type: !types.length ? TYPE_MAPPING.normal : types.join(', '),
-                        alarm: types.includes(TYPE_MAPPING.leftEarly),
-                        detail: [item.searchData[date.date].at(0)!, item.searchData[date.date].at(-1)!],
+                        alarm: types.length ? (types.includes(TYPE_MAPPING.late) ? 'late' : 'leftEarly') : '',
+                        detail: item.searchData[date.date], // [item.searchData[date.date].at(0)!, item.searchData[date.date].at(-1)!],
                     })
                 })
             })

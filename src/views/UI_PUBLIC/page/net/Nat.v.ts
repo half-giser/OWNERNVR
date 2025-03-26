@@ -65,7 +65,6 @@ export default defineComponent({
             }
             return new Promise((resolve: (url: string) => void) => {
                 QRCode.toDataURL(str, options, (err, url) => {
-                    console.log(err, url)
                     if (err) resolve('')
                     else resolve(url)
                 })

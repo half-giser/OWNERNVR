@@ -34,11 +34,15 @@
                     :label="Translate('IDCS_TOTAL_VEHICLE_NUM')"
                 >
                     <template #default="{ row }: TableColumn<BusinessPkMgrSpaceManageList>">
+                        <el-input
+                            v-if="row.parkingType !== 'usingGroup'"
+                            disabled
+                        />
                         <BaseNumberInput
+                            v-else
                             v-model="row.groupTotalNum"
                             :min="0"
                             :max="10000"
-                            :disabled="row.parkingType !== 'usingGroup'"
                         />
                     </template>
                 </el-table-column>
@@ -47,11 +51,15 @@
                     :label="Translate('IDCS_REMAIN_VEHICLE_NUM')"
                 >
                     <template #default="{ row }: TableColumn<BusinessPkMgrSpaceManageList>">
+                        <el-input
+                            v-if="row.parkingType !== 'usingGroup'"
+                            disabled
+                        />
                         <BaseNumberInput
+                            v-else
                             v-model="row.groupRemainNum"
                             :min="0"
                             :max="10000"
-                            :disabled="row.parkingType !== 'usingGroup'"
                         />
                     </template>
                 </el-table-column>

@@ -3,6 +3,8 @@
  * @Date: 2024-09-04 16:37:01
  * @Description: 时间日期格式化
  */
+import dayjs from 'dayjs'
+
 export const useDateTimeStore = defineStore('dateTime', () => {
     const YMD_MAPPING: Record<string, string> = {
         'year-month-day': 'YYYY/MM/DD',
@@ -47,13 +49,18 @@ export const useDateTimeStore = defineStore('dateTime', () => {
     // 月日时间格式
     const monthDateFormat = ref('MM/DD')
 
+    // 设备时间
+    let systemTime = dayjs()
+    // 本地时间
+    let localTime = performance.now()
+
     /**
      * @description 获取时间格式化配置
      * @param {boolean} force 是否强制刷新日期格式化配置
      */
     const getTimeConfig = async (force = false) => {
         if (!force && ready.value) {
-            return true
+            return
         }
         // try {
         const result = await queryTimeCfg()
@@ -67,10 +74,20 @@ export const useDateTimeStore = defineStore('dateTime', () => {
             hourMinuteFormat.value = HM_MAPPIMG[time]
             dateTimeFormat.value = dateFormat.value + ' ' + timeFormat.value
             monthDateFormat.value = MD_MAPPING[date]
+            systemTime = dayjs($('content/synchronizeInfo/currentTime').text(), dateTimeFormat.value)
+            localTime = performance.now()
             ready.value = true
         }
         // } catch(e) {}
-        return true
+        return $
+    }
+
+    /**
+     * @description 获取设备时间
+     * @returns {dayjs}
+     */
+    const getSystemTime = () => {
+        return systemTime.add(Math.round((performance.now() - localTime) / 1000), 's')
     }
 
     return {
@@ -81,5 +98,6 @@ export const useDateTimeStore = defineStore('dateTime', () => {
         hourMinuteFormat,
         monthDateFormat,
         getTimeConfig,
+        getSystemTime,
     }
 })

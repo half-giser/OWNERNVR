@@ -255,7 +255,7 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <plate type="list">
-                        <item id="${form.groupId}">
+                        <item id="${form.id}">
                             <plateNumber>${form.plateNumber}</plateNumber>
                             <groupId>${form.groupId}</groupId>
                             <owner>${form.owner}</owner>
@@ -295,6 +295,7 @@ export default defineComponent({
                 formData.value.owner = prop.data.owner || ''
                 formData.value.ownerPhone = prop.data.ownerPhone || ''
                 formData.value.vehicleType = prop.data.vehicleType || ''
+                formData.value.id = prop.data.id || ''
             }
 
             if (prop.type === 'register') {
@@ -438,11 +439,12 @@ export default defineComponent({
                 const split = item.split(separator)
 
                 return {
-                    plateNumber: split[dataIndexMap.plateNumber] || '',
+                    id: '',
+                    plateNumber: (split[dataIndexMap.plateNumber] || '').trim(),
                     groupId: '',
-                    owner: split[dataIndexMap.owner] || '',
-                    ownerPhone: split[dataIndexMap.ownerPhone] || '',
-                    vehicleType: split[dataIndexMap.vehicleType] || '',
+                    owner: (split[dataIndexMap.owner] || '').trim(),
+                    ownerPhone: (split[dataIndexMap.ownerPhone] || '').trim(),
+                    vehicleType: (split[dataIndexMap.vehicleType] || '').trim(),
                 }
             })
         }
@@ -542,6 +544,7 @@ export default defineComponent({
                     })
                 },
                 onprogress(step) {
+                    closeLoading()
                     openLoading(LoadingTarget.FullScreen, Translate('IDCS_IMPORT_PROGRESS_NUM_TIP').formatForLang(step))
                 },
                 onerror(errorCode) {

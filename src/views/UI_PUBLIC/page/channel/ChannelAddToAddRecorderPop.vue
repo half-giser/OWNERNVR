@@ -88,12 +88,13 @@
             :data="formData.recorderList"
             height="340"
             show-overflow-tooltip
-            highlight-current-row
+            :row-class-name="handleRowClassName"
             @row-click="handleRowClick"
             @selection-change="handleSelectionChange"
         >
             <el-table-column
                 type="selection"
+                :selectable="isSelectable"
                 width="50"
             />
             <el-table-column

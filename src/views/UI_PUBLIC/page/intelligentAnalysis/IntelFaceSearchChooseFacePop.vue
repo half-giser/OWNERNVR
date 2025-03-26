@@ -50,8 +50,7 @@
                 <IntelFaceDBChooseFaceImportPanel
                     v-show="pageData.type === 'import'"
                     :limit="5"
-                    type="h5-only"
-                    accept="img-only"
+                    type="search"
                     @change="importImg"
                 />
                 <div v-show="pageData.type === 'current'">

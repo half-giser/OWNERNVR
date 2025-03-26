@@ -46,7 +46,6 @@ export default defineComponent({
 
         const plugin = usePlugin({
             onReady: (mode, plugin) => {
-                console.log('onReady', mode.value)
                 if (mode.value === 'h5' && isHttpsLogin()) {
                     openNotify(formatHttpsTips(Translate('IDCS_BACKUP_AND_RESTORE_SET')), true)
                     pageData.value.isUploadDisabled = true

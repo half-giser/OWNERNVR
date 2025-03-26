@@ -10,7 +10,6 @@
                 v-model="pageData.searchType"
                 size="large"
                 class="inline hide-border-top hide-border-inline"
-                @change="changeSearchType"
             >
                 <el-radio-button
                     v-for="item in pageData.searchOptions"
@@ -79,8 +78,11 @@
                         />
                     </div>
                 </div>
-                <div class="base-intel-playback-box">
-                    <h3>{{ Translate('IDCS_REPLAY') }}</h3>
+                <div
+                    v-show="formData.searchType === 'event'"
+                    class="base-intel-playback-box"
+                >
+                    <h3>{{ playerData.chlName + Translate('IDCS_REPLAY') }}</h3>
                     <div class="player">
                         <BaseVideoPlayer
                             ref="playerRef"
@@ -103,6 +105,7 @@
                         />
                         <span class="end-time">{{ displayTime(playerData.endTime) }}</span>
                     </div>
+                    <div class="current-time">{{ displayDateTime(playerData.currentTime) }}</div>
                 </div>
             </div>
         </div>
@@ -125,7 +128,7 @@
             <div class="base-intel-row space-between">
                 <div>
                     <el-radio-group
-                        v-show="pageData.chartType === 'list' && pageData.searchType === 'event'"
+                        v-show="pageData.chartType === 'list' && formData.searchType === 'event'"
                         v-model="pageData.listType"
                         :style="{
                             '--form-radio-button-width': '160px',
@@ -141,7 +144,7 @@
                 </div>
                 <div>
                     <el-radio-group
-                        v-show="pageData.searchType === 'event'"
+                        v-show="formData.searchType === 'event'"
                         v-model="pageData.sortType"
                         @change="changeSortType"
                     >
@@ -180,7 +183,9 @@
                         @click="play(item)"
                         @detail="showDetail(index)"
                     >
-                        {{ displayDateTime(item.timestamp) }}<br />{{ item.chlName }}
+                        {{ displayDateTime(item.timestamp) }}<br />
+                        {{ item.chlName }}{{ formData.searchType === 'park' ? `-${displayDirection(item.direction)}` : '' }}<br />
+                        {{ item.plateNumber || '--' }}
                     </IntelBaseSnapItem>
                 </div>
             </el-scrollbar>
@@ -205,7 +210,7 @@
                         :selectable="getTableSelectable"
                     />
                     <el-table-column :label="Translate('IDCS_SNAP_TIME')">
-                        <template #default="{ row }: TableColumn<IntelSearchList>">
+                        <template #default="{ row }: TableColumn<IntelSearchVehicleList>">
                             {{ displayDateTime(row.timestamp) }}
                         </template>
                     </el-table-column>
@@ -221,7 +226,7 @@
                         v-if="formData.searchType === 'park'"
                         :label="Translate('IDCS_VEHICLE_DIRECTION')"
                     >
-                        <template #default="{ row }: TableColumn<IntelSearchList>">
+                        <template #default="{ row }: TableColumn<IntelSearchVehicleList>">
                             {{ displayDirection(row.direction) }}
                         </template>
                     </el-table-column>
@@ -229,7 +234,7 @@
                         width="100"
                         :label="Translate('IDCS_DETAIL_INFO')"
                     >
-                        <template #default="{ $index }: TableColumn<IntelSearchList>">
+                        <template #default="{ $index }: TableColumn<IntelSearchVehicleList>">
                             <BaseImgSpriteBtn
                                 file="browser"
                                 @click="showDetail($index)"
@@ -245,9 +250,10 @@
                 <div>
                     <el-checkbox
                         v-model="pageData.isBackUpPic"
-                        :label="`${Translate('IDCS_BACKUP_PICTURE')}${sliceTableData.length && isSupportCSV ? ` (${Translate('IDCS_LICENSE_PLATE_NUM_LIST')})` : ''}`"
+                        :label="`${Translate('IDCS_BACKUP_PICTURE')}${sliceTableData.length && pageData.isSupportCSV ? ` (${Translate('IDCS_LICENSE_PLATE_NUM_LIST')})` : ''}`"
                     />
                     <el-checkbox
+                        v-show="formData.searchType === 'event'"
                         v-model="pageData.isBackUpVideo"
                         :label="Translate('IDCS_BACKUP_RECORD')"
                     />
@@ -276,6 +282,13 @@
             @close="pageData.isDetailPop = false"
             @add="addPlate"
             @play-rec="playRec"
+        />
+        <PKMgrParkLotPop
+            v-model="pageData.isParkDetailPop"
+            :list="sliceTableData"
+            :index="pageData.parkDetailIndex"
+            type="read"
+            @close="pageData.isParkDetailPop = false"
         />
         <BasePlaybackPop
             v-model="pageData.isPlaybackPop"

@@ -342,9 +342,7 @@ export default defineComponent({
          */
         const refresh = () => {
             if (prop.chls.length) {
-                if (prop.playStatus === 'play' || prop.playStatus === 'pending') {
-                    getRecList()
-                }
+                getRecList()
             } else {
                 tableData.value = []
                 ctx.emit('callback', [], false)
@@ -354,27 +352,32 @@ export default defineComponent({
         watch(
             () => prop.chls,
             () => {
-                nextTick(() => refresh())
+                if (prop.playStatus !== 'pending') {
+                    nextTick(() => refresh())
+                }
             },
             {
                 deep: true,
             },
         )
 
-        watch(
-            () => prop.startTime,
-            () => {
-                nextTick(() => refresh())
-            },
-        )
+        // watch(
+        //     () => prop.startTime,
+        //     () => {
+        //         nextTick(() => refresh())
+        //     },
+        // )
 
         watch(
             () => prop.playStatus,
-            () => {
-                if (tableData.value.length === prop.chls.length) {
-                    return
+            (newVal) => {
+                // if (tableData.value.length === prop.chls.length) {
+                //     return
+                // }
+
+                if (newVal === 'pending') {
+                    nextTick(() => refresh())
                 }
-                nextTick(() => refresh())
             },
             {
                 deep: true,

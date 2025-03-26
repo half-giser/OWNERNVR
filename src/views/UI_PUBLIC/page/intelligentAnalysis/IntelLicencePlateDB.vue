@@ -56,8 +56,7 @@
                                     class="search"
                                     :placeholder="Translate('IDCS_SEARCH_TARGET_LICENSE_PLATE')"
                                     @focus="handleNameFocus"
-                                    @blur="searchPlate(row.id)"
-                                    @keyup.enter="searchPlate(row.id)"
+                                    @keyup="bounceSearchPlate(row.id)"
                                 />
                                 <el-button @click="addPlate(row.id)">{{ Translate('IDCS_ADD_LICENSE_PLATE') }}</el-button>
                             </div>

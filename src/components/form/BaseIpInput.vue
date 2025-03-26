@@ -21,6 +21,7 @@
                 @input="handleInput($event, index)"
                 @focus="handleFocus"
                 @blur="handleBlur"
+                @paste.prevent="handlePaste($event, index)"
             />
             <span v-if="index !== address.length - 1">.</span>
         </template>
@@ -130,8 +131,8 @@ const isTextSelected = (input: HTMLInputElement) => {
  * @param {Event} e
  * @param {number} index
  */
-const handleKeyDown = (e: Event, index: number) => {
-    const keyCode = (e as KeyboardEvent).key
+const handleKeyDown = (e: KeyboardEvent, index: number) => {
+    const keyCode = e.key
     let isPreventDefault = true
 
     switch (keyCode) {
@@ -164,6 +165,16 @@ const handleKeyDown = (e: Event, index: number) => {
         // 删除数值
         case 'Backspace':
             isPreventDefault = false
+            break
+        case 'v':
+            if (e.ctrlKey) {
+                isPreventDefault = false
+            }
+            break
+        case 'c':
+            if (e.ctrlKey) {
+                isPreventDefault = false
+            }
             break
         // 校验输入的数字合法性，合法则执行输入事件
         default:
@@ -205,6 +216,32 @@ const handleFocus = (e: Event) => {
  */
 const handleBlur = () => {
     isFocus.value--
+    const notEmpty = address.value.some((item, index) => {
+        return index !== 0 && item !== 0 && item !== ''
+    })
+    if ((address.value[0] === 0 || address.value[0] === '') && notEmpty) {
+        updateValue(1, 0)
+    }
+}
+
+/**
+ * @description 粘贴
+ * @param {ClipboardEvent} e
+ * @param {number} index
+ */
+const handlePaste = (e: ClipboardEvent, index: number) => {
+    const text = e.clipboardData?.getData('text')?.trim()
+    if (text) {
+        if (!isNaN(Number(text))) {
+            const num = Number(text)
+            if (num >= 0 && num <= 255) {
+                updateValue(num, index)
+            }
+        } else if (checkIpV4(text)) {
+            emits('update:modelValue', text)
+            emits('change', text)
+        }
+    }
 }
 </script>
 

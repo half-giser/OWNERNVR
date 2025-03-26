@@ -33,10 +33,11 @@
                 min-width="240"
             />
             <el-table-column
-                prop="chlStatus"
                 :label="Translate('IDCS_CONNECT_STATUS')"
                 width="120"
-            />
+            >
+                {{ Translate('IDCS_ONLINE') }}
+            </el-table-column>
         </el-table>
         <el-form
             ref="formRef"
@@ -50,6 +51,7 @@
                 <BasePasswordInput
                     v-model="formData.password"
                     :placeholder="Translate('IDCS_PASSWORD_TIP')"
+                    maxlength="16"
                 />
             </el-form-item>
             <el-form-item
@@ -59,6 +61,7 @@
                 <BasePasswordInput
                     v-model="formData.confirmPassword"
                     :placeholder="Translate('IDCS_PASSWORD_TIP')"
+                    maxlength="16"
                 />
             </el-form-item>
         </el-form>

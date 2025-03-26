@@ -43,6 +43,7 @@ export default defineComponent({
     },
     setup(props) {
         const systemCaps = useCababilityStore()
+        const { Translate } = useLangStore()
 
         const playerRef = ref<PlayerInstance>()
 
@@ -188,13 +189,13 @@ export default defineComponent({
                     originalEnable: $param('switch').text().bool(),
                     schedule: getScheduleId(pageData.value.scheduleList, $('content/chl').attr('scheduleGuid')),
                     holdTime: $param('holdTime').text().num(),
-                    holdTimeList: getAlarmHoldTimeList($param('holdTimeNote').text(), $param('alarmHoldTime').text().num()),
+                    holdTimeList: getAlarmHoldTimeList($param('holdTimeNote').text(), $param('holdTime').text().num()),
                     refreshFrequency: $param('detectFrequency').text().num(),
                     refreshFrequencyList: $('types/refreshFrequency/enum').map((item) => {
-                        const value = item.text().num() / 1000
+                        const value = item.text().num()
                         return {
                             value,
-                            label: getTranslateForSecond(value / 1000),
+                            label: `${value / 1000} ${Translate('IDCS_SECONDS')}`,
                         }
                     }),
                     regionInfo: $param('regionInfo/item').map((item) => {

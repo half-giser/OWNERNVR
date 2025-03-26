@@ -104,7 +104,7 @@ export const activateIPC = (data: string) => fetch('activateIPC', data)
  * @param {string} data
  * @returns
  */
-export const editDevDefaultPwd = (data: string) => fetch('editDevDefaultPwd', data)
+export const editDevDefaultPwd = (data: string) => fetch('editDevDefaultPwd', data, {}, false)
 
 /**
  * @description 编辑设备网络配置

@@ -13,18 +13,11 @@ export default defineComponent({
             default: 10000,
         },
         /**
-         * @property {'both' | 'img-only'} 支持的文件类型 both: 支持jpg和csv、xls；img-only：只支持jpg
-         */
-        accept: {
-            type: String,
-            default: 'both',
-        },
-        /**
-         * @property {'both' | 'h5-only'} 上传的模式 both: 支持OCX与H5上传； h5-only: 只支持H5上传
+         * @property {'search' | 'import'} 上传的模式 search: 搜索人脸； import: 录入人脸
          */
         type: {
-            type: String,
-            default: 'both',
+            type: String as PropType<'search' | 'import'>,
+            default: 'search',
         },
     },
     emits: {
@@ -34,12 +27,13 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
+        const uploadRef = ref<HTMLInputElement>()
 
         const DEFAULT_BIRTHDAY = formatDate(new Date(), 'YYYY/MM/DD')
 
         const plugin = usePlugin({
             onReady: (mode, plugin) => {
-                if (mode.value === 'ocx' && prop.type === 'both') {
+                if (mode.value === 'ocx' && prop.type === 'import') {
                     const sendXML = OCX_XML_SetPluginModel('ReadOnly', 'Live')
                     plugin.ExecuteCmd(sendXML)
                 }
@@ -91,7 +85,23 @@ export default defineComponent({
         })
 
         const mode = computed(() => {
-            return plugin.IsSupportH5() || prop.type === 'h5-only' ? 'h5' : 'ocx'
+            return plugin.IsSupportH5() || prop.type === 'search' ? 'h5' : 'ocx'
+        })
+
+        const tips = computed(() => {
+            if (prop.type === 'search') {
+                return `${Translate('IDCS_OPERATE_SNAPSHOT_MSPB')}  : *.jpg,*.jpeg, ${Translate('IDCS_SEARCH_BY_EXTERNAL_FACES_TIP')}`
+            }
+
+            return `${Translate('IDCS_OPERATE_SNAPSHOT_MSPB')} : *.jpg,*.jpeg ${Translate('IDCS_FEATURE_LIBRARY_PICTRUE_LIMITE')}`
+        })
+
+        const btnName = computed(() => {
+            if (prop.type === 'search') {
+                return Translate('IDCS_SELECT')
+            }
+
+            return Translate('IDCS_IMPORT')
         })
 
         // 性别key值与value值的映射
@@ -160,7 +170,7 @@ export default defineComponent({
                 const split = item.split(separator)
 
                 return {
-                    name: split[dataIndexMap.name] || '',
+                    name: split[dataIndexMap.name] || Translate('IDCS_SAMPLE'),
                     sex: split[dataIndexMap.sex] ? SEX_MAPPING[Number(split[dataIndexMap.sex || 10000])] : 'male',
                     // 目前仅支持YYYY/MM/DD
                     birthday: split[dataIndexMap.birthday || 10000] || DEFAULT_BIRTHDAY,
@@ -210,13 +220,13 @@ export default defineComponent({
             return new Promise((resolve: (e: IntelFaceDBImportImgDto) => void, reject: (e: string) => void) => {
                 // NT2-3425 导入图片为0B
                 if (file.size === 0) {
-                    reject(Translate('IDCS_ADD_FACE_FAIL'))
+                    reject(`${Translate('IDCS_ADD_FACE_FAIL')},${Translate('IDCS_PICTURE_SIZE_LIMIT_TIP')}`)
                     return
                 }
 
                 // 图片小于200KB
                 if (file.size > 200 * 1024) {
-                    reject(Translate('IDCS_ADD_FACE_FAIL'))
+                    reject(`${Translate('IDCS_ADD_FACE_FAIL')},${Translate('IDCS_OUT_FILE_SIZE')}`)
                     return
                 }
 
@@ -242,7 +252,7 @@ export default defineComponent({
          * @param {FileList | File[]} files
          */
         const parseFiles = async (files: FileList | File[]) => {
-            const supportTypes = prop.accept === 'img-only' ? ['jpg', 'jpeg'] : ['csv', 'txt', 'jpg', 'jpeg'] // 支持导入的文件类型
+            const supportTypes = prop.type === 'search' ? ['jpg', 'jpeg'] : ['csv', 'txt', 'jpg', 'jpeg'] // 支持导入的文件类型
             let hasNotSupportedType = false
             let dataFileType = ''
             let dataFile = files[0]
@@ -311,10 +321,12 @@ export default defineComponent({
             const files = (e.target as HTMLInputElement).files
 
             if (files === null) {
+                resetOCXData()
                 return
             }
 
             if (!checkImportFaceImgCount(files.length)) {
+                resetOCXData()
                 return
             }
 
@@ -367,12 +379,18 @@ export default defineComponent({
             ocxData.fileList = []
             ocxData.fileIndex = 0
             ocxData.uploadFileList = []
+            if (uploadRef.value) {
+                uploadRef.value.value = ''
+            }
         }
 
         return {
             mode,
             handleH5Import,
             handleOCXImport,
+            tips,
+            btnName,
+            uploadRef,
         }
     },
 })

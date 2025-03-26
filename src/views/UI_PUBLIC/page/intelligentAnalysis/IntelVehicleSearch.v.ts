@@ -13,6 +13,7 @@ import IntelBaseSnapItem from './IntelBaseSnapItem.vue'
 import IntelBaseSnapPop from './IntelBaseSnapPop.vue'
 import IntelBaseVehicleDirectionSelector from './IntelBaseVehicleDirectionSelector.vue'
 import IntelLicencePlateDBAddPlatePop from './IntelLicencePlateDBAddPlatePop.vue'
+import PKMgrParkLotPop from '../businessApplication/PKMgrParkLotPop.vue'
 import type { TableInstance, CheckboxValueType } from 'element-plus'
 import BackupPop from '../searchAndBackup/BackupPop.vue'
 import BackupLocalPop from '../searchAndBackup/BackupLocalPop.vue'
@@ -33,6 +34,7 @@ export default defineComponent({
         IntelLicencePlateDBAddPlatePop,
         BackupPop,
         BackupLocalPop,
+        PKMgrParkLotPop,
     },
     setup() {
         const { Translate } = useLangStore()
@@ -43,7 +45,7 @@ export default defineComponent({
         // 图像失败重新请求最大次数
         const REPEAR_REQUEST_IMG_TIMES = 2
         // 图像缓存，避免重复请求相同的图片
-        const cachePic: Record<string, IntelSnapImgDto> = {}
+        const cachePic: Record<string, IntelSnapVehicleImgDto> = {}
 
         let chlMap: Record<string, string> = {}
 
@@ -119,7 +121,7 @@ export default defineComponent({
             // 备份列表
             backupList: [] as PlaybackBackUpRecList[],
             // 勾选列表
-            selection: [] as IntelSearchList[],
+            selection: [] as IntelSearchVehicleList[],
             // 是否打开抓怕详情弹窗
             isDetailPop: false,
             // 当前选中的抓拍的索引
@@ -134,6 +136,12 @@ export default defineComponent({
             isAddPlatePop: false,
             // 新增车牌的车牌号码
             addPlateNumber: '',
+            // 车牌侦测、车牌识别才下载CSV
+            isSupportCSV: false,
+            // 是否打开停车记录详情弹窗
+            isParkDetailPop: false,
+            // 当前选中的停车记录详情的索引
+            parkDetailIndex: 0,
         })
 
         const formData = ref(new IntelSearchVehicleForm())
@@ -149,20 +157,17 @@ export default defineComponent({
             lockSlider: false,
             // 当前播放的项
             playId: '',
+            // 通道名称
+            chlName: '',
         })
 
         const playerRef = ref<PlayerInstance>()
 
         const tableRef = ref<TableInstance>()
 
-        const tableData = ref<IntelSearchList[]>([])
+        const tableData = ref<IntelSearchVehicleList[]>([])
 
-        const sliceTableData = ref<IntelSearchList[]>([])
-
-        // 车牌侦测、车牌识别才下载CSV
-        const isSupportCSV = computed(() => {
-            return !['plateDetection', 'plateMatchWhiteList', 'plateMatchStranger'].some((event) => !formData.value.event.includes(event))
-        })
+        const sliceTableData = ref<IntelSearchVehicleList[]>([])
 
         /**
          * @description 获取通道ID与通道名称的映射
@@ -237,14 +242,19 @@ export default defineComponent({
 
         /**
          * @description 播放
-         * @param {IntelSearchList} row
+         * @param {IntelSearchVehicleList} row
          */
-        const play = (row: IntelSearchList) => {
+        const play = (row: IntelSearchVehicleList) => {
             stop()
+
+            if (formData.value.searchType === 'park') {
+                return
+            }
 
             playerData.value.playId = getUniqueKey(row)
             playerData.value.startTime = row.recStartTime
             playerData.value.endTime = row.recEndTime
+            playerData.value.chlName = row.chlName
 
             playerRef.value?.player.play({
                 chlID: row.chlId,
@@ -265,6 +275,7 @@ export default defineComponent({
             playerData.value.startTime = 0
             playerData.value.endTime = 0
             playerData.value.currentTime = 0
+            playerData.value.chlName = ''
             playerRef.value?.player.stop(0)
         }
 
@@ -318,7 +329,6 @@ export default defineComponent({
          * @param {number} pageIndex
          */
         const changePage = async (pageIndex: number) => {
-            stop()
             tableRef.value!.clearSelection()
             formData.value.pageIndex = pageIndex
             sliceTableData.value = tableData.value.slice((pageIndex - 1) * formData.value.pageSize, pageIndex * formData.value.pageSize)
@@ -344,18 +354,11 @@ export default defineComponent({
                         item.eventType = pic.eventType
                         item.targetType = pic.targetType
                         item.plateNumber = pic.plateNumber
+                        item.owner = pic.owner
+                        item.ownerPhone = pic.ownerPhone
                     }
                 }
             })
-        }
-
-        /**
-         * @description 更改搜索类型
-         */
-        const changeSearchType = () => {
-            if (pageData.value.searchType === 'park') {
-                pageData.value.listType = 'panorama'
-            }
         }
 
         /**
@@ -381,11 +384,11 @@ export default defineComponent({
 
         /**
          * @description 获取抓拍图或原图
-         * @param {IntelSearchList} row
+         * @param {IntelSearchVehicleList} row
          * @param {boolean} isPanorama
          * @param {number} index
          */
-        const getPic = async (row: IntelSearchList, isPanorama: boolean, index: number, times = 0) => {
+        const getPic = async (row: IntelSearchVehicleList, isPanorama: boolean, index: number, times = 0) => {
             try {
                 const key = getUniqueKey(row)
                 if (!row.isDelSnap && (!cachePic[key] || !cachePic[key].pic || !cachePic[key].panorama)) {
@@ -432,6 +435,9 @@ export default defineComponent({
                             isDelSnap: false,
                             isNoData: !content,
                             attribute: {} as Record<string, string>,
+                            owner: $('owner').text(),
+                            ownerPhone: $('ownerPhone').text(),
+                            // OpenGateType: $('OpenGateType').text(),
                         }
 
                         $('attribute').forEach((attribute) => {
@@ -488,7 +494,22 @@ export default defineComponent({
          * @description 获取列表数据
          */
         const getData = async () => {
-            const eventXml = pageData.value.searchType === 'event' ? `<events type="list">${formData.value.event.map((item) => `<item>${item}</item>`).join('')}</events>` : ''
+            stop()
+
+            if (pageData.value.searchType === 'park') {
+                pageData.value.listType = 'panorama'
+            }
+
+            let eventXml = ''
+            if (pageData.value.searchType === 'park') {
+                eventXml = rawXml`
+                    <events type="list">
+                        <item>openGates</item>
+                    </events>
+                `
+            } else {
+                eventXml = `<events type="list">${formData.value.event.map((item) => `<item>${item}</item>`).join('')}</events>`
+            }
 
             const attributeXml = Object.keys(formData.value.attribute)
                 .filter((key) => formData.value.target.includes(key))
@@ -505,10 +526,8 @@ export default defineComponent({
                 })
                 .join('')
 
-            let vehicleXml = ''
-            if (pageData.value.searchType === 'event') {
-                vehicleXml += formData.value.target.map((item) => `<item>${item}</item>`).join('')
-            } else {
+            let vehicleXml = formData.value.target.map((item) => `<item>${item}</item>`).join('')
+            if (pageData.value.searchType === 'park') {
                 vehicleXml += formData.value.direction.map((item) => `<item directionType="${item}">plate</item>`).join('')
             }
 
@@ -519,8 +538,8 @@ export default defineComponent({
             const sendXml = rawXml`
                 <resultLimit>10000</resultLimit>
                 <condition>
-                    <startTime>${formatDate(formData.value.dateRange[0], DEFAULT_DATE_FORMAT)}</startTime>
-                    <endTime>${formatDate(formData.value.dateRange[1], DEFAULT_DATE_FORMAT)}</endTime>
+                    <startTime>${localToUtc(formData.value.dateRange[0], DEFAULT_DATE_FORMAT)}</startTime>
+                    <endTime>${localToUtc(formData.value.dateRange[1], DEFAULT_DATE_FORMAT)}</endTime>
                     <chls type="list">${formData.value.chl.map((item) => `<item id="${item}"></item>`).join('')}</chls>
                     ${eventXml}
                     <vehicle>${vehicleXml}</vehicle>
@@ -530,6 +549,7 @@ export default defineComponent({
 
             openLoading()
             formData.value.searchType = pageData.value.searchType
+            pageData.value.isSupportCSV = formData.value.searchType === 'event' && formData.value.event.every((item) => ['plateDetection', 'plateMatchWhiteList', 'plateMatchStranger'].includes(item))
             tableData.value = []
 
             const result = await searchSmartTarget(sendXml)
@@ -563,6 +583,7 @@ export default defineComponent({
                         offset: hexToDec(split[10]),
                         eventTypeID: hexToDec(split[11]),
                         direction: split[13],
+                        openType: split[12],
                         plateNumber: '--',
                         pic: '',
                         panorama: '',
@@ -575,6 +596,9 @@ export default defineComponent({
                         X2: 0,
                         Y2: 0,
                         attribute: {},
+                        owner: '',
+                        ownerPhone: '',
+                        isRelative: split[13] ? true : false,
                     }
                 })
                 showMaxSearchLimitTips($)
@@ -593,8 +617,13 @@ export default defineComponent({
          */
         const showDetail = (index: number) => {
             stop()
-            pageData.value.detailIndex = index
-            pageData.value.isDetailPop = true
+            if (formData.value.searchType === 'event') {
+                pageData.value.detailIndex = index
+                pageData.value.isDetailPop = true
+            } else {
+                pageData.value.parkDetailIndex = index
+                pageData.value.isParkDetailPop = true
+            }
         }
 
         // 已选选项
@@ -604,9 +633,9 @@ export default defineComponent({
 
         /**
          * @description 点击表格行，勾选当前行
-         * @param {IntelSearchList} row
+         * @param {IntelSearchVehicleList} row
          */
-        const handleTableRowClick = (row: IntelSearchList) => {
+        const handleTableRowClick = (row: IntelSearchVehicleList) => {
             play(row)
             tableRef.value!.clearSelection()
             tableRef.value!.toggleRowSelection(row, true)
@@ -614,18 +643,18 @@ export default defineComponent({
 
         /**
          * @description 表格勾选项改变回调
-         * @param {IntelSearchList[]} row
+         * @param {IntelSearchVehicleList[]} row
          */
-        const handleTableSelectionChange = (row: IntelSearchList[]) => {
+        const handleTableSelectionChange = (row: IntelSearchVehicleList[]) => {
             pageData.value.selection = row
         }
 
         /**
          * @description 禁用表格选项
-         * @param {IntelSearchList} row
+         * @param {IntelSearchVehicleList} row
          * @returns {boolean}
          */
-        const getTableSelectable = (row: IntelSearchList) => {
+        const getTableSelectable = (row: IntelSearchVehicleList) => {
             return !row.isDelSnap && !!row.pic && !!row.panorama
         }
 
@@ -712,7 +741,7 @@ export default defineComponent({
                 downloadCSV()
             }
 
-            if (pageData.value.isBackUpVideo) {
+            if (pageData.value.isBackUpVideo && pageData.value.searchType === 'event') {
                 pageData.value.isBackUpPop = true
             } else {
                 createZip()
@@ -761,7 +790,7 @@ export default defineComponent({
          * @description 生成CSV文件名
          */
         const getCsvName = () => {
-            return 'EXPORT_SNAP_PLATE_LIST-' + dayjs().format('YYYYMMDDHHmmss')
+            return 'EXPORT_SNAP_PLATE_LIST-' + dayjs().format('YYYYMMDDHHmmss') + '.csv'
         }
 
         /**
@@ -800,7 +829,7 @@ export default defineComponent({
          * @description 添加CSV到ZIP
          */
         const downloadCSV = () => {
-            if (isSupportCSV.value) {
+            if (pageData.value.isSupportCSV) {
                 const csvContent: string[] = []
                 const csvTitle = [
                     Translate('IDCS_SERIAL_NUMBER'),
@@ -844,7 +873,7 @@ export default defineComponent({
 
         onMounted(() => {
             // 如果路由跳转包含搜索条件，则执行搜索
-            if (history.state.eventType || history.state.targetType) {
+            if (history.state.eventType || history.state.targetType || history.state.searchType) {
                 if (history.state.eventType) {
                     switch (history.state.eventType) {
                         case 'aoi_entry':
@@ -874,12 +903,19 @@ export default defineComponent({
                     delete history.state.eventType
                 }
 
-                if (history.state.targetType === 'vehicle') {
-                    formData.value.target.push('car')
-                } else {
-                    formData.value.target.push('motor')
+                if (history.state.targetType) {
+                    if (history.state.targetType === 'vehicle') {
+                        formData.value.target.push('car')
+                    } else {
+                        formData.value.target.push('motor')
+                    }
+                    delete history.state.targetType
                 }
-                delete history.state.targetType
+
+                if (history.state.searchType) {
+                    pageData.value.searchType = history.state.searchType
+                    delete history.state.searchType
+                }
 
                 getData()
             }
@@ -916,7 +952,6 @@ export default defineComponent({
             displayTime,
             getData,
             changeSortType,
-            changeSearchType,
             handleTableRowClick,
             handleTableSelectionChange,
             getTableSelectable,
@@ -928,7 +963,6 @@ export default defineComponent({
             downloadVideo,
             auth,
             displayDirection,
-            isSupportCSV,
             addPlate,
             getUniqueKey,
             cacheKey,

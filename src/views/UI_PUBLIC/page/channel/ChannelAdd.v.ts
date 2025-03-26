@@ -97,8 +97,7 @@ export default defineComponent({
             const $res1 = queryXml(res1)
             const mode = $res1('content/recMode/mode').text()
 
-            const res = await querySystemCaps()
-            const $ = queryXml(res)
+            const $ = await systemCaps.updateCabability()
             const totalBandwidth = $('content/totalBandwidth').text().num()
             const usedBandwidth = $('content/' + (mode === 'auto' ? 'usedAutoBandwidth' : 'usedManualBandwidth'))
                 .text()
@@ -188,7 +187,7 @@ export default defineComponent({
                     }
                 })
                 rowData.sort((ele1, ele2) => {
-                    return getIpNumber(ele2.ip) - getIpNumber(ele1.ip)
+                    return getIpNumber(ele1.ip) - getIpNumber(ele2.ip)
                 })
                 rowData.sort((ele1, ele2) => {
                     const activate1 = ele1.activateStatus === 'UNACTIVATED' ? 1 : ele1.activateStatus === 'UNKNOWN' ? 0 : -1
@@ -544,7 +543,7 @@ export default defineComponent({
                         element: element,
                     })
                 }
-                multiChlIPCAddRef.value?.init(allDatas, mapping.value, manufacturerMap.value, protocolList.value, (sendXml: string) => {
+                multiChlIPCAddRef.value?.init(allDatas, mapping.value, manufacturerMap.value, protocolList.value, (sendXml) => {
                     addIPCDev(sendXml)
                 })
             }

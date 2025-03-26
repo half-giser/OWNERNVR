@@ -17,6 +17,7 @@
     padding: 0 5px;
     cursor: pointer;
     transition: border-color 0.2s;
+    user-select: none;
 
     div {
         width: 100%;

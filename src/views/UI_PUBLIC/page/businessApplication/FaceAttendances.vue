@@ -136,7 +136,10 @@
             </div>
         </div>
         <div class="base-table-box">
-            <el-table :data="sliceTableData">
+            <el-table
+                :data="sliceTableData"
+                highlight-current-row
+            >
                 <el-table-column :label="Translate('No.')">
                     <template #default="{ $index }: TableColumn<BusinessFaceAttendanceList>">
                         {{ displayIndex($index) }}
@@ -158,7 +161,7 @@
 
                 <el-table-column :label="Translate('IDCS_LATE')">
                     <template #default="{ row }: TableColumn<BusinessFaceAttendanceList>">
-                        {{ displayStatus(row.late) }}
+                        <span class="text-online">{{ displayStatus(row.late) }}</span>
                     </template>
                 </el-table-column>
 
@@ -176,7 +179,7 @@
 
                 <el-table-column :label="Translate('IDCS_ABNORMAL')">
                     <template #default="{ row }: TableColumn<BusinessFaceAttendanceList>">
-                        {{ displayStatus(row.abnormal) }}
+                        <span class="text-exception">{{ displayStatus(row.abnormal) }}</span>
                     </template>
                 </el-table-column>
 
@@ -257,6 +260,8 @@
         width: 10%;
         align-items: flex-end;
         padding-bottom: 10px;
+        position: relative;
+        z-index: 1;
     }
 }
 

@@ -315,7 +315,7 @@ export default defineComponent({
             })
             const entries = Object.entries(label).filter((item) => prop.range.includes(item[0]))
             if (prop.placeholderType === 'default') {
-                return `${Translate('IDCS_ATTRIBUTE')} (${entries.every((item) => item[1]) ? Translate('IDCS_FULL') : Translate('IDCS_PART')})`
+                return `${Translate('IDCS_ATTRIBUTE')} (${entries.every((item) => item[1]) ? Translate('IDCS_PART') : Translate('IDCS_FULL')})`
             } else {
                 return `${Translate('IDCS_ATTRIBUTE')} (${entries.map((item) => `${NAMES_MAPPING[item[0]]}: ${item[1] ? Translate('IDCS_PART') : Translate('IDCS_FULL')}`).join('; ')})`
             }
@@ -345,8 +345,8 @@ export default defineComponent({
          * @description 重置选项
          */
         const reset = () => {
-            Object(selected.value).keys((key1: string) => {
-                Object(selected.value[key1]).keys((key2: string) => {
+            Object.keys(selected.value).forEach((key1: string) => {
+                Object.keys(selected.value[key1]).forEach((key2: string) => {
                     selected.value[key1][key2] = []
                 })
             })

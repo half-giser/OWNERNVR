@@ -27,6 +27,7 @@ export default defineComponent({
     },
     setup(props, ctx) {
         const { Translate } = useLangStore()
+        const systemCaps = useCababilityStore()
 
         // 用于控制下拉菜单的打开关闭
         const resolutionTableRef = ref<TableInstance>()
@@ -112,8 +113,7 @@ export default defineComponent({
          * @description 获取系统宽带容量
          */
         const getSystemCaps = async () => {
-            const result = await querySystemCaps()
-            const $ = queryXml(result)
+            const $ = await systemCaps.updateCabability()
             if ($('status').text() === 'success') {
                 const totalBandwidth = $('content/totalBandwidth').text().num()
                 const usedBandwidth = pageData.value.isAuto ? $('content/usedAutoBandwidth').text().num() : $('content/usedManualBandwidth').text().num()

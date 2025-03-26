@@ -56,7 +56,7 @@
                 </div>
             </div>
             <div class="base-intel-playback-box">
-                <h3>{{ Translate('IDCS_REPLAY') }}</h3>
+                <h3>{{ playerData.chlName + Translate('IDCS_REPLAY') }}</h3>
                 <div class="player">
                     <BaseVideoPlayer
                         ref="playerRef"
@@ -79,6 +79,7 @@
                     />
                     <span class="end-time">{{ displayTime(playerData.endTime) }}</span>
                 </div>
+                <div class="current-time">{{ displayDateTime(playerData.currentTime) }}</div>
             </div>
         </div>
         <div class="base-intel-right">
@@ -213,7 +214,7 @@
                 <div>
                     <el-checkbox
                         v-model="pageData.isBackUpPic"
-                        :label="`${Translate('IDCS_BACKUP_PICTURE')}${sliceTableData.length && isSupportCSV ? ` (${Translate('IDCS_LICENSE_PLATE_NUM_LIST')})` : ''}`"
+                        :label="`${Translate('IDCS_BACKUP_PICTURE')}${sliceTableData.length && pageData.isSupportCSV ? ` (${Translate('IDCS_LICENSE_PLATE_NUM_LIST')})` : ''}`"
                     />
                     <el-checkbox
                         v-model="pageData.isBackUpVideo"

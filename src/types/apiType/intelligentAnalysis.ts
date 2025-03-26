@@ -158,6 +158,7 @@ export class IntelPlateDBPlateInfo {
  * @description 新增车牌表单
  */
 export class IntelPlateDBAddPlateForm {
+    id = ''
     plateNumber = ''
     groupId = ''
     owner = ''
@@ -175,11 +176,14 @@ export class IntelPersonStatsChlList {
     personOut = 0
 }
 
-// export class IntelPersonStatsGroupList {
-//     groupId = ''
-//     name = ''
-//     imageNum = 0
-// }
+/**
+ * @description 人员统计 - 人员分组项
+ */
+export class IntelPersonStatsGroupList {
+    groupId = ''
+    name = ''
+    imageNum = 0
+}
 
 /**
  * @description 人员统计 列表项
@@ -189,7 +193,7 @@ export class IntelPersonStatsList {
     imageTotalInNum = 0
     imageTotalOutNum = 0
     chl: IntelPersonStatsChlList[] = []
-    // groups: IntelPersonStatsGroupList[] = []
+    groups: IntelPersonStatsGroupList[] = []
 }
 
 /**
@@ -248,11 +252,19 @@ export class IntelCombineStatsChlList {
     nonVehicleOut = 0
 }
 
+/**
+ * @description 统计-表格项
+ */
 export class IntelStatsBarChartDataDto {
-    chlId = ''
-    chlName = ''
+    groupId = ''
+    groupName = ''
     data: number[] = []
 }
+
+/**
+ * @description 组合统计 - 分组项
+ */
+export class IntelCombineStatsGroupList extends IntelPersonStatsGroupList {}
 
 /**
  * @description 组合统计 列表
@@ -262,6 +274,7 @@ export class IntelCombineStatsList {
     imageTotalInNum = 0
     imageTotalOutNum = 0
     chl: IntelCombineStatsChlList[] = []
+    groups: IntelCombineStatsGroupList[] = []
 }
 
 /**
@@ -311,7 +324,15 @@ export class IntelSnapImgDto {
 }
 
 /**
- * @description 人脸搜索列表项
+ * @description 抓拍车辆图像
+ */
+export class IntelSnapVehicleImgDto extends IntelSnapImgDto {
+    owner = ''
+    ownerPhone = ''
+}
+
+/**
+ * @description 人体搜索列表项
  */
 export class IntelSearchList extends IntelSnapImgDto {
     imgId = ''
@@ -328,7 +349,14 @@ export class IntelSearchList extends IntelSnapImgDto {
     bolckNo = 0
     offset = 0
     eventTypeID = 0
-    direction: number | string = ''
+}
+
+export class IntelSearchVehicleList extends IntelSearchList {
+    direction = ''
+    openType = ''
+    isRelative = false
+    owner = ''
+    ownerPhone = ''
 }
 
 /**

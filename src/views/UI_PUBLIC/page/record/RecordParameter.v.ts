@@ -54,8 +54,6 @@ export default defineComponent({
             const result = await queryRecordDistributeInfo()
             const $ = await commLoadResponseHandler(result)
 
-            console.log($('status').text())
-
             let doubleStreamRecSwitch = $('content/doubleStreamRecSwitch').text()
             if (!['main', 'sub'].includes(doubleStreamRecSwitch)) {
                 doubleStreamRecSwitch = 'double'
@@ -268,8 +266,6 @@ export default defineComponent({
 
         const setRecParamCfgData = async () => {
             let result: XMLDocument | Element | undefined
-
-            console.log(editForm.disabled.value)
 
             if (editRows.size() || !editForm.disabled.value) {
                 result = await setDevRecData()

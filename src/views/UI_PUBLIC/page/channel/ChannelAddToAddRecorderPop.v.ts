@@ -52,6 +52,9 @@ export default defineComponent({
         }
 
         const handleRowClick = (rowData: ChannelRecorderDto) => {
+            if (rowData.isAdded) {
+                return
+            }
             tableRef.value!.clearSelection()
             tableRef.value!.toggleRowSelection(rowData, true)
         }
@@ -333,6 +336,27 @@ export default defineComponent({
             return sendXml
         }
 
+        /**
+         * @description 是否禁用表格行
+         * @param data
+         * @returns {string}
+         */
+        const handleRowClassName = (data: { row: ChannelRecorderDto; index: number }) => {
+            if (data.row.isAdded) {
+                return 'disabled'
+            }
+            return ''
+        }
+
+        /**
+         * @description 判断表格行是否可选
+         * @param {ChannelRecorderDto} row
+         * @returns {boolean}
+         */
+        const isSelectable = (row: ChannelRecorderDto) => {
+            return !row.isAdded
+        }
+
         const opened = () => {
             selNum.value = 0
             disabled.value = true
@@ -369,7 +393,9 @@ export default defineComponent({
             tableRef,
             selNum,
             handleRowClick,
+            handleRowClassName,
             handleSelectionChange,
+            isSelectable,
             test,
             save,
             opened,

@@ -36,7 +36,7 @@
                 </div>
             </div>
             <div class="base-intel-playback-box">
-                <h3>{{ Translate('IDCS_REPLAY') }}</h3>
+                <h3>{{ playerData.chlName + Translate('IDCS_REPLAY') }}</h3>
                 <div class="player">
                     <BaseVideoPlayer
                         ref="playerRef"
@@ -59,6 +59,7 @@
                     />
                     <span class="end-time">{{ displayTime(playerData.endTime) }}</span>
                 </div>
+                <div class="current-time">{{ displayDateTime(playerData.currentTime) }}</div>
             </div>
         </div>
         <div class="base-intel-right">

@@ -6,7 +6,10 @@
 <template>
     <div
         class="snap"
-        :class="{ panorama: type === 'panorama', match: type === 'match' }"
+        :class="{
+            panorama: type === 'panorama',
+            match: type === 'match',
+        }"
     >
         <div
             class="snap-box"
@@ -31,7 +34,12 @@
             </div>
             <div class="snap-pic">
                 <div class="snap-404">{{ errorText }}</div>
-                <img :src />
+                <!-- 抓拍图 -->
+                <img
+                    :src
+                    @load="loadImg"
+                />
+                <!-- 对比图 -->
                 <img
                     v-show="type === 'match'"
                     :src="matchSrc"
@@ -58,11 +66,6 @@
     &.panorama {
         width: 234px;
 
-        img {
-            object-fit: contain;
-        }
-        // object-fit: cover;
-
         .snap-pic {
             height: 130px;
         }
@@ -77,7 +80,6 @@
 
         img {
             width: 114px;
-            object-fit: cover;
 
             &:nth-of-type(2) {
                 left: unset;

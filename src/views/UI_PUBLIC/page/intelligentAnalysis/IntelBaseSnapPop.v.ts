@@ -299,14 +299,18 @@ export default defineComponent({
             })
         }
 
+        const open = () => {
+            pageData.value.currentIndex = prop.index
+        }
+
         /**
          * @description 打开弹窗回调
          */
-        const open = () => {
+        const opened = () => {
             if (!context) {
                 context = CanvasBase(canvas.value!)
             }
-            pageData.value.currentIndex = prop.index
+
             renderCanvas()
         }
 
@@ -384,15 +388,30 @@ export default defineComponent({
             ctx.emit('search', current.value, pageData.value.currentIndex)
         }
 
-        watch(
-            () => current.value.panorama,
-            () => {
-                renderCanvas()
-            },
-        )
+        /**
+         * @description 图片按规则自适应父容器
+         * 显示规则：
+         * 1、如果图片实际尺寸高>=宽，在高>=宽的区域铺满显示；在高<宽的区域按真实比例显示，左右留白
+         * 2、如果图片实际尺寸高<宽，在高<=宽的区域铺满显示；在高>宽的区域按真实比例显示，上下留白
+         * 3、自动计算图片的尺寸（需要预定义两个类fillImg/scaleImg对应的样式，以及$dom元素水平垂直居中
+         * @param {Event} e
+         */
+        const loadImg = (e: Event) => {
+            const img = e.currentTarget as HTMLImageElement
+            if (img.naturalWidth > img.naturalHeight) {
+                img.style.objectFit = 'contain'
+            } else {
+                img.style.objectFit = 'fill'
+            }
+        }
+
+        watch(current, () => {
+            renderCanvas()
+        })
 
         return {
             open,
+            opened,
             canvas,
             current,
             previous,
@@ -408,6 +427,7 @@ export default defineComponent({
             isAddBtn,
             infoList,
             infoListTitle,
+            loadImg,
         }
     },
 })

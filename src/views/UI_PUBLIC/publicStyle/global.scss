@@ -102,6 +102,9 @@
     --radio-btn-bg: transparent; // radio button 背景色
     --radio-btn-bg-hover: var(--primary-light); // radio button 背景色 (hover)
     --radio-btn-bg-active: var(--primary); // radio button 背景色 (active)
+    --radio-btn-text-disabled: #a0a0a0;
+    --radio-btn-bg-disabled: #f0f0f0;
+    --radio-btn-border-disabled: #ccc;
 
     --upload-bg-text: #000; // 上传框文本
     --upload-bg: #eee; // 上传框背景
@@ -338,6 +341,7 @@
     --color-grey: grey; // 通用灰色
     --color-yellow: yellow; // 通用黄色
     --color-green: green; // 通用绿色
+    --color-purple: purple; // 通用紫色
 
     /**
      * 滚动条
