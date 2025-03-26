@@ -216,6 +216,12 @@ const handleFocus = (e: Event) => {
  */
 const handleBlur = () => {
     isFocus.value--
+    const notEmpty = address.value.some((item, index) => {
+        return index !== 0 && item !== 0 && item !== ''
+    })
+    if ((address.value[0] === 0 || address.value[0] === '') && notEmpty) {
+        updateValue(1, 0)
+    }
 }
 
 /**

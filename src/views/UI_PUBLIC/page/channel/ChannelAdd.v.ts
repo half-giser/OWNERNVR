@@ -543,7 +543,7 @@ export default defineComponent({
                         element: element,
                     })
                 }
-                multiChlIPCAddRef.value?.init(allDatas, mapping.value, manufacturerMap.value, protocolList.value, (sendXml: string) => {
+                multiChlIPCAddRef.value?.init(allDatas, mapping.value, manufacturerMap.value, protocolList.value, (sendXml) => {
                     addIPCDev(sendXml)
                 })
             }
