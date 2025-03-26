@@ -4,6 +4,7 @@
  * @Date: 2024-08-05 16:26:27
  */
 import dayjs from 'dayjs'
+import { type BaseNumberInputReturnsType } from '@/components/form/BaseNumberInput.vue'
 
 export default defineComponent({
     props: {
@@ -30,13 +31,15 @@ export default defineComponent({
         const week = objectToOptions(getTranslateMapping(DEFAULT_WEEK_MAPPING2), 'number').slice(1)
 
         const pageData = ref({
-            expireTime: 1,
+            expireTime: undefined as number | undefined,
             isShowAddDate: false,
             selectDate: '',
             toAddDateList: [] as { date: string }[],
             weekArr: [] as number[],
             dateFormat: '',
         })
+
+        const inputRef = ref<BaseNumberInputReturnsType>()
 
         // 获取日期格式
         const getTimeCfg = async () => {
@@ -52,8 +55,11 @@ export default defineComponent({
          */
         const open = () => {
             if (prop.expirationType !== 'all') {
-                const expirationTime = prop.expirationData.singleExpirationUnit === 'd' ? Number(prop.expirationData?.expiration) * 24 : Number(prop.expirationData?.expiration)
-                pageData.value.expireTime = expirationTime
+                if (!prop.expirationData.expiration || !Number(prop.expirationData.expiration)) {
+                    pageData.value.expireTime = undefined
+                } else {
+                    pageData.value.expireTime = prop.expirationData.singleExpirationUnit === 'd' ? Number(prop.expirationData.expiration) * 24 : Number(prop.expirationData.expiration)
+                }
                 const week = prop.expirationData?.week
                 if (week) {
                     pageData.value.weekArr = week.split(',').map((item) => Number(item))
@@ -67,6 +73,16 @@ export default defineComponent({
                     })
                 }
             }
+        }
+
+        const blurExpireTime = () => {
+            if (!pageData.value.expireTime) {
+                pageData.value.expireTime = 1
+            }
+        }
+
+        const opened = () => {
+            inputRef.value?.focus()
         }
 
         /**
@@ -165,6 +181,9 @@ export default defineComponent({
             addDateToList,
             handleDelDate,
             handleDelDateAll,
+            inputRef,
+            opened,
+            blurExpireTime,
         }
     },
 })
