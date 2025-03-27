@@ -126,15 +126,12 @@ export default defineComponent({
             watchEditRtspServerForm.reset()
             watchEditApiServerForm.reset()
 
-            openLoading()
-
             await getPortData()
             await getWirelessNetworkData()
             await getUPnPData()
             await getApiServerData()
             await getRtspServerData()
 
-            closeLoading()
             watchEditPortForm.listen()
             watchEditApiServerForm.listen()
             watchEditRtspServerForm.listen()
@@ -174,27 +171,28 @@ export default defineComponent({
 
             openLoading()
 
-            const res1 = await setPortData()
-            const res2 = await setApiServerData()
-            const res3 = await setRtspServerData()
-            const res4 = await setUPnPData()
+            Promise.all([setPortData(), setApiServerData(), setRtspServerData(), setUPnPData()])
+                .then(([res1, res2, res3, res4]) => {
+                    closeLoading()
 
-            closeLoading()
+                    if (res1 && res2 && res3 && res4) {
+                        openMessageBox({
+                            type: 'success',
+                            message: Translate('IDCS_SAVE_DATA_SUCCESS'),
+                        })
+                    } else {
+                        openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
+                    }
 
-            if (res1 && res2 && res3 && res4) {
-                openMessageBox({
-                    type: 'success',
-                    message: Translate('IDCS_SAVE_DATA_SUCCESS'),
+                    watchEditPortForm.update()
+                    watchEditRtspServerForm.update()
+                    watchEditApiServerForm.update()
+
+                    getData()
                 })
-            } else {
-                openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
-            }
-
-            watchEditPortForm.update()
-            watchEditRtspServerForm.update()
-            watchEditApiServerForm.update()
-
-            getData()
+                .catch(() => {
+                    closeLoading()
+                })
         }
 
         /**
