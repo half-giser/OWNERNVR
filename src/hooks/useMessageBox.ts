@@ -87,11 +87,11 @@ export const openMessageBox = (opt: MessageTipBoxOption | string) => {
         beforeClose: optionObj.beforeClose,
     })
         .then((e) => {
-            if (layoutStore.messageBoxCount > 0) layoutStore.messageBoxCount--
+            layoutStore.messageBoxCount--
             return Promise.resolve(e)
         })
         .catch((e) => {
-            if (layoutStore.messageBoxCount > 0) layoutStore.messageBoxCount--
+            layoutStore.messageBoxCount--
             if (option.type === 'question') {
                 return Promise.reject(e)
             } else {
