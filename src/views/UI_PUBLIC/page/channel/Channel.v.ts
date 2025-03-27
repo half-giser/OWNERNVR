@@ -32,14 +32,13 @@ export default defineComponent({
         const txtBrandwidth = ref('')
         const ipNum = ref('')
         const ipNumVisable = ref(false)
-        const editNameMapping = ref<Record<string, string>>({})
         const baseLivePopRef = ref<LivePopInstance>()
         const channelIPCUpgradePopRef = ref<ChannelIPCUpgradeExpose>()
 
         let ipChlMaxCount = 0
         let ipChlMaxCountOriginal = 0
-        let manufacturerMap: Record<string, string> = {}
-        let nameMapping: Record<string, string> = {}
+        const manufacturerMap = ref<Record<string, string>>({})
+        const nameMapping = ref<Record<string, string>>({})
 
         let virtualHostEnabled = false
 
@@ -72,7 +71,6 @@ export default defineComponent({
         // 编辑通道
         const editChannel = (rowData: ChannelInfoDto) => {
             editRowData.value = rowData
-            editNameMapping.value = nameMapping
             channelEditPopVisable.value = true
         }
 
@@ -90,7 +88,6 @@ export default defineComponent({
         const editIPCPwdPopVisiable = ref(false)
 
         const editIPCPwd = () => {
-            editNameMapping.value = nameMapping
             editIPCPwdPopVisiable.value = true
         }
 
@@ -225,16 +222,16 @@ export default defineComponent({
             const $ = queryXml(res)
 
             if ($('status').text() === 'success') {
-                manufacturerMap = Object.fromEntries(
+                manufacturerMap.value = Object.fromEntries(
                     $('types/manufacturer/enum').map((ele) => {
                         return [ele.text(), ele.attr('displayName')]
                     }),
                 )
 
-                nameMapping = {}
+                nameMapping.value = {}
                 tableData.value = $('content/item').map((ele) => {
                     const eleXml = queryXml(ele.element)
-                    nameMapping[ele.attr('id')] = eleXml('name').text()
+                    nameMapping.value[ele.attr('id')] = eleXml('name').text()
                     const channelInfo = new ChannelInfoDto()
                     channelInfo.id = ele.attr('id')
                     channelInfo.chlNum = eleXml('chlNum').text()
@@ -374,10 +371,10 @@ export default defineComponent({
             let value = 0
             const defaultName = Translate('IDCS_IP_CHANNEL')
             const pattern = defaultName + 'd*'
-            for (const key in nameMapping) {
-                const result = nameMapping[key].match(pattern)
+            for (const key in nameMapping.value) {
+                const result = nameMapping.value[key].match(pattern)
                 if (result && result.length) {
-                    const num = Number(nameMapping[key].split(defaultName)[1])
+                    const num = Number(nameMapping.value[key].split(defaultName)[1])
                     value = num > value ? num : value
                 }
             }
@@ -401,7 +398,7 @@ export default defineComponent({
                 : value
                   ? value.indexOf('RTSP') !== -1
                       ? protocolList.value[filters.indexOf(value.slice(5))].displayName
-                      : manufacturerMap[value]
+                      : manufacturerMap.value[value]
                   : ''
         }
 
@@ -454,7 +451,7 @@ export default defineComponent({
             txtBrandwidth,
             ipNum,
             ipNumVisable,
-            editNameMapping,
+            nameMapping,
             confirmEditChannel,
             baseLivePopRef,
             channelIPCUpgradePopRef,

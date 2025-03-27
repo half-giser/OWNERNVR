@@ -200,14 +200,14 @@
             :row-data="editRowData"
             :protocol-list="protocolList"
             :manufacturer-map="manufacturerMap"
-            :name-mapping="editNameMapping"
+            :name-mapping="nameMapping"
             @confirm="confirmEditChannel"
             @close="closeEditChannelPop"
         />
         <ChannelEditIPCPwdPop
             v-model="editIPCPwdPopVisiable"
             :edit-data="tableData"
-            :name-mapping="editNameMapping"
+            :name-mapping="nameMapping"
             @close="closeEditIPCPwdPop"
         />
         <BaseLivePop ref="baseLivePopRef" />

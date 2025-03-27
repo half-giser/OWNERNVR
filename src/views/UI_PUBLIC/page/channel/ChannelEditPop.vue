@@ -7,12 +7,12 @@
     <el-dialog
         :title="Translate('IDCS_CHANGE_IP_CAMERA')"
         width="450"
-        @opened="opened"
+        @open="open"
         @closed="formRef?.resetFields()"
     >
         <el-form
             ref="formRef"
-            :model="editItem"
+            :model="formData"
             :rules="rules"
         >
             <el-form-item
@@ -20,7 +20,7 @@
                 prop="name"
             >
                 <el-input
-                    v-model="editItem.name"
+                    v-model="formData.name"
                     :formatter="formatInputMaxLength"
                     :parser="formatInputMaxLength"
                 />
@@ -31,33 +31,38 @@
             >
                 <BaseIpInput
                     v-if="showIpInput"
-                    v-model="editItem.ip"
+                    v-model="formData.ip"
                     :disabled="ipDisabled"
                 />
                 <el-input
                     v-else
-                    v-model="editItem.ip"
+                    v-model="formData.ip"
                     :placeholder="ipPlaceholder"
                     :disabled="ipDisabled"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_PORT')">
+                <el-input
+                    v-if="portDisabled"
+                    :model-value="formData.port < 10 ? '' : formData.port"
+                    disabled
+                />
                 <BaseNumberInput
-                    v-model="editItem.port"
+                    v-else
+                    v-model="formData.port"
                     :min="10"
                     :max="65535"
-                    :disabled="portDisabled"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_PROTOCOL')">
                 <el-input
-                    v-model="editItem.manufacturer"
+                    v-model="formData.manufacturer"
                     disabled
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_PRODUCT_MODEL')">
                 <el-input
-                    v-model="editItem.productModel.innerText"
+                    v-model="formData.productModel.innerText"
                     disabled
                 />
             </el-form-item>
@@ -66,7 +71,7 @@
                 prop="userName"
             >
                 <el-input
-                    v-model="editItem.userName"
+                    v-model="formData.userName"
                     :disabled="inputDisabled"
                 />
             </el-form-item>
@@ -79,7 +84,7 @@
                     />
                 </template>
                 <BasePasswordInput
-                    v-model="editItem.password"
+                    v-model="formData.password"
                     :disabled="!editPwdSwitch"
                 />
             </el-form-item>
