@@ -409,7 +409,7 @@ export default defineComponent({
             // 在没有报警源时不进行后续处理
             if (!id) return false
 
-            let isShowDetect = false
+            let isShowDetect = true
             if (row.alarmSourceType === 'Sensor') {
                 const sendXml = rawXml`
                     <condition>
@@ -417,9 +417,10 @@ export default defineComponent({
                     </condition>
                 `
                 const result = await queryAlarmIn(sendXml)
-                commLoadResponseHandler(result, ($) => {
+                const $ = queryXml(result)
+                if ($('status').text() === 'success') {
                     isShowDetect = $('content/param/switch').text().bool()
-                })
+                }
                 // 以下几种类型的请求头是一样的
             } else {
                 const sendXml = rawXml`
@@ -438,11 +439,15 @@ export default defineComponent({
                     }
                     const result = await queryIntelAreaConfig(sendXml)
                     const $ = queryXml(result)
-                    // 开关包含区域入侵、区域进入、区域离开
-                    const perimeterSwitch = $('content/chl/perimeter/param/switch').text().bool()
-                    const entrySwitch = $('content/chl/entry/param/switch').text().bool()
-                    const leaveSwitch = $('content/chl/leave/param/switch').text().bool()
-                    isShowDetect = perimeterSwitch || entrySwitch || leaveSwitch
+                    if ($('status').text() === 'success') {
+                        // 开关包含区域入侵、区域进入、区域离开
+                        const perimeterSwitch = $('content/chl/perimeter/param/switch').text().bool()
+                        const entrySwitch = $('content/chl/entry/param/switch').text().bool()
+                        const leaveSwitch = $('content/chl/leave/param/switch').text().bool()
+                        isShowDetect = perimeterSwitch || entrySwitch || leaveSwitch
+                    } else {
+                        isShowDetect = false
+                    }
                 }
                 // 人脸比对
                 else if (row.alarmSourceType === 'FaceMatch') {
@@ -458,9 +463,11 @@ export default defineComponent({
                     })
 
                     if (isVfdChl) {
-                        const result = await queryIntelAreaConfig(sendXml)
+                        const result = await queryVfd(sendXml)
                         const $ = queryXml(result)
-                        isShowDetect = $('content/chl/param/switch').text().bool()
+                        if ($('status').text() === 'success') {
+                            isShowDetect = $('content/chl/param/switch').text().bool()
+                        }
                     } else {
                         const result = await queryBackFaceMatch()
                         const $ = queryXml(result)
@@ -480,15 +487,17 @@ export default defineComponent({
                     }
                     const result = await queryTripwire(sendXml)
                     const $ = queryXml(result)
-
-                    isShowDetect = $('content/chl/param/switch').text().bool()
+                    if ($('status').text() === 'success') {
+                        isShowDetect = $('content/chl/param/switch').text().bool()
+                    }
                 }
                 // 移动侦测
                 else if (row.alarmSourceType === 'Motion') {
                     const result = await queryMotion(sendXml)
                     const $ = queryXml(result)
-
-                    isShowDetect = $('content/chl/param/switch').text().bool()
+                    if ($('status').text() === 'success') {
+                        isShowDetect = $('content/chl/param/switch').text().bool()
+                    }
                 }
             }
 
