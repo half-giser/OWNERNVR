@@ -78,7 +78,7 @@
                 <el-checkbox
                     v-model="apiServerFormData.apiserverSwitch"
                     :disabled="pageData.wirelessSwitch"
-                    :label="Translate('IDCS_API_SERVER')"
+                    :label="Translate('IDCS_ENABLE')"
                     @change="changeApiServerSwitch"
                 />
             </el-form-item>
