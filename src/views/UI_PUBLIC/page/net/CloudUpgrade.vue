@@ -38,7 +38,7 @@
                 v-show="!pageData.isLatest && pageData.isUpdateNotify"
                 label=" "
             >
-                {{ pageData.versionInfo }}
+                <div class="version-info">{{ pageData.versionInfo }}</div>
             </el-form-item>
             <el-form-item
                 v-show="pageData.isDownloading"
@@ -81,6 +81,10 @@
 <style lang="scss" scoped>
 .check-log {
     font-size: 20px;
+}
+
+.version-info {
+    height: 150px;
 }
 
 .latest {
