@@ -1108,11 +1108,11 @@ export const getTranslateForPasswordStrength = (key: keyof typeof DEFAULT_PASSWO
         // case 'weak':
         //     return Translate('IDCS_PASSWORD_STRONG_WEAK').formatForLang(1, 16)
         case 'medium':
-            return Translate('IDCS_PASSWORD_STRONG_MIDDLE').formatForLang(8, 16)
+            return Translate('IDCS_PASSWORD_STRONG_MIDDLE').formatForLang(8, 16).replaceAll('\n', '<br>')
         case 'strong':
-            return Translate('IDCS_PASSWORD_STRONG_HEIGHT').formatForLang(8, 16)
+            return Translate('IDCS_PASSWORD_STRONG_HEIGHT').formatForLang(8, 16).replaceAll('\n', '<br>')
         case 'stronger':
-            return Translate('IDCS_PASSWORD_STRONG_HEIGHEST').formatForLang(9, 16)
+            return Translate('IDCS_PASSWORD_STRONG_HEIGHEST').formatForLang(9, 16).replaceAll('\n', '<br>')
         default:
             return ''
     }

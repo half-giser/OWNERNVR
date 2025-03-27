@@ -60,7 +60,10 @@
                     :options="authGroupOptions"
                 />
             </el-form-item>
-            <div class="notice">{{ noticeMsg }}</div>
+            <div
+                v-clean-html="noticeMsg"
+                class="notice base-rich-text"
+            ></div>
             <div class="base-btn-box">
                 <el-button @click="verify">{{ Translate('IDCS_ADD') }}</el-button>
                 <el-button @click="goBack">{{ Translate('IDCS_CANCEL') }}</el-button>

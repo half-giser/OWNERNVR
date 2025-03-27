@@ -175,7 +175,7 @@ export default defineComponent({
 
         onMounted(async () => {
             await getPasswordSecurityStrength()
-            getNoticeMsg()
+            noticeMsg.value = getNoticeMsg()
         })
 
         return {

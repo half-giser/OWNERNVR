@@ -38,7 +38,12 @@
             >
                 <BasePasswordInput v-model="formData.confirmNewPassword" />
             </el-form-item>
-            <el-form-item>{{ noticeMsg }}</el-form-item>
+            <el-form-item>
+                <span
+                    v-clean-html="noticeMsg"
+                    class="base-rich-text"
+                ></span>
+            </el-form-item>
         </el-form>
         <div class="base-btn-box space-between">
             <div>
