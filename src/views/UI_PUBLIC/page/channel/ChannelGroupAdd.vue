@@ -75,7 +75,7 @@
         </div>
         <div class="base-btn-box space-between">
             <div>
-                {{ Translate('IDCS_SELECT_CHANNEL_COUNT').formatForLang(selNum, chlGroupCountLimit) }}
+                {{ Translate('IDCS_SELECT_CHANNEL_COUNT').formatForLang(selNum, tableData.length) }}
             </div>
             <div>
                 <el-button @click="save()">{{ Translate('IDCS_OK') }}</el-button>
