@@ -153,7 +153,7 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.switchList"
                                         :key="item.value"
-                                        @click="changeAllValue(item.value, 'msgPushSwitch')"
+                                        @click="changeAllValue(item.value, 'msgPush')"
                                     >
                                         {{ Translate(item.label) }}
                                     </el-dropdown-item>
@@ -228,7 +228,7 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.switchList"
                                         :key="item.value"
-                                        @click="changeAllValue(item.value, 'buzzerSwitch')"
+                                        @click="changeAllValue(item.value, 'beeper')"
                                     >
                                         {{ item.label }}
                                     </el-dropdown-item>
@@ -284,7 +284,7 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.switchList"
                                         :key="item.value"
-                                        @click="changeAllValue(item.value, 'popMsgSwitch')"
+                                        @click="changeAllValue(item.value, 'msgBoxPopup')"
                                     >
                                         {{ item.label }}
                                     </el-dropdown-item>
@@ -310,7 +310,7 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.switchList"
                                         :key="item.value"
-                                        @click="changeAllValue(item.value, 'emailSwitch')"
+                                        @click="changeAllValue(item.value, 'email')"
                                     >
                                         {{ item.label }}
                                     </el-dropdown-item>

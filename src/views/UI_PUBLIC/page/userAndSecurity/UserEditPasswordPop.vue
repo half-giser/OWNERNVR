@@ -33,9 +33,12 @@
                     maxlength="16"
                 />
             </el-form-item>
-            <div>
-                {{ noticeMsg }}
-            </div>
+            <el-form-item>
+                <span
+                    v-clean-html="noticeMsg"
+                    class="base-rich-text"
+                ></span>
+            </el-form-item>
         </el-form>
         <div class="base-btn-box">
             <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>

@@ -18,6 +18,9 @@ const BASE_CONFIG: AxiosRequestConfig = {
 export const xmlHeader = '<?xml version="1.0" encoding="UTF-8" ?>'
 export type ApiResult = Element | XMLDocument
 
+// 公共错误弹窗是否已打开
+let isErrorMessageBox = false
+
 /**
  * @description 添加xml外层公共包装
  * @param {string} data
@@ -68,9 +71,11 @@ const handleUserErrorRedirectToLogin = (message: string) => {
     if (!layoutStore.isInitial) {
         Logout()
     } else {
-        if (!layoutStore.messageBoxCount) {
-            openMessageBox(message).finally(() => {
+        if (!isErrorMessageBox) {
+            isErrorMessageBox = true
+            openMessageBox(message).then(() => {
                 Logout()
+                isErrorMessageBox = false
             })
         }
     }

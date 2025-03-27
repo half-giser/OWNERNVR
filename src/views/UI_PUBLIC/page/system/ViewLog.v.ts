@@ -403,7 +403,7 @@ export default defineComponent({
                     const clientType = $item('clientType').text()
                     const logType = $item('logType').text()
                     return {
-                        index: formData.value.pageSize * formData.value.currentPage + (index + 1),
+                        index: formData.value.pageSize * (formData.value.currentPage - 1) + (index + 1),
                         logType,
                         clientType,
                         time: utcToLocal($item('time').text(), dateTime.dateTimeFormat),

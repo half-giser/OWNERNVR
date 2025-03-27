@@ -40,7 +40,7 @@ export default defineComponent({
         const ipTitle = ref('')
         const showIpInput = ref(true)
         const ipPlaceholder = ref('')
-        const editItem = ref(new ChannelInfoDto())
+        const formData = ref(new ChannelInfoDto())
         const editPwdSwitch = ref(false)
         const isAnolog = ref(false)
         const inputDisabled = ref(false)
@@ -63,22 +63,20 @@ export default defineComponent({
                 closeLoading()
                 const $ = queryXml(res)
                 if ($('status').text() === 'success') {
-                    editItem.value = new ChannelInfoDto()
-                    editItem.value.name = $('content/name').text()
-                    editItem.value.port = $('content/port').text().num()
-                    // editItem.value.manufacturer = $('content/manufacturer').text()
+                    formData.value.name = $('content/name').text()
+                    formData.value.port = $('content/port').text().num()
                     const filterPropertyList = props.protocolList.map((item) => item.index)
                     const factoryName = $('content/productModel').attr('factoryName')
                     const manufacturer = $('content/manufacturer').text()
                     if (factoryName) {
-                        editItem.value.manufacturer = factoryName
+                        formData.value.manufacturer = factoryName
                     } else if (manufacturer.indexOf('RTSP') !== -1) {
-                        editItem.value.manufacturer = props.protocolList[filterPropertyList.indexOf(manufacturer.slice(5))].displayName
+                        formData.value.manufacturer = props.protocolList[filterPropertyList.indexOf(manufacturer.slice(5))].displayName
                     } else {
-                        editItem.value.manufacturer = props.manufacturerMap[manufacturer]
+                        formData.value.manufacturer = props.manufacturerMap[manufacturer]
                     }
-                    editItem.value.productModel.innerText = $('content/productModel').text()
-                    editItem.value.userName = $('content/userName').text()
+                    formData.value.productModel.innerText = $('content/productModel').text()
+                    formData.value.userName = $('content/userName').text()
 
                     if (!$('content/ip').text()) {
                         isAnolog.value = true
@@ -93,7 +91,7 @@ export default defineComponent({
 
                         if ($('content/protocolType').text() === 'RTSP') {
                             portDisabled.value = true
-                            editItem.value.port = 0
+                            formData.value.port = 0
                         }
 
                         if (isIp) {
@@ -108,7 +106,7 @@ export default defineComponent({
                             ipPlaceholder.value = Translate('IDCS_DOMAIN_TIP')
                             showIpInput.value = false
                         }
-                        editItem.value.ip = ipdomain
+                        formData.value.ip = ipdomain
 
                         if ($('content/addType').text() === 'poe') {
                             ipDisabled.value = true
@@ -230,13 +228,13 @@ export default defineComponent({
                     const sendXml = rawXml`
                         <content>
                             <id>${props.rowData.id}</id>
-                            <manufacturer type="manufacturer">${editItem.value.manufacturer}</manufacturer>
-                            <name>${wrapCDATA(editItem.value.name.trim())}</name>
-                            ${!isAnolog.value && !portDisabled.value ? `<ip>${isIp || isIpv6 ? editItem.value.ip : ''}</ip>` : ''}
-                            ${!isAnolog.value && !portDisabled.value && isDomain ? `<domain>${wrapCDATA(editItem.value.ip)}</domain>` : ''}
-                            ${!isAnolog.value && !portDisabled.value ? `<port>${editItem.value.port}</port>` : ''}
-                            ${!isAnolog.value && editPwdSwitch.value ? `<password ${getSecurityVer()}>${wrapCDATA(AES_encrypt(editItem.value.password, userSessionStore.sesionKey))}</password>` : ''}
-                            ${!isAnolog.value ? `<userName>${editItem.value.userName}</userName>` : ''}
+                            <manufacturer type="manufacturer">${formData.value.manufacturer}</manufacturer>
+                            <name>${wrapCDATA(formData.value.name.trim())}</name>
+                            ${!isAnolog.value && !portDisabled.value ? `<ip>${isIp || isIpv6 ? formData.value.ip : ''}</ip>` : ''}
+                            ${!isAnolog.value && !portDisabled.value && isDomain ? `<domain>${wrapCDATA(formData.value.ip)}</domain>` : ''}
+                            ${!isAnolog.value && !portDisabled.value ? `<port>${formData.value.port}</port>` : ''}
+                            ${!isAnolog.value && editPwdSwitch.value ? `<password ${getSecurityVer()}>${wrapCDATA(AES_encrypt(formData.value.password, userSessionStore.sesionKey))}</password>` : ''}
+                            ${!isAnolog.value ? `<userName>${formData.value.userName}</userName>` : ''}
                         </content>
                     `
                     editDev(sendXml).then((res) => {
@@ -246,10 +244,10 @@ export default defineComponent({
                                 type: 'success',
                                 message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                             }).then(() => {
-                                if (editItem.value.ip === DEFAULT_EMPTY_IP) {
-                                    editItem.value.ip = ''
+                                if (formData.value.ip === DEFAULT_EMPTY_IP) {
+                                    formData.value.ip = ''
                                 }
-                                emit('confirm', editItem.value)
+                                emit('confirm', formData.value)
                                 emit('close', true)
                             })
                         } else {
@@ -284,7 +282,7 @@ export default defineComponent({
             return Object.entries(props.nameMapping).some((item) => item[0] !== currId && item[1] === name)
         }
 
-        const opened = () => {
+        const open = () => {
             ipTitle.value = 'IPV4'
             showIpInput.value = true
             ipPlaceholder.value = ''
@@ -304,11 +302,11 @@ export default defineComponent({
             showIpInput,
             ipPlaceholder,
             editPwdSwitch,
-            editItem,
+            formData,
             inputDisabled,
             ipDisabled,
             portDisabled,
-            opened,
+            open,
             save,
         }
     },

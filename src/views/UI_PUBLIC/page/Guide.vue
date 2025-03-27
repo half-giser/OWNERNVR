@@ -187,7 +187,10 @@
                             />
                         </el-form-item>
                         <el-form-item>
-                            <el-text>{{ pageData.passwordNoticeMsg }}</el-text>
+                            <span
+                                v-clean-html="pageData.passwordNoticeMsg"
+                                class="base-rich-text"
+                            ></span>
                         </el-form-item>
                     </el-form>
                 </div>

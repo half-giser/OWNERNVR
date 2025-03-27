@@ -8,6 +8,7 @@
         :title="Translate('IDCS_EXPIRE_TIME_SET')"
         width="600"
         @open="open"
+        @opened="opened"
         @close="close"
     >
         <el-form
@@ -18,9 +19,12 @@
         >
             <el-form-item :label="Translate('IDCS_EXPIRE_TIME')">
                 <BaseNumberInput
+                    ref="inputRef"
                     v-model="pageData.expireTime"
                     :min="1"
                     :max="8760"
+                    :value-on-clear="null"
+                    @blur="blurExpireTime"
                 />
                 <span>{{ Translate('IDCS_HOUR_ALL') }}</span>
             </el-form-item>

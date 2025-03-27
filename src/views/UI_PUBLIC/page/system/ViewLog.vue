@@ -61,11 +61,8 @@
                 <el-table-column
                     :label="Translate('IDCS_SERIAL_NUMBER')"
                     width="70"
-                >
-                    <template #default="{ $index }: TableColumn<SystemLogList>">
-                        {{ (formData.currentPage - 1) * formData.pageSize + $index + 1 }}
-                    </template>
-                </el-table-column>
+                    prop="index"
+                />
                 <el-table-column
                     :label="Translate('IDCS_MAIN_TYPE')"
                     prop="mainType"
