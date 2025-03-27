@@ -19,7 +19,7 @@
             </el-form-item>
             <el-form-item>
                 <el-form-item :label="Translate('IDCS_ONLINE_UPGRADE_CURRENT_VER')">
-                    {{ pageData.currentVersion }}
+                    <span class="text-ellipsis">{{ pageData.currentVersion }}</span>
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_ONLINE_UPGRADE_RELEASE_DATE')">
                     {{ pageData.launchDate }}
@@ -29,16 +29,22 @@
                 <span class="check-log">{{ pageData.checkLog }}</span>
             </el-form-item>
             <el-form-item
-                v-show="!pageData.isLatest && !pageData.isUpdateNotify"
+                v-show="!pageData.isLatest && pageData.isUpdateNotify"
                 :label="Translate('IDCS_UPGRADE_NEW_VER')"
             >
                 {{ pageData.latestVersion }}
             </el-form-item>
             <el-form-item
-                v-show="!pageData.isLatest && !pageData.isUpdateNotify"
+                v-show="!pageData.isLatest && pageData.isUpdateNotify"
                 label=" "
             >
                 {{ pageData.versionInfo }}
+            </el-form-item>
+            <el-form-item
+                v-show="pageData.isDownloading"
+                :label="Translate('IDCS_UPGRADE_DOWN_RATE')"
+            >
+                {{ pageData.downloadProgress }}
             </el-form-item>
             <el-form-item v-show="pageData.isUpdateNotify">
                 <div class="latest text-error">

@@ -174,17 +174,13 @@ export default defineComponent({
                 if ($('status').text() === 'success') {
                     const $content = queryXml($('content')[0].element)
                     const state = $content('state').text()
-                    const downloadLen = $content('downloadLen').text().num()
-                    const fileLen = $content('fileLen').text().num()
-                    const progress = fileLen ? Math.round((downloadLen / fileLen) * 100) : 0
-                    const isRuningTask = $content('runCloudTask').text()
                     const errorCode = $content('errorCode').text().num()
-                    // state 为installing 并且 errorCode 为 0  表明当前升级成功
+                    // state 为installing 并且 errorCode 为 0 表明当前升级成功
                     if (state === 'installing' && errorCode === 0) {
                         pageData.value.firstReq = true
                     }
                     // NT-9558 有进度显示进度,由于设备升级失败时会立即清掉状态 此时web不一定取得到downloadFail和installFail
-                    else if (!pageData.value.firstReq && !isRuningTask && errorCode !== 0) {
+                    else if (!pageData.value.firstReq && !$content('runCloudTask').text().bool() && errorCode !== 0) {
                         openMessageBox(Translate('IDCS_CLOUD_UPGRADE_FAIL')).finally(() => getData())
                         checkDownloadTimer.stop()
                         cloudCfgTimer.repeat()
@@ -193,7 +189,10 @@ export default defineComponent({
                         pageData.value.firstReq = false
                     }
 
+                    const downloadLen = $content('downloadLen').text().num()
+                    const fileLen = $content('fileLen').text().num()
                     if (downloadLen && fileLen) {
+                        const progress = fileLen ? Math.round((downloadLen / fileLen) * 100) : 0
                         pageData.value.downloadProgress = progress + '%'
                     } else {
                         checkDownloadTimer.stop()
