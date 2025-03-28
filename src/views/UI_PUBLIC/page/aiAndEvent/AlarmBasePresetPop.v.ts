@@ -168,7 +168,7 @@ export default defineComponent({
          * @description 打开弹窗时 更新弹窗回显的数据
          */
         const open = () => {
-            pageData.value.currentValue = prop.data[prop.index].preset.presets
+            pageData.value.currentValue = cloneDeep(prop.data[prop.index].preset.presets)
         }
 
         /**

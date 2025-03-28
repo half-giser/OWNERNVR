@@ -9,6 +9,7 @@
         width="400"
         hight="450"
         @open="open"
+        @close="close"
     >
         <el-table
             height="350"
