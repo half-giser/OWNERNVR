@@ -26,6 +26,13 @@ export default defineComponent({
             type: Boolean,
             default: false,
         },
+        /**
+         * @property {boolean} 选项是否排除当前通道
+         */
+        exclude: {
+            type: Boolean,
+            default: false,
+        },
     },
     emits: {
         confirm(index: number, data: SelectOption<string, string>[]) {
@@ -33,10 +40,23 @@ export default defineComponent({
         },
     },
     setup(prop, ctx) {
+        type AlarmOutList = SelectOption<string, string> & {
+            device: SelectOption<string, string>
+        }
+
         const pageData = ref({
-            alarmOutList: [] as SelectOption<string, string>[],
+            alarmOutList: [] as AlarmOutList[],
             isDropdown: false,
             isPop: false,
+        })
+
+        const chlSourceList = computed(() => {
+            const chlId = prop.data[prop.index]?.id || ''
+            if (prop.exclude) {
+                return pageData.value.alarmOutList.filter((item) => item.device.value !== chlId)
+            } else {
+                return pageData.value.alarmOutList
+            }
         })
 
         const chlLinkList = computed(() => {
@@ -46,11 +66,11 @@ export default defineComponent({
 
         /**
          * @description 确认修改所有通道
-         * @param {SelectOption<string, string>[]} event
+         * @param {AlarmOutList[]} event
          */
-        const confirmAll = (event: SelectOption<string, string>[]) => {
-            prop.data.forEach((_item, index) => {
-                ctx.emit('confirm', index, event)
+        const confirmAll = (event: AlarmOutList[]) => {
+            prop.data.forEach((item, index) => {
+                ctx.emit('confirm', index, prop.exclude ? event.filter((chl) => chl.device.value !== item.id) : event)
             })
             pageData.value.isDropdown = false
         }
@@ -98,6 +118,7 @@ export default defineComponent({
         return {
             pageData,
             chlLinkList,
+            chlSourceList,
             confirmAll,
             closeAll,
             confirm,
