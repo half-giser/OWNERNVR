@@ -1536,7 +1536,7 @@ export type PluginType = ReturnType<typeof getSingletonPlugin>
  * @description 确保plugin对象是个单例
  * @returns
  */
-export const usePlugin = (data?: PluginHookOptions) => {
+export const usePlugin = (data?: PluginHookOptions): PluginType => {
     if (!window.__RUNTIME_OCX_PLUGIN__) {
         window.__RUNTIME_OCX_PLUGIN__ = getSingletonPlugin()
     }

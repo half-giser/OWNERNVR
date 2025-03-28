@@ -238,15 +238,8 @@ export default defineComponent({
                     message: Translate('IDCS_QUESTION_JUMP_DISK_MANAGEMENT'),
                 }).then(() => {
                     if (userSession.hasAuth('diskMgr')) {
-                        if (systemCaps.supportRaid) {
-                            queryDiskMode().then((result) => {
-                                const isUseRaid = queryXml(result)('content/diskMode/isUseRaid').text().bool()
-                                const routeUrl = isUseRaid ? '/config/disk/diskArray' : '/config/disk/management'
-                                router.push(routeUrl)
-                            })
-                        } else {
-                            router.push('/config/disk/management')
-                        }
+                        const routeUrl = systemCaps.supportRaid && systemCaps.isUseRaid ? '/config/disk/diskArray' : '/config/disk/management'
+                        router.push(routeUrl)
                     } else {
                         openMessageBox(Translate('IDCS_NO_PERMISSION'))
                     }

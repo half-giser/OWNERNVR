@@ -158,6 +158,22 @@ export const useCababilityStore = defineStore(
             return queryXml(result)
         }
 
+        const updateDiskMode = async () => {
+            const result = await queryDiskMode()
+            const $ = queryXml(result)
+            isUseRaid.value = $('content/diskMode/isUseRaid').text().bool()
+            return $
+        }
+
+        const updateBaseConfig = async () => {
+            const result = await queryBasicCfg()
+            const $ = queryXml(result)
+            CustomerID.value = Number($('content/CustomerID').text())
+            AISwitch.value = $('content/AISwitch').text().undef()?.bool()
+            productModel.value = $('content/productModel').text()
+            return $
+        }
+
         return {
             IntelAndFaceConfigHide,
             supportFaceMatch,
@@ -225,6 +241,8 @@ export const useCababilityStore = defineStore(
             mainStreamLimitFps,
             supportRecorder,
             decoderOutputMaxWin,
+            updateBaseConfig,
+            updateDiskMode,
         }
     },
     {
