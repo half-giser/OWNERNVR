@@ -175,6 +175,7 @@
                             <BasePasswordInput
                                 v-model="userFormData.password"
                                 maxlength="16"
+                                show-password
                             />
                         </el-form-item>
                         <el-form-item>
@@ -184,6 +185,7 @@
                             <BasePasswordInput
                                 v-model="userFormData.confirmPassword"
                                 maxlength="16"
+                                show-password
                             />
                         </el-form-item>
                         <el-form-item>
