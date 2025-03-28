@@ -672,6 +672,8 @@ export default defineComponent({
          * @description 获取磁盘信息
          */
         const getDiskData = async () => {
+            diskTableData.value = []
+
             openLoading()
 
             // 磁盘名字与显示文本的映射
