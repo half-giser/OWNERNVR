@@ -25,7 +25,6 @@ export class AlarmOutDto extends TableRowStatus {
  */
 export class AlarmEmailReceiverDto {
     address = ''
-    addressShow = ''
     schedule = ''
 }
 
