@@ -165,11 +165,23 @@ export const checkIllegalChar = (str: string) => {
  * @return {number}
  */
 export const getPwdSaftyStrength = (value: string) => {
-    const reg1 = /([a-z])+/
-    const reg2 = /([A-Z])+/
-    const reg3 = /([0-9])+/
-    const reg4 = /([|!@#$%^&*(){}\|:"<>?~_\\'./\-\s\[\];,=+])+/
+    const reg = /^(.){8,}$/
+    // const reg0 = /^(.){0}$/
+    const reg1 = /([a-z]){1,}/
+    const reg2 = /([A-Z]){1,}/
+    const reg3 = /([0-9]){1,}/
+    const reg4 = /([|!@#$%^&*(){}\|:"<>?~_\\'./\-\s\[\];,=+]){1,}/
+    const reg5 = /^(.){9,}$/
+
     let sum = 0
+
+    if (!value) {
+        return 0
+    }
+
+    if (!reg.test(value)) {
+        return 1
+    }
 
     if (reg1.test(value)) {
         sum += 1
@@ -185,6 +197,11 @@ export const getPwdSaftyStrength = (value: string) => {
 
     if (reg4.test(value)) {
         sum += 1
+    }
+
+    // 没有满足9位数，无法为超强，降一级
+    if (!reg5.test(value) && sum === 4) {
+        sum -= 1
     }
 
     return sum
