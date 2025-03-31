@@ -61,6 +61,10 @@ const prop = withDefaults(
          * @property 是否禁用, 优先级比active高
          */
         disabled?: boolean
+        /**
+         * @property 点击事件是否阻止冒泡
+         */
+        stopPropagation?: boolean
     }>(),
     {
         chunk: 1,
@@ -70,6 +74,7 @@ const prop = withDefaults(
         activeIndex: -1,
         disabledIndex: -1,
         disabled: false,
+        stopPropagation: true,
     },
 )
 
@@ -141,7 +146,7 @@ const height = computed(() => {
 })
 
 const click = (e: Event) => {
-    if (instance?.vnode?.props?.onClick) {
+    if (instance?.vnode?.props?.onClick && prop.stopPropagation) {
         e.stopPropagation()
     }
 

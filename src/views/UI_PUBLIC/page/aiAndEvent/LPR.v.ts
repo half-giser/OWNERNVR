@@ -980,10 +980,10 @@ export default defineComponent({
                                     .map((item) => {
                                         return rawXml`
                                             <item>
-                                                <X1>${item.X1}</X1>
-                                                <Y1>${item.Y1}</Y1>
-                                                <X2>${item.X2}</X2>
-                                                <Y2>${item.Y2}</Y2>
+                                                <X1>${Math.floor(item.X1)}</X1>
+                                                <Y1>${Math.floor(item.Y1)}</Y1>
+                                                <X2>${Math.floor(item.X2)}</X2>
+                                                <Y2>${Math.floor(item.Y2)}</Y2>
                                             </item>
                                         `
                                     })
@@ -1006,8 +1006,8 @@ export default defineComponent({
                                                         .map((ele) => {
                                                             return rawXml`
                                                             <item>
-                                                                <X>${ele.X}</X>
-                                                                <Y>${ele.Y}</Y>
+                                                                <X>${Math.floor(ele.X)}</X>
+                                                                <Y>${Math.floor(ele.Y)}</Y>
                                                             </item>
                                                         `
                                                         })

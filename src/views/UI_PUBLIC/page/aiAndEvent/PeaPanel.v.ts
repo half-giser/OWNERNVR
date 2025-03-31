@@ -448,8 +448,8 @@ export default defineComponent({
                                                                         .map((point) => {
                                                                             return rawXml`
                                                                                 <item>
-                                                                                    <X>${Math.round(point.X)}</X>
-                                                                                    <Y>${Math.round(point.Y)}</Y>
+                                                                                    <X>${Math.floor(point.X)}</X>
+                                                                                    <Y>${Math.floor(point.Y)}</Y>
                                                                                 </item>
                                                                             `
                                                                         })

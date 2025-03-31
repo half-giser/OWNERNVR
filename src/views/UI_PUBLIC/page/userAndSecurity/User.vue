@@ -137,6 +137,7 @@
                         <BaseImgSpriteBtn
                             v-show="row.edit"
                             file="edit2"
+                            :stop-propagation="false"
                             @click="openEditUserPop(row)"
                         />
                     </template>
@@ -146,6 +147,7 @@
                         <BaseImgSpriteBtn
                             v-show="row.del"
                             file="del"
+                            :stop-propagation="false"
                             @click="deleteUser(row)"
                         />
                     </template>
