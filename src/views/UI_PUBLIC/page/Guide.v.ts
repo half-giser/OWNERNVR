@@ -637,6 +637,7 @@ export default defineComponent({
                 const sameQuestion = qaTableData.value.some((item) => item.question === qaFormData.value.question.trim())
                 if (sameQuestion) {
                     openMessageBox(Translate('IDCS_PROMPT_QUESTION_IS_EXIST'))
+                    return
                 }
 
                 qaTableData.value.push({
@@ -672,6 +673,8 @@ export default defineComponent({
          * @description 获取磁盘信息
          */
         const getDiskData = async () => {
+            diskTableData.value = []
+
             openLoading()
 
             // 磁盘名字与显示文本的映射

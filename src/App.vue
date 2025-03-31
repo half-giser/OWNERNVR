@@ -33,6 +33,7 @@ const langStore = useLangStore()
 const session = useUserSessionStore()
 const dateTime = useDateTimeStore()
 const plugin = usePlugin()
+const systemCaps = useCababilityStore()
 
 /**
  * @description 如果未激活，跳转开机向导，否则，根据登录状态，跳转登录或现场预览
@@ -49,8 +50,11 @@ const hanedleActivationStatus = async (checkActivationStatus: boolean) => {
                 router.replace('/login')
                 return
             } else {
-                generateAsyncRoutes()
                 await dateTime.getTimeConfig(false)
+                await systemCaps.updateCabability()
+                await systemCaps.updateDiskMode()
+                await systemCaps.updateBaseConfig()
+                generateAsyncRoutes()
                 if (route.name === 'login') {
                     router.replace('/live')
                 } else {

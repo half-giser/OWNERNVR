@@ -31,8 +31,6 @@ export default defineComponent({
             // 更改密码弹窗状态
             isPasswordDialogVisible: false,
             mustBeModifiedPassword: false,
-            // passwordDialogTitle: 'IDCS_CHANGE_PWD',
-            passwordStrength: 'weak' as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING,
             // 是否显示插件下载
             isPluginDownloadBtn: false,
             // 插件下载URL
@@ -113,7 +111,6 @@ export default defineComponent({
                     strength = 'strong'
                 }
             }
-            pageData.value.passwordStrength = strength
             return strength
         }
 
@@ -238,15 +235,8 @@ export default defineComponent({
                     message: Translate('IDCS_QUESTION_JUMP_DISK_MANAGEMENT'),
                 }).then(() => {
                     if (userSession.hasAuth('diskMgr')) {
-                        if (systemCaps.supportRaid) {
-                            queryDiskMode().then((result) => {
-                                const isUseRaid = queryXml(result)('content/diskMode/isUseRaid').text().bool()
-                                const routeUrl = isUseRaid ? '/config/disk/diskArray' : '/config/disk/management'
-                                router.push(routeUrl)
-                            })
-                        } else {
-                            router.push('/config/disk/management')
-                        }
+                        const routeUrl = systemCaps.supportRaid && systemCaps.isUseRaid ? '/config/disk/diskArray' : '/config/disk/management'
+                        router.push(routeUrl)
                     } else {
                         openMessageBox(Translate('IDCS_NO_PERMISSION'))
                     }

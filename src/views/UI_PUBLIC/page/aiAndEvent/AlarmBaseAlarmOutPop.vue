@@ -31,7 +31,7 @@
             header-title="IDCS_TRIGGER_ALARM_OUT"
             source-title="IDCS_ALARM_OUT"
             target-title="IDCS_TRIGGER_ALARM_OUT"
-            :source-data="pageData.alarmOutList"
+            :source-data="chlSourceList"
             :linked-list="chlLinkList"
             limit-tip="IDCS_ALARMOUT_LIMIT"
             append-to-body

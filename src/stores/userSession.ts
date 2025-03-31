@@ -181,20 +181,11 @@ export const useUserSessionStore = defineStore(
             await cababilityStore.updateCabability()
 
             // 从设备基本信息获取名称
-            await queryBasicCfg().then((result) => {
-                const $ = queryXml(result)
-                csvDeviceName.value = $('content/name').text()
-                const CustomerID = $('content/CustomerID').text()
-                cababilityStore.CustomerID = Number(CustomerID)
-                cababilityStore.AISwitch = $('content/AISwitch').text().undef()?.bool()
-                cababilityStore.productModel = $('content/productModel').text()
-            })
+            const $basic = await cababilityStore.updateBaseConfig()
+            csvDeviceName.value = $basic('content/name').text()
 
             // 从磁盘信息获取Raid
-            await queryDiskMode().then((result) => {
-                const $ = queryXml(result)
-                cababilityStore.isUseRaid = $('content/diskMode/isUseRaid').text().bool()
-            })
+            await cababilityStore.updateDiskMode()
 
             await dateTime.getTimeConfig(true)
 

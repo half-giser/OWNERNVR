@@ -14,13 +14,6 @@ export default defineComponent({
             type: Boolean,
             default: false,
         },
-        /**
-         * @property 密码强度要求
-         */
-        passwordStrength: {
-            type: String,
-            required: true,
-        },
     },
     emits: {
         close() {
@@ -35,6 +28,7 @@ export default defineComponent({
         const passwordErrorMessage = ref('')
         const strength = computed(() => getPwdSaftyStrength(formData.value.newPassword))
         const userSession = useUserSessionStore()
+        const systemCaps = useCababilityStore()
 
         const rules = ref<FormRules>({
             currentPassword: [
@@ -63,7 +57,7 @@ export default defineComponent({
                             return
                         }
 
-                        if (strength.value < DEFAULT_PASSWORD_STREMGTH_MAPPING[prop.passwordStrength as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING]) {
+                        if (strength.value < DEFAULT_PASSWORD_STREMGTH_MAPPING[passwordStrength.value]) {
                             callback(new Error(Translate('IDCS_PWD_STRONG_ERROR')))
                             return
                         }
@@ -93,11 +87,14 @@ export default defineComponent({
             ],
         })
 
+        // 要求的密码强度
+        const passwordStrength = ref<keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING>('weak')
+
         /**
          * @description 获取密码强度提示文本
          */
         const noticeMsg = computed(() => {
-            return getTranslateForPasswordStrength(prop.passwordStrength)
+            return getTranslateForPasswordStrength(passwordStrength.value)
         })
 
         /**
@@ -194,6 +191,27 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 获取要求的密码强度
+         */
+        const getPasswordSecurityStrength = async () => {
+            let strength: keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING = 'weak'
+            const result = await queryPasswordSecurity()
+            const $ = queryXml(result)
+            if ($('status').text() === 'success') {
+                strength = ($('content/pwdSecureSetting/pwdSecLevel').text() as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING & null) ?? 'weak'
+                if (!systemCaps.supportPwdSecurityConfig) {
+                    strength = 'strong'
+                }
+            }
+            passwordStrength.value = strength
+            return strength
+        }
+
+        const open = () => {
+            getPasswordSecurityStrength()
+        }
+
         return {
             formRef,
             formData,
@@ -205,6 +223,7 @@ export default defineComponent({
             errorMessage,
             changePassword,
             handleBeforeClose,
+            open,
         }
     },
 })

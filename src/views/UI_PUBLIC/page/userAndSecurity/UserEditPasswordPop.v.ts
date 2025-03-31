@@ -36,7 +36,6 @@ export default defineComponent({
         const userSession = useUserSessionStore()
         const systemCaps = useCababilityStore()
 
-        const noticeMsg = ref('')
         const formRef = useFormRef()
         const formData = ref(new UserEditPasswordForm())
         // 要求的密码强度
@@ -93,7 +92,7 @@ export default defineComponent({
             const $ = queryXml(result)
             if ($('status').text() === 'success') {
                 strength = ($('content/pwdSecureSetting/pwdSecLevel').text() as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING & null) ?? 'weak'
-                if (systemCaps.supportPwdSecurityConfig) {
+                if (!systemCaps.supportPwdSecurityConfig) {
                     strength = 'strong'
                 }
             }
@@ -104,9 +103,9 @@ export default defineComponent({
         /**
          * @description 显示左下方的提示信息
          */
-        const getNoticeMsg = () => {
+        const noticeMsg = computed(() => {
             return getTranslateForPasswordStrength(passwordStrength.value)
-        }
+        })
 
         /**
          * @description 表单验证
@@ -173,16 +172,16 @@ export default defineComponent({
             ctx.emit('close')
         }
 
-        onMounted(async () => {
-            await getPasswordSecurityStrength()
-            noticeMsg.value = getNoticeMsg()
-        })
+        const open = () => {
+            getPasswordSecurityStrength()
+        }
 
         return {
             formRef,
             formData,
             noticeMsg,
             strength,
+            open,
             close,
             rules,
             verify,

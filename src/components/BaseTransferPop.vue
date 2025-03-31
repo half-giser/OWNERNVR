@@ -23,7 +23,7 @@
     </div>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" generic="T extends SelectOption<string, string>" setup>
 const props = withDefaults(
     defineProps<{
         /**
@@ -41,7 +41,7 @@ const props = withDefaults(
         /**
          * @property {string} ELTransfer 的 props.data
          */
-        sourceData: { label: string; value: string; disabled?: boolean }[]
+        sourceData: T[]
         /**
          * @property {string[]} ELTransfer 的 props.modelValue
          */
@@ -65,7 +65,7 @@ const props = withDefaults(
 )
 
 const emits = defineEmits<{
-    (e: 'confirm', data: SelectOption<string, string>[]): void
+    (e: 'confirm', data: T[]): void
     (e: 'close'): void
 }>()
 

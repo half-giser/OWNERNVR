@@ -31,7 +31,7 @@ export default defineComponent({
                             return
                         }
 
-                        if (checkExist(value)) {
+                        if (tableData.value.some((item) => item.address.toLowerCase() === value.toLowerCase())) {
                             callback(new Error(Translate('IDCS_PROMPT_EMAIL_EXIST')))
                             return
                         }
@@ -68,11 +68,6 @@ export default defineComponent({
             currentRow: new AlarmEmailReceiverDto(),
         })
 
-        const checkExist = (address: string) => {
-            const result = tableData.value.some((item) => item.address === address)
-            return result
-        }
-
         const getIconStatus = () => {
             if (pageData.value.senderShow) {
                 return 0
@@ -105,25 +100,18 @@ export default defineComponent({
 
         const getData = async () => {
             openLoading()
-            await getScheduleList()
             queryEmailCfg().then((result) => {
                 closeLoading()
+                const scheduleIds = pageData.value.scheduleList.map((item) => item.value)
                 const $ = queryXml(result)
                 if ($('status').text() === 'success') {
                     pageData.value.sender = $('content/sender/address').text()
-                    $('content/receiver/item').forEach((ele) => {
-                        const eleXml = queryXml(ele.element)
-                        const emailReceiver = new AlarmEmailReceiverDto()
-                        if (!eleXml('schedule').attr('id')) {
-                            emailReceiver.address = eleXml('address').text()
-                            emailReceiver.schedule = ''
-                            emailReceiver.addressShow = hideEmailAddress(emailReceiver.address)
-                            tableData.value.push(emailReceiver)
-                        } else {
-                            emailReceiver.address = eleXml('address').text()
-                            emailReceiver.schedule = eleXml('schedule').attr('id')
-                            emailReceiver.addressShow = hideEmailAddress(emailReceiver.address)
-                            tableData.value.push(emailReceiver)
+                    tableData.value = $('content/receiver/item').map((item) => {
+                        const $item = queryXml(item.element)
+                        const scheduleId = $item('schedule').attr('id')
+                        return {
+                            address: $item('address').text(),
+                            schedule: !scheduleId || !scheduleIds.includes(scheduleId) ? DEFAULT_EMPTY_ID : scheduleId,
                         }
                     })
                 }
@@ -168,7 +156,6 @@ export default defineComponent({
                     const emailReceiver = new AlarmEmailReceiverDto()
                     emailReceiver.address = pageData.value.form.recipient
                     emailReceiver.schedule = pageData.value.schedule
-                    emailReceiver.addressShow = hideEmailAddress(emailReceiver.address)
                     tableData.value.push(emailReceiver)
                     pageData.value.form.recipient = ''
                 }
@@ -210,12 +197,19 @@ export default defineComponent({
             })
         }
 
-        const closeSchedulePop = () => {
+        const closeSchedulePop = async () => {
             pageData.value.isSchedulePop = false
-            getScheduleList()
+            await getScheduleList()
+            const scheduleIds = pageData.value.scheduleList.map((item) => item.value)
+            tableData.value.forEach((item) => {
+                if (!scheduleIds.includes(item.schedule)) {
+                    item.schedule = DEFAULT_EMPTY_ID
+                }
+            })
         }
 
         onMounted(async () => {
+            await getScheduleList()
             getData()
         })
 

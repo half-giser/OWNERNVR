@@ -22,12 +22,12 @@
                 <!-- 通道名 -->
                 <el-table-column
                     :label="Translate('IDCS_NAME')"
-                    width="205"
+                    min-width="205"
                     show-overflow-tooltip
                     prop="name"
                 />
                 <!-- 抓图   -->
-                <el-table-column width="195">
+                <el-table-column min-width="150">
                     <template #header>
                         <AlarmBaseSnapPop
                             :visible="pageData.isSnapPop"
@@ -56,7 +56,7 @@
                 <!-- 音频   -->
                 <el-table-column
                     v-if="pageData.supportAudio"
-                    width="145"
+                    width="150"
                 >
                     <template #header>
                         <el-dropdown>
@@ -85,7 +85,7 @@
                     </template>
                 </el-table-column>
                 <!-- 消息推送   -->
-                <el-table-column width="170">
+                <el-table-column width="150">
                     <template #header>
                         <el-dropdown>
                             <BaseTableDropdownLink>
@@ -113,12 +113,13 @@
                     </template>
                 </el-table-column>
                 <!-- 报警输出   -->
-                <el-table-column width="195">
+                <el-table-column min-width="150">
                     <template #header>
                         <AlarmBaseAlarmOutPop
                             :visible="pageData.isAlarmOutPop"
                             :data="tableData"
                             :index="pageData.triggerDialogIndex"
+                            exclude
                             @confirm="changeAlarmOut"
                         />
                     </template>
@@ -140,9 +141,8 @@
                 </el-table-column>
                 <!-- 预置点名称   -->
                 <el-table-column
-                    align="center"
-                    width="195"
                     :label="Translate('IDCS_PRESET_NAME')"
+                    min-width="150"
                 >
                     <template #default="{ row, $index }: TableColumn<AlarmEventDto>">
                         <div class="base-cell-box">
@@ -192,7 +192,7 @@
                 </template>
             </el-table-column> -->
                 <!-- 蜂鸣器   -->
-                <el-table-column width="124">
+                <el-table-column width="150">
                     <template #header>
                         <el-dropdown>
                             <BaseTableDropdownLink>
@@ -220,7 +220,7 @@
                     </template>
                 </el-table-column>
                 <!-- 视频弹出   -->
-                <el-table-column width="140">
+                <el-table-column width="150">
                     <template #header>
                         <el-dropdown max-height="400">
                             <BaseTableDropdownLink>
@@ -248,7 +248,7 @@
                     </template>
                 </el-table-column>
                 <!-- 消息框弹出   -->
-                <el-table-column width="175">
+                <el-table-column width="150">
                     <template #header>
                         <el-dropdown>
                             <BaseTableDropdownLink>
@@ -276,7 +276,7 @@
                     </template>
                 </el-table-column>
                 <!-- email   -->
-                <el-table-column width="115">
+                <el-table-column width="150">
                     <template #header>
                         <el-dropdown>
                             <BaseTableDropdownLink> Email </BaseTableDropdownLink>
