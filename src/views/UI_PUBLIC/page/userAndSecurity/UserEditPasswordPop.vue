@@ -7,6 +7,7 @@
     <el-dialog
         :title="Translate('IDCS_CHANGE_PWD')"
         width="600"
+        @open="open"
         @closed="formRef?.resetFields()"
     >
         <el-form

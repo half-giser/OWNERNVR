@@ -8,6 +8,7 @@
         :title="Translate('IDCS_CHANGE_PWD')"
         width="600"
         :before-close="handleBeforeClose"
+        @open="open"
         @close="close"
         @closed="formRef?.resetFields()"
     >

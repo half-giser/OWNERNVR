@@ -31,8 +31,6 @@ export default defineComponent({
             // 更改密码弹窗状态
             isPasswordDialogVisible: false,
             mustBeModifiedPassword: false,
-            // passwordDialogTitle: 'IDCS_CHANGE_PWD',
-            passwordStrength: 'weak' as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING,
             // 是否显示插件下载
             isPluginDownloadBtn: false,
             // 插件下载URL
@@ -113,7 +111,6 @@ export default defineComponent({
                     strength = 'strong'
                 }
             }
-            pageData.value.passwordStrength = strength
             return strength
         }
 
