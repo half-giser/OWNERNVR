@@ -187,7 +187,7 @@ export default defineComponent({
                 const findIndex = tableData.value.findIndex((data) => data.id === raid)
                 if (findIndex > -1) {
                     const stateProgress = $item('stateProgress').text().num() / 100
-                    tableData.value[findIndex].task = Translate('IDCS_REPAIRING') + stateProgress
+                    tableData.value[findIndex].task = Translate('IDCS_REPAIRING') + ' ' + stateProgress + '%'
                 }
             })
 
