@@ -31,7 +31,7 @@ export default defineComponent({
                             return
                         }
 
-                        if (checkExist(value)) {
+                        if (tableData.value.some((item) => item.address.toLowerCase() === value.toLowerCase())) {
                             callback(new Error(Translate('IDCS_PROMPT_EMAIL_EXIST')))
                             return
                         }
@@ -67,11 +67,6 @@ export default defineComponent({
             isSchedulePop: false,
             currentRow: new AlarmEmailReceiverDto(),
         })
-
-        const checkExist = (address: string) => {
-            const result = tableData.value.some((item) => item.address === address)
-            return result
-        }
 
         const getIconStatus = () => {
             if (pageData.value.senderShow) {
