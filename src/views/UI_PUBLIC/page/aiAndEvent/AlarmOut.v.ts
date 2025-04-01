@@ -108,7 +108,7 @@ export default defineComponent({
                         row.scheduleId = $schedule.attr('id')
                         row.scheduleName = $schedule.text()
                         row.oldSchedule = $schedule.attr('id')
-                        row.index = $('content/index').text()
+                        row.index = $('content/index').text().num() + 1
                         row.devDesc = $('content/devDesc').text()
                         // devDescTemp不存在表示设备本地报警输出，本地报警输出才能设置报警类型
                         if (!row.devDesc) {

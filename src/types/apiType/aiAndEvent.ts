@@ -10,7 +10,7 @@
 export class AlarmOutDto extends TableRowStatus {
     id = '' //告警输出ID
     name = '' //告警输出名称
-    index = '' //告警输出在设备上的序号
+    index = 0 //告警输出在设备上的序号
     devDesc: string | undefined = undefined //告警输出所在设备的描述，如果为undefined表示本机，否则表示通道的名称
     devID: string | undefined = undefined //告警输出所在设备的ID，如果为undefined表示本机，否则表示通道的ID
     delayTime = 0 //延迟时间
