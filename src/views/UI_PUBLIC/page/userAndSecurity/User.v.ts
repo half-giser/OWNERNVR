@@ -200,6 +200,9 @@ export default defineComponent({
          * @param row
          */
         const changeUser = (row: UserList) => {
+            if (userList.value[pageData.value.activeUser] === row) {
+                return
+            }
             pageData.value.activeUser = userList.value.findIndex((item) => item.id === row.id)
             if (currentUser.value) {
                 getAuthGroup(row.id)
@@ -243,9 +246,32 @@ export default defineComponent({
                         </userIds>
                     </condition>
                 `
-                await delUser(sendXml)
-                await getUserList(pageData.value.searchText)
+                const result = await delUser(sendXml)
+                const $ = queryXml(result)
                 closeLoading()
+                if ($('status').text() === 'success') {
+                    await getUserList(pageData.value.searchText)
+                } else {
+                    const errorCode = $('errorCode').text().num()
+                    let errorInfo = ''
+                    switch (errorCode) {
+                        // 用户不存在
+                        case ErrorCode.USER_ERROR_NO_USER:
+                        case ErrorCode.USER_ERROR_PWD_ERR:
+                            errorInfo = Translate('IDCS_DEVICE_USER_NOTEXIST')
+                            break
+                        // 鉴权账号无相关权限
+                        case ErrorCode.USER_ERROR_NO_AUTH:
+                            errorInfo = Translate('IDCS_NO_AUTH')
+                            break
+                        default:
+                            errorInfo = Translate('IDCS_DELETE_FAIL')
+                            break
+                    }
+                    openMessageBox(errorInfo).then(() => {
+                        getUserList(pageData.value.searchText)
+                    })
+                }
             })
         }
 

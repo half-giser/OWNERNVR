@@ -53,7 +53,7 @@ export const queryUserList = (data: string) => fetch('queryUserList', data, {})
  * @param {string} data
  * @returns
  */
-export const delUser = (data: string) => fetch('delUser', data, {})
+export const delUser = (data: string) => fetch('delUser', data, {}, false)
 
 /**
  * @description 查询用户信息
