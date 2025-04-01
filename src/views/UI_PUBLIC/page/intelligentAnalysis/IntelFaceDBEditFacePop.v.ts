@@ -247,7 +247,7 @@ export default defineComponent({
                     <id>${id}</id>
                     <name maxByteLen="31">${wrapCDATA(item.name)}</name>
                     <sex type="sex">${item.sex}</sex>
-                    <birthday>${formatDate(item.birthday, 'YYYY-MM-DD', dateTime.dateFormat)}</birthday>
+                    <birthday>${formatGregoryDate(item.birthday, 'YYYY-MM-DD', dateTime.dateFormat)}</birthday>
                     <nativePlace>${item.nativePlace}</nativePlace>
                     <certificateType type="certificateType">${item.certificateType}</certificateType>
                     <certificateNum>${item.certificateNum}</certificateNum>

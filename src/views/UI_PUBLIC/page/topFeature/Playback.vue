@@ -87,26 +87,10 @@
                 />
             </div>
             <div class="bottom">
-                <el-calendar v-model="calendar.date.value">
-                    <template #header="{ date }">
-                        <div class="calendar-header">
-                            <span @click="calendar.prevMonth">&lt;</span>
-                            <span>{{ date }}</span>
-                            <span @click="calendar.nextMonth">&gt;</span>
-                        </div>
-                    </template>
-                    <template #date-cell="{ data }">
-                        <div
-                            :class="{
-                                active: calendar.current.value.getTime() === data.date.getTime(),
-                                badge: calendar.highlight(pageData.recTimeList, data.date),
-                            }"
-                            @click="calendar.change(data.date)"
-                        >
-                            {{ Number(data.day.split('-')[2]) }}
-                        </div>
-                    </template>
-                </el-calendar>
+                <BaseCalendar
+                    v-model="pageData.calendarDate"
+                    :badge="pageData.recTimeList"
+                />
                 <div class="timeline">
                     <div class="timeline-view">
                         <BaseTimeline

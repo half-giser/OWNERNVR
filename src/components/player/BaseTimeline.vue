@@ -226,8 +226,8 @@ const initColor = () => {
  * @returns {string} YYYY/MM/DD
  */
 const getFirstDayByGreDate = (dateStr: string) => {
-    const currentDate = dayjs(dateStr, 'YYYY/MM/DD')
-    return dayjs().year(currentDate.year()).month(currentDate.month()).date(1).hour(0).minute(0).second(0).format(DEFAULT_DATE_FORMAT)
+    const currentDate = dayjs(dateStr, { format: 'YYYY/MM/DD', jalali: false })
+    return dayjs().calendar('gregory').year(currentDate.calendar('gregory').year()).month(currentDate.calendar('gregory').month()).date(1).hour(0).minute(0).second(0).format(DEFAULT_DATE_FORMAT)
 }
 
 /**
@@ -236,7 +236,7 @@ const getFirstDayByGreDate = (dateStr: string) => {
  * @return {Number} 时间戳秒
  */
 const getTimestamp = (dateStr: string) => {
-    return dayjs(dateStr, 'YYYY/MM/DD HH:mm:ss').unix()
+    return dayjs(dateStr, { format: 'YYYY/MM/DD HH:mm:ss', jalali: false }).unix()
 }
 
 /**
@@ -248,7 +248,7 @@ const getTimestamp = (dateStr: string) => {
  */
 
 const getLastDateAfterNMonths = (dateStr: string, n: number) => {
-    return dayjs(dateStr, 'YYYY/MM/DD HH:mm:ss').add(n, 'month').format('YYYY/MM/DD HH:mm:ss')
+    return dayjs(dateStr, { format: 'YYYY/MM/DD HH:mm:ss', jalali: false }).calendar('gregory').add(n, 'month').format('YYYY/MM/DD HH:mm:ss')
 }
 
 /**
@@ -1276,7 +1276,7 @@ const updateChlList = (newChlList: ChlList[], newAutoPointer: boolean, pageType:
     if (pageType === 'record') {
         const records = chlList.map((item) => item.records).flat()
         if (newChlList.length && records.length) {
-            const startDate = formatDate(records[0].startTime, 'YYYY/MM/DD')
+            const startDate = formatGregoryDate(records[0].startTime, 'YYYY/MM/DD')
             setMode({ mode: 'day', startDate: startDate }, pointerTime)
         } else {
             setMode({ mode: 'day' }, pointerTime)

@@ -611,18 +611,18 @@ export default defineComponent({
                     if (mode === 'year') {
                         timelineRef.value!.setMode({
                             mode,
-                            startDate: dayjs(prop.recStartTime).subtract(3, 'month').format('YYYY/MM/DD'),
+                            startDate: dayjs(prop.recStartTime).calendar('gregory').subtract(3, 'month').format('YYYY/MM/DD'),
                             monthNum: 5,
                         })
                     } else if (mode === 'month') {
                         timelineRef.value!.setMode({
                             mode,
-                            startDate: dayjs(prop.chlStartTime).format('YYYY/MM/DD'),
+                            startDate: dayjs(prop.chlStartTime).calendar('gregory').format('YYYY/MM/DD'),
                         })
                     } else if (mode === 'day') {
                         timelineRef.value!.setMode({
                             mode,
-                            startDate: dayjs(prop.chlStartTime).format('YYYY/MM/DD'),
+                            startDate: dayjs(prop.chlStartTime).calendar('gregory').format('YYYY/MM/DD'),
                         })
                     }
 
@@ -670,8 +670,8 @@ export default defineComponent({
                 </requireField>
                 <condition>
                     <modeType>modeOne</modeType>
-                    <startTime>${formatDate(startTime, DEFAULT_DATE_FORMAT)}</startTime>
-                    <endTime>${formatDate(endTime, DEFAULT_DATE_FORMAT)}</endTime>
+                    <startTime>${formatGregoryDate(startTime, DEFAULT_DATE_FORMAT)}</startTime>
+                    <endTime>${formatGregoryDate(endTime, DEFAULT_DATE_FORMAT)}</endTime>
                     <startTimeEx>${localToUtc(startTime)}</startTimeEx>
                     <endTimeEx>${localToUtc(endTime)}</endTimeEx>
                     <recType type='list'>

@@ -118,8 +118,8 @@ export default defineComponent({
                 <pageIndex>${formData.value.pageIndex}</pageIndex>
                 <pageSize>${formData.value.pageSize}</pageSize>
                 <condition>
-                    <startTime>${formatDate(startTime, DEFAULT_DATE_FORMAT)}</startTime>
-                    <endTime>${formatDate(endTime, DEFAULT_DATE_FORMAT)}</endTime>
+                    <startTime>${formatGregoryDate(startTime, DEFAULT_DATE_FORMAT)}</startTime>
+                    <endTime>${formatGregoryDate(endTime, DEFAULT_DATE_FORMAT)}</endTime>
                     <startTimeEx>${localToUtc(startTime)}</startTimeEx>
                     <endTimeEx>${localToUtc(endTime)}</endTimeEx>
                 </condition>
@@ -385,8 +385,8 @@ export default defineComponent({
 
         onMounted(() => {
             const date = new Date()
-            pageData.value.startTime = dayjs(date).hour(0).minute(0).second(0).format(dateTime.dateTimeFormat)
-            pageData.value.endTime = dayjs(date).hour(23).minute(59).second(59).format(dateTime.dateTimeFormat)
+            pageData.value.startTime = dayjs(date).hour(0).minute(0).second(0).calendar('gregory').format(dateTime.dateTimeFormat)
+            pageData.value.endTime = dayjs(date).hour(23).minute(59).second(59).calendar('gregory').format(dateTime.dateTimeFormat)
 
             search()
 

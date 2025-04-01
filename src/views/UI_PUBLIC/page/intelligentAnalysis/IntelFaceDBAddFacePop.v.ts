@@ -134,7 +134,7 @@ export default defineComponent({
          */
         const renderFormData = () => {
             const data = new IntelFaceDBFaceForm()
-            data.birthday = formatDate(new Date(), dateTime.dateFormat)
+            data.birthday = formatGregoryDate(new Date(), dateTime.dateFormat)
             if (pageData.value.groupList.length) {
                 if (prop.groupId) {
                     data.groupId = prop.groupId
@@ -153,7 +153,7 @@ export default defineComponent({
             snapData = []
             importData = []
             formData.value = [new IntelFaceDBFaceForm()]
-            formData.value[0].birthday = formatDate(new Date(), dateTime.dateFormat)
+            formData.value[0].birthday = formatGregoryDate(new Date(), dateTime.dateFormat)
             await getFaceGroup()
             pageData.value.formIndex = 0
             pageData.value.formType = 'choose'
@@ -222,7 +222,7 @@ export default defineComponent({
 
             formData.value = e.map((item) => {
                 const data = renderFormData()
-                data.birthday = formatDate(item.birthday, dateTime.dateFormat, 'YYYY/MM/DD')
+                data.birthday = formatGregoryDate(item.birthday, dateTime.dateFormat, 'YYYY/MM/DD')
                 data.number = item.number
                 data.mobile = item.mobile
                 data.name = item.name ? item.name : item.imgName.split('.')[0]
@@ -269,7 +269,7 @@ export default defineComponent({
                     <force>${force}</force>
                     <name>${item.name}</name>
                     <sex>${item.sex}</sex>
-                    <birthday>${formatDate(item.birthday, 'YYYY-MM-DD', dateTime.dateFormat)}</birthday>
+                    <birthday>${formatGregoryDate(item.birthday, 'YYYY-MM-DD', dateTime.dateFormat)}</birthday>
                     <nativePlace>${item.nativePlace}</nativePlace>
                     <certificateType>${item.certificateType}</certificateType>
                     <certificateNum>${item.certificateNum}</certificateNum>
@@ -353,7 +353,7 @@ export default defineComponent({
                     ${force ? '<force>true</force>' : ''}
                     <name>${item.name}</name>
                     <sex type="sex">${item.sex}</sex>
-                    <birthday>${formatDate(item.birthday, 'YYYY-MM-DD', dateTime.dateFormat)}</birthday>
+                    <birthday>${formatGregoryDate(item.birthday, 'YYYY-MM-DD', dateTime.dateFormat)}</birthday>
                     <nativePlace>${item.nativePlace}</nativePlace>
                     <certificateType type="certificateType">${item.certificateType}</certificateType>
                     <certificateNum>${item.certificateNum}</certificateNum>

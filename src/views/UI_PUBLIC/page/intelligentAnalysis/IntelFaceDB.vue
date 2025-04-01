@@ -127,7 +127,7 @@
                                         </el-form-item>
                                         <el-form-item :label="Translate('IDCS_BIRTHDAY')">
                                             <el-input
-                                                :model-value="currentFace.birthday"
+                                                :model-value="displayDate(currentFace.birthday)"
                                                 disabled
                                             />
                                         </el-form-item>

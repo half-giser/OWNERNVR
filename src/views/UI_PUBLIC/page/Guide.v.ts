@@ -386,36 +386,34 @@ export default defineComponent({
             `
             const result = await queryDefaultInitData(sendXml)
             const $ = queryXml(result)
-            dateTimeFormData.value.timeZone = $('content/timeCfg/timezoneInfo/timeZone').text()
-            dateTimeFormData.value.enableDST = $('content/timeCfg/timezoneInfo/daylightSwitch').text().bool()
-            dateTimeFormData.value.dateFormat = $('content/timeCfg/formatInfo/data').text()
-            dateTimeFormData.value.timeFormat = $('content/timeCfg/formatInfo/time').text()
-
-            pageData.value.timeZoneOption = TIME_ZONE.map((item, index) => {
-                return {
-                    ...item,
-                    label: Translate('IDCS_TIME_ZONE_' + (index + 1)),
+            if ($('status').text() === 'success') {
+                dateTimeFormData.value.timeZone = $('content/timeCfg/timezoneInfo/timeZone').text()
+                dateTimeFormData.value.enableDST = $('content/timeCfg/timezoneInfo/daylightSwitch').text().bool()
+                dateTimeFormData.value.dateFormat = $('content/timeCfg/formatInfo/data').text()
+                dateTimeFormData.value.timeFormat = $('content/timeCfg/formatInfo/time').text()
+                pageData.value.timeZoneOption = TIME_ZONE.map((item, index) => {
+                    return {
+                        ...item,
+                        label: Translate('IDCS_TIME_ZONE_' + (index + 1)),
+                    }
+                })
+                // NVR145-112 优先取initDataNtpServer
+                const timeServer = $('content/timeCfg/synchronizeInfo/ntpServer').text()
+                if (timeServer) {
+                    dateTimeFormData.value.timeServer = timeServer
                 }
-            })
-
-            // NVR145-112 优先取initDataNtpServer
-            const timeServer = $('content/timeCfg/synchronizeInfo/ntpServer').text()
-            if (timeServer) {
-                dateTimeFormData.value.timeServer = timeServer
-            }
-
-            const syncType = $('content/timeCfg/synchronizeInfo/synchronizeInfo').text()
-            if (syncType) {
-                dateTimeFormData.value.syncType = $('content/timeCfg/synchronizeInfo/synchronizeInfo').text()
-            }
-
-            pageData.value.videoTypeOptions = $('types/videoType/enum').map((item) => {
-                return {
-                    value: item.text(),
-                    label: item.text(),
+                const syncType = $('content/timeCfg/synchronizeInfo/synchronizeInfo').text()
+                if (syncType) {
+                    dateTimeFormData.value.syncType = $('content/timeCfg/synchronizeInfo/synchronizeInfo').text()
                 }
-            })
-            dateTimeFormData.value.videoType = $('content/basicCfg/videoType').text()
+                pageData.value.videoTypeOptions = $('types/videoType/enum').map((item) => {
+                    return {
+                        value: item.text(),
+                        label: item.text(),
+                    }
+                })
+                dateTimeFormData.value.videoType = $('content/basicCfg/videoType').text()
+            }
         }
 
         let interval: NodeJS.Timeout | number = 0
@@ -495,7 +493,7 @@ export default defineComponent({
                 dateTimeFormData.value.enableDST = $('content/timezoneInfo/daylightSwitch').text().bool()
 
                 nextTick(() => {
-                    dateTimeFormData.value.systemTime = dayjs(Date.now()).format(formatSystemTime.value)
+                    dateTimeFormData.value.systemTime = dayjs().calendar('gregory').format(formatSystemTime.value)
                     pageData.value.systemTime = dateTimeFormData.value.systemTime
                     pageData.value.startTime = performance.now()
                     clock()
@@ -514,8 +512,10 @@ export default defineComponent({
         })
 
         watch(formatSystemTime, (newFormat, oldFormat) => {
-            dateTimeFormData.value.systemTime = dayjs(dateTimeFormData.value.systemTime, oldFormat).format(newFormat)
-            pageData.value.systemTime = dayjs(pageData.value.systemTime, oldFormat).format(newFormat)
+            if (dateTimeFormData.value.systemTime) {
+                dateTimeFormData.value.systemTime = dayjs(dateTimeFormData.value.systemTime, { format: oldFormat, jalali: false }).calendar('gregory').format(newFormat)
+                pageData.value.systemTime = dayjs(pageData.value.systemTime, { format: oldFormat, jalali: false }).calendar('gregory').format(newFormat)
+            }
         })
 
         /**
@@ -523,8 +523,9 @@ export default defineComponent({
          */
         const renderTime = () => {
             const now = performance.now()
-            dateTimeFormData.value.systemTime = dayjs(pageData.value.systemTime, formatSystemTime.value)
+            dateTimeFormData.value.systemTime = dayjs(pageData.value.systemTime, { format: formatSystemTime.value, jalali: false })
                 .add(now - pageData.value.startTime, 'millisecond')
+                .calendar('gregory')
                 .format(formatSystemTime.value)
         }
 

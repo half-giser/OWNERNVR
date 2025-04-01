@@ -233,7 +233,7 @@ export default defineComponent({
                     number: $item('number').text(),
                     name: $item('name').text(),
                     sex: $item('sex').text(),
-                    birthday: formatDate($item('birthday').text(), dateTime.dateFormat, 'YYYY-MM-DD'),
+                    birthday: formatGregoryDate($item('birthday').text(), dateTime.dateFormat, 'YYYY-MM-DD'),
                     nativePlace: $item('nativePlace').text(),
                     certificateType: $item('certificateType').text(),
                     certificateNum: $item('certificateNum').text(),

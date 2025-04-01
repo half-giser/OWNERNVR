@@ -263,8 +263,8 @@ export default defineComponent({
                 </requireField>
                 <condition>
                     <modeType>${prop.modeType}</modeType>
-                    <startTime>${formatDate(prop.startTime, DEFAULT_DATE_FORMAT)}</startTime>
-                    <endTime>${formatDate(prop.endTime, DEFAULT_DATE_FORMAT)}</endTime>
+                    <startTime>${formatGregoryDate(prop.startTime, DEFAULT_DATE_FORMAT)}</startTime>
+                    <endTime>${formatGregoryDate(prop.endTime, DEFAULT_DATE_FORMAT)}</endTime>
                     <startTimeEx>${localToUtc(prop.startTime)}</startTimeEx>
                     <endTimeEx>${localToUtc(prop.endTime)}</endTimeEx>
                     <recType type='list'>

@@ -475,7 +475,7 @@ export default defineComponent({
          * @param {number} timestamp
          * @returns {String}
          */
-        const displayDate = (timestamp: number) => {
+        const displayDate = (timestamp: number | string) => {
             if (timestamp === 0) return ''
             return formatDate(timestamp, dateTime.dateFormat)
         }
@@ -814,7 +814,7 @@ export default defineComponent({
                         number: $item('number').text(),
                         name: $item('name').text(),
                         sex: $item('sex').text(),
-                        birthday: formatDate($item('birthday').text(), dateTime.dateFormat, 'YYYY-MM-DD'),
+                        birthday: formatGregoryDate($item('birthday').text(), dateTime.dateFormat, 'YYYY-MM-DD'),
                         nativePlace: $item('nativePlace').text(),
                         certificateType: $item('certificateType').text(),
                         certificateNum: $item('certificateNum').text(),
@@ -980,8 +980,8 @@ export default defineComponent({
             const sendXml = rawXml`
                 <resultLimit>10000</resultLimit>
                 <condition>
-                    <startTime>${formatDate(formData.value.dateRange[0], DEFAULT_DATE_FORMAT)}</startTime>
-                    <endTime>${formatDate(formData.value.dateRange[1], DEFAULT_DATE_FORMAT)}</endTime>
+                    <startTime>${formatGregoryDate(formData.value.dateRange[0], DEFAULT_DATE_FORMAT)}</startTime>
+                    <endTime>${formatGregoryDate(formData.value.dateRange[1], DEFAULT_DATE_FORMAT)}</endTime>
                     <chls type="list">${chlXml}</chls>
                     ${eventXml}
                     ${faceXml}

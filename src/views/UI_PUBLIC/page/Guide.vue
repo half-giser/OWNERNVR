@@ -94,7 +94,7 @@
                             />
                         </el-form-item>
                         <el-form-item :label="Translate('IDCS_SYSTEM_TIME')">
-                            <el-date-picker
+                            <BaseDatePicker
                                 v-model="dateTimeFormData.systemTime"
                                 :disabled="dateTimeFormData.syncType === 'NTP'"
                                 :value-format="formatSystemTime"

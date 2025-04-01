@@ -18,58 +18,6 @@ import { type XMLQuery } from '@/utils/xmlParse'
 import { isEqual } from 'lodash-es'
 
 /**
- * @description 日历组件hook
- */
-const useCalendar = () => {
-    const date = ref<Date>(dayjs().toDate())
-    const current = ref<Date>(dayjs(new Date()).toDate())
-
-    /**
-     * @description 点击上一个月
-     */
-    const prevMonth = () => {
-        date.value = dayjs(date.value).subtract(1, 'month').toDate()
-    }
-
-    /**
-     * @description 点击下一个月
-     */
-    const nextMonth = () => {
-        date.value = dayjs(date.value).add(1, 'month').toDate()
-    }
-
-    /**
-     * @description 更新当前选中日期
-     * @param {Date} currentDate
-     */
-    const change = (currentDate: Date) => {
-        current.value = currentDate
-        date.value = currentDate
-    }
-
-    /**
-     * @description 红点显示
-     * @param {Array} timestampList 毫秒
-     * @param {Date} date
-     */
-    const highlight = (timestampList: number[], date: Date) => {
-        const value = date.getTime()
-        return timestampList.some((item) => {
-            return item <= value && item + 60 * 60 * 24 * 1000 > value
-        })
-    }
-
-    return {
-        prevMonth,
-        nextMonth,
-        change,
-        date,
-        current,
-        highlight,
-    }
-}
-
-/**
  * @description OCX窗口数据
  * @param {Number} maxWin
  */
@@ -225,7 +173,8 @@ export default defineComponent({
             // 是否全屏（OCX）
             isFullScreen: false,
             // 选择的日期
-            startTime: dayjs().toDate(),
+            startTime: dayjs().calendar('gregory').format(DEFAULT_DATE_FORMAT),
+            calendarDate: dayjs().calendar('gregory').format(DEFAULT_DATE_FORMAT),
         })
 
         /**
@@ -234,7 +183,7 @@ export default defineComponent({
          */
         const getRecSection = async (chlList: string[]) => {
             if (chlList.length) {
-                const year = dayjs().year()
+                const year = dayjs().utc().calendar('gregory').year()
                 const startTime = dayjs(`${year - 10}-01-01`, DEFAULT_YMD_FORMAT)
                 const endTime = dayjs(`${year + 10}-01-01`, DEFAULT_YMD_FORMAT)
                 const spaceTime = 60 * 60 * 24
@@ -275,7 +224,6 @@ export default defineComponent({
             return playerRef.value!.mode
         })
 
-        const calendar = useCalendar()
         const userAuth = useUserChlAuth()
 
         // 鱼眼视图是否显示
@@ -285,12 +233,12 @@ export default defineComponent({
 
         // 开始时间的时间戳（毫秒）
         const startTimeStamp = computed(() => {
-            return dayjs(pageData.value.startTime).hour(0).minute(0).second(0).valueOf()
+            return dayjs(pageData.value.startTime, { format: DEFAULT_DATE_FORMAT, jalali: false }).hour(0).minute(0).second(0).valueOf()
         })
 
         // 结束时间的时间戳（毫秒）
         const endTimeStamp = computed(() => {
-            return dayjs(pageData.value.startTime).hour(23).minute(59).second(59).valueOf()
+            return dayjs(pageData.value.startTime, { format: DEFAULT_DATE_FORMAT, jalali: false }).hour(23).minute(59).second(59).valueOf()
         })
 
         // 播放窗口数量
@@ -364,7 +312,7 @@ export default defineComponent({
                 stop(false)
             }
             pageData.value.chls = chls
-            pageData.value.startTime = dayjs(calendar.current.value).toDate()
+            pageData.value.startTime = pageData.value.calendarDate
             timelineRef.value?.setTime(startTimeStamp.value / 1000)
 
             await getRecSection(pageData.value.chls.map((item) => item.id))
@@ -375,8 +323,8 @@ export default defineComponent({
                 if (pageData.value.playStatus !== 'play') {
                     const sendXML = OCX_XML_SearchRec(
                         'RecSearch',
-                        formatDate(startTimeStamp.value),
-                        formatDate(endTimeStamp.value),
+                        formatGregoryDate(startTimeStamp.value),
+                        formatGregoryDate(endTimeStamp.value),
                         pageData.value.chls.map((_item, index) => index),
                         pageData.value.chls.map((item) => item.id),
                         pageData.value.chls.map((item) => item.value),
@@ -460,8 +408,8 @@ export default defineComponent({
         const stopWatchPlayFromSearch = watchEffect(async () => {
             if (ready.value) {
                 if (history.state.chlId) {
-                    pageData.value.startTime = dayjs(history.state.startTime).toDate()
-                    calendar.change(pageData.value.startTime)
+                    pageData.value.startTime = formatGregoryDate(history.state.startTime)
+                    pageData.value.calendarDate = pageData.value.startTime
                     await handleChlSearch([
                         {
                             id: history.state.chlId,
@@ -668,8 +616,8 @@ export default defineComponent({
                 cmd(
                     OCX_XML_SearchRec(
                         'RecPlay',
-                        formatDate(startTime),
-                        formatDate(endTime),
+                        formatGregoryDate(startTime),
+                        formatGregoryDate(endTime),
                         pageData.value.chls.map((_item, index) => index),
                         pageData.value.chls.map((item) => item.id),
                         pageData.value.chls.map((item) => item.value),
@@ -832,7 +780,7 @@ export default defineComponent({
             const timeline = timelineRef.value
             const sortChlList = sortTimelineChlList()
             timeline.setColorMap(pageData.value.legend)
-            timeline.setDstDayTime(formatDate(calendar.current.value))
+            timeline.setDstDayTime(pageData.value.calendarDate)
             timeline.updateChlList(sortChlList, autoPointer, 'record')
         }
 
@@ -1476,9 +1424,9 @@ export default defineComponent({
                             chlId: item.chlId,
                             chlName: item.chlName,
                             event: record.event,
-                            startTime: dayjs(record.startTime).format(DEFAULT_DATE_FORMAT),
-                            startTimeEx: formatDate(record.startTime, DEFAULT_DATE_FORMAT),
-                            endTime: formatDate(record.endTime, DEFAULT_DATE_FORMAT),
+                            startTime: formatGregoryDate(record.startTime, DEFAULT_DATE_FORMAT),
+                            startTimeEx: localToUtc(record.startTime),
+                            endTime: formatGregoryDate(record.endTime, DEFAULT_DATE_FORMAT),
                             endTimeEx: localToUtc(record.endTime),
                             duration: record.duration,
                         }
@@ -1824,7 +1772,6 @@ export default defineComponent({
             timelineRef,
             chlRef,
             eventRef,
-            calendar,
             snap,
             closeImg,
             zoomIn,

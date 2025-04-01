@@ -139,7 +139,7 @@ export default defineComponent({
                     ${pageData.value.forceCreate ? '<force>true</force>' : ''}
                     <name>${formData.value.name}</name>
                     <sex>${formData.value.sex}</sex>
-                    <birthday>${formatDate(formData.value.birthday, dateTime.dateFormat, 'YYYY-MM-DD')}</birthday>
+                    <birthday>${formatGregoryDate(formData.value.birthday, dateTime.dateFormat, 'YYYY-MM-DD')}</birthday>
                     <nativePlace></nativePlace>
                     <certificateType type="certificateType">${formData.value.certificateType}</certificateType>
                     <mobile>${formData.value.mobile}</mobile>
@@ -243,7 +243,7 @@ export default defineComponent({
             if (!pageData.value.faceDatabaseList.length) {
                 await getFaceDatabaseList()
             }
-            formData.value.birthday = formatDate(new Date(), dateTime.dateFormat)
+            formData.value.birthday = formatGregoryDate(new Date(), dateTime.dateFormat)
             loadImg()
         }
 
