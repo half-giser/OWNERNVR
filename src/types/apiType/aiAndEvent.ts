@@ -182,6 +182,7 @@ export class AlarmAudioDevice extends TableRowStatus {
     audioOutMaxValue = 100
     micOrLinEnabled = false
     audioOutEnabled = false
+    audioInSwitchEnabled = false
 }
 
 /**

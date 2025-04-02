@@ -367,6 +367,7 @@ export default defineComponent({
                     }
                 })
                 item.audioInSwitch = $param('audioInSwitch').text().bool()
+                item.audioInSwitchEnabled = !!$param('audioInSwitch').text()
                 item.audioEncode = $param('audioEncode').text()
                 item.audioInput = $param('audioInput').text()
                 item.loudSpeaker = $param('loudSpeaker').text()
@@ -395,15 +396,15 @@ export default defineComponent({
                         <content>
                             <chl id='${item.id}'>
                                 <param>
-                                    ${item.audioInSwitch ? `<audioInSwitch>${item.audioInSwitch}</audioInSwitch>` : ''}
+                                    ${item.audioInSwitchEnabled ? `<audioInSwitch>${item.audioInSwitch}</audioInSwitch>` : ''}
                                     ${item.audioInput ? `<audioInput>${item.audioInput}</audioInput>` : ''}
                                     ${item.audioOutput ? `<audioOutput>${item.audioOutput}</audioOutput>` : ''}
                                     ${item.loudSpeaker ? `<loudSpeaker>${item.loudSpeaker}</loudSpeaker>` : ''}
                                     ${item.audioEncode ? `<audioEncode>${item.audioEncode}</audioEncode>` : ''}
                                     <volume>
-                                        ${item.micInVolume >= 0 ? `<micInVolume>${item.micInVolume}</micInVolume>` : ''}
-                                        ${item.linInVolume >= 0 ? `<linInVolume>${item.linInVolume}</linInVolume>` : ''}
-                                        ${item.audioOutVolume >= 0 ? `<audioOutVolume>${item.audioOutVolume}</audioOutVolume>` : ''}
+                                        ${item.micOrLinEnabled ? `<micInVolume>${item.micInVolume}</micInVolume>` : ''}
+                                        ${item.micOrLinEnabled ? `<linInVolume>${item.linInVolume}</linInVolume>` : ''}
+                                        ${item.audioOutEnabled ? `<audioOutVolume>${item.audioOutVolume}</audioOutVolume>` : ''}
                                     </volume>
                                 </param>
                             </chl>
