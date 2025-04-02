@@ -43,7 +43,7 @@ export default defineComponent({
             // 当前任务
             currentTask: 0,
             // 任务总数
-            totalTask: 0,
+            totalTask: 1,
         })
 
         const progress = computed(() => {
@@ -98,7 +98,7 @@ export default defineComponent({
                     }
 
                     data.forEach((item) => {
-                        pageData.value.totalTask = item.total.num()
+                        pageData.value.totalTask = Number(item.total)
 
                         const groupName = prop.data[item.groupId]
 

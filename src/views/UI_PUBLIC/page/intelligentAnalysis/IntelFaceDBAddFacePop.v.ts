@@ -99,7 +99,7 @@ export default defineComponent({
 
         // 上传总数
         const totalCount = computed(() => {
-            return formData.value.length
+            return formData.value.length === 1 ? (formData.value[0].pic ? 1 : 0) : formData.value.length
         })
 
         // 当前进度文本

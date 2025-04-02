@@ -73,7 +73,7 @@ export default defineComponent({
                 }
             }),
             // 人脸曝光是否禁用
-            faceExpDisabled: false,
+            faceExpDisabled: true,
             triggerList: ['snapSwitch', 'msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch'],
         })
 
@@ -387,7 +387,7 @@ export default defineComponent({
                     triggerAudio: $param('triggerAudio').text(),
                     triggerWhiteLight: $param('triggerWhiteLight').text(),
                     faceExpSwitch: $param('faceExp/switch').text().bool(),
-                    faceExpStrength: $param('senceMode/customize/faceExpStrength').text().num(),
+                    faceExpStrength: $param('faceExp/faceExpStrength').text().num(),
                     schedule: getScheduleId(pageData.value.scheduleList, $('content/chl').attr('scheduleGuid')),
                     record: $trigger('sysRec/chls/item').map((item) => {
                         return {
@@ -417,6 +417,14 @@ export default defineComponent({
                     }),
                     sysAudio: $trigger('sysAudio').attr('id'),
                 }
+
+                if (!$param('senceMode/customize/faceExpStrength').length) {
+                    // 先判断人脸曝光是否为空，确定是否禁用，再赋给其默认值50
+                    detectionPageData.value.faceExpDisabled = true
+                    detectionFormData.value.faceExpStrength = 50
+                } else {
+                    detectionPageData.value.faceExpDisabled = false
+                }
             })
 
             if (detectionFormData.value.triggerAudio && chlData.value.supportAudio) {
@@ -432,10 +440,6 @@ export default defineComponent({
                     detectionFormData.value.trigger.push('triggerWhiteLight')
                 }
             }
-
-            // 先判断人脸曝光是否为空，确定是否禁用，再赋给其默认值50
-            detectionPageData.value.faceExpDisabled = detectionFormData.value.faceExpStrength === 0
-            detectionFormData.value.faceExpStrength = detectionFormData.value.faceExpStrength || 50
 
             detectionPageData.value.isDispalyRangeChecked = false
         }
@@ -703,7 +707,7 @@ export default defineComponent({
                     ${detectionFormData.value.triggerAudio && chlData.value.supportAudio ? `<triggerAudio>${detectionFormData.value.trigger.includes('triggerAudio')}</triggerAudio>` : ''}
                     ${detectionFormData.value.triggerWhiteLight && chlData.value.supportWhiteLight ? `<triggerWhiteLight>${detectionFormData.value.trigger.includes('triggerWhiteLight')}</triggerWhiteLight>` : ''}
                     ${
-                        detectionFormData.value.faceExpStrength
+                        !detectionPageData.value.faceExpDisabled
                             ? rawXml`
                                 <faceExp>
                                     <switch>${detectionFormData.value.faceExpSwitch}</switch>
@@ -1038,35 +1042,37 @@ export default defineComponent({
                 recognitionFormData.value.task = $('content/chl/task/item').map((item) => {
                     const $item = queryXml(item.element)
                     const nameId = $item('param/nameId').text().num()
+                    const $param = queryXml($item('param')[0].element)
+                    const $trigger = queryXml($item('trigger')[0].element)
                     haveUseNameId.push(nameId)
                     return {
                         guid: item.attr('guid'),
                         id: item.attr('id'),
-                        ruleType: $item('param/ruleType').text(),
+                        ruleType: $param('ruleType').text(),
                         nameId,
-                        pluseSwitch: $item('param/pluseSwitch').text().bool(),
-                        groupId: $item('param/groupId/item').map((item) => item.attr('guid')),
-                        hintword: $item('param/hint/word').text(),
+                        pluseSwitch: $param('pluseSwitch').text().bool(),
+                        groupId: $param('groupId/item').map((item) => item.attr('guid')),
+                        hintword: $param('hint/word').text(),
                         schedule: getScheduleId(pageData.value.scheduleList, $item('schedule').attr('id')),
-                        record: $item('trigger/sysRec/chls/item').map((item) => {
+                        record: $trigger('sysRec/chls/item').map((item) => {
                             return {
                                 value: item.attr('id'),
                                 label: item.text(),
                             }
                         }),
-                        alarmOut: $item('trigger/alarmOut/alarmOuts/item').map((item) => {
+                        alarmOut: $trigger('alarmOut/alarmOuts/item').map((item) => {
                             return {
                                 value: item.attr('id'),
                                 label: item.text(),
                             }
                         }),
-                        snap: $item('trigger/sysSnap/chls/item').map((item) => {
+                        snap: $trigger('sysSnap/chls/item').map((item) => {
                             return {
                                 value: item.attr('id'),
                                 label: item.text(),
                             }
                         }),
-                        preset: $item('trigger/preset/presets/item').map((item) => {
+                        preset: $trigger('preset/presets/item').map((item) => {
                             const $item = queryXml(item.element)
                             return {
                                 index: $item('index').text(),
@@ -1078,9 +1084,9 @@ export default defineComponent({
                             }
                         }),
                         trigger: ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'popMsgSwitch'].filter((item) => {
-                            return $item(item).text().bool()
+                            return $trigger(item).text().bool()
                         }),
-                        sysAudio: $item('trigger/sysAudio').attr('id'),
+                        sysAudio: $trigger('sysAudio').attr('id'),
                     }
                 })
 

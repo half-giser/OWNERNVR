@@ -145,11 +145,11 @@ export default defineComponent({
 
         onMounted(async () => {
             await getData()
-            ctx.emit('ready', chlMap)
             // 如果表单没有值，则创造初始值
             if (!prop.modelValue.length) {
                 confirm()
             }
+            ctx.emit('ready', chlMap)
         })
 
         return {

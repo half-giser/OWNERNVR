@@ -196,7 +196,7 @@
                                 <!-- 录像 -->
                                 <AlarmBaseRecordSelector v-model="detectionFormData.record" />
                                 <!-- 报警输出 -->
-                                <AlarmBaseRecordSelector v-model="detectionFormData.alarmOut" />
+                                <AlarmBaseAlarmOutSelector v-model="detectionFormData.alarmOut" />
                                 <!-- 联动预置点 -->
                                 <AlarmBasePresetSelector v-model="detectionFormData.preset" />
                             </div>
@@ -221,22 +221,33 @@
                             </div>
                         </template>
                         <div class="base-ai-advance-box">
-                            <div class="base-ai-subheading">
-                                {{ Translate('IDCS_VIDEO_SAVE_PIC') }}
-                            </div>
-                            <el-checkbox
-                                v-model="detectionFormData.saveSourcePicture"
-                                :disabled="detectionFormData.saveSourcePicture === undefined"
-                                :label="Translate('IDCS_SMART_SAVE_SOURCE_PIC')"
-                            />
-                            <el-checkbox
-                                v-model="detectionFormData.saveFacePicture"
-                                :disabled="detectionFormData.saveFacePicture === undefined"
-                                :label="Translate('IDCS_SMART_SAVE_TARGET_PIC')"
-                            />
-                            <div class="base-btn-box">
-                                <el-button @click="pageData.isAdvance = false">{{ Translate('IDCS_CLOSE') }}</el-button>
-                            </div>
+                            <el-form
+                                :style="{
+                                    '--form-label-width': '150px',
+                                    '--form-input-width': '170px',
+                                }"
+                            >
+                                <div class="base-ai-subheading">
+                                    {{ Translate('IDCS_VIDEO_SAVE_PIC') }}
+                                </div>
+                                <el-form-item>
+                                    <el-checkbox
+                                        v-model="detectionFormData.saveSourcePicture"
+                                        :disabled="detectionFormData.saveSourcePicture === undefined"
+                                        :label="Translate('IDCS_SMART_SAVE_SOURCE_PIC')"
+                                    />
+                                </el-form-item>
+                                <el-form-item>
+                                    <el-checkbox
+                                        v-model="detectionFormData.saveFacePicture"
+                                        :disabled="detectionFormData.saveFacePicture === undefined"
+                                        :label="Translate('IDCS_SMART_SAVE_TARGET_PIC')"
+                                    />
+                                </el-form-item>
+                                <div class="base-btn-box">
+                                    <el-button @click="pageData.isAdvance = false">{{ Translate('IDCS_CLOSE') }}</el-button>
+                                </div>
+                            </el-form>
                         </div>
                     </el-popover>
                 </div>

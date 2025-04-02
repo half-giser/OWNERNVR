@@ -347,7 +347,7 @@ export default defineComponent({
          */
         const handleOCXImport = () => {
             const sendXML = OCX_XML_OpenFileBrowser('OPEN_FILE', '', '', true, '*.csv,*.txt,*.jpg,*.jpeg')
-            plugin.AsynQueryInfo(sendXML, (result) => {
+            plugin.AsynQueryInfo(sendXML, (result: string) => {
                 const path = OCX_XML_OpenFileBrowser_getpath(result).trim()
                 if (path) {
                     const fileList = path.split('|')

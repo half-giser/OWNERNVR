@@ -25,7 +25,7 @@
                     </el-form-item>
                     <el-form-item :label="Translate('IDCS_SEX')">
                         <el-select-v2
-                            v-model="formData[0].sex"
+                            v-model="formData[pageData.formIndex].sex"
                             :options="pageData.genderOptions"
                         />
                     </el-form-item>

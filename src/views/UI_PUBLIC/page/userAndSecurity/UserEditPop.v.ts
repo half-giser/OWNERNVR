@@ -107,7 +107,9 @@ export default defineComponent({
                 } else {
                     pageData.value.isAuthEffectiveDisabled = false
                     pageData.value.isAuthGroupDisabled = false
-                    pageData.value.isChangePasswordBtn = true
+                    if (currentUserName !== editUserName) {
+                        pageData.value.isChangePasswordBtn = true
+                    }
                 }
             } else {
                 const errorCode = $('errorCode').text().num()

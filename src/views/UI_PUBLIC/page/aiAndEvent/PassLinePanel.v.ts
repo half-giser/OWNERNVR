@@ -431,8 +431,8 @@ export default defineComponent({
                         person: $param('objectFilter/person/switch').text().bool(),
                         motorcycle: $param('objectFilter/motor/switch').text().bool(),
                         personSensitivity: $param('objectFilter/person/sensitivity').text().num(),
-                        carSensitivity: $param('car/sensitivity').text().num(),
-                        motorSensitivity: $param('motor/sensitivity').text().num(),
+                        carSensitivity: $param('objectFilter/car/sensitivity').text().num(),
+                        motorSensitivity: $param('objectFilter/motor/sensitivity').text().num(),
                     }
 
                     const countTimeType = $param('countPeriod/countTimeType').text()
@@ -642,7 +642,7 @@ export default defineComponent({
                                 }
                             </objectFilter>
                             <countPeriod>
-                                <countTimeType>${formData.value.countTimeType}</countTimeType>
+                                <countTimeType>${!formData.value.autoReset ? 'off' : formData.value.countTimeType}</countTimeType>
                                 <day>
                                     <dateSpan>${formData.value.countPeriod.day.date}</dateSpan>
                                     <dateTimeSpan>${formData.value.countPeriod.day.dateTime}</dateTimeSpan>

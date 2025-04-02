@@ -62,7 +62,7 @@ export class IntelFaceDBFaceInfo {
  */
 export class IntelFaceDBSnapRegisterForm {
     name = ''
-    sex = ''
+    sex = 'male'
     birthday = ''
     nativePlace = ''
     certificateType = 'idCard'
@@ -79,10 +79,10 @@ export class IntelFaceDBSnapRegisterForm {
 export class IntelFaceDBFaceForm {
     number = ''
     name = ''
-    sex = ''
+    sex = 'male'
     birthday = ''
     nativePlace = ''
-    certificateType = ''
+    certificateType = 'idCard'
     certificateNum = ''
     mobile = ''
     note = ''
@@ -122,10 +122,10 @@ export class IntelFaceDBImportImgDto {
 export class IntelFaceDBImportFaceDto extends IntelFaceDBImportImgDto {
     number = ''
     name = ''
-    sex = ''
+    sex = 'male'
     birthday = ''
     // nativePlace = ''
-    certificateType = ''
+    certificateType = 'idCard'
     certificateNum = ''
     mobile = ''
     note = ''

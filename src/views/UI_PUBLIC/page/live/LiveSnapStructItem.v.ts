@@ -113,11 +113,21 @@ export default defineComponent({
             return []
         })
 
+        const loadImg = (e: Event) => {
+            const img = e.currentTarget as HTMLImageElement
+            if (img.naturalWidth > img.naturalHeight) {
+                img.style.objectFit = 'contain'
+            } else {
+                img.style.objectFit = 'fill'
+            }
+        }
+
         return {
             displayBase64Img,
             displayTime,
             isAddBtn,
             infoList,
+            loadImg,
         }
     },
 })

@@ -40,7 +40,7 @@
                     prop="percent"
                 />
                 <el-table-column
-                    prop="decodeResourceText"
+                    prop="decodeResource"
                     :label="Translate('IDCS_DECODE_RESOURCE')"
                     width="110"
                 />

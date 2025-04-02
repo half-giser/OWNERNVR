@@ -13,7 +13,10 @@
                 class="item-left"
                 @click="$emit('detail')"
             >
-                <img :src="displayBase64Img(data.snap_pic)" />
+                <img
+                    :src="displayBase64Img(data.snap_pic)"
+                    @load="loadImg"
+                />
                 <div class="item-menu">
                     <BaseImgSpriteBtn
                         v-show="isAddBtn"
@@ -88,7 +91,7 @@
         img {
             width: 100%;
             height: 100%;
-            object-fit: fill;
+            background-color: var(--panel-menu-bg);
         }
 
         &:hover .item-menu {

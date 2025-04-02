@@ -365,13 +365,13 @@ export default defineComponent({
          * @description 处理通道播放回调
          * @param {Array} chls
          */
-        const handleChlPlay = async (chls: PlaybackChlList[]) => {
+        const handleChlPlay = async (chls: PlaybackChlList[], timestamp?: number) => {
             pageData.value.mainStreamTypeChl = ''
             pageData.value.playStatus = 'stop'
             // pageData.value.playStatus = 'play'
             await handleChlSearch(chls)
             adjustSplit()
-            playAll()
+            playAll(timestamp)
         }
 
         /**
@@ -410,14 +410,16 @@ export default defineComponent({
                 if (history.state.chlId) {
                     pageData.value.startTime = formatGregoryDate(history.state.startTime)
                     pageData.value.calendarDate = pageData.value.startTime
-                    await handleChlSearch([
-                        {
-                            id: history.state.chlId,
-                            value: history.state.chlName,
-                        },
-                    ])
-                    playAll(history.state.startTime / 1000)
                     chlRef.value?.setChls([history.state.chlId])
+                    await handleChlPlay(
+                        [
+                            {
+                                id: history.state.chlId,
+                                value: history.state.chlName,
+                            },
+                        ],
+                        history.state.startTime / 1000,
+                    )
                     nextTick(() => {
                         delete history.state.chlId
                         delete history.state.chlName

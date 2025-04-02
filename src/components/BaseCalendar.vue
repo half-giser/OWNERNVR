@@ -49,8 +49,17 @@ import dayjs from 'dayjs'
 
 const props = withDefaults(
     defineProps<{
+        /**
+         * @property 绑定值 *传入公历日期
+         */
         modelValue: string
+        /**
+         * @property 绑定值的格式
+         */
         valueFormat?: string
+        /**
+         * @property 徽标（传入毫秒时间戳数组）
+         */
         badge?: number[]
     }>(),
     {
@@ -64,22 +73,26 @@ const emits = defineEmits<{
     (e: 'change', value: string): void
 }>()
 
-// const dateTime = useDateTimeStore()
 const userSession = useUserSessionStore()
 const { Translate } = useLangStore()
 
+// 输入框显示值
 const selectedValue = computed(() => {
-    return dayjs(props.modelValue, props.valueFormat).format(DEFAULT_DATE_FORMAT)
+    return props.modelValue ? dayjs(props.modelValue, props.valueFormat).format(DEFAULT_DATE_FORMAT) : ''
 })
 
+// 今天
 const today = ref(formatDate(new Date(), DEFAULT_DATE_FORMAT))
 
+// 当前日期
 const currentValue = ref(dayjs())
 
+// 当前年
 const currentYear = computed(() => {
     return currentValue.value.format('YYYY')
 })
 
+// 当前月
 const currentMonth = computed(() => {
     return currentValue.value.format('MM')
 })
@@ -94,6 +107,7 @@ type DateDto = {
 const GREGORIAN_WEEK_DAY = [0, 1, 2, 3, 4, 5, 6]
 const JALALI_WEEK_DAY = [6, 0, 1, 2, 3, 4, 5]
 
+// 周翻译数组
 const displayWeekDay = computed(() => {
     if (userSession.calendarType === 'Persian') {
         return JALALI_WEEK_DAY.map((item) => Translate(DEFAULT_WEEK_SHORT_MAPPING[item]))
@@ -101,6 +115,7 @@ const displayWeekDay = computed(() => {
     return GREGORIAN_WEEK_DAY.map((item) => Translate(DEFAULT_WEEK_SHORT_MAPPING[item]))
 })
 
+// 日期Date数组
 const dateList = computed(() => {
     const date1 = currentValue.value.date(1)
     const date1Day = date1.day()
@@ -147,20 +162,35 @@ const dateList = computed(() => {
         })
 })
 
+/**
+ * @description 切换上一月
+ */
 const prevMonth = () => {
     currentValue.value = currentValue.value.subtract(1, 'month')
 }
 
+/**
+ * @description 切换下一月
+ */
 const nextMonth = () => {
     currentValue.value = currentValue.value.add(1, 'month')
 }
 
+/**
+ * @description 判断当前日期是否显示徽标
+ * @param {number} timestamp 毫秒时间戳
+ */
 const highlight = (timestamp: number) => {
     return props.badge.some((item) => {
         return item <= timestamp && item + 60 * 60 * 24 * 1000 > timestamp
     })
 }
 
+/**
+ * @description 点击日期
+ * @param {number} timestamp
+ * @param {number} inMonth
+ */
 const changeDate = (timestamp: number, inMonth: number) => {
     const date = formatGregoryDate(timestamp, props.valueFormat)
     emits('update:modelValue', date)

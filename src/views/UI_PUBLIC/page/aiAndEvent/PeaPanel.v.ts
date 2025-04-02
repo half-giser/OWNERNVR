@@ -330,7 +330,7 @@ export default defineComponent({
                 const $element = queryXml(element.element)
                 const boundary = {
                     point: [] as CanvasBasePoint[],
-                    maxCount: $param('point').attr('maxCount').num(),
+                    maxCount: $element('point').attr('maxCount').num(),
                 }
                 const region = { X1: 0, Y1: 0, X2: 0, Y2: 0 }
                 $element('point/item').forEach((point, index) => {
@@ -884,7 +884,7 @@ export default defineComponent({
                         plugin.ExecuteCmd(sendXML)
                     }
                 }
-                // setPeaOcxData()
+                setPeaOcxData()
             }
         }
 

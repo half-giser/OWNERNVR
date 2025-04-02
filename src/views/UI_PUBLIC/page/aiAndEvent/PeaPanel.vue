@@ -306,20 +306,31 @@
                         </div>
                     </template>
                     <div class="base-ai-advance-box">
-                        <div class="base-ai-subheading">
-                            {{ Translate('IDCS_VIDEO_SAVE_PIC') }}
-                        </div>
-                        <el-checkbox
-                            v-model="formData[pageData.activityType].saveTargetPicture"
-                            :label="Translate('IDCS_SMART_SAVE_SOURCE_PIC')"
-                        />
-                        <el-checkbox
-                            v-model="formData[pageData.activityType].saveSourcePicture"
-                            :label="Translate('IDCS_SMART_SAVE_TARGET_PIC')"
-                        />
-                        <div class="base-btn-box">
-                            <el-button @click="pageData.moreDropDown = false">{{ Translate('IDCS_CLOSE') }}</el-button>
-                        </div>
+                        <el-form
+                            :style="{
+                                '--form-label-width': '150px',
+                                '--form-input-width': '170px',
+                            }"
+                        >
+                            <div class="base-ai-subheading">
+                                {{ Translate('IDCS_VIDEO_SAVE_PIC') }}
+                            </div>
+                            <el-form-item>
+                                <el-checkbox
+                                    v-model="formData[pageData.activityType].saveTargetPicture"
+                                    :label="Translate('IDCS_SMART_SAVE_SOURCE_PIC')"
+                                />
+                            </el-form-item>
+                            <el-form-item>
+                                <el-checkbox
+                                    v-model="formData[pageData.activityType].saveSourcePicture"
+                                    :label="Translate('IDCS_SMART_SAVE_TARGET_PIC')"
+                                />
+                            </el-form-item>
+                            <div class="base-btn-box">
+                                <el-button @click="pageData.moreDropDown = false">{{ Translate('IDCS_CLOSE') }}</el-button>
+                            </div>
+                        </el-form>
                     </div>
                 </el-popover>
             </div>

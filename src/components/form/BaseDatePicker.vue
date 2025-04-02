@@ -195,7 +195,7 @@ import dayjs from 'dayjs'
 const props = withDefaults(
     defineProps<{
         /**
-         * @property 绑定值
+         * @property 绑定值 *传入公历日期
          */
         modelValue: string
         /**
@@ -210,8 +210,17 @@ const props = withDefaults(
          * @property 显示类型
          */
         type: 'datetime' | 'date'
+        /**
+         * @property 见element-plus el-popover的teleported
+         */
         teleported?: boolean
+        /**
+         * @property 是否禁用
+         */
         disabled?: boolean
+        /**
+         * @property input placeholder
+         */
         placeholder?: string
     }>(),
     {
@@ -233,7 +242,12 @@ const { Translate } = useLangStore()
 
 const visible = ref(false)
 
+// 输入框显示值
 const selectedValue = computed(() => {
+    if (!props.modelValue) {
+        return ''
+    }
+
     if (props.type === 'datetime') {
         return dayjs(props.modelValue, props.valueFormat || dateTime.dateTimeFormat).format(props.format || dateTime.dateTimeFormat)
     } else {
@@ -241,19 +255,25 @@ const selectedValue = computed(() => {
     }
 })
 
+// 当前显示日历/月历/年历 year month date
 const tab = ref('date')
 
+// 当前日期
 const currentValue = ref(dayjs())
+// 当前时间
 const currentTime = ref('00:00:00')
 
+// 当前日期的公历表示
 const currentDateGregory = computed(() => {
     return currentValue.value.calendar('gregory').format(dateTime.dateFormat)
 })
 
+// 当前年
 const currentYear = computed(() => {
     return currentValue.value.format('YYYY').num()
 })
 
+// 当前月
 const currentMonth = computed(() => {
     return currentValue.value.format('MM').num()
 })
@@ -264,8 +284,11 @@ type DateDto = {
     inMonth: number
 }
 
+/**
+ * @description 打开日期选择器时初始化
+ */
 const open = () => {
-    currentValue.value = dayjs(props.modelValue, props.valueFormat || (props.type === 'datetime' ? dateTime.dateTimeFormat : dateTime.dateFormat))
+    currentValue.value = dayjs(props.modelValue || Date.now(), props.valueFormat || (props.type === 'datetime' ? dateTime.dateTimeFormat : dateTime.dateFormat))
     tab.value = 'date'
 
     if (props.type === 'datetime') {
@@ -276,6 +299,7 @@ const open = () => {
 const GREGORIAN_WEEK_DAY = [0, 1, 2, 3, 4, 5, 6]
 const JALALI_WEEK_DAY = [6, 0, 1, 2, 3, 4, 5]
 
+// 周翻译数组
 const displayWeekDay = computed(() => {
     if (userSession.calendarType === 'Persian') {
         return JALALI_WEEK_DAY.map((item) => Translate(DEFAULT_WEEK_SHORT_MAPPING[item]))
@@ -283,6 +307,7 @@ const displayWeekDay = computed(() => {
     return GREGORIAN_WEEK_DAY.map((item) => Translate(DEFAULT_WEEK_SHORT_MAPPING[item]))
 })
 
+// 日期Date数组
 const dateList = computed(() => {
     const date1 = currentValue.value.date(1)
     const date1Day = date1.day()
@@ -322,49 +347,76 @@ const dateList = computed(() => {
     return currentDateList
 })
 
+// 月数组
 const monthList = ref(
     Array(12)
         .fill(0)
         .map((_, index) => Translate(DEFAULT_MONTH_SHORT_MAPPING[index])),
 )
 
+/**
+ * @description 更改日期
+ * @param {number} date
+ * @param {number} month
+ */
 const changeDate = (date: number, month: number) => {
     currentValue.value = currentValue.value.add(month, 'month').date(date)
     changeValue()
 }
 
+/**
+ * @description 切换上一年
+ */
 const preYear = () => {
     currentValue.value = currentValue.value.subtract(1, 'year')
     changeValue()
 }
 
+/**
+ * @description 切换下一年
+ */
 const nextYear = () => {
     currentValue.value = currentValue.value.add(1, 'year')
     changeValue()
 }
 
+/**
+ * @description 更改年
+ * @param {number} year
+ */
 const changeYear = (year: number) => {
     currentValue.value = currentValue.value.year(year)
     changeValue()
     tab.value = 'month'
 }
 
+/**
+ * @description 切换上一月
+ */
 const preMonth = () => {
     currentValue.value = currentValue.value.subtract(1, 'month')
     changeValue()
 }
 
+/**
+ * @description 切换下一月
+ */
 const nextMonth = () => {
     currentValue.value = currentValue.value.add(1, 'month')
     changeValue()
 }
 
+/**
+ * @description 更改月
+ * @param {number} month
+ */
 const changeMonth = (month: number) => {
     currentValue.value = currentValue.value.month(month)
     changeValue()
     tab.value = 'date'
 }
 
+// 当前年历的
 const yearRange = ref(0)
 
 const showYearList = () => {

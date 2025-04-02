@@ -397,7 +397,7 @@ export default defineComponent({
                             attribute: {} as Record<string, string>,
                         }
 
-                        $('attribute').forEach((attribute) => {
+                        $('attribute/item').forEach((attribute) => {
                             item.attribute[attribute.attr('type')] = attribute.text()
                         })
 
