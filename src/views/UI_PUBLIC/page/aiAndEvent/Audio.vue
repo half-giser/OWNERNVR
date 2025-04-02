@@ -131,7 +131,7 @@
                                 disabled: 'none',
                             }"
                         />
-                        <span v-show="deviceList[pageData.deviceIndex].disabled">{{ Translate('IDCS_OFFLINE') }}</span>
+                        <span v-show="deviceList[pageData.deviceIndex].id && deviceList[pageData.deviceIndex].disabled">{{ Translate('IDCS_OFFLINE') }}</span>
                     </el-form-item>
                     <!-- 声音设备 -->
                     <el-form-item :label="Translate('IDCS_AUDIO_DEVICE')">
