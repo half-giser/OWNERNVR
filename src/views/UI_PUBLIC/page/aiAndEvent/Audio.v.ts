@@ -377,7 +377,7 @@ export default defineComponent({
                 item.micMaxValue = $param('volume/micInVolume').attr('max').undef()?.num() ?? 100
                 item.linMaxValue = $param('volume/linInVolume').attr('max').undef()?.num() ?? 100
                 item.audioOutMaxValue = $param('volume/audioOutVolume').attr('max').undef()?.num() ?? 100
-                item.micOrLinEnabled = $param('volume/micInVolume').length > 0 || $param('volume/volume/linInVolume').length > 0
+                item.micOrLinEnabled = $param('volume/micInVolume').length > 0 || $param('volume/linInVolume').length > 0
                 item.audioOutEnabled = $param('volume/audioOutVolume').length > 0
             }
         }
