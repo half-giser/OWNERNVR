@@ -973,10 +973,10 @@ export default defineComponent({
                 const winIndex = pageData.value.winData.winIndex
                 if (bool) {
                     pageData.value.audioWinIndex = winIndex
-                    cmd(OCX_XML_SetVolume(0))
+                    cmd(OCX_XML_SetVolume(pageData.value.volume))
                 } else {
                     pageData.value.audioWinIndex = -1
-                    cmd(OCX_XML_SetVolume(pageData.value.volume))
+                    cmd(OCX_XML_SetVolume(0))
                 }
             }
         }
