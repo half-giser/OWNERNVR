@@ -137,23 +137,27 @@ export default defineComponent({
             chlMap = e
 
             if (history.state.eventType) {
+                const eventType: string[] = []
                 switch (history.state.eventType) {
                     case 'aoi_entry':
                     case 'aoi_leave':
                     case 'perimeter':
-                        formData.value.event.push('intrusion')
+                        eventType.push('intrusion')
                         break
                     case 'tripwire':
-                        formData.value.event.push('tripwire')
+                        eventType.push('tripwire')
                         break
                     case 'pass_line':
-                        formData.value.event.push('passLine')
+                        eventType.push('passLine')
                         break
                     case 'video_metavideo':
-                        formData.value.event.push('videoMetadata')
+                        eventType.push('videoMetadata')
                         break
                 }
                 delete history.state.eventType
+                if (eventType.length) {
+                    formData.value.event = eventType
+                }
                 getData()
             }
         }
@@ -387,7 +391,7 @@ export default defineComponent({
                             attribute: {} as Record<string, string>,
                         }
 
-                        $('attribute').forEach((attribute) => {
+                        $('attribute/item').forEach((attribute) => {
                             item.attribute[attribute.attr('type')] = attribute.text()
                         })
 

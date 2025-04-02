@@ -175,6 +175,66 @@ export default defineComponent({
          */
         const getChlMap = (e: Record<string, string>) => {
             chlMap = e
+
+            // 如果路由跳转包含搜索条件，则执行搜索
+            if (history.state.eventType || history.state.targetType || history.state.searchType) {
+                if (history.state.eventType) {
+                    const eventType: string[] = []
+                    switch (history.state.eventType) {
+                        case 'aoi_entry':
+                        case 'aoi_leave':
+                        case 'perimeter':
+                            eventType.push('intrusion')
+                            break
+                        case 'tripwire':
+                            eventType.push('tripwire')
+                            break
+                        case 'pass_line':
+                            eventType.push('passLine')
+                            break
+                        case 'plateDetection':
+                            eventType.push('plateDetection')
+                            break
+                        case 'plateMatchWhiteList':
+                            eventType.push('plateMatchWhiteList')
+                            break
+                        case 'plateMatchStranger':
+                            eventType.push('plateMatchStranger')
+                            break
+                        case 'video_metavideo':
+                            eventType.push('videoMetadata')
+                            break
+                    }
+
+                    if (eventType.length) {
+                        formData.value.event = eventType
+                    }
+
+                    delete history.state.eventType
+                }
+
+                if (history.state.targetType) {
+                    const targetType: string[] = []
+                    if (history.state.targetType === 'vehicle') {
+                        formData.value.target.push('car')
+                    } else {
+                        formData.value.target.push('motor')
+                    }
+
+                    if (targetType.length) {
+                        formData.value.target = targetType
+                    }
+
+                    delete history.state.targetType
+                }
+
+                if (history.state.searchType) {
+                    pageData.value.searchType = history.state.searchType
+                    delete history.state.searchType
+                }
+
+                getData()
+            }
         }
 
         /**
@@ -440,7 +500,7 @@ export default defineComponent({
                             // OpenGateType: $('OpenGateType').text(),
                         }
 
-                        $('attribute').forEach((attribute) => {
+                        $('attribute/item').forEach((attribute) => {
                             item.attribute[attribute.attr('type')] = attribute.text()
                         })
 
@@ -870,56 +930,6 @@ export default defineComponent({
                     closeLoading()
                 })
         }
-
-        onMounted(() => {
-            // 如果路由跳转包含搜索条件，则执行搜索
-            if (history.state.eventType || history.state.targetType || history.state.searchType) {
-                if (history.state.eventType) {
-                    switch (history.state.eventType) {
-                        case 'aoi_entry':
-                        case 'aoi_leave':
-                        case 'perimeter':
-                            formData.value.event.push('intrusion')
-                            break
-                        case 'tripwire':
-                            formData.value.event.push('tripwire')
-                            break
-                        case 'pass_line':
-                            formData.value.event.push('passLine')
-                            break
-                        case 'plateDetection':
-                            formData.value.event.push('plateDetection')
-                            break
-                        case 'plateMatchWhiteList':
-                            formData.value.event.push('plateMatchWhiteList')
-                            break
-                        case 'plateMatchStranger':
-                            formData.value.event.push('plateMatchStranger')
-                            break
-                        case 'video_metavideo':
-                            formData.value.event.push('videoMetadata')
-                            break
-                    }
-                    delete history.state.eventType
-                }
-
-                if (history.state.targetType) {
-                    if (history.state.targetType === 'vehicle') {
-                        formData.value.target.push('car')
-                    } else {
-                        formData.value.target.push('motor')
-                    }
-                    delete history.state.targetType
-                }
-
-                if (history.state.searchType) {
-                    pageData.value.searchType = history.state.searchType
-                    delete history.state.searchType
-                }
-
-                getData()
-            }
-        })
 
         const cacheKey = computed(() => {
             return pageData.value.searchType === 'event' ? LocalCacheKey.KEY_VEHICLE_SEARCH_COLLECTION : LocalCacheKey.KEY_PARK_SEARCH_COLLECTION

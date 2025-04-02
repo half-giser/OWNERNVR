@@ -29,7 +29,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const uploadRef = ref<HTMLInputElement>()
 
-        const DEFAULT_BIRTHDAY = formatDate(new Date(), 'YYYY/MM/DD')
+        const DEFAULT_BIRTHDAY = formatGregoryDate(new Date(), 'YYYY/MM/DD')
 
         const plugin = usePlugin({
             onReady: (mode, plugin) => {
@@ -347,7 +347,7 @@ export default defineComponent({
          */
         const handleOCXImport = () => {
             const sendXML = OCX_XML_OpenFileBrowser('OPEN_FILE', '', '', true, '*.csv,*.txt,*.jpg,*.jpeg')
-            plugin.AsynQueryInfo(sendXML, (result) => {
+            plugin.AsynQueryInfo(sendXML, (result: string) => {
                 const path = OCX_XML_OpenFileBrowser_getpath(result).trim()
                 if (path) {
                     const fileList = path.split('|')

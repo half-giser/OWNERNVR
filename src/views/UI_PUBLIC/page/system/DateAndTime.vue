@@ -13,13 +13,12 @@
         >
             <div class="base-subheading-box">{{ Translate('IDCS_DATE_AND_TIME') }}</div>
             <el-form-item :label="Translate('IDCS_SYSTEM_TIME')">
-                <el-date-picker
+                <BaseDatePicker
                     v-model="formData.systemTime"
                     :disabled="formData.isSync || formData.syncType === 'NTP'"
                     :value-format="formatSystemTime"
                     :format="formatSystemTime"
                     type="datetime"
-                    :placeholder="Translate('IDCS_SYSTEM_TIME')"
                     @change="handleSystemTimeChange"
                     @visible-change="pendingSystemTimeChange"
                 />

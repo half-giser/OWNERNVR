@@ -452,8 +452,8 @@ export default defineComponent({
                                                         .map((ele) => {
                                                             return rawXml`
                                                                 <item>
-                                                                    <X>${ele.X}</X>
-                                                                    <Y>${ele.Y}</Y>
+                                                                    <X>${Math.floor(ele.X)}</X>
+                                                                    <Y>${Math.floor(ele.Y)}</Y>
                                                                 </item>`
                                                         })
                                                         .join('')}

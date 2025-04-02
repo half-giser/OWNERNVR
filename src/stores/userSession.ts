@@ -23,7 +23,7 @@ export const useUserSessionStore = defineStore(
         const securityVer = ref('')
         const facePersonnalInfoMgr = ref(false)
         const authGroupId = ref('')
-        const allowModifyPassword = ref('')
+        const allowModifyPassword = ref(false)
         const userType = ref('')
         const defaultPwd = ref(false)
         const loginCheck = ref('')
@@ -160,7 +160,7 @@ export const useUserSessionStore = defineStore(
                 userId.value = $('content/userId').text()
                 facePersonnalInfoMgr.value = $('content/systemAuth/facePersonnalInfoMgr').text().bool()
                 authGroupId.value = $('content/authGroupId').text()
-                allowModifyPassword.value = $('content/modifyPassword').text()
+                allowModifyPassword.value = $('content/modifyPassword').text().bool()
                 userType.value = $('content/userType').text()
 
                 const resetPassword = $('content/resetInfo').text()

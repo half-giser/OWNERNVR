@@ -30,7 +30,7 @@
             <el-form-item>
                 <div class="form-item">
                     <label>{{ Translate('IDCS_START_TIME') }}</label>
-                    <el-date-picker
+                    <BaseDatePicker
                         v-model="pageData.startTime"
                         :value-format="dateTime.dateTimeFormat"
                         :format="dateTime.dateTimeFormat"
@@ -38,7 +38,7 @@
                         @change="changeStartTime"
                     />
                     <label>{{ Translate('IDCS_END_TIME') }}</label>
-                    <el-date-picker
+                    <BaseDatePicker
                         v-model="pageData.endTime"
                         :value-format="dateTime.dateTimeFormat"
                         :format="dateTime.dateTimeFormat"

@@ -133,8 +133,8 @@ export default defineComponent({
             const sendXml = rawXml`
                 <resultLimit>150000</resultLimit>
                 <condition>
-                    <startTime>${formatDate(formData.value.dateRange[0], DEFAULT_DATE_FORMAT)}</startTime>
-                    <endTime>${formatDate(formData.value.dateRange[1], DEFAULT_DATE_FORMAT)}</endTime>
+                    <startTime>${formatGregoryDate(formData.value.dateRange[0], DEFAULT_DATE_FORMAT)}</startTime>
+                    <endTime>${formatGregoryDate(formData.value.dateRange[1], DEFAULT_DATE_FORMAT)}</endTime>
                     <timeQuantum>${stats.getTimeQuantum()}</timeQuantum>
                     <chls type="list">${formData.value.chl.map((item) => `<item id="${item}"></item>`).join('')}</chls>
                     <events type="list">${formData.value.event.map((item) => `<item>${item}</item>`).join('')}</events>

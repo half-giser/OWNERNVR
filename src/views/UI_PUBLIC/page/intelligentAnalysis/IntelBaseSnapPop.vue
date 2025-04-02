@@ -182,7 +182,12 @@
     }
 
     .row {
-        width: 50%;
+        width: 25%;
+
+        label {
+            width: auto;
+            margin-right: 5px;
+        }
     }
 }
 </style>

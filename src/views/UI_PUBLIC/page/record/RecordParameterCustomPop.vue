@@ -52,10 +52,13 @@
                 highlight-current-row
             >
                 <el-table-column
-                    prop="date"
                     :label="Translate('IDCS_DATE')"
                     min-width="355"
-                />
+                >
+                    <template #default="{ row }: TableColumn<{ date: string }>">
+                        {{ displayDate(row.date) }}
+                    </template>
+                </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_EDIT')"
                     width="80"
@@ -88,11 +91,10 @@
         >
             <el-form>
                 <el-form-item>
-                    <el-date-picker
+                    <BaseDatePicker
                         v-model="pageData.selectDate"
                         :value-format="pageData.dateFormat"
                         :format="pageData.dateFormat"
-                        :default-value="new Date()"
                     />
                 </el-form-item>
             </el-form>

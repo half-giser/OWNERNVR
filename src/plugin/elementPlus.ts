@@ -3,8 +3,7 @@
  * @Date: 2024-10-25 09:17:39
  * @Description: Element Plus的默认值设置
  */
-import { ElDialog, ElInputNumber, ElForm, ElTooltip, ElSelectV2, ElTable, ElDropdown, ElPopover, ElDatePicker, ElTimePicker, ElSlider, ElScrollbar } from 'element-plus'
-import { type PropType } from 'vue'
+import { ElDialog, ElInputNumber, ElForm, ElTooltip, ElSelectV2, ElTable, ElDropdown, ElPopover, ElTimePicker, ElSlider, ElScrollbar } from 'element-plus'
 
 ElInputNumber.props.controls = {
     type: Boolean,
@@ -181,15 +180,15 @@ ElPopover.props.showArrow = {
 //     default: 15,
 // }
 
-ElDatePicker.props.cellClassName = {
-    type: Function as PropType<(data: Date) => string>,
-    default: highlightWeekend,
-}
+// ElDatePicker.props.cellClassName = {
+//     type: Function as PropType<(data: Date) => string>,
+//     default: highlightWeekend,
+// }
 
-ElDatePicker.props.clearable = {
-    type: Boolean,
-    default: false,
-}
+// ElDatePicker.props.clearable = {
+//     type: Boolean,
+//     default: false,
+// }
 
 // ElDatePicker.props.showNow = {
 //     type: Boolean,

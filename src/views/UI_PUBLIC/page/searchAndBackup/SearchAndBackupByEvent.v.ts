@@ -418,8 +418,8 @@ export default defineComponent({
                     </recList>
                 </requireField>
                 <condition>
-                    <startTime>${formatDate(startTime, DEFAULT_DATE_FORMAT)}</startTime>
-                    <endTime>${formatDate(endTime, DEFAULT_DATE_FORMAT)}</endTime>
+                    <startTime>${formatGregoryDate(startTime, DEFAULT_DATE_FORMAT)}</startTime>
+                    <endTime>${formatGregoryDate(endTime, DEFAULT_DATE_FORMAT)}</endTime>
                     <startTimeEx>${localToUtc(startTime)}</startTimeEx>
                     <endTimeEx>${localToUtc(endTime)}</endTimeEx>
                     <recType type='list'>
@@ -517,8 +517,8 @@ export default defineComponent({
             getChlsList()
 
             const date = new Date()
-            formData.value.startTime = dayjs(date).hour(0).minute(0).second(0).format(dateTime.dateTimeFormat)
-            formData.value.endTime = dayjs(date).hour(23).minute(59).second(59).format(dateTime.dateTimeFormat)
+            formData.value.startTime = dayjs(date).hour(0).minute(0).second(0).calendar('gregory').format(dateTime.dateTimeFormat)
+            formData.value.endTime = dayjs(date).hour(23).minute(59).second(59).calendar('gregory').format(dateTime.dateTimeFormat)
         })
 
         return {

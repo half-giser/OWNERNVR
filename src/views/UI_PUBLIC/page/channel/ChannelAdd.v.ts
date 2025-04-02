@@ -552,7 +552,7 @@ export default defineComponent({
         const getXmlDataByQuickAdd = (element: ChannelQuickAddDto, supportType: string, chlName: string) => {
             return rawXml`
                 <item>
-                    <name maxByteLen="63">${wrapCDATA(chlName)}</name>
+                    <name>${wrapCDATA(chlName)}</name>
                     <ip>${element.ip}</ip>
                     <port>${element.port}</port>
                     <userName>${mapping.value[element.manufacturer].userName}</userName>

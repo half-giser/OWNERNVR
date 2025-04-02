@@ -131,7 +131,7 @@
                                 disabled: 'none',
                             }"
                         />
-                        <span v-show="deviceList[pageData.deviceIndex].disabled">{{ Translate('IDCS_OFFLINE') }}</span>
+                        <span v-show="deviceList[pageData.deviceIndex].id && deviceList[pageData.deviceIndex].disabled">{{ Translate('IDCS_OFFLINE') }}</span>
                     </el-form-item>
                     <!-- 声音设备 -->
                     <el-form-item :label="Translate('IDCS_AUDIO_DEVICE')">
@@ -146,7 +146,7 @@
                         <el-select-v2
                             v-model="deviceList[pageData.deviceIndex].audioInput"
                             :options="deviceList[pageData.deviceIndex].audioInputType"
-                            :disabled="!deviceList[pageData.deviceIndex].audioInSwitch"
+                            :disabled="!deviceList[pageData.deviceIndex].audioInSwitch || !deviceList[pageData.deviceIndex].audioInput"
                         />
                     </el-form-item>
                     <!-- 音频输入音量 -->
@@ -154,14 +154,14 @@
                         <el-slider
                             v-if="deviceList[pageData.deviceIndex].audioInput === 'MIC'"
                             v-model="deviceList[pageData.deviceIndex].micInVolume"
-                            :disabled="!deviceList[pageData.deviceIndex].audioInSwitch || deviceList[pageData.deviceIndex].micOrLinEnabled"
+                            :disabled="!deviceList[pageData.deviceIndex].audioInSwitch || !deviceList[pageData.deviceIndex].micOrLinEnabled"
                             :max="deviceList[pageData.deviceIndex].micMaxValue"
                             show-input
                         />
                         <el-slider
                             v-else
                             v-model="deviceList[pageData.deviceIndex].linInVolume"
-                            :disabled="!deviceList[pageData.deviceIndex].audioInSwitch || deviceList[pageData.deviceIndex].micOrLinEnabled"
+                            :disabled="!deviceList[pageData.deviceIndex].audioInSwitch || !deviceList[pageData.deviceIndex].micOrLinEnabled"
                             :max="deviceList[pageData.deviceIndex].linMaxValue"
                             show-input
                         />
@@ -170,7 +170,7 @@
                     <el-form-item :label="Translate('IDCS_DEVICE_SPEAKER_BUILT_IN')">
                         <el-select-v2
                             v-model="deviceList[pageData.deviceIndex].loudSpeaker"
-                            :disabled="!deviceList[pageData.deviceIndex].audioInSwitch"
+                            :disabled="!deviceList[pageData.deviceIndex].audioInSwitch || !deviceList[pageData.deviceIndex].loudSpeaker"
                             :options="deviceList[pageData.deviceIndex].audioOutputType"
                         />
                     </el-form-item>
@@ -179,14 +179,14 @@
                         <el-select-v2
                             v-model="deviceList[pageData.deviceIndex].audioOutput"
                             :options="deviceList[pageData.deviceIndex].audioOutputType"
-                            :disabled="!deviceList[pageData.deviceIndex].audioInSwitch"
+                            :disabled="!deviceList[pageData.deviceIndex].audioInSwitch || !deviceList[pageData.deviceIndex].audioOutput"
                         />
                     </el-form-item>
                     <!-- 音频输出音量 -->
                     <el-form-item :label="Translate('IDCS_AUDIO_OUT_VOLUME')">
                         <el-slider
                             v-model="deviceList[pageData.deviceIndex].audioOutVolume"
-                            :disabled="!deviceList[pageData.deviceIndex].audioInSwitch"
+                            :disabled="!deviceList[pageData.deviceIndex].audioInSwitch || !deviceList[pageData.deviceIndex].audioOutEnabled"
                             show-input
                             :max="deviceList[pageData.deviceIndex].audioOutMaxValue"
                         />
@@ -196,7 +196,7 @@
                         <el-select-v2
                             v-model="deviceList[pageData.deviceIndex].audioEncode"
                             :options="deviceList[pageData.deviceIndex].audioEncodeType"
-                            :disabled="!deviceList[pageData.deviceIndex].audioInSwitch"
+                            :disabled="!deviceList[pageData.deviceIndex].audioInSwitch || !deviceList[pageData.deviceIndex].audioEncode"
                         />
                     </el-form-item>
                 </template>

@@ -60,7 +60,7 @@
                 />
             </el-form-item>
             <!-- 启用报警输出脉冲 -->
-            <el-form-item v-if="taskData.ruleType === 'hit'">
+            <el-form-item v-if="taskData.ruleType === 'hit' || taskData.ruleType === 'whitelist'">
                 <el-checkbox
                     v-model="taskData.pluseSwitch"
                     :label="Translate('IDCS_ENABLE_ALARM_OUTPUT')"

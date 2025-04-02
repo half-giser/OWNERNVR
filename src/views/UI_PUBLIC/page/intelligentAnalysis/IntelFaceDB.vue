@@ -127,7 +127,7 @@
                                         </el-form-item>
                                         <el-form-item :label="Translate('IDCS_BIRTHDAY')">
                                             <el-input
-                                                :model-value="currentFace.birthday"
+                                                :model-value="displayDate(currentFace.birthday)"
                                                 disabled
                                             />
                                         </el-form-item>
@@ -179,7 +179,12 @@
                     {{ Translate('IDCS_ADD_FACE') }}
                 </el-button>
                 <el-button @click="addGroup">{{ Translate('IDCS_ADD_GROUP') }}</el-button>
-                <el-button v-show="!pageData.isExportDisabled">{{ Translate('IDCS_EXPORT') }}</el-button>
+                <el-button
+                    v-show="!pageData.isExportDisabled"
+                    @click="exportGroup"
+                >
+                    {{ Translate('IDCS_EXPORT') }}
+                </el-button>
             </div>
         </div>
         <IntelFaceDBEditPop
@@ -189,7 +194,11 @@
             @confirm="confirmEditGroup"
             @close="pageData.isEditPop = false"
         />
-        <el-dialog v-model="pageData.isExportTipPop">
+        <el-dialog
+            v-model="pageData.isExportTipPop"
+            :title="Translate('IDCS_INFORMATION_MSG')"
+            width="400"
+        >
             <div>
                 <div>{{ Translate('IDCS_FILE_TYPE') }}: CSV+JPG</div>
                 <div class="text-error">{{ Translate('IDCS_EXPORT_UNENCRYPTED_TIP') }}</div>

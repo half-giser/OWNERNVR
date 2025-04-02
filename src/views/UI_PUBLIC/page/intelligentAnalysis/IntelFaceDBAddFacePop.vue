@@ -25,14 +25,14 @@
                     </el-form-item>
                     <el-form-item :label="Translate('IDCS_SEX')">
                         <el-select-v2
-                            v-model="formData[0].sex"
+                            v-model="formData[pageData.formIndex].sex"
                             :options="pageData.genderOptions"
                         />
                     </el-form-item>
                 </el-form-item>
                 <el-form-item>
                     <el-form-item :label="Translate('IDCS_BIRTHDAY')">
-                        <el-date-picker
+                        <BaseDatePicker
                             v-model="formData[pageData.formIndex].birthday"
                             :value-format="dateTime.dateFormat"
                             :format="dateTime.dateFormat"

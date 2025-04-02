@@ -29,7 +29,7 @@
                 }"
             >
                 <el-form-item :label="Translate('IDCS_START_TIME')">
-                    <el-date-picker
+                    <BaseDatePicker
                         v-model="formData.startTime"
                         :value-format="dateTime.dateTimeFormat"
                         :format="dateTime.dateTimeFormat"
@@ -37,7 +37,7 @@
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_END_TIME')">
-                    <el-date-picker
+                    <BaseDatePicker
                         v-model="formData.endTime"
                         :value-format="dateTime.dateTimeFormat"
                         :format="dateTime.dateTimeFormat"
@@ -135,8 +135,8 @@ const formData = ref({
  * @description 验证自定义弹窗 通过后更新数据
  */
 const verifyCustomPop = () => {
-    const startTime = dayjs(formData.value.startTime, dateTime.dateTimeFormat).valueOf()
-    const endTime = dayjs(formData.value.endTime, dateTime.dateTimeFormat).valueOf()
+    const startTime = dayjs(formData.value.startTime, { jalali: false, format: dateTime.dateTimeFormat }).valueOf()
+    const endTime = dayjs(formData.value.endTime, { jalali: false, format: dateTime.dateTimeFormat }).valueOf()
     if (startTime > endTime) {
         openMessageBox(Translate('IDCS_END_TIME_GREATER_THAN_START'))
         return
@@ -183,8 +183,8 @@ const changeType = (type: string | number | boolean | undefined) => {
     currentType.value = type
     if (type === 'custom') {
         if (!formData.value.startTime) {
-            formData.value.startTime = dayjs().hour(0).minute(0).second(0).format(dateTime.dateTimeFormat)
-            formData.value.endTime = dayjs().hour(23).minute(59).second(59).format(dateTime.dateTimeFormat)
+            formData.value.startTime = dayjs().hour(0).minute(0).second(0).calendar('gregory').format(dateTime.dateTimeFormat)
+            formData.value.endTime = dayjs().hour(23).minute(59).second(59).calendar('gregory').format(dateTime.dateTimeFormat)
         }
         pageData.value.isCustomPop = true
     } else {
@@ -198,11 +198,11 @@ const changeType = (type: string | number | boolean | undefined) => {
                 current = [date.date(1).hour(0).minute(0).second(0).valueOf(), date.date(days).hour(23).minute(59).second(59).valueOf()]
                 break
             case 'week':
-                const day = date.day()
+                const day = date.calendar('gregory').day()
                 if (day === 0) {
-                    current = [date.day(-6).hour(0).minute(0).second(0).valueOf(), date.day(0).hour(23).minute(59).second(59).valueOf()]
+                    current = [date.calendar('gregory').day(-6).hour(0).minute(0).second(0).valueOf(), date.calendar('gregory').day(0).hour(23).minute(59).second(59).valueOf()]
                 } else {
-                    current = [date.day(1).hour(0).minute(0).second(0).valueOf(), date.day(7).hour(23).minute(59).second(59).valueOf()]
+                    current = [date.calendar('gregory').day(1).hour(0).minute(0).second(0).valueOf(), date.calendar('gregory').day(7).hour(23).minute(59).second(59).valueOf()]
                 }
                 break
             case 'quarter':

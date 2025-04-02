@@ -94,7 +94,7 @@
                                 </div>
                                 <div>
                                     <span>{{ Translate('IDCS_BIRTHDAY') }}</span>
-                                    <span>{{ formFaceData.birthday }}</span>
+                                    <span>{{ displayDate(formFaceData.birthday) }}</span>
                                 </div>
                                 <div>
                                     <span>{{ Translate('IDCS_ID_NUMBER') }}</span>

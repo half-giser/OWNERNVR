@@ -124,7 +124,7 @@
                                     <el-checkbox
                                         v-model="formData.countOSD.switch"
                                         :label="Translate('IDCS_STATIST_OSD')"
-                                        :disabled="formData.countOSD.supportCountOSD"
+                                        :disabled="!formData.countOSD.supportCountOSD"
                                         @change="setEnableOSD"
                                     />
                                 </el-form-item>
@@ -388,10 +388,10 @@
                                     :value-on-clear="formData.algoChkModel === 'inter_model' ? 'min' : null"
                                 />
                             </el-form-item>
+                            <div class="base-btn-box">
+                                <el-button @click="advancedVisible = false">{{ Translate('IDCS_CLOSE') }}</el-button>
+                            </div>
                         </el-form>
-                        <div class="base-btn-box">
-                            <el-button @click="advancedVisible = false">{{ Translate('IDCS_CLOSE') }}</el-button>
-                        </div>
                     </div>
                 </el-popover>
             </div>

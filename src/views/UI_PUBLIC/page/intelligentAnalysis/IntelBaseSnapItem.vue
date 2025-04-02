@@ -9,6 +9,7 @@
         :class="{
             panorama: type === 'panorama',
             match: type === 'match',
+            struct: type === 'struct',
         }"
     >
         <div
@@ -44,6 +45,18 @@
                     v-show="type === 'match'"
                     :src="matchSrc"
                 />
+                <ul
+                    v-if="type === 'struct'"
+                    class="snap-info"
+                >
+                    <li
+                        v-for="(item, key) in infoList"
+                        :key
+                    >
+                        <BaseImgSprite :file="item.icon" />
+                        <span>{{ item.value }}</span>
+                    </li>
+                </ul>
                 <BaseImgSprite
                     v-show="identity"
                     class="identity"
@@ -72,6 +85,49 @@
 
         .snap-404 {
             line-height: 130px;
+        }
+    }
+
+    &.struct {
+        width: 240px;
+
+        .snap-pic {
+            height: 175px;
+        }
+
+        img {
+            width: 114px;
+        }
+
+        .snap-404 {
+            line-height: 130px;
+        }
+    }
+
+    &-info {
+        position: absolute;
+        right: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 100%;
+        width: 120px;
+        line-height: 22px;
+        margin: 0;
+        padding: 0;
+
+        li {
+            margin-left: 10px;
+            list-style: none;
+            font-size: 14px;
+
+            &:not(:first-child) {
+                margin-top: 10px;
+            }
+
+            span:last-child {
+                margin-left: 10px;
+            }
         }
     }
 

@@ -48,7 +48,10 @@
                             v-text="Translate('IDCS_LOGOUT')"
                         ></a>
                     </div>
-                    <div class="nav-item">
+                    <div
+                        v-show="userSession.allowModifyPassword"
+                        class="nav-item"
+                    >
                         <a
                             class="modifyPassword"
                             @click="showChangePwdPop"

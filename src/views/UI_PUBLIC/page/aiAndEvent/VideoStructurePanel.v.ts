@@ -106,9 +106,9 @@ export default defineComponent({
             scheduleList: [] as SelectOption<string, string>[],
             isSchedulePop: false,
             // 检测区域，屏蔽区域
-            detectArea: -1,
+            detectArea: 0,
             detectAreaChecked: [] as number[],
-            maskArea: 0,
+            maskArea: -1,
             // 初始是否有数据（添加样式）
             maskAreaChecked: [] as number[],
 
@@ -189,7 +189,11 @@ export default defineComponent({
                 formData.value.countOSD.X = osdInfo.X
                 formData.value.countOSD.Y = osdInfo.Y
             }
-            showAllArea(pageData.value.isShowAllArea)
+
+            if (pageData.value.isShowAllArea) {
+                showAllArea(pageData.value.isShowAllArea)
+            }
+            // showAllArea(pageData.value.isShowAllArea)
         }
 
         const closePath = (area: CanvasBasePoint[]) => {
@@ -898,7 +902,7 @@ export default defineComponent({
                             <saveTargetPicture>${formData.value.saveTargetPicture}</saveTargetPicture>
                             <saveSourcePicture>${formData.value.saveSourcePicture}</saveSourcePicture>
                             <algoModel>
-                                <algoChkModel type=algoChkType>${formData.value.algoChkModel}</algoChkModel>
+                                <algoChkModel type='algoChkType'>${formData.value.algoChkModel}</algoChkModel>
                                 <intervalCheck type='int' min='${formData.value.intervalCheckMin}' max='${formData.value.intervalCheckMax}'>${formData.value.intervalCheck}</intervalCheck>
                             </algoModel>
                             <boundary type='list' count='4'>
@@ -911,8 +915,8 @@ export default defineComponent({
                                                         .map((item) => {
                                                             return rawXml`
                                                                 <item>
-                                                                    <X>${item.X}</X>
-                                                                    <Y>${item.Y}</Y>
+                                                                    <X>${Math.floor(item.X)}</X>
+                                                                    <Y>${Math.floor(item.Y)}</Y>
                                                                 </item>
                                                             `
                                                         })
@@ -933,8 +937,8 @@ export default defineComponent({
                                                     .map((item) => {
                                                         return rawXml`
                                                             <item>
-                                                                <X>${item.X}</X>
-                                                                <Y>${item.Y}</Y>
+                                                                <X>${Math.floor(item.X)}</X>
+                                                                <Y>${Math.floor(item.Y)}</Y>
                                                             </item>
                                                         `
                                                     })
@@ -1030,7 +1034,7 @@ export default defineComponent({
         const setData = async () => {
             const sendXml = getSaveData()
             openLoading()
-            const result = await editOsc(sendXml)
+            const result = await editVideoMetadata(sendXml)
             closeLoading()
             const $ = queryXml(result)
             if ($('status').text() === 'success') {

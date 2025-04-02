@@ -27,6 +27,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
+        const dateTime = useDateTimeStore()
 
         const week = objectToOptions(getTranslateMapping(DEFAULT_WEEK_MAPPING2), 'number').slice(1)
 
@@ -68,7 +69,7 @@ export default defineComponent({
                 if (holiday) {
                     holiday.split(',').forEach((item) => {
                         pageData.value.toAddDateList.push({
-                            date: formatDate(item, pageData.value.dateFormat, 'YYYY-MM-DD'),
+                            date: formatGregoryDate(item, pageData.value.dateFormat, 'YYYY-MM-DD'),
                         })
                     })
                 }
@@ -114,7 +115,7 @@ export default defineComponent({
             const unit = pageData.value.expireTime === 1 ? Translate('IDCS_HOUR') : Translate('IDCS_HOURS')
             const tips = pageData.value.expireTime + ' ' + unit
             const week = pageData.value.weekArr.join(',')
-            const holiday = pageData.value.toAddDateList.map((item) => formatDate(item.date, 'YYYY-MM-DD', pageData.value.dateFormat)).join(',')
+            const holiday = pageData.value.toAddDateList.map((item) => formatGregoryDate(item.date, 'YYYY-MM-DD', pageData.value.dateFormat)).join(',')
             const expiration = pageData.value.expireTime
 
             close()
@@ -132,7 +133,7 @@ export default defineComponent({
 
         // 打开添加日期弹窗
         const openAddDate = () => {
-            pageData.value.selectDate = dayjs(new Date()).format(pageData.value.dateFormat)
+            pageData.value.selectDate = dayjs(new Date()).calendar('gregory').format(pageData.value.dateFormat)
             pageData.value.isShowAddDate = true
         }
 
@@ -166,6 +167,10 @@ export default defineComponent({
             pageData.value.toAddDateList = []
         }
 
+        const displayDate = (date: string) => {
+            return formatDate(date, dateTime.dateTimeFormat)
+        }
+
         onMounted(() => {
             getTimeCfg()
         })
@@ -184,6 +189,7 @@ export default defineComponent({
             inputRef,
             opened,
             blurExpireTime,
+            displayDate,
         }
     },
 })

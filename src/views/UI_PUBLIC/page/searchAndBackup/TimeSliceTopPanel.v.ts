@@ -122,9 +122,9 @@ export default defineComponent({
          * @param {Array} chlList
          */
         const getRecSection = async () => {
-            const year = dayjs().year()
-            const startTime = dayjs(`${year - 10}-01-01`, DEFAULT_YMD_FORMAT)
-            const endTime = dayjs(`${year + 10}-01-01`, DEFAULT_YMD_FORMAT)
+            const year = dayjs().calendar('gregory').year()
+            const startTime = dayjs(`${year - 10}-01-01`, { jalali: false, format: DEFAULT_YMD_FORMAT })
+            const endTime = dayjs(`${year + 10}-01-01`, { jalali: false, format: DEFAULT_YMD_FORMAT })
             const spaceTime = 60 * 60 * 24
             const spaceNum = (endTime.valueOf() - startTime.valueOf()) / 1000 / spaceTime
 

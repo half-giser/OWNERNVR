@@ -27,13 +27,13 @@ export const useLangStore = defineStore(
          * @param {boolean} activated 激活状态
          */
         const requestLangTypes = async () => {
-            if (!langType.value) {
-                langType.value = localStorage.getItem(LocalCacheKey.KEY_LANG_TYPE) || ''
-            }
+            // if (!langType.value) {
+            //     langType.value = localStorage.getItem(LocalCacheKey.KEY_LANG_TYPE) || ''
+            // }
 
-            if (!langId.value) {
-                langId.value = localStorage.getItem(LocalCacheKey.KEY_LANG_ID) || ''
-            }
+            // if (!langId.value) {
+            //     langId.value = localStorage.getItem(LocalCacheKey.KEY_LANG_ID) || ''
+            // }
 
             const result = await getSupportLangList()
             const $ = queryXml(result)
@@ -41,7 +41,9 @@ export const useLangStore = defineStore(
             const langTypeList: string[] = []
             const langTypesTemp: Record<string, string> = {}
             $('content/item').forEach((item) => {
-                langTypesTemp[item.attr('id')] = queryXml(item.element)('name').text()
+                const id = item.attr('id')
+                langTypesTemp[id] = queryXml(item.element)('name').text()
+                langTypeList.push(id)
             })
             langTypes.value = langTypesTemp
             devLandId.value = $('content').attr('currentLangType')
@@ -143,7 +145,7 @@ export const useLangStore = defineStore(
          */
         const updateLangType = (newVal: string) => {
             langType.value = newVal
-            localStorage.setItem(LocalCacheKey.KEY_LANG_TYPE, newVal)
+            // localStorage.setItem(LocalCacheKey.KEY_LANG_TYPE, newVal)
         }
 
         /**
@@ -152,7 +154,7 @@ export const useLangStore = defineStore(
          */
         const updateLangId = (newVal: string) => {
             langId.value = newVal
-            localStorage.setItem(LocalCacheKey.KEY_LANG_ID, newVal)
+            // localStorage.setItem(LocalCacheKey.KEY_LANG_ID, newVal)
         }
 
         /**

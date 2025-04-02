@@ -8,14 +8,14 @@
         <div class="form">
             <div>
                 <label>{{ Translate('IDCS_START_TIME') }}</label>
-                <el-date-picker
+                <BaseDatePicker
                     v-model="pageData.startTime"
                     :value-format="dateTime.dateTimeFormat"
                     :format="dateTime.dateTimeFormat"
                     type="datetime"
                 />
                 <label>{{ Translate('IDCS_END_TIME') }}</label>
-                <el-date-picker
+                <BaseDatePicker
                     v-model="pageData.endTime"
                     :value-format="dateTime.dateTimeFormat"
                     :format="dateTime.dateTimeFormat"
@@ -228,9 +228,15 @@
     justify-content: space-between;
     margin: 10px;
 
+    & > div {
+        display: flex;
+        align-items: center;
+    }
+
     label {
         padding-right: 20px;
         font-size: 13px;
+        flex-shrink: 0;
 
         &:not(:first-child) {
             padding-left: 20px;

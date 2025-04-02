@@ -187,8 +187,8 @@ export default defineComponent({
             getChlsList()
 
             const date = new Date()
-            formData.value.startTime = dayjs(date).hour(0).minute(0).second(0).format(dateTime.dateTimeFormat)
-            formData.value.endTime = dayjs(date).hour(23).minute(59).second(59).format(dateTime.dateTimeFormat)
+            formData.value.startTime = dayjs(date).hour(0).minute(0).second(0).calendar('gregory').format(dateTime.dateTimeFormat)
+            formData.value.endTime = dayjs(date).hour(23).minute(59).second(59).calendar('gregory').format(dateTime.dateTimeFormat)
         })
 
         return {

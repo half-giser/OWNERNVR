@@ -133,6 +133,11 @@ export default defineComponent({
             },
         )
 
+        onMounted(() => {
+            // 检测是否登录超时
+            heartBeat()
+        })
+
         return {
             configModules,
             goToDefaultPage,

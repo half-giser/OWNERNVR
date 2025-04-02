@@ -41,9 +41,9 @@ export default defineComponent({
                 }
             }),
             // 系统时间最小值
-            serverTimeStart: new Date(2010, 0, 1),
+            serverTimeStart: dayjs('2021-01-01', { jalali: false, format: DEFAULT_DATE_FORMAT }),
             // 系统时间最大值
-            serverTimeEnd: new Date(2037, 11, 31),
+            serverTimeEnd: dayjs('2037-01-01', { jalali: false, format: DEFAULT_DATE_FORMAT }),
             // 是否可提交
             submitDisabled: true,
             // 系统时间改变标识
@@ -69,7 +69,7 @@ export default defineComponent({
         const handleIsSyncChange = () => {
             if (formData.value.isSync) {
                 pageData.value.isSystemTimeChanged = true
-                formData.value.systemTime = dayjs(new Date()).format(formatSystemTime.value)
+                formData.value.systemTime = dayjs().calendar('gregory').format(formatSystemTime.value)
             } else {
                 isTimePickerChange = false
             }
@@ -90,13 +90,14 @@ export default defineComponent({
             // 与Internet时间同步时，使用返回的系统时间计时
             if (formData.value.syncType === 'manually') {
                 const now = performance.now()
-                formData.value.systemTime = dayjs(pageData.value.systemTime, formatSystemTime.value)
+                formData.value.systemTime = dayjs(pageData.value.systemTime, { jalali: false, format: formatSystemTime.value })
                     .add(now - pageData.value.startTime, 'millisecond')
+                    .calendar('gregory')
                     .format(formatSystemTime.value)
             }
             // 计算机时间同步时，使用计算时间计时
             else {
-                formData.value.systemTime = dayjs(new Date()).format(formatSystemTime.value)
+                formData.value.systemTime = dayjs().calendar('gregory').format(formatSystemTime.value)
             }
         }
 
@@ -156,15 +157,15 @@ export default defineComponent({
             currentTimezone = formData.value.timeZone
             currentDST = formData.value.enableDST
 
-            let currentDate = dayjs($('content/synchronizeInfo/currentTime').text().trim(), formatSystemTime.value).toDate()
-            if (currentDate < pageData.value.serverTimeStart) {
+            let currentDate = dayjs($('content/synchronizeInfo/currentTime').text().trim(), { jalali: false, format: formatSystemTime.value })
+            if (currentDate.isBefore(pageData.value.serverTimeStart)) {
                 currentDate = pageData.value.serverTimeStart
-            } else if (currentDate > pageData.value.serverTimeEnd) {
+            } else if (currentDate.isAfter(pageData.value.serverTimeEnd)) {
                 currentDate = pageData.value.serverTimeEnd
             }
 
             nextTick(() => {
-                formData.value.systemTime = dayjs(currentDate).format(formatSystemTime.value)
+                formData.value.systemTime = dayjs(currentDate).calendar('gregory').format(formatSystemTime.value)
                 pageData.value.startTime = performance.now()
                 pageData.value.systemTime = formData.value.systemTime
                 clock()
