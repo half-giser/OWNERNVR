@@ -24,7 +24,7 @@ export default defineComponent({
             totalCount: 0,
             isSchedulePop: false,
             schedule: '',
-            scheduleName: '',
+            // scheduleName: '',
             scheduleChanged: false,
             scheduleList: [] as SelectOption<string, string>[],
             enableList: getTranslateOptions(DEFAULT_BOOL_SWITCH_OPTIONS),
@@ -117,7 +117,20 @@ export default defineComponent({
                 const $ = queryXml(result)
                 if ($('status').text() === 'success') {
                     pageData.value.schedule = $('content/triggerChannelLightSchedule').attr('id')
-                    pageData.value.scheduleName = $('content/triggerChannelLightSchedule').text()
+                    const scheduleName = $('content/triggerChannelLightSchedule').text()
+                    // 判断返回的排程是否存在，若不存在设为DEFAULT_EMPTY_ID
+                    if (pageData.value.schedule) {
+                        if (!pageData.value.scheduleList.some((item) => item.value === pageData.value.schedule)) {
+                            pageData.value.schedule = DEFAULT_EMPTY_ID
+                        }
+                    } else {
+                        const find = pageData.value.scheduleList.find((item) => item.label === scheduleName)
+                        if (find) {
+                            pageData.value.schedule = find.value
+                        } else {
+                            pageData.value.schedule = DEFAULT_EMPTY_ID
+                        }
+                    }
                 }
             })
             pageData.value.scheduleChanged = false
@@ -147,11 +160,10 @@ export default defineComponent({
             }
 
             if (pageData.value.scheduleChanged) {
+                const scheduleName = pageData.value.schedule === DEFAULT_EMPTY_ID ? '' : pageData.value.scheduleList.find((item) => item.value === pageData.value.schedule)!.label
                 const scheduleSendXml = rawXml`
                     <content>
-                        <triggerChannelLightSchedule id="${pageData.value.schedule}">
-                            ${pageData.value.scheduleName}
-                        </triggerChannelLightSchedule>
+                        <triggerChannelLightSchedule id="${pageData.value.schedule}">${scheduleName}</triggerChannelLightSchedule>
                     </content>
                 `
                 try {
@@ -193,7 +205,6 @@ export default defineComponent({
 
         const changeSchedule = () => {
             pageData.value.scheduleChanged = true
-            pageData.value.scheduleName = pageData.value.schedule === DEFAULT_EMPTY_ID ? '' : pageData.value.scheduleList.find((item) => item.value === pageData.value.schedule)!.label
         }
 
         const openSchedulePop = () => {
