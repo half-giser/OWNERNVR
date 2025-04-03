@@ -122,6 +122,12 @@
         }
     }
 
+    .el-textarea {
+        &__inner {
+            padding: 5px;
+        }
+    }
+
     .el-input,
     .el-radio,
     .el-select,

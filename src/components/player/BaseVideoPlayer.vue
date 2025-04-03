@@ -1746,18 +1746,20 @@ const play = (params: PlayerPlayParams) => {
             handlePlaySuccess(winIndex)
         },
         onstop: () => {
+            if (!winDataList[winIndex].seeking) {
+                winDataList[winIndex].CHANNEL_INFO = {
+                    chlID: '',
+                    chlName: '',
+                    supportPtz: false,
+                    streamType: 2,
+                }
+            }
             // const winIndex = getWinIndexByCav(videoCav)
             winDataList[winIndex].PLAY_STATUS = 'stop'
             winDataList[winIndex].seeking = false
             // this.winDataList[winIndex].audio = false  // NVR145-178 音频不重置
             winDataList[winIndex].magnify3D = false
             winDataList[winIndex].timestamp = 0
-            winDataList[winIndex].CHANNEL_INFO = {
-                chlID: '',
-                chlName: '',
-                supportPtz: false,
-                streamType: 2,
-            }
             toggleAudioIcon(winIndex, false)
             togglePtzIcon(winIndex, false)
             zoom(winIndex, 1)
@@ -1912,8 +1914,8 @@ const resumeAll = () => {
 const seek = (frameTime: number) => {
     seeking = true
     for (let i = 0; i < playerList.length; i++) {
-        playerList[i]?.seek(frameTime)
         winDataList[i].seeking = winDataList[i].PLAY_STATUS === 'play'
+        playerList[i]?.seek(frameTime)
     }
 }
 
