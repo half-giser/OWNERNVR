@@ -176,7 +176,7 @@
                         :model-value="selectionIds.includes(getUniqueKey(item))"
                         :src="pageData.listType === 'snap' ? item.pic : item.panorama"
                         :play="playerData.playId === getUniqueKey(item)"
-                        :type="pageData.listType"
+                        :type="pageData.listType === 'snap' && formData.eventType.length === 1 && formData.eventType.includes('videoMetadata') ? 'struct' : pageData.listType"
                         :disabled="item.isDelSnap || item.isNoData || !item.pic || !item.panorama"
                         :error-text="item.isDelSnap ? Translate('IDCS_DELETED') : item.isNoData ? Translate('IDCS_NO_RECORD_DATA') : ''"
                         @update:model-value="handleSelect(index, $event)"

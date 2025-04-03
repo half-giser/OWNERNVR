@@ -13,7 +13,10 @@
                 class="item-left"
                 @click="$emit('detail')"
             >
-                <img :src="displayBase64Img(data.snap_pic)" />
+                <img
+                    :src="displayBase64Img(data.snap_pic)"
+                    @load="loadImg"
+                />
                 <div class="item-menu">
                     <BaseImgSpriteBtn
                         file="live_add"
@@ -41,7 +44,10 @@
                 class="item-right"
                 @click="$emit('faceDetail')"
             >
-                <img :src="displayBase64Img(data.repo_pic)" />
+                <img
+                    :src="displayBase64Img(data.repo_pic)"
+                    @load="loadImg"
+                />
                 <div class="item-menu">
                     <BaseImgSpriteBtn
                         file="live_search"
@@ -98,12 +104,11 @@
         position: relative;
         width: 100px;
         height: 120px;
-        background-color: var(--bg-table);
 
         img {
             width: 100%;
             height: 100%;
-            object-fit: fill;
+            background-color: var(--panel-menu-bg);
         }
 
         &:hover .item-menu {
@@ -136,9 +141,16 @@
         margin-top: 5px;
         line-height: 22px;
         display: flex;
+        justify-content: space-around;
 
         & > div {
             margin: 0 5px;
+
+            &:nth-child(2) {
+                padding: 0 5px;
+                border: 1px solid var(--table-border);
+                border-radius: 11px;
+            }
         }
     }
 

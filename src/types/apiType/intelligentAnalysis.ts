@@ -369,6 +369,7 @@ export class IntelSearchBodyForm {
     attribute: Record<string, Record<string, number[]>> = {}
     pageSize = 40
     pageIndex = 0
+    eventType: string[] = []
 }
 
 /**
@@ -385,6 +386,7 @@ export class IntelSearchVehicleForm {
     direction: number[] = []
     plateNumber = ''
     searchType = 'event'
+    eventType: string[] = []
 }
 
 /**

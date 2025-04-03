@@ -609,6 +609,7 @@ export default defineComponent({
 
             openLoading()
             formData.value.searchType = pageData.value.searchType
+            formData.value.eventType = [...formData.value.event]
             pageData.value.isSupportCSV = formData.value.searchType === 'event' && formData.value.event.every((item) => ['plateDetection', 'plateMatchWhiteList', 'plateMatchStranger'].includes(item))
             tableData.value = []
 
