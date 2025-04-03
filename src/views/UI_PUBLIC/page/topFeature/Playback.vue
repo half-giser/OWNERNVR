@@ -196,42 +196,6 @@
 .bottom {
     height: 170px;
     display: flex;
-
-    .el-calendar {
-        width: 250px;
-        height: 170px;
-        flex-shrink: 0;
-    }
-}
-
-.calendar-header {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: var(--calendar-header-text);
-    font-weight: bolder;
-    background-color: var(--bg-table);
-
-    span:first-child {
-        margin-left: 30px;
-    }
-
-    span:last-child {
-        margin-right: 30px;
-    }
-
-    span:first-child,
-    span:last-child {
-        font-size: 24px;
-        font-weight: normal;
-        cursor: pointer;
-        font-family: consolas, sans-serif;
-    }
-
-    span:nth-child(2) {
-        font-size: 12px;
-    }
 }
 
 .timeline {

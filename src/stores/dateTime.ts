@@ -49,6 +49,8 @@ export const useDateTimeStore = defineStore('dateTime', () => {
     // 月日时间格式
     const monthDateFormat = ref('MM/DD')
 
+    const timeMode = ref(24)
+
     // 设备时间
     let systemTime = dayjs()
     // 本地时间
@@ -66,7 +68,7 @@ export const useDateTimeStore = defineStore('dateTime', () => {
         const result = await queryTimeCfg()
         const $ = queryXml(result)
         if ($('status').text() === 'success') {
-            const time = $('content/formatInfo/time').text()
+            const time = $('content/formatInfo/time').text().num()
             const date = $('content/formatInfo/date').text()
             dateFormat.value = YMD_MAPPING[date]
             yearMonthFormat.value = YM_MAPPING[date]
@@ -74,6 +76,7 @@ export const useDateTimeStore = defineStore('dateTime', () => {
             hourMinuteFormat.value = HM_MAPPIMG[time]
             dateTimeFormat.value = dateFormat.value + ' ' + timeFormat.value
             monthDateFormat.value = MD_MAPPING[date]
+            timeMode.value = time
             systemTime = dayjs($('content/synchronizeInfo/currentTime').text(), dateTimeFormat.value)
             localTime = performance.now()
             ready.value = true
@@ -99,5 +102,6 @@ export const useDateTimeStore = defineStore('dateTime', () => {
         monthDateFormat,
         getTimeConfig,
         getSystemTime,
+        timeMode,
     }
 })

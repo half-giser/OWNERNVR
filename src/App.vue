@@ -65,6 +65,10 @@ const hanedleActivationStatus = async (checkActivationStatus: boolean) => {
     } catch (e) {
         console.error(e)
     }
+
+    // layoutStore.isInitial = true
+    // generateAsyncRoutes()
+    // router.replace('/guide')
 }
 
 if (session.appType === 'STANDARD') {
