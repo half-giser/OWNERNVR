@@ -164,6 +164,8 @@ export default defineComponent({
             const result = await editNetPortCfg(sendXml)
             const $ = queryXml(result)
 
+            closeLoading()
+
             if ($('status').text() === 'success') {
                 pageData.value.isDeleteCertDisabled = formData.value.httpsSwitch ? true : false
                 if (formData.value.httpsSwitch !== pageData.value.cacheHttpsSwitch) {
@@ -212,6 +214,7 @@ export default defineComponent({
                 formData.value.cert = pageData.value.certOptions[0].value
 
                 pageData.value.hasCert = false
+                pageData.value.httpSwitchDisabled = true
 
                 certFormData.value.countryName = ''
                 certFormData.value.content = ''
@@ -294,6 +297,7 @@ export default defineComponent({
                 pageData.value.isCreateCertReqDisabled = false
                 pageData.value.isExportCertReqDisabled = true
                 pageData.value.isDeleteCertReqDisabled = true
+                pageData.value.httpSwitchDisabled = true
 
                 reqCertFormData.value.reqFileName = ''
             }
