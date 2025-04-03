@@ -20,6 +20,7 @@ export default defineComponent({
     },
     setup(props, ctx) {
         const { Translate } = useLangStore()
+        const dateTime = useDateTimeStore()
 
         const scheduleWeekRef = ref<ScheduleWeekInstance>()
 
@@ -175,6 +176,7 @@ export default defineComponent({
             manualTimeInputClose,
             manualTimeInputOk,
             save,
+            dateTime,
         }
     },
 })
