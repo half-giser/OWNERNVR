@@ -128,7 +128,7 @@
                         :model-value="selectionIds.includes(getUniqueKey(item))"
                         :src="pageData.listType === 'snap' ? item.pic : item.panorama"
                         :play="playerData.playId === getUniqueKey(item)"
-                        :type="pageData.listType === 'snap' && formData.event.length === 1 && formData.event.includes('videoMetadata') ? 'struct' : pageData.listType"
+                        :type="pageData.listType === 'snap' && formData.eventType.length === 1 && formData.eventType.includes('videoMetadata') ? 'struct' : pageData.listType"
                         :disabled="item.isDelSnap || item.isNoData || !item.pic || !item.panorama"
                         :attributes="item.attribute"
                         :target-type="item.targetType"

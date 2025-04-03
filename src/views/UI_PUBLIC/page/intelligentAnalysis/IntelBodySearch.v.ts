@@ -477,6 +477,7 @@ export default defineComponent({
 
             openLoading()
             tableData.value = []
+            formData.value.eventType = [...formData.value.event]
 
             const result = await searchSmartTarget(sendXml)
             const $ = queryXml(result)

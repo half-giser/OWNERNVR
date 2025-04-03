@@ -1389,9 +1389,9 @@ export default defineComponent({
                 delete history.state.date
             }
 
-            if (history.state.faceType) {
+            if (history.state.picType) {
                 pageData.value.searchType = 'face'
-                if (history.state.faceType === 'face') {
+                if (history.state.picType === 'face') {
                     const item = new IntelFaceDBFaceInfo()
                     item.id = history.state.id
                     item.name = history.state.name
@@ -1400,14 +1400,14 @@ export default defineComponent({
                     item.mobile = history.state.mobile
                     item.pic = [history.state.pic]
                     changeFace([item])
-                    delete history.state.faceType
+                    delete history.state.picType
                     delete history.state.id
                     delete history.state.name
                     delete history.state.birthday
                     delete history.state.certificateNum
                     delete history.state.mobile
                     delete history.state.pic
-                } else if (history.state.faceType === 'snap') {
+                } else if (history.state.picType === 'snap') {
                     const item = new IntelFaceDBSnapFaceList()
                     item.chlId = history.state.chlId
                     item.chlName = chlMap[item.chlId]
@@ -1416,7 +1416,7 @@ export default defineComponent({
                     item.frameTime = history.state.frameTime
                     item.pic = history.state.pic
                     changeSnap([item])
-                    delete history.state.faceType
+                    delete history.state.picType
                     delete history.state.chlId
                     delete history.state.imgId
                     delete history.state.frameTime
