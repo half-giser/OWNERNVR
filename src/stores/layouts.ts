@@ -31,6 +31,16 @@ export const useLayoutStore = defineStore('layout', () => {
     // 配置页菜单
     const configMenu = ref<RouteRecordRawExtends | null>(null)
 
+    if (import.meta.env.DEV) {
+        watch(messageBoxCount, (val) => {
+            console.log('messageBoxCount:', val)
+        })
+
+        watch(loadingCount, (val) => {
+            console.log('loadingCount:', val)
+        })
+    }
+
     return {
         messageBoxCount,
         loadingCount,

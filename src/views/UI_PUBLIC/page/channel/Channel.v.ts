@@ -418,7 +418,7 @@ export default defineComponent({
                 await getDataList()
             } catch {
             } finally {
-                closeAllLoading()
+                closeLoading()
             }
         })
 
