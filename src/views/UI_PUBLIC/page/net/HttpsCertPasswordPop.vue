@@ -30,6 +30,7 @@
             </el-form-item>
             <el-form-item prop="password">
                 <BasePasswordInput
+                    v-model="formData.password"
                     maxlength="64"
                     :disabled="formData.encryption === 'unencrypted'"
                     :placeholder="Translate('IDCS_ENTER_CERT_ENCRY_PWD')"

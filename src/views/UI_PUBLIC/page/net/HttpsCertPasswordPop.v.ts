@@ -52,7 +52,7 @@ export default defineComponent({
          * @description 验证表单，通过后回传信息
          */
         const verify = () => {
-            formRef.value!.validate((valid: boolean) => {
+            formRef.value!.validate((valid) => {
                 if (valid) {
                     ctx.emit('confirm', {
                         encryption: formData.value.encryption,
