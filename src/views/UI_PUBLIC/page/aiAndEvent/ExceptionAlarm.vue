@@ -21,7 +21,10 @@
                     </template>
                 </el-table-column>
                 <!-- 音频   -->
-                <el-table-column v-if="pageData.supportAudio">
+                <el-table-column
+                    v-if="pageData.supportAudio"
+                    min-width="150"
+                >
                     <template #header>
                         <el-dropdown>
                             <BaseTableDropdownLink>
@@ -48,7 +51,7 @@
                     </template>
                 </el-table-column>
                 <!-- 消息推送   -->
-                <el-table-column>
+                <el-table-column min-width="150">
                     <template #header>
                         <el-dropdown>
                             <BaseTableDropdownLink>
@@ -75,7 +78,7 @@
                     </template>
                 </el-table-column>
                 <!-- 报警输出   -->
-                <el-table-column>
+                <el-table-column min-width="180">
                     <template #header>
                         <AlarmBaseAlarmOutPop
                             :visible="pageData.isAlarmOutPop"
@@ -100,7 +103,7 @@
                     </template>
                 </el-table-column>
                 <!-- 蜂鸣器   -->
-                <el-table-column>
+                <el-table-column min-width="150">
                     <template #header>
                         <el-dropdown>
                             <BaseTableDropdownLink>
@@ -127,7 +130,7 @@
                     </template>
                 </el-table-column>
                 <!-- 消息框弹出   -->
-                <el-table-column>
+                <el-table-column min-width="150">
                     <template #header>
                         <el-dropdown>
                             <BaseTableDropdownLink>
@@ -154,7 +157,7 @@
                     </template>
                 </el-table-column>
                 <!-- email   -->
-                <el-table-column>
+                <el-table-column min-width="150">
                     <template #header>
                         <el-dropdown>
                             <BaseTableDropdownLink> Email </BaseTableDropdownLink>

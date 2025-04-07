@@ -81,7 +81,7 @@
             </el-form>
         </div>
         <div class="base-chl-box-right">
-            <div class="base-flex-box">
+            <div class="base-table-box">
                 <el-table
                     ref="tableRef"
                     :show-header="false"
