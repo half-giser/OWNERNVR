@@ -217,7 +217,7 @@ export default defineComponent({
                     gatewayV6: $item('gatewayV6').text(),
                     subLengthV6: $item('subLengthV6').text().num(),
                     ipv4DnsDhcpSwitch: $item('dhcpSwitch').text().bool() ? $item('ipv4DnsDhcpSwitch').text().bool() : false,
-                    dns1: $item('dns1').text(),
+                    dns1: $item('dns1').text() || DEFAULT_EMPTY_IP,
                     dns2: $item('dns2').text() || DEFAULT_EMPTY_IP,
                     ipv6DnsDhcpSwitch: $item('dhcpSwitch').text().bool() ? $item('ipv6DnsDhcpSwitch').text().bool() : false,
                     ipv6Dns1: $item('ipv6Dns1').text(),
@@ -249,7 +249,7 @@ export default defineComponent({
                     subLengthV6: $item('subLengthV6').text().num(),
                     isOnline: $item('isOnline').text().bool(),
                     ipv4DnsDhcpSwitch: $item('dhcpSwitch').text().bool() ? $item('ipv4DnsDhcpSwitch').text().bool() : false,
-                    dns1: $item('dns1').text(),
+                    dns1: $item('dns1').text() || DEFAULT_EMPTY_IP,
                     dns2: $item('dns2').text() || DEFAULT_EMPTY_IP,
                     ipv6DnsDhcpSwitch: $item('ipv6DnsDhcpSwitch').text().bool(),
                     ipv6Dns1: $item('ipv6Dns1').text(),
@@ -617,8 +617,8 @@ export default defineComponent({
                                     <gatewayV6>${item.gatewayV6}</gatewayV6>
                                     <subLengthV6>${item.subLengthV6}</subLengthV6>
                                     <ipv4DnsDhcpSwitch>${item.ipv4DnsDhcpSwitch}</ipv4DnsDhcpSwitch>
-                                    <dns1>${item.dns1}</dns1>
-                                    <dns2>${item.dns2}</dns2>
+                                    <dns1>${item.dns1 === DEFAULT_EMPTY_IP ? '' : item.dns1}</dns1>
+                                    <dns2>${item.dns2 === DEFAULT_EMPTY_IP ? '' : item.dns2}</dns2>
                                     <ipv6DnsDhcpSwitch>${item.ipv6DnsDhcpSwitch}</ipv6DnsDhcpSwitch>
                                     <ipv6Dns1>${item.ipv6Dns1}</ipv6Dns1>
                                     <ipv6Dns2>${item.ipv6Dns2}</ipv6Dns2>
@@ -656,8 +656,8 @@ export default defineComponent({
                                     <gatewayV6>${item.gatewayV6}</gatewayV6>
                                     <subLengthV6>${item.subLengthV6}</subLengthV6>
                                     <ipv4DnsDhcpSwitch>${item.ipv4DnsDhcpSwitch}</ipv4DnsDhcpSwitch>
-                                    <dns1>${item.dns1}</dns1>
-                                    <dns2>${item.dns2}</dns2>
+                                    <dns1>${item.dns1 === DEFAULT_EMPTY_IP ? '' : item.dns1}</dns1>
+                                    <dns2>${item.dns2 === DEFAULT_EMPTY_IP ? '' : item.dns2}</dns2>
                                     <ipv6DnsDhcpSwitch>${item.ipv6DnsDhcpSwitch}</ipv6DnsDhcpSwitch>
                                     <ipv6Dns1>${item.ipv6Dns1}</ipv6Dns1>
                                     <ipv6Dns2>${item.ipv6Dns2}</ipv6Dns2>
@@ -686,7 +686,7 @@ export default defineComponent({
                                 <gatewayV6>${item.gatewayV6}</gatewayV6>
                                 <subLengthV6>${item.subLengthV6}</subLengthV6>
                                 <ipv4DnsDhcpSwitch>${item.ipv4DnsDhcpSwitch}</ipv4DnsDhcpSwitch>
-                                <dns1>${item.dns1}</dns1>
+                                <dns1>${item.dns1 === DEFAULT_EMPTY_IP ? '' : item.dns1}</dns1>
                                 <dns2>${item.dns2 === DEFAULT_EMPTY_IP ? '' : item.dns2}</dns2>
                                 <ipv6DnsDhcpSwitch>${item.ipv6DnsDhcpSwitch}</ipv6DnsDhcpSwitch>
                                 <ipv6Dns1>${item.ipv6Dns1}</ipv6Dns1>
