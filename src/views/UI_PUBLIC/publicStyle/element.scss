@@ -362,6 +362,10 @@
             border-bottom-color: var(--table-thead-bottom-border);
             padding: 0;
 
+            .cell {
+                padding: 0;
+            }
+
             .cell:not(:has(.dropdown-btn)) {
                 padding: 8px 0;
             }
@@ -508,6 +512,10 @@
         &__popper {
             --el-dropdown-menuItem-hover-fill: var(--primary);
             --el-dropdown-menuItem-hover-color: var(--color-white);
+        }
+
+        &:has(.dropdown-btn) {
+            width: 100%;
         }
     }
 

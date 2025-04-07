@@ -169,7 +169,7 @@ export default defineComponent({
             if ($('status').text() === 'success') {
                 pageData.value.isDeleteCertDisabled = formData.value.httpsSwitch ? true : false
                 if (formData.value.httpsSwitch !== pageData.value.cacheHttpsSwitch) {
-                    Logout()
+                    Logout(formData.value.httpsSwitch)
                 }
             }
         }
@@ -267,7 +267,6 @@ export default defineComponent({
                         })
                         .join('\r\n')
                 } else {
-                    pageData.value.httpSwitchDisabled = true
                     pageData.value.isCreateCertReqDisabled = true
                     pageData.value.isExportCertReqDisabled = false
                     pageData.value.isBrowseExportCertReqDisabled = false

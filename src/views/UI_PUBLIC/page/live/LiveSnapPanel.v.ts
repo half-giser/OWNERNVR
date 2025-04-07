@@ -398,7 +398,7 @@ export default defineComponent({
          * @param {Object} value
          */
         const register = (value: WebsocketSnapOnSuccessSnap) => {
-            if (value.type === 'face_detect') {
+            if (value.type === 'face_detect' || value.type === 'face_verify') {
                 pageData.value.registerPic = wrapBase64Img(value.snap_pic!)
                 pageData.value.isRegisterPop = true
             } else if (value.type === 'vehicle_plate') {

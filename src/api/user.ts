@@ -35,9 +35,10 @@ export const doLogout = () => fetch('doLogout', '', {}, false)
 
 /**
  * @description 登出处理
+ * @param {boolean} isHttps 是否登出后以HTTPS访问登录页
  * @returns
  */
-export const Logout = async () => {
+export const Logout = async (isHttps?: boolean) => {
     progress.start()
 
     const userSession = useUserSessionStore()
@@ -51,8 +52,16 @@ export const Logout = async () => {
         userSession.clearSession()
         pluginStore.showPluginNoResponse = false
         removeAsyncRoutes()
-        router.push('/login')
-        window.location.href = '#/login'
+        if (typeof isHttps === 'boolean') {
+            if (isHttps) {
+                window.location.href = `https://${location.host}/index.html`
+            } else {
+                window.location.href = `http://${location.host}/index.html`
+            }
+        } else {
+            router.push('/login')
+            window.location.href = '#/login'
+        }
     } else {
         userSession.clearSession()
         window.location.href = '/index.html'
