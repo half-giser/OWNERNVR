@@ -1020,7 +1020,7 @@ export default defineComponent({
                         frameTime: localToUtc(timestamp) + ':' + padStart(hexToDec(split[2]), 7),
                         guid,
                         chlId,
-                        chlName: chlMap[chlId],
+                        chlName: chlMap[chlId] || Translate('IDCS_HISTORY_CHANNEL'),
                         recStartTime: hexToDec(split[6]) * 1000,
                         recEndTime: hexToDec(split[7]) * 1000,
                         pic: '',
@@ -1428,6 +1428,10 @@ export default defineComponent({
         onBeforeUnmount(() => {
             stop()
         })
+
+        // onDeactivated(() => {
+        //     stop()
+        // })
 
         return {
             formData,

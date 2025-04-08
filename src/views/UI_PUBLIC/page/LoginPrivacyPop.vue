@@ -10,12 +10,11 @@
         :show-close="false"
     >
         <div>
-            <textarea
-                class="login-privacy"
+            <el-input
+                type="textarea"
                 :readonly="true"
-                :value="Translate('IDCS_PRIVACY_TEXT')"
-            >
-            </textarea>
+                :model-value="Translate('IDCS_PRIVACY_TEXT')"
+            />
         </div>
         <div class="base-btn-box space-between">
             <div>
@@ -38,12 +37,9 @@
 <script lang="ts" src="./LoginPrivacyPop.v.ts"></script>
 
 <style lange="scss" scoped>
-.login-privacy {
+:deep(.el-textarea__inner) {
     height: 350px;
-    overflow: auto;
     width: 754px;
     resize: none;
-    box-sizing: border-box;
-    padding: 10px;
 }
 </style>

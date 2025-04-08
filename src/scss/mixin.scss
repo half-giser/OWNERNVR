@@ -21,3 +21,18 @@
     background-position-x: -1 * (map.get($img, 'x') + calc($index / $chunk) * map.get($img, 'width'));
     background-position-y: -1 * map.get($img, 'y');
 }
+
+@mixin sprite-mask($img, $index: 0, $chunk: 1) {
+    width: calc(map.get($img, 'width') / $chunk);
+    height: map.get($img, 'height');
+    mask-image: img-url('@/components/sprite/sprites.png');
+    mask-repeat: no-repeat;
+    mask-position: {
+        x: -1 * (map.get($img, 'x') + calc($index / $chunk) * map.get($img, 'width'));
+        y: -1 * map.get($img, 'y');
+    }
+    -webkit-mask-position: {
+        x: -1 * (map.get($img, 'x') + calc($index / $chunk) * map.get($img, 'width'));
+        y: -1 * map.get($img, 'y');
+    }
+}

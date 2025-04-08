@@ -209,7 +209,7 @@ const props = withDefaults(
         /**
          * @property 显示类型
          */
-        type: 'datetime' | 'date'
+        type?: 'datetime' | 'date'
         /**
          * @property 见element-plus el-popover的teleported
          */
@@ -227,6 +227,7 @@ const props = withDefaults(
         teleported: true,
         disabled: false,
         placeholder: '',
+        type: 'date',
     },
 )
 
@@ -472,8 +473,6 @@ watch(visible, (val) => {
     width: 250px;
     background-color: var(--color-white);
 
-    --w: 250px;
-
     &-input {
         width: var(--form-input-width);
         display: inline-block;
@@ -493,7 +492,7 @@ watch(visible, (val) => {
                 text-align: center;
 
                 &:hover {
-                    color: var(--datepicker-text-hover);
+                    color: var(--primary);
                     cursor: pointer;
                 }
 
@@ -533,7 +532,7 @@ watch(visible, (val) => {
             box-sizing: border-box;
 
             div {
-                width: calc(var(--w) / 7);
+                flex: 1;
                 font-weight: bolder;
                 text-align: center;
             }
@@ -542,30 +541,28 @@ watch(visible, (val) => {
         &-body {
             width: 100%;
             height: fit-content;
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
 
             div {
                 border: 1px solid transparent;
                 box-sizing: border-box;
-                width: calc(var(--w) / 7);
-                height: 20px;
                 text-align: center;
                 cursor: pointer;
 
-                &.none {
-                    color: var(--color-grey);
-                }
-
                 &.weekend {
                     color: var(--color-error);
+                }
+
+                &.none {
+                    color: var(--color-grey);
                 }
 
                 &.active,
                 &:hover {
                     color: var(--datepicker-text-hover);
                     border-color: currentColor;
-                    background-color: var(--datepicker-header-bg);
+                    background-color: var(--datepicker-bg-hover);
                 }
             }
         }
@@ -629,7 +626,7 @@ watch(visible, (val) => {
                 &:hover {
                     color: var(--datepicker-text-hover);
                     border-color: currentColor;
-                    background-color: var(--datepicker-header-bg);
+                    background-color: var(--datepicker-bg-hover);
                 }
             }
         }

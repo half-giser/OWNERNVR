@@ -24,7 +24,12 @@
                         {{ value }}
                     </p>
                 </div>
-                <div class="player">
+                <div
+                    class="player"
+                    :class="{
+                        resize: pageData.tab === 'image',
+                    }"
+                >
                     <BaseVideoPlayer
                         ref="playerRef"
                         @ready="handlePlayerReady"

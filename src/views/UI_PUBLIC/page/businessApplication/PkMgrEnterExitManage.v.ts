@@ -152,6 +152,10 @@ export default defineComponent({
             chlStatusRefreshTimer.repeat(true)
         })
 
+        // onDeactivated(() => {
+        //     chlStatusRefreshTimer.stop()
+        // })
+
         return {
             pageData,
             tableData,

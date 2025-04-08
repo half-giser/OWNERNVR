@@ -237,6 +237,7 @@ watch(
 
     .page-info {
         margin: 0 5px;
+        flex-shrink: 0;
     }
 
     .item-info {

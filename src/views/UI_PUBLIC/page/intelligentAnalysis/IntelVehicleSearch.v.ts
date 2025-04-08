@@ -634,7 +634,7 @@ export default defineComponent({
                         frameTime: localToUtc(timestamp) + ':' + padStart(hexToDec(split[1]), 7),
                         guid,
                         chlId,
-                        chlName: chlMap[chlId],
+                        chlName: chlMap[chlId] || Translate('IDCS_HISTORY_CHANNEL'),
                         recStartTime: hexToDec(split[4]) * 1000,
                         recEndTime: hexToDec(split[5]) * 1000,
                         pathGUID: split[6],
@@ -939,6 +939,10 @@ export default defineComponent({
         onBeforeUnmount(() => {
             stop()
         })
+
+        // onDeactivated(() => {
+        //     stop()
+        // })
 
         return {
             pageData,

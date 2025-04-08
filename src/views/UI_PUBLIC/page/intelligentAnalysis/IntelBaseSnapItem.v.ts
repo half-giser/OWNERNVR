@@ -152,6 +152,10 @@ export default defineComponent({
 
             if (prop.targetType === 'person') {
                 return DEFAULT_BODY_STRUCT_MAPPING.slice(0, 5).map((item) => {
+                    if (typeof prop.attributes[item.type] === 'undefined') {
+                        return getInfoListItem(item.type, '')
+                    }
+
                     const value = prop.attributes[item.type]
                     return getInfoListItem(item.type, item.map[Number(value)])
                 })
@@ -161,14 +165,22 @@ export default defineComponent({
                 return DEFAULT_VEHICLE_STRUCT_MAPPING.filter((item) => {
                     return !['year', 'model'].includes(item.type)
                 }).map((item) => {
+                    if (typeof prop.attributes[item.type] === 'undefined') {
+                        return getInfoListItem('vehicle_' + item.type, '')
+                    }
+
                     let value = item.map ? item.map[Number(prop.attributes[item.type])] : prop.attributes[item.type]
                     if (item.type === 'brand' && !value) value = Translate('IDCS_MAINTENSIGN_ITEM_OTHERSYS')
-                    return getInfoListItem('vehicle_' + item.type, item.map[Number(value)])
+                    return getInfoListItem('vehicle_' + item.type, String(value))
                 })
             }
 
             if (prop.targetType === 'non_vehicle') {
                 return DEFAULT_NON_VEHICLE_STRUCT_MAPPING.map((item) => {
+                    if (typeof prop.attributes[item.type] === 'undefined') {
+                        return getInfoListItem('nonVehicle_' + item.type, '')
+                    }
+
                     return getInfoListItem('nonVehicle_' + item.type, item.map[Number(prop.attributes[item.type])])
                 })
             }

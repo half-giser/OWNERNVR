@@ -57,11 +57,12 @@
             >
                 <div class="title">{{ Translate('IDCS_PRIVACY') }}</div>
                 <div class="box">
-                    <textarea
+                    <el-input
                         class="privacy-text"
+                        type="textarea"
                         readonly
-                        :value="Translate('IDCS_PRIVACY_TEXT')"
-                    ></textarea>
+                        :model-value="Translate('IDCS_PRIVACY_TEXT')"
+                    />
                 </div>
                 <div class="base-btn-box padding">
                     <el-checkbox
@@ -402,11 +403,10 @@
 }
 
 .privacy {
-    &-text {
-        overflow: auto;
+    :deep(.el-textarea__inner) {
         width: 100%;
+        height: 100%;
         resize: none;
-        padding: 10px;
     }
 
     .el-checkbox {

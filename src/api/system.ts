@@ -281,4 +281,4 @@ export const editSHDBOperationCfg = (data: string) => fetch('editSHDBOperationCf
  * @description 心跳检测
  * @returns
  */
-export const heartBeat = () => fetch('querySHDBNormalUploadCfg', '')
+export const heartBeat = () => fetch('heartBeat', '')
