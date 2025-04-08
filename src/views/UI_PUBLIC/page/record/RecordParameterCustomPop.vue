@@ -93,8 +93,9 @@
                 <el-form-item>
                     <BaseDatePicker
                         v-model="pageData.selectDate"
-                        :value-format="pageData.dateFormat"
-                        :format="pageData.dateFormat"
+                        :value-format="dateTime.dateFormat"
+                        :format="dateTime.dateFormat"
+                        type="date"
                     />
                 </el-form-item>
             </el-form>
