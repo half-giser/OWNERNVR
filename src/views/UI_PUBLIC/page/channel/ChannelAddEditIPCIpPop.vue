@@ -6,7 +6,7 @@
 <template>
     <el-dialog
         :title="Translate('IDCS_EDIT_IP')"
-        width="700"
+        width="450"
         @opened="opened"
         @closed="close"
     >
@@ -16,7 +16,6 @@
             :rules
             :style="{
                 '--form-label-width': '160px',
-                '--form-input-width': '200px',
             }"
             class="stripe"
         >

@@ -34,7 +34,6 @@ const strengthColors = ['var(--color-grey)', 'var(--color-error)', 'var(--color-
     justify-content: flex-end;
     height: 10px;
     box-sizing: border-box;
-    padding-right: 15px;
 
     li {
         margin-left: 3px;

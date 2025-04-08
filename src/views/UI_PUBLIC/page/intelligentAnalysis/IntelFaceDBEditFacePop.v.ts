@@ -286,7 +286,6 @@ export default defineComponent({
         }
 
         return {
-            dateTime,
             disabled,
             formData,
             pageData,

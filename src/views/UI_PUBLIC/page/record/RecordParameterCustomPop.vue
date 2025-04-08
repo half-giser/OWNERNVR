@@ -87,16 +87,11 @@
         <el-dialog
             v-model="pageData.isShowAddDate"
             :title="Translate('IDCS_TIME_CUSTOMIZE')"
-            width="500"
+            width="400"
         >
             <el-form>
                 <el-form-item>
-                    <BaseDatePicker
-                        v-model="pageData.selectDate"
-                        :value-format="dateTime.dateFormat"
-                        :format="dateTime.dateFormat"
-                        type="date"
-                    />
+                    <BaseDatePicker v-model="pageData.selectDate" />
                 </el-form-item>
             </el-form>
             <div class="base-btn-box">

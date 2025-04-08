@@ -176,7 +176,6 @@ export default defineComponent({
             opened,
             blurExpireTime,
             displayDate,
-            dateTime,
         }
     },
 })

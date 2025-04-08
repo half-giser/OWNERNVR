@@ -448,7 +448,6 @@ export default defineComponent({
         }
 
         return {
-            dateTime,
             formRef,
             formData,
             pageData,

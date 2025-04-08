@@ -191,14 +191,14 @@ input[type='number'] {
             }
         }
 
-        .el-dialog__body {
+        &__body {
             position: relative;
             width: 100%;
-            padding: 20px;
+            padding: 10px 20px 20px;
             box-sizing: border-box;
         }
 
-        .el-dialog__footer {
+        &__footer {
             margin: 0;
             padding: 0 20px 20px;
         }
@@ -495,6 +495,12 @@ input[type='number'] {
                     background-color: unset;
                 }
             }
+        }
+    }
+
+    .el-dialog__body > .el-form {
+        &:not(.stripe) > .el-form-item {
+            padding: 2px 0;
         }
     }
 

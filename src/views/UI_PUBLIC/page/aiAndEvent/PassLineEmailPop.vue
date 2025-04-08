@@ -22,9 +22,6 @@
                 ref="formRef"
                 :model="formData"
                 :rules="rules"
-                :style="{
-                    '--form-input-width': '210px',
-                }"
             >
                 <el-form-item
                     :label="Translate('IDCS_EMAIL_ADDRESS')"

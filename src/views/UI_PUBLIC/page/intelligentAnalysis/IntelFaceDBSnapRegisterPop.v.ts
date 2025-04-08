@@ -248,7 +248,6 @@ export default defineComponent({
         }
 
         return {
-            dateTime,
             pageData,
             open,
             close,

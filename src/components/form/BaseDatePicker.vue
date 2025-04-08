@@ -104,6 +104,7 @@
                             v-if="visible && type === 'datetime'"
                             v-model="currentTime"
                             value-format="HH:mm:ss"
+                            :format="timeFormat"
                             :teleported="false"
                             @change="changeTime"
                         />
@@ -243,6 +244,19 @@ const { Translate } = useLangStore()
 
 const visible = ref(false)
 
+const timeFormat = computed(() => {
+    if (props.type === 'datetime') {
+        if (props.format) {
+            const split = props.format.split(' ')
+            split.shift()
+            return split.join(' ')
+        }
+        return dateTime.timeFormat
+    }
+
+    return dateTime.timeFormat
+})
+
 // 输入框显示值
 const selectedValue = computed(() => {
     if (!props.modelValue) {
@@ -293,7 +307,7 @@ const open = () => {
     tab.value = 'date'
 
     if (props.type === 'datetime') {
-        currentTime.value = currentValue.value.format('HH:mm:ss')
+        currentTime.value = currentValue.value.format(DEFAULT_TIME_FORMAT)
     }
 }
 
@@ -443,7 +457,7 @@ const changeTime = () => {
 
 const setToday = () => {
     currentValue.value = dayjs()
-    currentTime.value = dayjs().format('HH:mm:ss')
+    currentTime.value = dayjs().format(DEFAULT_TIME_FORMAT)
 }
 
 const confirm = () => {
@@ -454,8 +468,8 @@ const confirm = () => {
 
 const changeValue = () => {
     if (props.type === 'datetime') {
-        const currentTimeArray = currentTime.value.split(':')
-        currentValue.value = currentValue.value.hour(Number(currentTimeArray[0])).minute(Number(currentTimeArray[1])).second(Number(currentTimeArray[2]))
+        const currentTimeInstance = dayjs(currentTime.value, DEFAULT_TIME_FORMAT)
+        currentValue.value = currentValue.value.hour(currentTimeInstance.hour()).minute(currentTimeInstance.minute()).second(currentTimeInstance.second())
     }
 
     emits('update:modelValue', currentValue.value.calendar('gregory').format(props.format || (props.type === 'datetime' ? dateTime.dateTimeFormat : dateTime.dateFormat)))

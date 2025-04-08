@@ -40,8 +40,6 @@
                 <el-form-item :label="Translate('IDCS_START_TIME')">
                     <BaseDatePicker
                         v-model="formData.startTime"
-                        :value-format="dateTime.dateTimeFormat"
-                        :format="dateTime.dateTimeFormat"
                         type="datetime"
                         :teleported="false"
                         @change="changeType('custom')"
@@ -50,8 +48,6 @@
                 <el-form-item :label="Translate('IDCS_END_TIME')">
                     <BaseDatePicker
                         v-model="formData.endTime"
-                        :value-format="dateTime.dateTimeFormat"
-                        :format="dateTime.dateTimeFormat"
                         type="datetime"
                         :teleported="false"
                         @change="changeType('custom')"
