@@ -16,7 +16,7 @@ export default defineComponent({
 
         const raidStatusTimer = useRefreshTimer(() => {
             getRaidStatus()
-        }, 600000)
+        }, 60000)
 
         // 状态值与显示文本的映射
         const STATE_MAPPING: Record<string, string> = {

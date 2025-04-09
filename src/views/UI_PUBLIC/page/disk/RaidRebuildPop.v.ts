@@ -147,7 +147,12 @@ export default defineComponent({
             if (!pageData.value.physicalDiskList.length) {
                 await getPhysicalDiskData()
             }
-            formData.value.diskId = pageData.value.physicalDiskList[0].id
+
+            if (pageData.value.physicalDiskList.length) {
+                formData.value.diskId = pageData.value.physicalDiskList[0].id
+            } else {
+                formData.value.diskId = ''
+            }
         }
 
         return {

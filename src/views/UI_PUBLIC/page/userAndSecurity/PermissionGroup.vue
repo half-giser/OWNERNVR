@@ -114,6 +114,7 @@
                         <BaseImgSpriteBtn
                             v-show="row.enableEdit"
                             file="edit2"
+                            :stop-propagation="false"
                             @click="openEditAuthGroupPop(row)"
                         />
                     </template>
@@ -131,6 +132,7 @@
                         <BaseImgSpriteBtn
                             v-show="!row.isDefault"
                             file="del"
+                            :stop-propagation="false"
                             @click="deleteAuthGroup(row)"
                         />
                     </template>

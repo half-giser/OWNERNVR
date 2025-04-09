@@ -33,7 +33,7 @@ export default defineComponent({
             // 当前选中的通道权限Tab
             activeChannelTab: DEFAULT_CHANNEL_AUTH_TABS[0],
             // 当前选中的权限组索引
-            activeAuthGroup: 0,
+            activeAuthGroup: -1,
             // 是否打开编辑权限组弹窗
             isEditAuthGroup: false,
             // 编辑权限组的ID
@@ -153,6 +153,10 @@ export default defineComponent({
          * @param {UserAuthGroupList} row
          */
         const changeAuthGroup = (row: UserAuthGroupList) => {
+            if (row === authGroupList.value[pageData.value.activeAuthGroup]) {
+                return
+            }
+
             pageData.value.activeAuthGroup = authGroupList.value.findIndex((item) => item.id === row.id)
 
             if (currentAuthGroup.value) {
@@ -275,11 +279,11 @@ export default defineComponent({
             return name
         }
 
-        onMounted(async () => {
+        onMounted(() => {
             if (!systemCaps.supportFaceMatch && !systemCaps.supportPlateMatch) {
                 systemAuthList.value.configurations.value.facePersonnalInfoMgr.hidden = true
             }
-            await getAuthGroup()
+            getAuthGroup()
         })
 
         return {

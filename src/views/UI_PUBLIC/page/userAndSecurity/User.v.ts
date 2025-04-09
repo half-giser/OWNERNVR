@@ -35,7 +35,7 @@ export default defineComponent({
             // 当前选中的通道权限Tab
             activeChannelTab: DEFAULT_CHANNEL_AUTH_TABS[0],
             // 当前选中的用户索引
-            activeUser: 0,
+            activeUser: -1,
             // 搜索框的搜索内容
             searchText: '',
             // 是否打开编辑用户弹窗
