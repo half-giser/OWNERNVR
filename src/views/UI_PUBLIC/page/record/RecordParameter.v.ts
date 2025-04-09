@@ -277,9 +277,11 @@ export default defineComponent({
 
             if (result) {
                 commSaveResponseHandler(result)
-                editForm.update()
-                editRows.clear()
                 pageData.value.originalDoubleStreamSwitch = formData.value.doubleStreamRecSwitch
+                editForm.update()
+                editRows.toArray().forEach((item) => {
+                    editRows.remove(item)
+                })
             }
         }
 
