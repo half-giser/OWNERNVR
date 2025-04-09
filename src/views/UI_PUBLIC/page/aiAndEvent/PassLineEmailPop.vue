@@ -192,11 +192,11 @@
         border: 1px solid var(--content-border);
 
         .el-checkbox {
-            margin-left: 20px;
-            margin-right: 0;
+            margin-left: 20px !important;
+            margin-right: 10px;
 
             &:first-child {
-                margin-left: 0;
+                margin-left: 0 !important;
             }
         }
     }

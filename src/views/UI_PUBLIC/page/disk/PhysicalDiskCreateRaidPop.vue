@@ -52,13 +52,13 @@
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_GLOBAL_HOT_STANDBY')">
                     <template v-if="hotDisks.length">
-                        <el-text
+                        <span
                             v-for="item in hotDisks"
                             :key="item.id"
                             class="hot-disk"
                         >
                             {{ item.slotIndex }}
-                        </el-text>
+                        </span>
                     </template>
                     <el-text v-else>{{ Translate('IDCS_NULL') }}</el-text>
                 </el-form-item>
@@ -80,3 +80,9 @@
 </template>
 
 <script lang="ts" src="./PhysicalDiskCreateRaidPop.v.ts"></script>
+
+<style lang="scss" scoped>
+.hot-disk {
+    margin-right: 10px;
+}
+</style>
