@@ -65,12 +65,16 @@ export default defineComponent({
 
             let hasRebuildArray = false
 
+            const spareHard = $('content/spareHard').text()
+
             tableData.value = $('content/raidList/item').map((item) => {
                 const $item = queryXml(item.element)
 
                 if ($item('raidState').text() === 'rebuild') {
                     hasRebuildArray = true
                 }
+
+                const raidType = $item('raidType').text()
 
                 return {
                     id: item.attr('id'),
@@ -80,7 +84,7 @@ export default defineComponent({
                     physicalDisk: $item('physicalDisks').text(),
                     raidState: $item('raidState').text(),
                     raidType: $item('raidType').text(),
-                    spareHard: $('content/spareHard').text(),
+                    spareHard: raidType === 'RAID_TYPE_0' ? '' : spareHard,
                     task: '',
                 }
             })
