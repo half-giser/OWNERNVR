@@ -123,7 +123,7 @@ export default defineComponent({
          * @returns {string}
          */
         const formatChar = (str: string) => {
-            if (str.startsWith('-')) {
+            if (str.length && !/[a-zA-Z]/.test(str[0])) {
                 return ''
             }
             return str.replace(/[^-_a-zA-Z0-9]/g, '')
