@@ -40,6 +40,7 @@
                 <el-input
                     v-model="formData.userName"
                     :disabled="!formData.switch"
+                    maxlength="32"
                 />
             </el-form-item>
             <el-form-item
@@ -49,6 +50,7 @@
                 <BasePasswordInput
                     v-model="formData.password"
                     :disabled="!formData.switch || !pageData.passwordSwitch"
+                    maxlength="32"
                 />
                 <el-checkbox
                     v-model="pageData.passwordSwitch"
