@@ -7,6 +7,7 @@
     <el-dialog
         :title="Translate(title)"
         width="500"
+        @open="open"
         @close="close"
         @closed="formRef?.resetFields()"
     >

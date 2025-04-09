@@ -113,6 +113,9 @@ export default defineComponent({
             closeLoading()
 
             if ($('status').text() === 'success') {
+                pageData.value.isCheckAuth = false
+                ctx.emit('confirm')
+            } else {
                 const errorCode = $('errorCode').text().num()
                 let errorInfo = ''
 
@@ -136,7 +139,6 @@ export default defineComponent({
          * @description 关闭弹窗
          */
         const close = () => {
-            pageData.value.isCheckAuth = false
             ctx.emit('close')
         }
 

@@ -42,6 +42,8 @@ export default defineComponent({
         const formRef = useFormRef()
         const formData = ref(new UserCheckAuthForm())
         const userSession = useUserSessionStore()
+        const layoutStore = useLayoutStore()
+
         // 校验规则
         const rules = reactive<FormRules>({
             userName: [
@@ -74,15 +76,24 @@ export default defineComponent({
         }
 
         /**
+         * @description 开启弹窗
+         */
+        const open = () => {
+            layoutStore.isAuth = true
+        }
+
+        /**
          * @description 关闭弹窗
          */
         const close = () => {
             ctx.emit('close')
+            layoutStore.isAuth = false
         }
 
         return {
             formRef,
             formData,
+            open,
             close,
             verify,
             rules,

@@ -182,6 +182,7 @@ export default defineComponent({
             closeLoading()
 
             if ($('status').text() === 'success') {
+                pageData.value.isCheckAuth = false
                 openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),

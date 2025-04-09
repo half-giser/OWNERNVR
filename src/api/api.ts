@@ -66,18 +66,14 @@ const getXmlWrapData = (data: string, url = '', refresh = false) => {
  * @param {string} message
  */
 const handleUserErrorRedirectToLogin = (message: string) => {
-    const layoutStore = useLayoutStore()
+    closeAllLoading()
 
-    if (!layoutStore.isInitial) {
-        Logout()
-    } else {
-        if (!isErrorMessageBox) {
-            isErrorMessageBox = true
-            openMessageBox(message).then(() => {
-                Logout()
-                isErrorMessageBox = false
-            })
-        }
+    if (!isErrorMessageBox) {
+        isErrorMessageBox = true
+        openMessageBox(message).then(() => {
+            Logout()
+            isErrorMessageBox = false
+        })
     }
 }
 
@@ -89,25 +85,41 @@ const handleUserErrorRedirectToLogin = (message: string) => {
 const handelCommonError = (errorCode: number) => {
     let isStopHandle = true
     const { Translate } = useLangStore()
+    const layoutStore = useLayoutStore()
+
+    if (!layoutStore.isInitial) {
+        closeAllLoading()
+        Logout()
+        return
+    }
+
     switch (errorCode) {
         case ErrorCode.USER_ERROR_NO_USER:
         case ErrorCode.USER_ERROR_PWD_ERR:
-            handleUserErrorRedirectToLogin(Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR'))
+            if (!layoutStore.isAuth) {
+                handleUserErrorRedirectToLogin(Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR'))
+            } else {
+                isStopHandle = false
+            }
             break
         case ErrorCode.USER_ERROR_SERVER_NO_EXISTS:
             handleUserErrorRedirectToLogin(Translate('IDCS_LOGIN_OVERTIME'))
             break
         case ErrorCode.USER_ERROR_USER_LOCKED:
-            handleUserErrorRedirectToLogin(Translate('IDCS_LOGIN_FAIL_USER_LOCKED'))
+            if (!layoutStore.isAuth) {
+                handleUserErrorRedirectToLogin(Translate('IDCS_LOGIN_FAIL_USER_LOCKED'))
+            } else {
+                isStopHandle = false
+            }
             break
         case ErrorCode.USER_ERROR_INVALID_PARAM:
-            handleUserErrorRedirectToLogin(Translate('IDCS_USER_ERROR_INVALID_PARAM'))
+            openMessageBox(Translate('IDCS_USER_ERROR_INVALID_PARAM'))
             break
         default:
             isStopHandle = false
             break
     }
-    closeAllLoading()
+
     return isStopHandle
 }
 

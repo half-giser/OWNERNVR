@@ -258,7 +258,7 @@ export default defineComponent({
                         // 用户不存在
                         case ErrorCode.USER_ERROR_NO_USER:
                         case ErrorCode.USER_ERROR_PWD_ERR:
-                            errorInfo = Translate('IDCS_DEVICE_USER_NOTEXIST')
+                            errorInfo = Translate('IDCS_USER_OR_PASSWORD_ERROR')
                             break
                         // 鉴权账号无相关权限
                         case ErrorCode.USER_ERROR_NO_AUTH:

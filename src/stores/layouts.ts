@@ -10,6 +10,8 @@ export const useLayoutStore = defineStore('layout', () => {
     const loadingCount = ref(0)
     // 是否已经初始化
     const isInitial = ref(false)
+    // 是否弹窗二次授权弹窗
+    const isAuth = ref(false)
     // RollMsg消息
     const notifications = ref<string[]>([])
 
@@ -45,6 +47,7 @@ export const useLayoutStore = defineStore('layout', () => {
         messageBoxCount,
         loadingCount,
         isInitial,
+        isAuth,
         liveLastSegNum,
         liveLastChlList,
         notifications,
