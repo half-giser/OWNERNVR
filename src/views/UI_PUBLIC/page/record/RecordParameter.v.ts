@@ -153,7 +153,7 @@ export default defineComponent({
                         delayedRecordTimeNote: $item('delayedRecordTimeNote').text(),
                         per: $item('rec').attr('per'),
                         post: $item('rec').attr('post'),
-                        ANRSwitch: supportANR ? $item('ANRSwitch').text() : 'false',
+                        ANRSwitch: supportANR ? $item('ANRSwitch').text() || 'false' : 'false',
                         expiration: expiration || '0',
                         expirationUnit: expirationUnit ? expirationUnit : 'd',
                         manufacturerEnable: pageData.value.IPCMap[id] === 'true',
