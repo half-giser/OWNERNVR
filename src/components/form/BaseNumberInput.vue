@@ -2,7 +2,7 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-10-17 11:56:00
  * @Description: 数字输入框. 由于ElInputNumber不能满足项目要求，故自行实现适用于本项目的数字输入框
- * 不适配的地方包括：
+ * element-plus数字输入组件的缺陷包括：
  * (1) 可输入超出最大值的值
  * (2) 可输入句点、e、+-等符号
  * (3) firefox可输入任意字符
@@ -103,6 +103,10 @@ const handleKeyPress = (e: Event | KeyboardEvent) => {
         e.preventDefault()
     }
 
+    // setTimeout(() => {
+    //     input.value!.input!.value = String(showValue.value)
+    // }, 0)
+
     return false
 }
 
@@ -158,8 +162,14 @@ const handleComposition = () => {
  * @param {number} value
  */
 const updateValue = (value: number | undefined) => {
-    emit('update:modelValue', value)
-    emit('change', value)
+    if (props.precision > 0 && typeof value === 'number') {
+        const newValue = Math.floor(value * Math.pow(10, props.precision)) / Math.pow(10, props.precision)
+        emit('update:modelValue', newValue)
+        emit('change', newValue)
+    } else {
+        emit('update:modelValue', value)
+        emit('change', value)
+    }
 }
 
 /**

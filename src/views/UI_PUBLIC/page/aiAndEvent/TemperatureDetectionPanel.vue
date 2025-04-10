@@ -159,7 +159,7 @@
                                     :label="Translate('IDCS_DISTANCE')"
                                 >
                                     <template #default="{ row }: TableColumn<AlarmTemperatureDetectionBoundryDto>">
-                                        <el-input-number
+                                        <BaseNumberInput
                                             v-model="row.distance"
                                             :min="0"
                                             :max="10000"
@@ -176,7 +176,7 @@
                                     :label="Translate('IDCS_REFLECTED_TEMPERATURE')"
                                 >
                                     <template #default="{ row }: TableColumn<AlarmTemperatureDetectionBoundryDto>">
-                                        <el-input-number
+                                        <BaseNumberInput
                                             v-model="row.reflectTemper"
                                             :min="-30"
                                             :max="60"
@@ -205,7 +205,7 @@
                                     :label="Translate('IDCS_ALARM_TEMPERATURE')"
                                 >
                                     <template #default="{ row }: TableColumn<AlarmTemperatureDetectionBoundryDto>">
-                                        <el-input-number
+                                        <BaseNumberInput
                                             v-model="row.alarmTemper"
                                             :min="-50"
                                             :max="550"
