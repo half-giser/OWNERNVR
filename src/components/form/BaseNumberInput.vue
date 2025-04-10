@@ -17,6 +17,7 @@
         @focus="handleFocus"
         @blur="handleBlur"
         @input="handleInput"
+        @compositionend="handleComposition"
         @paste.prevent="handlePaste"
     />
 </template>
@@ -47,7 +48,7 @@ const showValue = computed(() => {
         }
         return props.modelValue
     }
-    return props.modelValue
+    return ''
 })
 
 const emit = defineEmits<{
@@ -145,6 +146,11 @@ const handleBlur = (e: FocusEvent) => {
         updateValue(props.modelValue)
     }
     emit('blur', e)
+}
+
+const handleComposition = () => {
+    updateValue(props.modelValue)
+    input.value!.input!.value = String(showValue.value)
 }
 
 /**
