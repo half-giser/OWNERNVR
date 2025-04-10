@@ -226,12 +226,12 @@ watch(
     }
 
     .el-select {
-        width: 80px;
+        width: 60px;
         margin-left: 10px;
     }
 
-    #n9web & .el-input-number {
-        width: 80px;
+    #n9web & .BaseNumberInput {
+        width: 60px;
         margin: 0 5px;
     }
 

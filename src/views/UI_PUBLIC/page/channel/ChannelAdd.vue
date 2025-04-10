@@ -146,9 +146,9 @@
                     width="150"
                 >
                     <template #default="{ row, $index }: TableColumn<ChannelManualAddDto>">
-                        <BaseNumberInput
+                        <el-input
                             v-if="row.port === 0"
-                            :model-value="undefined"
+                            model-value=""
                             disabled
                         />
                         <BaseNumberInput

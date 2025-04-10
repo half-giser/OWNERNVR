@@ -155,7 +155,7 @@
                                 :min="row.brightMin"
                                 :max="row.brightMax"
                                 :disabled="row.disabled"
-                                @change="changeHSL(row.bright, row.id, 'bright')"
+                                @blur="changeHSL(row.bright, row.id, 'bright')"
                                 @keyup.enter="blurInput"
                             />
                         </template>
@@ -173,7 +173,7 @@
                                 :min="row.contrastMin"
                                 :max="row.contrastMax"
                                 :disabled="row.disabled"
-                                @change="changeHSL(row.contrast, row.id, 'contrast')"
+                                @blur="changeHSL(row.contrast, row.id, 'contrast')"
                                 @keyup.enter="blurInput"
                             />
                         </template>
@@ -191,7 +191,7 @@
                                 :min="row.saturationMin"
                                 :max="row.saturationMax"
                                 :disabled="row.disabled"
-                                @change="changeHSL(row.saturation, row.id, 'saturation')"
+                                @blur="changeHSL(row.saturation, row.id, 'saturation')"
                                 @keyup.enter="blurInput"
                             />
                         </template>
@@ -209,7 +209,7 @@
                                 :min="row.hueMin"
                                 :max="row.hueMax"
                                 :disabled="row.disabled"
-                                @change="changeHSL(row.hue, row.id, 'hue')"
+                                @blur="changeHSL(row.hue, row.id, 'hue')"
                                 @keyup.enter="blurInput"
                             />
                         </template>

@@ -82,7 +82,7 @@
                         :max="tableData[pageData.tableIndex].addressMax"
                         :disabled="tableData[pageData.tableIndex].disabled"
                     />
-                    <BaseNumberInput
+                    <el-input
                         v-else
                         disabled
                     />

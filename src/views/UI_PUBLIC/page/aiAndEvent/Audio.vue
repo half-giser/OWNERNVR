@@ -91,20 +91,20 @@
                     <el-form-item :label="Translate('IDCS_TIMES')">
                         <BaseNumberInput
                             v-model="alarmOutList[pageData.alarmOutIndex].alarmTimes"
-                            :disabled="!alarmOutList[pageData.alarmOutIndex].audioSwitch || !alarmOutList[pageData.alarmOutIndex].alarmTimes"
+                            :disabled="!alarmOutList[pageData.alarmOutIndex].audioSwitch || alarmOutList[pageData.alarmOutIndex].alarmTimesDisabled"
                             :min="1"
                             :max="50"
-                            :value-on-clear="!alarmOutList[pageData.alarmOutIndex].alarmTimes ? 'min' : null"
+                            value-on-clear="min"
                         />
                     </el-form-item>
                     <!-- 音量 -->
                     <el-form-item :label="Translate('IDCS_ALARM_VOLUME')">
                         <BaseNumberInput
                             v-model="alarmOutList[pageData.alarmOutIndex].audioVolume"
-                            :disabled="!alarmOutList[pageData.alarmOutIndex].audioSwitch || typeof alarmOutList[pageData.alarmOutIndex].audioVolume !== 'number'"
+                            :disabled="!alarmOutList[pageData.alarmOutIndex].audioSwitch || alarmOutList[pageData.alarmOutIndex].audioVolumeDisabled"
                             :min="0"
                             :max="100"
-                            :value-on-clear="typeof alarmOutList[pageData.alarmOutIndex].audioVolume !== 'number' ? 'min' : null"
+                            value-on-clear="min"
                             @change="changeAudioVolume"
                         />
                     </el-form-item>

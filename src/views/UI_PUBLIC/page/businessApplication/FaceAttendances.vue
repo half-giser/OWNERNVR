@@ -252,10 +252,6 @@
         }
     }
 
-    .el-checkbox {
-        margin-right: 0;
-    }
-
     .base-btn-box {
         width: 10%;
         align-items: flex-end;

@@ -396,7 +396,7 @@ input[type='number'] {
                     cursor: text;
                 }
 
-                .el-checkbox {
+                * + .el-checkbox {
                     margin-left: 5px;
                 }
             }
@@ -459,6 +459,19 @@ input[type='number'] {
         .el-checkbox {
             display: inline-flex;
             align-items: center;
+
+            & + * {
+                margin-left: 8px;
+            }
+
+            & + .el-checkbox-group {
+                margin-left: 20px;
+            }
+        }
+
+        .el-checkbox-group .el-checkbox {
+            margin-left: 0;
+            margin-right: 20px;
         }
 
         .el-slider {
