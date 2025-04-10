@@ -13,9 +13,6 @@
             ref="formRef"
             :model="formData"
             :rules="rules"
-            :style="{
-                '--form-input-width': '200px',
-            }"
         >
             <el-form-item>
                 <el-checkbox

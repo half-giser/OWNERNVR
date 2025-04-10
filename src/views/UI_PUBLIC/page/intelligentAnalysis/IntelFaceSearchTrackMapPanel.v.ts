@@ -40,6 +40,8 @@ export default defineComponent({
         },
     },
     setup(prop, ctx) {
+        const { Translate } = useLangStore()
+
         // 通道与通道名的映射
         const chlMap: Record<string, string> = {}
         // 通道与录像数的映射
@@ -429,7 +431,7 @@ export default defineComponent({
                         X: ($item('X').text().num() / 10000) * pageData.value.width,
                         Y: ($item('Y').text().num() / 10000) * pageData.value.height,
                         count: countMap[chlId] || 0,
-                        chlName: chlMap[chlId] || '',
+                        chlName: chlMap[chlId] || Translate('IDCS_HISTORY_CHANNEL'),
                     }
                 })
 

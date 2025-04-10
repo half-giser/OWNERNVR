@@ -81,7 +81,7 @@
 
 <style lang="scss" scoped>
 .strength {
-    width: calc(var(--form-input-width) + var(--form-label-width) + 15px);
+    width: calc(var(--form-input-width) + var(--form-label-width));
 }
 
 .notice {

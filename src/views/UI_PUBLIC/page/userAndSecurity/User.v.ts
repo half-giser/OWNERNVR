@@ -35,7 +35,7 @@ export default defineComponent({
             // 当前选中的通道权限Tab
             activeChannelTab: DEFAULT_CHANNEL_AUTH_TABS[0],
             // 当前选中的用户索引
-            activeUser: 0,
+            activeUser: -1,
             // 搜索框的搜索内容
             searchText: '',
             // 是否打开编辑用户弹窗
@@ -258,7 +258,7 @@ export default defineComponent({
                         // 用户不存在
                         case ErrorCode.USER_ERROR_NO_USER:
                         case ErrorCode.USER_ERROR_PWD_ERR:
-                            errorInfo = Translate('IDCS_DEVICE_USER_NOTEXIST')
+                            errorInfo = Translate('IDCS_USER_OR_PASSWORD_ERROR')
                             break
                         // 鉴权账号无相关权限
                         case ErrorCode.USER_ERROR_NO_AUTH:

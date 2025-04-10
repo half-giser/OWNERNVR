@@ -639,7 +639,6 @@ export default defineComponent({
         })
 
         return {
-            dateTime,
             formData,
             tableList,
             pageData,

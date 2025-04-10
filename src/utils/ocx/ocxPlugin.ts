@@ -1168,21 +1168,21 @@ const getSingletonPlugin = () => {
     }
 
     /**
-     * @description 判断两个元素是否重合
+     * @description 判断两个元素是否重合(相交或覆盖)
+     * @see https://zhuanlan.zhihu.com/p/526649229
      * @param {DOMRect} rect1
      * @param {DOMRect} rect2
      * @returns {boolean}
      */
     const isOverlap = (rect1: DOMRect, rect2: DOMRect) => {
-        const { top, left, right, bottom } = rect1
-        const { top: top2, left: left2, right: right2, bottom: bottom2 } = rect2
+        const { left: x1, top: y1, right: x2, bottom: y2 } = rect1
+        const { left: x3, top: y3, right: x4, bottom: y4 } = rect2
 
-        const leftTop = left2 > left && left2 < right && top2 > top && top2 < bottom
-        const rightTop = right2 > left && right2 < right && top2 > top && top2 < bottom
-        const leftBottom = left2 > left && left2 < right && bottom2 > top && bottom2 < bottom
-        const rightBottom = right2 > left && right2 < right && bottom2 > top && bottom2 < bottom
-
-        return leftTop || rightTop || leftBottom || rightBottom
+        if (Math.max(x1, x3) <= Math.min(x2, x4) && Math.max(y1, y3) <= Math.min(y2, y4)) {
+            return true
+        } else {
+            return false
+        }
     }
 
     /**
@@ -1258,6 +1258,7 @@ const getSingletonPlugin = () => {
                         if (type === 'intersect') {
                             const observeRect = element.getBoundingClientRect()
                             hasPop = element.style.display !== 'none' && isOverlap(rect, observeRect)
+                            return
                         }
 
                         hasPop = element.style.display !== 'none'

@@ -32,7 +32,7 @@ export const queryAuthGroupList = (data: string) => fetch('queryAuthGroupList', 
  * @param {string} data
  * @returns
  */
-export const createUser = (data: string) => fetch('createUser', data, {}, false)
+export const createUser = (data: string) => fetch('createUser', data, {})
 
 /**
  * @description 查询权限组信息

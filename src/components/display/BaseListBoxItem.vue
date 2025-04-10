@@ -72,6 +72,7 @@ li {
     align-items: center;
     line-height: 30px;
     user-select: none;
+    background-color: var(--main-bg);
 
     :deep(.Sprite) {
         margin-right: 8px;

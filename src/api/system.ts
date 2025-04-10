@@ -165,7 +165,7 @@ export const queryUpgradeFileHead = (data: string) => fetch('queryUpgradeFileHea
  * @param {string} data
  * @returns
  */
-export const exportConfig = (data: string) => fetch('exportConfig', data, {}, false)
+export const exportConfig = (data: string) => fetch('exportConfig', data, {})
 
 /**
  * @description 获取报警状态数据
@@ -281,4 +281,4 @@ export const editSHDBOperationCfg = (data: string) => fetch('editSHDBOperationCf
  * @description 心跳检测
  * @returns
  */
-export const heartBeat = () => fetch('querySHDBNormalUploadCfg', '')
+export const heartBeat = () => fetch('heartBeat', '')

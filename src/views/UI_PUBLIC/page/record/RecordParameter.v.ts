@@ -153,7 +153,7 @@ export default defineComponent({
                         delayedRecordTimeNote: $item('delayedRecordTimeNote').text(),
                         per: $item('rec').attr('per'),
                         post: $item('rec').attr('post'),
-                        ANRSwitch: supportANR ? $item('ANRSwitch').text() : 'false',
+                        ANRSwitch: supportANR ? $item('ANRSwitch').text() || 'false' : 'false',
                         expiration: expiration || '0',
                         expirationUnit: expirationUnit ? expirationUnit : 'd',
                         manufacturerEnable: pageData.value.IPCMap[id] === 'true',
@@ -277,9 +277,11 @@ export default defineComponent({
 
             if (result) {
                 commSaveResponseHandler(result)
-                editForm.update()
-                editRows.clear()
                 pageData.value.originalDoubleStreamSwitch = formData.value.doubleStreamRecSwitch
+                editForm.update()
+                editRows.toArray().forEach((item) => {
+                    editRows.remove(item)
+                })
             }
         }
 

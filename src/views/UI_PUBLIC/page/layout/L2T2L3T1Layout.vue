@@ -32,6 +32,11 @@
         </el-aside>
         <el-main id="layout3Content">
             <RouterView />
+            <!-- <RouterView v-slot="{ Component }">
+                <KeepAlive :max="4">
+                    <component :is="Component" />
+                </KeepAlive>
+            </RouterView> -->
         </el-main>
     </el-container>
 </template>

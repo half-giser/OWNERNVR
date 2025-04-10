@@ -48,7 +48,7 @@ export default defineConfig(({ mode }) => {
             port: 9000,
             proxy: {
                 '/devapi': {
-                    target: `http://${VITE_APP_IP}/`,
+                    target: `${env.VITE_APP_HTTPS === 'true' ? 'https' : 'http'}://${VITE_APP_IP}/`,
                     changeOrigin: true,
                     rewrite: (path) => path.replace(/^\/devapi/, ''),
                     configure: (proxy) => {
@@ -62,6 +62,7 @@ export default defineConfig(({ mode }) => {
                             }
                         })
                     },
+                    secure: false,
                 },
             },
             https: env.VITE_APP_HTTPS === 'true' ? {} : false,

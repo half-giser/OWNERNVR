@@ -10,6 +10,8 @@ export const useLayoutStore = defineStore('layout', () => {
     const loadingCount = ref(0)
     // 是否已经初始化
     const isInitial = ref(false)
+    // 是否弹窗二次授权弹窗
+    const isAuth = ref(false)
     // RollMsg消息
     const notifications = ref<string[]>([])
 
@@ -31,10 +33,21 @@ export const useLayoutStore = defineStore('layout', () => {
     // 配置页菜单
     const configMenu = ref<RouteRecordRawExtends | null>(null)
 
+    if (import.meta.env.DEV) {
+        watch(messageBoxCount, (val) => {
+            console.log('messageBoxCount:', val)
+        })
+
+        watch(loadingCount, (val) => {
+            console.log('loadingCount:', val)
+        })
+    }
+
     return {
         messageBoxCount,
         loadingCount,
         isInitial,
+        isAuth,
         liveLastSegNum,
         liveLastChlList,
         notifications,

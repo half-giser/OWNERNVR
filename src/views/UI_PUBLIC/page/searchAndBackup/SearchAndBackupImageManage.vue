@@ -10,15 +10,11 @@
                 <label>{{ Translate('IDCS_START_TIME') }}</label>
                 <BaseDatePicker
                     v-model="pageData.startTime"
-                    :value-format="dateTime.dateTimeFormat"
-                    :format="dateTime.dateTimeFormat"
                     type="datetime"
                 />
                 <label>{{ Translate('IDCS_END_TIME') }}</label>
                 <BaseDatePicker
                     v-model="pageData.endTime"
-                    :value-format="dateTime.dateTimeFormat"
-                    :format="dateTime.dateTimeFormat"
                     type="datetime"
                 />
                 <el-button @click="search">{{ Translate('IDCS_SEARCH') }}</el-button>

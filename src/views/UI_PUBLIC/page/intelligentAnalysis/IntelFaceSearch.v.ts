@@ -994,6 +994,12 @@ export default defineComponent({
             formData.value.eventType = pageData.value.searchType === 'face' ? '' : formData.value.event
             formData.value.faceType = pageData.value.searchType === 'face' ? formData.value.face : ''
             tableData.value = []
+
+            const listTypeItem = pageData.value.listTypeOptions.find((item) => item.value === pageData.value.listType)!
+            if (!isListOptionVisible(listTypeItem.hide)) {
+                pageData.value.listType = pageData.value.listTypeOptions.find((item) => isListOptionVisible(item.hide))!.value
+            }
+
             cacheImportFace = formData.value.importFace.map((item) => item.pic)
             cacheSnapFace = formData.value.snapFace.map((item) => item.pic)
 
@@ -1020,7 +1026,7 @@ export default defineComponent({
                         frameTime: localToUtc(timestamp) + ':' + padStart(hexToDec(split[2]), 7),
                         guid,
                         chlId,
-                        chlName: chlMap[chlId],
+                        chlName: chlMap[chlId] || Translate('IDCS_HISTORY_CHANNEL'),
                         recStartTime: hexToDec(split[6]) * 1000,
                         recEndTime: hexToDec(split[7]) * 1000,
                         pic: '',
@@ -1428,6 +1434,10 @@ export default defineComponent({
         onBeforeUnmount(() => {
             stop()
         })
+
+        // onDeactivated(() => {
+        //     stop()
+        // })
 
         return {
             formData,

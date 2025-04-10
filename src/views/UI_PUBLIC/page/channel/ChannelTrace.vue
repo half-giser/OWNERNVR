@@ -80,7 +80,7 @@
                         </div>
                     </el-tooltip>
                 </el-form-item>
-                <div class="base-btn-box">
+                <div class="base-btn-box padding">
                     <el-button
                         :disabled="!tableData.length"
                         @click="addTrace(pageData.tableIndex)"

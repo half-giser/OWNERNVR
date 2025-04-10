@@ -99,7 +99,7 @@ export default defineComponent({
                             upgrade()
                             clickFlag = false
                         }
-                        closeAllLoading()
+                        closeLoading()
                     } else {
                         if (progress === '100%') {
                             pageData.value.upgradeNote = TRANS_MAPPING.uploadReboot
@@ -107,7 +107,7 @@ export default defineComponent({
                             //发送升级指令，但不一定会收到应答，需要延时检测重启
                             uploadTimer = reconnect()
                         } else {
-                            closeAllLoading()
+                            closeLoading()
                             pageData.value.upgradeNote = TRANS_MAPPING.uploading + '  ' + progress
                         }
                     }
@@ -115,7 +115,7 @@ export default defineComponent({
 
                 //网络断开
                 if (stateType === 'FileNetTransport') {
-                    closeAllLoading()
+                    closeLoading()
                     if ($('statenotify/errorCode').length) {
                         const errorCode = $('statenotify/errorCode').text().num()
                         handleErrorMsg(errorCode)
@@ -127,7 +127,7 @@ export default defineComponent({
                     const fileHeadBase64 = $('statenotify/base64').text()
                     // 若插件返回的升级包校验头内容为空，说明插件读取升级包失败。（可能是由于升级包文件被占用,另一web客户端正在升级）NVRUSS78-226
                     if (!fileHeadBase64) {
-                        closeAllLoading()
+                        closeLoading()
                         showMessage(Translate('IDCS_DEVICE_NOT_ALLOW_UPGRADE'))
                         return
                     }

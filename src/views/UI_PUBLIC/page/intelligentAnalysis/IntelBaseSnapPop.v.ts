@@ -129,7 +129,7 @@ export default defineComponent({
 
         const VEHICLE_STRUCT_MAPPING: Record<string, Option> = {}
         Object.keys(DEFAULT_VEHICLE_STRUCT_MAPPING).forEach((index) => {
-            const item = DEFAULT_BODY_STRUCT_MAPPING[Number(index)]
+            const item = DEFAULT_VEHICLE_STRUCT_MAPPING[Number(index)]
             VEHICLE_STRUCT_MAPPING[item.type] = {
                 name: Translate(item.name),
                 map: item.map,
@@ -163,8 +163,8 @@ export default defineComponent({
          */
         const getItem = (attribute: Record<string, string | number>, mapping: Record<string, Option>, property: string) => {
             if (typeof attribute[property] !== 'undefined') {
-                const name = mapping[property].name
-                const value = mapping[property].map[Number(attribute[property])]
+                const name = mapping[property]?.name
+                const value = mapping[property]?.map[Number(attribute[property])]
                 return {
                     label: name,
                     value: value === '--' ? UNKNOWN : Translate(value),

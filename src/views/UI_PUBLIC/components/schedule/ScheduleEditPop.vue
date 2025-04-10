@@ -57,7 +57,8 @@
                                     v-model="pageData.manualTimeSpan"
                                     is-range
                                     range-separator="-"
-                                    format="HH:mm"
+                                    :format="dateTime.hourMinuteFormat"
+                                    :teleported="false"
                                 />
                             </div>
                             <div class="row dayList">

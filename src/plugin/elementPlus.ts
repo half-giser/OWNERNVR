@@ -123,6 +123,11 @@ ElSelectV2.props.itemHeight = {
     default: 26,
 }
 
+ElSelectV2.props.fitInputWidth = {
+    type: [String, Boolean],
+    default: false,
+}
+
 ElTable.props.emptyText = {
     type: String,
     default: ' ',

@@ -9,6 +9,7 @@
         :class="[`effect-${effect}`]"
     >
         <slot></slot>
+        <!-- <div class="dropdown-btn-icon"></div> -->
         <el-icon class="el-icon--right">
             <ArrowDown />
         </el-icon>
@@ -29,6 +30,9 @@ withDefaults(
 </script>
 
 <style lang="scss" scoped>
+// @use '@/components/sprite/sprites' as *;
+// @use '@/scss/mixin' as *;
+
 .dropdown-btn {
     width: 100%;
     height: 100%;
@@ -43,5 +47,12 @@ withDefaults(
     &.effect-plain {
         color: var(--main-text);
     }
+
+    // &-icon {
+    //     @include sprite-mask($img-ddn, 0, 1);
+
+    //     background-color: currentcolor;
+    //     margin-left: 5px;
+    // }
 }
 </style>

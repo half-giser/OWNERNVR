@@ -15,12 +15,12 @@
                 <div class="title">{{ Translate('IDCS_BASIC_INFO') }}</div>
                 <el-form>
                     <el-form-item>
-                        <el-form-item :label="Translate('IDCS_SNAP_TIME')">{{ displayTime(current.timestamp) }}</el-form-item>
-                        <el-form-item :label="Translate('IDCS_SNAP_ADDRESS')">{{ current.chlName }}</el-form-item>
+                        <el-form-item :label="`${Translate('IDCS_SNAP_TIME')} : `">{{ displayTime(current.timestamp) }}</el-form-item>
+                        <el-form-item :label="`${Translate('IDCS_SNAP_ADDRESS')} : `">{{ current.chlName }}</el-form-item>
                     </el-form-item>
                     <el-form-item>
-                        <el-form-item :label="Translate('IDCS_EVENT_TYPE')">{{ displayEventType(current.eventType) }}</el-form-item>
-                        <el-form-item :label="Translate('IDCS_TARGET_TYPE')">{{ displayTargetType(current.targetType) }}</el-form-item>
+                        <el-form-item :label="`${Translate('IDCS_EVENT_TYPE')} : `">{{ displayEventType(current.eventType) }}</el-form-item>
+                        <el-form-item :label="`${Translate('IDCS_TARGET_TYPE')} : `">{{ displayTargetType(current.targetType) }}</el-form-item>
                     </el-form-item>
                 </el-form>
             </div>

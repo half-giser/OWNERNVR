@@ -163,6 +163,14 @@ export default defineComponent({
             }
         }
 
+        // 首次加载成功 播放视频
+        const stopWatchFirstPlay = watchEffect(() => {
+            if (ready.value && tableData.value.length) {
+                nextTick(() => play())
+                stopWatchFirstPlay()
+            }
+        })
+
         /**
          * @description 获取预置点列表
          * @param {String} chlId

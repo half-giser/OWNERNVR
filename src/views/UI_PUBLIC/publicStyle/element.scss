@@ -109,6 +109,30 @@
         &__wrapper {
             padding-inline: 5px;
         }
+
+        &__inner + .el-input__suffix .el-input__password {
+            transition: none;
+
+            svg {
+                display: none;
+            }
+        }
+
+        &__inner[type='text'] + .el-input__suffix .el-input__password {
+            @include sprite($img-icon_mask, 0, 4);
+
+            &:hover {
+                @include sprite($img-icon_mask, 1, 4);
+            }
+        }
+
+        &__inner[type='password'] + .el-input__suffix .el-input__password {
+            @include sprite($img-icon_mask, 2, 4);
+
+            &:hover {
+                @include sprite($img-icon_mask, 3, 4);
+            }
+        }
     }
 
     .el-input-number {
@@ -119,6 +143,14 @@
                 padding-left: 5px;
                 padding-right: 5px;
             }
+        }
+    }
+
+    .el-textarea {
+        --el-input-bg-color: var(--input-bg);
+
+        &__inner {
+            padding: 5px;
         }
     }
 
@@ -356,6 +388,10 @@
             border-bottom-color: var(--table-thead-bottom-border);
             padding: 0;
 
+            .cell {
+                padding: 0;
+            }
+
             .cell:not(:has(.dropdown-btn)) {
                 padding: 8px 0;
             }
@@ -502,6 +538,10 @@
         &__popper {
             --el-dropdown-menuItem-hover-fill: var(--primary);
             --el-dropdown-menuItem-hover-color: var(--color-white);
+        }
+
+        &:has(.dropdown-btn) {
+            width: 100%;
         }
     }
 
@@ -747,7 +787,7 @@
         }
     }
 
-    $width: 250px;
+    // $width: 250px;
 
     // .el-date-picker {
     //     width: $width;
@@ -909,6 +949,7 @@
 
     .el-loading {
         &-spinner {
+            top: 35vh;
             display: flex;
             align-items: center;
             justify-content: center;

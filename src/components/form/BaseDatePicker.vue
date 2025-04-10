@@ -104,6 +104,7 @@
                             v-if="visible && type === 'datetime'"
                             v-model="currentTime"
                             value-format="HH:mm:ss"
+                            :format="timeFormat"
                             :teleported="false"
                             @change="changeTime"
                         />
@@ -209,7 +210,7 @@ const props = withDefaults(
         /**
          * @property 显示类型
          */
-        type: 'datetime' | 'date'
+        type?: 'datetime' | 'date'
         /**
          * @property 见element-plus el-popover的teleported
          */
@@ -227,6 +228,7 @@ const props = withDefaults(
         teleported: true,
         disabled: false,
         placeholder: '',
+        type: 'date',
     },
 )
 
@@ -241,6 +243,19 @@ const userSession = useUserSessionStore()
 const { Translate } = useLangStore()
 
 const visible = ref(false)
+
+const timeFormat = computed(() => {
+    if (props.type === 'datetime') {
+        if (props.format) {
+            const split = props.format.split(' ')
+            split.shift()
+            return split.join(' ')
+        }
+        return dateTime.timeFormat
+    }
+
+    return dateTime.timeFormat
+})
 
 // 输入框显示值
 const selectedValue = computed(() => {
@@ -292,7 +307,7 @@ const open = () => {
     tab.value = 'date'
 
     if (props.type === 'datetime') {
-        currentTime.value = currentValue.value.format('HH:mm:ss')
+        currentTime.value = currentValue.value.format(DEFAULT_TIME_FORMAT)
     }
 }
 
@@ -442,7 +457,7 @@ const changeTime = () => {
 
 const setToday = () => {
     currentValue.value = dayjs()
-    currentTime.value = dayjs().format('HH:mm:ss')
+    currentTime.value = dayjs().format(DEFAULT_TIME_FORMAT)
 }
 
 const confirm = () => {
@@ -453,8 +468,8 @@ const confirm = () => {
 
 const changeValue = () => {
     if (props.type === 'datetime') {
-        const currentTimeArray = currentTime.value.split(':')
-        currentValue.value = currentValue.value.hour(Number(currentTimeArray[0])).minute(Number(currentTimeArray[1])).second(Number(currentTimeArray[2]))
+        const currentTimeInstance = dayjs(currentTime.value, DEFAULT_TIME_FORMAT)
+        currentValue.value = currentValue.value.hour(currentTimeInstance.hour()).minute(currentTimeInstance.minute()).second(currentTimeInstance.second())
     }
 
     emits('update:modelValue', currentValue.value.calendar('gregory').format(props.format || (props.type === 'datetime' ? dateTime.dateTimeFormat : dateTime.dateFormat)))
@@ -471,8 +486,6 @@ watch(visible, (val) => {
     font-size: 12px;
     width: 250px;
     background-color: var(--color-white);
-
-    --w: 250px;
 
     &-input {
         width: var(--form-input-width);
@@ -493,7 +506,7 @@ watch(visible, (val) => {
                 text-align: center;
 
                 &:hover {
-                    color: var(--datepicker-text-hover);
+                    color: var(--primary);
                     cursor: pointer;
                 }
 
@@ -533,7 +546,7 @@ watch(visible, (val) => {
             box-sizing: border-box;
 
             div {
-                width: calc(var(--w) / 7);
+                flex: 1;
                 font-weight: bolder;
                 text-align: center;
             }
@@ -542,30 +555,28 @@ watch(visible, (val) => {
         &-body {
             width: 100%;
             height: fit-content;
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
 
             div {
                 border: 1px solid transparent;
                 box-sizing: border-box;
-                width: calc(var(--w) / 7);
-                height: 20px;
                 text-align: center;
                 cursor: pointer;
 
-                &.none {
-                    color: var(--color-grey);
-                }
-
                 &.weekend {
                     color: var(--color-error);
+                }
+
+                &.none {
+                    color: var(--color-grey);
                 }
 
                 &.active,
                 &:hover {
                     color: var(--datepicker-text-hover);
                     border-color: currentColor;
-                    background-color: var(--datepicker-header-bg);
+                    background-color: var(--datepicker-bg-hover);
                 }
             }
         }
@@ -629,7 +640,7 @@ watch(visible, (val) => {
                 &:hover {
                     color: var(--datepicker-text-hover);
                     border-color: currentColor;
-                    background-color: var(--datepicker-header-bg);
+                    background-color: var(--datepicker-bg-hover);
                 }
             }
         }

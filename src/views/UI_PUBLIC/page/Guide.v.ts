@@ -844,6 +844,9 @@ export default defineComponent({
                 })
             })
             pageData.value.current = steps.value[0]
+            // steps.value = ['languageAndRegion', 'user', 'questionAndAnswer', 'disk']
+            // pageData.value.current = steps.value[0]
+            // handleNext()
         })
 
         onBeforeUnmount(() => {

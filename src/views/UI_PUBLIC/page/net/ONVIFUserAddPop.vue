@@ -41,7 +41,10 @@
             </el-form-item>
             <BasePasswordStrength :strength />
             <el-form-item label=" ">
-                <el-text class="tip">{{ Translate('IDCS_PASSWORD_STRONG_MIDDLE').formatForLang(8, 16) }}</el-text>
+                <span
+                    v-clean-html="pageData.passwordTip"
+                    class="tip"
+                ></span>
             </el-form-item>
             <el-form-item
                 :label="Translate('IDCS_CONFIRM_PASSWORD')"
@@ -75,10 +78,3 @@
 </template>
 
 <script lang="ts" src="./ONVIFUserAddPop.v.ts"></script>
-
-<style lang="scss" scoped>
-.tip {
-    font-size: 12px;
-    line-height: 1.4;
-}
-</style>

@@ -70,7 +70,7 @@
                         :disabled="!tableData.length"
                     />
                 </el-form-item>
-                <div class="base-btn-box">
+                <div class="base-btn-box padding">
                     <el-button
                         :disabled="!tableData.length || !formData.name"
                         @click="setData"
@@ -81,7 +81,7 @@
             </el-form>
         </div>
         <div class="base-chl-box-right">
-            <div class="base-flex-box">
+            <div class="base-table-box">
                 <el-table
                     ref="tableRef"
                     :show-header="false"

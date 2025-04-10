@@ -7,7 +7,7 @@
     <div class="Calendar">
         <div class="Calendar-header">
             <span @click="prevMonth">&lt;</span>
-            <span>{{ currentYear }}-{{ currentMonth }}</span>
+            <span>{{ currentYearMonth }}</span>
             <span @click="nextMonth">&gt;</span>
         </div>
         <div class="Calendar-week">
@@ -21,24 +21,21 @@
         </div>
         <div class="Calendar-body">
             <div
-                v-for="(item, i) in dateList"
-                :key="i"
-                class="Calendar-row"
+                v-for="(row, key) in dateList"
+                :key="row.format"
+                :style="{
+                    gridTemplateRows: `repeat(${dateList.length / 7}, 1fr)`,
+                }"
+                :class="{
+                    weekend: userSession.calendarType !== 'Persian' && (key === 0 || key === 6),
+                    none: row.inMonth !== 0,
+                    today: row.format === today,
+                    active: row.format === selectedValue,
+                    badge: highlight(row.timestamp),
+                }"
+                @click="changeDate(row.timestamp, row.inMonth)"
             >
-                <div
-                    v-for="(row, key) in item"
-                    :key="row.format"
-                    :class="{
-                        weekend: userSession.calendarType !== 'Persian' && (key === 0 || key === 6),
-                        none: row.inMonth !== 0,
-                        today: row.format === today,
-                        active: row.format === selectedValue,
-                        badge: highlight(row.timestamp),
-                    }"
-                    @click="changeDate(row.timestamp, row.inMonth)"
-                >
-                    {{ row.date }}
-                </div>
+                {{ row.date }}
             </div>
         </div>
     </div>
@@ -87,14 +84,9 @@ const today = ref(formatDate(new Date(), DEFAULT_DATE_FORMAT))
 // 当前日期
 const currentValue = ref(dayjs())
 
-// 当前年
-const currentYear = computed(() => {
-    return currentValue.value.format('YYYY')
-})
-
-// 当前月
-const currentMonth = computed(() => {
-    return currentValue.value.format('MM')
+// 当前年月
+const currentYearMonth = computed(() => {
+    return currentValue.value.format('YYYY-MM')
 })
 
 type DateDto = {
@@ -155,11 +147,7 @@ const dateList = computed(() => {
         currentDate = currentDate.add(1, 'day')
     }
 
-    return Array(currentDateList.length / 7)
-        .fill(0)
-        .map((_, index) => {
-            return currentDateList.slice(index * 7, (index + 1) * 7)
-        })
+    return currentDateList
 })
 
 /**
@@ -242,6 +230,7 @@ const changeDate = (timestamp: number, inMonth: number) => {
             font-weight: normal;
             cursor: pointer;
             font-family: consolas, sans-serif;
+            user-select: none;
         }
 
         span:nth-child(2) {
@@ -268,18 +257,10 @@ const changeDate = (timestamp: number, inMonth: number) => {
 
     &-body {
         height: 100%;
-        display: flex;
-        flex-direction: column;
-    }
-
-    &-row {
-        display: flex;
-        width: 100%;
-        height: 25%;
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
 
         div {
-            height: 100%;
-            width: 20%;
             border-right: 1px solid var(--calendar-border);
             border-bottom: 1px solid var(--calendar-border);
             display: flex;

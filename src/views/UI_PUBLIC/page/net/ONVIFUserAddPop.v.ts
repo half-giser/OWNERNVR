@@ -108,6 +108,7 @@ export default defineComponent({
                 },
             ],
             passwordSwitch: false,
+            passwordTip: getTranslateForPasswordStrength('medium'),
         })
 
         const strength = computed(() => getPwdSaftyStrength(formData.value.password))

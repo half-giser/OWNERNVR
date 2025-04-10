@@ -212,7 +212,7 @@ export default defineComponent({
                     <diskGroup>
                         <action type="actionType">add</action>
                         <id>${pageData.value.diskGroupList[0].id}</id>
-                        <${elementName} type="list">
+                        <${elementName}${' type="list"'}>
                             <item id="${elementId}" />
                         </${elementName}>
                     </diskGroup>

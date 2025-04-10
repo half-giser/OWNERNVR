@@ -52,7 +52,8 @@
                 <slot name="customerControlPanel"></slot>
                 <el-popover
                     v-model:visible="manualTimeInputShow"
-                    width="250"
+                    width="300"
+                    :teleported="false"
                 >
                     <template #reference>
                         <a>{{ Translate('IDCS_MANUAL_INPUT') }}</a>
@@ -62,7 +63,8 @@
                             v-model="manualTimeSpan"
                             is-range
                             range-separator="-"
-                            format="HH:mm"
+                            :format="dateTime.hourMinuteFormat"
+                            :teleported="false"
                         />
                         <el-button @click="manualTimeInputOk">{{ Translate('IDCS_OK') }}</el-button>
                     </div>
@@ -85,16 +87,16 @@
 </template>
 
 <script lang="ts" setup>
+import dayjs from 'dayjs'
+
 export interface Props {
     width: number
-    timeMode?: number
     readonly?: boolean
     dragAction?: 'add' | 'del'
 }
 
 const props = withDefaults(defineProps<Props>(), {
     width: 300,
-    timeMode: 24,
     readonly: false,
     dragAction: 'add',
 })
@@ -105,6 +107,7 @@ let timeSpanColor = '#18C0DD'
 let timeSpanSelectingColor = '#89E9F9'
 
 const { Translate } = useLangStore()
+const dateTime = useDateTimeStore()
 
 //时间段显示风格符号，精度到分钟，如 02:30-05:10
 const timeSpanSplit = '-'
@@ -385,7 +388,7 @@ const timeStrToNum = (timeStr: string) => {
  * @returns
  */
 const timeStrSpanShowText = (timeStrSpan: Array<string>) => {
-    return timeStrSpan.join(timeSpanSplit)
+    return timeStrSpan.map((item) => dayjs(item, 'HH:mm').format(dateTime.hourMinuteFormat)).join(timeSpanSplit)
 }
 
 /**
@@ -456,7 +459,7 @@ const drawScale = () => {
         strokeStyle: scaleColor,
     }
 
-    const scaleTextArr = props.timeMode === 12 ? scaleTextArr12 : scaleTextArr24
+    const scaleTextArr = dateTime.timeMode === 12 ? scaleTextArr12 : scaleTextArr24
 
     scaleCanvasBase.Line(0, 19.5, canvasWidth, 19.5, lineStyle)
     for (let i = 0; i < 25; i++) {
@@ -584,7 +587,8 @@ defineExpose(expose)
         flex: 0 0 auto;
         font-size: 12px;
         padding: 0 2px;
-        height: 16px;
+        height: 22px;
+        line-height: 22px;
         background-color: var(--primary-light);
     }
 
@@ -615,6 +619,7 @@ defineExpose(expose)
 
 .menaulTimeInputPL {
     display: flex;
+    align-items: center;
 
     .el-button {
         margin-left: 5px;

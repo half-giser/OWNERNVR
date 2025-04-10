@@ -524,7 +524,6 @@ export default defineComponent({
         return {
             mode,
             formData,
-            dateTime,
             pageData,
             userAuth,
             confirmBackUp,

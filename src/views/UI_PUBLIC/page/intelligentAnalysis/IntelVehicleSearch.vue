@@ -179,6 +179,8 @@
                         :type="pageData.listType === 'snap' && formData.eventType.length === 1 && formData.eventType.includes('videoMetadata') ? 'struct' : pageData.listType"
                         :disabled="item.isDelSnap || item.isNoData || !item.pic || !item.panorama"
                         :error-text="item.isDelSnap ? Translate('IDCS_DELETED') : item.isNoData ? Translate('IDCS_NO_RECORD_DATA') : ''"
+                        :attributes="item.attribute"
+                        target-type="vehicle"
                         @update:model-value="handleSelect(index, $event)"
                         @click="play(item)"
                         @detail="showDetail(index)"

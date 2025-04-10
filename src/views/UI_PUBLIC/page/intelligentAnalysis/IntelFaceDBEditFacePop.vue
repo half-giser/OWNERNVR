@@ -30,9 +30,6 @@
                 <el-form-item :label="Translate('IDCS_BIRTHDAY')">
                     <BaseDatePicker
                         v-model="formData.birthday"
-                        :value-format="dateTime.dateFormat"
-                        :format="dateTime.dateFormat"
-                        type="date"
                         :disabled
                     />
                 </el-form-item>

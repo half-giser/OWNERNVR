@@ -45,10 +45,15 @@ const prop = withDefaults(
          * @property IP地址值
          */
         modelValue: string
+        /**
+         * @property 是否允许IP地址为空值，若否，则输入框会默认填充0
+         */
+        allowEmpty?: boolean
     }>(),
     {
         disabled: false,
         invalidateMode: 'PREVENT',
+        allowEmpty: false,
     },
 )
 
@@ -85,29 +90,35 @@ const getInputElement = (index: number) => {
  * @param {number} value
  * @param {number} index
  */
-const updateValue = (value: number, index: number) => {
+const updateValue = (value: number | '', index: number) => {
     let current: string | number = value
-    if (prop.invalidateMode === 'PREVENT') {
-        if (current > MAX_VALUE || current < MIN_VALUE) {
-            current = address.value[index]
+    if (typeof current === 'number') {
+        if (prop.invalidateMode === 'PREVENT') {
+            if (current > MAX_VALUE || current < MIN_VALUE) {
+                current = address.value[index]
+            }
+        } else if (prop.invalidateMode === 'REPLACE') {
+            current = clamp(current, MIN_VALUE, MAX_VALUE)
         }
-    } else if (prop.invalidateMode === 'REPLACE') {
-        current = clamp(current, MIN_VALUE, MAX_VALUE)
     }
 
     const split: (string | number)[] = [...address.value]
     split[index] = current
 
-    const filter = split.filter((i) => i === '')
-
     let join = ''
-    if (filter.length < split.length) {
-        if (filter.length) {
-            split.forEach((i, index) => {
-                if (i === '') split[index] = 0
-            })
-        }
+    if (prop.allowEmpty) {
         join = split.join('.')
+        if (join === '...') join = ''
+    } else {
+        const filter = split.filter((i) => i === '')
+        if (filter.length < split.length) {
+            if (filter.length) {
+                split.forEach((i, index) => {
+                    if (i === '') split[index] = 0
+                })
+            }
+            join = split.join('.')
+        }
     }
 
     emits('update:modelValue', join)
@@ -198,9 +209,14 @@ const handleKeyDown = (e: KeyboardEvent, index: number) => {
  * @param {number} index
  */
 const handleInput = (e: Event, index: number) => {
-    const current = Number((e.target as HTMLInputElement).value)
-    const value = updateValue(current, index)
-    ;(e.target as HTMLInputElement).value = String(value)
+    const value = (e.target as HTMLInputElement).value
+    if (prop.allowEmpty && value === '') {
+        updateValue(value, index)
+        return
+    }
+    const current = Number(value)
+    const newValue = updateValue(current, index)
+    ;(e.target as HTMLInputElement).value = String(newValue)
 }
 
 /**
@@ -216,11 +232,13 @@ const handleFocus = (e: Event) => {
  */
 const handleBlur = () => {
     isFocus.value--
-    const notEmpty = address.value.some((item, index) => {
-        return index !== 0 && item !== 0 && item !== ''
-    })
-    if ((address.value[0] === 0 || address.value[0] === '') && notEmpty) {
-        updateValue(1, 0)
+    if (!prop.allowEmpty) {
+        const notEmpty = address.value.some((item, index) => {
+            return index !== 0 && item !== 0 && item !== ''
+        })
+        if ((address.value[0] === 0 || address.value[0] === '') && notEmpty) {
+            updateValue(1, 0)
+        }
     }
 }
 

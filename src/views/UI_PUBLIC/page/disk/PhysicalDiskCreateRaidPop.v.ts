@@ -43,6 +43,7 @@ export default defineComponent({
 
         const pageData = ref({
             isCheckAuth: false,
+            raidList: [] as string[],
         })
 
         const rules = ref<FormRules>({
@@ -53,6 +54,13 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_NOTE_CONFIG_RAID_NAME')))
                             return
                         }
+
+                        // 创建RAID判断是否重名时，不区分大小写
+                        if (pageData.value.raidList.includes(value.trim().toLowerCase())) {
+                            callback(new Error(Translate('IDCS_NOTE_CONFIG_RAID_NAME_REPEAT')))
+                            return
+                        }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -115,7 +123,7 @@ export default defineComponent({
          * @returns {string}
          */
         const formatChar = (str: string) => {
-            if (str.startsWith('-')) {
+            if (str.length && !/[a-zA-Z]/.test(str[0])) {
                 return ''
             }
             return str.replace(/[^-_a-zA-Z0-9]/g, '')
@@ -174,6 +182,7 @@ export default defineComponent({
             closeLoading()
 
             if ($('status').text() === 'success') {
+                pageData.value.isCheckAuth = false
                 openMessageBox({
                     type: 'success',
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
@@ -208,9 +217,10 @@ export default defineComponent({
         /**
          * @description 打开弹窗时更新表单
          */
-        const open = () => {
+        const open = async () => {
             formData.value = new DiskCreateRaidForm()
             formData.value.diskId = prop.list.filter((item) => item.switch).map((item) => item.id)
+            await getRaidList()
             getRaidCapacity()
         }
 
@@ -237,6 +247,17 @@ export default defineComponent({
             const result = await queryCreateRaidCapacity(sendXml)
             const $ = queryXml(result)
             formData.value.space = Math.floor($('content/capacity').text().num() / 1024) + ' GB'
+        }
+
+        const getRaidList = async () => {
+            const result = await queryRaidDetailInfo()
+            const $ = queryXml(result)
+
+            pageData.value.raidList = $('content/raidList/item').map((item) => {
+                const $item = queryXml(item.element)
+
+                return $item('name').text().toLowerCase()
+            })
         }
 
         return {
