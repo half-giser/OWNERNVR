@@ -24,13 +24,13 @@
                     <el-checkbox
                         v-model="formData.displayName"
                         :label="`${Translate('IDCS_NAME')} OSD`"
-                        :disabled="nameDisabled || formData.isSpeco"
+                        :disabled="formData.disabled || !formData.supportDateFormat || formData.isSpeco"
                         @change="changeSwitch(formData.displayName, formData.id, 'displayName')"
                     />
                     <el-checkbox
                         v-model="formData.displayTime"
                         :label="`${Translate('IDCS_TIME')} OSD`"
-                        :disabled="nameDisabled || formData.isSpeco"
+                        :disabled="formData.disabled || !formData.supportDateFormat || formData.isSpeco"
                         @change="changeSwitch(formData.displayTime, formData.id, 'displayTime')"
                     />
                 </el-form-item>
@@ -45,7 +45,7 @@
                     <el-input
                         v-model="formData.name"
                         maxlength="63"
-                        :disabled="nameDisabled || formData.isSpeco"
+                        :disabled="formData.disabled || !formData.supportDateFormat || formData.isSpeco"
                         @blur="blurName(formData.id, formData.name)"
                     />
                 </el-form-item>

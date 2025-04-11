@@ -16,7 +16,6 @@ export default defineComponent({
         const formData = ref(new ChannelOsdDto())
         const tableRef = ref<TableInstance>()
         const tableData = ref<ChannelOsdDto[]>([])
-        const nameDisabled = ref(true)
         const pageIndex = ref(1)
         const pageSize = ref(10)
         const pageTotal = ref(0)
@@ -49,8 +48,6 @@ export default defineComponent({
             const rowData = getRowById(chlId)!
             formData.value = cloneDeep(rowData)
             tableRef.value!.setCurrentRow(rowData)
-            nameDisabled.value = rowData.disabled
-            if (!rowData.supportDateFormat) nameDisabled.value = true
         }
 
         /**
@@ -105,8 +102,6 @@ export default defineComponent({
             if (!rowData.disabled) {
                 selectedChlId.value = rowData.id
                 formData.value = cloneDeep(rowData)
-                nameDisabled.value = rowData.disabled
-                if (!rowData.supportDateFormat) nameDisabled.value = true
             }
             tableRef.value!.setCurrentRow(getRowById(selectedChlId.value))
         }
@@ -682,7 +677,6 @@ export default defineComponent({
             tableRef,
             tableData,
             editRows,
-            nameDisabled,
             pageIndex,
             pageSize,
             pageTotal,
