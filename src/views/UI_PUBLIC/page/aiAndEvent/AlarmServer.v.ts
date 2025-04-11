@@ -47,8 +47,8 @@ export default defineComponent({
                             return
                         }
 
-                        if (!value.trim()) {
-                            if (!value.trim().match(/(^$|[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+.?$)/g)) {
+                        if (value.trim()) {
+                            if (!/(^$|[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+.?$)/g.test(value.trim())) {
                                 callback(new Error(Translate('IDCS_PROMPT_INVALID_SERVER')))
                                 return
                             }
@@ -276,6 +276,8 @@ export default defineComponent({
             if (!formRef.value) return
             if (url === 'testAlarmServerParam') {
                 pageData.value.isTestAlarmServer = true
+            } else {
+                pageData.value.isTestAlarmServer = false
             }
             formRef.value.validate((valid) => {
                 if (valid) {
@@ -293,9 +295,7 @@ export default defineComponent({
                                 openMessageBox(Translate('IDCS_TEST_ALARM_SERVER_FAILED'))
                             }
                         })
-                        pageData.value.isTestAlarmServer = false
                     } else if (url === 'editAlarmServerParam') {
-                        pageData.value.isTestAlarmServer = false
                         openLoading()
                         editAlarmServerParam(getSavaData(url)).then((result) => {
                             closeLoading()
