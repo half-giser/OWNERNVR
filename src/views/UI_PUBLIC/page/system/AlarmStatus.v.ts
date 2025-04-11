@@ -552,7 +552,7 @@ export default defineComponent({
                         },
                         {
                             key: 'IDCS_TRIGGER_ALARM_SEND_EMAIL',
-                            value: SWITCH_MAPPING[$item('popMsgSwitch').text()],
+                            value: SWITCH_MAPPING[$item('emailSwitch').text()],
                             span: 2,
                         },
                     ],
