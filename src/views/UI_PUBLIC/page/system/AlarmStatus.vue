@@ -90,7 +90,7 @@
                             <BasePagination
                                 v-model:current-page="row.index"
                                 :page-size="1"
-                                layout="prev, pager, next"
+                                layout="jumper"
                                 :total="row.data.length"
                             />
                         </div>
