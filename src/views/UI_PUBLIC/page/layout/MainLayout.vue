@@ -116,6 +116,7 @@
                     </transition>
                 </router-view> -->
                 <router-view />
+                <div class="layoutMainContentBottomHeight"></div>
             </div>
         </el-main>
         <div
@@ -164,7 +165,6 @@
 #logo {
     margin-left: 12px;
     width: 50%;
-    // width: 350px;
     height: 65px;
     background-position: 0 70%;
     background-repeat: no-repeat;
@@ -281,20 +281,31 @@
     padding: 0;
     flex: auto 1 1;
     overflow-y: auto;
-    margin-block: 25px;
+    max-height: calc(100vh - 65px - 34px - 18px);
 
     @if $GLOBAL_UI_TYPE == UI2-A {
-        margin-top: 15px;
+        max-height: calc(100vh - 65px - 34px - 21px);
     }
 }
 
 #layoutMainContent {
     position: relative;
+    padding-top: 25px;
     padding-inline: 49px;
-    box-sizing: border-box;
     width: 100%;
-    height: 100%;
+    height: calc(100% - 25px);
     flex-shrink: 1;
+    min-height: 150px;
+
+    @if $GLOBAL_UI_TYPE == UI2-A {
+        padding-top: 25px;
+    }
+}
+
+.layoutMainContentBottomHeight {
+    width: 100%;
+    height: 25px;
+    flex-shrink: 0;
 }
 
 #divCopyRight {
