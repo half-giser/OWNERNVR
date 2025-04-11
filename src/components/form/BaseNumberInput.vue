@@ -9,15 +9,14 @@
 -->
 <template>
     <el-input
-        ref="input"
+        ref="$input"
         class="BaseNumberInput"
-        type="number"
         :model-value="showValue"
         @keydown="handleKeyPress"
         @focus="handleFocus"
         @blur="handleBlur"
         @input="handleInput"
-        @compositionend="handleComposition"
+        @compositionend="handleCompositionEnd"
         @paste.prevent="handlePaste"
     />
 </template>
@@ -30,26 +29,18 @@ const props = withDefaults(
         modelValue: number | undefined
         min?: number
         max?: number
-        valueOnClear?: number | null | 'min'
+        valueOnClear?: null | 'min'
         precision?: number
+        step?: number
     }>(),
     {
         min: 0,
         max: Infinity,
         valueOnClear: 'min',
         precision: 0,
+        step: 1,
     },
 )
-
-const showValue = computed(() => {
-    if (typeof props.modelValue === 'number') {
-        if (props.precision) {
-            return props.modelValue.toFixed(props.precision)
-        }
-        return props.modelValue
-    }
-    return ''
-})
 
 const emit = defineEmits<{
     (e: 'focus', event: FocusEvent): void
@@ -57,9 +48,41 @@ const emit = defineEmits<{
     (e: 'change', currentValue: number | undefined): void
     (e: 'update:modelValue', currentValue: number | undefined): void
 }>()
+
+const focusValue = ref('')
+const isFocus = ref(false)
+
+const $input = ref<InputInstance>()
+
+const showValue = computed(() => {
+    if (isFocus.value) {
+        return focusValue.value
+    }
+    return props.modelValue
+})
+
+const isNumber = () => {
+    return focusValue.value !== ''
+}
+
+const toNumber = () => {
+    return Number(focusValue.value)
+}
+
+const toClamp = (num: number, min: number, max: number) => {
+    const power = Math.pow(10, props.precision)
+    return (clamp(num * power, min * power, max * power) / power).toFixed(props.precision)
+}
+
+/**
+ * @description 处理键盘事件
+ * @param {KeyboardEvent} e
+ */
 const handleKeyPress = (e: Event | KeyboardEvent) => {
     const keyCode = (e as KeyboardEvent).key
     const ctrlKey = (e as KeyboardEvent).ctrlKey
+    const metaKey = (e as KeyboardEvent).metaKey
+
     let isPreventDefault = true
 
     switch (keyCode) {
@@ -71,24 +94,24 @@ const handleKeyPress = (e: Event | KeyboardEvent) => {
             isPreventDefault = false
             break
         case 'ArrowUp':
-            if (typeof props.modelValue === 'number') {
-                updateValue(clamp(Number(props.modelValue) + 1, props.min, props.max))
+            if (isNumber()) {
+                updateValue(toClamp(toNumber() + props.step, props.min, props.max))
             }
             break
         case 'ArrowDown':
-            if (typeof props.modelValue === 'number') {
-                updateValue(clamp(Number(props.modelValue) - 1, props.min, props.max))
+            if (isNumber()) {
+                updateValue(toClamp(toNumber() - props.step, props.min, props.max))
             }
             break
         case 'v':
         case 'c':
         case 'x':
-            if (ctrlKey) {
+            if (ctrlKey || metaKey) {
                 isPreventDefault = false
             }
             break
         case '.':
-            if (!String(showValue.value).includes('.') && props.precision) {
+            if (!String(focusValue.value).includes('.') && !!props.precision) {
                 isPreventDefault = false
             }
             break
@@ -103,73 +126,107 @@ const handleKeyPress = (e: Event | KeyboardEvent) => {
         e.preventDefault()
     }
 
-    // setTimeout(() => {
-    //     input.value!.input!.value = String(showValue.value)
-    // }, 0)
-
     return false
 }
 
-const input = ref<InputInstance>()
-
-const focus = () => {
-    input.value?.focus()
+/**
+ * @description 获得焦点
+ */
+const focus = async () => {
+    $input.value?.focus()
 }
 
+/**
+ * @description 失去焦点
+ */
 const blur = () => {
-    input.value?.blur()
+    $input.value?.blur()
 }
 
+/**
+ * @description 处理输入事件
+ * @param {string} e
+ */
 const handleInput = (e: string) => {
     if (e === '') {
-        updateValue(undefined)
+        updateValue(e)
     } else {
         const value = Number(e)
         if (value > props.max) {
+            if (Number(focusValue.value) > props.max) {
+                updateValue(e)
+            } else {
+                updateValue(focusValue.value)
+            }
             return
         }
-
-        updateValue(value)
+        updateValue(e)
     }
 }
 
+/**
+ * @description 处理焦点事件
+ * @param {FocusEvent} e
+ */
 const handleFocus = (e: FocusEvent) => {
+    isFocus.value = true
+    focusValue.value = typeof props.modelValue === 'undefined' ? '' : String(props.modelValue)
     emit('focus', e)
 }
 
+/**
+ * @description 处理失去焦点事件
+ * @param {FocusEvent} e
+ */
 const handleBlur = (e: FocusEvent) => {
     if (props.valueOnClear === 'min') {
-        if (typeof props.modelValue === 'undefined' || props.modelValue < props.min) {
-            updateValue(props.min)
+        if (toNumber() < props.min) {
+            updateValue(props.min + '')
         }
-    } else if (typeof props.valueOnClear === 'number') {
-        if (typeof props.modelValue === 'undefined') {
-            updateValue(props.valueOnClear)
-        }
-    } else if (typeof props.valueOnClear === null) {
-        updateValue(props.modelValue)
     }
+
+    isFocus.value = false
+
     emit('blur', e)
 }
 
-const handleComposition = () => {
-    updateValue(props.modelValue)
-    input.value!.input!.value = String(showValue.value)
+/**
+ * @description 处理合成事件
+ */
+const handleCompositionEnd = () => {
+    if ($input.value) {
+        $input.value.input!.value = focusValue.value
+    }
 }
 
 /**
  * @description 更新数据
- * @param {number} value
+ * @param {number | string} value
  */
-const updateValue = (value: number | undefined) => {
-    if (props.precision > 0 && typeof value === 'number') {
-        const newValue = Math.floor(value * Math.pow(10, props.precision)) / Math.pow(10, props.precision)
-        emit('update:modelValue', newValue)
-        emit('change', newValue)
-    } else {
-        emit('update:modelValue', value)
-        emit('change', value)
+const updateValue = (value: string) => {
+    if (value === '') {
+        focusValue.value = value
+        return
     }
+
+    if (/^00/.test(value)) {
+        value = value.replace('0', '')
+    }
+
+    if (props.precision > 0) {
+        const index = value.indexOf('.')
+        if (index === -1) {
+            focusValue.value = value
+        } else {
+            focusValue.value = value.substring(0, index + 1 + props.precision)
+        }
+    } else {
+        focusValue.value = value
+    }
+
+    const modelValue = focusValue.value === '' ? undefined : Number(focusValue.value)
+    emit('update:modelValue', modelValue)
+    emit('change', modelValue)
 }
 
 /**
@@ -180,7 +237,7 @@ const handlePaste = (e: ClipboardEvent) => {
     const text = e.clipboardData?.getData('text')?.trim()
     const value = Number(text)
     if (text && !isNaN(value)) {
-        updateValue(clamp(value, props.min, props.max))
+        updateValue(toClamp(value, props.min, props.max))
     }
 }
 

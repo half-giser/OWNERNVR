@@ -140,7 +140,7 @@
                                     :label="Translate('IDCS_EMISSIVITY')"
                                 >
                                     <template #default="{ row }: TableColumn<AlarmTemperatureDetectionBoundryDto>">
-                                        <el-input-number
+                                        <BaseNumberInput
                                             v-model="row.emissivity"
                                             :min="0.01"
                                             :max="1"
