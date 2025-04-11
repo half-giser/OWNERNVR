@@ -178,8 +178,6 @@ const changePageSize = (pageSize: number) => {
  * @param {number} currentPage
  */
 const keydownPage = (currentPage?: number) => {
-    console.log(currentPage)
-
     if (currentPage === undefined) {
         return
     }
@@ -202,7 +200,6 @@ const keydownPage = (currentPage?: number) => {
  * @param {number} currentPage
  */
 const changeCurrentPage = (currentPage: number) => {
-    console.log(currentPage)
     emits('update:currentPage', currentPage)
     emits('currentChange', currentPage)
 }
