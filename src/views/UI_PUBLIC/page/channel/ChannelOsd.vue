@@ -23,13 +23,13 @@
                 <el-form-item>
                     <el-checkbox
                         v-model="formData.displayName"
-                        :label="`${Translate('IDCS_NAME')}OSD`"
+                        :label="`${Translate('IDCS_NAME')} OSD`"
                         :disabled="nameDisabled || formData.isSpeco"
                         @change="changeSwitch(formData.displayName, formData.id, 'displayName')"
                     />
                     <el-checkbox
                         v-model="formData.displayTime"
-                        :label="`${Translate('IDCS_TIME')}OSD`"
+                        :label="`${Translate('IDCS_TIME')} OSD`"
                         :disabled="nameDisabled || formData.isSpeco"
                         @change="changeSwitch(formData.displayTime, formData.id, 'displayTime')"
                     />
@@ -84,10 +84,7 @@
                     highlight-current-row
                     @row-click="handleRowClick"
                 >
-                    <el-table-column
-                        label=" "
-                        width="50"
-                    >
+                    <el-table-column width="50">
                         <template #default="{ row }: TableColumn<ChannelOsdDto>">
                             <BaseTableRowStatus
                                 :icon="row.status"
@@ -109,13 +106,10 @@
                             />
                         </template>
                     </el-table-column>
-                    <el-table-column
-                        :label="`${Translate('IDCS_NAME')}OSD`"
-                        min-width="120"
-                    >
+                    <el-table-column min-width="120">
                         <template #header>
                             <el-dropdown>
-                                <BaseTableDropdownLink> {{ Translate('IDCS_NAME') }}OSD </BaseTableDropdownLink>
+                                <BaseTableDropdownLink>{{ `${Translate('IDCS_NAME')} OSD` }}</BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
                                         <el-dropdown-item
@@ -140,13 +134,10 @@
                             />
                         </template>
                     </el-table-column>
-                    <el-table-column
-                        :label="`${Translate('IDCS_TIME')}OSD`"
-                        min-width="120"
-                    >
+                    <el-table-column min-width="120">
                         <template #header>
                             <el-dropdown>
-                                <BaseTableDropdownLink> {{ Translate('IDCS_TIME') }}OSD </BaseTableDropdownLink>
+                                <BaseTableDropdownLink>{{ `${Translate('IDCS_TIME')} OSD` }} </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
                                         <el-dropdown-item
@@ -171,10 +162,7 @@
                             />
                         </template>
                     </el-table-column>
-                    <el-table-column
-                        :label="Translate('IDCS_DATE_FORMAT')"
-                        min-width="120"
-                    >
+                    <el-table-column min-width="120">
                         <template #header>
                             <el-dropdown>
                                 <BaseTableDropdownLink>
@@ -197,10 +185,7 @@
                             {{ row.supportDateFormat ? dateFormatTip[row.dateFormat] : '--' }}
                         </template>
                     </el-table-column>
-                    <el-table-column
-                        :label="Translate('IDCS_TIME_FORMAT')"
-                        min-width="120"
-                    >
+                    <el-table-column min-width="120">
                         <template #header>
                             <el-dropdown>
                                 <BaseTableDropdownLink>
@@ -228,10 +213,7 @@
                         :label="Translate('IDCS_ADDRESS')"
                         min-width="140"
                     />
-                    <el-table-column
-                        :label="Translate('IDCS_WATER_MARK')"
-                        min-width="120"
-                    >
+                    <el-table-column min-width="120">
                         <template #header>
                             <el-dropdown>
                                 <BaseTableDropdownLink>
