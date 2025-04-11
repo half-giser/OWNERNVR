@@ -173,7 +173,7 @@ export default defineComponent({
 
                     rowData.push({
                         id: item.attr('logicDiskId'),
-                        diskNum: DISK_MAPPING[$item('name').text()] + $item('slotIndex').text(),
+                        diskNum: $item('name').text(),
                         raidType: $item('raidType').text(),
                         size: Math.floor($item('realSize').text().num() / 1024),
                         freeSpace: $item('freeSpace').text().num() / 1024,
