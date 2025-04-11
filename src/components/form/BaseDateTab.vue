@@ -137,7 +137,8 @@ const formData = ref({
 const verifyCustomPop = () => {
     const startTime = dayjs(formData.value.startTime, { jalali: false, format: dateTime.dateTimeFormat }).valueOf()
     const endTime = dayjs(formData.value.endTime, { jalali: false, format: dateTime.dateTimeFormat }).valueOf()
-    if (startTime > endTime) {
+
+    if (startTime >= endTime) {
         openMessageBox(Translate('IDCS_END_TIME_GREATER_THAN_START'))
         return
     }
