@@ -131,7 +131,7 @@ export default defineComponent({
             })
         }
 
-        onMounted(() => {
+        onActivated(() => {
             getData()
         })
 

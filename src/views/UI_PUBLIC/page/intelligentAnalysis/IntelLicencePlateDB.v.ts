@@ -481,11 +481,11 @@ export default defineComponent({
             return row.id
         }
 
-        onMounted(() => {
+        onActivated(() => {
             getGroupList()
         })
 
-        onBeforeUnmount(() => {
+        onBeforeRouteLeave(() => {
             if (history.state.backChlId) {
                 delete history.state.backChlId
             }

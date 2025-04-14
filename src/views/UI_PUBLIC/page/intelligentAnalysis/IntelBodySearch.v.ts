@@ -739,13 +739,9 @@ export default defineComponent({
             })
         }
 
-        onBeforeUnmount(() => {
+        onBeforeRouteLeave(() => {
             stop()
         })
-
-        // onDeactivated(() => {
-        //     stop()
-        // })
 
         return {
             pageData,

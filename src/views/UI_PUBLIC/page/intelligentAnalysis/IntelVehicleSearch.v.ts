@@ -936,13 +936,9 @@ export default defineComponent({
             return pageData.value.searchType === 'event' ? LocalCacheKey.KEY_VEHICLE_SEARCH_COLLECTION : LocalCacheKey.KEY_PARK_SEARCH_COLLECTION
         })
 
-        onBeforeUnmount(() => {
+        onBeforeRouteLeave(() => {
             stop()
         })
-
-        // onDeactivated(() => {
-        //     stop()
-        // })
 
         return {
             pageData,

@@ -143,7 +143,7 @@ export default defineComponent({
             }
         }
 
-        onMounted(async () => {
+        onActivated(async () => {
             await getSystemWorkMode()
             if (pageData.value.isDetail) {
                 getAIResourceDetail()

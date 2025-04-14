@@ -240,7 +240,7 @@ export default defineComponent({
             }
         }
 
-        onMounted(async () => {
+        onActivated(async () => {
             await getScheduleList()
             getData()
         })

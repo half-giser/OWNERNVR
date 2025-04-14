@@ -22,7 +22,9 @@ export default defineComponent({
         const layoutStore = useLayoutStore()
         const pluginStore = usePluginStore()
 
-        const menu1Item = computed(() => layoutStore.menu1Item)
+        const menu1Item = computed(() => {
+            return layoutStore.menu1Item
+        })
         const allMenu1Items = computed(() => layoutStore.menu1Items)
 
         const pageData = ref({

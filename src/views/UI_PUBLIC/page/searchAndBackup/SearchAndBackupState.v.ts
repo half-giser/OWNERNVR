@@ -198,7 +198,7 @@ export default defineComponent({
             plugin.BackUpTask.resumeAllTask()
         }
 
-        onMounted(() => {
+        onActivated(() => {
             getRecBackUpTaskList()
         })
 

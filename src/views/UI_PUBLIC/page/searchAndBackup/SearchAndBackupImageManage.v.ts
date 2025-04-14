@@ -387,7 +387,9 @@ export default defineComponent({
             const date = new Date()
             pageData.value.startTime = dayjs(date).hour(0).minute(0).second(0).calendar('gregory').format(dateTime.dateTimeFormat)
             pageData.value.endTime = dayjs(date).hour(23).minute(59).second(59).calendar('gregory').format(dateTime.dateTimeFormat)
+        })
 
+        onActivated(() => {
             search()
 
             if (!sessionStorage.getItem(LocalCacheKey.KEY_BACKUP_PIC_MSG)) {

@@ -779,17 +779,20 @@ export default defineComponent({
             return formatDate(date, dateTime.dateFormat)
         }
 
-        onMounted(async () => {
+        onActivated(async () => {
             await getGroupList()
             tableData.value.forEach((item) => {
                 getGroupFaceFeatureCount(item)
             })
         })
 
-        onBeforeUnmount(() => {
+        onBeforeRouteLeave(() => {
             if (history.state.backChlId) {
                 delete history.state.backChlId
             }
+        })
+
+        onBeforeUnmount(() => {
             clearCache(Object.keys(cacheFaceMap))
         })
 

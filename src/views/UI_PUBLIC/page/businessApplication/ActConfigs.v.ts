@@ -327,7 +327,7 @@ export default defineComponent({
             }
         }
 
-        onMounted(async () => {
+        onActivated(async () => {
             await getPageChlList()
             if (pageData.value.chlList.length) {
                 pageData.value.chlId = pageData.value.chlList[0].value

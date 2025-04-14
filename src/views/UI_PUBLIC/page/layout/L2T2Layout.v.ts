@@ -16,13 +16,14 @@ export default defineComponent({
 
         const menu2Items = computed(() => layoutStore.menu2Items)
         const menu2Item = computed(() => layoutStore.menu2Item)
+        const keepAliveMax = ref(1)
 
         /**
          * @description 是否是焦点菜单
          * @param {RouteRecordRawExtends} menu2
          * @returns {boolean}
          */
-        const isMenu2Actice = (menu2: RouteRecordRawExtends) => {
+        const isMenu2Active = (menu2: RouteRecordRawExtends) => {
             const item = menu2 as RouteRecordRaw
             return Boolean(item && item.meta && getMenu2(route)?.meta.fullPath === item.meta.fullPath)
         }
@@ -50,13 +51,29 @@ export default defineComponent({
             })
         }
 
+        onMounted(() => {
+            keepAliveMax.value = Math.min(6, menu2Items.value.length)
+        })
+
+        onBeforeUnmount(() => {
+            keepAliveMax.value = 0
+        })
+
+        // watch(
+        //     () => menu1Item.value?.name,
+        //     (val) => {
+
+        //     },
+        // )
+
         return {
             route, // 当前进入的二级菜单项
             menu2Item, // 当前进入的一级菜单项的二级菜单列表
             menu2Items,
-            isMenu2Actice,
+            isMenu2Active,
             getMenuDisabled,
             goToPath,
+            keepAliveMax,
         }
     },
 })

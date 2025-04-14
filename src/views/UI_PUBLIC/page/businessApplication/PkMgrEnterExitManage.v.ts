@@ -147,14 +147,14 @@ export default defineComponent({
             return pageData.value.onlineChlList.includes(id) ? 'text-online' : 'text-offline'
         }
 
-        onMounted(async () => {
+        onActivated(async () => {
             await getData()
             chlStatusRefreshTimer.repeat(true)
         })
 
-        // onDeactivated(() => {
-        //     chlStatusRefreshTimer.stop()
-        // })
+        onDeactivated(() => {
+            chlStatusRefreshTimer.stop()
+        })
 
         return {
             pageData,

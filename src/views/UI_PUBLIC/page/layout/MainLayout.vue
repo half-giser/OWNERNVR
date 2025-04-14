@@ -107,14 +107,6 @@
         </el-header>
         <el-main id="layoutMainBody">
             <div id="layoutMainContent">
-                <!-- <router-view v-slot="{ Component }">
-                    <transition name="page-view">
-                        <component
-                            :is="Component"
-                            :key
-                        />
-                    </transition>
-                </router-view> -->
                 <router-view />
                 <div class="layoutMainContentBottomHeight"></div>
             </div>

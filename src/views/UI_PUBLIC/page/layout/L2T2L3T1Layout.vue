@@ -31,12 +31,11 @@
             </el-menu>
         </el-aside>
         <el-main id="layout3Content">
-            <RouterView />
-            <!-- <RouterView v-slot="{ Component }">
-                <KeepAlive :max="4">
+            <RouterView v-slot="{ Component }">
+                <KeepAlive :max="Math.min(6, menu3Items.length)">
                     <component :is="Component" />
                 </KeepAlive>
-            </RouterView> -->
+            </RouterView>
         </el-main>
     </el-container>
 </template>

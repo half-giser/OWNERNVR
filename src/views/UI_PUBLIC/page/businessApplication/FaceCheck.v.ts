@@ -426,7 +426,7 @@ export default defineComponent({
             downloadExcel(head, body, fileName)
         }
 
-        onMounted(async () => {
+        onActivated(async () => {
             openLoading()
             await getChannelList()
             await getFaceGroupList()

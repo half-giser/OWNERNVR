@@ -741,7 +741,7 @@ input[type='number'] {
     display: flex;
     flex-direction: column;
     height: var(--content-height);
-    min-height: 500px - 30px;
+    min-height: calc(var(--content-min-height) - 30px);
 }
 
 // 将el-table放置在此容器下，以便el-table在flexbox的高度能有弹性
