@@ -309,7 +309,8 @@
     }
 
     .el-input,
-    .el-textarea {
+    .el-textarea,
+    .el-date-editor {
         --el-input-text-color: var(--input-text);
         --el-input-border: var(--input-border);
         --el-input-border-color: var(--input-border);

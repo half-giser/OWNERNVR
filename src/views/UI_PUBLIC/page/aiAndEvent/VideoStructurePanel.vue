@@ -195,18 +195,21 @@
                                         v-model="formData.countPeriod.day.dateTime"
                                         :disabled="!pageData.autoReset"
                                         value-format="HH:mm:ss"
+                                        :format="dateTime.timeFormat"
                                     />
                                     <el-time-picker
                                         v-if="pageData.timeType === 'week'"
                                         v-model="formData.countPeriod.week.dateTime"
                                         :disabled="!pageData.autoReset"
                                         value-format="HH:mm:ss"
+                                        :format="dateTime.timeFormat"
                                     />
                                     <el-time-picker
                                         v-if="pageData.timeType === 'month'"
                                         v-model="formData.countPeriod.month.dateTime"
                                         :disabled="!pageData.autoReset"
                                         value-format="HH:mm:ss"
+                                        :format="dateTime.timeFormat"
                                     />
                                 </el-form-item>
                                 <!-- 手动重置 -->

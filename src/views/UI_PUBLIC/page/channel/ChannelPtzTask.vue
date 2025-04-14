@@ -55,7 +55,7 @@
                 <el-form-item :label="Translate('IDCS_START_TIME')">
                     <el-time-picker
                         v-model="formData.startTime"
-                        format="HH:mm"
+                        :format="dateTime.hourMinuteFormat"
                         value-format="HH:mm"
                         :disabled="!tableData.length"
                     />
@@ -66,7 +66,7 @@
                 >
                     <el-time-picker
                         v-model="formData.endTime"
-                        format="HH:mm"
+                        :format="dateTime.hourMinuteFormat"
                         value-format="HH:mm"
                         :disabled="!tableData.length"
                     />

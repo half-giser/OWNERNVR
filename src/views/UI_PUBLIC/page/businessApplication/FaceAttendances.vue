@@ -70,8 +70,8 @@
                         <el-form-item :label="Translate('IDCS_ATTENDANCE_START_TIME')">
                             <el-time-picker
                                 v-model="formData.startTime"
-                                format="HH:mm:ss"
                                 value-format="HH:mm:ss"
+                                :format="dateTime.timeFormat"
                                 :disabled-hours="pickerRange.disabledStartTimeHours"
                                 :disabled-minutes="pickerRange.disabledStartTimeMinutes"
                                 :disabled-seconds="pickerRange.disabledStartTimeSeconds"
@@ -83,8 +83,8 @@
                         >
                             <el-time-picker
                                 v-model="formData.endTime"
-                                format="HH:mm:ss"
                                 value-format="HH:mm:ss"
+                                :format="dateTime.timeFormat"
                                 :disabled-hours="pickerRange.disabledEndTimeHours"
                                 :disabled-minutes="pickerRange.disabledEndTimeMinutes"
                                 :disabled-seconds="pickerRange.disabledEndTimeSeconds"

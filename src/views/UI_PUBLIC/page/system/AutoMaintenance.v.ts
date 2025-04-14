@@ -56,8 +56,7 @@ export default defineComponent({
                 if (interval !== '') {
                     formData.value.interval = interval.num()
                 }
-                const timeValue = $('content/autoMaintenanceCfg/time').text().trim().split(':')
-                formData.value.time = new Date(2000, 0, 1, Number(timeValue[0]), Number(timeValue[1]))
+                formData.value.time = $('content/autoMaintenanceCfg/time').text()
 
                 if (formData.value.switch) {
                     const spanTimeFormat = $('content/autoMaintenanceNote').text().trim() + ':00'
@@ -90,7 +89,7 @@ export default defineComponent({
                     <autoMaintenanceCfg>
                         <switch>${formData.value.switch}</switch>
                         <interval>${formData.value.interval || ''}</interval>
-                        <time>${formatDate(formData.value.time, 'HH:mm')}</time>
+                        <time>${formData.value.time}</time>
                     </autoMaintenanceCfg>
                 </content>
             `
@@ -109,6 +108,7 @@ export default defineComponent({
             formRef,
             formData,
             pageData,
+            dateTime,
             verify,
             rules,
         }

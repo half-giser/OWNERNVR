@@ -530,7 +530,7 @@
                                                 >
                                                     <el-time-picker
                                                         v-model="row.IRCutDayTime"
-                                                        :format="timeMode === 24 ? 'HH:mm' : 'hh:mm A'"
+                                                        :format="dateTime.hourMinuteFormat"
                                                         value-format="HH:mm"
                                                         @change="setAZData()"
                                                     />
@@ -541,7 +541,7 @@
                                                 >
                                                     <el-time-picker
                                                         v-model="row.IRCutNightTime"
-                                                        :format="timeMode === 24 ? 'HH:mm' : 'hh:mm A'"
+                                                        :format="dateTime.hourMinuteFormat"
                                                         value-format="HH:mm"
                                                         @change="setAZData()"
                                                     />
@@ -673,7 +673,7 @@
                                                 >
                                                     <el-time-picker
                                                         v-model="row.whitelightOnTime"
-                                                        :format="timeMode === 24 ? 'HH:mm' : 'hh:mm A'"
+                                                        :format="dateTime.hourMinuteFormat"
                                                         value-format="HH:mm"
                                                         @change="setAZData()"
                                                     />
@@ -684,7 +684,7 @@
                                                 >
                                                     <el-time-picker
                                                         v-model="row.whitelightOffTime"
-                                                        :format="timeMode === 24 ? 'HH:mm' : 'hh:mm A'"
+                                                        :format="dateTime.hourMinuteFormat"
                                                         value-format="HH:mm"
                                                         @change="setAZData()"
                                                     />
@@ -722,22 +722,14 @@
                                                 <el-form-item
                                                     v-if="row.scheduleInfo.scheduleType === 'time'"
                                                     :label="Translate('IDCS_DN_DAY_TIME')"
-                                                    :style="{
-                                                        '--form-input-width': '130px',
-                                                    }"
                                                 >
                                                     <el-time-picker
-                                                        v-model="row.scheduleInfo.dayTime"
-                                                        :format="timeMode === 24 ? 'HH:mm' : 'hh:mm A'"
+                                                        v-model="row.scheduleInfo.time"
+                                                        is-range
+                                                        range-separator="-"
                                                         value-format="HH:mm"
-                                                        @change="changeTimeType('day')"
-                                                    />
-                                                    <el-text class="time-splitter"> -- </el-text>
-                                                    <el-time-picker
-                                                        v-model="row.scheduleInfo.nightTime"
-                                                        :format="timeMode === 24 ? 'HH:mm' : 'hh:mm A'"
-                                                        value-format="HH:mm"
-                                                        @change="changeTimeType('night')"
+                                                        :format="dateTime.hourMinuteFormat"
+                                                        @change="changeTimeType()"
                                                     />
                                                 </el-form-item>
                                                 <div
@@ -749,7 +741,6 @@
                                                         ref="scheduleLine"
                                                         :width="440"
                                                         readonly
-                                                        :time-mode="timeMode"
                                                     />
                                                 </div>
                                                 <div

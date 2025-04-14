@@ -10,7 +10,6 @@ export const useUserSessionStore = defineStore(
     'userSession',
     () => {
         const cababilityStore = useCababilityStore()
-        const dateTime = useDateTimeStore()
 
         const sessionId = ref('')
         const token = ref('')
@@ -186,8 +185,6 @@ export const useUserSessionStore = defineStore(
 
             // 从磁盘信息获取Raid
             await cababilityStore.updateDiskMode()
-
-            await dateTime.getTimeConfig(true)
 
             generateAsyncRoutes()
         }

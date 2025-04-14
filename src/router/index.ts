@@ -174,23 +174,22 @@ export const getConfigMenu = () => {
     if (find) {
         layoutStore.configMenu = find
     }
-    // return find as RouteRecordRawExtends
 }
-
-router.beforeEach(() => {
-    closeAllLoading()
-    progress.start()
-})
 
 router.afterEach(() => {
     progress.done()
 })
 
-/*
-注册全局路由守卫，设置当前的菜单状态
-*/
-router.beforeResolve((to: RouteLocationNormalized, _from: RouteLocationNormalized, next: Function) => {
+router.beforeResolve(async (to: RouteLocationNormalized, _from, next) => {
     const layoutStore = useLayoutStore()
+    const dateTime = useDateTimeStore()
+
+    progress.start()
+    if (!to.meta?.noToken) {
+        await dateTime.getTimeConfig(true)
+    }
+    closeAllLoading()
+
     layoutStore.menu1Item = null
     layoutStore.menu2Items = []
     if (to.matched && to.matched.length > 1) {

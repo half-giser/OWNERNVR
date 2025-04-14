@@ -191,24 +191,28 @@
                                             v-if="formData.countTimeType === 'off'"
                                             :disabled="formData.countTimeType === 'off'"
                                             value-format="HH:mm:ss"
+                                            :format="dateTime.timeFormat"
                                         />
                                         <el-time-picker
                                             v-if="formData.countTimeType === 'day'"
                                             v-model="formData.countPeriod.day.dateTime"
                                             :disabled="!formData.autoReset"
                                             value-format="HH:mm:ss"
+                                            :format="dateTime.timeFormat"
                                         />
                                         <el-time-picker
                                             v-if="formData.countTimeType === 'week'"
                                             v-model="formData.countPeriod.week.dateTime"
                                             :disabled="!formData.autoReset"
                                             value-format="HH:mm:ss"
+                                            :format="dateTime.timeFormat"
                                         />
                                         <el-time-picker
                                             v-if="formData.countTimeType === 'month'"
                                             v-model="formData.countPeriod.month.dateTime"
                                             :disabled="!formData.autoReset"
                                             value-format="HH:mm:ss"
+                                            :format="dateTime.timeFormat"
                                         />
                                     </el-form-item>
                                     <!-- 手动重置 -->

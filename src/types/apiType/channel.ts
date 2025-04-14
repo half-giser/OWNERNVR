@@ -510,8 +510,9 @@ export class ChannelScheduleInfoDto {
     scheduleType = 'full'
     scheduleInfoEnum: string[] = []
     program = ''
-    dayTime = ''
-    nightTime = ''
+    time = ['00:00:00', '00:00:00']
+    // dayTime = ''
+    // nightTime = ''
 }
 
 /**

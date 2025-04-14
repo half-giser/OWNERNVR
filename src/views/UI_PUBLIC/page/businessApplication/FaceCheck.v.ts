@@ -441,6 +441,7 @@ export default defineComponent({
         return {
             pageData,
             formData,
+            dateTime,
             changeDateRange,
             daysInRange,
             pickerRange,

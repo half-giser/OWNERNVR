@@ -232,9 +232,6 @@ const getSingletonPlugin = () => {
                             await getLangTypes()
                             await getLangItems()
 
-                            const dateTime = useDateTimeStore()
-                            await dateTime.getTimeConfig(false)
-
                             delCookie('ec')
                             delCookie('em')
 

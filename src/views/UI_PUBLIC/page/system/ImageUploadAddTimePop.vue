@@ -18,6 +18,7 @@
             <el-form-item :label="Translate('IDCS_SCHEDULE_START_TIME')">
                 <el-time-picker
                     v-model="pageData.addTimeData"
+                    :format="dateTime.timeFormat"
                     value-format="HH:mm:ss"
                 />
             </el-form-item>

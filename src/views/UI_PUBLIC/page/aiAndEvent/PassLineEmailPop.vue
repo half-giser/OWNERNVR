@@ -111,7 +111,7 @@
                     <el-time-picker
                         v-model="pageData.time"
                         :disabled="!pageData.data.sendEmailData.enableSwitch"
-                        format="HH:mm"
+                        :format="dateTime.hourMinuteFormat"
                         value-format="HH:mm"
                         @change="handleTimePickerChange"
                     />

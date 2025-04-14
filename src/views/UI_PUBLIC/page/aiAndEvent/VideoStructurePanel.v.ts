@@ -36,6 +36,7 @@ export default defineComponent({
     },
     setup(prop) {
         const { Translate } = useLangStore()
+        const dateTime = useDateTimeStore()
 
         type CanvasAreaType = 'detectionArea' | 'maskArea'
         // 高级设置
@@ -409,15 +410,15 @@ export default defineComponent({
                         countTimeType: $param('countPeriod/countTimeType').text(),
                         day: {
                             date: $param('countPeriod/daily/dateSpan').text().num(),
-                            dateTime: $param('countPeriod/daily/dateTimeSpan').text(),
+                            dateTime: $param('countPeriod/daily/dateTimeSpan').text() || '00:00:00',
                         },
                         week: {
                             date: $param('countPeriod/weekly/dateSpan').text().num(),
-                            dateTime: $param('countPeriod/weekly/dateTimeSpan').text(),
+                            dateTime: $param('countPeriod/weekly/dateTimeSpan').text() || '00:00:00',
                         },
                         month: {
                             date: $param('countPeriod/monthly/dateSpan').text().num(),
-                            dateTime: $param('countPeriod/monthly/dateTimeSpan').text(),
+                            dateTime: $param('countPeriod/monthly/dateTimeSpan').text() || '00:00:00',
                         },
                     },
                     objectFilter: {
@@ -441,6 +442,9 @@ export default defineComponent({
                 }
 
                 pageData.value.autoReset = formData.value.countPeriod.countTimeType !== 'off'
+                if (pageData.value.autoReset) {
+                    pageData.value.timeType = formData.value.countPeriod.countTimeType
+                }
 
                 watchEdit.listen()
             } else {
@@ -977,11 +981,11 @@ export default defineComponent({
                                 </daily>
                                 <weekly>
                                     <dateSpan>${formData.value.countPeriod.week.date}</dateSpan>
-                                    <dateTimeSpan>${formData.value.countPeriod.week.date}</dateTimeSpan>
+                                    <dateTimeSpan>${formData.value.countPeriod.week.dateTime}</dateTimeSpan>
                                 </weekly>
                                 <monthly>
                                     <dateSpan>${formData.value.countPeriod.month.date}</dateSpan>
-                                    <dateTimeSpan>${formData.value.countPeriod.month.date}</dateTimeSpan>
+                                    <dateTimeSpan>${formData.value.countPeriod.month.dateTime}</dateTimeSpan>
                                 </monthly>
                             </countPeriod>
                             ${
@@ -1145,6 +1149,7 @@ export default defineComponent({
             formData,
             watchEdit,
             pageData,
+            dateTime,
             mode,
             handlePlayerReady,
             changeTab,

@@ -9,6 +9,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const layoutStore = useLayoutStore()
+        const dateTime = useDateTimeStore()
 
         const playerRef = ref<PlayerInstance>()
         const formData = ref(new ChannelImageDto())
@@ -31,13 +32,13 @@ export default defineComponent({
         const floatLensMessage = ref('')
         const floatErrorType = ref('ok')
 
-        const timeMode = ref(24)
+        // const timeMode = ref(24)
         let beforeEditData: ChannelImageDto
 
         let tmpShutterUpLimit: string | undefined
         let tmpShutterLowLimit: string | undefined
-        let tmpDayTime = ''
-        let tmpNightTime = ''
+        // let tmpDayTime = ''
+        // let tmpNightTime = ''
         let curAzChlId = ''
 
         const ready = computed(() => {
@@ -412,8 +413,8 @@ export default defineComponent({
                 selectedChlId.value = row.id
                 tmpShutterUpLimit = row.shutterUpLimit
                 tmpShutterLowLimit = row.shutterLowLimit
-                tmpDayTime = row.scheduleInfo.dayTime
-                tmpNightTime = row.scheduleInfo.nightTime
+                // tmpDayTime = row.scheduleInfo.dayTime
+                // tmpNightTime = row.scheduleInfo.nightTime
                 // if (azList[tableData.value.indexOf(row)]) curLensCtrl.value = azList[tableData.value.indexOf(row)]
                 tableRef.value!.setCurrentRow(row)
                 formData.value = cloneDeep(row)
@@ -658,8 +659,8 @@ export default defineComponent({
                 data += rawXml`
                     <scheduleInfo>
                         <program>${rowData.scheduleInfo.scheduleType === 'time' ? 'time' : rowData.scheduleInfo.program}</program>
-                        <dayTime>${rowData.scheduleInfo.dayTime}</dayTime>
-                        <nightTime>${rowData.scheduleInfo.nightTime}</nightTime>
+                        <dayTime>${rowData.scheduleInfo.time[0]}</dayTime>
+                        <nightTime>${rowData.scheduleInfo.time[1]}</nightTime>
                     </scheduleInfo>`
             }
 
@@ -691,12 +692,6 @@ export default defineComponent({
                         showFloatError('setting', msg)
                     }
                 }
-            })
-        }
-
-        const getTimeCfg = () => {
-            queryTimeCfg().then((res) => {
-                timeMode.value = queryXml(res)('content/formatInfo/time').text().num()
             })
         }
 
@@ -967,8 +962,7 @@ export default defineComponent({
                     if ($chl('scheduleInfo').text()) {
                         rowData.supportSchedule = true
                         rowData.scheduleInfo.program = $chl('scheduleInfo/program').text()
-                        rowData.scheduleInfo.dayTime = $chl('scheduleInfo/dayTime').text()
-                        rowData.scheduleInfo.nightTime = $chl('scheduleInfo/nightTime').text()
+                        rowData.scheduleInfo.time = [$chl('scheduleInfo/dayTime').text(), $chl('scheduleInfo/nightTime').text()]
                         rowData.scheduleInfo.scheduleInfoEnum = $chl('scheduleInfo/types/progType/enum').map((ele) => {
                             return ele.text()
                         })
@@ -1335,47 +1329,10 @@ export default defineComponent({
             getData(rowData.id, false, rowData.cfgFile)
         }
 
-        const changeTimeType = (timeType: 'day' | 'night') => {
+        const changeTimeType = () => {
             const rowData = getRowById(selectedChlId.value)
-            if (timeMode.value !== 12) {
-                if (!compareTime(rowData.scheduleInfo.dayTime, rowData.scheduleInfo.nightTime)) {
-                    if (timeType === 'day') {
-                        rowData.scheduleInfo.dayTime = tmpDayTime
-                    } else {
-                        rowData.scheduleInfo.nightTime = tmpNightTime
-                    }
-                    return
-                }
-                tmpDayTime = rowData.scheduleInfo.dayTime
-                tmpNightTime = rowData.scheduleInfo.nightTime
-            }
-            scheduleLine.value!.resetValue([[rowData.scheduleInfo.dayTime, rowData.scheduleInfo.nightTime]])
-        }
-
-        /**
-         * @description 计算秒时间戳
-         * @param {String} formatString HH:mm
-         */
-        const getSeconds = (formatString: string) => {
-            const split = formatString.split(':')
-            return Number(split[0]) * 3600 + Number(split[1]) * 60
-        }
-
-        const compareTime = (time1: string, time2: string, isWhitelight = false) => {
-            const date1 = getSeconds(time1)
-            const date2 = getSeconds(time2)
-            const isValid = isWhitelight ? date1 !== date2 : date1 < date2
-            const msg = isWhitelight ? Translate('IDCS_STARTTIME_NOTEQUAL_ENDTIME') : Translate('IDCS_END_TIME_GREATER_THAN_START')
-            if (!isValid) {
-                openMessageBox(msg)
-            }
-            return isValid
-        }
-
-        const setSecheduleLineData = () => {
-            const rowData = getRowById(selectedChlId.value)
-            if (rowData.scheduleInfo.dayTime && rowData.scheduleInfo.nightTime) {
-                scheduleLine.value!.resetValue([[rowData.scheduleInfo.dayTime, rowData.scheduleInfo.nightTime]])
+            if (rowData.scheduleInfo.time[0] && rowData.scheduleInfo.time[1]) {
+                scheduleLine.value!.resetValue([[rowData.scheduleInfo.time[0], rowData.scheduleInfo.time[1]]])
             }
         }
 
@@ -1432,7 +1389,7 @@ export default defineComponent({
             scheduleLine,
             (newVal) => {
                 if (newVal) {
-                    setSecheduleLineData()
+                    changeTimeType()
                 }
             },
             {
@@ -1441,7 +1398,6 @@ export default defineComponent({
         )
 
         onMounted(() => {
-            getTimeCfg()
             getDataList()
         })
 
@@ -1456,6 +1412,7 @@ export default defineComponent({
             playerRef,
             formData,
             pageData,
+            dateTime,
             tableRef,
             tableData,
             chlOptions,
@@ -1473,7 +1430,6 @@ export default defineComponent({
             defaultIRCutMode,
             defaultRadioVal,
             defaultFocusMode,
-            timeMode,
             scheduleLine,
             changePageSize,
             changePage,
