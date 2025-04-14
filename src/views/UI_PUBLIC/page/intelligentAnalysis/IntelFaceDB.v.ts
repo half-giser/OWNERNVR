@@ -292,6 +292,11 @@ export default defineComponent({
             if (!checkPermission()) {
                 return
             }
+
+            if (!groupId) {
+                groupId = tableData.value[pageData.value.tableIndex]?.groupId || ''
+            }
+
             pageData.value.isAddFacePop = true
             pageData.value.addFaceGroupId = groupId
         }
