@@ -56,6 +56,7 @@
                     </div>
                     <div class="base-ai-param-box-right">
                         <el-form
+                            v-title
                             :style="{
                                 '--form-input-width': '215px',
                             }"
@@ -86,6 +87,7 @@
                         <div class="base-table-box">
                             <el-table
                                 ref="boundaryTableRef"
+                                v-title
                                 :data="formData.boundaryData"
                                 highlight-current-row
                                 width="100%"
@@ -227,6 +229,7 @@
                 >
                     <el-form
                         v-if="supportAlarmAudioConfig"
+                        v-title
                         :style="{
                             '--form-input-width': '215px',
                         }"

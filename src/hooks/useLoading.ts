@@ -41,7 +41,7 @@ export const openLoading = (target: string | HTMLElement = 'FullScreen', text?: 
 /**
  * @description 关闭loading
  */
-export const closeLoading = (target = 'FullScreen') => {
+export const closeLoading = (target: string | HTMLElement = 'FullScreen') => {
     const layoutStore = useLayoutStore()
     if (loadingInstMap.has(target)) {
         loadingInstMap.get(target)?.close()

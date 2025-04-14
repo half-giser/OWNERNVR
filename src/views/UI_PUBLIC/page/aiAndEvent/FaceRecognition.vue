@@ -12,6 +12,7 @@
     <el-tabs
         :key="pageData.curChl"
         v-model="pageData.tab"
+        v-title
         class="base-ai-menu-tabs"
         @tab-change="changeTab"
     >
@@ -70,6 +71,7 @@
                             </div>
                             <div class="base-ai-param-box-right">
                                 <el-form
+                                    v-title
                                     :style="{
                                         '--form-input-width': '215px',
                                     }"
@@ -127,10 +129,9 @@
                                                 v-model="detectionFormData.faceExpSwitch"
                                                 :disabled="detectionPageData.faceExpDisabled"
                                             />
-                                            <el-slider
+                                            <BaseSliderInput
                                                 v-model="detectionFormData.faceExpStrength"
                                                 :disabled="detectionPageData.faceExpDisabled"
-                                                show-input
                                                 :min="1"
                                                 :max="100"
                                             />
@@ -173,6 +174,7 @@
                             name="trigger"
                         >
                             <el-form
+                                v-title
                                 :style="{
                                     '--form-input-width': '215px',
                                 }"
@@ -222,6 +224,7 @@
                         </template>
                         <div class="base-ai-advance-box">
                             <el-form
+                                v-title
                                 :style="{
                                     '--form-label-width': '150px',
                                     '--form-input-width': '170px',
@@ -301,6 +304,7 @@
                         >
                             <div class="table-box">
                                 <el-table
+                                    v-title
                                     :data="faceMatchData.groupInfo"
                                     height="300"
                                     highlight-current-row
@@ -320,6 +324,7 @@
                                                     <BaseTableDropdownLink> {{ Translate('IDCS_SIMILARITY') }}(%) </BaseTableDropdownLink>
                                                 </template>
                                                 <el-form
+                                                    v-title
                                                     class="stripe"
                                                     :style="{
                                                         '--form-label-width': '100px',
@@ -402,7 +407,7 @@
             :disabled="pageData.libraryDisabled || !supportFaceMatch"
         >
             <template #label>
-                <span :title="Translate('IDCS_FEATURE_LIBRARY')">{{ Translate('IDCS_FEATURE_LIBRARY') }}</span>
+                <span>{{ Translate('IDCS_FEATURE_LIBRARY') }}</span>
                 <BaseImgSprite
                     class="link-icon"
                     file="jumpto"

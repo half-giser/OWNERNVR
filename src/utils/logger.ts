@@ -42,7 +42,7 @@ const setLogConfig = (config: Record<string, number>) => {
 }
 
 export const useLogger = (module: string) => {
-    let logLevel = LOG_LEVELS.INFO
+    let logLevel = import.meta.env.DEV ? LOG_LEVELS.DEBUG : LOG_LEVELS.INFO
 
     const config = getLogConfig()
     if (typeof config[module] === 'number') {

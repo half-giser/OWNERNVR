@@ -30,6 +30,7 @@
         </el-form>
         <div class="base-table-box">
             <el-table
+                v-title
                 flexible
                 :data="tableData"
             >

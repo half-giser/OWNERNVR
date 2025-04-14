@@ -5,11 +5,13 @@
 -->
 <template>
     <div
-        class="dropdown-btn"
+        class="BaseDropdownBtn"
         :class="[`effect-${effect}`]"
     >
-        <slot></slot>
-        <!-- <div class="dropdown-btn-icon"></div> -->
+        <div class="BaseDropdownBtn--text">
+            <slot></slot>
+            <!-- <div class="dropdown-btn-icon"></div> -->
+        </div>
         <el-icon class="el-icon--right">
             <ArrowDown />
         </el-icon>
@@ -33,7 +35,7 @@ withDefaults(
 // @use '@/components/sprite/sprites' as *;
 // @use '@/scss/mixin' as *;
 
-.dropdown-btn {
+.BaseDropdownBtn {
     width: 100%;
     height: 100%;
     display: flex;
@@ -46,6 +48,17 @@ withDefaults(
 
     &.effect-plain {
         color: var(--main-text);
+    }
+
+    &--text {
+        width: fit-content;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-wrap: nowrap;
+    }
+
+    .el-icon--right {
+        flex-shrink: 0;
     }
 
     // &-icon {

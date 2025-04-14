@@ -61,6 +61,7 @@
                         class="base-table-box"
                     >
                         <el-table
+                            v-title
                             :data="channelAuthList"
                             class="fill"
                         >
@@ -85,6 +86,7 @@
                         class="base-table-box"
                     >
                         <el-table
+                            v-title
                             :data="channelAuthList"
                             class="fill"
                         >
@@ -110,6 +112,7 @@
         <div class="base-user-box-right">
             <el-table
                 ref="tableRef"
+                v-title
                 :data="userList"
                 width="100%"
                 height="100%"

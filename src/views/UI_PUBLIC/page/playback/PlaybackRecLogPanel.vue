@@ -18,6 +18,7 @@
                 />
             </template>
             <el-table
+                v-title
                 :data="filterTableData"
                 show-overflow-tooltip
                 :height="400"

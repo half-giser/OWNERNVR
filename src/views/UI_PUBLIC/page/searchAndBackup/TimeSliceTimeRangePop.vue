@@ -9,7 +9,7 @@
         :width="500"
         @open="open"
     >
-        <el-form>
+        <el-form v-title>
             <el-form-item :label="Translate('IDCS_START_TIME')">
                 <el-time-picker
                     v-model="formData.startTime"

@@ -12,6 +12,7 @@
     >
         <el-form
             ref="formRef"
+            v-title
             :model="formData"
             :rules="rules"
             class="stripe"
@@ -85,6 +86,7 @@
         </el-form>
         <el-table
             ref="tableRef"
+            v-title
             :data="formData.recorderList"
             height="340"
             show-overflow-tooltip

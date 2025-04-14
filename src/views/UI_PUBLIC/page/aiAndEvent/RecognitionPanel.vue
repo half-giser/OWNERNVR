@@ -7,6 +7,7 @@
     <div>
         <!-- 人脸识别——识别成功 -->
         <el-form
+            v-title
             :style="{
                 '--form-input-width': '215px',
             }"

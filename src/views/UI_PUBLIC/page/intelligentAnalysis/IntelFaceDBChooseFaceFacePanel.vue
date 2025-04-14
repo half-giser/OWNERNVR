@@ -18,6 +18,7 @@
             <el-button @click="changeGroup">{{ Translate('IDCS_CONFIGURATION') }}</el-button>
         </div>
         <el-form
+            v-title
             :style="{
                 '--form-input-width': '200px',
             }"

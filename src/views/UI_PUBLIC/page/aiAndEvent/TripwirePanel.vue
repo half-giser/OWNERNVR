@@ -81,6 +81,7 @@
                         <div class="base-ai-param-box-right">
                             <el-form
                                 v-if="!supportPeaTrigger"
+                                v-title
                                 :style="{
                                     '--form-input-width': '215px',
                                 }"
@@ -137,10 +138,7 @@
                                     v-if="formData.onlyPreson"
                                     :label="Translate('IDCS_SENSITIVITY')"
                                 >
-                                    <el-slider
-                                        v-model="formData.onlyPersonSensitivity"
-                                        show-input
-                                    />
+                                    <BaseSliderInput v-model="formData.onlyPersonSensitivity" />
                                 </el-form-item>
                                 <el-form-item
                                     v-if="formData.onlyPreson"
@@ -199,10 +197,7 @@
                                     </template>
                                     <template #default>
                                         <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
-                                        <el-slider
-                                            v-model="formData.objectFilter.personSensitivity"
-                                            show-input
-                                        />
+                                        <BaseSliderInput v-model="formData.objectFilter.personSensitivity" />
                                     </template>
                                 </el-form-item>
                                 <!-- 汽车灵敏度 -->
@@ -215,10 +210,7 @@
                                     </template>
                                     <template #default>
                                         <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
-                                        <el-slider
-                                            v-model="formData.objectFilter.carSensitivity"
-                                            show-input
-                                        />
+                                        <BaseSliderInput v-model="formData.objectFilter.carSensitivity" />
                                     </template>
                                 </el-form-item>
                                 <!-- 摩托车灵敏度 -->
@@ -231,10 +223,7 @@
                                     </template>
                                     <template #default>
                                         <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
-                                        <el-slider
-                                            v-model="formData.objectFilter.motorSensitivity"
-                                            show-input
-                                        />
+                                        <BaseSliderInput v-model="formData.objectFilter.motorSensitivity" />
                                     </template>
                                 </el-form-item>
                             </el-form>

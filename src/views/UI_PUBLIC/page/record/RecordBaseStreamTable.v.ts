@@ -81,7 +81,6 @@ export default defineComponent({
             isRecTime: false, // 预计录像时间是否显示
             recordStreamVisible: false, // 录像码流是否显示
 
-            headerVisble: false, // 分辨率下拉框表头是否显示
             recTime: '', // 预计录像时间
             expands: [] as string[], // 展开的行
             resolutionHeaderVisble: false, // 分辨率下拉框表头是否显示

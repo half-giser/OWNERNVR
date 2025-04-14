@@ -12,6 +12,7 @@
         @close="close"
     >
         <el-form
+            v-title
             :style="{
                 '--form-input-width': '300px',
                 '--form-label-width': '150px',
@@ -47,6 +48,7 @@
                 <el-button @click="openAddDate">{{ Translate('IDCS_ADD') }}</el-button>
             </div>
             <el-table
+                v-title
                 :data="pageData.toAddDateList"
                 height="230"
                 highlight-current-row

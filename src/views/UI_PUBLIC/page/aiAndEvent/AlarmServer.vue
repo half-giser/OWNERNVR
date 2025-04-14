@@ -9,6 +9,7 @@
         <!-- 表单 -->
         <el-form
             ref="formRef"
+            v-title
             :model="formData"
             :rules="rules"
             :style="{
@@ -132,10 +133,7 @@
                 class="table"
                 :stripe="false"
             >
-                <el-table-column
-                    prop="alarmType"
-                    :label="Translate('IDCS_ALARM_TYPE')"
-                >
+                <el-table-column>
                     <template #header>
                         <div class="tabel_header">
                             <span>{{ Translate('IDCS_ALARM_TYPE') }}</span>

@@ -13,6 +13,7 @@
                 />
             </div>
             <el-form
+                v-title
                 :style="{
                     '--form-label-width': '100px',
                 }"
@@ -48,6 +49,7 @@
             <div class="base-table-box">
                 <el-table
                     ref="cruiseTableRef"
+                    v-title
                     :data="cruiseOptions"
                     highlight-current-row
                     show-overflow-tooltip

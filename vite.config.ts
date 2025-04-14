@@ -12,7 +12,7 @@ import { envDir, sourceDir, manualChunks, getSourceDir } from './scripts/build'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import GenerateSprite from './scripts/generateSprite'
-import { transpileVueTemplatePropTypes, minifyXmlTemplateStrings, postMinifyCodes } from './scripts/transformers'
+import { transpileVueTemplatePropTypes, minifyXmlTemplateStrings, postMinifyCodes, postRemoveCSSLink } from './scripts/transformers'
 import { cleanUpTempFiles } from './scripts/cleanTempFiles'
 import BasicSSL from '@vitejs/plugin-basic-ssl'
 // import PostCssVariableCompress from 'postcss-variable-compress'
@@ -106,7 +106,7 @@ export default defineConfig(({ mode }) => {
             GenerateSprite({
                 src: `sprite/${VITE_UI_TYPE}-sprite/sprite/*.png`,
                 minify: process.env.NODE_ENV !== 'development',
-                additionalData: `$sprite-version:'${VITE_PACKAGE_VER}';$sprite-p2p-url:'${env.VITE_P2P_URL}';`,
+                additionalData: `$sprite-version:'${VITE_PACKAGE_VER}';$sprite-p2p-url:'${env.VITE_P2P_URL || ''}';`,
             }),
             minifyXmlTemplateStrings(),
             transpileVueTemplatePropTypes(),
@@ -227,6 +227,9 @@ export default defineConfig(({ mode }) => {
                           src: `dist/${VITE_UI_TYPE}/**/*.js`,
                           ui: VITE_UI_TYPE,
                       }),
+                      postRemoveCSSLink({
+                          src: `dist/${VITE_UI_TYPE}/index.html`,
+                      }),
                   ],
         ),
         build: {
@@ -243,10 +246,10 @@ export default defineConfig(({ mode }) => {
                 output: {
                     chunkFileNames: split[0] === 'dev' ? '[name].[hash].js' : '[hash].js',
                     entryFileNames: split[0] === 'dev' ? '[name].[hash].js' : '[hash].js',
-                    assetFileNames: (assetInfo) => {
-                        if (assetInfo.names && assetInfo.names.some((item) => item.endsWith('.css'))) {
-                            return '[hash].[ext]'
-                        }
+                    assetFileNames: () => {
+                        // if (assetInfo.names && assetInfo.names.some((item) => item.endsWith('.css'))) {
+                        //     return '[hash].[ext]'
+                        // }
                         return '[name].[ext]'
                     },
                     manualChunks,

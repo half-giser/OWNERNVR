@@ -12,6 +12,7 @@
         @close="close"
     >
         <el-table
+            v-title
             :data="tableData"
             highlight-current-row
             height="240"
@@ -77,8 +78,8 @@
                     :key="index"
                 >
                     <span
+                        v-title
                         class="descTip"
-                        :title="item"
                         >{{ item }}</span
                     >
                     <div v-if="index !== pageData.description.length - 1">{{ Translate('IDCS_AND') }}</div>

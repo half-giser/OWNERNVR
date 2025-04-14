@@ -246,7 +246,6 @@ const getTimestamp = (dateStr: string) => {
  * @param {Number} n
  * @returns {String} 'YYYY/MM/DD HH:mm:ss'
  */
-
 const getLastDateAfterNMonths = (dateStr: string, n: number) => {
     return dayjs(dateStr, { format: 'YYYY/MM/DD HH:mm:ss', jalali: false }).calendar('gregory').add(n, 'month').format('YYYY/MM/DD HH:mm:ss')
 }

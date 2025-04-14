@@ -40,6 +40,7 @@
             <h3>{{ Translate('IDCS_ARCHIVE_INFO') }}</h3>
             <el-form
                 v-show="pageData.mode === 'day' && (formData.startTime || formData.endTime)"
+                v-title
                 :class="{
                     '--form-label-width': '150px',
                 }"
@@ -114,6 +115,7 @@
             <el-scrollbar class="right-bottom">
                 <div class="right-type">
                     <el-form
+                        v-title
                         :style="{
                             '--form-label-width': '80px',
                         }"

@@ -5,7 +5,9 @@
  */
 import { type App } from 'vue'
 import { dompurify } from './dompurify'
+import { autoTitle } from './autoTitle'
 
 export const regAllDirective = (app: App<Element>) => {
     dompurify(app)
+    autoTitle(app)
 }

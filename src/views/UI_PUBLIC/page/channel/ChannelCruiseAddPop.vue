@@ -13,6 +13,7 @@
         <div>
             <el-form
                 ref="formRef"
+                v-title
                 :rules="formRule"
                 :model="formData"
             >
@@ -29,6 +30,7 @@
             </el-form>
             <el-table
                 ref="tableRef"
+                v-title
                 :data="tableData"
                 highlight-current-row
                 show-overflow-tooltip

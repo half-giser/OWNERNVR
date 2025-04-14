@@ -10,22 +10,15 @@
     >
         <template v-if="layout === 'pager'">
             <div class="btn">
-                <BaseImgSprite
-                    file="pageBtn"
-                    :hover-index="1"
-                    :disabled-index="3"
-                    :chunk="16"
+                <BaseImgSpriteBtn
+                    file="pageBtn-first"
                     :disabled="currentPage <= 1"
                     @click="firstPage"
                 />
             </div>
             <div class="btn">
-                <BaseImgSprite
-                    file="pageBtn"
-                    :index="4"
-                    :hover-index="5"
-                    :disabled-index="7"
-                    :chunk="16"
+                <BaseImgSpriteBtn
+                    file="pageBtn-prev"
                     :disabled="currentPage <= 1"
                     @click="prevPage"
                 />
@@ -39,23 +32,15 @@
             />
             <div class="page-info">{{ currentPage }} / {{ totalPage }}</div>
             <div class="btn">
-                <BaseImgSprite
-                    file="pageBtn"
-                    :index="8"
-                    :hover-index="9"
-                    :disabled-index="11"
-                    :chunk="16"
+                <BaseImgSpriteBtn
+                    file="pageBtn-next"
                     :disabled="currentPage >= totalPage"
                     @click="nextPage"
                 />
             </div>
             <div class="btn">
-                <BaseImgSprite
-                    file="pageBtn"
-                    :index="12"
-                    :hover-index="13"
-                    :disabled-index="15"
-                    :chunk="16"
+                <BaseImgSpriteBtn
+                    file="pageBtn-last"
                     :disabled="currentPage >= totalPage"
                     @click="lastPage"
                 />
@@ -349,7 +334,7 @@ watch(
     }
 
     .el-select {
-        width: 50px;
+        width: 60px;
         margin-left: 10px;
     }
 

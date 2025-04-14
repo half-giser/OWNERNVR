@@ -7,6 +7,7 @@ import { type Plugin } from 'vite'
 import MagicString from 'magic-string'
 import * as ParseLiterals from 'parse-literals'
 import globby from 'globby'
+import path from 'node:path'
 import fs from 'node:fs/promises'
 import { minify } from '@swc/core'
 import Chalk from 'chalk'
@@ -105,6 +106,19 @@ export function postMinifyCodes(option: MinifyWorkerOption): Plugin {
                 }
             }
             console.log(Chalk.green.bold('SUCCESS'), Chalk.blueBright(new Date().toLocaleString('zh-CN')), Chalk.white('Minified successfully'))
+        },
+    }
+}
+
+export function postRemoveCSSLink(option: { src: string }): Plugin {
+    return {
+        name: 'post-no-css-link',
+        apply: 'build',
+        async writeBundle() {
+            const file = path.resolve(option.src)
+            let data = await fs.readFile(file, 'utf-8')
+            data = data.replace(new RegExp('<link rel="stylesheet"(.*).css">', 'g'), '')
+            await fs.writeFile(file, data)
         },
     }
 }

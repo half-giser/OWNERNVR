@@ -8,6 +8,7 @@
         <div class="base-table-box">
             <el-table
                 ref="tableRef"
+                v-title
                 :data="tableData"
                 :row-key="getRowKey"
                 :expand-row-key="pageData.expandRowKey"
@@ -96,6 +97,7 @@
     >
         <el-form
             ref="formRef"
+            v-title
             :style="{
                 '--form-label-width': '150px',
             }"

@@ -809,7 +809,7 @@ export const P2P_ACCESS_TYPE_LARGE_PLUGIN = 'p2pLargePlugin' // 区分由P2P登�
 export const P2P_ACCESS_TYPE_USERNAME_LOGIN = 'UserName' // 设备P2P访问方式为：用户名+密码+SN
 export const P2P_ACCESS_TYPE_AUTHCODE_LOGIN = 'AuthCode' // 设备P2P访问方式为：授权码+SN
 
-export const OCX_Plugin_Notice_Map = {
+export const OCX_Plugin_Notice_Map: Record<string, { warning: boolean; downloadUrl: boolean }> = {
     IDCS_PLUGIN_VERSION_UPDATE: {
         warning: false,
         downloadUrl: true,

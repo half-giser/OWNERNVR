@@ -405,7 +405,7 @@ export class NetSubStreamList extends TableRowStatus {
     videoEncodeType = ''
     subStreamQualityCaps: RecordStreamQualityCapsDto[] = []
     streamType = ''
-    GOP = 0
+    GOP: number | undefined = 0
     resolution = ''
     frameRate = 0
     bitType = ''

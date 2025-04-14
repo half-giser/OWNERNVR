@@ -264,7 +264,7 @@
     width: 100%;
     height: calc(100% - 25px);
     flex-shrink: 1;
-    min-height: 150px;
+    min-height: 500px;
 }
 
 .layoutMainContentBottomHeight {

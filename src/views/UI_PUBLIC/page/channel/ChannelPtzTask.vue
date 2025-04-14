@@ -14,6 +14,7 @@
             </div>
             <el-form
                 ref="formRef"
+                v-title
                 :style="{
                     '--form-label-width': '100px',
                 }"
@@ -102,6 +103,7 @@
                     <el-table-column type="expand">
                         <template #default="data">
                             <el-table
+                                v-title
                                 :data="pageData.expandRowKey.includes(data.row.chlId) ? taskTableData : []"
                                 highlight-current-row
                                 show-overflow-tooltip

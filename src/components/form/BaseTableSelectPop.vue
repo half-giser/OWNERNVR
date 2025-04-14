@@ -14,6 +14,7 @@
     >
         <el-table
             ref="tableRef"
+            v-title
             height="400"
             :data="data"
             :row-key="value"

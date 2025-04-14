@@ -34,6 +34,7 @@
                 </el-checkbox-group>
                 <el-form
                     v-else-if="range.length > 1"
+                    v-title
                     :style="{
                         '--form-label-width': '100px',
                     }"

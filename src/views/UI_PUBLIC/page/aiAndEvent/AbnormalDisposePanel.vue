@@ -31,6 +31,7 @@
                 </div>
                 <div class="base-ai-param-box-right">
                     <el-form
+                        v-title
                         :style="{
                             '--form-input-width': '215px',
                         }"
@@ -70,12 +71,10 @@
                         </el-form-item>
                         <!-- 灵敏度 -->
                         <el-form-item :label="Translate('IDCS_SENSITIVITY')">
-                            <el-slider
+                            <BaseSliderInput
                                 v-model="formData.sensitivity"
-                                :show-tooltip="false"
                                 :min="1"
                                 :max="100"
-                                show-input
                             />
                         </el-form-item>
                     </el-form>
@@ -88,6 +87,7 @@
             >
                 <el-form
                     v-if="supportAlarmAudioConfig"
+                    v-title
                     :style="{
                         '--form-input-width': '215px',
                     }"

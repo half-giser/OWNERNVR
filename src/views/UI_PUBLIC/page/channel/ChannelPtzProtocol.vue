@@ -13,6 +13,7 @@
                 />
             </div>
             <el-form
+                v-title
                 :style="{
                     '--form-label-width': '150px',
                 }"
@@ -92,6 +93,7 @@
         <div class="base-chl-box-right">
             <div class="base-table-box">
                 <el-table
+                    v-title
                     :data="tableData"
                     highlight-current-row
                     flexible

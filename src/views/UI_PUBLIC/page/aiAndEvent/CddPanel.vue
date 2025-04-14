@@ -57,6 +57,7 @@
                         </div>
                         <div class="base-ai-param-box-right">
                             <el-form
+                                v-title
                                 :style="{
                                     '--form-input-width': '215px',
                                 }"
@@ -89,10 +90,7 @@
                                 </el-form-item>
                                 <!-- 报警阈值 -->
                                 <el-form-item :label="Translate('IDCS_ALARM_THRESHOLD')">
-                                    <el-slider
-                                        v-model="formData.triggerAlarmLevel"
-                                        show-input
-                                    />
+                                    <BaseSliderInput v-model="formData.triggerAlarmLevel" />
                                 </el-form-item>
                             </el-form>
                         </div>
@@ -107,6 +105,7 @@
                         <!-- 音频 -->
                         <el-form
                             v-if="pageData.supportAlarmAudioConfig"
+                            v-title
                             :style="{
                                 '--form-input-width': '215px',
                             }"

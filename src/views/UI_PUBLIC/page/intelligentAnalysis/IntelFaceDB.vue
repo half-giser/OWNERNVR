@@ -8,6 +8,7 @@
         <div class="base-table-box">
             <el-table
                 ref="tableRef"
+                v-title
                 :data="tableData"
                 :row-key="getRowKey"
                 :expand-row-key="pageData.expandRowKey"
@@ -118,7 +119,10 @@
                                             :src
                                         />
                                     </div>
-                                    <el-form class="stripe">
+                                    <el-form
+                                        v-title
+                                        class="stripe"
+                                    >
                                         <el-form-item :label="Translate('IDCS_NAME_PERSON')">
                                             <el-input
                                                 :model-value="currentFace.name"

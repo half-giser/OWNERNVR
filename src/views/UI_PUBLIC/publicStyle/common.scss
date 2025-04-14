@@ -285,8 +285,7 @@ input[type='number'] {
             }
         }
 
-        .el-input,
-        .el-input-number {
+        .el-input {
             max-width: 100%;
         }
     }
@@ -345,17 +344,17 @@ input[type='number'] {
     }
 
     // .el-slider 公共样式
-    .el-slider {
-        .el-slider__input {
-            &.is-without-controls {
-                width: 40px;
+    // .el-slider {
+    //     .el-slider__input {
+    //         &.is-without-controls {
+    //             width: 40px;
 
-                .el-input__wrapper {
-                    padding: 1px 4px;
-                }
-            }
-        }
-    }
+    //             .el-input__wrapper {
+    //                 padding: 1px 4px;
+    //             }
+    //         }
+    //     }
+    // }
 
     .el-input {
         &.middle {
@@ -368,13 +367,13 @@ input[type='number'] {
         }
     }
 
-    .el-input-number {
-        &.is-without-controls {
-            .el-input__inner {
-                text-align: left;
-            }
-        }
-    }
+    // .el-input-number {
+    //     &.is-without-controls {
+    //         .el-input__inner {
+    //             text-align: left;
+    //         }
+    //     }
+    // }
 
     // .el-form 公共样式
     .el-form {
@@ -387,14 +386,22 @@ input[type='number'] {
             &__label {
                 width: var(--form-label-width);
                 align-items: center;
-                line-height: 1.2;
                 padding: 0 6px 0 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                display: block;
+                margin-bottom: 0;
 
-                .el-text.label {
-                    color: var(--form-input-width);
-                    font-size: 15px;
-                    cursor: text;
+                &:has(.el-checkbox) {
+                    display: inline-flex;
                 }
+
+                // .el-text.label {
+                //     color: var(--form-input-width);
+                //     font-size: 15px;
+                //     cursor: text;
+                // }
 
                 .el-checkbox {
                     margin-left: 5px;
@@ -432,7 +439,8 @@ input[type='number'] {
         .el-input-number,
         .el-date-editor.el-input,
         .el-textarea,
-        .el-slider,
+        // .el-slider,
+        .BaseSlider,
         .MacInput,
         .IpInput {
             width: var(--form-input-width);
@@ -441,7 +449,7 @@ input[type='number'] {
                 margin-left: 8px;
             }
 
-            & + .el-slider {
+            & + .BaseSlider {
                 margin-left: 20px;
             }
         }
@@ -451,7 +459,7 @@ input[type='number'] {
                 margin-left: 8px;
             }
 
-            & + .el-slider {
+            & + .BaseSlider {
                 margin-left: 20px;
             }
         }
@@ -474,15 +482,15 @@ input[type='number'] {
             margin-right: 20px;
         }
 
-        .el-slider {
-            .el-input-number {
-                &.is-without-controls {
-                    .el-input__inner {
-                        text-align: center;
-                    }
-                }
-            }
-        }
+        // .el-slider {
+        //     .el-input-number {
+        //         &.is-without-controls {
+        //             .el-input__inner {
+        //                 text-align: center;
+        //             }
+        //         }
+        //     }
+        // }
 
         // 斑马线样式（默认错误信息不换行）
         &.stripe {
@@ -733,6 +741,7 @@ input[type='number'] {
     display: flex;
     flex-direction: column;
     height: var(--content-height);
+    min-height: 500px - 30px;
 }
 
 // 将el-table放置在此容器下，以便el-table在flexbox的高度能有弹性

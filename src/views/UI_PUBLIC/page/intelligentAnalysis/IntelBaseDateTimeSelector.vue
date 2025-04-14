@@ -33,6 +33,7 @@
                 </div>
             </div>
             <el-form
+                v-title
                 :style="{
                     '--form-label-width': '80px',
                 }"

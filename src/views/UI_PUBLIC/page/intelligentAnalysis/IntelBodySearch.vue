@@ -147,6 +147,7 @@
             >
                 <el-table
                     ref="tableRef"
+                    v-title
                     border
                     stripe
                     :data="sliceTableData"

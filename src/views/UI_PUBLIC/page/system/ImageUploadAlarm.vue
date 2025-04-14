@@ -6,6 +6,7 @@
 <template>
     <div class="base-flex-box">
         <el-form
+            v-title
             class="stripe"
             :style="{
                 '--form-input-width': '250px',
@@ -20,6 +21,7 @@
         </el-form>
         <div class="base-table-box">
             <el-table
+                v-title
                 :data="tableData"
                 show-overflow-tooltip
             >

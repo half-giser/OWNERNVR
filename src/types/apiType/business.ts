@@ -54,8 +54,8 @@ export class BusinessAccessLockDataItem {
     openDelayTimeDefault = 0 // 开门延时时间-默认值
     openDelayTime = 0 // 开门延时时间-当前值
     openDelayTimeEnabled = false
-    openHoldTimeMin = 0 // 开门持续时间-最小值
-    openHoldTimeMax = 0 // 开门持续时间-最大值
+    openHoldTimeMin = 1 // 开门持续时间-最小值
+    openHoldTimeMax = 1 // 开门持续时间-最大值
     openHoldTimeDefault = 0 // 开门持续时间-默认值
     openHoldTimeEnabled = false
     openHoldTime = 0 // 开门持续时间-当前值

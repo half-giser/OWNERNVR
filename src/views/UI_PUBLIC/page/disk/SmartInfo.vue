@@ -6,9 +6,10 @@
 <template>
     <div class="base-flex-box">
         <el-form
-            label-width="250"
+            v-title
             :style="{
                 '--form-input-width': '340px',
+                '--form-label-width': '250px',
             }"
         >
             <el-form-item :label="Translate('IDCS_DISK')">
@@ -40,6 +41,7 @@
         </el-form>
         <div class="base-table-box">
             <el-table
+                v-title
                 :data="tableData"
                 show-overflow-tooltip
                 highlight-current-row

@@ -26,11 +26,29 @@ import type { InputInstance } from 'element-plus'
 
 const props = withDefaults(
     defineProps<{
+        /**
+         * @property 绑定值
+         */
         modelValue: number | undefined
+        /**
+         * @property 最小值
+         */
         min?: number
+        /**
+         * @property 最大值
+         */
         max?: number
+        /**
+         * @property 清楚值
+         */
         valueOnClear?: null | 'min'
+        /**
+         * @property 精度
+         */
         precision?: number
+        /**
+         * @property 步长
+         */
         step?: number
     }>(),
     {

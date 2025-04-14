@@ -118,6 +118,7 @@
                         </div>
                     </div>
                     <el-form
+                        v-title
                         :style="{
                             '--form-label-width': 'auto',
                         }"
@@ -603,7 +604,7 @@
 }
 
 .table-pic {
-    width: 117 * 2px;
+    width: calc(117 * 2px);
     height: 130px;
 
     img {

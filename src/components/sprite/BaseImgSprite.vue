@@ -9,16 +9,16 @@
         :style="{
             width,
             height,
-            backgroundPositionX,
-            backgroundPositionY,
             backgroundSize: `${sprites.properties.width}px ${sprites.properties.height}px`,
+            '--sprite-normal': position,
+            '--sprite-hover': hoverPosition,
+            '--sprite-active': activePosition,
+            '--sprite-disabled': disabledPosition,
         }"
         :class="{
-            hover: isHoverClass,
+            hover: prop.hoverIndex > -1,
             disabled,
         }"
-        @mouseenter="isHover = true"
-        @mouseleave="isHover = false"
         @click="click"
     ></span>
 </template>
@@ -42,7 +42,7 @@ const prop = withDefaults(
          */
         index?: number
         /**
-         * @property :hover索引值, number时是hover的下标索引，string时是hover的文件
+         * @property :hover索引值, number时是hover的下标索引
          */
         hoverIndex?: number
         /**
@@ -50,7 +50,7 @@ const prop = withDefaults(
          */
         active?: boolean
         /**
-         * @property 高亮索引值, number时是active的下标索引，string时是active的文件
+         * @property 高亮索引值, number时是active的下标索引
          */
         activeIndex?: number
         /**
@@ -79,73 +79,74 @@ const prop = withDefaults(
 )
 
 const emits = defineEmits<{
-    (e: 'click'): void
+    (e: 'click', event: MouseEvent): void
 }>()
 
 const instance = getCurrentInstance()
 
-const isHover = ref(false)
-
-// 当前索引值
-const currentIndex = computed(() => {
-    if (prop.disabled && prop.disabledIndex > -1) return prop.disabledIndex
-    if (prop.active && prop.activeIndex !== -1) return prop.activeIndex
-    if (isHover.value && prop.hoverIndex !== -1) return prop.hoverIndex
-    return prop.index
-})
-
-// hover状态
-const isHoverClass = computed(() => {
-    return !prop.disabled && prop.hoverIndex > -1
-})
-
 // 当前图标文件
 const item = computed(() => {
+    const customSprite = customSprites[prop.file]
+    if (customSprite) {
+        return customSprite
+    }
     return sprites.coordinates[prop.file] || [0, 0, 0, 0]
 })
 
-// 非标准的图标
-const custom = computed(() => {
-    const customFn = customSprites[prop.file]
-    if (customFn) {
-        return customFn(currentIndex.value)
-    }
-    return null
+// background position
+const position = computed(() => {
+    return `${getPositionX(prop.index)} ${getPositionY()}`
 })
 
-// css backgroundPositionX
-const backgroundPositionX = computed(() => {
-    if (custom.value) {
-        return `-${item.value[0] + custom.value[0]}px`
+// background position (hover)
+const hoverPosition = computed(() => {
+    if (prop.hoverIndex === -1) {
+        return position.value
     }
-    return `-${item.value[0] + (currentIndex.value / prop.chunk) * item.value[2]}px`
+    return `${getPositionX(prop.hoverIndex)} ${getPositionY()}`
 })
 
-// css backgroundPositionY
-const backgroundPositionY = computed(() => {
-    if (custom.value) {
-        return `-${item.value[1] + custom.value[1]}px`
+// background position (active)
+const activePosition = computed(() => {
+    if (prop.activeIndex === -1) {
+        return position.value
     }
+    return `${getPositionX(prop.activeIndex)} ${getPositionY()}`
+})
+
+// background position (disabled)
+const disabledPosition = computed(() => {
+    if (prop.disabledIndex === -1) {
+        return position.value
+    }
+    return `${getPositionX(prop.disabledIndex)} ${getPositionY()}`
+})
+
+/**
+ * @description 计算background-position-x
+ */
+const getPositionX = (currentIndex: number) => {
+    return `-${item.value[0] + (currentIndex / prop.chunk) * item.value[2]}px`
+}
+
+/**
+ * @description 计算background-position-y
+ */
+const getPositionY = () => {
     return `-${item.value[1]}px`
-})
+}
 
 // css width
 const width = computed(() => {
-    if (custom.value) {
-        return `${custom.value[2]}px`
-    }
     return `${item.value[2] / prop.chunk}px`
 })
 
 // css height
 const height = computed(() => {
-    if (custom.value) {
-        return `${custom.value[3]}px`
-    }
     return `${item.value[3]}px`
 })
 
-const click = (e: Event) => {
+const click = (e: MouseEvent) => {
     if (instance?.vnode?.props?.onClick && prop.stopPropagation) {
         e.stopPropagation()
     }
@@ -154,7 +155,7 @@ const click = (e: Event) => {
         return
     }
 
-    emits('click')
+    emits('click', e)
 }
 </script>
 
@@ -167,6 +168,16 @@ const click = (e: Event) => {
     background-repeat: no-repeat;
     vertical-align: middle;
     flex-shrink: 0;
+    background-position: var(--sprite-normal);
+
+    &:hover {
+        background-position: var(--sprite-hover);
+    }
+
+    &:active,
+    &.active {
+        background-position: var(--sprite-active);
+    }
 
     &.hover {
         cursor: pointer;
@@ -174,6 +185,7 @@ const click = (e: Event) => {
 
     &.disabled {
         cursor: not-allowed;
+        background-position: var(--sprite-disabled);
     }
 }
 </style>

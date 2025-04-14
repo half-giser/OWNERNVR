@@ -12,9 +12,12 @@
     >
         <el-form
             ref="formRef"
+            v-title
             :model="formData"
             :rules="rules"
-            label-width="200"
+            :style="{
+                '--form-label-width': '200px',
+            }"
         >
             <el-form-item
                 prop="name"

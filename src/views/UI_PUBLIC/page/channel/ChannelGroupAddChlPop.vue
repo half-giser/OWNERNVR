@@ -12,6 +12,7 @@
     >
         <el-table
             ref="tableRef"
+            v-title
             :data="tableData"
             show-overflow-tooltip
             highlight-current-row

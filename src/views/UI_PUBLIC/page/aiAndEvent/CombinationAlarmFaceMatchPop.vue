@@ -15,6 +15,7 @@
             <div class="box">
                 <div class="box_title">{{ Translate('IDCS_FACE_MATCH_SELECT_CHL') }}</div>
                 <el-form
+                    v-title
                     :style="{
                         '--form-label-width': '150px',
                     }"
@@ -45,6 +46,7 @@
             <div class="box">
                 <div class="box_title">{{ Translate('IDCS_MATCH_START_AND_END') }}</div>
                 <el-form
+                    v-title
                     :style="{
                         '--form-label-width': '220px',
                     }"
@@ -65,6 +67,7 @@
             </div>
         </div>
         <el-form
+            v-title
             :style="{
                 '--form-input-width': '400px',
             }"

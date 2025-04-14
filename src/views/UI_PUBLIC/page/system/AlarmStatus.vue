@@ -69,8 +69,8 @@
                                     <div>
                                         <label v-show="item.key">{{ Translate(item.key) }} :</label>
                                         <span
+                                            v-title
                                             class="text-ellipsis"
-                                            :title="item.value"
                                         >
                                             {{ item.value }}
                                         </span>

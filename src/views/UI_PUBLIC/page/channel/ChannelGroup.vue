@@ -18,23 +18,19 @@
             >
                 <el-table-column
                     prop="name"
-                    label="name"
                     width="300"
                 />
-                <el-table-column label="dwellTime">
+                <el-table-column>
                     <template #default="{ row }: TableColumn<ChannelGroupDto>">
                         {{ formatDwellTime(row.dwellTime) }}
                     </template>
                 </el-table-column>
-                <el-table-column label="chlCount">
+                <el-table-column>
                     <template #default="{ row }: TableColumn<ChannelGroupDto>">
                         {{ Translate('IDCS_CHANNEL_NUM_D').formatForLang(row.chlCount) }}
                     </template>
                 </el-table-column>
-                <el-table-column
-                    :label="Translate('IDCS_EDIT')"
-                    width="60"
-                >
+                <el-table-column width="60">
                     <template #default="{ row }: TableColumn<ChannelGroupDto>">
                         <BaseImgSpriteBtn
                             file="edit2"
@@ -42,10 +38,7 @@
                         />
                     </template>
                 </el-table-column>
-                <el-table-column
-                    :label="Translate('IDCS_DELETE')"
-                    width="60"
-                >
+                <el-table-column width="60">
                     <template #default="{ row }: TableColumn<ChannelGroupDto>">
                         <BaseImgSpriteBtn
                             file="del"

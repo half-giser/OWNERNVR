@@ -50,6 +50,7 @@
                         v-model="formData.direction"
                     />
                     <el-form
+                        v-title
                         :style="{
                             '--form-label-width': 'auto',
                         }"
@@ -197,6 +198,7 @@
             >
                 <el-table
                     ref="tableRef"
+                    v-title
                     show-overflow-tooltip
                     :data="sliceTableData"
                     @row-click="handleTableRowClick"

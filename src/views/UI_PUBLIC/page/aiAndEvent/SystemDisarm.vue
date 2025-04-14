@@ -12,6 +12,7 @@
     >
         <el-table
             ref="addTableRef"
+            v-title
             show-overflow-tooltip
             height="287"
             :data="filterChlsSourceList"
@@ -44,6 +45,7 @@
     >
         <el-table
             ref="cfgTableRef"
+            v-title
             show-overflow-tooltip
             height="287"
             :data="cfgTableData"
@@ -70,6 +72,7 @@
     <div class="base-flex-box">
         <div class="base-subheading-box">{{ Translate('IDCS_CONTRL_MODEL') }}</div>
         <el-form
+            v-title
             :style="{
                 '--form-label-width': '172px',
                 '--form-input-width': '250px',
@@ -116,6 +119,7 @@
         </el-form>
         <div class="base-table-box">
             <el-table
+                v-title
                 :data="tableData"
                 class="table"
                 highlight-current-row
@@ -144,6 +148,7 @@
                             <div class="cfg_table">
                                 <el-table
                                     ref="popTableRef"
+                                    v-title
                                     show-overflow-tooltip
                                     height="250"
                                     :data="pageData.totalDefenseParamList"

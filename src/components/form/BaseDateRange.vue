@@ -6,8 +6,7 @@
 <template>
     <div class="date-range">
         <BaseImgSprite
-            file="datePicker"
-            :chunk="7"
+            file="datePicker-first"
             :hover-index="0"
             @click="handlePrev"
         />
@@ -16,10 +15,8 @@
             <span v-show="type === 'custom' || type === 'week' || type === 'quarter'"> -- {{ displayDateValue(props.modelValue[1]) }}</span>
         </div>
         <BaseImgSprite
-            file="datePicker"
-            :index="3"
-            :hover-index="3"
-            :chunk="7"
+            file="datePicker-last"
+            :hover-index="0"
             @click="handleNext"
         />
     </div>
@@ -38,10 +35,15 @@ const props = withDefaults(
          * @property 当前时间 毫秒
          */
         modelValue?: [number, number]
+        /**
+         * @property 自定义时间类型
+         */
+        customType?: 'minute' | 'second' | 'day'
     }>(),
     {
         type: 'date',
         modelValue: () => [Date.now(), Date.now()],
+        customType: 'second',
     },
 )
 
@@ -145,6 +147,20 @@ const displayDateValue = (timestamp: number) => {
 
     if (props.type === 'week') {
         return formatDate(timestamp, dateTime.dateFormat)
+    }
+
+    if (props.type === 'custom') {
+        if (props.customType === 'day') {
+            return formatDate(timestamp, dateTime.dateFormat)
+        }
+
+        if (props.customType === 'minute') {
+            return formatDate(timestamp, dateTime.dateFormat + ' ' + dateTime.hourMinuteFormat)
+        }
+
+        if (props.customType === 'second') {
+            return formatDate(timestamp, dateTime.dateTimeFormat)
+        }
     }
 
     return formatDate(timestamp, dateTime.dateTimeFormat)

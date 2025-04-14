@@ -28,6 +28,7 @@
                         <!-- 开始结束字符 -->
                         <div>
                             <el-table
+                                v-title
                                 :data="startEndCharTableList"
                                 height="300"
                             >
@@ -65,6 +66,7 @@
                         <!-- 换行符 -->
                         <div>
                             <el-table
+                                v-title
                                 :data="lineBreakTableList"
                                 height="300"
                             >
@@ -92,6 +94,7 @@
                         <!-- 忽略字符 -->
                         <div>
                             <el-table
+                                v-title
                                 :data="ignoreChareTableList"
                                 height="300"
                             >
@@ -116,9 +119,10 @@
                         </div>
                     </div>
                     <el-form
-                        label-width="150"
+                        v-title
                         :style="{
                             '--form-input-width': '220px',
+                            '--form-label-width': '150px',
                         }"
                     >
                         <el-form-item :label="Translate('IDCS_IGNORE_UPPER')">
@@ -179,6 +183,7 @@
                             />
                         </div>
                         <el-form
+                            v-title
                             :style="{
                                 '--form-input-width': '340px',
                             }"

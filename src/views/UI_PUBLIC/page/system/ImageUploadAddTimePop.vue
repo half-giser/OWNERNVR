@@ -10,6 +10,7 @@
         @close="close"
     >
         <el-form
+            v-title
             :style="{
                 '--form-label-width': '180px',
             }"
@@ -35,6 +36,7 @@
         </el-form>
         <el-table
             ref="tableRef"
+            v-title
             height="260"
             :data="tableData"
             highlight-current-row

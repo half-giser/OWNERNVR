@@ -459,13 +459,6 @@ export default defineComponent({
             }
         }
 
-        const changeImageShift = (val: number) => {
-            const rowData = getRowById(selectedChlId.value)
-            if (rowData.chlType !== 'analog' || rowData.imageShiftMax === undefined) return
-            rowData.imageShift! += val
-            setAZData()
-        }
-
         const changeExposureMode = () => {
             const rowData = getRowById(selectedChlId.value)
             if (rowData.gainMode !== undefined) rowData.gainMode = rowData.exposureMode === 'manual' ? '1' : '0'
@@ -1497,7 +1490,6 @@ export default defineComponent({
             changeProgram,
             changeTimeType,
             changeCfgFile,
-            changeImageShift,
             changeExposureMode,
             changeShutterUpLimit,
             changeShutterLowLimit,

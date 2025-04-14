@@ -43,12 +43,14 @@
                         <BaseDateRange
                             :model-value="formData.dateRange"
                             :type="pageData.dateRangeType"
+                            custom-type="minute"
                             @change="changeDateRange"
                         />
                     </el-form-item>
                     <el-form-item>
                         <BaseDateTab
                             :model-value="formData.dateRange"
+                            custom-type="minute"
                             @change="changeDateRange"
                         />
                     </el-form-item>
@@ -130,6 +132,7 @@
         </div>
         <div class="base-table-box">
             <el-table
+                v-title
                 :data="sliceTableData"
                 highlight-current-row
             >

@@ -5,6 +5,7 @@
 -->
 <template>
     <el-form
+        v-title
         :style="{
             '--form-label-width': '180px',
         }"
@@ -29,11 +30,11 @@
                         <div
                             v-for="item in list"
                             :key="item.id"
+                            v-title
                             class="alarm-chl-item"
                             :class="{
                                 active: item.id === modelValue,
                             }"
-                            :title="item.name"
                             @click="change(item.id)"
                         >
                             {{ item.name }}

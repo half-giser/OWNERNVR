@@ -29,6 +29,7 @@
             <el-table
                 v-show="activeTab === tabKeys.quickAdd"
                 ref="quickAddTableRef"
+                v-title
                 :data="quickAddTableData"
                 show-overflow-tooltip
                 highlight-current-row
@@ -112,6 +113,7 @@
             <el-table
                 v-show="activeTab === tabKeys.manualAdd"
                 ref="manualAddTableRef"
+                v-title
                 :data="manualAddFormData"
                 show-overflow-tooltip
             >
@@ -213,6 +215,7 @@
             <el-table
                 v-show="activeTab === tabKeys.addRecorder"
                 ref="addRecorderTableRef"
+                v-title
                 :data="addRecorderTableData"
                 show-overflow-tooltip
                 highlight-current-row

@@ -8,6 +8,7 @@
         <!-- 端口 -->
         <el-form
             ref="portFormRef"
+            v-title
             :model="portFormData"
             :rules="portFormRule"
             :style="{

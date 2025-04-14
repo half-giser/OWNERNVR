@@ -97,7 +97,7 @@
                         @click="goToPath(route)"
                     >
                         <span
-                            :title="Translate(String(route?.meta?.lk))"
+                            v-title
                             v-text="Translate(String(route?.meta?.lk))"
                         ></span>
                         <span class="menu-split"></span>
@@ -295,7 +295,7 @@
     width: 100%;
     height: calc(100% - 25px);
     flex-shrink: 1;
-    min-height: 150px;
+    min-height: 500px;
 
     @if $GLOBAL_UI_TYPE == UI2-A {
         padding-top: 25px;

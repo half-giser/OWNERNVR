@@ -14,6 +14,7 @@
             </div>
             <el-form
                 ref="formRef"
+                v-title
                 :style="{
                     '--form-label-width': '160px',
                 }"
@@ -40,12 +41,11 @@
                     v-show="!formData.isSupportThermal"
                     :label="Translate('IDCS_BRIGHTNESS')"
                 >
-                    <el-slider
+                    <BaseSliderInput
                         v-model="formData.bright"
                         :min="formData.brightMin"
                         :max="formData.brightMax"
                         :disabled="formData.disabled || formData.bright === undefined"
-                        show-input
                         @change="changeHSL(formData.bright, formData.id, 'bright')"
                     />
                 </el-form-item>
@@ -53,12 +53,11 @@
                     v-show="!formData.isSupportThermal"
                     :label="Translate('IDCS_CONTRAST')"
                 >
-                    <el-slider
+                    <BaseSliderInput
                         v-model="formData.contrast"
                         :min="formData.contrastMin"
                         :max="formData.contrastMax"
                         :disabled="formData.disabled || formData.contrast === undefined"
-                        show-input
                         @change="changeHSL(formData.contrast, formData.id, 'contrast')"
                     />
                 </el-form-item>
@@ -66,12 +65,11 @@
                     v-show="!formData.isSupportThermal"
                     :label="Translate('IDCS_SATURATION')"
                 >
-                    <el-slider
+                    <BaseSliderInput
                         v-model="formData.saturation"
                         :min="formData.saturationMin"
                         :max="formData.saturationMax"
                         :disabled="formData.disabled || formData.saturation === undefined"
-                        show-input
                         @change="changeHSL(formData.saturation, formData.id, 'saturation')"
                     />
                 </el-form-item>
@@ -79,12 +77,11 @@
                     v-show="!formData.isSupportThermal"
                     :label="Translate('IDCS_TONE')"
                 >
-                    <el-slider
+                    <BaseSliderInput
                         v-model="formData.hue"
                         :min="formData.hueMin"
                         :max="formData.hueMax"
                         :disabled="formData.disabled || formData.hue === undefined"
-                        show-input
                         @change="changeHSL(formData.hue, formData.id, 'hue')"
                     />
                 </el-form-item>
@@ -118,6 +115,7 @@
             <div class="base-table-box">
                 <el-table
                     ref="tableRef"
+                    v-title
                     :data="tableData"
                     show-overflow-tooltip
                     highlight-current-row
@@ -229,6 +227,7 @@
                                         >
                                             <el-form
                                                 ref="imageAdjustFormRef"
+                                                v-title
                                                 :style="{
                                                     '--form-label-width': '200px',
                                                 }"
@@ -253,12 +252,11 @@
                                                         />
                                                         <span v-else>{{ Translate('IDCS_SHARPNESS') }}</span>
                                                     </template>
-                                                    <el-slider
+                                                    <BaseSliderInput
                                                         v-model="row.sharpen"
                                                         :disabled="!row.sharpenSwitch || row.sharpen === undefined"
                                                         :min="row.sharpenMin"
                                                         :max="row.sharpenMax"
-                                                        show-input
                                                         @change="setAZData()"
                                                     />
                                                 </el-form-item>
@@ -271,12 +269,11 @@
                                                             @change="setAZData()"
                                                         />
                                                     </template>
-                                                    <el-slider
+                                                    <BaseSliderInput
                                                         v-model="row.WDR"
                                                         :disabled="!row.WDRSwitch || row.WDR === undefined"
                                                         :min="row.WDRMin"
                                                         :max="row.WDRMax"
-                                                        show-input
                                                         @change="setAZData()"
                                                     />
                                                 </el-form-item>
@@ -289,12 +286,11 @@
                                                             @change="setAZData()"
                                                         />
                                                     </template>
-                                                    <el-slider
+                                                    <BaseSliderInput
                                                         v-model="row.denoise"
                                                         :disabled="!row.denoiseSwitch || row.denoise === undefined"
                                                         :min="row.denoiseMin"
                                                         :max="row.denoiseMax"
-                                                        show-input
                                                         @change="setAZData()"
                                                     />
                                                 </el-form-item>
@@ -307,42 +303,23 @@
                                                             @change="setAZData()"
                                                         />
                                                     </template>
-                                                    <el-slider
+                                                    <BaseSliderInput
                                                         v-model="row.defog"
                                                         :disabled="!row.defogSwitch || row.defog === undefined"
                                                         :min="row.defogMin"
                                                         :max="row.defogMax"
-                                                        show-input
                                                         @change="setAZData()"
                                                     />
                                                 </el-form-item>
                                                 <el-form-item :label="Translate('IDCS_IMAGE_SHIFT')">
-                                                    <div class="slider_wrap">
-                                                        <el-slider
-                                                            v-model="row.imageShift"
-                                                            :min="row.imageShiftMin"
-                                                            :max="row.imageShiftMax"
-                                                            :disabled="row.chlType !== 'analog' || row.imageShift === undefined"
-                                                            show-input
-                                                            @change="setAZData()"
-                                                        />
-                                                        <div class="custom_btn_slider_wrap">
-                                                            <div
-                                                                class="custom_btn_slider custom_btn_slider_decr"
-                                                                :class="{
-                                                                    disabled: row.chlType !== 'analog' || row.imageShift === undefined,
-                                                                }"
-                                                                @click="changeImageShift(-1)"
-                                                            ></div>
-                                                            <div
-                                                                class="custom_btn_slider custom_btn_slider_incr"
-                                                                :class="{
-                                                                    disabled: row.chlType !== 'analog' || row.imageShift === undefined,
-                                                                }"
-                                                                @click="changeImageShift(1)"
-                                                            ></div>
-                                                        </div>
-                                                    </div>
+                                                    <BaseSliderInput
+                                                        v-model="row.imageShift"
+                                                        :min="row.imageShiftMin"
+                                                        :max="row.imageShiftMax"
+                                                        show-control
+                                                        :disabled="row.chlType !== 'analog' || row.imageShift === undefined"
+                                                        @change="setAZData()"
+                                                    />
                                                 </el-form-item>
                                                 <el-form-item :label="Translate('IDCS_BACKLIGHT_COMPENSATION')">
                                                     <el-select-v2
@@ -381,12 +358,11 @@
                                                     v-if="row.whiteBalanceMode === 'manual'"
                                                     :label="Translate('IDCS_RED_GAIN')"
                                                 >
-                                                    <el-slider
+                                                    <BaseSliderInput
                                                         v-model="row.red"
                                                         :min="row.redMin"
                                                         :max="row.redMax"
                                                         :disabled="row.red === undefined"
-                                                        show-input
                                                         @change="setAZData()"
                                                     />
                                                 </el-form-item>
@@ -394,12 +370,11 @@
                                                     v-if="row.whiteBalanceMode === 'manual'"
                                                     :label="Translate('IDCS_BLUE_GAIN')"
                                                 >
-                                                    <el-slider
+                                                    <BaseSliderInput
                                                         v-model="row.blue"
                                                         :min="row.blueMin"
                                                         :max="row.blueMax"
                                                         :disabled="row.blue === undefined"
-                                                        show-input
                                                         @change="setAZData()"
                                                     />
                                                 </el-form-item>
@@ -448,12 +423,11 @@
                                                     v-if="row.gainMode === '1'"
                                                     :label="Translate('IDCS_GAIN')"
                                                 >
-                                                    <el-slider
+                                                    <BaseSliderInput
                                                         v-model="row.gain"
                                                         :min="row.gainMin"
                                                         :max="row.gainMax"
                                                         :disabled="row.BLCMode === 'HWDR' || (row.BLCMode !== 'HWDR' && row.gainMode === undefined)"
-                                                        show-input
                                                         @change="setAZData()"
                                                     />
                                                 </el-form-item>
@@ -461,12 +435,11 @@
                                                     v-if="row.gainMode === '0'"
                                                     :label="Translate('IDCS_GAIN_LIMIT')"
                                                 >
-                                                    <el-slider
+                                                    <BaseSliderInput
                                                         v-model="row.gainAGC"
                                                         :min="row.gainMin"
                                                         :max="row.gainMax"
                                                         :disabled="row.BLCMode === 'HWDR' || (row.BLCMode !== 'HWDR' && row.gainMode === undefined)"
-                                                        show-input
                                                         @change="setAZData()"
                                                     />
                                                 </el-form-item>
@@ -606,11 +579,10 @@
                                                     v-if="row.smartIrSwitch !== undefined && row.smartIrMode === 'manual'"
                                                     :label="Translate('IDCS_LIGHT_LEVEL')"
                                                 >
-                                                    <el-slider
+                                                    <BaseSliderInput
                                                         v-model="row.lightLevel"
                                                         :min="row.lightLevelMin"
                                                         :max="row.lightLevelMax"
-                                                        show-input
                                                         @change="setAZData()"
                                                     />
                                                 </el-form-item>
@@ -618,11 +590,10 @@
                                                     v-if="row.isSupportIRCutMode && row.IRCutMode === 'auto' && row.delayTime !== undefined"
                                                     :label="Translate('IDCS_DELAY_TIME_SECOND')"
                                                 >
-                                                    <el-slider
+                                                    <BaseSliderInput
                                                         v-model="row.delayTime"
                                                         :min="row.delayTimeMin"
                                                         :max="row.delayTimeMax"
-                                                        show-input
                                                         @change="setAZData()"
                                                     />
                                                 </el-form-item>
@@ -689,11 +660,10 @@
                                                     v-if="row.whitelightMode === 'manual'"
                                                     :label="Translate('IDCS_WHITE_STRENGTH')"
                                                 >
-                                                    <el-slider
+                                                    <BaseSliderInput
                                                         v-model="row.whitelightStrength"
                                                         :min="row.whitelightStrengthMin"
                                                         :max="row.whitelightStrengthMax"
-                                                        show-input
                                                         @change="setAZData()"
                                                     />
                                                 </el-form-item>
@@ -726,6 +696,7 @@
                                             class="page_content_item"
                                         >
                                             <el-form
+                                                v-title
                                                 :style="{
                                                     '--form-label-width': '150px',
                                                 }"
@@ -752,7 +723,7 @@
                                                     v-if="row.scheduleInfo.scheduleType === 'time'"
                                                     :label="Translate('IDCS_DN_DAY_TIME')"
                                                     :style="{
-                                                        '--form-input-width': '125px',
+                                                        '--form-input-width': '130px',
                                                     }"
                                                 >
                                                     <el-time-picker
@@ -800,6 +771,7 @@
                                             class="page_content_item3"
                                         >
                                             <el-form
+                                                v-title
                                                 :style="{
                                                     '--form-label-width': '150px',
                                                 }"
@@ -881,7 +853,6 @@
                                                     </div>
                                                     <el-button
                                                         class="btn_auto_focus text-ellipsis"
-                                                        :title="Translate('IDCS_ONE_KEY_FOCUS')"
                                                         :disabled="!curLensCtrl.supportAz"
                                                         @mousedown="addCmd('OneKeyFocus', curLensCtrl.id)"
                                                         @mouseup="addCmd('Stop', curLensCtrl.id)"
@@ -962,51 +933,6 @@
 <script lang="ts" src="./ChannelImage.v.ts"></script>
 
 <style scoped lang="scss">
-.slider_wrap {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    position: relative;
-
-    .custom_btn_slider_wrap {
-        display: flex;
-        width: 35px;
-        justify-content: space-between;
-        flex-shrink: 0;
-        position: absolute;
-        left: 170px;
-        margin-left: 0 !important;
-
-        .custom_btn_slider {
-            width: 0;
-            height: 0;
-            border-width: 7px;
-            border-style: solid;
-            cursor: pointer;
-
-            &.disabled {
-                cursor: not-allowed;
-            }
-        }
-
-        .custom_btn_slider_decr {
-            border-color: transparent var(--slider-btn-border) transparent transparent;
-
-            &.disabled {
-                border-color: transparent var(--slider-btn-border-disabled) transparent transparent;
-            }
-        }
-
-        .custom_btn_slider_incr {
-            border-color: transparent transparent transparent var(--slider-btn-border);
-
-            &.disabled {
-                border-color: transparent transparent transparent var(--slider-btn-border-disabled);
-            }
-        }
-    }
-}
-
 .expandContent {
     height: 420px;
     overflow: hidden;

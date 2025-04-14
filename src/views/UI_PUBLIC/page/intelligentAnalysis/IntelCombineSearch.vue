@@ -28,6 +28,7 @@
                     :range="attributeRange"
                 />
                 <el-form
+                    v-title
                     :style="{
                         '--form-label-width': 'auto',
                     }"
@@ -165,6 +166,7 @@
             >
                 <el-table
                     ref="tableRef"
+                    v-title
                     border
                     stripe
                     show-overflow-tooltip

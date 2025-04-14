@@ -20,6 +20,7 @@
         >
             <el-form
                 ref="formRef"
+                v-title
                 :model="formData"
                 :rules="rules"
             >
@@ -121,6 +122,7 @@
                 <div class="content receiver">
                     <!-- 收件人表 -->
                     <el-table
+                        v-title
                         :data="pageData.data.receiverData"
                         height="100"
                         show-overflow-tooltip

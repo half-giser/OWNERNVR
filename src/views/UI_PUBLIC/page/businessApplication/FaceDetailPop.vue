@@ -48,6 +48,7 @@
             <div class="right">
                 <el-table
                     ref="tableRef"
+                    v-title
                     highlight-current-row
                     show-overflow-tooltip
                     :row-keys="getRowKey"

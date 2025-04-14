@@ -92,6 +92,7 @@
                         class="current-group"
                     >
                         <el-table
+                            v-title
                             :data="group"
                             height="460"
                             show-overflow-tooltip

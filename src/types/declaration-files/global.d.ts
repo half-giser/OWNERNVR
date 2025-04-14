@@ -174,7 +174,7 @@ declare global {
     // declare const OCX_PLUGIN: undefined | PluginType
 
     interface WindowExtends {
-        __RUNTIME_OCX_PLUGIN__: undefined | _PluginType
+        __RUNTIME_OCX_PLUGIN__: undefined | PluginType
     }
 
     interface Window extends WindowExtends {}

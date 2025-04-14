@@ -178,6 +178,7 @@ export const getConfigMenu = () => {
 }
 
 router.beforeEach(() => {
+    closeAllLoading()
     progress.start()
 })
 

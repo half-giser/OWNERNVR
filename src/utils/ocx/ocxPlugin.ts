@@ -27,7 +27,8 @@ const getSingletonPlugin = () => {
     }
 
     const pluginStore = usePluginStore()
-    const { Translate, getLangTypes, getLangItems, langItems } = useLangStore()
+    const lang = useLangStore()
+    const { Translate, getLangTypes, getLangItems } = lang
     const router = useRouter()
     const userSession = useUserSessionStore()
     const layoutStore = useLayoutStore()
@@ -239,8 +240,7 @@ const getSingletonPlugin = () => {
 
                             //执行标准客户端的登录流程
                             const userInfoArr = userSession.getAuthInfo()
-                            const sendXML = OCX_XML_SetLang()
-                            getVideoPlugin().ExecuteCmd(sendXML)
+                            await videoPluginLoadLang()
                             const result = await doLogin('')
                             if (queryXml(result)('status').text() === 'success') {
                                 if (userInfoArr) {
@@ -300,100 +300,108 @@ const getSingletonPlugin = () => {
         VideoPluginNotifyEmitter.emit($, stateType, strXMLFormat)
     }
 
-    let videoPluginLoadLang_timeoutId: NodeJS.Timeout | null = null
-
     /**
      * @description 初始化成功后，检测到语言包加载成功后，设置插件的语言内容
      */
-    const videoPluginLoadLang = () => {
-        if (Object.keys(langItems).length) {
-            if (videoPluginLoadLang_timeoutId !== null) {
-                clearTimeout(videoPluginLoadLang_timeoutId)
-                videoPluginLoadLang_timeoutId = null
+    const videoPluginLoadLang = async () => {
+        return new Promise((resolve) => {
+            const exec = () => {
+                const sendXML = OCX_XML_SetLang()
+                getVideoPlugin().ExecuteCmd(sendXML)
+                resolve(void 0)
             }
-            const sendXML = OCX_XML_SetLang()
-            getVideoPlugin().ExecuteCmd(sendXML)
-        } else {
-            videoPluginLoadLang_timeoutId = setTimeout(videoPluginLoadLang, 500)
-        }
-    }
 
-    let videoPluginLoginForStandard_timeoutId: NodeJS.Timeout | null = null
+            if (Object.keys(lang.langItems).length) {
+                exec()
+            } else {
+                const stopWatch = watch(
+                    () => lang.langItems,
+                    () => {
+                        if (Object.keys(lang.langItems).length) {
+                            exec()
+                            stopWatch()
+                        }
+                    },
+                )
+            }
+        })
+    }
 
     /**
      * @description 标准客户端插件登录
      * 初始化成功后，检测到客户端登录成功后，插件立即登录
      */
     const videoPluginLoginForStandard = () => {
-        const userInfoArr = userSession.getAuthInfo()
-        if (userInfoArr !== null) {
-            if (videoPluginLoginForStandard_timeoutId !== null) {
-                clearTimeout(videoPluginLoginForStandard_timeoutId)
-                videoPluginLoginForStandard_timeoutId = null
+        return new Promise((resolve) => {
+            const exec = async () => {
+                if (!pluginStore.pluginPort) {
+                    // 跳转初始页面前，获取OCX请求视频端口，只请求一次，全局保存
+                    await getPort()
+                }
+                _videoPluginLoginForStandard()
+                resolve(void 0)
             }
 
-            if (!pluginStore.pluginPort) {
-                // 跳转初始页面前，获取OCX请求视频端口，只请求一次，全局保存
-                getPort((port) => {
-                    pluginStore.pluginPort = port
-                    _videoPluginLoginForStandard()
-                })
+            const userInfoArr = userSession.getAuthInfo()
+            if (userInfoArr !== null) {
+                exec()
             } else {
-                _videoPluginLoginForStandard()
+                const stopWatch = watch(
+                    () => userSession.getAuthInfo(),
+                    async (userInfoArr) => {
+                        if (userInfoArr !== null) {
+                            stopWatch()
+                            exec()
+                        }
+                    },
+                )
             }
-        } else {
-            videoPluginLoginForStandard_timeoutId = setTimeout(videoPluginLoginForStandard, 500)
-        }
+        })
     }
 
     /**
      * @description 获取端口
      * @param {Function} callback
      */
-    const getPort = async (callback?: (p: number) => void) => {
-        let hostName = window.top!.location.hostname
-        let isSubIpUsed = false // 辅IP登录，插件使用externalPort登录
-        queryNetStatus()
-            .then(() => {
-                if (hostName.indexOf('[') !== -1 || hostName.lastIndexOf(']') !== -1) {
-                    hostName = hostName.substring(hostName.indexOf('[') + 1, hostName.indexOf(']'))
-                }
-                return queryNetCfgV2()
-            })
-            .then((result) => {
-                const $ = queryXml(result)
-                if ($('status').text() === 'success') {
-                    $('content/nicConfigs/item').forEach((item) => {
-                        const $item = queryXml(item.element)
-                        if (item.attr('isSupSecondIP').bool()) {
-                            // 判断是否使用了辅IP
-                            const secondIpSwitch = $item('secondIpSwitch').text().bool()
-                            isSubIpUsed = hostName === $item('secondIp').text() && secondIpSwitch
-                        }
-                    })
-                }
-                return queryUPnPCfg()
-            })
-            .then((result) => {
-                const $ = queryXml(result)
-                if ($('status').text() === 'success') {
-                    const isUPnPEnable = $('content/switch').text().bool()
-                    let port = 0
-                    $('content/ports/item').forEach((item) => {
-                        const $item = queryXml(item.element)
+    const getPort = async () => {
+        // await queryNetStatus()
+        let hostName = window.location.hostname
+        if (hostName.indexOf('[') !== -1 || hostName.lastIndexOf(']') !== -1) {
+            hostName = hostName.substring(hostName.indexOf('[') + 1, hostName.indexOf(']'))
+        }
 
-                        if ($item('portType').text() === 'SERVICE') {
-                            if (isSubIpUsed && isUPnPEnable) {
-                                port = $item('externalPort').text().num()
-                            } else {
-                                port = $item('localPort').text().num()
-                            }
-                            return false
-                        }
-                    })
-                    callback && callback(port)
+        let isSubIpUsed = false // 辅IP登录，插件使用externalPort登录
+        const netResult = await queryNetCfgV2()
+        const $net = queryXml(netResult)
+        if ($net('status').text() === 'success') {
+            $net('content/nicConfigs/item').forEach((item) => {
+                const $item = queryXml(item.element)
+                if (item.attr('isSupSecondIP').bool()) {
+                    // 判断是否使用了辅IP
+                    const secondIpSwitch = $item('secondIpSwitch').text().bool()
+                    isSubIpUsed = hostName === $item('secondIp').text() && secondIpSwitch
                 }
             })
+        }
+
+        let port = 0
+        const result = await queryUPnPCfg()
+        const $ = queryXml(result)
+        if ($('status').text() === 'success') {
+            const isUPnPEnable = $('content/switch').text().bool()
+            $('content/ports/item').forEach((item) => {
+                const $item = queryXml(item.element)
+                if ($item('portType').text() === 'SERVICE') {
+                    if (isSubIpUsed && isUPnPEnable) {
+                        port = $item('externalPort').text().num()
+                    } else {
+                        port = $item('localPort').text().num()
+                    }
+                }
+            })
+        }
+
+        pluginStore.pluginPort = port
     }
 
     /**
@@ -451,7 +459,7 @@ const getSingletonPlugin = () => {
     /**
      * @description videoPluginLogin 登录
      */
-    const videoPluginLogin = () => {
+    const videoPluginLogin = async () => {
         if (userSession.appType === 'P2P') {
             if (userSession.p2pSessionId) {
                 p2pSessionIdLogin()
@@ -460,7 +468,7 @@ const getSingletonPlugin = () => {
             }
         } else {
             if (userSession.sessionId) {
-                videoPluginLoadLang()
+                await videoPluginLoadLang()
                 videoPluginLoginForStandard()
             }
         }
@@ -1373,17 +1381,15 @@ const getSingletonPlugin = () => {
     let displayTimer: NodeJS.Timeout | number = 0
 
     /**
-     * @description VisibleChange事件回调
+     * @description 强制隐藏OCX
+     * @param {boolean} hideOCX
      */
-    const pageVisibleChangeHandle = () => {
-        if (!getIsPluginAvailable()) {
-            return
-        }
+    const forceHideOCX = (hideOCX: boolean) => {
+        if (!getIsInstallPlugin()) return
 
         clearTimeout(displayTimer)
 
-        if (document.visibilityState === 'hidden') {
-            //状态判断
+        if (hideOCX) {
             displayOCX(false)
         } else {
             displayTimer = setTimeout(() => {
@@ -1395,37 +1401,13 @@ const getSingletonPlugin = () => {
     // 消息框打开时，隐藏OCX
     watch(
         () => layoutStore.messageBoxCount,
-        (newVal) => {
-            if (!getIsInstallPlugin()) return
-
-            clearTimeout(displayTimer)
-
-            if (newVal) {
-                displayOCX(false)
-            } else {
-                displayTimer = setTimeout(() => {
-                    if (browserEventMap.data.length && !forcedHidden) displayOCX(true)
-                }, 50)
-            }
-        },
+        (newVal) => forceHideOCX(!!newVal),
     )
 
     // 全屏Loading时，隐藏OCX
     watch(
         () => layoutStore.loadingCount,
-        (newVal) => {
-            if (!getIsInstallPlugin()) return
-
-            clearTimeout(displayTimer)
-
-            if (newVal) {
-                displayOCX(false)
-            } else {
-                displayTimer = setTimeout(() => {
-                    if (browserEventMap.data.length && !forcedHidden) displayOCX(true)
-                }, 50)
-            }
-        },
+        (newVal) => forceHideOCX(!!newVal),
     )
 
     // 检测登录重连
@@ -1485,7 +1467,7 @@ const getSingletonPlugin = () => {
         }
     })
 
-    document.addEventListener('visibilitychange', pageVisibleChangeHandle, false)
+    document.addEventListener('visibilitychange', () => forceHideOCX(document.visibilityState === 'hidden'), false)
 
     return {
         GetVideoPlugin: getVideoPlugin,

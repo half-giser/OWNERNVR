@@ -12,6 +12,7 @@
     >
         <el-form
             ref="formRef"
+            v-title
             :style="{
                 '--form-label-width': '100px',
             }"

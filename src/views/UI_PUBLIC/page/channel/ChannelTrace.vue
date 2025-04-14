@@ -17,6 +17,7 @@
                 :disabled="!tableData.length"
             />
             <el-form
+                v-title
                 :style="{
                     '--form-label-width': '100px',
                 }"

@@ -6,6 +6,7 @@
 <template>
     <el-form
         ref="pushRef"
+        v-title
         :style="{
             '--form-input-width': '258px',
             '--form-label-width': '200px',

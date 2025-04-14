@@ -18,6 +18,7 @@
                 @speed="setSpeed"
             />
             <el-form
+                v-title
                 :style="{
                     '--form-label-width': '100px',
                 }"
@@ -89,6 +90,7 @@
             <div class="base-table-box">
                 <el-table
                     ref="tableRef"
+                    v-title
                     :show-header="false"
                     :data="tableData"
                     :row-key="getRowKey"

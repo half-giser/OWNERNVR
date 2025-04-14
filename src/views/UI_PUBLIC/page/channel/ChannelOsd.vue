@@ -15,6 +15,7 @@
                 />
             </div>
             <el-form
+                v-title
                 class="stripe"
                 :style="{
                     '--form-label-width': '160px',
@@ -79,6 +80,7 @@
             <div class="base-table-box">
                 <el-table
                     ref="tableRef"
+                    v-title
                     :data="tableData"
                     show-overflow-tooltip
                     highlight-current-row

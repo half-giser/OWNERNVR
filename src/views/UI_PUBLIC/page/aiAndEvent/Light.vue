@@ -7,7 +7,10 @@
     <div class="base-flex-box">
         <div class="base-subheading-box">{{ Translate('IDCS_LIGHT') }}</div>
         <div class="base-table-box">
-            <el-table :data="tableData">
+            <el-table
+                v-title
+                :data="tableData"
+            >
                 <el-table-column
                     label=" "
                     width="50"
@@ -103,6 +106,7 @@
         </div>
         <div class="base-subheading-box margin">{{ Translate('IDCS_FLASH_LIGHT_LINK_SCHEDULE') }}</div>
         <el-form
+            v-title
             :style="{
                 '--form-input-width': '200px',
             }"

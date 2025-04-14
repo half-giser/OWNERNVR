@@ -7,6 +7,7 @@
     <div class="base-flex-box">
         <div class="base-table-box">
             <el-table
+                v-title
                 :data="virtualTableData"
                 class="RecordStreamList"
                 :row-class-name="(data) => (tableData[data.rowIndex].disabled ? 'disabled' : '')"
@@ -85,7 +86,7 @@
                                     width="408"
                                     max-height="400"
                                     :data="pageData.resolutionGroups"
-                                    :show-header="pageData.headerVisble"
+                                    :show-header="false"
                                     :row-key="getRowKey"
                                     :expand-row-keys="pageData.expands"
                                     :border="false"
@@ -368,6 +369,7 @@
                             </template>
                             <div class="GOP_dropDown">
                                 <el-form
+                                    v-title
                                     :style="{
                                         '--form-label-width': 'auto',
                                     }"

@@ -14,6 +14,7 @@
         <el-tabs
             :key="pageData.currChlId"
             v-model="pageData.tab"
+            v-title
             class="base-ai-menu-tabs"
         >
             <div
