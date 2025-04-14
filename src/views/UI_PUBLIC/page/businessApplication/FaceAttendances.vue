@@ -21,7 +21,12 @@
                         />
                     </el-form-item>
                     <el-form-item>
-                        <el-text class="text-ellipsis">{{ formData.chls.map((item) => item.label).join(';') }}</el-text>
+                        <div
+                            v-title
+                            class="text-ellipsis"
+                        >
+                            {{ formData.chls.map((item) => item.label).join('; ') }}
+                        </div>
                     </el-form-item>
                 </el-form-item>
                 <el-form-item>
@@ -34,7 +39,12 @@
                         />
                     </el-form-item>
                     <el-form-item>
-                        <el-text>{{ formData.faceGroup.map((item) => item.name).join(';') }}</el-text>
+                        <div
+                            v-title
+                            class="text-ellipsis"
+                        >
+                            {{ formData.faceGroup.map((item) => item.name).join('; ') }}
+                        </div>
                     </el-form-item>
                 </el-form-item>
                 <el-form-item>
