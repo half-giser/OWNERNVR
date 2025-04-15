@@ -72,6 +72,7 @@
                     <el-input
                         v-model="formData.note"
                         :disabled
+                        maxlength="15"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_ADD_FACE_GROUP')">

@@ -70,7 +70,10 @@
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_REMARK')">
-                    <el-input v-model="formData.note" />
+                    <el-input
+                        v-model="formData.note"
+                        maxlength="15"
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_ADD_FACE_GROUP')">
                     <el-select-v2
