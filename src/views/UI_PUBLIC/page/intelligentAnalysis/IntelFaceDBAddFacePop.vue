@@ -136,7 +136,7 @@
                     {{ Translate('IDCS_ENTRY_FACE') }}
                 </el-button>
                 <el-button
-                    :disabled="pageData.formType !== 'import' && totalCount - successCount < 1"
+                    :disabled="pageData.formType !== 'import' || totalCount <= successCount"
                     @click="setAllData"
                 >
                     {{ Translate('IDCS_FACE_ENTRY_ALL') }}
