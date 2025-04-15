@@ -295,7 +295,11 @@ type DateDto = {
  * @description 打开日期选择器时初始化
  */
 const open = () => {
-    currentValue.value = dayjs(props.modelValue || Date.now(), props.valueFormat || (props.type === 'datetime' ? dateTime.dateTimeFormat : dateTime.dateFormat))
+    currentValue.value = dayjs(props.modelValue, props.valueFormat || (props.type === 'datetime' ? dateTime.dateTimeFormat : dateTime.dateFormat))
+    if (!currentValue.value.isValid()) {
+        currentValue.value = dayjs(Date.now())
+        changeValue()
+    }
     tab.value = 'date'
 
     if (props.type === 'datetime') {
