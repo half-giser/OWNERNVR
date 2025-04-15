@@ -23,7 +23,12 @@
                 :label="Translate('IDCS_ALL')"
                 @change="changeAllChl"
             />
-            <el-text class="chl-chls text-ellipsis">{{ formData.chls.map((item) => item.label).join(';') }}</el-text>
+            <div
+                v-title
+                class="chl-chls text-ellipsis"
+            >
+                {{ formData.chls.map((item) => item.label).join(';') }}
+            </div>
             <el-button @click="changeChl">{{ Translate('IDCS_MORE') }}</el-button>
             <el-button @click="searchData">{{ Translate('IDCS_SEARCH') }}</el-button>
         </div>
@@ -86,7 +91,7 @@
 
     &-chls {
         margin: 0 20px 0 10px;
-        width: 500px;
+        width: 100%;
     }
 }
 

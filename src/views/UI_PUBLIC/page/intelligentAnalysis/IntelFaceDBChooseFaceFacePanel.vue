@@ -13,7 +13,12 @@
                     :label="Translate('IDCS_ALL')"
                     @change="changeAllFaceGroup"
                 />
-                <el-text class="group-list text-ellipsis">{{ formData.faceGroup.map((item) => item.name).join(';') }}</el-text>
+                <div
+                    v-title
+                    class="group-list text-ellipsis"
+                >
+                    {{ formData.faceGroup.map((item) => item.name).join(';') }}
+                </div>
             </div>
             <el-button @click="changeGroup">{{ Translate('IDCS_CONFIGURATION') }}</el-button>
         </div>

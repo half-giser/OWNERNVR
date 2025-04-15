@@ -141,7 +141,7 @@ export default defineComponent({
                         featureStatus: false,
                     }
                 })
-                .toSorted((a, b) => a.timestamp - b.timestamp)
+                .toSorted((a, b) => b.timestamp - a.timestamp)
 
             closeLoading()
 
