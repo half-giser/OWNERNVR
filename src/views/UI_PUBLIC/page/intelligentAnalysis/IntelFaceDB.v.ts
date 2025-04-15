@@ -484,7 +484,7 @@ export default defineComponent({
                 certificateNum: $item('certificateNum').text(),
                 mobile: $item('mobile').text(),
                 faceImgCount: $item('faceImgCount').text().num(),
-                note: $item('remark').text(),
+                note: $item('note').text(),
                 pic: [],
                 groupId: '',
             }
