@@ -338,6 +338,11 @@ export default defineComponent({
          * @param {boolean} force 是否无视相似度警告，强制上传
          */
         const setSingleSnapData = async (item: IntelFaceDBFaceForm, index: number, force = false) => {
+            if (!item.name) {
+                openMessageBox(Translate('IDCS_PROMPT_FULL_NAME_EMPTY'))
+                return
+            }
+
             openLoading()
 
             const snapItem = snapData[0]
