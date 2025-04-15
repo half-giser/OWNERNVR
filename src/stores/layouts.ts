@@ -14,6 +14,7 @@ export const useLayoutStore = defineStore('layout', () => {
     const isAuth = ref(false)
     // RollMsg消息
     const notifications = ref<string[]>([])
+    const isPwdChecked = ref(false)
 
     const liveLastSegNum = ref(1)
     const liveLastChlList = ref<string[]>([])
@@ -48,6 +49,7 @@ export const useLayoutStore = defineStore('layout', () => {
         loadingCount,
         isInitial,
         isAuth,
+        isPwdChecked,
         liveLastSegNum,
         liveLastChlList,
         notifications,

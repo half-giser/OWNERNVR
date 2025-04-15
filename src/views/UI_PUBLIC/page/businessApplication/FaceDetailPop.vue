@@ -116,6 +116,10 @@
     img {
         width: 196px;
         height: 130px;
+
+        &[src=''] {
+            opacity: 0;
+        }
     }
 
     div:first-child {

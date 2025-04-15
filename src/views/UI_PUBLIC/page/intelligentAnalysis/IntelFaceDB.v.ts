@@ -29,7 +29,7 @@ export default defineComponent({
         }
 
         // 缓存人脸Base64图片数据 节约请求
-        const cacheFaceMap: Record<string, IntelFaceDBFaceInfo | undefined> = {}
+        const cacheFaceMap = new Map<string, IntelFaceDBFaceInfo>()
 
         const pageData = ref({
             // 是否显示编辑分组弹窗
@@ -90,9 +90,7 @@ export default defineComponent({
          */
         const clearCache = (ids: string[]) => {
             ids.forEach((id) => {
-                if (cacheFaceMap[id]) {
-                    cacheFaceMap[id] = undefined
-                }
+                cacheFaceMap.delete(id)
             })
         }
 
@@ -430,17 +428,17 @@ export default defineComponent({
 
             groupTableData.value.forEach(async (item, i) => {
                 const id = item.id
-                if (force || !cacheFaceMap[id]) {
+                if (force || !cacheFaceMap.has(id)) {
                     const info = await getFaceInfo(id)
-                    cacheFaceMap[id] = info
                     for (let j = 1; j <= info.faceImgCount; j++) {
                         const pic = await getFaceImg(id, j)
-                        cacheFaceMap[id].pic.push(pic)
+                        info.pic.push(pic)
                     }
+                    cacheFaceMap.set(id, info)
                 }
 
                 if (item === groupTableData.value[i]) {
-                    const pic = cacheFaceMap[id]
+                    const pic = cacheFaceMap.get(id)!
                     item.number = pic.number
                     item.name = pic.name
                     item.sex = pic.sex
@@ -487,7 +485,7 @@ export default defineComponent({
                 mobile: $item('mobile').text(),
                 faceImgCount: $item('faceImgCount').text().num(),
                 note: $item('note').text(),
-                pic: [],
+                pic: [] as string[],
                 groupId: '',
             }
         }
@@ -796,10 +794,11 @@ export default defineComponent({
             if (history.state.backChlId) {
                 delete history.state.backChlId
             }
+            cacheFaceMap.clear()
         })
 
         onBeforeUnmount(() => {
-            clearCache(Object.keys(cacheFaceMap))
+            cacheFaceMap.clear()
         })
 
         return {

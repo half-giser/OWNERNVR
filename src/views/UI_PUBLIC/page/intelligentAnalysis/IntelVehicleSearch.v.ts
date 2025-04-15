@@ -45,7 +45,7 @@ export default defineComponent({
         // 图像失败重新请求最大次数
         const REPEAR_REQUEST_IMG_TIMES = 2
         // 图像缓存，避免重复请求相同的图片
-        const cachePic: Record<string, IntelSnapVehicleImgDto> = {}
+        const cachePic = new Map<string, IntelSnapVehicleImgDto>()
 
         let chlMap: Record<string, string> = {}
 
@@ -399,7 +399,7 @@ export default defineComponent({
                 if (flag) {
                     const flag2 = await getPic(item, true, i)
                     if (flag2) {
-                        const pic = cachePic[key]
+                        const pic = cachePic.get(key)!
                         item.pic = pic.pic
                         item.panorama = pic.panorama
                         item.width = pic.width
@@ -451,7 +451,8 @@ export default defineComponent({
         const getPic = async (row: IntelSearchVehicleList, isPanorama: boolean, index: number, times = 0) => {
             try {
                 const key = getUniqueKey(row)
-                if (!row.isDelSnap && (!cachePic[key] || !cachePic[key].pic || !cachePic[key].panorama)) {
+                const pic = cachePic.get(key)
+                if (!row.isDelSnap && (!pic || !pic.pic || !pic.panorama)) {
                     const sendXml = rawXml`
                         <condition>
                             <imgId>${row.imgId}</imgId>
@@ -481,8 +482,8 @@ export default defineComponent({
                         const rightBottomX = $('rect/rightBottomX').text().num()
                         const rightBottomY = $('rect/rightBottomY').text().num()
                         const item = {
-                            pic: cachePic[key] ? cachePic[key].pic : '',
-                            panorama: cachePic[key] ? cachePic[key].panorama : '',
+                            pic: pic ? pic.pic : '',
+                            panorama: pic ? pic.panorama : '',
                             eventType: $('eventType').text(),
                             targetType: $('targetType').text(),
                             plateNumber: $('plateNumber').text() || '--',
@@ -510,18 +511,20 @@ export default defineComponent({
                             item.pic = wrapBase64Img(content)
                         }
 
-                        cachePic[key] = item
+                        cachePic.set(key, item)
                     } else {
-                        cachePic[key] = cachePic[key] || new IntelSnapImgDto()
+                        const item = pic || new IntelSnapVehicleImgDto()
                         const errorCode = $('errorCode').text().num()
                         switch (errorCode) {
                             case ErrorCode.HTTPS_CERT_EXIST:
-                                cachePic[key].isDelSnap = true
-                                cachePic[key].isNoData = false
+                                item.isDelSnap = true
+                                item.isNoData = false
+                                cachePic.set(key, item)
                                 break
                             case ErrorCode.USER_ERROR_NO_RECORDDATA:
-                                cachePic[key].isDelSnap = false
-                                cachePic[key].isNoData = true
+                                item.isDelSnap = false
+                                item.isNoData = true
+                                cachePic.set(key, item)
                                 break
                             default:
                                 // 重复获取数据
@@ -612,6 +615,7 @@ export default defineComponent({
             formData.value.eventType = [...formData.value.event]
             pageData.value.isSupportCSV = formData.value.searchType === 'event' && formData.value.event.every((item) => ['plateDetection', 'plateMatchWhiteList', 'plateMatchStranger'].includes(item))
             tableData.value = []
+            cachePic.clear()
 
             const result = await searchSmartTarget(sendXml)
             const $ = queryXml(result)

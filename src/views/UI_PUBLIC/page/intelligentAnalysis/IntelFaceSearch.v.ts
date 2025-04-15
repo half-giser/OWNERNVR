@@ -34,9 +34,9 @@ export default defineComponent({
         // 图像失败重新请求最大次数
         const REPEAT_REQUEST_IMG_TIMES = 2
         // 图像缓存，避免重复请求相同的图片 key为imgId+timestamp
-        const cachePic: Record<string, IntelFaceImgDto> = {}
+        const cachePic = new Map<string, IntelFaceImgDto>()
         // 个人信息缓存，避免重复请求相同的个人信息 key 为 faceFeatureId
-        const cacheInfo: Record<string, IntelFaceDBFaceInfo> = {}
+        const cacheInfo = new Map<string, IntelFaceDBFaceInfo>()
         // 缓存导入图像
         let cacheImportFace: string[] = []
         // 缓存抓拍图像
@@ -399,6 +399,7 @@ export default defineComponent({
          */
         const changeSnap = (e: IntelFaceDBSnapFaceList[]) => {
             resetFaceData()
+            pageData.value.searchType = 'face'
             formData.value.face = 'snap'
             formData.value.snapFace = e
             setTimeout(() => {
@@ -414,7 +415,7 @@ export default defineComponent({
             resetFaceData()
             if (shouldAddToCache) {
                 e.forEach((item) => {
-                    cacheInfo[item.id] = { ...item }
+                    cacheInfo.set(item.id, { ...item })
                 })
             }
             formData.value.face = 'face'
@@ -641,19 +642,20 @@ export default defineComponent({
                     return
                 }
 
-                if (cachePic[key]) {
-                    item.pic = cachePic[key].pic
-                    item.panorama = cachePic[key].panorama
-                    item.width = cachePic[key].width
-                    item.height = cachePic[key].height
-                    item.X1 = cachePic[key].X1
-                    item.Y1 = cachePic[key].Y1
-                    item.X2 = cachePic[key].X2
-                    item.Y2 = cachePic[key].Y2
-                    item.isDelSnap = cachePic[key].isDelSnap
-                    item.isNoData = cachePic[key].isNoData
-                    item.identity = cachePic[key].identity
-                    item.attribute = cachePic[key].attribute
+                if (cachePic.has(key)) {
+                    const pic = cachePic.get(key)!
+                    item.pic = pic.pic
+                    item.panorama = pic.panorama
+                    item.width = pic.width
+                    item.height = pic.height
+                    item.X1 = pic.X1
+                    item.Y1 = pic.Y1
+                    item.X2 = pic.X2
+                    item.Y2 = pic.Y2
+                    item.isDelSnap = pic.isDelSnap
+                    item.isNoData = pic.isNoData
+                    item.identity = pic.identity
+                    item.attribute = pic.attribute
                 }
 
                 if (formData.value.eventType === 'byWhiteList' || formData.value.faceType === 'face' || formData.value.faceType === 'group') {
@@ -667,8 +669,9 @@ export default defineComponent({
                         return
                     }
 
-                    item.match = cacheInfo[item.faceFeatureId]?.pic[0] || ''
-                    item.info = cacheInfo[item.faceFeatureId]
+                    const info = cacheInfo.get(item.faceFeatureId + '')
+                    item.match = info?.pic[0] || ''
+                    item.info = info!
                 }
             })
         }
@@ -703,7 +706,8 @@ export default defineComponent({
         const getPic = async (row: IntelSearchFaceList, isPanorama: boolean, index: number, times = 0) => {
             const key = getUniqueKey(row)
             try {
-                if (!row.isDelSnap && (!cachePic[key] || !cachePic[key].pic || !cachePic[key].panorama)) {
+                const pic = cachePic.get(key)
+                if (!row.isDelSnap && (!pic || !pic.pic || !pic.panorama)) {
                     const sendXml = rawXml`
                         <condition>
                             <imgId>${row.imgId}</imgId>
@@ -728,8 +732,8 @@ export default defineComponent({
                         const rightBottomX = $('rect/rightBottomX').text().num()
                         const rightBottomY = $('rect/rightBottomY').text().num()
                         const item = {
-                            pic: cachePic[key] ? cachePic[key].pic : '',
-                            panorama: cachePic[key] ? cachePic[key].panorama : '',
+                            pic: pic ? pic.pic : '',
+                            panorama: pic ? pic.panorama : '',
                             match: '',
                             width,
                             height,
@@ -748,18 +752,20 @@ export default defineComponent({
                             item.pic = wrapBase64Img(content)
                             item.identity = $('featureStatus').text().bool()
                         }
-                        cachePic[key] = item
+                        cachePic.set(key, item)
                     } else {
-                        cachePic[key] = cachePic[key] || new IntelFaceImgDto()
+                        const item = pic || new IntelFaceImgDto()
                         const errorCode = $('errorCode').text().num()
                         switch (errorCode) {
                             case ErrorCode.HTTPS_CERT_EXIST:
-                                cachePic[key].isDelSnap = true
-                                cachePic[key].isNoData = false
+                                item.isDelSnap = true
+                                item.isNoData = false
+                                cachePic.set(key, item)
                                 break
                             case ErrorCode.USER_ERROR_NO_RECORDDATA:
-                                cachePic[key].isDelSnap = false
-                                cachePic[key].isNoData = true
+                                item.isDelSnap = false
+                                item.isNoData = true
+                                cachePic.set(key, item)
                                 break
                             default:
                                 // 重复获取数据
@@ -779,7 +785,7 @@ export default defineComponent({
                 if (times < REPEAT_REQUEST_IMG_TIMES) {
                     return getPic(row, isPanorama, index, times + 1)
                 } else {
-                    cachePic[key] = cachePic[key] || new IntelFaceImgDto()
+                    cachePic.set(key, cachePic.get(key) || new IntelFaceImgDto())
                     if (key === getUniqueKey(sliceTableData.value[index])) {
                         return true
                     } else {
@@ -797,7 +803,8 @@ export default defineComponent({
         const getFaceInfo = async (row: IntelSearchFaceList, index: number) => {
             const key = row.faceFeatureId
             try {
-                if (!cacheInfo[key]) {
+                const info = cacheInfo.get(key + '')
+                if (!info) {
                     const sendXml = rawXml`
                         <pageIndex>1</pageIndex>
                         <pageSize>1</pageSize>
@@ -809,7 +816,7 @@ export default defineComponent({
                     const $ = queryXml(result)
                     const item = $('content/item')[0]
                     const $item = queryXml(item.element)
-                    cacheInfo[key] = {
+                    const infoItem = {
                         id: item.attr('id'),
                         number: $item('number').text(),
                         name: $item('name').text(),
@@ -821,12 +828,13 @@ export default defineComponent({
                         mobile: $item('mobile').text(),
                         faceImgCount: $item('faceImgCount').text().num(),
                         note: $item('note').text(),
-                        pic: [],
+                        pic: [] as string[],
                         groupId: $item('groups/item/groupId').text(),
                     }
 
                     const pic = await getFacePic(row)
-                    cacheInfo[key].pic.push(pic)
+                    infoItem.pic.push(pic)
+                    cacheInfo.set(key + '', infoItem)
                 }
 
                 if (getUniqueKey(row) === getUniqueKey(sliceTableData.value[index])) {
@@ -835,7 +843,7 @@ export default defineComponent({
                     return false
                 }
             } catch (e) {
-                cacheInfo[key] = cacheInfo[key] || { ...cloneFaceInfo }
+                cacheInfo.set(key + '', cacheInfo.get(key + '') || { ...cloneFaceInfo })
                 if (getUniqueKey(row) === getUniqueKey(sliceTableData.value[index])) {
                     return true
                 } else {
@@ -994,6 +1002,8 @@ export default defineComponent({
             formData.value.eventType = pageData.value.searchType === 'face' ? '' : formData.value.event
             formData.value.faceType = pageData.value.searchType === 'face' ? formData.value.face : ''
             tableData.value = []
+            cachePic.clear()
+            cacheInfo.clear()
 
             const listTypeItem = pageData.value.listTypeOptions.find((item) => item.value === pageData.value.listType)!
             if (!isListOptionVisible(listTypeItem.hide)) {

@@ -24,8 +24,11 @@
             </el-menu>
         </el-header>
         <el-main id="layout2Main">
-            <RouterView v-slot="{ Component }">
-                <KeepAlive :max="keepAliveMax">
+            <RouterView
+                :key="menuKey"
+                v-slot="{ Component }"
+            >
+                <KeepAlive :max="6">
                     <component :is="Component" />
                 </KeepAlive>
             </RouterView>

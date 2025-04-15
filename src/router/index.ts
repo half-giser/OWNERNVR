@@ -180,13 +180,15 @@ router.afterEach(() => {
     progress.done()
 })
 
-router.beforeResolve(async (to: RouteLocationNormalized, _from, next) => {
+router.beforeResolve(async (to: RouteLocationNormalized, from: RouteLocationNormalized, next) => {
     const layoutStore = useLayoutStore()
     const dateTime = useDateTimeStore()
 
     progress.start()
     if (!to.meta?.noToken) {
-        await dateTime.getTimeConfig(true)
+        try {
+            await dateTime.getTimeConfig(true)
+        } catch {}
     }
     closeAllLoading()
 

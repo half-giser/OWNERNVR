@@ -32,7 +32,7 @@
         </el-aside>
         <el-main id="layout3Content">
             <RouterView v-slot="{ Component }">
-                <KeepAlive :max="Math.min(6, menu3Items.length)">
+                <KeepAlive :max="6">
                     <component :is="Component" />
                 </KeepAlive>
             </RouterView>

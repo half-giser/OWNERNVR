@@ -38,7 +38,7 @@ export default defineComponent({
         const dateTime = useDateTimeStore()
 
         // 缓存人脸Base64图片数据 节约请求
-        const cacheFaceMap: Record<string, IntelFaceDBFaceInfo> = {}
+        const cacheFaceMap = new Map<string, IntelFaceDBFaceInfo>()
 
         const pageData = ref({
             // 人脸数据库选项
@@ -135,19 +135,19 @@ export default defineComponent({
             filterListData.value.forEach(async (item) => {
                 const id = item.id
 
-                if (!cacheFaceMap[id]) {
+                if (!cacheFaceMap.has(id)) {
                     const info = await getFaceInfo(id)
                     if (info) {
-                        cacheFaceMap[id] = info
                         for (let j = 1; j <= info.faceImgCount; j++) {
                             const pic = await getFaceImg(id, j)
-                            cacheFaceMap[id].pic.push(pic)
+                            info.pic.push(pic)
                         }
+                        cacheFaceMap.set(id, info)
                     }
                 }
 
-                if (cacheFaceMap[id] && index === formData.value.pageIndex) {
-                    const pic = cacheFaceMap[id]
+                if (cacheFaceMap.has(id) && index === formData.value.pageIndex) {
+                    const pic = cacheFaceMap.get(id)!
                     item.id = pic.id
                     item.number = pic.number
                     item.name = pic.name
@@ -240,7 +240,7 @@ export default defineComponent({
                     mobile: $item('mobile').text(),
                     faceImgCount: $item('faceImgCount').text().num(),
                     note: $item('note').text(),
-                    pic: [],
+                    pic: [] as string[],
                     groupId: $item('groups/item/groupId').text(),
                 }
             } catch {
@@ -319,7 +319,7 @@ export default defineComponent({
                 'change',
                 formData.value.faceIndex.map((index) => {
                     const item = listData.value[index]
-                    return cacheFaceMap[item.id] || item
+                    return cacheFaceMap.get(item.id) || item
                 }),
             )
         }
@@ -338,6 +338,14 @@ export default defineComponent({
             ctx.emit('changeGroup', formData.value.faceGroup)
             searchFace()
         }
+
+        onBeforeUnmount(() => {
+            cacheFaceMap.clear()
+        })
+
+        onBeforeRouteLeave(() => {
+            cacheFaceMap.clear()
+        })
 
         watch(
             () => prop.visible,
