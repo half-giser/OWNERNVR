@@ -108,7 +108,7 @@
                         />
                     </template>
                 </div>
-                <div>{{ pageData.errorTip }}</div>
+                <div>{{ formData[pageData.formIndex].errorTip }}</div>
             </div>
             <BaseImgSpriteBtn
                 file="next_page"

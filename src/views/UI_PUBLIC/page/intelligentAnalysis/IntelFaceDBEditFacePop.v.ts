@@ -169,6 +169,7 @@ export default defineComponent({
                             groupId: formData.value.groupId,
                             success: false,
                             error: false,
+                            errorTip: '',
                         },
                         item.id,
                     )
@@ -227,13 +228,13 @@ export default defineComponent({
                     <delFaceImgs type="list">
                         <item>1</item>
                     </delFaceImgs>
-                    <item>
+                    <faceImgs type="list" maxCount="5">
                         <item>
                             <frameTime>${snapData[0].frameTime}</frameTime>
                             <img id="${snapData[0].imgId}" />
                             <chl id="${snapData[0].chlId}" />
                         </item>
-                    </item>
+                    </faceImgs>
                 `
                 : ''
 
