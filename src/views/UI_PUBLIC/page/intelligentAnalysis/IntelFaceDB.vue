@@ -98,7 +98,12 @@
                                             :model-value="formData.faceIndex.includes(index)"
                                             @update:model-value="selectFace(index, $event)"
                                         >
-                                            {{ hideSensitiveInfo(item.name, 'medium', 'name') }}
+                                            <div
+                                                v-title
+                                                class="text-ellipsis"
+                                            >
+                                                {{ hideSensitiveInfo(item.name, 'medium', 'name') }}
+                                            </div>
                                         </IntelBaseFaceItem>
                                     </div>
                                     <div class="base-pagination-box">

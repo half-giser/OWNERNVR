@@ -44,7 +44,18 @@
                         :icon="item.featureStatus && !multiple ? 'identity' : ''"
                         @update:model-value="selectFace(index + (formData.pageIndex - 1) * formData.pageSize)"
                     >
-                        {{ displayDateTime(item.timestamp) }}<br />{{ item.chlName }}
+                        <div
+                            v-title
+                            class="text-ellipsis"
+                        >
+                            {{ displayDateTime(item.timestamp) }}
+                        </div>
+                        <div
+                            v-title
+                            class="text-ellipsis"
+                        >
+                            {{ item.chlName }}
+                        </div>
                     </IntelBaseFaceItem>
                 </div>
             </el-scrollbar>

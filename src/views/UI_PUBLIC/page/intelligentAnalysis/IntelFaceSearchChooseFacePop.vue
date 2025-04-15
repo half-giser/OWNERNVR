@@ -66,7 +66,12 @@
                                     type="status"
                                     :src="item.pic"
                                 >
-                                    {{ displayDateTime(item.timestamp) }}
+                                    <div
+                                        v-title
+                                        class="text-ellipsis"
+                                    >
+                                        {{ displayDateTime(item.timestamp) }}
+                                    </div>
                                 </IntelBaseFaceItem>
                                 <IntelBaseFaceItem
                                     v-for="item in face"
@@ -74,7 +79,12 @@
                                     type="status"
                                     :src="item.pic[0] || ''"
                                 >
-                                    {{ item.name }}
+                                    <div
+                                        v-title
+                                        class="text-ellipsis"
+                                    >
+                                        {{ item.name }}
+                                    </div>
                                 </IntelBaseFaceItem>
                                 <IntelBaseFaceItem
                                     v-for="(item, key) in external"

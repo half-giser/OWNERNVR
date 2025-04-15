@@ -271,11 +271,26 @@
                             <div class="match-info">
                                 <div>
                                     <div>{{ displayCardTime(item.timestamp) }}</div>
-                                    <div>{{ item.chlName }}</div>
+                                    <div
+                                        v-title
+                                        class="text-ellipsis"
+                                    >
+                                        {{ item.chlName }}
+                                    </div>
                                 </div>
                                 <div v-if="formData.faceType === 'face' || formData.faceType === 'group' || formData.eventType === 'byWhiteList'">
-                                    <div>{{ item.info.name }}</div>
-                                    <div>{{ displayFaceGroup(item.info.groupId) }}</div>
+                                    <div
+                                        v-title
+                                        class="text-ellipsis"
+                                    >
+                                        {{ item.info.name }}
+                                    </div>
+                                    <div
+                                        v-title
+                                        class="text-ellipsis"
+                                    >
+                                        {{ displayFaceGroup(item.info.groupId) }}
+                                    </div>
                                 </div>
                                 <div v-else>
                                     <div>{{ Translate('IDCS_SAMPLE') }}</div>
@@ -284,8 +299,13 @@
                             <div>({{ item.similarity }}%)</div>
                         </template>
                         <template v-else>
-                            <div>{{ displayCardTime(item.timestamp) }}</div>
-                            <div>{{ item.chlName }}</div>
+                            <div v-title>{{ displayCardTime(item.timestamp) }}</div>
+                            <div
+                                v-title
+                                class="text-ellipsis"
+                            >
+                                {{ item.chlName }}
+                            </div>
                             <div v-show="!isSortVisible">({{ item.similarity }}%)</div>
                         </template>
                     </IntelBaseSnapItem>
@@ -536,6 +556,10 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
+
+        div {
+            width: 100%;
+        }
     }
 }
 

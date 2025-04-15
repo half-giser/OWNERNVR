@@ -186,9 +186,19 @@
                         @click="play(item)"
                         @detail="showDetail(index)"
                     >
-                        {{ displayDateTime(item.timestamp) }}<br />
-                        {{ item.chlName }}{{ formData.searchType === 'park' ? `-${displayDirection(item.direction)}` : '' }}<br />
-                        {{ item.plateNumber || '--' }}
+                        <div v-title>{{ displayDateTime(item.timestamp) }}</div>
+                        <div
+                            v-title
+                            class="text-ellipsis"
+                        >
+                            {{ item.chlName }}{{ formData.searchType === 'park' ? `-${displayDirection(item.direction)}` : '' }}
+                        </div>
+                        <div
+                            v-title
+                            class="text-ellipsis"
+                        >
+                            {{ item.plateNumber || '--' }}
+                        </div>
                     </IntelBaseSnapItem>
                 </div>
             </el-scrollbar>

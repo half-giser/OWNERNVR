@@ -47,7 +47,12 @@
                         :disabled="!item.pic[0]"
                         @update:model-value="selectFace(index + (formData.pageIndex - 1) * formData.pageSize)"
                     >
-                        {{ item.name }}
+                        <div
+                            v-title
+                            class="text-ellipsis"
+                        >
+                            {{ item.name }}
+                        </div>
                     </IntelBaseFaceItem>
                 </div>
             </el-scrollbar>
