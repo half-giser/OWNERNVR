@@ -152,6 +152,7 @@
                 v-title
                 :data="sliceTableData"
                 highlight-current-row
+                show-overflow-tooltip
             >
                 <el-table-column label="No.">
                     <template #default="{ $index }: TableColumn<BusinessFaceAttendanceList>">
@@ -161,10 +162,12 @@
                 <el-table-column
                     :label="Translate('IDCS_NAME')"
                     prop="name"
+                    width="250"
                 />
                 <el-table-column
                     :label="Translate('IDCS_FACE_LIBRARY')"
                     prop="groupName"
+                    width="250"
                 />
                 <el-table-column :label="Translate('IDCS_NORMAL')">
                     <template #default="{ row }: TableColumn<BusinessFaceAttendanceList>">

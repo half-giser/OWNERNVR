@@ -145,6 +145,7 @@
                 v-title
                 :data="sliceTableData"
                 highlight-current-row
+                show-overflow-tooltip
             >
                 <el-table-column :label="Translate('No.')">
                     <template #default="{ $index }: TableColumn<BusinessFaceCheckList>">
@@ -154,10 +155,12 @@
                 <el-table-column
                     :label="Translate('IDCS_NAME')"
                     prop="name"
+                    width="250"
                 />
                 <el-table-column
                     :label="Translate('IDCS_FACE_LIBRARY')"
                     prop="groupName"
+                    width="250"
                 />
                 <el-table-column :label="Translate('IDCS_ATTENDANCE_CHECKED')">
                     <template #default="{ row }: TableColumn<BusinessFaceCheckList>">
