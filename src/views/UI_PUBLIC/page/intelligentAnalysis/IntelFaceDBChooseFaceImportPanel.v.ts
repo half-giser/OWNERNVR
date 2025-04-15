@@ -177,7 +177,7 @@ export default defineComponent({
                 }
 
                 return {
-                    name: split[dataIndexMap.name] || Translate('IDCS_SAMPLE'),
+                    name: split[dataIndexMap.name] || (prop.type === 'import' ? '' : Translate('IDCS_SAMPLE')),
                     sex: split[dataIndexMap.sex] ? SEX_MAPPING[Number(split[dataIndexMap.sex || 10000])] : 'male',
                     // 目前仅支持YYYY/MM/DD
                     birthday: birthday,
