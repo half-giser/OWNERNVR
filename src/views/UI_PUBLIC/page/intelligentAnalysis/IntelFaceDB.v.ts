@@ -170,9 +170,7 @@ export default defineComponent({
             pageData.value.isEditPop = false
 
             await getGroupList()
-            tableData.value.forEach((item) => {
-                getGroupFaceFeatureCount(item)
-            })
+            tableData.value.forEach((item) => getGroupFaceFeatureCount(item))
         }
 
         /**
@@ -183,6 +181,7 @@ export default defineComponent({
             if (!checkPermission()) {
                 return
             }
+
             openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_NOTE_DELETE_ALL_FACE'),
@@ -231,9 +230,7 @@ export default defineComponent({
                     }
 
                     await getGroupList()
-                    tableData.value.forEach((item) => {
-                        getGroupFaceFeatureCount(item)
-                    })
+                    tableData.value.forEach((item) => getGroupFaceFeatureCount(item))
                 })
             } else {
                 const errorCode = $('errorCode').text().num()
@@ -307,7 +304,12 @@ export default defineComponent({
         const confirmAddFace = (isRefresh: boolean) => {
             pageData.value.isAddFacePop = false
             if (isRefresh) {
-                searchFace(pageData.value.addFaceGroupId)
+                tableData.value.forEach(async (item) => {
+                    getGroupFaceFeatureCount(item)
+                    if (item.groupId === pageData.value.expandRowKey[0]) {
+                        searchFace(item.groupId)
+                    }
+                })
             }
         }
 
@@ -595,6 +597,7 @@ export default defineComponent({
                     formData.value.faceIndex = []
                     formData.value.infoFaceIndex = -1
 
+                    getGroupFaceFeatureCount(group)
                     getFace(1, group.groupId)
                 } else {
                     const errorCode = $('errorCode').text().num()
@@ -625,9 +628,13 @@ export default defineComponent({
             openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_NOTE_CLEAR_ALL_FACE'),
-            }).then(() => {
+            }).then(async () => {
                 const group = tableData.value.find((item) => item.groupId === pageData.value.expandRowKey[0])!
-                confirmDeleteAllFace(group)
+                const successFlag = await confirmDeleteAllFace(group)
+                if (successFlag) {
+                    getGroupFaceFeatureCount(group)
+                    getFace(1, group.groupId)
+                }
             })
         }
 
@@ -661,9 +668,7 @@ export default defineComponent({
                 formData.value.pageIndex = 1
                 formData.value.faceIndex = []
                 formData.value.infoFaceIndex = -1
-
                 clearCache(allGroupTableData.value.map((item) => item.id))
-                getFace(1, group.groupId)
 
                 return true
             } else {
@@ -705,9 +710,9 @@ export default defineComponent({
             pageData.value.isEditFacePop = false
             clearCache(ids)
             tableData.value.forEach(async (item) => {
-                await getGroupFaceFeatureCount(item)
+                getGroupFaceFeatureCount(item)
                 if (item.groupId === pageData.value.expandRowKey[0]) {
-                    await searchFace(item.groupId)
+                    searchFace(item.groupId)
                 }
             })
         }
@@ -767,6 +772,7 @@ export default defineComponent({
                 pageData.value.expandRowKey = [row.groupId]
 
                 formData.value.name = ''
+                getGroupFaceFeatureCount(row)
                 searchFace(row.groupId)
             }
         }
@@ -809,9 +815,7 @@ export default defineComponent({
             exportGroup,
             confirmExportGroup,
             searchFace,
-            // displayAlarmText,
             displayIDCard,
-            // getAlarmClassName,
             handleRowClick,
             handleExpandChange,
             getRowKey,
