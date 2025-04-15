@@ -89,7 +89,7 @@ export default defineComponent({
 
         // 当前分页的图片列表
         const picList = computed(() => {
-            return formData.value.slice(pageData.value.swiperIndex * 6, (pageData.value.swiperIndex + 1) * 6)
+            return formData.value.slice(pageData.value.swiperIndex * 7, (pageData.value.swiperIndex + 1) * 7)
         })
 
         // 成功上传总数
