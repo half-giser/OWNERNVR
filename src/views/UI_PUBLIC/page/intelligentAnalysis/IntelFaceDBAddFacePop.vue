@@ -20,24 +20,30 @@
                     <el-input
                         v-model="formData[pageData.formIndex].name"
                         maxlength="31"
+                        :disabled="formData[pageData.formIndex].success"
                         @blur="handleNameBlur(pageData.formIndex)"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_SEX')">
                     <el-select-v2
                         v-model="formData[pageData.formIndex].sex"
+                        :disabled="formData[pageData.formIndex].success"
                         :options="pageData.genderOptions"
                     />
                 </el-form-item>
             </el-form-item>
             <el-form-item>
                 <el-form-item :label="Translate('IDCS_BIRTHDAY')">
-                    <BaseDatePicker v-model="formData[pageData.formIndex].birthday" />
+                    <BaseDatePicker
+                        v-model="formData[pageData.formIndex].birthday"
+                        :disabled="formData[pageData.formIndex].success"
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_ID_TYPE')">
                     <el-select-v2
                         v-model="formData[pageData.formIndex].certificateType"
                         :options="pageData.idTypeOptions"
+                        :disabled="formData[pageData.formIndex].success"
                     />
                 </el-form-item>
             </el-form-item>
@@ -45,6 +51,7 @@
                 <el-form-item :label="Translate('IDCS_ID_NUMBER')">
                     <el-input
                         v-model="formData[pageData.formIndex].certificateNum"
+                        :disabled="formData[pageData.formIndex].success"
                         maxlength="31"
                     />
                 </el-form-item>
@@ -53,6 +60,7 @@
                         v-model="formData[pageData.formIndex].mobile"
                         :parser="formatDigit"
                         :formatter="formatDigit"
+                        :disabled="formData[pageData.formIndex].success"
                         maxlength="15"
                     />
                 </el-form-item>
@@ -63,12 +71,14 @@
                         v-model="formData[pageData.formIndex].number"
                         :parser="formatDigit"
                         :formatter="formatDigit"
+                        :disabled="formData[pageData.formIndex].success"
                         maxlength="15"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_REMARK')">
                     <el-input
                         v-model="formData[pageData.formIndex].note"
+                        :disabled="formData[pageData.formIndex].success"
                         maxlength="15"
                     />
                 </el-form-item>
@@ -81,6 +91,7 @@
                         label: 'name',
                     }"
                     :options="pageData.groupList"
+                    :disabled="formData[pageData.formIndex].success"
                 />
             </el-form-item>
         </el-form>
@@ -130,7 +141,7 @@
             <div>
                 <el-button @click="chooseFace">{{ Translate('IDCS_SELECT_FACE') }}</el-button>
                 <el-button
-                    :disabled="!formData[0].pic"
+                    :disabled="formData[pageData.formIndex].success || !formData[pageData.formIndex].pic"
                     @click="setCurrentData"
                 >
                     {{ Translate('IDCS_ENTRY_FACE') }}
