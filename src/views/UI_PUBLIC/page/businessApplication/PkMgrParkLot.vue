@@ -209,19 +209,20 @@
 .lot {
     width: 100vw;
     height: 100vh;
+    min-height: var(--main-min-height);
     display: flex;
     flex-direction: column;
 }
 
 .container {
-    width: calc(100vw - 80px);
-    height: calc(100vh - 60px);
-    margin: 15px auto;
+    width: calc(100% - 60px);
+    height: 100%;
+    margin: 30px;
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
     border: 1px solid var(--content-border);
-    min-width: 1400px;
+    min-width: var(--main-min-width);
 }
 
 .top {

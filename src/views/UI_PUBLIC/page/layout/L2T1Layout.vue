@@ -292,7 +292,6 @@
 
 #layout2RightTopBarToolBar {
     display: flex;
-    // width: 50%;
     height: 100%;
     align-items: center;
     justify-content: flex-end;
@@ -304,6 +303,5 @@
 #layout2Content {
     position: relative;
     padding: 10px;
-    min-height: calc(var(--content-height) + 20px);
 }
 </style>

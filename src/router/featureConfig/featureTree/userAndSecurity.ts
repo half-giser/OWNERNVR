@@ -62,6 +62,7 @@ const userAndSecurityRoutes: FeatureItem = {
                 homeDefault: true,
                 inHome: 'self',
                 homeSort: 20,
+                minHeight: 850,
             },
         },
         // 添加权限组
@@ -73,6 +74,7 @@ const userAndSecurityRoutes: FeatureItem = {
                 lk: 'IDCS_ADD_USER_RIGHT',
                 noMenu: true,
                 group: 'account',
+                minHeight: 850,
             },
         },
         // 查看或更改权限组
@@ -88,6 +90,7 @@ const userAndSecurityRoutes: FeatureItem = {
                 group: 'account',
                 inHome: 'self',
                 homeSort: 30,
+                minHeight: 850,
             },
         },
         // 黑白名单

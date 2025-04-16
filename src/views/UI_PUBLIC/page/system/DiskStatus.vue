@@ -10,6 +10,7 @@
             :data="tableData"
             highlight-current-row
             show-overflow-tooltip
+            height="100%"
         >
             <el-table-column
                 label=" "

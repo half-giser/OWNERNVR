@@ -167,11 +167,11 @@
 <style lang="scss" scoped>
 .playback {
     width: 100%;
-    height: var(--live-content-height);
+    height: 100%;
+    min-height: calc(var(--main-min-height) - 150px);
     border: 1px solid var(--live-border);
     display: flex;
     font-size: 14px;
-    min-width: 1500px;
 }
 
 .center {

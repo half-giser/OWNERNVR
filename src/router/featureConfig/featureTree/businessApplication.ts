@@ -90,6 +90,7 @@ const businessApplicationRoutes: FeatureItem = {
             meta: {
                 sort: 30,
                 lk: 'IDCS_FACE_ATTENDANCE',
+                minWidth: 1400,
                 hasCap(systemCaps) {
                     return systemCaps.supportFaceMatch
                 },
@@ -101,6 +102,7 @@ const businessApplicationRoutes: FeatureItem = {
             meta: {
                 sort: 40,
                 lk: 'IDCS_FACE_CHECK',
+                minWidth: 1400,
                 hasCap(systemCaps) {
                     return systemCaps.supportFaceMatch
                 },

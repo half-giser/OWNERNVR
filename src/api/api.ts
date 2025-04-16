@@ -113,6 +113,7 @@ const handelCommonError = (errorCode: number) => {
             }
             break
         case ErrorCode.USER_ERROR_INVALID_PARAM:
+            closeAllLoading()
             openMessageBox(Translate('IDCS_USER_ERROR_INVALID_PARAM'))
             break
         default:

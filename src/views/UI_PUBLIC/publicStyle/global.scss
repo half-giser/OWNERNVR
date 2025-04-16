@@ -31,9 +31,11 @@
     /***********
      * 变量
      ***********/
-
-    --content-height: calc(100vh - 230px); /* 正文内容高度 */
-    --content-min-height: 500px; /* 正文内容最小高度 */
+    --default-main-min-width: 1100px;
+    --default-main-min-height: 730px;
+    --main-min-width: var(--default-main-min-width); /* 页面最小宽度 */
+    --main-min-height: var(--default-main-min-height); /* 页面最小高度 */
+    --content-height: max(calc(var(--main-min-height) - 230px), calc(100vh - 230px)); /* 正文内容高度 */
     --live-content-height: calc(100vh - 170px); /* 现场预览、回放的正文内容高度 */
 
     --form-label-width: 150px; /* 表单label宽度变量 */

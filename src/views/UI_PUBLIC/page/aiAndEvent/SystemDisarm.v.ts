@@ -9,7 +9,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
 
-        const defenseParamMap: Record<string, string> = {
+        const DEFENSE_PARAM_MAPPING: Record<string, string> = {
             sysRec: Translate('IDCS_RECORD'),
             alarmOut: Translate('IDCS_ALARM_OUT'),
             preset: Translate('IDCS_PRESET'),
@@ -198,45 +198,29 @@ export default defineComponent({
                         if (defenseType !== 'nodeAudioSwitch' && defenseType !== 'nodeLightSwitch') {
                             pageData.value.defenseParamList.push({
                                 id: defenseType,
-                                value: defenseParamMap[defenseType],
+                                value: DEFENSE_PARAM_MAPPING[defenseType],
                             })
                         }
                     })
                     pageData.value.totalDefenseParamList = getTotalDefenseParamList(pageData.value.hasSupportManualAudioChl, pageData.value.hasSupportManualWhiteLightChl)
-                    $('content/defenseSwitchParam/item').forEach((item) => {
+                    tableData.value = $('content/defenseSwitchParam/item').map((item) => {
                         const $item = queryXml(item.element)
-                        const row = new AlarmSystemDisarmDto()
                         const chlId = item.attr('id')
                         const nodeType = $item('nodeType').text()
-                        // 撤防联动项
-                        let disarmItemsStr = ''
-                        const disarmItemsList = [] as { id: string; value: string }[]
-                        $item('defenseAttrs/item').forEach((item, idx) => {
-                            const splicer = idx < $item('defenseAttrs/item').length - 1 ? ', ' : ''
-                            disarmItemsStr += defenseParamMap[item.text()] + splicer
-                            disarmItemsList.push({
-                                id: item.text(),
-                                value: defenseParamMap[item.text()],
-                            })
-                        })
-                        // 获取当前通道所支持的撤防联动项列表: ipcDefenseParamList
-                        const supportManualAudio = getCapabilityFieldRes(nodeType, chlId, 'supportManualAudioAlarmOut')
-                        const supportManualWhiteLight = getCapabilityFieldRes(nodeType, chlId, 'supportManualWhiteLightAlarmOut')
-                        const ipcDefenseParamList = getIpcDefenseParamList(supportManualAudio, supportManualWhiteLight)
-                        if (ipcDefenseParamList.length === disarmItemsList.length) {
-                            disarmItemsStr = Translate('IDCS_FULL')
-                        }
+                        const support = getCapabilityFieldRes(nodeType, chlId)
 
-                        if (disarmItemsList.length === 0) {
-                            disarmItemsStr = Translate('IDCS_NULL')
+                        return {
+                            id: chlId,
+                            chlName: nodeType === 'channel' ? (chlsMap[chlId] ? chlsMap[chlId].name : '') : sensorsMap[chlId] ? sensorsMap[chlId].name : '',
+                            disarmItemsList: $item('defenseAttrs/item').map((item) => {
+                                return {
+                                    id: item.text(),
+                                    value: DEFENSE_PARAM_MAPPING[item.text()],
+                                }
+                            }),
+                            nodeType,
+                            disarmItems: getIpcDefenseParamList(support.supportManualAudio, support.supportManualWhiteLight),
                         }
-                        row.id = chlId
-                        row.chlName = nodeType === 'channel' ? (chlsMap[chlId] ? chlsMap[chlId].name : '') : sensorsMap[chlId] ? sensorsMap[chlId].name : ''
-                        row.disarmItemsStr = disarmItemsStr
-                        row.disarmItemsList = disarmItemsList
-                        row.disarmItems = ipcDefenseParamList
-                        row.nodeType = nodeType
-                        tableData.value.push(row)
                     })
                 }
             })
@@ -299,17 +283,20 @@ export default defineComponent({
         }
 
         // 获取该通道或传感器的能力，是否支持手动声光报警输出或者手动白光报警输出，后续用于判断是否显示手动声光报警输出或者手动白光报警输出
-        const getCapabilityFieldRes = (nodeType: string, chlId: string, capField: string) => {
+        const getCapabilityFieldRes = (nodeType: string, chlId: string) => {
             let supportManualAudio = false
             let supportManualWhiteLight = false
             if (nodeType === 'channel') {
-                supportManualAudio = chlsMap[chlId] ? chlsMap[chlId].supportManualAudio : false
-                supportManualWhiteLight = chlsMap[chlId] ? chlsMap[chlId].supportManualWhiteLight : false
+                supportManualAudio = chlsMap[chlId].supportManualAudio || false
+                supportManualWhiteLight = chlsMap[chlId].supportManualWhiteLight || false
             } else {
-                supportManualAudio = sensorsMap[chlId] ? sensorsMap[chlId].supportManualAudio : false
-                supportManualWhiteLight = sensorsMap[chlId] ? sensorsMap[chlId].supportManualWhiteLight : false
+                supportManualAudio = sensorsMap[chlId].supportManualAudio || false
+                supportManualWhiteLight = sensorsMap[chlId].supportManualWhiteLight || false
             }
-            return capField === 'supportManualAudioAlarmOut' ? supportManualAudio : supportManualWhiteLight
+            return {
+                supportManualAudio,
+                supportManualWhiteLight,
+            }
         }
 
         // 获取单个通道或传感器的撤防联动项列表
@@ -318,14 +305,14 @@ export default defineComponent({
             if (supportManualAudio) {
                 ipcDefenseParamList.push({
                     id: 'nodeAudioSwitch',
-                    value: defenseParamMap.nodeAudioSwitch,
+                    value: DEFENSE_PARAM_MAPPING.nodeAudioSwitch,
                 })
             }
 
             if (supportManualWhiteLight) {
                 ipcDefenseParamList.push({
                     id: 'nodeLightSwitch',
-                    value: defenseParamMap.nodeLightSwitch,
+                    value: DEFENSE_PARAM_MAPPING.nodeLightSwitch,
                 })
             }
             return ipcDefenseParamList
@@ -337,14 +324,14 @@ export default defineComponent({
             if (hasSupportManualAudioChl) {
                 totalDefenseParamList.push({
                     id: 'nodeAudioSwitch',
-                    value: defenseParamMap.nodeAudioSwitch,
+                    value: DEFENSE_PARAM_MAPPING.nodeAudioSwitch,
                 })
             }
 
             if (hasSupportManualWhiteLightChl) {
                 totalDefenseParamList.push({
                     id: 'nodeLightSwitch',
-                    value: defenseParamMap.nodeLightSwitch,
+                    value: DEFENSE_PARAM_MAPPING.nodeLightSwitch,
                 })
             }
             return totalDefenseParamList
@@ -410,20 +397,10 @@ export default defineComponent({
                 selection.forEach((item) => {
                     const row = new AlarmSystemDisarmDto()
                     const ipcDefenseParamList = getIpcDefenseParamList(item.supportManualAudio, item.supportManualWhiteLight)
-                    let disarmItemsStr = ''
-                    if (ipcDefenseParamList.length === pageData.value.defenseParamList.length) {
-                        disarmItemsStr = Translate('IDCS_FULL')
-                    } else {
-                        pageData.value.defenseParamList.forEach((ele, idx) => {
-                            const splicer = idx < pageData.value.defenseParamList.length - 1 ? ', ' : ''
-                            disarmItemsStr += defenseParamMap[ele.id] + splicer
-                        })
-                    }
                     row.id = item.id
                     row.chlName = item.nodeType === 'channel' ? (chlsMap[item.id] ? chlsMap[item.id].name : '') : sensorsMap[item.id] ? sensorsMap[item.id].name : ''
                     row.nodeType = item.nodeType
                     row.disarmItemsList = pageData.value.defenseParamList
-                    row.disarmItemsStr = disarmItemsStr
                     row.disarmItems = ipcDefenseParamList
                     tableData.value.push(row)
                 })
@@ -450,18 +427,6 @@ export default defineComponent({
         const cfgItem = () => {
             const rowData = tableData.value[pageData.value.triggerDialogIndex]
             rowData.disarmItemsList = cfgTableRef.value!.getSelectionRows()
-            rowData.disarmItemsStr = ''
-            rowData.disarmItemsList.forEach((item, idx) => {
-                const splicer = idx < rowData.disarmItemsList.length - 1 ? ', ' : ''
-                rowData.disarmItemsStr += defenseParamMap[item.id] + splicer
-            })
-            if (rowData.disarmItemsList.length === rowData.disarmItems.length) {
-                rowData.disarmItemsStr = Translate('IDCS_FULL')
-            }
-
-            if (!rowData.disarmItemsList.length) {
-                rowData.disarmItemsStr = Translate('IDCS_NULL')
-            }
             pageData.value.showCfgDialog = false
         }
 
@@ -474,20 +439,25 @@ export default defineComponent({
                         return ele.id === ele2.id
                     })
                 })
-                item.disarmItemsStr = ''
-                item.disarmItemsList.forEach((ele, idx) => {
-                    const splicer = idx < item.disarmItemsList.length - 1 ? ', ' : ''
-                    item.disarmItemsStr += defenseParamMap[ele.id] + splicer
-                })
-                if (item.disarmItemsList.length === item.disarmItems.length) {
-                    item.disarmItemsStr = Translate('IDCS_FULL')
-                }
-
-                if (!item.disarmItemsList.length) {
-                    item.disarmItemsStr = Translate('IDCS_NULL')
-                }
             })
             pageData.value.popoverVisible = false
+        }
+
+        /**
+         * @description 撤防联动项文本显示
+         * @param {AlarmSystemDisarmDto} item
+         * @returns {string}
+         */
+        const displayDisarmItems = (item: AlarmSystemDisarmDto) => {
+            if (!item.disarmItemsList.length) {
+                return Translate('IDCS_NULL')
+            }
+
+            if (item.disarmItemsList.length === item.disarmItems.length) {
+                return Translate('IDCS_FULL')
+            }
+
+            return item.disarmItemsList.map((item) => DEFENSE_PARAM_MAPPING[item.id]).join(', ')
         }
 
         // 删除单个撤防项
@@ -539,6 +509,7 @@ export default defineComponent({
             deleteItem,
             deleteItemAll,
             filterConfiguredDefParaList,
+            displayDisarmItems,
         }
     },
 })

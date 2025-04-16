@@ -227,7 +227,7 @@ export class AlarmSystemDisarmDto {
     disarmItemsList: { id: string; value: string }[] = []
     // 可选择的撤防联动项列表
     disarmItems: { id: string; value: string }[] = []
-    disarmItemsStr = ''
+    // disarmItemsStr = ''
     nodeType = ''
 }
 
@@ -278,14 +278,6 @@ export class AlarmSensorEventDto extends TableRowStatus {
         switch: false,
         alarmOuts: [] as SelectOption<string, string>[],
     }
-    // 视频弹出
-    // popVideo = {
-    //     switch: '',
-    //     chl: {
-    //         id: '',
-    //         innerText: '',
-    //     },
-    // }
     // 预置点名称
     preset = {
         switch: false,
@@ -345,13 +337,6 @@ export class AlarmCombinedDto extends TableRowStatus {
         switch: false,
         alarmOuts: [] as SelectOption<string, string>[],
     }
-    // popVideo = {
-    //     switch: '',
-    //     chl: {
-    //         value: '',
-    //         label: '',
-    //     },
-    // }
     preset = {
         switch: false,
         presets: [] as AlarmPresetItem[],

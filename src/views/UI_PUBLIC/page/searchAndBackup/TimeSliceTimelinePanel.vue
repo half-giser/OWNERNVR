@@ -192,7 +192,7 @@
 .left {
     box-sizing: border-box;
     width: 438px;
-    height: 100%;
+    height: var(--content-height);
     flex-shrink: 0;
     padding: 20px;
     border-right: 1px solid var(--input-border);
