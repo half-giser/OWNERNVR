@@ -12,7 +12,7 @@
                     @ready="handlePlayerReady"
                 />
             </div>
-            <el-form>
+            <el-form v-title>
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select-v2
                         v-model="pageData.currChlId"
@@ -43,6 +43,7 @@
             <div class="base-table-box">
                 <el-table
                     ref="tableRef"
+                    v-title
                     :data="pageData.chlList"
                     highlight-current-row
                     show-overflow-tooltip

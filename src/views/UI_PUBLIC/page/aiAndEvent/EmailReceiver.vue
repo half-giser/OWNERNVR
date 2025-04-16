@@ -7,6 +7,7 @@
     <div>
         <el-form
             ref="formRef"
+            v-title
             :model="pageData.form"
             :rules="rules"
             :style="{
@@ -35,6 +36,7 @@
         <div class="main">
             <el-table
                 ref="tableRef"
+                v-title
                 :data="tableData"
                 height="343"
                 @row-click="handleRowClick"

@@ -12,6 +12,7 @@
         @close="close"
     >
         <el-table
+            v-title
             height="350"
             :data="chlList"
         >

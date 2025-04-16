@@ -81,7 +81,6 @@ export default defineComponent({
             isRecTime: false, // 预计录像时间是否显示
             recordStreamVisible: false, // 录像码流是否显示
 
-            headerVisble: false, // 分辨率下拉框表头是否显示
             recTime: '', // 预计录像时间
             expands: [] as string[], // 展开的行
             resolutionHeaderVisble: false, // 分辨率下拉框表头是否显示
@@ -164,7 +163,6 @@ export default defineComponent({
          * @description 获取表格数据
          */
         const getData = async () => {
-            editRows.clear()
             editMode.clear()
 
             const sendXml = rawXml`
@@ -359,6 +357,7 @@ export default defineComponent({
          * @description 进行整体设置及一些操作
          */
         const doCfg = () => {
+            editRows.clear()
             tableData.value.forEach((item) => {
                 if (props.mode === 'event') {
                     if (pageData.value.isAuto) {
@@ -436,6 +435,10 @@ export default defineComponent({
                     } else {
                         saveAttr(item, item.mn, false)
                     }
+                }
+
+                if (!item.disabled) {
+                    editRows.listen(item)
                 }
             })
         }

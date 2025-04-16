@@ -24,6 +24,7 @@
                 <BaseDateTab
                     :model-value="formData.dateRange"
                     :layout="['date', 'week', 'month', 'quarter', 'custom', 'today']"
+                    custom-type="day"
                     @change="changeDateRange"
                 />
             </div>
@@ -31,6 +32,7 @@
                 <BaseDateRange
                     :model-value="formData.dateRange"
                     :type="pageData.dateRangeType"
+                    custom-type="day"
                     @change="changeDateRange"
                 />
             </div>

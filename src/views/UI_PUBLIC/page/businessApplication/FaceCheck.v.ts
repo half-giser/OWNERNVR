@@ -56,7 +56,7 @@ export default defineComponent({
         const chlMap: Record<string, string> = {}
 
         const sliceTableData = computed(() => {
-            return tableData.value.slice(formData.value.currentPage - 1, formData.value.currentPage * formData.value.pageSize)
+            return tableData.value.slice((formData.value.currentPage - 1) * formData.value.pageSize, formData.value.currentPage * formData.value.pageSize)
         })
 
         /**
@@ -426,7 +426,7 @@ export default defineComponent({
             downloadExcel(head, body, fileName)
         }
 
-        onMounted(async () => {
+        onActivated(async () => {
             openLoading()
             await getChannelList()
             await getFaceGroupList()
@@ -441,6 +441,7 @@ export default defineComponent({
         return {
             pageData,
             formData,
+            dateTime,
             changeDateRange,
             daysInRange,
             pickerRange,

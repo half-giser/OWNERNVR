@@ -9,9 +9,16 @@
             <div class="top">
                 <div class="park">
                     <!-- 停车场名称 -->
-                    <div class="park-name text-ellipsis">{{ pageData.parkName }}</div>
+                    <div
+                        v-title
+                        class="park-name text-ellipsis"
+                    >
+                        {{ pageData.parkName }}
+                    </div>
                     <!-- 设备时间 -->
-                    <div class="park-time text-ellipsis">{{ pageData.currentTime }}</div>
+                    <div class="park-time text-ellipsis">
+                        {{ pageData.currentTime }}
+                    </div>
                 </div>
                 <!-- 剩余车位/总车位 -->
                 <div class="count">
@@ -128,6 +135,7 @@
             </div>
             <div class="base-table-box">
                 <el-table
+                    v-title
                     :data="tableData"
                     show-overflow-tooltip
                 >

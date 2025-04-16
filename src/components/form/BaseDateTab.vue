@@ -31,17 +31,13 @@
                 <el-form-item :label="Translate('IDCS_START_TIME')">
                     <BaseDatePicker
                         v-model="formData.startTime"
-                        :value-format="dateTime.dateTimeFormat"
-                        :format="dateTime.dateTimeFormat"
-                        type="datetime"
+                        :type="customType === 'day' ? 'date' : 'datetime'"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_END_TIME')">
                     <BaseDatePicker
                         v-model="formData.endTime"
-                        :value-format="dateTime.dateTimeFormat"
-                        :format="dateTime.dateTimeFormat"
-                        type="datetime"
+                        :type="customType === 'day' ? 'date' : 'datetime'"
                     />
                 </el-form-item>
             </el-form>
@@ -66,9 +62,14 @@ const props = withDefaults(
          * @property 起止日期时间戳
          */
         modelValue: [number, number]
+        /**
+         * @property 自定义时间类型 minute | second | day
+         */
+        customType?: 'minute' | 'second' | 'day'
     }>(),
     {
         layout: () => ['date', 'week', 'month', 'custom', 'today'],
+        customType: 'second',
     },
 )
 
@@ -135,9 +136,18 @@ const formData = ref({
  * @description 验证自定义弹窗 通过后更新数据
  */
 const verifyCustomPop = () => {
-    const startTime = dayjs(formData.value.startTime, { jalali: false, format: dateTime.dateTimeFormat }).valueOf()
-    const endTime = dayjs(formData.value.endTime, { jalali: false, format: dateTime.dateTimeFormat }).valueOf()
-    if (startTime > endTime) {
+    let startTime = 0
+    let endTime = 0
+
+    if (props.customType === 'day') {
+        startTime = dayjs(formData.value.startTime, { jalali: false, format: dateTime.dateFormat }).hour(0).minute(0).second(0).valueOf()
+        endTime = dayjs(formData.value.endTime, { jalali: false, format: dateTime.dateFormat }).hour(23).minute(59).second(59).valueOf()
+    } else {
+        startTime = dayjs(formData.value.startTime, { jalali: false, format: dateTime.dateTimeFormat }).valueOf()
+        endTime = dayjs(formData.value.endTime, { jalali: false, format: dateTime.dateTimeFormat }).valueOf()
+    }
+
+    if (startTime >= endTime) {
         openMessageBox(Translate('IDCS_END_TIME_GREATER_THAN_START'))
         return
     }

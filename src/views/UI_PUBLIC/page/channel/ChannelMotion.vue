@@ -19,7 +19,10 @@
                 <el-button @click="handleSelReverse">{{ Translate('IDCS_REVERSE') }}</el-button>
                 <el-button @click="handleClear">{{ Translate('IDCS_CLEAR') }}</el-button>
             </div>
-            <el-form class="stripe">
+            <el-form
+                v-title
+                class="stripe"
+            >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select-v2
                         v-model="selectedChlId"
@@ -35,12 +38,11 @@
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_SENSITIVITY')">
-                    <el-slider
+                    <BaseSliderInput
                         v-model="formData.sensitivity"
                         :min="formData.sensitivityMinValue"
                         :max="formData.sensitivityMaxValue"
                         :disabled="formData.disabled"
-                        show-input
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_DURATION')">
@@ -84,6 +86,7 @@
             <div class="base-table-box">
                 <el-table
                     ref="tableRef"
+                    v-title
                     :data="tableData"
                     show-overflow-tooltip
                     highlight-current-row

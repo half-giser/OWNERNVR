@@ -10,6 +10,7 @@
         @open="open"
     >
         <el-form
+            v-title
             :style="{
                 '--form-label-width': '100px',
             }"

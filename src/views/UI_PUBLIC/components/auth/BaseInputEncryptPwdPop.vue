@@ -12,9 +12,12 @@
     >
         <el-form
             ref="formRef"
+            v-title
             :model="formData"
             :rules="rules"
-            label-width="150"
+            :style="{
+                '--form-label-width': '150px',
+            }"
         >
             <el-form-item
                 prop="password"

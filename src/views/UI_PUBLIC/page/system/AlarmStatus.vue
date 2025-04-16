@@ -66,8 +66,15 @@
                                         `span${item.span}`,
                                     ]"
                                 >
-                                    <label v-show="item.key">{{ Translate(item.key) }} :</label>
-                                    <span>{{ item.value }}</span>
+                                    <div>
+                                        <label v-show="item.key">{{ Translate(item.key) }} :</label>
+                                        <span
+                                            v-title
+                                            class="text-ellipsis"
+                                        >
+                                            {{ item.value }}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                             <div class="right">
@@ -90,7 +97,7 @@
                             <BasePagination
                                 v-model:current-page="row.index"
                                 :page-size="1"
-                                layout="prev, pager, next"
+                                layout="jumper"
                                 :total="row.data.length"
                             />
                         </div>
@@ -162,15 +169,22 @@
     padding: 20px 10px;
 
     .left {
-        width: 80%;
+        width: 85%;
         display: flex;
         flex-wrap: wrap;
         line-height: 20px;
 
         & > div {
-            display: flex;
             height: 20px;
             padding-left: 20px;
+
+            div {
+                display: flex;
+            }
+
+            label {
+                flex-shrink: 0;
+            }
 
             span {
                 padding-left: 20px;
@@ -180,11 +194,19 @@
         .span1 {
             display: flex;
             width: 50%;
+
+            div {
+                width: 100%;
+            }
         }
 
         .span2 {
             display: flex;
             width: 100%;
+
+            div {
+                width: 50%;
+            }
         }
 
         .hidden {
@@ -193,7 +215,7 @@
     }
 
     .right {
-        width: 20%;
+        width: 15%;
         display: flex;
         flex-direction: column;
         justify-content: center;

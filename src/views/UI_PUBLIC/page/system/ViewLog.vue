@@ -49,6 +49,7 @@
         </el-form>
         <div class="base-table-box">
             <el-table
+                v-title
                 highlight-current-row
                 show-overflow-tooltip
                 :data="tableList"

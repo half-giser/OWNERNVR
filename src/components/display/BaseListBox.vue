@@ -32,6 +32,7 @@ withDefaults(
 .BaseListBox {
     width: 100%;
     height: calc(100% - 50px);
+    min-height: 100px;
     overflow-y: auto;
 
     &.border {

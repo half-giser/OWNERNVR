@@ -90,6 +90,7 @@ export class IntelFaceDBFaceForm {
     pic = ''
     success = false
     error = false
+    errorTip = ' '
 }
 
 /**

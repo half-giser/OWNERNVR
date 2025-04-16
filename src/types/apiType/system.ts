@@ -93,7 +93,7 @@ export class SystemAlarmStatusList {
 export class SystemAutoMaintenanceForm {
     switch = false
     interval: number | undefined = undefined
-    time = new Date(2000, 0, 1, 0, 0)
+    time = '00:00:00'
 }
 
 /**

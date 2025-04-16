@@ -40,6 +40,7 @@
                         </div>
                         <div class="base-ai-param-box-right">
                             <el-form
+                                v-title
                                 :style="{
                                     '--form-input-width': '215px',
                                 }"
@@ -80,6 +81,7 @@
                         <!-- 音频 -->
                         <el-form
                             v-if="pageData.supportAlarmAudioConfig"
+                            v-title
                             :style="{
                                 '--form-input-width': '200px',
                             }"

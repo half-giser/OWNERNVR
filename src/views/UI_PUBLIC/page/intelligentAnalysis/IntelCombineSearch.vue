@@ -28,6 +28,7 @@
                     :range="attributeRange"
                 />
                 <el-form
+                    v-title
                     :style="{
                         '--form-label-width': 'auto',
                     }"
@@ -155,7 +156,13 @@
                         @click="play(item)"
                         @detail="showDetail(index)"
                     >
-                        {{ displayDateTime(item.timestamp) }}<br />{{ item.chlName }}
+                        <div v-title>{{ displayDateTime(item.timestamp) }}</div>
+                        <div
+                            v-title
+                            class="text-ellipsis"
+                        >
+                            {{ item.chlName }}
+                        </div>
                     </IntelBaseSnapItem>
                 </div>
             </el-scrollbar>
@@ -165,6 +172,7 @@
             >
                 <el-table
                     ref="tableRef"
+                    v-title
                     border
                     stripe
                     show-overflow-tooltip

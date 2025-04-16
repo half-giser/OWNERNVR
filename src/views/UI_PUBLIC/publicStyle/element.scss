@@ -57,6 +57,10 @@
             margin-left: 5px;
         }
 
+        &:not(.is-disabled):active {
+            filter: brightness(1.1);
+        }
+
         &--primary {
             --el-button-border-color: var(--btn-border);
             --el-button-bg-color: var(--btn-bg);
@@ -135,16 +139,16 @@
         }
     }
 
-    .el-input-number {
-        width: 100%;
+    // .el-input-number {
+    //     width: 100%;
 
-        &.is-without-controls {
-            .el-input__wrapper {
-                padding-left: 5px;
-                padding-right: 5px;
-            }
-        }
-    }
+    //     &.is-without-controls {
+    //         .el-input__wrapper {
+    //             padding-left: 5px;
+    //             padding-right: 5px;
+    //         }
+    //     }
+    // }
 
     .el-textarea {
         --el-input-bg-color: var(--input-bg);
@@ -174,6 +178,28 @@
         --el-slider-button-wrapper-offset: -16px;
         --el-slider-runway-bg-color: var(--slider-btn-border);
 
+        &__runway {
+            &::before {
+                position: absolute;
+                content: '';
+                background-color: var(--primary);
+                width: 8px;
+                height: var(--el-slider-height);
+                left: -8px;
+                top: 0;
+            }
+
+            &::after {
+                position: absolute;
+                content: '';
+                background-color: var(--slider-btn-border);
+                width: 8px;
+                height: var(--el-slider-height);
+                right: -8px;
+                top: 0;
+            }
+        }
+
         &__runway.is-disabled {
             --el-slider-runway-bg-color: var(--slider-btn-border-disabled);
 
@@ -183,6 +209,11 @@
 
             .el-slider__button {
                 @include sprite($img-sliderthumb, 3, 4);
+            }
+
+            &::before,
+            &::after {
+                background-color: var(--slider-btn-border-disabled);
             }
         }
 
@@ -278,7 +309,8 @@
     }
 
     .el-input,
-    .el-textarea {
+    .el-textarea,
+    .el-date-editor {
         --el-input-text-color: var(--input-text);
         --el-input-border: var(--input-border);
         --el-input-border-color: var(--input-border);
@@ -389,11 +421,14 @@
             padding: 0;
 
             .cell {
-                padding: 0;
+                padding: 0 2px;
             }
 
-            .cell:not(:has(.dropdown-btn)) {
-                padding: 8px 0;
+            .cell:not(:has(.BaseDropdownBtn)) {
+                padding: 8px 2px;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                text-wrap: nowrap;
             }
         }
 
@@ -540,7 +575,7 @@
             --el-dropdown-menuItem-hover-color: var(--color-white);
         }
 
-        &:has(.dropdown-btn) {
+        &:has(.BaseDropdownBtn) {
             width: 100%;
         }
     }

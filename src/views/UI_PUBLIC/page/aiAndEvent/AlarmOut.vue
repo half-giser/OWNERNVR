@@ -6,7 +6,10 @@
 <template>
     <div class="base-flex-box">
         <div class="base-table-box">
-            <el-table :data="tableData">
+            <el-table
+                v-title
+                :data="tableData"
+            >
                 <!-- 状态列 -->
                 <el-table-column
                     label=" "

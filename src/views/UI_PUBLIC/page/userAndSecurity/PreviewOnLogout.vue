@@ -14,6 +14,7 @@
                     />
                 </div>
                 <el-form
+                    v-title
                     class="form stripe"
                     :class="{
                         '--form-input-width': '200px',
@@ -41,6 +42,7 @@
             <div class="right base-table-box">
                 <el-table
                     ref="tableRef"
+                    v-title
                     :data="tableData"
                     show-overflow-tooltip
                     highlight-current-row

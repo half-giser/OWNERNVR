@@ -23,7 +23,12 @@
                 :label="Translate('IDCS_ALL')"
                 @change="changeAllChl"
             />
-            <el-text class="chl-chls text-ellipsis">{{ formData.chls.map((item) => item.label).join(';') }}</el-text>
+            <div
+                v-title
+                class="chl-chls text-ellipsis"
+            >
+                {{ formData.chls.map((item) => item.label).join(';') }}
+            </div>
             <el-button @click="changeChl">{{ Translate('IDCS_MORE') }}</el-button>
             <el-button @click="searchData">{{ Translate('IDCS_SEARCH') }}</el-button>
         </div>
@@ -39,7 +44,18 @@
                         :icon="item.featureStatus && !multiple ? 'identity' : ''"
                         @update:model-value="selectFace(index + (formData.pageIndex - 1) * formData.pageSize)"
                     >
-                        {{ displayDateTime(item.timestamp) }}<br />{{ item.chlName }}
+                        <div
+                            v-title
+                            class="text-ellipsis"
+                        >
+                            {{ displayDateTime(item.timestamp) }}
+                        </div>
+                        <div
+                            v-title
+                            class="text-ellipsis"
+                        >
+                            {{ item.chlName }}
+                        </div>
                     </IntelBaseFaceItem>
                 </div>
             </el-scrollbar>
@@ -86,7 +102,7 @@
 
     &-chls {
         margin: 0 20px 0 10px;
-        width: 500px;
+        width: 100%;
     }
 }
 

@@ -12,6 +12,7 @@
     >
         <el-form
             ref="formRef"
+            v-title
             :model="formData"
             :rules="rules"
             :style="{
@@ -54,6 +55,7 @@
         </el-form>
         <el-table
             ref="tableRef"
+            v-title
             :data="formData.resourcesPath"
             show-overflow-tooltip
             highlight-current-row
@@ -68,7 +70,7 @@
             </el-table-column>
             <el-table-column
                 :label="Translate('IDCS_TYPE')"
-                minn-width="130"
+                min-width="130"
             >
                 <template #default="{ row }: TableColumn<ChannelResourcesPathDto>">
                     <el-select-v2
@@ -80,7 +82,7 @@
             </el-table-column>
             <el-table-column
                 :label="Translate('IDCS_TRANSFER_PROTOCOL')"
-                minn-width="130"
+                min-width="130"
             >
                 <template #default="{ row }: TableColumn<ChannelResourcesPathDto>">
                     <el-select-v2
@@ -92,7 +94,7 @@
             </el-table-column>
             <el-table-column
                 :label="Translate('IDCS_PORT')"
-                minn-width="130"
+                min-width="130"
             >
                 <template #default="{ row }: TableColumn<ChannelResourcesPathDto>">
                     <BaseNumberInput

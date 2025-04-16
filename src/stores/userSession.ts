@@ -10,7 +10,7 @@ export const useUserSessionStore = defineStore(
     'userSession',
     () => {
         const cababilityStore = useCababilityStore()
-        const dateTime = useDateTimeStore()
+        const layoutStore = useLayoutStore()
 
         const sessionId = ref('')
         const token = ref('')
@@ -26,7 +26,7 @@ export const useUserSessionStore = defineStore(
         const allowModifyPassword = ref(false)
         const userType = ref('')
         const defaultPwd = ref(false)
-        const loginCheck = ref('')
+        const loginCheck = ref(false)
         const isChangedPwd = ref(false)
         const pwdSaftyStrength = ref(0)
         const pwdExpired = ref(false)
@@ -170,8 +170,9 @@ export const useUserSessionStore = defineStore(
                     defaultPwd.value = false
                 }
 
-                loginCheck.value = 'check'
+                loginCheck.value = false
                 isChangedPwd.value = false
+                layoutStore.isPwdChecked = false
                 pwdSaftyStrength.value = getPwdSaftyStrength(loginFormData!.password)
                 pwdExpired.value = $('content/passwordExpired').text().bool()
             }
@@ -186,8 +187,6 @@ export const useUserSessionStore = defineStore(
 
             // 从磁盘信息获取Raid
             await cababilityStore.updateDiskMode()
-
-            await dateTime.getTimeConfig(true)
 
             generateAsyncRoutes()
         }
@@ -219,6 +218,7 @@ export const useUserSessionStore = defineStore(
             pwdExpired.value = false
             refreshLoginPage.value = false
             p2pSessionId.value = null
+            layoutStore.isPwdChecked = false
             sessionStorage.removeItem(LocalCacheKey.KEY_AU_INFO_N9K)
             sessionStorage.removeItem(LocalCacheKey.KEY_UNMASK)
             sessionStorage.removeItem(LocalCacheKey.KEY_SN)

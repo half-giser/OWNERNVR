@@ -29,6 +29,7 @@
             <div>
                 <el-table
                     ref="scheduleTable"
+                    v-title
                     :data="pageData.scheduleList"
                     highlight-current-row
                     width="305"

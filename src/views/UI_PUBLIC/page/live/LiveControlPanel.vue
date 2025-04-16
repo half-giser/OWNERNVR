@@ -116,6 +116,7 @@
             class="stream-param"
         >
             <el-form
+                v-title
                 :style="{
                     '--form-label-width': '100px',
                     '--form-input-width': '130px',

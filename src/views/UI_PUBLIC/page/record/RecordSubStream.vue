@@ -8,6 +8,7 @@
         <div class="base-table-box">
             <el-table
                 ref="tableRef"
+                v-title
                 :data="virtualTableData"
                 show-overflow-tooltip
                 :row-class-name="(data) => (tableData[data.rowIndex].disabled ? 'disabled' : '')"

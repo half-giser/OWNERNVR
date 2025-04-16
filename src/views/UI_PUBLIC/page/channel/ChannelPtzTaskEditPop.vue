@@ -12,6 +12,7 @@
     >
         <el-form
             ref="formRef"
+            v-title
             :style="{
                 '--form-label-width': '100px',
             }"
@@ -37,7 +38,7 @@
             <el-form-item :label="Translate('IDCS_START_TIME')">
                 <el-time-picker
                     v-model="formData.startTime"
-                    format="HH:mm"
+                    :format="dateTime.hourMinuteFormat"
                     value-format="HH:mm"
                 />
             </el-form-item>
@@ -47,7 +48,7 @@
             >
                 <el-time-picker
                     v-model="formData.endTime"
-                    format="HH:mm"
+                    :format="dateTime.hourMinuteFormat"
                     value-format="HH:mm"
                 />
             </el-form-item>

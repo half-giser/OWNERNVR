@@ -15,6 +15,7 @@
             :model="formData"
         >
             <el-table
+                v-title
                 :data="formData.params"
                 height="300"
                 flexible

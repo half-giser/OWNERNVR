@@ -6,6 +6,7 @@
 <template>
     <div class="base-flex-box">
         <el-table
+            v-title
             :data="tableData"
             height="100%"
             show-overflow-tooltip

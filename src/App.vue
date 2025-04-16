@@ -31,7 +31,6 @@ const router = useRouter()
 const layoutStore = useLayoutStore()
 const langStore = useLangStore()
 const session = useUserSessionStore()
-const dateTime = useDateTimeStore()
 const plugin = usePlugin()
 const systemCaps = useCababilityStore()
 
@@ -50,7 +49,6 @@ const hanedleActivationStatus = async (checkActivationStatus: boolean) => {
                 router.replace('/login')
                 return
             } else {
-                await dateTime.getTimeConfig(false)
                 await systemCaps.updateCabability()
                 await systemCaps.updateDiskMode()
                 await systemCaps.updateBaseConfig()

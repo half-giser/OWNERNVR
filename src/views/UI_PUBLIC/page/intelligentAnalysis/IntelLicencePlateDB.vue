@@ -8,6 +8,7 @@
         <div class="base-table-box">
             <el-table
                 ref="tableRef"
+                v-title
                 :data="tableData"
                 :row-key="getRowKey"
                 :expand-row-key="pageData.expandRowKey"
@@ -61,6 +62,7 @@
                                 <el-button @click="addPlate(row.id)">{{ Translate('IDCS_ADD_LICENSE_PLATE') }}</el-button>
                             </div>
                             <el-table
+                                v-title
                                 :data="groupTableData"
                                 highlight-current-row
                                 height="300"

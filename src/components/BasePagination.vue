@@ -4,70 +4,89 @@
  * @Description: 分页器
 -->
 <template>
-    <div class="Pagination">
-        <div class="btn">
-            <BaseImgSprite
-                file="pageBtn"
-                :hover-index="1"
-                :disabled-index="3"
-                :chunk="16"
-                :disabled="currentPage <= 1"
-                @click="firstPage"
+    <div
+        class="Pagination"
+        :class="{ 'is-jumper': layout === 'jumper' }"
+    >
+        <template v-if="layout === 'pager'">
+            <div class="btn">
+                <BaseImgSpriteBtn
+                    file="pageBtn-first"
+                    :disabled="currentPage <= 1"
+                    @click="firstPage"
+                />
+            </div>
+            <div class="btn">
+                <BaseImgSpriteBtn
+                    file="pageBtn-prev"
+                    :disabled="currentPage <= 1"
+                    @click="prevPage"
+                />
+            </div>
+            <BaseNumberInput
+                v-model="inputNumber"
+                :min="1"
+                :max="totalPage"
+                :disabled="totalPage <= 1"
+                @keyup.enter="keydownPage(inputNumber)"
             />
-        </div>
-        <div class="btn">
-            <BaseImgSprite
-                file="pageBtn"
-                :index="4"
-                :hover-index="5"
-                :disabled-index="7"
-                :chunk="16"
-                :disabled="currentPage <= 1"
+            <div class="page-info">{{ currentPage }} / {{ totalPage }}</div>
+            <div class="btn">
+                <BaseImgSpriteBtn
+                    file="pageBtn-next"
+                    :disabled="currentPage >= totalPage"
+                    @click="nextPage"
+                />
+            </div>
+            <div class="btn">
+                <BaseImgSpriteBtn
+                    file="pageBtn-last"
+                    :disabled="currentPage >= totalPage"
+                    @click="lastPage"
+                />
+            </div>
+            <el-select-v2
+                :model-value="pageSize"
+                :options="arrayToOptions(pageSizes)"
+                @update:model-value="changePageSize"
+            />
+            <div class="sizes-info">{{ startItem }} - {{ endItem }} / {{ total }}</div>
+        </template>
+        <template v-if="layout === 'jumper'">
+            <div
+                class="btn-prev"
+                :class="{
+                    disabled: currentPage <= 1,
+                }"
                 @click="prevPage"
+            ></div>
+            <el-input
+                class="jumper-input"
+                :model-value="currentPage"
+                disabled
             />
-        </div>
-        <BaseNumberInput
-            v-model="inputNumber"
-            :min="1"
-            :max="totalPage"
-            :disabled="totalPage <= 1"
-            @keyup.enter="keydownPage(inputNumber)"
-        />
-        <div class="page-info">{{ currentPage }} / {{ totalPage }}</div>
-        <div class="btn">
-            <BaseImgSprite
-                file="pageBtn"
-                :index="8"
-                :hover-index="9"
-                :disabled-index="11"
-                :chunk="16"
-                :disabled="currentPage >= totalPage"
+            <div
+                class="btn-next"
+                :class="{
+                    disabled: currentPage >= totalPage,
+                }"
                 @click="nextPage"
+            ></div>
+            <div class="jumper-info">
+                {{ Translate('IDCS_JUMP_TERM_AND_ALL').formatForLang(total) }}
+            </div>
+            <BaseNumberInput
+                v-model="jumpNumber"
+                :min="1"
+                :max="totalPage"
+                :disabled="totalPage <= 1"
+                @keyup.enter="keydownPage(jumpNumber)"
             />
-        </div>
-        <div class="btn">
-            <BaseImgSprite
-                file="pageBtn"
-                :index="12"
-                :hover-index="13"
-                :disabled-index="15"
-                :chunk="16"
-                :disabled="currentPage >= totalPage"
-                @click="lastPage"
-            />
-        </div>
-        <el-select-v2
-            v-show="layout.includes('sizes')"
-            :model-value="pageSize"
-            :options="arrayToOptions(pageSizes)"
-            @update:model-value="changePageSize"
-        />
-        <div
-            v-show="layout.includes('total')"
-            class="item-info"
-        >
-            {{ startItem }} - {{ endItem }} / {{ total }}
-        </div>
+            <div
+                class="btn-next jumper-btn"
+                @click="keydownPage(jumpNumber)"
+            ></div>
+        </template>
     </div>
 </template>
 
@@ -95,17 +114,18 @@ const prop = withDefaults(
         /**
          * @property Layout
          */
-        layout?: string
+        layout?: 'pager' | 'jumper'
     }>(),
     {
         currentPage: 1,
         pageSize: 10,
         pageSizes: () => [10, 20, 30],
-        layout: 'prev, pager, next, sizes, total',
+        layout: 'pager',
     },
 )
 
 const inputNumber = ref(1)
+const jumpNumber = ref<number | undefined>()
 
 const totalPage = computed(() => {
     return Math.max(1, Math.ceil(prop.total / prop.pageSize))
@@ -142,7 +162,11 @@ const changePageSize = (pageSize: number) => {
  * @description 输入页码
  * @param {number} currentPage
  */
-const keydownPage = (currentPage: number) => {
+const keydownPage = (currentPage?: number) => {
+    if (currentPage === undefined) {
+        return
+    }
+
     if (currentPage > totalPage.value) {
         inputNumber.value = totalPage.value
     }
@@ -150,6 +174,8 @@ const keydownPage = (currentPage: number) => {
     if (currentPage < 1) {
         inputNumber.value = 1
     }
+
+    inputNumber.value = currentPage
 
     changeCurrentPage(inputNumber.value)
 }
@@ -174,6 +200,10 @@ const firstPage = () => {
  * @description 上一页
  */
 const prevPage = () => {
+    if (prop.currentPage <= 1) {
+        return
+    }
+
     changeCurrentPage(prop.currentPage - 1)
 }
 
@@ -181,6 +211,10 @@ const prevPage = () => {
  * @description 下一页
  */
 const nextPage = () => {
+    if (prop.currentPage >= totalPage.value) {
+        return
+    }
+
     changeCurrentPage(prop.currentPage + 1)
 }
 
@@ -225,14 +259,97 @@ watch(
         }
     }
 
+    .btn-prev {
+        border: 8px solid transparent;
+        font-size: 0;
+        width: 0;
+        height: 0;
+        line-height: 0;
+        cursor: pointer;
+        position: relative;
+        border-right: 8px solid var(--pagination-border);
+        margin-right: 10px;
+
+        &::after {
+            content: '';
+            border: 4px solid transparent;
+            position: absolute;
+            width: 0;
+            height: 0;
+            top: -4px;
+            left: 0;
+            border-right: 4px solid var(--table-expand-bg);
+        }
+
+        &:hover {
+            border-right-color: var(--pagination-border-hover);
+        }
+
+        &.disabled {
+            border-right-color: var(--pagination-border-disabled);
+        }
+    }
+
+    .btn-next {
+        border: 8px solid transparent;
+        font-size: 0;
+        width: 0;
+        height: 0;
+        line-height: 0;
+        cursor: pointer;
+        position: relative;
+        border-left: 8px solid var(--pagination-border);
+        margin-left: 10px;
+
+        &::after {
+            content: '';
+            border: 4px solid transparent;
+            position: absolute;
+            width: 0;
+            height: 0;
+            top: -4px;
+            right: 0;
+            border-left: 4px solid var(--table-expand-bg);
+        }
+
+        &:hover {
+            border-left-color: var(--pagination-border-hover);
+        }
+
+        &.disabled {
+            border-left-color: var(--pagination-border-disabled);
+        }
+    }
+
+    .jumper-btn {
+        &::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -16px;
+            width: 19px;
+            height: 19px;
+            border: 1px solid var(--pagination-border);
+        }
+    }
+
     .el-select {
-        width: 80px;
+        width: 60px;
         margin-left: 10px;
     }
 
-    #n9web & .el-input-number {
-        width: 80px;
+    #n9web & .BaseNumberInput {
+        width: 50px;
         margin: 0 5px;
+    }
+
+    #n9web & .el-input {
+        width: 50px;
+        margin: 0 5px;
+
+        :deep(.el-input__inner) {
+            text-align: center;
+        }
     }
 
     .page-info {
@@ -240,9 +357,13 @@ watch(
         flex-shrink: 0;
     }
 
-    .item-info {
+    .sizes-info {
         width: 130px;
         text-align: right;
+    }
+
+    .jumper-info {
+        margin-left: 5px;
     }
 }
 </style>

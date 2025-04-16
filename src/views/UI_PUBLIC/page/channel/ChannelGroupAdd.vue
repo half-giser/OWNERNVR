@@ -7,6 +7,7 @@
     <div class="base-flex-box">
         <el-form
             ref="formRef"
+            v-title
             :model="formData"
             :rules="rules"
             :style="{
@@ -34,6 +35,7 @@
         <div class="base-table-box">
             <el-table
                 ref="tableRef"
+                v-title
                 :data="tableData"
                 show-overflow-tooltip
                 highlight-current-row

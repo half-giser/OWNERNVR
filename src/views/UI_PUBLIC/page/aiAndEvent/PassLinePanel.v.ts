@@ -47,6 +47,7 @@ export default defineComponent({
 
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
+        const dateTime = useDateTimeStore()
 
         const playerRef = ref<PlayerInstance>()
 
@@ -1156,6 +1157,7 @@ export default defineComponent({
             playerRef,
             notify,
             pageData,
+            dateTime,
             watchEdit,
             formData,
             handlePlayerReady,

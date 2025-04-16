@@ -12,8 +12,8 @@
             :style="{ width: `${width}px` }"
         >
             <div
+                v-title
                 class="day-name"
-                :title="Translate(item)"
                 v-text="Translate(item)"
             ></div>
             <div class="day-schedule">

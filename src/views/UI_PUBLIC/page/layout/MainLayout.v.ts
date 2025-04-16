@@ -22,7 +22,9 @@ export default defineComponent({
         const layoutStore = useLayoutStore()
         const pluginStore = usePluginStore()
 
-        const menu1Item = computed(() => layoutStore.menu1Item)
+        const menu1Item = computed(() => {
+            return layoutStore.menu1Item
+        })
         const allMenu1Items = computed(() => layoutStore.menu1Items)
 
         const pageData = ref({
@@ -84,12 +86,11 @@ export default defineComponent({
             Logout()
         }
 
-        const showProductModel = async (cbk?: () => void) => {
+        const showProductModel = async () => {
             const result = await queryBasicCfg()
             const $ = queryXml(result)
             if ($('status').text() === 'success') {
                 if (userSession.appType === 'P2P' && !isCorrectUI($)) return
-                cbk && cbk()
                 if (![5].includes(systemCaps.CustomerID)) {
                     return
                 }
@@ -106,7 +107,7 @@ export default defineComponent({
             const result = await queryPasswordSecurity()
             const $ = queryXml(result)
             if ($('status').text() === 'success') {
-                strength = ($('content/pwdSecureSetting/pwdSecLevel').text() as keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING & null) ?? 'weak'
+                strength = $('content/pwdSecureSetting/pwdSecLevel').text() || 'weak'
                 if (!systemCaps.supportPwdSecurityConfig) {
                     strength = 'strong'
                 }
@@ -297,13 +298,16 @@ export default defineComponent({
             const title = Translate('IDCS_WEB_CLIENT')
             document.title = title === 'IDCS_WEB_CLIENT' ? '' : title
 
-            await showProductModel(() => {
+            if (!layoutStore.isPwdChecked) {
+                await showProductModel()
                 checkForDefaultPwd()
-                if (userSession.loginCheck === 'check') {
-                    checkIsDiskStatus()
-                    userSession.loginCheck = 'notCheck'
-                }
-            })
+                layoutStore.isPwdChecked = true
+            }
+
+            if (!userSession.loginCheck) {
+                checkIsDiskStatus()
+                userSession.loginCheck = true
+            }
         })
 
         return {

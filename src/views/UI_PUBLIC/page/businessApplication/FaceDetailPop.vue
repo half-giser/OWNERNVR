@@ -48,6 +48,7 @@
             <div class="right">
                 <el-table
                     ref="tableRef"
+                    v-title
                     highlight-current-row
                     show-overflow-tooltip
                     :row-keys="getRowKey"
@@ -115,6 +116,10 @@
     img {
         width: 196px;
         height: 130px;
+
+        &[src=''] {
+            opacity: 0;
+        }
     }
 
     div:first-child {

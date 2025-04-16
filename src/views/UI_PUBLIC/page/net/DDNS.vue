@@ -7,6 +7,7 @@
     <div>
         <el-form
             ref="formRef"
+            v-title
             :model="formData"
             :rules="formRule"
             class="stripe"

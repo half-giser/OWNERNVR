@@ -35,7 +35,7 @@ export default defineComponent({
         const dateTime = useDateTimeStore()
 
         const chlMap: Record<string, string> = {}
-        let cachePic: Record<string, { pic: string; featureStatus: boolean }> = {}
+        const cachePic = new Map<string, { pic: string; featureStatus: boolean }>()
 
         const pageData = ref({
             // 日期范围类型
@@ -106,6 +106,7 @@ export default defineComponent({
          * @description 检索抓怕数据列表
          */
         const searchData = async () => {
+            cachePic.clear()
             openLoading()
 
             const sendXml = rawXml`
@@ -141,7 +142,7 @@ export default defineComponent({
                         featureStatus: false,
                     }
                 })
-                .toSorted((a, b) => a.timestamp - b.timestamp)
+                .toSorted((a, b) => b.timestamp - a.timestamp)
 
             closeLoading()
 
@@ -205,8 +206,8 @@ export default defineComponent({
          */
         const getFacePic = async (item: IntelFaceDBSnapFaceList) => {
             const key = getUniqueKey(item)
-            if (cachePic[key]) {
-                return cachePic[key]
+            if (cachePic.has(key)) {
+                return cachePic.get(key)!
             }
             const sendXml = rawXml`
                 <condition>
@@ -221,10 +222,10 @@ export default defineComponent({
             const pic = $('content').text()
             const featureStatus = $('featureStatus').text().bool()
             if (pic) {
-                cachePic[key] = {
+                cachePic.set(key, {
                     pic: wrapBase64Img(pic),
                     featureStatus,
-                }
+                })
                 return {
                     pic: wrapBase64Img(pic),
                     featureStatus,
@@ -287,7 +288,11 @@ export default defineComponent({
         })
 
         onBeforeUnmount(() => {
-            cachePic = {}
+            cachePic.clear()
+        })
+
+        onBeforeRouteLeave(() => {
+            cachePic.clear()
         })
 
         return {

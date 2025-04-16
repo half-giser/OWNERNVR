@@ -7,6 +7,7 @@
     <div>
         <div class="base-subheading-box">{{ Translate('IDCS_RECORD_MODE') }}</div>
         <el-form
+            v-title
             :style="{
                 '--form-input-width': '250px',
                 '--form-label-width': '200px',
@@ -29,6 +30,7 @@
                     </div>
                 </div>
                 <el-table
+                    v-title
                     :data="tableData"
                     height="390"
                 >
@@ -224,6 +226,7 @@
         </div>
         <div class="base-subheading-box">{{ Translate('IDCS_MANUAL_RECORD_OPTION') }}</div>
         <el-form
+            v-title
             :style="{
                 '--form-input-width': '250px',
                 '--form-label-width': '200px',

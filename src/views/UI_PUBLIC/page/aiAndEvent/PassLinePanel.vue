@@ -94,6 +94,7 @@
                                 class="base-ai-param-right"
                             >
                                 <el-form
+                                    v-title
                                     :style="{
                                         '--form-input-width': '215px',
                                     }"
@@ -143,13 +144,11 @@
                                     </div>
                                     <!-- OSD -->
                                     <el-form-item>
-                                        <template #label>
-                                            <el-checkbox
-                                                v-model="formData.countOSD.switch"
-                                                :label="Translate('IDCS_STATIST_OSD')"
-                                                @change="changeOSD"
-                                            />
-                                        </template>
+                                        <el-checkbox
+                                            v-model="formData.countOSD.switch"
+                                            :label="Translate('IDCS_STATIST_OSD')"
+                                            @change="changeOSD"
+                                        />
                                     </el-form-item>
                                     <div class="base-ai-subheading">
                                         {{ Translate('IDCS_RESET_INFO') }}
@@ -192,24 +191,28 @@
                                             v-if="formData.countTimeType === 'off'"
                                             :disabled="formData.countTimeType === 'off'"
                                             value-format="HH:mm:ss"
+                                            :format="dateTime.timeFormat"
                                         />
                                         <el-time-picker
                                             v-if="formData.countTimeType === 'day'"
                                             v-model="formData.countPeriod.day.dateTime"
                                             :disabled="!formData.autoReset"
                                             value-format="HH:mm:ss"
+                                            :format="dateTime.timeFormat"
                                         />
                                         <el-time-picker
                                             v-if="formData.countTimeType === 'week'"
                                             v-model="formData.countPeriod.week.dateTime"
                                             :disabled="!formData.autoReset"
                                             value-format="HH:mm:ss"
+                                            :format="dateTime.timeFormat"
                                         />
                                         <el-time-picker
                                             v-if="formData.countTimeType === 'month'"
                                             v-model="formData.countPeriod.month.dateTime"
                                             :disabled="!formData.autoReset"
                                             value-format="HH:mm:ss"
+                                            :format="dateTime.timeFormat"
                                         />
                                     </el-form-item>
                                     <!-- 手动重置 -->
@@ -226,8 +229,9 @@
                                 class="base-ai-param-right"
                             >
                                 <el-form
-                                    label-width="150"
+                                    v-title
                                     :style="{
+                                        '--form-label-width': '150px',
                                         '--form-input-width': '215px',
                                     }"
                                 >
@@ -320,10 +324,7 @@
                                         </template>
                                         <template #default>
                                             <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
-                                            <el-slider
-                                                v-model="formData.objectFilter.personSensitivity"
-                                                show-input
-                                            />
+                                            <BaseSliderInput v-model="formData.objectFilter.personSensitivity" />
                                         </template>
                                     </el-form-item>
                                     <!-- 汽车灵敏度 -->
@@ -336,10 +337,7 @@
                                         </template>
                                         <template #default>
                                             <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
-                                            <el-slider
-                                                v-model="formData.objectFilter.carSensitivity"
-                                                show-input
-                                            />
+                                            <BaseSliderInput v-model="formData.objectFilter.carSensitivity" />
                                         </template>
                                     </el-form-item>
                                     <!-- 摩托车灵敏度 -->
@@ -352,10 +350,7 @@
                                         </template>
                                         <template #default>
                                             <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
-                                            <el-slider
-                                                v-model="formData.objectFilter.motorSensitivity"
-                                                show-input
-                                            />
+                                            <BaseSliderInput v-model="formData.objectFilter.motorSensitivity" />
                                         </template>
                                     </el-form-item>
                                 </el-form>

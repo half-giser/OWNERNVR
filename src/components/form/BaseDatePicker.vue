@@ -33,16 +33,14 @@
                     <div class="DatePicker-date-title">
                         <div class="left">
                             <BaseImgSprite
-                                file="datePicker"
-                                :index="0"
+                                file="datePicker-first"
                                 :hover-index="0"
                                 class="prev"
                                 @click="preYear"
                             />
                             <BaseImgSprite
-                                file="datePicker"
-                                :index="1"
-                                :hover-index="1"
+                                file="datePicker-prev"
+                                :hover-index="0"
                                 class="prev"
                                 @click="preMonth"
                             />
@@ -61,16 +59,14 @@
                         </div>
                         <div class="right">
                             <BaseImgSprite
-                                file="datePicker"
-                                :index="2"
-                                :hover-index="2"
+                                file="datePicker-next"
+                                :hover-index="0"
                                 class="next"
                                 @click="nextMonth"
                             />
                             <BaseImgSprite
-                                file="datePicker"
-                                :index="3"
-                                :hover-index="3"
+                                file="datePicker-last"
+                                :hover-index="0"
                                 class="next"
                                 @click="nextYear"
                             />
@@ -118,17 +114,15 @@
                 >
                     <div class="DatePicker-date-title">
                         <BaseImgSprite
-                            file="datePicker"
-                            :index="0"
+                            file="datePicker-prev"
                             :hover-index="0"
                             class="prev"
                             @click="preYear"
                         />
                         <div @click="showYearList">{{ currentYear }}</div>
                         <BaseImgSprite
-                            file="datePicker"
-                            :index="3"
-                            :hover-index="3"
+                            file="datePicker-next"
+                            :hover-index="0"
                             class="next"
                             @click="nextYear"
                         />
@@ -152,11 +146,10 @@
                 >
                     <div class="DatePicker-date-title">
                         <BaseImgSprite
-                            file="datePicker"
-                            :index="0"
+                            file="datePicker-prev"
                             :hover-index="0"
                             class="prev"
-                            @click="prevYearRange"
+                            @click="prevDecade"
                         />
                         <div
                             class="range"
@@ -165,11 +158,10 @@
                             {{ yearRange }} ~ {{ yearRange + 10 }}
                         </div>
                         <BaseImgSprite
-                            file="datePicker"
-                            :index="3"
-                            :hover-index="3"
+                            file="datePicker-next"
+                            :hover-index="0"
                             class="next"
-                            @click="nextYearRange"
+                            @click="nextDecade"
                         />
                     </div>
                     <div class="DatePicker-month-body">
@@ -303,7 +295,11 @@ type DateDto = {
  * @description 打开日期选择器时初始化
  */
 const open = () => {
-    currentValue.value = dayjs(props.modelValue || Date.now(), props.valueFormat || (props.type === 'datetime' ? dateTime.dateTimeFormat : dateTime.dateFormat))
+    currentValue.value = dayjs(props.modelValue, props.valueFormat || (props.type === 'datetime' ? dateTime.dateTimeFormat : dateTime.dateFormat))
+    if (!currentValue.value.isValid()) {
+        currentValue.value = dayjs(Date.now())
+        changeValue()
+    }
     tab.value = 'date'
 
     if (props.type === 'datetime') {
@@ -434,38 +430,62 @@ const changeMonth = (month: number) => {
 // 当前年历的
 const yearRange = ref(0)
 
+/**
+ * @description 切换年历
+ */
 const showYearList = () => {
     tab.value = 'year'
     yearRange.value = Math.floor(currentYear.value / 10) * 10
 }
 
-const prevYearRange = () => {
+/**
+ * @description 上个十年
+ */
+const prevDecade = () => {
     yearRange.value -= 10
 }
 
-const nextYearRange = () => {
+/**
+ * @description 下个十年
+ */
+const nextDecade = () => {
     yearRange.value += 10
 }
 
+/**
+ * @description 切换月历
+ */
 const showMonthList = () => {
     tab.value = 'month'
 }
 
+/**
+ * @description 更改时间
+ */
 const changeTime = () => {
     changeValue()
 }
 
+/**
+ * @description 设置今天
+ */
 const setToday = () => {
     currentValue.value = dayjs()
     currentTime.value = dayjs().format(DEFAULT_TIME_FORMAT)
 }
 
+/**
+ * @description 点击确定
+ */
 const confirm = () => {
     changeValue()
     emits('change', props.modelValue)
     visible.value = false
 }
 
+/**
+ * @description 更新数据
+ */
 const changeValue = () => {
     if (props.type === 'datetime') {
         const currentTimeInstance = dayjs(currentTime.value, DEFAULT_TIME_FORMAT)

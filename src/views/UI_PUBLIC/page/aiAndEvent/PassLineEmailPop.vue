@@ -20,6 +20,7 @@
         >
             <el-form
                 ref="formRef"
+                v-title
                 :model="formData"
                 :rules="rules"
             >
@@ -110,7 +111,7 @@
                     <el-time-picker
                         v-model="pageData.time"
                         :disabled="!pageData.data.sendEmailData.enableSwitch"
-                        format="HH:mm"
+                        :format="dateTime.hourMinuteFormat"
                         value-format="HH:mm"
                         @change="handleTimePickerChange"
                     />
@@ -121,6 +122,7 @@
                 <div class="content receiver">
                     <!-- 收件人表 -->
                     <el-table
+                        v-title
                         :data="pageData.data.receiverData"
                         height="100"
                         show-overflow-tooltip

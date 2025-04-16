@@ -13,6 +13,7 @@
                 />
             </div>
             <el-form
+                v-title
                 :style="{
                     '--form-label-width': '150px',
                 }"
@@ -46,18 +47,16 @@
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_TRANSPARENCY')">
-                    <el-slider
+                    <BaseSliderInput
                         v-if="tableData[pageData.tableIndex]"
                         v-model="tableData[pageData.tableIndex].opacity"
                         :min="tableData[pageData.tableIndex].minOpacity"
                         :max="tableData[pageData.tableIndex].maxOpacity"
                         :disabled="tableData[pageData.tableIndex].disabled"
-                        show-input
                     />
-                    <el-slider
+                    <BaseSliderInput
                         v-else
                         disabled
-                        show-input
                     />
                 </el-form-item>
             </el-form>
@@ -66,6 +65,7 @@
             <div class="base-table-box">
                 <el-table
                     ref="tableRef"
+                    v-title
                     :data="tableData"
                     highlight-current-row
                     @row-click="handleRowClick"

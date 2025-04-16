@@ -10,7 +10,7 @@
         width="470"
         @opened="opened"
     >
-        <el-form>
+        <el-form v-title>
             <el-form-item
                 v-show="type === 'multiple'"
                 :label="Translate('IDCS_PRODUCT_MODEL')"

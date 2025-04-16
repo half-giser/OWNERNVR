@@ -11,6 +11,7 @@
     >
         <div>
             <el-form
+                v-title
                 :style="{
                     '--form-input-width': '340px',
                 }"
@@ -65,6 +66,7 @@
                 >
                     <div :class="{ active: pageData.activeChannelTab === 'IDCS_LOCAL_RIGHT' }">
                         <el-table
+                            v-title
                             :data="channelAuthList"
                             height="200"
                         >
@@ -107,6 +109,7 @@
                     </div>
                     <div :class="{ active: pageData.activeChannelTab === 'IDCS_REMOTE_RIGHT' }">
                         <el-table
+                            v-title
                             :data="channelAuthList"
                             height="200"
                         >

@@ -18,7 +18,7 @@ export default defineComponent({
          * @param {RouteRecordRaw} menu2
          * @returns {boolean}
          */
-        const isMenu3Actice = (menu2: RouteRecordRaw) => {
+        const isMenu3Active = (menu2: RouteRecordRaw) => {
             return menu2 && menu2.meta && getMenu3(route)?.meta.fullPath === menu2.meta.fullPath
         }
 
@@ -29,7 +29,7 @@ export default defineComponent({
         return {
             activeIndex,
             menu3Items, // 当前进入的二级菜单项的三级菜单列表
-            isMenu3Actice,
+            isMenu3Active,
         }
     },
 })

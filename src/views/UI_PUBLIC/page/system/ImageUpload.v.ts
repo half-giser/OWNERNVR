@@ -3,7 +3,6 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-10-23 11:43:19
  */
-import dayjs from 'dayjs'
 import { type TableInstance } from 'element-plus'
 import ImageUploadAddTimePop from './ImageUploadAddTimePop.vue'
 
@@ -13,9 +12,9 @@ export default defineComponent({
     },
     setup(_prop, ctx) {
         const { Translate } = useLangStore()
+        const dateTime = useDateTimeStore()
 
         const tableRef = ref<TableInstance>()
-        const timeMode = ref(24)
         const tableData = ref<SystenSHDBImageUploadDto[]>([])
 
         const pageData = ref({
@@ -68,15 +67,15 @@ export default defineComponent({
         }
 
         // 24小时制转12小时制
-        const _24turn12 = (value: string) => {
-            return dayjs(`2000-01-01 ${value}`, DEFAULT_DATE_FORMAT).format('hh:mm:ss A')
-        }
+        // const _24turn12 = (value: string) => {
+        //     return dayjs(`2000-01-01 ${value}`, DEFAULT_DATE_FORMAT).format('hh:mm:ss A')
+        // }
 
         // 获取时间格式
-        const getTimeCfg = async () => {
-            const res = await queryTimeCfg()
-            timeMode.value = queryXml(res)('content/formatInfo/time').text().num()
-        }
+        // const getTimeCfg = async () => {
+        //     const res = await queryTimeCfg()
+        //     timeMode.value = queryXml(res)('content/formatInfo/time').text().num()
+        // }
 
         // 获取数据
         const getData = async () => {
@@ -90,7 +89,7 @@ export default defineComponent({
                     const timelist = $item('timeList/item').map((ele) => {
                         return {
                             value: ele.text(),
-                            label: timeMode.value === 12 ? _24turn12(ele.text()) : ele.text(),
+                            label: formatDate(ele.text(), dateTime.timeFormat, DEFAULT_TIME_FORMAT),
                         }
                     })
                     return {
@@ -160,7 +159,7 @@ export default defineComponent({
             }
             timeList.push({
                 value: time,
-                label: timeMode.value === 12 ? _24turn12(time) : time,
+                label: formatDate(time, dateTime.timeFormat, DEFAULT_TIME_FORMAT),
             })
             orderTimeList(pageData.value.currentRow)
             pageData.value.currentRow.timeCount = timeList.length
@@ -209,7 +208,7 @@ export default defineComponent({
                 data.forEach((item) => {
                     item.timelist.push({
                         value: addTime,
-                        label: timeMode.value === 12 ? _24turn12(addTime) : addTime,
+                        label: formatDate(addTime, dateTime.timeFormat, DEFAULT_TIME_FORMAT),
                     })
                     orderTimeList(item)
                     item.timeCount = item.timelist.length
@@ -251,8 +250,8 @@ export default defineComponent({
         }
 
         // 挂载完成获取数据
-        onMounted(async () => {
-            await getTimeCfg()
+        onMounted(() => {
+            // await getTimeCfg()
             getData()
         })
 
@@ -264,6 +263,7 @@ export default defineComponent({
             pageData,
             tableRef,
             tableData,
+            dateTime,
             getRowKey,
             // 展开行
             handleExpandChange,

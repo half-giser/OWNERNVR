@@ -15,7 +15,6 @@ import BackupPop from '../searchAndBackup/BackupPop.vue'
 import BackupLocalPop from '../searchAndBackup/BackupLocalPop.vue'
 import dayjs from 'dayjs'
 import { type XMLQuery } from '@/utils/xmlParse'
-import { isEqual } from 'lodash-es'
 
 /**
  * @description OCX窗口数据

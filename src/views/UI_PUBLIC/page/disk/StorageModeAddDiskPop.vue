@@ -11,6 +11,7 @@
     >
         <div>
             <el-table
+                v-title
                 :data="tableData"
                 show-overflow-tooltip
                 height="400"

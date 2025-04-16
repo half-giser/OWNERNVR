@@ -3,6 +3,8 @@
  * @Date: 2024-08-30 18:47:22
  * @Description: 智能分析 - 选择人脸 - 从外部导入
  */
+import dayjs from 'dayjs'
+
 export default defineComponent({
     props: {
         /**
@@ -169,11 +171,16 @@ export default defineComponent({
             return rowData.slice(1, rowData.length).map((item) => {
                 const split = item.split(separator)
 
+                let birthday = split[dataIndexMap.birthday || 10000]
+                if (!dayjs(birthday, 'YYYY/MM/DD').isValid()) {
+                    birthday = DEFAULT_BIRTHDAY
+                }
+
                 return {
-                    name: split[dataIndexMap.name] || Translate('IDCS_SAMPLE'),
+                    name: split[dataIndexMap.name] || (prop.type === 'import' ? '' : Translate('IDCS_SAMPLE')),
                     sex: split[dataIndexMap.sex] ? SEX_MAPPING[Number(split[dataIndexMap.sex || 10000])] : 'male',
                     // 目前仅支持YYYY/MM/DD
-                    birthday: split[dataIndexMap.birthday || 10000] || DEFAULT_BIRTHDAY,
+                    birthday: birthday,
                     certificateType: 'idCard', // 目前只有身份证
                     certificateNum: split[dataIndexMap.certificateNum] || '',
                     mobile: split[dataIndexMap.mobile] || '',
@@ -278,7 +285,9 @@ export default defineComponent({
             }
 
             openLoading()
+
             const clone = new IntelFaceDBImportFaceDto()
+            clone.birthday = DEFAULT_BIRTHDAY
 
             try {
                 const data = await parseDataFile(dataFile, dataFileType)
@@ -287,18 +296,25 @@ export default defineComponent({
                     const file = files[i]
                     const fileType = file.name.split('.').pop()
                     if (fileType === 'jpg' || fileType === 'jpeg') {
-                        const result = await parseImgFile(file)
-                        const find = data.find((item) => item.imgName === result.imgName)
-                        if (find) {
-                            resultFile.push({
-                                ...find,
-                                ...result,
-                            })
-                        } else {
-                            resultFile.push({
-                                ...clone,
-                                ...result,
-                            })
+                        try {
+                            const result = await parseImgFile(file)
+                            const find = data.find((item) => item.imgName === result.imgName)
+                            if (find) {
+                                resultFile.push({
+                                    ...find,
+                                    ...result,
+                                })
+                            } else {
+                                resultFile.push({
+                                    ...clone,
+                                    ...result,
+                                })
+                            }
+                        } catch (e) {
+                            closeLoading()
+                            openMessageBox(e as string)
+                            resetOCXData()
+                            return
                         }
                     }
                 }
@@ -306,8 +322,8 @@ export default defineComponent({
                 closeLoading()
                 resetOCXData()
             } catch (e) {
-                openMessageBox(e as string)
                 closeLoading()
+                openMessageBox(e as string)
                 resetOCXData()
                 return
             }

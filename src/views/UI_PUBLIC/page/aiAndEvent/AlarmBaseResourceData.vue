@@ -19,6 +19,7 @@
             append-to-body
         >
             <el-table
+                v-title
                 :data="tableData"
                 height="250"
                 highlight-current-row

@@ -108,6 +108,7 @@
         <el-main id="layoutMainBody">
             <div id="layoutMainContent">
                 <router-view />
+                <div class="layoutMainContentBottomHeight"></div>
             </div>
         </el-main>
         <div
@@ -117,7 +118,6 @@
         <ChangePasswordPop
             v-model="pageData.isPasswordDialogVisible"
             :forced="pageData.mustBeModifiedPassword"
-            :password-strength="pageData.passwordStrength"
             @close="closeChangePwdPop"
         />
     </el-container>
@@ -254,16 +254,23 @@
     padding: 0;
     flex: auto 1 1;
     overflow-y: auto;
-    margin-block: 25px;
+    max-height: calc(100vh - 65px - 34px - 18px);
 }
 
 #layoutMainContent {
     position: relative;
+    padding-top: 25px;
     padding-inline: 49px;
-    box-sizing: border-box;
     width: 100%;
-    height: 100%;
+    height: calc(100% - 25px);
     flex-shrink: 1;
+    min-height: 500px;
+}
+
+.layoutMainContentBottomHeight {
+    width: 100%;
+    height: 25px;
+    flex-shrink: 0;
 }
 
 #divCopyRight {

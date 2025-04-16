@@ -42,8 +42,8 @@ export default defineComponent({
         })
 
         const current = ref(new BusinessFaceDetailList())
-
-        let cachePic: Record<string, string> = {}
+        // 缓存搜索结果
+        const cachePic = new Map<string, string>()
 
         const cloneData = new BusinessFaceResultList()
 
@@ -74,13 +74,14 @@ export default defineComponent({
             } else if (newItem.timestamp === oldItem.timestamp) {
                 return
             } else {
-                if (cachePic[prop.data.id + '_' + newItem.timestamp]) {
-                    pageData.value.pic1 = cachePic[prop.data.id + '_' + newItem.timestamp]
-                }
-                const img = await getPicData(newItem)
-                pageData.value.pic1 = img
-                if (img) {
-                    cachePic[prop.data.id + '_' + newItem.timestamp] = img
+                if (cachePic.has(prop.data.id + '_' + newItem.timestamp)) {
+                    pageData.value.pic1 = cachePic.get(prop.data.id + '_' + newItem.timestamp)!
+                } else {
+                    const img = await getPicData(newItem)
+                    pageData.value.pic1 = img
+                    if (img) {
+                        cachePic.set(prop.data.id + '_' + newItem.timestamp, img)
+                    }
                 }
             }
         })
@@ -92,13 +93,14 @@ export default defineComponent({
             } else if (newItem.timestamp === oldItem.timestamp) {
                 return
             } else {
-                if (cachePic[prop.data.id + '_' + newItem.timestamp]) {
-                    pageData.value.pic2 = cachePic[prop.data.id + '_' + newItem.timestamp]
-                }
-                const img = await getPicData(newItem)
-                pageData.value.pic2 = img
-                if (img) {
-                    cachePic[prop.data.id + '_' + newItem.timestamp] = img
+                if (cachePic.has(prop.data.id + '_' + newItem.timestamp)) {
+                    pageData.value.pic2 = cachePic.get(prop.data.id + '_' + newItem.timestamp)!
+                } else {
+                    const img = await getPicData(newItem)
+                    pageData.value.pic2 = img
+                    if (img) {
+                        cachePic.set(prop.data.id + '_' + newItem.timestamp, img)
+                    }
                 }
             }
         })
@@ -263,8 +265,8 @@ export default defineComponent({
             } else return ''
         }
 
-        onBeforeUnmount(() => {
-            cachePic = {}
+        onBeforeRouteLeave(() => {
+            cachePic.clear()
         })
 
         return {

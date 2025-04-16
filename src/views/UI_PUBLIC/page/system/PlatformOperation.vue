@@ -6,6 +6,7 @@
 <template>
     <div class="type">
         <el-form
+            v-title
             :style="{
                 '--form-label-width': '150px',
                 '--form-input-width': '200px',
@@ -38,7 +39,7 @@
             v-show="formData.operationType === 'testScreenshot' || formData.operationType === 'maintenanceScreenshot' || formData.operationType === 'acceptScreenshot'"
             class="screenshot"
         >
-            <el-form>
+            <el-form v-title>
                 <el-form-item :label="Translate('IDCS_MAINTEN_SNAPCHOOSE')">
                     <el-checkbox
                         v-model="pageData.selectAll"
@@ -54,6 +55,7 @@
             </el-form>
             <el-table
                 ref="tableRef"
+                v-title
                 :height="formData.operationType === 'acceptScreenshot' ? 360 : 400"
                 :data="tableData"
                 highlight-current-row
@@ -76,7 +78,10 @@
                     width="620"
                 />
             </el-table>
-            <el-form v-show="formData.operationType === 'acceptScreenshot'">
+            <el-form
+                v-show="formData.operationType === 'acceptScreenshot'"
+                v-title
+            >
                 <el-form-item :label="Translate('IDCS_ACCEPTANCE_ALARM')">
                     <el-input
                         v-model="formData.alarmNum"
@@ -143,7 +148,10 @@
             </el-form-item>
         </el-form>
         <!-- 维修签到 -->
-        <el-form v-show="formData.operationType === 'repairSign'">
+        <el-form
+            v-show="formData.operationType === 'repairSign'"
+            v-title
+        >
             <el-form-item :label="Translate('IDCS_MAINTENSIGN_ITEMCHOOSE')" />
             <el-form-item>
                 <el-checkbox-group v-model="formData.chooseRepairType">

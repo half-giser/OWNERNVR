@@ -7,6 +7,7 @@
     <div class="base-flex-box">
         <el-form
             ref="formRef"
+            v-title
             :rules
             :model="formData"
             :style="{
@@ -65,7 +66,10 @@
                         active: pageData.activeChannelTab === 'IDCS_LOCAL_RIGHT',
                     }"
                 >
-                    <el-table :data="channelAuthList">
+                    <el-table
+                        v-title
+                        :data="channelAuthList"
+                    >
                         <el-table-column
                             prop="name"
                             :label="Translate('IDCS_CHANNEL')"
@@ -107,7 +111,10 @@
                     class="base-table-box"
                     :class="{ active: pageData.activeChannelTab === 'IDCS_REMOTE_RIGHT' }"
                 >
-                    <el-table :data="channelAuthList">
+                    <el-table
+                        v-title
+                        :data="channelAuthList"
+                    >
                         <el-table-column
                             prop="name"
                             :label="Translate('IDCS_CHANNEL')"

@@ -9,6 +9,7 @@
             <span>{{ Translate('IDCS_TRIGGER_ALARM_PRESET') }}</span>
         </div>
         <el-table
+            v-title
             height="367"
             :data="pageData.chlList"
         >

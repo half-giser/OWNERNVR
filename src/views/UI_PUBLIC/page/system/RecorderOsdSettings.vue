@@ -6,6 +6,7 @@
 <template>
     <div class="OSDSetting">
         <el-form
+            v-title
             class="stripe"
             :style="{
                 '--form-input-width': '220px',

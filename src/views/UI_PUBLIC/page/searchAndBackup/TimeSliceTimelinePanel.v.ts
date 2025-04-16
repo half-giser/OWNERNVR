@@ -856,6 +856,10 @@ export default defineComponent({
             createWebsocket()
         })
 
+        onBeforeRouteLeave(() => {
+            stop()
+        })
+
         onBeforeUnmount(() => {
             keyframe?.destroy()
         })

@@ -12,7 +12,7 @@
                     @ready="handlePlayerReady"
                 />
             </div>
-            <el-form>
+            <el-form v-title>
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select-v2
                         v-if="tableData.length"
@@ -66,6 +66,7 @@
         <div class="base-chl-box-right">
             <div class="base-table-box">
                 <el-table
+                    v-title
                     :data="tableData"
                     highlight-current-row
                     @row-click="handleRowClick"

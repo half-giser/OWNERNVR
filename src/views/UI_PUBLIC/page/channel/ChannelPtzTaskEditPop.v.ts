@@ -32,6 +32,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
+        const dateTime = useDateTimeStore()
 
         // 默认名称与显示文本的映射
         const NAME_TRANS_MAPPING: Record<string, string> = {
@@ -261,6 +262,7 @@ export default defineComponent({
             formRule,
             formData,
             pageData,
+            dateTime,
             changeType,
             verify,
             open,

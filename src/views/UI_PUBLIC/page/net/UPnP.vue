@@ -6,6 +6,7 @@
 <template>
     <div class="base-flex-box">
         <el-form
+            v-title
             class="stripe"
             :style="{
                 '--form-input-width': '200px',
@@ -29,6 +30,7 @@
         </el-form>
         <div class="base-table-box">
             <el-table
+                v-title
                 :data="tableData"
                 :row-class-name="handleRowClassName"
             >

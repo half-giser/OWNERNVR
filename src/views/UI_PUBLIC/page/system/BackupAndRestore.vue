@@ -6,6 +6,7 @@
 <template>
     <div>
         <el-form
+            v-title
             :style="{
                 '--form-input-width': '200px',
                 '--form-label-width': '100px',
@@ -54,6 +55,7 @@
             </el-form-item>
         </el-form>
         <el-form
+            v-title
             :style="{
                 '--form-input-width': '200px',
                 '--form-label-width': '100px',

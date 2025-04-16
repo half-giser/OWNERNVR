@@ -10,6 +10,7 @@
         @close="close"
     >
         <el-form
+            v-title
             :style="{
                 '--form-label-width': '180px',
             }"
@@ -17,6 +18,7 @@
             <el-form-item :label="Translate('IDCS_SCHEDULE_START_TIME')">
                 <el-time-picker
                     v-model="pageData.addTimeData"
+                    :format="dateTime.timeFormat"
                     value-format="HH:mm:ss"
                 />
             </el-form-item>
@@ -35,6 +37,7 @@
         </el-form>
         <el-table
             ref="tableRef"
+            v-title
             height="260"
             :data="tableData"
             highlight-current-row

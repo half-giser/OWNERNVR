@@ -7,6 +7,7 @@
     <div class="base-flex-box">
         <div class="base-table-box">
             <el-table
+                v-title
                 :data="tableData"
                 show-overflow-tooltip
                 width="100%"

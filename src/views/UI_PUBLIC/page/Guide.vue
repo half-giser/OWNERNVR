@@ -84,7 +84,7 @@
             >
                 <div class="title">{{ Translate('IDCS_WIZARD') }}</div>
                 <div class="box">
-                    <el-form>
+                    <el-form v-title>
                         <el-form-item :label="Translate('IDCS_TIME_ZONE')">
                             <el-select-v2
                                 v-model="dateTimeFormData.timeZone"
@@ -162,7 +162,7 @@
             >
                 <div class="title">{{ Translate('IDCS_WIZARD') }}</div>
                 <div class="box">
-                    <el-form>
+                    <el-form v-title>
                         <el-form-item>
                             <el-text class="user-title">{{ Translate('IDCS_ADMIN_PASSWORD_SETUP').formatForLang(userFormData.userName) }}</el-text>
                         </el-form-item>
@@ -215,6 +215,7 @@
                 <div class="title">{{ Translate('IDCS_WIZARD') }}</div>
                 <div class="box">
                     <el-form
+                        v-title
                         :style="{
                             '--form-input-width': '340px',
                         }"
@@ -242,6 +243,7 @@
                     </el-form>
                     <div class="base-table-box">
                         <el-table
+                            v-title
                             :data="qaTableData"
                             show-overflow-tooltip
                         >
@@ -284,6 +286,7 @@
                 <div class="title">{{ Translate('IDCS_DISK_CONFIG') }}</div>
                 <div class="box">
                     <el-table
+                        v-title
                         :data="diskTableData"
                         show-overflow-tooltip
                         highlight-current-row

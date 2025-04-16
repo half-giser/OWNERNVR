@@ -18,7 +18,9 @@
                 <div
                     v-for="item in pageData.typeOptions"
                     :key="item.value"
-                    :class="{ active: item.value === pageData.type }"
+                    :class="{
+                        active: item.value === pageData.type,
+                    }"
                     @click="changeType(item.value)"
                 >
                     {{ item.label }}

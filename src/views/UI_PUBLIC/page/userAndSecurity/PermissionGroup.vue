@@ -48,7 +48,10 @@
                         class="base-table-box"
                         :class="{ active: pageData.activeChannelTab === 'IDCS_LOCAL_RIGHT' }"
                     >
-                        <el-table :data="channelAuthList">
+                        <el-table
+                            v-title
+                            :data="channelAuthList"
+                        >
                             <el-table-column
                                 :label="Translate('IDCS_CHANNEL')"
                                 show-overflow-tooltip
@@ -92,6 +95,7 @@
         <div class="base-user-box-right">
             <el-table
                 ref="tableRef"
+                v-title
                 :data="authGroupList"
                 width="100%"
                 height="100%"

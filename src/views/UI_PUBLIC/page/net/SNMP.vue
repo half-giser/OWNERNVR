@@ -7,6 +7,7 @@
     <div>
         <el-form
             ref="formRef"
+            v-title
             :style="{
                 '--form-label-width': '200px',
                 '--form-input-width': '340px',

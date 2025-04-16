@@ -31,10 +31,10 @@
                     <span
                         v-for="subMenu in moduleItem.children"
                         :key="subMenu.meta.fullPath"
+                        v-title
                         :class="{
                             disabled: getMenuDisabled(subMenu),
                         }"
-                        :title="Translate(subMenu.meta.lk || '')"
                         @click.stop="goToPage(subMenu, moduleItem)"
                         v-text="Translate(subMenu.meta.lk || '')"
                     ></span>

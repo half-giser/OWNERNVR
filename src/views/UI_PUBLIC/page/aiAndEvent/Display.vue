@@ -6,6 +6,7 @@
 <template>
     <el-form
         ref="popVideoRef"
+        v-title
         :style="{
             '--form-input-width': '215px',
         }"
@@ -29,6 +30,7 @@
     </el-form>
     <el-form
         ref="popMsgRef"
+        v-title
         class="gap"
         :style="{
             '--form-input-width': '215px',

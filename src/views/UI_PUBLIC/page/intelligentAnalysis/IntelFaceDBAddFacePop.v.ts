@@ -72,8 +72,6 @@ export default defineComponent({
             formIndex: 0,
             // 表单类型 snap | import
             formType: 'snap',
-            // 错误文本
-            errorTip: ' ',
             // 选中的图片索引
             swiperIndex: 0,
         })
@@ -89,7 +87,7 @@ export default defineComponent({
 
         // 当前分页的图片列表
         const picList = computed(() => {
-            return formData.value.slice(pageData.value.swiperIndex * 6, (pageData.value.swiperIndex + 1) * 6)
+            return formData.value.slice(pageData.value.swiperIndex * 7, (pageData.value.swiperIndex + 1) * 7)
         })
 
         // 成功上传总数
@@ -135,6 +133,7 @@ export default defineComponent({
         const renderFormData = () => {
             const data = new IntelFaceDBFaceForm()
             data.birthday = formatGregoryDate(new Date(), dateTime.dateFormat)
+            data.errorTip = Translate('IDCS_WAITING_ADD')
             if (pageData.value.groupList.length) {
                 if (prop.groupId) {
                     data.groupId = prop.groupId
@@ -157,7 +156,6 @@ export default defineComponent({
             await getFaceGroup()
             pageData.value.formIndex = 0
             pageData.value.formType = 'choose'
-            pageData.value.errorTip = ' ' // Translate('IDCS_WAITING_ADD')
             if (pageData.value.groupList.length) {
                 if (prop.groupId) {
                     formData.value[0].groupId = prop.groupId
@@ -172,6 +170,7 @@ export default defineComponent({
          */
         const handlePrev = () => {
             pageData.value.swiperIndex--
+            pageData.value.formIndex = pageData.value.swiperIndex * 7
         }
 
         /**
@@ -179,6 +178,7 @@ export default defineComponent({
          */
         const handleNext = () => {
             pageData.value.swiperIndex++
+            pageData.value.formIndex = pageData.value.swiperIndex * 7
         }
 
         /**
@@ -197,12 +197,12 @@ export default defineComponent({
         const confirmChooseFace = (e: IntelFaceDBSnapFaceList[]) => {
             pageData.value.isChooseFacePop = false
             pageData.value.formType = 'snap'
-            pageData.value.errorTip = Translate('IDCS_WAITING_ADD')
             pageData.value.swiperIndex = 0
             pageData.value.formIndex = 0
 
             const data = renderFormData()
             data.pic = e[0].pic
+            data.errorTip = Translate('IDCS_WAITING_ADD')
             formData.value = [data]
             snapData = e
         }
@@ -216,7 +216,6 @@ export default defineComponent({
         const confirmImportFace = (e: IntelFaceDBImportFaceDto[]) => {
             pageData.value.isChooseFacePop = false
             pageData.value.formType = 'import'
-            pageData.value.errorTip = Translate('IDCS_WAITING_ADD')
             pageData.value.swiperIndex = 0
             pageData.value.formIndex = 0
 
@@ -295,8 +294,8 @@ export default defineComponent({
             closeLoading()
 
             if ($('status').text() === 'success') {
-                pageData.value.errorTip = Translate('IDCS_FACE_ADD_SUCCESS')
                 formData.value[index].success = true
+                formData.value[index].errorTip = Translate('IDCS_FACE_ADD_SUCCESS')
                 isAddedFace = true
             } else {
                 const errorCode = $('errorCode').text().num()
@@ -308,8 +307,8 @@ export default defineComponent({
                     case ErrorCode.USER_ERROR_FILE_MISMATCHING:
                     case ErrorCode.USER_ERROR_WALL_HAVEDECODER:
                     case ErrorCode.USER_ERROR_MDU_HAVEDEVICE:
-                        pageData.value.errorTip = Translate('IDCS_ADD_FACE_FAIL') + ',' + ERROR_TIP_MAPPING[errorCode]
                         formData.value[index].error = true
+                        formData.value[index].errorTip = Translate('IDCS_ADD_FACE_FAIL') + ',' + ERROR_TIP_MAPPING[errorCode]
                         break
                     case ErrorCode.USER_ERROR_NODE_ID_EXISTS:
                         if (!force) {
@@ -324,7 +323,7 @@ export default defineComponent({
                         }
                         break
                     default:
-                        pageData.value.errorTip = Translate('IDCS_ADD_FACE_FAIL')
+                        formData.value[index].errorTip = Translate('IDCS_ADD_FACE_FAIL')
                         formData.value[index].error = true
                         break
                 }
@@ -338,6 +337,11 @@ export default defineComponent({
          * @param {boolean} force 是否无视相似度警告，强制上传
          */
         const setSingleSnapData = async (item: IntelFaceDBFaceForm, index: number, force = false) => {
+            if (!item.name) {
+                openMessageBox(Translate('IDCS_PROMPT_FULL_NAME_EMPTY'))
+                return
+            }
+
             openLoading()
 
             const snapItem = snapData[0]
@@ -382,7 +386,7 @@ export default defineComponent({
 
             if ($('status').text() === 'success') {
                 formData.value[index].success = true
-                pageData.value.errorTip = Translate('IDCS_FACE_ADD_SUCCESS')
+                formData.value[index].errorTip = Translate('IDCS_FACE_ADD_SUCCESS')
                 isAddedFace = true
             } else {
                 const errorCode = $('errorCode').text().num()
@@ -394,7 +398,7 @@ export default defineComponent({
                     case ErrorCode.USER_ERROR_FILE_MISMATCHING:
                     case ErrorCode.USER_ERROR_WALL_HAVEDECODER:
                     case ErrorCode.USER_ERROR_MDU_HAVEDEVICE:
-                        pageData.value.errorTip = Translate('IDCS_ADD_FACE_FAIL') + ',' + ERROR_TIP_MAPPING[errorCode]
+                        formData.value[index].errorTip = Translate('IDCS_ADD_FACE_FAIL') + ',' + ERROR_TIP_MAPPING[errorCode]
                         formData.value[index].error = true
                         break
                     case ErrorCode.USER_ERROR_NODE_ID_EXISTS:
@@ -410,7 +414,7 @@ export default defineComponent({
                         }
                         break
                     default:
-                        pageData.value.errorTip = Translate('IDCS_ADD_FACE_FAIL')
+                        formData.value[index].errorTip = Translate('IDCS_ADD_FACE_FAIL')
                         formData.value[index].error = true
                         break
                 }

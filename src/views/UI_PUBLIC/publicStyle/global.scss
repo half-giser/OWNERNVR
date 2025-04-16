@@ -33,6 +33,7 @@
      ***********/
 
     --content-height: calc(100vh - 230px); /* 正文内容高度 */
+    --content-min-height: 500px; /* 正文内容最小高度 */
     --live-content-height: calc(100vh - 170px); /* 现场预览、回放的正文内容高度 */
 
     --form-label-width: 150px; /* 表单label宽度变量 */

@@ -7,6 +7,7 @@
     <div class="base-flex-box">
         <el-form
             ref="formRef"
+            v-title
             :rules="formRules"
             :model="formData"
             :style="{
@@ -191,6 +192,7 @@
                 <el-table-column type="expand">
                     <template #default="{ row, $index }: TableColumn<NetPlatformSipList>">
                         <el-table
+                            v-title
                             :data="row.list"
                             class="expand-table"
                             :row-class-name="handleRowClassName"

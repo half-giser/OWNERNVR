@@ -92,7 +92,7 @@ li {
 
     &.active {
         background-color: var(--primary);
-        color: white;
+        color: var(--main-text-active);
     }
 }
 </style>

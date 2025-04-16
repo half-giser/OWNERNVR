@@ -13,11 +13,17 @@
                     :label="Translate('IDCS_ALL')"
                     @change="changeAllFaceGroup"
                 />
-                <el-text class="group-list text-ellipsis">{{ formData.faceGroup.map((item) => item.name).join(';') }}</el-text>
+                <div
+                    v-title
+                    class="group-list text-ellipsis"
+                >
+                    {{ formData.faceGroup.map((item) => item.name).join(';') }}
+                </div>
             </div>
             <el-button @click="changeGroup">{{ Translate('IDCS_CONFIGURATION') }}</el-button>
         </div>
         <el-form
+            v-title
             :style="{
                 '--form-input-width': '200px',
             }"
@@ -41,7 +47,12 @@
                         :disabled="!item.pic[0]"
                         @update:model-value="selectFace(index + (formData.pageIndex - 1) * formData.pageSize)"
                     >
-                        {{ item.name }}
+                        <div
+                            v-title
+                            class="text-ellipsis"
+                        >
+                            {{ item.name }}
+                        </div>
                     </IntelBaseFaceItem>
                 </div>
             </el-scrollbar>

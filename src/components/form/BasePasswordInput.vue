@@ -18,6 +18,9 @@ import type { InputInstance } from 'element-plus'
 
 withDefaults(
     defineProps<{
+        /**
+         * @property 是否显示明文
+         */
         showText?: boolean
     }>(),
     {

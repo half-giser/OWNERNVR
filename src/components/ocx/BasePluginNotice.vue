@@ -45,7 +45,7 @@ const getPluginLoadLang = (langKey: keyof typeof OCX_Plugin_Notice_Map) => {
  * @description 获取语言配置
  * @param {String} langKey
  */
-const getHTML = (langKey: keyof typeof OCX_Plugin_Notice_Map, downloadUrl?: string) => {
+const getHTML = (langKey: string, downloadUrl?: string) => {
     const item = OCX_Plugin_Notice_Map[langKey]
     return {
         warning: item.warning,

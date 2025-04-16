@@ -29,6 +29,7 @@
             <el-table
                 v-show="activeTab === tabKeys.quickAdd"
                 ref="quickAddTableRef"
+                v-title
                 :data="quickAddTableData"
                 show-overflow-tooltip
                 highlight-current-row
@@ -112,6 +113,7 @@
             <el-table
                 v-show="activeTab === tabKeys.manualAdd"
                 ref="manualAddTableRef"
+                v-title
                 :data="manualAddFormData"
                 show-overflow-tooltip
             >
@@ -146,9 +148,9 @@
                     width="150"
                 >
                     <template #default="{ row, $index }: TableColumn<ChannelManualAddDto>">
-                        <BaseNumberInput
+                        <el-input
                             v-if="row.port === 0"
-                            :model-value="undefined"
+                            model-value=""
                             disabled
                         />
                         <BaseNumberInput
@@ -213,6 +215,7 @@
             <el-table
                 v-show="activeTab === tabKeys.addRecorder"
                 ref="addRecorderTableRef"
+                v-title
                 :data="addRecorderTableData"
                 show-overflow-tooltip
                 highlight-current-row

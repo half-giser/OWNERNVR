@@ -36,8 +36,8 @@
         </div>
         <div class="toolbar-border">
             <div
+                v-title
                 class="valueShowText"
-                :title="valueShowText"
                 v-text="valueShowText"
             ></div>
             <div

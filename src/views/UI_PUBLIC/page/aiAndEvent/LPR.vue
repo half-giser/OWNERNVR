@@ -12,6 +12,7 @@
     <el-tabs
         :key="pageData.curChl"
         v-model="pageData.tab"
+        v-title
         class="base-ai-menu-tabs"
         @tab-change="changeTab"
     >
@@ -70,6 +71,7 @@
                             </div>
                             <div class="base-ai-param-box-right">
                                 <el-form
+                                    v-title
                                     :style="{
                                         '--form-input-width': '215px',
                                     }"
@@ -146,10 +148,9 @@
                                             label=" "
                                             :disabled="detectionPageData.exposureDisabled"
                                         />
-                                        <el-slider
+                                        <BaseSliderInput
                                             v-model="detectionFormData.exposureValue"
                                             :show-tooltip="false"
-                                            show-input
                                             :min="detectionFormData.exposureMin"
                                             :max="detectionFormData.exposureMax"
                                             :disabled="!detectionFormData.exposureSwitch"
@@ -213,6 +214,7 @@
                         </template>
                         <div class="base-ai-advance-box">
                             <el-form
+                                v-title
                                 class="stripe"
                                 :style="{
                                     '--form-input-width': '200px',
@@ -251,6 +253,7 @@
         >
             <div v-if="!pageData.notSupport">
                 <el-form
+                    v-title
                     :style="{
                         '--form-label-width': 'auto',
                     }"
@@ -317,7 +320,7 @@
             :disabled="!supportPlateMatch"
         >
             <template #label>
-                <span :title="Translate('IDCS_VEHICLE_DATABASE')">{{ Translate('IDCS_VEHICLE_DATABASE') }}</span>
+                <span>{{ Translate('IDCS_VEHICLE_DATABASE') }}</span>
                 <BaseImgSprite
                     class="link-icon"
                     file="jumpto"

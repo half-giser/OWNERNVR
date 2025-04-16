@@ -6,6 +6,7 @@
 <template>
     <div>
         <el-form
+            v-title
             class="stripe"
             :style="{
                 '--form-label-width': '200px',

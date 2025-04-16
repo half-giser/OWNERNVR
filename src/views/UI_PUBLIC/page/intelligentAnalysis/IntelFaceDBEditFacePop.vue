@@ -10,7 +10,10 @@
         @open="open"
     >
         <div class="edit">
-            <el-form class="stripe">
+            <el-form
+                v-title
+                class="stripe"
+            >
                 <el-form-item :label="Translate('IDCS_NAME_PERSON')">
                     <el-input
                         v-model="formData.name"
@@ -69,6 +72,7 @@
                     <el-input
                         v-model="formData.note"
                         :disabled
+                        maxlength="15"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_ADD_FACE_GROUP')">

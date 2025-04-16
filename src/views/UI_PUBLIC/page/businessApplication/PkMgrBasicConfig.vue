@@ -7,6 +7,7 @@
     <div class="manage">
         <el-form
             ref="formRef"
+            v-title
             :rules="rules"
             :model="formData"
             :style="{

@@ -12,6 +12,7 @@
     >
         <el-form
             ref="formRef"
+            v-title
             :rules
             :model="formData"
             :style="{

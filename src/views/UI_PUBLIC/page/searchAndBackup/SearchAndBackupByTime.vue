@@ -6,7 +6,10 @@
 <template>
     <div class="by-time">
         <div class="left">
-            <el-form label-position="top">
+            <el-form
+                v-title
+                label-position="top"
+            >
                 <el-form-item :label="Translate('IDCS_START_TIME')">
                     <BaseDatePicker
                         v-model="formData.startTime"

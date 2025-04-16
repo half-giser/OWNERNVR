@@ -24,6 +24,7 @@
                 />
             </el-radio-group>
             <el-form
+                v-title
                 class="stripe"
                 :style="{
                     '--form-input-width': '215px',
@@ -91,20 +92,20 @@
                     <el-form-item :label="Translate('IDCS_TIMES')">
                         <BaseNumberInput
                             v-model="alarmOutList[pageData.alarmOutIndex].alarmTimes"
-                            :disabled="!alarmOutList[pageData.alarmOutIndex].audioSwitch || !alarmOutList[pageData.alarmOutIndex].alarmTimes"
+                            :disabled="!alarmOutList[pageData.alarmOutIndex].audioSwitch || alarmOutList[pageData.alarmOutIndex].alarmTimesDisabled"
                             :min="1"
                             :max="50"
-                            :value-on-clear="!alarmOutList[pageData.alarmOutIndex].alarmTimes ? 'min' : null"
+                            value-on-clear="min"
                         />
                     </el-form-item>
                     <!-- 音量 -->
                     <el-form-item :label="Translate('IDCS_ALARM_VOLUME')">
                         <BaseNumberInput
                             v-model="alarmOutList[pageData.alarmOutIndex].audioVolume"
-                            :disabled="!alarmOutList[pageData.alarmOutIndex].audioSwitch || typeof alarmOutList[pageData.alarmOutIndex].audioVolume !== 'number'"
+                            :disabled="!alarmOutList[pageData.alarmOutIndex].audioSwitch || alarmOutList[pageData.alarmOutIndex].audioVolumeDisabled"
                             :min="0"
                             :max="100"
-                            :value-on-clear="typeof alarmOutList[pageData.alarmOutIndex].audioVolume !== 'number' ? 'min' : null"
+                            value-on-clear="min"
                             @change="changeAudioVolume"
                         />
                     </el-form-item>
@@ -151,19 +152,19 @@
                     </el-form-item>
                     <!-- 音频输入音量 -->
                     <el-form-item :label="Translate('IDCS_IN_VOLUME')">
-                        <el-slider
+                        <BaseSliderInput
                             v-if="deviceList[pageData.deviceIndex].audioInput === 'MIC'"
                             v-model="deviceList[pageData.deviceIndex].micInVolume"
                             :disabled="!deviceList[pageData.deviceIndex].audioInSwitch || !deviceList[pageData.deviceIndex].micOrLinEnabled"
                             :max="deviceList[pageData.deviceIndex].micMaxValue"
-                            show-input
+                            :value-on-disabled="null"
                         />
-                        <el-slider
+                        <BaseSliderInput
                             v-else
                             v-model="deviceList[pageData.deviceIndex].linInVolume"
                             :disabled="!deviceList[pageData.deviceIndex].audioInSwitch || !deviceList[pageData.deviceIndex].micOrLinEnabled"
                             :max="deviceList[pageData.deviceIndex].linMaxValue"
-                            show-input
+                            :value-on-disabled="null"
                         />
                     </el-form-item>
                     <!-- 扬声器（内置） -->
@@ -184,11 +185,11 @@
                     </el-form-item>
                     <!-- 音频输出音量 -->
                     <el-form-item :label="Translate('IDCS_AUDIO_OUT_VOLUME')">
-                        <el-slider
+                        <BaseSliderInput
                             v-model="deviceList[pageData.deviceIndex].audioOutVolume"
                             :disabled="!deviceList[pageData.deviceIndex].audioInSwitch || !deviceList[pageData.deviceIndex].audioOutEnabled"
-                            show-input
                             :max="deviceList[pageData.deviceIndex].audioOutMaxValue"
+                            :value-on-disabled="null"
                         />
                     </el-form-item>
                     <!-- 音频输入编码 -->
@@ -202,6 +203,7 @@
                 </template>
             </el-form>
             <el-form
+                v-title
                 :style="{
                     '--form-input-width': '215px',
                     '--form-label-width': '220px',
@@ -240,6 +242,7 @@
             <div class="local">
                 <el-table
                     ref="localTableRef"
+                    v-title
                     :data="localList"
                     highlight-current-row
                     @row-click="handleRowClick"

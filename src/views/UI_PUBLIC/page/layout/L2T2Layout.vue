@@ -14,7 +14,9 @@
                     v-for="menu2 in menu2Items"
                     :key="menu2.meta.fullPath"
                     :index="menu2.meta.fullPath"
-                    :class="{ active: isMenu2Actice(menu2) }"
+                    :class="{
+                        active: isMenu2Active(menu2),
+                    }"
                     @click="goToPath(menu2)"
                 >
                     <span>{{ Translate(menu2.meta.lk || '') }}</span>
@@ -22,7 +24,14 @@
             </el-menu>
         </el-header>
         <el-main id="layout2Main">
-            <RouterView />
+            <RouterView
+                :key="menuKey"
+                v-slot="{ Component }"
+            >
+                <KeepAlive :max="6">
+                    <component :is="Component" />
+                </KeepAlive>
+            </RouterView>
         </el-main>
     </el-container>
 </template>

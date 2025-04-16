@@ -7,6 +7,7 @@
     <div class="tcp-ip">
         <div class="base-subheading-box">{{ Translate('IDCS_IP_ADDRESS_SET') }}</div>
         <el-form
+            v-title
             :style="{
                 '--form-input-width': '220px',
             }"

@@ -56,6 +56,7 @@
                     </div>
                     <div class="base-ai-param-box-right">
                         <el-form
+                            v-title
                             :style="{
                                 '--form-input-width': '215px',
                             }"
@@ -86,6 +87,7 @@
                         <div class="base-table-box">
                             <el-table
                                 ref="boundaryTableRef"
+                                v-title
                                 :data="formData.boundaryData"
                                 highlight-current-row
                                 width="100%"
@@ -140,7 +142,7 @@
                                     :label="Translate('IDCS_EMISSIVITY')"
                                 >
                                     <template #default="{ row }: TableColumn<AlarmTemperatureDetectionBoundryDto>">
-                                        <el-input-number
+                                        <BaseNumberInput
                                             v-model="row.emissivity"
                                             :min="0.01"
                                             :max="1"
@@ -159,7 +161,7 @@
                                     :label="Translate('IDCS_DISTANCE')"
                                 >
                                     <template #default="{ row }: TableColumn<AlarmTemperatureDetectionBoundryDto>">
-                                        <el-input-number
+                                        <BaseNumberInput
                                             v-model="row.distance"
                                             :min="0"
                                             :max="10000"
@@ -176,7 +178,7 @@
                                     :label="Translate('IDCS_REFLECTED_TEMPERATURE')"
                                 >
                                     <template #default="{ row }: TableColumn<AlarmTemperatureDetectionBoundryDto>">
-                                        <el-input-number
+                                        <BaseNumberInput
                                             v-model="row.reflectTemper"
                                             :min="-30"
                                             :max="60"
@@ -205,7 +207,7 @@
                                     :label="Translate('IDCS_ALARM_TEMPERATURE')"
                                 >
                                     <template #default="{ row }: TableColumn<AlarmTemperatureDetectionBoundryDto>">
-                                        <el-input-number
+                                        <BaseNumberInput
                                             v-model="row.alarmTemper"
                                             :min="-50"
                                             :max="550"
@@ -227,6 +229,7 @@
                 >
                     <el-form
                         v-if="supportAlarmAudioConfig"
+                        v-title
                         :style="{
                             '--form-input-width': '215px',
                         }"

@@ -8,6 +8,7 @@
         <div class="base-subheading-box">{{ Translate('IDCS_FTP') }}</div>
         <el-form
             ref="formRef"
+            v-title
             :style="{
                 '--form-label-width': '200px',
                 '--form-input-width': '200px',
@@ -118,6 +119,7 @@
         </el-form>
         <div class="base-subheading-box">{{ Translate('IDCS_UPLOAD_SET') }}</div>
         <el-table
+            v-title
             height="100%"
             :data="tableData"
             :row-class-name="handleRowClassName"

@@ -220,6 +220,11 @@ export default defineComponent({
             if (!checkPermission()) {
                 return
             }
+
+            if (!groupId) {
+                groupId = tableData.value[pageData.value.tableIndex]?.id || ''
+            }
+
             pageData.value.editPlateData.groupId = groupId
             pageData.value.editPlateType = 'add'
             pageData.value.isEditPlatePop = true
@@ -476,11 +481,11 @@ export default defineComponent({
             return row.id
         }
 
-        onMounted(() => {
+        onActivated(() => {
             getGroupList()
         })
 
-        onBeforeUnmount(() => {
+        onBeforeRouteLeave(() => {
             if (history.state.backChlId) {
                 delete history.state.backChlId
             }

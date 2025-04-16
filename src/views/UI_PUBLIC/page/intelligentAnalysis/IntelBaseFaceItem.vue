@@ -18,7 +18,7 @@
                 <BaseImgSprite
                     v-if="icon === 'success' || icon === 'error'"
                     file="floatTip"
-                    :index="icon === 'success' ? 1 : 2"
+                    :index="icon === 'success' ? 1 : 0"
                     :chunk="5"
                 />
             </div>

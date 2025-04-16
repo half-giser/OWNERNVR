@@ -8,6 +8,7 @@
         <div class="base-table-box">
             <el-table
                 ref="tableRef"
+                v-title
                 :data="tableData"
                 :row-key="getRowKey"
                 :expand-row-key="pageData.expandRowKey"
@@ -97,7 +98,12 @@
                                             :model-value="formData.faceIndex.includes(index)"
                                             @update:model-value="selectFace(index, $event)"
                                         >
-                                            {{ hideSensitiveInfo(item.name, 'medium', 'name') }}
+                                            <div
+                                                v-title
+                                                class="text-ellipsis"
+                                            >
+                                                {{ hideSensitiveInfo(item.name, 'medium', 'name') }}
+                                            </div>
                                         </IntelBaseFaceItem>
                                     </div>
                                     <div class="base-pagination-box">
@@ -118,7 +124,10 @@
                                             :src
                                         />
                                     </div>
-                                    <el-form class="stripe">
+                                    <el-form
+                                        v-title
+                                        class="stripe"
+                                    >
                                         <el-form-item :label="Translate('IDCS_NAME_PERSON')">
                                             <el-input
                                                 :model-value="currentFace.name"

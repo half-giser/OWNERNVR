@@ -24,12 +24,16 @@ export default defineComponent({
     setup(props, ctx) {
         const { Translate } = useLangStore()
         const formRef = useFormRef()
+        const dateTime = useDateTimeStore()
+
         const formData = ref({
             address: '',
             schedule: '',
         })
+
         const error = ref('')
         const maxEmailCount = ref(16)
+
         const rules = reactive<FormRules>({
             address: [
                 {
@@ -95,7 +99,7 @@ export default defineComponent({
         })
 
         const handleTimePickerChange = () => {
-            const time = pageData.value.time.split(':')[0]
+            const time = pageData.value.time.split(':')
             pageData.value.data.sendEmailData.reportHour = Number(time[0])
             pageData.value.data.sendEmailData.reportMin = Number(time[1])
         }
@@ -187,6 +191,7 @@ export default defineComponent({
         return {
             formRef,
             formData,
+            dateTime,
             error,
             rules,
             pageData,

@@ -31,6 +31,7 @@
         <div class="base-table-box">
             <el-table
                 ref="tableRef"
+                v-title
                 :data="tableData"
                 show-overflow-tooltip
                 @row-click="handleRowClick"

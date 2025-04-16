@@ -52,7 +52,10 @@
                     :placeholder="Translate('IDCS_POS_KEY')"
                 />
             </div>
-            <el-form label-position="top">
+            <el-form
+                v-title
+                label-position="top"
+            >
                 <el-form-item :label="Translate('IDCS_START_TIME')">
                     <BaseDatePicker
                         v-model="formData.startTime"
@@ -107,6 +110,7 @@
                 <div class="base-table-box">
                     <el-table
                         ref="tableRef"
+                        v-title
                         :data="filterTableData"
                         show-overflow-tooltip
                         @row-click="handleRecClick"

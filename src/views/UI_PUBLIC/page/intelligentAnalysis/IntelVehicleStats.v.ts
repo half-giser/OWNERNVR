@@ -249,7 +249,7 @@ export default defineComponent({
             downloadExcel(csvHead, csvBody, xlsName, csvTitle)
         }
 
-        onMounted(() => {
+        onActivated(() => {
             pageData.value.barData = getBarData()
         })
 

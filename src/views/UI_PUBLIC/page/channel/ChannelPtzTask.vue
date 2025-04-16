@@ -14,6 +14,7 @@
             </div>
             <el-form
                 ref="formRef"
+                v-title
                 :style="{
                     '--form-label-width': '100px',
                 }"
@@ -54,7 +55,7 @@
                 <el-form-item :label="Translate('IDCS_START_TIME')">
                     <el-time-picker
                         v-model="formData.startTime"
-                        format="HH:mm"
+                        :format="dateTime.hourMinuteFormat"
                         value-format="HH:mm"
                         :disabled="!tableData.length"
                     />
@@ -65,7 +66,7 @@
                 >
                     <el-time-picker
                         v-model="formData.endTime"
-                        format="HH:mm"
+                        :format="dateTime.hourMinuteFormat"
                         value-format="HH:mm"
                         :disabled="!tableData.length"
                     />
@@ -102,6 +103,7 @@
                     <el-table-column type="expand">
                         <template #default="data">
                             <el-table
+                                v-title
                                 :data="pageData.expandRowKey.includes(data.row.chlId) ? taskTableData : []"
                                 highlight-current-row
                                 show-overflow-tooltip

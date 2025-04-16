@@ -150,6 +150,8 @@ export class AlarmAudioAlarmOutDto extends TableRowStatus {
     audioType = 0
     alarmTimes: number | undefined = undefined
     audioVolume: number | undefined = undefined
+    alarmTimesDisabled = false
+    audioVolumeDisabled = false
     languageType = ''
     audioFormat = ''
     sampleRate = ''

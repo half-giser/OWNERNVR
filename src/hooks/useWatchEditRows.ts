@@ -2,6 +2,9 @@
  * @Author: yejiahao yejiahao@tvt.net.cn
  * @Date: 2024-11-26 10:39:12
  * @Description: 监听和收集表格发生变化的行
+ *
+ * 注意：watcher不会记录原始值，只要值发生变化，就认为行已发生变化
+ * 也就是哪怕后面更改回了原始值，也认为已经发生了变化
  */
 import { type WatchStopHandle } from 'vue'
 
@@ -10,7 +13,7 @@ export const useWatchEditRows = <T extends TableRowStatus>() => {
     const watcher = new Map<T, WatchStopHandle>()
 
     /**
-     * @description 清除所有记录的数据
+     * @description 停止侦听，并清除所有记录的数据
      */
     const clear = () => {
         off()
@@ -18,7 +21,7 @@ export const useWatchEditRows = <T extends TableRowStatus>() => {
     }
 
     /**
-     * @description 暂停侦听，不清除记录的数据
+     * @description 停止侦听，不清除记录的数据
      */
     const off = () => {
         watcher.forEach((stopWatch) => {
@@ -35,10 +38,23 @@ export const useWatchEditRows = <T extends TableRowStatus>() => {
         watcher.set(
             item,
             watch(
-                () => item,
-                () => {
-                    unref(item)
-                    editRows.value.add(item as any)
+                () => JSON.stringify(item),
+                (newItem, oldItem) => {
+                    const cloneItem = JSON.parse(newItem)
+                    const cloneOldItem = JSON.parse(oldItem)
+                    cloneItem.disabled = false
+                    cloneItem.status = ''
+                    cloneItem.statusTip = ''
+                    cloneOldItem.disabled = false
+                    cloneOldItem.status = ''
+                    cloneOldItem.statusTip = ''
+                    if (!isEqual(cloneItem, cloneOldItem)) {
+                        const stopWatch = watcher.get(item)
+                        if (stopWatch) {
+                            stopWatch()
+                        }
+                        editRows.value.add(item as any)
+                    }
                 },
                 {
                     deep: true,
@@ -54,6 +70,7 @@ export const useWatchEditRows = <T extends TableRowStatus>() => {
     const remove = (item: T) => {
         nextTick(() => {
             editRows.value.delete(item as any)
+            listen(item)
         })
     }
 

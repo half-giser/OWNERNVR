@@ -12,6 +12,7 @@
     >
         <el-table
             ref="tableRef"
+            v-title
             :data="tableData"
             height="245"
             show-overflow-tooltip
@@ -41,6 +42,7 @@
         </el-table>
         <el-form
             ref="formRef"
+            v-title
             :model="formData"
             :rules="rules"
         >

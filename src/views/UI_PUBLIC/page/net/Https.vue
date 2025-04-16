@@ -6,6 +6,7 @@
 <template>
     <div>
         <el-form
+            v-title
             :style="{
                 '--form-label-width': '250px',
                 '--form-input-width': '340px',
@@ -22,6 +23,7 @@
         <!-- 已有证书 -->
         <el-form
             v-show="pageData.hasCert"
+            v-title
             :style="{
                 '--form-label-width': '250px',
                 '--form-input-width': '340px',
@@ -54,6 +56,7 @@
         <!-- 证书安装 -->
         <el-form
             v-show="!pageData.hasCert"
+            v-title
             :style="{
                 '--form-label-width': '250px',
                 '--form-input-width': '340px',
@@ -79,6 +82,7 @@
         <!-- 创建私有证书 -->
         <el-form
             v-show="!pageData.hasCert && formData.cert === pageData.certOptions[0].value"
+            v-title
             :style="{
                 '--form-label-width': '250px',
                 '--form-input-width': '340px',
@@ -91,6 +95,7 @@
         <!-- 已有已签名证书，直接导入安装 -->
         <el-form
             v-show="!pageData.hasCert && formData.cert === pageData.certOptions[1].value"
+            v-title
             :style="{
                 '--form-label-width': '250px',
                 '--form-input-width': '340px',
@@ -137,6 +142,7 @@
         <!-- 创建证书请求 -->
         <el-form
             v-show="!pageData.hasCert && formData.cert === pageData.certOptions[2].value"
+            v-title
             :style="{
                 '--form-label-width': '250px',
                 '--form-input-width': '340px',

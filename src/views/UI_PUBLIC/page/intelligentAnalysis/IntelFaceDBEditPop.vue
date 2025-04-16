@@ -13,6 +13,7 @@
     >
         <el-form
             ref="formRef"
+            v-title
             :rules="formRule"
             :model="formData"
         >
@@ -20,7 +21,10 @@
                 :label="Translate('IDCS_GROUP_NAME')"
                 prop="groupName"
             >
-                <el-input v-model="formData.groupName" />
+                <el-input
+                    v-model="formData.groupName"
+                    maxlength="32"
+                />
             </el-form-item>
             <el-form-item v-show="type === 'edit'">
                 <el-checkbox

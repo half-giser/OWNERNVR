@@ -7,6 +7,7 @@
     <div class="base-flex-box">
         <div class="base-table-box">
             <el-table
+                v-title
                 :data="virtualTableData"
                 row-key="id"
                 :row-class-name="(data) => (tableData[data.rowIndex].disabled ? 'disabled' : '')"
@@ -290,6 +291,7 @@
                                 </BaseTableDropdownLink>
                             </template>
                             <el-form
+                                v-title
                                 :style="{
                                     '--form-label-width': '50px',
                                     '--form-input-width': '170px',

@@ -21,7 +21,12 @@
                         />
                     </el-form-item>
                     <el-form-item>
-                        <el-text class="text-ellipsis">{{ formData.chls.map((item) => item.label).join(';') }}</el-text>
+                        <div
+                            v-title
+                            class="text-ellipsis"
+                        >
+                            {{ formData.chls.map((item) => item.label).join('; ') }}
+                        </div>
                     </el-form-item>
                 </el-form-item>
                 <el-form-item>
@@ -34,7 +39,12 @@
                         />
                     </el-form-item>
                     <el-form-item>
-                        <el-text>{{ formData.faceGroup.map((item) => item.name).join(';') }}</el-text>
+                        <div
+                            v-title
+                            class="text-ellipsis"
+                        >
+                            {{ formData.faceGroup.map((item) => item.name).join('; ') }}
+                        </div>
                     </el-form-item>
                 </el-form-item>
                 <el-form-item>
@@ -43,12 +53,14 @@
                         <BaseDateRange
                             :model-value="formData.dateRange"
                             :type="pageData.dateRangeType"
+                            custom-type="minute"
                             @change="changeDateRange"
                         />
                     </el-form-item>
                     <el-form-item>
                         <BaseDateTab
                             :model-value="formData.dateRange"
+                            custom-type="minute"
                             @change="changeDateRange"
                         />
                     </el-form-item>
@@ -68,8 +80,8 @@
                         <el-form-item :label="Translate('IDCS_ATTENDANCE_START_TIME')">
                             <el-time-picker
                                 v-model="formData.startTime"
-                                format="HH:mm:ss"
                                 value-format="HH:mm:ss"
+                                :format="dateTime.timeFormat"
                                 :disabled-hours="pickerRange.disabledStartTimeHours"
                                 :disabled-minutes="pickerRange.disabledStartTimeMinutes"
                                 :disabled-seconds="pickerRange.disabledStartTimeSeconds"
@@ -81,8 +93,8 @@
                         >
                             <el-time-picker
                                 v-model="formData.endTime"
-                                format="HH:mm:ss"
                                 value-format="HH:mm:ss"
+                                :format="dateTime.timeFormat"
                                 :disabled-hours="pickerRange.disabledEndTimeHours"
                                 :disabled-minutes="pickerRange.disabledEndTimeMinutes"
                                 :disabled-seconds="pickerRange.disabledEndTimeSeconds"
@@ -137,10 +149,12 @@
         </div>
         <div class="base-table-box">
             <el-table
+                v-title
                 :data="sliceTableData"
                 highlight-current-row
+                show-overflow-tooltip
             >
-                <el-table-column :label="Translate('No.')">
+                <el-table-column label="No.">
                     <template #default="{ $index }: TableColumn<BusinessFaceAttendanceList>">
                         {{ displayIndex($index) }}
                     </template>
@@ -148,10 +162,12 @@
                 <el-table-column
                     :label="Translate('IDCS_NAME')"
                     prop="name"
+                    width="250"
                 />
                 <el-table-column
                     :label="Translate('IDCS_FACE_LIBRARY')"
                     prop="groupName"
+                    width="250"
                 />
                 <el-table-column :label="Translate('IDCS_NORMAL')">
                     <template #default="{ row }: TableColumn<BusinessFaceAttendanceList>">
@@ -250,10 +266,6 @@
                 }
             }
         }
-    }
-
-    .el-checkbox {
-        margin-right: 0;
     }
 
     .base-btn-box {

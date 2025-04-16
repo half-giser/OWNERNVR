@@ -8,6 +8,7 @@
         <div class="base-table-box">
             <el-table
                 ref="tableRef"
+                v-title
                 :data="tableData"
                 :row-key="getRowKey"
                 :expand-row-key="pageData.expandRowKey"
@@ -96,6 +97,7 @@
     >
         <el-form
             ref="formRef"
+            v-title
             :style="{
                 '--form-label-width': '150px',
             }"
@@ -109,6 +111,7 @@
             <el-form-item :label="Translate('IDCS_SCHEDULE_START_TIME')">
                 <el-time-picker
                     v-model="pageData.addTimeData"
+                    :format="dateTime.timeFormat"
                     value-format="HH:mm:ss"
                 />
             </el-form-item>

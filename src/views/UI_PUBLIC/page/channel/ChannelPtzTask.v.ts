@@ -668,6 +668,7 @@ export default defineComponent({
             displayType,
             displayName,
             setData,
+            dateTime,
         }
     },
 })

@@ -6,6 +6,7 @@
 <template>
     <div class="base-flex-box">
         <el-form
+            v-title
             :style="{
                 '--form-label-width': '300px',
             }"
@@ -25,7 +26,7 @@
             v-show="pageData.isDetail"
             class="base-table-box"
         >
-            <el-table>
+            <el-table v-title>
                 <el-table-column
                     :label="Translate('IDCS_CHANNEL')"
                     prop="name"

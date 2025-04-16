@@ -6,6 +6,7 @@
 <template>
     <div class="act">
         <el-form
+            v-title
             :style="{
                 '--form-input-width': '300px',
                 '--form-label-width': '200px',
@@ -46,21 +47,19 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_UNLOCKING_DELAY_TIME')">
-                <el-slider
+                <BaseSliderInput
                     v-model="accessLockformData.doorLock[pageData.accessLockCurrentIndex].openDelayTime"
                     :min="accessLockformData.doorLock[pageData.accessLockCurrentIndex].openDelayTimeMin"
                     :max="accessLockformData.doorLock[pageData.accessLockCurrentIndex].openDelayTimeMax"
                     :disabled="!accessLockformData.doorLock[pageData.accessLockCurrentIndex].openDelayTimeEnabled"
-                    show-input
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_UNLOCKING_DURATION')">
-                <el-slider
+                <BaseSliderInput
                     v-model="accessLockformData.doorLock[pageData.accessLockCurrentIndex].openHoldTime"
                     :min="accessLockformData.doorLock[pageData.accessLockCurrentIndex].openHoldTimeMin"
                     :max="accessLockformData.doorLock[pageData.accessLockCurrentIndex].openHoldTimeMax"
                     :disabled="!accessLockformData.doorLock[pageData.accessLockCurrentIndex].openHoldTimeEnabled"
-                    show-input
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_DOOR_LOCK_SETTING')">
