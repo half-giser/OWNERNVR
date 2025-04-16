@@ -151,6 +151,7 @@ const intelligentAnalysisRoutes: FeatureItem = {
                         sort: 10,
                         lk: 'IDCS_FACE',
                         icon: 'event_search_body',
+                        minWidth: 1360,
                         hasCap(systemCaps) {
                             return systemCaps.supportFaceMatch
                         },
@@ -164,6 +165,7 @@ const intelligentAnalysisRoutes: FeatureItem = {
                         sort: 30,
                         lk: 'IDCS_LICENSE_PLATE',
                         icon: 'event_search_car',
+                        minWidth: 1360,
                         hasCap(systemCaps) {
                             return systemCaps.supportPlateMatch
                         },

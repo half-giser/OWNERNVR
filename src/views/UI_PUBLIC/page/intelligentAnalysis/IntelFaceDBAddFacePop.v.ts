@@ -437,9 +437,16 @@ export default defineComponent({
          */
         const setAllData = async () => {
             const single = totalCount.value - successCount.value === 1
+            let startFlag = false
             for (let i = 0; i < formData.value.length; i++) {
                 if (!formData.value[i].success) {
+                    if (!startFlag) {
+                        pageData.value.formIndex = i
+                        startFlag = true
+                    }
                     await setSingleImportData(formData.value[i], i, !single)
+                    pageData.value.formIndex = i
+                    pageData.value.swiperIndex = Math.floor(pageData.value.formIndex / 7)
                 }
             }
         }

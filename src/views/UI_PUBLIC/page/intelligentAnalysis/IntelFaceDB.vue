@@ -91,20 +91,22 @@
                             <div class="expand-content">
                                 <div class="expand-list">
                                     <div>
-                                        <IntelBaseFaceItem
-                                            v-for="(item, index) in groupTableData"
-                                            :key="item.id"
-                                            :src="item.pic[0] || ''"
-                                            :model-value="formData.faceIndex.includes(index)"
-                                            @update:model-value="selectFace(index, $event)"
-                                        >
-                                            <div
-                                                v-title
-                                                class="text-ellipsis"
+                                        <div>
+                                            <IntelBaseFaceItem
+                                                v-for="(item, index) in groupTableData"
+                                                :key="item.id"
+                                                :src="item.pic[0] || ''"
+                                                :model-value="formData.faceIndex.includes(index)"
+                                                @update:model-value="selectFace(index, $event)"
                                             >
-                                                {{ hideSensitiveInfo(item.name, 'medium', 'name') }}
-                                            </div>
-                                        </IntelBaseFaceItem>
+                                                <div
+                                                    v-title
+                                                    class="text-ellipsis"
+                                                >
+                                                    {{ hideSensitiveInfo(item.name, 'medium', 'name') }}
+                                                </div>
+                                            </IntelBaseFaceItem>
+                                        </div>
                                     </div>
                                     <div class="base-pagination-box">
                                         <BasePagination
@@ -270,10 +272,13 @@
         margin: 0 15px;
 
         & > div:first-child {
-            display: flex;
-            flex-wrap: wrap;
             border: 1px solid var(--table-border);
             height: 100%;
+
+            & > div {
+                display: flex;
+                flex-wrap: wrap;
+            }
         }
     }
 
