@@ -257,7 +257,7 @@
                                     <el-dropdown-item
                                         v-for="item in pageData.videoPopupChlList"
                                         :key="item.value"
-                                        @click="changeAllValue(item.value, 'videoPopUp')"
+                                        @click="changeAllValue(item.value, 'popVideo')"
                                     >
                                         {{ item.label }}
                                     </el-dropdown-item>
@@ -267,7 +267,7 @@
                     </template>
                     <template #default="{ row }: TableColumn<AlarmCombinedDto>">
                         <el-select-v2
-                            v-model="row.popVideo.chl.value"
+                            v-model="row.popVideo"
                             :options="pageData.videoPopupChlList"
                         />
                     </template>

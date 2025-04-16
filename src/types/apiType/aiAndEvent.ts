@@ -279,13 +279,13 @@ export class AlarmSensorEventDto extends TableRowStatus {
         alarmOuts: [] as SelectOption<string, string>[],
     }
     // 视频弹出
-    popVideo = {
-        switch: '',
-        chl: {
-            id: '',
-            innerText: '',
-        },
-    }
+    // popVideo = {
+    //     switch: '',
+    //     chl: {
+    //         id: '',
+    //         innerText: '',
+    //     },
+    // }
     // 预置点名称
     preset = {
         switch: false,
@@ -295,6 +295,7 @@ export class AlarmSensorEventDto extends TableRowStatus {
     buzzerSwitch = '' // 蜂鸣器
     emailSwitch = '' // email
     popMsgSwitch = '' // 消息框弹出
+    popVideo = '' // 视频弹出
 }
 
 /**
@@ -344,13 +345,13 @@ export class AlarmCombinedDto extends TableRowStatus {
         switch: false,
         alarmOuts: [] as SelectOption<string, string>[],
     }
-    popVideo = {
-        switch: '',
-        chl: {
-            value: '',
-            label: '',
-        },
-    }
+    // popVideo = {
+    //     switch: '',
+    //     chl: {
+    //         value: '',
+    //         label: '',
+    //     },
+    // }
     preset = {
         switch: false,
         presets: [] as AlarmPresetItem[],
@@ -360,7 +361,7 @@ export class AlarmCombinedDto extends TableRowStatus {
     beeper = ''
     email = ''
     msgBoxPopup = ''
-    videoPopup = ''
+    popVideo = ''
 }
 
 export class AlarmCombinedItemDto {
