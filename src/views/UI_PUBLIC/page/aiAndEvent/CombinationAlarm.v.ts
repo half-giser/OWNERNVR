@@ -178,13 +178,7 @@ export default defineComponent({
                                 }
                             }),
                         },
-                        popVideo: {
-                            switch: $trigger('popVideo/switch').text(),
-                            chl: {
-                                value: $trigger('popVideo/chl').attr('id'),
-                                label: $trigger('popVideo/chl').text(),
-                            },
-                        },
+                        popVideo: $trigger('popVideo/switch').text() === 'false' ? '' : $trigger('popVideo/chl').attr('id'),
                         preset: {
                             switch: $trigger('preset/switch').text().bool(),
                             presets: [],
@@ -194,7 +188,6 @@ export default defineComponent({
                         beeper: $trigger('buzzerSwitch').text(),
                         email: $trigger('emailSwitch').text(),
                         msgBoxPopup: $trigger('popMsgSwitch').text(),
-                        videoPopup: $trigger('popVideo/switch').text() === 'false' ? '' : $trigger('popVideo/chl').attr('id'),
                     }
 
                     const currCombinedId = item.attr('id')
@@ -449,12 +442,7 @@ export default defineComponent({
          */
         const changeAllValue = (value: string, field: string) => {
             tableData.value.forEach((item) => {
-                if (field === 'videoPopUp') {
-                    item.popVideo.chl.value = value
-                    if (value !== '') item.popVideo.switch = 'true'
-                } else {
-                    ;(item as any)[field] = value
-                }
+                ;(item as any)[field] = value
             })
         }
 
@@ -498,8 +486,8 @@ export default defineComponent({
                                 </alarmOuts>
                             </alarmOut>
                             <popVideo>
-                                <switch>${row.popVideo.switch}</switch>
-                                <chl id='${row.popVideo.chl.value}'></chl>
+                                <switch>${row.popVideo !== ''}</switch>
+                                <chl id='${row.popVideo}'></chl>
                             </popVideo>
                             <preset>
                                 <switch>${row.preset.switch}</switch>

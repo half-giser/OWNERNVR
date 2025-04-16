@@ -125,6 +125,7 @@ const channelRoutes: FeatureItem = {
                 lk: 'IDCS_OSD_SETTING',
                 group: 'image',
                 default: true,
+                minHeight: 850,
             },
         },
         // 图像参数配置
@@ -137,6 +138,7 @@ const channelRoutes: FeatureItem = {
                 group: 'image',
                 inHome: 'group',
                 homeSort: 20,
+                minHeight: 850,
             },
         },
         // 视频遮挡配置
@@ -147,6 +149,7 @@ const channelRoutes: FeatureItem = {
                 sort: 30,
                 lk: 'IDCS_VIDEO_MASK_SETTING',
                 group: 'image',
+                minHeight: 850,
             },
         },
         // 以下页面没有在原项目中找到入口
@@ -168,6 +171,7 @@ const channelRoutes: FeatureItem = {
                 sort: 40,
                 lk: 'IDCS_LOGO_SETTINGS',
                 group: 'image',
+                minHeight: 850,
                 hasCap(systemCaps) {
                     const osType = getSystemInfo().platform
                     return systemCaps.supportLogoSetting && osType !== 'mac'
@@ -192,6 +196,7 @@ const channelRoutes: FeatureItem = {
                 sort: 60,
                 lk: 'IDCS_WATER_MARK_SETTING',
                 group: 'image',
+                minHeight: 850,
                 hasCap(systemCaps) {
                     return systemCaps.supportWaterMark
                 },
@@ -205,6 +210,7 @@ const channelRoutes: FeatureItem = {
                 sort: 70,
                 lk: 'IDCS_FISHEYE_SET',
                 group: 'image',
+                minHeight: 850,
                 hasCap(systemCaps) {
                     const osType = getSystemInfo().platform
                     return systemCaps.supportFishEye && osType !== 'mac'
@@ -222,6 +228,7 @@ const channelRoutes: FeatureItem = {
                 default: true,
                 inHome: 'group',
                 homeSort: 30,
+                minHeight: 850,
             },
         },
         // 预置点
@@ -235,6 +242,7 @@ const channelRoutes: FeatureItem = {
                 default: true,
                 inHome: 'group',
                 homeSort: 40,
+                minHeight: 850,
             },
         },
         // 巡航线
@@ -245,6 +253,7 @@ const channelRoutes: FeatureItem = {
                 sort: 20,
                 lk: 'IDCS_CRUISE',
                 group: 'ptz',
+                minHeight: 850,
             },
         },
         // 巡航线组
@@ -255,6 +264,7 @@ const channelRoutes: FeatureItem = {
                 sort: 30,
                 lk: 'IDCS_PTZ_GROUP',
                 group: 'ptz',
+                minHeight: 850,
                 hasCap(systemCaps) {
                     return systemCaps.supportPtzGroupAndTrace
                 },
@@ -268,6 +278,7 @@ const channelRoutes: FeatureItem = {
                 sort: 40,
                 lk: 'IDCS_PTZ_TRACE',
                 group: 'ptz',
+                minHeight: 850,
                 hasCap(systemCaps) {
                     return systemCaps.supportPtzGroupAndTrace
                 },
@@ -281,6 +292,7 @@ const channelRoutes: FeatureItem = {
                 sort: 50,
                 lk: 'IDCS_TASK',
                 group: 'ptz',
+                minHeight: 850,
                 hasCap(systemCaps) {
                     return systemCaps.supportPtzGroupAndTrace
                 },
@@ -294,6 +306,7 @@ const channelRoutes: FeatureItem = {
                 sort: 60,
                 lk: 'IDCS_SMART_TRACKING',
                 group: 'ptz',
+                minHeight: 850,
             },
         },
         // 协议
@@ -307,6 +320,7 @@ const channelRoutes: FeatureItem = {
                 sort: 70,
                 lk: 'IDCS_PROTOCOL',
                 group: 'ptz',
+                minHeight: 850,
                 hasCap(systemCaps) {
                     return !!systemCaps.analogChlCount
                 },

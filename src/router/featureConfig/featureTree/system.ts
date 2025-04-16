@@ -75,6 +75,7 @@ const systemRoutes: FeatureItem = {
                 lk: 'IDCS_OUTPUT_CONFIG',
                 group: 'basicConfig',
                 auth: 'remoteSysCfgAndMaintain',
+                minWidth: 1620,
             },
         },
         // POS配置

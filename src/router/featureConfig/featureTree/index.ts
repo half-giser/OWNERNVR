@@ -55,6 +55,8 @@ export default {
             live: {
                 component: 'topFeature/Live.vue',
                 meta: {
+                    minWidth: 1260,
+                    minHeight: 850,
                     sort: 10,
                     lk: 'IDCS_LIVE_PREVIEW',
                     icon: 'live_menu',
@@ -67,6 +69,8 @@ export default {
                     sort: 20,
                     lk: 'IDCS_REPLAY',
                     icon: 'rec_menu',
+                    minWidth: 1580,
+                    minHeight: 850,
                 },
             },
             // 功能面板
@@ -115,6 +119,8 @@ export default {
             sort: 40,
             lk: 'IDCS_PARKING_LOT',
             icon: 'park',
+            minWidth: 1400,
+            minHeight: 800,
             hasCap(systemCaps) {
                 return !systemCaps.IntelAndFaceConfigHide
             },

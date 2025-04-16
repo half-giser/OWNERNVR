@@ -102,6 +102,8 @@ export const getMenuItem = (item: RouteRecordRawExtends) => {
             homeSort: item.meta!.homeSort,
             sort: item.meta!.sort,
             inHome: item.meta!.inHome,
+            minWidth: item.meta!.minWidth,
+            minHeight: item.meta!.minHeight,
         },
         children: item.children ? getMenuItems(item.children) : [],
         redirect: item.redirect || '',
@@ -176,11 +178,17 @@ export const getConfigMenu = () => {
     }
 }
 
-router.afterEach(() => {
+router.afterEach((to: RouteLocationNormalized) => {
     progress.done()
+
+    const element = document.getElementById('n9web')
+    if (element) {
+        element.style.setProperty('--main-min-width', to.meta.minWidth ? `${to.meta.minWidth}px` : 'var(--default-main-min-width)')
+        element.style.setProperty('--main-min-height', to.meta.minHeight ? `${to.meta.minHeight}px` : 'var(--default-main-min-height)')
+    }
 })
 
-router.beforeResolve(async (to: RouteLocationNormalized, from: RouteLocationNormalized, next) => {
+router.beforeResolve(async (to: RouteLocationNormalized, _from, next) => {
     const layoutStore = useLayoutStore()
     const dateTime = useDateTimeStore()
 

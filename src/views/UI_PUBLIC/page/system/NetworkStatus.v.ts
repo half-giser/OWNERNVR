@@ -140,7 +140,7 @@ export default defineComponent({
                     $('nic/item').forEach((nicItem, index) => {
                         if (nicItem.attr('id') === $item('primaryNIC').text()) {
                             array.push({
-                                i: 2,
+                                i: 1,
                                 k: Translate('IDCS_PRIMARY_NETWORK_CARD'),
                                 v: netStatusContentNicPoe === item.attr('id') ? Translate('IDCS_POE_ETH_NAME') : Translate('IDCS_ETH_NAME').formatForLang(index + 1),
                             })
@@ -153,7 +153,7 @@ export default defineComponent({
                 $('nic/item').forEach((item, index) => {
                     const $item = queryXml(item.element)
                     array.push({
-                        i: 0,
+                        i: 1,
                         k: netStatusContentNicPoe === item.attr('id') ? Translate('IDCS_POE_ETH_NAME') : Translate('IDCS_ETH_NAME').formatForLang(index + 1),
                         v: DEFAULT_LANG_MAPPING[$item('nicStatus').text()],
                     })

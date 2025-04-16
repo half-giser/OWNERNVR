@@ -132,7 +132,12 @@
                 <el-table-column
                     prop="disarmItemsStr"
                     :label="Translate('IDCS_RECOVER_LINK_ITEM')"
-                />
+                    width="800"
+                >
+                    <template #default="{ row }: TableColumn<AlarmSystemDisarmDto>">
+                        {{ displayDisarmItems(row) }}
+                    </template>
+                </el-table-column>
                 <el-table-column>
                     <template #header>
                         <el-popover

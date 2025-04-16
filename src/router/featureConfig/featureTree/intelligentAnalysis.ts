@@ -41,6 +41,8 @@ const intelligentAnalysisRoutes: FeatureItem = {
                         sort: 10,
                         lk: 'IDCS_FACE',
                         icon: 'event_search_face',
+                        minWidth: 1580,
+                        minHeight: 850,
                         hasCap(systemCaps) {
                             return systemCaps.supportFaceMatch
                         },
@@ -54,6 +56,8 @@ const intelligentAnalysisRoutes: FeatureItem = {
                         sort: 20,
                         lk: 'IDCS_FIGURE',
                         icon: 'event_search_body',
+                        minWidth: 1580,
+                        minHeight: 850,
                     },
                 },
                 // 车辆
@@ -64,6 +68,8 @@ const intelligentAnalysisRoutes: FeatureItem = {
                         sort: 30,
                         lk: 'IDCS_VEHICLE',
                         icon: 'event_search_car',
+                        minWidth: 1580,
+                        minHeight: 850,
                     },
                 },
                 // 组合
@@ -74,6 +80,8 @@ const intelligentAnalysisRoutes: FeatureItem = {
                         sort: 40,
                         lk: 'IDCS_COMBINE_SEARCH',
                         icon: 'event_search_smart',
+                        minWidth: 1580,
+                        minHeight: 850,
                     },
                 },
             },
@@ -94,6 +102,8 @@ const intelligentAnalysisRoutes: FeatureItem = {
                         sort: 10,
                         lk: 'IDCS_PERSON_STATISTICS',
                         icon: 'event_search_body',
+                        minWidth: 1580,
+                        minHeight: 850,
                     },
                 },
                 // 车辆
@@ -104,6 +114,8 @@ const intelligentAnalysisRoutes: FeatureItem = {
                         sort: 30,
                         lk: 'IDCS_VEHICLE',
                         icon: 'event_search_car',
+                        minWidth: 1580,
+                        minHeight: 850,
                     },
                 },
                 // 组合
@@ -114,6 +126,8 @@ const intelligentAnalysisRoutes: FeatureItem = {
                         sort: 40,
                         lk: 'IDCS_COMBINE_SEARCH',
                         icon: 'event_search_smart',
+                        minWidth: 1580,
+                        minHeight: 850,
                     },
                 },
             },
@@ -137,6 +151,7 @@ const intelligentAnalysisRoutes: FeatureItem = {
                         sort: 10,
                         lk: 'IDCS_FACE',
                         icon: 'event_search_body',
+                        minWidth: 1360,
                         hasCap(systemCaps) {
                             return systemCaps.supportFaceMatch
                         },
@@ -150,6 +165,7 @@ const intelligentAnalysisRoutes: FeatureItem = {
                         sort: 30,
                         lk: 'IDCS_LICENSE_PLATE',
                         icon: 'event_search_car',
+                        minWidth: 1360,
                         hasCap(systemCaps) {
                             return systemCaps.supportPlateMatch
                         },

@@ -108,13 +108,12 @@
         <el-main id="layoutMainBody">
             <div id="layoutMainContent">
                 <router-view />
-                <div class="layoutMainContentBottomHeight"></div>
             </div>
+            <div
+                id="divCopyRight"
+                v-text="Translate('IDCS_COPYRIGHT')"
+            ></div>
         </el-main>
-        <div
-            id="divCopyRight"
-            v-text="Translate('IDCS_COPYRIGHT')"
-        ></div>
         <ChangePasswordPop
             v-model="pageData.isPasswordDialogVisible"
             :forced="pageData.mustBeModifiedPassword"
@@ -136,10 +135,16 @@
 }
 
 #layoutMainHeader {
+    position: fixed;
+    width: 100%;
+    min-width: 1000px;
+    top: 0;
+    left: 0;
     padding: 0;
     height: auto;
     flex: auto 0 0;
     background-color: var(--header-bg);
+    z-index: 1000;
 }
 
 #Top {
@@ -148,6 +153,7 @@
     justify-content: space-between;
     height: 65px;
     align-items: center;
+    background-color: var(--header-bg);
 
     @if $GLOBAL_UI_TYPE == UI2-A {
         height: 73px;
@@ -221,7 +227,7 @@
     height: 34px;
 
     @if $GLOBAL_UI_TYPE == UI2-A {
-        margin-top: 3px;
+        padding-top: 3px;
     }
 }
 
@@ -270,34 +276,24 @@
 }
 
 #layoutMainBody {
+    width: 100%;
     padding: 0;
-    flex: auto 1 1;
+    padding-top: 100px;
     overflow-y: auto;
-    max-height: calc(100vh - 65px - 34px - 18px);
-
-    @if $GLOBAL_UI_TYPE == UI2-A {
-        max-height: calc(100vh - 65px - 34px - 21px);
-    }
 }
 
 #layoutMainContent {
     position: relative;
-    padding-top: 25px;
+    padding-block: 25px;
     padding-inline: 49px;
     width: 100%;
-    height: calc(100% - 25px);
-    flex-shrink: 1;
-    min-height: 500px;
+    height: calc(100vh - 65px - 34px - 19px);
+    min-height: fit-content;
+    box-sizing: border-box;
 
     @if $GLOBAL_UI_TYPE == UI2-A {
-        padding-top: 25px;
+        height: calc(100vh - 65px - 34px - 19px - 11px);
     }
-}
-
-.layoutMainContentBottomHeight {
-    width: 100%;
-    height: 25px;
-    flex-shrink: 0;
 }
 
 #divCopyRight {
@@ -307,7 +303,6 @@
     height: 18px;
     width: 100%;
     border-top: 1px solid var(--header-border);
-    flex-shrink: 0;
     color: var(--footer-text);
     background-color: var(--footer-bg);
 }

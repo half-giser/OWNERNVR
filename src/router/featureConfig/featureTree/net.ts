@@ -52,6 +52,7 @@ const netRoutes: FeatureItem = {
                 homeDefault: true,
                 inHome: 'self',
                 homeSort: 10,
+                minHeight: 850,
             },
         },
         // 端口
@@ -152,6 +153,8 @@ const netRoutes: FeatureItem = {
                 sort: 100,
                 lk: 'FTP',
                 group: 'network',
+                minWidth: 1400,
+                minHeight: 800,
                 hasCap(systemCaps) {
                     return systemCaps.supportFTP
                 },

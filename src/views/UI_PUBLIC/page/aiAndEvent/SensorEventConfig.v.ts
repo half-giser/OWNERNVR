@@ -213,13 +213,7 @@ export default defineComponent({
                         }
                     }),
                 }
-                rowData.popVideo = {
-                    switch: $trigger('popVideo/switch').text(),
-                    chl: {
-                        id: $trigger('popVideo/chl').attr('id'),
-                        innerText: $trigger('popVideo/chl').text(),
-                    },
-                }
+                rowData.popVideo = $trigger('popVideo/switch').text() === 'false' ? '' : $trigger('popVideo/chl').attr('id')
                 rowData.preset = {
                     switch: $trigger('preset/switch').text().bool(),
                     presets: [],
@@ -403,10 +397,7 @@ export default defineComponent({
          */
         const changeAllValue = (value: string, field: string) => {
             tableData.value.forEach((item) => {
-                if (field === 'videoPopUp') {
-                    item.popVideo.chl.id = value
-                    if (value !== '') item.popVideo.switch = 'true'
-                } else if (field === 'type') {
+                if (field === 'type') {
                     if (item.type && item.alarmInType !== 'virtual' && item.isEditable) {
                         item.type = value
                     }
@@ -468,8 +459,8 @@ export default defineComponent({
                         </preset>
                         <buzzerSwitch>${row.buzzerSwitch}</buzzerSwitch>
                         <popVideo>
-                            <switch>${row.popVideo.switch}</switch>
-                            <chl id='${row.popVideo.chl.id}'></chl>
+                            <switch>${row.popVideo !== ''}</switch>
+                            <chl id='${row.popVideo}'></chl>
                         </popVideo>
                         <popMsgSwitch>${row.popMsgSwitch}</popMsgSwitch>
                         <sysAudio id='${row.sysAudio}'></sysAudio>

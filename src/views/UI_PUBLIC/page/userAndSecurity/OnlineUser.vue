@@ -40,18 +40,17 @@
         </el-table>
         <el-dialog
             v-model="pageData.isDetail"
+            width="500"
             :title="Translate('IDCS_DETAIL_INFO')"
         >
-            <div>
-                <p>
-                    <span>{{ Translate('IDCS_PREVIEW_CHANNELS') }}</span>
-                    <span>{{ currentUser ? currentUser.previewChlCount : '' }}</span>
-                </p>
-                <p>
-                    <span>{{ Translate('IDCS_PLAYBACK_CHANNELS') }}</span>
-                    <span>{{ currentUser ? currentUser.playbackChlCount : '' }}</span>
-                </p>
-            </div>
+            <el-form class="stripe">
+                <el-form-item :label="Translate('IDCS_PREVIEW_CHANNELS')">
+                    {{ currentUser ? currentUser.previewChlCount : '' }}
+                </el-form-item>
+                <el-form-item :label="Translate('IDCS_PLAYBACK_CHANNELS')">
+                    {{ currentUser ? currentUser.playbackChlCount : '' }}
+                </el-form-item>
+            </el-form>
             <p></p>
         </el-dialog>
     </div>

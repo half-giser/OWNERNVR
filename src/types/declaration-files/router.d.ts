@@ -88,6 +88,10 @@ declare global {
             /** 是否控制面板的默认菜单项 */
             homeDefault?: boolean
             remove?: boolean
+            /** 页面最小宽度 */
+            minWidth?: number
+            /** 页面最小高度 */
+            minHeight?: number
         }
         /** 子路由配置项 */
         children?: FeatureTree
@@ -130,6 +134,10 @@ declare global {
             sort?: number
             inHome?: 'self' | 'group' | null | 'hidden'
             homeDefault?: boolean
+            /** 页面最小宽度 */
+            minWidth?: number
+            /** 页面最小高度 */
+            minHeight?: number
         }
         children: RouteRecordRawExtends[]
         redirect: string

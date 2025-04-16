@@ -809,12 +809,12 @@
     }
 
     .el-date-editor {
-        .el-input__wrapper {
-            flex-direction: row-reverse;
-        }
+        // .el-input__wrapper {
+        //     flex-direction: row-reverse;
+        // }
 
         .el-input__prefix {
-            @include sprite($img-calendar, 0, 1);
+            // @include sprite($img-calendar, 0, 1);
 
             &-inner {
                 display: none;

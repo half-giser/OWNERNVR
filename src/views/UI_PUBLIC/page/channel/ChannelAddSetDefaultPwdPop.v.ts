@@ -112,18 +112,7 @@ export default defineComponent({
             editDevDefaultPwd(sendXml).then((res) => {
                 const $ = queryXml(res)
                 if ($('status').text() === 'success') {
-                    const defaultPwdData = $('content/item').map((ele) => {
-                        const $item = queryXml(ele.element)
-                        return {
-                            id: ele.attr('id'),
-                            userName: $item('userName').text(),
-                            password: $item('password').text(),
-                            displayName: $item('displayName').text(),
-                            protocolType: $item('protocolType').text(),
-                            showInput: false,
-                        }
-                    })
-                    emit('change', defaultPwdData)
+                    emit('change', formData.value.params)
                     isCheckAuthPop.value = false
                     emit('close')
                 } else {

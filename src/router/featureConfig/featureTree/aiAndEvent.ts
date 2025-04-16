@@ -108,6 +108,7 @@ const aiAndEventRoutes: FeatureItem = {
                 sort: 60,
                 lk: 'IDCS_AUDIO',
                 group: 'eventNotify',
+                minHeight: 800,
             },
         },
         // 闪动
@@ -128,6 +129,7 @@ const aiAndEventRoutes: FeatureItem = {
                 sort: 80,
                 lk: 'IDCS_ALARM_SERVER',
                 group: 'eventNotify',
+                minHeight: 800,
                 hasCap(systemCaps) {
                     return systemCaps.supportAlarmServerConfig
                 },
@@ -144,6 +146,8 @@ const aiAndEventRoutes: FeatureItem = {
                 default: true,
                 inHome: 'self',
                 homeSort: 10,
+                minWidth: 1560,
+                minHeight: 850,
                 hasCap(systemCaps) {
                     return !systemCaps.IntelAndFaceConfigHide
                 },
@@ -173,6 +177,8 @@ const aiAndEventRoutes: FeatureItem = {
                 group: 'aiEvent',
                 inHome: 'self',
                 homeSort: 20,
+                minWidth: 1560,
+                minHeight: 850,
                 hasCap(systemCaps) {
                     return !systemCaps.IntelAndFaceConfigHide
                 },
@@ -202,6 +208,8 @@ const aiAndEventRoutes: FeatureItem = {
                 group: 'aiEvent',
                 inHome: 'self',
                 homeSort: 30,
+                minWidth: 1560,
+                minHeight: 850,
                 hasCap(systemCaps) {
                     return !systemCaps.IntelAndFaceConfigHide
                 },
@@ -230,6 +238,8 @@ const aiAndEventRoutes: FeatureItem = {
                 sort: 40,
                 lk: 'IDCS_MORE',
                 group: 'aiEvent',
+                minWidth: 1560,
+                minHeight: 850,
                 hasCap(systemCaps) {
                     return !systemCaps.IntelAndFaceConfigHide
                 },

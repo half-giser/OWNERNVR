@@ -350,7 +350,6 @@
 <style lang="scss" scoped>
 .OutputSetting {
     font-size: 15px;
-    min-width: 1200px;
     user-select: none;
     height: var(--content-height);
     display: flex;
