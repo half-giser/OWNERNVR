@@ -417,6 +417,7 @@
                                                         v-model="row.gainMode"
                                                         :options="row.gainModeList"
                                                         :disabled="row.BLCMode === 'HWDR' || (row.BLCMode !== 'HWDR' && row.gainMode === undefined)"
+                                                        @change="setAZData()"
                                                     />
                                                 </el-form-item>
                                                 <el-form-item
