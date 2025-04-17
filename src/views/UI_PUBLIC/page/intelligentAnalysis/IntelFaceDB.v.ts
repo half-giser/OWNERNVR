@@ -541,10 +541,15 @@ export default defineComponent({
         }
 
         /**
-         * @description 人脸全选
+         * @description 人脸全选/取消全选
          */
         const selectAllFace = () => {
-            formData.value.faceIndex = groupTableData.value.map((_item, index) => index)
+            if (formData.value.faceIndex.length === groupTableData.value.length) {
+                formData.value.faceIndex = []
+            } else {
+                formData.value.infoFaceIndex = groupTableData.value.length - 1
+                formData.value.faceIndex = groupTableData.value.map((_item, index) => index)
+            }
         }
 
         /**
