@@ -567,7 +567,7 @@
                                                     />
                                                 </el-form-item>
                                                 <el-form-item
-                                                    v-if="row.smartIrMode && row.smartIrSwitch"
+                                                    v-if="row.smartIrMode || row.smartIrSwitch"
                                                     :label="Translate('IDCS_GRADE')"
                                                 >
                                                     <el-select-v2
@@ -577,7 +577,7 @@
                                                     />
                                                 </el-form-item>
                                                 <el-form-item
-                                                    v-if="row.smartIrSwitch !== undefined && row.smartIrMode === 'manual'"
+                                                    v-if="row.smartIrMode === 'manual'"
                                                     :label="Translate('IDCS_LIGHT_LEVEL')"
                                                 >
                                                     <BaseSliderInput
