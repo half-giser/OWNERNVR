@@ -37,6 +37,7 @@
                     <BaseDatePicker
                         v-model="formData[pageData.formIndex].birthday"
                         :disabled="formData[pageData.formIndex].success"
+                        :range="['1910-01-01', '2037-12-31']"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_ID_TYPE')">

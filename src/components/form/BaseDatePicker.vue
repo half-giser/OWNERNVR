@@ -35,13 +35,17 @@
                             <BaseImgSprite
                                 file="datePicker-first"
                                 :hover-index="0"
+                                :disabled-index="0"
                                 class="prev"
+                                :disabled="getYearDisabled(currentYear - 1)"
                                 @click="preYear"
                             />
                             <BaseImgSprite
                                 file="datePicker-prev"
                                 :hover-index="0"
+                                :disabled-index="0"
                                 class="prev"
+                                :disabled="getMonthDisabled(currentMonth === 1 ? currentYear - 1 : currentYear, currentMonth === 1 ? 12 : currentMonth - 1)"
                                 @click="preMonth"
                             />
                         </div>
@@ -61,12 +65,14 @@
                             <BaseImgSprite
                                 file="datePicker-next"
                                 :hover-index="0"
+                                :disabled="getMonthDisabled(currentMonth === 12 ? currentYear + 1 : currentYear, currentMonth === 12 ? 1 : currentMonth + 1)"
                                 class="next"
                                 @click="nextMonth"
                             />
                             <BaseImgSprite
                                 file="datePicker-last"
                                 :hover-index="0"
+                                :disabled="getYearDisabled(currentYear + 1)"
                                 class="next"
                                 @click="nextYear"
                             />
@@ -89,8 +95,9 @@
                                 none: item.inMonth !== 0,
                                 weekend: userSession.calendarType !== 'Persian' && (key % 7 === 0 || key % 7 === 6),
                                 active: item.gregorianFormat === currentDateGregory,
+                                disabled: item.disabled,
                             }"
-                            @click="changeDate(item.date, item.inMonth)"
+                            @click="changeDate(item.date, item.inMonth, item.disabled)"
                         >
                             {{ item.date }}
                         </div>
@@ -116,14 +123,18 @@
                         <BaseImgSprite
                             file="datePicker-prev"
                             :hover-index="0"
+                            :disabled-index="0"
                             class="prev"
+                            :disabled="getYearDisabled(currentYear - 1)"
                             @click="preYear"
                         />
                         <div @click="showYearList">{{ currentYear }}</div>
                         <BaseImgSprite
                             file="datePicker-next"
                             :hover-index="0"
+                            :disabled-index="0"
                             class="next"
+                            :disabled="getYearDisabled(currentYear + 1)"
                             @click="nextYear"
                         />
                     </div>
@@ -133,6 +144,7 @@
                             :key="item"
                             :class="{
                                 active: currentMonth === key + 1,
+                                disabled: getMonthDisabled(currentYear, key + 1),
                             }"
                             @click="changeMonth(key)"
                         >
@@ -148,6 +160,8 @@
                         <BaseImgSprite
                             file="datePicker-prev"
                             :hover-index="0"
+                            :disabled-index="0"
+                            :disabled="getYearDisabled(yearRange - 1)"
                             class="prev"
                             @click="prevDecade"
                         />
@@ -155,21 +169,24 @@
                             class="range"
                             @click="showYearList"
                         >
-                            {{ yearRange }} ~ {{ yearRange + 10 }}
+                            {{ yearRange }} ~ {{ yearRange + 9 }}
                         </div>
                         <BaseImgSprite
                             file="datePicker-next"
                             :hover-index="0"
+                            :disabled-index="0"
                             class="next"
+                            :disabled="getYearDisabled(yearRange + 10)"
                             @click="nextDecade"
                         />
                     </div>
                     <div class="DatePicker-month-body">
                         <div
                             v-for="(_, key) in 10"
-                            :key="yearRange + key"
+                            :key="key"
                             :class="{
                                 active: currentYear === yearRange + key,
+                                disabled: getYearDisabled(yearRange + key),
                             }"
                             @click="changeYear(yearRange + key)"
                         >
@@ -215,12 +232,17 @@ const props = withDefaults(
          * @property input placeholder
          */
         placeholder?: string
+        /**
+         * @property 日期可选范围 YYYY-MM-DD
+         */
+        range?: [string, string]
     }>(),
     {
         teleported: true,
         disabled: false,
         placeholder: '',
         type: 'date',
+        range: () => ['0000-01-01', '9999-12-31'],
     },
 )
 
@@ -285,21 +307,84 @@ const currentMonth = computed(() => {
     return currentValue.value.format('MM').num()
 })
 
+// 可选范围开始时间戳
+const rangeStart = computed(() => {
+    return dayjs(props.range[0], { format: DEFAULT_YMD_FORMAT, jalali: false }).valueOf()
+})
+
+// 可选范围结束时间戳
+const rangeEnd = computed(() => {
+    return dayjs(props.range[1], { format: DEFAULT_YMD_FORMAT, jalali: false }).valueOf()
+})
+
+/**
+ * @description 获取该年份是否禁用
+ * @param {number} year
+ */
+const getYearDisabled = (year: number) => {
+    const rangeStartYear = dayjs(rangeStart.value).calendar('gregory').year()
+    const rangeEndYear = dayjs(rangeEnd.value).calendar('gregory').year()
+    return year < rangeStartYear || year > rangeEndYear
+}
+
+/**
+ * @description 获取该月份是否禁用
+ * @param {number} year
+ * @param {number} month 从1开始，1-12
+ */
+const getMonthDisabled = (year: number, month: number) => {
+    const rangeStartMonth = dayjs(rangeStart.value).calendar('gregory').date(1).valueOf()
+    const rangeEndMonth = dayjs(rangeEnd.value).calendar('gregory').valueOf()
+    const rangeEndDate = dayjs(rangeEnd.value).calendar('gregory').date()
+    const firstDate = dayjs(`${year}-${month}-01`, { format: DEFAULT_YMD_FORMAT, jalali: false }).valueOf()
+    const daysInMonth = padStart(Math.min(dayjs(firstDate).daysInMonth(), rangeEndDate), 2)
+    const lastDate = dayjs(`${year}-${month}-${daysInMonth}`, { format: DEFAULT_YMD_FORMAT, jalali: false }).valueOf()
+    return firstDate < rangeStartMonth || lastDate > rangeEndMonth
+}
+
+/**
+ * @description 获取该日期是否禁用
+ * @param {number} year
+ * @param {number} month 从1开始，1-12
+ * @param {number} date
+ */
+const getDateDisabled = (currentDate: dayjs.Dayjs) => {
+    const date = currentDate.hour(0).minute(0).second(0).valueOf()
+    return date < rangeStart.value || date > rangeEnd.value
+}
+
 type DateDto = {
     gregorianFormat: string
     date: number
     inMonth: number
+    disabled: boolean
 }
 
 /**
  * @description 打开日期选择器时初始化
  */
 const open = () => {
+    let flag = false
     currentValue.value = dayjs(props.modelValue, props.valueFormat || (props.type === 'datetime' ? dateTime.dateTimeFormat : dateTime.dateFormat))
+
     if (!currentValue.value.isValid()) {
         currentValue.value = dayjs(Date.now())
+        flag = true
+    }
+
+    const current = currentValue.value.hour(0).minute(0).second(0)
+    if (current.isBefore(rangeStart.value)) {
+        currentValue.value = dayjs(rangeStart.value)
+        flag = true
+    } else if (current.isAfter(rangeEnd.value)) {
+        currentValue.value = dayjs(rangeEnd.value)
+        flag = true
+    }
+
+    if (flag) {
         changeValue()
     }
+
     tab.value = 'date'
 
     if (props.type === 'datetime') {
@@ -332,6 +417,7 @@ const dateList = computed(() => {
             gregorianFormat: currentDate.calendar('gregory').format(dateTime.dateFormat),
             date: currentDate.format('DD').num(),
             inMonth: -1,
+            disabled: getDateDisabled(currentDate),
         })
     }
 
@@ -341,6 +427,7 @@ const dateList = computed(() => {
             gregorianFormat: currentDate.calendar('gregory').format(dateTime.dateFormat),
             date: currentDate.format('DD').num(),
             inMonth: 0,
+            disabled: getDateDisabled(currentDate),
         })
         currentDate = currentDate.add(1, 'day')
     }
@@ -351,6 +438,7 @@ const dateList = computed(() => {
             gregorianFormat: currentDate.calendar('gregory').format(dateTime.dateFormat),
             date: currentDate.format('DD').num(),
             inMonth: 1,
+            disabled: getDateDisabled(currentDate),
         })
         currentDate = currentDate.add(1, 'day')
     }
@@ -370,7 +458,10 @@ const monthList = ref(
  * @param {number} date
  * @param {number} month
  */
-const changeDate = (date: number, month: number) => {
+const changeDate = (date: number, month: number, disabled: boolean) => {
+    if (disabled) {
+        return
+    }
     currentValue.value = currentValue.value.add(month, 'month').date(date)
     changeValue()
 }
@@ -396,6 +487,9 @@ const nextYear = () => {
  * @param {number} year
  */
 const changeYear = (year: number) => {
+    if (getYearDisabled(year)) {
+        return
+    }
     currentValue.value = currentValue.value.year(year)
     changeValue()
     tab.value = 'month'
@@ -422,6 +516,9 @@ const nextMonth = () => {
  * @param {number} month
  */
 const changeMonth = (month: number) => {
+    if (getMonthDisabled(currentYear.value, month + 1)) {
+        return
+    }
     currentValue.value = currentValue.value.month(month)
     changeValue()
     tab.value = 'date'
@@ -548,11 +645,19 @@ watch(visible, (val) => {
             .prev {
                 margin-left: 5px;
                 flex-shrink: 0;
+
+                &.disabled {
+                    opacity: 0.6;
+                }
             }
 
             .next {
                 margin-right: 5px;
                 flex-shrink: 0;
+
+                &.disabled {
+                    opacity: 0.6;
+                }
             }
         }
 
@@ -597,6 +702,15 @@ watch(visible, (val) => {
                     color: var(--datepicker-text-hover);
                     border-color: currentColor;
                     background-color: var(--datepicker-bg-hover);
+                }
+
+                &.disabled,
+                &.disabled:hover {
+                    color: var(--color-grey);
+                    border-color: transparent;
+                    background-color: transparent;
+                    cursor: not-allowed;
+                    opacity: 0.6;
                 }
             }
         }
@@ -661,6 +775,15 @@ watch(visible, (val) => {
                     color: var(--datepicker-text-hover);
                     border-color: currentColor;
                     background-color: var(--datepicker-bg-hover);
+                }
+
+                &.disabled,
+                &.disabled:hover {
+                    color: var(--color-grey);
+                    border-color: transparent;
+                    background-color: transparent;
+                    cursor: not-allowed;
+                    opacity: 0.6;
                 }
             }
         }

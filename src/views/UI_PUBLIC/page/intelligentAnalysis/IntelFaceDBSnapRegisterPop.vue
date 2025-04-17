@@ -39,7 +39,10 @@
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_BIRTHDAY')">
-                    <BaseDatePicker v-model="formData.birthday" />
+                    <BaseDatePicker
+                        v-model="formData.birthday"
+                        :range="['1910-01-01', '2037-12-31']"
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_ID_TYPE')">
                     <el-select-v2
