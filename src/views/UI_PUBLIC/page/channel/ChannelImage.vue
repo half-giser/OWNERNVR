@@ -244,7 +244,7 @@
                                                 <el-form-item>
                                                     <template #label>
                                                         <el-checkbox
-                                                            v-if="row.sharpenSwitchEnable"
+                                                            v-if="row.sharpenSwitchEnable || typeof row.sharpenSwitchEnable === 'undefined'"
                                                             v-model="row.sharpenSwitch"
                                                             :label="Translate('IDCS_SHARPNESS')"
                                                             :disabled="row.sharpen === undefined"

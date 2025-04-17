@@ -862,7 +862,7 @@ export default defineComponent({
                 rowData.sharpenMin = $chl('sharpen/value').attr('min').num()
                 rowData.sharpenMax = $chl('sharpen/value').attr('max').num() || 100
                 rowData.sharpenSwitch = $chl('sharpen/switch').text().bool()
-                rowData.sharpenSwitchEnable = $chl('sharpen/switch').attr('switchEnabled').bool()
+                rowData.sharpenSwitchEnable = $chl('sharpen/switch').attr('switchEnabled').undef()?.bool()
 
                 rowData.mirrorSwitch = $chl('mirrorSwitch').text().undef()?.bool()
                 rowData.flipSwitch = $chl('flipSwitch').text().undef()?.bool()
