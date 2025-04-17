@@ -77,8 +77,7 @@ export default defineComponent({
          */
         const formatRecordType = (row: SystemRecordStatusList) => {
             const recTypes = row.recTypes
-            if (!recTypes.length) return '--'
-            return recTypes
+            const str = recTypes
                 .sort((a, b) => {
                     const getOrderIndex = (x: string) => {
                         switch (x) {
@@ -98,8 +97,13 @@ export default defineComponent({
                     }
                     return getOrderIndex(a) - getOrderIndex(b)
                 })
-                .map((item) => Translate(DEFAULT_REC_TYPE_MAPPING[item]))
+                .map((item) => (DEFAULT_REC_TYPE_MAPPING[item] ? Translate(DEFAULT_REC_TYPE_MAPPING[item]) : ''))
+                .filter((item) => !!item)
                 .join('/')
+            if (!str) {
+                return '--'
+            }
+            return str
         }
 
         /**
