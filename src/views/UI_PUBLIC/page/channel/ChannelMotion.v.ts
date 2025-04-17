@@ -76,6 +76,7 @@ export default defineComponent({
                 openMessageBox(Translate('IDCS_NO_AUTH'))
                 return
             }
+
             router.push({
                 path: '/config/alarm/motion',
             })
@@ -97,6 +98,10 @@ export default defineComponent({
             return tableData.value.find((element) => element.id === chlId)
         }
 
+        /**
+         * @description 获取通道移动侦测配置
+         * @param {string} chlId
+         */
         const getData = async (chlId: string) => {
             const sendXml = rawXml`
                 <condition>
@@ -140,13 +145,15 @@ export default defineComponent({
                     rowData.sensitivity = $param('sensitivity').text().num()
                     rowData.status = ''
                     rowData.disabled = false
-
-                    if ($param('sensitivity').length) rowData.sensitivityMinValue = $param('sensitivity').attr('min').num()
-                    if ($param('objectFilter/car').length) rowData.objectFilterCar = $param('objectFilter/car/switch').text().bool()
-                    if ($param('objectFilter/person').length) rowData.objectFilterPerson = $param('objectFilter/person/switch').text().bool()
+                    rowData.sensitivityMinValue = $param('sensitivity').length ? $param('sensitivity').attr('min').num() : 0
                     let max = $param('sensitivity').length ? $param('sensitivity').attr('max').num() : 100
                     if (import.meta.env.VITE_UI_TYPE === 'UI1-F' && max === 100) max = 120
                     rowData.sensitivityMaxValue = max
+
+                    rowData.SMDVehicle = $param('objectFilter/car/switch').text().bool()
+                    rowData.SMDVehicleDisabled = !$param('objectFilter/car/switch').length
+                    rowData.SMDHuman = $param('objectFilter/person/switch').text().bool()
+                    rowData.SMDHumanDisabled = !$param('objectFilter/person').length
                     rowData.column = $param('area/itemType').attr('maxLen').num()
                     rowData.row = $param('area').attr('count').num()
                     rowData.areaInfo = areaInfo
@@ -162,6 +169,9 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 获取数据列表
+         */
         const getDataList = async () => {
             editRows.clear()
             openLoading()
@@ -215,6 +225,9 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description 获取移动侦测报警状态
+         */
         const getAlarmStatus = () => {
             if (selectedChlId.value) {
                 queryAlarmStatus().then((res) => {
@@ -247,8 +260,8 @@ export default defineComponent({
                                 rowData.supportSMD
                                     ? rawXml`
                                         <objectFilter>
-                                            ${rowData.objectFilterCar ? `<car><switch>${rowData.objectFilterCar}</switch></car>` : ''}
-                                            ${rowData.objectFilterPerson ? `<person><switch>${rowData.objectFilterPerson}</switch></person>` : ''}
+                                            ${!rowData.SMDVehicleDisabled ? `<car><switch>${rowData.SMDVehicle}</switch></car>` : ''}
+                                            ${!rowData.SMDHumanDisabled ? `<person><switch>${rowData.SMDHuman}</switch></person>` : ''}
                                         </objectFilter>
                                     `
                                     : ''
@@ -263,6 +276,9 @@ export default defineComponent({
             `
         }
 
+        /**
+         * @description 提交数据
+         */
         const save = async () => {
             openLoading()
 
@@ -295,6 +311,9 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 全选区域
+         */
         const handleSelAll = () => {
             const rowData = getRowById(selectedChlId.value)!
 
@@ -312,6 +331,9 @@ export default defineComponent({
             motionAreaChange()
         }
 
+        /**
+         * @description 反选区域
+         */
         const handleSelReverse = () => {
             if (mode.value === 'h5') {
                 drawer.reverse()
@@ -325,6 +347,9 @@ export default defineComponent({
             motionAreaChange()
         }
 
+        /**
+         * @description 清除区域
+         */
         const handleClear = () => {
             if (mode.value === 'h5') {
                 drawer.clear()
@@ -338,6 +363,10 @@ export default defineComponent({
             motionAreaChange()
         }
 
+        /**
+         * @description 更新移动侦测区域数据
+         * @param {string[][]} netArr
+         */
         const motionAreaChange = (netArr?: string[][]) => {
             const rowData = getRowById(selectedChlId.value)!
             const areaInfo: string[] = (rowData.areaInfo = [])

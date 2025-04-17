@@ -587,8 +587,10 @@ export class ChannelMotionDto extends TableRowStatus {
     holdTimeList: SelectOption<number, string>[] = []
     supportSMD = false
     isOnvifChl = false
-    objectFilterCar: boolean | undefined = undefined
-    objectFilterPerson: boolean | undefined = undefined
+    SMDHuman = false
+    SMDVehicle = false
+    SMDHumanDisabled = false
+    SMDVehicleDisabled = false
     column = 0
     row = 0
     areaInfo: string[] = []
