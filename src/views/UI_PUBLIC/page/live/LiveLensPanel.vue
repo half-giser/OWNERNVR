@@ -97,7 +97,12 @@
                     @mousedown="addCmd('OneKeyFocus')"
                     @mouseup="addCmd('Stop')"
                 >
-                    {{ Translate('IDCS_ONE_KEY_FOCUS') }}
+                    <div
+                        v-title
+                        class="text-ellipsis"
+                    >
+                        {{ Translate('IDCS_ONE_KEY_FOCUS') }}
+                    </div>
                 </el-button>
             </div>
             <div class="lens-tip">
@@ -111,16 +116,16 @@
                     :label="Translate('IDCS_AUTO_FOCUS_TIP')"
                 />
             </el-form-item>
-            <div class="base-btn-box space-between">
-                <div>
-                    <BaseFloatError
-                        v-model:message="pageData.errorMessage"
-                        :type="pageData.errorMessageType"
-                    />
-                </div>
-                <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>
-            </div>
         </el-form>
+        <div class="base-btn-box space-between padding">
+            <div>
+                <BaseFloatError
+                    v-model:message="pageData.errorMessage"
+                    :type="pageData.errorMessageType"
+                />
+            </div>
+            <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>
+        </div>
     </div>
 </template>
 
@@ -160,6 +165,7 @@
         border: 1px solid var(--btn-border);
         cursor: pointer;
         margin: 0 5px;
+        flex-shrink: 0;
 
         &:hover {
             background-color: var(--primary-light);
@@ -177,6 +183,12 @@
 
     &-onekeyfocus {
         margin-right: 0 !important;
+        width: 70px;
+        min-width: unset !important;
+
+        .text-ellipsis {
+            width: 70px;
+        }
     }
 }
 </style>
