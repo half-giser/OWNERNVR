@@ -10,7 +10,7 @@
         :width="600"
         @open="open"
     >
-        <div>
+        <div class="box">
             <el-progress
                 :percentage="pageData.progress"
                 :stroke-width="8"
@@ -27,7 +27,8 @@
 <script lang="ts" src="./BackupLocalPop.v.ts"></script>
 
 <style lang="scss" scoped>
-.chunk {
+.chunk,
+.box {
     margin-top: 10px;
 }
 

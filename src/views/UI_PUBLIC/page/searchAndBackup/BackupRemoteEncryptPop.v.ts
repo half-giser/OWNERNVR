@@ -28,20 +28,17 @@ export default defineComponent({
         const { Translate } = useLangStore()
 
         const formRef = useFormRef()
+
         const formData = ref({
             encrypt: 'encrypted',
             password: '',
             confirmPassword: '',
         })
+
         const formRule = ref<FormRules>({
             password: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if (formData.value.encrypt === 'unencrypted') {
-                            callback()
-                            return
-                        }
-
                         if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
@@ -55,11 +52,6 @@ export default defineComponent({
             confirmPassword: [
                 {
                     validator: (_rule, value: string, callback) => {
-                        if (formData.value.encrypt === 'unencrypted') {
-                            callback()
-                            return
-                        }
-
                         if (!value) {
                             callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
                             return
@@ -81,15 +73,15 @@ export default defineComponent({
          * @description 验证表单后，关闭弹窗
          */
         const verify = () => {
-            formRef.value!.validate((valid) => {
-                if (valid) {
-                    if (formData.value.encrypt === 'encrypted') {
+            if (formData.value.encrypt === 'encrypted') {
+                formRef.value!.validate((valid) => {
+                    if (valid) {
                         ctx.emit('confirm', MD5_encrypt(formData.value.password))
-                    } else {
-                        ctx.emit('confirm', '')
                     }
-                }
-            })
+                })
+            } else {
+                ctx.emit('confirm', '')
+            }
         }
 
         /**

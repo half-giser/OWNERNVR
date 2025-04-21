@@ -55,6 +55,9 @@
             <el-form
                 v-title
                 label-position="top"
+                :style="{
+                    '--form-input-width': '100%',
+                }"
             >
                 <el-form-item :label="Translate('IDCS_START_TIME')">
                     <BaseDatePicker
