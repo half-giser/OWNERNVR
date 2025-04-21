@@ -321,17 +321,17 @@ export class ChannelImageDto extends TableRowStatus {
     bright: number | undefined = undefined
     brightMin = 0
     brightMax = 100
-    brightDefault = 0
+    brightDefault: number | undefined = undefined
 
     contrast: number | undefined = undefined
     contrastMin = 0
     contrastMax = 100
-    contrastDefault = 0
+    contrastDefault: number | undefined = undefined
 
     saturation: number | undefined = undefined
     saturationMin = 0
     saturationMax = 100
-    saturationDefault = 0
+    saturationDefault: number | undefined = undefined
 
     hue: number | undefined = undefined
     hueMin: number | undefined = undefined
@@ -339,13 +339,13 @@ export class ChannelImageDto extends TableRowStatus {
     hueDefault: number | undefined = undefined
 
     paletteCode: string | undefined = undefined
-    defaultPaletteCode = ''
+    defaultPaletteCode: string | undefined = undefined
 
     cfgFile: string | undefined = undefined
-    cfgFileDefault = ''
+    cfgFileDefault: string | undefined = undefined
 
     denoise: number | undefined = undefined
-    denoiseDefault = 0
+    denoiseDefault: number | undefined = undefined
     denoiseMin = 0
     denoiseMax = 100
     denoiseSwitch = false
@@ -353,7 +353,7 @@ export class ChannelImageDto extends TableRowStatus {
     ShowGainMode: boolean | undefined = false
 
     WDR: number | undefined = undefined
-    WDRDefault = 0
+    WDRDefault: number | undefined = undefined
     WDRMin = 0
     WDRMax = 100
     WDRSwitch = false
@@ -363,25 +363,25 @@ export class ChannelImageDto extends TableRowStatus {
     whiteBalanceMode: string | undefined = undefined
 
     red: number | undefined = undefined
-    redDefault = 0
+    redDefault: number | undefined = undefined
     redMin = 0
     redMax = 100
 
     blue: number | undefined = undefined
-    blueDefault = 0
+    blueDefault: number | undefined = undefined
     blueMin = 0
     blueMax = 100
 
     IRCutMode: string | undefined = undefined
-    IRCutModeDefault = ''
+    IRCutModeDefault: string | undefined = undefined
     IRCutConvSen: string | undefined = undefined
     IRCutConvSen2: string | undefined = undefined // 只用于判断
-    IRCutConvSenDefault = ''
+    IRCutConvSenDefault: string | undefined = undefined
     IRCutDayTime: string | undefined = undefined
     IRCutNightTime: string | undefined = undefined
 
     sharpen: number | undefined = undefined
-    sharpenDefault = 0
+    sharpenDefault: number | undefined = undefined
     sharpenMin = 0
     sharpenMax = 100
     sharpenSwitch = false
@@ -391,10 +391,10 @@ export class ChannelImageDto extends TableRowStatus {
     flipSwitch: boolean | undefined = undefined
 
     imageRotate: string | undefined = undefined
-    imageRotateDefault = ''
+    imageRotateDefault: string | undefined = undefined
 
     imageShift: number | undefined = undefined
-    imageShiftDefault = 0
+    imageShiftDefault: number | undefined = undefined
     imageShiftMin = 0
     imageShiftMax = 100
 
@@ -408,38 +408,38 @@ export class ChannelImageDto extends TableRowStatus {
     smartIrModeDefault: string | undefined = undefined
 
     lightLevel: number | undefined = undefined
-    lightLevelDefault = 0
+    lightLevelDefault: number | undefined = undefined
     lightLevelMin = 0
     lightLevelMax = 100
 
     smartIrSwitch: boolean | undefined = undefined
-    smartIrSwitchDefault = false
+    smartIrSwitchDefault: boolean | undefined = undefined
 
     smartIrLevel: string | undefined = undefined
-    smartIrLevelDefault = ''
+    smartIrLevelDefault: string | undefined = undefined
 
     // 透雾
     defog: number | undefined = undefined
-    defogDefault = 0
+    defogDefault: number | undefined = undefined
     defogMin = 0
     defogMax = 100
     defogSwitch = false
 
     // 抗闪
     antiflicker: string | undefined = undefined
-    antiflickerDefault = ''
+    antiflickerDefault: string | undefined = undefined
 
     // 曝光模式
     exposureMode: string | undefined = undefined
-    exposureModeDefault = ''
+    exposureModeDefault: string | undefined = undefined
     exposure: number | undefined = undefined
-    exposureDefault = 0
+    exposureDefault: number | undefined = undefined
     exposureMin = 0
     exposureMax = 100
 
     // 延迟时间
     delayTime: number | undefined = undefined
-    delayTimeDefault = 0
+    delayTimeDefault: number | undefined = undefined
     delayTimeMin = 0
     delayTimeMax = 100
 
@@ -449,11 +449,11 @@ export class ChannelImageDto extends TableRowStatus {
 
     // 增益限制
     gainMode: string | undefined = undefined
-    gainModeDefault = ''
+    gainModeDefault: string | undefined = undefined
     gainAGC: number | undefined = undefined
-    gainAGCDefault = 0
+    gainAGCDefault: number | undefined = undefined
     gain: number | undefined = undefined
-    gainDefault = 0
+    gainDefault: number | undefined = undefined
     gainMin = 0
     gainMax = 100
 
@@ -461,28 +461,28 @@ export class ChannelImageDto extends TableRowStatus {
 
     // 快门
     shutterMode: string | undefined = undefined
-    shutterModeDefault = ''
+    shutterModeDefault: string | undefined = undefined
     shutter: string | undefined = undefined
-    shutterDefault = ''
+    shutterDefault: string | undefined = undefined
     shutterLowLimit: string | undefined = undefined
-    shutterLowLimitDefault = ''
+    shutterLowLimitDefault: string | undefined = undefined
     shutterUpLimit: string | undefined = undefined
-    shutterUpLimitDefault = ''
+    shutterUpLimitDefault: string | undefined = undefined
 
     supportSchedule = false
     scheduleInfo = new ChannelScheduleInfoDto()
 
     // 白光灯
     whitelightMode: string | undefined = undefined
-    whitelightModeDefault = ''
+    whitelightModeDefault: string | undefined = undefined
     whitelightStrength: number | undefined = undefined
     whitelightStrengthMin = 0
     whitelightStrengthMax = 100
-    whitelightStrengthDefault = 0
+    whitelightStrengthDefault: number | undefined = undefined
     whitelightOnTime: string | undefined = undefined
-    whitelightOnTimeDefault = ''
+    whitelightOnTimeDefault: string | undefined = undefined
     whitelightOffTime: string | undefined = undefined
-    whitelightOffTimeDefault = ''
+    whitelightOffTimeDefault: string | undefined = undefined
 
     cfgFileList: SelectOption<string, string>[] = []
     shutterModeList: SelectOption<string, string>[] = []
