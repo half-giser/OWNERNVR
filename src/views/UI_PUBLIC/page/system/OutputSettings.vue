@@ -218,7 +218,7 @@
                                 />
                             </div>
                             <el-select-v2
-                                v-show="(pageData.tabId !== -1 && pageData.outputIdx !== -1) || isDwell"
+                                v-show="isDwell && (pageData.tabId !== -1 || pageData.outputIdx !== -1)"
                                 :model-value="currentTimeInterval"
                                 :options="pageData.dwellTimeOptions"
                                 class="panel-dwell-time"
