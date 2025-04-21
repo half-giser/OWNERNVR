@@ -55,6 +55,14 @@ export default defineComponent({
         let currentGroupId = ''
 
         /**
+         * @description 取消下载
+         */
+        const cancel = () => {
+            openMessageBox(Translate('IDCS_EXPORT_FAIL'))
+            close()
+        }
+
+        /**
          * @description 关闭弹窗，停止下载
          */
         const close = () => {
@@ -195,6 +203,7 @@ export default defineComponent({
 
         return {
             open,
+            cancel,
             pageData,
             progress,
         }
