@@ -613,7 +613,7 @@
 
     &-menu {
         width: 100%;
-        height: 80px;
+        height: 82px;
         flex-shrink: 0;
         cursor: pointer;
 
