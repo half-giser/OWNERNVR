@@ -193,7 +193,10 @@
                                         </template>
                                         <template #default>
                                             <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
-                                            <BaseSliderInput v-model="formData[pageData.activityType].personSensitivity" />
+                                            <BaseSliderInput
+                                                v-model="formData[pageData.activityType].personSensitivity"
+                                                :min="1"
+                                            />
                                         </template>
                                     </el-form-item>
                                     <!-- 汽车灵敏度 -->
@@ -206,7 +209,10 @@
                                         </template>
                                         <template #default>
                                             <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
-                                            <BaseSliderInput v-model="formData[pageData.activityType].carSensitivity" />
+                                            <BaseSliderInput
+                                                v-model="formData[pageData.activityType].carSensitivity"
+                                                :min="1"
+                                            />
                                         </template>
                                     </el-form-item>
                                     <!-- 摩托车灵敏度 -->
@@ -219,7 +225,10 @@
                                         </template>
                                         <template #default>
                                             <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
-                                            <BaseSliderInput v-model="formData[pageData.activityType].motorSensitivity" />
+                                            <BaseSliderInput
+                                                v-model="formData[pageData.activityType].motorSensitivity"
+                                                :min="1"
+                                            />
                                         </template>
                                     </el-form-item>
                                 </el-form>

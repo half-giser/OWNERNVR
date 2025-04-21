@@ -187,7 +187,10 @@
                                     </template>
                                     <template #default>
                                         <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
-                                        <BaseSliderInput v-model="formData.objectFilter.personSensitivity" />
+                                        <BaseSliderInput
+                                            v-model="formData.objectFilter.personSensitivity"
+                                            :min="1"
+                                        />
                                     </template>
                                 </el-form-item>
                                 <!-- 汽车灵敏度 -->
@@ -200,7 +203,10 @@
                                     </template>
                                     <template #default>
                                         <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
-                                        <BaseSliderInput v-model="formData.objectFilter.carSensitivity" />
+                                        <BaseSliderInput
+                                            v-model="formData.objectFilter.carSensitivity"
+                                            :min="1"
+                                        />
                                     </template>
                                 </el-form-item>
                                 <!-- 摩托车灵敏度 -->
@@ -213,7 +219,10 @@
                                     </template>
                                     <template #default>
                                         <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
-                                        <BaseSliderInput v-model="formData.objectFilter.motorSensitivity" />
+                                        <BaseSliderInput
+                                            v-model="formData.objectFilter.motorSensitivity"
+                                            :min="1"
+                                        />
                                     </template>
                                 </el-form-item>
                             </el-form>
