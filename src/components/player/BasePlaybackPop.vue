@@ -29,7 +29,7 @@
                             :active="index === pageData.chlIndex"
                             :chunk="4"
                         />
-                        <span>{{ listItem.chlName }}</span>
+                        <div class="text-ellipsis">{{ listItem.chlName }}</div>
                     </BaseListBoxItem>
                 </BaseListBox>
                 <div class="player">

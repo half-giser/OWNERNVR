@@ -271,7 +271,7 @@
                                 :index="pageData.activeChl === listItem.id ? 1 : 0"
                                 :chunk="4"
                             />
-                            <span>{{ listItem.value }}</span>
+                            <div class="text-ellipsis">{{ listItem.value }}</div>
                         </BaseListBoxItem>
                     </BaseListBox>
                 </div>
@@ -296,7 +296,7 @@
                                 :index="pageData.activeChlGroup === groupItem.id ? 1 : 0"
                                 :chunk="2"
                             />
-                            <span>{{ groupItem.value }}</span>
+                            <div class="text-ellipsis">{{ groupItem.value }}</div>
                         </BaseListBoxItem>
                     </BaseListBox>
                     <div class="chl-btns">
@@ -312,7 +312,7 @@
                             @dragstart="handleDragChl(listItem.id)"
                             @dblclick="setWinFromChl(listItem.id)"
                         >
-                            <span>{{ listItem.value }}</span>
+                            <div class="text-ellipsis">{{ listItem.value }}</div>
                         </BaseListBoxItem>
                     </BaseListBox>
                 </div>

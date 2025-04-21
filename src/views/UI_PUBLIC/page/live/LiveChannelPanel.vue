@@ -86,7 +86,7 @@
                                 :hover-index="1"
                                 :chunk="4"
                             />
-                            <span>{{ listItem.value }}</span>
+                            <div class="text-ellipsis">{{ listItem.value }}</div>
                         </BaseListBoxItem>
                     </BaseListBox>
                 </div>
@@ -116,7 +116,7 @@
                                     :index="pageData.activeChlGroup === groupItem.id ? 1 : 0"
                                     :chunk="2"
                                 />
-                                <span>{{ groupItem.value }}</span>
+                                <div class="text-ellipsis">{{ groupItem.value }}</div>
                             </BaseListBoxItem>
                         </BaseListBox>
                         <div class="left-chlgroup-btns">
@@ -136,7 +136,7 @@
                             class="left-chlgroup-items"
                             @click="setWinFormChlOfGroup(listItem.id)"
                         >
-                            <span>{{ listItem.value }}</span>
+                            <div class="text-ellipsis">{{ listItem.value }}</div>
                         </BaseListBoxItem>
                     </BaseListBox>
                 </div>
@@ -159,7 +159,7 @@
                                 :index="pageData.activeCustomView === viewItem.id ? 1 : 0"
                                 :chunk="2"
                             />
-                            <span>{{ viewItem.value }}</span>
+                            <div class="text-ellipsis">{{ viewItem.value }}</div>
                         </BaseListBoxItem>
                     </BaseListBox>
                 </div>

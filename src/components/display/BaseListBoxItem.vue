@@ -5,6 +5,7 @@
 -->
 <template>
     <li
+        v-title
         :class="{ active, 'show-hover': showHover }"
         @click="handleClick"
         @dblclick="handleDblClick"
@@ -73,6 +74,8 @@ li {
     line-height: 30px;
     user-select: none;
     background-color: var(--main-bg);
+    width: 100%;
+    box-sizing: border-box;
 
     :deep(.Sprite) {
         margin-right: 8px;
@@ -81,6 +84,13 @@ li {
     :deep(.el-checkbox) {
         height: 30px;
         width: 100%;
+        overflow: hidden;
+    }
+
+    :deep(.el-checkbox__label) {
+        text-overflow: ellipsis;
+        width: calc(100% - 20px);
+        overflow: hidden;
     }
 
     &.show-hover {
