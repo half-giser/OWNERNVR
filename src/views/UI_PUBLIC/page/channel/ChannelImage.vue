@@ -397,7 +397,7 @@
                                                     :label="Translate('IDCS_EXPOSURE_VALUE')"
                                                 >
                                                     <el-select-v2
-                                                        v-model="row.exposureMode"
+                                                        v-model="row.exposure"
                                                         :disabled="row.exposureMode === undefined"
                                                         :options="row.exposureList"
                                                         @change="setAZData()"
