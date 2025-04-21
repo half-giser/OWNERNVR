@@ -319,7 +319,7 @@ export default defineComponent({
                         .map((item) => {
                             listIndex++
 
-                            const type = getType(item.isEnter, item.enterType, item.isExit, item.exitType)
+                            const type = getType(item.isEnter, String(item.enterType), item.isExit, String(item.exitType))
 
                             return {
                                 index: listIndex,
