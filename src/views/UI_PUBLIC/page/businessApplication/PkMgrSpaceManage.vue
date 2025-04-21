@@ -87,7 +87,7 @@
                     :label="Translate('IDCS_EMAIL')"
                 >
                     <template #default="{ row }: TableColumn<BusinessPkMgrSpaceManageList>">
-                        <el-input v-model="row.linkEmail" />
+                        <BaseSensitiveEmailInput v-model="row.linkEmail" />
                     </template>
                 </el-table-column>
             </el-table>
