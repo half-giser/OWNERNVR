@@ -23,9 +23,10 @@
                     v-model="pageData.form.recipient"
                     maxlength="63"
                 />
-                <el-select-v2
+                <BaseScheduleSelect
                     v-model="pageData.schedule"
                     :options="pageData.scheduleList"
+                    @edit="openSchedulePop"
                 />
                 <el-button @click="addRecipient()">
                     {{ Translate('IDCS_ADD') }}

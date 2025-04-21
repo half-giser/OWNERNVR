@@ -220,9 +220,10 @@
                                     </div>
                                     <!-- 排程 -->
                                     <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
-                                        <el-select-v2
+                                        <BaseScheduleSelect
                                             v-model="formData.schedule"
                                             :options="pageData.scheduleList"
+                                            @edit="pageData.isSchedulePop = true"
                                         />
                                         <el-button @click="pageData.isSchedulePop = true">
                                             {{ Translate('IDCS_MANAGE') }}

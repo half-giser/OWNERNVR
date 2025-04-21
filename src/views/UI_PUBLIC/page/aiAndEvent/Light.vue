@@ -107,7 +107,7 @@
         <div class="base-head-box margin">{{ Translate('IDCS_FLASH_LIGHT_LINK_SCHEDULE') }}</div>
         <el-form v-title>
             <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
-                <el-select-v2
+                <BaseScheduleSelect
                     v-model="pageData.schedule"
                     :options="pageData.scheduleList"
                     @change="changeSchedule()"

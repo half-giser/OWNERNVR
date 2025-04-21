@@ -35,11 +35,11 @@
             </el-form-item>
             <!-- 排程配置 -->
             <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
-                <el-select-v2
+                <BaseScheduleSelect
                     v-model="taskData.schedule"
                     :options="scheduleList"
+                    @edit="pageData.isSchedulePop = true"
                 />
-                <el-button @click="pageData.isSchedulePop = true">{{ Translate('IDCS_MANAGE') }}</el-button>
             </el-form-item>
             <!-- 文字提示 -->
             <el-form-item :label="Translate('IDCS_TEXT_PROMPT')">
