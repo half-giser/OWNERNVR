@@ -335,7 +335,7 @@ export default defineComponent({
                                 enterFrameTime: String(item.enterframeTime),
                                 enterVehicleId: item.enterVehicleId,
                                 enterType: String(item.enterType),
-                                enterImg: item.enterImg || '',
+                                enterImg: item.enterImg ? wrapBase64Img(item.enterImg) : '',
                                 isExit: item.isExit,
                                 exitChlId: item.exitChlId,
                                 exitChl: item.exitChl,
@@ -343,7 +343,7 @@ export default defineComponent({
                                 exitFrameTime: String(item.exitframeTime),
                                 exitVehicleId: item.exitVehicleId,
                                 exitType: String(item.exitType),
-                                exitImg: item.exitImg || '',
+                                exitImg: item.exitImg ? wrapBase64Img(item.exitImg) : '',
                                 direction: item.direction,
                                 isHistory: false,
                                 type,
@@ -503,7 +503,7 @@ export default defineComponent({
                         const data = await getParkImg(item.exitChlId, item.exitFrameTime, item.eventType, item.exitVehicleId)
                         item.master = data.master
                         item.phoneNum = data.phoneNum
-                        item.enterImg = data.img
+                        item.exitImg = data.img
                     }
                 }
             })
