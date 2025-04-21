@@ -23,7 +23,7 @@
                 </li>
             </ul>
         </el-scrollbar>
-        <BaseTransferDialog
+        <BaseTransferPop
             v-model="pageData.isPop"
             header-title="IDCS_TRIGGER_CHANNEL_SNAP"
             source-title="IDCS_CHANNEL"

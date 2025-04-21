@@ -90,7 +90,7 @@
             @confirm="saveGroup"
         />
         <!-- 排程管理 -->
-        <ScheduleManagPop
+        <BaseScheduleManagePop
             v-model="pageData.isSchedulePop"
             @close="pageData.isSchedulePop = false"
         />

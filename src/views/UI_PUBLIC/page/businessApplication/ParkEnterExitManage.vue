@@ -25,7 +25,7 @@
                     min-width="200"
                     :label="Translate('IDCS_DIRECTION')"
                 >
-                    <template #default="{ row }: TableColumn<BusinessPkMgrEnterExitManageList>">
+                    <template #default="{ row }: TableColumn<BusinessParkEnterExitManageList>">
                         <el-select-v2
                             v-model="row.direction"
                             :options="pageData.directionList"
@@ -41,7 +41,7 @@
                     width="150"
                     :label="Translate('IDCS_COMMON_STATE')"
                 >
-                    <template #default="{ row }: TableColumn<BusinessPkMgrEnterExitManageList>">
+                    <template #default="{ row }: TableColumn<BusinessParkEnterExitManageList>">
                         <span :class="getChlStatus(row.id)">{{ getChlStatus(row.id) === 'text-online' ? Translate('IDCS_ONLINE') : Translate('IDCS_OFFLINE') }}</span>
                     </template>
                 </el-table-column>
@@ -49,7 +49,7 @@
                     min-width="200"
                     :label="Translate('IDCS_ENABLE_LED_SCREEN')"
                 >
-                    <template #default="{ row }: TableColumn<BusinessPkMgrEnterExitManageList>">
+                    <template #default="{ row }: TableColumn<BusinessParkEnterExitManageList>">
                         <el-checkbox
                             v-model="row.enableLEDScreen"
                             :disabled="!row.enableLEDScreenValid"
@@ -60,7 +60,7 @@
                     min-width="200"
                     :label="Translate('IDCS_RELATION_LED_SCREEN')"
                 >
-                    <template #default="{ row }: TableColumn<BusinessPkMgrEnterExitManageList>">
+                    <template #default="{ row }: TableColumn<BusinessParkEnterExitManageList>">
                         <el-select-v2
                             v-model="row.LEDScreenType"
                             :options="pageData.screenList"
@@ -81,4 +81,4 @@
     </div>
 </template>
 
-<script lang="ts" src="./PkMgrEnterExitManage.v.ts"></script>
+<script lang="ts" src="./ParkEnterExitManage.v.ts"></script>

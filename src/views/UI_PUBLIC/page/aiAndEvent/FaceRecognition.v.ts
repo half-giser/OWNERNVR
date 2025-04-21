@@ -3,7 +3,6 @@
  * @Date: 2024-08-28 13:42:09
  * @Description: AI 事件——人脸识别
  */
-import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import { type TabPaneName, type CheckboxValueType } from 'element-plus'
 import RecognitionPanel from './RecognitionPanel.vue'
 import { type XMLQuery } from '@/utils/xmlParse'
@@ -17,7 +16,6 @@ import AlarmBaseResourceData from './AlarmBaseResourceData.vue'
 export default defineComponent({
     components: {
         RecognitionPanel,
-        ScheduleManagPop,
         AlarmBaseChannelSelector,
         AlarmBaseRecordSelector,
         AlarmBaseAlarmOutSelector,

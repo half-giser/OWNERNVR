@@ -72,7 +72,7 @@
             </div>
         </div>
         <!-- 排程编辑弹窗 -->
-        <ScheduleEditPop
+        <BaseScheduleEditPop
             v-model="pageData.scheduleEditPopOpen"
             :schedule-dtail="pageData.editScheduleInfo"
             :day-enum="pageData.dayEnum"
@@ -85,7 +85,7 @@
     </el-dialog>
 </template>
 
-<script lang="ts" src="./ScheduleManagPop.v.ts"></script>
+<script lang="ts" src="./BaseScheduleManagePop.v.ts"></script>
 
 <style lang="scss" scoped>
 .base-head-box {

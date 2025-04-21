@@ -3,14 +3,10 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-20 10:15:52
  */
-import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import { type CheckboxValueType, type CheckboxGroupValueType } from 'element-plus'
 import { type XMLQuery } from '@/utils/xmlParse'
 
 export default defineComponent({
-    components: {
-        ScheduleManagPop,
-    },
     props: {
         /**
          * @property 选中的通道

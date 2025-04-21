@@ -118,7 +118,7 @@
     </el-dialog>
 </template>
 
-<script lang="ts" src="./ScheduleEditPop.v.ts"></script>
+<script lang="ts" src="./BaseScheduleEditPop.v.ts"></script>
 
 <style lang="scss" scoped>
 .form {

@@ -15,7 +15,7 @@
                     {{ Translate('IDCS_RECORD') }}
                 </BaseTableDropdownLink>
             </template>
-            <BaseTransferPop
+            <BaseTransferPopover
                 source-title="IDCS_CHANNEL"
                 target-title="IDCS_CHANNEL_TRGGER"
                 :visible="pageData.isDropdown"
@@ -26,7 +26,7 @@
                 @close="closeAll"
             />
         </el-popover>
-        <BaseTransferDialog
+        <BaseTransferPop
             :model-value="pageData.isPop"
             header-title="IDCS_TRIGGER_CHANNEL_RECORD"
             source-title="IDCS_CHANNEL"

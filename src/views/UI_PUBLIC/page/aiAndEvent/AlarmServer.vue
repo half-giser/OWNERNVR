@@ -155,11 +155,11 @@
             </el-button>
             <el-button @click="applyData()">{{ Translate('IDCS_APPLY') }}</el-button>
         </div>
-        <ScheduleManagPop
+        <BaseScheduleManagePop
             v-model="pageData.isSchedulePop"
             @close="closeSchedulePop"
         />
-        <BaseTransferDialog
+        <BaseTransferPop
             v-model="pageData.showAlarmTransfer"
             header-title="IDCS_ALARM_TYPE"
             source-title="IDCS_ALARM"

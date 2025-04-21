@@ -4,7 +4,6 @@
  * @Description: AI 事件——车牌识别
  */
 import AlarmBaseChannelSelector from './AlarmBaseChannelSelector.vue'
-import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import RecognitionPanel from './RecognitionPanel.vue'
 import { type XMLQuery } from '@/utils/xmlParse'
 
@@ -12,7 +11,6 @@ export default defineComponent({
     components: {
         AlarmBaseChannelSelector,
         RecognitionPanel,
-        ScheduleManagPop,
     },
     setup() {
         const { Translate } = useLangStore()

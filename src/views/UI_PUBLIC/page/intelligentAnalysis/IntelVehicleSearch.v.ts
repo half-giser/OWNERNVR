@@ -13,7 +13,7 @@ import IntelBaseSnapItem from './IntelBaseSnapItem.vue'
 import IntelBaseSnapPop from './IntelBaseSnapPop.vue'
 import IntelBaseVehicleDirectionSelector from './IntelBaseVehicleDirectionSelector.vue'
 import IntelLicencePlateDBAddPlatePop from './IntelLicencePlateDBAddPlatePop.vue'
-import PKMgrParkLotPop from '../businessApplication/PKMgrParkLotPop.vue'
+import ParkLotPop from '../businessApplication/ParkLotPop.vue'
 import type { TableInstance, CheckboxValueType } from 'element-plus'
 import BackupPop from '../searchAndBackup/BackupPop.vue'
 import BackupLocalPop from '../searchAndBackup/BackupLocalPop.vue'
@@ -34,7 +34,7 @@ export default defineComponent({
         IntelLicencePlateDBAddPlatePop,
         BackupPop,
         BackupLocalPop,
-        PKMgrParkLotPop,
+        ParkLotPop,
     },
     setup() {
         const { Translate } = useLangStore()

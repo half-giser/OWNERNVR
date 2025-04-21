@@ -4,11 +4,11 @@
  * @Description: 实时过车记录
  */
 import dayjs from 'dayjs'
-import PKMgrParkLotPop from './PKMgrParkLotPop.vue'
+import ParkLotPop from './ParkLotPop.vue'
 
 export default defineComponent({
     components: {
-        PKMgrParkLotPop,
+        ParkLotPop,
     },
     setup() {
         const { Translate } = useLangStore()
@@ -67,9 +67,6 @@ export default defineComponent({
             // 当前时间
             currentTime: '',
         })
-
-        // 设备时间
-        let systemTime = dayjs()
 
         const cloneData = new BusinessParkingLotList()
 
@@ -469,26 +466,13 @@ export default defineComponent({
          * @description 定时更新当前时间
          */
         const timer = useClock(() => {
-            // const date = dayjs()
-            systemTime = systemTime.add(1, 'second')
-            pageData.value.currentTime = systemTime.format(dateTime.dateTimeFormat) // date.format(dateTime.dateTimeFormat)
+            pageData.value.currentTime = dateTime.getSystemTime().add(500, 'ms').format(dateTime.dateTimeFormat) // date.format(dateTime.dateTimeFormat)
         }, 1000)
-
-        /**
-         * @description 获取当前设备时间
-         */
-        const getTimeConfig = async () => {
-            const $ = await dateTime.getTimeConfig(true)
-            if ($) {
-                systemTime = dayjs($('content/synchronizeInfo/currentTime').text(), dateTime.dateTimeFormat)
-            }
-        }
 
         onMounted(async () => {
             timer.repeat(true, true)
             await getParkingLotConfig()
             await getParkSnapConfig()
-            await getTimeConfig()
             createWebsoket()
             tableData.value.forEach(async (item) => {
                 if (item.isHistory) {

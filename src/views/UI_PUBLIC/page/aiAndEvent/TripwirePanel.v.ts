@@ -3,7 +3,6 @@
  * @Date: 2024-09-19 11:16:22
  * @Description: 越界
  */
-import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import ChannelPtzCtrlPanel from '@/views/UI_PUBLIC/page/channel/ChannelPtzCtrlPanel.vue'
 import { type XMLQuery } from '@/utils/xmlParse'
 import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
@@ -14,7 +13,6 @@ import AlarmBaseResourceData from './AlarmBaseResourceData.vue'
 
 export default defineComponent({
     components: {
-        ScheduleManagPop,
         ChannelPtzCtrlPanel,
         AlarmBaseRecordSelector,
         AlarmBaseAlarmOutSelector,

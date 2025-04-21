@@ -55,7 +55,7 @@
     </div>
 </template>
 
-<script lang="ts" src="./PkMgrBasicConfig.v.ts"></script>
+<script lang="ts" src="./ParkBasicConfig.v.ts"></script>
 
 <style lang="scss" scoped>
 .manage {

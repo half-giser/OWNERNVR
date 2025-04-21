@@ -373,7 +373,7 @@
             @edit-schedule="pageData.isSchedulePop = true"
             @close="closeMorePop"
         />
-        <ScheduleManagPop
+        <BaseScheduleManagePop
             v-model="pageData.isSchedulePop"
             @close="closeSchedulePop"
         />

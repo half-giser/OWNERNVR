@@ -3,12 +3,7 @@
  * @Date: 2024-08-13 15:58:57
  * @Description: 闪灯
  */
-import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
-
 export default defineComponent({
-    components: {
-        ScheduleManagPop,
-    },
     setup() {
         const { Translate } = useLangStore()
 

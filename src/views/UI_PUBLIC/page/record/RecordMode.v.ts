@@ -5,13 +5,11 @@
  */
 import RecordModeAdvancePop from './RecordModeAdvancePop.vue'
 import RecordModeStreamPop from './RecordModeStreamPop.vue'
-import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 
 export default defineComponent({
     components: {
         RecordModeAdvancePop,
         RecordModeStreamPop,
-        ScheduleManagPop,
     },
     setup() {
         const { Translate } = useLangStore()

@@ -20,7 +20,7 @@ export default defineComponent({
             JiaXun: Translate('IDCS_JIAXUN_LED_SCREEN'),
         }
 
-        const tableData = ref<BusinessPkMgrEnterExitManageList[]>([])
+        const tableData = ref<BusinessParkEnterExitManageList[]>([])
         const watchEdit = useWatchEditData(tableData)
 
         const pageData = ref({

@@ -179,7 +179,7 @@
             @confirm="confirmSetConnection"
             @close="pageData.isConnectionDialog = false"
         />
-        <BaseTransferDialog
+        <BaseTransferPop
             v-model="pageData.isTriggerChannelDialog"
             header-title="IDCS_CHANNEL_TRGGER"
             source-title="IDCS_CHANNEL"

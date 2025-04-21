@@ -313,7 +313,7 @@
             :index="pageData.triggerDialogIndex"
             @confirm="changePreset"
         />
-        <ScheduleManagPop
+        <BaseScheduleManagePop
             v-model="pageData.isSchedulePop"
             @close="closeSchedulePop"
         />

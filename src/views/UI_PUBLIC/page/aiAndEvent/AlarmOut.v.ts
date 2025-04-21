@@ -3,12 +3,7 @@
  * @Date: 2024-08-10 11:05:51
  * @Description: 报警输出
  */
-import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
-
 export default defineComponent({
-    components: {
-        ScheduleManagPop,
-    },
     setup() {
         const { Translate } = useLangStore()
 

@@ -4,7 +4,6 @@
  * @Date: 2024-08-23 10:58:27
  */
 import AlarmBasePresetPop from './AlarmBasePresetPop.vue'
-import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import AlarmBaseSnapPop from './AlarmBaseSnapPop.vue'
 import AlarmBaseRecordPop from './AlarmBaseRecordPop.vue'
 import AlarmBaseAlarmOutPop from './AlarmBaseAlarmOutPop.vue'
@@ -15,7 +14,6 @@ export default defineComponent({
         AlarmBaseSnapPop,
         AlarmBaseRecordPop,
         AlarmBaseAlarmOutPop,
-        ScheduleManagPop,
     },
     setup() {
         const { Translate } = useLangStore()

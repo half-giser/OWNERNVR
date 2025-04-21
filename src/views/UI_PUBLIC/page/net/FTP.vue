@@ -338,7 +338,7 @@
             </el-button>
             <el-button @click="verify">{{ Translate('IDCS_APPLY') }}</el-button>
         </div>
-        <ScheduleManagPop
+        <BaseScheduleManagePop
             v-model="pageData.isSchedulePop"
             @close="closeSchedulePop"
         />

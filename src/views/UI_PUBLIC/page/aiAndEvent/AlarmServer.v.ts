@@ -3,13 +3,9 @@
  * @Date: 2024-08-14 17:06:11
  * @Description: 报警服务器
  */
-import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { type FormRules } from 'element-plus'
 
 export default defineComponent({
-    components: {
-        ScheduleManagPop,
-    },
     setup() {
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()

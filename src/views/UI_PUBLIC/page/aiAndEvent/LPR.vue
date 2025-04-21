@@ -323,7 +323,7 @@
         </el-tab-pane>
     </el-tabs>
     <!-- 排程管理弹窗 -->
-    <ScheduleManagPop
+    <BaseScheduleManagePop
         v-model="pageData.isSchedulePop"
         @close="closeSchedulePop"
     />

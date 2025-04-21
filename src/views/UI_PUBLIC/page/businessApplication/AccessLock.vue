@@ -100,7 +100,7 @@
     </div>
 </template>
 
-<script lang="ts" src="./ActConfigs.v.ts"></script>
+<script lang="ts" src="./AccessLock.v.ts"></script>
 
 <style lang="scss" scoped>
 .act {

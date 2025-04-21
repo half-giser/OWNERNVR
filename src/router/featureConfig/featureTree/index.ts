@@ -114,7 +114,7 @@ export default {
     //停车场
     parkLot: {
         path: '/business-application/park-lot-manage/park-lot',
-        component: 'businessApplication/PkMgrParkLot.vue',
+        component: 'businessApplication/ParkLot.vue',
         meta: {
             sort: 40,
             lk: 'IDCS_PARKING_LOT',

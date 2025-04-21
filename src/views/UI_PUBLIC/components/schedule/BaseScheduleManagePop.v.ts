@@ -3,13 +3,9 @@
  * @Date: 2024-07-31 16:36:16
  * @Description: 排程管理弹窗
  */
-import ScheduleEditPop from './ScheduleEditPop.vue'
 import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
-    components: {
-        ScheduleEditPop,
-    },
     emits: {
         close() {
             return true

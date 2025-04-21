@@ -299,7 +299,7 @@
             @add="addPlate"
             @play-rec="playRec"
         />
-        <PKMgrParkLotPop
+        <ParkLotPop
             v-model="pageData.isParkDetailPop"
             :list="sliceTableData"
             :index="pageData.parkDetailIndex"

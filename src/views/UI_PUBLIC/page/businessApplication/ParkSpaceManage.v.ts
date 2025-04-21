@@ -3,12 +3,7 @@
  * @Date: 2024-05-27 09:38:30
  * @Description: 业务应用-停车场管理-车位管理
  */
-import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
-
 export default defineComponent({
-    components: {
-        ScheduleManagPop,
-    },
     setup() {
         const { Translate } = useLangStore()
 
@@ -38,7 +33,7 @@ export default defineComponent({
             isSchedulePop: false,
         })
 
-        const tableData = ref<BusinessPkMgrSpaceManageList[]>([])
+        const tableData = ref<BusinessParkSpaceManageList[]>([])
         const watchEdit = useWatchEditData(tableData)
 
         /**

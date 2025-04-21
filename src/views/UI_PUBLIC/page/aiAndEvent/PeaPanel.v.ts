@@ -4,7 +4,6 @@
  * @Description: 区域入侵
  */
 import ChannelPtzCtrlPanel from '@/views/UI_PUBLIC/page/channel/ChannelPtzCtrlPanel.vue'
-import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { type XMLQuery, type XmlElement } from '@/utils/xmlParse'
 import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
 import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
@@ -14,7 +13,6 @@ import AlarmBaseResourceData from './AlarmBaseResourceData.vue'
 
 export default defineComponent({
     components: {
-        ScheduleManagPop,
         ChannelPtzCtrlPanel,
         AlarmBaseRecordSelector,
         AlarmBaseAlarmOutSelector,

@@ -77,7 +77,7 @@ export const useDateTimeStore = defineStore('dateTime', () => {
             dateTimeFormat.value = dateFormat.value + ' ' + timeFormat.value
             monthDateFormat.value = MD_MAPPING[date]
             timeMode.value = time
-            systemTime = dayjs($('content/synchronizeInfo/currentTime').text(), dateTimeFormat.value)
+            systemTime = dayjs($('content/synchronizeInfo/currentTime').text(), { format: dateTimeFormat.value, jalali: false })
             localTime = performance.now()
             ready.value = true
         }
@@ -90,7 +90,7 @@ export const useDateTimeStore = defineStore('dateTime', () => {
      * @returns {dayjs}
      */
     const getSystemTime = () => {
-        return systemTime.add(Math.round((performance.now() - localTime) / 1000), 's')
+        return systemTime.add(Math.round(performance.now() - localTime), 'ms')
     }
 
     return {

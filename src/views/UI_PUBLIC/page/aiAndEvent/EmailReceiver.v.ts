@@ -3,13 +3,9 @@
  * @Date: 2024-08-12 14:21:22
  * @Description: email通知
  */
-import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { type FormRules, type TableInstance } from 'element-plus'
 
 export default defineComponent({
-    components: {
-        ScheduleManagPop,
-    },
     setup() {
         const router = useRouter()
         const userSession = useUserSessionStore()

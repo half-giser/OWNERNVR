@@ -4,12 +4,8 @@
  * @Description: FTP配置
  */
 import { type FormRules } from 'element-plus'
-import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 
 export default defineComponent({
-    components: {
-        ScheduleManagPop,
-    },
     setup() {
         const { Translate } = useLangStore()
         const userSession = useUserSessionStore()

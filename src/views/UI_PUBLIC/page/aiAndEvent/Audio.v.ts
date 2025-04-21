@@ -4,13 +4,11 @@
  * @Date: 2024-08-13 09:23:25
  */
 import AudioUploadPop from './AudioUploadPop.vue'
-import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
     components: {
         AudioUploadPop,
-        ScheduleManagPop,
     },
     setup() {
         const { Translate } = useLangStore()
