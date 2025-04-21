@@ -13,7 +13,7 @@
             <el-form
                 v-title
                 :style="{
-                    '--form-input-width': '340px',
+                    '--form-input-width': '250px',
                 }"
             >
                 <el-form-item :label="Translate('IDCS_USER_RIGHT_GROUP_NAME')">

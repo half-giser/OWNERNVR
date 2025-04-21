@@ -193,6 +193,10 @@ export default defineComponent({
             })
         }
 
+        const openSchedulePop = () => {
+            pageData.value.isSchedulePop = true
+        }
+
         const getRecModeData = async () => {
             openLoading()
 
@@ -558,6 +562,7 @@ export default defineComponent({
             recAutoModeList,
             advanceRecModeMap,
             supportPOS,
+            openSchedulePop,
             changeAllSchedule,
             confirmAdvancePop,
             closeStreamPop,

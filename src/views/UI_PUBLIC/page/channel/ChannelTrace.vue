@@ -18,9 +18,7 @@
             />
             <el-form
                 v-title
-                :style="{
-                    '--form-label-width': '100px',
-                }"
+                class="stripe"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select-v2
@@ -81,7 +79,7 @@
                         </div>
                     </el-tooltip>
                 </el-form-item>
-                <div class="base-btn-box padding">
+                <div class="base-btn-box">
                     <el-button
                         :disabled="!tableData.length"
                         @click="addTrace(pageData.tableIndex)"

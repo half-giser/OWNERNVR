@@ -6,15 +6,10 @@
 <template>
     <el-dialog
         :title="Translate('IDCS_EXPORT')"
-        :width="500"
+        :width="450"
         @open="open"
     >
-        <el-form
-            v-title
-            :style="{
-                '--form-label-width': '100px',
-            }"
-        >
+        <el-form v-title>
             <el-form-item :label="Translate('IDCS_DESTINATION')">
                 <el-select-v2
                     v-model="formData.destination"

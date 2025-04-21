@@ -8,9 +8,6 @@
         <el-form
             v-title
             class="stripe"
-            :style="{
-                '--form-input-width': '200px',
-            }"
         >
             <el-form-item>
                 <el-checkbox
@@ -34,7 +31,10 @@
                 :data="tableData"
                 :row-class-name="handleRowClassName"
             >
-                <el-table-column :label="Translate('IDCS_PORT_TYPE')">
+                <el-table-column
+                    :label="Translate('IDCS_PORT_TYPE')"
+                    show-overflow-tooltip
+                >
                     <template #default="{ row }: TableColumn<NetUPnPPortDto>">
                         {{ displayPortType(row.portType) }}
                     </template>

@@ -66,25 +66,20 @@
                                     <div class="base-btn-box">
                                         <el-button @click="clearDrawArea">{{ Translate('IDCS_CLEAR') }}</el-button>
                                     </div>
-                                    <span class="base-ai-tip">{{ Translate('IDCS_DRAW_RECT_TIP') }}</span>
+                                    <div class="base-ai-tip">{{ Translate('IDCS_DRAW_RECT_TIP') }}</div>
                                 </div>
                             </div>
                             <div class="base-ai-param-box-right">
-                                <el-form
-                                    v-title
-                                    :style="{
-                                        '--form-input-width': '215px',
-                                    }"
-                                >
+                                <el-form v-title>
                                     <!-- 排程 -->
                                     <div class="base-ai-subheading">{{ Translate('IDCS_SCHEDULE') }}</div>
                                     <!-- 排程配置 -->
                                     <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
-                                        <el-select-v2
+                                        <BaseScheduleSelect
                                             v-model="detectionFormData.schedule"
                                             :options="pageData.scheduleList"
+                                            @edit="pageData.isSchedulePop = true"
                                         />
-                                        <el-button @click="pageData.isSchedulePop = true">{{ Translate('IDCS_MANAGE') }}</el-button>
                                     </el-form-item>
                                     <template v-if="detectionFormData.supportVfd">
                                         <!-- 规则 -->
@@ -173,12 +168,7 @@
                             :label="Translate('IDCS_LINKAGE_MODE')"
                             name="trigger"
                         >
-                            <el-form
-                                v-title
-                                :style="{
-                                    '--form-input-width': '215px',
-                                }"
-                            >
+                            <el-form v-title>
                                 <el-form-item
                                     v-show="supportAlarmAudioConfig"
                                     :label="Translate('IDCS_VOICE_PROMPT')"
@@ -312,6 +302,7 @@
                                     <el-table-column
                                         prop="name"
                                         :label="Translate('IDCS_FACE_LIBRARY_GROUP')"
+                                        show-overflow-tooltip
                                     />
                                     <el-table-column>
                                         <template #header>
@@ -325,10 +316,9 @@
                                                 </template>
                                                 <el-form
                                                     v-title
-                                                    class="stripe"
+                                                    class="no-padding"
                                                     :style="{
                                                         '--form-label-width': '100px',
-                                                        '--form-input-width': '100px',
                                                     }"
                                                 >
                                                     <el-form-item :label="Translate('IDCS_SIMILARITY')">
@@ -356,11 +346,15 @@
                                         </template>
                                     </el-table-column>
                                 </el-table>
-                                <div>{{ Translate('IDCS_FACE_MATCH_PARAM_TIP') }}</div>
-                                <el-checkbox
-                                    v-model="faceMatchData.liveDisplaySwitch"
-                                    :label="Translate('IDCS_NO_REALTIME_DISPLAY')"
-                                />
+                                <el-form class="no-padding">
+                                    <el-form-item>{{ Translate('IDCS_FACE_MATCH_PARAM_TIP') }}</el-form-item>
+                                    <el-form-item>
+                                        <el-checkbox
+                                            v-model="faceMatchData.liveDisplaySwitch"
+                                            :label="Translate('IDCS_NO_REALTIME_DISPLAY')"
+                                        />
+                                    </el-form-item>
+                                </el-form>
                             </div>
                         </el-tab-pane>
                         <el-tab-pane

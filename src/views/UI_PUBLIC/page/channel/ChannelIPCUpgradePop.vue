@@ -7,10 +7,13 @@
     <el-dialog
         v-model="ipcUpgradePopVisiable"
         :title="Translate('IDCS_UPGRADE')"
-        width="470"
+        width="450"
         @opened="opened"
     >
-        <el-form v-title>
+        <el-form
+            v-title
+            :class="type === 'multiple' ? 'stripe' : 'no-padding'"
+        >
             <el-form-item
                 v-show="type === 'multiple'"
                 :label="Translate('IDCS_PRODUCT_MODEL')"

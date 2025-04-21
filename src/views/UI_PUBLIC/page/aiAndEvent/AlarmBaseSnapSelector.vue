@@ -17,6 +17,7 @@
                 <li
                     v-for="item in modelValue"
                     :key="item.value"
+                    v-title
                 >
                     {{ item.label }}
                 </li>

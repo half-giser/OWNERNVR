@@ -5,7 +5,7 @@
 -->
 <template>
     <div class="base-flex-box">
-        <div class="base-subheading-box">{{ Translate('IDCS_LIGHT') }}</div>
+        <div class="base-head-box">{{ Translate('IDCS_LIGHT') }}</div>
         <div class="base-table-box">
             <el-table
                 v-title
@@ -104,26 +104,21 @@
                 @current-change="changePagination"
             />
         </div>
-        <div class="base-subheading-box margin">{{ Translate('IDCS_FLASH_LIGHT_LINK_SCHEDULE') }}</div>
-        <el-form
-            v-title
-            :style="{
-                '--form-input-width': '200px',
-            }"
-        >
+        <div class="base-head-box margin">{{ Translate('IDCS_FLASH_LIGHT_LINK_SCHEDULE') }}</div>
+        <el-form v-title>
             <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
                 <el-select-v2
                     v-model="pageData.schedule"
                     :options="pageData.scheduleList"
                     @change="changeSchedule()"
+                    @edit="pageData.isSchedulePop = true"
                 />
-                <el-button @click="openSchedulePop()">
-                    {{ Translate('IDCS_MANAGE') }}
-                </el-button>
             </el-form-item>
-            <div class="tip">*{{ Translate('IDCS_FLASH_LIGHT_LINK_SCHEDULE_TIPS') }}</div>
+            <el-form-item>
+                <span class="text-tips">*{{ Translate('IDCS_FLASH_LIGHT_LINK_SCHEDULE_TIPS') }}</span>
+            </el-form-item>
         </el-form>
-        <div class="base-btn-box padding">
+        <div class="base-btn-box">
             <el-button
                 :disabled="!editRows.size() && !pageData.scheduleChanged"
                 @click="setData()"
@@ -141,13 +136,7 @@
 <script lang="ts" src="./Light.v.ts"></script>
 
 <style lang="scss" scoped>
-.tip {
-    color: var(--main-text-light);
-    font-size: 14px;
-    padding-left: 10px;
-}
-
 .margin {
-    margin-top: 20px;
+    margin-top: 10px;
 }
 </style>

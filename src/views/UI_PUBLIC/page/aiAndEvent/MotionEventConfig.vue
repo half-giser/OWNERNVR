@@ -30,29 +30,18 @@
                 <!-- 排程 -->
                 <el-table-column width="130">
                     <template #header>
-                        <el-dropdown>
-                            <BaseTableDropdownLink>
-                                {{ Translate('IDCS_SCHEDULE') }}
-                            </BaseTableDropdownLink>
-                            <template #dropdown>
-                                <el-dropdown-menu>
-                                    <el-dropdown-item
-                                        v-for="item in pageData.scheduleList"
-                                        :key="item.value"
-                                        @click="changeAllSchedule(item)"
-                                    >
-                                        {{ item.label }}
-                                    </el-dropdown-item>
-                                </el-dropdown-menu>
-                            </template>
-                        </el-dropdown>
+                        <BaseScheduleTableDropdown
+                            :options="pageData.scheduleList"
+                            @change="changeAllSchedule"
+                            @edit="openSchedulePop"
+                        />
                     </template>
                     <template #default="{ row }: TableColumn<AlarmEventDto>">
-                        <el-select-v2
+                        <BaseScheduleSelect
                             v-model="row.schedule"
                             :disabled="row.disabled"
                             :options="pageData.scheduleList"
-                            @change="changeSchedule(row)"
+                            @edit="openSchedulePop"
                         />
                     </template>
                 </el-table-column>

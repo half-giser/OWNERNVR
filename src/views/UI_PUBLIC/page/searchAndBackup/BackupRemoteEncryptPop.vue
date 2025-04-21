@@ -15,6 +15,7 @@
             v-title
             :model="formData"
             :rules="formRule"
+            class="stripe"
         >
             <el-form-item>
                 <el-radio-group
@@ -32,36 +33,25 @@
                 </el-radio-group>
             </el-form-item>
             <el-form-item
-                v-show="formData.encrypt === 'encrypted'"
+                v-if="formData.encrypt === 'encrypted'"
                 :label="Translate('IDCS_PASSWORD')"
                 prop="password"
             >
-                <BasePasswordInput
-                    v-model="formData.password"
-                    :show-text="pageData.showPassword"
-                    :disabled="formData.encrypt === 'unencrypted'"
-                />
+                <BasePasswordInput v-model="formData.password" />
             </el-form-item>
             <el-form-item
-                v-show="formData.encrypt === 'encrypted'"
+                v-if="formData.encrypt === 'encrypted'"
                 :label="Translate('IDCS_CONFIRM_PASSWORD')"
                 prop="confirmPassword"
             >
-                <BasePasswordInput
-                    v-model="formData.confirmPassword"
-                    :show-text="pageData.showPassword"
-                    :disabled="formData.encrypt === 'unencrypted'"
-                />
+                <BasePasswordInput v-model="formData.confirmPassword" />
             </el-form-item>
-            <el-form-item v-show="formData.encrypt === 'encrypted'">
-                <el-checkbox
-                    v-model="pageData.showPassword"
-                    :label="Translate('IDCS_SHOW_PASSWORD')"
-                />
-            </el-form-item>
-            <el-form-item v-show="formData.encrypt === 'unencrypted'">
+            <div
+                v-if="formData.encrypt === 'unencrypted'"
+                class="base-btn-box flex-start padding text-error"
+            >
                 {{ Translate('IDCS_PLAY_VIDEO_NO_PASSWORD') }}
-            </el-form-item>
+            </div>
         </el-form>
         <div class="base-btn-box">
             <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>

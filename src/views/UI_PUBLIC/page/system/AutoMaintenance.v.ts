@@ -15,6 +15,7 @@ export default defineComponent({
             // 自动重启的文案
             autoRestartTip: '',
         })
+
         const formData = ref(new SystemAutoMaintenanceForm())
         const rules = ref<FormRules>({
             interval: [
@@ -108,7 +109,6 @@ export default defineComponent({
             formRef,
             formData,
             pageData,
-            dateTime,
             verify,
             rules,
         }

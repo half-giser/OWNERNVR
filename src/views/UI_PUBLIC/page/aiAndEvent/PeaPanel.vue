@@ -75,25 +75,18 @@
                         <div class="base-ai-param-box">
                             <div class="base-ai-param-box-left"></div>
                             <div class="base-ai-param-box-right">
-                                <el-form
-                                    v-title
-                                    :style="{
-                                        '--form-input-width': '215px',
-                                    }"
-                                >
+                                <el-form v-title>
                                     <div class="base-ai-subheading">
                                         {{ Translate('IDCS_SCHEDULE') }}
                                     </div>
                                     <!-- 排程 -->
                                     <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
-                                        <el-select-v2
+                                        <BaseScheduleSelect
                                             v-model="pageData.schedule"
                                             :options="pageData.scheduleList"
+                                            @edit="pageData.isSchedulePop = true"
                                             @change="watchEdit.disabled.value = false"
                                         />
-                                        <el-button @click="pageData.isSchedulePop = true">
-                                            {{ Translate('IDCS_MANAGE') }}
-                                        </el-button>
                                     </el-form-item>
                                     <div class="base-ai-subheading">
                                         {{ Translate('IDCD_RULE') }}
@@ -145,9 +138,6 @@
                                     <el-form-item
                                         v-if="formData[pageData.activityType].pea_onlyPreson"
                                         :label="Translate('IDCS_SENSITIVITY')"
-                                        :style="{
-                                            '--form-input-width': '285px',
-                                        }"
                                     >
                                         <BaseSliderInput v-model="formData[pageData.activityType].onlyPersonSensitivity" />
                                     </el-form-item>
@@ -189,11 +179,7 @@
                         <div class="base-ai-param-box">
                             <div class="base-ai-param-box-left"></div>
                             <div class="base-ai-param-box-right">
-                                <el-form
-                                    :style="{
-                                        '--form-input-width': '300px',
-                                    }"
-                                >
+                                <el-form>
                                     <div class="base-ai-subheading">
                                         {{ Translate('IDCS_DETECTION_TARGET') }}
                                     </div>
@@ -295,12 +281,7 @@
                         </div>
                     </template>
                     <div class="base-ai-advance-box">
-                        <el-form
-                            :style="{
-                                '--form-label-width': '150px',
-                                '--form-input-width': '170px',
-                            }"
-                        >
+                        <el-form>
                             <div class="base-ai-subheading">
                                 {{ Translate('IDCS_VIDEO_SAVE_PIC') }}
                             </div>

@@ -14,9 +14,7 @@
             </div>
             <el-form
                 v-title
-                :style="{
-                    '--form-label-width': '150px',
-                }"
+                class="stripe"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select-v2

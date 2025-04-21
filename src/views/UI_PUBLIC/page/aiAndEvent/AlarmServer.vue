@@ -5,17 +5,14 @@
 -->
 <template>
     <div class="base-flex-box">
-        <div class="base-subheading-box">{{ Translate('IDCS_ALARM_SERVER') }}</div>
+        <div class="base-head-box">{{ Translate('IDCS_ALARM_SERVER') }}</div>
         <!-- 表单 -->
         <el-form
             ref="formRef"
             v-title
             :model="formData"
             :rules="rules"
-            :style="{
-                '--form-input-width': '250px',
-                '--form-label-width': '172px',
-            }"
+            class="stripe"
         >
             <el-form-item>
                 <el-checkbox
@@ -85,7 +82,6 @@
                     @change="changeProtocol()"
                 />
             </el-form-item>
-            <br />
             <!-- heartEnable -->
             <el-form-item prop="heartEnable">
                 <el-checkbox
@@ -111,18 +107,12 @@
                 prop="schedule"
                 :label="Translate('IDCS_SCHEDULE')"
             >
-                <el-select-v2
+                <BaseScheduleSelect
                     v-model="formData.schedule"
                     :options="pageData.scheduleList"
                     :disabled="!formData.enable"
+                    @edit="pageData.isSchedulePop = true"
                 />
-                <el-button
-                    class="btn"
-                    :disabled="!formData.enable"
-                    @click="pageData.isSchedulePop = true"
-                >
-                    {{ Translate('IDCS_MANAGE') }}
-                </el-button>
             </el-form-item>
         </el-form>
         <!-- 表格 -->
@@ -131,7 +121,6 @@
                 v-show="pageData.showAlarmTypeCfg"
                 :data="tableData"
                 class="table"
-                :stripe="false"
             >
                 <el-table-column>
                     <template #header>
@@ -188,21 +177,18 @@
 
 <style lang="scss" scoped>
 .base-table-box {
-    width: 438px;
+    width: 415px;
 }
 
 .tabel_header {
-    width: 428px;
+    width: 100%;
     display: flex;
     justify-content: space-between;
-
-    & > span {
-        padding-left: 10px;
-    }
+    padding: 0 10px;
+    box-sizing: border-box;
 }
 
 .table_item {
-    width: 428px;
     text-align: left;
     display: block;
 }

@@ -47,7 +47,6 @@ export default defineComponent({
 
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
-        const dateTime = useDateTimeStore()
 
         const playerRef = ref<PlayerInstance>()
 
@@ -110,7 +109,7 @@ export default defineComponent({
                 reportMin: 0,
             },
             receiverData: [] as AlarmPassLinesEmailDto['receiverData'],
-            weekOption: objectToOptions(getTranslateMapping(DEFAULT_WEEK_MAPPING), 'number').slice(0, 7),
+            weekOption: objectToOptions(getTranslateMapping(DEFAULT_WEEK_MAPPING), 'number'),
             monthOption: Array(31)
                 .fill(0)
                 .map((_, index) => {
@@ -1157,7 +1156,6 @@ export default defineComponent({
             playerRef,
             notify,
             pageData,
-            dateTime,
             watchEdit,
             formData,
             handlePlayerReady,
@@ -1166,7 +1164,6 @@ export default defineComponent({
             togglePassLineShowAllArea,
             clearArea,
             clearAllArea,
-            // toggleCpcDrawAvailable,
             changeLine,
             changeDirection,
             changeOSD,

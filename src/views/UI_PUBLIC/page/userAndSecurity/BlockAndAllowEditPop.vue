@@ -5,7 +5,7 @@
 -->
 <template>
     <el-dialog
-        width="600"
+        width="450"
         :title
         @open="open"
         @closed="formRef?.resetFields()"
@@ -16,10 +16,6 @@
             class="stripe"
             :rules
             :model="formData"
-            :style="{
-                '--form-input-width': '220px',
-                '--form-label-width': '80px',
-            }"
         >
             <el-form-item>
                 <el-checkbox

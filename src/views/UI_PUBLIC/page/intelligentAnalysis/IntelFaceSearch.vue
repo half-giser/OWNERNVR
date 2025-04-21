@@ -119,8 +119,9 @@
                     </div>
                     <el-form
                         v-title
+                        class="no-padding"
                         :style="{
-                            '--form-label-width': 'auto',
+                            '--form-label-width': '100px',
                         }"
                     >
                         <el-form-item v-show="pageData.searchType === 'event'">

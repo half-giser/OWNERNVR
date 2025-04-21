@@ -6,46 +6,34 @@
 <template>
     <div class="base-flex-box">
         <div class="form">
-            <el-form
-                :style="{
-                    '--form-input-width': '200px',
-                }"
-            >
-                <el-form-item>
-                    <el-form-item :label="Translate('IDCS_CHANNEL')">
-                        <el-button @click="changeChl">{{ Translate('IDCS_MORE') }}</el-button>
-                        <el-checkbox
-                            v-model="pageData.isAllChl"
-                            :label="Translate('IDCS_ALL')"
-                            @change="changeAllChl"
-                        />
-                    </el-form-item>
-                    <el-form-item>
-                        <div
-                            v-title
-                            class="text-ellipsis"
-                        >
-                            {{ formData.chls.map((item) => item.label).join('; ') }}
-                        </div>
-                    </el-form-item>
+            <el-form class="stripe">
+                <el-form-item :label="Translate('IDCS_CHANNEL')">
+                    <el-button @click="changeChl">{{ Translate('IDCS_MORE') }}</el-button>
+                    <el-checkbox
+                        v-model="pageData.isAllChl"
+                        :label="Translate('IDCS_ALL')"
+                        @change="changeAllChl"
+                    />
+                    <div
+                        v-title
+                        class="text-ellipsis"
+                    >
+                        {{ formData.chls.map((item) => item.label).join('; ') }}
+                    </div>
                 </el-form-item>
-                <el-form-item>
-                    <el-form-item :label="Translate('IDCS_ADD_FACE_GROUP')">
-                        <el-button @click="changeFaceGroup">{{ Translate('IDCS_CONFIGURATION') }}</el-button>
-                        <el-checkbox
-                            v-model="pageData.isAllFaceGroup"
-                            :label="Translate('IDCS_ALL')"
-                            @change="changeAllFaceGroup"
-                        />
-                    </el-form-item>
-                    <el-form-item>
-                        <div
-                            v-title
-                            class="text-ellipsis"
-                        >
-                            {{ formData.faceGroup.map((item) => item.name).join('; ') }}
-                        </div>
-                    </el-form-item>
+                <el-form-item :label="Translate('IDCS_ADD_FACE_GROUP')">
+                    <el-button @click="changeFaceGroup">{{ Translate('IDCS_CONFIGURATION') }}</el-button>
+                    <el-checkbox
+                        v-model="pageData.isAllFaceGroup"
+                        :label="Translate('IDCS_ALL')"
+                        @change="changeAllFaceGroup"
+                    />
+                    <div
+                        v-title
+                        class="text-ellipsis"
+                    >
+                        {{ formData.faceGroup.map((item) => item.name).join('; ') }}
+                    </div>
                 </el-form-item>
                 <el-form-item>
                     <el-form-item>
@@ -66,39 +54,24 @@
                     </el-form-item>
                 </el-form-item>
                 <el-form-item>
-                    <el-form-item>
-                        <el-form-item :label="Translate('IDCS_CHECKIN_START_TIME')">
-                            <el-time-picker
-                                v-model="formData.startTime"
-                                :format="dateTime.timeFormat"
-                                value-format="HH:mm:ss"
-                                :disabled-hours="pickerRange.disabledStartTimeHours"
-                                :disabled-minutes="pickerRange.disabledStartTimeMinutes"
-                                :disabled-seconds="pickerRange.disabledStartTimeSeconds"
-                            />
-                        </el-form-item>
-                        <el-form-item
-                            :label="Translate('IDCS_CHECKIN_END_TIME')"
-                            class="end-time"
-                        >
-                            <el-time-picker
-                                v-model="formData.endTime"
-                                :format="dateTime.timeFormat"
-                                value-format="HH:mm:ss"
-                                :disabled-hours="pickerRange.disabledEndTimeHours"
-                                :disabled-minutes="pickerRange.disabledEndTimeMinutes"
-                                :disabled-seconds="pickerRange.disabledEndTimeSeconds"
-                            />
-                        </el-form-item>
+                    <el-form-item :label="Translate('IDCS_CHECKIN_START_TIME')">
+                        <BaseTimePicker
+                            v-model="formData.startTime"
+                            :range="[null, formData.endTime]"
+                        />
+                    </el-form-item>
+                    <el-form-item :label="Translate('IDCS_CHECKIN_END_TIME')">
+                        <BaseTimePicker
+                            v-model="formData.endTime"
+                            :range="[formData.startTime, null]"
+                        />
                     </el-form-item>
                 </el-form-item>
                 <el-form-item>
-                    <template #label>
-                        <el-checkbox
-                            v-model="formData.advanced"
-                            :label="Translate('IDCS_ADVANCED')"
-                        />
-                    </template>
+                    <el-checkbox
+                        v-model="formData.advanced"
+                        :label="Translate('IDCS_ADVANCED')"
+                    />
                 </el-form-item>
                 <el-form-item v-show="formData.advanced">
                     <el-form-item>
@@ -132,10 +105,7 @@
                     </el-form-item>
                 </el-form-item>
             </el-form>
-            <div
-                class="base-btn-box padding"
-                span="end"
-            >
+            <div class="base-btn-box padding gap">
                 <el-button @click="searchData">{{ Translate('IDCS_SEARCH') }}</el-button>
                 <el-button @click="exportData">{{ Translate('IDCS_EXPORT') }}</el-button>
             </div>
@@ -221,37 +191,7 @@
 
 <style lang="scss" scoped>
 .form {
-    display: flex;
-
-    & > .el-form {
-        width: 90%;
-
-        & > .el-form-item {
-            & > .el-form-item__content {
-                display: flex;
-
-                & > .el-form-item:first-child {
-                    width: 550px !important;
-                    flex-shrink: 0;
-                }
-
-                & > .el-form-item:last-child {
-                    width: calc(100% - 550px) !important;
-                }
-            }
-        }
-    }
-
-    .base-btn-box {
-        width: 10%;
-        align-items: flex-end;
-        padding-bottom: 10px;
-        position: relative;
-        z-index: 1;
-    }
-}
-
-.end-time {
-    padding-left: 15px;
+    padding: 10px;
+    padding-bottom: 0;
 }
 </style>

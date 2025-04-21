@@ -71,7 +71,7 @@
                         </div> -->
                         <el-button @click="clearCpcArea">{{ Translate('IDCS_CLEAR') }}</el-button>
                     </div>
-                    <span class="base-ai-tip">{{ Translate('IDCS_DRAW_RECT_TIP') }}</span>
+                    <div class="base-ai-tip">{{ Translate('IDCS_DRAW_RECT_TIP') }}</div>
                 </div>
             </div>
             <div class="base-ai-form">
@@ -93,22 +93,15 @@
                                 v-if="chlData.supportPassLine"
                                 class="base-ai-param-right"
                             >
-                                <el-form
-                                    v-title
-                                    :style="{
-                                        '--form-input-width': '215px',
-                                    }"
-                                >
+                                <el-form v-title>
                                     <div class="base-ai-subheading">{{ Translate('IDCS_SCHEDULE') }}</div>
                                     <!-- 排程 -->
                                     <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
-                                        <el-select-v2
+                                        <BaseScheduleSelect
                                             v-model="formData.schedule"
                                             :options="pageData.scheduleList"
+                                            @edit="pageData.isSchedulePop = true"
                                         />
-                                        <el-button @click="pageData.isSchedulePop = true">
-                                            {{ Translate('IDCS_MANAGE') }}
-                                        </el-button>
                                     </el-form-item>
                                     <div class="base-ai-subheading">
                                         {{ Translate('IDCD_RULE') }}
@@ -172,7 +165,7 @@
                                     <el-form-item
                                         :label="Translate('IDCS_TIME')"
                                         :style="{
-                                            '--form-input-width': '102.5px',
+                                            '--form-input-width': '121px',
                                         }"
                                     >
                                         <el-select-v2
@@ -187,32 +180,25 @@
                                             :options="pageData.monthOption"
                                             :disabled="!formData.autoReset"
                                         />
-                                        <el-time-picker
+                                        <BaseTimePicker
                                             v-if="formData.countTimeType === 'off'"
-                                            :disabled="formData.countTimeType === 'off'"
-                                            value-format="HH:mm:ss"
-                                            :format="dateTime.timeFormat"
+                                            model-value=""
+                                            disabled
                                         />
-                                        <el-time-picker
+                                        <BaseTimePicker
                                             v-if="formData.countTimeType === 'day'"
                                             v-model="formData.countPeriod.day.dateTime"
                                             :disabled="!formData.autoReset"
-                                            value-format="HH:mm:ss"
-                                            :format="dateTime.timeFormat"
                                         />
-                                        <el-time-picker
+                                        <BaseTimePicker
                                             v-if="formData.countTimeType === 'week'"
                                             v-model="formData.countPeriod.week.dateTime"
                                             :disabled="!formData.autoReset"
-                                            value-format="HH:mm:ss"
-                                            :format="dateTime.timeFormat"
                                         />
-                                        <el-time-picker
+                                        <BaseTimePicker
                                             v-if="formData.countTimeType === 'month'"
                                             v-model="formData.countPeriod.month.dateTime"
                                             :disabled="!formData.autoReset"
-                                            value-format="HH:mm:ss"
-                                            :format="dateTime.timeFormat"
                                         />
                                     </el-form-item>
                                     <!-- 手动重置 -->
@@ -228,13 +214,7 @@
                                 v-if="chlData.supportCpc"
                                 class="base-ai-param-right"
                             >
-                                <el-form
-                                    v-title
-                                    :style="{
-                                        '--form-label-width': '150px',
-                                        '--form-input-width': '215px',
-                                    }"
-                                >
+                                <el-form v-title>
                                     <div class="base-ai-subheading">
                                         {{ Translate('IDCS_SCHEDULE') }}
                                     </div>
@@ -274,15 +254,15 @@
                                     </el-form-item>
                                     <!-- 进入阈值 -->
                                     <el-form-item :label="Translate('IDCS_ENTER_NUMBER')">
-                                        <el-input v-model="formData.crossInAlarmNumValue" />
+                                        <BaseNumberInput v-model="formData.crossInAlarmNumValue" />
                                     </el-form-item>
                                     <!-- 离开阈值 -->
                                     <el-form-item :label="Translate('IDCS_LEAVE_NUMBER')">
-                                        <el-input v-model="formData.crossOutAlarmNumValue" />
+                                        <BaseNumberInput v-model="formData.crossOutAlarmNumValue" />
                                     </el-form-item>
                                     <!-- 滞留阈值 -->
                                     <el-form-item :label="Translate('IDCS_STRANDED_NUMBER')">
-                                        <el-input v-model="formData.twoWayDiffAlarmNumValue" />
+                                        <BaseNumberInput v-model="formData.twoWayDiffAlarmNumValue" />
                                     </el-form-item>
                                     <div class="base-ai-subheading">
                                         {{ Translate('IDCS_RESET_INFO') }}
@@ -306,11 +286,7 @@
                         <div class="base-ai-param-box">
                             <div class="base-ai-param-box-left"></div>
                             <div class="base-ai-param-box-right">
-                                <el-form
-                                    :style="{
-                                        '--form-input-width': '300px',
-                                    }"
-                                >
+                                <el-form>
                                     <div class="base-ai-subheading">
                                         {{ Translate('IDCS_DETECTION_TARGET') }}
                                     </div>
@@ -380,15 +356,16 @@
                 </div>
             </div>
         </div>
-        <ScheduleManagPop
-            v-model="pageData.isSchedulePop"
-            @close="closeSchedulePop"
-        />
         <PassLineEmailPop
             v-model="pageData.morePopOpen"
             :schedule-list="pageData.scheduleList"
             :email-data="pageData.emailData"
+            @edit-schedule="pageData.isSchedulePop = true"
             @close="closeMorePop"
+        />
+        <ScheduleManagPop
+            v-model="pageData.isSchedulePop"
+            @close="closeSchedulePop"
         />
     </div>
 </template>

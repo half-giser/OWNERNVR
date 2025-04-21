@@ -98,9 +98,7 @@
         <el-form
             ref="formRef"
             v-title
-            :style="{
-                '--form-label-width': '150px',
-            }"
+            class="stripe"
         >
             <el-form-item :label="Translate('IDCS_CHANNEL_NUMBER')">
                 {{ pageData.currentRow.chlNum }}
@@ -109,11 +107,7 @@
                 {{ pageData.currentRow.name }}
             </el-form-item>
             <el-form-item :label="Translate('IDCS_SCHEDULE_START_TIME')">
-                <el-time-picker
-                    v-model="pageData.addTimeData"
-                    :format="dateTime.timeFormat"
-                    value-format="HH:mm:ss"
-                />
+                <BaseTimePicker v-model="pageData.addTimeData" />
             </el-form-item>
         </el-form>
         <div class="base-btn-box">

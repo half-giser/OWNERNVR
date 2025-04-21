@@ -6,7 +6,7 @@
 <template>
     <el-dialog
         :title="Translate('IDCS_ADD_PRESET')"
-        width="500"
+        width="450"
         @open="open"
         @closed="formRef?.resetFields()"
     >
@@ -15,6 +15,7 @@
             v-title
             :rules="formRule"
             :model="formData"
+            class="stripe"
         >
             <el-form-item :label="Translate('IDCS_PRESET')">
                 <el-select-v2

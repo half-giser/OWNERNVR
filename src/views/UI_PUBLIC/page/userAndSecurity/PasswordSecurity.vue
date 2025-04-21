@@ -7,9 +7,6 @@
     <div>
         <el-form
             v-title
-            :style="{
-                '--form-input-width': '200px',
-            }"
             class="stripe"
         >
             <el-form-item :label="Translate('IDCS_MINIMUM_PASSWORD_LEVEL')">

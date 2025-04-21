@@ -5,12 +5,7 @@
 -->
 <template>
     <div>
-        <el-form
-            v-title
-            :style="{
-                '--form-input-width': '340px',
-            }"
-        >
+        <el-form v-title>
             <el-form-item :label="Translate('IDCS_STORAGE_MODE')">
                 <el-select-v2
                     disabled
@@ -128,17 +123,7 @@
 
 <style lang="scss" scoped>
 :deep(.el-form-item) {
-    margin-bottom: 10px;
-    padding: 10px 0 10px 15px;
     background-color: var(--subheading-bg);
-}
-
-:deep(.el-form-item__label) {
-    color: var(--subheading-text) !important;
-}
-
-.el-select {
-    width: 340px;
 }
 
 .group {

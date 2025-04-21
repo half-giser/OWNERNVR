@@ -501,7 +501,7 @@ export default defineComponent({
                         const diskGroupIndex = '(' + Translate('IDCS_REEL_GROUP') + $item('diskGroupIndex').text() + ')'
                         recTimeArray.push(recTime + diskGroupIndex)
                     })
-                    pageData.value.recTime = recTimeArray.join(';')
+                    pageData.value.recTime = recTimeArray.join('; ')
                 } else if (!item.length) {
                     pageData.value.isRecTime = false
                 } else {

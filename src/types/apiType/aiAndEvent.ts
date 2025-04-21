@@ -16,7 +16,6 @@ export class AlarmOutDto extends TableRowStatus {
     delayTime = 0 //延迟时间
     scheduleId = '' //排程ID
     scheduleName = '' //排程名称
-    oldSchedule = '' //记录打开排程管理弹窗前的名称
     type = '' //常开常闭类型--本机报警输出在有效
 }
 
@@ -132,7 +131,6 @@ export class AlarmEventDto extends TableRowStatus {
     videoPopupList: SelectOption<string, string>[] = []
     msgBoxPopup = ''
     email = ''
-    oldSchedule = ''
 }
 
 /**
@@ -259,8 +257,6 @@ export class AlarmSensorEventDto extends TableRowStatus {
     holdTime = ''
     // 排程
     schedule = ''
-    // 打开排程管理时将原本的排程填入
-    oldSchedule = ''
     // record录像
     record = {
         switch: false,

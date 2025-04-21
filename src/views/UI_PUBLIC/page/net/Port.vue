@@ -11,12 +11,9 @@
             v-title
             :model="portFormData"
             :rules="portFormRule"
-            :style="{
-                '--form-label-width': '200px',
-                '--form-input-width': '250px',
-            }"
+            class="stripe"
         >
-            <div class="base-subheading-box">{{ Translate('IDCS_PORT') }}</div>
+            <div class="base-head-box">{{ Translate('IDCS_PORT') }}</div>
             <el-form-item
                 :label="Translate('IDCS_HTTP_PORT')"
                 prop="httpPort"
@@ -69,12 +66,9 @@
         <!-- API SERVER -->
         <el-form
             v-show="!pageData.isAppServer"
-            :style="{
-                '--form-label-width': '200px',
-                '--form-input-width': '250px',
-            }"
+            class="stripe"
         >
-            <div class="base-subheading-box">{{ Translate('IDCS_API_SERVER') }}</div>
+            <div class="base-head-box">{{ Translate('IDCS_API_SERVER') }}</div>
             <el-form-item>
                 <el-checkbox
                     v-model="apiServerFormData.apiserverSwitch"
@@ -96,14 +90,11 @@
             ref="rtspServerFormRef"
             :model="rtspServerFormData"
             :rules="rtspServerFormRule"
-            :style="{
-                '--form-label-width': '200px',
-                '--form-input-width': '250px',
-            }"
+            class="stripe"
         >
             <div
                 v-show="!pageData.isAppServer"
-                class="base-subheading-box"
+                class="base-head-box"
             >
                 {{ Translate('IDCS_RTSP') }}
             </div>

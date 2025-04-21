@@ -12,7 +12,7 @@
                 '--form-input-width': '130px',
             }"
         >
-            <div class="lens-ctrl lens-ctrl1">
+            <div class="lens-ctrl">
                 <div
                     class="lens-btn"
                     @mousedown="addCmd('ZoomOut')"
@@ -61,7 +61,7 @@
             </el-form-item>
             <div
                 v-show="formData.focusType === 'manual'"
-                class="lens-ctrl lens-ctrl2"
+                class="lens-ctrl"
             >
                 <div
                     class="lens-btn"
@@ -137,18 +137,10 @@
 
     &-ctrl {
         display: flex;
-        padding: 15px 10px 0;
+        padding: 15px 10px;
         height: 32px;
         line-height: 32px;
         align-items: center;
-
-        &1 {
-            padding-bottom: 40px;
-        }
-
-        &2 {
-            padding: 20px 10px 10px;
-        }
     }
 
     .arrow {

@@ -459,7 +459,7 @@ export class NetPlatformAccessForm {
     accessType = ''
     nwms5000Switch = false
     serverAddr = ''
-    reportId = 0
+    reportId: number | undefined = undefined
     port = 0
     gb28181Switch = false
     sipRelm = ''

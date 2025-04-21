@@ -7,10 +7,7 @@
     <div class="type">
         <el-form
             v-title
-            :style="{
-                '--form-label-width': '150px',
-                '--form-input-width': '200px',
-            }"
+            class="stripe"
         >
             <el-form-item :label="Translate('IDCS_USER_TYPE')">
                 <el-select-v2
@@ -28,18 +25,16 @@
             </el-form-item>
         </el-form>
     </div>
-    <div
-        class="wrap"
-        :style="{
-            '--form-input-width': '200px',
-        }"
-    >
+    <div class="wrap">
         <!-- 测试抓图/维护抓图/验收抓图 -->
         <div
             v-show="formData.operationType === 'testScreenshot' || formData.operationType === 'maintenanceScreenshot' || formData.operationType === 'acceptScreenshot'"
             class="screenshot"
         >
-            <el-form v-title>
+            <el-form
+                v-title
+                class="no-padding"
+            >
                 <el-form-item :label="Translate('IDCS_MAINTEN_SNAPCHOOSE')">
                     <el-checkbox
                         v-model="pageData.selectAll"
@@ -76,11 +71,13 @@
                     prop="name"
                     :label="Translate('IDCS_CHANNEL_NAME')"
                     width="620"
+                    show-overflow-tooltip
                 />
             </el-table>
             <el-form
                 v-show="formData.operationType === 'acceptScreenshot'"
                 v-title
+                class="no-padding"
             >
                 <el-form-item :label="Translate('IDCS_ACCEPTANCE_ALARM')">
                     <el-input
@@ -91,7 +88,10 @@
             </el-form>
         </div>
         <!-- 故障报修 -->
-        <el-form v-show="formData.operationType === 'faultRepair'">
+        <el-form
+            v-show="formData.operationType === 'faultRepair'"
+            class="no-padding"
+        >
             <el-form-item :label="Translate('IDCS_OPERATE_FAULT_TYPE')">
                 <el-select-v2
                     v-model="formData.faultType"
@@ -119,7 +119,10 @@
             </el-form-item>
         </el-form>
         <!-- 维保签到 -->
-        <el-form v-show="formData.operationType === 'maintenanceSign'">
+        <el-form
+            v-show="formData.operationType === 'maintenanceSign'"
+            class="no-padding"
+        >
             <el-form-item :label="Translate('IDCS_MAINTENSIGN_ITEM')">
                 <el-select-v2
                     v-model="formData.maintenance"
@@ -151,6 +154,7 @@
         <el-form
             v-show="formData.operationType === 'repairSign'"
             v-title
+            class="no-padding"
         >
             <el-form-item :label="Translate('IDCS_MAINTENSIGN_ITEMCHOOSE')" />
             <el-form-item>
@@ -180,26 +184,28 @@
             </el-form-item>
         </el-form>
     </div>
-    <div
-        class="base-btn-box"
-        :style="{ '--form-input-width': '665px' }"
+    <el-form
+        :style="{
+            '--form-input-width': '665px',
+        }"
     >
-        <el-button
-            :disabled="uploadDisabled"
-            @click="uploadData"
-        >
-            {{ Translate('IDCS_PLATFORM_OPERATE_UPLOAD') }}
-        </el-button>
-        <el-button @click="goBack">{{ Translate('IDCS_PLATFORM_OPERATE_RETURN') }}</el-button>
-    </div>
+        <div class="base-btn-box">
+            <el-button
+                :disabled="uploadDisabled"
+                @click="uploadData"
+            >
+                {{ Translate('IDCS_PLATFORM_OPERATE_UPLOAD') }}
+            </el-button>
+            <el-button @click="goBack">{{ Translate('IDCS_PLATFORM_OPERATE_RETURN') }}</el-button>
+        </div>
+    </el-form>
 </template>
 
 <script lang="ts" src="./PlatformOperation.v.ts"></script>
 
 <style lang="scss" scoped>
 .type {
-    width: 800px;
-    padding: 15px;
+    width: 830px;
 }
 
 .wrap {
@@ -212,10 +218,6 @@
         width: 780px;
         height: 230px;
         max-height: 275px;
-    }
-
-    :deep(.el-checkbox) {
-        margin-left: 0 !important;
     }
 }
 

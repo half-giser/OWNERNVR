@@ -82,9 +82,6 @@
                             <el-form
                                 v-if="!supportPeaTrigger"
                                 v-title
-                                :style="{
-                                    '--form-input-width': '215px',
-                                }"
                             >
                                 <div class="base-ai-subheading">{{ Translate('IDCS_SCHEDULE') }}</div>
                                 <!-- 排程 -->
@@ -92,10 +89,8 @@
                                     <el-select-v2
                                         v-model="formData.schedule"
                                         :options="pageData.scheduleList"
+                                        @edit="pageData.isSchedulePop = true"
                                     />
-                                    <el-button @click="pageData.isSchedulePop = true">
-                                        {{ Translate('IDCS_MANAGE') }}
-                                    </el-button>
                                 </el-form-item>
                                 <div class="base-ai-subheading">
                                     {{ Translate('IDCD_RULE') }}
@@ -178,12 +173,7 @@
                     >
                         <div class="base-ai-param-box-left"></div>
                         <div class="base-ai-param-box-right">
-                            <el-form
-                                v-if="!supportPeaTrigger"
-                                :style="{
-                                    '--form-input-width': '300px',
-                                }"
-                            >
+                            <el-form v-if="!supportPeaTrigger">
                                 <div class="base-ai-subheading">
                                     {{ Translate('IDCS_DETECTION_TARGET') }}
                                 </div>
@@ -235,12 +225,7 @@
                         name="trigger"
                     >
                         <div>
-                            <el-form
-                                v-if="pageData.supportAlarmAudioConfig"
-                                :style="{
-                                    '--form-label-width': 'auto',
-                                }"
-                            >
+                            <el-form v-if="pageData.supportAlarmAudioConfig">
                                 <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">
                                     <el-select-v2
                                         v-model="formData.sysAudio"
@@ -291,12 +276,7 @@
                         </div>
                     </template>
                     <div class="base-ai-advance-box">
-                        <el-form
-                            :style="{
-                                '--form-label-width': '150px',
-                                '--form-input-width': '170px',
-                            }"
-                        >
+                        <el-form>
                             <div class="base-ai-subheading">
                                 {{ Translate('IDCS_VIDEO_SAVE_PIC') }}
                             </div>

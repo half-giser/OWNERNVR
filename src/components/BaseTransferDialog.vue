@@ -13,6 +13,7 @@
         <div>
             <el-transfer
                 v-model="chosedList"
+                v-title
                 :data="data"
                 :props="{
                     key: 'value',

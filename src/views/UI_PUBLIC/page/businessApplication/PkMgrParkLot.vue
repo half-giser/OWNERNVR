@@ -86,7 +86,7 @@
                     </div>
                 </div>
                 <div class="data">
-                    <el-form>
+                    <el-form class="no-padding">
                         <el-form-item>
                             <el-input
                                 v-model="formData.plateNum"

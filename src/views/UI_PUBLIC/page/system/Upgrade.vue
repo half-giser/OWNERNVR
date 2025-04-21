@@ -5,13 +5,7 @@
 -->
 <template>
     <div>
-        <el-form
-            v-title
-            :style="{
-                '--form-label-width': 'auto',
-                '--form-input-width': '250px',
-            }"
-        >
+        <el-form v-title>
             <el-form-item :label="Translate('IDCS_WEB_UPGRADE_S_1')">
                 <el-input
                     type="text"

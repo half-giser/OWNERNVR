@@ -103,11 +103,9 @@
                         </div>
                     </div>
                     <div class="DatePicker-date-footer">
-                        <el-time-picker
+                        <BaseTimePicker
                             v-if="visible && type === 'datetime'"
                             v-model="currentTime"
-                            value-format="HH:mm:ss"
-                            :format="timeFormat"
                             :teleported="false"
                             @change="changeTime"
                         />
@@ -257,19 +255,6 @@ const userSession = useUserSessionStore()
 const { Translate } = useLangStore()
 
 const visible = ref(false)
-
-const timeFormat = computed(() => {
-    if (props.type === 'datetime') {
-        if (props.format) {
-            const split = props.format.split(' ')
-            split.shift()
-            return split.join(' ')
-        }
-        return dateTime.timeFormat
-    }
-
-    return dateTime.timeFormat
-})
 
 // 输入框显示值
 const selectedValue = computed(() => {

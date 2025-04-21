@@ -106,7 +106,7 @@ export default defineComponent({
                     value,
                     suggest: $item('suggest/item')
                         .map((suggest) => suggest.text())
-                        .join(';'),
+                        .join('; '),
                 }
             })
         }

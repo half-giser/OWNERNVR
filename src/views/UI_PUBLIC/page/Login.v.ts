@@ -300,8 +300,6 @@ export default defineComponent({
             updateCalendar()
         })
 
-        useEventListener(window, 'keyup', keyUp, false)
-
         return {
             formRef,
             pageData,

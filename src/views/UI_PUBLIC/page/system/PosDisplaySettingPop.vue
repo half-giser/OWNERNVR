@@ -36,8 +36,7 @@
                                     <template #default="{ row, $index }: TableColumn<SystemPosListStartEndChar>">
                                         <el-input
                                             v-model="row.startChar"
-                                            :formatter="formatChar"
-                                            :parser="formatChar"
+                                            maxlength="63"
                                             @blur="addStartEndCharRow(row, $index)"
                                         />
                                     </template>
@@ -46,8 +45,7 @@
                                     <template #default="{ row, $index }: TableColumn<SystemPosListStartEndChar>">
                                         <el-input
                                             v-model="row.endChar"
-                                            :formatter="formatChar"
-                                            :parser="formatChar"
+                                            maxlength="63"
                                             @blur="addStartEndCharRow(row, $index)"
                                         />
                                     </template>
@@ -74,8 +72,7 @@
                                     <template #default="{ row, $index }: TableColumn<{ value: string }>">
                                         <el-input
                                             v-model="row.value"
-                                            :formatter="formatChar"
-                                            :parser="formatChar"
+                                            maxlength="63"
                                             @blur="addLineBreakRow(row, $index)"
                                         />
                                     </template>
@@ -102,6 +99,7 @@
                                     <template #default="{ row, $index }: TableColumn<{ value: string }>">
                                         <el-input
                                             v-model="row.value"
+                                            maxlength="63"
                                             @blur="addIgnoreCharRow(row, $index)"
                                         />
                                     </template>
@@ -121,9 +119,9 @@
                     <el-form
                         v-title
                         :style="{
-                            '--form-input-width': '220px',
-                            '--form-label-width': '150px',
+                            '--form-input-width': '250px',
                         }"
+                        class="no-padding"
                     >
                         <el-form-item :label="Translate('IDCS_IGNORE_UPPER')">
                             <el-checkbox v-model="formData.upperCase" />
@@ -134,7 +132,7 @@
                                 :min="5"
                                 :max="3600"
                             />
-                            <span class="overtime">s</span>
+                            <span>s</span>
                         </el-form-item>
                     </el-form>
                 </div>
@@ -165,16 +163,23 @@
                 <!-- 显示模式 -->
                 <div v-show="pageData.tabIndex === 2">
                     <div v-if="colorTableList.length">
-                        <el-select-v2
-                            v-model="pageData.colorTableIndex"
-                            :options="colorTableList"
-                            :props="{
-                                value: 'index',
-                                label: 'name',
+                        <el-form
+                            class="no-padding"
+                            :style="{
+                                '--form-input-width': '250px',
                             }"
-                            @change="play"
-                            @visible-change="toggleOCX"
-                        />
+                        >
+                            <el-select-v2
+                                v-model="pageData.colorTableIndex"
+                                :options="colorTableList"
+                                :props="{
+                                    value: 'index',
+                                    label: 'name',
+                                }"
+                                @change="play"
+                                @visible-change="toggleOCX"
+                            />
+                        </el-form>
                         <div class="player">
                             <BaseVideoPlayer
                                 v-if="pageData.tabIndex === 2"
@@ -185,8 +190,9 @@
                         <el-form
                             v-title
                             :style="{
-                                '--form-input-width': '340px',
+                                '--form-input-width': '250px',
                             }"
+                            class="no-padding"
                         >
                             <el-form-item :label="Translate('IDCS_FONT_COLOR')">
                                 <BaseImgSpriteBtn
@@ -254,10 +260,6 @@
         }
     }
 
-    .overtime {
-        margin-left: 5px;
-    }
-
     .char {
         width: 100%;
         display: flex;
@@ -265,7 +267,6 @@
 
         & > div {
             flex-grow: 1;
-            // width: 33.33%;
         }
     }
 
@@ -301,10 +302,6 @@
 
     .color {
         margin: 0 5px;
-    }
-
-    :deep(.el-select) {
-        width: 200px;
     }
 }
 </style>

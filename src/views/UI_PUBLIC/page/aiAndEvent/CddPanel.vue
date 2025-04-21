@@ -52,26 +52,19 @@
                                         <el-button @click="clearArea">{{ Translate('IDCS_CLEAR') }}</el-button>
                                     </div>
                                 </div>
-                                <span class="base-ai-tip">{{ Translate('IDCS_DRAW_RECT_TIP') }}</span>
+                                <div class="base-ai-tip">{{ Translate('IDCS_DRAW_RECT_TIP') }}</div>
                             </div>
                         </div>
                         <div class="base-ai-param-box-right">
-                            <el-form
-                                v-title
-                                :style="{
-                                    '--form-input-width': '215px',
-                                }"
-                            >
+                            <el-form v-title>
                                 <div class="base-ai-subheading">{{ Translate('IDCS_SCHEDULE') }}</div>
                                 <!-- 排程 -->
                                 <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
-                                    <el-select-v2
+                                    <BaseScheduleSelect
                                         v-model="formData.schedule"
                                         :options="pageData.scheduleList"
+                                        @edit="pageData.isSchedulePop = true"
                                     />
-                                    <el-button @click="pageData.isSchedulePop = true">
-                                        {{ Translate('IDCS_MANAGE') }}
-                                    </el-button>
                                 </el-form-item>
                                 <div class="base-ai-subheading">{{ Translate('IDCD_RULE') }}</div>
                                 <!-- 持续时间 -->
@@ -101,32 +94,27 @@
                     :label="Translate('IDCS_LINKAGE_MODE')"
                     name="trigger"
                 >
-                    <div>
-                        <!-- 音频 -->
-                        <el-form
-                            v-if="pageData.supportAlarmAudioConfig"
-                            v-title
-                            :style="{
-                                '--form-input-width': '215px',
-                            }"
-                        >
-                            <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">
-                                <el-select-v2
-                                    v-model="formData.sysAudio"
-                                    :options="voiceList"
-                                />
-                            </el-form-item>
-                        </el-form>
-                        <div class="base-ai-linkage-content">
-                            <!-- 常规联动 -->
-                            <AlarmBaseTriggerSelector v-model="formData.trigger" />
-                            <!-- record -->
-                            <AlarmBaseRecordSelector v-model="formData.record" />
-                            <!-- alarm -->
-                            <AlarmBaseAlarmOutSelector v-model="formData.alarmOut" />
-                            <!-- preset -->
-                            <AlarmBasePresetSelector v-model="formData.preset" />
-                        </div>
+                    <!-- 音频 -->
+                    <el-form
+                        v-if="pageData.supportAlarmAudioConfig"
+                        v-title
+                    >
+                        <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">
+                            <el-select-v2
+                                v-model="formData.sysAudio"
+                                :options="voiceList"
+                            />
+                        </el-form-item>
+                    </el-form>
+                    <div class="base-ai-linkage-content">
+                        <!-- 常规联动 -->
+                        <AlarmBaseTriggerSelector v-model="formData.trigger" />
+                        <!-- record -->
+                        <AlarmBaseRecordSelector v-model="formData.record" />
+                        <!-- alarm -->
+                        <AlarmBaseAlarmOutSelector v-model="formData.alarmOut" />
+                        <!-- preset -->
+                        <AlarmBasePresetSelector v-model="formData.preset" />
                     </div>
                 </el-tab-pane>
             </el-tabs>

@@ -882,7 +882,6 @@ const reconnectStandard = async (callback?: () => void) => {
 }
 
 type ScheduleListOption = {
-    isManager: boolean
     isDefault: boolean
     defaultValue: string
 }
@@ -914,12 +913,6 @@ export const buildScheduleList = async (option: Partial<ScheduleListOption> = {}
         })
     }
 
-    if (options.isManager) {
-        scheduleList.push({
-            value: 'scheduleMgr',
-            label: Translate('IDCS_SCHEDULE_MANAGE'),
-        })
-    }
     return scheduleList
 }
 

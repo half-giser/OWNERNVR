@@ -12,7 +12,10 @@
                     @ready="handlePlayerReady"
                 />
             </div>
-            <el-form v-title>
+            <el-form
+                v-title
+                class="stripe"
+            >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select-v2
                         v-if="tableData.length"

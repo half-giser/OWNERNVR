@@ -6,7 +6,7 @@
 <template>
     <el-dialog
         :title="Translate('IDCS_RECIPIENT_ADDRESS')"
-        width="600"
+        width="500"
         @open="open"
         @closed="formRef?.resetFields()"
     >
@@ -15,9 +15,7 @@
             v-title
             :model="formData"
             :rules="formRule"
-            :style="{
-                '--form-input-width': '240px',
-            }"
+            class="stripe"
         >
             <el-form-item
                 :label="Translate('IDCS_RECIPIENT_ADDRESS')"

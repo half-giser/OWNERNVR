@@ -6,28 +6,23 @@
 <template>
     <el-dialog
         :title="Translate('IDCS_SET_BACKUP_TIME')"
-        :width="500"
+        :width="450"
         @open="open"
     >
-        <el-form v-title>
+        <el-form
+            v-title
+            class="stripe"
+        >
             <el-form-item :label="Translate('IDCS_START_TIME')">
-                <el-time-picker
+                <BaseTimePicker
                     v-model="formData.startTime"
-                    :format="dateTime.timeFormat"
-                    :value-format="dateTime.timeFormat"
-                    :disabled-hours="pickerRange.disabledStartTimeHours"
-                    :disabled-minutes="pickerRange.disabledStartTimeMinutes"
-                    :disabled-seconds="pickerRange.disabledStartTimeSeconds"
+                    :range="[null, formData.endTime]"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_END_TIME')">
-                <el-time-picker
+                <BaseTimePicker
                     v-model="formData.endTime"
-                    :format="dateTime.timeFormat"
-                    :value-format="dateTime.timeFormat"
-                    :disabled-hours="pickerRange.disabledEndTimeHours"
-                    :disabled-minutes="pickerRange.disabledEndTimeMinutes"
-                    :disabled-seconds="pickerRange.disabledEndTimeSeconds"
+                    :range="[formData.startTime, null]"
                 />
             </el-form-item>
         </el-form>

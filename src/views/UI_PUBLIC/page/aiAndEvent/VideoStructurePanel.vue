@@ -48,7 +48,7 @@
                             <el-button @click="clearAllArea">{{ Translate('IDCS_FACE_CLEAR_ALL') }}</el-button>
                         </div>
                     </div>
-                    <span class="base-ai-tip">{{ Translate('IDCS_DRAW_AREA_TIP').formatForLang(6) }}</span>
+                    <div class="base-ai-tip">{{ Translate('IDCS_DRAW_AREA_TIP').formatForLang(6) }}</div>
                 </div>
             </div>
             <div class="base-btn-box flex-start padding collapse">
@@ -71,21 +71,16 @@
                     >
                         <div class="base-ai-param-box-left"></div>
                         <div class="base-ai-param-box-right">
-                            <el-form
-                                v-title
-                                :style="{
-                                    '--form-input-width': '215px',
-                                }"
-                            >
+                            <el-form v-title>
                                 <!-- 排程 -->
                                 <div class="base-ai-subheading">{{ Translate('IDCS_SCHEDULE') }}</div>
                                 <!-- 排程配置 -->
                                 <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
-                                    <el-select-v2
+                                    <BaseScheduleSelect
                                         v-model="formData.schedule"
                                         :options="pageData.scheduleList"
+                                        @edit="pageData.isSchedulePop = true"
                                     />
-                                    <el-button @click="pageData.isSchedulePop = true">{{ Translate('IDCS_MANAGE') }}</el-button>
                                 </el-form-item>
                                 <!-- 区域 -->
                                 <div class="base-ai-subheading">{{ Translate('IDCS_AREA') }}</div>
@@ -138,18 +133,21 @@
                                     <el-input
                                         v-model="formData.countOSD.osdPersonName"
                                         :disabled="!formData.countOSD.supportOsdPersonName"
+                                        maxlength="10"
                                     />
                                 </el-form-item>
                                 <el-form-item :label="Translate('IDCS_VEHICLE_COUNT')">
                                     <el-input
                                         v-model="formData.countOSD.osdCarName"
                                         :disabled="!formData.countOSD.supportOsdCarName"
+                                        maxlength="10"
                                     />
                                 </el-form-item>
                                 <el-form-item :label="Translate('IDCS_BIKE_COUNT')">
                                     <el-input
                                         v-model="formData.countOSD.osdBikeName"
                                         :disabled="!formData.countOSD.supportBikeName"
+                                        maxlength="10"
                                     />
                                 </el-form-item>
                                 <!-- 重置信息 -->
@@ -175,7 +173,7 @@
                                 <el-form-item
                                     :label="Translate('IDCS_TIME')"
                                     :style="{
-                                        '--form-input-width': '102.5px',
+                                        '--form-input-width': '121px',
                                     }"
                                 >
                                     <el-select-v2
@@ -190,26 +188,20 @@
                                         :options="pageData.monthOption"
                                         :disabled="!pageData.autoReset"
                                     />
-                                    <el-time-picker
+                                    <BaseTimePicker
                                         v-if="pageData.timeType === 'day'"
                                         v-model="formData.countPeriod.day.dateTime"
                                         :disabled="!pageData.autoReset"
-                                        value-format="HH:mm:ss"
-                                        :format="dateTime.timeFormat"
                                     />
-                                    <el-time-picker
+                                    <BaseTimePicker
                                         v-if="pageData.timeType === 'week'"
                                         v-model="formData.countPeriod.week.dateTime"
                                         :disabled="!pageData.autoReset"
-                                        value-format="HH:mm:ss"
-                                        :format="dateTime.timeFormat"
                                     />
-                                    <el-time-picker
+                                    <BaseTimePicker
                                         v-if="pageData.timeType === 'month'"
                                         v-model="formData.countPeriod.month.dateTime"
                                         :disabled="!pageData.autoReset"
-                                        value-format="HH:mm:ss"
-                                        :format="dateTime.timeFormat"
                                     />
                                 </el-form-item>
                                 <!-- 手动重置 -->
@@ -229,12 +221,7 @@
                     >
                         <div class="base-ai-param-box-left"></div>
                         <div class="base-ai-param-box-right">
-                            <el-form
-                                :style="{
-                                    '--form-label-width': '200px',
-                                    '--form-input-width': '215px',
-                                }"
-                            >
+                            <el-form>
                                 <!-- 检测目标 -->
                                 <div class="base-ai-subheading">{{ Translate('IDCS_DETECTION_TARGET') }}</div>
                                 <!-- 人灵敏度 -->
@@ -288,12 +275,7 @@
                     >
                         <div class="base-ai-param-box-left"></div>
                         <div class="base-ai-param-box-right">
-                            <el-form
-                                v-title
-                                :style="{
-                                    '--form-input-width': '215px',
-                                }"
-                            >
+                            <el-form v-title>
                                 <!-- 图片叠加 -->
                                 <div class="base-ai-subheading">{{ Translate('IDCS_IMAGE_OSD') }}</div>
                                 <!-- 类型 -->
@@ -345,13 +327,7 @@
                         </div>
                     </template>
                     <div class="base-ai-advance-box">
-                        <el-form
-                            v-title
-                            :style="{
-                                '--form-label-width': '150px',
-                                '--form-input-width': '170px',
-                            }"
-                        >
+                        <el-form v-title>
                             <div class="base-ai-subheading">
                                 {{ Translate('IDCS_VIDEO_SAVE_PIC') }}
                             </div>

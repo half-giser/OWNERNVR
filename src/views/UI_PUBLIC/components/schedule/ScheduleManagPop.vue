@@ -12,7 +12,7 @@
     >
         <div class="base-btn-box">
             <div>
-                <div class="base-subheading-box">
+                <div class="base-head-box">
                     <span class="scheduleTitle">{{ scheduleTitle }}</span>
                     <BaseImgSprite
                         file="toolbar_add"
@@ -40,6 +40,7 @@
                         :label="Translate('IDCS_SCHEDULE_NAME')"
                         prop="name"
                         width="146"
+                        show-overflow-tooltip
                     />
 
                     <el-table-column
@@ -87,7 +88,7 @@
 <script lang="ts" src="./ScheduleManagPop.v.ts"></script>
 
 <style lang="scss" scoped>
-.base-subheading-box {
+.base-head-box {
     width: 600px;
     height: 35px;
     margin-bottom: 20px;

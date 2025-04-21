@@ -25,7 +25,6 @@ export class BusinessPkMgrSpaceManageList {
     groupTotalNum = 0 // 总车位
     groupRemainNum = 0 // 剩余总车位
     groupSchedule = '' // 排程
-    oldGroupSchedule = '' // 记录上一次选择的排程id（实现el-select下拉框最后一项'排程管理'点击后实际选中值不变的效果）
     linkEmail = '' // E-mail
 }
 

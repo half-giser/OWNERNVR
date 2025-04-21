@@ -66,25 +66,20 @@
                                             <el-button @click="clearAllArea">{{ Translate('IDCS_FACE_CLEAR_ALL') }}</el-button>
                                         </div>
                                     </div>
-                                    <span class="base-ai-tip">{{ detectionPageData.drawAreaTip }}</span>
+                                    <div class="base-ai-tip">{{ detectionPageData.drawAreaTip }}</div>
                                 </div>
                             </div>
                             <div class="base-ai-param-box-right">
-                                <el-form
-                                    v-title
-                                    :style="{
-                                        '--form-input-width': '215px',
-                                    }"
-                                >
+                                <el-form v-title>
                                     <!-- 排程 -->
                                     <div class="base-ai-subheading">{{ Translate('IDCS_SCHEDULE') }}</div>
                                     <!-- 排程配置 -->
                                     <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
-                                        <el-select-v2
+                                        <BaseScheduleSelect
                                             v-model="detectionFormData.schedule"
                                             :options="pageData.scheduleList"
+                                            @edit="pageData.isSchedulePop = true"
                                         />
-                                        <el-button @click="pageData.isSchedulePop = true">{{ Translate('IDCS_MANAGE') }}</el-button>
                                     </el-form-item>
                                     <!-- 区域 -->
                                     <div class="base-ai-subheading">{{ Translate('IDCS_AREA') }}</div>
@@ -127,7 +122,7 @@
                                     <el-form-item
                                         :label="Translate('IDCS_PLATE_DETECTION_AREA')"
                                         :style="{
-                                            '--form-input-width': '180px',
+                                            '--form-input-width': '121px',
                                         }"
                                     >
                                         <el-select-v2
@@ -172,7 +167,7 @@
                                             :max="Math.min(detectionFormData.plateSize.max, detectionFormData.plateSize.maxWidth)"
                                             @change="blurMinWidth"
                                         />
-                                        <el-text>%</el-text>
+                                        <span>%</span>
                                     </el-form-item>
                                     <el-form-item :label="Translate('IDCS_MAX')">
                                         <BaseNumberInput
@@ -181,7 +176,7 @@
                                             :max="detectionFormData.plateSize.max"
                                             @change="blurMaxWidth"
                                         />
-                                        <el-text>%</el-text>
+                                        <span>%</span>
                                     </el-form-item>
                                     <el-form-item>
                                         <el-checkbox
@@ -197,7 +192,7 @@
                     <!-- 高级设置 -->
                     <el-popover
                         v-model:visible="detectionPageData.isAdvancePop"
-                        width="400"
+                        width="300"
                         popper-class="no-padding"
                     >
                         <template #reference>
@@ -215,10 +210,9 @@
                         <div class="base-ai-advance-box">
                             <el-form
                                 v-title
-                                class="stripe"
+                                class="no-padding"
                                 :style="{
-                                    '--form-input-width': '200px',
-                                    '--form-label-width': '150px',
+                                    '--form-label-width': '100px',
                                 }"
                             >
                                 <el-form-item :label="Translate('IDCS_RECOGNITION_MODE')">
@@ -255,7 +249,7 @@
                 <el-form
                     v-title
                     :style="{
-                        '--form-label-width': 'auto',
+                        '--form-label-width': '100px',
                     }"
                 >
                     <el-form-item :label="Translate('IDCS_ENABLE')">

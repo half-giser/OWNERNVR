@@ -32,7 +32,7 @@
         <el-dialog
             v-model="pageData.isPop"
             :title="Translate('IDCS_ADD_TO_FAVORITE')"
-            width="300"
+            width="450"
             append-to-body
             @closed="formRef?.resetFields()"
         >
@@ -41,9 +41,6 @@
                 v-title
                 :model="formData"
                 :rules="formRule"
-                :style="{
-                    '--form-label-width': 'auto',
-                }"
             >
                 <el-form-item
                     prop="name"

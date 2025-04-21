@@ -16,7 +16,7 @@
             :model="formData"
             :rules="rules"
             :style="{
-                '--form-input-width': '200px',
+                '--form-input-width': '250px',
             }"
         >
             <el-form-item>
@@ -113,11 +113,13 @@
                     <el-input
                         v-model="row.path"
                         :disabled="!formData.enabled"
+                        :formatter="formatPath"
+                        :parser="formatPath"
                     />
                 </template>
             </el-table-column>
         </el-table>
-        <div class="base-btn-box flex-start collapse">
+        <div class="base-btn-box flex-start text-tips">
             {{ Translate('IDCS_CHANGE_PROTOCOL_TIP') }}
         </div>
         <div class="base-btn-box">

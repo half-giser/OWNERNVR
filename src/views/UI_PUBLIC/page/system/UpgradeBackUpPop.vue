@@ -15,9 +15,6 @@
             v-title
             :rules
             :model="formData"
-            :style="{
-                '--form-input-width': '250px',
-            }"
         >
             <el-form-item
                 :label="Translate('IDCS_PATH')"
@@ -27,9 +24,10 @@
                     :model-value="formData.filePath"
                     readonly
                 />
-                <el-button @click="chooseFile">
-                    <BaseImgSpriteBtn file="filechooser" />
-                </el-button>
+                <BaseImgSpriteBtn
+                    file="filechooser"
+                    @click="chooseFile"
+                />
             </el-form-item>
         </el-form>
         <div class="base-btn-box">

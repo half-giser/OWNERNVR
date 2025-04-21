@@ -15,6 +15,7 @@
             v-title
             :model="formData"
             :rules="rules"
+            class="stripe"
         >
             <el-form-item
                 :label="Translate('IDCS_CHANNEL_NAME')"

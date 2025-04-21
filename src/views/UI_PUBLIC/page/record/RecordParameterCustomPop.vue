@@ -14,8 +14,7 @@
         <el-form
             v-title
             :style="{
-                '--form-input-width': '300px',
-                '--form-label-width': '150px',
+                '--form-input-width': '250px',
             }"
         >
             <el-form-item :label="Translate('IDCS_EXPIRE_TIME')">
@@ -29,12 +28,10 @@
                 />
                 <span>{{ Translate('IDCS_HOUR_ALL') }}</span>
             </el-form-item>
-            <el-form-item>
-                {{ Translate('IDCS_EXPIRE_EXCLUDED_TIP') }}
-            </el-form-item>
         </el-form>
+        <div class="base-btn-box flex-start gap">{{ Translate('IDCS_EXPIRE_EXCLUDED_TIP') }}</div>
         <div class="middleBox">
-            <div class="base-btn-box flex-start collapse">{{ Translate('IDCS_KEEPVIDEO_WEEK') }}</div>
+            <div class="base-btn-box flex-start gap">{{ Translate('IDCS_KEEPVIDEO_WEEK') }}</div>
             <el-checkbox-group v-model="pageData.weekArr">
                 <el-checkbox
                     v-for="item in week"
@@ -43,8 +40,8 @@
                     :label="item.label"
                 />
             </el-checkbox-group>
-            <div class="base-btn-box space-between">
-                <span>{{ Translate('IDCS_KEEPVIDEO_HOLIDAY') }}</span>
+            <div class="base-btn-box space-between gap">
+                <div>{{ Translate('IDCS_KEEPVIDEO_HOLIDAY') }}</div>
                 <el-button @click="openAddDate">{{ Translate('IDCS_ADD') }}</el-button>
             </div>
             <el-table
@@ -56,6 +53,7 @@
                 <el-table-column
                     :label="Translate('IDCS_DATE')"
                     min-width="355"
+                    show-overflow-tooltip
                 >
                     <template #default="{ row }: TableColumn<{ date: string }>">
                         {{ displayDate(row.date) }}
@@ -113,10 +111,6 @@
 <style lang="scss" scoped>
 .middleBox {
     border: 1px solid var(--content-border);
-    padding: 10px;
-
-    .base-btn-box {
-        margin-bottom: 10px;
-    }
+    padding: 0 10px 10px;
 }
 </style>

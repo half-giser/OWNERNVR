@@ -1,12 +1,12 @@
 <!--
  * @Date: 2025-02-24 16:41:20
- * @Description: 密码输入框（禁用复制粘贴）
  * @Author: yejiahao yejiahao@tvt.net.cn
+ * @Description: 密码输入框 1. 禁用复制粘贴; 2. 默认展示小眼睛
 -->
 <template>
     <el-input
         ref="input"
-        :type="showText ? 'text' : 'password'"
+        :show-password="showPassword"
         autocomplete="new-password"
         @copy.capture.prevent=""
         @paste.capture.prevent=""
@@ -21,10 +21,10 @@ withDefaults(
         /**
          * @property 是否显示明文
          */
-        showText?: boolean
+        showPassword?: boolean
     }>(),
     {
-        showText: false,
+        showPassword: true,
     },
 )
 

@@ -10,10 +10,6 @@
             v-title
             :model="formData"
             :rules="formRule"
-            :style="{
-                '--form-label-width': '200px',
-                '--form-input-width': '340px',
-            }"
             class="stripe"
         >
             <el-form-item :label="Translate('IDCS_SENDER_NAME')">

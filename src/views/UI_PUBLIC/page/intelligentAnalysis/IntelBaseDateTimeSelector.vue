@@ -34,8 +34,10 @@
             </div>
             <el-form
                 v-title
+                class="stripe"
                 :style="{
-                    '--form-label-width': '80px',
+                    '--form-label-width': '100px',
+                    '--form-input-width': '100%',
                 }"
             >
                 <el-form-item :label="Translate('IDCS_START_TIME')">

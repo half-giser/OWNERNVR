@@ -41,7 +41,7 @@
                             :placeholder="Translate('IDCS_PASSWORD_TIP')"
                             tabindex="2"
                             size="large"
-                            show-password
+                            @keyup.enter="keyUp"
                         />
                     </el-form-item>
                     <el-form-item>

@@ -36,7 +36,6 @@ export default defineComponent({
     },
     setup(prop) {
         const { Translate } = useLangStore()
-        const dateTime = useDateTimeStore()
 
         type CanvasAreaType = 'detectionArea' | 'maskArea'
         // 高级设置
@@ -118,7 +117,7 @@ export default defineComponent({
             timeType: 'day',
             // 重置模式列表
             countCycleTypeList: [] as SelectOption<string, string>[],
-            weekOption: objectToOptions(getTranslateMapping(DEFAULT_WEEK_MAPPING), 'number').slice(0, 7),
+            weekOption: objectToOptions(getTranslateMapping(DEFAULT_WEEK_MAPPING), 'number'),
             monthOption: Array(31)
                 .fill(0)
                 .map((_, index) => {
@@ -1149,7 +1148,6 @@ export default defineComponent({
             formData,
             watchEdit,
             pageData,
-            dateTime,
             mode,
             handlePlayerReady,
             changeTab,

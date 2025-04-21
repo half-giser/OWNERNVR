@@ -320,6 +320,9 @@ export default defineComponent({
             closeLoading()
         }
 
+        /**
+         * @description 获取人脸识别配置
+         */
         const getVfdData = async () => {
             const sendXml = rawXml`
                 <condition>
@@ -444,6 +447,9 @@ export default defineComponent({
             detectionPageData.value.isDispalyRangeChecked = false
         }
 
+        /**
+         * @description 获取人脸比对配置
+         */
         const getBackFaceMatchData = async () => {
             const sendXml = rawXml`
                     <condition>
@@ -771,6 +777,9 @@ export default defineComponent({
             return sendXml
         }
 
+        /**
+         * @description 保存人脸识别配置
+         */
         const setDetectionData = async () => {
             const sendXml = getFaceDetectionSaveData()
             openLoading()
@@ -782,6 +791,9 @@ export default defineComponent({
             watchDetection.update()
         }
 
+        /**
+         * @description 保存人脸比对配置
+         */
         const setDetectionBackUpData = async () => {
             const sendXml = rawXml`
                 <content>
@@ -1214,7 +1226,9 @@ export default defineComponent({
             await deleteFaceMatchAlarmParam(sendXml)
         }
 
-        // 提交人脸识别数据
+        /**
+         * @description 提交人脸识别数据
+         */
         const applyRecognitionData = async () => {
             // 识别中监听faceMatchData和recognitionFormData两个数据
             if (!watchMatch.disabled.value) {
@@ -1240,10 +1254,16 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 获取排程列表
+         */
         const getScheduleList = async () => {
             pageData.value.scheduleList = await buildScheduleList()
         }
 
+        /**
+         * @description 关闭排程弹窗
+         */
         const closeSchedulePop = async () => {
             pageData.value.isSchedulePop = false
             await getScheduleList()
@@ -1322,7 +1342,6 @@ export default defineComponent({
             recognitionPageData,
             addTask,
             removeTask,
-            // tabChange,
             changeAllSimilarity,
             applyRecognitionData,
             handleAIResourceError,

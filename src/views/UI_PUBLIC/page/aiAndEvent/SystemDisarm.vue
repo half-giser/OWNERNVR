@@ -59,7 +59,7 @@
                 prop="value"
             />
         </el-table>
-        <div class="tips_text_pop">{{ Translate('IDCS_CLOSE_GUARD_TIP') }}</div>
+        <div class="base-btn-box flex-start text-tips">{{ Translate('IDCS_CLOSE_GUARD_TIP') }}</div>
         <div class="base-btn-box collapse">
             <el-button @click="cfgItem">
                 {{ Translate('IDCS_OK') }}
@@ -70,14 +70,11 @@
         </div>
     </el-dialog>
     <div class="base-flex-box">
-        <div class="base-subheading-box">{{ Translate('IDCS_CONTRL_MODEL') }}</div>
         <el-form
             v-title
-            :style="{
-                '--form-label-width': '172px',
-                '--form-input-width': '250px',
-            }"
+            class="stripe"
         >
+            <div class="base-head-box">{{ Translate('IDCS_CONTRL_MODEL') }}</div>
             <el-form-item>
                 <el-checkbox
                     v-model="formData.sensorSwitch"
@@ -85,12 +82,9 @@
                 />
             </el-form-item>
             <el-form-item>
-                <span class="tips_text">{{ Translate('IDCS_ALARM_SWITCH_TIP') }}</span>
+                <span class="text-tips">{{ Translate('IDCS_ALARM_SWITCH_TIP') }}</span>
             </el-form-item>
-            <el-form-item
-                :label="Translate('IDCS_INPUT_SOURCE')"
-                label-width="fit-content"
-            >
+            <el-form-item :label="Translate('IDCS_INPUT_SOURCE')">
                 <el-select-v2
                     v-model="formData.inputSource"
                     :props="{
@@ -101,20 +95,20 @@
                 />
             </el-form-item>
         </el-form>
-        <div class="base-subheading-box subTitle2">
-            {{ Translate('IDCS_SYSTEM_ARM_SET') }}
-        </div>
-        <el-form>
-            <el-form-item>
-                <span class="guard_text">{{ Translate('IDCS_STATE') }} :</span>
-                <span class="guard_text">{{ pageData.defenseSwitch ? Translate('IDCS_GUARD_CLOSED') : Translate('IDCS_GUARD_OPENED') }}</span>
+
+        <el-form
+            v-title
+            class="stripe"
+        >
+            <div class="base-head-box">
+                {{ Translate('IDCS_SYSTEM_ARM_SET') }}
+            </div>
+            <el-form-item :label="Translate('IDCS_STATE')">
+                <span class="state">{{ pageData.defenseSwitch ? Translate('IDCS_GUARD_CLOSED') : Translate('IDCS_GUARD_OPENED') }}</span>
                 <el-button @click="setdisarmAll">{{ pageData.defenseSwitch ? Translate('IDCS_RECOVER_GUARD') : Translate('IDCS_CLOSE_GUARD') }}</el-button>
             </el-form-item>
-            <el-form-item>
-                <div class="base-btn-box space-between">
-                    <div>{{ Translate('IDCS_RECOVER_GUARD_CHANNEL') }}</div>
-                    <el-button @click="pageData.showAddDialog = true">{{ Translate('IDCS_ADD') }}</el-button>
-                </div>
+            <el-form-item :label="Translate('IDCS_RECOVER_GUARD_CHANNEL')">
+                <el-button @click="pageData.showAddDialog = true">{{ Translate('IDCS_ADD') }}</el-button>
             </el-form-item>
         </el-form>
         <div class="base-table-box">
@@ -128,6 +122,7 @@
                 <el-table-column
                     :label="`${Translate('IDCS_CHANNEL')}/${Translate('IDCS_SENSOR')}`"
                     prop="chlName"
+                    width="200"
                 />
                 <el-table-column
                     prop="disarmItemsStr"
@@ -138,7 +133,7 @@
                         {{ displayDisarmItems(row) }}
                     </template>
                 </el-table-column>
-                <el-table-column>
+                <el-table-column min-width="120">
                     <template #header>
                         <el-popover
                             v-model:visible="pageData.popoverVisible"
@@ -184,7 +179,7 @@
                         </el-button>
                     </template>
                 </el-table-column>
-                <el-table-column>
+                <el-table-column min-width="120">
                     <template #header>
                         <el-dropdown>
                             <BaseTableDropdownLink>
@@ -208,7 +203,7 @@
             </el-table>
         </div>
         <div class="base-btn-box flex-start">
-            <span class="tips_text">{{ Translate('IDCS_CLOSE_GUARD_TIP') }}</span>
+            <span class="text-tips">{{ Translate('IDCS_CLOSE_GUARD_TIP') }}</span>
         </div>
         <div class="base-btn-box collapse">
             <el-button @click="filterConfiguredDefParaList">
@@ -221,9 +216,8 @@
 <script lang="ts" src="./SystemDisarm.v.ts"></script>
 
 <style lang="scss" scoped>
-.guard_text {
-    font-size: 15px;
-    margin-right: 45px;
+.state {
+    margin-right: 10px;
 }
 
 .cfg_table {
@@ -231,15 +225,10 @@
     padding: 10px;
 }
 
-.tips_text {
-    font-size: 15px;
-    color: var(--main-text-light);
-}
-
-.tips_text_pop {
-    font-size: 14px;
-    color: var(--main-text-light);
-    margin-bottom: 5px;
-    margin-top: 5px;
-}
+// .tips_text_pop {
+//     font-size: 14px;
+//     color: var(--main-text-light);
+//     margin-bottom: 5px;
+//     margin-top: 5px;
+// }
 </style>

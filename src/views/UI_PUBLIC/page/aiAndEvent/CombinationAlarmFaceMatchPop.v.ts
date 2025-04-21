@@ -56,6 +56,9 @@ export default defineComponent({
             ],
         })
 
+        /**
+         * @description 开启弹窗 初始化数据
+         */
         const open = async () => {
             pageData.value.faceDataIds = []
             pageData.value.faceList = []
@@ -82,6 +85,9 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description 确认修改
+         */
         const save = () => {
             const groupId: string[] = []
             const faceDataBase: string[] = []
@@ -104,6 +110,9 @@ export default defineComponent({
             close()
         }
 
+        /**
+         * @description 关闭弹窗
+         */
         const close = () => {
             pageData.value.rule = '1'
             pageData.value.duration = 5

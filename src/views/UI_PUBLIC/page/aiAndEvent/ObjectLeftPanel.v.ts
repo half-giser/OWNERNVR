@@ -609,16 +609,12 @@ export default defineComponent({
             formData,
             watchEdit,
             pageData,
-            // 播放器就绪
             handlePlayerReady,
-            // 视频区域
             showAllArea,
             clearArea,
             clearAllArea,
-            // 警戒区域切换
             changeWarnArea,
             formatAreaName,
-            // 提交物品遗留与看护数据
             applyData,
             closeSchedulePop,
         }

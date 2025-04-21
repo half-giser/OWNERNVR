@@ -54,10 +54,6 @@ export default defineComponent({
 
         const tableData = ref<BusinessFaceAttendanceList[]>([])
 
-        const startTime = computed(() => formData.value.startTime)
-        const endTime = computed(() => formData.value.endTime)
-        const pickerRange = useTimePickerRange(startTime, endTime)
-
         const chlMap: Record<string, string> = {}
 
         const sliceTableData = computed(() => {
@@ -491,10 +487,8 @@ export default defineComponent({
         return {
             pageData,
             formData,
-            dateTime,
             changeDateRange,
             daysInRange,
-            pickerRange,
             displayIndex,
             displayStatus,
             tableData,

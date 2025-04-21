@@ -6,7 +6,7 @@
 <template>
     <el-dialog
         :title="Translate('IDCS_CHANGE_PWD')"
-        width="600"
+        width="450"
         @open="open"
         @closed="formRef?.resetFields()"
     >
@@ -15,6 +15,7 @@
             v-title
             :model="formData"
             :rules="rules"
+            class="stripe odd"
         >
             <el-form-item
                 prop="newPassword"
@@ -25,7 +26,9 @@
                     maxlength="16"
                 />
             </el-form-item>
-            <BasePasswordStrength :strength />
+            <el-form-item>
+                <BasePasswordStrength :strength />
+            </el-form-item>
             <el-form-item
                 prop="confirmNewPassword"
                 :label="Translate('IDCS_CONFIRM_NEW_PASSWORD')"
@@ -35,12 +38,12 @@
                     maxlength="16"
                 />
             </el-form-item>
-            <el-form-item>
+            <div class="base-btn-box flex-start">
                 <span
                     v-clean-html="noticeMsg"
                     class="base-rich-text"
                 ></span>
-            </el-form-item>
+            </div>
         </el-form>
         <div class="base-btn-box">
             <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>

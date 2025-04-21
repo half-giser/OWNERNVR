@@ -6,12 +6,7 @@
 <template>
     <div>
         <!-- 人脸识别——识别成功 -->
-        <el-form
-            v-title
-            :style="{
-                '--form-input-width': '215px',
-            }"
-        >
+        <el-form v-title>
             <!-- 人脸分组 -->
             <el-form-item
                 v-if="taskData.ruleType === 'hit'"

@@ -7,12 +7,9 @@
     <el-form
         ref="pushRef"
         v-title
-        :style="{
-            '--form-input-width': '258px',
-            '--form-label-width': '200px',
-        }"
+        class="stripe"
     >
-        <div class="base-subheading-box">{{ Translate('IDCS_PUSH_MESSAGE') }}</div>
+        <div class="base-head-box">{{ Translate('IDCS_PUSH_MESSAGE') }}</div>
         <el-form-item>
             <el-checkbox
                 v-model="formData.chkEnable"
@@ -20,10 +17,11 @@
             />
         </el-form-item>
         <el-form-item :label="Translate('IDCS_PUSH_SCHEDULE')">
-            <el-select-v2
+            <BaseScheduleSelect
                 v-model="formData.pushSchedule"
                 :options="pageData.scheduleOption"
                 :disabled="!formData.chkEnable"
+                @edit="pageData.isSchedulePop = true"
             />
         </el-form-item>
         <div class="base-btn-box">
@@ -33,7 +31,6 @@
             >
                 {{ Translate('IDCS_TEST') }}
             </el-button>
-            <el-button @click="pageData.isSchedulePop = true">{{ Translate('IDCS_SCHEDULE_MANAGE') }}</el-button>
             <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>
         </div>
     </el-form>

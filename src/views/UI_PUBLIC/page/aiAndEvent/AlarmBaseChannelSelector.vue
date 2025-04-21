@@ -4,12 +4,7 @@
  * @Description: AI - 通道选择器
 -->
 <template>
-    <el-form
-        v-title
-        :style="{
-            '--form-label-width': '180px',
-        }"
-    >
+    <el-form v-title>
         <el-form-item :label="Translate('IDCS_CHANNEL_NAME')">
             <el-popover
                 v-model:visible="pageData.isPop"

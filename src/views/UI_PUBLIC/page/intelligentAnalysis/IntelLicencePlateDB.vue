@@ -21,11 +21,17 @@
                     :width="80"
                     type="index"
                 />
-                <el-table-column :label="Translate('IDCS_GROUP')">
+                <el-table-column
+                    :label="Translate('IDCS_GROUP')"
+                    show-overflow-tooltip
+                    min-width="300"
+                >
                     <template #default="{ row }: TableColumn<IntelPlateDBGroupList>"> {{ row.name }} ({{ row.plateNum }}) </template>
                 </el-table-column>
-                <el-table-column />
-                <el-table-column :label="Translate('IDCS_EDIT')">
+                <el-table-column
+                    :label="Translate('IDCS_EDIT')"
+                    width="100"
+                >
                     <template #default="{ row }: TableColumn<IntelPlateDBGroupList>">
                         <BaseImgSpriteBtn
                             file="edit2"
@@ -33,7 +39,10 @@
                         />
                     </template>
                 </el-table-column>
-                <el-table-column :label="Translate('IDCS_DELETE')">
+                <el-table-column
+                    :label="Translate('IDCS_DELETE')"
+                    width="100"
+                >
                     <template #default="{ row }: TableColumn<IntelPlateDBGroupList>">
                         <BaseImgSpriteBtn
                             file="del"
@@ -44,7 +53,7 @@
                 <el-table-column
                     :label="Translate('IDCS_EXPAND_OR_COLLAPSE')"
                     type="expand"
-                    :width="200"
+                    width="200"
                 >
                     <template #default="{ row }: TableColumn<IntelPlateDBGroupList>">
                         <div

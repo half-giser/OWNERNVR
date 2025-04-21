@@ -81,7 +81,6 @@
             v-model="pageData.isInputEncryptPwd"
             :title="Translate('IDCS_UNLOCK')"
             encrypt="md5"
-            decrypt-flag
             @close="pageData.isInputEncryptPwd = false"
             @confirm="confirmUnlockDisk"
         />

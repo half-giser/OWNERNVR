@@ -6,7 +6,7 @@
 <template>
     <el-dialog
         :title="Translate('IDCS_ADD_TRACE')"
-        width="500"
+        width="450"
         @open="open"
         @closed="formRef?.resetFields()"
     >

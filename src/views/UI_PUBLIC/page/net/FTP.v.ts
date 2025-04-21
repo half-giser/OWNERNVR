@@ -154,6 +154,16 @@ export default defineComponent({
             pageData.value.scheduleOptions = await buildScheduleList()
         }
 
+        const openSchedulePop = () => {
+            pageData.value.isSchedulePop = true
+        }
+
+        const changeAllSchedule = (value: string) => {
+            tableData.value.forEach((item) => {
+                item.schedule = value
+            })
+        }
+
         /**
          * @description 启用状态改变
          */
@@ -305,13 +315,6 @@ export default defineComponent({
         }
 
         /**
-         * @description 打开排程管理弹窗
-         */
-        const manageSchedule = () => {
-            pageData.value.isSchedulePop = true
-        }
-
-        /**
          * @description 修改并关闭排程管理弹窗
          */
         const closeSchedulePop = async () => {
@@ -342,7 +345,8 @@ export default defineComponent({
             pageData,
             tableData,
             changeAllSwitch,
-            manageSchedule,
+            changeAllSchedule,
+            openSchedulePop,
             closeSchedulePop,
             test,
             verify,

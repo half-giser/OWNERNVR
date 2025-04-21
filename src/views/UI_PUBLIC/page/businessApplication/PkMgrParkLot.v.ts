@@ -93,7 +93,7 @@ export default defineComponent({
         // 剩余车位/车位总量
         const restOfTotal = computed(() => {
             if (pageData.value.total && pageData.value.rest) {
-                return pageData.value.rest + '/' + pageData.value.total
+                return pageData.value.rest + ' / ' + pageData.value.total
             }
             return '\u200b'
         })

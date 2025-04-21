@@ -13,6 +13,7 @@
                 <el-table-column
                     :label="Translate('IDCS_POS')"
                     prop="name"
+                    show-overflow-tooltip
                 />
                 <!-- 启用 -->
                 <el-table-column width="100">

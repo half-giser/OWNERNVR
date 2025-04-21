@@ -12,10 +12,10 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
+        const dateTime = useDateTimeStore()
 
         const playerRef = ref<PlayerInstance>()
         const auth = useUserChlAuth(false)
-        const dateTime = useDateTimeStore()
 
         // 任务数最大值
         const TASK_LIMIT = 8
@@ -234,6 +234,7 @@ export default defineComponent({
 
         /**
          * @description 只有数据更新才重新渲染
+         * @param {ChannelPtzTaskDto[]} data
          */
         const compareTask = (data: ChannelPtzTaskDto[]) => {
             if (data.length !== taskTableData.value.length) {
@@ -668,7 +669,6 @@ export default defineComponent({
             displayType,
             displayName,
             setData,
-            dateTime,
         }
     },
 })

@@ -10,10 +10,7 @@
             v-title
             :model="formData"
             :rules="rules"
-            :style="{
-                '--form-label-width': '200px',
-                '--form-input-width': '220px',
-            }"
+            class="stripe"
         >
             <el-form-item
                 prop="name"

@@ -33,7 +33,6 @@ export default defineComponent({
     setup(prop) {
         const { Translate } = useLangStore()
         const router = useRouter()
-        const dateTime = useDateTimeStore()
 
         // 由于Webscoket回传和HTTP请求的事件类型和目标类型的key值命名不同，所以需根据映射关系对列表数据重新组装
 
@@ -489,7 +488,6 @@ export default defineComponent({
 
         return {
             pageData,
-            dateTime,
             changeMenu,
             playRec,
             search,

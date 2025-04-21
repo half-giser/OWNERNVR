@@ -36,7 +36,6 @@
                         v-model="formData.password"
                         :placeholder="Translate('IDCS_PASSWORD_TIP')"
                         tabindex="2"
-                        show-password
                     />
                 </el-form-item>
                 <el-radio-group v-model="pageData.quality">
@@ -45,6 +44,7 @@
                         :key="item.value"
                         :value="item.value"
                         :label="item.label"
+                        @keyup.enter="keyUp"
                     />
                 </el-radio-group>
                 <div class="login-btns">

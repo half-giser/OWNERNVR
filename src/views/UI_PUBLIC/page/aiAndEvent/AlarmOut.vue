@@ -19,7 +19,6 @@
                         <BaseTableRowStatus :icon="row.status" />
                     </template>
                 </el-table-column>
-
                 <!-- 序号 -->
                 <el-table-column
                     :label="Translate('IDCS_SERIAL_NUMBER')"
@@ -30,20 +29,19 @@
                         {{ displaySerialNum(row) }}
                     </template>
                 </el-table-column>
-
                 <!-- 名称 -->
                 <el-table-column :label="Translate('IDCS_NAME')">
                     <template #default="{ row }: TableColumn<AlarmOutDto>">
                         <el-input
                             v-model="row.name"
                             :disabled="row.disabled"
+                            maxlength="32"
                             @focus="focusName(row.name)"
                             @blur="blurName(row)"
                             @keyup.enter="blurInput"
                         />
                     </template>
                 </el-table-column>
-
                 <!-- 延时 -->
                 <el-table-column>
                     <template #header>
@@ -72,37 +70,24 @@
                         />
                     </template>
                 </el-table-column>
-
                 <!-- 排程 -->
                 <el-table-column>
                     <template #header>
-                        <el-dropdown>
-                            <BaseTableDropdownLink>
-                                {{ Translate('IDCS_SCHEDULE') }}
-                            </BaseTableDropdownLink>
-                            <template #dropdown>
-                                <el-dropdown-menu>
-                                    <el-dropdown-item
-                                        v-for="opt in pageData.scheduleList"
-                                        :key="opt.value"
-                                        @click="changeScheduleAll(opt.value)"
-                                    >
-                                        {{ opt.label }}
-                                    </el-dropdown-item>
-                                </el-dropdown-menu>
-                            </template>
-                        </el-dropdown>
+                        <BaseScheduleTableDropdown
+                            :options="pageData.scheduleList"
+                            @change="changeAllSchedule"
+                            @edit="openSchedulePop"
+                        />
                     </template>
                     <template #default="{ row }: TableColumn<AlarmOutDto>">
-                        <el-select-v2
+                        <BaseScheduleSelect
                             v-model="row.scheduleId"
-                            :disabled="row.disabled"
                             :options="pageData.scheduleList"
-                            @change="changeSchedule(row)"
+                            :disabled="row.disabled"
+                            @edit="openSchedulePop"
                         />
                     </template>
                 </el-table-column>
-
                 <!-- 类型 -->
                 <el-table-column :formatter="displayAlarmOutType">
                     <template #header>

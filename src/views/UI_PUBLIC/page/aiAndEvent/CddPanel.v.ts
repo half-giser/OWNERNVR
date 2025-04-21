@@ -324,6 +324,9 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 检查通道互斥 提交数据
+         */
         const applyData = async () => {
             checkMutexChl({
                 isChange: formData.value.detectionEnable && formData.value.detectionEnable !== formData.value.originalEnable,
@@ -335,6 +338,9 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description 绘制区域
+         */
         const setArea = () => {
             if (formData.value.regionInfo.length) {
                 if (mode.value === 'h5') {
@@ -348,6 +354,9 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 清除区域
+         */
         const clearArea = () => {
             if (mode.value === 'h5') {
                 drawer.clear()

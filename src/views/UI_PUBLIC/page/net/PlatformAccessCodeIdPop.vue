@@ -6,7 +6,7 @@
 <template>
     <el-dialog
         :title="Translate('IDCS_SET_CODE_ID')"
-        width="500"
+        width="450"
         @open="open"
         @closed="formRef?.resetFields()"
     >
@@ -15,6 +15,7 @@
             v-title
             :model="formData"
             :rules="formRule"
+            class="stripe"
         >
             <el-form-item :label="Translate('IDCS_NAME')">
                 <el-input

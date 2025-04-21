@@ -63,7 +63,7 @@ export default defineComponent({
             Tripwire: Translate('IDCS_BEYOND_DETECTION'),
         }
 
-        const detectTypeMap: Record<string, string> = {
+        const DETECT_TYPE_MAPPING: Record<string, string> = {
             Sensor: Translate('IDCS_SENSOR'),
             Motion: Translate('IDCS_MOTION_DETECTION'),
             FaceMatch: Translate('IDCS_FACE_DETECTION'),
@@ -71,7 +71,7 @@ export default defineComponent({
             Tripwire: Translate('IDCS_BEYOND_DETECTION'),
         }
 
-        const detectBtnMap: Record<string, string> = {
+        const DETECT_BTN_MAPPING: Record<string, string> = {
             Sensor: Translate('IDCS_CHANGE_SENSOR'),
             Motion: Translate('IDCS_CHANGE_MOTION'),
             FaceMatch: Translate('IDCS_CHANGE_FACE'),
@@ -103,6 +103,9 @@ export default defineComponent({
 
         const tableData = ref<AlarmCombinedItemDto[]>([])
 
+        /**
+         * @description 获取通道列表
+         */
         const getChls = () => {
             getChlList({
                 requireField: ['protocolType'],
@@ -113,18 +116,24 @@ export default defineComponent({
                         const protocolType = $item('protocolType').text()
                         const factoryName = $item('productModel').attr('factoryName')
                         const accessType = $item('AccessType').text()
+
                         if (protocolType === 'RTSP') return
+
                         pageData.value.chlsMap.push({
                             value: item.attr('id'),
                             label: $item('name').text(),
                         })
+
                         if (factoryName === 'Recorder') return
+
                         pageData.value.chlsFilterMapForThermal.push({
                             value: item.attr('id'),
                             label: $item('name').text(),
                         })
+
                         // 过滤掉热成像通道
                         if (accessType === '1') return
+
                         pageData.value.chlsFilterMap.push({
                             value: item.attr('id'),
                             label: $item('name').text(),
@@ -134,6 +143,9 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description 获取传感器通道列表
+         */
         const getSensors = () => {
             getChlList({
                 nodeType: 'sensors',
@@ -154,7 +166,9 @@ export default defineComponent({
             })
         }
 
-        // 获取支持人脸比对的通道
+        /**
+         * @description 获取支持人脸比对的通道
+         */
         const getFaceMatchData = () => {
             getChlList({
                 nodeType: 'chls',
@@ -182,7 +196,9 @@ export default defineComponent({
             })
         }
 
-        // 配置支持区域入侵的通道
+        /**
+         * @description 配置支持区域入侵的通道
+         */
         const getPeaData = () => {
             getChlList({
                 nodeType: 'chls',
@@ -207,7 +223,9 @@ export default defineComponent({
             })
         }
 
-        // 配置支持越界的通道
+        /**
+         * @description 配置支持越界的通道
+         */
         const getTripwireData = () => {
             getChlList({
                 nodeType: 'chls',
@@ -232,6 +250,9 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description 打开弹窗 初始化数据
+         */
         const open = () => {
             tableData.value = [
                 {
@@ -283,19 +304,25 @@ export default defineComponent({
             tableData.value[1] && checkDetect(tableData.value[1])
         }
 
-        // 类型的映射对象转换为选择器数组列表
+        /**
+         * @description 类型的映射对象转换为选择器数组列表
+         * @param {Record<string, string>} typeMap
+         * @returns {SelectOption<string, string>[]}
+         */
         const getTypeMap = (typeMap: Record<string, string>) => {
-            const mapList = []
-            for (const key in typeMap) {
-                mapList.push({
-                    value: key,
-                    label: typeMap[key],
-                })
-            }
-            return mapList
+            return Object.entries(typeMap).map((item) => {
+                return {
+                    value: item[0],
+                    label: item[1],
+                }
+            })
         }
 
-        // 改变类型对应选择的报警源数据列表
+        /**
+         * @description 改变类型对应选择的报警源数据列表
+         * @param {string} currType
+         * @returns {SelectOption<string, string>[]}
+         */
         const getEntityMap = (currType: string) => {
             let mapList = pageData.value.chlsMap
 
@@ -421,8 +448,9 @@ export default defineComponent({
                 if ($('status').text() === 'success') {
                     isShowDetect = $('content/param/switch').text().bool()
                 }
-                // 以下几种类型的请求头是一样的
-            } else {
+            }
+            // 以下几种类型的请求头是一样的
+            else {
                 const sendXml = rawXml`
                     <condition>
                         <chlId>${id}</chlId>
@@ -505,28 +533,27 @@ export default defineComponent({
                 pageData.value.isDetectShow = true
                 pageData.value.detectChlId = row.alarmSourceEntity.value
                 pageData.value.detectEntity = row.alarmSourceEntity.label
-                pageData.value.detectType = detectTypeMap[row.alarmSourceType]
+                pageData.value.detectType = DETECT_TYPE_MAPPING[row.alarmSourceType]
                 pageData.value.detectBtn.value = row.alarmSourceType
-                pageData.value.detectBtn.label = detectBtnMap[row.alarmSourceType]
+                pageData.value.detectBtn.label = DETECT_BTN_MAPPING[row.alarmSourceType]
             } else {
                 pageData.value.isDetectShow = false
             }
         }
 
-        // 跳转到相应页面
+        /**
+         * @description 跳转到相应页面
+         */
         const changeDetect = () => {
-            const urlMap: Record<string, string> = {
-                Motion: '/config/channel/settings/motion',
-                Sensor: '/config/alarm/sensor',
-                FaceMatch: '/config/alarm/faceRecognition',
-                InvadeDetect: '/config/alarm/boundary',
-                Tripwire: '/config/alarm/boundary',
-            }
             switch (pageData.value.detectBtn.value) {
                 case 'Motion':
+                    router.push({
+                        path: '/config/channel/settings/motion',
+                    })
+                    break
                 case 'Sensor':
                     router.push({
-                        path: urlMap[pageData.value.detectBtn.value],
+                        path: '/config/alarm/sensor',
                     })
                     break
                 case 'FaceMatch':
@@ -558,18 +585,30 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 打开人脸匹配弹窗
+         * @param {string} entity
+         */
         const editFaceMatch = (entity: string) => {
             pageData.value.linkedEntity = entity
             pageData.value.linkedObj = pageData.value.faceMatchObj[entity]
             pageData.value.isFaceMatchPopShow = true
         }
 
+        /**
+         * @description 更新人脸识别联动
+         * @param {string} entity
+         * @param {AlarmCombinedFaceMatchDto} obj
+         */
         const handleFaceMatchLinkedObj = (entity: string, obj: AlarmCombinedFaceMatchDto) => {
             pageData.value.faceMatchObj[entity] = {}
             pageData.value.faceMatchObj[entity].obj = obj
             changeDescription()
         }
 
+        /**
+         * @description 确认修改
+         */
         const save = () => {
             let isSameId = false
             let isAlarmSourceNull = false
@@ -617,6 +656,9 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 关闭弹窗
+         */
         const close = () => {
             ctx.emit('close', prop.linkedId)
         }

@@ -7,9 +7,9 @@
     <div class="base-flex-box">
         <el-form
             v-title
+            class="stripe"
             :style="{
-                '--form-input-width': '340px',
-                '--form-label-width': '250px',
+                '--form-label-width': '200px',
             }"
         >
             <el-form-item :label="Translate('IDCS_DISK')">

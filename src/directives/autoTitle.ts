@@ -36,6 +36,16 @@ const setAutoTitle = (el: HTMLElement) => {
             }
         }
     }
+    // 如果是<el-transfer>，则为el-checkbox__label下所有菜单根据其文本值设置title
+    else if (el.classList.contains('el-transfer')) {
+        const selectors = el.querySelectorAll('.el-checkbox-group .el-checkbox__label')
+        for (const selector of selectors) {
+            const innerText = (selector as HTMLElement).innerText.trim()
+            if (innerText) {
+                selector.setAttribute('title', innerText)
+            }
+        }
+    }
     // 其他元素根据其文本值设置title
     else {
         el.setAttribute('title', el.innerText)

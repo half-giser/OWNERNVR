@@ -11,10 +11,6 @@
             class="stripe"
             :rules
             :model="formData"
-            :style="{
-                '--form-input-width': '340px',
-                '--form-label-width': '200px',
-            }"
         >
             <el-form-item
                 prop="userName"
@@ -32,7 +28,10 @@
                 prop="password"
                 :label="Translate('IDCS_PASSWORD')"
             >
-                <BasePasswordInput v-model="formData.password" />
+                <BasePasswordInput
+                    v-model="formData.password"
+                    maxlength="16"
+                />
             </el-form-item>
             <el-form-item>
                 <BasePasswordStrength
@@ -44,7 +43,10 @@
                 prop="confirmPassword"
                 :label="Translate('IDCS_CONFIRM_PASSWORD')"
             >
-                <BasePasswordInput v-model="formData.confirmPassword" />
+                <BasePasswordInput
+                    v-model="formData.confirmPassword"
+                    maxlength="16"
+                />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_ALLOW_CHANGE_PWD')">
                 <el-checkbox v-model="formData.allowModifyPassword" />

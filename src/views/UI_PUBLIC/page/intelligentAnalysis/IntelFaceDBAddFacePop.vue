@@ -11,8 +11,9 @@
     >
         <el-form
             v-title
+            class="stripe"
             :style="{
-                '--form-input-width': '280px',
+                '--form-input-width': '250px',
             }"
         >
             <el-form-item>

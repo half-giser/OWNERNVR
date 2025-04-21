@@ -5,13 +5,8 @@
 -->
 <template>
     <div class="base-flex-box">
-        <el-form
-            class="stripe"
-            :style="{
-                '--form-input-width': '215px',
-            }"
-        >
-            <div class="base-subheading-box">{{ Translate('IDCS_HIGH_RECORD_PARAM') }}</div>
+        <el-form class="stripe">
+            <div class="base-head-box">{{ Translate('IDCS_HIGH_RECORD_PARAM') }}</div>
             <!-- <el-form-item
                 v-show="false"
                 :label="Translate('IDCS_MAIN_STREAM_RECORD_TIME')"
@@ -36,7 +31,7 @@
                 />
             </el-form-item>
         </el-form>
-        <div class="base-subheading-box msgbox">{{ Translate('IDCS_CHANNEL_RECORD_PARAM') }}</div>
+        <div class="base-head-box">{{ Translate('IDCS_CHANNEL_RECORD_PARAM') }}</div>
         <div class="base-table-box">
             <el-table
                 ref="tableRef"
@@ -199,9 +194,3 @@
 </template>
 
 <script lang="ts" src="./RecordParameter.v.ts"></script>
-
-<style scoped>
-.msgbox {
-    margin: 10px 0;
-}
-</style>

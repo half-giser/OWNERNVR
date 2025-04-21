@@ -9,6 +9,7 @@
             v-title
             :data="tableData"
             height="100%"
+            show-overflow-tooltip
         >
             <el-table-column :label="Translate('IDCS_ATTRIBUTE')">
                 <template #default="{ row }: TableColumn<SystemNetStatusList>">

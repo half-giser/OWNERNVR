@@ -7,10 +7,7 @@
     <div class="base-flex-box">
         <el-form
             v-title
-            class="stripe"
-            :style="{
-                '--form-input-width': '250px',
-            }"
+            class="no-padding"
         >
             <el-form-item :label="Translate('IDCS_ALARM_TYPE')">
                 <el-select-v2

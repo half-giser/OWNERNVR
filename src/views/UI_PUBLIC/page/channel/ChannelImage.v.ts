@@ -9,7 +9,6 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const layoutStore = useLayoutStore()
-        const dateTime = useDateTimeStore()
 
         const playerRef = ref<PlayerInstance>()
         const formData = ref(new ChannelImageDto())
@@ -1412,7 +1411,6 @@ export default defineComponent({
             playerRef,
             formData,
             pageData,
-            dateTime,
             tableRef,
             tableData,
             chlOptions,

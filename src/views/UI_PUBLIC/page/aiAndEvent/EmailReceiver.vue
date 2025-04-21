@@ -11,8 +11,7 @@
             :model="pageData.form"
             :rules="rules"
             :style="{
-                '--form-label-width': '240px',
-                '--form-input-width': '180px',
+                '--form-label-width': '105px',
             }"
             class="top"
         >
@@ -57,27 +56,17 @@
                 </el-table-column>
                 <el-table-column width="205">
                     <template #header>
-                        <el-dropdown>
-                            <BaseTableDropdownLink>
-                                {{ Translate('IDCS_SCHEDULE') }}
-                            </BaseTableDropdownLink>
-                            <template #dropdown>
-                                <el-dropdown-menu>
-                                    <el-dropdown-item
-                                        v-for="item in pageData.scheduleList"
-                                        :key="item.value"
-                                        @click="changeAllSchedule(item.value)"
-                                    >
-                                        {{ item.label }}
-                                    </el-dropdown-item>
-                                </el-dropdown-menu>
-                            </template>
-                        </el-dropdown>
+                        <BaseScheduleTableDropdown
+                            :options="pageData.scheduleList"
+                            @change="changeAllSchedule"
+                            @edit="openSchedulePop"
+                        />
                     </template>
                     <template #default="{ row }: TableColumn<AlarmEmailReceiverDto>">
-                        <el-select-v2
+                        <BaseScheduleSelect
                             v-model="row.schedule"
                             :options="pageData.scheduleList"
+                            @edit="openSchedulePop"
                         />
                     </template>
                 </el-table-column>
@@ -121,9 +110,6 @@
                     <el-button @click="editSender()">
                         {{ Translate('IDCS_SENDER_EDIT') }}
                     </el-button>
-                    <el-button @click="pageData.isSchedulePop = true">
-                        {{ Translate('IDCS_SCHEDULE_MANAGE') }}
-                    </el-button>
                     <el-button @click="setData()">
                         {{ Translate('IDCS_APPLY') }}
                     </el-button>
@@ -141,9 +127,6 @@
 
 <style lang="scss" scoped>
 .top {
-    width: 700px;
-    height: 50px;
-
     :deep(.el-form-item) {
         padding-inline: 0 !important;
     }

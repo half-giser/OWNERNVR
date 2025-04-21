@@ -11,10 +11,6 @@
             class="stripe"
             :rules
             :model="formData"
-            :style="{
-                '--form-label-width': '200px',
-                '--form-input-width': '250px',
-            }"
         >
             <el-form-item
                 prop="deviceName"

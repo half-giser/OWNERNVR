@@ -15,6 +15,7 @@
             v-title
             :model="formData"
             :rules
+            class="stripe"
         >
             <el-form-item :label="Translate('IDCS_RAID_NAME')">
                 {{ current.name }}

@@ -71,6 +71,7 @@
                         <el-popover
                             v-model:visible="pageData.isResolutionPop"
                             :width="400"
+                            popper-class="no-padding"
                         >
                             <template #reference>
                                 <BaseTableDropdownLink>
@@ -84,9 +85,9 @@
                                 :data="pageData.resolutionList"
                             >
                                 <el-table-column>
-                                    <template #default="{ row, $index }: TableColumn<NetSubStreamResolutionList>">
+                                    <template #default="{ row }: TableColumn<NetSubStreamResolutionList>">
                                         <el-select-v2
-                                            v-model="tableData[$index].resolution"
+                                            v-model="row.value"
                                             :options="row.resolution"
                                             @visible-change="handleResolutionVisibleChange"
                                         />
@@ -103,13 +104,18 @@
                                                     file="chl_icon"
                                                     :chunk="4"
                                                 />
-                                                <span>{{ item.chlName }}</span>
+                                                <span
+                                                    v-title
+                                                    class="text-ellipsis"
+                                                >
+                                                    {{ item.chlName }}
+                                                </span>
                                             </div>
                                         </div>
                                     </template>
                                 </el-table-column>
                             </el-table>
-                            <div class="base-btn-box">
+                            <div class="base-btn-box gap padding">
                                 <el-button @click="changeAllResolution">{{ Translate('IDCS_OK') }}</el-button>
                                 <el-button @click="pageData.isResolutionPop = false">{{ Translate('IDCS_CANCEL') }}</el-button>
                             </div>
@@ -296,6 +302,7 @@
                                     '--form-label-width': '50px',
                                     '--form-input-width': '170px',
                                 }"
+                                class="no-padding"
                             >
                                 <el-form-item :label="Translate('IDCS_GOP')">
                                     <BaseNumberInput
@@ -340,12 +347,13 @@
 .expand {
     display: flex;
     flex-wrap: wrap;
-    padding: 15px;
+    padding: 0 10px;
 
     & > div {
         width: 50%;
         margin-bottom: 10px;
-        text-align: left;
+        display: flex;
+        align-items: center;
 
         span:last-child {
             margin-left: 5px;

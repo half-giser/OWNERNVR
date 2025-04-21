@@ -45,26 +45,21 @@ export default defineComponent({
             audioList: [] as SelectOption<string, string>[],
             // 视频弹出列表
             videoPopupChlList: [] as SelectOption<string, string>[],
-
             // 初始化
             totalCount: 0,
-            CombinedALarmInfo: '',
-
+            // 组合报警信息
+            combinedALarmInfo: '',
             isRecordPop: false,
             isSnapPop: false,
             isAlarmOutPop: false,
-
             // 当前打开dialog行的index
             triggerDialogIndex: 0,
-
             // 预置点名称配置
             isPresetPop: false,
-
             isCombinedAlarmPop: false,
             combinedAlarmLinkedId: '',
             combinedAlarmLinkedList: [] as AlarmCombinedItemDto[],
             currRowFaceObj: {} as Record<string, Record<string, AlarmCombinedFaceMatchDto>>,
-
             // 人脸对象，层级依次为combinedID，chlID，obj
             faceObj: {} as Record<string, Record<string, Record<string, AlarmCombinedFaceMatchDto>>>,
         })
@@ -110,7 +105,10 @@ export default defineComponent({
             })
         }
 
-        // 获取人脸库列表
+        /**
+         * @description 获取人脸库列表
+         * @returns {XMLQuery} $
+         */
         const getFaceGroupData = async () => {
             const result = await queryFacePersonnalInfoGroupList()
             const $ = queryXml(result)
@@ -118,7 +116,10 @@ export default defineComponent({
             return $
         }
 
-        // 获取已配置的人脸库分组
+        /**
+         * @description 获取已配置的人脸库分组
+         * @returns {XMLQuery} $
+         */
         const getFaceMatchData = async () => {
             const result = await queryCombinedAlarmFaceMatch()
             const $ = queryXml(result)
@@ -126,6 +127,9 @@ export default defineComponent({
             return $
         }
 
+        /**
+         * @description 获取数据
+         */
         const getData = async () => {
             editRows.clear()
             openLoading()
@@ -261,11 +265,18 @@ export default defineComponent({
             })
         }
 
-        // 名称修改时的处理
+        /**
+         * @description 修改名称前记录原名
+         * @param {string} name
+         */
         const focusName = (name: string) => {
             originalName.value = name
         }
 
+        /**
+         * @description 失焦校验修改名称
+         * @param {AlarmCombinedDto} row
+         */
         const blurName = (row: AlarmCombinedDto) => {
             const name = row.name
             if (!checkChlName(name)) {
@@ -287,7 +298,10 @@ export default defineComponent({
             }
         }
 
-        // 组合报警弹窗打开
+        /**
+         * @description 组合报警弹窗打开
+         * @param {AlarmCombinedDto} row
+         */
         const openCombinedAlarmPop = (row: AlarmCombinedDto) => {
             pageData.value.combinedAlarmLinkedId = row.id
             pageData.value.combinedAlarmLinkedList = row.combinedAlarm.item
@@ -295,6 +309,13 @@ export default defineComponent({
             pageData.value.isCombinedAlarmPop = true
         }
 
+        /**
+         * @description 确认组合报警配置回调
+         * @param {string} currId
+         * @param {AlarmCombinedItemDto} combinedAlarmItems
+         * @param {string} entity
+         * @param {AlarmCombinedFaceMatchDto} obj
+         */
         const confirmCombinedAlarm = (currId: string, combinedAlarmItems: AlarmCombinedItemDto[], entity: string, obj?: AlarmCombinedFaceMatchDto) => {
             tableData.value.some((item) => {
                 if (item.id === currId) {
@@ -309,6 +330,10 @@ export default defineComponent({
             pageData.value.isCombinedAlarmPop = false
         }
 
+        /**
+         * @description 关闭组合报警配置弹窗
+         * @param {string} id
+         */
         const closeCombinedAlarmPop = (id: string) => {
             pageData.value.isCombinedAlarmPop = false
             tableData.value.forEach((item) => {
@@ -319,6 +344,10 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description 开关组合报警配置
+         * @param {AlarmCombinedDto} row
+         */
         const switchCombinedAlarm = (row: AlarmCombinedDto) => {
             if (row.combinedAlarm.switch) {
                 openCombinedAlarmPop(row)
@@ -328,6 +357,10 @@ export default defineComponent({
             changeCombinedAlarmInfo(row)
         }
 
+        /**
+         * @description 开关联动视频
+         * @param {number} index
+         */
         const switchRecord = (index: number) => {
             const row = tableData.value[index].record
             if (row.switch) {
@@ -337,12 +370,21 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 打开视频联动穿梭框
+         * @param {number} index
+         */
         const openRecord = (index: number) => {
             tableData.value[index].record.switch = true
             pageData.value.triggerDialogIndex = index
             pageData.value.isRecordPop = true
         }
 
+        /**
+         * @description 更新视频联动
+         * @param {number} index
+         * @param {SelectOption<string, string>[]} data
+         */
         const changeRecord = (index: number, data: SelectOption<string, string>[]) => {
             pageData.value.isRecordPop = false
             tableData.value[index].record = {
@@ -351,6 +393,10 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 开关抓图联动
+         * @param {number} index
+         */
         const switchSnap = (index: number) => {
             const row = tableData.value[index].snap
             if (row.switch) {
@@ -360,12 +406,21 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 打开抓图联动穿梭框
+         * @param {number} index
+         */
         const openSnap = (index: number) => {
             tableData.value[index].snap.switch = true
             pageData.value.triggerDialogIndex = index
             pageData.value.isSnapPop = true
         }
 
+        /**
+         * @description 更新抓图联动
+         * @param {number} index
+         * @param {SelectOption<string, string>[]} data
+         */
         const changeSnap = (index: number, data: SelectOption<string, string>[]) => {
             pageData.value.isSnapPop = false
             tableData.value[index].snap = {
@@ -374,6 +429,10 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 开关报警输出
+         * @param {number} index
+         */
         const switchAlarmOut = (index: number) => {
             const row = tableData.value[index].alarmOut
             if (row.switch) {
@@ -383,12 +442,21 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 打开报警输出穿梭框
+         * @param {number} index
+         */
         const openAlarmOut = (index: number) => {
             tableData.value[index].alarmOut.switch = true
             pageData.value.triggerDialogIndex = index
             pageData.value.isAlarmOutPop = true
         }
 
+        /**
+         * @description 更新报警输出联动
+         * @param {number} index
+         * @param {SelectOption<string, string>[]} data
+         */
         const changeAlarmOut = (index: number, data: SelectOption<string, string>[]) => {
             pageData.value.isAlarmOutPop = false
             tableData.value[index].alarmOut = {
@@ -397,6 +465,10 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 开关预置点
+         * @param {number} index
+         */
         const switchPreset = (index: number) => {
             const row = tableData.value[index].preset
             if (row.switch) {
@@ -406,12 +478,21 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 打开预置点弹窗
+         * @param {number} index
+         */
         const openPreset = (index: number) => {
             tableData.value[index].alarmOut.switch = true
             pageData.value.triggerDialogIndex = index
             pageData.value.isPresetPop = true
         }
 
+        /**
+         * @description 更新预置点
+         * @param {number} index
+         * @param {AlarmPresetItem[]} data
+         */
         const changePreset = (index: number, data: AlarmPresetItem[]) => {
             pageData.value.isPresetPop = false
             tableData.value[index].preset = {
@@ -420,6 +501,10 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description
+         * @param {AlarmCombinedDto} row
+         */
         const changeCombinedAlarmInfo = (row: AlarmCombinedDto) => {
             let info = ''
             row.combinedAlarm.item.forEach((item, index) => {
@@ -431,7 +516,7 @@ export default defineComponent({
             if (info) {
                 info = info.slice(0, -3)
             }
-            pageData.value.CombinedALarmInfo = info
+            pageData.value.combinedALarmInfo = info
         }
 
         /**
@@ -446,6 +531,11 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description
+         * @param {AlarmCombinedDto} row
+         * @returns {string}
+         */
         const getSavaData = (row: AlarmCombinedDto) => {
             const sendXml = rawXml`
                 <content type='list'>
@@ -517,6 +607,9 @@ export default defineComponent({
             return sendXml
         }
 
+        /**
+         * @description 提交数据
+         */
         const setData = async () => {
             openLoading()
 
@@ -656,7 +749,6 @@ export default defineComponent({
             switchPreset,
             openPreset,
             changePreset,
-            // 表头改变属性
             changeAllValue,
             setData,
             editRows,

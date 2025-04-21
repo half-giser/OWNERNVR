@@ -33,10 +33,6 @@ export default defineComponent({
             endTime: '',
         })
 
-        const startTime = computed(() => formData.value.startTime)
-        const endTime = computed(() => formData.value.endTime)
-        const pickerRange = useTimePickerRange(startTime, endTime)
-
         /**
          * @property 打开表单时 重置表单数据
          */
@@ -71,8 +67,6 @@ export default defineComponent({
             close,
             formData,
             open,
-            dateTime,
-            pickerRange,
         }
     },
 })

@@ -5,7 +5,7 @@
 -->
 <template>
     <div class="base-flex-box">
-        <el-form>
+        <el-form class="stripe">
             <el-form-item>
                 <el-checkbox
                     v-model="formData.switch"
@@ -33,6 +33,7 @@
                 v-title
                 flexible
                 :data="tableData"
+                show-overflow-tooltip
             >
                 <el-table-column :label="Translate('IDCS_ENABLE')">
                     <template #default="{ row }: TableColumn<UserEditBlackAllowListForm>">

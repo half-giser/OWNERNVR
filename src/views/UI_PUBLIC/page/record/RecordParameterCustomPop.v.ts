@@ -29,7 +29,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const dateTime = useDateTimeStore()
 
-        const week = objectToOptions(getTranslateMapping(DEFAULT_WEEK_MAPPING2), 'number').slice(1)
+        const week = objectToOptions(getTranslateMapping(DEFAULT_WEEK_MAPPING2), 'number')
 
         const pageData = ref({
             expireTime: undefined as number | undefined,

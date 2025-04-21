@@ -10,69 +10,68 @@
         @open="open"
         @closed="formRef?.resetFields()"
     >
-        <div>
-            <el-form
-                ref="formRef"
-                v-title
-                :model="formData"
-                :rules="rules"
+        <el-form
+            ref="formRef"
+            v-title
+            :model="formData"
+            :rules="rules"
+            class="stripe"
+        >
+            <el-form-item
+                :label="Translate('IDCS_RAID_NAME')"
+                prop="name"
             >
-                <el-form-item
-                    :label="Translate('IDCS_RAID_NAME')"
-                    prop="name"
+                <el-input
+                    v-model="formData.name"
+                    :maxlength="15"
+                    :formatter="formatChar"
+                    :parser="formatChar"
+                />
+            </el-form-item>
+            <el-form-item
+                :label="Translate('IDCS_RAID_TYPE')"
+                prop="type"
+            >
+                <el-select-v2
+                    v-model="formData.type"
+                    :options="raidType"
+                    @change="getRaidCapacity"
+                />
+            </el-form-item>
+            <el-form-item :label="Translate('IDCS_PHYSICAL_DISK')">
+                <el-checkbox-group
+                    v-model="formData.diskId"
+                    @change="getRaidCapacity"
                 >
-                    <el-input
-                        v-model="formData.name"
-                        :maxlength="15"
-                        :formatter="formatChar"
-                        :parser="formatChar"
+                    <el-checkbox
+                        v-for="item in diskOptions"
+                        :key="item.id"
+                        :value="item.id"
+                        :label="item.slotIndex"
                     />
-                </el-form-item>
-                <el-form-item
-                    :label="Translate('IDCS_RAID_TYPE')"
-                    prop="type"
-                >
-                    <el-select-v2
-                        v-model="formData.type"
-                        :options="raidType"
-                        @change="getRaidCapacity"
-                    />
-                </el-form-item>
-                <el-form-item :label="Translate('IDCS_PHYSICAL_DISK')">
-                    <el-checkbox-group
-                        v-model="formData.diskId"
-                        @change="getRaidCapacity"
+                </el-checkbox-group>
+            </el-form-item>
+            <el-form-item :label="Translate('IDCS_GLOBAL_HOT_STANDBY')">
+                <template v-if="hotDisks.length">
+                    <span
+                        v-for="item in hotDisks"
+                        :key="item.id"
+                        class="hot-disk"
                     >
-                        <el-checkbox
-                            v-for="item in diskOptions"
-                            :key="item.id"
-                            :value="item.id"
-                            :label="item.slotIndex"
-                        />
-                    </el-checkbox-group>
-                </el-form-item>
-                <el-form-item :label="Translate('IDCS_GLOBAL_HOT_STANDBY')">
-                    <template v-if="hotDisks.length">
-                        <span
-                            v-for="item in hotDisks"
-                            :key="item.id"
-                            class="hot-disk"
-                        >
-                            {{ item.slotIndex }}
-                        </span>
-                    </template>
-                    <el-text v-else>{{ Translate('IDCS_NULL') }}</el-text>
-                </el-form-item>
-                <el-form-item :label="Translate('IDCS_RAID_SPACE')">
-                    {{ formData.space }}
-                </el-form-item>
-            </el-form>
-            <BaseCheckAuthPop
-                v-model="pageData.isCheckAuth"
-                @close="pageData.isCheckAuth = false"
-                @confirm="confirmCreateRaid"
-            />
-        </div>
+                        {{ item.slotIndex }}
+                    </span>
+                </template>
+                <el-text v-else>{{ Translate('IDCS_NULL') }}</el-text>
+            </el-form-item>
+            <el-form-item :label="Translate('IDCS_RAID_SPACE')">
+                {{ formData.space }}
+            </el-form-item>
+        </el-form>
+        <BaseCheckAuthPop
+            v-model="pageData.isCheckAuth"
+            @close="pageData.isCheckAuth = false"
+            @confirm="confirmCreateRaid"
+        />
         <div class="base-btn-box">
             <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
             <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>

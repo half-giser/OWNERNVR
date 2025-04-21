@@ -11,9 +11,6 @@
             class="stripe"
             :model="formData"
             :rules="formRule"
-            :style="{
-                '--form-input-width': '200px',
-            }"
         >
             <el-form-item>
                 <el-checkbox

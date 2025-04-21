@@ -77,11 +77,6 @@ export default defineComponent({
             ],
         })
 
-        const pageData = ref({
-            // 是否显示密码
-            showPassword: false,
-        })
-
         /**
          * @description 验证表单后，关闭弹窗
          */
@@ -119,7 +114,6 @@ export default defineComponent({
             formData,
             formRule,
             formRef,
-            pageData,
             open,
             verify,
             close,

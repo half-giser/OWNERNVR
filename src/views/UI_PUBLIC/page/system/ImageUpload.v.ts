@@ -263,7 +263,6 @@ export default defineComponent({
             pageData,
             tableRef,
             tableData,
-            dateTime,
             getRowKey,
             // 展开行
             handleExpandChange,

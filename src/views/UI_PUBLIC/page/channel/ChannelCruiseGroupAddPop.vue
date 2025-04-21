@@ -6,7 +6,7 @@
 <template>
     <el-dialog
         :title="Translate('IDCS_ADD_CRUISE')"
-        width="500"
+        width="400"
         @open="open"
         @closed="formRef?.resetFields()"
     >
@@ -16,7 +16,10 @@
             :rules="formRule"
             :model="formData"
         >
-            <el-form-item prop="name">
+            <el-form-item
+                prop="name"
+                :label="Translate('IDCS_CRUISE_NAME')"
+            >
                 <el-select-v2
                     v-model="formData.name"
                     :options="pageData.cruiseOptions"

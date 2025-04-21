@@ -13,23 +13,23 @@
             :name="pageTabs[0].name"
             :label="pageTabs[0].label"
         >
-            <el-radio-group v-model="pageData.ipcAudioTab">
-                <el-radio-button
-                    value="audioAlarm"
-                    :label="Translate('IDCS_IPC_VOICE_BROADCAST')"
-                />
-                <el-radio-button
-                    value="audioDevice"
-                    :label="Translate('IDCS_AUDIO_DEVICE')"
-                />
-            </el-radio-group>
+            <el-form>
+                <el-form-item>
+                    <el-radio-group v-model="pageData.ipcAudioTab">
+                        <el-radio-button
+                            value="audioAlarm"
+                            :label="Translate('IDCS_IPC_VOICE_BROADCAST')"
+                        />
+                        <el-radio-button
+                            value="audioDevice"
+                            :label="Translate('IDCS_AUDIO_DEVICE')"
+                        />
+                    </el-radio-group>
+                </el-form-item>
+            </el-form>
             <el-form
                 v-title
                 class="stripe"
-                :style="{
-                    '--form-input-width': '215px',
-                    '--form-label-width': '220px',
-                }"
             >
                 <!-- 语音播报 -->
                 <template v-if="pageData.ipcAudioTab === 'audioAlarm'">
@@ -202,25 +202,19 @@
                     </el-form-item>
                 </template>
             </el-form>
-            <el-form
-                v-title
-                :style="{
-                    '--form-input-width': '215px',
-                    '--form-label-width': '220px',
-                }"
-            >
+            <el-form v-title>
                 <!-- 排程 -->
-                <div class="base-subheading-box">{{ Translate('IDCS_AUDIO_LINK_SCHEDULE') }}</div>
+                <div class="base-head-box">{{ Translate('IDCS_AUDIO_LINK_SCHEDULE') }}</div>
                 <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
-                    <el-select-v2
+                    <BaseScheduleSelect
                         v-model="pageData.schedule"
                         :options="pageData.scheduleList"
                         @change="pageData.isScheduleChanged = true"
+                        @edit="pageData.isSchedulePop = true"
                     />
-                    <el-button @click="pageData.isSchedulePop = true">{{ Translate('IDCS_MANAGE') }}</el-button>
                 </el-form-item>
                 <el-form-item>
-                    <span class="ipcAudioTips">*{{ Translate('IDCS_AUDIO_LINK_SCHEDULE_TIPS') }}</span>
+                    <span class="text-tips">*{{ Translate('IDCS_AUDIO_LINK_SCHEDULE_TIPS') }}</span>
                 </el-form-item>
                 <div class="base-btn-box">
                     <el-button

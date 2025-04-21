@@ -35,7 +35,7 @@ export default defineComponent({
             // 当前选中的阵列
             activeIndex: -1,
             // 磁盘阵列重建弹窗弹窗
-            isRebuild: false,
+            isRebuild: true,
         })
 
         // 当前选中的阵列
