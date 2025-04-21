@@ -112,6 +112,7 @@
             }"
             append-to-body
             @close="pageData.isAddPlatePop = false"
+            @confirm="pageData.isAddPlatePop = false"
         />
         <div class="base-btn-box space-between">
             <div>
