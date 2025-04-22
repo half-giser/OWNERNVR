@@ -41,9 +41,9 @@ export default defineComponent({
                 }
             }),
             // 系统时间最小值
-            serverTimeStart: dayjs('2021-01-01', { jalali: false, format: DEFAULT_DATE_FORMAT }),
+            // serverTimeStart: dayjs('2010-01-01', { jalali: false, format: DEFAULT_DATE_FORMAT }),
             // 系统时间最大值
-            serverTimeEnd: dayjs('2037-01-01', { jalali: false, format: DEFAULT_DATE_FORMAT }),
+            // serverTimeEnd: dayjs('2037-12-31', { jalali: false, format: DEFAULT_DATE_FORMAT }),
             // 是否可提交
             submitDisabled: true,
             // 系统时间改变标识
@@ -57,6 +57,11 @@ export default defineComponent({
         let isTimePickerChange = false
         let currentTimezone = ''
         let currentDST = false
+
+        // 系统时间最小值
+        const SERVER_START_TIME = dayjs('2010-01-01', { jalali: false, format: DEFAULT_DATE_FORMAT })
+        // 系统时间最大值
+        const SERVER_END_TIME = dayjs('2037-12-31', { jalali: false, format: DEFAULT_DATE_FORMAT })
 
         // 显示时间格式
         const formatSystemTime = computed(() => {
@@ -158,14 +163,14 @@ export default defineComponent({
             currentDST = formData.value.enableDST
 
             let currentDate = dayjs($('content/synchronizeInfo/currentTime').text().trim(), { jalali: false, format: formatSystemTime.value })
-            if (currentDate.isBefore(pageData.value.serverTimeStart)) {
-                currentDate = pageData.value.serverTimeStart
-            } else if (currentDate.isAfter(pageData.value.serverTimeEnd)) {
-                currentDate = pageData.value.serverTimeEnd
+            if (currentDate.isBefore(SERVER_START_TIME)) {
+                currentDate = SERVER_START_TIME
+            } else if (currentDate.isAfter(SERVER_END_TIME)) {
+                currentDate = SERVER_END_TIME
             }
 
             nextTick(() => {
-                formData.value.systemTime = dayjs(currentDate).calendar('gregory').format(formatSystemTime.value)
+                formData.value.systemTime = currentDate.calendar('gregory').format(formatSystemTime.value)
                 pageData.value.startTime = performance.now()
                 pageData.value.systemTime = formData.value.systemTime
                 clock()

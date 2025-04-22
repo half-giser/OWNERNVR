@@ -231,7 +231,7 @@ const props = withDefaults(
          */
         placeholder?: string
         /**
-         * @property 日期可选范围 YYYY-MM-DD
+         * @property 日期可选范围(包含) YYYY-MM-DD
          */
         range?: [string, string]
     }>(),
@@ -240,7 +240,7 @@ const props = withDefaults(
         disabled: false,
         placeholder: '',
         type: 'date',
-        range: () => ['0000-01-01', '9999-12-31'],
+        range: () => ['2010-01-01', '2037-12-31'],
     },
 )
 
