@@ -25,6 +25,7 @@
             >
                 <template #default="{ row }: TableColumn<SelectOption<string, string>>">
                     <el-select-v2
+                        :key="key"
                         :model-value="selected[row.value]"
                         :options="pageData.presetList[row.value]"
                         @visible-change="getPresetList(row)"

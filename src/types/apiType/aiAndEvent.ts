@@ -298,19 +298,6 @@ export class AlarmPresetItem {
     }
 }
 
-export class AlarmPresetList {
-    id = ''
-    name = ''
-    chlType = ''
-    preset = {
-        value: '',
-        label: '',
-    }
-    presetList: SelectOption<string, string>[] = []
-    // 在点击select获取option数据，阻止重复获取请求
-    isGetPresetList = false
-}
-
 /**
  * @description: 组合报警
  */

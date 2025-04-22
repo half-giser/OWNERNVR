@@ -153,7 +153,6 @@ export default defineComponent({
             }
         })
 
-        // 修改越界播放器速度
         /**
          * @description 修改速度
          * @param {Number} speed
@@ -162,7 +161,9 @@ export default defineComponent({
             pageData.value.tripWirespeed = speed
         }
 
-        // 关闭排程管理后刷新排程列表
+        /**
+         * @description 关闭排程管理后刷新排程列表
+         */
         const closeSchedulePop = async () => {
             pageData.value.isSchedulePop = false
             await getScheduleList()
@@ -174,7 +175,9 @@ export default defineComponent({
             return !props.chlData.supportTripwire && !props.chlData.supportBackTripwire && props.chlData.supportPeaTrigger
         })
 
-        // 获取越界检测数据
+        /**
+         * @description 获取越界检测配置
+         */
         const getTripwireData = async () => {
             openLoading()
 
@@ -378,7 +381,9 @@ export default defineComponent({
             }
         }
 
-        // 保存越界检测数据
+        /**
+         * @description 保存越界检测配置
+         */
         const saveData = async () => {
             let paramXml = ''
             if (!supportPeaTrigger.value) {
@@ -503,7 +508,9 @@ export default defineComponent({
             }
         }
 
-        // 执行保存tripwire数据
+        /**
+         * @description 执行保存配置，检查互斥通道
+         */
         const applyData = () => {
             if (!props.chlData.supportTripwire && !props.chlData.supportBackTripwire && props.chlData.supportPeaTrigger) {
                 saveData()
@@ -522,12 +529,16 @@ export default defineComponent({
             }
         }
 
-        // 对sheduleList进行处理
+        /**
+         * @description 获取排程列表
+         */
         const getScheduleList = async () => {
             pageData.value.scheduleList = await buildScheduleList()
         }
 
-        // tripwire tab点击事件
+        /**
+         * @description Tab切换
+         */
         const changeTab = async () => {
             if (pageData.value.tab === 'param') {
                 if (mode.value === 'h5') {
@@ -565,7 +576,9 @@ export default defineComponent({
             }
         }
 
-        // tripwire刷新页面数据
+        /**
+         * @description 刷新页面数据
+         */
         const refreshInitPage = () => {
             // 区域状态
             pageData.value.surfaceChecked = formData.value.lineInfo.map((lineInfo, index) => {
@@ -585,24 +598,32 @@ export default defineComponent({
             }
         }
 
-        // tripwire执行是否显示全部区域
+        /**
+         * @description 开关显示全部区域
+         */
         const toggleShowAllArea = () => {
             showAllArea(pageData.value.isShowAllArea)
         }
 
-        // tripWire选择警戒面
+        /**
+         * @description 切换警戒面
+         */
         const changeSurface = () => {
             formData.value.direction = formData.value.lineInfo[pageData.value.surfaceIndex].direction
             setTripwireOcxData()
         }
 
-        // tripwire选择方向
+        /**
+         * @description 切换方向
+         */
         const changeDirection = () => {
             formData.value.lineInfo[pageData.value.surfaceIndex].direction = formData.value.direction
             setTripwireOcxData()
         }
 
-        // 通用获取云台锁定状态
+        /**
+         * @description 获取云台锁定状态
+         */
         const getPTZLockStatus = async () => {
             const sendXML = rawXml`
                 <condition>
@@ -616,7 +637,9 @@ export default defineComponent({
             }
         }
 
-        // 通用修改云台锁定状态
+        /**
+         * @description 修改云台锁定状态
+         */
         const editLockStatus = () => {
             const sendXML = rawXml`
                 <content>
@@ -637,7 +660,10 @@ export default defineComponent({
             })
         }
 
-        // tripwire绘图
+        /**
+         * @description 绘制
+         * @param {CanvasPasslinePassline} passline
+         */
         const changeTripwire = (passline: CanvasPasslinePassline) => {
             const surface = pageData.value.surfaceIndex
             formData.value.lineInfo[surface].startPoint = {
@@ -654,7 +680,10 @@ export default defineComponent({
             refreshInitPage()
         }
 
-        // tripwire是否显示所有区域
+        /**
+         * @description 是否显示所有区域
+         * @param {boolean} isShowAll
+         */
         const showAllArea = (isShowAll: boolean) => {
             if (mode.value === 'h5') {
                 drawer.setEnableShowAll(isShowAll)
@@ -685,7 +714,9 @@ export default defineComponent({
             }
         }
 
-        // tripwire显示
+        /**
+         * @description 显示OCX
+         */
         const setTripwireOcxData = () => {
             if (pageData.value.tab === 'param') {
                 const surface = pageData.value.surfaceIndex
@@ -713,7 +744,9 @@ export default defineComponent({
             }
         }
 
-        // 清空当前区域
+        /**
+         * @description 清空当前区域
+         */
         const clearArea = () => {
             if (mode.value === 'h5') {
                 drawer.clear()
@@ -736,7 +769,9 @@ export default defineComponent({
             drawer.clear()
         }
 
-        // 清空所有区域
+        /**
+         * @description 清空所有区域
+         */
         const clearAllArea = () => {
             formData.value.lineInfo.forEach((lineInfo) => {
                 lineInfo.startPoint = {
