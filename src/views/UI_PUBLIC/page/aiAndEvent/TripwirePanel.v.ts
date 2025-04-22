@@ -307,7 +307,7 @@ export default defineComponent({
                     formData.value.saveSourcePicture = $param('saveSourcePicture').text().bool()
                     formData.value.onlyPreson = $param('sensitivity').text() !== ''
                     // NTA1-231：低配版IPC：4M S4L-C，越界/区域入侵目标类型只支持人
-                    formData.value.onlyPersonSensitivity = formData.value.onlyPreson ? $param('sensitivity').text().num() : 0
+                    formData.value.sensitivity = formData.value.onlyPreson ? $param('sensitivity').text().num() : 0
                     formData.value.hasObj = $param('objectFilter').text() !== ''
                     if (formData.value.hasObj) {
                         const car = $param('objectFilter/car/switch').text().bool()
@@ -386,7 +386,7 @@ export default defineComponent({
                     <param>
                         <switch>${formData.value.detectionEnable}</switch>
                         <alarmHoldTime unit="s">${formData.value.holdTime}</alarmHoldTime>
-                        ${formData.value.onlyPreson ? `<sensitivity>${formData.value.onlyPersonSensitivity}</sensitivity>` : ''}
+                        ${formData.value.onlyPreson ? `<sensitivity>${formData.value.sensitivity}</sensitivity>` : ''}
                         ${
                             formData.value.hasObj
                                 ? rawXml`

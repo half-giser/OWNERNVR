@@ -353,9 +353,9 @@ export default defineComponent({
             areaData.pictureAvailable = $param('saveTargetPicture').text() !== ''
             areaData.saveTargetPicture = $param('saveTargetPicture').text().bool()
             areaData.saveSourcePicture = $param('saveSourcePicture').text().bool()
-            areaData.pea_onlyPreson = $param('sensitivity').text() !== ''
+            areaData.onlyPerson = $param('sensitivity').text() !== ''
             // NTA1-231：低配版IPC：4M S4L-C，越界/区域入侵目标类型只支持人
-            areaData.onlyPersonSensitivity = formData.value[activityType].pea_onlyPreson ? $('sensitivity').text().num() : 0
+            areaData.sensitivity = formData.value[activityType].onlyPerson ? $('sensitivity').text().num() : 0
             areaData.hasObj = $param('objectFilter').text() !== ''
             if (areaData.hasObj) {
                 areaData.car = $param('objectFilter/car/switch').text().bool()
@@ -469,7 +469,7 @@ export default defineComponent({
                                                     : ''
                                             }
                                             ${data.hasAutoTrack ? `<autoTrack>${data.autoTrack}</autoTrack>` : ''}
-                                            ${data.pea_onlyPreson ? `<sensitivity>${data.onlyPersonSensitivity}</sensitivity>` : ''}
+                                            ${data.onlyPerson ? `<sensitivity>${data.sensitivity}</sensitivity>` : ''}
                                             ${
                                                 data.hasObj
                                                     ? rawXml`

@@ -128,7 +128,6 @@
                                                 v-model="detectionFormData.faceExpStrength"
                                                 :disabled="detectionPageData.faceExpDisabled"
                                                 :min="1"
-                                                :max="100"
                                             />
                                         </el-form-item>
                                         <!-- 人脸大小(范围：3%~50%) -->

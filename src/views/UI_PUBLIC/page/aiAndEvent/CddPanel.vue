@@ -83,7 +83,10 @@
                                 </el-form-item>
                                 <!-- 报警阈值 -->
                                 <el-form-item :label="Translate('IDCS_ALARM_THRESHOLD')">
-                                    <BaseSliderInput v-model="formData.triggerAlarmLevel" />
+                                    <BaseSliderInput
+                                        v-model="formData.triggerAlarmLevel"
+                                        :min="1"
+                                    />
                                 </el-form-item>
                             </el-form>
                         </div>

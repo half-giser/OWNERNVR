@@ -521,9 +521,9 @@ export class AlarmPeaDto {
     mutexList: AlarmMutexDto[] = []
     mutexListEx: AlarmMutexDto[] = []
     // 目标类型只支持人
-    pea_onlyPreson = false
+    onlyPerson = false
     // 只支持人的灵敏度
-    onlyPersonSensitivity = 0
+    sensitivity = 0
     // 检测目标
     hasObj = false
     person = false
@@ -572,7 +572,7 @@ export class AlarmTripwireDto {
     // 目标类型只支持人
     onlyPreson = false
     // 只支持人的灵敏度
-    onlyPersonSensitivity = 0
+    sensitivity = 0
     // 是否支持SD卡存储
     pictureAvailable = false
     // SD卡原图存储

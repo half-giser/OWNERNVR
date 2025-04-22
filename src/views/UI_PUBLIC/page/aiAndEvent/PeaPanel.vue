@@ -136,12 +136,15 @@
                                     </el-form-item>
                                     <!-- 只支持人的灵敏度 -->
                                     <el-form-item
-                                        v-if="formData[pageData.activityType].pea_onlyPreson"
+                                        v-if="formData[pageData.activityType].onlyPerson"
                                         :label="Translate('IDCS_SENSITIVITY')"
                                     >
-                                        <BaseSliderInput v-model="formData[pageData.activityType].onlyPersonSensitivity" />
+                                        <BaseSliderInput
+                                            v-model="formData[pageData.activityType].sensitivity"
+                                            :min="1"
+                                        />
                                     </el-form-item>
-                                    <el-form-item v-if="formData[pageData.activityType].pea_onlyPreson">
+                                    <el-form-item v-if="formData[pageData.activityType].onlyPerson">
                                         {{ Translate('IDCS_DETECTION_ONLY_ONE_OBJECT').formatForLang(Translate('IDCS_BEYOND_DETECTION'), Translate('IDCS_DETECTION_PERSON')) }}
                                     </el-form-item>
                                     <!-- 云台 -->
@@ -172,7 +175,7 @@
                     </el-tab-pane>
                     <!-- 检测目标 -->
                     <el-tab-pane
-                        v-if="!formData[pageData.activityType].pea_onlyPreson"
+                        v-if="!formData[pageData.activityType].onlyPerson"
                         :label="Translate('IDCS_DETECTION_TARGET')"
                         name="target"
                     >

@@ -69,7 +69,6 @@
                             <BaseSliderInput
                                 v-model="formData.sensitivity"
                                 :min="1"
-                                :max="100"
                             />
                         </el-form-item>
                     </el-form>

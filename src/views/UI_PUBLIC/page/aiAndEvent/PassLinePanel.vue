@@ -255,15 +255,24 @@
                                     </el-form-item>
                                     <!-- 进入阈值 -->
                                     <el-form-item :label="Translate('IDCS_ENTER_NUMBER')">
-                                        <BaseNumberInput v-model="formData.crossInAlarmNumValue" />
+                                        <BaseNumberInput
+                                            v-model="formData.crossInAlarmNumValue"
+                                            :min="1"
+                                        />
                                     </el-form-item>
                                     <!-- 离开阈值 -->
                                     <el-form-item :label="Translate('IDCS_LEAVE_NUMBER')">
-                                        <BaseNumberInput v-model="formData.crossOutAlarmNumValue" />
+                                        <BaseNumberInput
+                                            v-model="formData.crossOutAlarmNumValue"
+                                            :min="1"
+                                        />
                                     </el-form-item>
                                     <!-- 滞留阈值 -->
                                     <el-form-item :label="Translate('IDCS_STRANDED_NUMBER')">
-                                        <BaseNumberInput v-model="formData.twoWayDiffAlarmNumValue" />
+                                        <BaseNumberInput
+                                            v-model="formData.twoWayDiffAlarmNumValue"
+                                            :min="1"
+                                        />
                                     </el-form-item>
                                     <div class="base-ai-subheading">
                                         {{ Translate('IDCS_RESET_INFO') }}

@@ -133,7 +133,10 @@
                                     v-if="formData.onlyPreson"
                                     :label="Translate('IDCS_SENSITIVITY')"
                                 >
-                                    <BaseSliderInput v-model="formData.onlyPersonSensitivity" />
+                                    <BaseSliderInput
+                                        v-model="formData.sensitivity"
+                                        :min="1"
+                                    />
                                 </el-form-item>
                                 <el-form-item
                                     v-if="formData.onlyPreson"
