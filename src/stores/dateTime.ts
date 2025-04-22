@@ -34,8 +34,6 @@ export const useDateTimeStore = defineStore('dateTime', () => {
         '12': 'hh:mm A',
     }
 
-    const ready = ref(false)
-
     // 日期格式
     const dateFormat = ref('YYYY/MM/DD')
     // 时间格式
@@ -60,11 +58,7 @@ export const useDateTimeStore = defineStore('dateTime', () => {
      * @description 获取时间格式化配置
      * @param {boolean} force 是否强制刷新日期格式化配置
      */
-    const getTimeConfig = async (force = false) => {
-        if (!force && ready.value) {
-            return
-        }
-        // try {
+    const getTimeConfig = async () => {
         const result = await queryTimeCfg()
         const $ = queryXml(result)
         if ($('status').text() === 'success') {
@@ -79,9 +73,7 @@ export const useDateTimeStore = defineStore('dateTime', () => {
             timeMode.value = time
             systemTime = dayjs($('content/synchronizeInfo/currentTime').text(), { format: dateTimeFormat.value, jalali: false })
             localTime = performance.now()
-            ready.value = true
         }
-        // } catch(e) {}
         return $
     }
 
