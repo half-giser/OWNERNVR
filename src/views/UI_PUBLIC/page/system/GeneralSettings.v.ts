@@ -314,7 +314,7 @@ export default defineComponent({
                 </types>
                 <content>
                     <name maxByteLen="63">${wrapCDATA(formData.value.deviceName)}</name>
-                    <deviceNumber>${formData.value.deviceNumber}</deviceNumber>
+                    <deviceNumber>${Number(formData.value.deviceNumber)}</deviceNumber>
                     <videoType type="videoType">${formData.value.videoFormat}</videoType>
                     <hdmivgaParam type="hdmivgaParam">${formData.value.outputConfig}</hdmivgaParam>
                     <resolution>

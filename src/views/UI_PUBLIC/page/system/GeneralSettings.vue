@@ -31,6 +31,7 @@
                     v-model="formData.deviceNumber"
                     :min="0"
                     :max="99999"
+                    :value-on-clear="null"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_VIDEO_FORMAT')">

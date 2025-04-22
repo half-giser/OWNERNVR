@@ -95,7 +95,6 @@
                             :disabled="!alarmOutList[pageData.alarmOutIndex].audioSwitch || alarmOutList[pageData.alarmOutIndex].alarmTimesDisabled"
                             :min="1"
                             :max="50"
-                            value-on-clear="min"
                         />
                     </el-form-item>
                     <!-- 音量 -->
@@ -105,7 +104,6 @@
                             :disabled="!alarmOutList[pageData.alarmOutIndex].audioSwitch || alarmOutList[pageData.alarmOutIndex].audioVolumeDisabled"
                             :min="0"
                             :max="100"
-                            value-on-clear="min"
                             @change="changeAudioVolume"
                         />
                     </el-form-item>
