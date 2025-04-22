@@ -303,7 +303,11 @@
                                         prop="name"
                                         :label="Translate('IDCS_FACE_LIBRARY_GROUP')"
                                         show-overflow-tooltip
-                                    />
+                                    >
+                                        <template #default="{ row }: TableColumn<AlarmFaceGroupDto>">
+                                            <span>{{ row.name }} ({{ row.count }})</span>
+                                        </template>
+                                    </el-table-column>
                                     <el-table-column>
                                         <template #header>
                                             <el-popover

@@ -433,8 +433,10 @@ export class AlarmFaceMatchDto {
  */
 export class AlarmFaceGroupDto {
     guid = ''
+    groupId = ''
     name = ''
     similarity = 75
+    count = 0
 }
 
 /**
