@@ -199,6 +199,7 @@ export default defineComponent({
             formData.value.deviceName = $('content/name').text()
             formData.value.deviceNumber = $('content/deviceNumber').text().num()
             formData.value.enableAutoDwell = $('content/autoDwell').text().bool()
+            formData.value.mobileStreamAdaption = $('content/mobileStreamAdaption').text().bool()
 
             formData.value.waitTime = $('content/autoDwellWaitTime').text().num()
             pageData.value.waitTimeOption = $('types/autoDwellWaitTime/enum').map((item) => {
