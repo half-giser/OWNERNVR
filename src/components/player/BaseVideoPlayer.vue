@@ -33,26 +33,6 @@
             @dragover="handleDragOver($event)"
             @drop="handleDrop(key)"
         >
-            <!-- 视频丢失提示层
-                （VideoLossLogo.png存在时显示videoloss-wrap：Logo+错误码，
-                否则只显示error-tips-info：错误码） 
-            -->
-            <div
-                v-if="isVideoLossWrap"
-                v-show="item.isVideolossWrapVisible"
-                class="videoloss"
-                :style="{
-                    zIndex: item.isVideolossWrapVisible ? 2 : 0,
-                }"
-            >
-                <!-- 视频丢失logo -->
-                <img
-                    class="videoloss-logo"
-                    :src="lossLogo"
-                />
-                <!-- 视频丢失logo下方显示错误码 -->
-                <div class="videoloss-tips">{{ item.videolossText }}</div>
-            </div>
             <div class="play">
                 <canvas class="play-canvas"></canvas>
             </div>
@@ -154,6 +134,26 @@
                 <div class="error-chl-name">{{ item.errorTipsChlName }}</div>
                 <!-- 播放错误码提示层 -->
                 <div class="error-tips">{{ item.errorTipsText === 'none' ? '' : item.errorTipsText }}</div>
+            </div>
+            <!-- 视频丢失提示层
+                （VideoLossLogo.png存在时显示videoloss-wrap：Logo+错误码，
+                否则只显示error-tips-info：错误码） 
+            -->
+            <div
+                v-if="isVideoLossWrap"
+                v-show="item.isVideolossWrapVisible"
+                class="videoloss"
+                :style="{
+                    zIndex: item.isVideolossWrapVisible ? 2 : 0,
+                }"
+            >
+                <!-- 视频丢失logo -->
+                <img
+                    class="videoloss-logo"
+                    :src="lossLogo"
+                />
+                <!-- 视频丢失logo下方显示错误码 -->
+                <div class="videoloss-tips">{{ item.videolossText }}</div>
             </div>
         </div>
         <div
@@ -1451,14 +1451,18 @@ const tryToGetVideoLossLogo = (showVideoLoss: boolean) => {
         isVideoLossWrap.value = showVideoLoss
         return
     }
+
     const img = new Image()
+
     img.onload = () => {
+        isVideoLossWrap.value = true
         lossLogo.value = '/VideoLossLogo.png'
     }
 
     img.onerror = () => {
         isVideoLossWrap.value = false
     }
+
     img.src = '/VideoLossLogo.png'
 }
 
@@ -1598,7 +1602,13 @@ const setZoomCallback = (winIndex: number, left: number, bottom: number, width: 
     playerList[winIndex]?.setWebGL(left, bottom, width, height)
 }
 
-// 设置3D功能
+/**
+ * @description 设置3D功能
+ * @param {number} winIndex
+ * @param {string} zoom3DType
+ * @param {Function} callback
+ * @param {Record<string, number> | boolean} obj
+ */
 const setMagnify3D = (winIndex: number, zoom3DType: string, callback: () => void, obj: { dx: number; dy: number; zoom: number } | false) => {
     if (playerList[winIndex]) {
         const data = {
