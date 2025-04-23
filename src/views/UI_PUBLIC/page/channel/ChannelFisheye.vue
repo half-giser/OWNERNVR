@@ -28,7 +28,6 @@
                         v-model="formData.fishEyeMode"
                         :disabled="formData.disabled || formData.reqCfgFail"
                         :options="fishEyeModeOption"
-                        @change="handleChangeVal()"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_FISHEYE_MODE')">
@@ -36,15 +35,21 @@
                         v-model="formData.installType"
                         :disabled="formData.disabled || formData.reqCfgFail"
                         :options="installTypeOption"
-                        @change="handleChangeVal()"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_ENABLE')">
                     <el-select-v2
+                        v-if="!formData.reqCfgFail"
+                        model-value=""
+                        :options="[]"
+                        disabled
+                    />
+                    <el-select-v2
+                        v-else
                         v-model="formData.fishEyeEnable"
-                        :disabled="!formData.reqCfgFail"
                         :options="switchOptions"
-                        @change="handleChangeVal(true)"
+                        :disabled="formData.isPrivateProtocol"
+                        @change="changeFishEyeEnabled(true)"
                     />
                 </el-form-item>
             </el-form>
@@ -103,7 +108,6 @@
                                 :disabled="row.disabled || row.reqCfgFail || row.HIKVISION"
                                 :options="fishEyeModeOption"
                                 @focus="handleRowClick(row)"
-                                @change="handleChangeVal()"
                             />
                         </template>
                     </el-table-column>
@@ -135,7 +139,6 @@
                                 :disabled="row.disabled || row.reqCfgFail || row.HIKVISION"
                                 :options="installTypeOption"
                                 @focus="handleRowClick(row)"
-                                @change="handleChangeVal()"
                             />
                         </template>
                     </el-table-column>
@@ -163,11 +166,18 @@
                         </template>
                         <template #default="{ row }: TableColumn<ChannelFisheyeDto>">
                             <el-select-v2
+                                v-if="!row.reqCfgFail"
+                                model-value=""
+                                :options="[]"
+                                disabled
+                            />
+                            <el-select-v2
+                                v-else
                                 v-model="row.fishEyeEnable"
-                                :disabled="!row.reqCfgFail || row.privateProtocol"
+                                :disabled="row.isPrivateProtocol"
                                 :options="switchOptions"
                                 @focus="handleRowClick(row)"
-                                @change="handleChangeVal(true)"
+                                @change="changeFishEyeEnabled(true)"
                             />
                         </template>
                     </el-table-column>

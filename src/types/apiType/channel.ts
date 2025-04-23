@@ -567,7 +567,7 @@ export class ChannelFisheyeDto extends TableRowStatus {
     fishEyeEnable = false
     supportFishEyeEnable = false
     HIKVISION = false
-    privateProtocol = false
+    isPrivateProtocol = false
     reqCfgFail = false
 }
 
