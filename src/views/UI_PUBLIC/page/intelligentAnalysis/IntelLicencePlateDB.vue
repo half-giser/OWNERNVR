@@ -140,7 +140,7 @@
                 <el-button @click="addGroup">{{ Translate('IDCS_ADD_GROUP') }}</el-button>
                 <el-button
                     v-show="!pageData.isExportDisabled"
-                    :disabled="!tableData.length"
+                    :disabled="isExportDisabled"
                     @click="exportGroup"
                 >
                     {{ Translate('IDCS_EXPORT') }}

@@ -60,6 +60,13 @@ export default defineComponent({
         const tableData = ref<IntelPlateDBGroupList[]>([])
         const groupTableData = ref<IntelPlateDBPlateInfo[]>([])
 
+        const isExportDisabled = computed(() => {
+            const total = tableData.value.reduce((a, b) => {
+                return a + b.plateNum
+            }, 0)
+            return !total
+        })
+
         /**
          * @description 检查是否有操作权限
          * @returns {boolean}
@@ -498,6 +505,7 @@ export default defineComponent({
             editGroup,
             deleteGroup,
             exportGroup,
+            isExportDisabled,
             confirmEditGroup,
             addPlate,
             editPlate,

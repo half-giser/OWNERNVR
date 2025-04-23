@@ -43,7 +43,7 @@ export default defineComponent({
             // 选中的行
             tableIndex: 0,
             // 导出按钮不显示
-            isExportDisabled: userSession.appType === 'P2P',
+            isExportVisible: userSession.appType === 'P2P' || isHttpsLogin(),
             // 是否显示导出提示弹窗
             isExportTipPop: false,
             // 是否显示导出弹窗
@@ -77,6 +77,13 @@ export default defineComponent({
         const groupTableData = ref<IntelFaceDBFaceInfo[]>([])
         // 当前展开项的所有人脸数据列表
         const allGroupTableData = ref<IntelFaceDBFaceInfo[]>([])
+
+        const isExportDisabled = computed(() => {
+            const total = tableData.value.reduce((a, b) => {
+                return a + b.count
+            }, 0)
+            return !total
+        })
 
         // const displayAlarmText = (property: string) => {
         //     const isAlarm = ['allow', 'reject', 'limited'].includes(property)
@@ -838,6 +845,7 @@ export default defineComponent({
             editFace,
             confirmEditFace,
             displayDate,
+            isExportDisabled,
         }
     },
 })
