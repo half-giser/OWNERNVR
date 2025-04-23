@@ -52,6 +52,7 @@ export default defineComponent({
     },
     setup(props) {
         const systemCaps = useCababilityStore()
+        const { Translate } = useLangStore()
         const playerRef = ref<PlayerInstance>()
 
         const directionTypeTip: Record<string, string> = {
@@ -105,6 +106,9 @@ export default defineComponent({
             return playerRef.value!.mode
         })
 
+        /**
+         * @description 播放器准备就绪回调
+         */
         const handlePlayerReady = () => {
             player = playerRef.value!.player
             plugin = playerRef.value!.plugin
@@ -505,6 +509,8 @@ export default defineComponent({
                 }
                 refreshInitPage()
                 watchEdit.update()
+            } else {
+                openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
             }
         }
 
