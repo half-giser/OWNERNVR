@@ -193,7 +193,7 @@ export default defineComponent({
                 mobile: data.mobile,
                 birthday: data.birthday,
                 pic: wrapBase64Img(pic),
-                date: dayjs(current.value.date, 'YYYY-MM-DD').valueOf(),
+                date: dayjs(current.value.date, DEFAULT_YMD_FORMAT).valueOf(),
             }
             router.push({
                 path: '/intelligent-analysis/search/search-face',

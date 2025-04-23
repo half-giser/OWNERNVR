@@ -91,7 +91,7 @@
                         v-for="(label, index) in pageData.tableData.label"
                         :key="label"
                         :label="label"
-                        width="80"
+                        min-width="80"
                     >
                         <template #default="{ row }: TableColumn<IntelStatsBarChartDataDto>">
                             <span :class="{ 'text-error': row.data[index] }">{{ row.data[index] }}</span>

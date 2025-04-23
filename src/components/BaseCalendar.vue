@@ -21,13 +21,12 @@
         </div>
         <div class="Calendar-body">
             <div
-                v-for="(row, key) in dateList"
+                v-for="row in dateList"
                 :key="row.format"
                 :style="{
                     gridTemplateRows: `repeat(${dateList.length / 7}, 1fr)`,
                 }"
                 :class="{
-                    weekend: userSession.calendarType !== 'Persian' && (key === 0 || key === 6),
                     none: row.inMonth !== 0,
                     today: row.format === today,
                     active: row.format === selectedValue,
@@ -72,6 +71,7 @@ const emits = defineEmits<{
 
 const userSession = useUserSessionStore()
 const { Translate } = useLangStore()
+const dateTime = useDateTimeStore()
 
 // 输入框显示值
 const selectedValue = computed(() => {
@@ -86,7 +86,7 @@ const currentValue = ref(dayjs())
 
 // 当前年月
 const currentYearMonth = computed(() => {
-    return currentValue.value.format('YYYY-MM')
+    return currentValue.value.format(dateTime.yearMonthFormat)
 })
 
 type DateDto = {
@@ -268,10 +268,6 @@ const changeDate = (timestamp: number, inMonth: number) => {
             justify-content: center;
             cursor: pointer;
             position: relative;
-
-            &.weekend {
-                color: var(--color-error);
-            }
 
             &.none {
                 color: var(--calendar-text-disabled);

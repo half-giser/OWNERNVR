@@ -484,7 +484,7 @@ export default defineComponent({
                 number: $item('number').text(),
                 name: $item('name').text(),
                 sex: $item('sex').text(),
-                birthday: formatGregoryDate($item('birthday').text(), dateTime.dateFormat, 'YYYY-MM-DD'),
+                birthday: formatGregoryDate($item('birthday').text(), dateTime.dateFormat, DEFAULT_YMD_FORMAT),
                 nativePlace: $item('nativePlace').text(),
                 certificateType: $item('certificateType').text(),
                 certificateNum: $item('certificateNum').text(),

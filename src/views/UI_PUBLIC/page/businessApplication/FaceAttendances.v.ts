@@ -193,7 +193,7 @@ export default defineComponent({
                 if (formData.value.weekdays.includes(day)) {
                     date.push({
                         day: WEEK_DAY_MAPPING[day],
-                        date: formatDate(current, 'YYYY-MM-DD'),
+                        date: formatDate(current, DEFAULT_YMD_FORMAT),
                         format: formatDate(current, dateTime.dateFormat),
                     })
                 }
@@ -355,7 +355,7 @@ export default defineComponent({
                 .toSorted((a, b) => a.timestamp - b.timestamp)
                 .forEach((item) => {
                     if (tableRecord[item.faceFeatureId]) {
-                        const date = formatDate(item.timestamp, 'YYYY-MM-DD')
+                        const date = formatDate(item.timestamp, DEFAULT_YMD_FORMAT)
                         if (!tableRecord[item.faceFeatureId].searchData[date]) {
                             tableRecord[item.faceFeatureId].searchData[date] = []
                         }

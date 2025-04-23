@@ -268,7 +268,7 @@ export default defineComponent({
                     <force>${force}</force>
                     <name>${item.name}</name>
                     <sex>${item.sex}</sex>
-                    <birthday>${formatGregoryDate(item.birthday, 'YYYY-MM-DD', dateTime.dateFormat)}</birthday>
+                    <birthday>${formatGregoryDate(item.birthday, DEFAULT_YMD_FORMAT, dateTime.dateFormat)}</birthday>
                     <nativePlace>${item.nativePlace}</nativePlace>
                     <certificateType>${item.certificateType}</certificateType>
                     <certificateNum>${item.certificateNum}</certificateNum>
@@ -357,7 +357,7 @@ export default defineComponent({
                     ${force ? '<force>true</force>' : ''}
                     <name>${item.name}</name>
                     <sex type="sex">${item.sex}</sex>
-                    <birthday>${formatGregoryDate(item.birthday, 'YYYY-MM-DD', dateTime.dateFormat)}</birthday>
+                    <birthday>${formatGregoryDate(item.birthday, DEFAULT_YMD_FORMAT, dateTime.dateFormat)}</birthday>
                     <nativePlace>${item.nativePlace}</nativePlace>
                     <certificateType type="certificateType">${item.certificateType}</certificateType>
                     <certificateNum>${item.certificateNum}</certificateNum>

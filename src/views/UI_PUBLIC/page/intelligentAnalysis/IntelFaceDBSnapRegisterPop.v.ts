@@ -139,7 +139,7 @@ export default defineComponent({
                     ${pageData.value.forceCreate ? '<force>true</force>' : ''}
                     <name>${formData.value.name}</name>
                     <sex>${formData.value.sex}</sex>
-                    <birthday>${formatGregoryDate(formData.value.birthday, dateTime.dateFormat, 'YYYY-MM-DD')}</birthday>
+                    <birthday>${formatGregoryDate(formData.value.birthday, dateTime.dateFormat, DEFAULT_YMD_FORMAT)}</birthday>
                     <nativePlace></nativePlace>
                     <certificateType type="certificateType">${formData.value.certificateType}</certificateType>
                     <mobile>${formData.value.mobile}</mobile>

@@ -59,7 +59,7 @@ export default defineComponent({
                 if (holiday) {
                     holiday.split(',').forEach((item) => {
                         pageData.value.toAddDateList.push({
-                            date: formatGregoryDate(item, dateTime.dateFormat, 'YYYY-MM-DD'),
+                            date: formatGregoryDate(item, dateTime.dateFormat, DEFAULT_YMD_FORMAT),
                         })
                     })
                 }
@@ -105,7 +105,7 @@ export default defineComponent({
             const unit = pageData.value.expireTime === 1 ? Translate('IDCS_HOUR') : Translate('IDCS_HOURS')
             const tips = pageData.value.expireTime + ' ' + unit
             const week = pageData.value.weekArr.join(',')
-            const holiday = pageData.value.toAddDateList.map((item) => formatGregoryDate(item.date, 'YYYY-MM-DD', dateTime.dateFormat)).join(',')
+            const holiday = pageData.value.toAddDateList.map((item) => formatGregoryDate(item.date, DEFAULT_YMD_FORMAT, dateTime.dateFormat)).join(',')
             const expiration = pageData.value.expireTime
 
             close()
