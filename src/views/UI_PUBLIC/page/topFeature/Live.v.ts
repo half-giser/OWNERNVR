@@ -483,11 +483,18 @@ export default defineComponent({
 
                     if (layoutStore.liveLastChlList.length) {
                         const curerntOnlineList = chlRef.value?.getOnlineChlList() || []
-                        const onlineList = layoutStore.liveLastChlList.filter((item) => {
-                            return curerntOnlineList.includes(item)
-                        })
+                        const onlineList = layoutStore.liveLastChlList
+                            .filter((item) => {
+                                return curerntOnlineList.includes(item)
+                            })
+                            .map((item, index) => {
+                                return {
+                                    chlIndex: index,
+                                    chlId: item,
+                                }
+                            })
                         setTimeout(() => {
-                            playChls(onlineList)
+                            playCustomView(onlineList, layoutStore.liveLastSegNum)
                         }, 100)
                     } else {
                         setTimeout(() => {
@@ -565,22 +572,18 @@ export default defineComponent({
 
             if (mode.value === 'ocx') {
                 chlList.forEach((chlID, index) => {
-                    {
-                        const sendXML = OCX_XML_SelectScreen(index)
-                        plugin.ExecuteCmd(sendXML)
-                    }
+                    const sendXML = OCX_XML_SelectScreen(index)
+                    plugin.ExecuteCmd(sendXML)
 
-                    {
-                        if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
-                            const sendXML = OCX_XML_SetViewChannelID(chlID, pageData.value.chlMap[chlID].value, {
-                                chlIp: pageData.value.chlMap[chlID].chlIp,
-                                poeSwitch: pageData.value.chlMap[chlID].poeSwitch,
-                            })
-                            plugin.ExecuteCmd(sendXML)
-                        } else {
-                            const sendXML = OCX_XML_SetViewChannelID(chlID, pageData.value.chlMap[chlID].value)
-                            plugin.ExecuteCmd(sendXML)
-                        }
+                    if (import.meta.env.VITE_UI_TYPE === 'UI1-E') {
+                        const sendXML = OCX_XML_SetViewChannelID(chlID, pageData.value.chlMap[chlID].value, {
+                            chlIp: pageData.value.chlMap[chlID].chlIp,
+                            poeSwitch: pageData.value.chlMap[chlID].poeSwitch,
+                        })
+                        plugin.ExecuteCmd(sendXML)
+                    } else {
+                        const sendXML = OCX_XML_SetViewChannelID(chlID, pageData.value.chlMap[chlID].value)
+                        plugin.ExecuteCmd(sendXML)
                     }
                 })
             }
@@ -761,7 +764,7 @@ export default defineComponent({
             if (mode.value === 'ocx') {
                 let sendXML = ''
                 if (index === -1) {
-                    sendXML = OCX_XML_StopPreview('ALL')
+                    sendXML = OCX_XML_StopPreview('CURRENT')
                 } else if (index === pageData.value.winData.winIndex) {
                     sendXML = OCX_XML_StopPreview('CURRENT')
                 } else {
@@ -794,7 +797,7 @@ export default defineComponent({
             }
 
             pageData.value.split = segNum
-            pageData.value.playingList = []
+            // pageData.value.playingList = []
             playChls(arr.map((item) => item.chlId))
         }
 

@@ -219,6 +219,9 @@ export const useUserSessionStore = defineStore(
             refreshLoginPage.value = false
             p2pSessionId.value = null
             layoutStore.isPwdChecked = false
+            layoutStore.liveLastChlList = []
+            layoutStore.liveLastSegNum = 1
+
             sessionStorage.removeItem(LocalCacheKey.KEY_AU_INFO_N9K)
             sessionStorage.removeItem(LocalCacheKey.KEY_UNMASK)
             sessionStorage.removeItem(LocalCacheKey.KEY_SN)

@@ -34,7 +34,6 @@
                     }"
                     :title="item.label"
                     @click="changeChlMenu(index)"
-                    @dblclick="changeChlMenu(index)"
                 >
                     <BaseImgSpriteBtn
                         :file="item.file"
@@ -106,7 +105,9 @@
                             <BaseListBoxItem
                                 v-for="groupItem in pageData.chlGroupList"
                                 :key="groupItem.id"
-                                :class="{ active: pageData.activeChlGroup === groupItem.id }"
+                                :class="{
+                                    active: pageData.activeChlGroup === groupItem.id,
+                                }"
                                 icon="chlGroup"
                                 @click="getChlListOfGroup(groupItem.id)"
                                 @dblclick="setWinFromChlGroup(groupItem.id, groupItem.dwellTime)"
@@ -143,25 +144,29 @@
                 <!-- 自定义视图列表 -->
                 <div
                     v-show="pageData.activeChlMenu === 2"
-                    class="left-customview"
+                    class="left-chlgroup"
                 >
-                    <BaseListBox>
-                        <BaseListBoxItem
-                            v-for="viewItem in pageData.customViewList"
-                            :key="viewItem.id"
-                            :class="{ active: pageData.activeCustomView === viewItem.id }"
-                            icon="chlGroup"
-                            @dblclick="setWinFormCustomView(viewItem)"
-                            @click="pageData.activeCustomView = viewItem.id"
-                        >
-                            <BaseImgSprite
-                                file="chlGroup"
-                                :index="pageData.activeCustomView === viewItem.id ? 1 : 0"
-                                :chunk="2"
-                            />
-                            <div class="text-ellipsis">{{ viewItem.value }}</div>
-                        </BaseListBoxItem>
-                    </BaseListBox>
+                    <div class="left-chlgroup-group">
+                        <BaseListBox>
+                            <BaseListBoxItem
+                                v-for="viewItem in pageData.customViewList"
+                                :key="viewItem.id"
+                                :class="{
+                                    active: pageData.activeCustomView === viewItem.id,
+                                }"
+                                icon="chlGroup"
+                                @dblclick="setWinFormCustomView(viewItem)"
+                                @click="pageData.activeCustomView = viewItem.id"
+                            >
+                                <BaseImgSprite
+                                    file="chlGroup"
+                                    :index="pageData.activeCustomView === viewItem.id ? 1 : 0"
+                                    :chunk="2"
+                                />
+                                <div class="text-ellipsis">{{ viewItem.value }}</div>
+                            </BaseListBoxItem>
+                        </BaseListBox>
+                    </div>
                 </div>
             </div>
         </div>
