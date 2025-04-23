@@ -124,6 +124,15 @@ export default defineComponent({
         }
 
         /**
+         * @description 显示日期文本
+         * @param {string} date
+         * @returns {string}
+         */
+        const displayDate = (date: string) => {
+            return formatDate(date, dateTime.dateFormat, DEFAULT_YMD_FORMAT)
+        }
+
+        /**
          * @description 显示详情文本
          * @param {Array} detail
          * @returns {String}
@@ -279,6 +288,7 @@ export default defineComponent({
             item2,
             pageData,
             displayTime,
+            displayDate,
             displayDetail,
             search,
         }

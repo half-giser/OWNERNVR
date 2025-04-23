@@ -36,7 +36,7 @@
                     </div>
                 </div>
                 <div class="base-btn-box space-between">
-                    <div>{{ current?.date || '' }}</div>
+                    <div>{{ current.date ? displayDate(current.date) : '' }}</div>
                     <el-button
                         :disabled="!current?.date"
                         @click="search"
@@ -56,10 +56,11 @@
                     height="400"
                     @current-change="handleCurrentChange"
                 >
-                    <el-table-column
-                        :label="Translate('IDCS_DATE')"
-                        prop="date"
-                    />
+                    <el-table-column :label="Translate('IDCS_DATE')">
+                        <template #default="{ row }: TableColumn<BusinessFaceDetailList>">
+                            {{ displayDate(row.date) }}
+                        </template>
+                    </el-table-column>
                     <el-table-column
                         :label="Translate('IDCS_WEEK')"
                         prop="day"
