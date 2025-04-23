@@ -61,7 +61,6 @@
                             invisible: !item.isRecordIconVisible,
                             hide: item.recordIconStatus === 'none' || !item.isRecordIcon,
                         }"
-                        :data-event="item.recordIconStatus"
                     />
                     <BaseImgSprite
                         file="ptzState"
@@ -70,11 +69,10 @@
                         }"
                     />
                     <BaseImgSprite
-                        :file="`ZoomState__${item.zoomIconData}`"
+                        :file="`ZoomState_${item.zoomIconData === 1.5 ? '1_5' : item.zoomIconData}`"
                         :class="{
                             hide: item.zoomIconData === 1 || !item.isZoomIcon,
                         }"
-                        :data-zoom="item.zoomIconData"
                     />
                     <BaseImgSprite
                         file="AudioState"
