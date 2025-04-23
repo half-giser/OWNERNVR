@@ -42,7 +42,7 @@ const prop = withDefaults(
         disabled?: boolean
     }>(),
     {
-        volume: 50,
+        volume: 65,
         mute: true,
         disabled: false,
     },

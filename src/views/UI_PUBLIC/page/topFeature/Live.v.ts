@@ -329,7 +329,7 @@ export default defineComponent({
             // 是否开启远程录像
             remoteRecord: false,
             // 音量
-            volume: 50,
+            volume: 65,
             // AZ支持
             supportAz: false,
             // 鱼眼支持
