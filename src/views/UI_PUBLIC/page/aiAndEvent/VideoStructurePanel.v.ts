@@ -172,7 +172,11 @@ export default defineComponent({
             }
         }
 
-        // drawer初始化时绑定以下函数
+        /**
+         * @description 更新区域数据
+         * @param {CanvasBaseArea | CanvasBasePoint[]} area
+         * @param {CanvasPolygonOSDInfo} osdInfo
+         */
         const changeArea = (area: CanvasBaseArea | CanvasBasePoint[], osdInfo?: CanvasPolygonOSDInfo) => {
             // 检测区域/屏蔽区域
             if (currAreaType === 'detectionArea') {
@@ -192,6 +196,10 @@ export default defineComponent({
             // showAllArea(pageData.value.isShowAllArea)
         }
 
+        /**
+         * @description 闭合区域
+         * @param {CanvasBasePoint[]} area
+         */
         const closePath = (area: CanvasBasePoint[]) => {
             area.forEach((item) => (item.isClosed = true))
             if (currAreaType === 'detectionArea') {
@@ -201,12 +209,19 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 强制闭合路径的回调
+         * @param {boolean} canBeClosed
+         */
         const forceClosePath = (canBeClosed: boolean) => {
             if (!canBeClosed) {
                 openMessageBox(Translate('IDCS_INTERSECT'))
             }
         }
 
+        /**
+         * @description 清除当前区域
+         */
         const clearCurrentArea = () => {
             openMessageBox({
                 type: 'question',
@@ -260,7 +275,9 @@ export default defineComponent({
             }
         })
 
-        // 获取数据
+        /**
+         * @description 获取数据
+         */
         const getData = async () => {
             const sendXml = rawXml`
                 <condition>
@@ -448,7 +465,9 @@ export default defineComponent({
             }
         }
 
-        // 检测和屏蔽区域的样式初始化
+        /**
+         * @description 检测和屏蔽区域的样式初始化
+         */
         const refreshInitPage = () => {
             // 区域状态
             pageData.value.detectAreaChecked = formData.value.detectAreaInfo.map((item, index) => {
@@ -478,6 +497,9 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 切换Tab
+         */
         const changeTab = () => {
             if (pageData.value.tab === 'param') {
                 setAreaView(currAreaType)
@@ -554,7 +576,10 @@ export default defineComponent({
             }
         }
 
-        // 是否显示全部区域
+        /**
+         * @description 开启/关闭显示全部区域
+         * @param {boolean} value
+         */
         const showAllArea = (value: CheckboxValueType) => {
             if (mode.value === 'h5') {
                 drawer.setEnableShowAll(value as boolean)
@@ -592,7 +617,9 @@ export default defineComponent({
             }
         }
 
-        // 清空
+        /**
+         * @description 清空区域
+         */
         const clearArea = () => {
             if (currAreaType === 'detectionArea') {
                 formData.value.detectAreaInfo[pageData.value.detectArea] = []
@@ -614,7 +641,9 @@ export default defineComponent({
             }
         }
 
-        // 全部清除
+        /**
+         * @description 全部清除
+         */
         const clearAllArea = () => {
             for (const key in formData.value.detectAreaInfo) {
                 formData.value.detectAreaInfo[key] = []
@@ -644,19 +673,27 @@ export default defineComponent({
             }
         }
 
-        // 区域切换
+        /**
+         * @description 切换检测区域
+         */
         const changeDetectArea = () => {
             currAreaType = 'detectionArea'
             pageData.value.maskArea = -1
             changeAreaType()
         }
 
+        /**
+         * @description 切换屏蔽区域
+         */
         const changeMaskArea = () => {
             currAreaType = 'maskArea'
             pageData.value.detectArea = -1
             changeAreaType()
         }
 
+        /**
+         * @description 改变区域类型
+         */
         const changeAreaType = () => {
             // 切换另一个区域前先封闭其他可闭合的区域（“area”）
             setOtherAreaClosed()
@@ -670,7 +707,10 @@ export default defineComponent({
             }
         }
 
-        // 设置区域图形
+        /**
+         * @description 设置区域图形
+         * @param {string} type
+         */
         const setAreaView = (type: string) => {
             if (type === 'detectionArea') {
                 const index = pageData.value.detectArea
@@ -711,7 +751,9 @@ export default defineComponent({
             }
         }
 
-        // 设置OSD
+        /**
+         * @description 设置OSD
+         */
         const setEnableOSD = () => {
             const enable = formData.value.countOSD.switch
 
@@ -727,7 +769,10 @@ export default defineComponent({
             }
         }
 
-        // 闭合区域
+        /**
+         * @description 闭合区域
+         * @param {CanvasBasePoint[]} poinObjtList
+         */
         const setClosed = (poinObjtList: CanvasBasePoint[]) => {
             poinObjtList.forEach((item) => {
                 item.isClosed = true
@@ -752,19 +797,27 @@ export default defineComponent({
             }
         }
 
-        // 自动重置
+        /**
+         * @description 自动重置
+         * @param value
+         */
         const changeAutoReset = (value: CheckboxValueType) => {
             formData.value.countPeriod.countTimeType = value ? pageData.value.timeType : 'off'
         }
 
-        // 重置时间模式
+        /**
+         * @description 重置时间模式
+         * @param {string} value
+         */
         const changeTimeType = (value: string) => {
             // 自动重置选中时formData.value.countPeriod.countTimeType被置为off，不方便直接绑定元素
             // 用pageData.value.timeType绑定页面元素
             formData.value.countPeriod.countTimeType = value
         }
 
-        // 手动重置
+        /**
+         * @description 手动重置
+         */
         const resetData = () => {
             openMessageBox({
                 type: 'question',
@@ -812,6 +865,10 @@ export default defineComponent({
             return osdCheckedList.value.length === osdCfgList.value.length
         })
 
+        /**
+         * @description 更改OSD配置
+         * @param value
+         */
         const changeOsdCfg = (value: CheckboxGroupValueType) => {
             if (formData.value.osdType === 'person') {
                 formData.value.osdPersonCfgList.forEach((item) => {
@@ -856,7 +913,11 @@ export default defineComponent({
             }
         }
 
-        // 判断osd是否可用
+        /**
+         * @description 判断osd是否可用
+         * @param {string} value
+         * @returns {boolean}
+         */
         const checkOsdName = (value: string) => {
             const name = value.replace(' ', '')
             //前端过滤XML中不允许字符：<>&'\"\x00-\x08\x0b-\x0c\x0e-\x1f]以及键盘上看到的特殊字符：!@#$%^*()-+=:;,./?\\|
@@ -866,7 +927,10 @@ export default defineComponent({
             else return false
         }
 
-        // 区域为多边形时，检测区域合法性(温度检测页面一个点为画点，两个点为画线，大于两个小于8个为区域，只需要检测区域的合法性)
+        /**
+         * @description 区域为多边形时，检测区域合法性(温度检测页面一个点为画点，两个点为画线，大于两个小于8个为区域，只需要检测区域的合法性)
+         * @returns {boolean}
+         */
         const verification = () => {
             // 检测区域合法性(视频结构化AI事件中：检测和屏蔽区域都为多边形)
             const allRegionList = [...formData.value.detectAreaInfo, ...formData.value.maskAreaInfo]
@@ -892,6 +956,10 @@ export default defineComponent({
             return true
         }
 
+        /**
+         * @description
+         * @returns {string}
+         */
         const getSaveData = () => {
             const sendXml = rawXml`
                 <content>
@@ -1030,6 +1098,9 @@ export default defineComponent({
             return sendXml
         }
 
+        /**
+         * @description 保存配置
+         */
         const setData = async () => {
             const sendXml = getSaveData()
             openLoading()
@@ -1049,9 +1120,14 @@ export default defineComponent({
                 }
                 refreshInitPage()
                 watchEdit.update()
+            } else {
+                openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
             }
         }
 
+        /**
+         * @description 校验表单，检查互斥通道 后提交表单
+         */
         const applyData = () => {
             if (!verification()) return
             checkMutexChl({
@@ -1102,10 +1178,16 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 获取排程列表
+         */
         const getScheduleList = async () => {
             pageData.value.scheduleList = await buildScheduleList()
         }
 
+        /**
+         * @description 关闭排程弹窗
+         */
         const closeSchedulePop = async () => {
             pageData.value.isSchedulePop = false
             await getScheduleList()

@@ -319,6 +319,8 @@ export default defineComponent({
                     formData.value.originalEnable = true
                 }
                 watchEdit.update()
+            } else {
+                openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
             }
         }
 

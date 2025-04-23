@@ -7,6 +7,9 @@ import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
+        /**
+         * @property 排程列表数据
+         */
         scheduleList: {
             type: Array as PropType<SelectOption<string, string>[]>,
             required: true,

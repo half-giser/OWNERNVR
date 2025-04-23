@@ -523,6 +523,8 @@ export default defineComponent({
                 setAreaView()
                 refreshInitPage()
                 watchEdit.update()
+            } else {
+                openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
             }
         }
 

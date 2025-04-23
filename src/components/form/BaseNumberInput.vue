@@ -66,6 +66,7 @@ const emit = defineEmits<{
     (e: 'blur', event: FocusEvent): void
     (e: 'change', currentValue: number | undefined): void
     (e: 'update:modelValue', currentValue: number | undefined): void
+    (e: 'outOfRange'): void
 }>()
 
 const focusValue = ref('')
@@ -134,11 +135,16 @@ const handleKeyPress = (e: Event | KeyboardEvent) => {
                 isPreventDefault = false
             }
             break
+        case '-':
+            if (props.min < 0 && showValue.value === '') {
+                isPreventDefault = false
+            }
+            break
         default:
             if (/[0-9]/.test(keyCode)) {
                 isPreventDefault = false
                 // 数字不以0开头，如果已经输入0，阻止其他数字输入
-                if (showValue.value === 0 || showValue.value === '0') {
+                if (showValue.value === 0 || showValue.value === '0' || showValue.value === '-0') {
                     isPreventDefault = true
                 }
             }
@@ -175,14 +181,30 @@ const handleInput = (e: string) => {
         updateValue(e)
     } else {
         const value = Number(e)
-        if (value > props.max) {
-            if (Number(focusValue.value) > props.max) {
-                updateValue(e)
-            } else {
-                updateValue(focusValue.value)
+        if (value >= 0) {
+            if (value > props.max) {
+                if (Number(focusValue.value) > props.max) {
+                    updateValue(e)
+                } else {
+                    updateValue(focusValue.value)
+                }
+                return
             }
-            return
         }
+
+        if (value < 0) {
+            const absValue = Math.abs(value)
+            const absMin = Math.abs(props.min)
+            if (absValue > absMin) {
+                if (Math.abs(Number(focusValue.value)) > absMin) {
+                    updateValue(e)
+                } else {
+                    updateValue(focusValue.value)
+                }
+                return
+            }
+        }
+
         updateValue(e)
     }
 }
@@ -202,14 +224,21 @@ const handleFocus = (e: FocusEvent) => {
  * @param {FocusEvent} e
  */
 const handleBlur = (e: FocusEvent) => {
+    const num = toNumber()
+    const nan = isNaN(num)
+
+    if (num < props.min) {
+        emit('outOfRange')
+    }
+
     if (props.valueOnClear === 'min') {
-        if (toNumber() <= props.min) {
+        if (num <= props.min || nan) {
             updateValue(props.min + '')
         }
     }
 
     if (props.valueOnClear === null) {
-        if (showValue.value === '') {
+        if (showValue.value === '' || nan) {
             updateValue('')
         }
     }

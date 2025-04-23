@@ -96,11 +96,17 @@ export default defineComponent({
             }
         }
 
-        // 分组弹窗打开/关闭
+        /**
+         * @description 打开分组弹窗
+         */
         const openGroupPop = () => {
             pageData.value.isGroupPop = true
         }
 
+        /**
+         * @description 更新分组
+         * @param rowData
+         */
         const saveGroup = (rowData: { guid: string; name: string }[]) => {
             pageData.value.groupSelection = rowData
             taskData.groupId = pageData.value.groupSelection.map((item) => item.guid)

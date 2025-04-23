@@ -143,9 +143,7 @@
                                             :max="1"
                                             :precision="2"
                                             :step="0.01"
-                                            @input="inputValue"
-                                            @focus="focusValue(row.emissivity)"
-                                            @blur="blurValue(0.01, 1)"
+                                            @out-of-range="blurValue(0.01, 1)"
                                             @keyup.enter="blurInput"
                                         />
                                     </template>
@@ -160,9 +158,7 @@
                                             v-model="row.distance"
                                             :min="0"
                                             :max="10000"
-                                            @input="inputValue"
-                                            @focus="focusValue(row.distance)"
-                                            @blur="blurValue(0, 10000)"
+                                            @out-of-range="blurValue(0, 10000)"
                                             @keyup.enter="blurInput"
                                         />
                                     </template>
@@ -177,9 +173,7 @@
                                             v-model="row.reflectTemper"
                                             :min="-30"
                                             :max="60"
-                                            @input="inputValue"
-                                            @focus="focusValue(row.reflectTemper)"
-                                            @blur="blurValue(-30, 60)"
+                                            @out-of-range="blurValue(-30, 60)"
                                             @keyup.enter="blurInput"
                                         />
                                     </template>
@@ -206,9 +200,7 @@
                                             v-model="row.alarmTemper"
                                             :min="-50"
                                             :max="550"
-                                            @input="inputValue"
-                                            @focus="focusValue(row.alarmTemper)"
-                                            @blur="blurValue(-50, 550)"
+                                            @out-of-range="blurValue(-50, 550)"
                                             @keyup.enter="blurInput"
                                         />
                                     </template>

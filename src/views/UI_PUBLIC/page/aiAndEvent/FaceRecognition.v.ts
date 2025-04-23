@@ -1051,7 +1051,9 @@ export default defineComponent({
             const $ = queryXml(result)
             closeLoading()
 
-            if ($('status').text() !== 'success') {
+            if ($('status').text() === 'success') {
+                watchMatch.update()
+            } else {
                 const errorCode = $('errorCode').text().num()
                 if (errorCode === ErrorCode.USER_ERROR_LIMITED_PLATFORM_VERSION_MISMATCH) {
                     openMessageBox(Translate('IDCS_MAX_CHANNEL_LIMIT').formatForLang(faceMatchLimitMaxChlNum))
@@ -1067,8 +1069,9 @@ export default defineComponent({
                             await editBasicCfg(sendXml)
                         },
                     )
+                } else {
+                    openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
                 }
-                watchMatch.update()
             }
         }
 
