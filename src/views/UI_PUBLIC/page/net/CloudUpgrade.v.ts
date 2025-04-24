@@ -11,6 +11,7 @@ export default defineComponent({
     },
     setup() {
         const { Translate } = useLangStore()
+        const dateTime = useDateTimeStore()
 
         const pageData = ref({
             // 升级选项
@@ -152,7 +153,7 @@ export default defineComponent({
             pageData.value.currentVersion = $content('currentVersion').text()
             const launchDate = $content('currentVersion').attr('launchDate')
             if (launchDate) {
-                pageData.value.launchDate = formatDate(launchDate.split('.')[0], 'YYYY.MM.DD', 'YYYYMMDD')
+                pageData.value.launchDate = formatDate(launchDate.split('.')[0], dateTime.dateFormat, 'YYYYMMDD')
             }
         }
 

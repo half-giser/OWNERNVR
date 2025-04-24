@@ -50,18 +50,16 @@
                             v-model="tableData[pageData.tableIndex].autoBackSwitch"
                             :disabled="tableData[pageData.tableIndex].disabled"
                         />
-                        <el-slider
+                        <BaseSliderInput
                             v-model="tableData[pageData.tableIndex].autoBackTime"
                             :disabled="!tableData[pageData.tableIndex].autoBackSwitch || tableData[pageData.tableIndex].disabled"
-                            :min="0"
-                            :max="100"
                         />
-                        <el-text class="time">{{ tableData[pageData.tableIndex].autoBackTime }}(s)</el-text>
+                        <span class="time">(s)</span>
                     </template>
                     <template v-else>
                         <el-checkbox disabled />
-                        <el-slider disabled />
-                        <el-text class="time">0(s)</el-text>
+                        <BaseSliderInput disabled />
+                        <span class="time">(s)</span>
                     </template>
                 </el-form-item>
             </el-form>
@@ -119,7 +117,6 @@
                         <template #default="{ row }: TableColumn<ChannelPtzSmartTrackDto>">
                             <BaseNumberInput
                                 v-model="row.autoBackTime"
-                                :min="0"
                                 :max="100"
                                 :disabled="!row.autoBackSwitch || row.disabled"
                             />
@@ -140,10 +137,3 @@
 </template>
 
 <script lang="ts" src="./ChannelSmartTrack.v.ts"></script>
-
-<style lang="scss" scoped>
-.time {
-    width: 80px;
-    text-align: center;
-}
-</style>
