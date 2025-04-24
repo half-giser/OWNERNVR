@@ -98,12 +98,20 @@
                 @dragleave="handleDragLeave"
                 @drop="handleDrop"
             >
-                <div class="tip">
+                <div
+                    v-show="!pageData.fileName"
+                    class="tip"
+                >
                     <span>{{ Translate('IDCS_DRAG_CSV_TIPS').formatForLang('*.csv') }}</span>
                     <strong> / </strong>
                     <span class="highlight">{{ Translate('IDCS_CLICK_UPLOAD') }}</span>
                 </div>
-                <div>{{ pageData.fileName }}</div>
+                <div
+                    v-show="pageData.fileName"
+                    class="highlight"
+                >
+                    {{ pageData.fileName }}
+                </div>
             </label>
             <input
                 id="upload-import"

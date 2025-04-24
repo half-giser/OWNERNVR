@@ -48,7 +48,7 @@ export default defineComponent({
                         // const fileSize = $item('filesize').text()
                         const filePath = $item('filePath').text()
                         const fileName = filePath.replace(/\\/g, '/').split('/').pop()!
-                        const file = base64ToFile(fileBase64, fileName)
+                        const file = base64ToFile(fileBase64, fileName.toLowerCase())
                         ocxData.uploadFileList.push(file)
                     } else {
                         const errorCode = $item('errorCode').text().num()
@@ -266,7 +266,7 @@ export default defineComponent({
 
             for (let i = 0; i < files.length; i++) {
                 const file = files[i]
-                const fileType = file.name.split('.').pop()
+                const fileType = file.name.split('.').pop()?.toLowerCase()
                 if (fileType === 'csv' || fileType === 'txt') {
                     dataFileType = fileType
                     dataFile = file
