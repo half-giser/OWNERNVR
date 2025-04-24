@@ -261,8 +261,8 @@ export default defineComponent({
          * @param {Number} index
          */
         const showDetail = (index: number) => {
-            pageData.value.isDetailPop = true
             pageData.value.detail = sliceTableData.value[index]
+            pageData.value.isDetailPop = true
         }
 
         /**
@@ -457,9 +457,6 @@ export default defineComponent({
          * @description 导出数据
          */
         const exportData = () => {
-            if (!tableData.value.length) {
-                return
-            }
             const head = [Translate('IDCS_NAME_PERSON'), Translate('IDCS_DATE_TITLE'), Translate('IDCS_WEEK'), Translate('IDCS_TYPE'), Translate('IDCS_ATTENDANCE_DETAIL')]
             const body: string[][] = tableData.value
                 .map((item) => {

@@ -68,10 +68,12 @@
                     </el-form-item>
                 </el-form-item>
                 <el-form-item>
-                    <el-checkbox
-                        v-model="formData.advanced"
-                        :label="Translate('IDCS_ADVANCED')"
-                    />
+                    <template #label>
+                        <el-checkbox
+                            v-model="formData.advanced"
+                            :label="Translate('IDCS_ADVANCED')"
+                        />
+                    </template>
                 </el-form-item>
                 <el-form-item v-show="formData.advanced">
                     <el-form-item>
@@ -107,7 +109,12 @@
             </el-form>
             <div class="base-btn-box padding gap">
                 <el-button @click="searchData">{{ Translate('IDCS_SEARCH') }}</el-button>
-                <el-button @click="exportData">{{ Translate('IDCS_EXPORT') }}</el-button>
+                <el-button
+                    :disabled="!tableData.length"
+                    @click="exportData"
+                >
+                    {{ Translate('IDCS_EXPORT') }}
+                </el-button>
             </div>
         </div>
         <div class="base-table-box">
@@ -146,6 +153,7 @@
                     <template #default="{ $index }: TableColumn<BusinessFaceCheckList>">
                         <BaseImgSpriteBtn
                             file="edit2"
+                            :stop-propagation="false"
                             @click="showDetail($index)"
                         />
                     </template>
@@ -182,6 +190,7 @@
             v-model="pageData.isDetailPop"
             :data="pageData.detail"
             type="sign"
+            destroy-on-close
             @close="pageData.isDetailPop = false"
         />
     </div>

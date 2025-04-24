@@ -92,10 +92,12 @@
                     </el-form-item>
                 </el-form-item>
                 <el-form-item>
-                    <el-checkbox
-                        v-model="formData.advanced"
-                        :label="Translate('IDCS_ADVANCED')"
-                    />
+                    <template #label>
+                        <el-checkbox
+                            v-model="formData.advanced"
+                            :label="Translate('IDCS_ADVANCED')"
+                        />
+                    </template>
                 </el-form-item>
                 <el-form-item v-show="formData.advanced">
                     <el-form-item>
@@ -131,7 +133,12 @@
             </el-form>
             <div class="base-btn-box padding gap">
                 <el-button @click="searchData">{{ Translate('IDCS_SEARCH') }}</el-button>
-                <el-button @click="exportData">{{ Translate('IDCS_EXPORT') }}</el-button>
+                <el-button
+                    :disabled="!tableData.length"
+                    @click="exportData"
+                >
+                    {{ Translate('IDCS_EXPORT') }}
+                </el-button>
             </div>
         </div>
         <div class="base-table-box">
@@ -190,6 +197,7 @@
                     <template #default="{ $index }: TableColumn<BusinessFaceAttendanceList>">
                         <BaseImgSpriteBtn
                             file="edit2"
+                            :stop-propagation="false"
                             @click="showDetail($index)"
                         />
                     </template>
@@ -225,6 +233,7 @@
         <FaceDetailPop
             v-model="pageData.isDetailPop"
             :data="pageData.detail"
+            destroy-on-close
             @close="pageData.isDetailPop = false"
         />
     </div>
@@ -237,38 +246,4 @@
     padding: 10px;
     padding-bottom: 0;
 }
-// .form {
-//     display: flex;
-
-//     & > .el-form {
-//         width: 90%;
-
-//         & > .el-form-item {
-//             & > .el-form-item__content {
-//                 display: flex;
-
-//                 & > .el-form-item:first-child {
-//                     width: 550px !important;
-//                     flex-shrink: 0;
-//                 }
-
-//                 & > .el-form-item:last-child {
-//                     width: calc(100% - 550px) !important;
-//                 }
-//             }
-//         }
-//     }
-
-//     .base-btn-box {
-//         width: 10%;
-//         align-items: flex-end;
-//         padding-bottom: 10px;
-//         position: relative;
-//         z-index: 1;
-//     }
-// }
-
-// .end-time {
-//     padding-left: 15px;
-// }
 </style>

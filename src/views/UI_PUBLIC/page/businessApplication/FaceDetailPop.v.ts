@@ -27,6 +27,9 @@ export default defineComponent({
         close() {
             return true
         },
+        change(index: number) {
+            return typeof index === 'number'
+        },
     },
     setup(prop) {
         const router = useRouter()
@@ -39,6 +42,7 @@ export default defineComponent({
             pic1: '',
             // 第二章抓拍图Base64数据
             pic2: '',
+            currentIndex: 0,
         })
 
         const current = ref(new BusinessFaceDetailList())
@@ -148,6 +152,7 @@ export default defineComponent({
          */
         const handleCurrentChange = (row: BusinessFaceDetailList) => {
             current.value = row
+            pageData.value.currentIndex = prop.data.detail.findIndex((item) => row.date === item.date)
         }
 
         /**
@@ -158,7 +163,29 @@ export default defineComponent({
                 tableRef.value?.setScrollTop(0)
                 tableRef.value?.setCurrentRow(prop.data.detail[0])
                 current.value = prop.data.detail[0]
+                pageData.value.currentIndex = 0
             }
+        }
+
+        /**
+         * @description 上一页
+         */
+        const prev = () => {
+            pageData.value.currentIndex--
+            current.value = prop.data.detail[pageData.value.currentIndex]
+            tableRef.value?.setCurrentRow(current.value)
+            console.log('scrollIntoView', tableRef.value)
+            tableRef.value?.$el.querySelector(`.el-table__row:nth-child(${pageData.value.currentIndex + 1})`)?.scrollIntoViewIfNeeded()
+        }
+
+        /**
+         * @description 下一页
+         */
+        const next = () => {
+            pageData.value.currentIndex++
+            current.value = prop.data.detail[pageData.value.currentIndex]
+            tableRef.value?.setCurrentRow(current.value)
+            tableRef.value?.$el.querySelector(`.el-table__row:nth-child(${pageData.value.currentIndex + 1})`)?.scrollIntoViewIfNeeded()
         }
 
         /**
@@ -282,7 +309,6 @@ export default defineComponent({
             getRowKey,
             tableRef,
             handleCurrentChange,
-            open,
             current,
             item1,
             item2,
@@ -291,6 +317,9 @@ export default defineComponent({
             displayDate,
             displayDetail,
             search,
+            prev,
+            next,
+            open,
         }
     },
 })
