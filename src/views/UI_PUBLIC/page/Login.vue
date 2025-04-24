@@ -44,7 +44,7 @@
                 <el-form-item>
                     <el-button
                         class="login-submit"
-                        :disabled="pageData.btnDisabled"
+                        :disabled="btnDisabled"
                         @click="handleLogin"
                         @keyup.enter="keyUp"
                     >
@@ -53,7 +53,7 @@
                 </el-form-item>
                 <div
                     class="login-error"
-                    v-text="pageData.errorMsg"
+                    v-text="errorMsg"
                 ></div>
             </el-form>
         </div>
@@ -166,5 +166,6 @@
     left: 390px;
     color: var(--color-error);
     font-size: 18px;
+    width: 570px;
 }
 </style>

@@ -36,21 +36,21 @@
                         v-model="formData.password"
                         :placeholder="Translate('IDCS_PASSWORD_TIP')"
                         tabindex="2"
+                        @keyup.enter="keyUp"
                     />
                 </el-form-item>
                 <el-radio-group v-model="pageData.quality">
                     <el-radio
-                        v-for="item in pageData.qualityOptions"
+                        v-for="item in qualityOptions"
                         :key="item.value"
                         :value="item.value"
                         :label="item.label"
-                        @keyup.enter="keyUp"
                     />
                 </el-radio-group>
                 <div class="login-btns">
                     <el-button
                         class="login-submit"
-                        :disabled="pageData.btnDisabled"
+                        :disabled="btnDisabled"
                         @click="handleLogin"
                         @keyup.enter="keyUp"
                     >
@@ -64,7 +64,7 @@
             </el-form>
             <div
                 class="login-error"
-                v-text="pageData.errorMsg"
+                v-text="errorMsg"
             ></div>
         </div>
         <LoginPrivacyPop
@@ -171,7 +171,7 @@
 
 .login-error {
     position: relative;
-    margin: 30px 0 0 10px;
+    margin: 50px 0 0 365px;
     color: var(--color-error);
 }
 </style>

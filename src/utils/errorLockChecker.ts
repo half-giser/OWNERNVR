@@ -4,29 +4,20 @@
  * @Description: 错误锁定检查
  * 适用于错误指定次数后，锁定指定时间还有解锁的场景
  */
-import { type CountDownTime, CountDowner } from './countDowner'
-
-interface ErrorLockCheckerOptions {
-    busType: string
-    countDownCallback?: (info: string) => void
-    countDownEndCallback?: () => void
-}
-
-export const ErrorLockChecker = (opt: ErrorLockCheckerOptions) => {
+export const ErrorLockChecker = (busType: string) => {
     const { Translate } = useLangStore()
 
-    //是否已锁定
-    let isLocked = false
+    // 是否已锁定
+    const isLocked = ref(false)
+    //前置错误消息，需要和次数错误，读秒错误等拼接
+    const preErrorMsg = ref('')
+    // 锁定剩余分钟
+    const disminites = ref('')
+    // 锁定剩余秒
+    const disseconds = ref('')
     //锁定时长
     let lockTime = 0
-    //业务类型，本地缓存前缀
-    const busType = opt.busType
-    //前置错误消息，需要和次数错误，读秒错误等拼接
-    let preErrorMsg = ''
-    //读秒回调
-    const countDownCallback = opt.countDownCallback
-    //读秒结束回调
-    const countDownEndCallback = opt.countDownEndCallback
+    let countDowner: ReturnType<typeof CountDowner>
 
     /**
      * @description 设置锁定时间
@@ -38,6 +29,18 @@ export const ErrorLockChecker = (opt: ErrorLockCheckerOptions) => {
         localStorage.setItem(`${busType}_${LocalCacheKey.KEY_LOCK_END_TIMESTAMP}`, '' + (Date.now() + lockTime))
     }
 
+    // 错误信息
+    const errorMsg = computed(() => {
+        if (parseInt(disminites.value) > 0) {
+            return Translate(preErrorMsg.value) + '\n' + Translate('IDCS_TICK_MIN').formatForLang(disminites.value, disseconds.value)
+        }
+        return Translate(preErrorMsg.value) + '\n' + Translate('IDCS_TICK_SEC').formatForLang(disseconds.value)
+    })
+
+    /**
+     * @description 检查是否已被锁定
+     * @returns {boolean}
+     */
     const checkIsLocked = () => {
         const lockEndTimestampStr = localStorage.getItem(`${busType}_${LocalCacheKey.KEY_LOCK_END_TIMESTAMP}`)
         const currentTime = Date.now()
@@ -45,57 +48,70 @@ export const ErrorLockChecker = (opt: ErrorLockCheckerOptions) => {
             const lockEndTimestamp = Number(lockEndTimestampStr)
             if (currentTime - lockEndTimestamp < 0) {
                 lockTime = lockEndTimestamp - currentTime
-                error(() => {})
+                if (lockTime > 0) {
+                    isLocked.value = true
+                    if (countDowner) {
+                        countDowner.destroy()
+                    }
+                    countDowner = CountDowner({
+                        distime: lockTime / 1000,
+                        callback: (obj) => {
+                            disminites.value = obj.disminites
+                            disseconds.value = obj.disseconds
+                        },
+                        overFn: () => {
+                            isLocked.value = false
+                            lockTime = 0
+                            preErrorMsg.value = ''
+                        },
+                    })
+                }
             }
         }
+        return lockTime > 0
     }
 
-    const error = (errorTimeCallback: () => void) => {
-        if (lockTime > 0) {
-            isLocked = true
-            CountDowner({
-                distime: lockTime / 1000,
-                callback: (obj: CountDownTime) => {
-                    let info = ''
-                    if (parseInt(obj.disminites) > 0) {
-                        info = Translate('IDCS_TICK_MIN')
-                        info = info.formatForLang(obj.disminites, obj.disseconds)
-                    } else {
-                        info = Translate('IDCS_TICK_SEC')
-                        info = info.formatForLang(obj.disseconds)
-                    }
-                    countDownCallback && countDownCallback(preErrorMsg + info)
-                },
-                overFn: () => {
-                    isLocked = false
-                    lockTime = 0
-                    countDownEndCallback && countDownEndCallback()
-                },
-            })
-        } else {
-            errorTimeCallback()
-        }
-    }
-
+    /**
+     * @description 设置锁定
+     * @param {boolean} lock
+     */
     const setLock = (lock: boolean) => {
-        isLocked = lock
+        isLocked.value = lock
     }
 
+    /**
+     * @description 获取是否已被锁定
+     * @returns {boolean}
+     */
     const getLock = () => {
-        return isLocked
+        return isLocked.value
     }
 
-    const setPreErrorMessage = (msg: string) => {
-        preErrorMsg = msg
+    /**
+     * @description 返回错误信息
+     * @returns {string}
+     */
+    const getErrorMessage = () => {
+        return errorMsg.value
+    }
+
+    /**
+     * @description 设置错误信息前缀
+     * @param {string} key
+     */
+    const setPreErrorMessage = (key: string) => {
+        preErrorMsg.value = key
     }
 
     checkIsLocked()
 
     return {
+        isLocked,
         setLockTime,
         setLock,
         setPreErrorMessage,
         getLock,
-        error,
+        getErrorMessage,
+        checkIsLocked,
     }
 }

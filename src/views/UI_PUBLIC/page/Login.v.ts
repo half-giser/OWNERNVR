@@ -23,22 +23,11 @@ export default defineComponent({
             langType: langStore.langType,
             langId: langStore.langId,
             calendarOptions: [] as SelectOption<string, string>[],
-            // 登录错误提示
-            errorMsg: '',
             // 登录按钮禁用标志
             btnDisabled: false,
             isPrivacy: false,
             quality: 'sub',
-            qualityOptions: [
-                {
-                    label: Translate('IDCS_HIGH_QUALITY'),
-                    value: 'main',
-                },
-                {
-                    label: Translate('IDCS_STANDARD_QUALITY'),
-                    value: 'sub',
-                },
-            ],
+            isLogin: false,
         })
 
         langStore.getLangTypes().then((res) => {
@@ -62,7 +51,7 @@ export default defineComponent({
                 {
                     validator: (_rule, value: string, callback) => {
                         if (!value) {
-                            pageData.value.errorMsg = Translate('IDCS_PROMPT_USERNAME_EMPTY')
+                            errorMsgFun.value = () => Translate('IDCS_PROMPT_USERNAME_EMPTY')
                             return
                         }
                         callback()
@@ -74,7 +63,7 @@ export default defineComponent({
                 {
                     validator: (_rule, value: string, callback) => {
                         if (value.length > 16) {
-                            pageData.value.errorMsg = Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR')
+                            errorMsgFun.value = () => Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR')
                             return
                         }
                         callback()
@@ -84,40 +73,64 @@ export default defineComponent({
             ],
         })
 
-        /**
-         * @description 错误超过次数锁定后的读秒回调
-         * @param {string} countDownInfo
-         */
-        const countDownCallback = (countDownInfo: string) => {
-            pageData.value.errorMsg = countDownInfo
-        }
-
-        /**
-         * @description 错误超过次数锁定后的读秒结束回调
-         */
-        const countDownEndCallback = () => {
-            pageData.value.errorMsg = ''
-            pageData.value.btnDisabled = false
-        }
+        // 图像质量
+        const qualityOptions = computed(() => {
+            return [
+                {
+                    label: Translate('IDCS_HIGH_QUALITY'),
+                    value: 'main',
+                },
+                {
+                    label: Translate('IDCS_STANDARD_QUALITY'),
+                    value: 'sub',
+                },
+            ]
+        })
 
         // 初始化错误超过次数锁定检测工具
-        const errorLockChecker = ErrorLockChecker({
-            busType: 'login',
-            countDownCallback,
-            countDownEndCallback,
+        const errorLockChecker = ErrorLockChecker('login')
+
+        // 登录错误提示函数
+        const errorMsgFun = ref<() => string>(() => '')
+
+        // 登录错误提示
+        const errorMsg = computed(() => {
+            if (errorLockChecker.getLock() && pageData.value.isLogin) {
+                return errorLockChecker.getErrorMessage()
+            }
+            return errorMsgFun.value()
         })
-        if (errorLockChecker.getLock()) {
-            pageData.value.btnDisabled = true
-        }
+
+        // 登录按钮禁用
+        const btnDisabled = computed(() => {
+            return pageData.value.btnDisabled || (errorLockChecker.getLock() && pageData.value.isLogin)
+        })
 
         /**
          * @description 登录验证
          */
         const handleLogin = () => {
-            formRef.value!.validate((valid) => {
+            formRef.value!.validate(async (valid) => {
                 if (valid) {
                     pageData.value.btnDisabled = true
-                    fnReqLogin()
+                    try {
+                        const reqData = await fnReqLogin()
+                        const result = await fnDoLogin(reqData)
+                        // doLogin后更新用户会话信息
+                        await userSessionStore.updateByLogin('STANDARD', result, reqData, formData.value)
+                        // UI1-D / UI1-G 登录默认画质
+                        if (import.meta.env.VITE_UI_TYPE === 'UI1-D' || import.meta.env.VITE_UI_TYPE === 'UI1-G') {
+                            userSessionStore.defaultStreamType = pageData.value.quality
+                        }
+                        plugin.DisposePlugin()
+                        plugin.StartV2Process()
+                        router.push('/live')
+                    } catch (e) {
+                        console.error(e)
+                    } finally {
+                        progress.done()
+                        pageData.value.btnDisabled = false
+                    }
                 }
             })
         }
@@ -138,15 +151,13 @@ export default defineComponent({
                     const nonce = userSessionStore.nonce ? userSessionStore.nonce : ''
                     reqData.password = sha512_encrypt(md5Pwd + '#' + nonce)
                     reqData.passwordMd5 = md5Pwd
-                    fnDoLogin(reqData)
+                    return reqData
                 } else {
                     const errorCode = $('errorCode').text()
-                    console.log(errorCode)
-                    pageData.value.btnDisabled = false
-                    progress.done()
+                    throw new Error(errorCode)
                 }
             } catch {
-                progress.done()
+                throw new Error('')
             }
         }
 
@@ -165,58 +176,41 @@ export default defineComponent({
                 const result = await doLogin(sendXml)
                 const $ = queryXml(result)
                 if ($('status').text() === 'success') {
-                    // doLogin后更新用户会话信息
-                    await userSessionStore.updateByLogin('STANDARD', result, reqData, formData.value)
-                    pageData.value.btnDisabled = false
-                    // UI1-D / UI1-G 登录默认画质
-                    if (import.meta.env.VITE_UI_TYPE === 'UI1-D' || import.meta.env.VITE_UI_TYPE === 'UI1-G') {
-                        userSessionStore.defaultStreamType = pageData.value.quality
-                    }
-                    plugin.DisposePlugin()
-                    plugin.StartV2Process()
-                    router.push('/live')
+                    return result
                 } else {
-                    progress.done()
-                    pageData.value.btnDisabled = false
                     formData.value.password = ''
                     const errorCode = $('errorCode').text().num()
                     const ramainingNumber = $('ramainingNumber').text()
                     errorLockChecker.setLockTime($('ramainingTime').text().num() * 1000)
                     errorLockChecker.setLock($('locked').text().bool())
-                    if (errorCode) {
-                        switch (errorCode) {
-                            case ErrorCode.USER_ERROR_NO_USER:
-                            case ErrorCode.USER_ERROR_PWD_ERR:
-                                pageData.value.errorMsg = Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR')
-                                errorLockChecker.setPreErrorMessage(pageData.value.errorMsg)
-                                errorLockChecker.error(() => {
-                                    if (ramainingNumber) {
-                                        pageData.value.errorMsg = pageData.value.errorMsg + '\n' + Translate('IDCS_TICK_ERROR_COUNT').formatForLang(ramainingNumber)
-                                    }
-                                })
-                                if (errorLockChecker.getLock()) {
-                                    pageData.value.btnDisabled = true
+                    switch (errorCode) {
+                        case ErrorCode.USER_ERROR_NO_USER:
+                        case ErrorCode.USER_ERROR_PWD_ERR:
+                            pageData.value.isLogin = true
+                            errorMsgFun.value = () => Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR')
+                            errorLockChecker.setPreErrorMessage('IDCS_LOGIN_FAIL_REASON_U_P_ERROR')
+                            if (!errorLockChecker.checkIsLocked()) {
+                                if (ramainingNumber) {
+                                    errorMsgFun.value = () => Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR') + '\n' + Translate('IDCS_TICK_ERROR_COUNT').formatForLang(ramainingNumber)
                                 }
-                                break
-                            case ErrorCode.USER_ERROR_USER_LOCKED:
-                                pageData.value.errorMsg = Translate('IDCS_LOGIN_FAIL_USER_LOCKED')
-                                break
-                            case ErrorCode.USER_ERROR_NO_AUTH:
-                                pageData.value.errorMsg = Translate('IDCS_LOGIN_FAIL_USER_LIMITED_TELNET')
-                                break
-                            case ErrorCode.USER_ERROR_INVALID_PARAM:
-                                pageData.value.errorMsg = Translate('IDCS_USER_ERROR_INVALID_PARAM')
-                                break
-                            default:
-                                pageData.value.errorMsg = Translate('IDCS_UNKNOWN_ERROR_CODE') + errorCode
-                        }
-                    } else {
-                        pageData.value.errorMsg = Translate('loginFailed')
+                            }
+                            break
+                        case ErrorCode.USER_ERROR_USER_LOCKED:
+                            errorMsgFun.value = () => Translate('IDCS_LOGIN_FAIL_USER_LOCKED')
+                            break
+                        case ErrorCode.USER_ERROR_NO_AUTH:
+                            errorMsgFun.value = () => Translate('IDCS_LOGIN_FAIL_USER_LIMITED_TELNET')
+                            break
+                        case ErrorCode.USER_ERROR_INVALID_PARAM:
+                            errorMsgFun.value = () => Translate('IDCS_USER_ERROR_INVALID_PARAM')
+                            break
+                        default:
+                            errorMsgFun.value = () => Translate('IDCS_UNKNOWN_ERROR_CODE') + errorCode
                     }
+                    throw new Error(errorCode + '')
                 }
             } catch (e) {
-                progress.done()
-                pageData.value.btnDisabled = false
+                throw new Error('')
             }
         }
 
@@ -243,6 +237,9 @@ export default defineComponent({
             localStorage.setItem(LocalCacheKey.KEY_PRIVACY, 'true')
         }
 
+        /**
+         * @description 更新标题
+         */
         const updateTitle = () => {
             const title = Translate('IDCS_WEB_CLIENT')
             document.title = title === 'IDCS_WEB_CLIENT' ? '' : title
@@ -252,7 +249,6 @@ export default defineComponent({
          * @description 切换语言
          */
         const changeLang = async () => {
-            pageData.value.errorMsg = ''
             langStore.updateLangId(pageData.value.langId)
             const langType = LANG_TYPE_MAPPING[pageData.value.langId]
             if (langType) {
@@ -309,6 +305,9 @@ export default defineComponent({
             rules,
             changeLang,
             closePrivacy,
+            btnDisabled,
+            errorMsg,
+            qualityOptions,
         }
     },
 })
