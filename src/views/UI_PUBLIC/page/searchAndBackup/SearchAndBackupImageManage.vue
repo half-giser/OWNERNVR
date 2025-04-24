@@ -196,10 +196,10 @@
                 />
                 <div>
                     {{ Translate('IDCS_EXPORT_SELECT_ALARM') }}
-                    <template v-if="browserType === 'chrome'">
+                    <!-- <template v-if="browserType === 'chrome'">
                         <br />
                         <div v-clean-html="Translate('IDCS_EXPORT_ALARM_CHROME')"></div>
-                    </template>
+                    </template> -->
                 </div>
             </div>
             <el-checkbox
@@ -256,6 +256,8 @@
     & > div:last-child {
         margin-left: 15px;
         color: var(--main-text);
+        display: flex;
+        align-items: center;
     }
 }
 

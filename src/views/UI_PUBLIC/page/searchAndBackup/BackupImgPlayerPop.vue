@@ -25,6 +25,7 @@
             <img
                 class="pic"
                 :src="getImg()"
+                @error="handleError"
             />
             <div class="btns">
                 <el-tooltip :content="Translate('IDCS_EXPORT')">
