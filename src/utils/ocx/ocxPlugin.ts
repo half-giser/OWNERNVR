@@ -1634,6 +1634,28 @@ export const setupPlugin = (plugin: ReturnType<typeof usePlugin>, data: PluginHo
         ready.value = true
     })
 
+    onActivated(() => {
+        if (!ready.value) {
+            if (data.onMessage) {
+                plugin.VideoPluginNotifyEmitter.addListener(data.onMessage)
+            }
+
+            ready.value = true
+        }
+    })
+
+    onDeactivated(() => {
+        ready.value = false
+
+        if (data.onMessage) {
+            plugin.VideoPluginNotifyEmitter.removeListener(data.onMessage)
+        }
+
+        if (data.onDestroy) {
+            data.onDestroy(mode, plugin)
+        }
+    })
+
     onBeforeUnmount(() => {
         if (data.onMessage) {
             plugin.VideoPluginNotifyEmitter.removeListener(data.onMessage)
