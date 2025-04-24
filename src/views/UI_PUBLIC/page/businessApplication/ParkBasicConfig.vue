@@ -10,10 +10,6 @@
             v-title
             :rules="rules"
             :model="formData"
-            :style="{
-                '--form-input-width': '300px',
-                '--form-label-width': '200px',
-            }"
         >
             <div class="limit">{{ Translate('IDCS_PARKING_LOT_MANAGE_TIPS').formatForLang(1) }}</div>
 
@@ -59,7 +55,7 @@
     </div>
 </template>
 
-<script lang="ts" src="./PkMgrBasicConfig.v.ts"></script>
+<script lang="ts" src="./ParkBasicConfig.v.ts"></script>
 
 <style lang="scss" scoped>
 .manage {

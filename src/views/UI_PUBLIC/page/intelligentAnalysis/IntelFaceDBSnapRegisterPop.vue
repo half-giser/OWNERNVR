@@ -23,14 +23,17 @@
                 :model="formData"
                 class="stripe"
                 :style="{
-                    '--form-input-width': '340px',
+                    '--form-input-width': '250px',
                 }"
             >
                 <el-form-item
                     :label="Translate('IDCS_NAME_PERSON')"
                     prop="name"
                 >
-                    <el-input v-model="formData.name" />
+                    <el-input
+                        v-model="formData.name"
+                        maxlength="32"
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_SEX')">
                     <el-select-v2
@@ -39,7 +42,10 @@
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_BIRTHDAY')">
-                    <BaseDatePicker v-model="formData.birthday" />
+                    <BaseDatePicker
+                        v-model="formData.birthday"
+                        :range="['1910-01-01', '2037-12-31']"
+                    />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_ID_TYPE')">
                     <el-select-v2

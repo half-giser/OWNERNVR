@@ -279,7 +279,7 @@ export default defineComponent({
                     if (item.attr('id') === 'NVMS5000') {
                         formData.value.nwms5000Switch = $item('switch').text().bool()
                         formData.value.serverAddr = $item('serverAddr').text()
-                        formData.value.reportId = $item('reportId').text().num()
+                        formData.value.reportId = $item('reportId').text().undef()?.num()
                         formData.value.port = $item('port').text().num()
                     } else if (item.attr('id') === 'GB28181') {
                         formData.value.gb28181Switch = $item('switch').text().bool()
@@ -425,7 +425,7 @@ export default defineComponent({
                     <content current="${formData.value.accessType}">
                         <item id="${formData.value.accessType}">
                             <serverAddr>${formData.value.serverAddr}</serverAddr>
-                            <reportId>${formData.value.reportId}</reportId>
+                            <reportId>${formData.value.reportId || 0}</reportId>
                             <port>${formData.value.port}</port>
                             <switch>${formData.value.nwms5000Switch}</switch>
                         </item>

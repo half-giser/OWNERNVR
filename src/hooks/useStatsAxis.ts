@@ -86,7 +86,7 @@ export const useStatsAxis = (dateRangeType: Ref<string> | ComputedRef<string>, d
         if (dateRangeType.value === 'date') {
             return Translate('IDCS_HOUR')
         } else if (dateRangeType.value === 'custom') {
-            if (formatDate(dateRange.value[0], 'YYYY-MM-DD') === formatDate(dateRange.value[1], 'YYYY-MM-DD')) {
+            if (formatDate(dateRange.value[0], DEFAULT_YMD_FORMAT) === formatDate(dateRange.value[1], DEFAULT_YMD_FORMAT)) {
                 return Translate('IDCS_HOUR')
             }
             return ''
@@ -147,7 +147,7 @@ export const useStatsAxis = (dateRangeType: Ref<string> | ComputedRef<string>, d
         }
 
         if (dateRangeType.value === 'custom') {
-            if (formatDate(dateRange.value[0], 'YYYY-MM-DD') === formatDate(dateRange.value[1], 'YYYY-MM-DD')) {
+            if (formatDate(dateRange.value[0], DEFAULT_YMD_FORMAT) === formatDate(dateRange.value[1], DEFAULT_YMD_FORMAT)) {
                 return dateArray.map((_, index) => {
                     return index + 1 + Translate('IDCS_HOUR')
                 })

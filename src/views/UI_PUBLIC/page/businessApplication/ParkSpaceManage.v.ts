@@ -3,12 +3,7 @@
  * @Date: 2024-05-27 09:38:30
  * @Description: 业务应用-停车场管理-车位管理
  */
-import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
-
 export default defineComponent({
-    components: {
-        ScheduleManagPop,
-    },
     setup() {
         const { Translate } = useLangStore()
 
@@ -38,7 +33,7 @@ export default defineComponent({
             isSchedulePop: false,
         })
 
-        const tableData = ref<BusinessPkMgrSpaceManageList[]>([])
+        const tableData = ref<BusinessParkSpaceManageList[]>([])
         const watchEdit = useWatchEditData(tableData)
 
         /**
@@ -46,29 +41,9 @@ export default defineComponent({
          * @param groupSchedule
          */
         const changeAllSchedule = (groupSchedule: string) => {
-            if (groupSchedule === 'scheduleMgr') {
-                openSchedulePop()
-            } else {
-                tableData.value.forEach((ele) => {
-                    ele.groupSchedule = groupSchedule
-                    ele.oldGroupSchedule = groupSchedule
-                })
-            }
-        }
-
-        /**
-         * @description 单个编辑排程
-         * @param rowData
-         */
-        const changeSingleSchedule = (rowData: BusinessPkMgrSpaceManageList) => {
-            if (rowData.groupSchedule === 'scheduleMgr') {
-                openSchedulePop()
-                nextTick(() => {
-                    rowData.groupSchedule = rowData.oldGroupSchedule
-                })
-            } else {
-                rowData.oldGroupSchedule = rowData.groupSchedule
-            }
+            tableData.value.forEach((ele) => {
+                ele.groupSchedule = groupSchedule
+            })
         }
 
         /**
@@ -86,7 +61,6 @@ export default defineComponent({
             await getScheduleList()
             tableData.value.forEach((item) => {
                 item.groupSchedule = getScheduleId(pageData.value.scheduleList, item.groupSchedule)
-                item.oldGroupSchedule = item.groupSchedule
             })
         }
 
@@ -96,9 +70,7 @@ export default defineComponent({
         const getScheduleList = async () => {
             openLoading()
 
-            pageData.value.scheduleList = await buildScheduleList({
-                isManager: true,
-            })
+            pageData.value.scheduleList = await buildScheduleList()
 
             closeLoading()
         }
@@ -127,7 +99,6 @@ export default defineComponent({
                         groupTotalNum: $item('groupTotalNum').text().num(),
                         groupRemainNum: $item('groupRemainNum').text().num(),
                         groupSchedule: schedule,
-                        oldGroupSchedule: schedule,
                         linkEmail: $item('linkEmail').text(),
                     }
                 })
@@ -250,8 +221,8 @@ export default defineComponent({
             tableData,
             watchEdit,
             changeAllSchedule,
-            changeSingleSchedule,
             apply,
+            openSchedulePop,
             closeSchedulePop,
         }
     },

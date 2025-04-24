@@ -12,7 +12,7 @@
                 '--form-input-width': '130px',
             }"
         >
-            <div class="lens-ctrl lens-ctrl1">
+            <div class="lens-ctrl">
                 <div
                     class="lens-btn"
                     @mousedown="addCmd('ZoomOut')"
@@ -61,7 +61,7 @@
             </el-form-item>
             <div
                 v-show="formData.focusType === 'manual'"
-                class="lens-ctrl lens-ctrl2"
+                class="lens-ctrl"
             >
                 <div
                     class="lens-btn"
@@ -97,7 +97,12 @@
                     @mousedown="addCmd('OneKeyFocus')"
                     @mouseup="addCmd('Stop')"
                 >
-                    {{ Translate('IDCS_ONE_KEY_FOCUS') }}
+                    <div
+                        v-title
+                        class="text-ellipsis"
+                    >
+                        {{ Translate('IDCS_ONE_KEY_FOCUS') }}
+                    </div>
                 </el-button>
             </div>
             <div class="lens-tip">
@@ -111,16 +116,16 @@
                     :label="Translate('IDCS_AUTO_FOCUS_TIP')"
                 />
             </el-form-item>
-            <div class="base-btn-box space-between">
-                <div>
-                    <BaseFloatError
-                        v-model:message="pageData.errorMessage"
-                        :type="pageData.errorMessageType"
-                    />
-                </div>
-                <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>
-            </div>
         </el-form>
+        <div class="base-btn-box space-between padding">
+            <div>
+                <BaseFloatError
+                    v-model:message="pageData.errorMessage"
+                    :type="pageData.errorMessageType"
+                />
+            </div>
+            <el-button @click="setData">{{ Translate('IDCS_APPLY') }}</el-button>
+        </div>
     </div>
 </template>
 
@@ -132,18 +137,10 @@
 
     &-ctrl {
         display: flex;
-        padding: 15px 10px 0;
+        padding: 15px 10px;
         height: 32px;
         line-height: 32px;
         align-items: center;
-
-        &1 {
-            padding-bottom: 40px;
-        }
-
-        &2 {
-            padding: 20px 10px 10px;
-        }
     }
 
     .arrow {
@@ -160,6 +157,7 @@
         border: 1px solid var(--btn-border);
         cursor: pointer;
         margin: 0 5px;
+        flex-shrink: 0;
 
         &:hover {
             background-color: var(--primary-light);
@@ -177,6 +175,12 @@
 
     &-onekeyfocus {
         margin-right: 0 !important;
+        width: 70px;
+        min-width: unset !important;
+
+        .text-ellipsis {
+            width: 70px;
+        }
     }
 }
 </style>

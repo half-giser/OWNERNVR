@@ -5,7 +5,7 @@
 -->
 <template>
     <div class="base-flex-box">
-        <el-form>
+        <el-form class="no-padding">
             <el-form-item>
                 <el-checkbox
                     v-model="formData.switch"

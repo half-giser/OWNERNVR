@@ -21,7 +21,6 @@
                         <BaseTableRowStatus :icon="row.status" />
                     </template>
                 </el-table-column>
-
                 <!-- 名称 -->
                 <el-table-column
                     width="160"
@@ -37,7 +36,6 @@
                         />
                     </template>
                 </el-table-column>
-
                 <!-- 组合报警 -->
                 <el-table-column
                     :label="Translate('IDCS_COMBINATION_ALARM')"
@@ -58,7 +56,6 @@
                         </div>
                     </template>
                 </el-table-column>
-
                 <!-- 录像 -->
                 <el-table-column width="180">
                     <template #header>
@@ -84,7 +81,6 @@
                         </div>
                     </template>
                 </el-table-column>
-
                 <!-- 抓图 -->
                 <el-table-column width="180">
                     <template #header>
@@ -110,7 +106,6 @@
                         </div>
                     </template>
                 </el-table-column>
-
                 <!-- 声音，supportAudio -->
                 <el-table-column
                     v-if="pageData.supportAudio"
@@ -141,7 +136,6 @@
                         />
                     </template>
                 </el-table-column>
-
                 <!-- 推送 -->
                 <el-table-column width="150">
                     <template #header>
@@ -169,7 +163,6 @@
                         />
                     </template>
                 </el-table-column>
-
                 <!-- 报警输出 -->
                 <el-table-column width="180">
                     <template #header>
@@ -195,7 +188,6 @@
                         </div>
                     </template>
                 </el-table-column>
-
                 <!-- 预置点名称 -->
                 <el-table-column
                     :label="Translate('IDCS_PRESET_NAME')"
@@ -216,7 +208,6 @@
                         </div>
                     </template>
                 </el-table-column>
-
                 <!-- 蜂鸣器 -->
                 <el-table-column width="100">
                     <template #header>
@@ -244,7 +235,6 @@
                         />
                     </template>
                 </el-table-column>
-
                 <!-- 视频弹出 -->
                 <el-table-column width="125">
                     <template #header>
@@ -272,7 +262,6 @@
                         />
                     </template>
                 </el-table-column>
-
                 <!-- 消息框弹出 -->
                 <el-table-column width="170">
                     <template #header>
@@ -300,7 +289,6 @@
                         />
                     </template>
                 </el-table-column>
-
                 <!-- Email -->
                 <el-table-column width="100">
                     <template #header>
@@ -329,7 +317,7 @@
             </el-table>
         </div>
         <div class="base-btn-box space-between">
-            <div>{{ pageData.CombinedALarmInfo }}</div>
+            <div>{{ pageData.combinedALarmInfo }}</div>
             <el-button
                 :disabled="!editRows.size()"
                 @click="setData()"

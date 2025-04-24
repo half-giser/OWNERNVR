@@ -43,7 +43,7 @@ export default defineComponent({
             // 选中的行
             tableIndex: 0,
             // 导出按钮不显示
-            isExportDisabled: userSession.appType === 'P2P',
+            isExportVisible: userSession.appType === 'P2P' || isHttpsLogin(),
             // 是否显示导出提示弹窗
             isExportTipPop: false,
             // 是否显示导出弹窗
@@ -77,6 +77,13 @@ export default defineComponent({
         const groupTableData = ref<IntelFaceDBFaceInfo[]>([])
         // 当前展开项的所有人脸数据列表
         const allGroupTableData = ref<IntelFaceDBFaceInfo[]>([])
+
+        const isExportDisabled = computed(() => {
+            const total = tableData.value.reduce((a, b) => {
+                return a + b.count
+            }, 0)
+            return !total
+        })
 
         // const displayAlarmText = (property: string) => {
         //     const isAlarm = ['allow', 'reject', 'limited'].includes(property)
@@ -365,7 +372,7 @@ export default defineComponent({
          * @param {string} groupId
          */
         const changeFacePage = (pageIndex: number, groupId: string) => {
-            getFace(pageIndex, groupId, false, false)
+            getFace(pageIndex, groupId, false)
         }
 
         /**
@@ -381,10 +388,9 @@ export default defineComponent({
          * @description 获取人脸数据
          * @param {number} pageIndex
          * @param {string} groupId
-         * @param {boolean} force 是否重新请求图片数据
          * @param {boolean} update 是否重新请求列表数据
          */
-        const getFace = async (pageIndex: number, groupId: string, force = false, update = true) => {
+        const getFace = async (pageIndex: number, groupId: string, update = true) => {
             openLoading()
 
             groupTableData.value = []
@@ -393,7 +399,7 @@ export default defineComponent({
 
             const findIndex = tableData.value.findIndex((item) => item.groupId === groupId)
 
-            if (formData.value.pageIndex === 1 && update) {
+            if (formData.value.pageIndex === 1 || update) {
                 allGroupTableData.value = []
 
                 const sendXml = rawXml`
@@ -428,7 +434,7 @@ export default defineComponent({
 
             groupTableData.value.forEach(async (item, i) => {
                 const id = item.id
-                if (force || !cacheFaceMap.has(id)) {
+                if (!cacheFaceMap.has(id)) {
                     const info = await getFaceInfo(id)
                     for (let j = 1; j <= info.faceImgCount; j++) {
                         const pic = await getFaceImg(id, j)
@@ -478,7 +484,7 @@ export default defineComponent({
                 number: $item('number').text(),
                 name: $item('name').text(),
                 sex: $item('sex').text(),
-                birthday: formatGregoryDate($item('birthday').text(), dateTime.dateFormat, 'YYYY-MM-DD'),
+                birthday: formatGregoryDate($item('birthday').text(), dateTime.dateFormat, DEFAULT_YMD_FORMAT),
                 nativePlace: $item('nativePlace').text(),
                 certificateType: $item('certificateType').text(),
                 certificateNum: $item('certificateNum').text(),
@@ -541,10 +547,15 @@ export default defineComponent({
         }
 
         /**
-         * @description 人脸全选
+         * @description 人脸全选/取消全选
          */
         const selectAllFace = () => {
-            formData.value.faceIndex = groupTableData.value.map((_item, index) => index)
+            if (formData.value.faceIndex.length === groupTableData.value.length) {
+                formData.value.faceIndex = []
+            } else {
+                formData.value.infoFaceIndex = groupTableData.value.length - 1
+                formData.value.faceIndex = groupTableData.value.map((_item, index) => index)
+            }
         }
 
         /**
@@ -589,10 +600,8 @@ export default defineComponent({
                 if ($('status').text() === 'success') {
                     clearCache(formData.value.faceIndex.map((index) => groupTableData.value[index].id))
 
-                    if (formData.value.faceIndex.length === groupTableData.value.length) {
-                        formData.value.pageIndex = 1
-                    }
                     formData.value.faceIndex = []
+                    formData.value.pageIndex = 1
                     formData.value.infoFaceIndex = -1
 
                     getGroupFaceFeatureCount(group)
@@ -779,6 +788,11 @@ export default defineComponent({
             return row.groupId
         }
 
+        /**
+         * @description 格式化日期显示
+         * @param {string} date
+         * @returns {string}
+         */
         const displayDate = (date: string) => {
             return formatDate(date, dateTime.dateFormat)
         }
@@ -831,6 +845,7 @@ export default defineComponent({
             editFace,
             confirmEditFace,
             displayDate,
+            isExportDisabled,
         }
     },
 })

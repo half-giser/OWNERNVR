@@ -51,25 +51,20 @@
                                     <el-button @click="clearAllArea">{{ Translate('IDCS_FACE_CLEAR_ALL') }}</el-button>
                                 </div>
                             </div>
-                            <span class="base-ai-tip">{{ pageData.drawAreaTip }}</span>
+                            <div class="base-ai-tip">{{ pageData.drawAreaTip }}</div>
                         </div>
                     </div>
                     <div class="base-ai-param-box-right">
-                        <el-form
-                            v-title
-                            :style="{
-                                '--form-input-width': '215px',
-                            }"
-                        >
+                        <el-form v-title>
                             <!-- 排程 -->
                             <div class="base-ai-subheading">{{ Translate('IDCS_SCHEDULE') }}</div>
                             <!-- 排程配置 -->
                             <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
-                                <el-select-v2
+                                <BaseScheduleSelect
                                     v-model="formData.schedule"
                                     :options="pageData.scheduleList"
+                                    @edit="pageData.isSchedulePop = true"
                                 />
-                                <el-button @click="pageData.isSchedulePop = true">{{ Translate('IDCS_MANAGE') }}</el-button>
                             </el-form-item>
                             <!-- 规则 -->
                             <div class="base-ai-subheading">{{ Translate('IDCD_RULE') }}</div>
@@ -148,9 +143,7 @@
                                             :max="1"
                                             :precision="2"
                                             :step="0.01"
-                                            @input="inputValue"
-                                            @focus="focusValue(row.emissivity)"
-                                            @blur="blurValue(0.01, 1)"
+                                            @out-of-range="blurValue(0.01, 1)"
                                             @keyup.enter="blurInput"
                                         />
                                     </template>
@@ -165,9 +158,7 @@
                                             v-model="row.distance"
                                             :min="0"
                                             :max="10000"
-                                            @input="inputValue"
-                                            @focus="focusValue(row.distance)"
-                                            @blur="blurValue(0, 10000)"
+                                            @out-of-range="blurValue(0, 10000)"
                                             @keyup.enter="blurInput"
                                         />
                                     </template>
@@ -182,9 +173,7 @@
                                             v-model="row.reflectTemper"
                                             :min="-30"
                                             :max="60"
-                                            @input="inputValue"
-                                            @focus="focusValue(row.reflectTemper)"
-                                            @blur="blurValue(-30, 60)"
+                                            @out-of-range="blurValue(-30, 60)"
                                             @keyup.enter="blurInput"
                                         />
                                     </template>
@@ -211,9 +200,7 @@
                                             v-model="row.alarmTemper"
                                             :min="-50"
                                             :max="550"
-                                            @input="inputValue"
-                                            @focus="focusValue(row.alarmTemper)"
-                                            @blur="blurValue(-50, 550)"
+                                            @out-of-range="blurValue(-50, 550)"
                                             @keyup.enter="blurInput"
                                         />
                                     </template>
@@ -230,9 +217,6 @@
                     <el-form
                         v-if="supportAlarmAudioConfig"
                         v-title
-                        :style="{
-                            '--form-input-width': '215px',
-                        }"
                     >
                         <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">
                             <el-select-v2
@@ -268,7 +252,7 @@
             </el-button>
         </div>
         <!-- 排程管理弹窗 -->
-        <ScheduleManagPop
+        <BaseScheduleManagePop
             v-model="pageData.isSchedulePop"
             @close="closeSchedulePop"
         />

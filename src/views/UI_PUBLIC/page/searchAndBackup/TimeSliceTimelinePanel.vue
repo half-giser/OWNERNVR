@@ -41,9 +41,7 @@
             <el-form
                 v-show="pageData.mode === 'day' && (formData.startTime || formData.endTime)"
                 v-title
-                :class="{
-                    '--form-label-width': '150px',
-                }"
+                class="stripe"
             >
                 <el-form-item :label="Translate('IDCS_START_TIME')">
                     <el-input

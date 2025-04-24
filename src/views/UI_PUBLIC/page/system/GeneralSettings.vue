@@ -11,10 +11,6 @@
             class="stripe"
             :rules
             :model="formData"
-            :style="{
-                '--form-label-width': '200px',
-                '--form-input-width': '250px',
-            }"
         >
             <el-form-item
                 prop="deviceName"
@@ -35,6 +31,7 @@
                     v-model="formData.deviceNumber"
                     :min="0"
                     :max="99999"
+                    :value-on-clear="null"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_VIDEO_FORMAT')">

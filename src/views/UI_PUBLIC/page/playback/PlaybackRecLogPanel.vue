@@ -55,7 +55,7 @@
                                 </BaseTableDropdownLink>
                             </template>
                             <el-scrollbar height="300">
-                                <div class="base-subheading-box">{{ Translate('IDCS_EVENT') }}</div>
+                                <div class="base-head-box">{{ Translate('IDCS_EVENT') }}</div>
                                 <el-checkbox-group
                                     v-model="pageData.event"
                                     class="line-break inline"
@@ -67,7 +67,7 @@
                                         :label="item.label"
                                     />
                                 </el-checkbox-group>
-                                <div class="base-subheading-box">{{ Translate('IDCS_TARGET') }}</div>
+                                <div class="base-head-box">{{ Translate('IDCS_TARGET') }}</div>
                                 <el-checkbox-group
                                     v-model="pageData.motion"
                                     class="line-break inline"

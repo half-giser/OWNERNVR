@@ -130,7 +130,7 @@ export default defineComponent({
             // 当前选中窗口的数据
             winData: new LiveSharedWinData(),
             // 音量
-            volume: 50,
+            volume: 65,
             // 当前打开音频的窗口索引
             audioWinIndex: -1,
             // 是否开启OSD

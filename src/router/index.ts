@@ -195,7 +195,7 @@ router.beforeResolve(async (to: RouteLocationNormalized, _from, next) => {
     progress.start()
     if (!to.meta?.noToken) {
         try {
-            await dateTime.getTimeConfig(true)
+            await dateTime.getTimeConfig()
         } catch {}
     }
     closeAllLoading()

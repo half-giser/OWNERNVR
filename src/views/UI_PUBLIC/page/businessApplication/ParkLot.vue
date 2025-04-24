@@ -86,7 +86,7 @@
                     </div>
                 </div>
                 <div class="data">
-                    <el-form>
+                    <el-form class="no-padding">
                         <el-form-item>
                             <el-input
                                 v-model="formData.plateNum"
@@ -193,7 +193,7 @@
             </div>
         </div>
         <div class="copyright">{{ Translate('IDCS_COPYRIGHT') }}</div>
-        <PKMgrParkLotPop
+        <ParkLotPop
             v-model="pageData.isDetailPop"
             :list="tableData"
             :index="pageData.detailIndex"
@@ -203,7 +203,7 @@
     </div>
 </template>
 
-<script lang="ts" src="./PkMgrParkLot.v.ts"></script>
+<script lang="ts" src="./ParkLot.v.ts"></script>
 
 <style lang="scss" scoped>
 .lot {

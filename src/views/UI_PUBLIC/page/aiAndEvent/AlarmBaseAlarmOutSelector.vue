@@ -17,12 +17,13 @@
                 <li
                     v-for="item in modelValue"
                     :key="item.value"
+                    v-title
                 >
                     {{ item.label }}
                 </li>
             </ul>
         </el-scrollbar>
-        <BaseTransferDialog
+        <BaseTransferPop
             v-model="pageData.isPop"
             header-title="IDCS_TRIGGER_ALARM_OUT"
             source-title="IDCS_ALARM_OUT"

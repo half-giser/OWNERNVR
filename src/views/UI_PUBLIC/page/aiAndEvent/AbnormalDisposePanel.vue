@@ -30,12 +30,7 @@
                     </div>
                 </div>
                 <div class="base-ai-param-box-right">
-                    <el-form
-                        v-title
-                        :style="{
-                            '--form-input-width': '215px',
-                        }"
-                    >
+                    <el-form v-title>
                         <!-- 规则 -->
                         <div class="base-ai-subheading">{{ Translate('IDCD_RULE') }}</div>
                         <!-- 持续时间 -->
@@ -74,7 +69,6 @@
                             <BaseSliderInput
                                 v-model="formData.sensitivity"
                                 :min="1"
-                                :max="100"
                             />
                         </el-form-item>
                     </el-form>
@@ -88,9 +82,6 @@
                 <el-form
                     v-if="supportAlarmAudioConfig"
                     v-title
-                    :style="{
-                        '--form-input-width': '215px',
-                    }"
                 >
                     <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">
                         <el-select-v2

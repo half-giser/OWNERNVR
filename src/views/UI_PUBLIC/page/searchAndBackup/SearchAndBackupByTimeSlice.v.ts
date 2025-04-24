@@ -78,7 +78,6 @@ export default defineComponent({
         }
 
         return {
-            dateTime,
             pageData,
             navIndex,
             displayYearMonth,

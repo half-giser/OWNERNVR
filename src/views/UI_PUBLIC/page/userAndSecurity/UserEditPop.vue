@@ -16,9 +16,6 @@
             class="stripe"
             :rules
             :model="formData"
-            :class="{
-                '--form-label-width': '200px',
-            }"
         >
             <el-form-item :label="Translate('IDCS_ENABLE')">
                 <el-checkbox

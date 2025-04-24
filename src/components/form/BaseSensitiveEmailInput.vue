@@ -96,7 +96,6 @@ watch(
         } else {
             handleShowSensitiveInfo()
         }
-        // stopWatch()
     },
 )
 

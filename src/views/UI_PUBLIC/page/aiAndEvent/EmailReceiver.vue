@@ -11,8 +11,7 @@
             :model="pageData.form"
             :rules="rules"
             :style="{
-                '--form-label-width': '240px',
-                '--form-input-width': '180px',
+                '--form-label-width': '105px',
             }"
             class="top"
         >
@@ -24,9 +23,10 @@
                     v-model="pageData.form.recipient"
                     maxlength="63"
                 />
-                <el-select-v2
+                <BaseScheduleSelect
                     v-model="pageData.schedule"
                     :options="pageData.scheduleList"
+                    @edit="openSchedulePop"
                 />
                 <el-button @click="addRecipient()">
                     {{ Translate('IDCS_ADD') }}
@@ -57,27 +57,17 @@
                 </el-table-column>
                 <el-table-column width="205">
                     <template #header>
-                        <el-dropdown>
-                            <BaseTableDropdownLink>
-                                {{ Translate('IDCS_SCHEDULE') }}
-                            </BaseTableDropdownLink>
-                            <template #dropdown>
-                                <el-dropdown-menu>
-                                    <el-dropdown-item
-                                        v-for="item in pageData.scheduleList"
-                                        :key="item.value"
-                                        @click="changeAllSchedule(item.value)"
-                                    >
-                                        {{ item.label }}
-                                    </el-dropdown-item>
-                                </el-dropdown-menu>
-                            </template>
-                        </el-dropdown>
+                        <BaseScheduleTableDropdown
+                            :options="pageData.scheduleList"
+                            @change="changeAllSchedule"
+                            @edit="openSchedulePop"
+                        />
                     </template>
                     <template #default="{ row }: TableColumn<AlarmEmailReceiverDto>">
-                        <el-select-v2
+                        <BaseScheduleSelect
                             v-model="row.schedule"
                             :options="pageData.scheduleList"
+                            @edit="openSchedulePop"
                         />
                     </template>
                 </el-table-column>
@@ -121,16 +111,13 @@
                     <el-button @click="editSender()">
                         {{ Translate('IDCS_SENDER_EDIT') }}
                     </el-button>
-                    <el-button @click="pageData.isSchedulePop = true">
-                        {{ Translate('IDCS_SCHEDULE_MANAGE') }}
-                    </el-button>
                     <el-button @click="setData()">
                         {{ Translate('IDCS_APPLY') }}
                     </el-button>
                 </div>
             </div>
         </div>
-        <ScheduleManagPop
+        <BaseScheduleManagePop
             v-model="pageData.isSchedulePop"
             @close="closeSchedulePop"
         />
@@ -141,9 +128,6 @@
 
 <style lang="scss" scoped>
 .top {
-    width: 700px;
-    height: 50px;
-
     :deep(.el-form-item) {
         padding-inline: 0 !important;
     }

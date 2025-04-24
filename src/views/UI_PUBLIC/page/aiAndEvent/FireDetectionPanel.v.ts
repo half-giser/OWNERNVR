@@ -3,7 +3,6 @@
  * @Date: 2024-09-11 14:16:37
  * @Description: 火点检测
  */
-import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
 import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
 import AlarmBaseTriggerSelector from './AlarmBaseTriggerSelector.vue'
@@ -12,7 +11,6 @@ import AlarmBaseSnapSelector from './AlarmBaseSnapSelector.vue'
 
 export default defineComponent({
     components: {
-        ScheduleManagPop,
         AlarmBaseRecordSelector,
         AlarmBaseAlarmOutSelector,
         AlarmBaseTriggerSelector,
@@ -85,6 +83,9 @@ export default defineComponent({
             return playerRef.value!.mode
         })
 
+        /**
+         * @description 播放器准备就绪
+         */
         const handlePlayerReady = () => {
             player = playerRef.value!.player
             plugin = playerRef.value!.plugin
@@ -95,7 +96,9 @@ export default defineComponent({
             }
         }
 
-        //播放视频
+        /**
+         * @description 播放视频
+         */
         const play = () => {
             const { id, name } = props.chlData
 
@@ -121,19 +124,25 @@ export default defineComponent({
             }
         })
 
-        // 关闭排程管理后刷新排程列表
+        /**
+         * @description 关闭排程管理后刷新排程列表
+         */
         const closeSchedulePop = async () => {
             pageData.value.isSchedulePop = false
             await getScheduleList()
             formData.value.schedule = getScheduleId(pageData.value.scheduleList, formData.value.schedule)
         }
 
-        // 对sheduleList进行处理
+        /**
+         * @description 获取排程列表
+         */
         const getScheduleList = async () => {
             pageData.value.scheduleList = await buildScheduleList()
         }
 
-        // 获取火点数据
+        /**
+         * @description 获取火点检测配置
+         */
         const getData = async () => {
             openLoading()
 
@@ -234,7 +243,9 @@ export default defineComponent({
             }
         }
 
-        // 执行编辑请求
+        /**
+         * @description 保存数据
+         */
         const saveData = async () => {
             const sendXml = rawXml`
                 <content>
@@ -299,7 +310,9 @@ export default defineComponent({
             })
         }
 
-        // 应用
+        /**
+         * @description 检测互斥通道 更新配置
+         */
         const applyData = () => {
             checkMutexChl({
                 tips: 'IDCS_FIRE_POINT_DETECT_TIPS',
@@ -314,7 +327,9 @@ export default defineComponent({
             })
         }
 
-        // 初始化页面数据
+        /**
+         * @description 初始化页面数据
+         */
         const initPageData = async () => {
             pageData.value.supportAlarmAudioConfig = systemCaps.supportAlarmAudioConfig
             await getScheduleList()

@@ -13,7 +13,7 @@ export const useWatchEditRows = <T extends TableRowStatus>() => {
     const watcher = new Map<T, WatchStopHandle>()
 
     /**
-     * @description 停止侦听，并清除所有记录的数据
+     * @description 停止侦听，并清除所有记录的数据 (在获取数据前重置侦听)
      */
     const clear = () => {
         off()
@@ -21,7 +21,7 @@ export const useWatchEditRows = <T extends TableRowStatus>() => {
     }
 
     /**
-     * @description 停止侦听，不清除记录的数据
+     * @description 停止侦听，但不清除记录的数据
      */
     const off = () => {
         watcher.forEach((stopWatch) => {
@@ -64,7 +64,7 @@ export const useWatchEditRows = <T extends TableRowStatus>() => {
     }
 
     /**
-     * @description 移除该行记录
+     * @description 移除该行记录（在数据下发成功后重置改行侦听）
      * @param item
      */
     const remove = (item: T) => {

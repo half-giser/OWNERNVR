@@ -28,6 +28,7 @@
             <el-table-column
                 :label="labelTitle"
                 :prop="label"
+                show-overflow-tooltip
             />
         </el-table>
         <slot></slot>

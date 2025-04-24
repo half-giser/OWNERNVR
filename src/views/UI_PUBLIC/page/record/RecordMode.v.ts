@@ -5,13 +5,11 @@
  */
 import RecordModeAdvancePop from './RecordModeAdvancePop.vue'
 import RecordModeStreamPop from './RecordModeStreamPop.vue'
-import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 
 export default defineComponent({
     components: {
         RecordModeAdvancePop,
         RecordModeStreamPop,
-        ScheduleManagPop,
     },
     setup() {
         const { Translate } = useLangStore()
@@ -191,6 +189,10 @@ export default defineComponent({
             tableData.value.forEach((item) => {
                 item[field] = value
             })
+        }
+
+        const openSchedulePop = () => {
+            pageData.value.isSchedulePop = true
         }
 
         const getRecModeData = async () => {
@@ -558,6 +560,7 @@ export default defineComponent({
             recAutoModeList,
             advanceRecModeMap,
             supportPOS,
+            openSchedulePop,
             changeAllSchedule,
             confirmAdvancePop,
             closeStreamPop,

@@ -8,10 +8,6 @@
         <el-form
             v-title
             class="stripe"
-            :style="{
-                '--form-label-width': '200px',
-                '--form-input-width': '200px',
-            }"
         >
             <el-form-item>
                 <el-checkbox

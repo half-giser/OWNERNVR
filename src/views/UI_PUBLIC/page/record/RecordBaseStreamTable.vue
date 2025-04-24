@@ -73,14 +73,13 @@
                         <el-popover
                             v-model:visible="pageData.resolutionHeaderVisble"
                             width="430"
-                            popper-class="no-padding"
                         >
                             <template #reference>
                                 <BaseTableDropdownLink>
                                     {{ Translate('IDCS_RESOLUTION_RATE') }}
                                 </BaseTableDropdownLink>
                             </template>
-                            <div class="resolutionContainer">
+                            <div>
                                 <el-table
                                     ref="resolutionTableRef"
                                     width="408"
@@ -358,7 +357,6 @@
                     <template #header>
                         <el-popover
                             v-model:visible="pageData.gopHeaderVisble"
-                            popper-class="no-padding"
                             width="300"
                             placement="bottom-end"
                         >
@@ -367,12 +365,13 @@
                                     {{ Translate('IDCS_GOP') }}
                                 </BaseTableDropdownLink>
                             </template>
-                            <div class="GOP_dropDown">
+                            <div>
                                 <el-form
                                     v-title
                                     :style="{
                                         '--form-label-width': 'auto',
                                     }"
+                                    class="no-padding"
                                 >
                                     <el-form-item label="GOP">
                                         <BaseNumberInput
@@ -444,14 +443,6 @@
     margin-right: 10px;
 }
 
-.gop_btn {
-    margin: 10px 20px;
-}
-
-.resolutionContainer {
-    padding: 10px;
-}
-
 .chl-box {
     display: flex;
     flex-wrap: wrap;
@@ -472,17 +463,5 @@
     span:last-child {
         margin-left: 5px;
     }
-}
-
-.GOP_dropDown {
-    padding: 10px;
-}
-
-.GOP_input {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-    font-size: 13px;
-    color: var(--main-text);
 }
 </style>

@@ -53,11 +53,17 @@
                         </template>
                         <div class="menaulTimeInputPL">
                             <div class="row">
-                                <el-time-picker
-                                    v-model="pageData.manualTimeSpan"
-                                    is-range
-                                    range-separator="-"
-                                    :format="dateTime.hourMinuteFormat"
+                                <BaseTimePicker
+                                    v-model="pageData.manualTimeSpan[0]"
+                                    :range="[null, `${pageData.manualTimeSpan[1]}:00`]"
+                                    unit="minute"
+                                    :teleported="false"
+                                />
+                                <span class="splitter">--</span>
+                                <BaseTimePicker
+                                    v-model="pageData.manualTimeSpan[1]"
+                                    :range="[`${pageData.manualTimeSpan[0]}:00`, null]"
+                                    unit="minute"
                                     :teleported="false"
                                 />
                             </div>
@@ -112,7 +118,7 @@
     </el-dialog>
 </template>
 
-<script lang="ts" src="./ScheduleEditPop.v.ts"></script>
+<script lang="ts" src="./BaseScheduleEditPop.v.ts"></script>
 
 <style lang="scss" scoped>
 .form {
@@ -177,6 +183,11 @@
         display: flex;
         justify-content: end;
         margin-bottom: 5px;
+
+        & > .splitter {
+            flex-shrink: 0;
+            margin: 0 8px;
+        }
     }
 }
 </style>

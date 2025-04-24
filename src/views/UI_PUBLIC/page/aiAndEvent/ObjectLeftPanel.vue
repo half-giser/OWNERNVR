@@ -59,25 +59,20 @@
                                     </el-button>
                                 </div>
                             </div>
-                            <span class="base-ai-tip">{{ Translate('IDCS_DRAW_AREA_TIP').formatForLang(6) }}</span>
+                            <div class="base-ai-tip">{{ Translate('IDCS_DRAW_AREA_TIP').formatForLang(6) }}</div>
                         </div>
                     </div>
                     <div class="base-ai-param-box-right">
-                        <el-form
-                            v-title
-                            :style="{
-                                '--form-input-width': '215px',
-                            }"
-                        >
+                        <el-form v-title>
                             <!-- 排程 -->
                             <div class="base-ai-subheading">{{ Translate('IDCS_SCHEDULE') }}</div>
                             <!-- 排程配置 -->
                             <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
-                                <el-select-v2
+                                <BaseScheduleSelect
                                     v-model="formData.schedule"
                                     :options="pageData.scheduleList"
+                                    @edit="pageData.isSchedulePop = true"
                                 />
-                                <el-button @click="pageData.isSchedulePop = true">{{ Translate('IDCS_MANAGE') }}</el-button>
                             </el-form-item>
                             <!-- 规则 -->
                             <div class="base-ai-subheading">{{ Translate('IDCD_RULE') }}</div>
@@ -138,9 +133,6 @@
                     <el-form
                         v-if="supportAlarmAudioConfig"
                         v-title
-                        :style="{
-                            '--form-input-width': '215px',
-                        }"
                     >
                         <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">
                             <el-select-v2
@@ -172,7 +164,7 @@
         </div>
     </div>
     <!-- 排程管理弹窗 -->
-    <ScheduleManagPop
+    <BaseScheduleManagePop
         v-model="pageData.isSchedulePop"
         @close="closeSchedulePop"
     />

@@ -100,8 +100,8 @@ export default defineComponent({
                 const id = item.attr('id')
                 const diskStatus = $(`content/item[@id="${id}"]/diskStatus`).text()
                 const diskEncryptStatus = $(`content/item[@id="${id}"]/diskEncryptStatus`).text()
-                const recStartDate = formatDate($item('recStartDate').text(), dateTime.dateFormat, 'YYYY-MM-DD')
-                const recEndDate = formatDate($item('recEndDate').text(), dateTime.dateFormat, 'YYYY-MM-DD')
+                const recStartDate = formatDate($item('recStartDate').text(), dateTime.dateFormat, DEFAULT_YMD_FORMAT)
+                const recEndDate = formatDate($item('recEndDate').text(), dateTime.dateFormat, DEFAULT_YMD_FORMAT)
 
                 let combinedStatus = ''
                 switch (diskEncryptStatus) {
@@ -144,8 +144,8 @@ export default defineComponent({
 
                     const diskStatus = $(`content/item[@id="${logicDiskId}"]/diskStatus`).text()
                     const diskEncryptStatus = $(`content/item[@id="${logicDiskId}"]/diskEncryptStatus`).text()
-                    const recStartDate = formatDate($item('recStartDate').text(), dateTime.dateFormat, 'YYYY-MM-DD')
-                    const recEndDate = formatDate($item('recEndDate').text(), dateTime.dateFormat, 'YYYY-MM-DD')
+                    const recStartDate = formatDate($item('recStartDate').text(), dateTime.dateFormat, DEFAULT_YMD_FORMAT)
+                    const recEndDate = formatDate($item('recEndDate').text(), dateTime.dateFormat, DEFAULT_YMD_FORMAT)
 
                     let combinedStatus = ''
                     switch (diskEncryptStatus) {

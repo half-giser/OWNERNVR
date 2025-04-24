@@ -11,9 +11,6 @@
             :model="formData"
             :rules="formRule"
             class="stripe"
-            :style="{
-                '--form-input-width': '340px',
-            }"
         >
             <el-form-item>
                 <el-checkbox
@@ -41,6 +38,7 @@
                     v-model="formData.serverAddr"
                     :disabled="!formData.switch || !current.requireParam.includes('serverAddr')"
                     :placeholder="Translate('IDCS_SERVER_ADDRESS_TIP')"
+                    maxlength="59"
                 />
             </el-form-item>
             <el-form-item
@@ -49,6 +47,7 @@
             >
                 <el-input
                     v-model="formData.domainName"
+                    maxlength="59"
                     :formatter="formatDomainName"
                     :parser="formatDomainName"
                     :disabled="!formData.switch || !current.requireParam.includes('domainName')"
@@ -67,6 +66,7 @@
                     :parser="formatInputUserName"
                     :disabled="!formData.switch || !current.requireParam.includes('userName')"
                     :placeholder="Translate('IDCS_USERNAME_TIP')"
+                    maxlength="59"
                 />
             </el-form-item>
             <el-form-item
@@ -78,6 +78,7 @@
                     v-model="formData.password"
                     :disabled="!formData.switch || !current.requireParam.includes('password')"
                     :placeholder="Translate('IDCS_PASSWORD_TIP')"
+                    maxlength="32"
                 />
             </el-form-item>
             <el-form-item
@@ -92,7 +93,7 @@
                     :max="3600"
                     :value-on-clear="current.requireParam.includes('heartbeatTime') ? 'min' : null"
                 />
-                <el-text>s {{ Translate('IDCS_HEARTBEAT_RANGE_TIP').formatForLang(5, 3600) }}</el-text>
+                <span>s {{ Translate('IDCS_HEARTBEAT_RANGE_TIP').formatForLang(5, 3600) }}</span>
             </el-form-item>
             <el-form-item :label="Translate('IDCS_CONNECTION_STATUS')">
                 {{ pageData.connectState }}

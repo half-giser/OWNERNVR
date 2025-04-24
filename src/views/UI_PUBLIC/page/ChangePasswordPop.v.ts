@@ -137,6 +137,7 @@ export default defineComponent({
                     message: Translate('IDCS_SAVE_DATA_SUCCESS'),
                 }).then(() => {
                     ctx.emit('close')
+                    Logout()
                 })
             } else {
                 const errorCode = $('errorCode').text().num()

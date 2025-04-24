@@ -4,7 +4,6 @@
  * @Description: AI 事件——车牌识别
  */
 import AlarmBaseChannelSelector from './AlarmBaseChannelSelector.vue'
-import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import RecognitionPanel from './RecognitionPanel.vue'
 import { type XMLQuery } from '@/utils/xmlParse'
 
@@ -12,7 +11,6 @@ export default defineComponent({
     components: {
         AlarmBaseChannelSelector,
         RecognitionPanel,
-        ScheduleManagPop,
     },
     setup() {
         const { Translate } = useLangStore()
@@ -28,7 +26,7 @@ export default defineComponent({
         let currentRegulation = true // 当前画点规则 regulation==1：画矩形，regulation==0或空：画点 - (regulation=='1'则currentRegulation为true：画矩形，否则currentRegulation为false：画点)
         let currAreaType: CanvasAreaType = 'regionArea' // maskArea屏蔽区域 regionArea矩形侦测区域
 
-        const continentAreaTrans: Record<string, string> = {
+        const CONTINENET_AREA_MAPPING: Record<string, string> = {
             Asia: Translate('IDCS_AISA'),
             Africa: Translate('IDCS_AFRICA'),
             Europe: Translate('IDCS_EUROPE'),
@@ -376,14 +374,14 @@ export default defineComponent({
                 // 洲
                 detectionPageData.value.continentOption = $('types/continentType/enum').map((item) => {
                     return {
-                        label: continentAreaTrans[item.text()],
+                        label: CONTINENET_AREA_MAPPING[item.text()],
                         value: item.text(),
                     }
                 })
 
                 detectionPageData.value.plateAreaList = $('types/plateAreaType/enum').map((item) => {
                     return {
-                        translate: item.attr('translate') || continentAreaTrans[item.text()] || item.text(),
+                        translate: item.attr('translate') || CONTINENET_AREA_MAPPING[item.text()] || item.text(),
                         continent: item.attr('continent'),
                         value: item.text(),
                     }
@@ -1044,6 +1042,8 @@ export default defineComponent({
                 }
                 refreshInitPage()
                 watchDetection.update()
+            } else {
+                openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
             }
         }
 
@@ -1369,7 +1369,6 @@ export default defineComponent({
                     })
                 }
                 const errorCode = $('statenotify/errorCode').text().num()
-                // 处理错误码
                 if (errorCode === 517) {
                     // 517-区域已闭合
                     clearCurrentArea()

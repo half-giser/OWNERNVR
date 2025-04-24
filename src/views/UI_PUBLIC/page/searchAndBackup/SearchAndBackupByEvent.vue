@@ -16,7 +16,7 @@
                     <template #reference>
                         <BaseImgSprite file="filterBtn" />
                     </template>
-                    <div class="base-subheading-box">{{ Translate('IDCS_TARGET') }}</div>
+                    <div class="base-head-box">{{ Translate('IDCS_TARGET') }}</div>
                     <el-checkbox-group
                         v-model="formData.targets"
                         class="event-target"
@@ -55,6 +55,9 @@
             <el-form
                 v-title
                 label-position="top"
+                :style="{
+                    '--form-input-width': '100%',
+                }"
             >
                 <el-form-item :label="Translate('IDCS_START_TIME')">
                     <BaseDatePicker

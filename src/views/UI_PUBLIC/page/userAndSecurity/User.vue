@@ -6,7 +6,7 @@
 <template>
     <div class="base-user-box">
         <div class="base-user-box-left">
-            <div class="base-subheading-box text-ellipsis">{{ Translate('IDCS_USER') }}: {{ userName }}</div>
+            <div class="base-head-box text-ellipsis">{{ Translate('IDCS_USER') }}: {{ userName }}</div>
             <div
                 v-show="!authEffective"
                 class="base-user-auth-none"

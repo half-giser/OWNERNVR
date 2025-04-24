@@ -15,11 +15,9 @@
             <el-form
                 ref="formRef"
                 v-title
-                :style="{
-                    '--form-label-width': '100px',
-                }"
                 :model="formData"
                 :rules="formRule"
+                class="stripe"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select-v2
@@ -53,25 +51,25 @@
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_START_TIME')">
-                    <el-time-picker
+                    <BaseTimePicker
                         v-model="formData.startTime"
-                        :format="dateTime.hourMinuteFormat"
-                        value-format="HH:mm"
+                        unit="minute"
                         :disabled="!tableData.length"
+                        :range="[null, formData.endTime]"
                     />
                 </el-form-item>
                 <el-form-item
                     :label="Translate('IDCS_END_TIME')"
                     prop="endTime"
                 >
-                    <el-time-picker
+                    <BaseTimePicker
                         v-model="formData.endTime"
-                        :format="dateTime.hourMinuteFormat"
-                        value-format="HH:mm"
+                        unit="minute"
                         :disabled="!tableData.length"
+                        :range="[formData.startTime, null]"
                     />
                 </el-form-item>
-                <div class="base-btn-box padding">
+                <div class="base-btn-box">
                     <el-button
                         :disabled="!tableData.length || !formData.name"
                         @click="setData"
@@ -91,6 +89,7 @@
                     :expand-row-key="pageData.expandRowKey"
                     :border="false"
                     highlight-current-row
+                    show-overflow-tooltip
                     @row-click="handleRowClick"
                     @expand-change="handleExpandChange"
                 >

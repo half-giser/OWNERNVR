@@ -22,7 +22,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const tableRef = ref<TableInstance>()
-        const dateTime = useDateTimeStore()
 
         const pageData = ref({
             // 添加的时间数据
@@ -92,7 +91,6 @@ export default defineComponent({
         return {
             tableRef,
             pageData,
-            dateTime,
             open,
             selectAllChl,
             // 手动点击选择行checkbox

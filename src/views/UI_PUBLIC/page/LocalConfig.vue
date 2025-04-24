@@ -11,10 +11,6 @@
             :rules="formRule"
             :model="formData"
             class="stripe"
-            :style="{
-                '--form-input-width': '340px',
-                '--form-label-width': '150px',
-            }"
         >
             <el-form-item :label="Translate('IDCS_SNAP_COUNT')">
                 <el-select-v2

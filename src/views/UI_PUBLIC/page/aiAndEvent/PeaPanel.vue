@@ -75,25 +75,18 @@
                         <div class="base-ai-param-box">
                             <div class="base-ai-param-box-left"></div>
                             <div class="base-ai-param-box-right">
-                                <el-form
-                                    v-title
-                                    :style="{
-                                        '--form-input-width': '215px',
-                                    }"
-                                >
+                                <el-form v-title>
                                     <div class="base-ai-subheading">
                                         {{ Translate('IDCS_SCHEDULE') }}
                                     </div>
                                     <!-- 排程 -->
                                     <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
-                                        <el-select-v2
+                                        <BaseScheduleSelect
                                             v-model="pageData.schedule"
                                             :options="pageData.scheduleList"
+                                            @edit="pageData.isSchedulePop = true"
                                             @change="watchEdit.disabled.value = false"
                                         />
-                                        <el-button @click="pageData.isSchedulePop = true">
-                                            {{ Translate('IDCS_MANAGE') }}
-                                        </el-button>
                                     </el-form-item>
                                     <div class="base-ai-subheading">
                                         {{ Translate('IDCD_RULE') }}
@@ -143,15 +136,15 @@
                                     </el-form-item>
                                     <!-- 只支持人的灵敏度 -->
                                     <el-form-item
-                                        v-if="formData[pageData.activityType].pea_onlyPreson"
+                                        v-if="formData[pageData.activityType].onlyPerson"
                                         :label="Translate('IDCS_SENSITIVITY')"
-                                        :style="{
-                                            '--form-input-width': '285px',
-                                        }"
                                     >
-                                        <BaseSliderInput v-model="formData[pageData.activityType].onlyPersonSensitivity" />
+                                        <BaseSliderInput
+                                            v-model="formData[pageData.activityType].sensitivity"
+                                            :min="1"
+                                        />
                                     </el-form-item>
-                                    <el-form-item v-if="formData[pageData.activityType].pea_onlyPreson">
+                                    <el-form-item v-if="formData[pageData.activityType].onlyPerson">
                                         {{ Translate('IDCS_DETECTION_ONLY_ONE_OBJECT').formatForLang(Translate('IDCS_BEYOND_DETECTION'), Translate('IDCS_DETECTION_PERSON')) }}
                                     </el-form-item>
                                     <!-- 云台 -->
@@ -182,18 +175,14 @@
                     </el-tab-pane>
                     <!-- 检测目标 -->
                     <el-tab-pane
-                        v-if="!formData[pageData.activityType].pea_onlyPreson"
+                        v-if="!formData[pageData.activityType].onlyPerson"
                         :label="Translate('IDCS_DETECTION_TARGET')"
                         name="target"
                     >
                         <div class="base-ai-param-box">
                             <div class="base-ai-param-box-left"></div>
                             <div class="base-ai-param-box-right">
-                                <el-form
-                                    :style="{
-                                        '--form-input-width': '300px',
-                                    }"
-                                >
+                                <el-form>
                                     <div class="base-ai-subheading">
                                         {{ Translate('IDCS_DETECTION_TARGET') }}
                                     </div>
@@ -207,7 +196,10 @@
                                         </template>
                                         <template #default>
                                             <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
-                                            <BaseSliderInput v-model="formData[pageData.activityType].personSensitivity" />
+                                            <BaseSliderInput
+                                                v-model="formData[pageData.activityType].personSensitivity"
+                                                :min="1"
+                                            />
                                         </template>
                                     </el-form-item>
                                     <!-- 汽车灵敏度 -->
@@ -220,7 +212,10 @@
                                         </template>
                                         <template #default>
                                             <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
-                                            <BaseSliderInput v-model="formData[pageData.activityType].carSensitivity" />
+                                            <BaseSliderInput
+                                                v-model="formData[pageData.activityType].carSensitivity"
+                                                :min="1"
+                                            />
                                         </template>
                                     </el-form-item>
                                     <!-- 摩托车灵敏度 -->
@@ -233,7 +228,10 @@
                                         </template>
                                         <template #default>
                                             <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
-                                            <BaseSliderInput v-model="formData[pageData.activityType].motorSensitivity" />
+                                            <BaseSliderInput
+                                                v-model="formData[pageData.activityType].motorSensitivity"
+                                                :min="1"
+                                            />
                                         </template>
                                     </el-form-item>
                                 </el-form>
@@ -295,12 +293,7 @@
                         </div>
                     </template>
                     <div class="base-ai-advance-box">
-                        <el-form
-                            :style="{
-                                '--form-label-width': '150px',
-                                '--form-input-width': '170px',
-                            }"
-                        >
+                        <el-form>
                             <div class="base-ai-subheading">
                                 {{ Translate('IDCS_VIDEO_SAVE_PIC') }}
                             </div>
@@ -324,7 +317,7 @@
                 </el-popover>
             </div>
         </div>
-        <ScheduleManagPop
+        <BaseScheduleManagePop
             v-model="pageData.isSchedulePop"
             @close="closeSchedulePop"
         />

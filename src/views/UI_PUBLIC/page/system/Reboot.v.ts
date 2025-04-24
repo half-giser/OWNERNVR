@@ -3,12 +3,12 @@
  * @Date: 2024-06-20 15:59:54
  * @Description: 系统重启
  */
-import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
+// import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
 
 export default defineComponent({
-    components: {
-        BaseCheckAuthPop,
-    },
+    // components: {
+    //     BaseCheckAuthPop,
+    // },
     setup() {
         const { Translate } = useLangStore()
 

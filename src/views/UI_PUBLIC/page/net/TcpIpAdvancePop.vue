@@ -6,7 +6,7 @@
 <template>
     <el-dialog
         :title="Translate('IDCS_ADVANCE_TCPIP')"
-        width="500"
+        width="450"
         @open="open"
         @closed="formRef?.resetFields()"
     >
@@ -15,9 +15,6 @@
             v-title
             :rules="formRule"
             :model="formData"
-            :style="{
-                '--form-label-width': '100px',
-            }"
         >
             <el-form-item v-show="formData.mtu.length === 1">
                 <el-checkbox
@@ -52,7 +49,7 @@
             >
                 <div
                     v-show="formData.mtu.length > 1"
-                    class="base-subheading-box"
+                    class="base-head-box"
                 >
                     {{ displayTitle(index) }}
                 </div>

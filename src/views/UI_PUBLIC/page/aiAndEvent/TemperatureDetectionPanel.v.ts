@@ -3,7 +3,6 @@
  * @Date: 2024-09-13 09:18:41
  * @Description: AI 事件——更多——温度检测
  */
-import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import { type TableInstance } from 'element-plus'
 import { type XMLQuery } from '@/utils/xmlParse'
 import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
@@ -14,7 +13,6 @@ import AlarmBaseSnapSelector from './AlarmBaseSnapSelector.vue'
 
 export default defineComponent({
     components: {
-        ScheduleManagPop,
         AlarmBaseRecordSelector,
         AlarmBaseAlarmOutSelector,
         AlarmBaseTriggerSelector,
@@ -186,7 +184,10 @@ export default defineComponent({
             }
         }
 
-        // drawer初始化时绑定以下函数
+        /**
+         * @description 切换区域
+         * @param {CanvasBasePoint[] | CanvasBaseArea} points
+         */
         const changeArea = (points: CanvasBasePoint[] | CanvasBaseArea) => {
             pageData.value.currRowData.points = points as CanvasBasePoint[]
             if (pageData.value.isShowAllArea) {
@@ -194,6 +195,10 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 闭合路径
+         * @param {CanvasBasePoint[]} points
+         */
         const closePath = (points: CanvasBasePoint[]) => {
             if (pageData.value.currRowData.ruleType === 'area') {
                 points.forEach((item) => (item.isClosed = true))
@@ -201,12 +206,19 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 适合可闭合回调
+         * @param {boolean} canBeClosed
+         */
         const forceClosePath = (canBeClosed: boolean) => {
             if (!canBeClosed) {
                 openMessageBox(Translate('IDCS_INTERSECT'))
             }
         }
 
+        /**
+         * @description 清除当前区域
+         */
         const clearCurrentArea = () => {
             openMessageBox({
                 type: 'question',
@@ -248,15 +260,27 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description
+         * @param {string} value
+         * @returns {number}
+         */
         const getRealValueByRatio = (value: string) => {
             return Number(value) / 10000
         }
 
+        /**
+         * @description
+         * @param {number} value
+         * @returns {number}
+         */
         const getScaleValueByRatio = (value: number) => {
             return value * 10000
         }
 
-        // 获取温度检测数据
+        /**
+         * @description 获取温度检测配置
+         */
         const getData = async () => {
             openLoading()
 
@@ -393,7 +417,10 @@ export default defineComponent({
             return ruleType === 'point' ? alarmRuleTypeList2 : alarmRuleTypeList1
         }
 
-        // 切换行
+        /**
+         * @description 切换行
+         * @param {AlarmTemperatureDetectionBoundryDto} row
+         */
         const changeBoundary = (row: AlarmTemperatureDetectionBoundryDto) => {
             pageData.value.currRowData = row
             // 切换另一个区域前先封闭其他可闭合的区域（“area”）
@@ -412,7 +439,9 @@ export default defineComponent({
             setAreaView()
         }
 
-        // 设置区域图形
+        /**
+         * @description 设置区域图形
+         */
         const setAreaView = () => {
             if (pageData.value.currRowData?.points) {
                 if (mode.value === 'h5') {
@@ -432,7 +461,9 @@ export default defineComponent({
             }
         }
 
-        // 是否显示全部区域
+        /**
+         * @description 是否显示全部区域
+         */
         const showAllArea = () => {
             if (mode.value === 'h5') {
                 drawer.setEnableShowAll(pageData.value.isShowAllArea)
@@ -465,7 +496,9 @@ export default defineComponent({
             }
         }
 
-        // 清空
+        /**
+         * @description 清空
+         */
         const clearArea = () => {
             if (mode.value === 'h5') {
                 drawer.clear()
@@ -481,7 +514,9 @@ export default defineComponent({
             }
         }
 
-        // 全部清除
+        /**
+         * @description 全部清除
+         */
         const clearAllArea = () => {
             formData.value.boundaryData.forEach((item) => {
                 item.points = []
@@ -504,9 +539,11 @@ export default defineComponent({
             }
         }
 
-        // 类型改变
+        /**
+         * @description 改变类型
+         * @param {AlarmTemperatureDetectionBoundryDto} row
+         */
         const changeRuleType = (row: AlarmTemperatureDetectionBoundryDto) => {
-            // pageData.value.alarmRuleTypeList[index] = value === 'point' ? alarmRuleTypeList2 : alarmRuleTypeList1
             pageData.value.currRowData = row
             boundaryTableRef.value!.setCurrentRow(row)
             row.alarmRule = 'avgtemperabove'
@@ -514,23 +551,18 @@ export default defineComponent({
             clearArea()
         }
 
-        let currentValue = 0
-
-        const focusValue = (value: number) => {
-            currentValue = value
-        }
-
-        const inputValue = (e: number | undefined | null) => {
-            currentValue = Number(e)
-        }
-
+        /**
+         * @description 数值失去焦点
+         * @param {number} min
+         * @param {number} max
+         */
         const blurValue = (min: number, max: number) => {
-            if (currentValue < min || currentValue > max) {
-                pageData.value.errorMessage = Translate('IDCS_HEARTBEAT_RANGE_TIP').formatForLang(min, max)
-            }
+            pageData.value.errorMessage = Translate('IDCS_HEARTBEAT_RANGE_TIP').formatForLang(min, max)
         }
 
-        // 设置绘制类型
+        /**
+         * @description 设置绘制类型
+         */
         const setPaintType = () => {
             const rowData = pageData.value.currRowData
             if (rowData.ruleType === 'line') {
@@ -552,13 +584,19 @@ export default defineComponent({
             }
         }
 
-        // 闭合区域
+        /**
+         * @description 闭合区域
+         * @param {CanvasBasePoint[]} points
+         */
         const setClosed = (points: CanvasBasePoint[]) => {
             points.forEach((item) => {
                 item.isClosed = true
             })
         }
 
+        /**
+         * @description 闭合其他区域
+         */
         const setOtherAreaClosed = () => {
             if (mode.value === 'h5') {
                 // 画点-区域
@@ -570,7 +608,10 @@ export default defineComponent({
             }
         }
 
-        // 区域为多边形时，检测区域合法性(温度检测页面一个点为画点，两个点为画线，大于两个小于8个为区域，只需要检测区域的合法性)
+        /**
+         * @description 区域为多边形时，检测区域合法性(温度检测页面一个点为画点，两个点为画线，大于两个小于8个为区域，只需要检测区域的合法性)
+         * @returns {boolean}
+         */
         const verification = () => {
             const count = formData.value.boundaryData.length
             for (const item of formData.value.boundaryData) {
@@ -582,6 +623,10 @@ export default defineComponent({
             return true
         }
 
+        /**
+         * @description
+         * @returns {string}
+         */
         const getTempDetectionSaveData = () => {
             const sendXml = rawXml`
                 <content>
@@ -667,6 +712,9 @@ export default defineComponent({
             return sendXml
         }
 
+        /**
+         * @description 保存配置
+         */
         const setData = async () => {
             if (!verification()) return
 
@@ -742,10 +790,16 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 获取排程列表
+         */
         const getScheduleList = async () => {
             pageData.value.scheduleList = await buildScheduleList()
         }
 
+        /**
+         * @description 关闭排程弹窗
+         */
         const closeSchedulePop = async () => {
             pageData.value.isSchedulePop = false
             await getScheduleList()
@@ -788,8 +842,6 @@ export default defineComponent({
             clearAllArea,
             changeBoundary,
             changeRuleType,
-            focusValue,
-            inputValue,
             blurValue,
             getRuleTypeList,
             setData,

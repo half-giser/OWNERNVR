@@ -9,7 +9,6 @@
             v-title
             :style="{
                 '--form-label-width': '250px',
-                '--form-input-width': '340px',
             }"
         >
             <el-form-item>
@@ -26,10 +25,9 @@
             v-title
             :style="{
                 '--form-label-width': '250px',
-                '--form-input-width': '340px',
             }"
         >
-            <div class="base-subheading-box">
+            <div class="base-head-box">
                 {{ Translate('IDCS_CERT_DETAILS') }}
             </div>
             <el-form-item :label="Translate('IDCS_INSTALLED_CERT')">
@@ -59,10 +57,9 @@
             v-title
             :style="{
                 '--form-label-width': '250px',
-                '--form-input-width': '340px',
             }"
         >
-            <div class="base-subheading-box">
+            <div class="base-head-box">
                 {{ Translate('IDCS_CERT_INSTALLATION') }}
             </div>
             <el-form-item :label="Translate('IDCS_CERT_INSTALLATION')">
@@ -85,7 +82,6 @@
             v-title
             :style="{
                 '--form-label-width': '250px',
-                '--form-input-width': '340px',
             }"
         >
             <el-form-item :label="Translate('IDCS_CERT_DETAILS')">
@@ -98,7 +94,6 @@
             v-title
             :style="{
                 '--form-label-width': '250px',
-                '--form-input-width': '340px',
             }"
         >
             <el-form-item :label="Translate('IDCS_INSTALL_SIGNED_CERT')">
@@ -145,7 +140,6 @@
             v-title
             :style="{
                 '--form-label-width': '250px',
-                '--form-input-width': '340px',
             }"
         >
             <el-form-item :label="Translate('IDCS_CREATE_CERT_REQUEST')">
@@ -222,15 +216,15 @@
                 />
             </el-form-item>
         </el-form>
-        <div
-            class="base-btn-box"
+        <el-form
             :style="{
                 '--form-label-width': '250px',
-                '--form-input-width': '335px',
             }"
         >
-            <el-button @click="setNetPortConfig">{{ Translate('IDCS_APPLY') }}</el-button>
-        </div>
+            <div class="base-btn-box">
+                <el-button @click="setNetPortConfig">{{ Translate('IDCS_APPLY') }}</el-button>
+            </div>
+        </el-form>
         <HttpsCertPasswordPop
             v-model="pageData.isCertPasswordPop"
             @confirm="importCertFile"

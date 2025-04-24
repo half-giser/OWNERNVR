@@ -35,6 +35,7 @@
                 <el-table-column
                     :label="Translate('IDCS_CHANNEL_NAME')"
                     prop="label"
+                    show-overflow-tooltip
                 />
             </el-table>
             <div class="base-btn-box">

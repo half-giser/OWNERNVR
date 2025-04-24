@@ -6,7 +6,7 @@
 <template>
     <el-dialog
         :title="Translate('IDCS_ADD_RECORDER_CHANNEL')"
-        width="800"
+        width="1000"
         @opened="opened"
         @closed="formRef?.resetFields()"
     >
@@ -17,8 +17,7 @@
             :rules="rules"
             class="stripe"
             :style="{
-                '--form-label-width': '150px',
-                '--form-input-width': '150px',
+                '--form-input-width': '250px',
             }"
         >
             <el-form-item>
@@ -36,8 +35,6 @@
                         v-model="formData.ip"
                         :disabled
                     />
-                </el-form-item>
-                <el-form-item>
                     <el-checkbox
                         v-model="formData.chkDomain"
                         :label="Translate('IDCS_DOMAIN')"

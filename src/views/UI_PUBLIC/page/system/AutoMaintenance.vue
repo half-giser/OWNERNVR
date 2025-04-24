@@ -11,9 +11,6 @@
             class="stripe"
             :rules
             :model="formData"
-            :style="{
-                '--form-input-width': '220px',
-            }"
         >
             <el-form-item>
                 <el-checkbox
@@ -31,16 +28,15 @@
                     :min="1"
                     :max="365"
                 />
-                <span class="date_span">{{ Translate('IDCS_DAYS') }}</span>
+                <span>{{ Translate('IDCS_DAYS') }}</span>
             </el-form-item>
             <el-form-item
                 :label="Translate('IDCS_POINT_TIME')"
                 prop="time"
             >
-                <el-time-picker
+                <BaseTimePicker
                     v-model="formData.time"
-                    :format="dateTime.hourMinuteFormat"
-                    value-format="HH:mm"
+                    unit="minute"
                     :disabled="!formData.switch"
                 />
             </el-form-item>

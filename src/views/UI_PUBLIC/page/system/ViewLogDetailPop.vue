@@ -9,12 +9,7 @@
         width="600"
         @open="handleCombinedType"
     >
-        <el-form
-            class="stripe"
-            :style="{
-                '--form-label-width': '150px',
-            }"
-        >
+        <el-form class="stripe">
             <el-form-item :label="Translate('IDCS_SERIAL_NUMBER')">
                 {{ item.index }}
             </el-form-item>

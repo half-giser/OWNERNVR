@@ -118,7 +118,7 @@
                                     :index="pageData.activeChlGroup === groupItem.id ? 1 : 0"
                                     :chunk="2"
                                 />
-                                <span>{{ groupItem.value }}</span>
+                                <div class="text-ellipsis">{{ groupItem.value }}</div>
                             </BaseListBoxItem>
                         </BaseListBox>
                         <div class="left-chlgroup-btns">
@@ -137,7 +137,7 @@
                             :key="listItem.id"
                             class="left-chlgroup-items"
                         >
-                            <span>{{ listItem.value }}</span>
+                            <div class="text-ellipsis">{{ listItem.value }}</div>
                         </BaseListBoxItem>
                     </BaseListBox>
                 </div>

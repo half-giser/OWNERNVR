@@ -4,8 +4,9 @@
  * @Description: 数字输入框. 由于ElInputNumber不能满足项目要求，故自行实现适用于本项目的数字输入框
  * element-plus数字输入组件的缺陷包括：
  * (1) 可输入超出最大值的值
- * (2) 可输入句点、e、+-等符号
+ * (2) 可输入小数点、e、+、-等符号
  * (3) firefox可输入任意字符
+ * (4) 整数除0本身外，开头可以是0
 -->
 <template>
     <el-input
@@ -65,6 +66,7 @@ const emit = defineEmits<{
     (e: 'blur', event: FocusEvent): void
     (e: 'change', currentValue: number | undefined): void
     (e: 'update:modelValue', currentValue: number | undefined): void
+    (e: 'outOfRange'): void
 }>()
 
 const focusValue = ref('')
@@ -133,9 +135,18 @@ const handleKeyPress = (e: Event | KeyboardEvent) => {
                 isPreventDefault = false
             }
             break
+        case '-':
+            if (props.min < 0 && showValue.value === '') {
+                isPreventDefault = false
+            }
+            break
         default:
             if (/[0-9]/.test(keyCode)) {
                 isPreventDefault = false
+                // 数字不以0开头，如果已经输入0，阻止其他数字输入
+                if (showValue.value === 0 || showValue.value === '0' || showValue.value === '-0') {
+                    isPreventDefault = true
+                }
             }
             break
     }
@@ -170,14 +181,30 @@ const handleInput = (e: string) => {
         updateValue(e)
     } else {
         const value = Number(e)
-        if (value > props.max) {
-            if (Number(focusValue.value) > props.max) {
-                updateValue(e)
-            } else {
-                updateValue(focusValue.value)
+        if (value >= 0) {
+            if (value > props.max) {
+                if (Number(focusValue.value) > props.max) {
+                    updateValue(e)
+                } else {
+                    updateValue(focusValue.value)
+                }
+                return
             }
-            return
         }
+
+        if (value < 0) {
+            const absValue = Math.abs(value)
+            const absMin = Math.abs(props.min)
+            if (absValue > absMin) {
+                if (Math.abs(Number(focusValue.value)) > absMin) {
+                    updateValue(e)
+                } else {
+                    updateValue(focusValue.value)
+                }
+                return
+            }
+        }
+
         updateValue(e)
     }
 }
@@ -197,9 +224,22 @@ const handleFocus = (e: FocusEvent) => {
  * @param {FocusEvent} e
  */
 const handleBlur = (e: FocusEvent) => {
+    const num = toNumber()
+    const nan = isNaN(num)
+
+    if (num < props.min) {
+        emit('outOfRange')
+    }
+
     if (props.valueOnClear === 'min') {
-        if (toNumber() < props.min) {
+        if (num <= props.min || nan) {
             updateValue(props.min + '')
+        }
+    }
+
+    if (props.valueOnClear === null) {
+        if (showValue.value === '' || nan) {
+            updateValue('')
         }
     }
 
@@ -224,6 +264,8 @@ const handleCompositionEnd = () => {
 const updateValue = (value: string) => {
     if (value === '') {
         focusValue.value = value
+        emit('update:modelValue', props.valueOnClear === 'min' ? 0 : undefined)
+        emit('change', props.valueOnClear === 'min' ? 0 : undefined)
         return
     }
 

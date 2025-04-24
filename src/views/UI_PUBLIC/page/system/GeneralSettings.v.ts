@@ -199,6 +199,7 @@ export default defineComponent({
             formData.value.deviceName = $('content/name').text()
             formData.value.deviceNumber = $('content/deviceNumber').text().num()
             formData.value.enableAutoDwell = $('content/autoDwell').text().bool()
+            formData.value.mobileStreamAdaption = $('content/mobileStreamAdaption').text().bool()
 
             formData.value.waitTime = $('content/autoDwellWaitTime').text().num()
             pageData.value.waitTimeOption = $('types/autoDwellWaitTime/enum').map((item) => {
@@ -314,7 +315,7 @@ export default defineComponent({
                 </types>
                 <content>
                     <name maxByteLen="63">${wrapCDATA(formData.value.deviceName)}</name>
-                    <deviceNumber>${formData.value.deviceNumber}</deviceNumber>
+                    <deviceNumber>${Number(formData.value.deviceNumber)}</deviceNumber>
                     <videoType type="videoType">${formData.value.videoFormat}</videoType>
                     <hdmivgaParam type="hdmivgaParam">${formData.value.outputConfig}</hdmivgaParam>
                     <resolution>

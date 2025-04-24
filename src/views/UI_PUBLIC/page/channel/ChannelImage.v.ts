@@ -9,7 +9,6 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const layoutStore = useLayoutStore()
-        const dateTime = useDateTimeStore()
 
         const playerRef = ref<PlayerInstance>()
         const formData = ref(new ChannelImageDto())
@@ -791,23 +790,23 @@ export default defineComponent({
                 rowData.bright = $chl('bright').text().undef()?.num()
                 rowData.brightMin = $chl('bright').attr('min').num()
                 rowData.brightMax = $chl('bright').attr('max').num() || 100
-                rowData.brightDefault = $chl('bright').attr('default').num()
+                rowData.brightDefault = $chl('bright').attr('default').undef()?.num()
 
                 rowData.contrast = $chl('contrast').text().undef()?.num()
                 rowData.contrastMin = $chl('contrast').attr('min').num()
                 rowData.contrastMax = $chl('contrast').attr('max').num() || 100
-                rowData.contrastDefault = $chl('contrast').attr('default').num()
+                rowData.contrastDefault = $chl('contrast').attr('default').undef()?.num()
 
                 // NT2-3481 设备接入海康IPC，协议不返回hue节点，“色调”配置项置灰
                 rowData.hue = $chl('hue').text().undef()?.num()
                 rowData.hueMin = $chl('hue').attr('min').num()
                 rowData.hueMax = $chl('hue').attr('max').num() || 100
-                rowData.hueDefault = $chl('hue').attr('default').num()
+                rowData.hueDefault = $chl('hue').attr('default').undef()?.num()
 
                 rowData.saturation = $chl('saturation').text().undef()?.num()
                 rowData.saturationMin = $chl('saturation').attr('min').num()
                 rowData.saturationMax = $chl('saturation').attr('max').num() || 100
-                rowData.saturationDefault = $chl('saturation').attr('default').num()
+                rowData.saturationDefault = $chl('saturation').attr('default').undef()?.num()
 
                 if (!$('content/chl').length || chlId !== $('content/chl').attr('id')) {
                     rowData.isSpeco = true
@@ -815,13 +814,13 @@ export default defineComponent({
                 rowData.disabled = rowData.isSpeco
 
                 rowData.paletteCode = $chl('palette/color').text().undef()
-                rowData.defaultPaletteCode = $chl('palette/color').attr('default')
+                rowData.defaultPaletteCode = $chl('palette/color').attr('default').undef()
 
                 rowData.cfgFile = $chl('cfgFile').text().undef()
-                rowData.cfgFileDefault = $chl('cfgFile').attr('default')
+                rowData.cfgFileDefault = $chl('cfgFile').attr('default').undef()
 
                 rowData.denoise = $chl('denoise/value').text().undef()?.num()
-                rowData.denoiseDefault = $chl('denoise/value').attr('default').num()
+                rowData.denoiseDefault = $chl('denoise/value').attr('default').undef()?.num()
                 rowData.denoiseMin = $chl('denoise/value').attr('min').num()
                 rowData.denoiseMax = $chl('denoise/value').attr('max').num() || 100
                 rowData.denoiseSwitch = $chl('denoise/switch').text().bool()
@@ -830,7 +829,7 @@ export default defineComponent({
                 rowData.ShowGainMode = $chl('ShowGainMode').text().bool()
 
                 rowData.WDR = $chl('WDR/value').text().undef()?.num()
-                rowData.WDRDefault = $chl('WDR/value').attr('default').num()
+                rowData.WDRDefault = $chl('WDR/value').attr('default').undef()?.num()
                 rowData.WDRMin = $chl('WDR/value').attr('min').num()
                 rowData.WDRMax = $chl('WDR/value').attr('max').num() || 100
                 rowData.WDRSwitch = $chl('WDR/switch').text().bool()
@@ -840,96 +839,96 @@ export default defineComponent({
                 rowData.whiteBalanceMode = $chl('whiteBalance/mode').text().undef()
 
                 rowData.red = $chl('whiteBalance/red').text().undef()?.num()
-                rowData.redDefault = $chl('whiteBalance/red').attr('default').num()
+                rowData.redDefault = $chl('whiteBalance/red').attr('default').undef()?.num()
                 rowData.redMin = $chl('whiteBalance/red').attr('min').num()
                 rowData.redMax = $chl('whiteBalance/red').attr('max').num() || 100
 
                 rowData.blue = $chl('whiteBalance/blue').text().undef()?.num()
-                rowData.blueDefault = $chl('whiteBalance/blue').attr('default').num()
+                rowData.blueDefault = $chl('whiteBalance/blue').attr('default').undef()?.num()
                 rowData.blueMin = $chl('whiteBalance/blue').attr('min').num()
                 rowData.blueMax = $chl('whiteBalance/blue').attr('max').num() || 100
 
                 rowData.IRCutMode = $chl('IRCutMode').text().undef()
-                rowData.IRCutModeDefault = $chl('IRCutMode').attr('default')
+                rowData.IRCutModeDefault = $chl('IRCutMode').attr('default').undef()
                 rowData.IRCutConvSen = $chl('IRCutConvSen').text().undef() ?? 'mid'
                 rowData.IRCutConvSen2 = $chl('IRCutConvSen').text().undef()
-                rowData.IRCutConvSenDefault = $chl('IRCutConvSen').attr('default')
+                rowData.IRCutConvSenDefault = $chl('IRCutConvSen').attr('default').undef()
                 rowData.IRCutDayTime = $chl('IRCutDayTime').text().undef()
                 rowData.IRCutNightTime = $chl('IRCutNightTime').text().undef()
 
                 rowData.sharpen = $chl('sharpen/value').text().undef()?.num()
-                rowData.sharpenDefault = $chl('sharpen/value').attr('default').num()
+                rowData.sharpenDefault = $chl('sharpen/value').attr('default').undef()?.num()
                 rowData.sharpenMin = $chl('sharpen/value').attr('min').num()
                 rowData.sharpenMax = $chl('sharpen/value').attr('max').num() || 100
                 rowData.sharpenSwitch = $chl('sharpen/switch').text().bool()
-                rowData.sharpenSwitchEnable = $chl('sharpen/switch').attr('switchEnabled').bool()
+                rowData.sharpenSwitchEnable = $chl('sharpen/switch').attr('switchEnabled').undef()?.bool()
 
                 rowData.mirrorSwitch = $chl('mirrorSwitch').text().undef()?.bool()
                 rowData.flipSwitch = $chl('flipSwitch').text().undef()?.bool()
 
                 rowData.imageRotate = $chl('imageRotate').text().undef()
-                rowData.imageRotateDefault = $chl('imageRotate').attr('default')
+                rowData.imageRotateDefault = $chl('imageRotate').attr('default').undef()
 
                 rowData.imageShift = $chl('imageShift').text().num()
-                rowData.imageShiftDefault = $chl('imageShift').attr('default').num()
+                rowData.imageShiftDefault = $chl('imageShift').attr('default').undef()?.num()
                 rowData.imageShiftMin = $chl('imageShift').attr('min').num()
                 rowData.imageShiftMax = $chl('imageShift').attr('max').num() || 100
 
                 rowData.BLCMode = $chl('backlightCompensation/mode').text().undef()
-                rowData.BLCModeDefault = $chl('backlightCompensation/mode').attr('default')
+                rowData.BLCModeDefault = $chl('backlightCompensation/mode').attr('default').undef()
 
                 rowData.HWDRLevel = $chl('backlightCompensation/HWDRLevel').text().undef()
-                rowData.HWDRLevelDefault = $chl('backlightCompensation/HWDRLevel').attr('default')
+                rowData.HWDRLevelDefault = $chl('backlightCompensation/HWDRLevel').attr('default').undef()
 
                 rowData.smartIrMode = $chl('smartIr/mode').text().undef()
-                rowData.smartIrModeDefault = $chl('smartIr/mode').attr('default')
+                rowData.smartIrModeDefault = $chl('smartIr/mode').attr('default').undef()
 
                 rowData.lightLevel = $chl('smartIr/lightLevel_1').text().undef()?.num()
-                rowData.lightLevelDefault = $chl('smartIr/lightLevel_1').attr('default').num()
+                rowData.lightLevelDefault = $chl('smartIr/lightLevel_1').attr('default').undef()?.num()
                 rowData.lightLevelMin = $chl('smartIr/lightLevel_1').attr('min').num()
                 rowData.lightLevelMax = $chl('smartIr/lightLevel_1').attr('max').num() || 100
 
                 rowData.smartIrSwitch = $chl('smartIR/switch').text().undef()?.bool()
-                rowData.smartIrSwitchDefault = $chl('smartIR/switch').attr('default').bool()
+                rowData.smartIrSwitchDefault = $chl('smartIR/switch').attr('default').undef()?.bool()
                 rowData.smartIrLevel = $chl('smartIR/level').text().undef()
-                rowData.smartIrLevelDefault = $chl('smartIR/level').attr('default')
+                rowData.smartIrLevelDefault = $chl('smartIR/level').attr('default').undef()
 
                 // 透雾
                 rowData.defog = $chl('fogReduction/value').text().undef()?.num()
-                rowData.defogDefault = $chl('fogReduction/value').attr('default').num()
+                rowData.defogDefault = $chl('fogReduction/value').attr('default').undef()?.num()
                 rowData.defogMin = $chl('fogReduction/value').attr('min').num()
                 rowData.defogMax = $chl('fogReduction/value').attr('max').num() || 100
                 rowData.defogSwitch = $chl('fogReduction/switch').text().bool()
 
                 // 抗闪
                 rowData.antiflicker = $chl('antiflicker').text().undef()
-                rowData.antiflickerDefault = $chl('antiflicker').attr('default')
+                rowData.antiflickerDefault = $chl('antiflicker').attr('default').undef()
 
                 // 曝光模式
                 rowData.exposureMode = $chl('autoExposureMode/mode').text().undef()
-                rowData.exposureModeDefault = $chl('autoExposureMode/mode').attr('default')
+                rowData.exposureModeDefault = $chl('autoExposureMode/mode').attr('default').undef()
                 rowData.exposure = $chl('autoExposureMode/value').text().undef()?.num()
-                rowData.exposureDefault = $chl('autoExposureMode/value').attr('default').num()
+                rowData.exposureDefault = $chl('autoExposureMode/value').attr('default').undef()?.num()
                 rowData.exposureMin = $chl('autoExposureMode/value').attr('min').num()
                 rowData.exposureMax = $chl('autoExposureMode/value').attr('max').num() || 100
 
                 // 延迟时间
                 rowData.delayTime = $chl('IRCutDelayTime').text().undef()?.num()
-                rowData.delayTimeDefault = $chl('IRCutDelayTime').attr('default').num()
+                rowData.delayTimeDefault = $chl('IRCutDelayTime').attr('default').undef()?.num()
                 rowData.delayTimeMin = $chl('IRCutDelayTime').attr('min').num()
                 rowData.delayTimeMax = $chl('IRCutDelayTime').attr('max').num() || 100
 
                 // 红外模式
                 rowData.InfraredMode = $chl('InfraredMode').text().undef()
-                rowData.InfraredModeDefault = $chl('InfraredMode').attr('default')
+                rowData.InfraredModeDefault = $chl('InfraredMode').attr('default').undef()
 
                 // 增益限制
                 rowData.gainMode = $chl('gain/mode').text().undef()
-                rowData.gainModeDefault = $chl('gain/mode').attr('default')
+                rowData.gainModeDefault = $chl('gain/mode').attr('default').undef()
                 rowData.gainAGC = $chl('gain/AGC').text().undef()?.num()
-                rowData.gainAGCDefault = $chl('gain/AGC').attr('default').num()
+                rowData.gainAGCDefault = $chl('gain/AGC').attr('default').undef()?.num()
                 rowData.gain = $chl('gain/value').text().undef()?.num()
-                rowData.gainDefault = $chl('gain/value').attr('default').num()
+                rowData.gainDefault = $chl('gain/value').attr('default').undef()?.num()
                 rowData.gainMin = $chl('gain/value').attr('min').num()
                 rowData.gainMax = $chl('gain/value').attr('max').num() || 100
 
@@ -938,25 +937,25 @@ export default defineComponent({
 
                 // 快门
                 rowData.shutterMode = $chl('shutter/mode').text().undef()
-                rowData.shutterModeDefault = $chl('shutter/mode').attr('default')
+                rowData.shutterModeDefault = $chl('shutter/mode').attr('default').undef()
                 rowData.shutter = $chl('shutter/value').text().undef()
-                rowData.shutterDefault = $chl('shutter/value').attr('default')
+                rowData.shutterDefault = $chl('shutter/value').attr('default').undef()
                 rowData.shutterLowLimit = $chl('shutter/lowLimit').text().undef()
-                rowData.shutterLowLimitDefault = $chl('shutter/lowLimit').attr('default')
+                rowData.shutterLowLimitDefault = $chl('shutter/lowLimit').attr('default').undef()
                 rowData.shutterUpLimit = $chl('shutter/upLimit').text().undef()
-                rowData.shutterUpLimitDefault = $chl('shutter/upLimit').attr('default')
+                rowData.shutterUpLimitDefault = $chl('shutter/upLimit').attr('default').undef()
 
                 // 白光灯
                 rowData.whitelightMode = $chl('Whitelight/WhitelightMode').text().undef()
-                rowData.whitelightModeDefault = $chl('Whitelight/WhitelightMode').attr('default')
+                rowData.whitelightModeDefault = $chl('Whitelight/WhitelightMode').attr('default').undef()
                 rowData.whitelightStrength = $chl('Whitelight/WhitelightStrength').text().undef()?.num()
                 rowData.whitelightStrengthMin = $chl('Whitelight/WhitelightStrength').attr('min').num()
                 rowData.whitelightStrengthMax = $chl('Whitelight/WhitelightStrength').attr('max').num() || 100
-                rowData.whitelightStrengthDefault = $chl('Whitelight/WhitelightStrength').attr('default').num()
+                rowData.whitelightStrengthDefault = $chl('Whitelight/WhitelightStrength').attr('default').undef()?.num()
                 rowData.whitelightOnTime = $chl('Whitelight/WhitelightOnTime').text().undef()
-                rowData.whitelightOnTimeDefault = $chl('Whitelight/WhitelightOnTime').attr('default')
+                rowData.whitelightOnTimeDefault = $chl('Whitelight/WhitelightOnTime').attr('default').undef()
                 rowData.whitelightOffTime = $chl('Whitelight/WhitelightOffTime').text().undef()
-                rowData.whitelightOffTimeDefault = $chl('Whitelight/WhitelightOffTime').attr('default')
+                rowData.whitelightOffTimeDefault = $chl('Whitelight/WhitelightOffTime').attr('default').undef()
 
                 if (needSchedule) {
                     if ($chl('scheduleInfo').text()) {
@@ -1412,7 +1411,6 @@ export default defineComponent({
             playerRef,
             formData,
             pageData,
-            dateTime,
             tableRef,
             tableData,
             chlOptions,

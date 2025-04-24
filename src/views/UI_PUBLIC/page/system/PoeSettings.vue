@@ -9,6 +9,7 @@
             <el-table
                 v-title
                 :data="tableData"
+                show-overflow-tooltip
             >
                 <el-table-column
                     :label="Translate('IDCS_POE_NAME')"

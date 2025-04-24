@@ -227,6 +227,10 @@ export default defineComponent({
             return val.replace(/[^A-z|\d!@#$%^&*(){}\|:"`?~_\\'./\-\s\[\];,=+]/g, '')
         }
 
+        const formatPath = (val: string) => {
+            return val.replace(/[^A-z|\d!@#$%^&*(){}\|:"`<>?~_\\'./\-\s\[\];,=+]/g, '')
+        }
+
         const opened = () => {
             manufacturerArray = props.manufacturerList.map((ele) => ele.label)
             getData()
@@ -243,6 +247,7 @@ export default defineComponent({
             opened,
             currentProtocolLogo,
             formatName,
+            formatPath,
             pageData,
         }
     },

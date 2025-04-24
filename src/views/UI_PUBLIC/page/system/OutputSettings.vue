@@ -218,7 +218,7 @@
                                 />
                             </div>
                             <el-select-v2
-                                v-show="(pageData.tabId !== -1 && pageData.outputIdx !== -1) || isDwell"
+                                v-show="isDwell && (pageData.tabId !== -1 || pageData.outputIdx !== -1)"
                                 :model-value="currentTimeInterval"
                                 :options="pageData.dwellTimeOptions"
                                 class="panel-dwell-time"
@@ -271,7 +271,7 @@
                                 :index="pageData.activeChl === listItem.id ? 1 : 0"
                                 :chunk="4"
                             />
-                            <span>{{ listItem.value }}</span>
+                            <div class="text-ellipsis">{{ listItem.value }}</div>
                         </BaseListBoxItem>
                     </BaseListBox>
                 </div>
@@ -296,7 +296,7 @@
                                 :index="pageData.activeChlGroup === groupItem.id ? 1 : 0"
                                 :chunk="2"
                             />
-                            <span>{{ groupItem.value }}</span>
+                            <div class="text-ellipsis">{{ groupItem.value }}</div>
                         </BaseListBoxItem>
                     </BaseListBox>
                     <div class="chl-btns">
@@ -312,7 +312,7 @@
                             @dragstart="handleDragChl(listItem.id)"
                             @dblclick="setWinFromChl(listItem.id)"
                         >
-                            <span>{{ listItem.value }}</span>
+                            <div class="text-ellipsis">{{ listItem.value }}</div>
                         </BaseListBoxItem>
                     </BaseListBox>
                 </div>
@@ -613,7 +613,7 @@
 
     &-menu {
         width: 100%;
-        height: 80px;
+        height: 82px;
         flex-shrink: 0;
         cursor: pointer;
 

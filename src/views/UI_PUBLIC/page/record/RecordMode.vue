@@ -5,14 +5,8 @@
 -->
 <template>
     <div>
-        <div class="base-subheading-box">{{ Translate('IDCS_RECORD_MODE') }}</div>
-        <el-form
-            v-title
-            :style="{
-                '--form-input-width': '250px',
-                '--form-label-width': '200px',
-            }"
-        >
+        <div class="base-head-box">{{ Translate('IDCS_RECORD_MODE') }}</div>
+        <el-form v-title>
             <el-form-item :label="Translate('IDCS_MODE')">
                 <el-select-v2
                     v-model="formData.mode"
@@ -21,13 +15,10 @@
                 />
             </el-form-item>
         </el-form>
-        <div class="subcontent-box">
+        <div class="mode">
             <div v-show="formData.mode === 'manually'">
-                <div class="base-btn-box space-between">
-                    <span class="chlRecScheduleTb">{{ Translate('IDCS_SCHEDULE_OF_RECORD_SET') }}</span>
-                    <div>
-                        <el-button @click="pageData.isSchedulePop = true">{{ Translate('IDCS_SCHEDULE_MANAGE') }}</el-button>
-                    </div>
+                <div class="base-btn-box flex-start gap">
+                    {{ Translate('IDCS_SCHEDULE_OF_RECORD_SET') }}
                 </div>
                 <el-table
                     v-title
@@ -40,143 +31,93 @@
                         min-width="190"
                         show-overflow-tooltip
                     />
-
                     <!-- 传感器录像排程 -->
                     <el-table-column>
                         <template #header>
-                            <el-dropdown>
-                                <BaseTableDropdownLink>
-                                    {{ Translate('IDCS_SENSOR_RECORD_SCHEDULE') }}
-                                </BaseTableDropdownLink>
-                                <template #dropdown>
-                                    <el-dropdown-menu>
-                                        <el-dropdown-item
-                                            v-for="opt in pageData.scheduleList"
-                                            :key="opt.value"
-                                            @click="changeAllSchedule(opt.value, 'alarmRec')"
-                                        >
-                                            {{ opt.label }}
-                                        </el-dropdown-item>
-                                    </el-dropdown-menu>
-                                </template>
-                            </el-dropdown>
+                            <BaseScheduleTableDropdown
+                                :label="Translate('IDCS_SENSOR_RECORD_SCHEDULE')"
+                                :options="pageData.scheduleList"
+                                @change="changeAllSchedule($event, 'alarmRec')"
+                                @edit="openSchedulePop"
+                            />
                         </template>
                         <template #default="{ row }: TableColumn<RecordScheduleDto>">
-                            <el-select-v2
+                            <BaseScheduleSelect
                                 v-model="row.alarmRec"
                                 :options="pageData.scheduleList"
+                                @edit="openSchedulePop"
                             />
                         </template>
                     </el-table-column>
-
                     <!-- 移动录像排程 -->
                     <el-table-column>
                         <template #header>
-                            <el-dropdown>
-                                <BaseTableDropdownLink>
-                                    {{ Translate('IDCS_MOTION_RECORD_SCHEDULE') }}
-                                </BaseTableDropdownLink>
-                                <template #dropdown>
-                                    <el-dropdown-menu>
-                                        <el-dropdown-item
-                                            v-for="opt in pageData.scheduleList"
-                                            :key="opt.value"
-                                            @click="changeAllSchedule(opt.value, 'motionRec')"
-                                        >
-                                            {{ opt.label }}
-                                        </el-dropdown-item>
-                                    </el-dropdown-menu>
-                                </template>
-                            </el-dropdown>
+                            <BaseScheduleTableDropdown
+                                :label="Translate('IDCS_MOTION_RECORD_SCHEDULE')"
+                                :options="pageData.scheduleList"
+                                @change="changeAllSchedule($event, 'motionRec')"
+                                @edit="openSchedulePop"
+                            />
                         </template>
                         <template #default="{ row }: TableColumn<RecordScheduleDto>">
-                            <el-select-v2
+                            <BaseScheduleSelect
                                 v-model="row.motionRec"
                                 :options="pageData.scheduleList"
+                                @edit="openSchedulePop"
                             />
                         </template>
                     </el-table-column>
-
                     <!-- AI录像排程 -->
                     <el-table-column>
                         <template #header>
-                            <el-dropdown>
-                                <BaseTableDropdownLink>
-                                    {{ Translate('IDCS_AI_RECORD_SCHEDULE') }}
-                                </BaseTableDropdownLink>
-                                <template #dropdown>
-                                    <el-dropdown-menu>
-                                        <el-dropdown-item
-                                            v-for="opt in pageData.scheduleList"
-                                            :key="opt.value"
-                                            @click="changeAllSchedule(opt.value, 'intelligentRec')"
-                                        >
-                                            {{ opt.label }}
-                                        </el-dropdown-item>
-                                    </el-dropdown-menu>
-                                </template>
-                            </el-dropdown>
+                            <BaseScheduleTableDropdown
+                                :label="Translate('IDCS_AI_RECORD_SCHEDULE')"
+                                :options="pageData.scheduleList"
+                                @change="changeAllSchedule($event, 'intelligentRec')"
+                                @edit="openSchedulePop"
+                            />
                         </template>
                         <template #default="{ row }: TableColumn<RecordScheduleDto>">
-                            <el-select-v2
+                            <BaseScheduleSelect
                                 v-model="row.intelligentRec"
                                 :options="pageData.scheduleList"
+                                @edit="openSchedulePop"
                             />
                         </template>
                     </el-table-column>
-
                     <!-- POS录像排程 -->
                     <el-table-column v-if="supportPOS">
                         <template #header>
-                            <el-dropdown>
-                                <BaseTableDropdownLink>
-                                    {{ Translate('IDCS_POS_RECORD_SCHEDULE') }}
-                                </BaseTableDropdownLink>
-                                <template #dropdown>
-                                    <el-dropdown-menu>
-                                        <el-dropdown-item
-                                            v-for="opt in pageData.scheduleList"
-                                            :key="opt.value"
-                                            @click="changeAllSchedule(opt.value, 'posRec')"
-                                        >
-                                            {{ opt.label }}
-                                        </el-dropdown-item>
-                                    </el-dropdown-menu>
-                                </template>
-                            </el-dropdown>
+                            <BaseScheduleTableDropdown
+                                :label="Translate('IDCS_POS_RECORD_SCHEDULE')"
+                                :options="pageData.scheduleList"
+                                @change="changeAllSchedule($event, 'posRec')"
+                                @edit="openSchedulePop"
+                            />
                         </template>
                         <template #default="{ row }: TableColumn<RecordScheduleDto>">
-                            <el-select-v2
+                            <BaseScheduleSelect
                                 v-model="row.posRec"
                                 :options="pageData.scheduleList"
+                                @edit="openSchedulePop"
                             />
                         </template>
                     </el-table-column>
-
                     <!-- 定时录像排程 -->
                     <el-table-column>
                         <template #header>
-                            <el-dropdown>
-                                <BaseTableDropdownLink>
-                                    {{ Translate('IDCS_TIME_RECORD_SCHEDULE') }}
-                                </BaseTableDropdownLink>
-                                <template #dropdown>
-                                    <el-dropdown-menu>
-                                        <el-dropdown-item
-                                            v-for="opt in pageData.scheduleList"
-                                            :key="opt.value"
-                                            @click="changeAllSchedule(opt.value, 'scheduleRec')"
-                                        >
-                                            {{ opt.label }}
-                                        </el-dropdown-item>
-                                    </el-dropdown-menu>
-                                </template>
-                            </el-dropdown>
+                            <BaseScheduleTableDropdown
+                                :label="Translate('IDCS_TIME_RECORD_SCHEDULE')"
+                                :options="pageData.scheduleList"
+                                @change="changeAllSchedule($event, 'scheduleRec')"
+                                @edit="openSchedulePop"
+                            />
                         </template>
                         <template #default="{ row }: TableColumn<RecordScheduleDto>">
-                            <el-select-v2
+                            <BaseScheduleSelect
                                 v-model="row.scheduleRec"
                                 :options="pageData.scheduleList"
+                                @edit="openSchedulePop"
                             />
                         </template>
                     </el-table-column>
@@ -219,19 +160,13 @@
                         :label="item.text"
                     />
                 </el-radio-group>
-                <div class="base-btn-box flex-start">
+                <div class="base-btn-box flex-start gap">
                     <el-button @click="pageData.isAdvancePop = true">{{ Translate('IDCS_ADVANCED') }}</el-button>
                 </div>
             </div>
         </div>
-        <div class="base-subheading-box">{{ Translate('IDCS_MANUAL_RECORD_OPTION') }}</div>
-        <el-form
-            v-title
-            :style="{
-                '--form-input-width': '250px',
-                '--form-label-width': '200px',
-            }"
-        >
+        <div class="base-head-box">{{ Translate('IDCS_MANUAL_RECORD_OPTION') }}</div>
+        <el-form v-title>
             <el-form-item :label="Translate('IDCS_MANUAL_RECORD_OPTION')">
                 <el-select-v2
                     v-model="formData.urgencyRecDuration"
@@ -255,7 +190,6 @@
             @confirm="confirmAdvancePop"
             @close="pageData.isAdvancePop = false"
         />
-
         <!-- 录像模式码流参数设置弹窗 -->
         <RecordModeStreamPop
             v-model="pageData.isRecModeStreamPop"
@@ -263,9 +197,8 @@
             :auto-mode-id="formData.autoModeId"
             @close="closeStreamPop"
         />
-
         <!-- 排程管理弹窗 -->
-        <ScheduleManagPop
+        <BaseScheduleManagePop
             v-model="pageData.isSchedulePop"
             @close="pageData.isSchedulePop = false"
         />
@@ -275,17 +208,6 @@
 <script lang="ts" src="./RecordMode.v.ts"></script>
 
 <style lang="scss" scoped>
-.subcontent-box {
-    padding: 0 0 30px;
-    font-size: 15px;
-
-    .base-btn-box {
-        margin-bottom: 10px;
-        padding: 0 15px;
-        box-sizing: border-box;
-    }
-}
-
 .radio {
     display: flex;
     width: 100%;
@@ -310,7 +232,7 @@
     }
 }
 
-.chlRecScheduleTb {
-    font-size: 20px;
+.mode {
+    margin-bottom: 10px;
 }
 </style>

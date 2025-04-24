@@ -3,13 +3,11 @@
  * @Date: 2024-09-11 15:00:19
  * @Description: 过线检测
  */
-import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import PassLineEmailPop from './PassLineEmailPop.vue'
 import { type XMLQuery } from '@/utils/xmlParse'
 
 export default defineComponent({
     components: {
-        ScheduleManagPop,
         PassLineEmailPop,
     },
     props: {
@@ -47,24 +45,23 @@ export default defineComponent({
 
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
-        const dateTime = useDateTimeStore()
 
         const playerRef = ref<PlayerInstance>()
 
-        const directionTypeTip: Record<string, string> = {
+        const DIRECTION_TYPE: Record<string, string> = {
             none: 'A<->B',
             rightortop: 'A->B',
             leftorbotton: 'A<-B',
         }
 
-        const peopleCount: Record<string, string> = {
+        const PERIOD_MAPPING: Record<string, string> = {
             all: Translate('IDCS_TIME_ALL'),
             daily: Translate('IDCS_TIME_DAY'),
             weekly: Translate('IDCS_TIME_WEEK'),
             monthly: Translate('IDCS_TIME_MOUNTH'),
         }
 
-        const countCycleTypeTip: Record<string, string> = {
+        const COUNT_CYCLE_TYPE_MAPPING: Record<string, string> = {
             day: Translate('IDCS_TIME_DAY'),
             week: Translate('IDCS_TIME_WEEK'),
             month: Translate('IDCS_TIME_MOUNTH'),
@@ -110,7 +107,7 @@ export default defineComponent({
                 reportMin: 0,
             },
             receiverData: [] as AlarmPassLinesEmailDto['receiverData'],
-            weekOption: objectToOptions(getTranslateMapping(DEFAULT_WEEK_MAPPING), 'number').slice(0, 7),
+            weekOption: objectToOptions(getTranslateMapping(DEFAULT_WEEK_MAPPING), 'number'),
             monthOption: Array(31)
                 .fill(0)
                 .map((_, index) => {
@@ -149,6 +146,9 @@ export default defineComponent({
             return playerRef.value!.mode
         })
 
+        /**
+         * @description 播放器准备就绪回调
+         */
         const handlePlayerReady = () => {
             player = playerRef.value!.player
             plugin = playerRef.value!.plugin
@@ -179,7 +179,9 @@ export default defineComponent({
             }
         }
 
-        //播放视频
+        /**
+         * @description 播放视频
+         */
         const play = () => {
             const { id, name } = props.chlData
 
@@ -206,21 +208,27 @@ export default defineComponent({
             }
         })
 
-        // 关闭排程管理后刷新排程列表
+        /**
+         * @description 关闭排程管理后刷新排程列表
+         */
         const closeSchedulePop = async () => {
             pageData.value.isSchedulePop = false
             await getScheduleList()
             formData.value.schedule = getScheduleId(pageData.value.scheduleList, formData.value.schedule)
         }
 
-        // 对sheduleList进行处理
+        /**
+         * @description 获取排程列表
+         */
         const getScheduleList = async () => {
             openLoading()
             pageData.value.scheduleList = await buildScheduleList()
             closeLoading()
         }
 
-        // 获取收件人配置
+        /**
+         * @description 获取收件人配置
+         */
         const getEmailCfg = async () => {
             const res = await queryEmailCfg()
             const $ = queryXml(res)
@@ -236,7 +244,9 @@ export default defineComponent({
             }
         }
 
-        // 设置收件人配置
+        /**
+         * @description 设置收件人配置
+         */
         const setEmailCfg = async () => {
             const sendXml = rawXml`
                 <content>
@@ -257,7 +267,9 @@ export default defineComponent({
             await editEmailCfg(sendXml)
         }
 
-        // 获取定时发送邮件配置
+        /**
+         * @description 获取定时发送邮件配置
+         */
         const getTimingSendEmail = async () => {
             const result = await queryTimingSendEmail()
             const $ = queryXml(result)
@@ -281,7 +293,9 @@ export default defineComponent({
             }
         }
 
-        // 设置定时发送邮件配置
+        /**
+         * @description 设置定时发送邮件配置
+         */
         const setTimingSendEmail = async () => {
             const sendXML = rawXml`
                 <content>
@@ -305,7 +319,9 @@ export default defineComponent({
             await editTimingSendEmail(sendXML)
         }
 
-        // 保存passLine排程
+        /**
+         * @description 保存PASSLINE排程
+         */
         const setScheduleGuid = () => {
             const sendXml = rawXml`
                 <content>
@@ -317,7 +333,9 @@ export default defineComponent({
             editPls(sendXml)
         }
 
-        // 打开更多弹窗
+        /**
+         * @description 打开更多弹窗
+         */
         const handleMoreClick = async () => {
             // 第一次打开更多弹窗时获取邮件配置和定时发送邮件配置
             if (!pageData.value.openCount) {
@@ -332,7 +350,10 @@ export default defineComponent({
             pageData.value.morePopOpen = true
         }
 
-        // 关闭更多弹窗，将数据传到pageData
+        /**
+         * @description 关闭更多弹窗
+         * @param {AlarmPassLinesEmailDto} e
+         */
         const closeMorePop = (e: AlarmPassLinesEmailDto) => {
             const data = cloneDeep(e)
             formData.value.saveSourcePicture = data.saveSourcePicture
@@ -342,7 +363,9 @@ export default defineComponent({
             pageData.value.morePopOpen = false
         }
 
-        // tab点击事件
+        /**
+         * @description 切换Tab
+         */
         const changeTab = () => {
             if (pageData.value.tab === 'param') {
                 if (props.chlData.supportPassLine) {
@@ -400,7 +423,10 @@ export default defineComponent({
             }
         }
 
-        // 获取数据
+        /**
+         * @description 获取配置数据
+         * @param {boolean} manualResetSwitch
+         */
         const getData = async (manualResetSwitch?: boolean) => {
             watchEdit.reset()
             openLoading()
@@ -486,7 +512,7 @@ export default defineComponent({
                             const itemValue = element.text()
                             return {
                                 value: itemValue,
-                                label: countCycleTypeTip[itemValue],
+                                label: COUNT_CYCLE_TYPE_MAPPING[itemValue],
                             }
                         })
                         .filter((item) => item.value !== 'off')
@@ -524,7 +550,7 @@ export default defineComponent({
                         const itemValue = element.text()
                         return {
                             value: itemValue,
-                            label: directionTypeTip[itemValue],
+                            label: DIRECTION_TYPE[itemValue],
                         }
                     })
 
@@ -586,7 +612,7 @@ export default defineComponent({
                         const itemValue = element.text()
                         return {
                             value: itemValue,
-                            label: peopleCount[itemValue],
+                            label: PERIOD_MAPPING[itemValue],
                         }
                     })
                     formData.value.regionInfo = {
@@ -614,7 +640,9 @@ export default defineComponent({
             }
         }
 
-        // 执行passLine编辑请求
+        /**
+         * @description 保存PASSLINE配置
+         */
         const savePassLineData = async () => {
             const sendXml = rawXml`
                 <content>
@@ -704,10 +732,14 @@ export default defineComponent({
                 setScheduleGuid()
                 refreshInitPage()
                 watchEdit.update()
+            } else {
+                openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
             }
         }
 
-        // 执行cpc编辑请求
+        /**
+         * @description 保存CPC配置
+         */
         const saveCpcData = async () => {
             const regionInfo = formData.value.regionInfo
             const lineInfo = formData.value.lineInfo
@@ -751,10 +783,14 @@ export default defineComponent({
                 if (formData.value.detectionEnable) {
                     formData.value.originalEnable = true
                 }
+            } else {
+                openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
             }
         }
 
-        // 保存
+        /**
+         * @description 检查互斥通道，保存配置
+         */
         const applyData = () => {
             checkMutexChl({
                 isChange: formData.value.detectionEnable && formData.value.detectionEnable !== formData.value.originalEnable,
@@ -773,7 +809,9 @@ export default defineComponent({
             })
         }
 
-        // passLine手动重置请求
+        /**
+         * @description PASSLINE手动重置
+         */
         const resetPassLineData = async () => {
             const sendXml = rawXml`
                 <content>
@@ -798,7 +836,9 @@ export default defineComponent({
             getData(manualResetSwitch)
         }
 
-        // cpc手动重置请求
+        /**
+         * @description CPC手动重置
+         */
         const resetCpcData = async () => {
             const sendXml = rawXml`
                 <content>
@@ -816,7 +856,9 @@ export default defineComponent({
             }
         }
 
-        // 执行手动重置
+        /**
+         * @description 执行手动重置
+         */
         const resetData = () => {
             if (props.chlData.supportPassLine) {
                 openMessageBox({
@@ -835,7 +877,9 @@ export default defineComponent({
             }
         }
 
-        // 初始化页面数据
+        /**
+         * @description 初始化页面数据
+         */
         const initPageData = async () => {
             pageData.value.supportAlarmAudioConfig = systemCaps.supportAlarmAudioConfig
             await getScheduleList()
@@ -843,19 +887,25 @@ export default defineComponent({
             refreshInitPage()
         }
 
-        // passLine选择警戒线
+        /**
+         * @description passLine选择警戒线
+         */
         const changeLine = () => {
             pageData.value.direction = formData.value.line[pageData.value.surfaceIndex].direction
             setPassLineOcxData()
         }
 
-        // passLine选择方向
+        /**
+         * @description passLine 切换方向
+         */
         const changeDirection = () => {
             formData.value.line[pageData.value.surfaceIndex].direction = pageData.value.direction
             setPassLineOcxData()
         }
 
-        // passLine OSD变化
+        /**
+         * @description passLine 开关OSD
+         */
         const changeOSD = () => {
             if (mode.value === 'h5') {
                 passLineDrawer.setEnable('osd', formData.value.countOSD.switch)
@@ -868,7 +918,11 @@ export default defineComponent({
             }
         }
 
-        // passLine绘图变化
+        /**
+         * @description passLine更新绘图区域
+         * @param passline
+         * @param osdInfo
+         */
         const changePassLine = (
             passline: {
                 startX: number
@@ -898,7 +952,9 @@ export default defineComponent({
             // }
         }
 
-        // passLine绘图
+        /**
+         * @description passLine绘图
+         */
         const setPassLineOcxData = () => {
             const alarmLine = pageData.value.surfaceIndex
             const plugin = playerRef.value!.plugin
@@ -938,12 +994,17 @@ export default defineComponent({
             }
         }
 
-        // 执行是否显示全部区域
+        /**
+         * @description 执行是否显示全部区域
+         */
         const togglePassLineShowAllArea = () => {
             showAllPassLineArea(pageData.value.isShowAllArea)
         }
 
-        // passLine显示全部区域
+        /**
+         * @description passLine显示全部区域
+         * @param {boolean} isShowAllArea
+         */
         const showAllPassLineArea = (isShowAllArea: boolean) => {
             if (mode.value === 'h5') {
                 passLineDrawer.setEnableShowAll(isShowAllArea)
@@ -968,7 +1029,9 @@ export default defineComponent({
             }
         }
 
-        // passLine清空当前区域
+        /**
+         * @description passLine清空当前区域
+         */
         const clearArea = () => {
             if (mode.value === 'h5') {
                 passLineDrawer.clear()
@@ -993,7 +1056,9 @@ export default defineComponent({
             }
         }
 
-        // passLine清空所有区域
+        /**
+         * @description passLine清空所有区域
+         */
         const clearAllArea = () => {
             const plugin = playerRef.value!.plugin
 
@@ -1023,7 +1088,9 @@ export default defineComponent({
             }
         }
 
-        // passLine刷新
+        /**
+         * @description PASSLINE刷新
+         */
         const refreshInitPage = () => {
             const lineInfoList = formData.value.line
             pageData.value.surfaceChecked = lineInfoList.map((lineInfo, index) => {
@@ -1042,13 +1109,19 @@ export default defineComponent({
             }
         }
 
-        // CPC绘图变化
+        /**
+         * @description CPC绘图变化
+         * @param {CanvasBaseArea} regionInfo
+         * @param {CanvasBaseArea} arrowlineInfo
+         */
         const changeCpc = (regionInfo: CanvasBaseArea, arrowlineInfo: CanvasBaseArea) => {
             formData.value.regionInfo = regionInfo
             formData.value.lineInfo = arrowlineInfo
         }
 
-        // CPC绘图
+        /**
+         * @description CPC绘图
+         */
         const setCpcOcxData = () => {
             if (mode.value === 'h5') {
                 cpcDrawer.setRegionInfo(formData.value.regionInfo)
@@ -1072,7 +1145,9 @@ export default defineComponent({
         //     }
         // }
 
-        // CPC清空当前区域
+        /**
+         * @description CPC清空当前区域
+         */
         const clearCpcArea = () => {
             if (mode.value === 'h5') {
                 cpcDrawer.clear()
@@ -1157,7 +1232,6 @@ export default defineComponent({
             playerRef,
             notify,
             pageData,
-            dateTime,
             watchEdit,
             formData,
             handlePlayerReady,
@@ -1166,7 +1240,6 @@ export default defineComponent({
             togglePassLineShowAllArea,
             clearArea,
             clearAllArea,
-            // toggleCpcDrawAvailable,
             changeLine,
             changeDirection,
             changeOSD,

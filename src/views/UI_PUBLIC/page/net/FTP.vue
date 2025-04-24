@@ -5,14 +5,10 @@
 -->
 <template>
     <div class="base-flex-box">
-        <div class="base-subheading-box">{{ Translate('IDCS_FTP') }}</div>
+        <div class="base-head-box">{{ Translate('IDCS_FTP') }}</div>
         <el-form
             ref="formRef"
             v-title
-            :style="{
-                '--form-label-width': '200px',
-                '--form-input-width': '200px',
-            }"
             class="stripe"
             :rules="formRule"
             :model="formData"
@@ -114,10 +110,10 @@
                     :disabled="!formData.switch"
                     :label="Translate('IDCS_DIS_NET_UPLOAD')"
                 />
-                <el-text class="tip">{{ Translate('IDCS_DIS_NET_UPLOAD_TIP') }}</el-text>
+                <span>{{ Translate('IDCS_DIS_NET_UPLOAD_TIP') }}</span>
             </el-form-item>
         </el-form>
-        <div class="base-subheading-box">{{ Translate('IDCS_UPLOAD_SET') }}</div>
+        <div class="base-head-box">{{ Translate('IDCS_UPLOAD_SET') }}</div>
         <el-table
             v-title
             height="100%"
@@ -141,28 +137,19 @@
                 <!-- 排程 -->
                 <el-table-column>
                     <template #header>
-                        <el-dropdown :disabled="!formData.switch">
-                            <BaseTableDropdownLink>
-                                {{ Translate('IDCS_SCHEDULE') }}
-                            </BaseTableDropdownLink>
-                            <template #dropdown>
-                                <el-dropdown-menu>
-                                    <el-dropdown-item
-                                        v-for="item in pageData.scheduleOptions"
-                                        :key="item.value"
-                                        @click="changeAllSwitch('schedule', item.value)"
-                                    >
-                                        {{ item.label }}
-                                    </el-dropdown-item>
-                                </el-dropdown-menu>
-                            </template>
-                        </el-dropdown>
+                        <BaseScheduleTableDropdown
+                            :disabled="!formData.switch"
+                            :options="pageData.scheduleOptions"
+                            @change="changeAllSchedule"
+                            @edit="openSchedulePop"
+                        />
                     </template>
                     <template #default="{ row }: TableColumn<NetFTPList>">
-                        <el-select-v2
+                        <BaseScheduleSelect
                             v-model="row.schedule"
                             :disabled="!formData.switch"
                             :options="pageData.scheduleOptions"
+                            @edit="openSchedulePop"
                         />
                     </template>
                 </el-table-column>
@@ -345,19 +332,13 @@
         <div class="base-btn-box">
             <el-button
                 :disabled="!formData.switch"
-                @click="manageSchedule"
-            >
-                {{ Translate('IDCS_SCHEDULE_MANAGE') }}
-            </el-button>
-            <el-button
-                :disabled="!formData.switch"
                 @click="test"
             >
                 {{ Translate('IDCS_TEST') }}
             </el-button>
             <el-button @click="verify">{{ Translate('IDCS_APPLY') }}</el-button>
         </div>
-        <ScheduleManagPop
+        <BaseScheduleManagePop
             v-model="pageData.isSchedulePop"
             @close="closeSchedulePop"
         />
@@ -365,9 +346,3 @@
 </template>
 
 <script lang="ts" src="./FTP.v.ts"></script>
-
-<style lang="scss" scoped>
-.tip {
-    line-height: 1.4;
-}
-</style>

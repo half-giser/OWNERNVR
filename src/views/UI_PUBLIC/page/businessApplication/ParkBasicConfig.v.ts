@@ -9,7 +9,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
 
-        const formData = ref(new BusinessPkMgrBasicConfigForm())
+        const formData = ref(new BusinessParkBasicConfigForm())
         const formRef = useFormRef()
 
         const rules = reactive<FormRules>({

@@ -30,7 +30,7 @@ export default defineComponent({
             //手动选择时间段面板显示状态
             manualTimeInputShow: false,
             //手动选择时间段
-            manualTimeSpan: ref<[Date, Date]>([new Date(2016, 9, 10, 0, 0), new Date(2016, 9, 10, 23, 59)]),
+            manualTimeSpan: ref<[string, string]>(['00:00', '23:59']),
             weekdays: [0, 1, 2, 3, 4, 5, 6] as number[],
         })
 
@@ -87,8 +87,9 @@ export default defineComponent({
             pageData.value.manualTimeInputShow = false
         }
 
-        const dateToTimeNum = (time: Date) => {
-            return time.getHours() * 60 + time.getMinutes()
+        const dateToTimeNum = (time: string) => {
+            const date = time.split(':').map((item) => Number(item))
+            return date[0] * 60 + date[1]
         }
 
         /**

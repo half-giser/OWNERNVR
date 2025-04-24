@@ -17,6 +17,7 @@
         }"
         :class="{
             hover: prop.hoverIndex > -1,
+            active,
             disabled,
         }"
         @click="click"

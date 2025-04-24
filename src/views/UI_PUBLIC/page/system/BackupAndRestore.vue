@@ -5,14 +5,8 @@
 -->
 <template>
     <div>
-        <el-form
-            v-title
-            :style="{
-                '--form-input-width': '200px',
-                '--form-label-width': '100px',
-            }"
-        >
-            <div class="base-subheading-box">{{ Translate('IDCS_SYSTEM_LOADINCONFIG_LOG') }}</div>
+        <el-form v-title>
+            <div class="base-head-box">{{ Translate('IDCS_SYSTEM_LOADINCONFIG_LOG') }}</div>
             <el-form-item :label="Translate('IDCS_PATH')">
                 <el-input
                     type="text"
@@ -54,14 +48,8 @@
                 <span class="note">{{ pageData.importNote }} &nbsp;</span>
             </el-form-item>
         </el-form>
-        <el-form
-            v-title
-            :style="{
-                '--form-input-width': '200px',
-                '--form-label-width': '100px',
-            }"
-        >
-            <div class="base-subheading-box">{{ Translate('IDCS_SYSTEM_BACKUPCONFIG_LOG') }}</div>
+        <el-form v-title>
+            <div class="base-head-box">{{ Translate('IDCS_SYSTEM_BACKUPCONFIG_LOG') }}</div>
             <el-form-item :label="isSupportH5 ? '' : Translate('IDCS_PATH')">
                 <el-input
                     v-if="!isSupportH5"
@@ -106,7 +94,6 @@
         />
         <BaseInputEncryptPwdPop
             v-model="pageData.isEncryptPwd"
-            :decrypt-flag="pageData.encryptPwdDecryptFlag"
             :title="pageData.encryptPwdTitle"
             @confirm="confirmInputEncryptPwd"
             @close="pageData.isEncryptPwd = false"

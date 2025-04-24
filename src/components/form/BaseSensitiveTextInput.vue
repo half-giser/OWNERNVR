@@ -45,6 +45,7 @@ const emits = defineEmits<{
 }>()
 
 const value = ref('')
+const focusState = ref(false)
 
 /**
  * @description 失去焦点时脱敏处理
@@ -53,6 +54,7 @@ const handleBlur = () => {
     if (!prop.showValue) {
         handleHideSensitiveInfo()
     }
+    focusState.value = false
     emits('blur')
 }
 
@@ -61,6 +63,7 @@ const handleBlur = () => {
  */
 const handleFocus = () => {
     handleShowSensitiveInfo()
+    focusState.value = true
     emits('focus')
 }
 
@@ -85,11 +88,14 @@ const handleInput = (e: string) => {
     emits('update:modelValue', e)
 }
 
-const stopWatch = watch(
+watch(
     () => prop.modelValue,
     () => {
-        handleBlur()
-        stopWatch()
+        if (!prop.showValue && !focusState.value) {
+            handleHideSensitiveInfo()
+        } else {
+            handleShowSensitiveInfo()
+        }
     },
 )
 

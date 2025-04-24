@@ -40,23 +40,23 @@ export default defineComponent({
                     label: Translate('IDCS_TIME_ZONE_' + (index + 1)),
                 }
             }),
-            // 系统时间最小值
-            serverTimeStart: dayjs('2021-01-01', { jalali: false, format: DEFAULT_DATE_FORMAT }),
-            // 系统时间最大值
-            serverTimeEnd: dayjs('2037-01-01', { jalali: false, format: DEFAULT_DATE_FORMAT }),
-            // 是否可提交
-            submitDisabled: true,
-            // 系统时间改变标识
-            isSystemTimeChanged: false,
             // 从请求获取的系统时间，用于时钟的计算
             systemTime: '',
-            // 请求结束的事件，用于时钟的计算
+            // 请求结束的时间，用于时钟的计算
             startTime: 0,
         })
 
-        let isTimePickerChange = false
+        // 系统时间改变标识 (同步本地时间或手动更改)
+        let isSystemTimeChanged = false
+        // 系统时间手动改变标识（仅手动更改）
+        let isTimePickerChanged = false
         let currentTimezone = ''
         let currentDST = false
+
+        // 系统时间最小值
+        const SERVER_START_TIME = dayjs('2010-01-01', { jalali: false, format: DEFAULT_DATE_FORMAT })
+        // 系统时间最大值
+        const SERVER_END_TIME = dayjs('2037-12-31', { jalali: false, format: DEFAULT_DATE_FORMAT })
 
         // 显示时间格式
         const formatSystemTime = computed(() => {
@@ -68,11 +68,12 @@ export default defineComponent({
          */
         const handleIsSyncChange = () => {
             if (formData.value.isSync) {
-                pageData.value.isSystemTimeChanged = true
+                isSystemTimeChanged = true
                 formData.value.systemTime = dayjs().calendar('gregory').format(formatSystemTime.value)
-            } else {
-                isTimePickerChange = false
+                pageData.value.systemTime = dayjs().calendar('gregory').format(formatSystemTime.value)
+                pageData.value.startTime = performance.now()
             }
+            isTimePickerChanged = false
             clock()
         }
 
@@ -80,25 +81,18 @@ export default defineComponent({
          * @description 同步方式改变时回调
          */
         const handleSyncTypeChange = () => {
-            isTimePickerChange = false
+            isTimePickerChanged = false
         }
 
         /**
          * @description 定时更新时间
          */
         const renderTime = () => {
-            // 与Internet时间同步时，使用返回的系统时间计时
-            if (formData.value.syncType === 'manually') {
-                const now = performance.now()
-                formData.value.systemTime = dayjs(pageData.value.systemTime, { jalali: false, format: formatSystemTime.value })
-                    .add(now - pageData.value.startTime, 'millisecond')
-                    .calendar('gregory')
-                    .format(formatSystemTime.value)
-            }
-            // 计算机时间同步时，使用计算时间计时
-            else {
-                formData.value.systemTime = dayjs().calendar('gregory').format(formatSystemTime.value)
-            }
+            const now = performance.now()
+            formData.value.systemTime = dayjs(pageData.value.systemTime, { jalali: false, format: formatSystemTime.value })
+                .add(now - pageData.value.startTime, 'millisecond')
+                .calendar('gregory')
+                .format(formatSystemTime.value)
         }
 
         /**
@@ -116,8 +110,7 @@ export default defineComponent({
         const getData = async () => {
             openLoading()
 
-            const result = await queryTimeCfg()
-            const $ = queryXml(result)
+            const $ = await dateTime.getTimeConfig()
 
             pageData.value.syncTypeOptions = $('types/synchronizeType/enum').map((item) => {
                 return {
@@ -158,14 +151,14 @@ export default defineComponent({
             currentDST = formData.value.enableDST
 
             let currentDate = dayjs($('content/synchronizeInfo/currentTime').text().trim(), { jalali: false, format: formatSystemTime.value })
-            if (currentDate.isBefore(pageData.value.serverTimeStart)) {
-                currentDate = pageData.value.serverTimeStart
-            } else if (currentDate.isAfter(pageData.value.serverTimeEnd)) {
-                currentDate = pageData.value.serverTimeEnd
+            if (currentDate.isBefore(SERVER_START_TIME)) {
+                currentDate = SERVER_START_TIME
+            } else if (currentDate.isAfter(SERVER_END_TIME)) {
+                currentDate = SERVER_END_TIME
             }
 
             nextTick(() => {
-                formData.value.systemTime = dayjs(currentDate).calendar('gregory').format(formatSystemTime.value)
+                formData.value.systemTime = currentDate.calendar('gregory').format(formatSystemTime.value)
                 pageData.value.startTime = performance.now()
                 pageData.value.systemTime = formData.value.systemTime
                 clock()
@@ -200,7 +193,7 @@ export default defineComponent({
                     <synchronizeInfo>
                         <type type="synchronizeType">${formData.value.syncType}</type>
                         <ntpServer>${wrapCDATA(formData.value.timeServer)}</ntpServer>
-                        ${pageData.value.isSystemTimeChanged ? `<currentTime>${wrapCDATA(formData.value.systemTime)}</currentTime>` : ''}
+                        ${isSystemTimeChanged ? `<currentTime>${wrapCDATA(formData.value.systemTime)}</currentTime>` : ''}
                     </synchronizeInfo>
                     <formatInfo>
                         <date type="dateFormat">${formData.value.dateFormat}</date>
@@ -212,9 +205,9 @@ export default defineComponent({
 
             closeLoading()
 
-            pageData.value.submitDisabled = false
-            pageData.value.isSystemTimeChanged = false
-            dateTime.getTimeConfig(true)
+            isSystemTimeChanged = false
+            isTimePickerChanged = false
+            formData.value.isSync = false
             getData()
             commSaveResponseHandler(result)
         }
@@ -230,8 +223,8 @@ export default defineComponent({
          * @description 日历组件选择时间
          */
         const handleSystemTimeChange = () => {
-            pageData.value.isSystemTimeChanged = true
-            isTimePickerChange = true
+            isSystemTimeChanged = true
+            isTimePickerChanged = true
         }
 
         /**
@@ -244,7 +237,7 @@ export default defineComponent({
             } else {
                 // 如果系统时间没有手动改变，重新开启定时器
                 nextTick(() => {
-                    if (!isTimePickerChange) {
+                    if (!isTimePickerChanged) {
                         clock()
                     }
                 })

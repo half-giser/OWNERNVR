@@ -15,9 +15,7 @@
             <el-form
                 ref="formRef"
                 v-title
-                :style="{
-                    '--form-label-width': '160px',
-                }"
+                class="stripe"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select-v2
@@ -228,9 +226,6 @@
                                             <el-form
                                                 ref="imageAdjustFormRef"
                                                 v-title
-                                                :style="{
-                                                    '--form-label-width': '200px',
-                                                }"
                                             >
                                                 <el-form-item :label="Translate('IDCS_CONFIG_FILE')">
                                                     <el-select-v2
@@ -244,7 +239,7 @@
                                                 <el-form-item>
                                                     <template #label>
                                                         <el-checkbox
-                                                            v-if="row.sharpenSwitchEnable"
+                                                            v-if="row.sharpenSwitchEnable || typeof row.sharpenSwitchEnable === 'undefined'"
                                                             v-model="row.sharpenSwitch"
                                                             :label="Translate('IDCS_SHARPNESS')"
                                                             :disabled="row.sharpen === undefined"
@@ -402,7 +397,7 @@
                                                     :label="Translate('IDCS_EXPOSURE_VALUE')"
                                                 >
                                                     <el-select-v2
-                                                        v-model="row.exposureMode"
+                                                        v-model="row.exposure"
                                                         :disabled="row.exposureMode === undefined"
                                                         :options="row.exposureList"
                                                         @change="setAZData()"
@@ -417,6 +412,7 @@
                                                         v-model="row.gainMode"
                                                         :options="row.gainModeList"
                                                         :disabled="row.BLCMode === 'HWDR' || (row.BLCMode !== 'HWDR' && row.gainMode === undefined)"
+                                                        @change="setAZData()"
                                                     />
                                                 </el-form-item>
                                                 <el-form-item
@@ -528,10 +524,9 @@
                                                     v-if="row.isSupportIRCutMode && row.IRCutMode === 'time' && row.IRCutDayTime !== undefined"
                                                     :label="Translate('IDCS_DN_DAY_TIME')"
                                                 >
-                                                    <el-time-picker
+                                                    <BaseTimePicker
                                                         v-model="row.IRCutDayTime"
-                                                        :format="dateTime.hourMinuteFormat"
-                                                        value-format="HH:mm"
+                                                        unit="minute"
                                                         @change="setAZData()"
                                                     />
                                                 </el-form-item>
@@ -539,10 +534,9 @@
                                                     v-if="row.isSupportIRCutMode && row.IRCutMode === 'time' && row.IRCutNightTime !== undefined"
                                                     :label="Translate('IDCS_DN_NIGHT_TIME')"
                                                 >
-                                                    <el-time-picker
+                                                    <BaseTimePicker
                                                         v-model="row.IRCutNightTime"
-                                                        :format="dateTime.hourMinuteFormat"
-                                                        value-format="HH:mm"
+                                                        unit="minute"
                                                         @change="setAZData()"
                                                     />
                                                 </el-form-item>
@@ -566,7 +560,7 @@
                                                     />
                                                 </el-form-item>
                                                 <el-form-item
-                                                    v-if="row.smartIrMode && row.smartIrSwitch"
+                                                    v-if="row.smartIrMode || row.smartIrSwitch"
                                                     :label="Translate('IDCS_GRADE')"
                                                 >
                                                     <el-select-v2
@@ -576,7 +570,7 @@
                                                     />
                                                 </el-form-item>
                                                 <el-form-item
-                                                    v-if="row.smartIrSwitch !== undefined && row.smartIrMode === 'manual'"
+                                                    v-if="row.smartIrMode === 'manual'"
                                                     :label="Translate('IDCS_LIGHT_LEVEL')"
                                                 >
                                                     <BaseSliderInput
@@ -671,10 +665,9 @@
                                                     v-if="row.whitelightMode === 'manual'"
                                                     :label="Translate('IDCS_START_TIME')"
                                                 >
-                                                    <el-time-picker
+                                                    <BaseTimePicker
                                                         v-model="row.whitelightOnTime"
-                                                        :format="dateTime.hourMinuteFormat"
-                                                        value-format="HH:mm"
+                                                        unit="minute"
                                                         @change="setAZData()"
                                                     />
                                                 </el-form-item>
@@ -682,10 +675,9 @@
                                                     v-if="row.whitelightMode === 'manual'"
                                                     :label="Translate('IDCS_END_TIME')"
                                                 >
-                                                    <el-time-picker
+                                                    <BaseTimePicker
                                                         v-model="row.whitelightOffTime"
-                                                        :format="dateTime.hourMinuteFormat"
-                                                        value-format="HH:mm"
+                                                        unit="minute"
                                                         @change="setAZData()"
                                                     />
                                                 </el-form-item>
@@ -695,12 +687,7 @@
                                             v-show="row.activeTab === tabKeys.scheduleCtrl"
                                             class="page_content_item"
                                         >
-                                            <el-form
-                                                v-title
-                                                :style="{
-                                                    '--form-label-width': '150px',
-                                                }"
-                                            >
+                                            <el-form v-title>
                                                 <el-form-item :label="Translate('IDCS_SCHEDULE')">
                                                     <el-select-v2
                                                         v-model="row.scheduleInfo.scheduleType"
@@ -722,13 +709,21 @@
                                                 <el-form-item
                                                     v-if="row.scheduleInfo.scheduleType === 'time'"
                                                     :label="Translate('IDCS_DN_DAY_TIME')"
+                                                    :style="{
+                                                        '--form-input-width': '112.5px',
+                                                    }"
                                                 >
-                                                    <el-time-picker
-                                                        v-model="row.scheduleInfo.time"
-                                                        is-range
-                                                        range-separator="-"
-                                                        value-format="HH:mm"
-                                                        :format="dateTime.hourMinuteFormat"
+                                                    <BaseTimePicker
+                                                        v-model="row.scheduleInfo.time[0]"
+                                                        unit="minute"
+                                                        :range="[null, `${row.scheduleInfo.time[1]}:00`]"
+                                                        @change="changeTimeType()"
+                                                    />
+                                                    <span class="time-splitter">--</span>
+                                                    <BaseTimePicker
+                                                        v-model="row.scheduleInfo.time[1]"
+                                                        unit="minute"
+                                                        :range="[`${row.scheduleInfo.time[0]}:00`, null]"
                                                         @change="changeTimeType()"
                                                     />
                                                 </el-form-item>
@@ -761,12 +756,7 @@
                                             v-show="row.activeTab === tabKeys.sceneCtrl"
                                             class="page_content_item3"
                                         >
-                                            <el-form
-                                                v-title
-                                                :style="{
-                                                    '--form-label-width': '150px',
-                                                }"
-                                            >
+                                            <el-form v-title>
                                                 <div class="row_scene_title">{{ Translate('IDCS_SCENE_CONTROL') }}</div>
                                                 <div class="row_scene_control scene_item">
                                                     <div
@@ -1027,6 +1017,6 @@
 }
 
 .time-splitter {
-    margin: 0 10px;
+    margin: 0 8px;
 }
 </style>

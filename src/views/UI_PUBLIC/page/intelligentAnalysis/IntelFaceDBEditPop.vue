@@ -6,7 +6,7 @@
 <template>
     <el-dialog
         :title="type === 'edit' ? Translate('IDCS_EDIT_GROUP') : Translate('IDCS_ADD_GROUP')"
-        width="400"
+        width="450"
         append-to-body
         @open="open"
         @closed="formRef?.resetFields()"
@@ -16,6 +16,7 @@
             v-title
             :rules="formRule"
             :model="formData"
+            :class="type === 'edit' ? 'stripe' : 'no-padding'"
         >
             <el-form-item
                 :label="Translate('IDCS_GROUP_NAME')"

@@ -3,7 +3,6 @@
  * @Author: luoyiming luoyiming@tvt.net.cn
  * @Date: 2024-09-18 09:43:49
  */
-import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import { type XMLQuery } from '@/utils/xmlParse'
 import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
 import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
@@ -12,7 +11,6 @@ import AlarmBasePresetSelector from './AlarmBasePresetSelector.vue'
 
 export default defineComponent({
     components: {
-        ScheduleManagPop,
         AlarmBaseRecordSelector,
         AlarmBaseAlarmOutSelector,
         AlarmBaseTriggerSelector,
@@ -525,6 +523,8 @@ export default defineComponent({
                 setAreaView()
                 refreshInitPage()
                 watchEdit.update()
+            } else {
+                openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
             }
         }
 
@@ -609,16 +609,12 @@ export default defineComponent({
             formData,
             watchEdit,
             pageData,
-            // 播放器就绪
             handlePlayerReady,
-            // 视频区域
             showAllArea,
             clearArea,
             clearAllArea,
-            // 警戒区域切换
             changeWarnArea,
             formatAreaName,
-            // 提交物品遗留与看护数据
             applyData,
             closeSchedulePop,
         }

@@ -90,7 +90,6 @@ export default defineComponent({
             cacheChlList: [] as LiveChannelList[],
             // 在线通道列表
             onlineChlList: [] as string[],
-            // chlList: [] as LiveChannelList[],
             // 输入的关键词
             chlKeyword: '',
             // 已确认，可用于过滤的关键词
@@ -108,7 +107,7 @@ export default defineComponent({
             // 自定义视图列表
             customViewList: [] as LiveCustomViewList[],
             // 当前hover的自定义视图
-            activeCustomView: 0,
+            activeCustomView: -1,
             // 打开新增通道组弹窗
             isAddChlGroup: false,
             // 打开编辑通道组弹窗
@@ -140,6 +139,7 @@ export default defineComponent({
          */
         const changeChlMenu = (index: number) => {
             pageData.value.activeChlMenu = index
+            pageData.value.activeCustomView = -1
             if (index === 1 && !pageData.value.chlGroupList.length) {
                 getChlGroupList()
             } else if (index === 2 && !pageData.value.customViewList.length) {

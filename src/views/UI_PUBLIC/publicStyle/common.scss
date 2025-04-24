@@ -22,6 +22,7 @@ body {
     background-color: var(--main-bg);
     font-size: 15px;
     color: var(--main-text);
+    opacity: 1 !important;
 }
 
 * {
@@ -62,6 +63,10 @@ li {
 
 .text-exception {
     color: var(--color-purple);
+}
+
+.text-tips {
+    color: var(--main-text-light);
 }
 
 /* 滚动条样式 */
@@ -210,6 +215,7 @@ input[type='number'] {
     .el-table {
         .cell {
             width: 100%;
+            padding: 0 10px;
         }
 
         .cell-with-form-rule {
@@ -399,12 +405,6 @@ input[type='number'] {
                     display: inline-flex;
                 }
 
-                // .el-text.label {
-                //     color: var(--form-input-width);
-                //     font-size: 15px;
-                //     cursor: text;
-                // }
-
                 .el-checkbox {
                     margin-left: 5px;
                 }
@@ -433,6 +433,11 @@ input[type='number'] {
             & > .el-form-item__content > .el-form-item {
                 width: 49%;
                 padding: 0;
+
+                & > .el-form-item__content > .el-form-item {
+                    width: 49%;
+                    padding: 0;
+                }
             }
         }
 
@@ -516,6 +521,12 @@ input[type='number'] {
                 &:nth-child(even) {
                     background-color: unset;
                 }
+            }
+        }
+
+        &.no-padding {
+            & > .el-form-item {
+                padding: 2px 0;
             }
         }
     }
@@ -644,7 +655,7 @@ input[type='number'] {
             width: 100%;
 
             .el-radio {
-                padding-inline: 10px;
+                padding-inline: 15px;
                 margin: 0;
             }
 
@@ -680,12 +691,22 @@ input[type='number'] {
             width: 100%;
 
             .el-checkbox {
-                padding-inline: 10px;
+                padding-inline: 15px;
                 margin: 0;
             }
 
             .el-checkbox:nth-child(even) {
                 background-color: var(--form-stripe);
+            }
+
+            &.odd {
+                .el-checkbox:nth-child(odd) {
+                    background-color: var(--form-stripe);
+                }
+
+                .el-checkbox:nth-child(even) {
+                    background-color: transparent;
+                }
             }
         }
     }
@@ -760,7 +781,7 @@ input[type='number'] {
 }
 
 // 子标题
-.base-subheading-box {
+.base-head-box {
     line-height: 35px;
     width: 100%;
     height: 35px;
@@ -780,11 +801,15 @@ input[type='number'] {
 // 放置按钮、页码等的容器
 .base-btn-box {
     margin-top: 10px;
-    width: calc(var(--form-input-width) + var(--form-label-width) + 16px);
+    width: 100%;
     max-width: 100%;
     display: flex;
     justify-content: flex-end;
     flex-shrink: 0;
+
+    .el-form & {
+        width: calc(var(--form-input-width) + var(--form-label-width) + 15px);
+    }
 
     &.padding {
         box-sizing: border-box;
@@ -794,6 +819,10 @@ input[type='number'] {
 
     &.collapse {
         margin-top: 0;
+    }
+
+    &.gap {
+        margin-block: 10px;
     }
 
     &.fixed {

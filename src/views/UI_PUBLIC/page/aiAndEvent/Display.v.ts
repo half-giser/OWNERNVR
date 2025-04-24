@@ -19,7 +19,9 @@ export default defineComponent({
             popMsgDurationOption: [] as SelectOption<number, string>[],
         })
 
-        // 获取数据
+        /**
+         * @description 获取数据
+         */
         const getData = async () => {
             const result = await queryEventNotifyParam()
 
@@ -70,6 +72,9 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description 提交数据
+         */
         const setData = async () => {
             openLoading()
             const sendXml = rawXml`

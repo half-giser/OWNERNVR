@@ -40,13 +40,13 @@
                     :placeholder="Translate('IDCS_PASSWORD_TIP')"
                 />
             </el-form-item>
-            <BasePasswordStrength :strength />
-            <el-form-item label=" ">
-                <span
-                    v-clean-html="pageData.passwordTip"
-                    class="tip"
-                ></span>
+            <el-form-item>
+                <BasePasswordStrength :strength />
             </el-form-item>
+            <div
+                v-clean-html="pageData.passwordTip"
+                class="tip"
+            ></div>
             <el-form-item
                 :label="Translate('IDCS_CONFIRM_PASSWORD')"
                 prop="confirmPassword"
@@ -79,3 +79,10 @@
 </template>
 
 <script lang="ts" src="./ONVIFUserAddPop.v.ts"></script>
+
+<style lang="scss" scoped>
+.tip {
+    margin-bottom: 10px;
+    // padding-left: 15px;
+}
+</style>

@@ -143,7 +143,7 @@ class SystemGeneralSettingDecoderResolution {
  */
 export class SystemGeneralSettingForm {
     deviceName = '' // 设备名称
-    deviceNumber = 0 // 设备编号
+    deviceNumber: number | undefined = undefined // 设备编号
     videoFormat = '' // 视频制式
     outputAdapt = false // 固定显示分辨率
     resolution: string[] = [] // 显示多路输出分辨率

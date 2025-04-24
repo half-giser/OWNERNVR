@@ -510,7 +510,7 @@ export default defineComponent({
         const save = async () => {
             await setData()
             await setDateTime()
-            dateTime.getTimeConfig(true)
+            dateTime.getTimeConfig()
         }
 
         const ready = computed(() => {

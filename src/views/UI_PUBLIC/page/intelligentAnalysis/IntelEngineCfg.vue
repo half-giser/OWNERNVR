@@ -5,12 +5,7 @@
 -->
 <template>
     <div class="base-flex-box">
-        <el-form
-            v-title
-            :style="{
-                '--form-label-width': '300px',
-            }"
-        >
+        <el-form v-title>
             <el-form-item>
                 <template #label>
                     <el-checkbox
@@ -26,7 +21,10 @@
             v-show="pageData.isDetail"
             class="base-table-box"
         >
-            <el-table v-title>
+            <el-table
+                v-title
+                show-overflow-tooltip
+            >
                 <el-table-column
                     :label="Translate('IDCS_CHANNEL')"
                     prop="name"

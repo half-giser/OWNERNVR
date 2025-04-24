@@ -3,12 +3,7 @@
  * @Date: 2024-08-13 15:58:57
  * @Description: 闪灯
  */
-import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
-
 export default defineComponent({
-    components: {
-        ScheduleManagPop,
-    },
     setup() {
         const { Translate } = useLangStore()
 
@@ -24,7 +19,6 @@ export default defineComponent({
             totalCount: 0,
             isSchedulePop: false,
             schedule: '',
-            // scheduleName: '',
             scheduleChanged: false,
             scheduleList: [] as SelectOption<string, string>[],
             enableList: getTranslateOptions(DEFAULT_BOOL_SWITCH_OPTIONS),
@@ -32,7 +26,6 @@ export default defineComponent({
         })
 
         const tableData = ref<AlarmWhiteLightDto[]>([])
-        // 编辑行
         const editRows = useWatchEditRows<AlarmWhiteLightDto>()
 
         const getData = () => {
@@ -207,10 +200,6 @@ export default defineComponent({
             pageData.value.scheduleChanged = true
         }
 
-        const openSchedulePop = () => {
-            pageData.value.isSchedulePop = true
-        }
-
         const closeSchedulePop = async () => {
             pageData.value.isSchedulePop = false
             await getScheduleList()
@@ -232,7 +221,6 @@ export default defineComponent({
             changeAllEnable,
             changeAllFrequencyType,
             changeSchedule,
-            openSchedulePop,
             closeSchedulePop,
             setData,
         }

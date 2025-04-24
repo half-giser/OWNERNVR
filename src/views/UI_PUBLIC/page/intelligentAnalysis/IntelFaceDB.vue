@@ -21,15 +21,22 @@
                     :width="80"
                     type="index"
                 />
-                <el-table-column :label="Translate('IDCS_GROUP')">
+                <el-table-column
+                    :label="Translate('IDCS_GROUP')"
+                    show-overflow-tooltip
+                    min-width="300"
+                >
                     <template #default="{ row }: TableColumn<IntelFaceDBGroupList>"> {{ row.name }} ({{ row.count }}) </template>
                 </el-table-column>
-                <el-table-column>
-                    <!-- <template #default="{ row }: TableColumn<IntelFaceDBGroupList>">
+                <!-- <el-table-column>
+                    <template #default="{ row }: TableColumn<IntelFaceDBGroupList>">
                         <div :class="getAlarmClassName(row.id, row.property)">{{ displayAlarmText(row.property) }}</div>
-                    </template> -->
-                </el-table-column>
-                <el-table-column :label="Translate('IDCS_EDIT')">
+                    </template>
+                </el-table-column> -->
+                <el-table-column
+                    :label="Translate('IDCS_EDIT')"
+                    width="100"
+                >
                     <template #default="{ row }: TableColumn<IntelFaceDBGroupList>">
                         <BaseImgSpriteBtn
                             file="edit2"
@@ -37,7 +44,10 @@
                         />
                     </template>
                 </el-table-column>
-                <el-table-column :label="Translate('IDCS_DELETE')">
+                <el-table-column
+                    :label="Translate('IDCS_DELETE')"
+                    width="100"
+                >
                     <template #default="{ row }: TableColumn<IntelFaceDBGroupList>">
                         <BaseImgSpriteBtn
                             file="del"
@@ -48,7 +58,7 @@
                 <el-table-column
                     :label="Translate('IDCS_EXPAND_OR_COLLAPSE')"
                     type="expand"
-                    :width="200"
+                    width="200"
                 >
                     <template #default="{ row }: TableColumn<IntelFaceDBGroupList>">
                         <div
@@ -191,7 +201,8 @@
                 </el-button>
                 <el-button @click="addGroup">{{ Translate('IDCS_ADD_GROUP') }}</el-button>
                 <el-button
-                    v-show="!pageData.isExportDisabled"
+                    v-show="!pageData.isExportVisible"
+                    :disabled="isExportDisabled"
                     @click="exportGroup"
                 >
                     {{ Translate('IDCS_EXPORT') }}

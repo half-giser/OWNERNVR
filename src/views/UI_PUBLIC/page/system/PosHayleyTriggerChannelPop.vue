@@ -18,12 +18,14 @@
                 <el-table-column
                     :label="Translate('IDCS_CHANNEL')"
                     prop="text"
+                    show-overflow-tooltip
                 />
                 <el-table-column :label="Translate('IDCS_POS_TILL')">
                     <template #default="{ row }: TableColumn<SystemPosListChls>">
                         <el-input
                             v-model.trim="row.till"
-                            type="number"
+                            :formatter="formatDigit"
+                            :parser="formatDigit"
                         />
                     </template>
                 </el-table-column>

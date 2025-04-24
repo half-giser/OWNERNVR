@@ -56,7 +56,14 @@ export default defineComponent({
         const editRecBackUpTask = async (taskIdList: string[], action: 'pause' | 'resume' | 'delete') => {
             const sendXml = rawXml`
                 <content>
-                    ${taskIdList.map((id) => `<item id="${id}">${action}</item>`).join('')}
+                    ${taskIdList
+                        .map((id) => {
+                            return rawXml`
+                                <item id="${id}">
+                                    <action>${action}</action>
+                                </item>`
+                        })
+                        .join('')}
                 </content>
             `
             await ctrlRecBackupTask(sendXml)

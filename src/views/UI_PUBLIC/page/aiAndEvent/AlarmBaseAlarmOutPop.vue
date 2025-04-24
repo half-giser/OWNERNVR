@@ -15,7 +15,7 @@
                     {{ Translate('IDCS_ALARM_OUT') }}
                 </BaseTableDropdownLink>
             </template>
-            <BaseTransferPop
+            <BaseTransferPopover
                 source-title="IDCS_ALARM_OUT"
                 target-title="IDCS_ALARM_OUT"
                 :visible="pageData.isDropdown"
@@ -26,7 +26,7 @@
                 @close="closeAll"
             />
         </el-popover>
-        <BaseTransferDialog
+        <BaseTransferPop
             :model-value="pageData.isPop"
             header-title="IDCS_TRIGGER_ALARM_OUT"
             source-title="IDCS_ALARM_OUT"

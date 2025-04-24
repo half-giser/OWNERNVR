@@ -3,7 +3,6 @@
  * @Date: 2024-09-04 14:23:54
  * @Description:识别成功（1,2,3）/陌生人tab页/陌生车牌tab页，用于人脸识别和车牌识别的识别tab下
  */
-import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
 import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
 import AlarmBaseTriggerSelector from './AlarmBaseTriggerSelector.vue'
@@ -12,7 +11,6 @@ import AlarmBaseSnapSelector from './AlarmBaseSnapSelector.vue'
 
 export default defineComponent({
     components: {
-        ScheduleManagPop,
         AlarmBaseRecordSelector,
         AlarmBaseAlarmOutSelector,
         AlarmBaseTriggerSelector,
@@ -98,11 +96,17 @@ export default defineComponent({
             }
         }
 
-        // 分组弹窗打开/关闭
+        /**
+         * @description 打开分组弹窗
+         */
         const openGroupPop = () => {
             pageData.value.isGroupPop = true
         }
 
+        /**
+         * @description 更新分组
+         * @param rowData
+         */
         const saveGroup = (rowData: { guid: string; name: string }[]) => {
             pageData.value.groupSelection = rowData
             taskData.groupId = pageData.value.groupSelection.map((item) => item.guid)

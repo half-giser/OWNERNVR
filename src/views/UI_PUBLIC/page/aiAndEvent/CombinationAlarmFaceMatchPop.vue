@@ -14,12 +14,7 @@
         <div class="wrapper">
             <div class="box">
                 <div class="box_title">{{ Translate('IDCS_FACE_MATCH_SELECT_CHL') }}</div>
-                <el-form
-                    v-title
-                    :style="{
-                        '--form-label-width': '150px',
-                    }"
-                >
+                <el-form v-title>
                     <el-form-item :label="Translate('IDCD_RULE')">
                         <el-select-v2
                             v-model="pageData.rule"
@@ -27,30 +22,23 @@
                         />
                     </el-form-item>
                     <el-form-item :label="Translate('IDCS_FEATURE_LIBRARY')">
-                        <div class="faceData">
-                            <el-checkbox-group
-                                v-model="pageData.faceDataIds"
-                                class="line-break"
-                            >
-                                <el-checkbox
-                                    v-for="item in pageData.faceList"
-                                    :key="item.value"
-                                    :value="item.value"
-                                    :label="item.label"
-                                />
-                            </el-checkbox-group>
-                        </div>
+                        <el-checkbox-group
+                            v-model="pageData.faceDataIds"
+                            class="line-break"
+                        >
+                            <el-checkbox
+                                v-for="item in pageData.faceList"
+                                :key="item.value"
+                                :value="item.value"
+                                :label="item.label"
+                            />
+                        </el-checkbox-group>
                     </el-form-item>
                 </el-form>
             </div>
             <div class="box">
                 <div class="box_title">{{ Translate('IDCS_MATCH_START_AND_END') }}</div>
-                <el-form
-                    v-title
-                    :style="{
-                        '--form-label-width': '220px',
-                    }"
-                >
+                <el-form v-title>
                     <el-form-item :label="Translate('IDCS_PREALARM_BEFORE')">
                         <el-select-v2
                             v-model="pageData.duration"
@@ -66,12 +54,7 @@
                 </el-form>
             </div>
         </div>
-        <el-form
-            v-title
-            :style="{
-                '--form-input-width': '400px',
-            }"
-        >
+        <el-form v-title>
             <el-form-item>
                 <el-checkbox
                     v-model="pageData.noShowDisplay"

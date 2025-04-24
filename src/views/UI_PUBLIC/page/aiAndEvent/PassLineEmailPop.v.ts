@@ -7,6 +7,9 @@ import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     props: {
+        /**
+         * @property 排程列表数据
+         */
         scheduleList: {
             type: Array as PropType<SelectOption<string, string>[]>,
             required: true,
@@ -20,11 +23,13 @@ export default defineComponent({
         close(e: AlarmPassLinesEmailDto) {
             return e
         },
+        editSchedule() {
+            return true
+        },
     },
     setup(props, ctx) {
         const { Translate } = useLangStore()
         const formRef = useFormRef()
-        const dateTime = useDateTimeStore()
 
         const formData = ref({
             address: '',
@@ -87,7 +92,7 @@ export default defineComponent({
                 receiverData: [],
             } as AlarmPassLinesEmailDto,
             time: '00:00',
-            weekOption: objectToOptions(getTranslateMapping(DEFAULT_WEEK_MAPPING), 'number').slice(1),
+            weekOption: objectToOptions(getTranslateMapping(DEFAULT_WEEK_MAPPING), 'number'),
             monthOption: [] as SelectOption<string, string>[],
             scheduleList: [] as SelectOption<string, string>[],
             // 添加弹窗
@@ -160,7 +165,6 @@ export default defineComponent({
             pageData.value.data.sendEmailData = props.emailData.sendEmailData
             pageData.value.data.receiverData = props.emailData.receiverData
             pageData.value.time = `${padStart(props.emailData.sendEmailData.reportHour, 2)}:${padStart(props.emailData.sendEmailData.reportMin, 2)}`
-            pageData.value.scheduleList = props.scheduleList
             pageData.value.currentRow = {
                 schedule: '',
                 address: '',
@@ -173,6 +177,10 @@ export default defineComponent({
          */
         const close = () => {
             ctx.emit('close', pageData.value.data)
+        }
+
+        const editSchedule = () => {
+            ctx.emit('editSchedule')
         }
 
         onMounted(() => {
@@ -188,10 +196,16 @@ export default defineComponent({
                 })
         })
 
+        watch(
+            () => props.scheduleList,
+            (newVal) => {
+                formData.value.schedule = getScheduleId(newVal, formData.value.schedule)
+            },
+        )
+
         return {
             formRef,
             formData,
-            dateTime,
             error,
             rules,
             pageData,
@@ -203,6 +217,7 @@ export default defineComponent({
             formatSchedule,
             delReceiver,
             addReceiver,
+            editSchedule,
         }
     },
 })

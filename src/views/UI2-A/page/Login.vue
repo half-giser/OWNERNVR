@@ -41,14 +41,14 @@
                             :placeholder="Translate('IDCS_PASSWORD_TIP')"
                             tabindex="2"
                             size="large"
-                            show-password
+                            @keyup.enter="keyUp"
                         />
                     </el-form-item>
                     <el-form-item>
                         <el-button
                             class="login-submit"
                             size="large"
-                            :disabled="pageData.btnDisabled"
+                            :disabled="btnDisabled"
                             @click="handleLogin"
                             @keyup.enter="keyUp"
                         >
@@ -58,7 +58,7 @@
                 </el-form>
                 <div
                     class="login-error"
-                    v-text="pageData.errorMsg"
+                    v-text="errorMsg"
                 ></div>
             </div>
         </div>
@@ -186,9 +186,10 @@
 
 .login-error {
     position: absolute;
-    top: calc(100% + 30px);
-    left: 405px;
+    top: calc(100% + 20px);
+    left: 376px;
     // margin: 30px 0px 0px 10px;
     color: var(--color-error);
+    width: 570px;
 }
 </style>

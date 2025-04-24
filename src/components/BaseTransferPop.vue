@@ -1,35 +1,43 @@
 <!--
  * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
  * @Date: 2024-08-16 17:19:02
- * @Description: 穿梭下拉框内容
+ * @Description: 穿梭框弹窗
 -->
 <template>
-    <div class="Transfer">
-        <el-transfer
-            v-model="chosedList"
-            :data="sourceData"
-            :props="{
-                key: 'value',
-                label: 'label',
-                disabled: 'disabled',
-            }"
-            :titles="[Translate(sourceTitle), Translate(targetTitle)]"
-            @change="change"
-        />
+    <el-dialog
+        :width="600"
+        :title="Translate(headerTitle)"
+        @open="open"
+        @close="close"
+    >
+        <div>
+            <el-transfer
+                v-model="chosedList"
+                v-title
+                :data="data"
+                :props="{
+                    key: 'value',
+                    label: 'label',
+                    disabled: 'disabled',
+                }"
+                :titles="[Translate(sourceTitle), Translate(targetTitle)]"
+                @change="change"
+            />
+        </div>
         <div class="base-btn-box">
             <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
             <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>
         </div>
-    </div>
+    </el-dialog>
 </template>
 
-<script lang="ts" generic="T extends SelectOption<string, string>" setup>
+<script lang="ts" setup>
 const props = withDefaults(
     defineProps<{
         /**
-         * @property {boolean} 是否显示
+         * @property {string} ElDialog 的 props.title
          */
-        visible?: boolean
+        headerTitle?: string
         /**
          * @property {string} ELTransfer 的 props.tities[0]
          */
@@ -41,7 +49,7 @@ const props = withDefaults(
         /**
          * @property {string} ELTransfer 的 props.data
          */
-        sourceData: T[]
+        sourceData: { label: string; value: string; disabled?: boolean }[]
         /**
          * @property {string[]} ELTransfer 的 props.modelValue
          */
@@ -56,7 +64,7 @@ const props = withDefaults(
         limitTip?: string
     }>(),
     {
-        visible: false,
+        headerTitle: '',
         sourceTitle: '',
         targetTitle: '',
         limit: 16,
@@ -65,10 +73,11 @@ const props = withDefaults(
 )
 
 const emits = defineEmits<{
-    (e: 'confirm', data: T[]): void
+    (e: 'confirm', data: SelectOption<string, string>[]): void
     (e: 'close'): void
 }>()
 
+const data = ref<SelectOption<string, string>[]>([])
 const chosedList = ref<string[]>([])
 
 const { Translate } = useLangStore()
@@ -77,6 +86,7 @@ const { Translate } = useLangStore()
  * @description 打开弹窗回调
  */
 const open = () => {
+    data.value = props.sourceData
     chosedList.value = props.linkedList
 }
 
@@ -94,7 +104,7 @@ const change = () => {
  * @description 保存数据
  */
 const verify = () => {
-    const filterList = props.sourceData.filter((item) => chosedList.value.includes(item.value))
+    const filterList = data.value.filter((item) => chosedList.value.includes(item.value))
     emits('confirm', filterList)
 }
 
@@ -108,24 +118,4 @@ const close = () => {
 onMounted(() => {
     open()
 })
-
-watch(
-    () => props.visible,
-    (visible) => {
-        if (visible) {
-            open()
-        }
-    },
-)
 </script>
-
-<style lang="scss" scoped>
-.Transfer {
-    margin: 10px;
-    width: 600px;
-}
-
-.btnBox {
-    margin-top: 10px;
-}
-</style>

@@ -6,7 +6,7 @@
 <template>
     <el-dialog
         :title="Translate(title)"
-        width="500"
+        width="450"
         @close="close"
         @closed="formRef?.resetFields()"
     >
@@ -15,9 +15,6 @@
             v-title
             :model="formData"
             :rules="rules"
-            :style="{
-                '--form-label-width': '150px',
-            }"
         >
             <el-form-item
                 prop="password"
@@ -25,15 +22,9 @@
             >
                 <BasePasswordInput
                     v-model="formData.password"
-                    :show-text="isShowPassord"
                     :placeholder="Translate('IDCS_PASSWORD_TIP')"
+                    max-length="16"
                 />
-            </el-form-item>
-            <el-form-item
-                v-show="!decryptFlag"
-                :label="Translate('IDCS_SHOW_PASSWORD')"
-            >
-                <el-checkbox v-model="isShowPassord" />
             </el-form-item>
         </el-form>
         <div class="base-btn-box">

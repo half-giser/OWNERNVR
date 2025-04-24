@@ -5,13 +5,8 @@
 -->
 <template>
     <div class="tcp-ip">
-        <div class="base-subheading-box">{{ Translate('IDCS_IP_ADDRESS_SET') }}</div>
-        <el-form
-            v-title
-            :style="{
-                '--form-input-width': '220px',
-            }"
-        >
+        <div class="base-head-box">{{ Translate('IDCS_IP_ADDRESS_SET') }}</div>
+        <el-form v-title>
             <!-- 工作模式 -->
             <el-form-item
                 v-show="formData.netConfig.curWorkMode !== 'work_mode_none'"

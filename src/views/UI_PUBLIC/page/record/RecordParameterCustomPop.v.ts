@@ -29,7 +29,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const dateTime = useDateTimeStore()
 
-        const week = objectToOptions(getTranslateMapping(DEFAULT_WEEK_MAPPING2), 'number').slice(1)
+        const week = objectToOptions(getTranslateMapping(DEFAULT_WEEK_MAPPING2), 'number')
 
         const pageData = ref({
             expireTime: undefined as number | undefined,
@@ -59,7 +59,7 @@ export default defineComponent({
                 if (holiday) {
                     holiday.split(',').forEach((item) => {
                         pageData.value.toAddDateList.push({
-                            date: formatGregoryDate(item, dateTime.dateFormat, 'YYYY-MM-DD'),
+                            date: item,
                         })
                     })
                 }
@@ -105,7 +105,7 @@ export default defineComponent({
             const unit = pageData.value.expireTime === 1 ? Translate('IDCS_HOUR') : Translate('IDCS_HOURS')
             const tips = pageData.value.expireTime + ' ' + unit
             const week = pageData.value.weekArr.join(',')
-            const holiday = pageData.value.toAddDateList.map((item) => formatGregoryDate(item.date, 'YYYY-MM-DD', dateTime.dateFormat)).join(',')
+            const holiday = pageData.value.toAddDateList.map((item) => formatGregoryDate(item.date, DEFAULT_YMD_FORMAT, DEFAULT_YMD_FORMAT)).join(',')
             const expiration = pageData.value.expireTime
 
             close()
@@ -135,10 +135,11 @@ export default defineComponent({
         // 添加选中日期
         const addDateToList = () => {
             if (pageData.value.selectDate) {
+                const selectDate = formatDate(pageData.value.selectDate, DEFAULT_YMD_FORMAT, dateTime.dateFormat)
                 const dateList = pageData.value.toAddDateList.map((item) => item.date)
-                if (!dateList.includes(pageData.value.selectDate)) {
+                if (!dateList.includes(selectDate)) {
                     pageData.value.toAddDateList.push({
-                        date: pageData.value.selectDate,
+                        date: selectDate,
                     })
                 }
             }
@@ -158,7 +159,7 @@ export default defineComponent({
         }
 
         const displayDate = (date: string) => {
-            return formatDate(date, dateTime.dateFormat)
+            return formatDate(date, dateTime.dateFormat, DEFAULT_YMD_FORMAT)
         }
 
         return {

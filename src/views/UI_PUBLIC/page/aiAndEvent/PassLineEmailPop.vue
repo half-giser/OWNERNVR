@@ -23,6 +23,7 @@
                 v-title
                 :model="formData"
                 :rules="rules"
+                class="stripe"
             >
                 <el-form-item
                     :label="Translate('IDCS_EMAIL_ADDRESS')"
@@ -31,9 +32,10 @@
                     <el-input v-model="formData.address" />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_SCHEDULE')">
-                    <el-select-v2
+                    <BaseScheduleSelect
                         v-model="formData.schedule"
-                        :options="pageData.scheduleList"
+                        :options="scheduleList"
+                        @edit="editSchedule"
                     />
                 </el-form-item>
             </el-form>
@@ -107,12 +109,10 @@
             </div>
             <div class="wrap">
                 <div class="content">
-                    <!-- timePicker -->
-                    <el-time-picker
+                    <BaseTimePicker
                         v-model="pageData.time"
                         :disabled="!pageData.data.sendEmailData.enableSwitch"
-                        :format="dateTime.hourMinuteFormat"
-                        value-format="HH:mm"
+                        unit="minute"
                         @change="handleTimePickerChange"
                     />
                 </div>

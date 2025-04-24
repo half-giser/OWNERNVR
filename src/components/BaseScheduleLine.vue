@@ -59,12 +59,18 @@
                         <a>{{ Translate('IDCS_MANUAL_INPUT') }}</a>
                     </template>
                     <div class="menaulTimeInputPL">
-                        <el-time-picker
-                            v-model="manualTimeSpan"
-                            is-range
-                            range-separator="-"
-                            :format="dateTime.hourMinuteFormat"
+                        <BaseTimePicker
+                            v-model="manualTimeSpan[0]"
+                            :range="[null, `${manualTimeSpan[1]}:00`]"
                             :teleported="false"
+                            unit="minute"
+                        />
+                        <span class="splitter">--</span>
+                        <BaseTimePicker
+                            v-model="manualTimeSpan[1]"
+                            :range="[`${manualTimeSpan[0]}:00`, null]"
+                            :teleported="false"
+                            unit="minute"
                         />
                         <el-button @click="manualTimeInputOk">{{ Translate('IDCS_OK') }}</el-button>
                     </div>
@@ -142,7 +148,7 @@ let selectEndX = -1
 //鼠标拖选时实时显示选择时间段的TIP
 const selectTip = ref('')
 //手动选择时间段
-const manualTimeSpan = ref<[Date, Date]>([new Date(2016, 9, 10, 0, 0), new Date(2016, 9, 10, 23, 59)])
+const manualTimeSpan = ref<[string, string]>(['00:00', '23:59']) // ref<[Date, Date]>([new Date(2016, 9, 10, 0, 0), new Date(2016, 9, 10, 23, 59)])
 //手动选择时间段面板显示状态
 const manualTimeInputShow = ref(false)
 
@@ -311,8 +317,9 @@ const invert = () => {
     resetValue(reuslt as Array<[number, number]>)
 }
 
-const dateToTimeNum = (time: Date) => {
-    return time.getHours() * 60 + time.getMinutes()
+const dateToTimeNum = (time: string) => {
+    const date = time.split(':').map((item) => Number(item))
+    return date[0] * 60 + date[1]
 }
 
 const manualTimeInputClose = (event?: Event) => {
@@ -623,6 +630,11 @@ defineExpose(expose)
 
     .el-button {
         margin-left: 5px;
+    }
+
+    .splitter {
+        margin: 0 8px;
+        flex-shrink: 0;
     }
 }
 </style>

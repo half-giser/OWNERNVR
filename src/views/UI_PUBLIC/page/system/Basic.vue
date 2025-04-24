@@ -5,12 +5,7 @@
 -->
 <template>
     <div class="SystemBasic">
-        <el-form
-            class="stripe"
-            :style="{
-                '--form-label-width': '200px',
-            }"
-        >
+        <el-form class="stripe">
             <el-form-item :label="Translate('IDCS_DEVICE_NAME')">
                 {{ formData.name }}
             </el-form-item>

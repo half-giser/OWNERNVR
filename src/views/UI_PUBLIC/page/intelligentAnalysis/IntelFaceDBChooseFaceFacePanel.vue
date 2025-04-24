@@ -17,7 +17,7 @@
                     v-title
                     class="group-list text-ellipsis"
                 >
-                    {{ formData.faceGroup.map((item) => item.name).join(';') }}
+                    {{ formData.faceGroup.map((item) => item.name).join('; ') }}
                 </div>
             </div>
             <el-button @click="changeGroup">{{ Translate('IDCS_CONFIGURATION') }}</el-button>
@@ -25,7 +25,7 @@
         <el-form
             v-title
             :style="{
-                '--form-input-width': '200px',
+                '--form-input-width': '250px',
             }"
         >
             <el-form-item>

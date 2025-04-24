@@ -45,6 +45,7 @@
             v-title
             :model="formData"
             :rules="rules"
+            class="stripe"
         >
             <el-form-item
                 prop="password"
@@ -78,6 +79,6 @@
 
 <style scoped lang="scss">
 .el-form {
-    margin: 20px auto;
+    margin: 10px auto 0;
 }
 </style>

@@ -7,17 +7,14 @@
     <el-dialog
         :title="pageData.title"
         width="500"
-        height="220"
         @open="open"
     >
-        <el-form
-            v-title
-            :style="{
-                '--form-label-width': '100px',
-            }"
-        >
+        <el-form v-title>
             <el-form-item :label="Translate('IDCS_PATH')">
-                <el-input v-model="pageData.uploadFileName" />
+                <el-input
+                    v-model="pageData.uploadFileName"
+                    readonly
+                />
                 <label
                     for="upload-audio"
                     class="el-button"
@@ -33,15 +30,13 @@
                 />
             </el-form-item>
         </el-form>
-        <div class="tips">
-            <div v-show="pageData.isIpcTipsShow">
-                <span>{{ pageData.audioFilesSizeTips }}</span>
+        <div class="base-btn-box flex-start">
+            <div class="text-error">
+                <span v-if="pageData.isIpcTipsShow">{{ pageData.audioFilesSizeTips }}</span>
+                <span v-if="pageData.isLocalTipsShow">{{ pageData.localFilesSizeTips }}</span>
+                <br />
+                <span>{{ pageData.audioFormatTips }}</span>
             </div>
-            <div v-show="pageData.isLocalTipsShow">
-                <span>{{ pageData.localFilesSizeTips }}</span>
-                <!-- <span>{{ Translate('IDCS_SELECT_MP3_FILE') }}</span> -->
-            </div>
-            <div class="fileFormatTips">{{ pageData.audioFormatTips }}</div>
         </div>
         <div class="base-btn-box">
             <el-button

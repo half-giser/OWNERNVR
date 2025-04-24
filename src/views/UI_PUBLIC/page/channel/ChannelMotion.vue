@@ -65,13 +65,13 @@
                     :label="Translate('IDCS_DETECTION_TARGET')"
                 >
                     <el-checkbox
-                        v-if="formData.supportSMD && formData.objectFilterPerson !== undefined"
-                        v-model="formData.objectFilterPerson"
+                        v-if="formData.supportSMD && !formData.SMDHumanDisabled"
+                        v-model="formData.SMDHuman"
                         :label="Translate('IDCS_DETECTION_PERSON')"
                     />
                     <el-checkbox
-                        v-if="formData.supportSMD && formData.objectFilterCar !== undefined"
-                        v-model="formData.objectFilterCar"
+                        v-if="formData.supportSMD && !formData.SMDVehicleDisabled"
+                        v-model="formData.SMDVehicle"
                         :label="Translate('IDCS_DETECTION_VEHICLE')"
                     />
                 </el-form-item>

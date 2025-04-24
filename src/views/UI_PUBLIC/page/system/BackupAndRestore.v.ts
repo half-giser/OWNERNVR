@@ -31,7 +31,6 @@ export default defineComponent({
             checkAuthType: 'import',
             isEncryptPwd: false,
             encryptPwdTitle: '',
-            encryptPwdDecryptFlag: false,
             configSwitchOptions: [
                 {
                     label: Translate('IDCS_INCLUDE_NETWORK'),
@@ -214,11 +213,9 @@ export default defineComponent({
             if (pageData.value.checkAuthType === 'import') {
                 pageData.value.isEncryptPwd = true
                 pageData.value.encryptPwdTitle = Translate('IDCS_IMPORT')
-                pageData.value.encryptPwdDecryptFlag = true
             } else {
                 pageData.value.isEncryptPwd = true
                 pageData.value.encryptPwdTitle = Translate('IDCS_EXPORT')
-                pageData.value.encryptPwdDecryptFlag = false
             }
         }
 

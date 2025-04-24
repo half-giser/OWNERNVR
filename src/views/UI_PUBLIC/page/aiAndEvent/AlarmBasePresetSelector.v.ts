@@ -27,6 +27,8 @@ export default defineComponent({
             presetList: {} as Record<string, SelectOption<string, string>[]>,
         })
 
+        const key = ref(1)
+
         const reqMap: Record<string, boolean> = {}
 
         // 选中的预置点
@@ -45,7 +47,7 @@ export default defineComponent({
             })
             pageData.value.chlList.forEach((item) => {
                 if (!selectedData[item.value]) {
-                    selectedData[item.value] = ' '
+                    selectedData[item.value] = ''
                 }
             })
             return selectedData
@@ -69,7 +71,7 @@ export default defineComponent({
                         const id = item.attr('id')
                         pageData.value.presetList[id] = [
                             {
-                                value: ' ',
+                                value: '',
                                 label: Translate('IDCS_NULL'),
                             },
                         ]
@@ -101,7 +103,7 @@ export default defineComponent({
             commLoadResponseHandler(result, ($) => {
                 pageData.value.presetList[chl.value] = [
                     {
-                        value: ' ',
+                        value: '',
                         label: Translate('IDCS_NULL'),
                     },
                 ].concat(
@@ -121,13 +123,21 @@ export default defineComponent({
          * @param {number} presetIndex
          */
         const change = (chl: SelectOption<string, string>, presetIndex: string) => {
-            const presetItems = [...prop.modelValue]
+            const presetItems = cloneDeep(prop.modelValue)
             const preset = pageData.value.presetList[chl.value].find((item) => item.value === presetIndex)!
             const find = presetItems.find((item) => item.chl.value === chl.value)
             if (find) {
                 find.index = presetIndex
                 find.name = preset.label
             } else {
+                if (presetItems.length >= MAX_TRIGGER_PRESET_COUNT) {
+                    openMessageBox(Translate('IDCS_PRESET_LIMIT'))
+                    nextTick(() => {
+                        key.value++
+                    })
+                    return
+                }
+
                 presetItems.push({
                     index: presetIndex,
                     name: preset.value,
@@ -138,12 +148,8 @@ export default defineComponent({
                 })
             }
 
-            if (presetItems.length > MAX_TRIGGER_PRESET_COUNT) {
-                openMessageBox(Translate('IDCS_PRESET_LIMIT'))
-            } else {
-                const result = presetItems.filter((item) => item.index !== ' ')
-                ctx.emit('update:modelValue', result)
-            }
+            const result = presetItems.filter((item) => item.index !== '')
+            ctx.emit('update:modelValue', result)
         }
 
         onMounted(() => {
@@ -155,6 +161,7 @@ export default defineComponent({
             getPresetList,
             change,
             selected,
+            key,
         }
     },
 })

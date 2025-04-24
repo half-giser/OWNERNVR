@@ -14,18 +14,18 @@
                     type="index"
                     width="70"
                     :label="Translate('IDCS_SERIAL_NUMBER')"
-                    show-overflow-tooltip
                 />
                 <el-table-column
                     prop="groupName"
                     min-width="200"
                     :label="Translate('IDCS_PARKING_GROUP_NAME')"
+                    show-overflow-tooltip
                 />
                 <el-table-column
                     min-width="200"
                     :label="Translate('IDCS_PARKING_TYPE')"
                 >
-                    <template #default="{ row }: TableColumn<BusinessPkMgrSpaceManageList>">
+                    <template #default="{ row }: TableColumn<BusinessParkSpaceManageList>">
                         <el-select-v2
                             v-model="row.parkingType"
                             :options="pageData.parkingTypeList"
@@ -36,7 +36,7 @@
                     width="200"
                     :label="Translate('IDCS_TOTAL_VEHICLE_NUM')"
                 >
-                    <template #default="{ row }: TableColumn<BusinessPkMgrSpaceManageList>">
+                    <template #default="{ row }: TableColumn<BusinessParkSpaceManageList>">
                         <el-input
                             v-if="row.parkingType !== 'usingGroup'"
                             disabled
@@ -53,7 +53,7 @@
                     width="200"
                     :label="Translate('IDCS_REMAIN_VEHICLE_NUM')"
                 >
-                    <template #default="{ row }: TableColumn<BusinessPkMgrSpaceManageList>">
+                    <template #default="{ row }: TableColumn<BusinessParkSpaceManageList>">
                         <el-input
                             v-if="row.parkingType !== 'usingGroup'"
                             disabled
@@ -68,28 +68,17 @@
                 </el-table-column>
                 <el-table-column min-width="200">
                     <template #header>
-                        <el-dropdown>
-                            <BaseTableDropdownLink>
-                                {{ Translate('IDCS_SCHEDULE') }}
-                            </BaseTableDropdownLink>
-                            <template #dropdown>
-                                <el-dropdown-menu>
-                                    <el-dropdown-item
-                                        v-for="item in pageData.scheduleList"
-                                        :key="item.value"
-                                        @click="changeAllSchedule(item.value)"
-                                    >
-                                        {{ item.label }}
-                                    </el-dropdown-item>
-                                </el-dropdown-menu>
-                            </template>
-                        </el-dropdown>
+                        <BaseScheduleTableDropdown
+                            :options="pageData.scheduleList"
+                            @change="changeAllSchedule"
+                            @edit="openSchedulePop"
+                        />
                     </template>
-                    <template #default="{ row }: TableColumn<BusinessPkMgrSpaceManageList>">
-                        <el-select-v2
+                    <template #default="{ row }: TableColumn<BusinessParkSpaceManageList>">
+                        <BaseScheduleSelect
                             v-model="row.groupSchedule"
                             :options="pageData.scheduleList"
-                            @change="changeSingleSchedule(row)"
+                            @edit="openSchedulePop"
                         />
                     </template>
                 </el-table-column>
@@ -97,14 +86,14 @@
                     min-width="200"
                     :label="Translate('IDCS_EMAIL')"
                 >
-                    <template #default="{ row }: TableColumn<BusinessPkMgrSpaceManageList>">
-                        <el-input v-model="row.linkEmail" />
+                    <template #default="{ row }: TableColumn<BusinessParkSpaceManageList>">
+                        <BaseSensitiveEmailInput v-model="row.linkEmail" />
                     </template>
                 </el-table-column>
             </el-table>
         </div>
         <div class="base-btn-box space-between padding">
-            <div class="tips">{{ Translate('IDCS_VEHICLE_NUM_TIPS') }}</div>
+            <div class="text-tips">{{ Translate('IDCS_VEHICLE_NUM_TIPS') }}</div>
             <el-button
                 :disabled="watchEdit.disabled.value"
                 @click="apply()"
@@ -112,18 +101,11 @@
                 {{ Translate('IDCS_APPLY') }}
             </el-button>
         </div>
-        <ScheduleManagPop
+        <BaseScheduleManagePop
             v-model="pageData.isSchedulePop"
             @close="closeSchedulePop"
         />
     </div>
 </template>
 
-<script lang="ts" src="./PkMgrSpaceManage.v.ts"></script>
-
-<style lang="scss" scoped>
-.tips {
-    font-size: 14px;
-    color: var(--main-text-light);
-}
-</style>
+<script lang="ts" src="./ParkSpaceManage.v.ts"></script>

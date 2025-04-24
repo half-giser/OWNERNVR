@@ -37,7 +37,9 @@ export default defineComponent({
             return pageData.value.chlCaps[pageData.value.currChlId] || new AlarmChlDto()
         })
 
-        // 获取在线通道
+        /**
+         * @description 获取在线通道
+         */
         const getOnlineChannel = async () => {
             const res = await queryOnlineChlList()
             const $ = queryXml(res)
@@ -52,7 +54,9 @@ export default defineComponent({
             }
         }
 
-        // 获取通道数据
+        /**
+         * @description 获取通道数据
+         */
         const getChannelData = async () => {
             const result = await getChlList({
                 requireField: [
@@ -216,14 +220,18 @@ export default defineComponent({
             }
         }
 
-        // 获取音频列表
+        /**
+         * @description 获取音频列表
+         */
         const getVoiceList = async () => {
             if (systemCaps.supportAlarmAudioConfig) {
                 pageData.value.voiceList = await buildAudioList()
             }
         }
 
-        // 切换通道操作
+        /**
+         * @description 切换通道操作
+         */
         const changeChannel = () => {
             pageData.value.notSupport = false
             if (chlData.value.supportTripwire || chlData.value.supportBackTripwire || chlData.value.supportPeaTrigger) {

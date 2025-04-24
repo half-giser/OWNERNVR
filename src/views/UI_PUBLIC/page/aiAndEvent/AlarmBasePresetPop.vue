@@ -20,6 +20,7 @@
                 prop="label"
                 width="180"
                 :label="Translate('IDCS_CHANNEL_NAME')"
+                show-overflow-tooltip
             />
             <el-table-column
                 width="178"

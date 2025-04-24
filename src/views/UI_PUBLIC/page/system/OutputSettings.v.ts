@@ -563,7 +563,7 @@ export default defineComponent({
                         if (displayMode === 'dwell') {
                             formData.value.decoder[decoderId].output[outIndex].dwell = {
                                 id: 0,
-                                timeInterval: $element('timeInterval').text().num(),
+                                timeInterval: $element('timeInterval').text().num() || 5,
                                 chlGroups: $element('chlGroups/item').map((chlGroup) => {
                                     const $chlGroup = queryXml(chlGroup.element)
                                     return {
@@ -640,7 +640,7 @@ export default defineComponent({
                     if (displayMode === 'dwell') {
                         formData.value.sub[index].dwell = {
                             id: 0,
-                            timeInterval: $element('timeInterval').text().num(),
+                            timeInterval: $element('timeInterval').text().num() || 5,
                             chlGroups: $element('chlGroups/item').map((chlGroup) => {
                                 const $chlGroup = queryXml(chlGroup.element)
                                 return {

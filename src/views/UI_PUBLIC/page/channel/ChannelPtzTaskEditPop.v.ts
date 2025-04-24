@@ -32,7 +32,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const dateTime = useDateTimeStore()
 
         // 默认名称与显示文本的映射
         const NAME_TRANS_MAPPING: Record<string, string> = {
@@ -70,12 +69,7 @@ export default defineComponent({
                 },
             ],
             // 名称选项
-            nameOptions: [
-                {
-                    label: Translate('IDCS_NO'),
-                    value: 'No',
-                },
-            ],
+            nameOptions: [] as SelectOption<string, string>[],
         })
 
         const formRef = useFormRef()
@@ -189,8 +183,8 @@ export default defineComponent({
             if (formData.value.type === 'NON') {
                 pageData.value.nameOptions = [
                     {
-                        label: NAME_TRANS_MAPPING.NO,
-                        value: 'NO',
+                        label: NAME_TRANS_MAPPING.No,
+                        value: 'No',
                     },
                 ]
             } else if (formData.value.type === 'PRE') {
@@ -262,7 +256,6 @@ export default defineComponent({
             formRule,
             formData,
             pageData,
-            dateTime,
             changeType,
             verify,
             open,

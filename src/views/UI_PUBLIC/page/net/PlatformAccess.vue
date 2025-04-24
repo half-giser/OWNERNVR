@@ -10,10 +10,6 @@
             v-title
             :rules="formRules"
             :model="formData"
-            :style="{
-                '--form-label-width': '200px',
-                '--form-input-width': '250px',
-            }"
             class="stripe"
         >
             <el-form-item :label="Translate('IDCS_ACCESS_TYPE')">
@@ -188,7 +184,10 @@
                 :show-header="false"
                 :data="tableData"
             >
-                <el-table-column prop="label" />
+                <el-table-column
+                    prop="label"
+                    show-overflow-tooltip
+                />
                 <el-table-column type="expand">
                     <template #default="{ row, $index }: TableColumn<NetPlatformSipList>">
                         <el-table

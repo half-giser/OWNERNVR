@@ -26,7 +26,7 @@ const businessApplicationRoutes: FeatureItem = {
             children: {
                 // 基础配置
                 basicConfig: {
-                    component: 'businessApplication/PkMgrBasicConfig.vue',
+                    component: 'businessApplication/ParkBasicConfig.vue',
                     meta: {
                         sort: 10,
                         lk: 'IDCS_PARKING_LOT_BASIC_CONFIG',
@@ -35,7 +35,7 @@ const businessApplicationRoutes: FeatureItem = {
                 },
                 // 车位管理
                 spaceManage: {
-                    component: 'businessApplication/PkMgrSpaceManage.vue',
+                    component: 'businessApplication/ParkSpaceManage.vue',
                     meta: {
                         sort: 20,
                         lk: 'IDCS_PARKING_SPACE_MANAGEMENT',
@@ -44,7 +44,7 @@ const businessApplicationRoutes: FeatureItem = {
                 },
                 // 出入口
                 enterExitManage: {
-                    component: 'businessApplication/PkMgrEnterExitManage.vue',
+                    component: 'businessApplication/ParkEnterExitManage.vue',
                     meta: {
                         sort: 30,
                         lk: 'IDCS_ENTRANCE_EXIT',
@@ -75,7 +75,7 @@ const businessApplicationRoutes: FeatureItem = {
                 config: {
                     name: 'accessControlConfig',
                     path: 'config',
-                    component: 'businessApplication/ActConfigs.vue',
+                    component: 'businessApplication/AccessLock.vue',
                     meta: {
                         sort: 10,
                         lk: 'IDCS_ACCESS_CONTROL_CONFIG',

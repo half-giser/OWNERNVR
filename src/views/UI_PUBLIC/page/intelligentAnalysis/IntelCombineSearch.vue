@@ -29,14 +29,16 @@
                 />
                 <el-form
                     v-title
+                    class="no-padding"
                     :style="{
-                        '--form-label-width': 'auto',
+                        '--form-label-width': '100px',
                     }"
                 >
                     <el-form-item :label="Translate('IDCS_LICENSE_PLATE_NUM')">
                         <el-input
                             v-model="formData.plateNumber"
                             :placeholder="Translate('IDCS_ENTER_PLATE_NUM')"
+                            maxlength="31"
                         />
                     </el-form-item>
                 </el-form>
@@ -173,8 +175,6 @@
                 <el-table
                     ref="tableRef"
                     v-title
-                    border
-                    stripe
                     show-overflow-tooltip
                     :data="sliceTableData"
                     @row-click="handleTableRowClick"

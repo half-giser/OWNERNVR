@@ -15,9 +15,6 @@
             v-title
             :model="formData"
             :rules
-            :style="{
-                '--form-label-width': '160px',
-            }"
             class="stripe"
         >
             <el-form-item :label="Translate('IDCS_MAC_ADDRESS')">

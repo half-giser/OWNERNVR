@@ -6,7 +6,7 @@
 <template>
     <el-dialog
         :title="Translate('IDCS_CHANGE_PWD')"
-        width="600"
+        width="550"
         :before-close="handleBeforeClose"
         @open="open"
         @close="close"
@@ -17,6 +17,7 @@
             v-title
             :model="formData"
             :rules="rules"
+            class="stripe"
         >
             <el-form-item
                 prop="currentPassword"
@@ -24,6 +25,7 @@
             >
                 <BasePasswordInput
                     v-model="formData.currentPassword"
+                    maxlength="16"
                     @change="changePassword"
                 />
             </el-form-item>
@@ -31,22 +33,27 @@
                 prop="newPassword"
                 :label="Translate('IDCS_NEW_PASSWORD')"
             >
-                <BasePasswordInput v-model="formData.newPassword" />
+                <BasePasswordInput
+                    v-model="formData.newPassword"
+                    maxlength="16"
+                />
             </el-form-item>
-            <BasePasswordStrength :strength />
+            <el-form-item>
+                <BasePasswordStrength :strength />
+            </el-form-item>
             <el-form-item
                 prop="confirmNewPassword"
                 :label="Translate('IDCS_CONFIRM_NEW_PASSWORD')"
             >
                 <BasePasswordInput v-model="formData.confirmNewPassword" />
             </el-form-item>
-            <el-form-item>
-                <span
-                    v-clean-html="noticeMsg"
-                    class="base-rich-text"
-                ></span>
-            </el-form-item>
         </el-form>
+        <div class="base-btn-box flex-start">
+            <span
+                v-clean-html="noticeMsg"
+                class="base-rich-text"
+            ></span>
+        </div>
         <div class="base-btn-box space-between">
             <div>
                 <BaseFloatError v-model:message="errorMessage" />

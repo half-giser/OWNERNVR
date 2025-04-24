@@ -7,7 +7,7 @@
     <el-dialog
         :title="data.name"
         width="800"
-        @open="open"
+        @opened="open"
     >
         <div class="dialog">
             <div class="left">
@@ -36,9 +36,9 @@
                     </div>
                 </div>
                 <div class="base-btn-box space-between">
-                    <div>{{ current?.date || '' }}</div>
+                    <div>{{ current.date ? displayDate(current.date) : '' }}</div>
                     <el-button
-                        :disabled="!current?.date"
+                        :disabled="!current || !current.date"
                         @click="search"
                     >
                         <BaseImgSprite file="toolbar_search" />
@@ -53,13 +53,14 @@
                     show-overflow-tooltip
                     :row-keys="getRowKey"
                     :data="data.detail"
-                    height="400"
+                    height="408"
                     @current-change="handleCurrentChange"
                 >
-                    <el-table-column
-                        :label="Translate('IDCS_DATE')"
-                        prop="date"
-                    />
+                    <el-table-column :label="Translate('IDCS_DATE')">
+                        <template #default="{ row }: TableColumn<BusinessFaceDetailList>">
+                            {{ displayDate(row.date) }}
+                        </template>
+                    </el-table-column>
                     <el-table-column
                         :label="Translate('IDCS_WEEK')"
                         prop="day"
@@ -86,6 +87,16 @@
             </div>
         </div>
         <div class="base-btn-box">
+            <el-button
+                :disabled="pageData.currentIndex <= 0"
+                @click="prev"
+                >{{ Translate('IDCS_PREVIOUS') }}</el-button
+            >
+            <el-button
+                :disabled="pageData.currentIndex >= data.detail.length - 1"
+                @click="next"
+                >{{ Translate('IDCS_NEXT') }}</el-button
+            >
             <el-button @click="$emit('close')">{{ Translate('IDCS_OK') }}</el-button>
         </div>
     </el-dialog>

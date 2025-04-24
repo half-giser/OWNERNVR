@@ -3,7 +3,6 @@
  * @Date: 2024-09-19 17:51:22
  * @Description: 人群密度检测
  */
-import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { type XMLQuery } from '@/utils/xmlParse'
 import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
 import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
@@ -12,7 +11,6 @@ import AlarmBasePresetSelector from './AlarmBasePresetSelector.vue'
 
 export default defineComponent({
     components: {
-        ScheduleManagPop,
         AlarmBaseRecordSelector,
         AlarmBaseAlarmOutSelector,
         AlarmBaseTriggerSelector,
@@ -321,9 +319,14 @@ export default defineComponent({
                     formData.value.originalEnable = true
                 }
                 watchEdit.update()
+            } else {
+                openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
             }
         }
 
+        /**
+         * @description 检查通道互斥 提交数据
+         */
         const applyData = async () => {
             checkMutexChl({
                 isChange: formData.value.detectionEnable && formData.value.detectionEnable !== formData.value.originalEnable,
@@ -335,6 +338,9 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description 绘制区域
+         */
         const setArea = () => {
             if (formData.value.regionInfo.length) {
                 if (mode.value === 'h5') {
@@ -348,6 +354,9 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 清除区域
+         */
         const clearArea = () => {
             if (mode.value === 'h5') {
                 drawer.clear()

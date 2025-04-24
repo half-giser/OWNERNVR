@@ -30,10 +30,7 @@
                 v-title
                 :model="formData"
                 :rules="formRule"
-                :style="{
-                    '--form-label-width': '130px',
-                    '--form-input-width': '280px',
-                }"
+                class="stripe"
             >
                 <el-form-item
                     :label="Translate('IDCS_LICENSE_PLATE_NUM')"
@@ -59,8 +56,9 @@
                 <el-form-item :label="Translate('IDCS_PHONE_NUMBER')">
                     <el-input
                         v-model="formData.ownerPhone"
-                        type="tel"
-                        maxlength="31"
+                        :parser="formatDigit"
+                        :formatter="formatDigit"
+                        maxlength="15"
                     />
                 </el-form-item>
                 <el-form-item
@@ -81,9 +79,7 @@
         >
             <el-form
                 v-title
-                :style="{
-                    '--form-label-width': '100px',
-                }"
+                class="no-padding"
             >
                 <el-form-item :label="Translate('IDCS_ADD_FACE_GROUP')">
                     <el-select-v2

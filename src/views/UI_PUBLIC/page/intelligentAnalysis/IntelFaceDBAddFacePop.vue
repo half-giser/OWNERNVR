@@ -11,8 +11,9 @@
     >
         <el-form
             v-title
+            class="stripe"
             :style="{
-                '--form-input-width': '280px',
+                '--form-input-width': '250px',
             }"
         >
             <el-form-item>
@@ -37,6 +38,7 @@
                     <BaseDatePicker
                         v-model="formData[pageData.formIndex].birthday"
                         :disabled="formData[pageData.formIndex].success"
+                        :range="['1910-01-01', '2037-12-31']"
                     />
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_ID_TYPE')">

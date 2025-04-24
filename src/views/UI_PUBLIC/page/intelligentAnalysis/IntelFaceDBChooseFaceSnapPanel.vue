@@ -27,7 +27,7 @@
                 v-title
                 class="chl-chls text-ellipsis"
             >
-                {{ formData.chls.map((item) => item.label).join(';') }}
+                {{ formData.chls.map((item) => item.label).join('; ') }}
             </div>
             <el-button @click="changeChl">{{ Translate('IDCS_MORE') }}</el-button>
             <el-button @click="searchData">{{ Translate('IDCS_SEARCH') }}</el-button>

@@ -15,9 +15,7 @@
             v-title
             :model="formData"
             :rules="formRule"
-            :style="{
-                '--form-label-width': '100px',
-            }"
+            class="stripe"
         >
             <el-form-item :label="Translate('IDCS_DESTINATION')">
                 <el-select-v2
@@ -26,7 +24,7 @@
                 />
             </el-form-item>
             <el-form-item
-                v-show="formData.destination === 'local'"
+                v-if="formData.destination === 'local'"
                 :label="Translate('IDCS_FORMAT')"
             >
                 <el-select-v2
@@ -35,7 +33,7 @@
                 />
             </el-form-item>
             <el-form-item
-                v-show="formData.destination === 'local' && mode === 'ocx'"
+                v-if="formData.destination === 'local' && mode === 'ocx'"
                 :label="Translate('IDCS_PATH')"
                 prop="localPath"
                 class="path"
@@ -50,11 +48,14 @@
                     @click="openFolder"
                 />
             </el-form-item>
-            <el-form-item v-show="formData.destination === 'local'">
-                <el-text class="text-error">{{ Translate('IDCS_AVI_UNENCRYPTED_TIP') }}</el-text>
-            </el-form-item>
+            <div
+                v-if="formData.destination === 'local'"
+                class="base-btn-box flex-start"
+            >
+                <span class="text-error">{{ Translate('IDCS_AVI_UNENCRYPTED_TIP') }}</span>
+            </div>
             <el-form-item
-                v-show="formData.destination === 'remote'"
+                v-if="formData.destination === 'remote'"
                 :label="Translate('IDCS_DEVICE_NAME')"
             >
                 <el-select-v2
@@ -67,7 +68,7 @@
                 />
             </el-form-item>
             <el-form-item
-                v-show="formData.destination === 'remote'"
+                v-if="formData.destination === 'remote'"
                 :label="Translate('IDCS_FORMAT')"
             >
                 <el-select-v2

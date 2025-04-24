@@ -4,42 +4,38 @@
  * @Description: 登出后预览
 -->
 <template>
-    <div class="base-flex-box">
-        <div class="main">
-            <div class="left">
-                <div class="player">
-                    <BaseVideoPlayer
-                        ref="playerRef"
-                        @ready="onReady"
-                    />
-                </div>
-                <el-form
-                    v-title
-                    class="form stripe"
-                    :class="{
-                        '--form-input-width': '200px',
-                        '--form-label-width': '100px',
-                    }"
-                >
-                    <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
-                        <el-select-v2
-                            v-model="pageData.activeChannelIndex"
-                            :options="chlOptions"
-                            @change="changeChl"
-                        />
-                    </el-form-item>
-                    <el-form-item
-                        v-if="tableData[pageData.activeChannelIndex]"
-                        :label="Translate('IDCS_PREVIEW')"
-                    >
-                        <el-select-v2
-                            v-model="tableData[pageData.activeChannelIndex].switch"
-                            :options="pageData.channelOptions"
-                        />
-                    </el-form-item>
-                </el-form>
+    <div class="base-chl-box">
+        <div class="base-chl-box-left">
+            <div class="base-chl-box-player">
+                <BaseVideoPlayer
+                    ref="playerRef"
+                    @ready="onReady"
+                />
             </div>
-            <div class="right base-table-box">
+            <el-form
+                v-title
+                class="stripe"
+            >
+                <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
+                    <el-select-v2
+                        v-model="pageData.activeChannelIndex"
+                        :options="chlOptions"
+                        @change="changeChl"
+                    />
+                </el-form-item>
+                <el-form-item
+                    v-if="tableData[pageData.activeChannelIndex]"
+                    :label="Translate('IDCS_PREVIEW')"
+                >
+                    <el-select-v2
+                        v-model="tableData[pageData.activeChannelIndex].switch"
+                        :options="pageData.channelOptions"
+                    />
+                </el-form-item>
+            </el-form>
+        </div>
+        <div class="base-chl-box-right">
+            <div class="base-table-box">
                 <el-table
                     ref="tableRef"
                     v-title
@@ -80,45 +76,16 @@
                     </el-table-column>
                 </el-table>
             </div>
-        </div>
-        <div class="base-btn-box">
-            <el-button
-                :disabled="watchEdit.disabled.value"
-                @click="setData"
-            >
-                {{ Translate('IDCS_APPLY') }}
-            </el-button>
+            <div class="base-btn-box">
+                <el-button
+                    :disabled="watchEdit.disabled.value"
+                    @click="setData"
+                >
+                    {{ Translate('IDCS_APPLY') }}
+                </el-button>
+            </div>
         </div>
     </div>
 </template>
 
 <script lang="ts" src="./PreviewOnLogout.v.ts"></script>
-
-<style lang="scss" scoped>
-.main {
-    display: flex;
-    width: 100%;
-    height: 100%;
-}
-
-.left {
-    width: 400px;
-    flex-shrink: 0;
-    margin-right: 10px;
-
-    .form {
-        margin-top: 20px;
-    }
-}
-
-.player {
-    width: 400px;
-    height: 300px;
-}
-
-.right {
-    width: 100%;
-    height: 100%;
-    margin-right: 10px;
-}
-</style>

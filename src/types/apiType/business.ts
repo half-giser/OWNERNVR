@@ -7,7 +7,7 @@
 /**
  * @description 停车场管理-基础配置-停车场信息表单
  */
-export class BusinessPkMgrBasicConfigForm {
+export class BusinessParkBasicConfigForm {
     parkName = '' // 停车场名称
     totalNum = 0 // 总车位
     remainTotalNum = 0 // 剩余总车位
@@ -18,19 +18,18 @@ export class BusinessPkMgrBasicConfigForm {
 /**
  * @description 停车场管理-车位管理-车位信息列表
  */
-export class BusinessPkMgrSpaceManageList {
+export class BusinessParkSpaceManageList {
     id = '' // parkingSapce id（车位id）
     groupName = '' // 停车组名称
     parkingType = '' // 停车选项
     groupTotalNum = 0 // 总车位
     groupRemainNum = 0 // 剩余总车位
     groupSchedule = '' // 排程
-    oldGroupSchedule = '' // 记录上一次选择的排程id（实现el-select下拉框最后一项'排程管理'点击后实际选中值不变的效果）
     linkEmail = '' // E-mail
 }
 
 // 业务应用-停车场管理-出入口-出入口信息
-export class BusinessPkMgrEnterExitManageList {
+export class BusinessParkEnterExitManageList {
     id = '' // id
     channelName = '' // 出入口车道名称（通道名称）
     direction = '' // 方向

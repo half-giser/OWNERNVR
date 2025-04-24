@@ -154,8 +154,6 @@
                 <el-table
                     ref="tableRef"
                     v-title
-                    border
-                    stripe
                     :data="sliceTableData"
                     show-overflow-tooltip
                     @row-click="handleTableRowClick"

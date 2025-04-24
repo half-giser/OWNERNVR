@@ -13,6 +13,7 @@
                 <el-table-column
                     :label="Translate('IDCS_POS')"
                     prop="name"
+                    show-overflow-tooltip
                 />
                 <!-- 启用 -->
                 <el-table-column width="100">
@@ -178,7 +179,7 @@
             @confirm="confirmSetConnection"
             @close="pageData.isConnectionDialog = false"
         />
-        <BaseTransferDialog
+        <BaseTransferPop
             v-model="pageData.isTriggerChannelDialog"
             header-title="IDCS_CHANNEL_TRGGER"
             source-title="IDCS_CHANNEL"

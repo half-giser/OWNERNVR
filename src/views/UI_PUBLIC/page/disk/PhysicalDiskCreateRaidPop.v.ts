@@ -46,6 +46,8 @@ export default defineComponent({
             raidList: [] as string[],
         })
 
+        const MAX_RAID_NUM = 2
+
         const rules = ref<FormRules>({
             name: [
                 {
@@ -147,6 +149,11 @@ export default defineComponent({
          * @description 验证表单，验证成功后打开鉴权弹窗
          */
         const verify = () => {
+            if (pageData.value.raidList.length >= MAX_RAID_NUM) {
+                openMessageBox(Translate('IDCS_NOTE_BEYOND_MAX_RAID_NUM'))
+                return
+            }
+
             formRef.value!.validate((valid) => {
                 if (valid) {
                     pageData.value.isCheckAuth = true

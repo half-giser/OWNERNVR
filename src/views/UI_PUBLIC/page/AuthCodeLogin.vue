@@ -37,6 +37,7 @@
                                     :placeholder="`${Translate('IDCS_AUTHCODE_TIP')} ${pageData.authCodeIndex}`"
                                     tabindex="2"
                                     size="large"
+                                    @keyup.enter="verify"
                                 />
                             </div>
                             <div class="authCodeLogin-btns">

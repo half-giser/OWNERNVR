@@ -8,11 +8,8 @@
         <el-form
             v-title
             class="stripe"
-            :style="{
-                '--form-input-width': '250px',
-            }"
         >
-            <div class="base-subheading-box">{{ Translate('IDCS_DATE_AND_TIME') }}</div>
+            <div class="base-head-box">{{ Translate('IDCS_DATE_AND_TIME') }}</div>
             <el-form-item :label="Translate('IDCS_SYSTEM_TIME')">
                 <BaseDatePicker
                     v-model="formData.systemTime"
@@ -58,7 +55,7 @@
                     :disabled="formData.syncType !== 'NTP'"
                 />
             </el-form-item>
-            <div class="base-subheading-box">{{ Translate('IDCS_TIMEZONE_DST') }}</div>
+            <div class="base-head-box">{{ Translate('IDCS_TIMEZONE_DST') }}</div>
             <el-form-item :label="Translate('IDCS_TIME_ZONE')">
                 <el-select-v2
                     v-model="formData.timeZone"

@@ -4,7 +4,6 @@
  * @Description: 区域入侵
  */
 import ChannelPtzCtrlPanel from '@/views/UI_PUBLIC/page/channel/ChannelPtzCtrlPanel.vue'
-import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { type XMLQuery, type XmlElement } from '@/utils/xmlParse'
 import AlarmBaseRecordSelector from './AlarmBaseRecordSelector.vue'
 import AlarmBaseAlarmOutSelector from './AlarmBaseAlarmOutSelector.vue'
@@ -14,7 +13,6 @@ import AlarmBaseResourceData from './AlarmBaseResourceData.vue'
 
 export default defineComponent({
     components: {
-        ScheduleManagPop,
         ChannelPtzCtrlPanel,
         AlarmBaseRecordSelector,
         AlarmBaseAlarmOutSelector,
@@ -147,6 +145,9 @@ export default defineComponent({
             return AREA_TYPE_MAPPING[pageData.value.activityType]
         })
 
+        /**
+         * @description 播放器准备就绪回调
+         */
         const handlePlayerReady = () => {
             player = playerRef.value!.player
             plugin = playerRef.value!.plugin
@@ -186,6 +187,7 @@ export default defineComponent({
                 plugin.RetryStartChlView(id, name)
             }
         }
+
         // 首次加载成功 播放pea视频
         const stopWatchFirstPlay = watchEffect(() => {
             if (ready.value && watchEdit.ready.value) {
@@ -204,19 +206,25 @@ export default defineComponent({
             pageData.value.speed = speed
         }
 
-        // 关闭排程管理后刷新排程列表
+        /**
+         * @description 关闭排程管理后刷新排程列表
+         */
         const closeSchedulePop = async () => {
             pageData.value.isSchedulePop = false
             await getScheduleList()
             pageData.value.schedule = getScheduleId(pageData.value.scheduleList, pageData.value.schedule)
         }
 
-        // 对sheduleList进行处理
+        /**
+         * @description 获取排程列表
+         */
         const getScheduleList = async () => {
             pageData.value.scheduleList = await buildScheduleList()
         }
 
-        // 获取区域入侵检测数据
+        /**
+         * @description 获取区域入侵检测数据
+         */
         const getPeaData = async () => {
             pageData.value.supportList = []
             pageData.value.areaActiveList = []
@@ -283,7 +291,11 @@ export default defineComponent({
             }
         }
 
-        // 获取区域活动数据 perimeter/entry/leave
+        /**
+         * @description 获取区域检测数据
+         * @param {string} activityType
+         * @param {XMLDocument | Element} res
+         */
         const getPeaActivityData = (activityType: string, res: XMLDocument | Element) => {
             const $ = queryXml(res)
             const param = $(`content/chl/${activityType}/param`)
@@ -355,9 +367,9 @@ export default defineComponent({
             areaData.pictureAvailable = $param('saveTargetPicture').text() !== ''
             areaData.saveTargetPicture = $param('saveTargetPicture').text().bool()
             areaData.saveSourcePicture = $param('saveSourcePicture').text().bool()
-            areaData.pea_onlyPreson = $param('sensitivity').text() !== ''
+            areaData.onlyPerson = $param('sensitivity').text() !== ''
             // NTA1-231：低配版IPC：4M S4L-C，越界/区域入侵目标类型只支持人
-            areaData.onlyPersonSensitivity = formData.value[activityType].pea_onlyPreson ? $('sensitivity').text().num() : 0
+            areaData.sensitivity = formData.value[activityType].onlyPerson ? $('sensitivity').text().num() : 0
             areaData.hasObj = $param('objectFilter').text() !== ''
             if (areaData.hasObj) {
                 areaData.car = $param('objectFilter/car/switch').text().bool()
@@ -419,7 +431,9 @@ export default defineComponent({
             }
         }
 
-        // 保存区域入侵检测数据
+        /**
+         * @description 保存配置
+         */
         const savePeaData = async () => {
             const sendXml = rawXml`
                 <content>
@@ -471,7 +485,7 @@ export default defineComponent({
                                                     : ''
                                             }
                                             ${data.hasAutoTrack ? `<autoTrack>${data.autoTrack}</autoTrack>` : ''}
-                                            ${data.pea_onlyPreson ? `<sensitivity>${data.onlyPersonSensitivity}</sensitivity>` : ''}
+                                            ${data.onlyPerson ? `<sensitivity>${data.sensitivity}</sensitivity>` : ''}
                                             ${
                                                 data.hasObj
                                                     ? rawXml`
@@ -556,11 +570,15 @@ export default defineComponent({
                 const errorCode = $('errorCode').text().num()
                 if (errorCode === 536871053) {
                     openMessageBox(Translate('IDCS_INPUT_LIMIT_FOUR_POIONT'))
+                } else {
+                    openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
                 }
             }
         }
 
-        // 执行保存pea数据
+        /**
+         * @description 检测互斥通道 保存数据
+         */
         const applyData = async () => {
             if (!verification()) return
             const data = formData.value[pageData.value.activityType]
@@ -577,7 +595,12 @@ export default defineComponent({
             })
         }
 
-        // 获取区域
+        /**
+         * @description 获取区域
+         * @param {number} index
+         * @param {XmlElement} element
+         * @param {CanvasBaseArea} region
+         */
         const getRegion = (index: number, element: XmlElement, region: CanvasBaseArea) => {
             const $ = queryXml(element.element)
             if (index === 0) {
@@ -594,7 +617,11 @@ export default defineComponent({
             }
         }
 
-        // 获取矩形区域点列表
+        /**
+         * @description 获取矩形区域点列表
+         * @param {CanvasBaseArea} points
+         * @returns
+         */
         const getRegionPoints = (points: CanvasBaseArea) => {
             const pointList = []
             pointList.push({ X: points.X1, Y: points.Y1, isClosed: true })
@@ -604,7 +631,10 @@ export default defineComponent({
             return pointList
         }
 
-        // pea检验区域合法性
+        /**
+         * @description 检验区域合法性
+         * @returns {boolean}
+         */
         const verification = () => {
             // 区域为多边形时，检测区域合法性(区域入侵AI事件中：currentRegulation为false时区域为多边形；currentRegulation为true时区域为矩形-联咏IPC)
             if (!pageData.value.currentRegulation) {
@@ -628,7 +658,9 @@ export default defineComponent({
             return true
         }
 
-        // pea tab点击事件
+        /**
+         * @description 改变Tab
+         */
         const changeTab = () => {
             if (pageData.value.tab === 'param') {
                 const type = pageData.value.activityType
@@ -673,7 +705,9 @@ export default defineComponent({
             }
         }
 
-        // pea刷新页面数据
+        /**
+         * @description 刷新页面数据
+         */
         const refreshInitPage = () => {
             const type = pageData.value.activityType
             if (pageData.value.currentRegulation) {
@@ -715,7 +749,9 @@ export default defineComponent({
             }
         }
 
-        // 初始化数据
+        /**
+         * @description 初始化数据
+         */
         const initPageData = async () => {
             pageData.value.supportAlarmAudioConfig = systemCaps.supportAlarmAudioConfig
             pageData.value.detectionTypeText = Translate('IDCS_DETECTION_BY_DEVICE').formatForLang(props.chlData.supportPea ? 'IPC' : 'NVR')
@@ -728,12 +764,16 @@ export default defineComponent({
             }
         }
 
-        // pea执行是否显示全部区域
+        /**
+         * @description 开启关闭显示全部区域
+         */
         const toggleShowAllArea = () => {
             showAllPeaArea(pageData.value.isShowAllArea)
         }
 
-        // pea切换区域活动操作
+        /**
+         * @description 切换区域活动
+         */
         const changeAreaActive = () => {
             if (pageData.value.areaActive === 'perimeter') {
                 pageData.value.activityType = 'perimeter'
@@ -750,7 +790,9 @@ export default defineComponent({
             setPeaOcxData()
         }
 
-        // pea切换方向操作
+        /**
+         * @description 切换方向
+         */
         const changeDirection = () => {
             pageData.value.activityType = pageData.value.direction
             // 初始化区域活动的数据
@@ -760,13 +802,16 @@ export default defineComponent({
             setPeaOcxData()
         }
 
-        // pea选择警戒区域
+        /**
+         * @description 选择警戒区域
+         */
         const changeWarnArea = () => {
-            // pageData.value.warnAreaIndex = index
             setPeaOcxData()
         }
 
-        // 通用获取云台锁定状态
+        /**
+         * @description 获取云台锁定状态
+         */
         const getPTZLockStatus = async () => {
             const sendXML = rawXml`
                 <condition>
@@ -780,7 +825,9 @@ export default defineComponent({
             }
         }
 
-        // 通用修改云台锁定状态
+        /**
+         * @description 修改云台锁定状态
+         */
         const editLockStatus = () => {
             const sendXML = rawXml`
                 <content>
@@ -802,8 +849,10 @@ export default defineComponent({
             })
         }
 
-        // pea
-        // pea绘图
+        /**
+         * @description 更新区域数据
+         * @param {CanvasBaseArea | CanvasBasePoint[]} points
+         */
         const changePea = (points: CanvasBaseArea | CanvasBasePoint[]) => {
             const type = pageData.value.activityType
             const area = pageData.value.warnAreaIndex
@@ -824,7 +873,10 @@ export default defineComponent({
             refreshInitPage()
         }
 
-        // pea是否显示所有区域
+        /**
+         * @description 绘制所有区域
+         * @param {boolean} isShowAll
+         */
         const showAllPeaArea = (isShowAll: boolean) => {
             if (mode.value === 'h5') {
                 drawer.setEnableShowAll(isShowAll)
@@ -888,7 +940,9 @@ export default defineComponent({
             }
         }
 
-        // pea显示
+        /**
+         * @description 绘制区域
+         */
         const setPeaOcxData = () => {
             const type = pageData.value.activityType
             const area = pageData.value.warnAreaIndex
@@ -917,7 +971,10 @@ export default defineComponent({
             }
         }
 
-        // 区域关闭
+        /**
+         * @description 关闭区域
+         * @param {CanvasBasePoint[]} points
+         */
         const closePath = (points: CanvasBasePoint[]) => {
             const currType = pageData.value.activityType
             const area = pageData.value.warnAreaIndex
@@ -927,14 +984,19 @@ export default defineComponent({
             })
         }
 
-        // 提示区域关闭
+        /**
+         * @description 区域是否可关闭回调
+         * @param {boolean} canBeClosed
+         */
         const forceClosePath = (canBeClosed: boolean) => {
             if (!canBeClosed) {
                 openMessageBox(Translate('IDCS_INTERSECT'))
             }
         }
 
-        // 清空当前区域对话框
+        /**
+         * @description 清空当前区域对话框
+         */
         const clearCurrentArea = () => {
             const currType = pageData.value.activityType
             const area = pageData.value.warnAreaIndex
@@ -962,7 +1024,9 @@ export default defineComponent({
             // }
         }
 
-        // 清空当前区域按钮
+        /**
+         * @description 清空当前区域按钮
+         */
         const clearArea = () => {
             const currType = pageData.value.activityType
             const area = pageData.value.warnAreaIndex
@@ -983,7 +1047,9 @@ export default defineComponent({
             }
         }
 
-        // 清空所有区域
+        /**
+         * @description 清空所有区域
+         */
         const clearAllArea = () => {
             const type = pageData.value.activityType
             const regionInfoList = formData.value[type].regionInfo

@@ -10,12 +10,9 @@
             v-title
             class="stripe"
             :model="formData"
-            :style="{
-                '--form-input-width': '250px',
-            }"
             :rules="formRule"
         >
-            <div class="base-subheading-box">{{ Translate('IDCS_ACCESS_PLATFORM_SET') }}</div>
+            <div class="base-head-box">{{ Translate('IDCS_ACCESS_PLATFORM_SET') }}</div>
             <!-- 启用 -->
             <el-form-item>
                 <el-checkbox
@@ -62,7 +59,7 @@
                     :max="65535"
                 />
             </el-form-item>
-            <div class="base-subheading-box">{{ Translate('IDCS_SNAP_SETTING') }}</div>
+            <div class="base-head-box">{{ Translate('IDCS_SNAP_SETTING') }}</div>
             <!-- 分辨率 -->
             <el-form-item :label="Translate('IDCS_RESOLUTION_RATE')">
                 <el-select-v2

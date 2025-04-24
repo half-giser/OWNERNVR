@@ -4,7 +4,6 @@
  * @Date: 2024-08-23 10:58:27
  */
 import AlarmBasePresetPop from './AlarmBasePresetPop.vue'
-import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import AlarmBaseSnapPop from './AlarmBaseSnapPop.vue'
 import AlarmBaseRecordPop from './AlarmBaseRecordPop.vue'
 import AlarmBaseAlarmOutPop from './AlarmBaseAlarmOutPop.vue'
@@ -15,7 +14,6 @@ export default defineComponent({
         AlarmBaseSnapPop,
         AlarmBaseRecordPop,
         AlarmBaseAlarmOutPop,
-        ScheduleManagPop,
     },
     setup() {
         const { Translate } = useLangStore()
@@ -98,7 +96,6 @@ export default defineComponent({
 
         const getScheduleList = async () => {
             pageData.value.scheduleList = await buildScheduleList({
-                isManager: true,
                 defaultValue: '',
             })
         }
@@ -184,7 +181,6 @@ export default defineComponent({
                 rowData.holdTimeNote = $param('holdTimeNote').text()
                 rowData.holdTime = $param('holdTime').text()
                 rowData.schedule = $trigger('triggerSchedule/schedule').attr('id')
-                rowData.oldSchedule = rowData.schedule
                 rowData.record = {
                     switch: $trigger('sysRec/switch').text().bool(),
                     chls: $trigger('sysRec/chls/item').map((item) => {
@@ -364,31 +360,26 @@ export default defineComponent({
             }
         }
 
-        const changeScheduleAll = (value: string) => {
-            if (value === 'scheduleMgr') {
-                pageData.value.isSchedulePop = true
-            } else {
-                tableData.value.forEach((item) => {
-                    if (!item.disabled) {
-                        item.schedule = value
-                        item.oldSchedule = value
-                    }
-                })
-            }
+        const changeAllSchedule = (value: string) => {
+            tableData.value.forEach((item) => {
+                if (!item.disabled) {
+                    item.schedule = value
+                }
+            })
         }
 
-        const changeSchedule = (row: AlarmSensorEventDto) => {
-            if (row.schedule === 'scheduleMgr') {
-                pageData.value.isSchedulePop = true
-                nextTick(() => {
-                    row.schedule = row.oldSchedule
-                })
-            } else {
-                nextTick(() => {
-                    row.oldSchedule = row.schedule
-                })
-            }
-        }
+        // const changeSchedule = (row: AlarmSensorEventDto) => {
+        //     if (row.schedule === 'scheduleMgr') {
+        //         pageData.value.isSchedulePop = true
+        //         nextTick(() => {
+        //             row.schedule = row.oldSchedule
+        //         })
+        //     } else {
+        //         nextTick(() => {
+        //             row.oldSchedule = row.schedule
+        //         })
+        //     }
+        // }
 
         /**
          * @description 改变所有项的值
@@ -500,13 +491,16 @@ export default defineComponent({
             closeLoading()
         }
 
+        const openSchedulePop = () => {
+            pageData.value.isSchedulePop = true
+        }
+
         const closeSchedulePop = async () => {
             pageData.value.isSchedulePop = false
             await getScheduleList()
             tableData.value.forEach((item) => {
                 if (!item.disabled) {
                     item.schedule = getScheduleId(pageData.value.scheduleList, item.schedule, '')
-                    item.oldSchedule = item.schedule
                 }
             })
         }
@@ -526,8 +520,7 @@ export default defineComponent({
             changePagination,
             focusName,
             blurName,
-            changeScheduleAll,
-            changeSchedule,
+            changeAllSchedule,
             switchRecord,
             openRecord,
             changeRecord,
@@ -542,6 +535,7 @@ export default defineComponent({
             changePreset,
             changeAllValue,
             setData,
+            openSchedulePop,
             closeSchedulePop,
         }
     },

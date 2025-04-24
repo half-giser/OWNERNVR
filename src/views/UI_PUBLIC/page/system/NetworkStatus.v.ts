@@ -94,7 +94,7 @@ export default defineComponent({
                         },
                         {
                             i: 2,
-                            k: Translate('IDCS_COMMON_STATE'),
+                            k: 'IPv6 ' + Translate('IDCS_COMMON_STATE'),
                             v: DEFAULT_LANG_MAPPING[$item('ipv6Status').text()],
                         },
                     )

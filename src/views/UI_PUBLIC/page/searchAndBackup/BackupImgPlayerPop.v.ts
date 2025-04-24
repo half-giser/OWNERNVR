@@ -39,6 +39,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const dateTime = useDateTimeStore()
+        const { Translate } = useLangStore()
 
         const pageData = ref({
             visible: false,
@@ -50,8 +51,8 @@ export default defineComponent({
          * @returns {String}
          */
         const getImg = () => {
-            if (!pageData.value.visible) return ''
-            if (!prop.item.chlId) return ''
+            if (!pageData.value.visible) return DEFAULT_EMPTY_IMG
+            if (!prop.item.chlId) return DEFAULT_EMPTY_IMG
             const data = {
                 chlId: prop.item.chlId,
                 captureMode: prop.item.captureMode,
@@ -61,6 +62,15 @@ export default defineComponent({
                 .map((item) => item.join('='))
                 .join(',')}`
             return url
+        }
+
+        const handleError = (e: Event) => {
+            if ((e.target as HTMLImageElement).src !== DEFAULT_EMPTY_IMG) {
+                openMessageBox({
+                    type: 'alarm',
+                    message: Translate('IDCS_CANT_FIND_IMG'),
+                })
+            }
         }
 
         /**
@@ -122,6 +132,7 @@ export default defineComponent({
             play,
             pause,
             displayDateTime,
+            handleError,
         }
     },
 })

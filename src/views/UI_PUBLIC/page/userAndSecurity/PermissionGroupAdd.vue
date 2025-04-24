@@ -10,9 +10,6 @@
             v-title
             :rules
             :model="formData"
-            :style="{
-                '--form-input-width': '340px',
-            }"
         >
             <el-form-item
                 prop="name"

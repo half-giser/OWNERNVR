@@ -14,9 +14,9 @@
             v-title
             :rules="formRule"
             :model="formData"
+            class="stripe"
             :style="{
-                '--form-label-width': '200px',
-                '--form-input-width': '200px',
+                '--form-input-width': '250px',
             }"
         >
             <el-form-item
@@ -24,17 +24,17 @@
                 prop="countryName"
             >
                 <el-input v-model="formData.countryName" />
-                <el-text>*</el-text>
+                <span>*</span>
             </el-form-item>
             <el-form-item
                 :label="Translate('IDCS_HOSTNAME_OR_IP')"
                 prop="commonName"
             >
                 <el-input v-model="formData.commonName" />
-                <el-text>*</el-text>
+                <span>*</span>
             </el-form-item>
             <el-form-item
-                v-show="type === 0"
+                v-if="type === 0"
                 :label="Translate('IDCS_VALIDITY_PERIOD')"
                 prop="validityPeriod"
             >
@@ -44,7 +44,7 @@
                     :max="5000"
                     :value-on-clear="null"
                 />
-                <el-text>{{ Translate('IDCS_DAYS') }} *</el-text>
+                <span>{{ Translate('IDCS_DAYS') }} *</span>
             </el-form-item>
             <el-form-item :label="Translate('IDCS_PASSWORD')">
                 <BasePasswordInput v-model="formData.password" />

@@ -52,6 +52,7 @@ const netRoutes: FeatureItem = {
                 homeDefault: true,
                 inHome: 'self',
                 homeSort: 10,
+                minWidth: 1300,
                 minHeight: 850,
             },
         },

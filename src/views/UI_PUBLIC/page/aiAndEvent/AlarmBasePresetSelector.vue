@@ -17,6 +17,7 @@
                 prop="label"
                 width="180"
                 :label="Translate('IDCS_CHANNEL_NAME')"
+                show-overflow-tooltip
             />
             <el-table-column
                 width="170"
@@ -24,6 +25,7 @@
             >
                 <template #default="{ row }: TableColumn<SelectOption<string, string>>">
                     <el-select-v2
+                        :key="key"
                         :model-value="selected[row.value]"
                         :options="pageData.presetList[row.value]"
                         @visible-change="getPresetList(row)"

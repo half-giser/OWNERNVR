@@ -43,7 +43,12 @@
             width="500"
             :title="Translate('IDCS_DETAIL_INFO')"
         >
-            <el-form class="stripe">
+            <el-form
+                class="stripe"
+                :style="{
+                    '--form-label-width': '250px',
+                }"
+            >
                 <el-form-item :label="Translate('IDCS_PREVIEW_CHANNELS')">
                     {{ currentUser ? currentUser.previewChlCount : '' }}
                 </el-form-item>

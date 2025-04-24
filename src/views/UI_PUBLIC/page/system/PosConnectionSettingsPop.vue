@@ -6,7 +6,7 @@
 <template>
     <el-dialog
         :title="Translate('IDCS_CONNECTION_SETTINGS')"
-        width="600"
+        width="550"
         @open="open"
         @closed="formRef?.resetFields()"
     >
@@ -16,10 +16,6 @@
             class="stripe"
             :model="formData"
             :rules="rules"
-            :style="{
-                '--form-input-width': '200px',
-                '--form-label-width': '100px',
-            }"
         >
             <el-form-item
                 :label="Translate('IDCS_POS_IP')"

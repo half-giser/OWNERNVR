@@ -38,6 +38,9 @@ export default defineComponent({
         // 编辑行
         const editRows = useWatchEditRows<AlarmEventDto>()
 
+        /**
+         * @description 获取声音列表
+         */
         const getAudioList = async () => {
             pageData.value.supportAudio = systemCaps.supportAlarmAudioConfig
             // pageData.value.supportAudio = true
@@ -46,6 +49,9 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 获取视频弹出通道列表
+         */
         const getVideoPopupList = () => {
             pageData.value.videoPopupList.push({
                 value: ' ',
@@ -67,6 +73,9 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description 获取列表数据
+         */
         const getData = () => {
             editRows.clear()
             tableData.value = []
@@ -166,10 +175,16 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description 翻页
+         */
         const changePagination = () => {
             getData()
         }
 
+        /**
+         * @description 更改每页大小
+         */
         const changePaginationSize = () => {
             const totalPage = Math.ceil(pageData.value.totalCount / pageData.value.pageSize)
             if (pageData.value.pageIndex > totalPage) {
@@ -178,6 +193,10 @@ export default defineComponent({
             getData()
         }
 
+        /**
+         * @description 开关抓图联动
+         * @param {number} index
+         */
         const switchSnap = (index: number) => {
             const row = tableData.value[index].snap
             if (row.switch) {
@@ -187,12 +206,21 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 打开抓图联动穿梭框
+         * @param {number} index
+         */
         const openSnap = (index: number) => {
             tableData.value[index].snap.switch = true
             pageData.value.triggerDialogIndex = index
             pageData.value.isSnapPop = true
         }
 
+        /**
+         * @description 更新抓图联动
+         * @param {number} index
+         * @param {SelectOption<string, string>[]} data
+         */
         const changeSnap = (index: number, data: SelectOption<string, string>[]) => {
             if (tableData.value[index].disabled) {
                 return
@@ -204,6 +232,10 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 开关报警输出
+         * @param {number} index
+         */
         const switchAlarmOut = (index: number) => {
             const row = tableData.value[index].alarmOut
             if (row.switch) {
@@ -213,12 +245,21 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 打开报警输出穿梭框
+         * @param {number} index
+         */
         const openAlarmOut = (index: number) => {
             tableData.value[index].alarmOut.switch = true
             pageData.value.triggerDialogIndex = index
             pageData.value.isAlarmOutPop = true
         }
 
+        /**
+         * @description 更新报警输出联动
+         * @param {number} index
+         * @param {SelectOption<string, string>[]} data
+         */
         const changeAlarmOut = (index: number, data: SelectOption<string, string>[]) => {
             if (tableData.value[index].disabled) {
                 return
@@ -230,6 +271,10 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 开关预置点
+         * @param {number} index
+         */
         const switchPreset = (index: number) => {
             const row = tableData.value[index].preset
             if (row.switch) {
@@ -239,12 +284,21 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 打开预置点弹窗
+         * @param {number} index
+         */
         const openPreset = (index: number) => {
             tableData.value[index].alarmOut.switch = true
             pageData.value.triggerDialogIndex = index
             pageData.value.isPresetPop = true
         }
 
+        /**
+         * @description 更新预置点
+         * @param {number} index
+         * @param {AlarmPresetItem[]} data
+         */
         const changePreset = (index: number, data: AlarmPresetItem[]) => {
             pageData.value.isPresetPop = false
             tableData.value[index].preset = {
@@ -253,7 +307,10 @@ export default defineComponent({
             }
         }
 
-        // 系统音频
+        /**
+         * @description 批量修改系统音频
+         * @param {string} sysAudio
+         */
         const changeAllAudio = (sysAudio: string) => {
             tableData.value.forEach((item) => {
                 if (!item.disabled) {
@@ -262,7 +319,10 @@ export default defineComponent({
             })
         }
 
-        // 消息推送
+        /**
+         * @description 批量修改消息推送
+         * @param {string} msgPush
+         */
         const changeAllMsgPush = (msgPush: string) => {
             tableData.value.forEach((item) => {
                 if (!item.disabled) {
@@ -280,7 +340,10 @@ export default defineComponent({
         //     })
         // }
 
-        // 蜂鸣器
+        /**
+         * @description 批量修改蜂鸣器联动
+         * @param {string} beeper
+         */
         const changeAllBeeper = (beeper: string) => {
             tableData.value.forEach((item) => {
                 if (!item.disabled) {
@@ -289,7 +352,10 @@ export default defineComponent({
             })
         }
 
-        // 视频弹出
+        /**
+         * @description 批量修改视频弹出联动
+         * @param {string} videoPopup
+         */
         const changeAllVideoPopUp = (videoPopup: string) => {
             tableData.value.forEach((row) => {
                 const values = row.videoPopupList.map((item) => item.value)
@@ -305,7 +371,10 @@ export default defineComponent({
             })
         }
 
-        // 消息框弹出
+        /**
+         * @description 批量修改消息框弹出联动
+         * @param {string} msgBoxPopup
+         */
         const changeAllMsgPopUp = (msgBoxPopup: string) => {
             tableData.value.forEach((item) => {
                 if (!item.disabled) {
@@ -314,7 +383,10 @@ export default defineComponent({
             })
         }
 
-        // 邮件
+        /**
+         * @description 批量修改邮件联动
+         * @param {string} email
+         */
         const changeAllEmail = (email: string) => {
             tableData.value.forEach((item) => {
                 if (!item.disabled) {
@@ -323,6 +395,11 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description
+         * @param {AlarmEventDto} rowData
+         * @returns {string}
+         */
         const getSavaData = (rowData: AlarmEventDto) => {
             const sendXml = rawXml`
                 <content id="${rowData.id}">
@@ -384,6 +461,9 @@ export default defineComponent({
             return sendXml
         }
 
+        /**
+         * @description 保存数据
+         */
         const setData = async () => {
             openLoading()
 

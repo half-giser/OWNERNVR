@@ -17,17 +17,13 @@
         <el-dialog
             v-model="pageData.isCustomPop"
             :title="Translate('IDCS_TIME_CUSTOMIZE')"
-            width="500"
+            width="450"
             align-center
             draggable
             :show-close="false"
             append-to-body
         >
-            <el-form
-                :style="{
-                    '--form-input-width': '100%',
-                }"
-            >
+            <el-form class="stripe">
                 <el-form-item :label="Translate('IDCS_START_TIME')">
                     <BaseDatePicker
                         v-model="formData.startTime"
@@ -208,12 +204,7 @@ const changeType = (type: string | number | boolean | undefined) => {
                 current = [date.date(1).hour(0).minute(0).second(0).valueOf(), date.date(days).hour(23).minute(59).second(59).valueOf()]
                 break
             case 'week':
-                const day = date.calendar('gregory').day()
-                if (day === 0) {
-                    current = [date.calendar('gregory').day(-6).hour(0).minute(0).second(0).valueOf(), date.calendar('gregory').day(0).hour(23).minute(59).second(59).valueOf()]
-                } else {
-                    current = [date.calendar('gregory').day(1).hour(0).minute(0).second(0).valueOf(), date.calendar('gregory').day(7).hour(23).minute(59).second(59).valueOf()]
-                }
+                current = [date.calendar('gregory').day(0).hour(0).minute(0).second(0).valueOf(), date.calendar('gregory').day(6).hour(23).minute(59).second(59).valueOf()]
                 break
             case 'quarter':
                 const quarter = Math.floor(date.month() / 4)

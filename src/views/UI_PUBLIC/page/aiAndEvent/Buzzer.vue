@@ -7,9 +7,6 @@
     <el-form
         v-title
         class="stripe"
-        :style="{
-            '--form-input-width': '215px',
-        }"
     >
         <el-form-item :label="Translate('IDCS_DELAY')">
             <el-select-v2

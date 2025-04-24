@@ -8,6 +8,9 @@ export const DEFAULT_YMD_FORMAT = 'YYYY-MM-DD'
 export const DEFAULT_TIME_FORMAT = 'HH:mm:ss'
 export const DEFAULT_DATE_FORMAT = DEFAULT_YMD_FORMAT + ' ' + DEFAULT_TIME_FORMAT
 
+/**
+ * @description 时区配置
+ */
 const TIME_ZONE = [
     'GMT+12',
     'GMT+11',
@@ -93,7 +96,7 @@ export const DEFAULT_MOMENT_MAPPING: Record<string, string> = {
 }
 
 /**
- * 日历类型MAP
+ * @description 日历类型MAP
  */
 export const CALENDAR_TYPE_MAPPING: Record<string, { value: string; text: string; isDefault?: boolean }[]> = {
     fa: [
@@ -109,6 +112,9 @@ export const CALENDAR_TYPE_MAPPING: Record<string, { value: string; text: string
     ],
 }
 
+/**
+ * @description 月份翻译
+ */
 export const DEFAULT_MONTH_MAPPING: Record<string, string> = {
     0: 'IDCS_Month_ONE',
     1: 'IDCS_Month_TWO',
@@ -124,6 +130,9 @@ export const DEFAULT_MONTH_MAPPING: Record<string, string> = {
     11: 'IDCS_Month_TWELVE',
 }
 
+/**
+ * @description 月份翻译（短）
+ */
 export const DEFAULT_MONTH_SHORT_MAPPING: Record<string, string> = {
     0: 'IDCS_CALENDAR_JANUARY',
     1: 'IDCS_CALENDAR_FEBRUARY',
@@ -139,6 +148,9 @@ export const DEFAULT_MONTH_SHORT_MAPPING: Record<string, string> = {
     11: 'IDCS_CALENDAR_DECEMBER',
 }
 
+/**
+ * @description 星期翻译
+ */
 export const DEFAULT_WEEK_MAPPING: Record<string, string> = {
     0: 'IDCS_WEEK_DAY_SEVEN',
     1: 'IDCS_WEEK_DAY_ONE',
@@ -147,9 +159,11 @@ export const DEFAULT_WEEK_MAPPING: Record<string, string> = {
     4: 'IDCS_WEEK_DAY_FOUR',
     5: 'IDCS_WEEK_DAY_FIVE',
     6: 'IDCS_WEEK_DAY_SIX',
-    7: 'IDCS_WEEK_DAY_SEVEN',
 }
 
+/**
+ * @description 星期翻译
+ */
 export const DEFAULT_WEEK_MAPPING2: Record<string, string> = {
     0: 'IDCS_SUNDAY',
     1: 'IDCS_MONDAY',
@@ -158,9 +172,11 @@ export const DEFAULT_WEEK_MAPPING2: Record<string, string> = {
     4: 'IDCS_THURSDAY',
     5: 'IDCS_FRIDAY',
     6: 'IDCS_SATURDAY',
-    7: 'IDCS_SUNDAY',
 }
 
+/**
+ * @description 星期翻译（短）
+ */
 export const DEFAULT_WEEK_SHORT_MAPPING: Record<string, string> = {
     0: 'IDCS_CALENDAR_SUNDAY',
     1: 'IDCS_CALENDAR_MONDAY',
@@ -169,15 +185,20 @@ export const DEFAULT_WEEK_SHORT_MAPPING: Record<string, string> = {
     4: 'IDCS_CALENDAR_THURSDAY',
     5: 'IDCS_CALENDAR_FRIDAY',
     6: 'IDCS_CALENDAR_SATURDAY',
-    7: 'IDCS_CALENDAR_SUNDAY',
 }
 
+/**
+ * @description 日期格式化翻译
+ */
 export const DEFAULT_DATE_FORMAT_MAPPING: Record<string, string> = {
     'year-month-day': 'IDCS_DATE_FORMAT_YMD',
     'month-day-year': 'IDCS_DATE_FORMAT_MDY',
     'day-month-year': 'IDCS_DATE_FORMAT_DMY',
 }
 
+/**
+ * @description 时间格式化翻译
+ */
 export const DEFAULT_TIME_FORMAT_MAPPING: Record<string, string> = {
     24: 'IDCS_TIME_FORMAT_24',
     12: 'IDCS_TIME_FORMAT_12',

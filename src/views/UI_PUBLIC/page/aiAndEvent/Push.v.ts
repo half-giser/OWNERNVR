@@ -3,12 +3,7 @@
  * @Date: 2024-08-12 15:28:16
  * @Description: AI/事件——事件通知——推送
  */
-import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
-
 export default defineComponent({
-    components: {
-        ScheduleManagPop,
-    },
     setup() {
         const { Translate } = useLangStore()
         const formData = ref(new AlarmPushForm())

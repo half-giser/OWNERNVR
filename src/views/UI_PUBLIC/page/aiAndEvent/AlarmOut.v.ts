@@ -3,12 +3,7 @@
  * @Date: 2024-08-10 11:05:51
  * @Description: 报警输出
  */
-import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
-
 export default defineComponent({
-    components: {
-        ScheduleManagPop,
-    },
     setup() {
         const { Translate } = useLangStore()
 
@@ -43,7 +38,6 @@ export default defineComponent({
          */
         const getScheduleList = async () => {
             pageData.value.scheduleList = await buildScheduleList({
-                isManager: true,
                 defaultValue: '',
             })
         }
@@ -107,7 +101,6 @@ export default defineComponent({
                         const $schedule = $('content/schedule')
                         row.scheduleId = $schedule.attr('id')
                         row.scheduleName = $schedule.text()
-                        row.oldSchedule = $schedule.attr('id')
                         row.index = $('content/index').text().num() + 1
                         row.devDesc = $('content/devDesc').text()
                         // devDescTemp不存在表示设备本地报警输出，本地报警输出才能设置报警类型
@@ -146,32 +139,17 @@ export default defineComponent({
          * @description 修改所有项的排程/打开排程管理弹窗
          * @param {string} value
          */
-        const changeScheduleAll = (value: string) => {
-            if (value === 'scheduleMgr') {
-                pageData.value.isSchedulePop = true
-            } else {
-                tableData.value.forEach((item) => {
-                    item.scheduleId = value
-                    item.oldSchedule = value
-                })
-            }
+        const changeAllSchedule = (value: string) => {
+            tableData.value.forEach((item) => {
+                item.scheduleId = value
+            })
         }
 
         /**
-         * @description 修改排程/打开排程管理弹窗
-         * @param {AlarmOutDto} row
+         * @description 打开排程管理弹窗
          */
-        const changeSchedule = (row: AlarmOutDto) => {
-            if (row.scheduleId === 'scheduleMgr') {
-                pageData.value.isSchedulePop = true
-                nextTick(() => {
-                    row.scheduleId = row.oldSchedule
-                })
-            } else {
-                nextTick(() => {
-                    row.oldSchedule = row.scheduleId
-                })
-            }
+        const openSchedulePop = () => {
+            pageData.value.isSchedulePop = true
         }
 
         /**
@@ -338,10 +316,10 @@ export default defineComponent({
             changePagination,
             changePaginationSize,
             changeAllValue,
+            changeAllSchedule,
             focusName,
             blurName,
-            changeScheduleAll,
-            changeSchedule,
+            openSchedulePop,
             closeSchedulePop,
             changeType,
             setData,

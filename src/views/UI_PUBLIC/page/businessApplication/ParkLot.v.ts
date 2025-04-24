@@ -4,11 +4,11 @@
  * @Description: 实时过车记录
  */
 import dayjs from 'dayjs'
-import PKMgrParkLotPop from './PKMgrParkLotPop.vue'
+import ParkLotPop from './ParkLotPop.vue'
 
 export default defineComponent({
     components: {
-        PKMgrParkLotPop,
+        ParkLotPop,
     },
     setup() {
         const { Translate } = useLangStore()
@@ -68,9 +68,6 @@ export default defineComponent({
             currentTime: '',
         })
 
-        // 设备时间
-        let systemTime = dayjs()
-
         const cloneData = new BusinessParkingLotList()
 
         const tableData = ref<BusinessParkingLotList[]>([])
@@ -93,7 +90,7 @@ export default defineComponent({
         // 剩余车位/车位总量
         const restOfTotal = computed(() => {
             if (pageData.value.total && pageData.value.rest) {
-                return pageData.value.rest + '/' + pageData.value.total
+                return pageData.value.rest + ' / ' + pageData.value.total
             }
             return '\u200b'
         })
@@ -319,7 +316,7 @@ export default defineComponent({
                         .map((item) => {
                             listIndex++
 
-                            const type = getType(item.isEnter, item.enterType, item.isExit, item.exitType)
+                            const type = getType(item.isEnter, String(item.enterType), item.isExit, String(item.exitType))
 
                             return {
                                 index: listIndex,
@@ -335,7 +332,7 @@ export default defineComponent({
                                 enterFrameTime: String(item.enterframeTime),
                                 enterVehicleId: item.enterVehicleId,
                                 enterType: String(item.enterType),
-                                enterImg: item.enterImg || '',
+                                enterImg: item.enterImg ? wrapBase64Img(item.enterImg) : '',
                                 isExit: item.isExit,
                                 exitChlId: item.exitChlId,
                                 exitChl: item.exitChl,
@@ -343,7 +340,7 @@ export default defineComponent({
                                 exitFrameTime: String(item.exitframeTime),
                                 exitVehicleId: item.exitVehicleId,
                                 exitType: String(item.exitType),
-                                exitImg: item.exitImg || '',
+                                exitImg: item.exitImg ? wrapBase64Img(item.exitImg) : '',
                                 direction: item.direction,
                                 isHistory: false,
                                 type,
@@ -469,26 +466,13 @@ export default defineComponent({
          * @description 定时更新当前时间
          */
         const timer = useClock(() => {
-            // const date = dayjs()
-            systemTime = systemTime.add(1, 'second')
-            pageData.value.currentTime = systemTime.format(dateTime.dateTimeFormat) // date.format(dateTime.dateTimeFormat)
+            pageData.value.currentTime = dateTime.getSystemTime().add(500, 'ms').format(dateTime.dateTimeFormat) // date.format(dateTime.dateTimeFormat)
         }, 1000)
-
-        /**
-         * @description 获取当前设备时间
-         */
-        const getTimeConfig = async () => {
-            const $ = await dateTime.getTimeConfig(true)
-            if ($) {
-                systemTime = dayjs($('content/synchronizeInfo/currentTime').text(), dateTime.dateTimeFormat)
-            }
-        }
 
         onMounted(async () => {
             timer.repeat(true, true)
             await getParkingLotConfig()
             await getParkSnapConfig()
-            await getTimeConfig()
             createWebsoket()
             tableData.value.forEach(async (item) => {
                 if (item.isHistory) {
@@ -503,7 +487,7 @@ export default defineComponent({
                         const data = await getParkImg(item.exitChlId, item.exitFrameTime, item.eventType, item.exitVehicleId)
                         item.master = data.master
                         item.phoneNum = data.phoneNum
-                        item.enterImg = data.img
+                        item.exitImg = data.img
                     }
                 }
             })

@@ -228,12 +228,20 @@
 
     li {
         margin: 0;
-        padding: 0;
+        padding: 0 10px;
         list-style: none;
         line-height: 43px;
         text-align: center;
         width: 100%;
         font-size: 14px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        box-sizing: border-box;
+
+        &:nth-child(odd) {
+            background-color: var(--form-stripe);
+        }
     }
 }
 

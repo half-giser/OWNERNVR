@@ -7,11 +7,9 @@
     <el-form
         ref="popVideoRef"
         v-title
-        :style="{
-            '--form-input-width': '215px',
-        }"
+        class="stripe"
     >
-        <div class="base-subheading-box">{{ Translate('IDCS_POPUP_VIDEO') }}</div>
+        <div class="base-head-box">{{ Translate('IDCS_POPUP_VIDEO') }}</div>
         <el-form-item :label="Translate('IDCS_DURATION')">
             <el-select-v2
                 v-model="videoFormData.popVideoDuration"
@@ -31,12 +29,9 @@
     <el-form
         ref="popMsgRef"
         v-title
-        class="gap"
-        :style="{
-            '--form-input-width': '215px',
-        }"
+        class="stripe"
     >
-        <div class="base-subheading-box">{{ Translate('IDCS_POPUP_MESSAGEBOX') }}</div>
+        <div class="base-head-box">{{ Translate('IDCS_POPUP_MESSAGEBOX') }}</div>
         <el-form-item>
             <el-checkbox
                 v-model="msgFormData.popMsgShow"
@@ -49,7 +44,7 @@
                 :options="pageData.popMsgDurationOption"
             />
         </el-form-item>
-        <div class="base-btn-box gap">
+        <div class="base-btn-box">
             <el-button @click="setData">
                 {{ Translate('IDCS_APPLY') }}
             </el-button>
@@ -59,8 +54,8 @@
 
 <script lang="ts" src="./Display.v.ts"></script>
 
-<style scoped>
+<!-- <style scoped>
 .gap {
     margin-top: 40px;
 }
-</style>
+</style> -->

@@ -93,6 +93,7 @@
             padding-inline: 5px;
             font-size: 13px;
             background-color: var(--input-bg);
+            line-height: 19px;
         }
 
         &__popper {
@@ -115,6 +116,9 @@
         }
 
         &__inner + .el-input__suffix .el-input__password {
+            position: absolute;
+            right: 5px;
+            transform: scale(0.8);
             transition: none;
 
             svg {
@@ -234,6 +238,8 @@
     }
 
     .el-dialog {
+        --form-input-width: 100%;
+
         background-color: var(--dialog-bg);
 
         &__headerbtn {
@@ -809,6 +815,7 @@
     }
 
     .el-date-editor {
+        --el-date-editor-daterange-width: var(--form-input-width);
         // .el-input__wrapper {
         //     flex-direction: row-reverse;
         // }
@@ -974,11 +981,46 @@
 
     .el-time {
         &-panel {
-            background-color: var(--input-bg);
+            background-color: var(--main-bg);
+            color: var(--main-text);
+
+            &__footer {
+                display: flex;
+                flex-direction: row-reverse;
+            }
+
+            &__btn {
+                background-color: var(--btn-bg);
+                color: var(--btn-text);
+                font-weight: normal;
+                width: 60px;
+                margin: 0;
+                margin-left: 5px;
+
+                &:hover {
+                    background-color: var(--btn-bg-hover);
+                }
+
+                &:active {
+                    opacity: 0.6;
+                }
+            }
+
+            &__content::before {
+                border: none;
+            }
         }
 
-        &-spinner__item:hover:not(.is-disabled, .is-active) {
-            background-color: var(--input-bg);
+        &-spinner__item {
+            font-size: 14px;
+
+            &:hover {
+                background-color: transparent;
+            }
+
+            &.is-active {
+                color: var(--primary);
+            }
         }
     }
 

@@ -14,6 +14,7 @@
         </div>
         <el-checkbox-group
             :model-value="modelValue"
+            class="stripe odd"
             @update:model-value="change"
         >
             <el-checkbox

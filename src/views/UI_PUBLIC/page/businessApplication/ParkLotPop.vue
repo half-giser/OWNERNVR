@@ -112,6 +112,7 @@
             }"
             append-to-body
             @close="pageData.isAddPlatePop = false"
+            @confirm="pageData.isAddPlatePop = false"
         />
         <div class="base-btn-box space-between">
             <div>
@@ -141,7 +142,7 @@
     </el-dialog>
 </template>
 
-<script lang="ts" src="./PKMgrParkLotPop.v.ts"></script>
+<script lang="ts" src="./ParkLotPop.v.ts"></script>
 
 <style lang="scss" scoped>
 .dialog {

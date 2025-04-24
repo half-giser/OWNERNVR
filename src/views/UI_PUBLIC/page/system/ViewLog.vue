@@ -49,6 +49,7 @@
         </el-form>
         <div class="base-table-box">
             <el-table
+                ref="tableRef"
                 v-title
                 highlight-current-row
                 show-overflow-tooltip
@@ -108,6 +109,7 @@
                             <div>{{ row.content }}</div>
                             <BaseImgSpriteBtn
                                 file="detail"
+                                :stop-propagation="false"
                                 @click="showLogDetail($index)"
                             />
                         </div>

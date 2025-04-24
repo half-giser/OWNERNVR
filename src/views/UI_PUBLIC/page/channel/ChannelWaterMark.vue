@@ -12,7 +12,10 @@
                     @ready="handlePlayerReady"
                 />
             </div>
-            <el-form v-title>
+            <el-form
+                v-title
+                class="stripe"
+            >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select-v2
                         v-model="pageData.currChlId"
@@ -34,6 +37,7 @@
                         :formatter="formatInput"
                         :parser="formatInput"
                         :disabled="pageData.switchDisabled"
+                        maxlength="15"
                         @blur="handleCustomTextInput(pageData.chlData.customText)"
                     />
                 </el-form-item>

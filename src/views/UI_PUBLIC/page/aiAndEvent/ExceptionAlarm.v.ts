@@ -15,7 +15,7 @@ export default defineComponent({
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
 
-        const eventTypeMapping: Record<string, string> = {
+        const EVENT_TYPE_MAPPING: Record<string, string> = {
             ipConflict: 'IDCS_IP_CONFLICT',
             diskRWError: 'IDCS_DISK_IO_ERROR',
             diskFull: 'IDCS_DISK_FULL',
@@ -31,7 +31,7 @@ export default defineComponent({
 
         const pageData = ref({
             enableList: getTranslateOptions(DEFAULT_SWITCH_OPTIONS),
-            supportAudio: false,
+            supportAudio: systemCaps.supportAlarmAudioConfig,
             audioList: [] as SelectOption<string, string>[],
             // 打开穿梭框时选择行的索引
             triggerDialogIndex: 0,
@@ -41,13 +41,18 @@ export default defineComponent({
         const tableData = ref<AlarmExceptionDto[]>([])
         const watchEdit = useWatchEditData(tableData)
 
+        /**
+         * @description 获取声音列表
+         */
         const getAudioList = async () => {
-            pageData.value.supportAudio = systemCaps.supportAlarmAudioConfig
             if (pageData.value.supportAudio) {
                 pageData.value.audioList = await buildAudioList()
             }
         }
 
+        /**
+         * @description 获取列表数据
+         */
         const getData = () => {
             openLoading()
 
@@ -94,10 +99,19 @@ export default defineComponent({
             closeLoading()
         }
 
+        /**
+         * @description 格式化事件类型
+         * @param {string} eventType
+         * @returns {string}
+         */
         const formatEventType = (eventType: string) => {
-            return Translate(eventTypeMapping[eventType])
+            return Translate(EVENT_TYPE_MAPPING[eventType])
         }
 
+        /**
+         * @description 开关报警输出
+         * @param {number} index
+         */
         const switchAlarmOut = (index: number) => {
             const row = tableData.value[index].alarmOut
             if (row.switch) {
@@ -107,12 +121,21 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 打开报警输出穿梭框
+         * @param {number} index
+         */
         const openAlarmOut = (index: number) => {
             tableData.value[index].alarmOut.switch = true
             pageData.value.triggerDialogIndex = index
             pageData.value.isAlarmOutPop = true
         }
 
+        /**
+         * @description 更新报警输出联动
+         * @param {number} index
+         * @param {SelectOption<string, string>[]} data
+         */
         const changeAlarmOut = (index: number, data: SelectOption<string, string>[]) => {
             pageData.value.isAlarmOutPop = false
             tableData.value[index].alarmOut = {
@@ -121,35 +144,50 @@ export default defineComponent({
             }
         }
 
-        // 系统音频
+        /**
+         * @description 批量更改系统音频
+         * @param {string} sysAudio
+         */
         const changeAllAudio = (sysAudio: string) => {
             tableData.value.forEach((item) => {
                 item.sysAudio = sysAudio
             })
         }
 
-        // 消息推送
+        /**
+         * @description 批量更改消息推送
+         * @param {string} msgPush
+         */
         const changeAllMsgPush = (msgPush: string) => {
             tableData.value.forEach((item) => {
                 item.msgPush = msgPush
             })
         }
 
-        // 蜂鸣器
+        /**
+         * @description 批量更改蜂鸣器
+         * @param {string} beeper
+         */
         const changeAllBeeper = (beeper: string) => {
             tableData.value.forEach((item) => {
                 item.beeper = beeper
             })
         }
 
-        // 消息框弹出
+        /**
+         * @description 批量更改消息框弹出
+         * @param {string} msgBoxPopup
+         */
         const changeAllMsgPopUp = (msgBoxPopup: string) => {
             tableData.value.forEach((item) => {
                 item.msgBoxPopup = msgBoxPopup
             })
         }
 
-        // 邮件
+        /**
+         * @description 批量更改邮件
+         * @param {string} email
+         */
         const changeAllEmail = (email: string) => {
             tableData.value.forEach((item) => {
                 if (!item.emailDisable) {
@@ -158,6 +196,10 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description
+         * @returns {string}
+         */
         const getSavaData = () => {
             const sendXml = rawXml`
                 <types>
@@ -205,6 +247,9 @@ export default defineComponent({
             return sendXml
         }
 
+        /**
+         * @description 保存数据
+         */
         const setData = async () => {
             openLoading()
             const sendXml = getSavaData()

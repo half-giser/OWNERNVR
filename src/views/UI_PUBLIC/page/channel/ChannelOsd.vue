@@ -17,9 +17,6 @@
             <el-form
                 v-title
                 class="stripe"
-                :style="{
-                    '--form-label-width': '160px',
-                }"
             >
                 <el-form-item>
                     <el-checkbox

@@ -6,7 +6,7 @@
 <template>
     <el-dialog
         :title="Translate(title)"
-        width="500"
+        width="470"
         @open="open"
         @close="close"
         @closed="formRef?.resetFields()"
@@ -36,10 +36,13 @@
                     :placeholder="Translate('IDCS_PASSWORD_TIP')"
                 />
             </el-form-item>
-            <el-form-item v-show="tip">
-                {{ tip }}
-            </el-form-item>
         </el-form>
+        <div
+            v-show="tip"
+            class="base-btn-box flex-start"
+        >
+            {{ tip }}
+        </div>
         <div class="base-btn-box">
             <el-button @click="verify">{{ Translate(confirmText) }}</el-button>
             <el-button @click="close">{{ Translate('IDCS_CANCEL') }}</el-button>

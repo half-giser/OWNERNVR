@@ -7,7 +7,6 @@ import AlarmBasePresetPop from './AlarmBasePresetPop.vue'
 import AlarmBaseSnapPop from './AlarmBaseSnapPop.vue'
 import AlarmBaseRecordPop from './AlarmBaseRecordPop.vue'
 import AlarmBaseAlarmOutPop from './AlarmBaseAlarmOutPop.vue'
-import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 
 export default defineComponent({
     components: {
@@ -15,7 +14,6 @@ export default defineComponent({
         AlarmBaseSnapPop,
         AlarmBaseRecordPop,
         AlarmBaseAlarmOutPop,
-        ScheduleManagPop,
     },
     setup() {
         const { Translate } = useLangStore()
@@ -46,7 +44,6 @@ export default defineComponent({
 
         const getScheduleList = async () => {
             pageData.value.scheduleList = await buildScheduleList({
-                isManager: true,
                 defaultValue: ' ',
             })
         }
@@ -106,7 +103,6 @@ export default defineComponent({
 
                         row.disabled = false
                         row.schedule = $trigger('triggerSchedule/schedule').attr('id') || ' '
-                        row.oldSchedule = row.schedule
                         row.record = {
                             switch: $trigger('sysRec/switch').text().bool(),
                             chls: $trigger('sysRec/chls/item').map((item) => {
@@ -172,29 +168,16 @@ export default defineComponent({
             getData()
         }
 
-        const changeAllSchedule = (schedule: SelectOption<string, string>) => {
-            if (schedule.value === 'scheduleMgr') {
-                pageData.value.isSchedulePop = true
-                return
-            }
+        const changeAllSchedule = (schedule: string) => {
             tableData.value.forEach((item) => {
                 if (!item.disabled) {
-                    item.schedule = schedule.value
-                    item.oldSchedule = schedule.value
+                    item.schedule = schedule
                 }
             })
         }
 
-        const changeSchedule = (row: AlarmEventDto) => {
-            if (row.schedule === 'scheduleMgr') {
-                pageData.value.isSchedulePop = true
-                nextTick(() => {
-                    row.schedule = row.oldSchedule
-                })
-                return
-            } else {
-                row.oldSchedule = row.schedule
-            }
+        const openSchedulePop = () => {
+            pageData.value.isSchedulePop = true
         }
 
         const closeSchedulePop = async () => {
@@ -203,7 +186,6 @@ export default defineComponent({
             tableData.value.forEach((item) => {
                 if (!item.disabled) {
                     item.schedule = getScheduleId(pageData.value.scheduleList, item.schedule, ' ')
-                    item.oldSchedule = item.schedule
                 }
             })
         }
@@ -464,8 +446,8 @@ export default defineComponent({
             tableData,
             editRows,
             changeAllSchedule,
-            changeSchedule,
             closeSchedulePop,
+            openSchedulePop,
             switchRecord,
             openRecord,
             changeRecord,

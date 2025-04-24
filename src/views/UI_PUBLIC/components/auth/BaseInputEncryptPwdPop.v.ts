@@ -22,13 +22,6 @@ export default defineComponent({
             default: '',
         },
         /**
-         * @property 显示密码
-         */
-        decryptFlag: {
-            type: Boolean,
-            default: false,
-        },
-        /**
          * @property NT2-3154 隐藏取消按钮
          */
         upgradeFlag: {

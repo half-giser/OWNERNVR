@@ -168,13 +168,13 @@ export default defineComponent({
                     obj.enterChl = gateName
                     obj.enterType = openType
                     obj.enterTime = time
-                    obj.enterImg = img
+                    obj.enterImg = wrapBase64Img(img)
                     obj.isEnter = true
                 } else if (resDirection === 'out') {
                     obj.exitChl = gateName
                     obj.exitType = openType
                     obj.exitTime = time
-                    obj.exitImg = img
+                    obj.exitImg = wrapBase64Img(img)
                     obj.isExit = true
                 }
             }

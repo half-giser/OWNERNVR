@@ -5,6 +5,7 @@
  */
 import dayjs from 'dayjs'
 import ViewLogDetailPop from './ViewLogDetailPop.vue'
+import { type TableInstance } from 'element-plus'
 
 export default defineComponent({
     components: {
@@ -269,6 +270,8 @@ export default defineComponent({
         const formData = ref(new SystemLogForm())
 
         const tableList = ref<SystemLogList[]>([])
+
+        const tableRef = ref<TableInstance>()
 
         const pageData = ref({
             // 日志主类型选项
@@ -536,6 +539,7 @@ export default defineComponent({
          */
         const changeLogDetail = (index: number) => {
             pageData.value.activeTableIndex = index
+            tableRef.value!.setCurrentRow(tableList.value[index])
         }
 
         /**
@@ -640,6 +644,7 @@ export default defineComponent({
 
         return {
             formData,
+            tableRef,
             tableList,
             pageData,
             subTypeOptions,

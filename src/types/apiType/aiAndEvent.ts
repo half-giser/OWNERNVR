@@ -16,7 +16,6 @@ export class AlarmOutDto extends TableRowStatus {
     delayTime = 0 //延迟时间
     scheduleId = '' //排程ID
     scheduleName = '' //排程名称
-    oldSchedule = '' //记录打开排程管理弹窗前的名称
     type = '' //常开常闭类型--本机报警输出在有效
 }
 
@@ -132,7 +131,6 @@ export class AlarmEventDto extends TableRowStatus {
     videoPopupList: SelectOption<string, string>[] = []
     msgBoxPopup = ''
     email = ''
-    oldSchedule = ''
 }
 
 /**
@@ -259,8 +257,6 @@ export class AlarmSensorEventDto extends TableRowStatus {
     holdTime = ''
     // 排程
     schedule = ''
-    // 打开排程管理时将原本的排程填入
-    oldSchedule = ''
     // record录像
     record = {
         switch: false,
@@ -300,19 +296,6 @@ export class AlarmPresetItem {
         value: '',
         label: '',
     }
-}
-
-export class AlarmPresetList {
-    id = ''
-    name = ''
-    chlType = ''
-    preset = {
-        value: '',
-        label: '',
-    }
-    presetList: SelectOption<string, string>[] = []
-    // 在点击select获取option数据，阻止重复获取请求
-    isGetPresetList = false
 }
 
 /**
@@ -437,8 +420,10 @@ export class AlarmFaceMatchDto {
  */
 export class AlarmFaceGroupDto {
     guid = ''
+    groupId = ''
     name = ''
     similarity = 75
+    count = 0
 }
 
 /**
@@ -523,9 +508,9 @@ export class AlarmPeaDto {
     mutexList: AlarmMutexDto[] = []
     mutexListEx: AlarmMutexDto[] = []
     // 目标类型只支持人
-    pea_onlyPreson = false
+    onlyPerson = false
     // 只支持人的灵敏度
-    onlyPersonSensitivity = 0
+    sensitivity = 0
     // 检测目标
     hasObj = false
     person = false
@@ -574,7 +559,7 @@ export class AlarmTripwireDto {
     // 目标类型只支持人
     onlyPreson = false
     // 只支持人的灵敏度
-    onlyPersonSensitivity = 0
+    sensitivity = 0
     // 是否支持SD卡存储
     pictureAvailable = false
     // SD卡原图存储

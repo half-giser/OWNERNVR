@@ -49,10 +49,6 @@ export default defineComponent({
 
         const tableData = ref<BusinessFaceCheckList[]>([])
 
-        const startTime = computed(() => formData.value.startTime)
-        const endTime = computed(() => formData.value.endTime)
-        const pickerRange = useTimePickerRange(startTime, endTime)
-
         const chlMap: Record<string, string> = {}
 
         const sliceTableData = computed(() => {
@@ -191,7 +187,7 @@ export default defineComponent({
                 const day = current.day()
                 date.push({
                     day: WEEK_DAY_MAPPING[day],
-                    date: formatDate(current, 'YYYY-MM-DD'),
+                    date: formatDate(current, DEFAULT_YMD_FORMAT),
                     format: formatDate(current, dateTime.dateFormat),
                 })
             }
@@ -258,8 +254,8 @@ export default defineComponent({
          * @param {Number} index
          */
         const showDetail = (index: number) => {
-            pageData.value.isDetailPop = true
             pageData.value.detail = sliceTableData.value[index]
+            pageData.value.isDetailPop = true
         }
 
         /**
@@ -333,7 +329,7 @@ export default defineComponent({
                 .toSorted((a, b) => a.timestamp - b.timestamp)
                 .forEach((item) => {
                     if (tableRecord[item.faceFeatureId]) {
-                        const date = formatDate(item.timestamp, 'YYYY-MM-DD')
+                        const date = formatDate(item.timestamp, DEFAULT_YMD_FORMAT)
                         if (!tableRecord[item.faceFeatureId].searchData[date]) {
                             tableRecord[item.faceFeatureId].searchData[date] = []
                         }
@@ -411,9 +407,6 @@ export default defineComponent({
          * @description 导出数据
          */
         const exportData = () => {
-            if (!tableData.value.length) {
-                return
-            }
             const head = [Translate('IDCS_NAME_PERSON'), Translate('IDCS_DATE_TITLE'), Translate('IDCS_WEEK'), Translate('IDCS_TYPE'), Translate('IDCS_ATTENDANCE_DETAIL')]
             const body: string[][] = tableData.value
                 .map((item) => {
@@ -441,10 +434,8 @@ export default defineComponent({
         return {
             pageData,
             formData,
-            dateTime,
             changeDateRange,
             daysInRange,
-            pickerRange,
             displayIndex,
             displayStatus,
             tableData,

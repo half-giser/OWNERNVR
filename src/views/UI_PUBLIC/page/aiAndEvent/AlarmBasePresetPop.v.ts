@@ -53,7 +53,7 @@ export default defineComponent({
             })
             pageData.value.chlList.forEach((item) => {
                 if (!selectedData[item.value]) {
-                    selectedData[item.value] = ' '
+                    selectedData[item.value] = ''
                 }
             })
             return selectedData
@@ -77,7 +77,7 @@ export default defineComponent({
                         const id = item.attr('id')
                         pageData.value.presetList[id] = [
                             {
-                                value: ' ',
+                                value: '',
                                 label: Translate('IDCS_NULL'),
                             },
                         ]
@@ -109,7 +109,7 @@ export default defineComponent({
             commLoadResponseHandler(result, ($) => {
                 pageData.value.presetList[chl.value] = [
                     {
-                        value: ' ',
+                        value: '',
                         label: Translate('IDCS_NULL'),
                     },
                 ].concat(
@@ -146,11 +146,7 @@ export default defineComponent({
                 })
             }
 
-            if (presetItems.length > MAX_TRIGGER_PRESET_COUNT) {
-                openMessageBox(Translate('IDCS_PRESET_LIMIT'))
-            } else {
-                pageData.value.currentValue = presetItems.filter((item) => item.index !== ' ')
-            }
+            pageData.value.currentValue = presetItems.filter((item) => item.index !== '')
         }
 
         /**
@@ -175,6 +171,10 @@ export default defineComponent({
          * @description 确认
          */
         const confirm = () => {
+            if (pageData.value.currentValue.length > MAX_TRIGGER_PRESET_COUNT) {
+                openMessageBox(Translate('IDCS_PRESET_LIMIT'))
+                return
+            }
             ctx.emit('confirm', prop.index, pageData.value.currentValue)
         }
 

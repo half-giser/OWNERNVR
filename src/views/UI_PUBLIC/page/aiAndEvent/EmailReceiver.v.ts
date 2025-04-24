@@ -3,13 +3,9 @@
  * @Date: 2024-08-12 14:21:22
  * @Description: email通知
  */
-import ScheduleManagPop from '@/views/UI_PUBLIC/components/schedule/ScheduleManagPop.vue'
 import { type FormRules, type TableInstance } from 'element-plus'
 
 export default defineComponent({
-    components: {
-        ScheduleManagPop,
-    },
     setup() {
         const router = useRouter()
         const userSession = useUserSessionStore()
@@ -75,10 +71,18 @@ export default defineComponent({
             return 2
         }
 
+        /**
+         * @description 开关发件人隐藏/显示
+         */
         const toggleMask = () => {
             pageData.value.senderShow = !pageData.value.senderShow
         }
 
+        /**
+         * @description 发件人显示/脱敏显示
+         * @param {string} sender
+         * @returns {string}
+         */
         const formatSender = (sender: string) => {
             if (pageData.value.senderShow) {
                 return sender
@@ -86,6 +90,11 @@ export default defineComponent({
             return hideEmailAddress(sender)
         }
 
+        /**
+         * @description 邮箱显示/脱敏显示
+         * @param {AlarmEmailReceiverDto} rowData
+         * @returns {string}
+         */
         const formatAddress = (rowData: AlarmEmailReceiverDto) => {
             if (rowData === pageData.value.currentRow) {
                 return rowData.address
@@ -93,11 +102,17 @@ export default defineComponent({
             return hideEmailAddress(rowData.address)
         }
 
+        /**
+         * @description 获取排程列表
+         */
         const getScheduleList = async () => {
             pageData.value.scheduleList = await buildScheduleList()
             pageData.value.schedule = pageData.value.scheduleList[0].value
         }
 
+        /**
+         * @description 获取收件人数据
+         */
         const getData = async () => {
             openLoading()
             queryEmailCfg().then((result) => {
@@ -118,17 +133,28 @@ export default defineComponent({
             })
         }
 
-        // 原代码中显示了地址后无法隐藏，这里改为再次点击隐藏
+        /**
+         * @description 选中行
+         * @param {AlarmEmailReceiverDto} row
+         */
         const handleRowClick = (row: AlarmEmailReceiverDto) => {
             pageData.value.currentRow = row
         }
 
+        /**
+         * @description 批量更改排程
+         * @param {string} value
+         */
         const changeAllSchedule = (value: string) => {
             tableData.value.forEach((item) => {
                 item.schedule = value
             })
         }
 
+        /**
+         * @description 删除收件人
+         * @param {AlarmEmailReceiverDto} row
+         */
         const delReceiver = (row: AlarmEmailReceiverDto) => {
             openMessageBox({
                 type: 'question',
@@ -139,6 +165,9 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description 批量删除收件人
+         */
         const delAllReceiver = () => {
             openMessageBox({
                 type: 'question',
@@ -148,6 +177,10 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description 新增收件人
+         * @returns
+         */
         const addRecipient = () => {
             // 规则验证
             if (!formRef.value) return
@@ -162,17 +195,24 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description 前往编辑发件人
+         */
         const editSender = () => {
-            if (userSession.hasAuth('net')) {
-                router.push('/config/net/email')
-            } else {
+            if (!userSession.hasAuth('net')) {
                 openMessageBox({
                     type: 'question',
                     message: Translate('IDCS_NO_AUTH'),
                 })
+                return
             }
+
+            router.push('/config/net/email')
         }
 
+        /**
+         * @description 保存数据
+         */
         const setData = () => {
             const sendXml = rawXml`
                 <content>   
@@ -197,6 +237,16 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description 打开排程弹窗
+         */
+        const openSchedulePop = () => {
+            pageData.value.isSchedulePop = true
+        }
+
+        /**
+         * @description 关闭排程弹窗，更新数据
+         */
         const closeSchedulePop = async () => {
             pageData.value.isSchedulePop = false
             await getScheduleList()
@@ -230,6 +280,7 @@ export default defineComponent({
             formatSender,
             formatAddress,
             handleRowClick,
+            openSchedulePop,
             closeSchedulePop,
         }
     },

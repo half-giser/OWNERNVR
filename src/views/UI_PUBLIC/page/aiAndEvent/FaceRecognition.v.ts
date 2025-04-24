@@ -3,7 +3,6 @@
  * @Date: 2024-08-28 13:42:09
  * @Description: AI 事件——人脸识别
  */
-import ScheduleManagPop from '../../components/schedule/ScheduleManagPop.vue'
 import { type TabPaneName, type CheckboxValueType } from 'element-plus'
 import RecognitionPanel from './RecognitionPanel.vue'
 import { type XMLQuery } from '@/utils/xmlParse'
@@ -17,7 +16,6 @@ import AlarmBaseResourceData from './AlarmBaseResourceData.vue'
 export default defineComponent({
     components: {
         RecognitionPanel,
-        ScheduleManagPop,
         AlarmBaseChannelSelector,
         AlarmBaseRecordSelector,
         AlarmBaseAlarmOutSelector,
@@ -37,8 +35,20 @@ export default defineComponent({
         const defaultNameId = [1, 2, 3]
         let haveUseNameId: number[] = []
         // 人脸分组数据，初始化后不会改变
-        const faceGroupNameMap: Record<string, string> = {}
-        const faceGroupData = ref<{ guid: string; name: string }[]>([])
+        const faceGrougMap: Record<
+            string,
+            {
+                name: string
+                groupId: string
+            }
+        > = {}
+
+        type FaceGroupDto = {
+            guid: string
+            name: string
+        }
+
+        const faceGroupData = ref<FaceGroupDto[]>([])
 
         // 人脸匹配数据
         const faceMatchData = ref(new AlarmFaceMatchDto())
@@ -320,6 +330,9 @@ export default defineComponent({
             closeLoading()
         }
 
+        /**
+         * @description 获取人脸识别配置
+         */
         const getVfdData = async () => {
             const sendXml = rawXml`
                 <condition>
@@ -444,6 +457,9 @@ export default defineComponent({
             detectionPageData.value.isDispalyRangeChecked = false
         }
 
+        /**
+         * @description 获取人脸比对配置
+         */
         const getBackFaceMatchData = async () => {
             const sendXml = rawXml`
                     <condition>
@@ -681,6 +697,10 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description
+         * @returns {string}
+         */
         const getFaceDetectionSaveData = () => {
             const sendXml = rawXml`
                 <content>
@@ -771,6 +791,9 @@ export default defineComponent({
             return sendXml
         }
 
+        /**
+         * @description 保存人脸识别配置
+         */
         const setDetectionData = async () => {
             const sendXml = getFaceDetectionSaveData()
             openLoading()
@@ -782,6 +805,9 @@ export default defineComponent({
             watchDetection.update()
         }
 
+        /**
+         * @description 保存人脸比对配置
+         */
         const setDetectionBackUpData = async () => {
             const sendXml = rawXml`
                 <content>
@@ -890,29 +916,55 @@ export default defineComponent({
          */
         const getGroupData = async () => {
             const result = await queryFacePersonnalInfoGroupList()
-            commLoadResponseHandler(result, ($) => {
-                $('content/item').forEach((item) => {
-                    const $item = queryXml(item.element)
-                    const guid = item.attr('id')
-                    let name = $item('name').text()
-                    const groupId = $item('groupId').text()
-                    if (!name) {
-                        if (groupId === '1' || groupId === '2') {
-                            name = Translate('IDCS_WHITE_LIST') + groupId
-                        } else if (groupId === '3') {
-                            name = Translate('IDCS_BLACK_LIST')
-                        }
+            const $ = queryXml(result)
+            $('content/item').forEach((item) => {
+                const $item = queryXml(item.element)
+                const guid = item.attr('id')
+                const groupId = $item('groupId').text()
+
+                let name = $item('name').text()
+                if (!name) {
+                    if (groupId === '1' || groupId === '2') {
+                        name = Translate('IDCS_WHITE_LIST') + groupId
+                    } else if (groupId === '3') {
+                        name = Translate('IDCS_BLACK_LIST')
                     }
-                    const enableAlarmSwitch = $item('enableAlarmSwitch').text().bool()
-                    faceGroupNameMap[guid] = name
-                    if (enableAlarmSwitch) {
-                        faceGroupData.value.push({
-                            guid: guid,
-                            name: name,
-                        })
-                    }
-                })
+                }
+                faceGrougMap[guid] = {
+                    name,
+                    groupId,
+                }
+
+                if ($item('enableAlarmSwitch').text().bool()) {
+                    faceGroupData.value.push({
+                        guid: guid,
+                        name: name,
+                    })
+                }
             })
+        }
+
+        /**
+         * @description 获取人脸组的人脸数量
+         * @param {AlarmFaceGroupDto} item
+         */
+        const getGroupFaceFeatureCount = async (item: AlarmFaceGroupDto) => {
+            const sendXml = rawXml`
+                <pageIndex>1</pageIndex>
+                <pageSize>15</pageSize>
+                <condition>
+                    <faceFeatureGroups type="list">
+                        <item id="${item.groupId}"></item>
+                    </faceFeatureGroups>
+                </condition>
+            `
+            const result = await queryFacePersonnalInfoList(sendXml)
+            const $ = queryXml(result)
+            if ($('status').text() === 'success') {
+                item.count = $('content').attr('total').num()
+            } else {
+                item.count = 0
+            }
         }
 
         /**
@@ -932,17 +984,21 @@ export default defineComponent({
                 const hitEnable = $('content/chl/hitEnable').text().bool()
                 const notHitEnable = $('content/chl/notHitEnable').text().bool()
                 const liveDisplaySwitch = $('content/chl/liveDisplaySwitch').text().bool()
-                const groupInfo = $('content/chl/groupId/item').map((item) => {
+                const groupInfo: AlarmFaceGroupDto[] = $('content/chl/groupId/item').map((item) => {
                     const $item = queryXml(item.element)
                     const guid = item.attr('guid')
                     const similarity = $item('similarity').text().num()
-                    const name = faceGroupNameMap[guid]
+                    const data = faceGrougMap[guid]
                     return {
                         guid: guid,
-                        name: name,
+                        name: data.name,
+                        groupId: data.groupId,
                         similarity: similarity,
+                        count: 0,
                     }
                 })
+
+                groupInfo.forEach((item) => getGroupFaceFeatureCount(item))
 
                 faceMatchData.value = {
                     hitEnable: hitEnable,
@@ -995,7 +1051,9 @@ export default defineComponent({
             const $ = queryXml(result)
             closeLoading()
 
-            if ($('status').text() !== 'success') {
+            if ($('status').text() === 'success') {
+                watchMatch.update()
+            } else {
                 const errorCode = $('errorCode').text().num()
                 if (errorCode === ErrorCode.USER_ERROR_LIMITED_PLATFORM_VERSION_MISMATCH) {
                     openMessageBox(Translate('IDCS_MAX_CHANNEL_LIMIT').formatForLang(faceMatchLimitMaxChlNum))
@@ -1011,8 +1069,9 @@ export default defineComponent({
                             await editBasicCfg(sendXml)
                         },
                     )
+                } else {
+                    openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
                 }
-                watchMatch.update()
             }
         }
 
@@ -1114,6 +1173,10 @@ export default defineComponent({
             })
         }
 
+        /**
+         * @description
+         * @returns {string}
+         */
         const getFaceCompareSaveData = () => {
             const sendXml = rawXml`
                 <content>
@@ -1193,6 +1256,9 @@ export default defineComponent({
             return sendXml
         }
 
+        /**
+         * @description 设置人脸比对配置
+         */
         const setFaceCompareData = async () => {
             const sendXml = getFaceCompareSaveData()
             openLoading()
@@ -1202,6 +1268,10 @@ export default defineComponent({
             watchRecognition.update()
         }
 
+        /**
+         * @description 删除人脸识别成功配置
+         * @param {AlarmRecognitionTaskDto} data
+         */
         const deleteRecognitionData = async (data: AlarmRecognitionTaskDto) => {
             const sendXml = rawXml`
                 <condition>
@@ -1214,7 +1284,9 @@ export default defineComponent({
             await deleteFaceMatchAlarmParam(sendXml)
         }
 
-        // 提交人脸识别数据
+        /**
+         * @description 提交人脸识别数据
+         */
         const applyRecognitionData = async () => {
             // 识别中监听faceMatchData和recognitionFormData两个数据
             if (!watchMatch.disabled.value) {
@@ -1240,10 +1312,16 @@ export default defineComponent({
             }
         }
 
+        /**
+         * @description 获取排程列表
+         */
         const getScheduleList = async () => {
             pageData.value.scheduleList = await buildScheduleList()
         }
 
+        /**
+         * @description 关闭排程弹窗
+         */
         const closeSchedulePop = async () => {
             pageData.value.isSchedulePop = false
             await getScheduleList()
@@ -1315,20 +1393,17 @@ export default defineComponent({
             applyFaceDetectionData,
             handlePlayerReady,
             closeSchedulePop,
-
             taskTabs,
             faceMatchData,
             faceGroupData,
             recognitionPageData,
             addTask,
             removeTask,
-            // tabChange,
             changeAllSimilarity,
             applyRecognitionData,
             handleAIResourceError,
             handleAIResourceDel,
             recognitionFormData,
-
             watchDetection,
             watchMatch,
             watchRecognition,
