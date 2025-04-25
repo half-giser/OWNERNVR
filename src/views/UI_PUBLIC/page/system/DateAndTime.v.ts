@@ -150,7 +150,7 @@ export default defineComponent({
             currentTimezone = formData.value.timeZone
             currentDST = formData.value.enableDST
 
-            let currentDate = dayjs($('content/synchronizeInfo/currentTime').text().trim(), formatSystemTime.value)
+            let currentDate = dateTime.getSystemTime()
             if (currentDate.isBefore(SERVER_START_TIME)) {
                 currentDate = SERVER_START_TIME
             } else if (currentDate.isAfter(SERVER_END_TIME)) {
@@ -161,7 +161,6 @@ export default defineComponent({
                 formData.value.systemTime = currentDate.calendar('gregory').format(DEFAULT_DATE_FORMAT)
                 pageData.value.startTime = performance.now()
                 pageData.value.systemTime = formData.value.systemTime
-                // console.log(formData.value.systemTime)
                 clock()
             })
 

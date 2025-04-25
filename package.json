@@ -33,7 +33,7 @@
     "axios": "^1.6.8",
     "crypto-js": "^4.1.1",
     "element-plus": "^2.9.7",
-    "jalaliday": "^2.3.0",
+    "jalali-plugin-dayjs": "^1.1.4",
     "js-base64": "^3.3.1",
     "js-md5": "^0.7.3",
     "jsencrypt": "^3.3.2",

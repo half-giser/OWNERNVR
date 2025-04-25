@@ -466,7 +466,7 @@ export default defineComponent({
          * @description 定时更新当前时间
          */
         const timer = useClock(() => {
-            pageData.value.currentTime = dateTime.getSystemTime().add(500, 'ms').format(dateTime.dateTimeFormat) // date.format(dateTime.dateTimeFormat)
+            pageData.value.currentTime = dateTime.getSystemTime().add(500, 'ms').format(dateTime.dateTimeFormat)
         }, 1000)
 
         onMounted(async () => {

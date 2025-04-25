@@ -5,7 +5,7 @@
  */
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
-import jalaliday from 'jalaliday'
+import jalaliday from 'jalali-plugin-dayjs'
 
 export default {
     install: () => {
