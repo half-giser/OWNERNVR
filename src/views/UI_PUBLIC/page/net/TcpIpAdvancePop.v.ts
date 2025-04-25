@@ -32,7 +32,7 @@ export default defineComponent({
             secondIp: [
                 {
                     validator(_rule, value: string, callback) {
-                        if (pageData.value.secondIpIndex === -1 || !formData.value.secondIpSwitch) {
+                        if (pageData.value.secondIpIndex === -1 || !formData.value.secondIpSwitch || isNetworkFaultTolerance.value) {
                             callback()
                             return
                         }
@@ -55,7 +55,7 @@ export default defineComponent({
             secondMask: [
                 {
                     validator(_rule, value: string, callback) {
-                        if (pageData.value.secondIpIndex === -1 || !formData.value.secondIpSwitch) {
+                        if (pageData.value.secondIpIndex === -1 || !formData.value.secondIpSwitch || isNetworkFaultTolerance.value) {
                             callback()
                             return
                         }
@@ -77,13 +77,17 @@ export default defineComponent({
             ipList: [] as string[],
         })
 
+        const isNetworkFaultTolerance = computed(() => {
+            return prop.data.netConfig.curWorkMode === 'network_fault_tolerance'
+        })
+
         /**
          * @description 显示标题文本
          * @param {Number} i
          * @returns {String}
          */
         const displayTitle = (i: number) => {
-            if (prop.data.netConfig.curWorkMode === 'network_fault_tolerance') {
+            if (isNetworkFaultTolerance.value) {
                 return Translate('IDCS_FAULT_ETH_NAME').formatForLang(i + 1)
             }
             return Translate('IDCS_ETH_NAME').formatForLang(i + 1)
@@ -98,7 +102,7 @@ export default defineComponent({
 
             formData.value = new NetTcpIpAdvanceForm()
 
-            if (prop.data.netConfig.curWorkMode === 'network_fault_tolerance') {
+            if (isNetworkFaultTolerance.value) {
                 formData.value.mtu = prop.data.bonds.map((item) => item.mtu)
             } else {
                 formData.value.mtu = prop.data.nicConfigs
@@ -148,6 +152,7 @@ export default defineComponent({
             close,
             verify,
             displayTitle,
+            isNetworkFaultTolerance,
         }
     },
 })

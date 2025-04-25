@@ -16,7 +16,7 @@
             :rules="formRule"
             :model="formData"
         >
-            <el-form-item v-show="formData.mtu.length === 1">
+            <el-form-item v-show="formData.mtu.length === 1 && !isNetworkFaultTolerance">
                 <el-checkbox
                     v-model="formData.secondIpSwitch"
                     :disabled="formData.dhcpSwitch"
@@ -24,7 +24,7 @@
                 />
             </el-form-item>
             <el-form-item
-                v-show="formData.mtu.length === 1"
+                v-show="formData.mtu.length === 1 && !isNetworkFaultTolerance"
                 :label="Translate('IDCS_IP_ADDRESS')"
                 prop="secondIp"
             >
@@ -34,7 +34,7 @@
                 />
             </el-form-item>
             <el-form-item
-                v-show="formData.mtu.length === 1"
+                v-show="formData.mtu.length === 1 && !isNetworkFaultTolerance"
                 :label="Translate('IDCS_SUBNET_MASK')"
                 prop="secondMask"
             >
@@ -48,7 +48,7 @@
                 :key="index"
             >
                 <div
-                    v-show="formData.mtu.length > 1"
+                    v-show="formData.mtu.length > 1 || isNetworkFaultTolerance"
                     class="base-head-box"
                 >
                     {{ displayTitle(index) }}
