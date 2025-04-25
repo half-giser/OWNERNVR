@@ -386,12 +386,8 @@ export default defineComponent({
          * @description 获取分组列表
          */
         const getGroupList = async () => {
-            openLoading()
-
             const result = await queryPlateLibrary()
             const $ = queryXml(result)
-
-            closeLoading()
 
             tableData.value = $('content/group/item').map((item) => {
                 const $item = queryXml(item.element)
@@ -488,8 +484,10 @@ export default defineComponent({
             return row.id
         }
 
-        onActivated(() => {
-            getGroupList()
+        onActivated(async () => {
+            openLoading()
+            await getGroupList()
+            closeLoading()
         })
 
         onBeforeRouteLeave(() => {
