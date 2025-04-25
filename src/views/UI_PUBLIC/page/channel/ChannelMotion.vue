@@ -47,7 +47,7 @@
                 </el-form-item>
                 <el-form-item :label="Translate('IDCS_DURATION')">
                     <el-select-v2
-                        v-if="formData.holdTime === 0"
+                        v-if="formData.isOnvifChl"
                         model-value=""
                         disabled
                         :options="[]"
@@ -176,6 +176,13 @@
                         </template>
                         <template #default="{ row }: TableColumn<ChannelMotionDto>">
                             <el-select-v2
+                                v-if="row.isOnvifChl"
+                                model-value=""
+                                :options="[]"
+                                disabled
+                            />
+                            <el-select-v2
+                                v-else
                                 v-model="row.holdTime"
                                 :disabled="row.disabled"
                                 :options="row.holdTimeList"
