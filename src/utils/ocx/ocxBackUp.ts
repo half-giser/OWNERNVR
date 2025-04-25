@@ -9,6 +9,7 @@ import dayjs from 'dayjs'
 export const useOcxBackUp = (cmd: (str: string) => void) => {
     const userSession = useUserSessionStore()
     const { Translate } = useLangStore()
+    const dateTime = useDateTimeStore()
 
     // OCX本地下载任务限制
     const LOCAL_TASK_COUNT_LIMIT = 100
@@ -290,7 +291,7 @@ export const useOcxBackUp = (cmd: (str: string) => void) => {
             localTableData.value.push({
                 taskId: '',
                 chlIndex,
-                startEndTime: formatDate(item.endTime) + '~' + formatDate(item.startTime),
+                startEndTime: formatDate(item.startTime, dateTime.dateTimeFormat) + '~' + formatDate(item.endTime, dateTime.dateTimeFormat),
                 duration: dayjs.utc(item.endTime - item.startTime).format('HH:mm:ss'),
                 chlName: item.chlName,
                 destination: 'local', // Translate('IDCS_LOCAL'),

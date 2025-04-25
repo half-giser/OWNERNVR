@@ -35,7 +35,7 @@ export class NetTcpIpDhcpList {
     mask = ''
     ipV6 = ''
     gatewayV6 = ''
-    subLengthV6 = 0
+    subLengthV6: number | undefined = undefined
     dns1 = ''
     dns2 = ''
     ipv6Dns1 = ''
