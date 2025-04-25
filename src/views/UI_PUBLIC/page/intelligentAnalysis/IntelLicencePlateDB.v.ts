@@ -260,7 +260,7 @@ export default defineComponent({
             }
 
             if (pageData.value.expandRowKey.length) {
-                searchPlate(pageData.value.expandRowKey[0], true)
+                searchPlate(pageData.value.expandRowKey[0])
             }
         }
 
@@ -291,7 +291,7 @@ export default defineComponent({
 
                 if ($('status').text() === 'success') {
                     await getGroupList()
-                    searchPlate(row.groupId, true)
+                    searchPlate(row.groupId)
                 } else {
                     const errorCode = $('errorCode').text().num()
                     if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
@@ -317,7 +317,7 @@ export default defineComponent({
          */
         const changePlatePageSize = (pageSize: number, groupId: string) => {
             formData.value.pageSize = pageSize
-            searchPlate(groupId, true)
+            searchPlate(groupId)
         }
 
         /**
@@ -330,12 +330,8 @@ export default defineComponent({
         /**
          * @description 搜索车牌列表
          * @param {string} groupId
-         * @param {boolean} forced 关键字没变时是否刷新
          */
-        const searchPlate = async (groupId: string, forced = false) => {
-            if (!forced && formData.value.cacheName === formData.value.name) {
-                return
-            }
+        const searchPlate = async (groupId: string) => {
             formData.value.pageIndex = 1
             await getPlate(1, groupId)
         }
@@ -476,7 +472,7 @@ export default defineComponent({
                 pageData.value.expandRowKey = [row.id]
 
                 formData.value.name = ''
-                searchPlate(row.id, true)
+                searchPlate(row.id)
             }
         }
 
