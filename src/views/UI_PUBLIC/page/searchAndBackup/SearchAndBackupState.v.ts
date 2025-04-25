@@ -8,6 +8,7 @@ import dayjs from 'dayjs'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
+        const dateTime = useDateTimeStore()
 
         const plugin = usePlugin({
             onReady: (mode, plugin) => {
@@ -96,7 +97,7 @@ export default defineComponent({
 
                     return {
                         taskId: item.attr('id'),
-                        startEndTime: startTime + '~' + endTime,
+                        startEndTime: formatDate(startTime, dateTime.dateTimeFormat) + '~' + formatDate(endTime, dateTime.dateTimeFormat),
                         duration,
                         chlName: $item('chls/item').text(),
                         destination: 'remote', // Translate('IDCS_REMOTE'),
