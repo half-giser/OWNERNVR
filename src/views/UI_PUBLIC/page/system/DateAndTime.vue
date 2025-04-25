@@ -51,6 +51,7 @@
                     v-model="formData.timeServer"
                     :options="pageData.timeServerOptions"
                     filterable
+                    allow-create
                     :disabled="formData.syncType !== 'NTP'"
                 />
             </el-form-item>
