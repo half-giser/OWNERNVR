@@ -255,9 +255,7 @@ export default defineComponent({
          */
         const confirmEditPlate = async () => {
             pageData.value.isEditPlatePop = false
-            if (pageData.value.editPlateType === 'add') {
-                await getGroupList()
-            }
+            await getGroupList()
 
             if (pageData.value.expandRowKey.length) {
                 searchPlate(pageData.value.expandRowKey[0])
