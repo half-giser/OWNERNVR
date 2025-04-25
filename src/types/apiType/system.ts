@@ -20,7 +20,7 @@ export class SystemNetStatusList {
 export class SystemRecordStatusList {
     name = ''
     resolution = ''
-    frameRate = ''
+    frameRate = 0
     quality = 0
     bitType = ''
     level = ''

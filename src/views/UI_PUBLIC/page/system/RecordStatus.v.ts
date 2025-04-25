@@ -59,7 +59,7 @@ export default defineComponent({
                     return {
                         name: $item('chl').text(),
                         resolution: $item('resolution').text(),
-                        frameRate: $item('frameRate').text(),
+                        frameRate: $item('frameRate').text().num(),
                         quality: $item('quality').text().num(),
                         bitType: $item('bitType').text(),
                         level: $item('level').text(),

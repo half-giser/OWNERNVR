@@ -14,13 +14,20 @@
             <el-table-column
                 :label="Translate('IDCS_CHANNEL_NAME')"
                 prop="name"
+                width="500"
             />
-            <el-table-column :label="Translate('IDCS_CONNECT_STATUS')">
+            <el-table-column
+                :label="Translate('IDCS_CONNECT_STATUS')"
+                min-width="150"
+            >
                 <template #default="{ row }: TableColumn<SystemChannelStatusList>">
                     <span :class="{ 'text-error': !row.online }">{{ row.online ? Translate('IDCS_ONLINE') : Translate('IDCS_OFFLINE') }}</span>
                 </template>
             </el-table-column>
-            <el-table-column :label="Translate('IDCS_MOTION_DETECTION')">
+            <el-table-column
+                :label="Translate('IDCS_MOTION_DETECTION')"
+                min-width="150"
+            >
                 <template #default="{ row }: TableColumn<SystemChannelStatusList>">
                     {{ formatMotionStatus(row) }}
                 </template>
@@ -28,12 +35,16 @@
             <el-table-column
                 v-if="systemCaps.ipChlMaxCount > 0"
                 :label="Translate('IDCS_AI')"
+                min-width="150"
             >
                 <template #default="{ row }: TableColumn<SystemChannelStatusList>">
                     {{ formatIntelligentStatus(row) }}
                 </template>
             </el-table-column>
-            <el-table-column :label="Translate('IDCS_RECORD')">
+            <el-table-column
+                :label="Translate('IDCS_RECORD')"
+                min-width="150"
+            >
                 <template #default="{ row }: TableColumn<SystemChannelStatusList>">
                     <span :class="{ 'text-error': row.online && row.recStatus === 'recordingAbnormal' }">{{ formatRecStatus(row) }}</span>
                 </template>

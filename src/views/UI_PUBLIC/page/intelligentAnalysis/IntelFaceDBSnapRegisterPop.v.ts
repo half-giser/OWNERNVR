@@ -26,7 +26,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const dateTime = useDateTimeStore()
 
         const pageData = ref({
             // 人脸数据库选项
@@ -139,7 +138,7 @@ export default defineComponent({
                     ${pageData.value.forceCreate ? '<force>true</force>' : ''}
                     <name>${formData.value.name}</name>
                     <sex>${formData.value.sex}</sex>
-                    <birthday>${formatGregoryDate(formData.value.birthday, dateTime.dateFormat, DEFAULT_YMD_FORMAT)}</birthday>
+                    <birthday>${formData.value.birthday}</birthday>
                     <nativePlace></nativePlace>
                     <certificateType type="certificateType">${formData.value.certificateType}</certificateType>
                     <mobile>${formData.value.mobile}</mobile>
@@ -243,7 +242,7 @@ export default defineComponent({
             if (!pageData.value.faceDatabaseList.length) {
                 await getFaceDatabaseList()
             }
-            formData.value.birthday = formatGregoryDate(new Date(), dateTime.dateFormat)
+            formData.value.birthday = formatGregoryDate(new Date(), DEFAULT_YMD_FORMAT)
             loadImg()
         }
 

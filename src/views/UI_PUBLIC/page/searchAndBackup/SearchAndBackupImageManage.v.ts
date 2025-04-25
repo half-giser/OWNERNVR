@@ -102,8 +102,8 @@ export default defineComponent({
          * @description 获取列表数据
          */
         const getData = async () => {
-            const startTime = dayjs(formData.value.startTime, dateTime.dateTimeFormat).valueOf()
-            const endTime = dayjs(formData.value.endTime, dateTime.dateTimeFormat).valueOf()
+            const startTime = dayjs(formData.value.startTime, { jalali: false, format: DEFAULT_DATE_FORMAT }).valueOf()
+            const endTime = dayjs(formData.value.endTime, { jalali: false, format: DEFAULT_DATE_FORMAT }).valueOf()
             if (endTime <= startTime) {
                 openMessageBox(Translate('IDCS_END_TIME_GREATER_THAN_START'))
                 return
@@ -385,8 +385,8 @@ export default defineComponent({
 
         onMounted(() => {
             const date = new Date()
-            pageData.value.startTime = dayjs(date).hour(0).minute(0).second(0).calendar('gregory').format(dateTime.dateTimeFormat)
-            pageData.value.endTime = dayjs(date).hour(23).minute(59).second(59).calendar('gregory').format(dateTime.dateTimeFormat)
+            pageData.value.startTime = dayjs(date).hour(0).minute(0).second(0).calendar('gregory').format(DEFAULT_DATE_FORMAT)
+            pageData.value.endTime = dayjs(date).hour(23).minute(59).second(59).calendar('gregory').format(DEFAULT_DATE_FORMAT)
         })
 
         onActivated(() => {

@@ -54,9 +54,9 @@ export default defineComponent({
         let currentDST = false
 
         // 系统时间最小值
-        const SERVER_START_TIME = dayjs('2010-01-01', { jalali: false, format: DEFAULT_DATE_FORMAT })
+        const SERVER_START_TIME = dayjs('2010-01-01', { jalali: false, format: DEFAULT_YMD_FORMAT })
         // 系统时间最大值
-        const SERVER_END_TIME = dayjs('2037-12-31', { jalali: false, format: DEFAULT_DATE_FORMAT })
+        const SERVER_END_TIME = dayjs('2037-12-31', { jalali: false, format: DEFAULT_YMD_FORMAT })
 
         // 显示时间格式
         const formatSystemTime = computed(() => {
@@ -69,8 +69,8 @@ export default defineComponent({
         const handleIsSyncChange = () => {
             if (formData.value.isSync) {
                 isSystemTimeChanged = true
-                formData.value.systemTime = dayjs().calendar('gregory').format(formatSystemTime.value)
-                pageData.value.systemTime = dayjs().calendar('gregory').format(formatSystemTime.value)
+                formData.value.systemTime = dayjs().calendar('gregory').format(DEFAULT_DATE_FORMAT)
+                pageData.value.systemTime = dayjs().calendar('gregory').format(DEFAULT_DATE_FORMAT)
                 pageData.value.startTime = performance.now()
             }
             isTimePickerChanged = false
@@ -89,10 +89,10 @@ export default defineComponent({
          */
         const renderTime = () => {
             const now = performance.now()
-            formData.value.systemTime = dayjs(pageData.value.systemTime, { jalali: false, format: formatSystemTime.value })
+            formData.value.systemTime = dayjs(pageData.value.systemTime, { jalali: false, format: DEFAULT_DATE_FORMAT })
                 .add(now - pageData.value.startTime, 'millisecond')
                 .calendar('gregory')
-                .format(formatSystemTime.value)
+                .format(DEFAULT_DATE_FORMAT)
         }
 
         /**
@@ -150,7 +150,7 @@ export default defineComponent({
             currentTimezone = formData.value.timeZone
             currentDST = formData.value.enableDST
 
-            let currentDate = dayjs($('content/synchronizeInfo/currentTime').text().trim(), { jalali: false, format: formatSystemTime.value })
+            let currentDate = dayjs($('content/synchronizeInfo/currentTime').text().trim(), formatSystemTime.value)
             if (currentDate.isBefore(SERVER_START_TIME)) {
                 currentDate = SERVER_START_TIME
             } else if (currentDate.isAfter(SERVER_END_TIME)) {
@@ -158,9 +158,10 @@ export default defineComponent({
             }
 
             nextTick(() => {
-                formData.value.systemTime = currentDate.calendar('gregory').format(formatSystemTime.value)
+                formData.value.systemTime = currentDate.calendar('gregory').format(DEFAULT_DATE_FORMAT)
                 pageData.value.startTime = performance.now()
                 pageData.value.systemTime = formData.value.systemTime
+                // console.log(formData.value.systemTime)
                 clock()
             })
 
@@ -176,13 +177,13 @@ export default defineComponent({
             const sendXml = rawXml`
                 <types>
                     <synchronizeType>
-                        ${pageData.value.syncTypeOptions.map((item) => `<enum>${item}</enum>`).join('')}
+                        ${wrapEnums(pageData.value.syncTypeOptions)}
                     </synchronizeType>
                     <dateFormat>
-                        ${pageData.value.dateFormatOptions.map((item) => `<enum>${item}</enum>`).join('')}
+                        ${wrapEnums(pageData.value.dateFormatOptions)}
                     </dateFormat>
                     <timeFormat>
-                        ${pageData.value.timeFormatOptions.map((item) => `<enum>${item}</enum>`).join('')}
+                        ${wrapEnums(pageData.value.timeFormatOptions)}
                     </timeFormat>
                 </types>
                 <content>
@@ -193,7 +194,7 @@ export default defineComponent({
                     <synchronizeInfo>
                         <type type="synchronizeType">${formData.value.syncType}</type>
                         <ntpServer>${wrapCDATA(formData.value.timeServer)}</ntpServer>
-                        ${isSystemTimeChanged ? `<currentTime>${wrapCDATA(formData.value.systemTime)}</currentTime>` : ''}
+                        ${isSystemTimeChanged ? `<currentTime>${wrapCDATA(formatGregoryDate(formData.value.systemTime, formatSystemTime.value, DEFAULT_DATE_FORMAT))}</currentTime>` : ''}
                     </synchronizeInfo>
                     <formatInfo>
                         <date type="dateFormat">${formData.value.dateFormat}</date>
@@ -243,11 +244,6 @@ export default defineComponent({
                 })
             }
         }
-
-        watch(formatSystemTime, (newFormat, oldFormat) => {
-            formData.value.systemTime = dayjs(formData.value.systemTime, oldFormat).format(newFormat)
-            pageData.value.systemTime = dayjs(pageData.value.systemTime, oldFormat).format(newFormat)
-        })
 
         watch(isDSTDisabled, (val) => {
             if (val) {

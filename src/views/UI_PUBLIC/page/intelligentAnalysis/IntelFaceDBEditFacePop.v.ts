@@ -37,7 +37,6 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const dateTime = useDateTimeStore()
 
         const pageData = ref({
             // 性别选项
@@ -248,7 +247,7 @@ export default defineComponent({
                     <id>${id}</id>
                     <name maxByteLen="31">${wrapCDATA(item.name)}</name>
                     <sex type="sex">${item.sex}</sex>
-                    <birthday>${formatGregoryDate(item.birthday, DEFAULT_YMD_FORMAT, dateTime.dateFormat)}</birthday>
+                    <birthday>${item.birthday}</birthday>
                     <nativePlace>${item.nativePlace}</nativePlace>
                     <certificateType type="certificateType">${item.certificateType}</certificateType>
                     <certificateNum>${item.certificateNum}</certificateNum>

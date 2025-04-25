@@ -14,7 +14,7 @@
                 {{ item.index }}
             </el-form-item>
             <el-form-item :label="Translate('IDCS_LOG_TIME')">
-                {{ item.time }}
+                {{ displayTime(item.time) }}
             </el-form-item>
             <el-form-item :label="Translate('IDCS_TYPE')">
                 {{ `${item.mainType}----${item.subType}` }}

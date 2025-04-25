@@ -347,10 +347,10 @@ export default defineComponent({
         const getTimeConfig = () => {
             formData.value.startTime = dayjs(new Date().setHours(-48, 0, 0, 0))
                 .calendar('gregory')
-                .format(dateTime.dateTimeFormat)
+                .format(DEFAULT_DATE_FORMAT)
             formData.value.endTime = dayjs(new Date().setHours(23, 59, 59, 0))
                 .calendar('gregory')
-                .format(dateTime.dateTimeFormat)
+                .format(DEFAULT_DATE_FORMAT)
 
             pageData.value.startTime = formData.value.startTime
             pageData.value.endTime = formData.value.endTime
@@ -374,8 +374,8 @@ export default defineComponent({
                         <itemType type="logType" />
                         ${formData.value.subType.length ? subType : mainType}
                     </logType>
-                    <startTime>${wrapCDATA(localToUtc(formData.value.startTime, dateTime.dateTimeFormat))}</startTime>
-                    <endTime>${wrapCDATA(localToUtc(formData.value.endTime, dateTime.dateTimeFormat))}</endTime>
+                    <startTime>${wrapCDATA(localToUtc(formData.value.startTime))}</startTime>
+                    <endTime>${wrapCDATA(localToUtc(formData.value.endTime))}</endTime>
                     <langId>${wrapCDATA(lang.langId)}</langId>
                     ${isExport ? `<exportMaxCount>${exportMaxCount}</exportMaxCount>` : ''}
                 </condition>
@@ -409,7 +409,7 @@ export default defineComponent({
                         index: formData.value.pageSize * (formData.value.currentPage - 1) + (index + 1),
                         logType,
                         clientType,
-                        time: utcToLocal($item('time').text(), dateTime.dateTimeFormat),
+                        time: $item('time').text(), // ,
                         userName: $item('userName').text(),
                         subType: clientType + Translate(TRANS_MAPPING[logType]),
                         mainType: Translate(TRANS_MAPPING[SUB_MAIN_TYPE_MAPPING[logType]]),
@@ -431,6 +431,10 @@ export default defineComponent({
                     pageData.value.activeTableIndex = tableList.value.length - 1
                 }
             })
+        }
+
+        const displayTime = (time: string) => {
+            return utcToLocal(time, dateTime.dateTimeFormat)
         }
 
         /**
@@ -468,7 +472,7 @@ export default defineComponent({
          * @param {string} value
          */
         const changeStartTime = (value: string) => {
-            if (dayjs(value, dateTime.dateTimeFormat).isAfter(dayjs(pageData.value.endTime, dateTime.dateTimeFormat))) {
+            if (dayjs(value, DEFAULT_DATE_FORMAT).isAfter(dayjs(pageData.value.endTime, DEFAULT_DATE_FORMAT))) {
                 openMessageBox(Translate('IDCS_END_TIME_GREATER_THAN_START'))
                 pageData.value.startTime = formData.value.startTime
                 return
@@ -482,7 +486,7 @@ export default defineComponent({
          * @param {string} value
          */
         const changeEndTime = (value: string) => {
-            if (dayjs(value, dateTime.dateTimeFormat).isBefore(dayjs(pageData.value.startTime, dateTime.dateTimeFormat))) {
+            if (dayjs(value, DEFAULT_DATE_FORMAT).isBefore(dayjs(pageData.value.startTime, DEFAULT_DATE_FORMAT))) {
                 openMessageBox(Translate('IDCS_END_TIME_GREATER_THAN_START'))
                 pageData.value.endTime = formData.value.endTime
                 return
@@ -556,8 +560,8 @@ export default defineComponent({
             const eventList = ['MOTION', 'SCHEDULE', 'SENSOR', 'MANUAL', 'INTELLIGENT']
             const time = row.time
 
-            const startTime = dayjs(time, dateTime.dateTimeFormat).subtract(preStartTime, 'millisecond').valueOf()
-            const endTime = dayjs(time, dateTime.dateTimeFormat).add(recDuration, 'millisecond').subtract(preStartTime, 'millisecond').valueOf()
+            const startTime = dayjs(time, DEFAULT_DATE_FORMAT).subtract(preStartTime, 'millisecond').valueOf()
+            const endTime = dayjs(time, DEFAULT_DATE_FORMAT).add(recDuration, 'millisecond').subtract(preStartTime, 'millisecond').valueOf()
 
             let playList: PlaybackPopList[] = []
             if (row.logType === 'LOG_ALARM_SENSOR' || row.logType === 'LOG_ALARM_COMBINED') {
@@ -662,6 +666,7 @@ export default defineComponent({
             handleChangeRow,
             changeLogDetail,
             closeLogDetail,
+            displayTime,
         }
     },
 })

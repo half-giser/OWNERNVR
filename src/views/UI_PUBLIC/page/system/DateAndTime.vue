@@ -14,7 +14,6 @@
                 <BaseDatePicker
                     v-model="formData.systemTime"
                     :disabled="formData.isSync || formData.syncType === 'NTP'"
-                    :value-format="formatSystemTime"
                     :format="formatSystemTime"
                     type="datetime"
                     @change="handleSystemTimeChange"
