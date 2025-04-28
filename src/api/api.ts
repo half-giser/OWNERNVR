@@ -34,6 +34,8 @@ const getXmlWrapData = (data: string, url = '', refresh = false) => {
     let tokenXml = ''
     if (userSessionStore.token) {
         tokenXml = `<token>${userSessionStore.token}</token>`
+    } else {
+        tokenXml = '<token>null</token>'
     }
 
     if (userSessionStore.appType === 'P2P') {

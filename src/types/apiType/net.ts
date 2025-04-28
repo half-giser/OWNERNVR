@@ -491,3 +491,10 @@ export class NetPlatformSipCodeList {
     gbId = ''
     text = ''
 }
+
+/**
+ * @description 网络状态检测表单
+ */
+export class NetDetectionForm {
+    address = ''
+}

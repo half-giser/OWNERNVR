@@ -343,3 +343,10 @@ export const queryPlatformCfg = () => fetch('queryPlatformCfg', '')
  * @returns
  */
 export const editPlatformCfg = (data: string) => fetch('editPlatformCfg', data, {}, false)
+
+/**
+ * @description 检查网络
+ * @param {string} data
+ * @returns
+ */
+export const queryPingCmdResult = (data: string) => fetch('queryPingCmdResult', data)

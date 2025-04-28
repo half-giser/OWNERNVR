@@ -232,6 +232,19 @@ const netRoutes: FeatureItem = {
                 group: 'integration',
             },
         },
+        // HTTP Post 1.4.13
+        httpPost: {
+            path: 'httpPost',
+            component: 'net/HttpPost.vue',
+            meta: {
+                sort: 40,
+                lk: 'IDCS_HTTP_POST',
+                group: 'integration',
+                hasCap(systemCaps) {
+                    return systemCaps.supportHttpPost
+                },
+            },
+        },
         // 网络状态
         netStatus: {
             path: 'status',
@@ -246,6 +259,16 @@ const netRoutes: FeatureItem = {
                 default: true,
                 inHome: 'self',
                 homeSort: 40,
+            },
+        },
+        // 网络状态检测 1.4.13
+        netDetection: {
+            path: 'detection',
+            component: 'net/NetworkDetection.vue',
+            meta: {
+                sort: 20,
+                lk: 'IDCS_NETWORK_STATE_DETECTION',
+                group: 'netStatus',
             },
         },
     },

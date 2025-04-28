@@ -525,3 +525,15 @@ export class SystemSHDBPlatformParameterForm {
     level = ''
     holdTime = ''
 }
+
+/**
+ * @description
+ */
+export class SystemDebugModeForm {
+    debugModeSwitch = false
+    timeLen = 1
+    userName = ''
+    password = ''
+    startTime = 0
+    endTime = 0
+}

@@ -36,6 +36,12 @@ const channelRoutes: FeatureItem = {
                 lk: 'IDCS_PTZ',
                 icon: 'ptz_s',
             },
+            // IP Speaker
+            ipspeaker: {
+                sort: 60,
+                lk: 'IDCS_IPSPEAKER',
+                icon: 'ipSpeaker',
+            },
         },
     },
     children: {
@@ -217,6 +223,28 @@ const channelRoutes: FeatureItem = {
                 },
             },
         },
+        // 智能补光 1.4.13
+        fillLight: {
+            path: 'settings/intelligentFillLight',
+            component: 'channel/ChannelFillLight.vue',
+            meta: {
+                sort: 80,
+                lk: 'IDCS_ILLUMINATION_SMART_LIGHT',
+                group: 'image',
+                minHeight: 850,
+            },
+        },
+        // 拼接 1.4.13
+        splicing: {
+            path: 'settings/spliceCfg',
+            component: 'channel/ChannelSplicing.vue',
+            meta: {
+                sort: 80,
+                lk: 'IDCS_SPLICING',
+                group: 'image',
+                minHeight: 850,
+            },
+        },
         // 移动侦测配置
         motion: {
             path: 'settings/motion',
@@ -324,6 +352,48 @@ const channelRoutes: FeatureItem = {
                 hasCap(systemCaps) {
                     return !!systemCaps.analogChlCount
                 },
+            },
+        },
+        // 看守位 1.4.13
+        ptzGuard: {
+            path: 'ptz/guard',
+            component: 'channel/ChannelPtzGuard.vue',
+            meta: {
+                sort: 80,
+                lk: 'IDCS_HOME_POSITION',
+                group: 'ptz',
+                minHeight: 850,
+            },
+        },
+        // 查看或更改IPSpeaker 1.4.13
+        ipSpeakerAdd: {
+            path: 'IPSpeaker/list',
+            components: {
+                toolBar: 'channel/ChannelIPSpeakerToolBar.vue',
+                default: 'channel/ChannelIPSpeaker.vue',
+            },
+            meta: {
+                sort: 10,
+                lk: 'IDCS_ADD_IP_SPEARKER',
+                group: 'ipspeaker',
+            },
+            beforeEnter() {
+                history.state.fromAdd = 'true'
+                nextTick()
+            },
+        },
+        // 查看或更改IPSpeaker 1.4.13
+        ipSpeaker: {
+            path: 'IPSpeaker/list',
+            components: {
+                toolBar: 'channel/ChannelIPSpeakerToolBar.vue',
+                default: 'channel/ChannelIPSpeaker.vue',
+            },
+            meta: {
+                sort: 20,
+                lk: 'IDCS_CHANGE_OR_DELETE_IP_SPEAKER',
+                group: 'ipspeaker',
+                default: true,
             },
         },
     },

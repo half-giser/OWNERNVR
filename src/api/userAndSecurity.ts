@@ -148,3 +148,11 @@ export const queryArpCfg = () => fetch('queryArpCfg', '')
  * @returns
  */
 export const editArpCfg = (data: string) => fetch('editArpCfg', data)
+
+export const querySecureEmailcfg = () => fetch('querySecureEmailcfg', '')
+
+export const editSecureEMailCfg = (data: string) => fetch('editSecureEMailCfg', data)
+
+export const queryPWDProtectQuestion = () => fetch('queryPWDProtectQuestion', '')
+
+export const editPWDProtectQuestion = (data: string) => fetch('editPWDProtectQuestion', data)

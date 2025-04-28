@@ -6,10 +6,12 @@
 import { type FormRules } from 'element-plus'
 import LoginPrivacyPop from './LoginPrivacyPop.vue'
 import progress from '@bassist/progress'
+import LoginDualAuthPop from './LoginDualAuthPop.vue'
 
 export default defineComponent({
     components: {
         LoginPrivacyPop,
+        LoginDualAuthPop,
     },
     setup() {
         const { Translate } = useLangStore()
@@ -28,6 +30,10 @@ export default defineComponent({
             isPrivacy: false,
             quality: 'sub',
             isLogin: false,
+            // 是否打开双重认证弹窗
+            isDualAuthPop: false,
+            // 双重认证错误信息
+            dualAuthErrMsg: '',
         })
 
         langStore.getLangTypes().then((res) => {
@@ -43,6 +49,7 @@ export default defineComponent({
 
         // 界面表单数据
         const formData = ref(new UserLoginForm())
+        const reqFormData = ref(new UserLoginReqData())
         formData.value.calendarType = userSessionStore.calendarType
 
         // 校验规则
@@ -109,6 +116,26 @@ export default defineComponent({
         /**
          * @description 登录验证
          */
+        // const handleLogin = () => {
+        //     formRef.value!.validate(async (valid) => {
+        //         if (valid) {
+        //             pageData.value.btnDisabled = true
+        //             try {
+        //                 const reqData = await fnReqLogin()
+        //                 const result = await fnDoLogin(reqData)
+        //                 // doLogin后更新用户会话信息
+        //                 await userSessionStore.updateByLogin('STANDARD', result, reqData, formData.value)
+        //                 handleLoginSuccess()
+        //             } catch (e) {
+        //                 console.error(e)
+        //                 pageData.value.btnDisabled = false
+        //             } finally {
+        //                 progress.done()
+        //             }
+        //         }
+        //     })
+        // }
+
         const handleLogin = () => {
             formRef.value!.validate(async (valid) => {
                 if (valid) {
@@ -118,26 +145,48 @@ export default defineComponent({
                         const result = await fnDoLogin(reqData)
                         // doLogin后更新用户会话信息
                         await userSessionStore.updateByLogin('STANDARD', result, reqData, formData.value)
-                        // UI1-D / UI1-G 登录默认画质
-                        if (import.meta.env.VITE_UI_TYPE === 'UI1-D' || import.meta.env.VITE_UI_TYPE === 'UI1-G') {
-                            userSessionStore.defaultStreamType = pageData.value.quality
-                        }
-                        plugin.DisposePlugin()
-                        plugin.StartV2Process()
-                        router.push('/live')
+                        handleLoginSuccess()
                     } catch (e) {
                         console.error(e)
+                        pageData.value.btnDisabled = false
                     } finally {
                         progress.done()
-                        pageData.value.btnDisabled = false
                     }
                 }
             })
         }
 
         /**
-         * @description 登录
+         * @description 处理双重认证登录
+         * @param {UserDualAuthLoginForm} data
          */
+        const handleDualAuthLogin = async (data: UserDualAuthLoginForm) => {
+            progress.start()
+            try {
+                const result = await fnDoLogin(reqFormData.value, data)
+                await userSessionStore.updateByLogin('STANDARD', result, reqFormData.value, formData.value)
+                handleLoginSuccess()
+            } catch (e) {
+                console.error(e)
+            } finally {
+                progress.done()
+                pageData.value.btnDisabled = false
+            }
+        }
+
+        /**
+         * @description 登录成功后处理
+         */
+        const handleLoginSuccess = () => {
+            // UI1-D / UI1-G 登录默认画质
+            if (import.meta.env.VITE_UI_TYPE === 'UI1-D' || import.meta.env.VITE_UI_TYPE === 'UI1-G') {
+                userSessionStore.defaultStreamType = pageData.value.quality
+            }
+            plugin.DisposePlugin()
+            plugin.StartV2Process()
+            router.push('/live')
+        }
+
         const fnReqLogin = async () => {
             progress.start()
             try {
@@ -145,13 +194,17 @@ export default defineComponent({
                 const $ = queryXml(result)
                 if ($('status').text() === 'success') {
                     userSessionStore.updataByReqLogin(result)
-                    const reqData = new UserLoginReqData()
+                    reqFormData.value = new UserLoginReqData()
+
+                    reqFormData.value.userName = formData.value.userName
+
                     const md5Pwd = MD5_encrypt(formData.value.password)
-                    reqData.userName = formData.value.userName
                     const nonce = userSessionStore.nonce ? userSessionStore.nonce : ''
-                    reqData.password = sha512_encrypt(md5Pwd + '#' + nonce)
-                    reqData.passwordMd5 = md5Pwd
-                    return reqData
+                    console.log(nonce)
+                    reqFormData.value.password = sha512_encrypt(`${md5Pwd}#${nonce}#${RSA_PUBLIC_KEY.replace(/\r/g, '')}`)
+                    reqFormData.value.rsaPublic = RSA_PUBLIC_KEY
+
+                    return reqFormData.value
                 } else {
                     const errorCode = $('errorCode').text()
                     throw new Error(errorCode)
@@ -161,15 +214,20 @@ export default defineComponent({
             }
         }
 
-        /**
-         * @description 登录后更新用户会话信息
-         * @param {UserLoginReqData} reqData
-         */
-        const fnDoLogin = async (reqData: UserLoginReqData) => {
+        const fnDoLogin = async (reqData: UserLoginReqData, dualInfo?: UserDualAuthLoginForm) => {
             const sendXml = rawXml`
                 <content>
-                    <userName>${reqData.userName}</userName>
-                    <password>${reqData.password}</password>
+                    <userName>${wrapCDATA(reqData.userName)}</userName>
+                    <password>${wrapCDATA(reqData.password)}</password>
+                    ${
+                        dualInfo
+                            ? rawXml`
+                            <dualAuthUserName>${wrapCDATA(dualInfo.userName)}</dualAuthUserName>
+                            <dualAuthPassword>${wrapCDATA(dualInfo.password)}</dualAuthPassword>
+                        `
+                            : ''
+                    }
+                    <rsaPublic>${reqData.rsaPublic}</rsaPublic>
                 </content>
             `
             try {
@@ -187,19 +245,38 @@ export default defineComponent({
                         case ErrorCode.USER_ERROR_NO_USER:
                         case ErrorCode.USER_ERROR_PWD_ERR:
                             pageData.value.isLogin = true
-                            errorMsgFun.value = () => Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR')
-                            errorLockChecker.setPreErrorMessage('IDCS_LOGIN_FAIL_REASON_U_P_ERROR')
-                            if (!errorLockChecker.checkIsLocked()) {
-                                if (ramainingNumber) {
-                                    errorMsgFun.value = () => Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR') + '\n' + Translate('IDCS_TICK_ERROR_COUNT').formatForLang(ramainingNumber)
+                            // 用户名或密码错误(登录用户和双重认证用户)
+                            if (pageData.value.isDualAuthPop) {
+                                pageData.value.dualAuthErrMsg = Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR')
+                            } else {
+                                errorMsgFun.value = () => Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR')
+                                errorLockChecker.setPreErrorMessage('IDCS_LOGIN_FAIL_REASON_U_P_ERROR')
+                                if (!errorLockChecker.checkIsLocked()) {
+                                    if (ramainingNumber) {
+                                        errorMsgFun.value = () => Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR') + '\n' + Translate('IDCS_TICK_ERROR_COUNT').formatForLang(ramainingNumber)
+                                    }
                                 }
                             }
                             break
                         case ErrorCode.USER_ERROR_USER_LOCKED:
                             errorMsgFun.value = () => Translate('IDCS_LOGIN_FAIL_USER_LOCKED')
+                            errorLockChecker.setPreErrorMessage('IDCS_LOGIN_FAIL_USER_LOCKED')
                             break
                         case ErrorCode.USER_ERROR_NO_AUTH:
                             errorMsgFun.value = () => Translate('IDCS_LOGIN_FAIL_USER_LIMITED_TELNET')
+                            break
+                        // 不在排程内
+                        case 536871089:
+                            errorMsgFun.value = () => Translate('IDCS_LOGIN_NOT_IN_SCHEDULE')
+                            break
+                        // 需要双重认证
+                        case 536871090:
+                            pageData.value.isDualAuthPop = true
+                            pageData.value.dualAuthErrMsg = ''
+                            break
+                        case ErrorCode.USER_ERROR_SERVER_NO_EXISTS:
+                        case ErrorCode.USER_ERROR_FAIL:
+                            errorMsgFun.value = () => Translate('IDCS_CLEAR_BROWSING_TRY_AGAIN')
                             break
                         case ErrorCode.USER_ERROR_INVALID_PARAM:
                             errorMsgFun.value = () => Translate('IDCS_USER_ERROR_INVALID_PARAM')
@@ -213,6 +290,86 @@ export default defineComponent({
                 throw new Error('')
             }
         }
+
+        /**
+         * @description 登录
+         */
+        // const fnReqLogin = async () => {
+        //     progress.start()
+        //     try {
+        //         const result = await reqLogin()
+        //         const $ = queryXml(result)
+        //         if ($('status').text() === 'success') {
+        //             userSessionStore.updataByReqLogin(result)
+        //             const reqData = new UserLoginReqData()
+        //             const md5Pwd = MD5_encrypt(formData.value.password)
+        //             reqData.userName = formData.value.userName
+        //             const nonce = userSessionStore.nonce ? userSessionStore.nonce : ''
+        //             reqData.password = sha512_encrypt(md5Pwd + '#' + nonce)
+        //             reqData.passwordMd5 = md5Pwd
+        //             return reqData
+        //         } else {
+        //             const errorCode = $('errorCode').text()
+        //             throw new Error(errorCode)
+        //         }
+        //     } catch {
+        //         throw new Error('')
+        //     }
+        // }
+
+        /**
+         * @description 登录后更新用户会话信息
+         * @param {UserLoginReqData} reqData
+         */
+        // const fnDoLogin = async (reqData: UserLoginReqData) => {
+        //     const sendXml = rawXml`
+        //         <content>
+        //             <userName>${reqData.userName}</userName>
+        //             <password>${reqData.password}</password>
+        //         </content>
+        //     `
+        //     try {
+        //         const result = await doLogin(sendXml)
+        //         const $ = queryXml(result)
+        //         if ($('status').text() === 'success') {
+        //             return result
+        //         } else {
+        //             formData.value.password = ''
+        //             const errorCode = $('errorCode').text().num()
+        //             const ramainingNumber = $('ramainingNumber').text()
+        //             errorLockChecker.setLockTime($('ramainingTime').text().num() * 1000)
+        //             errorLockChecker.setLock($('locked').text().bool())
+        //             switch (errorCode) {
+        //                 case ErrorCode.USER_ERROR_NO_USER:
+        //                 case ErrorCode.USER_ERROR_PWD_ERR:
+        //                     pageData.value.isLogin = true
+        //                     // 用户名或密码错误(登录用户和双重认证用户)
+        //                     errorMsgFun.value = () => Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR')
+        //                     errorLockChecker.setPreErrorMessage('IDCS_LOGIN_FAIL_REASON_U_P_ERROR')
+        //                     if (!errorLockChecker.checkIsLocked()) {
+        //                         if (ramainingNumber) {
+        //                             errorMsgFun.value = () => Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR') + '\n' + Translate('IDCS_TICK_ERROR_COUNT').formatForLang(ramainingNumber)
+        //                         }
+        //                     }
+        //                     break
+        //                 case ErrorCode.USER_ERROR_USER_LOCKED:
+        //                     errorMsgFun.value = () => Translate('IDCS_LOGIN_FAIL_USER_LOCKED')
+        //                     break
+        //                 case ErrorCode.USER_ERROR_NO_AUTH:
+        //                     errorMsgFun.value = () => Translate('IDCS_LOGIN_FAIL_USER_LIMITED_TELNET')
+        //                     break
+        //                 case ErrorCode.USER_ERROR_INVALID_PARAM:
+        //                     errorMsgFun.value = () => Translate('IDCS_USER_ERROR_INVALID_PARAM')
+        //                     break
+        //                 default:
+        //                     errorMsgFun.value = () => Translate('IDCS_UNKNOWN_ERROR_CODE') + errorCode
+        //             }
+        //             throw new Error(errorCode + '')
+        //         }
+        //     } catch (e) {
+        //         throw new Error('')
+        //     }
+        // }
 
         /**
          * @description 是否展示隐私政策弹窗
@@ -308,6 +465,7 @@ export default defineComponent({
             btnDisabled,
             errorMsg,
             qualityOptions,
+            handleDualAuthLogin,
         }
     },
 })

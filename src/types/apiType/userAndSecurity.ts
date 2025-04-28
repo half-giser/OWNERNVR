@@ -296,3 +296,10 @@ export class UserPreviewOnLogoutChannelList {
     name = ''
     switch = ''
 }
+
+export class UserFindPwdQuestionForm extends SystemGuideQuestionForm {}
+
+export class UserFindPwdEmailForm {
+    email = ''
+    switch = false
+}

@@ -38,6 +38,14 @@ export default {
             noToken: true,
         },
     },
+    // 忘记密码 1.4.13
+    forgetPassword: {
+        path: '/forgetPassword',
+        component: 'ForgetPassword.vue',
+        meta: {
+            noToken: true,
+        },
+    },
     // 开机向导
     guide: {
         path: '/guide',
@@ -126,5 +134,11 @@ export default {
             },
             auth: 'parkingLotMgr',
         },
+    },
+    // 目标检索 1.4.13
+    searchTarget: {
+        path: '/intelligentAnalysis/search-target',
+        component: 'IntelligentAnalysis/SearchTarget.vue',
+        meta: {},
     },
 } as FeatureTree

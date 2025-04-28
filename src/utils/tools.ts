@@ -443,7 +443,7 @@ export const getChlList = (options: Partial<ChannelQueryNodeListDto> = {}) => {
 export const checkChlListCaps = async (route: string) => {
     const systemCaps = useCababilityStore()
 
-    if (route.includes('faceRecognition') || route.includes('vehicleRecognition') || route.includes('boundary') || route.includes('more')) {
+    if (route.includes('faceRecognition') || route.includes('vehicleRecognition') || route.includes('boundary') || route.includes('more') || route.includes('videoStructure')) {
     } else {
         return false
     }
