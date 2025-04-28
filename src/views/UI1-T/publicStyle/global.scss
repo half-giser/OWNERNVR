@@ -1,0 +1,17 @@
+/*
+ * @Author: yejiahao yejiahao@tvt.net.cn
+ * @Date: 2024-07-09 18:39:25
+ * @Description: UI1-T 主题样式
+ */
+@use '@/scss/function' as *;
+
+#n9web {
+    --img-login-content: #{img-url('@ui/publicStyle/img/LoginContent.png')};
+    --img-logo: #{img-url('@ui/publicStyle/img/appName.png')};
+    --img-login-btn: #{img-url('@ui/publicStyle/img/loginBtn.png')};
+    --img-motion-note: #{img-url('@/views/UI_PUBLIC/publicStyle/img/motionNote.gif')};
+    --img-loading: #{img-url('@ui/publicStyle/img/loading.gif')};
+    --img-spinner: #{img-url('@/views/UI_PUBLIC/publicStyle/img/spinner.gif')};
+    --img-initview: #{img-url('@/views/UI_PUBLIC/publicStyle/img/initview.gif')};
+    --img-favicon: url('@/views/UI_PUBLIC/publicStyle/img/favicon.ico');
+}
