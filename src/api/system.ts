@@ -282,3 +282,24 @@ export const editSHDBOperationCfg = (data: string) => fetch('editSHDBOperationCf
  * @returns
  */
 export const heartBeat = () => fetch('heartBeat', '')
+
+/**
+ * @description 编辑诊断数据
+ * @param {string} data
+ * @returns
+ */
+export const editDebugMode = (data: string) => fetch('editDebugMode', data)
+
+/**
+ * @description 查询诊断数据
+ * @param {string} data
+ * @returns
+ */
+export const queryDebugMode = (data: string) => fetch('queryDebugMode', data)
+
+/**
+ * @description 导出诊断数据
+ * @param {string} data
+ * @returns
+ */
+export const getDebugInfo = (data: string) => fetch('getDebugInfo', data)

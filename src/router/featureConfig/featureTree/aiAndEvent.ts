@@ -25,6 +25,12 @@ const aiAndEventRoutes: FeatureItem = {
                 lk: 'IDCS_AI_EVENT',
                 icon: 'intelligentAlarm_s',
             },
+            // 智能配置 1.4.13
+            target: {
+                sort: 30,
+                lk: 'IDCS_INTELLIGENT_CONFIG',
+                icon: 'config_intelligent',
+            },
             //普通事件
             generalEvent: {
                 sort: 50,
@@ -135,12 +141,22 @@ const aiAndEventRoutes: FeatureItem = {
                 },
             },
         },
+        // 事件启用 1.4.13
+        intelligentMode: {
+            path: 'intelligentMode',
+            component: 'aiAndEvent/IntelligentMode.vue',
+            meta: {
+                sort: 10,
+                lk: 'IDCS_EVENT_ENABLEMENT',
+                group: 'aiEvent',
+            },
+        },
         // 周界防范
         perimeterDetection: {
             path: 'boundary',
             component: 'aiAndEvent/PerimeterDetection.vue',
             meta: {
-                sort: 10,
+                sort: 20,
                 lk: 'IDCS_HUMAN_CAR_OTHER_BOUNDARY',
                 group: 'aiEvent',
                 default: true,
@@ -172,7 +188,7 @@ const aiAndEventRoutes: FeatureItem = {
             path: 'faceRecognition',
             component: 'aiAndEvent/FaceRecognition.vue',
             meta: {
-                sort: 20,
+                sort: 30,
                 lk: 'IDCS_FACE_RECOGNITION',
                 group: 'aiEvent',
                 inHome: 'self',
@@ -203,7 +219,7 @@ const aiAndEventRoutes: FeatureItem = {
             path: 'vehicleRecognition',
             component: 'aiAndEvent/LPR.vue',
             meta: {
-                sort: 30,
+                sort: 40,
                 lk: 'IDCS_VEHICLE_DETECTION',
                 group: 'aiEvent',
                 inHome: 'self',
@@ -230,12 +246,38 @@ const aiAndEventRoutes: FeatureItem = {
             },
             alias: '/intelligent-analysis/sample-data-base/sample-data-base-licence-plate',
         },
+        // 视频结构化 1.4.13
+        videoStructure: {
+            path: 'videoStructure',
+            component: 'aiAndEvent/VideoStructure.vue',
+            meta: {
+                sort: 50,
+                lk: 'IDCS_VSD_DETECTION',
+                group: 'aiEvent',
+                minWidth: 1560,
+                minHeight: 850,
+            },
+            async beforeEnter(to, from, next) {
+                const { Translate } = useLangStore()
+                const flag = await checkChlListCaps('videoStructure')
+                if (flag) {
+                    next()
+                } else {
+                    openMessageBox(Translate('IDCS_ADD_INTEL_CHANNEL_TIP').formatForLang(Translate('IDCS_VEHICLE_DETECTION')))
+                    if (from.fullPath === to.fullPath) {
+                        next('/live')
+                    } else {
+                        next(from)
+                    }
+                }
+            },
+        },
         // 更多
         aiEventMore: {
             path: 'more',
             component: 'aiAndEvent/More.vue',
             meta: {
-                sort: 40,
+                sort: 60,
                 lk: 'IDCS_MORE',
                 group: 'aiEvent',
                 minWidth: 1560,
@@ -257,6 +299,16 @@ const aiAndEventRoutes: FeatureItem = {
                         next(from)
                     }
                 }
+            },
+        },
+        // 目标侦测 1.4.13
+        detectTarget: {
+            path: 'detectTarget',
+            component: '',
+            meta: {
+                sort: 10,
+                lk: 'IDCS_TARGET_DETECT',
+                group: 'target',
             },
         },
         // 移动侦测

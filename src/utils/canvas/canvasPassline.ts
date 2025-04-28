@@ -11,7 +11,7 @@ export interface CanvasPasslinePassline {
     endY: number
 }
 
-interface CanvasPasslineLineItem {
+export interface CanvasPasslineLineItem {
     direction: CanvasPasslineDirection
     startPoint: {
         X: number
@@ -23,7 +23,7 @@ interface CanvasPasslineLineItem {
     }
 }
 
-interface CanvasPasslineOsdInfo {
+export interface CanvasPasslineOsdInfo {
     X: number
     Y: number
     osdFormat: string

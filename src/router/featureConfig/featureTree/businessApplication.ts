@@ -7,7 +7,7 @@
 const businessApplicationRoutes: FeatureItem = {
     component: 'layout/L2T2Layout.vue',
     meta: {
-        sort: 60,
+        sort: 40,
         lk: 'IDCS_BUSINESS_APPLICATION',
         icon: 'business_menu',
     },
@@ -80,6 +80,47 @@ const businessApplicationRoutes: FeatureItem = {
                         sort: 10,
                         lk: 'IDCS_ACCESS_CONTROL_CONFIG',
                         icon: 'accessCfg',
+                    },
+                },
+            },
+        },
+        // 客流量 1.4.13
+        passengerFlow: {
+            component: 'layout/L2T2L3T1Layout.vue',
+            meta: {
+                sort: 10,
+                lk: 'IDCS_PASSENGER_FLOW',
+            },
+            children: {
+                passengerFlowCfg: {
+                    component: 'businessApplication/PassengerFlowCfg.vue',
+                    meta: {
+                        sort: 10,
+                        lk: 'IDCS_CONFIG',
+                        icon: 'park_baiscCfg',
+                    },
+                },
+                passengerFlowStats: {
+                    component: 'businessApplication/PassengerFlowStats.vue',
+                    meta: {
+                        sort: 10,
+                        lk: 'IDCS_PEOPLE_COUNT_DETECTION',
+                        icon: 'passengerFlow',
+                    },
+                    async beforeEnter(_to, from, next) {
+                        const { Translate } = useLangStore()
+                        const userSession = useUserSessionStore()
+                        const auth = userSession.hasAuth('businessMgr')
+                        if (!auth) {
+                            openMessageBox(Translate('IDCS_NO_AUTH'))
+                            if (from.fullPath.includes('business-application')) {
+                                next('/live')
+                            } else {
+                                next(from)
+                            }
+                        } else {
+                            next()
+                        }
                     },
                 },
             },

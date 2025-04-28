@@ -14,6 +14,11 @@ import ECB from 'crypto-js/mode-ecb'
 import UTF8 from 'crypto-js/enc-utf8'
 import AES from 'crypto-js/aes'
 import RSA from 'jsencrypt'
+import { KEYUTIL } from 'jsrsasign'
+
+const rsaKeypair = KEYUTIL.generateKeypair('RSA', 1024)
+export const RSA_PUBLIC_KEY = KEYUTIL.getPEM(rsaKeypair.prvKeyObj) //获取公钥
+export const RSA_PRIVATE_KEY = KEYUTIL.getPEM(rsaKeypair.prvKeyObj, 'PKCS8PRV') //获取私钥
 
 /**
  * @description MD5加密

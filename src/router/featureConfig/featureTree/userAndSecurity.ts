@@ -139,6 +139,34 @@ const userAndSecurityRoutes: FeatureItem = {
                 },
             },
         },
+        // 找回密码设置 1.4.13
+        findPassword: {
+            path: 'findPwd',
+            component: 'userAndSecurity/FindPassword.vue',
+            meta: {
+                sort: 50,
+                lk: 'IDCS_PASSWORD_PROTECT_SET',
+                group: 'security',
+                hasCap() {
+                    const userSession = useUserSessionStore()
+                    return userSession.userType === USER_TYPE_DEFAULT_ADMIN
+                },
+            },
+        },
+        // 双重认证 1.4.13
+        dualAuth: {
+            path: 'dualAuthConfig',
+            component: 'userAndSecurity/dualAuthConfig',
+            meta: {
+                sort: 60,
+                lk: 'IDCS_DOUBLE_VERIFICATION',
+                group: 'security',
+                hasCap() {
+                    const userSession = useUserSessionStore()
+                    return userSession.userType === USER_TYPE_DEFAULT_ADMIN
+                },
+            },
+        },
         // 在线用户
         onlineUser: {
             path: 'user/status',

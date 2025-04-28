@@ -152,10 +152,12 @@ export const useUserSessionStore = defineStore(
                 setAuthInfo(loginReqData!.userName + ':')
 
                 const ciphertext = $('content/sessionKey').text()
-                const aesKey = loginReqData!.passwordMd5
-                const plaintext = AES_decrypt(ciphertext, aesKey)
-
+                // const aesKey = loginReqData!.passwordMd5
+                // const plaintext = AES_decrypt(ciphertext, aesKey)
+                const aesKey = RSA_PRIVATE_KEY
+                const plaintext = RSA_decrypt(aesKey, ciphertext) + ''
                 sesionKey.value = plaintext
+                token.value = $('content/token').text()
                 securityVer.value = $('content/securityVer').text()
                 userId.value = $('content/userId').text()
                 facePersonnalInfoMgr.value = $('content/systemAuth/facePersonnalInfoMgr').text().bool()

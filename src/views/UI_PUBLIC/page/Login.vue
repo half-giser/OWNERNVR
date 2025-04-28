@@ -61,6 +61,12 @@
             v-model="pageData.isPrivacy"
             @close="closePrivacy"
         />
+        <LoginDualAuthPop
+            v-model="pageData.isDualAuthPop"
+            :err-msg="pageData.dualAuthErrMsg"
+            @confirm="handleDualAuthLogin"
+            @close="pageData.isDualAuthPop = false"
+        />
         <BasePluginDownload />
     </div>
 </template>

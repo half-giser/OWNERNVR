@@ -67,6 +67,8 @@ export const useCababilityStore = defineStore(
         const mainStreamLimitFps = ref(1)
         const supportRecorder = ref(false)
         const decoderOutputMaxWin = ref<Record<number, number>>({})
+        const supportHttpPost = ref(false)
+        const supportRS485 = ref(false)
 
         const CustomerID = ref(0)
         const AISwitch = ref<boolean | undefined>()
@@ -144,6 +146,8 @@ export const useCababilityStore = defineStore(
             supportPoePowerManage.value = $('supportPoePowerManage').text().bool()
             supportLogoSetting.value = $('supportLogoSetting').text().bool()
             supportFishEye.value = $('supportFishEye').text().bool()
+            supportHttpPost.value = $('supportHttpPost').text().bool()
+            supportRS485.value = $('supportRS485').text().bool()
 
             chlSupSignalType.value = $('chlSupSignalType').text().split(':')
             switchIpChlRange.value.push($('switchIpChlRange/start').text().num())
@@ -243,6 +247,8 @@ export const useCababilityStore = defineStore(
             decoderOutputMaxWin,
             updateBaseConfig,
             updateDiskMode,
+            supportHttpPost,
+            supportRS485,
         }
     },
     {

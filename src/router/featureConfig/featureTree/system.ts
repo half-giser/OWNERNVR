@@ -117,6 +117,19 @@ const systemRoutes: FeatureItem = {
                 auth: 'remoteSysCfgAndMaintain',
             },
         },
+        // RS485 1.4.13
+        rs485: {
+            path: 'rs485',
+            component: 'system/RS485.vue',
+            meta: {
+                sort: 70,
+                lk: 'IDCS_RS485_SET',
+                group: 'basicConfig',
+                hasCap(systemCaps) {
+                    return systemCaps.supportRS485
+                },
+            },
+        },
         // 查看日志
         viewLog: {
             path: 'log',
@@ -186,6 +199,21 @@ const systemRoutes: FeatureItem = {
                 lk: 'IDCS_AUTO_MAINTENANCE',
                 group: 'maintenance',
                 auth: 'remoteSysCfgAndMaintain',
+            },
+        },
+        // 诊断数据 1.4.13
+        debugMode: {
+            path: 'maintenance/debugMode',
+            component: 'system/DebugMode.vue',
+            meta: {
+                sort: 70,
+                lk: 'IDCS_DEBUG_DATA',
+                group: 'maintenance',
+                auth: 'remoteSysCfgAndMaintain',
+                hasCap() {
+                    const userSession = useUserSessionStore()
+                    return userSession.userType === USER_TYPE_DEFAULT_ADMIN
+                },
             },
         },
         // 设备基本信息

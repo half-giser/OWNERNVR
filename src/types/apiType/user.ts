@@ -20,6 +20,7 @@ export class UserLoginReqData {
     userName = ''
     password = ''
     passwordMd5 = ''
+    rsaPublic = ''
 }
 
 /**
@@ -29,6 +30,14 @@ export class UserAuthCodeLoginForm {
     sn = ''
     code = ''
     calendarType = ''
+}
+
+/**
+ * @description 双重验证用户登录表单
+ */
+export class UserDualAuthLoginForm {
+    userName = ''
+    password = ''
 }
 
 /**

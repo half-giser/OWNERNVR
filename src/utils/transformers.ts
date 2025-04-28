@@ -145,6 +145,16 @@ export const base64ToFile = (base64: string, fileName: string) => {
     return new File([u8arr], fileName, { type: mime })
 }
 
+export const dataURLToBlob = (dataurl: string) => {
+    const bstr = window.atob(dataurl)
+    let n = bstr.length
+    const u8arr = new Uint8Array(n)
+    while (n--) {
+        u8arr[n] = bstr.charCodeAt(n)
+    }
+    return new Blob([u8arr], { type: 'text/plain' })
+}
+
 /**
  * @description 将IPC音频文件转换为base64-导入摄像机声音/本地音频使用
  * @param {Blob} file
