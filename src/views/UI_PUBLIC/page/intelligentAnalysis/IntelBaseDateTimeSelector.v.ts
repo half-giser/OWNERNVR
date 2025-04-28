@@ -79,8 +79,8 @@ export default defineComponent({
             pageData.value.isPop = false
             pageData.value.confirmDateRangeType = pageData.value.dateRangeType
             ctx.emit('update:model-value', [
-                dayjs(formData.value.startTime, { jalali: false, format: dateTime.dateTimeFormat }).valueOf(),
-                dayjs(formData.value.endTime, { jalali: false, format: dateTime.dateTimeFormat }).valueOf(),
+                dayjs(formData.value.startTime, { jalali: false, format: DEFAULT_DATE_FORMAT }).valueOf(),
+                dayjs(formData.value.endTime, { jalali: false, format: DEFAULT_DATE_FORMAT }).valueOf(),
             ])
         }
 
@@ -92,8 +92,8 @@ export default defineComponent({
                     if (pageData.value.dateRangeType !== pageData.value.confirmDateRangeType) {
                         pageData.value.dateRangeType = pageData.value.confirmDateRangeType
                     }
-                    formData.value.startTime = formatGregoryDate(prop.modelValue[0], dateTime.dateTimeFormat)
-                    formData.value.endTime = formatGregoryDate(prop.modelValue[1], dateTime.dateTimeFormat)
+                    formData.value.startTime = formatGregoryDate(prop.modelValue[0], DEFAULT_DATE_FORMAT)
+                    formData.value.endTime = formatGregoryDate(prop.modelValue[1], DEFAULT_DATE_FORMAT)
                 }
             },
         )
@@ -106,21 +106,21 @@ export default defineComponent({
             pageData.value.dateRangeType = value
             switch (value) {
                 case 'today':
-                    formData.value.startTime = dayjs().hour(0).minute(0).second(0).calendar('gregory').format(dateTime.dateTimeFormat)
-                    formData.value.endTime = dayjs().hour(23).minute(59).second(59).calendar('gregory').format(dateTime.dateTimeFormat)
+                    formData.value.startTime = dayjs().hour(0).minute(0).second(0).calendar('gregory').format(DEFAULT_DATE_FORMAT)
+                    formData.value.endTime = dayjs().hour(23).minute(59).second(59).calendar('gregory').format(DEFAULT_DATE_FORMAT)
                     break
                 case 'yesterday':
-                    formData.value.startTime = dayjs().subtract(1, 'day').hour(0).minute(0).second(0).calendar('gregory').format(dateTime.dateTimeFormat)
-                    formData.value.endTime = dayjs().subtract(1, 'day').hour(23).minute(59).second(59).calendar('gregory').format(dateTime.dateTimeFormat)
+                    formData.value.startTime = dayjs().subtract(1, 'day').hour(0).minute(0).second(0).calendar('gregory').format(DEFAULT_DATE_FORMAT)
+                    formData.value.endTime = dayjs().subtract(1, 'day').hour(23).minute(59).second(59).calendar('gregory').format(DEFAULT_DATE_FORMAT)
                     break
                 case 'week':
-                    formData.value.startTime = dayjs().calendar('gregory').day(0).hour(0).minute(0).second(0).format(dateTime.dateTimeFormat)
-                    formData.value.endTime = dayjs().calendar('gregory').day(6).hour(23).minute(59).second(59).format(dateTime.dateTimeFormat)
+                    formData.value.startTime = dayjs().calendar('gregory').day(0).hour(0).minute(0).second(0).format(DEFAULT_DATE_FORMAT)
+                    formData.value.endTime = dayjs().calendar('gregory').day(6).hour(23).minute(59).second(59).format(DEFAULT_DATE_FORMAT)
                     break
                 case 'month':
                     const days = dayjs().daysInMonth()
-                    formData.value.startTime = dayjs().date(1).hour(0).minute(0).second(0).calendar('gregory').format(dateTime.dateTimeFormat)
-                    formData.value.endTime = dayjs().date(days).hour(23).minute(59).second(59).calendar('gregory').format(dateTime.dateTimeFormat)
+                    formData.value.startTime = dayjs().date(1).hour(0).minute(0).second(0).calendar('gregory').format(DEFAULT_DATE_FORMAT)
+                    formData.value.endTime = dayjs().date(days).hour(23).minute(59).second(59).calendar('gregory').format(DEFAULT_DATE_FORMAT)
                     break
                 default:
                     break
@@ -130,8 +130,8 @@ export default defineComponent({
         onMounted(() => {
             // 如果表单没有值，则创造初始值
             if (!prop.modelValue[0] && !prop.modelValue[1]) {
-                formData.value.startTime = dayjs().hour(0).minute(0).second(0).calendar('gregory').format(dateTime.dateTimeFormat)
-                formData.value.endTime = dayjs().hour(23).minute(59).second(59).calendar('gregory').format(dateTime.dateTimeFormat)
+                formData.value.startTime = dayjs().hour(0).minute(0).second(0).calendar('gregory').format(DEFAULT_DATE_FORMAT)
+                formData.value.endTime = dayjs().hour(23).minute(59).second(59).calendar('gregory').format(DEFAULT_DATE_FORMAT)
                 confirm()
             }
         })

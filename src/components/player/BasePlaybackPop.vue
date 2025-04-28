@@ -11,27 +11,27 @@
         @opened="open"
     >
         <div class="RecordPop">
-            <div class="main">
-                <BaseListBox
-                    v-show="playList.length > 1"
-                    class="chl"
-                    border
+            <BaseListBox
+                v-show="playList.length > 1"
+                class="chl"
+                border
+            >
+                <BaseListBoxItem
+                    v-for="(listItem, index) in playList"
+                    :key="index"
+                    @click="changeChannel(index)"
                 >
-                    <BaseListBoxItem
-                        v-for="(listItem, index) in playList"
-                        :key="index"
-                        @click="changeChannel(index)"
-                    >
-                        <BaseImgSprite
-                            file="chl_icon"
-                            :index="0"
-                            :active-index="1"
-                            :active="index === pageData.chlIndex"
-                            :chunk="4"
-                        />
-                        <div class="text-ellipsis">{{ listItem.chlName }}</div>
-                    </BaseListBoxItem>
-                </BaseListBox>
+                    <BaseImgSprite
+                        file="chl_icon"
+                        :index="0"
+                        :active-index="1"
+                        :active="index === pageData.chlIndex"
+                        :chunk="4"
+                    />
+                    <div class="text-ellipsis">{{ listItem.chlName }}</div>
+                </BaseListBoxItem>
+            </BaseListBox>
+            <div class="main">
                 <div class="player">
                     <BaseVideoPlayer
                         v-if="pageData.mounted"
@@ -44,50 +44,51 @@
                         @message="ocxNotify"
                     />
                 </div>
-            </div>
-            <div class="control-bar">
-                <span class="start-time">{{ startTime }}</span>
-                <el-slider
-                    v-model="pageData.progress"
-                    :show-tooltip="false"
-                    :min="startTimeStamp"
-                    :max="endTimeStamp"
-                    :disabled="pageData.iconDisabled"
-                    @mousedown="handleSliderMouseDown"
-                    @mouseup="handleSliderMouseUp"
-                    @change="handleSliderChange"
-                />
-                <span class="end-time">{{ endTime }}</span>
-            </div>
-            <div class="control-btns">
-                <span class="current-time">{{ currentTime }}</span>
-                <el-tooltip :content="Translate('IDCS_PAUSE')">
-                    <BaseImgSpriteBtn
-                        v-show="!pageData.paused"
-                        class="btn"
-                        file="image_preview_pause"
-                        @click="pause"
-                    />
-                </el-tooltip>
-                <el-tooltip :content="Translate('IDCS_PLAY')">
-                    <BaseImgSpriteBtn
-                        v-show="pageData.paused"
-                        class="btn"
-                        file="image_preview_play"
+                <div class="control-bar">
+                    <span class="start-time">{{ startTime }}</span>
+                    <el-slider
+                        v-model="pageData.progress"
+                        :show-tooltip="false"
+                        :min="startTimeStamp"
+                        :max="endTimeStamp"
                         :disabled="pageData.iconDisabled"
-                        @click="resume"
+                        @mousedown="handleSliderMouseDown"
+                        @mouseup="handleSliderMouseUp"
+                        @change="handleSliderChange"
                     />
-                </el-tooltip>
-                <el-tooltip :content="Translate('IDCS_STOP')">
-                    <BaseImgSpriteBtn
-                        file="image_preview_stop"
-                        class="btn"
-                        :disabled="pageData.iconDisabled"
-                        @click="stop"
-                    />
-                </el-tooltip>
+                    <span class="end-time">{{ endTime }}</span>
+                </div>
+                <div class="control-btns">
+                    <span class="current-time">{{ currentTime }}</span>
+                    <el-tooltip :content="Translate('IDCS_PAUSE')">
+                        <BaseImgSpriteBtn
+                            v-show="!pageData.paused"
+                            class="btn"
+                            file="image_preview_pause"
+                            @click="pause"
+                        />
+                    </el-tooltip>
+                    <el-tooltip :content="Translate('IDCS_PLAY')">
+                        <BaseImgSpriteBtn
+                            v-show="pageData.paused"
+                            class="btn"
+                            file="image_preview_play"
+                            :disabled="pageData.iconDisabled"
+                            @click="resume"
+                        />
+                    </el-tooltip>
+                    <el-tooltip :content="Translate('IDCS_STOP')">
+                        <BaseImgSpriteBtn
+                            file="image_preview_stop"
+                            class="btn"
+                            :disabled="pageData.iconDisabled"
+                            @click="stop"
+                        />
+                    </el-tooltip>
+                </div>
             </div>
         </div>
+
         <div class="base-btn-box">
             <el-button @click="close">{{ Translate('IDCS_CLOSE') }}</el-button>
         </div>
@@ -518,15 +519,12 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .RecordPop {
-    .main {
-        width: 100%;
-        display: flex;
-        height: 350px;
-    }
+    width: 100%;
+    display: flex;
 
     .chl {
         width: 230px;
-        height: 350px;
+        height: 450px;
         border: 1px solid var(--content-border);
     }
 
@@ -568,7 +566,7 @@ onMounted(() => {
 
     .current-time {
         font-size: 18px;
-        margin-left: 15px;
+        margin-left: 5px;
         margin-right: 70px;
     }
 

@@ -336,12 +336,15 @@ export default defineComponent({
                     }
                 })
             } else {
-                if (pageData.value.fileName.indexOf('.csv') === -1) {
-                    openMessageBox(Translate('IDCS_NO_CHOOSE_TDB_FILE'))
+                if (pageData.value.fileName.toLowerCase().indexOf('.csv') === -1) {
+                    openMessageBox(Translate('IDCS_NO_CHOOSE_TDB_FILE').formatForLang('*.csv'))
+                    return
                 } else if (!pageData.value.fileData.length) {
                     openMessageBox(Translate('IDCS_IMPORT_FAIL'))
+                    return
                 } else if (!formData.value.groupId) {
                     openMessageBox(Translate('IDCS_PLATE_LIBRARY_GROUP_NOT_EXIST'))
+                    return
                 }
                 addPlates()
             }
@@ -369,7 +372,7 @@ export default defineComponent({
                 if (path) {
                     const sendXML = OCX_XML_UploadIPCAudioBase64(path)
                     plugin.ExecuteCmd(sendXML)
-                    openLoading()
+                    // openLoading()
                 }
             })
         }
@@ -467,7 +470,7 @@ export default defineComponent({
                     try {
                         const map = formatDataFile(reader.result as string, separator)
                         resolve(map)
-                    } catch {
+                    } catch (e) {
                         reject(Translate('IDCS_FILE_NOT_AVAILABLE'))
                     }
                 }
@@ -479,18 +482,26 @@ export default defineComponent({
          * @param {File} file
          */
         const parseFiles = async (file: File) => {
-            const fileType = file.name.split('.').pop()
+            const fileType = file.name.split('.').pop()?.toLowerCase()
             if (fileType !== 'csv') {
                 openMessageBox(Translate('IDCS_FILE_NOT_AVAILABLE'))
                 return
             }
-            pageData.value.fileName = file.name
+            pageData.value.fileName = file.name.toLowerCase()
 
             openLoading()
-            pageData.value.fileData = await parseDataFile(file, 'csv')
-            closeLoading()
+            try {
+                pageData.value.fileData = await parseDataFile(file, 'csv')
+            } catch {
+            } finally {
+                closeLoading()
+            }
         }
 
+        /**
+         * @description Drop文件
+         * @param {DragEvent} e
+         */
         const handleDrop = (e: DragEvent) => {
             e.preventDefault()
             pageData.value.isDrag = false
@@ -530,6 +541,8 @@ export default defineComponent({
                 })
             if (!plateList.length) {
                 openMessageBox(Translate('IDCS_IMPORT_FAIL'))
+                ctx.emit('close')
+                return
             }
             ws = WebsocketImportPlateLib({
                 plateDataList: plateList,
@@ -580,6 +593,13 @@ export default defineComponent({
         }
 
         onBeforeUnmount(() => {
+            if (ws) {
+                ws.destroy()
+                ws = null
+            }
+        })
+
+        onDeactivated(() => {
             if (ws) {
                 ws.destroy()
                 ws = null

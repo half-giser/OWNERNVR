@@ -136,11 +136,11 @@ const verifyCustomPop = () => {
     let endTime = 0
 
     if (props.customType === 'day') {
-        startTime = dayjs(formData.value.startTime, { jalali: false, format: dateTime.dateFormat }).hour(0).minute(0).second(0).valueOf()
-        endTime = dayjs(formData.value.endTime, { jalali: false, format: dateTime.dateFormat }).hour(23).minute(59).second(59).valueOf()
+        startTime = dayjs(formData.value.startTime, { jalali: false, format: DEFAULT_YMD_FORMAT }).hour(0).minute(0).second(0).valueOf()
+        endTime = dayjs(formData.value.endTime, { jalali: false, format: DEFAULT_YMD_FORMAT }).hour(23).minute(59).second(59).valueOf()
     } else {
-        startTime = dayjs(formData.value.startTime, { jalali: false, format: dateTime.dateTimeFormat }).valueOf()
-        endTime = dayjs(formData.value.endTime, { jalali: false, format: dateTime.dateTimeFormat }).valueOf()
+        startTime = dayjs(formData.value.startTime, { jalali: false, format: DEFAULT_DATE_FORMAT }).valueOf()
+        endTime = dayjs(formData.value.endTime, { jalali: false, format: DEFAULT_DATE_FORMAT }).valueOf()
     }
 
     if (startTime >= endTime) {
@@ -189,8 +189,8 @@ const changeType = (type: string | number | boolean | undefined) => {
     currentType.value = type
     if (type === 'custom') {
         if (!formData.value.startTime) {
-            formData.value.startTime = dayjs().hour(0).minute(0).second(0).calendar('gregory').format(dateTime.dateTimeFormat)
-            formData.value.endTime = dayjs().hour(23).minute(59).second(59).calendar('gregory').format(dateTime.dateTimeFormat)
+            formData.value.startTime = dayjs().hour(0).minute(0).second(0).calendar('gregory').format(DEFAULT_DATE_FORMAT)
+            formData.value.endTime = dayjs().hour(23).minute(59).second(59).calendar('gregory').format(DEFAULT_DATE_FORMAT)
         }
         pageData.value.isCustomPop = true
     } else {

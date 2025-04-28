@@ -82,7 +82,7 @@
                                 </BaseTableDropdownLink>
                                 <template #dropdown>
                                     <el-dropdown-menu>
-                                        <el-dropdown-item @click="setStatus('', -1, false)">{{ Translate('IDCS_CLEAR_ALL') }}</el-dropdown-item>
+                                        <el-dropdown-item @click="clearAllStatus">{{ Translate('IDCS_CLEAR_ALL') }}</el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
                             </el-dropdown>

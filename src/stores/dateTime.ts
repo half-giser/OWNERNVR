@@ -12,6 +12,12 @@ export const useDateTimeStore = defineStore('dateTime', () => {
         'day-month-year': 'DD/MM/YYYY',
     }
 
+    const YMD_INDEX_MAPPING: Record<string, number[]> = {
+        'year-month-day': [0, 1, 2],
+        'month-day-year': [2, 0, 1],
+        'day-month-year': [2, 1, 0],
+    }
+
     const HMS_MAPPING: Record<string, string> = {
         '24': 'HH:mm:ss',
         '12': 'hh:mm:ss A',
@@ -71,7 +77,15 @@ export const useDateTimeStore = defineStore('dateTime', () => {
             dateTimeFormat.value = dateFormat.value + ' ' + timeFormat.value
             monthDateFormat.value = MD_MAPPING[date]
             timeMode.value = time
-            systemTime = dayjs($('content/synchronizeInfo/currentTime').text(), { format: dateTimeFormat.value, jalali: false })
+
+            // 由于波斯日历插件不支持DD/MM/YYYY格式，这里手动转换为YYYY/MM/DD格式
+            const currentTime = $('content/synchronizeInfo/currentTime').text()
+            const splitCurrentTime = currentTime.split(' ')
+            const ymd = splitCurrentTime.shift()!.split('/')
+            const yearMatch = ymd[YMD_INDEX_MAPPING[date][0]]
+            const monthMatch = ymd[YMD_INDEX_MAPPING[date][1]]
+            const dateMatch = ymd[YMD_INDEX_MAPPING[date][2]]
+            systemTime = dayjs(`${yearMatch}/${monthMatch}/${dateMatch} ${splitCurrentTime.join(' ')}`, { format: `${DEFAULT_YMD_FORMAT} ${timeFormat.value}`, jalali: false })
             localTime = performance.now()
         }
         return $

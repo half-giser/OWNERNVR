@@ -123,7 +123,7 @@ export default defineComponent({
 
         // 打开添加日期弹窗
         const openAddDate = () => {
-            pageData.value.selectDate = dayjs(new Date()).calendar('gregory').format(dateTime.dateFormat)
+            pageData.value.selectDate = dayjs(new Date()).calendar('gregory').format(DEFAULT_YMD_FORMAT)
             pageData.value.isShowAddDate = true
         }
 
@@ -135,7 +135,7 @@ export default defineComponent({
         // 添加选中日期
         const addDateToList = () => {
             if (pageData.value.selectDate) {
-                const selectDate = formatDate(pageData.value.selectDate, DEFAULT_YMD_FORMAT, dateTime.dateFormat)
+                const selectDate = pageData.value.selectDate
                 const dateList = pageData.value.toAddDateList.map((item) => item.date)
                 if (!dateList.includes(selectDate)) {
                     pageData.value.toAddDateList.push({

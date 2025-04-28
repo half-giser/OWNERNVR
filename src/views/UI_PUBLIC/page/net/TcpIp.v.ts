@@ -296,6 +296,7 @@ export default defineComponent({
             }
 
             if (item.dhcpSwitch) {
+                console.log('here', dhcp, item.ipV6Switch)
                 item.ip = dhcp.ip || ''
                 item.mask = dhcp.mask
                 item.gateway = dhcp.gateway
@@ -316,7 +317,7 @@ export default defineComponent({
 
             if (!item.ipV6Switch) {
                 item.ipV6 = ''
-                item.subLengthV6 = 0
+                item.subLengthV6 = undefined
                 item.gatewayV6 = ''
             }
             return item
@@ -615,7 +616,7 @@ export default defineComponent({
                                     <ipV6Switch>${item.ipV6Switch}</ipV6Switch>
                                     <ipV6>${item.ipV6}</ipV6>
                                     <gatewayV6>${item.gatewayV6}</gatewayV6>
-                                    <subLengthV6>${item.subLengthV6}</subLengthV6>
+                                    <subLengthV6>${Number(item.subLengthV6)}</subLengthV6>
                                     <ipv4DnsDhcpSwitch>${item.ipv4DnsDhcpSwitch}</ipv4DnsDhcpSwitch>
                                     <dns1>${item.dns1 === DEFAULT_EMPTY_IP ? '' : item.dns1}</dns1>
                                     <dns2>${item.dns2 === DEFAULT_EMPTY_IP ? '' : item.dns2}</dns2>
@@ -654,7 +655,7 @@ export default defineComponent({
                                     <ipV6Switch>${item.ipV6Switch}</ipV6Switch>
                                     <ipV6>${item.ipV6}</ipV6>
                                     <gatewayV6>${item.gatewayV6}</gatewayV6>
-                                    <subLengthV6>${item.subLengthV6}</subLengthV6>
+                                    <subLengthV6>${Number(item.subLengthV6)}</subLengthV6>
                                     <ipv4DnsDhcpSwitch>${item.ipv4DnsDhcpSwitch}</ipv4DnsDhcpSwitch>
                                     <dns1>${item.dns1 === DEFAULT_EMPTY_IP ? '' : item.dns1}</dns1>
                                     <dns2>${item.dns2 === DEFAULT_EMPTY_IP ? '' : item.dns2}</dns2>
@@ -684,7 +685,7 @@ export default defineComponent({
                                 <ipV6Switch>${item.ipV6Switch}</ipV6Switch>
                                 <ipV6>${item.ipV6}</ipV6>
                                 <gatewayV6>${item.gatewayV6}</gatewayV6>
-                                <subLengthV6>${item.subLengthV6}</subLengthV6>
+                                <subLengthV6>${Number(item.subLengthV6)}</subLengthV6>
                                 <ipv4DnsDhcpSwitch>${item.ipv4DnsDhcpSwitch}</ipv4DnsDhcpSwitch>
                                 <dns1>${item.dns1 === DEFAULT_EMPTY_IP ? '' : item.dns1}</dns1>
                                 <dns2>${item.dns2 === DEFAULT_EMPTY_IP ? '' : item.dns2}</dns2>

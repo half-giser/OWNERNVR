@@ -46,7 +46,7 @@ import dayjs from 'dayjs'
 const props = withDefaults(
     defineProps<{
         /**
-         * @property 绑定值 *传入公历日期
+         * @property 绑定值 *传入公历日期 YYYY-MM-DD HH:mm:ss
          */
         modelValue: string
         /**
@@ -60,7 +60,6 @@ const props = withDefaults(
     }>(),
     {
         badge: () => [],
-        valueFormat: DEFAULT_DATE_FORMAT,
     },
 )
 
@@ -75,7 +74,7 @@ const dateTime = useDateTimeStore()
 
 // 输入框显示值
 const selectedValue = computed(() => {
-    return props.modelValue ? dayjs(props.modelValue, props.valueFormat).format(DEFAULT_DATE_FORMAT) : ''
+    return props.modelValue ? dayjs(props.modelValue, DEFAULT_DATE_FORMAT).format(DEFAULT_YMD_FORMAT) : ''
 })
 
 // 今天
@@ -118,7 +117,7 @@ const dateList = computed(() => {
     for (let i = prefixDays; i > 0; i--) {
         const currentDate = date1.subtract(i, 'day')
         currentDateList.push({
-            format: formatDate(currentDate, DEFAULT_DATE_FORMAT),
+            format: formatDate(currentDate, DEFAULT_YMD_FORMAT),
             date: currentDate.format('DD').num(),
             inMonth: -1,
             timestamp: currentDate.valueOf(),
@@ -128,7 +127,7 @@ const dateList = computed(() => {
     let currentDate = date1
     while (currentDate.month() === month) {
         currentDateList.push({
-            format: formatDate(currentDate, DEFAULT_DATE_FORMAT),
+            format: formatDate(currentDate, DEFAULT_YMD_FORMAT),
             date: currentDate.format('DD').num(),
             inMonth: 0,
             timestamp: currentDate.valueOf(),
@@ -139,7 +138,7 @@ const dateList = computed(() => {
     const suffixDays = currentDateList.length % 7 === 0 ? 0 : Math.abs((currentDateList.length % 7) - 7)
     for (let i = 0; i < suffixDays; i++) {
         currentDateList.push({
-            format: formatDate(currentDate, DEFAULT_DATE_FORMAT),
+            format: formatDate(currentDate, DEFAULT_YMD_FORMAT),
             date: currentDate.format('DD').num(),
             inMonth: 1,
             timestamp: currentDate.valueOf(),

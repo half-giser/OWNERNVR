@@ -247,6 +247,7 @@ export default defineComponent({
                                 if (formData.value.ip === DEFAULT_EMPTY_IP) {
                                     formData.value.ip = ''
                                 }
+                                formData.value.password = ''
                                 emit('confirm', formData.value)
                                 emit('close', true)
                             })
@@ -292,6 +293,7 @@ export default defineComponent({
             ipDisabled.value = false
             portDisabled.value = false
             notCheckNameFlag = false
+            formData.value = new ChannelInfoDto()
             getData()
         }
 

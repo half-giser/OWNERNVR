@@ -1074,10 +1074,15 @@ export const getTranslateForSecond = (value: number) => {
 /**
  * @description: 获取时长翻译
  * @param {number} value
- * @return {*}
+ * @return {string}
  */
 const getTranslateForTime = (value: number, unit1: string, unit1s: string, unit2: string, unit2s: string) => {
     value = Math.round(value)
+
+    if (value === 0) {
+        return value + unit2s
+    }
+
     const t1 = Math.floor(value / 60)
     const t2 = value % 60
 
@@ -1089,6 +1094,7 @@ const getTranslateForTime = (value: number, unit1: string, unit1s: string, unit2
     if (t2 > 0) {
         label += (t1 > 0 ? ' ' : '') + `${t2} ${t2 === 1 ? unit2 : unit2s}`
     }
+
     return label
 }
 

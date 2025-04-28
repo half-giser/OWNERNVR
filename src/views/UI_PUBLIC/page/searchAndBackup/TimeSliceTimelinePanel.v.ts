@@ -554,7 +554,9 @@ export default defineComponent({
                 if (pageData.value.mode === 'day') {
                     formData.value.startTime = startTime
                     formData.value.endTime = endTime
+                    timelineRef.value!.clearTimeRangeMask()
                     timelineRef.value!.drawTimeRangeMask(startTime / 1000, endTime / 1000)
+                    timelineRef.value!.setTime(startTime / 1000)
                 }
             })
             timeSliceTimer.repeat()

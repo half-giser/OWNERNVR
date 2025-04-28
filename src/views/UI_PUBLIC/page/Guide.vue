@@ -84,7 +84,12 @@
             >
                 <div class="title">{{ Translate('IDCS_WIZARD') }}</div>
                 <div class="box">
-                    <el-form v-title>
+                    <el-form
+                        v-title
+                        :style="{
+                            '--form-input-width': '100%',
+                        }"
+                    >
                         <el-form-item :label="Translate('IDCS_TIME_ZONE')">
                             <el-select-v2
                                 v-model="dateTimeFormData.timeZone"
@@ -98,7 +103,6 @@
                             <BaseDatePicker
                                 v-model="dateTimeFormData.systemTime"
                                 :disabled="dateTimeFormData.syncType === 'NTP'"
-                                :value-format="formatSystemTime"
                                 :format="formatSystemTime"
                                 type="datetime"
                                 @visible-change="pendingSystemTimeChange"
@@ -162,7 +166,12 @@
             >
                 <div class="title">{{ Translate('IDCS_WIZARD') }}</div>
                 <div class="box">
-                    <el-form v-title>
+                    <el-form
+                        v-title
+                        :style="{
+                            '--form-input-width': '100%',
+                        }"
+                    >
                         <el-form-item>
                             <el-text class="user-title">{{ Translate('IDCS_ADMIN_PASSWORD_SETUP').formatForLang(userFormData.userName) }}</el-text>
                         </el-form-item>

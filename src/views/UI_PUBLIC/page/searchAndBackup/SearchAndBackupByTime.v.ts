@@ -29,7 +29,6 @@ export default defineComponent({
         // 通道ID与通道名称的映射
         const chlMap = ref<Record<string, string>>({})
 
-        const dateTime = useDateTimeStore()
         const userAuth = useUserChlAuth()
 
         const pageData = ref({
@@ -120,8 +119,8 @@ export default defineComponent({
                 return
             }
 
-            const startTime = dayjs(formData.value.startTime, dateTime.dateTimeFormat).valueOf()
-            const endTime = dayjs(formData.value.endTime, dateTime.dateTimeFormat).valueOf()
+            const startTime = dayjs(formData.value.startTime, { format: DEFAULT_DATE_FORMAT, jalali: false }).valueOf()
+            const endTime = dayjs(formData.value.endTime, { format: DEFAULT_DATE_FORMAT, jalali: false }).valueOf()
             if (endTime <= startTime) {
                 openMessageBox(Translate('IDCS_END_TIME_GREATER_THAN_START'))
                 return
@@ -187,8 +186,8 @@ export default defineComponent({
             getChlsList()
 
             const date = new Date()
-            formData.value.startTime = dayjs(date).hour(0).minute(0).second(0).calendar('gregory').format(dateTime.dateTimeFormat)
-            formData.value.endTime = dayjs(date).hour(23).minute(59).second(59).calendar('gregory').format(dateTime.dateTimeFormat)
+            formData.value.startTime = dayjs(date).hour(0).minute(0).second(0).calendar('gregory').format(DEFAULT_DATE_FORMAT)
+            formData.value.endTime = dayjs(date).hour(23).minute(59).second(59).calendar('gregory').format(DEFAULT_DATE_FORMAT)
         })
 
         return {

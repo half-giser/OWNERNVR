@@ -16,6 +16,7 @@ export default defineComponent({
 
         // 从设备获取公钥
         let pubkey = ''
+        // let cacheVideoType = ''
 
         const pageData = ref({
             // 当前向导页
@@ -93,9 +94,38 @@ export default defineComponent({
         })
 
         /**
-         * @description 下一步
+         * @description 校验，再进行下一步
          */
         const handleNext = async () => {
+            const current = steps.value[currentStepIndex.value]
+            if (current === 'dateAndTimezone') {
+                // if (dateTimeFormData.value.videoType !== cacheVideoType) {
+                //     openMessageBox({
+                //         type: 'question',
+                //         message: Translate('IDCS_VIDEO_FORMAT_EDIT_AFTER_EXIT_WIZARD_REBOOT'),
+                //     }).then(() => {
+                //         clearInterval(interval)
+                //         goNext()
+                //     })
+                //     return
+                // }
+                clearInterval(interval)
+            }
+
+            if (current === 'user') {
+                const flag = checkUserForm()
+                if (!flag) {
+                    return
+                }
+            }
+
+            goNext()
+        }
+
+        /**
+         * @description 下一步
+         */
+        const goNext = async () => {
             const index = currentStepIndex.value + 1
             if (steps.value.length > index) {
                 const current = steps.value[index]
@@ -111,18 +141,12 @@ export default defineComponent({
                 }
 
                 if (current === 'user') {
-                    clearInterval(interval)
                     openLoading()
                     await getPasswordSecurityStrength()
                     closeLoading()
                 }
 
                 if (current === 'questionAndAnswer') {
-                    const flag = checkUserForm()
-                    if (!flag) {
-                        return
-                    }
-
                     if (isDefeultQuestion.value) {
                         qaFormData.value.id = pageData.value.questionOptions[0]?.id || ''
                         qaTableData.value = cloneDeep(pageData.value.questionOptions)
@@ -168,7 +192,9 @@ export default defineComponent({
                     qaFormData.value.id = pageData.value.questionOptions[0]?.id || ''
                     qaFormData.value.answer = ''
                     qaFormData.value.question = ''
-                    qaTableData.value = cloneDeep(pageData.value.questionOptions)
+                    // if (!qaTableData.value.length) {
+                    //     qaTableData.value = cloneDeep(pageData.value.questionOptions)
+                    // }
                 }
             }
             pageData.value.current = current
@@ -195,7 +221,7 @@ export default defineComponent({
                         <synchronizeInfo>
                             <type>${dateTimeFormData.value.syncType}</type>
                             <ntpServer>${dateTimeFormData.value.timeServer}</ntpServer>
-                            <currentTime>${dateTimeFormData.value.systemTime}</currentTime>
+                            <currentTime>${formatGregoryDate(dateTimeFormData.value.systemTime, formatSystemTime.value, DEFAULT_DATE_FORMAT)}</currentTime>
                         </synchronizeInfo>
                         <formatInfo>
                             <date>${dateTimeFormData.value.dateFormat}</date>
@@ -413,6 +439,7 @@ export default defineComponent({
                     }
                 })
                 dateTimeFormData.value.videoType = $('content/basicCfg/videoType').text()
+                // cacheVideoType = dateTimeFormData.value.videoType
             }
         }
 
@@ -462,26 +489,18 @@ export default defineComponent({
                         label: SYNC_TYPE_MAPPING[item.text()],
                     }
                 })
-
-                dateTimeFormData.value.dateFormat = $('content/formatInfo/date').text()
                 pageData.value.dateFormatOptions = $('types/dateFormat/enum').map((item) => {
                     return {
                         value: item.text(),
                         label: DATE_FORMAT_MAPPING[item.text()],
                     }
                 })
-
-                dateTimeFormData.value.timeFormat = $('content/formatInfo/time').text()
                 pageData.value.timeFormatOptions = $('types/timeFormat/enum').map((item) => {
                     return {
                         value: item.text(),
                         label: TIME_FORMAT_MAPPING[item.text()],
                     }
                 })
-
-                dateTimeFormData.value.syncType = $('content/synchronizeInfo/type').text()
-
-                dateTimeFormData.value.timeServer = $('content/synchronizeInfo/ntpServer').text().trim()
                 pageData.value.timeServerOptions = $('types/ntpServerType/enum').map((item) => {
                     return {
                         value: item.text(),
@@ -489,11 +508,15 @@ export default defineComponent({
                     }
                 })
 
+                dateTimeFormData.value.dateFormat = $('content/formatInfo/date').text()
+                dateTimeFormData.value.timeFormat = $('content/formatInfo/time').text()
+                dateTimeFormData.value.syncType = $('content/synchronizeInfo/type').text()
+                dateTimeFormData.value.timeServer = $('content/synchronizeInfo/ntpServer').text().trim()
                 dateTimeFormData.value.timeZone = $('content/timezoneInfo/timeZone').text()
                 dateTimeFormData.value.enableDST = $('content/timezoneInfo/daylightSwitch').text().bool()
 
                 nextTick(() => {
-                    dateTimeFormData.value.systemTime = dayjs().calendar('gregory').format(formatSystemTime.value)
+                    dateTimeFormData.value.systemTime = dayjs().calendar('gregory').format(DEFAULT_DATE_FORMAT)
                     pageData.value.systemTime = dateTimeFormData.value.systemTime
                     pageData.value.startTime = performance.now()
                     clock()
@@ -511,22 +534,15 @@ export default defineComponent({
             return DEFAULT_MOMENT_MAPPING[dateTimeFormData.value.dateFormat] + ' ' + DEFAULT_MOMENT_MAPPING[dateTimeFormData.value.timeFormat]
         })
 
-        watch(formatSystemTime, (newFormat, oldFormat) => {
-            if (dateTimeFormData.value.systemTime) {
-                dateTimeFormData.value.systemTime = dayjs(dateTimeFormData.value.systemTime, { format: oldFormat, jalali: false }).calendar('gregory').format(newFormat)
-                pageData.value.systemTime = dayjs(pageData.value.systemTime, { format: oldFormat, jalali: false }).calendar('gregory').format(newFormat)
-            }
-        })
-
         /**
          * @description 定时更新时间
          */
         const renderTime = () => {
             const now = performance.now()
-            dateTimeFormData.value.systemTime = dayjs(pageData.value.systemTime, { format: formatSystemTime.value, jalali: false })
+            dateTimeFormData.value.systemTime = dayjs(pageData.value.systemTime, { format: DEFAULT_DATE_FORMAT, jalali: false })
                 .add(now - pageData.value.startTime, 'millisecond')
                 .calendar('gregory')
-                .format(formatSystemTime.value)
+                .format(DEFAULT_DATE_FORMAT)
         }
 
         /**

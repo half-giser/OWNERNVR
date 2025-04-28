@@ -203,7 +203,7 @@ import dayjs from 'dayjs'
 const props = withDefaults(
     defineProps<{
         /**
-         * @property 绑定值 *传入公历日期
+         * @property 绑定值 *传入公历日期 传入时间值默认是 YYYY-MM-DD HH:mm:ss 或 YYYY-MM-DD
          */
         modelValue: string
         /**
@@ -263,9 +263,9 @@ const selectedValue = computed(() => {
     }
 
     if (props.type === 'datetime') {
-        return dayjs(props.modelValue, props.valueFormat || dateTime.dateTimeFormat).format(props.format || dateTime.dateTimeFormat)
+        return dayjs(props.modelValue, { jalali: false, format: props.valueFormat || DEFAULT_DATE_FORMAT }).format(props.format || dateTime.dateTimeFormat)
     } else {
-        return dayjs(props.modelValue, props.valueFormat || dateTime.dateFormat).format(props.format || dateTime.dateFormat)
+        return dayjs(props.modelValue, { jalali: false, format: props.valueFormat || DEFAULT_YMD_FORMAT }).format(props.format || dateTime.dateFormat)
     }
 })
 
@@ -279,7 +279,7 @@ const currentTime = ref('00:00:00')
 
 // 当前日期的公历表示
 const currentDateGregory = computed(() => {
-    return currentValue.value.calendar('gregory').format(dateTime.dateFormat)
+    return currentValue.value.calendar('gregory').format(DEFAULT_YMD_FORMAT)
 })
 
 // 当前年
@@ -350,7 +350,7 @@ type DateDto = {
  */
 const open = () => {
     let flag = false
-    currentValue.value = dayjs(props.modelValue, props.valueFormat || (props.type === 'datetime' ? dateTime.dateTimeFormat : dateTime.dateFormat))
+    currentValue.value = dayjs(props.modelValue, props.valueFormat || (props.type === 'datetime' ? DEFAULT_DATE_FORMAT : DEFAULT_YMD_FORMAT))
 
     if (!currentValue.value.isValid()) {
         currentValue.value = dayjs(Date.now())
@@ -399,7 +399,7 @@ const dateList = computed(() => {
     for (let i = prefixDays; i > 0; i--) {
         const currentDate = date1.subtract(i, 'day')
         currentDateList.push({
-            gregorianFormat: currentDate.calendar('gregory').format(dateTime.dateFormat),
+            gregorianFormat: currentDate.calendar('gregory').format(DEFAULT_YMD_FORMAT),
             date: currentDate.format('DD').num(),
             inMonth: -1,
             disabled: getDateDisabled(currentDate),
@@ -409,7 +409,7 @@ const dateList = computed(() => {
     let currentDate = date1
     while (currentDate.month() === month) {
         currentDateList.push({
-            gregorianFormat: currentDate.calendar('gregory').format(dateTime.dateFormat),
+            gregorianFormat: currentDate.calendar('gregory').format(DEFAULT_YMD_FORMAT),
             date: currentDate.format('DD').num(),
             inMonth: 0,
             disabled: getDateDisabled(currentDate),
@@ -574,7 +574,7 @@ const changeValue = () => {
         currentValue.value = currentValue.value.hour(currentTimeInstance.hour()).minute(currentTimeInstance.minute()).second(currentTimeInstance.second())
     }
 
-    emits('update:modelValue', currentValue.value.calendar('gregory').format(props.format || (props.type === 'datetime' ? dateTime.dateTimeFormat : dateTime.dateFormat)))
+    emits('update:modelValue', currentValue.value.calendar('gregory').format(props.valueFormat || (props.type === 'datetime' ? DEFAULT_DATE_FORMAT : DEFAULT_YMD_FORMAT)))
 }
 
 watch(visible, (val) => {

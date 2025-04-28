@@ -30,7 +30,7 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
-        const dateTime = useDateTimeStore()
+        // const dateTime = useDateTimeStore()
 
         // 错误码与显示文本的映射
         const ERROR_TIP_MAPPING: Record<number, string> = {
@@ -132,7 +132,7 @@ export default defineComponent({
          */
         const renderFormData = () => {
             const data = new IntelFaceDBFaceForm()
-            data.birthday = formatGregoryDate(new Date(), dateTime.dateFormat)
+            data.birthday = formatGregoryDate(new Date(), DEFAULT_YMD_FORMAT)
             data.errorTip = Translate('IDCS_WAITING_ADD')
             if (pageData.value.groupList.length) {
                 if (prop.groupId) {
@@ -152,7 +152,7 @@ export default defineComponent({
             snapData = []
             importData = []
             formData.value = [new IntelFaceDBFaceForm()]
-            formData.value[0].birthday = formatGregoryDate(new Date(), dateTime.dateFormat)
+            formData.value[0].birthday = formatGregoryDate(new Date(), DEFAULT_YMD_FORMAT)
             await getFaceGroup()
             pageData.value.formIndex = 0
             pageData.value.formType = 'choose'
@@ -221,7 +221,7 @@ export default defineComponent({
 
             formData.value = e.map((item) => {
                 const data = renderFormData()
-                data.birthday = formatGregoryDate(item.birthday, dateTime.dateFormat, 'YYYY/MM/DD')
+                data.birthday = formatGregoryDate(item.birthday, DEFAULT_YMD_FORMAT, 'YYYY/MM/DD')
                 data.number = item.number
                 data.mobile = item.mobile
                 data.name = item.name ? item.name : item.imgName.split('.')[0]
@@ -268,7 +268,7 @@ export default defineComponent({
                     <force>${force}</force>
                     <name>${item.name}</name>
                     <sex>${item.sex}</sex>
-                    <birthday>${formatGregoryDate(item.birthday, DEFAULT_YMD_FORMAT, dateTime.dateFormat)}</birthday>
+                    <birthday>${item.birthday}</birthday>
                     <nativePlace>${item.nativePlace}</nativePlace>
                     <certificateType>${item.certificateType}</certificateType>
                     <certificateNum>${item.certificateNum}</certificateNum>
@@ -357,7 +357,7 @@ export default defineComponent({
                     ${force ? '<force>true</force>' : ''}
                     <name>${item.name}</name>
                     <sex type="sex">${item.sex}</sex>
-                    <birthday>${formatGregoryDate(item.birthday, DEFAULT_YMD_FORMAT, dateTime.dateFormat)}</birthday>
+                    <birthday>${item.birthday}</birthday>
                     <nativePlace>${item.nativePlace}</nativePlace>
                     <certificateType type="certificateType">${item.certificateType}</certificateType>
                     <certificateNum>${item.certificateNum}</certificateNum>

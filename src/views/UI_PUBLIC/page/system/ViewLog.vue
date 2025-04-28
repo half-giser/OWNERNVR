@@ -68,7 +68,11 @@
                 <el-table-column
                     :label="Translate('IDCS_LOG_TIME')"
                     prop="time"
-                />
+                >
+                    <template #default="{ row }: TableColumn<SystemLogList>">
+                        {{ displayTime(row.time) }}
+                    </template>
+                </el-table-column>
                 <el-table-column
                     :label="Translate('IDCS_CONTENT')"
                     prop="subType"

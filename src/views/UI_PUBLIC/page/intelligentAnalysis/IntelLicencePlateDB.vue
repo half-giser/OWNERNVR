@@ -158,7 +158,7 @@
             :data="pageData.editData"
             :type="pageData.editType"
             @confirm="confirmEditGroup"
-            @close="pageData.isEditPop = false"
+            @close="confirmEditGroup"
         />
         <IntelLicencePlateDBAddPlatePop
             v-model="pageData.isEditPlatePop"

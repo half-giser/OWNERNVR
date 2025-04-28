@@ -105,6 +105,13 @@ export default defineComponent({
             return bool ? Translate('IDCS_NOW_ALARM') : Translate('IDCS_NORMAL')
         }
 
+        const clearAllStatus = () => {
+            setTimeout(() => {
+                pageData.value.isAlarmPop = true
+            }, 0)
+            setStatus('', -1, false)
+        }
+
         /**
          * @description 设置报警状态
          * @param {String} id
@@ -151,6 +158,9 @@ export default defineComponent({
          * @param {Number} delay
          */
         const changeAllDelay = (delay: number) => {
+            setTimeout(() => {
+                pageData.value.isAlarmPop = true
+            }, 0)
             tableData.value.forEach((item) => {
                 item.delay = delay
             })
@@ -177,6 +187,7 @@ export default defineComponent({
             disabled,
             displaySwitch,
             setStatus,
+            clearAllStatus,
             changeAllDelay,
         }
     },

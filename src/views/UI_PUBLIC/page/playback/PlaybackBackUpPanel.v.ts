@@ -21,9 +21,10 @@ export default defineComponent({
             return typeof bool === 'boolean'
         },
     },
-    setup(prop) {
+    setup(prop, ctx) {
         const plugin = usePlugin()
         const { Translate } = useLangStore()
+        const dateTime = useDateTimeStore()
 
         // 任务列表刷新间隔3秒
         const REFRESH_IMTERVAL = 3000
@@ -101,7 +102,7 @@ export default defineComponent({
 
                     return {
                         taskId: item.attr('id'),
-                        startEndTime: startTime + '~' + endTime,
+                        startEndTime: formatDate(startTime, dateTime.dateTimeFormat) + '~' + formatDate(endTime, dateTime.dateTimeFormat),
                         duration,
                         chlName: $item('chls/item').text(),
                         destination: 'remote', // Translate('IDCS_REMOTE'),
@@ -175,22 +176,30 @@ export default defineComponent({
          * @description 删除所有任务
          */
         const deleteAllTask = () => {
-            openMessageBox({
-                type: 'question',
-                message: Translate('IDCS_DELETE_ALL_ARCHIVE'),
-            }).then(() => {
-                editRecBackUpTask(
-                    remoteTableData.value.map((item) => item.taskId),
-                    'delete',
-                )
-                plugin.BackUpTask.deleteAllTask()
-            })
+            setTimeout(() => {
+                ctx.emit('update:visible', true)
+                setTimeout(() => {
+                    openMessageBox({
+                        type: 'question',
+                        message: Translate('IDCS_DELETE_ALL_ARCHIVE'),
+                    }).then(() => {
+                        editRecBackUpTask(
+                            remoteTableData.value.map((item) => item.taskId),
+                            'delete',
+                        )
+                        plugin.BackUpTask.deleteAllTask()
+                    })
+                }, 10)
+            }, 0)
         }
 
         /**
          * @description 暂停所有任务
          */
         const pauseAllTask = () => {
+            setTimeout(() => {
+                ctx.emit('update:visible', true)
+            }, 0)
             editRecBackUpTask(
                 remoteTableData.value.map((item) => item.taskId),
                 'pause',
@@ -202,6 +211,9 @@ export default defineComponent({
          * @description 恢复所有任务
          */
         const resumeAllTask = () => {
+            setTimeout(() => {
+                ctx.emit('update:visible', true)
+            }, 0)
             editRecBackUpTask(
                 remoteTableData.value.map((item) => item.taskId),
                 'resume',

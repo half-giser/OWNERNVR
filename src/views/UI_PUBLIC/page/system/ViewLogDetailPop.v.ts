@@ -29,6 +29,8 @@ export default defineComponent({
         },
     },
     setup(prop, ctx) {
+        const dateTime = useDateTimeStore()
+
         const isContentPlainText = ref(true)
 
         const pageData = ref({
@@ -151,6 +153,10 @@ export default defineComponent({
             }
         }
 
+        const displayTime = (time: string) => {
+            return utcToLocal(time, dateTime.dateTimeFormat)
+        }
+
         return {
             isContentPlainText,
             prev,
@@ -158,6 +164,7 @@ export default defineComponent({
             close,
             item,
             pageData,
+            displayTime,
             handleCombinedType,
         }
     },

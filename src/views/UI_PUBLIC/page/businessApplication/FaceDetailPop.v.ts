@@ -174,7 +174,6 @@ export default defineComponent({
             pageData.value.currentIndex--
             current.value = prop.data.detail[pageData.value.currentIndex]
             tableRef.value?.setCurrentRow(current.value)
-            console.log('scrollIntoView', tableRef.value)
             tableRef.value?.$el.querySelector(`.el-table__row:nth-child(${pageData.value.currentIndex + 1})`)?.scrollIntoViewIfNeeded()
         }
 

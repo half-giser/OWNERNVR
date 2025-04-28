@@ -74,7 +74,7 @@
                     :label="Translate('IDCS_OPERATION')"
                 >
                     <template #header>
-                        <el-dropdown :teleported="false">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_OPERATION') }}
                             </BaseTableDropdownLink>
@@ -106,7 +106,7 @@
                     width="110"
                 >
                     <template #header>
-                        <el-dropdown :teleported="false">
+                        <el-dropdown>
                             <BaseTableDropdownLink>
                                 {{ Translate('IDCS_DELETE') }}
                             </BaseTableDropdownLink>
@@ -148,17 +148,8 @@
     }
 }
 
-:deep(.el-table__header-wrapper) {
-    overflow: unset !important;
-}
-
 :deep(.el-table__header .el-table__cell) {
     z-index: 2;
-}
-
-:deep(.el-table__header .cell) {
-    position: relative;
-    overflow: unset !important;
 }
 
 :deep(.el-dropdown-menu__item) {

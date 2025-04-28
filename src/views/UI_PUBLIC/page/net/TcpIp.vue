@@ -158,6 +158,7 @@
                         <el-form-item :label="Translate('IDCS_SUBNET_MASK_LENGTH')">
                             <el-input
                                 v-if="!current.ipV6Switch || current.dhcpSwitch || !poeEnabled"
+                                :model-value="current.subLengthV6"
                                 disabled
                             />
                             <BaseNumberInput
