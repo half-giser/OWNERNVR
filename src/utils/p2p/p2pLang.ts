@@ -3,7 +3,7 @@
  * @Date: 2024-09-19 18:11:35
  * @Description: P2P语言模块
  */
-export const useP2PLang = () => {
+export const useP2PLang = defineStore('p2pLang', () => {
     type LanguageResultItem = {
         comment: string
         dir: string
@@ -161,4 +161,4 @@ export const useP2PLang = () => {
         updateLangId,
         Translate,
     }
-}
+})

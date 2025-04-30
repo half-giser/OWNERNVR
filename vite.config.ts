@@ -50,6 +50,7 @@ export default defineConfig(({ mode }) => {
                 '/devapi': {
                     target: `${env.VITE_APP_HTTPS === 'true' ? 'https' : 'http'}://${VITE_APP_IP}/`,
                     changeOrigin: true,
+                    ws: true,
                     rewrite: (path) => path.replace(/^\/devapi/, ''),
                     configure: (proxy) => {
                         proxy.on('proxyReq', (proxyReq, req) => {
@@ -162,6 +163,7 @@ export default defineConfig(({ mode }) => {
                     './src/stores',
                     './src/utils',
                     './src/utils/ocx',
+                    './src/utils/p2p',
                     {
                         glob: './src/utils/websocket',
                         types: true,

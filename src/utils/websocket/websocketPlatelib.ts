@@ -17,6 +17,8 @@ interface PlateDataDatum {
     vehicle_type: string
     owner: string
     owner_phone: string
+    start_time: string
+    end_time: string
 }
 
 export interface WebsocketPlateLibOnSuccessParam {
@@ -40,7 +42,7 @@ export const WebsocketPlateLib = (option: WebsocketPlateLibOption) => {
             start()
         },
         onmessage: (data: string | ArrayBuffer) => {
-            if (data instanceof ArrayBuffer) {
+            if (typeof data !== 'string') {
                 const dataView = new DataView(data)
                 const encryptType = dataView.getUint32(0, true)
                 const jsonOffset = encryptType === 0 ? 8 : 16
@@ -104,6 +106,8 @@ export const WebsocketPlateLib = (option: WebsocketPlateLibOption) => {
                 vehicleType: item.vehicle_type,
                 ownerValue: item.owner,
                 phoneValue: item.owner_phone,
+                startTime: item.start_time,
+                endTime: item.end_time,
             }))
             confirmStep()
             return plateDataList

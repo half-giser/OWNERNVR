@@ -46,7 +46,13 @@ const hanedleActivationStatus = async (checkActivationStatus: boolean) => {
             router.replace('/guide')
         } else {
             if (!auInfo) {
-                router.replace('/login')
+                if (getLoginInfoByURL()) {
+                    // router.replace('/urllogin')
+                } else if (session.urlLoginAuth) {
+                    router.replace('/urllogin')
+                } else {
+                    router.replace('/login')
+                }
                 return
             } else {
                 await systemCaps.updateCabability()

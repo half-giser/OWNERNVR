@@ -39,6 +39,8 @@ export default defineComponent({
             pluginDownloadURL: '',
             // 是否显示本地配置按钮
             isLocalConfigBtn: false,
+            // 是否显示修改密码按钮 (P2P免鉴权登录统一不提示密码修改)
+            isModifyPasswordBtn: !userSession.daTokenLoginAuth && userSession.allowModifyPassword,
         })
 
         /**
@@ -137,8 +139,7 @@ export default defineComponent({
          * @description 每次刷新都检测密码
          */
         const checkForDefaultPwd = async () => {
-            const auInfo = userSession.auInfo_N9K
-            if (!auInfo) {
+            if (!userSession.auInfo_N9K || userSession.daTokenLoginAuth) {
                 return
             }
             const passwordStrength = await getPasswordSecurityStrength()
@@ -212,6 +213,19 @@ export default defineComponent({
         }
 
         /**
+         * @description 检查是否需要无硬盘提示
+         */
+        const checkDiskTipIsNeeded = async () => {
+            const result = await queryAbnormalTrigger()
+            const $ = queryXml(result)
+            const popMsgSwitch = $('content/item').some((item) => {
+                const $item = queryXml(item.element)
+                return $item('popMsgSwitch').text().bool()
+            })
+            return popMsgSwitch
+        }
+
+        /**
          * @description 检测磁盘状态
          */
         const checkIsDiskStatus = async () => {
@@ -251,9 +265,9 @@ export default defineComponent({
                 // 去插件方式不支持本地配置,显示插件下载按钮
                 if (mode !== 'ocx') {
                     const path = getPluginPath()
-                    pageData.value.pluginDownloadURL = path.ClientPluDownLoadPath
+                    pageData.value.pluginDownloadURL = path
                     if (import.meta.env.DEV) {
-                        pageData.value.pluginDownloadURL = '/plugin' + path.ClientPluDownLoadPath
+                        pageData.value.pluginDownloadURL = '/plugin/' + path
                     }
 
                     // mac操作系统仅支持H5，插件下载按钮隐藏
@@ -289,9 +303,7 @@ export default defineComponent({
 
         // 用户名显示
         const userName = computed(() => {
-            const authInfo = userSession.getAuthInfo()
-            if (authInfo) return authInfo[0]
-            return ''
+            return userSession.userName
         })
 
         onMounted(async () => {
@@ -305,7 +317,10 @@ export default defineComponent({
             }
 
             if (!userSession.loginCheck) {
-                checkIsDiskStatus()
+                const needDiskCheck = await checkDiskTipIsNeeded()
+                if (needDiskCheck) {
+                    checkIsDiskStatus()
+                }
                 userSession.loginCheck = true
             }
         })

@@ -41,7 +41,7 @@ export const WebsocketKeyframe = (option: WebsocketKeyframeOption) => {
                 onready && onready()
             },
             onmessage: (data: string | ArrayBuffer) => {
-                if (data instanceof ArrayBuffer) {
+                if (typeof data !== 'string') {
                     const dataView = new DataView(data)
                     const encryptType = dataView.getUint32(0, true)
                     const jsonOffset = encryptType === 0 ? 8 : 16

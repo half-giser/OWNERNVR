@@ -82,8 +82,7 @@ export default defineComponent({
                 formData.value.allowModifyPassword = $('content/modifyPassword').text().bool()
                 formData.value.authEffective = !$('content/authEffective').text().bool()
 
-                const authInfo = userSession.getAuthInfo()
-                const currentUserName = authInfo ? authInfo[0] : ''
+                const currentUserName = userSession.userName
                 const editUserName = formData.value.userName
                 const editUserType = $('content/userType').text()
                 pageData.value.isAuthGroup = USER_TYPE_DEFAULT_ADMIN !== editUserType

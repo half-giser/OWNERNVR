@@ -21,6 +21,8 @@ interface WasmPlayerAudioFrame {
     sampleFmt: keyof typeof AudioEncodingMap
     channels: number
     sampleRate: number
+    audioFormat: string
+    isSupportAudio: boolean
 }
 
 const AudioEncodingMap: Record<number, PCMPlayerOptionEncoding> = {
@@ -51,6 +53,9 @@ const PLAY_STATE_NEXT_FRAME = 'NEXT_FRAME' // 手动下一帧
  * @param {Function} onwatermark: 水印通知
  * @param {Function} onrecordFile: 录像文件通知
  * @param {Function} onpos: pos信息通知
+ * @param {Function} onparam: 共通参数信息
+ * @param {Function} onmotion: motion信息通知
+ * @param {Function} onaudioerror: 音频格式不支持的信息回调
  */
 interface WasmPlayerOption {
     type: 'live' | 'record'
@@ -64,10 +69,15 @@ interface WasmPlayerOption {
     onwatermark: (watermark: string) => void
     onrecordFile: (buf: ArrayBuffer) => void
     onpos: (pos: Uint8Array, len: number) => void
+    onparam: (type: string, data: any) => void
+    onmotion: (data: { motion_infos: { grids: string }[] }) => void
+    onaudioerror: (format: string) => void
     volume: number
 }
 
 export const WasmPlayer = (options: WasmPlayerOption) => {
+    const userSession = useUserSessionStore()
+
     let wasmReady = false // wasm文件是否加载成功
     let videoQueue: WasmPlayerVideoFrame[] = [] // 缓存视频帧队列
     const maxVideoQueueLength = 8 // 缓存视频帧队列最大长度
@@ -94,6 +104,7 @@ export const WasmPlayer = (options: WasmPlayerOption) => {
     let frameData: WasmPlayerVideoFrame | null = null // 当前帧数据
     let recordBuf: ArrayBuffer | null = null
     let pcmPlayer: ReturnType<typeof PCMPlayer>
+    let motionArr: any[] = []
 
     const type = options.type || 'live'
     let taskID = '' // 与设备交互的guid
@@ -109,6 +120,9 @@ export const WasmPlayer = (options: WasmPlayerOption) => {
     const onrecordFile = options.onrecordFile
     const onpos = options.onpos
     const volume = options.volume // 当前音量
+    const onparam = options.onparam
+    const onmotion = options.onmotion
+    const onaudioerror = options.onaudioerror
 
     /**
      * @description 初始化
@@ -116,7 +130,6 @@ export const WasmPlayer = (options: WasmPlayerOption) => {
     /**
      * @description 初始化解码线程
      */
-
     const decodeWorker = new Worker('/workers/decoder.js', {
         type: 'classic',
     })
@@ -153,6 +166,9 @@ export const WasmPlayer = (options: WasmPlayerOption) => {
             case 'getPosInfo': // 获取到pos数据
                 onPosInfo(data.frame, data.posLength)
                 break
+            case 'getParamInfo':
+                onParamInfo(data.type, data.data)
+                break
             case 'bufferError':
                 stopDecode()
                 break
@@ -167,51 +183,94 @@ export const WasmPlayer = (options: WasmPlayerOption) => {
     /**
      * @description 初始化下载线程
      */
-    const downloadWorker = new Worker('/workers/downloader.js', {
-        type: 'classic',
-    })
-    downloadWorker.onmessage = (e: any) => {
-        const data = e.data
-        if (!data?.cmd) {
-            return
-        }
+    let downloadWorker: Worker
+    let downloadWebsocket: ReturnType<typeof WebsocketBase>
 
-        switch (data.cmd) {
-            case 'feedData':
-                if (!isFirstDecod) {
-                    startDecode()
-                    isFirstDecod = true
-                    clearDisplayLoop()
-                    displayLoop()
-                    onsuccess && onsuccess()
-                    if (type === 'live') {
-                        onfinished && onfinished()
-                    }
-                }
-                decodeWorker.postMessage({
-                    cmd: 'sendData',
-                    buffer: data.buffer,
-                })
-                if (!isDecoding && type === 'live') {
-                    startDecode()
-                }
-                break
-            case 'close':
-            case 'error':
-                if (type === 'record' && data.code === ErrorCode.USER_ERROR_FILE_STREAM_COMPLETED && data.url === '/device/playback/data') {
-                    // 回放结束
-                    if (isEndPlay) return // 设备会发送两次停止播放，避免重复进入停止逻辑
-                    isEndPlay = true
-                    endPlay(data)
-                    return
-                }
-                // 其他错误类型，如音频无权限
-                onerror && onerror(data.code, data.url)
-                onfinished && onfinished()
-                break
-            default:
-                break
+    if (userSession.appType === 'STANDARD') {
+        downloadWorker = new Worker('/workers/downloader.js', {
+            type: 'classic',
+        })
+        downloadWorker.onmessage = (e: any) => {
+            const data = e.data
+            if (!data?.cmd) {
+                return
+            }
+
+            switch (data.cmd) {
+                case 'feedData':
+                    feedData(data.buffer)
+                    break
+                case 'close':
+                case 'error':
+                    handleErrorCode(data)
+                    break
+                default:
+                    break
+            }
+
+            // switch (data.cmd) {
+            //     case 'feedData':
+            //         if (!isFirstDecod) {
+            //             startDecode()
+            //             isFirstDecod = true
+            //             clearDisplayLoop()
+            //             displayLoop()
+            //             onsuccess && onsuccess()
+            //             if (type === 'live') {
+            //                 onfinished && onfinished()
+            //             }
+            //         }
+            //         decodeWorker.postMessage({
+            //             cmd: 'sendData',
+            //             buffer: data.buffer,
+            //         })
+            //         if (!isDecoding && type === 'live') {
+            //             startDecode()
+            //         }
+            //         break
+            //     case 'close':
+            //     case 'error':
+            //         if (type === 'record' && data.code === ErrorCode.USER_ERROR_FILE_STREAM_COMPLETED && data.url === '/device/playback/data') {
+            //             // 回放结束
+            //             if (isEndPlay) return // 设备会发送两次停止播放，避免重复进入停止逻辑
+            //             isEndPlay = true
+            //             endPlay(data)
+            //             return
+            //         }
+            //         // 其他错误类型，如音频无权限
+            //         onerror && onerror(data.code, data.url)
+            //         onfinished && onfinished()
+            //         break
+            //     default:
+            //         break
+            // }
         }
+    } else {
+        downloadWebsocket = WebsocketBase({
+            onopen: () => {
+                // self.downloadWorker.isP2Pcreate = true
+            },
+            onmessage: (data) => {
+                if (typeof data === 'string') {
+                    const res = JSON.parse(data)
+                    const url = res.url
+                    const resBasic = res.basic || {}
+                    const resData = res.data || {}
+                    const dataCode = resData.code
+                    const code = dataCode || resBasic.code
+                    if (code && code !== 0) {
+                        handleErrorCode({
+                            code: code,
+                            url: url,
+                        })
+                    }
+                } else {
+                    feedData(data)
+                }
+            },
+            onerror: () => {},
+            onclose: () => {},
+        })
     }
 
     /**
@@ -236,21 +295,21 @@ export const WasmPlayer = (options: WasmPlayerOption) => {
      * @param {Function} callback
      */
     const play = (cmdParam: Partial<CmdPlaybackOpenOption> | Partial<CmdPreviewOption>, callback?: () => void) => {
-        let cmd
         cmdParams = cmdParam
+        playState = PLAY_STATE_PLAYING
+        let cmd
         if (type === 'live') {
-            cmd = CMD_PREVIEW(cmdParams as CmdPreviewOption)
+            cmd = CMD_PREVIEW(cmdParams)
             taskID = cmd.data.task_id
         } else if (type === 'record') {
             isEndPlay = false
             notDecodeNumber = 0
-            if (!(cmdParams as CmdPlaybackOpenOption).typeMask) {
-                ;(cmdParams as CmdPlaybackOpenOption).typeMask = REC_EVENT_TYPES
+            if (!cmdParams.typeMask) {
+                cmdParams.typeMask = REC_EVENT_TYPES
             }
-            cmd = CMD_PLAYBACK_OPEN(cmdParams as CmdPlaybackOpenOption)
+            cmd = CMD_PLAYBACK_OPEN(cmdParams)
             taskID = cmd.data.task_id
         }
-        playState = PLAY_STATE_PLAYING
         startDownload(getWebsocketOpenUrl(), cmd, callback)
     }
 
@@ -323,14 +382,18 @@ export const WasmPlayer = (options: WasmPlayerOption) => {
      * 大于4倍数需要启用关键帧回放，否则全帧回放
      */
     const setSpeed = (speed: number, isSeek: boolean = false, timestamp: number = 0) => {
-        if (speed > 4) {
-            if (playSpeed <= 4 || isSeek) {
-                // 4倍速切到8倍速 采用关键帧播放
+        /**
+         * NTA1-3986 主码流播放，倍速大于1倍速时，切换成关键帧播放（跳画面），等于或小于1倍速时切换成全帧播放（流畅）
+         * NTA1-4041 其他码流播放，倍速大于4倍速时，切换成关键帧播放（跳画面），等于或小于4倍速时切换成全帧播放（流畅）
+         * streamType 当前播放的码流类型：0主码流，其他子码流
+         */
+        const maxSpeed = cmdParams.streamType === 0 ? 1 : 4
+        if (speed > maxSpeed) {
+            if (playSpeed <= maxSpeed || isSeek) {
                 keyFramePlay(timestamp)
             }
         } else {
-            if (playSpeed > 4 || isSeek) {
-                // 8倍速切到4倍速 采用全帧播放
+            if (playSpeed > maxSpeed || isSeek) {
                 allFramePlay(timestamp)
             }
         }
@@ -349,6 +412,17 @@ export const WasmPlayer = (options: WasmPlayerOption) => {
         return localToUtc(timestamp, 'YYYY-MM-DD HH:mm:ss:SSS')
     }
 
+    const sendData = (data: string) => {
+        if (userSession.appType === 'STANDARD') {
+            downloadWorker.postMessage({
+                cmd: 'sendCMD',
+                data: data,
+            })
+        } else {
+            downloadWebsocket.send(data)
+        }
+    }
+
     /**
      * @description 启用关键帧回放
      * @param {Number} timestamp 毫秒时间戳
@@ -360,15 +434,12 @@ export const WasmPlayer = (options: WasmPlayerOption) => {
         const time = timestamp || frameTimestamp
         isKeyFramePlay = true
         const cmdParams = CMD_PLAYBACK_KEY_FRAME(taskID, frameTime2UTC(time))
-        downloadWorker.postMessage({
-            cmd: 'sendCMD',
-            data: JSON.stringify(cmdParams),
-        })
+        sendData(JSON.stringify(cmdParams))
         startDecode()
     }
 
     /**
-     * @description 恢复全帧回放
+     * @description 启用全帧回放
      * @param {Number} timestamp 秒时间戳
      */
     const allFramePlay = (timestamp: number) => {
@@ -378,10 +449,7 @@ export const WasmPlayer = (options: WasmPlayerOption) => {
         const time = timestamp || frameTimestamp
         isKeyFramePlay = false
         const cmdParams = CMD_PLAYBACK_ALL_FRAME(taskID, frameTime2UTC(time))
-        downloadWorker.postMessage({
-            cmd: 'sendCMD',
-            data: JSON.stringify(cmdParams),
-        })
+        sendData(JSON.stringify(cmdParams))
         startDecode()
     }
 
@@ -449,10 +517,7 @@ export const WasmPlayer = (options: WasmPlayerOption) => {
         } else if (type === 'record') {
             cmdJSON = CMD_PLAYBACK_AUDIO_OPEN(taskID)
         }
-        downloadWorker.postMessage({
-            cmd: 'sendCMD',
-            data: JSON.stringify(cmdJSON),
-        })
+        sendData(JSON.stringify(cmdJSON))
     }
 
     /**
@@ -465,10 +530,7 @@ export const WasmPlayer = (options: WasmPlayerOption) => {
         } else if (type === 'record') {
             cmdJSON = CMD_PLAYBACK_AUDIO_CLOSE(taskID)
         }
-        downloadWorker.postMessage({
-            cmd: 'sendCMD',
-            data: JSON.stringify(cmdJSON),
-        })
+        sendData(JSON.stringify(cmdJSON))
     }
 
     /**
@@ -489,6 +551,10 @@ export const WasmPlayer = (options: WasmPlayerOption) => {
             downloadWorker.terminate()
         } catch {}
 
+        try {
+            downloadWebsocket.close()
+        } catch {}
+
         clearDisplayLoop()
 
         document.removeEventListener('visibilitychange', pageVisibleChangeHandle, false)
@@ -500,11 +566,63 @@ export const WasmPlayer = (options: WasmPlayerOption) => {
         }
     }
 
+    let websocketTimer: NodeJS.Timeout | number = 0
+
+    const p2pStart = (data: string) => {
+        if (downloadWebsocket.getP2PCreate()) {
+            sendData(data)
+            clearTimeout(websocketTimer)
+        } else {
+            websocketTimer = setTimeout(function () {
+                p2pStart(data)
+            }, 200)
+        }
+    }
+
+    const feedData = (buffer: ArrayBuffer, isPure = false) => {
+        if (!isFirstDecod) {
+            startDecode()
+            isFirstDecod = true
+            clearDisplayLoop()
+            displayLoop()
+            onsuccess && onsuccess()
+            if (type === 'live') {
+                onfinished && onfinished()
+            }
+        }
+
+        decodeWorker.postMessage({
+            cmd: 'sendData',
+            buffer: buffer,
+            isPure: isPure,
+        })
+
+        if (!isDecoding && type === 'live') {
+            startDecode()
+        }
+    }
+
+    /**
+     * 错误处理
+     */
+    const handleErrorCode = (data: { code: number; url: string }) => {
+        if (type === 'record' && data.code === 536870961 && data.url === '/device/playback/data') {
+            // 回放结束
+            if (isEndPlay) return // 设备会发送两次停止播放，避免重复进入停止逻辑
+            isEndPlay = true
+            endPlay(data)
+            return
+        }
+        // 其他错误类型，如音频无权限
+        onerror && onerror(data.code, data.url)
+        onfinished && onfinished()
+    }
+
     /**
      * @description 回放结束
      * @param {Object} data
      */
-    const endPlay = (data: any) => {
+    const endPlay = (data: { code: number; url: string }) => {
         if (notDecodeNumber === 0) {
             stopDecode()
             pause()
@@ -588,13 +706,17 @@ export const WasmPlayer = (options: WasmPlayerOption) => {
      */
     const startDownload = (url: string, cmdParams: any, callback?: () => void) => {
         if (wasmReady) {
-            downloadWorker.postMessage({
-                cmd: 'start',
-                data: {
-                    url: url,
-                    params: JSON.stringify(cmdParams),
-                },
-            })
+            if (userSession.appType === 'STANDARD') {
+                downloadWorker.postMessage({
+                    cmd: 'start',
+                    data: {
+                        url: url,
+                        params: JSON.stringify(cmdParams),
+                    },
+                })
+            } else {
+                p2pStart(JSON.stringify(cmdParams))
+            }
             onopen && onopen()
             callback && callback()
         } else {
@@ -610,10 +732,7 @@ export const WasmPlayer = (options: WasmPlayerOption) => {
         frameIndex = index
         if (playState !== PLAY_STATE_PLAYING && playState !== PLAY_STATE_NEXT_FRAME) return
         const cmdParams = CMD_PLAYBACK_REFRESH_FRAME_INDEX(taskID, frameIndex)
-        downloadWorker.postMessage({
-            cmd: 'sendCMD',
-            data: JSON.stringify(cmdParams),
-        })
+        sendData(JSON.stringify(cmdParams))
     }
 
     /**
@@ -628,16 +747,21 @@ export const WasmPlayer = (options: WasmPlayerOption) => {
      * @description 停止收流
      */
     const stopDownload = () => {
-        let cmdParams = null
+        let cmdParams
         if (type === 'live') {
             cmdParams = CMD_STOP_PREVIEW(taskID)
         } else if (type === 'record') {
             cmdParams = CMD_PLAYBACK_CLOSE(taskID)
         }
-        downloadWorker.postMessage({
-            cmd: 'stop',
-            data: JSON.stringify(cmdParams),
-        })
+
+        if (userSession.appType === 'STANDARD') {
+            downloadWorker.postMessage({
+                cmd: 'stop',
+                data: JSON.stringify(cmdParams),
+            })
+        } else {
+            sendData(JSON.stringify(cmdParams))
+        }
     }
 
     /**
@@ -653,10 +777,12 @@ export const WasmPlayer = (options: WasmPlayerOption) => {
             }
         }
 
-        if (!webPageVisible || frame.frameType === 4) {
+        if (!webPageVisible) {
             // 帧类型 -- 4: 预解码, 只解码不播放
+            if (videoQueue.length > 0) videoQueue = []
             return
         }
+
         videoQueue.push(frame)
         if (videoQueue.length > maxVideoQueueLength) {
             stopDecode()
@@ -754,7 +880,6 @@ export const WasmPlayer = (options: WasmPlayerOption) => {
             }
             return false
         } else {
-            // 节流控制, 若解码和渲染性能较高时, 仍保持最高30帧/s的刷新速率, 避免视频加速
             if (currentRealTime - lastRenderTime < 1000 / 30) {
                 return true
             } else {
@@ -765,6 +890,7 @@ export const WasmPlayer = (options: WasmPlayerOption) => {
             if (!cmdParams.hasOwnProperty('isPlayback') || (cmdParams.hasOwnProperty('isPlayback') && cmdParams.isPlayback)) {
                 renderVideoFrame(frame)
             }
+
             if (intervalReal > 10 * 1000 * playSpeed) resetBasicTime() // 真实时间偏差过大时, 重新校准
             if (!seeking) {
                 ontime && ontime(frame.realTimestamp)
@@ -785,6 +911,7 @@ export const WasmPlayer = (options: WasmPlayerOption) => {
         videoWidth = frame.width
         videoHeight = frame.height
         webglPlayer.renderFrame(videoBuffer, frame.width, frame.height, yLength, uvLength)
+        drawMotion(frame.realTimestamp)
         // 派发水印信息
         if (typeof onwatermark === 'function') {
             const watermarkLen = frame.watermarkLen || 0
@@ -796,6 +923,37 @@ export const WasmPlayer = (options: WasmPlayerOption) => {
         }
         // 更新帧时间
         frameTimestamp = frame.realTimestamp
+    }
+
+    /**
+     * data: motion帧数据
+     */
+    const setMotion = (data: any) => {
+        if (data.motion_infos.length > 0) {
+            motionArr.push(data)
+        }
+    }
+
+    /**
+     * 绘制motion数据
+     */
+    const drawMotion = (frameTime: number) => {
+        if (motionArr.length > 0) {
+            let drawIndex = -1
+
+            motionArr.forEach((item, index) => {
+                const motionTime = Number(item.frameTime)
+                if (frameTime - motionTime < 400) {
+                    drawIndex = index
+                    return false
+                }
+            })
+
+            if (drawIndex > 0) {
+                onmotion(motionArr[drawIndex])
+                motionArr = motionArr.slice(drawIndex, motionArr.length)
+            }
+        }
     }
 
     /**
@@ -813,12 +971,18 @@ export const WasmPlayer = (options: WasmPlayerOption) => {
      * @param {WasmPlayerAudioFrame} frame
      */
     const onAudioFrame = (frame: WasmPlayerAudioFrame) => {
-        if (!pcmPlayer) {
-            initPcmPlayer(frame)
+        const audioFormat = frame.audioFormat // 当前音频格式
+        const isSupportAudio = frame.isSupportAudio // 是否支持解析当前音频格式
+        if (isSupportAudio) {
+            if (!pcmPlayer) {
+                initPcmPlayer(frame)
+            }
+            audioQueue.push(new Uint8Array(frame.buffer))
+            const data = audioQueue.shift()!
+            pcmPlayer.feed(data)
+        } else {
+            onaudioerror && onaudioerror(audioFormat)
         }
-        audioQueue.push(new Uint8Array(frame.buffer))
-        const data = audioQueue.shift()!
-        pcmPlayer.feed(data)
     }
 
     /**
@@ -880,6 +1044,15 @@ export const WasmPlayer = (options: WasmPlayerOption) => {
     }
 
     /**
+     * 共通参数解码后的数据
+     */
+    const onParamInfo = (type: string, data: any) => {
+        if (type === 'target_flow_info') {
+            onparam && onparam(type, data)
+        }
+    }
+
+    /**
      * @description 获取当前帧数据（和webgl播放器）
      * @returns
      */
@@ -905,6 +1078,14 @@ export const WasmPlayer = (options: WasmPlayerOption) => {
      */
     const getPlayState = () => {
         return playState
+    }
+
+    const getFrameData = () => {
+        return frameData
+    }
+
+    const getBasicFrameTime = () => {
+        return basicFrameTime
     }
 
     /**
@@ -950,5 +1131,9 @@ export const WasmPlayer = (options: WasmPlayerOption) => {
         setBasicRealTime,
         destroy,
         setSpeed,
+        setMotion,
+        renderVideoFrame,
+        getFrameData,
+        getBasicFrameTime,
     }
 }

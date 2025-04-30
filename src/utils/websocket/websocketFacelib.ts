@@ -40,7 +40,7 @@ export const WebsocketFaceLib = (option: WebsocketFaceLibOption) => {
             start()
         },
         onmessage: (data: string | ArrayBuffer) => {
-            if (data instanceof ArrayBuffer) {
+            if (typeof data !== 'string') {
                 const dataView = new DataView(data)
                 const encryptType = dataView.getUint32(0, true)
                 const jsonOffset = encryptType === 0 ? 8 : 16

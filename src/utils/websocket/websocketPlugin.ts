@@ -117,7 +117,7 @@ export const WebsocketPlugin = (option: WebSocketPluginOption) => {
      * @description 向插件发送指令
      * @param {string} xmlData
      */
-    const ExecuteCmd = (xmlData: string) => {
+    const ExecuteCmd = (xmlData: string | ArrayBuffer) => {
         if (ws && ws.readyState === 1) ws.send(xmlData)
     }
 

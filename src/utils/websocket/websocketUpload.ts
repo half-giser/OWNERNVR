@@ -15,11 +15,14 @@ interface WebsocketUploadOption {
 export const WebsocketUpload = (option: WebsocketUploadOption) => {
     let ws: ReturnType<typeof WebsocketBase>
 
-    const maxSingleSize = 50 * 1024 // 单个分片最大32k
+    const maxSingleSize = 50 * 1024 // 单个分片最大50k
     const oneUploadNum = 8 // 最大缓存分片数
     const packageArr: ArrayBuffer[] = [] // 需要上传的分片
-    const uploadArr: number[] = [] // 上传队列(长度不超过this.oneUploadNum)
+
+    // const uploadArr: number[] = [] // 上传队列(长度不超过this.oneUploadNum)
     let uploadIndex = 0 // 当前上传下标
+    let uploadingCount = 0 // 当前上传计数
+    let responseIndex = 0 // 返回下标
     let fileBuffer: ArrayBuffer | null = null
 
     const config = option.config
@@ -48,8 +51,8 @@ export const WebsocketUpload = (option: WebsocketUploadOption) => {
             onopen: () => {
                 start()
             },
-            onmessage: (data: string) => {
-                try {
+            onmessage: (data: string | ArrayBuffer) => {
+                if (typeof data === 'string') {
                     const res = JSON.parse(data)
                     const code = Number(res.basic.code)
                     if (res.url === '/device/file/upload/start#response' && code === 0) {
@@ -57,8 +60,12 @@ export const WebsocketUpload = (option: WebsocketUploadOption) => {
                     }
 
                     if (res.url === '/device/file/upload/step#response' && code === 0) {
-                        uploadArr.shift()
-                        batchSend()
+                        responseIndex++
+                        if (responseIndex % oneUploadNum === 0) {
+                            uploadingCount = 0
+                            batchSend()
+                        }
+
                         const step = Number(res.data.step)
                         progressCallback && progressCallback(step)
                         if (step === 100) {
@@ -78,7 +85,8 @@ export const WebsocketUpload = (option: WebsocketUploadOption) => {
                         errorCallback && errorCallback(code)
                         ws?.close()
                     }
-                } catch (e) {}
+                } else {
+                }
             },
         })
     }
@@ -108,15 +116,15 @@ export const WebsocketUpload = (option: WebsocketUploadOption) => {
      * @description 分批上传
      */
     const batchSend = () => {
-        // 当上传队列不超过最大缓存分片 和 上传下标不超过分片数 时, 执行上传
-        while (uploadArr.length < oneUploadNum && uploadIndex < packageArr.length) {
+        // 当上传不超过最大缓存分片 和 上传下标不超过分片数 时, 执行上传
+        if (uploadingCount < oneUploadNum && uploadIndex < packageArr.length) {
+            uploadingCount++
             uploadIndex++
             const packageIndex = uploadIndex - 1
             const byteLength = packageArr[packageIndex].byteLength
             const bufferSliceStr = '0,' + byteLength
             const json = CMD_UPLOAD_FILE_HEADER(uploadIndex, bufferSliceStr) // 通信的index从1开始
             sendPackage(json, packageArr[packageIndex])
-            uploadArr.push(uploadIndex) // 通过上传下标来标识
         }
     }
 
@@ -129,9 +137,10 @@ export const WebsocketUpload = (option: WebsocketUploadOption) => {
         dataToBuffer(JSON.stringify(json)).then((jsonBuffer) => {
             // 包头buffer + jsonbuffer + 文件buffer
             const headerbuffer = buildHeader(json)
-            const temp = appendBuffer(headerbuffer, jsonBuffer) as ArrayBuffer
+            const temp = appendBuffer(headerbuffer, jsonBuffer as ArrayBufferLike) as ArrayBuffer
             const combineBuffer = appendBuffer(temp, bufferSlice)
             ws?.send(combineBuffer)
+            batchSend()
         })
     }
 

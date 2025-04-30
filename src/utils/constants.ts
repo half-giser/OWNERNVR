@@ -17,6 +17,18 @@ export const DEFAULT_EMPTY_TIME = '00:00:00'
 export const DEFAULT_EMPTY_MAC = '00:00:00:00:00:00'
 export const DEFAULT_EMPTY_IMG = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
 
+// 由于XSS安全问题，限制如下字符下发协议（与设备端保持一致）
+export const XSS_LIMIT_REG = /[&|;$`]/g
+// 备份文件名称限制的特殊字符（与设备端保持一致，创建文件时，把文件名的特殊字符<>:"|?*转换为#后再创建）
+export const FILE_LIMIT_REG = /[<>:"|?*]/g
+
+// 设备名称限制输入的特殊字符（与设备端保持一致）
+export const DEVICE_LIMIT_CHAR = '/\\'
+// 通道名称限制输入的特殊字符（与设备端保持一致）
+export const CHANNEL_LIMIT_CHAR = '/\\'
+// 预置点名称限制输入的特殊字符（与设备端保持一致）
+export const PRESET_LIMIT_CHAR = '<>&'
+
 /**
  * API返回状态
  */

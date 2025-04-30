@@ -16,7 +16,7 @@ export const WebsocketDownload = (option: WebsocketDownloadOption) => {
     let downloadIndex = 0
 
     const config = option.config
-    const fileName = option.fileName
+    const fileName = option.fileName.replace(FILE_LIMIT_REG, '#')
     const successCallback = option.success
     const errorCallback = option.error
 
@@ -25,7 +25,7 @@ export const WebsocketDownload = (option: WebsocketDownloadOption) => {
             start()
         },
         onmessage: (data: string | ArrayBuffer) => {
-            if (data instanceof ArrayBuffer) {
+            if (typeof data !== 'string') {
                 const fileBuffer = getFileBuffer(data)
                 writeFile(fileBuffer)
             } else {

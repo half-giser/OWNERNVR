@@ -93,7 +93,7 @@ export default defineComponent({
          * @description 根据用户选择的语言，获取日历类型
          */
         const updateCalendar = () => {
-            const langType = lang.langType.value
+            const langType = lang.langType
             if (CALENDAR_TYPE_MAPPING[langType]) {
                 pageData.value.calendarOptions = CALENDAR_TYPE_MAPPING[langType].map((item) => {
                     if (item.isDefault) {
@@ -226,7 +226,7 @@ export default defineComponent({
                 setCookie('loginLock', 'true')
                 pageData.value.btnDisabled = true
                 const originError = pageData.value.errorMsg
-                CountDowner({
+                useCountDowner({
                     distime: lockTime / 1000,
                     callback(obj) {
                         let info = ''
@@ -274,7 +274,7 @@ export default defineComponent({
                 if (currentTime - loginLockTime < lockTime) {
                     setCookie('loginLock', 'true')
                     const originError = getCookie('originError') || ''
-                    CountDowner({
+                    useCountDowner({
                         distime: loginLockTime + lockTime - currentTime,
                         callback(obj) {
                             if (getCookie('loginLock') === 'true') {
@@ -378,9 +378,7 @@ export default defineComponent({
             plugin.P2pAuthCodeLogin(formData.value.code, pageData.value.authCodeIndex)
         }
 
-        onMounted(async () => {
-            await lang.getLangTypes()
-            await lang.getLangItems()
+        onMounted(() => {
             plugin.SetLoginErrorCallback(handlerErrorCode)
             layoutStore.isInitial = true
             userSession.refreshLoginPage = true

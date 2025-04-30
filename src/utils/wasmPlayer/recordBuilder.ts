@@ -10,7 +10,7 @@ export interface WasmRecordBuilderOption {
     onerror?: () => void
 }
 
-type DoneCallback = (recordFile: ArrayBuffer, manul: boolean, fileIndex: number) => void
+type DoneCallback = (recordFile: ArrayBuffer, manul: boolean) => void
 
 export const WasmRecordBuilder = (option: WasmRecordBuilderOption) => {
     const type = 0 // 解码类型，0表示回放
@@ -47,7 +47,7 @@ export const WasmRecordBuilder = (option: WasmRecordBuilderOption) => {
                 onFrameIndex && onFrameIndex(data.frameIndex, data.frameTime)
                 break
             case 'getRecData': // 获取到录像数据
-                onRecordData(data.data, data.finished, data.manul, data.fileIndex)
+                onRecordData(data.data, data.finished, data.manul)
                 break
             case 'fileOverSize': // 检测到读取avi文件达到单个文件阈值时
                 onFileOverSize()
@@ -68,21 +68,21 @@ export const WasmRecordBuilder = (option: WasmRecordBuilderOption) => {
      * @param {ArrayBuffer} data 录像数据
      * @param {boolean} finished 是否已结束
      * @param {boolean} manul 是否手动停止录像
-     * @param {number} fileIndex 录像任务的第几个文件
      */
-    const onRecordData = (data: ArrayBuffer, finished: boolean, manual: boolean, fileIndex: number) => {
+    const onRecordData = (data: ArrayBuffer, finished: boolean, manual: boolean) => {
         recordFile = appendBuffer(recordFile, data) as ArrayBuffer
-        if (!finished) return
+        if (!finished) {
+            return
+        }
+
         // 回调返回封装完格式的录像
-        doneCallback && doneCallback(recordFile, manual, fileIndex)
-        // manual为true则说明当前任务所有文件已处理完, 执行下一个任务
+        doneCallback && doneCallback(recordFile, manual)
+
         if (manual) {
+            // 此处说明当前任务已处理完, 则执行下一个
             execNextTask()
         }
-        // 当前任务还有分批文件, 继续录像
-        else {
-            startRecord()
-        }
+
         recordFile = null
     }
 
@@ -97,10 +97,11 @@ export const WasmRecordBuilder = (option: WasmRecordBuilderOption) => {
      * @description 喂原始视频buffer
      * @param {ArrayBuffer} buffer
      */
-    const sendBuffer = (buffer: ArrayBuffer) => {
+    const sendBuffer = (buffer: ArrayBuffer, isPure = false) => {
         decodeWorker.postMessage({
             cmd: 'sendData',
             buffer: buffer,
+            isPure,
             onlyForRecord: true,
         })
     }
@@ -109,11 +110,22 @@ export const WasmRecordBuilder = (option: WasmRecordBuilderOption) => {
      * @description 创建录像
      * @param {Function} doneCallback
      */
-    const createRecord = (currentDoneCallback: DoneCallback) => {
-        callbackQueue.push(currentDoneCallback)
+    const startRecord = (doneCallback: DoneCallback) => {
+        callbackQueue.push(doneCallback)
         if (callbackQueue.length === 1) {
+            execTask()
+        }
+    }
+
+    /**
+     * @description 执行任务
+     */
+    const execTask = () => {
+        if (callbackQueue[0]) {
             doneCallback = callbackQueue[0]
-            startRecord()
+            decodeWorker.postMessage({
+                cmd: 'startRecord',
+            })
         }
     }
 
@@ -123,26 +135,6 @@ export const WasmRecordBuilder = (option: WasmRecordBuilderOption) => {
     const execNextTask = () => {
         callbackQueue.shift()
         execTask()
-    }
-
-    /**
-     * @description 执行任务
-     */
-    const execTask = () => {
-        if (callbackQueue[0]) {
-            doneCallback = callbackQueue[0]
-            startRecord()
-        }
-    }
-
-    /**
-     * @description 开始录像
-     */
-    const startRecord = () => {
-        decodeWorker.postMessage({
-            cmd: 'startRecord',
-            isExecuteSendQueue: true,
-        })
     }
 
     /**
@@ -179,7 +171,6 @@ export const WasmRecordBuilder = (option: WasmRecordBuilderOption) => {
 
     return {
         sendBuffer,
-        createRecord,
         startRecord,
         stopRecord,
         destroy,

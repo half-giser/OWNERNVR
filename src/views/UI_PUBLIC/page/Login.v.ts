@@ -95,7 +95,7 @@ export default defineComponent({
         })
 
         // 初始化错误超过次数锁定检测工具
-        const errorLockChecker = ErrorLockChecker('login')
+        const errorLockChecker = useErrorLockChecker('login')
 
         // 登录错误提示函数
         const errorMsgFun = ref<() => string>(() => '')
@@ -113,29 +113,6 @@ export default defineComponent({
             return pageData.value.btnDisabled || (errorLockChecker.getLock() && pageData.value.isLogin)
         })
 
-        /**
-         * @description 登录验证
-         */
-        // const handleLogin = () => {
-        //     formRef.value!.validate(async (valid) => {
-        //         if (valid) {
-        //             pageData.value.btnDisabled = true
-        //             try {
-        //                 const reqData = await fnReqLogin()
-        //                 const result = await fnDoLogin(reqData)
-        //                 // doLogin后更新用户会话信息
-        //                 await userSessionStore.updateByLogin('STANDARD', result, reqData, formData.value)
-        //                 handleLoginSuccess()
-        //             } catch (e) {
-        //                 console.error(e)
-        //                 pageData.value.btnDisabled = false
-        //             } finally {
-        //                 progress.done()
-        //             }
-        //         }
-        //     })
-        // }
-
         const handleLogin = () => {
             formRef.value!.validate(async (valid) => {
                 if (valid) {
@@ -144,7 +121,7 @@ export default defineComponent({
                         const reqData = await fnReqLogin()
                         const result = await fnDoLogin(reqData)
                         // doLogin后更新用户会话信息
-                        await userSessionStore.updateByLogin('STANDARD', result, reqData, formData.value)
+                        await userSessionStore.updateByLogin(result, formData.value)
                         handleLoginSuccess()
                     } catch (e) {
                         console.error(e)
@@ -164,7 +141,7 @@ export default defineComponent({
             progress.start()
             try {
                 const result = await fnDoLogin(reqFormData.value, data)
-                await userSessionStore.updateByLogin('STANDARD', result, reqFormData.value, formData.value)
+                await userSessionStore.updateByLogin(result, formData.value)
                 handleLoginSuccess()
             } catch (e) {
                 console.error(e)
@@ -200,7 +177,7 @@ export default defineComponent({
 
                     const md5Pwd = MD5_encrypt(formData.value.password)
                     const nonce = userSessionStore.nonce ? userSessionStore.nonce : ''
-                    console.log(nonce)
+
                     reqFormData.value.password = sha512_encrypt(`${md5Pwd}#${nonce}#${RSA_PUBLIC_KEY.replace(/\r/g, '')}`)
                     reqFormData.value.rsaPublic = RSA_PUBLIC_KEY
 
@@ -290,86 +267,6 @@ export default defineComponent({
                 throw new Error('')
             }
         }
-
-        /**
-         * @description 登录
-         */
-        // const fnReqLogin = async () => {
-        //     progress.start()
-        //     try {
-        //         const result = await reqLogin()
-        //         const $ = queryXml(result)
-        //         if ($('status').text() === 'success') {
-        //             userSessionStore.updataByReqLogin(result)
-        //             const reqData = new UserLoginReqData()
-        //             const md5Pwd = MD5_encrypt(formData.value.password)
-        //             reqData.userName = formData.value.userName
-        //             const nonce = userSessionStore.nonce ? userSessionStore.nonce : ''
-        //             reqData.password = sha512_encrypt(md5Pwd + '#' + nonce)
-        //             reqData.passwordMd5 = md5Pwd
-        //             return reqData
-        //         } else {
-        //             const errorCode = $('errorCode').text()
-        //             throw new Error(errorCode)
-        //         }
-        //     } catch {
-        //         throw new Error('')
-        //     }
-        // }
-
-        /**
-         * @description 登录后更新用户会话信息
-         * @param {UserLoginReqData} reqData
-         */
-        // const fnDoLogin = async (reqData: UserLoginReqData) => {
-        //     const sendXml = rawXml`
-        //         <content>
-        //             <userName>${reqData.userName}</userName>
-        //             <password>${reqData.password}</password>
-        //         </content>
-        //     `
-        //     try {
-        //         const result = await doLogin(sendXml)
-        //         const $ = queryXml(result)
-        //         if ($('status').text() === 'success') {
-        //             return result
-        //         } else {
-        //             formData.value.password = ''
-        //             const errorCode = $('errorCode').text().num()
-        //             const ramainingNumber = $('ramainingNumber').text()
-        //             errorLockChecker.setLockTime($('ramainingTime').text().num() * 1000)
-        //             errorLockChecker.setLock($('locked').text().bool())
-        //             switch (errorCode) {
-        //                 case ErrorCode.USER_ERROR_NO_USER:
-        //                 case ErrorCode.USER_ERROR_PWD_ERR:
-        //                     pageData.value.isLogin = true
-        //                     // 用户名或密码错误(登录用户和双重认证用户)
-        //                     errorMsgFun.value = () => Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR')
-        //                     errorLockChecker.setPreErrorMessage('IDCS_LOGIN_FAIL_REASON_U_P_ERROR')
-        //                     if (!errorLockChecker.checkIsLocked()) {
-        //                         if (ramainingNumber) {
-        //                             errorMsgFun.value = () => Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR') + '\n' + Translate('IDCS_TICK_ERROR_COUNT').formatForLang(ramainingNumber)
-        //                         }
-        //                     }
-        //                     break
-        //                 case ErrorCode.USER_ERROR_USER_LOCKED:
-        //                     errorMsgFun.value = () => Translate('IDCS_LOGIN_FAIL_USER_LOCKED')
-        //                     break
-        //                 case ErrorCode.USER_ERROR_NO_AUTH:
-        //                     errorMsgFun.value = () => Translate('IDCS_LOGIN_FAIL_USER_LIMITED_TELNET')
-        //                     break
-        //                 case ErrorCode.USER_ERROR_INVALID_PARAM:
-        //                     errorMsgFun.value = () => Translate('IDCS_USER_ERROR_INVALID_PARAM')
-        //                     break
-        //                 default:
-        //                     errorMsgFun.value = () => Translate('IDCS_UNKNOWN_ERROR_CODE') + errorCode
-        //             }
-        //             throw new Error(errorCode + '')
-        //         }
-        //     } catch (e) {
-        //         throw new Error('')
-        //     }
-        // }
 
         /**
          * @description 是否展示隐私政策弹窗

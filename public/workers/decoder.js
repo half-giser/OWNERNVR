@@ -8,33 +8,47 @@
  *    4. Module._pushWebAVPacket(handle, cacheBuffer, typedArray.length)  // 最后调用wasm中封装的接口将内存指针传递
  *                                                                           到c++模块，c++根据内存指针读取数据
  * (2) wasm提供的接口函数，具体见decode.c文件
+ *    _createCodec:      创建解码器实例（裸数据）
+ *    _pushDataToCodec:  喂数据（裸数据）
+ *    _getCodecedData:   解帧（裸数据）
+ *    _destroyCodec:     销毁解码器实例（裸数据）
  *    _createWebPlayer:  创建解码器实例
  *    _pushWebAVPacket:  喂数据
+ *    _getPackageInfo:   读取包信息
+ *    _parsePackage      格式化包信息
  *    _decodeFrame:      解帧
  *    _clearPacketList:  清空wasm内部解码帧队列（回放的seek等需要跳帧的业务调用此方法）
  *    _destroyWebPlayer: 销毁解码器实例
  * ---------------------------------------------------------------------------------------------------------------------
  */
+/* eslint-disable */
 self.Module = {
     onRuntimeInitialized: function () {
         handleWasmLoaded()
-    },
+    }
 }
+self.importScripts('libffmpeg.js')
 
-self.importScripts('./libffmpeg.js')
+var paramBuffer = null; // 通用参数交互数组（非视频帧、pos帧数据）
+var PARAM_COUNT = 128; // 通用参数交互数组长度
+var jsonBuffer = null; // json参数交互数组（目标追踪框）
+var jsonSize = 16 * 1024; // 默认分配16k内存缓存接受json数据
 
-var chunkSize = 640 * 1024 // 默认分配640k内存缓存接受的流数据
-var cacheBuffer = null // 送帧内存指针
-var MEMORY_PARAM_COUNT = 15 // 内存数组长度
-var MEMORY_PARAM_SIZE = 4 // 数组参数占字节大小
-var paramByteBuffer = null // 读帧内存指针
-var handle // 解码器实例句柄
+var codecChunkSize = 10485760; // 默认分配10M内存缓存接受的流数据（裸数据）
+var codecCacheBuffer = null; // 送帧内存指针（裸数据）
+var chunkSize = 655360; // 默认分配640k内存缓存接受的流数据
+var cacheBuffer = null; // 送帧内存指针
+var MEMORY_PARAM_COUNT = 15; // 内存数组长度
+var MEMORY_PARAM_SIZE = 4; // 数组参数占字节大小
+var paramByteBuffer = null; // 读帧内存指针
+var handle; // 解码器实例句柄
 var decodeTimer = null
 var DecodeInterval = 15
 var videoType = -1
 var videoWidth = 0
 var videoHeight = 0
 var kErrorCode_Parse_FrameType_POS = 12 // pos帧类型
+var kErrorCode_Unsupport_Type = 15 // 当解析的音频为不支持的音频格式时，错误码为15
 
 /**
  * Uint8Array转字符串
@@ -51,8 +65,11 @@ function Uint8ArrayToString(fileData) {
  * 分配送帧和读帧内存空间
  */
 function setMalloc() {
+    paramBuffer = Module._malloc(PARAM_COUNT * MEMORY_PARAM_SIZE)
+    jsonBuffer = Module._malloc(jsonSize)
+    codecCacheBuffer = Module._malloc(codecChunkSize)
     cacheBuffer = Module._malloc(chunkSize)
-    paramByteBuffer = Module._malloc(MEMORY_PARAM_COUNT * MEMORY_PARAM_SIZE)
+    paramByteBuffer = Module._malloc(MEMORY_PARAM_COUNT * MEMORY_PARAM_SIZE);
     Module._setLogLevel(0)
     Module._setLogMode(0)
 }
@@ -62,7 +79,17 @@ function setMalloc() {
  */
 function handleWasmLoaded() {
     setMalloc()
+    Module._init()
     self.postMessage({ cmd: 'ready' })
+}
+
+/**
+ * 创建解码器 解码h264/h265裸数据
+ */
+function createCodec(type) {
+    // 创建解码器句柄
+    handle = Module._createCodec()
+    RecordModule.type = type
 }
 
 /**
@@ -76,7 +103,7 @@ function createDecoder(type) {
 
 // arraybuffer转字符串
 function buffer2str(buffer) {
-    return String.fromCharCode.apply(null, new Uint8Array(buffer))
+    return String.fromCharCode.apply(null, new Uint8Array(buffer));
 }
 
 /**
@@ -107,7 +134,7 @@ function buffer2str(buffer) {
  *         "code": 0, // 错误码
  *     }
  *  }
- *
+ * 
  * @return {ArrayBuffer} 返回有效视频流数据
  */
 function readStreamFromBuf(buffer) {
@@ -124,12 +151,11 @@ function readStreamFromBuf(buffer) {
                 cmd: 'errorCode',
                 code: json.data.code,
                 taskID: json.data.task_id,
-                url: json.url,
+                url: json.url
             })
             return null
         }
-        var url = json.url,
-            streamBufRange
+        var url = json.url, streamBufRange
         if (url === '/device/preview/data') {
             streamBufRange = json.data.live_stream_data.split(',')
         } else if (url === '/device/playback/data') {
@@ -147,22 +173,34 @@ function readStreamFromBuf(buffer) {
     }
 }
 
+// 处理通用参数帧
+function handleParamBuf(str, frameTime) {
+    try {
+        var json = JSON.parse(str)
+        json.data.frameTime = frameTime
+        self.postMessage({
+            cmd: 'getParamInfo',
+            type: json.message_type,
+            data: json.data
+        })
+    } catch (error) { }
+}
+
 // 处理pos帧
 function handlePosBuf() {
-    var pCount = 3,
-        pSize = 4
-    var pBuffer = Module._malloc(pCount * pSize)
+    var pCount = 3, pSize = 4
+    var pBuffer = Module._malloc(pCount * pSize);
     var ret = Module._getPosInfo(handle, pBuffer, pCount)
-    var pIntBuff = pBuffer >> 2
-    var pArray = Module.HEAP32.subarray(pIntBuff, pIntBuff + pCount)
-    var outArray = Module.HEAPU8.subarray(ret, ret + pArray[1])
-    var arr = new Uint8Array(outArray)
+    var pIntBuff = pBuffer >> 2;
+    var pArray = Module.HEAP32.subarray(pIntBuff, pIntBuff + pCount);
+    var outArray = Module.HEAPU8.subarray(ret, ret + pArray[1]);
+    var arr = new Uint8Array(outArray);
     var posLength = pArray[0] // pos有效信息长度
     self.postMessage({
         cmd: 'getPosInfo',
         frame: arr.slice(0, posLength),
         posLength: pArray[0],
-        frameTime: getRealTimestamp(pArray[1], pArray[2]),
+        frameTime: getRealTimestamp(pArray[1], pArray[2])
     })
     Module._free(pBuffer)
     pBuffer = null
@@ -170,10 +208,11 @@ function handlePosBuf() {
 
 /**
  * 读取请求到的buffer, 分离出视频流buffer喂给wasm解码器
- * @param {Boolean} isPure 是否是纯视频流buffer, 如果为true, 则直接push给wasm（解析图片）
+ * @param {Boolean} isPure 是否是纯视频流buffer, 如果为true,则直接push给wasm
  * @param {Boolean} onlyForRecord 当前业务是否为纯录制
+ * @param {String} codecType 当前解码裸数据类型
  */
-function sendData(buffer, isPure, onlyForRecord) {
+function sendData(buffer, isPure, onlyForRecord, codecType) {
     var streamBuf = buffer
     if (!isPure) {
         streamBuf = readStreamFromBuf(buffer)
@@ -181,95 +220,116 @@ function sendData(buffer, isPure, onlyForRecord) {
     if (!streamBuf) {
         self.postMessage({ cmd: 'bufferError' })
         stopDecodeTimer()
-        SEND_QUEUE.execute()
         return
     }
     var typedArray = new Uint8Array(streamBuf)
-    if (typedArray.byteLength > chunkSize) {
-        // buffer长度大于当前内存时, 重新分配内存空间
-        Module._free(cacheBuffer)
-        cacheBuffer = null
-        chunkSize = typedArray.byteLength
-        cacheBuffer = Module._malloc(chunkSize)
-    }
-    Module.HEAPU8.set(typedArray, cacheBuffer)
-    var pCount = 7,
-        pSize = 4
-    var pBuffer = Module._malloc(pCount * pSize)
-    var retCode = Module._pushWebAVPacket(handle, cacheBuffer, typedArray.length, 0, 0, onlyForRecord ? 1 : 0, pBuffer, pCount)
-    RecordModule.checkFileSize()
-    if (retCode === kErrorCode_Parse_FrameType_POS) {
-        handlePosBuf()
-        Module._free(pBuffer)
-        pBuffer = null
-        SEND_QUEUE.execute()
-        return
-    }
-    if (!onlyForRecord && !RecordModule.recording) {
-        Module._free(pBuffer)
-        pBuffer = null
-        SEND_QUEUE.execute()
-        if (isPure) {
-            decodeOneFrame()
+    if (codecType) {
+        Module.HEAPU8.set(typedArray, codecCacheBuffer)
+        var retCode = Module._pushDataToCodec(handle, codecCacheBuffer, typedArray.length, codecType)
+    } else {
+        Module.HEAPU8.set(typedArray, cacheBuffer)
+        var paramCode = Module._getPackageInfo(handle, cacheBuffer, typedArray.length, paramBuffer, PARAM_COUNT)
+        if (paramCode == 0) {
+            var paramIntBuff = paramBuffer >> 2
+            var paramArray = Module.HEAP32.subarray(paramIntBuff, paramIntBuff + PARAM_COUNT)
+            var isMotion = paramArray[1] == 6;
+            if (paramArray[1] == 8 || paramArray[1] == 6) { // paramBuffer[1]为帧类型，8：通用交互参数; 6:motion参数
+                var jsonCode = Module._parsePackage(handle, cacheBuffer, typedArray.length, jsonBuffer, jsonSize, paramBuffer, PARAM_COUNT)
+                if (jsonCode == 0) {
+                    var outArray = Module.HEAPU8.subarray(jsonBuffer, jsonBuffer + jsonSize)
+                    var arr = new Uint8Array(outArray)
+                    var str = Uint8ArrayToString(arr)
+                    paramIntBuff = paramBuffer >> 2
+                    paramArray = Module.HEAP32.subarray(paramIntBuff, paramIntBuff + PARAM_COUNT)
+                    var strLength = paramArray[0]
+                    var frameTime = getRealTimestamp(paramArray[1], paramArray[2]) // 时间戳毫秒
+                    var strData = str.slice(0, strLength)
+                    if (isMotion) {
+                        var jsonData = JSON.parse(strData)
+                        frameTime = jsonData.data.motion_infos[0] && parseInt(jsonData.data.motion_infos[0].timestamp_ms + '' + jsonData.data.motion_infos[0].timestamp_us + '')
+                    }
+                    handleParamBuf(strData, frameTime)
+                    return
+                }
+            }
         }
-        return
-    }
-    var pIntBuff = pBuffer >> 2
-    /**
-     * _pushWebAVPacket返回的参数数组
-     * pArray:
-     * [0] frameIndex    帧索引
-     * [1] pts1          相对时间戳1
-     * [2] pts2          相对时间戳2
-     * [3] type          0 video; 1 audio
-     * [4] videoType     0 h264; 1 h265
-     * [5] videoWidth    0表示和之前收到的width相同
-     * [6] videoHeight   0表示和之前收到的height相同
-     * [7] videoFormat   0表示N制, 1表示P制
-     */
-    var pArray = Module.HEAP32.subarray(pIntBuff, pIntBuff + pCount)
-    if (pArray[3] === 1) {
+        // 判断是否是视频帧、pos帧
+        var pCount = 7, pSize = 4
+        var pBuffer = Module._malloc(pCount * pSize);
+        var retCode = Module._pushWebAVPacket(handle, cacheBuffer, typedArray.length, 0, 0, onlyForRecord ? 1 : 0, pBuffer, pCount)
+        if (retCode === kErrorCode_Parse_FrameType_POS) {
+            handlePosBuf()
+            Module._free(pBuffer)
+            pBuffer = null
+            return
+        }
+        if (!onlyForRecord && !RecordModule.recording) {
+            Module._free(pBuffer)
+            pBuffer = null
+            return
+        }
+        var pIntBuff = pBuffer >> 2;
+        /**
+         * _pushWebAVPacket返回的参数数组
+         * pArray:
+         * [0] frameIndex    帧索引
+         * [1] pts1          相对时间戳1
+         * [2] pts2          相对时间戳2
+         * [3] type          0 video; 1 audio
+         * [4] videoType     0 h264; 1 h265
+         * [5] videoWidth    0表示和之前收到的width相同
+         * [6] videoHeight   0表示和之前收到的height相同
+         * [7] videoFormat   0表示N制, 1表示P制
+         */
+        var pArray = Module.HEAP32.subarray(pIntBuff, pIntBuff + pCount);
+        if (pArray[3] === 1) {
+            Module._free(pBuffer)
+            pArray = null
+            pBuffer = null
+            return
+        }
+        // 视频码流类型或分辨率变化时，如果正在录像，则先停止再开始
+        if (videoType < 0 && (pArray[4] === 0 || pArray[4] === 1)) {
+            videoType = pArray[4]
+        }
+        if (videoWidth === 0 && pArray[5] !== 0) {
+            videoWidth = pArray[5]
+        }
+        if (videoHeight === 0 && pArray[6] !== 0) {
+            videoHeight = pArray[6]
+        }
+        var isVideoTypeChange = pArray[4] !== -1 && videoType !== pArray[4]
+        var isVideoWidthChange = pArray[5] !== 0 && videoWidth !== pArray[5]
+        var isVideoHeightChange = pArray[6] !== 0 && videoHeight !== pArray[6]
+        if (isVideoTypeChange || isVideoWidthChange || isVideoHeightChange) {
+            if (RecordModule.type == 1) {
+                videoType = pArray[4]
+                videoWidth = pArray[5]
+                videoHeight = pArray[6]
+                RecordModule.stopRecord(true)
+                RecordModule.startRecord()
+            }
+        }
+        // 纯录制时通知帧索引
+        if (onlyForRecord) {
+            self.postMessage({
+                cmd: 'frameIndex',
+                frameIndex: pArray[0],
+                frameTime: getRealTimestamp(pArray[1], pArray[2])
+            })
+        }
         Module._free(pBuffer)
-        pArray = null
-        pBuffer = null
-        SEND_QUEUE.execute()
-        return
     }
-    // 纯录制时通知帧索引
-    if (onlyForRecord) {
-        self.postMessage({
-            cmd: 'frameIndex',
-            frameIndex: pArray[0],
-            frameTime: getRealTimestamp(pArray[1], pArray[2]),
-        })
-    }
-    Module._free(pBuffer)
-    // 视频码流类型或分辨率变化时，如果正在录像，则先停止再开始
-    if (videoType < 0 && (pArray[4] === 0 || pArray[4] === 1)) {
-        videoType = pArray[4]
-    }
-    if (videoWidth === 0 && pArray[5] !== 0) {
-        videoWidth = pArray[5]
-    }
-    if (videoHeight === 0 && pArray[6] !== 0) {
-        videoHeight = pArray[6]
-    }
-    var isVideoTypeChange = pArray[4] !== -1 && videoType !== pArray[4]
-    var isVideoWidthChange = pArray[5] !== 0 && videoWidth !== pArray[5]
-    var isVideoHeightChange = pArray[6] !== 0 && videoHeight !== pArray[6]
-    var isChange = isVideoTypeChange || isVideoWidthChange || isVideoHeightChange
-    if (isChange && RecordModule.type == 1) {
-        videoType = pArray[4]
-        videoWidth = pArray[5]
-        videoHeight = pArray[6]
-        RecordModule.stopRecord(true)
-    }
-    SEND_QUEUE.execute()
 }
 
 /**
  * 解码
- * paramArray:
+ * paramArray(_getCodecedData): 
+ * [0] bufferLen        buffer长度
+ * [1] len              yuv/pcm 数据长度
+ * [2] videoWidth       视频宽
+ * [3] videoHeight      视频高
+ * paramArray(_decodeFrame): 
  * [0] errorCode        错误码 0成功
  * [1] type             流类型 1视频 0音频
  * [2] len              yuv/pcm 数据长度
@@ -286,50 +346,81 @@ function sendData(buffer, isPure, onlyForRecord) {
  * [13] notDecodeNumber 未解码的帧数量
  * [14] frameType       帧类型, 4: 预解码, 只解码不播放
  */
-function decodeFrame() {
+function decodeFrame(codecType) {
     if (!decodeTimer) {
         return
     }
-    var ret = Module._decodeFrame(handle, paramByteBuffer, MEMORY_PARAM_COUNT)
-    var paramIntBuff = paramByteBuffer >> 2
-    var paramArray = Module.HEAP32.subarray(paramIntBuff, paramIntBuff + MEMORY_PARAM_COUNT)
-    var outArray = Module.HEAPU8.subarray(ret, ret + paramArray[2] + paramArray[12])
-    var arr = new Uint8Array(outArray)
-    decodeTimer = setTimeout(function () {
-        decodeFrame()
-    }, 0)
-    if (paramArray[0] !== 0) {
-        // 当前帧解码失败
-        self.postMessage({ cmd: 'frameError' }) // 获取关键帧失败时进行通知
-        return
-    }
-    var type = paramArray[1]
-    if (type === 1) {
-        // 视频流
+    if (codecType) {
+        var ret = Module._getCodecedData(handle, paramBuffer, PARAM_COUNT)
+        var paramIntBuff = paramBuffer >> 2;
+        var paramArray = Module.HEAP32.subarray(paramIntBuff, paramIntBuff + PARAM_COUNT);
+        var outArray = Module.HEAPU8.subarray(ret, ret + paramArray[1]);
+        var arr = new Uint8Array(outArray);
+        decodeTimer = setTimeout(function () {
+            decodeFrame()
+        }, 0)
+        if (!paramArray[0]) { // 当前帧解码失败
+            self.postMessage({ cmd: 'frameError' }); // 获取关键帧失败时进行通知
+            return
+        }
         var data = {
             buffer: arr,
-            timestamp: paramArray[3],
-            width: paramArray[4],
-            height: paramArray[5],
-            realTimestamp: getRealTimestamp(paramArray[3], paramArray[9]),
-            keyFrame: paramArray[10],
-            frameIndex: paramArray[11],
-            yuvLen: paramArray[2],
-            watermarkLen: paramArray[12],
-            notDecodeNumber: paramArray[13],
-            frameType: paramArray[14],
+            yuvLen: paramArray[1],
+            width: paramArray[2],
+            height: paramArray[3]
         }
         self.postMessage({ cmd: 'getVideoFrame', data: data })
-    } else if (type === 0) {
-        // 音频流
-        var data = {
-            buffer: arr,
-            timestamp: paramArray[3],
-            channels: paramArray[6],
-            sampleRate: paramArray[7],
-            sampleFmt: paramArray[8],
+    } else {
+        var ret = Module._decodeFrame(handle, paramByteBuffer, MEMORY_PARAM_COUNT)
+        var paramIntBuff = paramByteBuffer >> 2;
+        var paramArray = Module.HEAP32.subarray(paramIntBuff, paramIntBuff + MEMORY_PARAM_COUNT);
+        var outArray = Module.HEAPU8.subarray(ret, ret + paramArray[2] + paramArray[12]);
+        var arr = new Uint8Array(outArray);
+        decodeTimer = setTimeout(function () {
+            decodeFrame()
+        }, 0)
+        if (paramArray[0] !== 0) { // 当前帧解码失败
+            self.postMessage({ cmd: 'frameError' }); // 获取关键帧失败时进行通知
+            if (paramArray[1] === 0 && paramArray[0] == kErrorCode_Unsupport_Type) { // 当解析的音频为不支持的音频格式
+                // 1.当type[1]为0，表示当解析的帧为音频帧
+                // 2.当解析的音频为不支持的音频格式时，错误码[0]为kErrorCode_Unsupport_Type（15）
+                // 3.当错误码[0]为kErrorCode_Unsupport_Type（15）时，[10]的含义由“是否是关键帧”变为音频编码格式
+                var data = {
+                    audioFormat: paramArray[10], // 当前音频编码格式
+                    isSupportAudio: false // 是否支持解析当前音频格式
+                }
+                self.postMessage({ cmd: 'getAudioFrame', data: data })
+            }
+            return
         }
-        self.postMessage({ cmd: 'getAudioFrame', data: data })
+        var type = paramArray[1]
+        if (type === 1) { // 视频流
+            var data = {
+                buffer: arr,
+                timestamp: paramArray[3],
+                width: paramArray[4],
+                height: paramArray[5],
+                realTimestamp: getRealTimestamp(paramArray[3], paramArray[9]),
+                keyFrame: paramArray[10],
+                frameIndex: paramArray[11],
+                yuvLen: paramArray[2],
+                watermarkLen: paramArray[12],
+                notDecodeNumber: paramArray[13],
+                frameType: paramArray[14]
+            }
+            self.postMessage({ cmd: 'getVideoFrame', data: data })
+        } else if (type === 0) { // 音频流
+            var data = {
+                buffer: arr,
+                timestamp: paramArray[3],
+                channels: paramArray[6],
+                sampleRate: paramArray[7],
+                sampleFmt: paramArray[8],
+                audioFormat: '', // 当前音频编码格式
+                isSupportAudio: true // 是否支持解析当前音频格式
+            }
+            self.postMessage({ cmd: 'getAudioFrame', data: data })
+        }
     }
 }
 
@@ -338,20 +429,22 @@ function getRealTimestamp(pts1, pts2) {
     return pts2 * 100000000 + pts1
 }
 
+
 /* ------------------录像相关 start--------------------- */
 var RecordModule = {
     MEMORY_PARAM_COUNT: 3,
     MEMORY_PARAM_SIZE: 4,
     chunkSize: 1024 * 1024, // 每次读取文件大小1M
     paramByteBuffer: null,
+    checkFileSizeTimer: null,
     manul: false, // 是否手动停止录像
-    maxSingleSize: 1024 * 1024 * 10, // 单录像文件最大字节数, 默认10M
+    maxSingleSize: 1024 * 1024 * 1024, // 单录像文件最大字节数, 默认10M //修改为1G
     readTimer: null,
     fileIndex: 0,
     recording: false,
     type: 1, // 1现场 0回放
     init: function () {
-        RecordModule.paramByteBuffer = Module._malloc(RecordModule.MEMORY_PARAM_COUNT * RecordModule.MEMORY_PARAM_SIZE)
+        RecordModule.paramByteBuffer = Module._malloc(RecordModule.MEMORY_PARAM_COUNT * RecordModule.MEMORY_PARAM_SIZE);
     },
     setMaxSingleSize: function (maxSingleSize) {
         if (maxSingleSize || maxSingleSize === 0) {
@@ -362,8 +455,9 @@ var RecordModule = {
     startRecord: function () {
         RecordModule.init()
         Module._startRecordAvi(handle, RecordModule.fileIndex)
+        RecordModule.startCheckFileSizeTimer()
         RecordModule.recording = true
-        console.log('start record, fileIndex:', RecordModule.fileIndex)
+        console.log('start record，current file index：', RecordModule.fileIndex)
     },
     // 停止录像
     stopRecord: function (manul) {
@@ -371,9 +465,13 @@ var RecordModule = {
         RecordModule.manul = manul
         RecordModule.fileIndex++
         Module._stopRecordAvi(handle)
-        console.log('end record, fileIndex:', RecordModule.fileIndex - 1)
         Module._openRecordAviFile(handle, RecordModule.fileIndex - 1)
         RecordModule.startReadTimer()
+        RecordModule.stopCheckFileSizeTimer()
+        console.log('end record，current file index：', RecordModule.fileIndex - 1)
+        if (!manul) {
+            RecordModule.startRecord()
+        }
     },
     /**
      * 读取录像文件
@@ -387,48 +485,54 @@ var RecordModule = {
             return
         }
         var ret = Module._readRecordAviFile(handle, RecordModule.paramByteBuffer, RecordModule.MEMORY_PARAM_COUNT, RecordModule.chunkSize)
-        var paramIntBuff = RecordModule.paramByteBuffer >> 2
-        var paramArray = Module.HEAP32.subarray(paramIntBuff, paramIntBuff + RecordModule.MEMORY_PARAM_COUNT)
-        var outArray = Module.HEAPU8.subarray(ret, ret + paramArray[2])
-        var arr = new Uint8Array(outArray)
+        var paramIntBuff = RecordModule.paramByteBuffer >> 2;
+        var paramArray = Module.HEAP32.subarray(paramIntBuff, paramIntBuff + RecordModule.MEMORY_PARAM_COUNT);
+        var outArray = Module.HEAPU8.subarray(ret, ret + paramArray[2]);
+        var arr = new Uint8Array(outArray);
         RecordModule.readTimer = setTimeout(function () {
             RecordModule.readRecFile()
         }, 0)
-        if (paramArray[0] !== 0 && paramArray[1] == 0 && paramArray[2] == 0) {
-            // 空录像文件
-            RecordModule.stopReadTimer()
-            console.log('file empty, fileIndex:', RecordModule.fileIndex - 1)
-            self.postMessage({ cmd: 'getRecData', data: [], finished: true, manul: true, fileIndex: RecordModule.fileIndex - 1 })
-            Module._delAviFile(handle, RecordModule.fileIndex - 1)
+        if (paramArray[0] !== 0) {
+            if (paramArray[1] == 0 && paramArray[2] == 0) { // 空录像文件
+                self.postMessage({ cmd: 'getRecData', data: [], finished: true, manul: true })
+                RecordModule.stopReadTimer()
+                Module._delAviFile(handle, RecordModule.fileIndex - 1)
+            }
             return
         }
         var finished = paramArray[2] < paramArray[1]
         // console.log('file length should be read：', paramArray[1], ', file real length：', paramArray[2])
-        self.postMessage({ cmd: 'getRecData', data: arr, finished: finished, manul: RecordModule.manul, fileIndex: RecordModule.fileIndex - 1 })
+        self.postMessage({ cmd: 'getRecData', data: arr, finished: finished, manul: RecordModule.manul })
         if (finished) {
             RecordModule.stopReadTimer()
-            console.log('end read recordFile, fileIndex:', RecordModule.fileIndex - 1)
             Module._delAviFile(handle, RecordModule.fileIndex - 1)
+            // console.log('end to read file，index：', RecordModule.fileIndex - 1)
         }
     },
-    // 检测已处理文件长度
-    checkFileSize: function () {
+    // 开启录像任务后，定时检测已处理文件长度
+    startCheckFileSizeTimer: function () {
         if (RecordModule.maxSingleSize === Infinity) {
             return
         }
-        var fileSize = Module._getAviFileSize(handle)
-        if (fileSize >= RecordModule.maxSingleSize && SEND_QUEUE.status === 'sending') {
-            SEND_QUEUE.status = 'stop'
-            self.postMessage({
-                cmd: 'fileOverSize',
-            })
-        }
+        RecordModule.stopCheckFileSizeTimer()
+        RecordModule.checkFileSizeTimer = setInterval(function () {
+            var fileSize = Module._getAviFileSize(handle)
+            if (fileSize >= RecordModule.maxSingleSize) {
+                RecordModule.stopCheckFileSizeTimer()
+                self.postMessage({
+                    cmd: 'fileOverSize'
+                })
+            }
+        }, 0)
+    },
+    stopCheckFileSizeTimer: function () {
+        clearInterval(RecordModule.checkFileSizeTimer)
+        RecordModule.checkFileSizeTimer = null
     },
     // 停止录像任务后，开启文件读取
     startReadTimer: function () {
         RecordModule.stopReadTimer()
         RecordModule.readTimer = true
-        console.log('start read recordFile, fileIndex:', RecordModule.fileIndex - 1)
         RecordModule.readRecFile()
     },
     stopReadTimer: function () {
@@ -440,10 +544,12 @@ var RecordModule = {
         RecordModule.paramByteBuffer = null
         RecordModule.fileIndex = 0
         RecordModule.stopReadTimer()
-    },
+    }
 }
 
 /* ------------------录像相关 end--------------------- */
+
+
 
 /**
  * 销毁解码器实例
@@ -451,26 +557,27 @@ var RecordModule = {
 function destroy() {
     // 销毁
     Module._destroyWebPlayer(handle)
+    Module._destroyCodec(handle)
     // 释放内存
+    Module._free(paramBuffer)
+    Module._free(jsonBuffer)
     Module._free(paramByteBuffer)
+    // uninit
+    Module._uninit()
+    paramBuffer = null
+    jsonBuffer = null
+    codecCacheBuffer = null
     cacheBuffer = null
     paramByteBuffer = null
     stopDecodeTimer()
     RecordModule.destroy()
-    SEND_QUEUE.init()
 }
 
 // 开启解码
-function startDecodeTimer() {
+function startDecodeTimer(codecType) {
     stopDecodeTimer()
     decodeTimer = true
-    decodeFrame()
-}
-
-// 仅仅解一帧
-function decodeOneFrame() {
-    startDecodeTimer()
-    stopDecodeTimer()
+    decodeFrame(codecType)
 }
 
 // 关闭解码
@@ -491,84 +598,40 @@ self.onmessage = function (e) {
     var data = e.data
     switch (data.cmd) {
         case 'init':
-            SEND_QUEUE.init()
-            createDecoder(data.type)
-            RecordModule.setMaxSingleSize(data.maxSingleSize)
-            break
+            if (data.type == 'p2pTimeSlice' || data.type == 'targetSearch') {
+                createCodec(data.type)
+            } else {
+                createDecoder(data.type)
+                RecordModule.setMaxSingleSize(data.maxSingleSize)
+            }
+            break;
         case 'sendData':
-            SEND_QUEUE.add(function () {
-                sendData(data.buffer, data.isPure, data.onlyForRecord)
-            })
-            break
+            sendData(data.buffer, data.isPure, data.onlyForRecord, data.codecType)
+            break;
         case 'decodeFrame':
             startDecodeTimer()
-            break
+            break;
+        case 'decodeOneFrame': // 仅仅解一帧
+            startDecodeTimer(data.codecType)
+            stopDecodeTimer()
+            break;
         case 'stopDecode':
             stopDecodeTimer()
-            break
+            break;
         case 'startRecord':
             RecordModule.startRecord()
-            if (data.isExecuteSendQueue) SEND_QUEUE.executeNext()
-            break
+            break;
         case 'stopRecord':
             RecordModule.stopRecord(data.manul)
-            break
+            break;
         case 'clear':
             clearFrameList()
-            break
+            break;
         case 'destroy':
             destroy()
-            break
+            break;
         default:
-            break
+            break;
     }
 }
 
-// 缓存队列喂wasm数据（ws推流为异步任务, 而wasm同一时间只能执行一个方法）
-var SEND_QUEUE = {
-    status: 'sending', // 状态, sending/stop
-    isFirstSend: true, // 是否第一次喂数据
-    queue: [], // 推流队列
-    retryIndex: 0, // 重试次数（喂数据比接收推流快时, 设置重试）
-    retryTimer: null, // 重试定时器
-    retryLimit: 6000, // 重试次数上限
-    init: function () {
-        SEND_QUEUE.status = 'sending'
-        SEND_QUEUE.isFirstSend = true
-        SEND_QUEUE.queue = []
-        SEND_QUEUE.clearRetryTimer()
-    },
-    clearRetryTimer: function () {
-        clearTimeout(SEND_QUEUE.retryTimer)
-        SEND_QUEUE.retryTimer = null
-    },
-    add: function (callback) {
-        SEND_QUEUE.queue.push(callback)
-        if (SEND_QUEUE.isFirstSend) {
-            SEND_QUEUE.isFirstSend = false
-            SEND_QUEUE.execute()
-        }
-    },
-    execute: function () {
-        if (SEND_QUEUE.status !== 'sending') return
-        if (SEND_QUEUE.queue.length === 0) {
-            if (SEND_QUEUE.retryIndex < SEND_QUEUE.retryLimit) {
-                SEND_QUEUE.retryIndex++
-                SEND_QUEUE.clearRetryTimer()
-                SEND_QUEUE.retryTimer = setTimeout(function () {
-                    SEND_QUEUE.execute()
-                }, 100)
-            } else {
-                console.log('SEND_QUEUE no new Data in 10mins, sendData() fail')
-            }
-        } else {
-            SEND_QUEUE.retryIndex = 0
-            var callback = SEND_QUEUE.queue.shift()
-            callback && callback()
-        }
-    },
-    executeNext: function () {
-        SEND_QUEUE.status = 'sending'
-        SEND_QUEUE.execute()
-    },
-}

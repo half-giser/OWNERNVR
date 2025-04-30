@@ -55,7 +55,7 @@ const getHTML = (langKey: string, downloadUrl?: string) => {
 
 const notice = computed(() => {
     if (plugin.pluginNoticeHtml.value) {
-        return getHTML(plugin.pluginNoticeHtml.value, plugin.pluginDownloadUrl.value)
+        return getHTML(plugin.pluginNoticeHtml.value, getPluginPath())
     } else {
         return {
             warning: false,

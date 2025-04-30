@@ -12,6 +12,8 @@ export const usePluginStore = defineStore('plugin', () => {
     const manuaClosePlugin = ref(false)
     const ready = ref(false)
     const isReconn = ref(false) // 登录是否为重连
+    const isAppendInfo = ref(false)
+    const bindStatus = ref(0)
 
     return {
         currPluginMode,
@@ -21,5 +23,7 @@ export const usePluginStore = defineStore('plugin', () => {
         manuaClosePlugin,
         ready,
         isReconn,
+        isAppendInfo,
+        bindStatus,
     }
 })

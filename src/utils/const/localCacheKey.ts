@@ -26,7 +26,9 @@ export const KEY_VEHICLE_SEARCH_COLLECTION = 'vehicleSearchCollectByPlateCompare
 
 export const KEY_PARK_SEARCH_COLLECTION = 'vehicleSearchCollectByPassRecord'
 
-export const KEY_AU_INFO_N9K = 'auInfo_N9K'
+export const KEY_AU_INFO_N9K = 'auInfo_N9K_New'
+
+export const KEY_DUAL_AUTH_N9K = 'dualAuth_N9K'
 
 export const KEY_UNMASK = 'unmask'
 
@@ -39,3 +41,7 @@ export const KEY_BACKUP_PIC_MSG = 'backUpPicMsg'
 export const KEY_P2P_VERSION = 'p2pVersion'
 
 export const KEY_IS_P2P = 'isp2p'
+
+export const KEY_CALENDAR_TYPE = 'calendarType'
+
+export const KEY_DA_TOKEN_LOGIN_AUTH = 'daTokenLoginAuth'

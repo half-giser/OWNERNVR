@@ -24,14 +24,14 @@ export const WebsocketImportPlateLib = (option: WebsocketImportPlateLibOption) =
     const onclose = option.onclose
     const plateDataList = option.plateDataList
     const totalNum = option.plateDataList.length
-    const limitNum = option.limitNum || 300
+    const limitNum = option.limitNum || 25
 
     const ws = WebsocketBase({
         onopen: () => {
             start()
         },
-        onmessage: (data: string) => {
-            try {
+        onmessage: (data) => {
+            if (typeof data === 'string') {
                 const res = JSON.parse(data)
                 const code = Number(res.basic.code)
                 // 开始导入
@@ -45,24 +45,32 @@ export const WebsocketImportPlateLib = (option: WebsocketImportPlateLibOption) =
                 }
                 // 通知进度
                 else if (res.url === '/device/platelib/import/data#response' && code === 0) {
-                    const step = res.data.step
-                    if (step >= totalNum) {
+                    // 由于step实际记录会将再次导入的数据计入计算，所以这里需要计算当前已经导入的数据
+                    const currIndex = (importIdx + 1) * limitNum
+                    if (currIndex >= totalNum) {
                         onsuccess && onsuccess()
                     } else {
                         importIdx++
                         cutPackage(importIdx)
-                        onprogress && onprogress(step)
+                        onprogress && onprogress(currIndex + limitNum)
                     }
                 }
                 // 导入过程有误
                 else if (res.url === '/device/platelib/import/data#response' && code !== 0) {
-                    onerror && onerror(code)
+                    // 536870960：代表系统忙，需要等待2秒，重新进行数据下发，此处不需要importIdx自增
+                    if (code === ErrorCode.USER_ERROR_SYSTEM_BUSY) {
+                        setTimeout(function () {
+                            cutPackage(importIdx)
+                        }, 2000)
+                    } else {
+                        onerror && onerror(code)
+                    }
                 }
                 // 停止录入成功
                 else if (res.url === '/device/platelib/import/stop#response') {
                     destroy()
                 }
-            } catch (ev) {}
+            }
         },
         onerror: onerror,
         onclose: onclose,
@@ -90,13 +98,13 @@ export const WebsocketImportPlateLib = (option: WebsocketImportPlateLibOption) =
         dataToBuffer(JSON.stringify(json)).then((jsonBuffer) => {
             // 包头buffer + jsonbuffer (数据包含在jsonbuffer里)
             const headerbuffer = buildHeader(json)
-            const temp = appendBuffer(headerbuffer, jsonBuffer)
+            const temp = appendBuffer(headerbuffer, jsonBuffer as ArrayBufferLike)
             ws.send(temp)
         })
     }
 
     const start = () => {
-        const cmd = CMD_PLATELIB_IMPORT_START()
+        const cmd = CMD_PLATELIB_IMPORT_START(totalNum)
         taskId = cmd.data.task_id
         ws.send(JSON.stringify(cmd))
     }

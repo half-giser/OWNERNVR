@@ -27,26 +27,26 @@ export const ORIENT_MAP: Record<number, string> = {
 
 export const HAT_MAP: Record<number, string> = {
     0: '--',
-    1: 'IDCS_YES',
-    2: 'IDCS_NO',
+    1: 'IDCS_HAT',
+    2: 'IDCS_NO_HAT',
 }
 
 export const GLASS_MAP: Record<number, string> = {
     0: '--',
-    1: 'IDCS_YES',
-    2: 'IDCS_NO',
+    1: 'IDCS_GLASSES',
+    2: 'IDCS_NO_GLASSES',
 }
 
 export const MASK_MAP: Record<number, string> = {
     0: '--',
-    1: 'IDCS_YES',
-    2: 'IDCS_NO',
+    1: 'IDCS_MASK',
+    2: 'IDCS_NO_MASK',
 }
 
 export const BACKPACK_TYPE_MAP: Record<number, string> = {
     0: '--',
-    1: 'IDCS_YES',
-    2: 'IDCS_NO',
+    1: 'IDCS_BACKPACK',
+    2: 'IDCS_NO_BACKPACK',
 }
 
 // const BACKPACK_SHOULDERBAG_MAP: Record<number, string> = {
@@ -80,7 +80,7 @@ export const LOWER_TRANS_TYPE_MAP: Record<number, string> = {
 }
 
 export const COLOR_MAP: Record<number, string> = {
-    0: '--',
+    0: 'IDCS_UNCONTRAST',
     1: 'IDCS_RED',
     2: 'IDCS_ORANGE',
     3: 'IDCS_YELLOW',
@@ -98,12 +98,12 @@ export const COLOR_MAP: Record<number, string> = {
 
 export const SKIRT_TYPE_MAP: Record<number, string> = {
     0: '--',
-    1: 'IDCS_YES',
-    2: 'IDCS_NO',
+    1: 'IDCS_SKIRT',
+    2: 'IDCS_NO_WEAR_SKIRT',
 }
 
 export const CAR_TYPE_MAP: Record<number, string> = {
-    0: '--',
+    0: 'IDCS_UNCONTRAST',
     1: 'IDCS_SEDAN',
     2: 'IDCS_SUV',
     3: 'IDCS_MPV',
@@ -194,6 +194,21 @@ export const CAR_BRAND_MAP: Record<number | string, string> = {
     other: 'IDCS_MAINTENSIGN_ITEM_OTHERSYS',
 }
 
+export const PLATE_COLOR_MAP: Record<number, string> = {
+    0: 'IDCS_UNCONTRAST', // 未知
+    1: 'IDCS_BLUE',
+    2: 'IDCS_YELLOW',
+    3: 'IDCS_WHITE',
+    4: 'IDCS_BLACK',
+    5: 'IDCS_GREEN',
+    6: 'IDCS_COLOR_GREEN_BLACK',
+    7: 'IDCS_RED',
+    8: 'IDCS_ORANGE',
+    9: 'IDCS_CYAN',
+    10: 'IDCS_PURPLE',
+    11: 'IDCS_GREY',
+}
+
 export type SnapMapping = {
     type: string
     name: string
@@ -276,14 +291,14 @@ export const DEFAULT_VEHICLE_STRUCT_MAPPING: SnapMapping[] = [
         map: COLOR_MAP,
     },
     {
-        type: 'type',
-        name: 'IDCS_TYPE',
-        map: CAR_TYPE_MAP,
-    },
-    {
         type: 'brand',
         name: 'IDCS_BRAND',
         map: CAR_BRAND_MAP,
+    },
+    {
+        type: 'type',
+        name: 'IDCS_TYPE',
+        map: CAR_TYPE_MAP,
     },
     // {
     //     type: 'year',
@@ -293,6 +308,24 @@ export const DEFAULT_VEHICLE_STRUCT_MAPPING: SnapMapping[] = [
     //     type: 'model',
     //     name: ("IDCS_MODEL")
     // }
+]
+
+export const DEFAULT_PLATE_VEHICLE_STRUCT_MAPPING: SnapMapping[] = [
+    {
+        type: 'color',
+        name: 'IDCS_COLOR',
+        map: COLOR_MAP,
+    },
+    {
+        type: 'brand_type',
+        name: 'IDCS_BRAND',
+        map: CAR_BRAND_MAP,
+    },
+    {
+        type: 'type',
+        name: 'IDCS_TYPE',
+        map: CAR_TYPE_MAP,
+    },
 ]
 
 export const DEFAULT_VEHICLE_PLATE_STRUCT_MAPPING: SnapMapping[] = [
@@ -310,6 +343,16 @@ export const DEFAULT_VEHICLE_PLATE_STRUCT_MAPPING: SnapMapping[] = [
         type: 'mobile_phone_number',
         name: 'IDCS_PHONE_NUMBER',
         map: {},
+    },
+    {
+        type: 'group_name',
+        name: 'IDCS_ADD_FACE_GROUP',
+        map: {},
+    },
+    {
+        type: 'platecolor',
+        name: 'IDCS_PLATE_COLOR',
+        map: PLATE_COLOR_MAP,
     },
 ]
 
