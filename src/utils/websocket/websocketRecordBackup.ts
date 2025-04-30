@@ -10,7 +10,7 @@ export interface WebsocketRecordBackupOption {
     onFrameTime?: (frameTime: number, taskIndex: number) => void
     onerror?: (errorcode?: number) => void
     onclose?: () => void
-    maxSingleSize: number
+    maxSingleSize: number // 单录像文件最大字节数
 }
 
 export type WebsocketRecordBackupOnMessageParam = {
@@ -21,11 +21,13 @@ export type WebsocketRecordBackupOnMessageParam = {
     frameTime: number
     firstFrameTime: number
     finished: boolean
+    errorCode?: number
 }
 
 type CmdQueueDatum = {
     cmd: ReturnType<typeof CMD_PLAYBACK_OPEN>
     taskIndex: number
+    taskId: string
 }
 
 export const WebsocketRecordBackup = (option: WebsocketRecordBackupOption) => {
@@ -34,10 +36,10 @@ export const WebsocketRecordBackup = (option: WebsocketRecordBackupOption) => {
     let taskId: string | null = null
     let lastTaskId: string
     let recordList: CmdPlaybackOpenOption[] = []
-    let cmdQueue: CmdQueueDatum[] = []
-    let frameIndex = 0
-    let frameTime = 0
-    let taskIndex = -1
+    let cmdQueue: CmdQueueDatum[] = [] // 任务队列, 串行方式执行任务
+    let frameIndex = 0 // 当前帧
+    let frameTime = 0 // 当前帧时间
+    let taskIndex = -1 // 当前执行的任务索引
     let taskStatusMap: Record<string, string> = {}
     let taskIdFrameTimeMap: Record<string, number> = {}
     let canFreshFrameIndex = false
@@ -76,7 +78,7 @@ export const WebsocketRecordBackup = (option: WebsocketRecordBackupOption) => {
                 onready && onready()
             },
             onmessage: (data: string | ArrayBuffer) => {
-                if (data instanceof ArrayBuffer) {
+                if (typeof data !== 'string') {
                     recordBuilder.sendBuffer(data)
                 } else {
                     const res = JSON.parse(data)
@@ -124,7 +126,7 @@ export const WebsocketRecordBackup = (option: WebsocketRecordBackupOption) => {
      * @param {string} url
      */
     const handleErrorCode = (errorCode: number, taskId: string, url: string) => {
-        console.log(`record:${taskId} end, errorCode: ${errorCode}, URL:${url}, last frameIndex: ${frameIndex}`)
+        console.log(`end record:${taskId} end, errorCode: ${errorCode}, URL:${url}, last frameIndex: ${frameIndex}`)
 
         if (!canFreshFrameIndex || taskStatusMap[taskId] === 'done') {
             return
@@ -149,6 +151,7 @@ export const WebsocketRecordBackup = (option: WebsocketRecordBackupOption) => {
                         frameTime: 0,
                         firstFrameTime: 0,
                         finished: true,
+                        errorCode,
                     })
             }
             return
@@ -183,34 +186,40 @@ export const WebsocketRecordBackup = (option: WebsocketRecordBackupOption) => {
      * @param {number} taskIndex 任务索引
      */
     const startOneTask = (record: CmdPlaybackOpenOption, taskIndex: number) => {
+        const chlId = record.chlID
         const cmd = CMD_PLAYBACK_OPEN(record)
         const taskId = cmd.data.task_id
-        const chlId = record.chlID
+
         cmdQueue.push({
             cmd: cmd,
+            taskId: taskId,
             taskIndex: taskIndex,
         })
+
         taskStatusMap[taskId] = 'waiting'
+
         if (cmdQueue.length === recordList.length) {
             lastTaskId = taskId
         }
-        recordBuilder.createRecord((recordFile, isFinished, fileIndex) => {
+
+        recordBuilder.startRecord((recordFile, isFinished) => {
             onmessage &&
                 onmessage({
                     file: recordFile,
                     taskId: taskId,
-                    taskIndex,
-                    chlId,
+                    taskIndex: taskIndex,
+                    chlId: chlId,
                     frameTime: frameTime,
                     firstFrameTime: taskIdFrameTimeMap[taskId] || cmd.data.start_time * 1000 + 2000,
-                    finished: isFinished && taskStatusMap[lastTaskId as string] === 'done',
+                    finished: isFinished && taskStatusMap[lastTaskId] === 'done',
                 })
-            console.log(`record:${taskIndex} -- fileIndex:${fileIndex} complete, frameTime:${formatDate(frameTime, 'YYYY/MM/DD HH:mm:ss')}`)
+            console.log('complete record', taskIndex, '， frameTime：', formatDate(frameTime, DEFAULT_DATE_FORMAT))
+            // 完成一个任务后才开启下一个
             if (isFinished) {
-                // 完成一个任务后才开启下一个
                 execNextCmd()
             }
         })
+
         if (cmdQueue.length === 1) {
             execCmd()
         }
@@ -252,7 +261,7 @@ export const WebsocketRecordBackup = (option: WebsocketRecordBackupOption) => {
         const cmdItem = cmdQueue[0]
         canFreshFrameIndex = !!cmdItem
         if (cmdItem) {
-            taskId = cmdItem.cmd.data.task_id
+            taskId = cmdItem.taskId
             taskIndex = cmdItem.taskIndex
             ws?.send(JSON.stringify(cmdItem.cmd))
             taskStatusMap[taskId as string] = 'excuting'

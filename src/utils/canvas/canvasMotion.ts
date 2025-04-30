@@ -10,6 +10,7 @@ interface CanvasMotionOption {
     colNum?: number
     lineStyle?: Partial<CanvasBaseLineStyleOption>
     netArr?: string[][]
+    motionArr?: string[][]
     onchange?: (netArr: string[][]) => void
 }
 
@@ -28,6 +29,7 @@ export const CanvasMotion = (option: CanvasMotionOption = {}) => {
     let rowNum = option.rowNum || DEFAULT_ROWS // 网格行数
     let colNum = option.colNum || DEFAULT_COLS // 网格列数
     let netArr: string[][] = []
+    let motionArr: string[][] = []
 
     const lineStyle = {
         strokeStyle: DEFAULT_COLOR,
@@ -48,6 +50,7 @@ export const CanvasMotion = (option: CanvasMotionOption = {}) => {
         scaleW = w / colNum // 每个格子的宽度(算上边框)
         scaleH = h / rowNum // 每个格子的高度(算上边框)
         setArea(netArr)
+        drawRedArea(motionArr)
     }
 
     /**
@@ -65,6 +68,20 @@ export const CanvasMotion = (option: CanvasMotionOption = {}) => {
             arr.push(item)
         }
         netArr = arr
+        init()
+    }
+
+    // 设置参数 { column, row, areaInfo } areaInfo: ['00000000', '11111111', ...]
+    const setMotion = (option: { motion_infos: { grids: string }[] }) => {
+        const motionInfo = option.motion_infos
+        if (!motionInfo.length) return
+        const grids = motionInfo[0].grids // 具体的位置参数"000011111"
+        const arr: string[][] = []
+        for (let i = 0; i < grids.length; i++) {
+            const item = grids[i].split('')
+            arr.push(item)
+        }
+        motionArr = arr
         init()
     }
 
@@ -216,6 +233,28 @@ export const CanvasMotion = (option: CanvasMotionOption = {}) => {
         }
     }
 
+    // 根据智能motion数据绘制动态分析效果
+    const drawRedArea = (motionArr: string[][]) => {
+        const len = motionArr.length
+        const lineStyle = {
+            strokeStyle: '#f00',
+            lineWidth: 2,
+        }
+        for (let i = 0; i < len; i++) {
+            const row = motionArr[i]
+            for (let j = 0; j < row.length; j++) {
+                const item = row[j]
+                if (item === STATUS_ON) {
+                    const startX = getNetXByColIndex(j)
+                    const startY = getNetYByRowIndex(i)
+                    const width = scaleW - lineWidth
+                    const height = scaleH - lineWidth
+                    ctx.Rect(startX, startY, width, height, lineStyle)
+                }
+            }
+        }
+    }
+
     /**
      * @description 获取网格数据
      * @returns
@@ -230,6 +269,12 @@ export const CanvasMotion = (option: CanvasMotionOption = {}) => {
     const clear = () => {
         netArr = buildNetArr(rowNum, colNum, STATUS_OFF)
         setArea(netArr)
+    }
+
+    // 清空motion红色区域
+    const clearRedArea = () => {
+        motionArr = buildNetArr(rowNum, colNum, STATUS_OFF)
+        init()
     }
 
     /**
@@ -266,6 +311,7 @@ export const CanvasMotion = (option: CanvasMotionOption = {}) => {
     }
 
     netArr = option.netArr || buildNetArr(rowNum, colNum, STATUS_OFF)
+    motionArr = option.motionArr || buildNetArr(rowNum, colNum, STATUS_OFF)
     init()
     bindEvent()
 
@@ -277,5 +323,7 @@ export const CanvasMotion = (option: CanvasMotionOption = {}) => {
         selectAll,
         reverse,
         destroy,
+        setMotion,
+        clearRedArea,
     }
 }

@@ -19,6 +19,8 @@ export const useUserSessionStore = defineStore(
         const userId = ref('')
         const unmask = ref(0)
         const auInfo_N9K = ref('')
+        const dualAuth_N9K = ref('')
+        const daTokenLoginAuth = ref('')
         const sesionKey = ref('')
         const securityVer = ref('')
         const facePersonnalInfoMgr = ref(false)
@@ -36,6 +38,7 @@ export const useUserSessionStore = defineStore(
         const csvDeviceName = ref('')
         const sn = ref('')
         const defaultStreamType = ref('')
+        const urlLoginAuth = ref('')
 
         const p2pSessionId = ref<null | string>(null)
         const authCodeIndex = ref('')
@@ -79,15 +82,60 @@ export const useUserSessionStore = defineStore(
         const getAuthInfo = () => {
             if (!auInfo_N9K.value) return null
             if (!unmask.value) return null
-            const unmaskNum = unmask.value
-            const authorizationBasic = auInfo_N9K.value.replace(/\"/g, '')
-            const userInfoMasked = base64Decode(authorizationBasic)
-            const userInfoMaskedArr = userInfoMasked.split(' ').map((item) => Number(item))
-            const userInfoArr = []
-            for (let i = 0; i < userInfoMaskedArr.length; i++) {
-                userInfoArr.push(String.fromCharCode(userInfoMaskedArr[i] ^ unmaskNum))
+
+            const auInfo_N9K_New = JSON.parse(auInfo_N9K.value) as { username: string; password: string; sn: string }
+
+            const userInfoArr: string[] = []
+            const auInfo_username = decryptUnicode(auInfo_N9K_New.username, unmask.value)
+            if (auInfo_username && auInfo_username !== 'null') {
+                userInfoArr.push(auInfo_username)
             }
-            return userInfoArr.join('').split(':')
+
+            const auInfo_password = decryptUnicode(auInfo_N9K_New.password, unmask.value)
+            if (auInfo_password && auInfo_password !== 'null') {
+                userInfoArr.push(auInfo_username)
+            }
+
+            const auInfo_sn = decryptUnicode(auInfo_N9K_New.sn, unmask.value)
+            if (auInfo_sn && auInfo_sn !== 'null') {
+                userInfoArr.push(auInfo_sn)
+            }
+
+            userName.value = auInfo_username
+
+            return userInfoArr
+        }
+
+        // 获取双重认证信息
+        const getDualAuthInfo = () => {
+            if (!dualAuth_N9K.value) {
+                return null
+            }
+
+            if (!unmask.value) {
+                return
+            }
+
+            const info = JSON.parse(dualAuth_N9K.value) as { username: string; password: string }
+            const dualAuth_username = decryptUnicode(info.username, unmask.value)
+            const dualAuth_password = decryptUnicode(info.password, unmask.value)
+
+            return [dualAuth_username, dualAuth_password]
+        }
+
+        // 设置双重认证信息
+        const setDualAuthInfo = (dualAuthInfo: { username: string; password: string }) => {
+            if (!unmask.value) {
+                return
+            }
+
+            const dualAuth_username = setUnicode(dualAuthInfo.username, unmask.value)
+            const dualAuth_password = setUnicode(dualAuthInfo.password, unmask.value)
+            dualAuth_N9K.value = JSON.stringify({
+                username: dualAuth_username,
+                password: dualAuth_password,
+            })
+            sessionStorage.setItem('dualAuth_N9K', dualAuth_N9K.value)
         }
 
         /**
@@ -126,7 +174,7 @@ export const useUserSessionStore = defineStore(
 
             let _sessionId = $('content/sessionId').text()
             nonce.value = $('content/nonce').text()
-            token.value = $('content/token').text()
+            // token.value = $('content/token').text()
             if (_sessionId.indexOf('{') !== -1 || _sessionId.lastIndexOf('}') !== -1) {
                 _sessionId = _sessionId.substring(_sessionId.indexOf('{') + 1, _sessionId.indexOf('}'))
             }
@@ -140,44 +188,45 @@ export const useUserSessionStore = defineStore(
          * @param loginReqData
          * @param loginFormData
          */
-        async function updateByLogin(loginType: 'P2P', loginResult: Element | XMLDocument): Promise<void>
-        async function updateByLogin(loginType: 'STANDARD', loginResult: Element | XMLDocument, loginReqData: UserLoginReqData, loginFormData: UserLoginForm): Promise<void>
-        async function updateByLogin(loginType: 'P2P' | 'STANDARD', loginResult: Element | XMLDocument, loginReqData?: UserLoginReqData, loginFormData?: UserLoginForm): Promise<void> {
+        // async function updateByLogin(loginType: 'P2P', loginResult: Element | XMLDocument): Promise<void>
+        // async function updateByLogin(loginType: 'STANDARD', loginResult: Element | XMLDocument, loginFormData: UserLoginForm): Promise<void>
+        async function updateByLogin(loginResult: Element | XMLDocument, loginFormData: UserLoginForm): Promise<void> {
             const $ = queryXml(loginResult)
 
-            if (loginType === 'STANDARD') {
-                calendarType.value = loginFormData!.calendarType
-                //加盐存储用户名的掩码，用于解决右上角显示用户名问题
-                unmask.value = Math.floor(Math.random() * 10000)
-                setAuthInfo(loginReqData!.userName + ':')
+            // if (loginType === 'STANDARD') {
+            calendarType.value = loginFormData.calendarType
+            userName.value = loginFormData.userName
+            // 加盐存储用户名的掩码，用于解决右上角显示用户名问题
+            unmask.value = Math.floor(Math.random() * 10000)
+            setAuthInfo(JSON.stringify({ username: loginFormData.userName, password: '', sn: '' }))
 
-                const ciphertext = $('content/sessionKey').text()
-                // const aesKey = loginReqData!.passwordMd5
-                // const plaintext = AES_decrypt(ciphertext, aesKey)
-                const aesKey = RSA_PRIVATE_KEY
-                const plaintext = RSA_decrypt(aesKey, ciphertext) + ''
-                sesionKey.value = plaintext
-                token.value = $('content/token').text()
-                securityVer.value = $('content/securityVer').text()
-                userId.value = $('content/userId').text()
-                facePersonnalInfoMgr.value = $('content/systemAuth/facePersonnalInfoMgr').text().bool()
-                authGroupId.value = $('content/authGroupId').text()
-                allowModifyPassword.value = $('content/modifyPassword').text().bool()
-                userType.value = $('content/userType').text()
+            const ciphertext = $('content/sessionKey').text()
+            // const aesKey = loginReqData!.passwordMd5
+            // const plaintext = AES_decrypt(ciphertext, aesKey)
+            const aesKey = RSA_PRIVATE_KEY
+            const plaintext = RSA_decrypt(aesKey, ciphertext) + ''
+            sesionKey.value = plaintext
+            token.value = $('content/token').text()
+            securityVer.value = $('content/securityVer').text()
+            userId.value = $('content/userId').text()
+            facePersonnalInfoMgr.value = $('content/systemAuth/facePersonnalInfoMgr').text().bool()
+            authGroupId.value = $('content/authGroupId').text()
+            allowModifyPassword.value = $('content/modifyPassword').text().bool()
+            userType.value = $('content/userType').text()
 
-                const resetPassword = $('content/resetInfo').text()
-                if (userType.value === USER_TYPE_DEFAULT_ADMIN && MD5_encrypt(loginFormData!.password) === resetPassword) {
-                    defaultPwd.value = true
-                } else {
-                    defaultPwd.value = false
-                }
-
-                loginCheck.value = false
-                isChangedPwd.value = false
-                layoutStore.isPwdChecked = false
-                pwdSaftyStrength.value = getPwdSaftyStrength(loginFormData!.password)
-                pwdExpired.value = $('content/passwordExpired').text().bool()
+            const resetPassword = $('content/resetInfo').text()
+            if (userType.value === USER_TYPE_DEFAULT_ADMIN && MD5_encrypt(loginFormData.password) === resetPassword) {
+                defaultPwd.value = true
+            } else {
+                defaultPwd.value = false
             }
+
+            loginCheck.value = false
+            isChangedPwd.value = false
+            layoutStore.isPwdChecked = false
+            pwdSaftyStrength.value = getPwdSaftyStrength(loginFormData.password)
+            pwdExpired.value = $('content/passwordExpired').text().bool()
+            // }
 
             initSystemAuth($)
 
@@ -200,6 +249,9 @@ export const useUserSessionStore = defineStore(
             auInfo_N9K.value = sessionStorage.getItem(LocalCacheKey.KEY_AU_INFO_N9K) || ''
             unmask.value = Number(sessionStorage.getItem(LocalCacheKey.KEY_UNMASK))
             sn.value = sessionStorage.getItem(LocalCacheKey.KEY_SN) || ''
+            dualAuth_N9K.value = sessionStorage.getItem(LocalCacheKey.KEY_DUAL_AUTH_N9K) || ''
+            calendarType.value = sessionStorage.getItem(LocalCacheKey.KEY_CALENDAR_TYPE) || 'Gregorian'
+            daTokenLoginAuth.value = sessionStorage.getItem(LocalCacheKey.KEY_DA_TOKEN_LOGIN_AUTH) || ''
         }
 
         /**
@@ -207,6 +259,8 @@ export const useUserSessionStore = defineStore(
          */
         const clearSession = () => {
             auInfo_N9K.value = ''
+            dualAuth_N9K.value = ''
+            daTokenLoginAuth.value = ''
             unmask.value = 0
             authGroupId.value = ''
             authMask.value = 0
@@ -225,6 +279,7 @@ export const useUserSessionStore = defineStore(
             layoutStore.liveLastSegNum = 1
 
             sessionStorage.removeItem(LocalCacheKey.KEY_AU_INFO_N9K)
+            sessionStorage.removeItem(LocalCacheKey.KEY_DUAL_AUTH_N9K)
             sessionStorage.removeItem(LocalCacheKey.KEY_UNMASK)
             sessionStorage.removeItem(LocalCacheKey.KEY_SN)
         }
@@ -237,6 +292,7 @@ export const useUserSessionStore = defineStore(
             userId,
             unmask,
             auInfo_N9K,
+            dualAuth_N9K,
             sesionKey,
             securityVer,
             facePersonnalInfoMgr,
@@ -265,6 +321,10 @@ export const useUserSessionStore = defineStore(
             getP2PSessionInfo,
             clearSession,
             refreshLoginPage,
+            getDualAuthInfo,
+            setDualAuthInfo,
+            daTokenLoginAuth,
+            urlLoginAuth,
         }
     },
     {

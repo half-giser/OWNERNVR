@@ -159,8 +159,7 @@ export default defineComponent({
             const result = await queryUserList(sendXml)
 
             commLoadResponseHandler(result, ($) => {
-                const authInfo = userSession.getAuthInfo()
-                const currentUserName = authInfo ? authInfo[0] : ''
+                const currentUserName = userSession.userName
                 const currentUserType = userSession.userType
 
                 userList.value = $('content/item').map((item) => {

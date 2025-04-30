@@ -45,7 +45,7 @@ interface CountDownerOption {
 }
 
 // //倒计时
-export function CountDowner(opts: CountDownerOption) {
+export function useCountDowner(opts: CountDownerOption) {
     //倒计时读秒触发的回调
     const callback = opts.callback
     //倒计时结束回调

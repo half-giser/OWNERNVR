@@ -13,7 +13,7 @@ import Chalk from 'chalk'
 import Inquirer from 'inquirer'
 import Archiver from 'archiver'
 
-const LEGAL_UI = ['UI1-A', 'UI1-B', 'UI1-C', 'UI1-D', 'UI1-E', 'UI1-F', 'UI1-G', 'UI1-J', 'UI1-K', 'UI2-A']
+const LEGAL_UI = ['UI1-A', 'UI1-B', 'UI1-C', 'UI1-D', 'UI1-E', 'UI1-F', 'UI1-G', 'UI1-J', 'UI1-K', 'UI1-N', 'UI1-P', 'UI1-T', 'UI2-A']
 const LEGAL_CUSTOMER_ID = ['IL03', 'PL14', 'TVT', 'USE44', 'USW02']
 
 function print(head: string, body: string, type = 'info') {

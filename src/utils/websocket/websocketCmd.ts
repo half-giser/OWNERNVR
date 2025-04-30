@@ -8,16 +8,12 @@
  * @description 获取websocket握手url
  */
 export const getWebsocketOpenUrl = () => {
-    const host = window.location.host
-    const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
     const userSession = useUserSessionStore()
-    if (import.meta.env.PROD) {
-        // 正式环境
-        return `${wsProtocol}://${host}/requestWebsocketConnection?sessionID=${userSession.sessionId}`
-    } else {
-        // 调试模式
-        return `${wsProtocol}://${import.meta.env.VITE_APP_IP}/requestWebsocketConnection?sessionID=${userSession.sessionId}`
-    }
+    const localHost = window.location.host + import.meta.env.VITE_BASE_URL // import.meta.env.PROD ? window.location.host : import.meta.env.VITE_APP_IP
+    const host = userSession.appType === 'STANDARD' ? localHost : 'virtualWebsocket'
+    const protocol = window.location.protocol
+    const wsProtocol = protocol === 'http:' ? 'ws' : 'wss'
+    return wsProtocol + '://' + host + 'requestWebsocketConnection'
 }
 
 // 回放事件类型全集
@@ -43,12 +39,20 @@ export const REC_EVENT_TYPES = [
     'ipd',
     'smart_aoi_entry',
     'smart_aoi_leave',
-    'smart_pass_line',
+    'threshold',
     'smart_plate_verity',
     'smart_fire_point',
     'smart_temperature',
+    'asd',
+    'pvd',
     'SMDHuman',
     'SMDVehicle',
+    'crowd_gather',
+    'loitering',
+    'reid',
+    'target_human',
+    'target_vehicle',
+    'target_non_motor_vehicle',
 ]
 
 /**
@@ -464,11 +468,12 @@ export const CMD_PLATELIB_EXPORT_CONFIRM_STEP = (task_id: string) => ({
 /**
  * @description 启动样本库-车牌库导入
  */
-export const CMD_PLATELIB_IMPORT_START = () => ({
+export const CMD_PLATELIB_IMPORT_START = (totalNum: number) => ({
     url: '/device/platelib/import/start',
     basic: getBasic(),
     data: {
         task_id: getRandomGUID(),
+        task_total: totalNum,
     },
 })
 

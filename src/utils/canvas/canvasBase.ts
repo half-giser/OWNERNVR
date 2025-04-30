@@ -138,6 +138,44 @@ export const CanvasBase = (element?: HTMLCanvasElement) => {
         ctx.stroke()
     }
 
+    // 根据两点坐标画四角边框矩形 lineStyle: { lineWidth, strokeStyle }
+    const Point2QuarterRect = (X1: number, Y1: number, X2: number, Y2: number, lineStyle: CanvasBaseLineStyleOption) => {
+        const width = X2 - X1
+        const height = Y2 - Y1
+        const wOffset = Math.max(8, Math.ceil(width / 5))
+        const hOffset = Math.max(8, Math.ceil(height / 5))
+        const X3 = X1 + width // 右上角坐标
+        const Y3 = Y1
+        const X4 = X1 // 左下角坐标
+        const Y4 = Y1 + height
+        ctx.beginPath()
+        // 左上角
+        ctx.moveTo(X1, Y1)
+        ctx.lineTo(X1 + wOffset, Y1)
+        ctx.moveTo(X1, Y1)
+        ctx.lineTo(X1, Y1 + hOffset)
+        // 左下角
+        ctx.moveTo(X4, Y4)
+        ctx.lineTo(X1 + wOffset, Y4)
+        ctx.moveTo(X4, Y4)
+        ctx.lineTo(X4, Y4 - hOffset)
+        // 右上角
+        ctx.moveTo(X3, Y3)
+        ctx.lineTo(X3 - wOffset, Y3)
+        ctx.moveTo(X3, Y3)
+        ctx.lineTo(X3, Y3 + hOffset)
+        // 右下角
+        ctx.moveTo(X2, Y2)
+        ctx.lineTo(X2 - wOffset, Y2)
+        ctx.moveTo(X2, Y2)
+        ctx.lineTo(X2, Y2 - hOffset)
+        if (lineStyle) {
+            ctx.lineWidth = lineStyle.lineWidth || 1
+            ctx.strokeStyle = lineStyle.strokeStyle || '#000'
+        }
+        ctx.stroke()
+    }
+
     /**
      * @description 画填充矩形
      * @param startX
@@ -205,6 +243,15 @@ export const CanvasBase = (element?: HTMLCanvasElement) => {
     }
 
     /**
+     * @description 获取显示文字的信息（包括文字宽度）
+     * @property {String} text 文字内容
+     */
+    const MeasureText = (text: string) => {
+        ctx.font = '14px Verdana'
+        return ctx.measureText(text)
+    }
+
+    /**
      * @description 清除指定矩形区域的画布
      * @param startX
      * @param startY
@@ -254,6 +301,32 @@ export const CanvasBase = (element?: HTMLCanvasElement) => {
         return {
             x: pointBx - pointAx,
             y: pointAy - pointBy,
+        }
+    }
+
+    /**
+     * 画多边形
+     * @param {Object} option
+     *      @property {Object} pointList 多边形数组，[ { X: 0, Y: 0 }, .. ]
+     *      @property {Number} max 多边形最大点数
+     *      @property {Boolean} isFoucusClosePath 是否强制闭合
+     */
+    const DrawPolygon = (option: { pointList: CanvasBasePoint[]; max: number; isFoucusClosePath: boolean }) => {
+        const pointList = option.pointList
+        if (!(pointList && pointList.length)) return
+        const startPoint = pointList[0]
+        for (let i = 0; i < pointList.length; i++) {
+            const item = pointList[i]
+            const lineStyle = { strokeStyle: 'red', lineWidth: 1.5 }
+            if (i > 0) {
+                const itemPre = pointList[i - 1]
+                Line(itemPre.X, itemPre.Y, item.X, item.Y, lineStyle)
+            }
+
+            // 绘制的最后一个点是最大点数，或者强制闭合为true时，才绘制闭合线段
+            if (i === pointList.length - 1 && (i === option.max - 1 || option.isFoucusClosePath)) {
+                Line(startPoint.X, startPoint.Y, item.X, item.Y, lineStyle)
+            }
         }
     }
 
@@ -477,14 +550,17 @@ export const CanvasBase = (element?: HTMLCanvasElement) => {
         Rect,
         DrawImage,
         Point2Rect,
+        Point2QuarterRect,
         FillRect,
         Circle,
         FillCircle,
         Text,
+        MeasureText,
         ClearRect,
         IsInRect,
         isClockwise,
         getRelativePoint,
+        DrawPolygon,
         Arrow,
         IsIntersect,
         GetVerticalDistance,

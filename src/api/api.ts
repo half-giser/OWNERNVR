@@ -165,21 +165,28 @@ const fetch = (url: string, data: string, config?: AxiosRequestConfig, checkComm
             )
         } else {
             const plugin = usePlugin()
-            plugin.P2pCmdSender.add({
-                cmd: getXmlWrapData(data, url),
-                resolve: (xmlDoc) => {
-                    const $ = queryXml(xmlDoc)
-                    if ($('//status').text() === ApiStatus.fail) {
-                        const errorCode = queryXml(xmlDoc)('//errorCode').text().num()
-                        if (checkCommonErrorSwitch && handelCommonError(errorCode)) {
-                            reject(errorCode)
-                            return
-                        }
-                    }
-                    resolve(xmlDoc)
-                },
-                reject: (e) => {
-                    reject(e)
+            const p2pTransport = useP2PTransport()
+            p2pTransport.HttpRequest({
+                url: url,
+                data: data,
+                callback: (buffer) => {
+                    plugin.P2pCmdSender.add({
+                        cmd: buffer,
+                        resolve: (xmlDoc) => {
+                            const $ = queryXml(xmlDoc)
+                            if ($('//status').text() === ApiStatus.fail) {
+                                const errorCode = queryXml(xmlDoc)('//errorCode').text().num()
+                                if (checkCommonErrorSwitch && handelCommonError(errorCode)) {
+                                    reject(errorCode)
+                                    return
+                                }
+                            }
+                            resolve(xmlDoc)
+                        },
+                        reject: (e) => {
+                            reject(e)
+                        },
+                    })
                 },
             })
         }

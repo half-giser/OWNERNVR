@@ -47,6 +47,7 @@ interface CanvasPolygonOption {
     area?: CanvasBaseArea
     regulation?: boolean // 增加画矩形逻辑 regulation为true则为画矩形，false为画多边形
     imgSrc?: string // 待绘制的抓拍图路径
+    oldVersionMaxMin?: boolean
     onchange?: (area: CanvasBaseArea | CanvasBasePoint[], osdInfo?: CanvasPolygonOSDInfo) => void
     closePath?: (pointList: CanvasBasePoint[]) => void
     forceClosePath?: (bool: boolean) => void
@@ -123,10 +124,22 @@ export const CanvasPolygon = (option: CanvasPolygonOption = {}) => {
         ...DEFAULT_AREA,
         ...(option.area || {}),
     }
+    const oldVersionMaxMin = option.oldVersionMaxMin || false // 是否使用旧版的最大/最小框
+    let draggingMaxMin = false // 是否正在拖拽最大/最小目标框
+    let selectedMax = false // 是否选中最大目标框
+    let selectedMin = false // 是否选中最小目标框
+    let hoverOnMaxMinFlag = false // 防止频繁触发"绘制事件"的绑定
+    const MAX_MIN_COLOR = '#ff0' // rgb(255, 255, 0)
 
     // 根据数据绘制区域
     const init = (isFoucusClosePath = false) => {
         clearRect()
+
+        // 绘制OSD信息
+        if (enableOSD) {
+            drawOSD()
+            return
+        }
 
         if (regulation) {
             // 画矩形
@@ -192,59 +205,96 @@ export const CanvasPolygon = (option: CanvasPolygonOption = {}) => {
     // 设置最值区域是否可见
     const toggleRange = (visible: boolean) => {
         enableShowRange = visible
-        init(isClosed)
-        drawConstantly()
+
+        drawConstantly(isClosed)
+        bindDragMaxMinEvent()
     }
 
     // 设置最大值
     const setRangeMax = (area: CanvasBaseArea) => {
         rangeMax = area
-        init(isClosed)
-        drawConstantly()
+        selectedMax = false
+        selectedMin = false
+        drawConstantly(isClosed)
+        bindDragMaxMinEvent()
     }
 
     // 设置最小值
     const setRangeMin = (area: CanvasBaseArea) => {
         rangeMin = area
-        init(isClosed)
-        drawConstantly()
+        selectedMax = false
+        selectedMin = false
+        drawConstantly(isClosed)
+        bindDragMaxMinEvent()
     }
 
     // 绘制最大值区域
     const drawRangeMax = () => {
         const item = getRealAreaItemByRelative(rangeMax)
+        const maxMinColor = oldVersionMaxMin ? DEFAULT_LINE_COLOR : MAX_MIN_COLOR
         const lineStyle = {
-            strokeStyle: DEFAULT_LINE_COLOR,
+            strokeStyle: maxMinColor,
             lineWidth: 1.5,
         }
+
         ctx.Point2Rect(item.X1, item.Y1, item.X2, item.Y2, lineStyle)
         ctx.Text({
             text: 'Max',
-            startX: item.X1,
-            startY: item.Y1,
-            fillStyle: '#ff0',
+            startX: oldVersionMaxMin ? item.X1 : item.X2 - ctx.MeasureText('Max').width - 4,
+            startY: oldVersionMaxMin ? item.Y1 : item.Y1 + 4,
+            fillStyle: oldVersionMaxMin ? '#ffff00' : MAX_MIN_COLOR,
             strokeStyle: '#000',
-            textBaseline: 'bottom',
+            textBaseline: oldVersionMaxMin ? 'bottom' : 'top',
         })
+
+        if (selectedMax) {
+            ctx.FillCircle(item.X1, item.Y1, 4, maxMinColor)
+            ctx.FillCircle(item.X2, item.Y1, 4, maxMinColor)
+            ctx.FillCircle(item.X1, item.Y2, 4, maxMinColor)
+            ctx.FillCircle(item.X2, item.Y2, 4, maxMinColor)
+        }
     }
 
     // 绘制最小值区域
     const drawRangeMin = () => {
+        // const item = getRealAreaItemByRelative(rangeMin)
+        // const rangeMaxY1 = getRealSizeByRelative(rangeMax.Y1, 'y')
+        // const lineStyle = {
+        //     strokeStyle: DEFAULT_LINE_COLOR,
+        //     lineWidth: 1.5,
+        // }
+        // ctx.Point2Rect(item.X1, item.Y1, item.X2, item.Y2, lineStyle)
+        // ctx.Text({
+        //     text: 'Min',
+        //     startX: item.X1,
+        //     startY: item.Y1,
+        //     fillStyle: '#ff0',
+        //     strokeStyle: '#000',
+        //     textBaseline: Math.abs(rangeMaxY1 - item.Y1) < 14 ? 'top' : 'bottom',
+        // })
+
         const item = getRealAreaItemByRelative(rangeMin)
         const rangeMaxY1 = getRealSizeByRelative(rangeMax.Y1, 'y')
+        const maxMinColor = oldVersionMaxMin ? DEFAULT_LINE_COLOR : MAX_MIN_COLOR
         const lineStyle = {
-            strokeStyle: DEFAULT_LINE_COLOR,
+            strokeStyle: maxMinColor,
             lineWidth: 1.5,
         }
         ctx.Point2Rect(item.X1, item.Y1, item.X2, item.Y2, lineStyle)
         ctx.Text({
             text: 'Min',
-            startX: item.X1,
-            startY: item.Y1,
-            fillStyle: '#ff0',
+            startX: oldVersionMaxMin ? item.X1 : item.X2 - ctx.MeasureText('Min').width - 4,
+            startY: oldVersionMaxMin ? item.Y1 : item.Y1 + 4,
+            fillStyle: oldVersionMaxMin ? '#ffff00' : MAX_MIN_COLOR,
             strokeStyle: '#000',
-            textBaseline: Math.abs(rangeMaxY1 - item.Y1) < 14 ? 'top' : 'bottom',
+            textBaseline: oldVersionMaxMin ? (Math.abs(rangeMaxY1 - item.Y1) < 14 ? 'top' : 'bottom') : 'top',
         })
+        if (selectedMin) {
+            ctx.FillCircle(item.X1, item.Y1, 4, maxMinColor)
+            ctx.FillCircle(item.X2, item.Y1, 4, maxMinColor)
+            ctx.FillCircle(item.X1, item.Y2, 4, maxMinColor)
+            ctx.FillCircle(item.X2, item.Y2, 4, maxMinColor)
+        }
     }
 
     // 获取初始区域坐标点
@@ -383,7 +433,7 @@ export const CanvasPolygon = (option: CanvasPolygonOption = {}) => {
             }
         })
 
-        if (pointList.length >= 3 && pointList[0].isClosed) {
+        if (pointList.length >= 4 && pointList[0].isClosed) {
             isClosed = true
         } else {
             isClosed = false
@@ -470,7 +520,9 @@ export const CanvasPolygon = (option: CanvasPolygonOption = {}) => {
     }
 
     // 实时绘制全部区域（显示全部区域时，绘制当前区域的同时显示其余区域）
-    const drawConstantly = () => {
+    const drawConstantly = (isClosed = false) => {
+        init(isClosed)
+        // 绘制所有的多边形/矩形区域
         if (enableShowAll) {
             if (regulation) {
                 regionInfoList[currAreaIndex] = area
@@ -507,8 +559,7 @@ export const CanvasPolygon = (option: CanvasPolygonOption = {}) => {
     // 设置osdInfo: { osdFormat: '111\n222', X: 100, Y: 100 }
     const setOSD = (info: CanvasPolygonOSDInfo) => {
         osdInfo = info
-        init(isClosed) // 绘制osd时会重新绘制多边形，此时需判断多边形是否闭合
-        drawConstantly()
+        drawConstantly(isClosed) // 绘制osd时会重新绘制多边形，此时需判断多边形是否闭合
     }
 
     // 绘制OSD
@@ -523,10 +574,11 @@ export const CanvasPolygon = (option: CanvasPolygonOption = {}) => {
         let longestStrLen = 0
         for (let i = 0; i < osdList.length; i++) {
             const item = osdList[i].trim()
-            // 空白符占5.8px，小写字母占7.5px，大写字母、数字等其他占9px
+            // 汉字占13px，空白符占5.8px，小写字母占7.5px，大写字母、数字等其他占9px
+            const chineseCount = item.match(/[\u4e00-\u9fa5]/g)?.length || 0
             const lowerStrCount = item.match(/[a-z]/g)?.length || 0
             const spaceStrCount = item.match(/\s/g)?.length || 0
-            const itemStrLength = spaceStrCount * 5.8 + lowerStrCount * 7.5 + (item.length - lowerStrCount - spaceStrCount) * 9
+            const itemStrLength = chineseCount * 13 + spaceStrCount * 5.8 + lowerStrCount * 7.5 + (item.length - chineseCount - lowerStrCount - spaceStrCount) * 9
             longestStrLen = Math.max(itemStrLength, longestStrLen)
             ctx.Text({
                 text: item,
@@ -546,161 +598,17 @@ export const CanvasPolygon = (option: CanvasPolygonOption = {}) => {
         }
     }
 
-    const onMouseDown = (e: MouseEvent) => {
-        if (regulation) {
-            if (!enable) {
-                return
-            }
-            const startX = e.offsetX
-            const startY = e.offsetY
-            const clientX = e.clientX
-            const clientY = e.clientY
-            let endX: number
-            let endY: number
-            let finalX: number
-            let finalY: number
-            document.body.style.setProperty('user-select', 'none')
-
-            const onMouseMove = (e1: MouseEvent) => {
-                endX = clamp(e1.clientX - clientX + startX, 0, cavWidth)
-                endY = clamp(e1.clientY - clientY + startY, 0, cavHeight)
-                finalX = startX
-                finalY = startY
-
-                if (endX < startX) {
-                    finalX = endX
-                    endX = startX
-                }
-
-                if (endY < startY) {
-                    finalY = endY
-                    endY = startY
-                }
-
-                setArea(
-                    getRelativeAreaItemByReal({
-                        X1: finalX,
-                        Y1: finalY,
-                        X2: endX,
-                        Y2: endY,
-                    }),
-                )
-                drawConstantly()
-            }
-
-            const onMouseUp = () => {
-                onchange && onchange(area)
-                document.removeEventListener('mousemove', onMouseMove)
-                document.removeEventListener('mouseup', onMouseUp)
-                document.body.style.setProperty('user-select', 'unset')
-            }
-
-            document.addEventListener('mousemove', onMouseMove)
-            document.addEventListener('mouseup', onMouseUp)
-        } else {
-            if (!enable) {
-                return
-            }
-
-            document.body.style.setProperty('user-select', 'none')
-            const startX = e.offsetX
-            const startY = e.offsetY
-            const clientX = e.clientX
-            const clientY = e.clientY
-            const osdRectX = osdRect.x
-            const osdRectY = osdRect.y
-            const osdRectW = osdRect.width
-            const osdRectH = osdRect.height
-            let endX: number
-            let endY: number
-            // 先判断鼠标是否在osd矩形区域内
-            let isInOSD = false
-
-            const onMouseMove = (e2: MouseEvent) => {
-                // OSD
-                if (!enableOSD) {
-                    return
-                }
-
-                if (enableOSD && ctx.IsInRect(startX, startY, osdRectX, osdRectY, osdRectW, osdRectH)) {
-                    isInOSD = true
-                }
-
-                if (!isInOSD) {
-                    return
-                }
-                endX = e2.clientX - clientX + startX
-                endY = e2.clientY - clientY + startY
-                if (isInOSD) {
-                    // osd跟随鼠标移动
-                    const newStartX = clamp(osdRectX + endX - startX, 0, cavWidth - osdRectW)
-                    const newStartY = clamp(osdRectY + endY - startY, 0, cavHeight - osdRectH)
-                    const X = getRelativeSizeByReal(newStartX, 'x')
-                    const Y = getRelativeSizeByReal(newStartY, 'y')
-                    setOSD({
-                        X,
-                        Y,
-                        osdFormat: osdInfo.osdFormat,
-                    })
-                    onchange && onchange(pointList, osdInfo)
-                }
-            }
-
-            const onMouseUp = ({ target, offsetX, offsetY }: MouseEvent) => {
-                document.removeEventListener('mousemove', onMouseMove)
-                document.removeEventListener('mouseup', onMouseUp)
-                document.body.style.setProperty('user-select', 'unset')
-
-                if (typeof clearCurrentArea === 'function' && isClosed && !ctx.IsInRect(startX, startY, osdRectX, osdRectY, osdRectW, osdRectH)) {
-                    clearCurrentArea(pointList)
-                    return
-                }
-
-                // 如果绘制的点在OSD内或者当前不可编辑则不可绘制
-                if (isInOSD || !enable || pointList.length >= max || isClosed || target !== canvas) {
-                    return
-                }
-
-                // 当前绘制点
-                const newPoint = getRelativeItemByReal({
-                    X: offsetX,
-                    Y: offsetY,
-                })
-
-                // 禁止一个点位于相同的坐标
-                if (pointList.some(({ X, Y }) => X === newPoint.X && Y === newPoint.Y)) return
-
-                // 绘制最后一个点时首先判断区域是否可闭合
-                if (pointList.length === max - 1 && judgeIntersect(newPoint)) {
-                    forceClosePath && forceClosePath(false) // 区域不可闭合
-                    return
-                }
-
-                // 绘制过程中如果区域不可闭合（有相交的直线）则不可绘制
-                if (pointList.length >= 3 && judgeIntersect(newPoint)) {
-                    return
-                }
-
-                // 绘制当前点
-                pointList.push(newPoint)
-                init()
-                drawConstantly()
-                onchange && onchange(pointList)
-            }
-
-            document.addEventListener('mousemove', onMouseMove)
-            document.addEventListener('mouseup', onMouseUp)
-        }
-    }
+    let onMouseDown: (e: MouseEvent) => void = () => {}
+    let onMouseMove: (e: MouseEvent) => void = () => {}
 
     const onDoubleClick = () => {
-        const isIntersect = pointList.length >= 3 ? judgeIntersect(pointList.at(-1)!, true) : true
-        if (pointList.length >= 3 && !isIntersect && !isClosed) {
+        const isIntersect = pointList.length >= 4 ? judgeIntersect(pointList.at(-1)!, true) : true
+        if (pointList.length >= 4 && !isIntersect && !isClosed) {
             init(true)
             forceClosePath && forceClosePath(true) // 区域可闭合
             onchange && onchange(pointList)
         } else {
-            if (isIntersect && pointList.length >= 3) {
+            if (isIntersect && pointList.length >= 4) {
                 forceClosePath && forceClosePath(false) // 区域不可闭合
             }
         }
@@ -709,12 +617,379 @@ export const CanvasPolygon = (option: CanvasPolygonOption = {}) => {
     // 绑定事件
     const bindEvent = () => {
         canvas.removeEventListener('mousedown', onMouseDown)
+
+        onMouseDown = (e: MouseEvent) => {
+            if (regulation) {
+                if (!enable || hoverOnMaxMinFlag || draggingMaxMin) {
+                    return
+                }
+
+                if (selectedMax || selectedMin) {
+                    selectedMax = false
+                    selectedMin = false
+                    drawConstantly(isClosed)
+                }
+
+                const startX = e.offsetX
+                const startY = e.offsetY
+                const clientX = e.clientX
+                const clientY = e.clientY
+                let endX: number
+                let endY: number
+                let finalX: number
+                let finalY: number
+                document.body.style.setProperty('user-select', 'none')
+
+                const onMouseMove = (e1: MouseEvent) => {
+                    endX = clamp(e1.clientX - clientX + startX, 0, cavWidth)
+                    endY = clamp(e1.clientY - clientY + startY, 0, cavHeight)
+                    finalX = startX
+                    finalY = startY
+
+                    if (endX < startX) {
+                        finalX = endX
+                        endX = startX
+                    }
+
+                    if (endY < startY) {
+                        finalY = endY
+                        endY = startY
+                    }
+
+                    setArea(
+                        getRelativeAreaItemByReal({
+                            X1: finalX,
+                            Y1: finalY,
+                            X2: endX,
+                            Y2: endY,
+                        }),
+                    )
+                    drawConstantly(isClosed)
+                }
+
+                const onMouseUp = () => {
+                    onchange && onchange(area)
+                    document.removeEventListener('mousemove', onMouseMove)
+                    document.removeEventListener('mouseup', onMouseUp)
+                    document.body.style.setProperty('user-select', 'unset')
+                }
+
+                document.addEventListener('mousemove', onMouseMove)
+                document.addEventListener('mouseup', onMouseUp)
+            } else {
+                if (!enable || hoverOnMaxMinFlag || draggingMaxMin) {
+                    return
+                }
+
+                if (selectedMax || selectedMin) {
+                    selectedMax = false
+                    selectedMin = false
+                    drawConstantly(isClosed)
+                }
+
+                document.body.style.setProperty('user-select', 'none')
+                const startX = e.offsetX
+                const startY = e.offsetY
+                const clientX = e.clientX
+                const clientY = e.clientY
+                const osdRectX = osdRect.x
+                const osdRectY = osdRect.y
+                const osdRectW = osdRect.width
+                const osdRectH = osdRect.height
+                let endX: number
+                let endY: number
+                // 先判断鼠标是否在osd矩形区域内
+                let isInOSD = false
+
+                const onMouseMove = (e2: MouseEvent) => {
+                    // OSD
+                    if (!enableOSD) {
+                        return
+                    }
+
+                    if (enableOSD && ctx.IsInRect(startX, startY, osdRectX, osdRectY, osdRectW, osdRectH)) {
+                        isInOSD = true
+                    }
+
+                    if (!isInOSD) {
+                        return
+                    }
+                    endX = e2.clientX - clientX + startX
+                    endY = e2.clientY - clientY + startY
+                    if (isInOSD) {
+                        // osd跟随鼠标移动
+                        const newStartX = clamp(osdRectX + endX - startX, 0, cavWidth - osdRectW)
+                        const newStartY = clamp(osdRectY + endY - startY, 0, cavHeight - osdRectH)
+                        const X = getRelativeSizeByReal(newStartX, 'x')
+                        const Y = getRelativeSizeByReal(newStartY, 'y')
+                        setOSD({
+                            X,
+                            Y,
+                            osdFormat: osdInfo.osdFormat,
+                        })
+                        onchange && onchange(pointList, osdInfo)
+                    }
+                }
+
+                const onMouseUp = ({ target, offsetX, offsetY }: MouseEvent) => {
+                    document.removeEventListener('mousemove', onMouseMove)
+                    document.removeEventListener('mouseup', onMouseUp)
+                    document.body.style.setProperty('user-select', 'unset')
+
+                    if (typeof clearCurrentArea === 'function' && isClosed && !ctx.IsInRect(startX, startY, osdRectX, osdRectY, osdRectW, osdRectH)) {
+                        clearCurrentArea(pointList)
+                        return
+                    }
+
+                    // 如果绘制的点在OSD内或者当前不可编辑则不可绘制
+                    if (isInOSD || !enable || pointList.length >= max || isClosed || target !== canvas) {
+                        return
+                    }
+
+                    // 当前绘制点
+                    const newPoint = getRelativeItemByReal({
+                        X: offsetX,
+                        Y: offsetY,
+                    })
+
+                    // 禁止一个点位于相同的坐标
+                    if (pointList.some(({ X, Y }) => X === newPoint.X && Y === newPoint.Y)) return
+
+                    // 绘制最后一个点时首先判断区域是否可闭合
+                    if (pointList.length === max - 1 && judgeIntersect(newPoint)) {
+                        forceClosePath && forceClosePath(false) // 区域不可闭合
+                        return
+                    }
+
+                    // 绘制过程中如果区域不可闭合（有相交的直线）则不可绘制
+                    if (pointList.length >= 3 && judgeIntersect(newPoint)) {
+                        forceClosePath && forceClosePath(false) // 区域不可闭合
+                        return
+                    }
+
+                    // 绘制当前点
+                    pointList.push(newPoint)
+                    drawConstantly(isClosed)
+                    onchange && onchange(pointList)
+                }
+
+                document.addEventListener('mousemove', onMouseMove)
+                document.addEventListener('mouseup', onMouseUp)
+            }
+        }
+
         canvas.addEventListener('mousedown', onMouseDown)
 
         // 双击主动闭合区域
         if (typeof forceClosePath === 'function') {
             canvas.removeEventListener('dblclick', onDoubleClick)
             canvas.addEventListener('dblclick', onDoubleClick)
+        }
+    }
+
+    type RelevantData = {
+        realMaxArea: CanvasBaseArea
+        realMinArea: CanvasBaseArea
+        realMaxAreaWidth: number
+        realMaxAreaHeight: number
+        realMinAreaWidth: number
+        realMinAreaHeight: number
+        offsetX: number
+        offsetY: number
+        clientX: number
+        clientY: number
+        currentX: number
+        currentY: number
+        startX: number
+        startY: number
+    }
+
+    // 绑定事件（鼠标拖动最大/最小目标框）
+    const bindDragMaxMinEvent = () => {
+        if (oldVersionMaxMin) return
+        // var self = this;
+        if (enableShowRange) {
+            // 最大区域真实坐标和区域宽高/最小区域真实坐标和区域宽高
+            const realMaxArea = getRealAreaItemByRelative(rangeMax)
+            const realMinArea = getRealAreaItemByRelative(rangeMin)
+            const realMaxAreaWidth = realMaxArea.X2 - realMaxArea.X1
+            const realMaxAreaHeight = realMaxArea.Y2 - realMaxArea.Y1
+            const realMinAreaWidth = realMinArea.X2 - realMinArea.X1
+            const realMinAreaHeight = realMinArea.Y2 - realMinArea.Y1
+            // 鼠标拖拽时的实时坐标点
+            const offsetX = 0
+            const offsetY = 0
+            const clientX = 0
+            const clientY = 0
+            const currentX = 0
+            const currentY = 0
+            // 鼠标拖拽前的开始坐标点
+            const startX = 0
+            const startY = 0
+            // 组装 - 拖拽所需的相关数据
+            const relevantData: RelevantData = {
+                realMaxArea: realMaxArea,
+                realMinArea: realMinArea,
+                realMaxAreaWidth: realMaxAreaWidth,
+                realMaxAreaHeight: realMaxAreaHeight,
+                realMinAreaWidth: realMinAreaWidth,
+                realMinAreaHeight: realMinAreaHeight,
+                offsetX: offsetX,
+                offsetY: offsetY,
+                clientX: clientX,
+                clientY: clientY,
+                currentX: currentX,
+                currentY: currentY,
+                startX: startX,
+                startY: startY,
+            }
+
+            canvas.removeEventListener('mousemove', onMouseMove)
+
+            onMouseMove = (e: MouseEvent) => {
+                relevantData.offsetX = e.offsetX
+                relevantData.offsetY = e.offsetY
+                relevantData.clientX = e.clientX
+                relevantData.clientY = e.clientY
+                // 鼠标移到Min区域边框线上
+                if (isHoverOnMaxMin(e, realMinArea) && !draggingMaxMin) {
+                    hoverOnMaxMinFlag = true
+                    handleDragMaxMin(relevantData, 'rangeMin')
+                }
+                // 鼠标移到Max区域边框线上
+                else if (isHoverOnMaxMin(e, realMaxArea) && !draggingMaxMin) {
+                    hoverOnMaxMinFlag = true
+                    handleDragMaxMin(relevantData, 'rangeMax')
+                }
+                // 只要鼠标不在Max/Min区域边框线上就重新绑定区域绘制事件
+                else {
+                    if (hoverOnMaxMinFlag) {
+                        hoverOnMaxMinFlag = false
+                        bindEvent()
+                    }
+                }
+            }
+
+            // 只要显示最大/最小目标框就要保持canvas的mousemove事件绑定生效（边框线重叠时以最小区域优先选中：H5，插件，设备端三端保持一致）
+            canvas.addEventListener('mousemove', onMouseMove)
+        } else {
+            clearBindingEvents()
+            bindEvent()
+        }
+    }
+
+    /**
+     * 处理最大/最小目标框的拖拽移动
+     * @property {Object} self 上下文this
+     * @property {Object} relevantData 拖拽所需的相关数据（realMaxArea，realMinArea等）
+     * @property {Object} rangeType 拖拽的目标框类型（最大rangeMax/最小rangeMin）
+     */
+    const handleDragMaxMin = (relevantData: RelevantData, rangeType: string) => {
+        const realArea = rangeType === 'rangeMax' ? 'realMaxArea' : 'realMinArea'
+        const realAreaWidth = rangeType === 'rangeMax' ? 'realMaxAreaWidth' : 'realMinAreaWidth'
+        const realAreaHeight = rangeType === 'rangeMax' ? 'realMaxAreaHeight' : 'realMinAreaHeight'
+
+        canvas.removeEventListener('mousedown', onMouseDown)
+
+        onMouseDown = (e1: MouseEvent) => {
+            document.body.style.setProperty('user-select', 'none')
+
+            draggingMaxMin = true
+            selectedMax = rangeType === 'rangeMax' ? true : false
+            selectedMin = rangeType === 'rangeMin' ? true : false
+            drawConstantly()
+            relevantData.startX = e1.offsetX
+            relevantData.startY = e1.offsetY
+
+            const onMouseUp = () => {
+                document.removeEventListener('mousemove', onMouseMove)
+                document.removeEventListener('mouseup', onMouseUp)
+                document.body.style.setProperty('user-select', 'unset')
+                draggingMaxMin = false
+                hoverOnMaxMinFlag = true
+            }
+
+            const onMouseMove = (e3: MouseEvent) => {
+                draggingMaxMin = true
+                // 最大目标框坐上和右下坐标跟随鼠标计算新值
+                relevantData.currentX = e3.clientX - relevantData.clientX + relevantData.offsetX
+                relevantData.currentY = e3.clientY - relevantData.clientY + relevantData.offsetY
+                if (relevantData.currentX < 0) relevantData.currentX = 0
+                if (relevantData.currentX > cavWidth) relevantData.currentX = cavWidth
+                if (relevantData.currentY < 0) relevantData.currentY = 0
+                if (relevantData.currentY > cavHeight) relevantData.currentY = cavHeight
+                relevantData[realArea].X1 += relevantData.currentX - relevantData.startX
+                relevantData[realArea].Y1 += relevantData.currentY - relevantData.startY
+                relevantData[realArea].X2 = relevantData[realArea].X1 + relevantData[realAreaWidth]
+                relevantData[realArea].Y2 = relevantData[realArea].Y1 + relevantData[realAreaHeight]
+                // 边界处理
+                if (relevantData[realArea].X1 < 0) {
+                    relevantData[realArea].X1 = 0
+                    relevantData[realArea].X2 = relevantData[realAreaWidth]
+                }
+
+                if (relevantData[realArea].X1 + relevantData[realAreaWidth] > cavWidth) {
+                    relevantData[realArea].X1 = cavWidth - relevantData[realAreaWidth]
+                    relevantData[realArea].X2 = cavWidth
+                }
+
+                if (relevantData[realArea].Y1 < 0) {
+                    relevantData[realArea].Y1 = 0
+                    relevantData[realArea].Y2 = relevantData[realAreaHeight]
+                }
+
+                if (relevantData[realArea].Y1 + relevantData[realAreaHeight] > cavHeight) {
+                    relevantData[realArea].Y1 = cavHeight - relevantData[realAreaHeight]
+                    relevantData[realArea].Y2 = cavHeight
+                }
+
+                if (rangeType === 'rangeMax') {
+                    rangeMax = getRelativeAreaItemByReal(relevantData[realArea])
+                } else {
+                    rangeMin = getRelativeAreaItemByReal(relevantData[realArea])
+                }
+
+                // self[rangeType] = getRelativeAreaItemByReal(relevantData[realArea]);
+                // 实时绘制
+                drawConstantly()
+                // 重置开始坐标点
+                relevantData.startX = relevantData.currentX
+                relevantData.startY = relevantData.currentY
+            }
+
+            document.addEventListener('mousemove', onMouseMove)
+            document.addEventListener('mouseup', onMouseUp)
+        }
+
+        canvas.addEventListener('mousedown', onMouseDown)
+    }
+
+    /**
+     * 判断鼠标是否hover到最大/最小目标框的边框线上
+     * @property {Object} event 鼠标事件对象
+     * @property {Object} rangeAreaItem 最大/最小区域真实坐标对象（左上角-(X1, Y1) 和 右下角-(X2, Y2)）
+     */
+    const isHoverOnMaxMin = (event: MouseEvent, rangeAreaItem: CanvasBaseArea) => {
+        const offsetX = Math.ceil(event.offsetX)
+        const offsetY = Math.ceil(event.offsetY)
+        const X1 = Math.ceil(rangeAreaItem.X1)
+        const Y1 = Math.ceil(rangeAreaItem.Y1)
+        const X2 = Math.ceil(rangeAreaItem.X2)
+        const Y2 = Math.ceil(rangeAreaItem.Y2)
+        const isHoverOn =
+            (offsetX >= X1 - 2 && offsetX <= X1 + 2 && offsetY >= Y1 && offsetY <= Y2) ||
+            (offsetX >= X2 - 2 && offsetX <= X2 + 2 && offsetY >= Y1 && offsetY <= Y2) ||
+            (offsetY >= Y1 - 2 && offsetY <= Y1 + 2 && offsetX >= X1 && offsetX <= X2) ||
+            (offsetY >= Y2 - 2 && offsetY <= Y2 + 2 && offsetX >= X1 && offsetX <= X2)
+        return isHoverOn
+    }
+
+    // 解绑所有事件
+    const clearBindingEvents = () => {
+        document.removeEventListener('mousedown', onMouseDown)
+
+        if (!enableShowRange) {
+            canvas.removeEventListener('mousemove', onMouseMove)
         }
     }
 

@@ -10,6 +10,40 @@ import { generateAsyncRoutes } from '../../router'
 type PluginStatus = 'Unloaded' | 'Loaded' | 'InitialComplete' | 'Connected' | 'Disconnected' | 'Reconnecting'
 type PluginSizeMode = 'relativeToScreen' | 'relativeToDom' | 'relativeToBrowser' | 'absolute'
 
+/**
+ * @description 比较插件版本
+ * @param {string} ver1
+ * @param {string} ver2
+ * @returns {Number}
+ */
+const compareOcxVersion = (ver1: string, ver2: string) => {
+    const var1Arr = ver1.split(',')
+    const var2Arr = ver2.split(',')
+    for (let i = 0; i < var1Arr.length; i++) {
+        if (Number(var1Arr[i]) > Number(var2Arr[i])) {
+            return 1
+        } else if (Number(var1Arr[i]) === Number(var2Arr[i])) {
+            continue
+        } else {
+            return -1
+        }
+    }
+    return 0
+}
+
+const loadScript = async (src: string) => {
+    return new Promise((resolve) => {
+        const script = document.createElement('script')
+        script.onload = () => {
+            resolve(void 0)
+            // userSession.p2pSessionId = null
+            // startV2Process()
+        }
+        script.src = src
+        document.body.appendChild(script)
+    })
+}
+
 const getSingletonPlugin = () => {
     const RELATIVE_TO_SCREEN = 'relativeToScreen' // relativeToScreen：显示器左上角为0,0
     const RELATIVE_TO_DOM = 'relativeToDom' // relativeToBrowser: 浏览器左上角为0, 0;
@@ -27,6 +61,8 @@ const getSingletonPlugin = () => {
     }
 
     const pluginStore = usePluginStore()
+    const p2pTransport = useP2PTransport()
+    const p2pLang = useP2PLang()
     const lang = useLangStore()
     const { Translate, getLangTypes, getLangItems } = lang
     const router = useRouter()
@@ -73,42 +109,21 @@ const getSingletonPlugin = () => {
     VideoPluginNotifyEmitter.addListener(backupTask.notify)
 
     /**
-     * @description 比较插件版本
-     * @param {string} ver1
-     * @param {string} ver2
-     * @returns {Number}
-     */
-    const compareOcxVersion = (ver1: string, ver2: string) => {
-        const var1Arr = ver1.split(',')
-        const var2Arr = ver2.split(',')
-        for (let i = 0; i < var1Arr.length; i++) {
-            if (Number(var1Arr[i]) > Number(var2Arr[i])) {
-                return 1
-            } else if (Number(var1Arr[i]) === Number(var2Arr[i])) {
-                continue
-            } else {
-                return -1
-            }
-        }
-        return 0
-    }
-
-    /**
      * @description 插件需更新
      * @param {string} downLoadUrl
      */
-    const getPluginUpdateNotice = (downLoadUrl: string) => {
+    const getPluginUpdateNotice = () => {
         pluginNoticeHtml.value = 'IDCS_PLUGIN_VERSION_UPDATE'
-        pluginDownloadUrl.value = downLoadUrl
+        // pluginDownloadUrl.value = downLoadUrl
     }
 
     /**
      * @description Windows无安装插件
      * @param {string} downLoadUrl
      */
-    const getPluginNotice = (downLoadUrl: string) => {
+    const getPluginNotice = () => {
         pluginNoticeHtml.value = 'IDCS_NO_PLUGIN_FOR_WINDOWS'
-        pluginDownloadUrl.value = downLoadUrl
+        // pluginDownloadUrl.value = downLoadUrl
     }
 
     /**
@@ -120,58 +135,49 @@ const getSingletonPlugin = () => {
     }
 
     /**
-     * NVR2.2+所支持的浏览器均支持WebSocket
-     * @description 检测当前浏览器是否支持插件（websocket)
-     * @returns {boolean}
-     */
-    // const checkSupportWebsocket = () => {
-    //     const browserVersion = browserInfo.majorVersion
-    //     const browserType = browserInfo.type
-    //     // 若满足下列浏览器和对应的版本号，则需要升级浏览器（低版本不支持websocket）
-    //     if (browserType === 'ie' && browserVersion < 10) {
-    //         isPluginAvailable.value = false
-    //         pluginNoticeHtml.value = 'IDCS_IE_VERSION_WARNING'
-    //         return false
-    //     } else if (browserType === 'chrome' && browserVersion < 57) {
-    //         isPluginAvailable.value = false
-    //         pluginNoticeHtml.value = 'IDCS_CHROME_VERSION_WARNING'
-    //         return false
-    //     } else if (browserType === 'firefox' && browserVersion < 53) {
-    //         isPluginAvailable.value = false
-    //         pluginNoticeHtml.value = 'IDCS_FIREFOX_VERSION_WARNING'
-    //         return false
-    //     } else if (browserType === 'opera' && browserVersion < 44) {
-    //         isPluginAvailable.value = false
-    //         pluginNoticeHtml.value = 'IDCS_OPERA_VERSION_WARNING'
-    //         return false
-    //     } else if (browserType === 'safari' && browserVersion < 11) {
-    //         isPluginAvailable.value = false
-    //         pluginNoticeHtml.value = 'IDCS_SAFARI_VERSION_WARNING'
-    //         return false
-    //     } else if ((browserType === 'edge' || browserType === 'lowEdge') && browserVersion < 16) {
-    //         isPluginAvailable.value = false
-    //         pluginNoticeHtml.value = 'IDCS_EDGE_VERSION_WARNING'
-    //         return false
-    //     } else if (!['ie', 'chrome', 'firefox', 'opera', 'safari', 'edge', 'lowEdge'].includes(browserInfo.type)) {
-    //         isPluginAvailable.value = false
-    //         pluginNoticeHtml.value = 'IDCS_OTHER_VERSION_WARNING'
-    //         return false
-    //     }
-    //     return true
-    // }
-
-    /**
      * @description 视频插件通知回调
      * Firefox，Chrome中，回调函数名的字符串中不能出现“.”,否则插件无法识别，不能正确回调
      * @param {string} strXMLFormat
      */
-    const VideoPluginNotify = async (strXMLFormat: string) => {
-        const $ = queryXml(XMLStr2XMLDoc(strXMLFormat))
+    const VideoPluginNotify = async (strXMLFormat: string | ArrayBuffer | Blob) => {
+        // P2P http/ws消息通信
+        if (isBuffer(strXMLFormat)) {
+            p2pTransport.SplitP2PResponse(strXMLFormat as Blob, (p2pObj) => {
+                const transType = p2pObj.transType
+                const identify = p2pObj.identify
+                const buffer = p2pObj.buffer
+                if (transType === 'http') {
+                    let xmlStr = Uint8ArrayToStr(new Uint8Array(buffer))
+                    // NTA1-3903: 兼容协议报文为空的情况
+                    if (!xmlStr.match(/<\?xml([\s\S]*)<\/response>/)) {
+                        xmlStr = rawXml`
+                            <?xml version="1.0" encoding="UTF-8"?>
+                            <response version="1.0" cmdId="" cmdUrl="">
+                                <status>fail</status>
+                                <content></content>
+                            </response>
+                        `
+                    }
+                    xmlStr = xmlStr.match(/<\?xml([\s\S]*)<\/response>/)![0]
+                    const $xmlDoc = XMLStr2XMLDoc(xmlStr)
+                    const $ = queryXml($xmlDoc)
+                    const url = $('response').attr('cmdUrl')
+                    console.log('%cresponse--' + url, 'color: red', $('response')[0])
+                    CMD_QUEUE.resolve($('response')[0].element)
+                } else if (transType === 'websocket') {
+                    VideoPluginNotifyEmitter.emit(identify, buffer)
+                }
+            })
+
+            return
+        }
+
+        const $ = queryXml(XMLStr2XMLDoc(strXMLFormat as string))
         const funcName = $('/response').attr('reqId').num()
         const stateType = $('statenotify').attr('type')
 
         if ($('response').length && funcName) {
-            ;(getVideoPlugin() as ReturnType<typeof WebsocketPlugin>).queryInfoMap[funcName](strXMLFormat)
+            ;(getVideoPlugin() as ReturnType<typeof WebsocketPlugin>).queryInfoMap[funcName](strXMLFormat as string)
             return
         }
 
@@ -180,30 +186,31 @@ const getSingletonPlugin = () => {
             return
         }
 
-        if (stateType === 'NVMS_NAT_CMD') {
-            const $response = $('statenotify/response')
-            const $request = queryXml(XMLStr2XMLDoc(CMD_QUEUE.cmd.cmd))('//cmd[@type="NVMS_NAT_CMD"]/request')
-            if ($response.attr('flag') === $request.attr('flag') && $response.attr('url') === $request.attr('url')) {
-                CMD_QUEUE.resolve($response[0].element)
-            }
-        }
+        // if (stateType === 'NVMS_NAT_CMD') {
+        //     const $response = $('statenotify/response')
+        //     const $request = queryXml(XMLStr2XMLDoc(CMD_QUEUE.cmd.cmd))('//cmd[@type="NVMS_NAT_CMD"]/request')
+        //     if ($response.attr('flag') === $request.attr('flag') && $response.attr('url') === $request.attr('url')) {
+        //         CMD_QUEUE.resolve($response[0].element)
+        //     }
+        // }
 
         // 获取插件返回的sessionId，用于刷新无感知登录（授权码登录成功后，返回sessionId)
-        if (stateType === 'sessionId') {
-            let sessionId = null
-            if ($('statenotify/sessionId').length) {
-                sessionId = $('statenotify/sessionId').text()
-            }
-            userSession.p2pSessionId = sessionId
-            return
-        }
+        // if (stateType === 'sessionId') {
+        //     let sessionId = null
+        //     if ($('statenotify/sessionId').length) {
+        //         sessionId = $('statenotify/sessionId').text()
+        //     }
+        //     userSession.p2pSessionId = sessionId
+        //     return
+        // }
+
         //OCX已创建好窗口，通知可以登录了
-        else if (stateType === 'InitialComplete') {
-            setVideoPluginStatus('InitialComplete')
-            videoPluginLogin()
-        }
-        //连接成功
-        else if (stateType === 'connectstate') {
+        // else if (stateType === 'InitialComplete') {
+        //     setVideoPluginStatus('InitialComplete')
+        //     videoPluginLogin()
+        // }
+        //连接成功 / 插件token和sessionId认证成功
+        else if (stateType === 'connectstate' || stateType === 'AuthenticationState') {
             let status = ''
             if ($('statenotify/status').length) {
                 status = $('statenotify/status').text().trim()
@@ -236,14 +243,23 @@ const getSingletonPlugin = () => {
                             delCookie('em')
 
                             //执行标准客户端的登录流程
-                            const userInfoArr = userSession.getAuthInfo()
+                            const userInfoArr = userSession.getAuthInfo()!
                             await videoPluginLoadLang()
-                            const result = await doLogin('')
+
+                            userSession.token = $('statenotify/token').text()
+                            userSession.sessionId = $('statenotify/sessionId').text()
+                            const result = await getSessionInfo()
+
+                            // const result = await doLogin('')
                             if (queryXml(result)('status').text() === 'success') {
                                 if (userInfoArr) {
                                     setCookie('lastSN', userInfoArr[2], 36500)
                                 }
-                                await userSession.updateByLogin('P2P', result)
+                                await userSession.updateByLogin(result, {
+                                    userName: userInfoArr[0],
+                                    password: userInfoArr[1],
+                                    calendarType: userSession.calendarType,
+                                })
                                 generateAsyncRoutes()
                                 router.replace('/live')
                             } else {
@@ -258,15 +274,53 @@ const getSingletonPlugin = () => {
                     const errorCode = $('statenotify/errorCode').text().num()
                     const errorDescription = $('statenotify/errorDescription').text()
                     const curRoutUrl = route.path
+
+                    if (userSession.daTokenLoginAuth) {
+                        // handleDATokenError(daTokenLoginAuth, errorCode, errorDescription)
+                        /**
+                         * 处理DAToken登录失败的情形，跳转回云平台网站
+                         * 1. 536870943 插件端校验DAToken1 和 DAToken2 失败的情况
+                         * 2. 536871086 daToken过期、错误情况下，
+                         * @param {String} daTokenLoginAuth
+                         */
+                        const errorCodeMap: Record<number, string> = {
+                            536870935: 'IDCS_LOGIN_FAIL_REASON_DEV_OFFLINE', // dev connect fail
+                            536870936: 'IDCS_DEVICE_NOT_BOUND', // device no bound
+                            536870943: 'IDCS_INVALID_PARAMETER', // Invalid param
+                            536870947: 'IDCS_LOGIN_FAIL_REASON_U_P_ERROR', // user name does not exist
+                            536870948: 'IDCS_LOGIN_FAIL_REASON_U_P_ERROR', // Password error
+                            536870951: 'IDCS_DEVICE_LOCKED', // user lock
+                            536870953: 'IDCS_LOGIN_FAIL_USER_LIMITED_TELNET', // no remote auth
+                            536871086: 'IDCS_INVALID_TOKEN', // Invalid Token
+                        }
+                        const errorMsg = errorCodeMap[errorCode] ? p2pLang.Translate(errorCodeMap[errorCode]) : ''
+                        const prefixMsg = [536870936, 536870943, 536870951, 536871086].includes(errorCode) ? p2pLang.Translate('IDCS_LOGIN_FAILED') + ': ' : ''
+                        const errorInfo = prefixMsg + errorMsg || p2pLang.Translate('IDCS_LOGIN_FAILED')
+                        openMessageBox(errorInfo).then(() => {
+                            const daTokenLoginAuth = JSON.parse(userSession.daTokenLoginAuth)
+                            const cloudUrl = daTokenLoginAuth.src || ''
+                            userSession.clearSession()
+                            if (cloudUrl) {
+                                window.location.href = cloudUrl
+                            } else {
+                                goToIndex(errorCode, errorDescription)
+                            }
+                        })
+                        return
+                    }
+
                     switch (errorCode) {
-                        case ErrorCode.USER_ERROR_NODE_NET_DISCONNECT: //SN掉线，重新连接
+                        //SN掉线，重新连接
+                        case ErrorCode.USER_ERROR_NODE_NET_DISCONNECT:
                             setVideoPluginStatus('Reconnecting')
                             openLoading()
                             VideoPluginReconnectTimeoutId = setTimeout(() => {
                                 videoPluginLogin()
                             }, VideoPluginReconnectTimeout)
-                            return
-                        case 536871080: // 设备已被绑定，需要授权码方式登录
+                            break
+                        // 设备已被绑定，需要授权码方式登录
+                        case 536871080:
+                            closeLoading()
                             const authCodeIndex = errorDescription
                             userSession.authCodeIndex = authCodeIndex
                             if (curRoutUrl.includes('authCodeLogin')) {
@@ -275,15 +329,39 @@ const getSingletonPlugin = () => {
                                 layoutStore.isInitial = true
                                 router.push('/authCodeLogin')
                             }
-                            return
+                            break
+                        // 登录用户需要双重认证
+                        case 536871090:
+                            closeLoading()
+                            // TODO
+                            break
+                        case ErrorCode.USER_ERROR_NO_USER:
+                        case ErrorCode.USER_ERROR_PWD_ERR:
+                            // 授权码错误/双重认证用户名或密码错误
+                            closeLoading()
+                            if (curRoutUrl.includes('authCodeLogin')) {
+                                execLoginErrorCallback(errorCode, errorDescription)
+                            } else {
+                                // 双重认证
+                            }
+                            break
+                        // 不在排程内
+                        case 536871089:
+                            // 双重认证
+                            if (true) {
+                            }
+                            //
+                            else {
+                            }
+                            break
+                        default:
+                            if (curRoutUrl.includes('authCodeLogin')) {
+                                execLoginErrorCallback(errorCode, errorDescription)
+                            } else {
+                                goToIndex(errorCode, errorDescription)
+                            }
+                            break
                     }
-
-                    if (curRoutUrl.includes('authCodeLogin')) {
-                        execLoginErrorCallback(errorCode, errorDescription)
-                    } else {
-                        goToIndex(errorCode, errorDescription)
-                    }
-                    return
                 } else {
                     if (getIsReconn()) {
                         setTimeout(() => {
@@ -293,8 +371,70 @@ const getSingletonPlugin = () => {
                 }
             }
         }
+        // 通知插件能力集
+        else if (stateType === 'RequestNodeAppendInfo') {
+            const result = await getChlList({
+                requireField: [
+                    'supportAZ',
+                    'supportIris',
+                    'supportPtz',
+                    'supportIntegratedPtz',
+                    'supportPTZGroupTraceTask',
+                    'supportTalkback',
+                    'supportOsc',
+                    'supportSnap',
+                    'supportVfd',
+                    'supportBackEndVfd',
+                    'supportCpc',
+                    'supportCdd',
+                    'supportIpd',
+                    'supportAvd',
+                    'supportPea',
+                    'supportTripwire',
+                    'supportImageRotate',
+                    'supportFishEye',
+                    'supportFishEyeConfig',
+                    'supportMotion',
+                    'supportOsd',
+                    'supportAudioSetting',
+                    'supportMaskSetting',
+                    'supportImageSetting',
+                    'supportWhiteLightAlarmOut',
+                    'supportAudioAlarmOut',
+                    'supportAudioDev',
+                    'supportAOIEntry',
+                    'supportAOILeave',
+                    'supportPassLine',
+                    'supportVehiclePlate',
+                    'supportAutoTrack',
+                    'supportAccessControl',
+                    'supportVehicleDirection',
+                    'supportRS485Ptz',
+                ],
+            })
+            const $ = queryXml(result)
+            if ($('status').text() === 'success' && $('content/item').length) {
+                const innerHTMLStr = $('content/item')
+                    .map((item) => XMLDoc2XMLStr(item.element))
+                    .join('')
+                const sendXML = OCX_XML_SetAppendInfo(innerHTMLStr)
+                getVideoPlugin().ExecuteCmd(sendXML)
+            }
+            pluginStore.isAppendInfo = true
+        }
+        // BindWin
+        else if (stateType === 'BindWin') {
+            const status = $('statenotify/status').text().num()
+            pluginStore.bindStatus = status
+            if (status === 1 || status === 2) {
+                document.title = Translate('IDCS_WEB_CLIENT')
+            } else {
+                const sendXML = OCX_XML_PluginBindWin(document.title)
+                getVideoPlugin().ExecuteCmd(sendXML)
+            }
+        }
 
-        VideoPluginNotifyEmitter.emit($, stateType, strXMLFormat)
+        VideoPluginNotifyEmitter.emit($, stateType, strXMLFormat as string)
     }
 
     /**
@@ -339,14 +479,14 @@ const getSingletonPlugin = () => {
                 resolve(void 0)
             }
 
-            const userInfoArr = userSession.getAuthInfo()
-            if (userInfoArr !== null) {
+            // const userInfoArr = userSession.getAuthInfo()
+            if (userSession.token && userSession.sessionId) {
                 exec()
             } else {
                 const stopWatch = watch(
-                    () => userSession.getAuthInfo(),
+                    () => userSession.token && userSession.sessionId,
                     async (userInfoArr) => {
-                        if (userInfoArr !== null) {
+                        if (userInfoArr) {
                             stopWatch()
                             exec()
                         }
@@ -388,8 +528,9 @@ const getSingletonPlugin = () => {
             const isUPnPEnable = $('content/switch').text().bool()
             $('content/ports/item').forEach((item) => {
                 const $item = queryXml(item.element)
+                const externalIP = $item('externalIP').text()
                 if ($item('portType').text() === 'SERVICE') {
-                    if (isSubIpUsed && isUPnPEnable) {
+                    if ((isSubIpUsed || hostName === externalIP) && isUPnPEnable) {
                         port = $item('externalPort').text().num()
                     } else {
                         port = $item('localPort').text().num()
@@ -405,8 +546,15 @@ const getSingletonPlugin = () => {
      * @description 标准用户名/密码登录
      */
     const _videoPluginLoginForStandard = () => {
-        const id = ''
-        const sendXML = OCX_XML_SetLoginInfo(userSession.serverIp, pluginStore.pluginPort, id)
+        const sendXML = OCX_XML_SetLoginInfo(userSession.serverIp, pluginStore.pluginPort)
+        getVideoPlugin().ExecuteCmd(sendXML)
+    }
+
+    /**
+     * @description P2P 鉴权认证登录入口
+     */
+    const p2pAuthenticationLogin = () => {
+        const sendXML = OCX_XML_P2PAuthentication()
         getVideoPlugin().ExecuteCmd(sendXML)
     }
 
@@ -440,13 +588,30 @@ const getSingletonPlugin = () => {
     }
 
     /**
-     * @description p2p SessionId登录
+     * @description P2P 双重认证登录入口
      */
-    const p2pSessionIdLogin = () => {
-        const p2pSessionId = userSession.p2pSessionId
+    const p2pDualAuthLogin = () => {
         const userInfoArr = userSession.getAuthInfo()
-        if (p2pSessionId && userInfoArr && userInfoArr[2]) {
-            const sendXML = OCX_XML_SetSessionIdLogin_P2P(p2pSessionId, userInfoArr[2])
+        const dualAuthInfoArr = userSession.getDualAuthInfo()
+        if (userInfoArr && userInfoArr.length >= 2 && dualAuthInfoArr && dualAuthInfoArr.length >= 1) {
+            const sendXML = OCX_XML_SetDualAuthLogin_P2P(userInfoArr[0], userInfoArr[1], userInfoArr[2], dualAuthInfoArr[0], dualAuthInfoArr[1])
+            getVideoPlugin().ExecuteCmd(sendXML)
+        } else {
+            execLoginErrorCallback()
+        }
+    }
+
+    /**
+     * P2P DAToken登录入口
+     */
+    const p2pDaTokenLogin = () => {
+        const daTokenLoginAuth = userSession.daTokenLoginAuth
+        const json = JSON.parse(daTokenLoginAuth) || {}
+        const sn = json.sn
+        const sign = json.sign
+        const daToken = json.daToken
+        if (sn && daToken && sign) {
+            const sendXML = OCX_XML_SetDATokenLogin_P2P(sn, daToken, sign)
             getVideoPlugin().ExecuteCmd(sendXML)
         } else {
             execLoginErrorCallback()
@@ -458,16 +623,18 @@ const getSingletonPlugin = () => {
      */
     const videoPluginLogin = async () => {
         if (userSession.appType === 'P2P') {
-            if (userSession.p2pSessionId) {
-                p2pSessionIdLogin()
+            if (userSession.token && userSession.sessionId) {
+                p2pAuthenticationLogin()
+            } else if (userSession.daTokenLoginAuth) {
+                p2pDaTokenLogin()
+            } else if (userSession.dualAuth_N9K) {
+                p2pDualAuthLogin()
             } else {
                 p2pUsernameLogin()
             }
         } else {
-            if (userSession.sessionId) {
-                await videoPluginLoadLang()
-                videoPluginLoginForStandard()
-            }
+            await videoPluginLoadLang()
+            videoPluginLoginForStandard()
         }
     }
 
@@ -483,7 +650,7 @@ const getSingletonPlugin = () => {
     }
 
     type CmdQueue = {
-        cmd: string
+        cmd: string | ArrayBuffer
         resolve: ($: Element) => void
         reject: (e: string) => void
     }
@@ -492,7 +659,7 @@ const getSingletonPlugin = () => {
     const CMD_QUEUE = {
         viewFlag: 1, //当页面切换后，该flag加1，OCX将不会处理上一个页面的请求
         cmd: {
-            cmd: '',
+            cmd: '' as string | ArrayBuffer,
             resolve: () => {},
             reject: () => {},
         } as CmdQueue,
@@ -500,6 +667,7 @@ const getSingletonPlugin = () => {
         lock: false, //锁定标识：当前命令没有返回时，不能发送新的命令
         timeout: 300000, //命令超时时长，如果一个命令发出后，在_timeout时间内没返回，就认为超时
         timeoutId: 0 as NodeJS.Timeout | number,
+        identify: 1, // 事务id, 对应请求和应答数据
         add(cmd: CmdQueue) {
             if (this.queue.length > 10000) {
                 cmd.reject('CMD_QUEUE is full')
@@ -584,10 +752,6 @@ const getSingletonPlugin = () => {
         isInstallPlugin.value = false
         pluginStore.currPluginMode = null
 
-        // if (!checkSupportWebsocket()) {
-        //     setPluginNotice('body')
-        //     return
-        // }
         const connPlugin = WebsocketPlugin({
             wsType: 'pluginMainProcess',
             port: userSession.appType === 'STANDARD' ? ClientPort : P2PClientPort,
@@ -616,23 +780,9 @@ const getSingletonPlugin = () => {
     }
 
     /**
-     * @description 初始化视频插件
-     */
-    const initVideoPlugin = () => {
-        if (videoPlugin) return
-        switch (systemInfo.platform) {
-            case 'windows':
-                initWinPlugin()
-                break
-            default:
-                console.error("The plugin don't support current operating system!")
-        }
-    }
-
-    /**
      * @description 初始化Windows视频插件
      */
-    const initWinPlugin = () => {
+    const initVideoPlugin = () => {
         const ocxPort = pluginStore.ocxPort
         if (!ocxPort) {
             // pluginErrorHandle()
@@ -651,7 +801,7 @@ const getSingletonPlugin = () => {
                 }
                 pluginStore.currPluginMode = 'ocx'
                 pluginStore.showPluginNoResponse = false // 插件崩溃时提示插件无响应
-                loadWinPlugin()
+                loadVideoPlugin()
             },
             onmessage: VideoPluginNotify,
             onerror: () => {
@@ -671,9 +821,21 @@ const getSingletonPlugin = () => {
     /**
      * @description 加载Windows插件
      */
-    const loadWinPlugin = () => {
-        const path = getPluginPath()
-        const downLoadUrl = userSession.appType === 'STANDARD' ? path.ClientPluDownLoadPath : path.P2PClientPluDownLoadPath
+    const loadVideoPlugin = async () => {
+        let ver = ''
+        if (userSession.appType === 'STANDARD') {
+            if (systemInfo.platform === 'windows') {
+                ver = ClientPluVer
+            } else {
+                return
+            }
+        } else {
+            if (systemInfo.platform === 'windows') {
+                ver = P2PClientPluVer
+            } else {
+                ver = MacP2PClientPluVer
+            }
+        }
         let needUpate = true
         const sendXML = OCX_XML_GetOcxVersion()
         getVideoPlugin().QueryInfo(sendXML, (strXMLFormat) => {
@@ -681,18 +843,15 @@ const getSingletonPlugin = () => {
             const $xmlDoc = $('//response[@type="GetOcxVersion"]')
             if ($xmlDoc.length > 0) {
                 const intCurVer = $xmlDoc.text()
-                if (compareOcxVersion(intCurVer, path.ClientPluVer) >= 0) {
+                if (compareOcxVersion(intCurVer, ver) >= 0) {
                     needUpate = false
                 }
             }
 
             if (needUpate) {
                 isPluginAvailable.value = false
-                getPluginUpdateNotice(downLoadUrl)
-            }
+                getPluginUpdateNotice()
 
-            if (needUpate) {
-                isPluginAvailable.value = false
                 isInstallPlugin.value = false
                 // 将showPluginNoResponse置为空，避免更新插件并安装后页面弹出：插件无响应
                 pluginStore.showPluginNoResponse = false
@@ -705,19 +864,12 @@ const getSingletonPlugin = () => {
                 setVideoPluginStatus('Loaded')
             }
 
-            //设置OCX模式
-            try {
-                if (userSession.appType === 'P2P') {
-                    const sendXML = OCX_XML_Initial_P2P('Interactive', 'VideoPluginNotify', 'Live', 1)
-                    getVideoPlugin().ExecuteCmd(sendXML)
-                } else {
-                    const sendXML = OCX_XML_Initial('Interactive', 'VideoPluginNotify', 'Live')
-                    getVideoPlugin().ExecuteCmd(sendXML)
-                }
-
-                const sendXML = OCX_XML_SetProperty({ calendarType: userSession.calendarType, supportRecStatus: true })
-                getVideoPlugin().ExecuteCmd(sendXML)
-            } catch (ex) {}
+            const sendXML = OCX_XML_SetProperty({
+                calendarType: userSession.calendarType,
+                supportRecStatus: true,
+            })
+            getVideoPlugin().ExecuteCmd(sendXML)
+            videoPluginLogin()
         })
     }
 
@@ -758,7 +910,7 @@ const getSingletonPlugin = () => {
      * @param {string} cmd
      * @returns
      */
-    const executeCmd = (cmd: string) => {
+    const executeCmd = (cmd: string | ArrayBuffer) => {
         return getVideoPlugin().ExecuteCmd(cmd)
     }
 
@@ -857,15 +1009,15 @@ const getSingletonPlugin = () => {
         } else {
             pluginStore.currPluginMode = 'ocx'
         }
-        const path = getPluginPath()
+
         if (userSession.appType === 'P2P') {
-            getPluginNotice(path.P2PClientPluDownLoadPath)
+            getPluginNotice()
             // 与插件建链成功后，发生了错误，禁止跳转到插件下载页面,保留当前页面状态
             if (pluginStore.showPluginNoResponse) return
             if (!startPluginError && route.path.includes('authCodeLogin')) return
             setPluginNotice('body')
         } else {
-            getPluginNotice(path.ClientPluDownLoadPath)
+            getPluginNotice()
             showPluginNoResponse()
         }
     }
@@ -1441,8 +1593,14 @@ const getSingletonPlugin = () => {
         },
     )
 
-    onMounted(() => {
+    onMounted(async () => {
         disposePlugin()
+
+        let clientPluVerFilePath = 'OCX/ClientPluVerFile.js'
+        if (import.meta.env.DEV) {
+            clientPluVerFilePath = '/plugin/' + clientPluVerFilePath
+        }
+        await loadScript(clientPluVerFilePath)
 
         if (userSession.appType === 'STANDARD') {
             startV2Process()
@@ -1454,13 +1612,13 @@ const getSingletonPlugin = () => {
             }
 
             // siteDictionary.js 在根目录下
-            const script = document.createElement('script')
-            script.onload = () => {
-                userSession.p2pSessionId = null
-                startV2Process()
-            }
-            script.src = `${import.meta.env.VITE_P2P_URL}/siteDictionary.js?v=${import.meta.env.VITE_PACKAGE_VER}`
-            document.body.appendChild(script)
+            await loadScript(`${import.meta.env.VITE_P2P_URL}/siteDictionary.js?v=${import.meta.env.VITE_PACKAGE_VER}`)
+            await p2pLang.getLangTypes()
+            await p2pLang.getLangItems()
+            lang.langType = p2pLang.langType
+            lang.langId = p2pLang.langId
+            userSession.p2pSessionId = null
+            startV2Process()
         }
     })
 

@@ -49,7 +49,7 @@
                         ></a>
                     </div>
                     <div
-                        v-show="userSession.allowModifyPassword"
+                        v-show="pageData.isModifyPasswordBtn"
                         class="nav-item"
                     >
                         <a

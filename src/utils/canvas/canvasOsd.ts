@@ -64,9 +64,9 @@ export const CanvasOSD = (option: CanvasOSDOption = {}) => {
         timestamp: Date.now(),
     }
     // 参考系(一般是万分比)画布宽度
-    const RELATIVE_WIDTH = DEFAULT_NAME_CONFIG.XMaxValue - DEFAULT_NAME_CONFIG.XMinValue
+    let RELATIVE_WIDTH = DEFAULT_NAME_CONFIG.XMaxValue - DEFAULT_NAME_CONFIG.XMinValue
     // 参考系(一般是万分比)画布高度
-    const RELATIVE_HEIGHT = DEFAULT_NAME_CONFIG.YMaxValue - DEFAULT_NAME_CONFIG.YMinValue
+    let RELATIVE_HEIGHT = DEFAULT_NAME_CONFIG.YMaxValue - DEFAULT_NAME_CONFIG.YMinValue
 
     // 通道名矩形区域
     let nameRect: CanvasBaseRect = {
@@ -153,6 +153,13 @@ export const CanvasOSD = (option: CanvasOSDOption = {}) => {
             ...timeCfg,
             ...(config.timeCfg || {}),
         }
+        // HDRD-638 根据实际情况配置参考系宽高(一般是万分比)
+        const XMaxValue = nameCfg.XMaxValue || 10000
+        const XMinValue = nameCfg.XMinValue || 0
+        const YMaxValue = nameCfg.YMaxValue || 10000
+        const YMinValue = nameCfg.YMinValue || 0
+        RELATIVE_WIDTH = XMaxValue - XMinValue
+        RELATIVE_HEIGHT = YMaxValue - YMinValue
         init()
     }
 

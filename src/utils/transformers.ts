@@ -80,12 +80,21 @@ export const arrayBufferToBase64 = (buffer: ArrayBuffer) => {
     return window.btoa(binary)
 }
 
+// 判断是否是二进制数据
+export const isBuffer = <T extends string | ArrayBufferLike | Blob | ArrayBufferView>(data: T) => {
+    return data instanceof Blob || data instanceof ArrayBuffer || (data as ArrayBufferView).buffer instanceof ArrayBuffer
+}
+
 /**
  * @description js数据类型转buffer
  * @param {string} data
  * data -> blob -> buffer
  */
-export const dataToBuffer = (data: string) => {
+export const dataToBuffer = (data: string | ArrayBufferLike | Blob | ArrayBufferView) => {
+    if (isBuffer(data)) {
+        return Promise.resolve(data as ArrayBufferLike | Blob | ArrayBufferView)
+    }
+
     return new Promise((resolve: (param: ArrayBuffer) => void) => {
         const blob = new Blob([data])
         const reader = new FileReader()
@@ -183,4 +192,27 @@ export const fileToBase64 = (file: Blob) => {
         }
         reader.readAsDataURL(file)
     })
+}
+
+// 解析unicode编码
+export const decryptUnicode = (info: string, unmask: number) => {
+    info = info.replace(/\"/g, '')
+    const infoMasked = base64Decode(info)
+    const infoMaskedArr = infoMasked.split(' ').map((item) => Number(item))
+    const infoArr = []
+    for (let i = 0; i < infoMaskedArr.length; i++) {
+        infoArr.push(String.fromCharCode(infoMaskedArr[i] ^ unmask))
+    }
+    return infoArr.join('')
+}
+
+// 设置unicode编码
+export const setUnicode = (info: string, unmask: number) => {
+    const infoArr = info.split('')
+    const infoMaskedArr: number[] = []
+    for (let i = 0; i < infoArr.length; i++) {
+        infoMaskedArr.push(infoArr[i].charCodeAt(0) ^ unmask)
+    }
+    const infoMasked = infoMaskedArr.join(' ')
+    return base64Encode(infoMasked)
 }

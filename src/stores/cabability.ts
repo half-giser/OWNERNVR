@@ -69,6 +69,8 @@ export const useCababilityStore = defineStore(
         const decoderOutputMaxWin = ref<Record<number, number>>({})
         const supportHttpPost = ref(false)
         const supportRS485 = ref(false)
+        // 是否支持设备基本信息界面展示开源协议
+        const showCameraPreviewLock = ref(false)
 
         const CustomerID = ref(0)
         const AISwitch = ref<boolean | undefined>()
@@ -153,6 +155,7 @@ export const useCababilityStore = defineStore(
             switchIpChlRange.value.push($('switchIpChlRange/start').text().num())
             switchIpChlRange.value.push($('switchIpChlRange/end').text().num())
             mainStreamLimitFps.value = $('mainStreamLimitFps').text().num() || 1
+            showCameraPreviewLock.value = $('showCameraPreviewLock').text().bool()
 
             $('FishEyeCaps/installType/enum').forEach((item) => {
                 const text = item.text()
@@ -249,6 +252,7 @@ export const useCababilityStore = defineStore(
             updateDiskMode,
             supportHttpPost,
             supportRS485,
+            showCameraPreviewLock,
         }
     },
     {

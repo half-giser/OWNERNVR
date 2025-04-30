@@ -171,7 +171,12 @@ declare global {
     declare const natPort: string
     declare const natIp_2_0: string
     declare const natPort_2_0: string
-    // declare const OCX_PLUGIN: undefined | PluginType
+    declare const ISOLATION: string
+    declare const CUSTOMER_ID: string
+
+    declare const ClientPluVer: string
+    declare const P2PClientPluVer: string
+    declare const MacP2PClientPluVer: string
 
     interface WindowExtends {
         __RUNTIME_OCX_PLUGIN__: undefined | PluginType

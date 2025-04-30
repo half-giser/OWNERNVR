@@ -157,10 +157,9 @@ const businessApplicationRoutes: FeatureItem = {
         // 非管理员账户
         if (userSession.authGroupId) {
             const supportFaceMatch = systemCaps.supportFaceMatch
-            const IntelAndFaceConfigHide = systemCaps.IntelAndFaceConfigHide
-            const parkingLotMgr = userSession.hasAuth('parkingLotMgr') && !IntelAndFaceConfigHide
-            const AccessControlMgr = userSession.hasAuth('AccessControlMgr')
-            if (!parkingLotMgr && !AccessControlMgr && !supportFaceMatch) {
+            const businessCfg = userSession.hasAuth('businessCfg')
+            const businessMgr = userSession.hasAuth('businessMgr')
+            if (!businessCfg && !businessMgr && !supportFaceMatch) {
                 openMessageBox(Translate('IDCS_NO_AUTH'))
                 if (from.fullPath.includes('business-application')) {
                     next('/live')

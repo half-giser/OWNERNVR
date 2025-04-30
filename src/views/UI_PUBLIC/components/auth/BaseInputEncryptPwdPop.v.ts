@@ -46,6 +46,8 @@ export default defineComponent({
     },
     setup(prop, ctx) {
         const { Translate } = useLangStore()
+        const userSession = useUserSessionStore()
+
         const formRef = useFormRef()
         const formData = ref(new UserInputEncryptPwdForm())
         const isShowPassord = ref(false)
@@ -71,7 +73,7 @@ export default defineComponent({
                     if (prop.encrypt === 'md5') {
                         password = MD5_encrypt(formData.value.password)
                     } else {
-                        password = sha512_encrypt(MD5_encrypt(formData.value.password))
+                        password = AES_encrypt(formData.value.password, userSession.sesionKey)
                     }
                     ctx.emit('confirm', { password })
                 }

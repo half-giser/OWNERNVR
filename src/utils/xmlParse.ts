@@ -126,7 +126,7 @@ export const XMLStr2XMLDoc = (str: string) => {
  * @param {XMLDocument} doc
  * @return {*}
  */
-export const XMLDoc2XMLStr = (doc: XMLDocument) => {
+export const XMLDoc2XMLStr = (doc: Node) => {
     return serializer.serializeToString(doc)
 }
 

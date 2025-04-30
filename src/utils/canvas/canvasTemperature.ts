@@ -231,7 +231,7 @@ export const CanvasTemperature = (option: CanvasTemperatureOption = {}) => {
 
             // 绘制的最后一个点是最大点数，或者强制闭合为true时，才绘制闭合线段
             if (i === pointList.length - 1 && (i === max - 1 || isFoucusClosePath)) {
-                const isIntersect = pointList.length >= 3 ? judgeIntersect(pointList.at(-1)!, true) : true
+                const isIntersect = pointList.length >= 4 ? judgeIntersect(pointList.at(-1)!, true) : true
                 if (!isIntersect) {
                     ctx.Line(startPoint.X, startPoint.Y, item.X, item.Y, lineStyle)
                     isClosed = true
@@ -322,7 +322,7 @@ export const CanvasTemperature = (option: CanvasTemperatureOption = {}) => {
             }
         })
 
-        if (pointList.length >= 3 && pointList[0].isClosed) {
+        if (pointList.length >= 4 && pointList[0].isClosed) {
             isClosed = true
         } else {
             isClosed = false
@@ -633,13 +633,13 @@ export const CanvasTemperature = (option: CanvasTemperatureOption = {}) => {
     }
 
     const onDoubleClick = () => {
-        const isIntersect = pointList.length >= 3 ? judgeIntersect(pointList.at(-1)!, true) : true
-        if (pointList.length >= 3 && !isIntersect && !isClosed) {
+        const isIntersect = pointList.length >= 4 ? judgeIntersect(pointList.at(-1)!, true) : true
+        if (pointList.length >= 4 && !isIntersect && !isClosed) {
             init(true)
             forceClosePath && forceClosePath(true) // 区域可闭合
             onchange && onchange(pointList)
         } else {
-            if (isIntersect && pointList.length >= 3) {
+            if (isIntersect && pointList.length >= 4) {
                 forceClosePath && forceClosePath(false) // 区域不可闭合
             }
         }

@@ -6,7 +6,6 @@
 
 import { type ApiResult } from '@/api/api'
 import { type XMLQuery, type XmlResult } from './xmlParse'
-import JSZip from 'jszip'
 
 export { clamp, cloneDeep, debounce, isEqual } from 'lodash-es'
 
@@ -201,135 +200,6 @@ export const getRtspUrl = (ip: string, port: string, rtspUrl: string) => {
 }
 
 /**
- * @description 下载文件
- * @param { Blob } blob 文件的blob
- * @param { string } fileName 文件名(包含扩展名)
- */
-export const download = (blob: Blob, fileName: string) => {
-    const link = document.createElement('a')
-    const url = window.URL.createObjectURL(blob)
-    link.setAttribute('href', url)
-    link.setAttribute('download', fileName)
-    link.style.display = 'none'
-    document.body.appendChild(link)
-    link.click()
-    setTimeout(() => {
-        document.body.removeChild(link)
-        window.URL.revokeObjectURL(url)
-    }, 1000)
-}
-
-/**
- * @description 下载文件
- * @param { string } imgBase64 base64或URL
- * @param { string } fileName 文件名(包含扩展名)
- */
-export const downloadFromBase64 = (imgBase64: string, fileName: string) => {
-    const link = document.createElement('a')
-    link.setAttribute('href', imgBase64)
-    link.setAttribute('download', fileName)
-    link.style.display = 'none'
-    document.body.appendChild(link)
-    link.click()
-    setTimeout(() => {
-        document.body.removeChild(link)
-    }, 1000)
-}
-
-type XlsDesc = {
-    colspan: number | string
-    content: number | string
-}
-
-const createExcelTemplate = (titleArr: string[], contentArr: string[][], xlsDesc?: XlsDesc) => {
-    const content = contentArr
-        .map((tr) => {
-            return `<tr>${tr.map((td) => `<td style='vnd.ms-excel.numberformat:@'>${td}</td>`).join('')}</tr>`
-        })
-        .join('')
-    return rawXml`
-        <table cellspacing='0' cellpadding='0' border='1' style='display:none' class="excelTable">
-            <thead>
-                ${xlsDesc ? `<tr><th colspan="${xlsDesc.colspan}">${xlsDesc.content}</th></tr>` : ''}
-                <tr>${titleArr.map((item) => `<th>${item}</th>`).join('')}</tr>
-            </thead>
-            <tbody>${content}</tbody>
-        </table>
-    `
-}
-
-export const downloadExcel = (titleArr: string[], contentArr: string[][], fileName?: string, xlsDesc?: XlsDesc) => {
-    // 替换table数据和worksheet名字
-    const table = createExcelTemplate(titleArr, contentArr, xlsDesc)
-    const template =
-        "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:x='urn:schemas-microsoft-com:office:excel'" +
-        "xmlns='http://www.w3.org/TR/REC-html40'><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>" +
-        `<x:Name>${fileName || 'Worksheet'}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets>` +
-        '</x:ExcelWorkbook></xml><![endif]-->' +
-        "<style type='text/css'>table td, table th {height: 50px;text-align: center;font-size: 18px;}</style>" +
-        `</head><body>${table}</body></html>`
-    const blob = new Blob([template], { type: 'text/csv' })
-    download(blob, fileName || 'Worksheet.xls')
-}
-
-export type DownloadZipOptions = {
-    zipName: string
-    files: { name: string; content: string | ArrayBuffer; folder: string }[]
-}
-
-export const downloadZip = (options: DownloadZipOptions) => {
-    return new Promise((resolve) => {
-        const zipName = options.zipName || 'demo'
-        const files = options.files || []
-
-        if (!files.length) {
-            resolve(void 0)
-            return
-        }
-
-        const zip = new JSZip()
-        const folders: Record<string, JSZip | null> = {}
-
-        for (let i = 0; i < files.length; i++) {
-            const file = files[i]
-            const name = file.name
-            const content = file.content
-            const folder = file.folder
-            if (folder && !folders[folder]) {
-                folders[folder] = zip.folder(folder)
-            }
-            const obj = folders[folder] || zip
-            // 判断是否为图片文件
-            const isImg = /\.(png|jpe?g|gif|svg)(\?.*)?$/.test(name)
-            if (isImg) {
-                obj.file(name, (content as string).replace(/data:image\/(png|jpg);base64,/, ''), { base64: true })
-            } else {
-                if (typeof content === 'string') {
-                    if (!content.length) {
-                        // 跳过空录像文件
-                        files.splice(i, 1)
-                        i--
-                        continue
-                    }
-                } else if (!content.byteLength) {
-                    files.splice(i, 1)
-                    i--
-                    continue
-                }
-                obj.file(name, content)
-            }
-        }
-
-        zip.generateAsync({ type: 'blob' }).then((content) => {
-            download(content, zipName + '.zip')
-            // see FileSaver.js
-            // saveAs(content, zipName + ".zip")
-            resolve(void 0)
-        })
-    })
-}
-
-/**
  * @description XML注入securityVer属性
  * @returns {string}
  */
@@ -380,6 +250,7 @@ export const getChlList = (options: Partial<ChannelQueryNodeListDto> = {}) => {
                 <enum>chls</enum>
                 <enum>sensors</enum>
                 <enum>alarmOuts</enum>
+                <enum>voices</enum>
             </nodeType>
             <chlType>
                 <enum>analog</enum>
@@ -407,6 +278,7 @@ export const getChlList = (options: Partial<ChannelQueryNodeListDto> = {}) => {
             ${options.isSupportTripwire ? '<supportTripwire/>' : ''}
             ${options.isSupportImageRotate ? '<supportImageRotate/>' : ''}
             ${options.isSupportFishEye ? '<supportFishEye/>' : ''}
+            ${options.isSupportFishEyeConfig ? '<supportFishEyeConfig/>' : ''}
             ${options.isSupportMotion ? '<supportMotion/>' : ''}
             ${options.isSupportOsd ? '<supportOsd/>' : ''}
             ${options.isSupportAudioSetting ? '<supportAudioSetting/>' : ''}
@@ -419,8 +291,11 @@ export const getChlList = (options: Partial<ChannelQueryNodeListDto> = {}) => {
             ${options.isSupportAOILeave ? '<supportAOILeave/>' : ''}
             ${options.isSupportPassLine ? '<supportPassLine/>' : ''}
             ${options.isSupportVehiclePlate ? '<supportVehiclePlate/>' : ''}
+            ${options.isSupportRegionStatistics ? '<supportRegionStatistics/>' : ''}
             ${options.isSupportAutoTrack ? '<supportAutoTrack/>' : ''}
             ${options.isSupportAccessControl ? '<supportAccessControl/>' : ''}
+            ${options.isSupportVehicleDirection ? '<supportVehicleDirection/>' : ''}
+            ${options.isSupportRS485Ptz ? '<supportRS485Ptz/>' : ''}
             ${options.isContainsDeletedItem ? '<containsDeletedItem/>' : ''}
             ${options.authList ? `<auth relation='or'>${options.authList}</auth>` : ''}
             ${options.chlType ? `<chlType type='chlType'>${options.chlType}</chlType>` : ''}
@@ -558,12 +433,31 @@ export const commLoadResponseHandler = (
             successHandler && successHandler($)
             return Promise.resolve($)
         })
-        .catch(($) =>
-            openMessageBox(Translate('IDCS_QUERY_DATA_FAIL')).then(() => {
+        .catch(($) => {
+            const errorCode = $('errorCode').text().num()
+            let errorInfo = Translate('IDCS_QUERY_DATA_FAIL')
+            switch (errorCode) {
+                case ErrorCode.USER_ERROR_NO_USER:
+                case ErrorCode.USER_ERROR_PWD_ERR:
+                    errorInfo = Translate('IDCS_LOGIN_FAIL_REASON_U_P_ERROR')
+                    break
+                case ErrorCode.USER_ERROR_SERVER_NO_EXISTS:
+                    errorInfo = Translate('IDCS_LOGIN_OVERTIME')
+                    break
+                case ErrorCode.USER_ERROR_NO_AUTH:
+                    errorInfo = Translate('IDCS_NO_PERMISSION')
+                    break
+                case ErrorCode.USER_ERROR_INVALID_PARAM:
+                    errorInfo = Translate('IDCS_USER_ERROR_INVALID_PARAM')
+                    break
+                default:
+                    break
+            }
+            return openMessageBox(errorInfo).then(() => {
                 failedHandler && failedHandler($)
                 return Promise.reject($)
-            }),
-        )
+            })
+        })
 }
 
 /**
@@ -846,19 +740,16 @@ export const getArrayDiffRows = (arr1: Record<string, any>[], arr2: Record<strin
  * @returns {NodeJS.Timeout}
  */
 export const reconnect = () => {
-    const { Translate } = useLangStore()
     const pluginStore = usePluginStore()
     const userSession = useUserSessionStore()
 
     if (userSession.appType === 'STANDARD') {
         return setTimeout(() => {
             reconnectStandard(() => {
-                openMessageBox(Translate('IDCS_LOGIN_OVERTIME')).then(() => {
-                    closeLoading()
-                    Logout()
-                })
+                closeLoading()
+                Logout()
             })
-        }, 150000)
+        }, 5000)
     } else {
         pluginStore.isReconn = true
         return setTimeout(() => 0)
@@ -1104,8 +995,8 @@ const getTranslateForTime = (value: number, unit1: string, unit1s: string, unit2
 export const getTranslateForPasswordStrength = (key: keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING) => {
     const Translate = useLangStore().Translate
     switch (key) {
-        // case 'weak':
-        //     return Translate('IDCS_PASSWORD_STRONG_WEAK').formatForLang(1, 16)
+        case 'weak':
+            return Translate('IDCS_PASSWORD_STRONG_WEAK').formatForLang(1, 16)
         case 'medium':
             return Translate('IDCS_PASSWORD_STRONG_MIDDLE').formatForLang(8, 16).replaceAll('\n', '<br>')
         case 'strong':
@@ -1165,12 +1056,23 @@ export const getTranslateMapping = (options: Record<string, string>): Record<str
  * @description 提示达到搜索最大数量
  * @param $
  */
-export const showMaxSearchLimitTips = ($: XMLQuery) => {
-    const isMaxSearchResultNum = $('content/IsMaxSearchResultNum').text().bool()
+export const showMaxSearchLimitTips = ($: XMLQuery, type?: string) => {
     const { Translate } = useLangStore()
 
+    let isMaxSearchResultNum = $('content/IsMaxSearchResultNum').text().bool()
+    let maxSearchLimit = $('content/IsMaxSearchResultNum').attr('maxSearchLimit').num() || 150000
+
+    if (type === 'smartSearch') {
+        const total = $('content').attr('total').num()
+        maxSearchLimit = 10000
+        if (total >= 10000) {
+            isMaxSearchResultNum = true
+        }
+    }
+
     if (isMaxSearchResultNum) {
-        openMessageBox(Translate('IDCS_SEARCH_RESULT_LIMIT_TIPS'))
+        const msg = (type === 'smartSearch' ? 'web ' : '') + Translate('IDCS_SEARCH_RESULT_LIMIT_TIPS').formatForLang(maxSearchLimit)
+        openMessageBox(msg)
     }
 }
 
@@ -1274,6 +1176,16 @@ export const getChlGuid16 = (id: string) => {
     arr[0] = (arr[0] + id).slice(-8)
     const guid = '{' + arr.join('-') + '}'
     return guid
+}
+
+// 根据guid获取通道id，前面的数字为16进制
+export const getChlId16 = (guid: string) => {
+    try {
+        const id = guid.substring(1, 9)
+        return parseInt(id, 16)
+    } catch (e) {
+        return 1
+    }
 }
 
 /**

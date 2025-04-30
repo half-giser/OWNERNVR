@@ -4,7 +4,7 @@
  * @Description: 错误锁定检查
  * 适用于错误指定次数后，锁定指定时间还有解锁的场景
  */
-export const ErrorLockChecker = (busType: string) => {
+export const useErrorLockChecker = (busType: string) => {
     const { Translate } = useLangStore()
 
     // 是否已锁定
@@ -17,7 +17,7 @@ export const ErrorLockChecker = (busType: string) => {
     const disseconds = ref('')
     //锁定时长
     let lockTime = 0
-    let countDowner: ReturnType<typeof CountDowner>
+    let countDowner: ReturnType<typeof useCountDowner>
 
     /**
      * @description 设置锁定时间
@@ -53,7 +53,7 @@ export const ErrorLockChecker = (busType: string) => {
                     if (countDowner) {
                         countDowner.destroy()
                     }
-                    countDowner = CountDowner({
+                    countDowner = useCountDowner({
                         distime: lockTime / 1000,
                         callback: (obj) => {
                             disminites.value = obj.disminites

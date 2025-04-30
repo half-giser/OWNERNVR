@@ -117,17 +117,31 @@ export const checkStmpServer = (str: string) => {
 }
 
 /**
+ * @description 设备名称的限制规则(DEVICE_LIMIT_CHAR)
+ */
+export const checkDevName = (str: string) => {
+    const reg = /[/\\]/g // 特殊字符限制与设备端保持一致（不可输入 /\ 这两个特殊字符）
+    return !reg.test(str)
+}
+
+/**
  * @description 通道名
  * @param strChlName
  * @returns {boolean}
  */
 export const checkChlName = (strChlName: string) => {
-    const name = strChlName.replace(' ', '')
-    // 前端过滤XML中不允许字符：<>&'\"\x00-\x08\x0b-\x0c\x0e-\x1f]以及键盘上看到的特殊字符：!@#$%^*()-+=:;,./?\\|
-    // var reg = /[!@#$%^*()-+=:;,./?\\|<>&'\"\x00-\x08\x0b-\x0c\x0e-\x1f]/g;
-    const reg = /[&$|;`\\/:*?\"<>]/g
-    if (!reg.test(name)) return true
-    else return false
+    const reg = /[/\\]/g // 特殊字符限制与设备端保持一致（不可输入 /\ 这两个特殊字符）
+    return !reg.test(strChlName)
+}
+
+/**
+ * @description 预置点名称的限制规则(PRESET_LIMIT_CHAR)
+ * @param strChlName
+ * @returns {boolean}
+ */
+export const checkPresetName = (strPresetName: string) => {
+    const reg = /[<>&]/g // 特殊字符限制与设备端保持一致（不可输入 <>& 这三个特殊字符）
+    return !reg.test(strPresetName)
 }
 
 /**

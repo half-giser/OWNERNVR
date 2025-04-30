@@ -178,6 +178,7 @@ export class ChannelQueryNodeListDto {
     isSupportTripwire = false
     isSupportImageRotate = false
     isSupportFishEye = false
+    isSupportFishEyeConfig = false
     isSupportMotion = false
     isSupportOsd = false
     isSupportAudioSetting = false
@@ -193,6 +194,9 @@ export class ChannelQueryNodeListDto {
     isSupportAutoTrack = false
     isSupportAccessControl = false
     isContainsDeletedItem = false
+    isSupportRegionStatistics = false
+    isSupportVehicleDirection = false
+    isSupportRS485Ptz = false
     authList = ''
     chlType = ''
     ignoreNdChl = false

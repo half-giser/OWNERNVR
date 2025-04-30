@@ -121,6 +121,10 @@
             >
                 {{ item.chlIpInfo }}
             </div>
+            <canvas
+                v-show="item.isTargetDetect"
+                class="target-detect"
+            ></canvas>
             <canvas class="draw"></canvas>
             <div
                 class="error"
@@ -132,6 +136,11 @@
                 <div class="error-chl-name">{{ item.errorTipsChlName }}</div>
                 <!-- 播放错误码提示层 -->
                 <div class="error-tips">{{ item.errorTipsText === 'none' ? '' : item.errorTipsText }}</div>
+                <BaseImgSprite
+                    v-show="item.isErrorLockIcon"
+                    class="error-lock"
+                    file="suo"
+                />
             </div>
             <!-- 视频丢失提示层
                 （VideoLossLogo.png存在时显示videoloss-wrap：Logo+错误码，
@@ -152,6 +161,11 @@
                 />
                 <!-- 视频丢失logo下方显示错误码 -->
                 <div class="videoloss-tips">{{ item.videolossText }}</div>
+                <BaseImgSprite
+                    v-show="item.isVideolossLockIcon"
+                    class="error-lock"
+                    file="suo"
+                />
             </div>
         </div>
         <div
@@ -174,7 +188,10 @@ export interface PlayerWinDataListItem {
     CHANNEL_INFO: null | {
         chlID: string
         supportPtz: boolean
-        chlName: string
+        supportAZ: boolean // 是否支持zoom控制（变倍、聚焦）
+        supportIris: boolean // 是否支持zoom控制（光圈）
+        supportIntegratedPtz: boolean // 是否支持ptz云台转动，zoom控制（变倍、聚焦、光圈），预置点，巡航线，巡航线组，轨迹，ptz任务，看守位
+        chlName: string // 是否支持zoom控制（变倍），ptz云台转动，预置点，巡航线
         streamType: number
     }
     winIndex: number
@@ -188,6 +205,7 @@ export interface PlayerWinDataListItem {
     showWatermark: boolean
     showPos: boolean
     position: number
+    isEndRec: boolean
 }
 
 export interface PlayerPosInfoItem {
@@ -201,6 +219,36 @@ export interface PlayerPosInfoItem {
         height: number
     }
     timeout: number // pos超时隐藏时间，默认10秒
+}
+
+// export interface PlayerDetectTargeTripwireDto {
+
+// }
+
+export interface PlayerDetectTargetDto {
+    target_flow: {
+        target_id: number // 目标ID
+        target_type: number // 目标类型 0: 无类型, 1: 人体, 2: 车, 3: 非机动车, 4: 人脸, 5: 车牌,6: 火点, 7: 儿童, 8: 温度
+        rect_left_top_x: number // 矩形左上角坐标X
+        rect_left_top_y: number // 矩形左上角坐标Y
+        rect_right_bottom_x: number // 矩形右下角坐标X
+        rect_right_bottom_y: number // 矩形右下角坐标Y
+    }[]
+    target_flow_perimeter_info_ex: {
+        event_id: number // 事件ID
+        target_id: number // 目标ID
+        point: { x: number; y: number }[]
+    }[]
+    target_flow_trip_info_ex: {
+        event_id: number // 事件ID
+        target_id: number // 目标ID
+        direct: number // 0 任意方向 1从左到右 2从右到左
+        start_x: number // 开始点x
+        start_y: number // 开始点y
+        end_x: number // 结束点x
+        end_y: number // 结束点y
+    }[]
+    frameTime: number
 }
 
 const prop = withDefaults(
@@ -222,6 +270,10 @@ const prop = withDefaults(
          */
         enablePos?: boolean
         /**
+         * @property
+         */
+        enableDetect?: boolean
+        /**
          * @property 是否显示视频丢失logo
          */
         showVideoLoss?: boolean
@@ -235,6 +287,7 @@ const prop = withDefaults(
         type: 'live',
         split: 1,
         enablePos: false,
+        enableDetect: false,
         ocxUpdatePos: true,
     },
 )
@@ -290,6 +343,14 @@ const emits = defineEmits<{
      */
     (e: 'message', $: XMLQuery, stateType: string): void
     /**
+     * @description
+     */
+    (e: 'motion', motion: { motion_infos: { grids: string }[] }): void
+    /**
+     * @description
+     */
+    (e: 'audioerror', format: string): void
+    /**
      * @description 组件销毁时回调
      */
     (e: 'destroy'): void
@@ -304,7 +365,31 @@ const $screen = ref<HTMLDivElement>()
 
 const MAUNUAL_CHLIDREN = ['manual']
 const REC_CHLIDREN = ['sensor', 'gsensor']
-const INTELIGENCE_CHLIDREN = ['vfd', 'face_verity', 'vehicle_plate_verity', 'smart_plate_verity', 'tripwire', 'perimeter', 'aoi_entry', 'aoi_leave', 'osc', 'avd', 'cdd', 'temperature', 'fire_point']
+const INTELIGENCE_CHLIDREN = [
+    'crowd_gather',
+    'vfd',
+    'face_verity',
+    'vehicle_plate_verity',
+    'smart_plate_verity',
+    'tripwire',
+    'perimeter',
+    'aoi_entry',
+    'aoi_leave',
+    'osc',
+    'avd',
+    'cdd',
+    'temperature',
+    'fire_point',
+    'asd',
+    'pvd',
+    'loitering',
+    'threshold',
+    'smart_pass_line',
+    'smart_region_statistics',
+    'target_human',
+    'target_vehicle',
+    'target_non_motor_vehicle',
+]
 const MOTION_CHLIDREN = ['motion', 'SMDHuman', 'SMDVehicle']
 const POS_CHLIDREN = ['pos']
 const SCHEDULE_CHLIDREN = ['schedule']
@@ -334,6 +419,21 @@ const ERROR_CODE_MAP: Record<number, string> = {
     [ErrorCode.USER_ERROR_NO_AUTH]: 'noPermission', // 无权限
 }
 
+// 目标值-目标框颜色:1: 人体(黄色), 2: 车(紫色), 3: 非机动车(蓝绿色), 4: 人脸(红色)
+const TARGET_COLOR_MAP: Record<number, string> = {
+    1: 'yellow',
+    2: '#8000ff',
+    3: '#00ffff',
+    4: '#ff0000',
+}
+
+// 箭头方向帧返回值-协议交互值
+const DIRECTION_MAP: Record<number, CanvasPasslineDirection> = {
+    0: 'none',
+    1: 'leftorbotton',
+    2: 'rightortop',
+}
+
 /**
  * @var 正在报警的AI类型
  */
@@ -342,26 +442,38 @@ const ALARMING_INTELIGENCE: Record<number, Record<string, boolean>> = {} // 正�
 const MAX_SPLIT = 4
 const zoomList = [1, 1.5, 2, 3, 4, 6, 8, 9, 12, 16]
 
+// 目标框缓存最大长度
+const DETECT_INFO_LENGTH = 32
+
 let isMouseInScreen = false // 鼠标是否悬浮在视频框
 let is3DControl = false // 是否正在执行3D移动
 let isHoldDownMouse = false // 是否处于鼠标按住左键或右键且不滑动状态（使用3D功能放大、缩小）
 let downMouseTimer: NodeJS.Timeout | 0 = 0 // 鼠标按住左键或右键不滑动定时器
 
 let showTimestamp = 0
+
 const playerList: (ReturnType<typeof WasmPlayer> | null)[] = []
+
 const winDataList: PlayerWinDataListItem[] = []
+
 const recordStartTime: number[] = []
+
 const enablePos = prop.enablePos && systemCaps.supportPOS
+const showDetect = ref(prop.enableDetect) // 当前仅在大回放、目标搜索显示
+
 let seeking = false
 let speed = 1
 let timeGapMap: Record<number, number> = {}
 
 // 通道id和录像状态的映射,录像状态包含属性见 setRecordStatus 方法
 const recordStatusChlMap: Record<string, { recordTypes: string[]; isRecording: boolean }> = {}
+
 // 通道id和报警状态的映射,录像状态包含属性见 setAlarmStatus 方法
 const alarmStatusChlMap: Record<string, Record<string, boolean>> = {}
+
 // 特殊处理问题单 NVRUSS78-252
 let noRecordFlag = true
+
 let posInfo: Record<string, PlayerPosInfoItem> = {}
 // 通道GUID和通道ip的映射
 let chlIpMap: Record<string, string> = {}
@@ -374,13 +486,21 @@ const posBaseSize = {
     height: 480,
 }
 const lossLogo = ref('')
+
 const posTimeoutTimer: Record<number, NodeJS.Timeout | 0> = {} // 对象方便控制多个窗口
+
 const posNextPage: Record<string, boolean> = {}
+
 const fullTarget = ref(-1)
+
 const splitValue = ref(1)
+
 const selectedWinIndex = ref(0) // 当前选中窗口
+
 const isVideoLossWrap = ref(false) // 是否显示视频丢失logo
+
 const dblclickToFull = ref(false) // 整屏状态
+
 const pageData = ref(
     Array(MAX_SPLIT)
         .fill(0)
@@ -407,13 +527,16 @@ const pageData = ref(
             chlIpInfo: '',
             isVideolossWrapVisible: false,
             videolossText: '',
+            isVideolossLockIcon: false,
             isWatermarkInfo: false,
             watermarkInfo: '',
             isErrorTips: false,
+            isErrorLockIcon: false,
             errorTipsText: '',
             errorTipsChlName: '',
             posList: [] as { color: string; text: string }[],
             isPos: false,
+            isTargetDetect: true,
             displayPosition: {
                 x: -1,
                 y: -1,
@@ -426,8 +549,20 @@ const pageData = ref(
                 width: 0,
                 height: 0,
             },
+            posTimeoutTimer: 0 as number | NodeJS.Timeout, // Pos定时器
+            detectInfoTimer: 0 as number | NodeJS.Timeout, // 目标框定时器
+            detectInfoIsHold: false, // 目标框是否固定显示
+            currDetectInfo: null as null | PlayerDetectTargetDto, // 目标框信息
+            cacheDetectInfo: [] as PlayerDetectTargetDto[], // 缓存的目标框队列
         })),
 )
+
+const detectCanvas: ReturnType<typeof CanvasPassline>[] = []
+
+const detectTargetData = {
+    targetId: -1,
+    targetType: -1,
+}
 
 /**
  * @description 根据录像类型列表获取
@@ -469,7 +604,9 @@ const handleMouseDown = (e: MouseEvent, winIndex: number) => {
                     downMouseTimer = 0
                     return
                 }
-                setZoom(winIndex, mouseType === 'right' ? 'ZoomIn' : 'ZoomOut', 1, 'control')
+                const zoom3DType = mouseType === 'right' ? 'zoom3DIn' : 'zoom3DOut'
+                setMagnify3D(winIndex, zoom3DType, () => {})
+                // setZoom(winIndex, mouseType === 'right' ? 'ZoomIn' : 'ZoomOut', 1, 'control')
             }, 100)
         }, 1000)
         is3DControl = true // 画矩形 3D放大、缩小
@@ -495,7 +632,7 @@ const handleMouseDown = (e: MouseEvent, winIndex: number) => {
 
         // 鼠标松开
         const handle3DControlMouseUp = () => {
-            setZoom(winIndex, 'StopAction', 1, 'stop')
+            // setZoom(winIndex, 'StopAction', 1, 'stop')
             isHoldDownMouse = false
             document.removeEventListener('mousemove', handle3DControlMouseMove)
             document.removeEventListener('mouseup', handle3DControlMouseUp)
@@ -774,8 +911,20 @@ const setPlayCavItemSize = (winIndex: number) => {
     drawCav.style.width = width + 'px'
     drawCav.style.height = height + 'px'
 
+    const detectTargetCav = getDetectTargetCanvas(winIndex)
+    detectTargetCav.width = width
+    detectTargetCav.height = height
+    detectTargetCav.style.width = width + 'px'
+    detectTargetCav.style.height = height + 'px'
+
+    resetDetectCav()
+    // 是否需要固定显示
+    if (pageData.value[winIndex].currDetectInfo) {
+        drawTargetInfo(pageData.value[winIndex].currDetectInfo, winIndex, pageData.value[winIndex].detectInfoIsHold)
+    }
+
     if (!getZoomCallback(winIndex)) return
-    const zoom = zoomList[pageData.value[winIndex].zoomIndex]
+    const zoom = getCurrZoom(winIndex) // zoomList[pageData.value[winIndex].zoomIndex]
     const webglData = getZoomCallback(winIndex)
     setZoomCallback(winIndex, webglData.left, webglData.bottom, width * zoom, height * zoom)
     fixPlayCavPosition(winIndex)
@@ -885,6 +1034,13 @@ const getOverlayCanvas = (winIndex = 0) => {
 }
 
 /**
+ * @description 根据窗口索引获取视频目标框canvas元素
+ */
+const getDetectTargetCanvas = (winIndex = 0) => {
+    return $screen.value!.children[winIndex].querySelector('.target-detect') as HTMLCanvasElement
+}
+
+/**
  * @description 根据倍数值放大
  * @param {number} winIndex
  * @param {number} zoomValue 放大值
@@ -893,7 +1049,7 @@ const zoom = (winIndex: number, zoomValue: number) => {
     if (zoomValue < zoomList.at(0)! || zoomValue > zoomList.at(-1)!) {
         return
     }
-    const zoomBefore = zoomList[pageData.value[winIndex].zoomIndex]
+    const zoomBefore = getCurrZoom(winIndex) // zoomList[pageData.value[winIndex].zoomIndex]
     pageData.value[winIndex].zoomIndex = zoomList.indexOf(zoomValue)
     setPlayCavPosition(winIndex, zoomValue / zoomBefore)
     setZoomIcon(winIndex, zoomValue)
@@ -906,9 +1062,9 @@ const zoom = (winIndex: number, zoomValue: number) => {
 const zoomIn = (winIndex: number) => {
     const zoomIndex = pageData.value[winIndex].zoomIndex
     if (zoomIndex === zoomList.length - 1) return
-    const zoomBefore = zoomList[pageData.value[winIndex].zoomIndex]
+    const zoomBefore = getCurrZoom(winIndex) // zoomList[pageData.value[winIndex].zoomIndex]
     pageData.value[winIndex].zoomIndex++
-    const zoomAfter = zoomList[pageData.value[winIndex].zoomIndex]
+    const zoomAfter = getCurrZoom(winIndex) // zoomList[pageData.value[winIndex].zoomIndex]
     setPlayCavPosition(winIndex, zoomAfter / zoomBefore)
     setZoomIcon(winIndex, zoomAfter)
 }
@@ -920,11 +1076,16 @@ const zoomIn = (winIndex: number) => {
 const zoomOut = (winIndex: number) => {
     const zoomIndex = pageData.value[winIndex].zoomIndex
     if (zoomIndex === 0) return
-    const zoomBefore = zoomList[pageData.value[winIndex].zoomIndex]
+    const zoomBefore = getCurrZoom(winIndex) // zoomList[pageData.value[winIndex].zoomIndex]
     pageData.value[winIndex].zoomIndex--
-    const zoomAfter = zoomList[pageData.value[winIndex].zoomIndex]
+    const zoomAfter = getCurrZoom(winIndex) // zoomList[pageData.value[winIndex].zoomIndex]
     setPlayCavPosition(winIndex, zoomAfter / zoomBefore)
     setZoomIcon(winIndex, zoomAfter)
+}
+
+// 获取当前画面缩放比例
+const getCurrZoom = (winIndex: number) => {
+    return zoomList[pageData.value[winIndex].zoomIndex]
 }
 
 /**
@@ -992,10 +1153,12 @@ const setPlayCavPosition = (winIndex: number, zoomTimes: number) => {
     const y = (height / 2 - webglData.bottom) | 0
     let newLeft = width / 2 - zoomTimes * x
     let newBottom = height / 2 - zoomTimes * y
-    const zoom = zoomList[pageData.value[winIndex].zoomIndex]
+    const zoom = getCurrZoom(winIndex)
     if (zoom === 1) {
         newLeft = 0
         newBottom = 0
+    } else {
+        clearCurrDetectDraw(winIndex)
     }
     setZoomCallback(winIndex, newLeft, newBottom, width * zoom, height * zoom)
     fixPlayCavPosition(winIndex)
@@ -1224,6 +1387,12 @@ const hideErrorTips = (winIndex: number) => {
     }
 }
 
+// 隐藏视频丢失层
+// const hideVideolossStatus = (winIndex: number) => {
+//     pageData.value[winIndex].videolossText = ''
+//     pageData.value[winIndex].isVideolossWrapVisible = false
+// }
+
 /**
  * @description 根据播放时的错误码显示相应提示
  * @param {string} type
@@ -1240,6 +1409,7 @@ const showErrorTips = (type: string, winIndex: number, winData?: PlayerWinDataLi
         return
     }
     pageData.value[winIndex].isErrorTips = true
+    pageData.value[winIndex].isErrorLockIcon = false
 
     let tips = ''
     switch (type) {
@@ -1262,10 +1432,16 @@ const showErrorTips = (type: string, winIndex: number, winData?: PlayerWinDataLi
         // 无权限
         case 'noPermission':
             tips = Translate('IDCS_NO_PERMISSION')
+            if (systemCaps.showCameraPreviewLock) {
+                pageData.value[winIndex].isErrorLockIcon = true
+                // $errorTipsOverlay.find('.error-tips-info').addClass("suo")
+            } else {
+                tips = Translate('IDCS_NO_PERMISSION')
+            }
             break
         // 通道离线
         case 'offline':
-            tips = Translate('IDCS_OFFLINE')
+            tips = Translate('IDCS_NO_NET_VIDEO')
             break
         default:
             break
@@ -1279,7 +1455,7 @@ const showErrorTips = (type: string, winIndex: number, winData?: PlayerWinDataLi
 
     // 显示视频丢失logo
     if (type !== 'streamOpening') {
-        toggleVideoLossLogo(winIndex, true, tips)
+        toggleVideoLossLogo(winIndex, true, tips, type)
     }
 }
 
@@ -1470,9 +1646,15 @@ const tryToGetVideoLossLogo = (showVideoLoss: boolean) => {
  * @param {boolean} bool
  * @param {string} tips
  */
-const toggleVideoLossLogo = (winIndex: number, bool: boolean, tips?: string) => {
+const toggleVideoLossLogo = (winIndex: number, bool: boolean, tips?: string, type?: string) => {
     pageData.value[winIndex].isVideolossWrapVisible = bool
-    pageData.value[winIndex].videolossText = bool ? (tips ? tips : '') : ''
+    if (type === 'noPermission' && systemCaps.showCameraPreviewLock) {
+        pageData.value[winIndex].videolossText = ''
+        pageData.value[winIndex].isVideolossLockIcon = true
+    } else {
+        pageData.value[winIndex].videolossText = bool ? (tips ? tips : '') : ''
+        pageData.value[winIndex].isVideolossLockIcon = false
+    }
 }
 
 /**
@@ -1502,12 +1684,12 @@ interface Get3DParamRectParam {
  */
 const get3DParam = (winIndex: number, rectWrap: Get3DParamRectParam) => {
     // rectWrap 为画框容器（鼠标移动时会画框，3D放大基于此来实现）
-    const supportMin3DWidth = 40
-    const supportMin3DHeight = 30
-    if (rectWrap.width > 0 && rectWrap.height > 0 && rectWrap.width <= supportMin3DWidth && rectWrap.height <= supportMin3DHeight) {
-        // 画的矩形宽少于40, 高少于30时判定为无效
-        return false
-    }
+    // const supportMin3DWidth = 40
+    // const supportMin3DHeight = 30
+    // if (rectWrap.width > 0 && rectWrap.height > 0 && rectWrap.width <= supportMin3DWidth && rectWrap.height <= supportMin3DHeight) {
+    //     // 画的矩形宽少于40, 高少于30时判定为无效
+    //     return false
+    // }
     const $item = getVideoWrapDiv(winIndex) // 画布dom元素
     // 以下是参考设备端插件3D功能逻辑
     let isZoomIn = false
@@ -1607,7 +1789,7 @@ const setZoomCallback = (winIndex: number, left: number, bottom: number, width: 
  * @param {Function} callback
  * @param {Record<string, number> | boolean} obj
  */
-const setMagnify3D = (winIndex: number, zoom3DType: string, callback: () => void, obj: { dx: number; dy: number; zoom: number } | false) => {
+const setMagnify3D = (winIndex: number, zoom3DType: string, callback: () => void, obj?: { dx: number; dy: number; zoom: number } | false) => {
     if (playerList[winIndex]) {
         const data = {
             chlId: winDataList[winIndex].CHANNEL_INFO!.chlID,
@@ -1640,25 +1822,25 @@ const setMagnify3D = (winIndex: number, zoom3DType: string, callback: () => void
  * @param {number} speed
  * @param {string} type
  */
-const setZoom = (winIndex: number, actionType: 'ZoomIn' | 'ZoomOut' | 'StopAction', speed = 1, type: 'control' | 'direction' | 'activeStop' | 'stop') => {
-    if (playerList[winIndex]) {
-        const opt = {
-            chlId: winDataList[winIndex].CHANNEL_INFO!.chlID,
-            actionType, // ZoomIn, ZoomOut, StopAction
-            speed, // 默认 1
-            type, // control, direction, activeStop, stop
-        }
-        const sendXML = rawXml`
-            <content>
-                <chlId>${opt.chlId}</chlId>
-                <actionType>${opt.actionType}</actionType>
-                <speed>${String(opt.speed)}</speed>
-                <type>${opt.type}</type>
-            </content>
-        `
-        ptzMoveCall(sendXML)
-    }
-}
+// const setZoom = (winIndex: number, actionType: 'ZoomIn' | 'ZoomOut' | 'StopAction', speed = 1, type: 'control' | 'direction' | 'activeStop' | 'stop') => {
+//     if (playerList[winIndex]) {
+//         const opt = {
+//             chlId: winDataList[winIndex].CHANNEL_INFO!.chlID,
+//             actionType, // ZoomIn, ZoomOut, StopAction
+//             speed, // 默认 1
+//             type, // control, direction, activeStop, stop
+//         }
+//         const sendXML = rawXml`
+//             <content>
+//                 <chlId>${opt.chlId}</chlId>
+//                 <actionType>${opt.actionType}</actionType>
+//                 <speed>${String(opt.speed)}</speed>
+//                 <type>${opt.type}</type>
+//             </content>
+//         `
+//         ptzMoveCall(sendXML)
+//     }
+// }
 
 /**
  * @description 初始化数据
@@ -1679,6 +1861,7 @@ const createVideoPlayer = () => {
             timestamp: 0,
             showWatermark: false,
             showPos: false,
+            isEndRec: false,
             position: getWinIndexByPosition(i),
         })
     }
@@ -1701,6 +1884,9 @@ interface PlayerPlayParams {
     chlID: string
     isPolling?: boolean // 是否开启通道组轮询播放
     supportPtz?: boolean
+    supportAZ?: boolean // 是否支持zoom控制（变倍、聚焦）
+    supportIris?: boolean // 是否支持zoom控制（光圈）
+    supportIntegratedPtz?: boolean
     chlName?: string
     streamType: number
     startTime?: number // 时间戳 单位：秒
@@ -1759,6 +1945,9 @@ const play = (params: PlayerPlayParams) => {
                     chlID: '',
                     chlName: '',
                     supportPtz: false,
+                    supportAZ: false,
+                    supportIntegratedPtz: false,
+                    supportIris: false,
                     streamType: 2,
                 }
             }
@@ -1785,17 +1974,18 @@ const play = (params: PlayerPlayParams) => {
             toggleVideoLossLogo(winIndex, true)
             // 关闭通道ip信息
             toggleChlIp(winIndex, false)
+            if (prop.type === 'record') {
+                clearCacheDetect(winIndex)
+            }
             // 窗口停止播放时如果打开了原始比例按钮需要重置，否则切换通道时显示的还是上次设置的原始比例
             displayOriginal(winIndex, false)
             emits('stop', winIndex, winDataList[winIndex])
             emits('playStatus', getPlayingChlList())
         },
         onfinished: () => {
-            // const winIndex = getWinIndexByCav(videoCav)
             if (params.callback) params.callback(winIndex)
         },
         onerror: (errorCode, url) => {
-            // const winIndex = getWinIndexByCav(videoCav)
             handlePlayError(winIndex, errorCode, url)
             winDataList[winIndex].PLAY_STATUS = 'error'
             emits('error', winIndex, winDataList[winIndex])
@@ -1803,7 +1993,6 @@ const play = (params: PlayerPlayParams) => {
         },
         ontime: (timestamp) => {
             noRecordFlag = false
-            // const winIndex = getWinIndexByCav(videoCav)
             handleOntime(winIndex, timestamp)
             if (winDataList[winIndex].PLAY_STATUS === 'error') {
                 hideErrorTips(winIndex)
@@ -1811,9 +2000,12 @@ const play = (params: PlayerPlayParams) => {
                 winDataList[winIndex].PLAY_STATUS = 'play'
                 emits('playStatus', getPlayingChlList())
             }
+
+            if (isGetDetect(winIndex)) {
+                setCurrTarget(timestamp, winIndex)
+            }
         },
         onwatermark: (watermark) => {
-            // const winIndex = getWinIndexByCav(videoCav)
             setWatermark(winIndex, watermark)
         },
         onrecordFile: (recordBuf: ArrayBuffer) => {
@@ -1822,8 +2014,21 @@ const play = (params: PlayerPlayParams) => {
         },
         onpos: (posFrame: Uint8Array, posLength) => {
             if (!enablePos) return
-            // const winIndex = getWinIndexByCav(videoCav)
             handlePos(posFrame, posLength, params.chlID, winIndex)
+        },
+        onparam: function (type, data: PlayerDetectTargetDto) {
+            if (!isGetDetect(winIndex)) {
+                clearCacheDetect(winIndex)
+                return
+            }
+
+            setTargetArr(type, data, winIndex)
+        },
+        onmotion: (motion) => {
+            emits('motion', motion)
+        },
+        onaudioerror: (audioFormat) => {
+            emits('audioerror', audioFormat)
         },
     })
     playerList[winIndex]?.play(params)
@@ -1831,6 +2036,9 @@ const play = (params: PlayerPlayParams) => {
     winDataList[winIndex].CHANNEL_INFO = {
         chlID: params.chlID,
         supportPtz: params.supportPtz || false,
+        supportIntegratedPtz: params.supportIntegratedPtz || false,
+        supportIris: params.supportIris || false,
+        supportAZ: params.supportAZ || false,
         chlName: params.chlName || '',
         streamType: params.streamType || 2,
     }
@@ -1944,8 +2152,13 @@ const handlePlaySuccess = (winIndex: number) => {
         }
         seeking = seekingFlag
     } else if (prop.type === 'live') {
-        const supportPtz = winDataList[winIndex].CHANNEL_INFO!.supportPtz
-        togglePtzIcon(winIndex, supportPtz)
+        const showPtzIcon =
+            winDataList[winIndex].CHANNEL_INFO!.supportAZ ||
+            winDataList[winIndex].CHANNEL_INFO!.supportIris ||
+            winDataList[winIndex].CHANNEL_INFO!.supportPtz ||
+            winDataList[winIndex].CHANNEL_INFO!.supportIntegratedPtz
+        togglePtzIcon(winIndex, showPtzIcon)
+
         const chlId = winDataList[winIndex].CHANNEL_INFO!.chlID
         if (recordStatusChlMap[chlId]) {
             const recordTypes = recordStatusChlMap[chlId].recordTypes
@@ -2080,6 +2293,17 @@ const handleOntime = (winIndex: number, timestamp: number) => {
             }
             timeGapMap = {}
         }
+
+        let isGetAllTimestamp = true
+        playerList.forEach((item, index) => {
+            if (item && !winDataList[index].isEndRec && item.getBasicFrameTime() === 0) {
+                isGetAllTimestamp = false
+            }
+        })
+
+        if (!isGetAllTimestamp) {
+            showTimestamp = 0
+        }
     } else {
         showTimestamp = timestamp
     }
@@ -2095,6 +2319,255 @@ const setSpeed = (value: number) => {
     for (let i = 0; i < playerList.length; i++) {
         playerList[i]?.setSpeed(speed)
     }
+
+    if (speed !== 1) {
+        clearAllDetectDraw()
+    }
+}
+
+const setDetectTargetData = (info: { targetId: number; targetType: number }) => {
+    detectTargetData.targetId = info.targetId
+    detectTargetData.targetType = info.targetType
+}
+
+const setTargetArr = (type: string, data: PlayerDetectTargetDto, winIndex: number) => {
+    if (type !== 'target_flow_info' || !data) return
+    pageData.value[winIndex].cacheDetectInfo.push(data)
+    pageData.value[winIndex].cacheDetectInfo = pageData.value[winIndex].cacheDetectInfo.slice(-DETECT_INFO_LENGTH) // 按最大缓存长度取最新的
+}
+
+// 设置当前目标框
+const setCurrTarget = (frameTime: number, winIndex: number) => {
+    if (pageData.value[winIndex].cacheDetectInfo.length) {
+        return
+    }
+
+    let offset = 0
+    let frameIndex = -1
+    // 匹配出视频帧时间和目标框帧时间最接近的值
+    pageData.value[winIndex].cacheDetectInfo.forEach((ele, index) => {
+        const temp = Math.abs(ele.frameTime - frameTime)
+        if (temp <= offset || (offset === 0 && temp < 250)) {
+            offset = temp
+            frameIndex = index
+        }
+    })
+
+    if (frameIndex === -1) return
+    const data = pageData.value[winIndex].cacheDetectInfo[frameIndex]
+    pageData.value[winIndex].cacheDetectInfo = pageData.value[winIndex].cacheDetectInfo.slice(frameIndex)
+    drawTargetInfo(data, winIndex, pageData.value[winIndex].detectInfoIsHold)
+}
+
+/**
+ * 目标框信息绘制
+ * @param {String} type 数据类型, target_flow_info: 目标流信息
+ * @param {Object} data 数据信息
+ *   @param {Array} target_flow 目标框
+ *   @param {Array} target_flow_perimeter_info_ex 区域入侵规则线
+ *   @param {Array} target_flow_trip_info_ex 越界规则线
+ * @param {Number} winIndex 窗口下标
+ * @param {boolean} isHold 是否固定显示
+ */
+const drawTargetInfo = (data: PlayerDetectTargetDto, winIndex: number, isHold: boolean) => {
+    const tripData = data.target_flow_trip_info_ex
+    const perimeterData = data.target_flow_perimeter_info_ex
+    const targetData = data.target_flow
+    if (!tripData || !perimeterData || !targetData) return
+    handleTargetDetect(data, winIndex, isHold)
+}
+
+// 显示/隐藏目标框画板
+const showDetectDraw = (bool: boolean, winIndex: number) => {
+    pageData.value[winIndex].isTargetDetect = bool
+}
+
+// 清空当前窗口的目标框画板
+const clearCurrDetectDraw = (winIndex: number) => {
+    const cav = getDetectTargetCanvas(winIndex)
+    detectCanvas[winIndex].ctx.ClearRect(0, 0, cav.width, cav.height)
+}
+
+// 清空所有窗口的目标框画板
+const clearAllDetectDraw = () => {
+    for (let i = 0; i < MAX_SPLIT; i++) {
+        clearCurrDetectDraw(i)
+    }
+}
+
+/**
+ * @description 清除目标框定时器
+ * @param {number} winIndex
+ */
+const clearDetectTimer = (winIndex: number) => {
+    clearTimeout(pageData.value[winIndex].detectInfoTimer)
+    pageData.value[winIndex].detectInfoTimer = 0
+}
+
+/**
+ * @description 启动目标框定时器
+ * @param {number} winIndex
+ */
+const startDetectTimer = (winIndex: number) => {
+    pageData.value[winIndex].detectInfoTimer = setTimeout(() => {
+        clearCurrDetectDraw(winIndex)
+        pageData.value[winIndex].detectInfoIsHold = false
+    }, 250)
+}
+
+/**
+ * @description 处理越界规则线
+ */
+const handleTrip = (tripData: PlayerDetectTargetDto['target_flow_trip_info_ex'], winIndex: number) => {
+    tripData.forEach((item) => {
+        const direction = DIRECTION_MAP[item.direct] || 'none'
+        detectCanvas[winIndex].setDirection(direction)
+        detectCanvas[winIndex].setPassline({
+            startX: item.start_x,
+            startY: item.start_y,
+            endX: item.end_x,
+            endY: item.end_y,
+        })
+    })
+}
+
+/**
+ * @description 处理区域入侵规则线
+ */
+const handlePerimeter = (perimeterData: PlayerDetectTargetDto['target_flow_perimeter_info_ex'], winIndex: number) => {
+    perimeterData.forEach((item) => {
+        if (!item.point?.length) {
+            return false
+        }
+
+        const pointList = item.point
+        const currPoint: CanvasBasePoint[] = []
+        pointList.forEach((ele) => {
+            currPoint.push({
+                X: getRealSizeByRelative(winIndex, ele.x, 'x'),
+                Y: getRealSizeByRelative(winIndex, ele.y, 'y'),
+            })
+        })
+        const option = {
+            pointList: currPoint,
+            max: 6,
+            isFoucusClosePath: true,
+        }
+        detectCanvas[winIndex].ctx.DrawPolygon(option)
+    })
+}
+
+/**
+ * @description 处理目标框
+ */
+const handleTargetDetect = (data: PlayerDetectTargetDto, winIndex: number, isHold: boolean) => {
+    const tripData = data.target_flow_trip_info_ex
+    const perimeterData = data.target_flow_perimeter_info_ex
+    const currTargetArr = data.target_flow || [] // 当前目标框合集
+    if (currTargetArr.length === 0) {
+        // 若当前帧无目标框，且不是固定显示，则清空画板 ； 若是固定显示，则不清空画板
+        if (isHold) {
+            return
+        }
+        clearCurrDetectDraw(winIndex)
+        handleTrip(tripData, winIndex)
+        handlePerimeter(perimeterData, winIndex)
+        return
+    }
+    pageData.value[winIndex].detectInfoIsHold = true
+    const lastTargetArr = pageData.value[winIndex].currDetectInfo?.target_flow || [] // 上一帧目标框合集
+    // const self = this
+    const result: PlayerDetectTargetDto['target_flow'] = []
+    currTargetArr.forEach((ele) => {
+        // 防抖处理（仅针对同类型目标框）
+        if (detectTargetData.targetId && ele.target_id !== detectTargetData.targetId) {
+            return
+        }
+
+        let isShake = false
+        lastTargetArr.forEach((ele2) => {
+            const X1Offset = Math.abs(ele.rect_left_top_x - ele2.rect_left_top_x)
+            const Y1Offset = Math.abs(ele.rect_left_top_y - ele2.rect_left_top_y)
+            const X2Offset = Math.abs(ele.rect_right_bottom_x - ele2.rect_right_bottom_x)
+            const Y2Offset = Math.abs(ele.rect_right_bottom_y - ele2.rect_right_bottom_y)
+            // 两个点的万分比坐标, X1、Y1、X2、Y2都小于200, 就算小范围抖动, 此时需要保留上一帧数据（防抖）
+            isShake = X1Offset < 200 && Y1Offset < 200 && X2Offset < 200 && Y2Offset < 200 && ele.target_type === ele2.target_type
+            if (isShake) {
+                result.push(ele2)
+                // 保留上一帧数据时，重置定时器（防止绘制清空）
+                clearDetectTimer(winIndex)
+                startDetectTimer(winIndex)
+                return false
+            }
+        })
+
+        if (!isShake) {
+            result.push(ele)
+        }
+    })
+
+    // 当result为空(无目标框数据)时，不用执行以下重绘目标框的逻辑，规避目标框一闪一闪的场景
+    if (!result.length) return
+
+    // 每次绘制目标框前，清空画板, 绘制目标框前，先绘制越界规则线和区域入侵规则线
+    clearCurrDetectDraw(winIndex)
+    handleTrip(tripData, winIndex)
+    handlePerimeter(perimeterData, winIndex)
+
+    data.target_flow = result
+    pageData.value[winIndex].currDetectInfo = data
+    result.forEach((ele) => {
+        const X1 = getRealSizeByRelative(winIndex, ele.rect_left_top_x, 'x')
+        const Y1 = getRealSizeByRelative(winIndex, ele.rect_left_top_y, 'y')
+        const X2 = getRealSizeByRelative(winIndex, ele.rect_right_bottom_x, 'x')
+        const Y2 = getRealSizeByRelative(winIndex, ele.rect_right_bottom_y, 'y')
+        const color = TARGET_COLOR_MAP[ele.target_type] || 'yellow'
+        const style = {
+            lineWidth: 2,
+            strokeStyle: color,
+        }
+        detectCanvas[winIndex].ctx.Point2QuarterRect(X1, Y1, X2, Y2, style)
+    })
+    // 每次绘制目标框后，重置定时器
+    clearDetectTimer(winIndex)
+    startDetectTimer(winIndex)
+}
+
+/**
+ * @description 根据万分比尺寸获取画布尺寸
+ */
+const getRealSizeByRelative = (winIndex: number, size: number, type: 'x' | 'y') => {
+    const detectCav = getDetectTargetCanvas(winIndex)
+    if (type === 'x') {
+        return (detectCav.width * size) / 10000
+    } else {
+        return (detectCav.height * size) / 10000
+    }
+}
+
+/**
+ * @description 清除缓存目标框队列
+ */
+const clearCacheDetect = (winIndex: number) => {
+    clearCurrDetectDraw(winIndex)
+    pageData.value[winIndex].currDetectInfo = null
+    pageData.value[winIndex].cacheDetectInfo = []
+}
+
+/**
+ * @description 重置侦测画布
+ */
+const resetDetectCav = () => {
+    for (let i = 0; i < MAX_SPLIT; i++) {
+        // this.detectCanvas[i] = null
+        detectCanvas[i] = CanvasPassline({
+            // 画箭头用canvas.passline，画矩形、多边形用继承的canvas.base
+            el: getDetectTargetCanvas(i),
+            lineStyle: {
+                strokeStyle: 'red',
+            },
+        })
+    }
 }
 
 /**
@@ -2103,6 +2576,7 @@ const setSpeed = (value: number) => {
 const nextFrame = () => {
     for (let i = 0; i < playerList.length; i++) {
         playerList[i]?.nextFrame()
+        clearCacheDetect(i)
     }
 }
 
@@ -2321,11 +2795,9 @@ const getWinData = () => {
 }
 
 /**
- * @description 抓图
- * @param {number} winIndex
- * @param {string} fileName
+ * @description
  */
-const snap = (winIndex: number, fileName: string) => {
+const getSnapCanvas = (winIndex: number) => {
     const config = playerList[winIndex]!.getCurrFrame()
     const frame = config.frame
     const player = config.WebGLPlayer
@@ -2340,8 +2812,27 @@ const snap = (winIndex: number, fileName: string) => {
     const yLength = frame.width * frame.height
     const uvLength = (frame.width / 2) * (frame.height / 2)
     webglPlayer.renderFrame(videoBuffer, frame.width, frame.height, yLength, uvLength)
+    return canvas
+}
+
+/**
+ * @description 抓图
+ * @param {number} winIndex
+ * @param {string} fileName
+ */
+const snap = (winIndex: number, fileName: string) => {
+    const canvas = getSnapCanvas(winIndex)
     const dataURL = canvas.toDataURL('image/bmp', 1)
     downloadFromBase64(dataURL, fileName + '.bmp')
+}
+
+/**
+ * 抓图-获取base64
+ */
+const getSnapBase64 = async (winIndex: number) => {
+    const canvas = getSnapCanvas(winIndex)
+    const dataURL = canvas.toDataURL('image/jpg', 1)
+    return dataURL.split(',').pop()!
 }
 
 /**
@@ -2353,6 +2844,10 @@ const resizePlayer = () => {
     for (let i = 0; i < playerList.length; i++) {
         if (winDataList[i].original && playerList[i]) {
             displayOriginal(i, true)
+        }
+
+        if (playerList[i] && playerList[i]!.getPlayState() === 'PAUSE' && playerList[i]!.getFrameData()) {
+            playerList[i]!.renderVideoFrame(playerList[i]!.getFrameData()!)
         }
     }
 }
@@ -2557,6 +3052,53 @@ const setChlIp = (winIndex: number, chlId: string) => {
     }
 }
 
+/**
+ * @description 设置大回放目标框的显示
+ * @param {boolean} bool
+ */
+const setShowDetect = (bool: boolean) => {
+    showDetect.value = bool
+
+    if (bool) {
+        for (let i = 0; i < MAX_SPLIT; i++) {
+            startDetectTimer(i) // 播放时, 启动延时隐藏目标框定时器
+        }
+    }
+
+    if (!bool) {
+        for (let i = 0; i < MAX_SPLIT; i++) {
+            clearDetectTimer(i) // 暂停时, 固定当前目标框, 不再接收新的目标框推送
+        }
+    }
+}
+
+/**
+ * @description 设置目标框的显示/隐藏
+ * @param {boolean} bool
+ */
+const setShowTargetBox = (bool: boolean) => {
+    showDetect.value = bool
+    for (let i = 0; i < MAX_SPLIT; i++) {
+        showDetectDraw(bool, i)
+    }
+}
+
+/**
+ * @description 是否接收目标框数据流（大回放暂停、倍速、画面放大缩小时不接收）
+ */
+const isGetDetect = (winIndex: number) => {
+    if (!showDetect) return false
+    if (getCurrZoom(winIndex) !== 1 || speed !== 1) return false
+    return true
+}
+
+/**
+ * @description
+ */
+const setIsEndRec = (winIndex: number, bool: boolean) => {
+    winDataList[winIndex].isEndRec = bool
+}
+
 const ready = ref(false)
 
 const mode = computed(() => {
@@ -2683,6 +3225,12 @@ const player = {
     setPollIndex,
     showErrorTips,
     hideErrorTips,
+    setShowDetect,
+    setShowTargetBox,
+    isGetDetect,
+    setDetectTargetData,
+    getSnapBase64,
+    setIsEndRec,
 }
 
 export type PlayerReturnsType = typeof player
@@ -2827,6 +3375,12 @@ defineExpose({
                 color: var(--player-error-text);
             }
 
+            &-lock {
+                position: absolute;
+                right: 12px;
+                top: 12px;
+            }
+
             &.mask {
                 background-color: var(--player-bg);
             }
@@ -2852,6 +3406,15 @@ defineExpose({
                     visibility: hidden;
                 }
             }
+        }
+
+        .target-detect {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            transform: translate3d(-50%, -50%, 0);
         }
 
         .draw {
@@ -2958,6 +3521,12 @@ defineExpose({
             &-tips {
                 margin-top: 10px;
                 color: var(--color-white);
+            }
+
+            &-lock {
+                position: absolute;
+                right: 12px;
+                top: 12px;
             }
         }
     }

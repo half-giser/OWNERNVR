@@ -30,6 +30,14 @@ export default {
             noToken: true,
         },
     },
+    // URL自动登录
+    urlLogin: {
+        path: '/urllogin',
+        component: 'URLLogin.vue',
+        meta: {
+            noToken: true,
+        },
+    },
     // 授权码登录
     authCodeLogin: {
         path: '/authCodeLogin',

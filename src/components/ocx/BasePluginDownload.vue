@@ -30,9 +30,9 @@ const path = getPluginPath()
 const userSession = useUserSessionStore()
 
 // UI1-E定制版本的插件与中性版本的插件不同
-const pluginLink = ref(path.ClientPluDownLoadPath)
+const pluginLink = ref(path)
 if (import.meta.env.DEV) {
-    pluginLink.value = '/plugin' + path.ClientPluDownLoadPath
+    pluginLink.value = '/plugin/' + path
 }
 const split = pluginLink.value.split('/')
 const pluginName = ref(split.at(-1)!)

@@ -69,7 +69,36 @@ export const Logout = async (isHttps?: boolean) => {
 }
 
 /**
+ * @description 从URL中解析用户信息
+ * @returns
+ */
+export const getLoginInfoByURL = () => {
+    const url = new URL(window.location.href)
+    const reqTime = url.searchParams.get('reqTime')
+    const reqID = url.searchParams.get('reqID')
+    const userSession = useUserSessionStore()
+    let info = url.searchParams.get('info')
+    if (reqTime && reqID && info) {
+        info = urlToBase64Str(info)
+        const AESKey = sha256_encrypt_WordArray(reqTime + ':dashboard:' + reqID)
+        const AESIV = MD5_encrypt_WordArray(reqID)
+        const userInfo = AES_CBC_Decrypt(info, AESKey, AESIV)
+        userSession.urlLoginAuth = userInfo
+        window.location.href = location.origin + location.pathname
+        return true
+    } else {
+        return false
+    }
+}
+
+/**
  * @description 查询隐私政策
  * @returns
  */
 export const queryShowPrivacyView = () => fetch('queryShowPrivacyView', '')
+
+/**
+ * @description 获取Session信息
+ * @returns
+ */
+export const getSessionInfo = () => fetch('queryShowPrivacyView', '', {}, false)

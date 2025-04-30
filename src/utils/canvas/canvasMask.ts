@@ -9,19 +9,25 @@ export interface CanvasMaskMaskItem {
     Y: number
     width: number
     height: number
+    color?: string
+    isSelect?: boolean
+    isDrawing?: boolean
 }
 
 interface CanvasMaskOption {
     el?: HTMLCanvasElement
     maxCount?: number
     fillStyle?: string | CanvasGradient | CanvasPattern
+    blurStyle?: string | CanvasGradient | CanvasPattern
     maskList?: CanvasMaskMaskItem[]
     enable?: boolean
     onchange?: (maskList: CanvasMaskMaskItem[]) => void
 }
 
 export const CanvasMask = (option: CanvasMaskOption = {}) => {
-    const DEFAULT_COLOR = '#0f08' // 默认填充色值
+    const DEFAULT_SELECT_COLOR = '#0f08' // 默认选中填充色值
+    const DEFAULT_BLUR_COLOR = '#000' // 默认失焦填充色值
+
     const DEFAULT_MAX = 4 // 绘制最大数量
     const RELATIVE_WIDTH = 640 // 万分比宽度
     const RELATIVE_HEIGHT = 480 // 万分比高度
@@ -30,7 +36,8 @@ export const CanvasMask = (option: CanvasMaskOption = {}) => {
     let enable = option.enable || false
 
     const maxCount = option.maxCount || DEFAULT_MAX
-    const fillStyle = option.fillStyle || DEFAULT_COLOR
+    const fillStyle = option.fillStyle || DEFAULT_SELECT_COLOR
+    const blurStyle = option.blurStyle || DEFAULT_BLUR_COLOR
     const onchange = option.onchange
     const ctx = CanvasBase(option.el)
     const canvas = ctx.getCanvas()
@@ -42,15 +49,44 @@ export const CanvasMask = (option: CanvasMaskOption = {}) => {
      * @param {CanvasMaskMaskItem[]} maskList
      * @returns
      */
-    const setArea = (maskList: CanvasMaskMaskItem[]) => {
+    const setMask = (list: CanvasMaskMaskItem[]) => {
         ctx.ClearRect(0, 0, cavWidth, cavHeight)
+        maskList = list
+
+        if (!maskList.length) return
         for (let i = 0; i < maskList.length; i++) {
-            if (i === maxCount) {
+            const item = getRealItemByRelative(maskList[i])
+            const color = maskList[i].color || blurStyle
+            ctx.FillRect(item.X, item.Y, item.width, item.height, color)
+        }
+
+        // 选中的区域最后再绘制置亮
+        for (let i = 0; i < maskList.length; i++) {
+            if (maskList[i].isSelect) {
+                const item = getRealItemByRelative(maskList[i])
+                ctx.FillRect(item.X, item.Y, item.width, item.height, fillStyle)
                 break
             }
-            const item = getRealItemByRelative(maskList[i])
-            ctx.FillRect(item.X, item.Y, item.width, item.height, fillStyle)
         }
+    }
+
+    // 鼠标事件触发的更新数据
+    const mouseEventSetMask = (finalX: number, finalY: number, width: number, height: number) => {
+        const obj = getRelativeItemByReal({
+            X: finalX,
+            Y: finalY,
+            width: width,
+            height: height,
+        })
+
+        maskList.forEach((item) => {
+            if (item.isDrawing) {
+                item.X = obj.X
+                item.Y = obj.Y
+                item.width = obj.width
+                item.height = obj.height
+            }
+        })
     }
 
     /**
@@ -65,6 +101,21 @@ export const CanvasMask = (option: CanvasMaskOption = {}) => {
         if (!enable || maskList.length === maxCount) {
             return
         }
+
+        maskList.forEach((item) => {
+            item.isSelect = false
+        })
+
+        maskList = maskList.filter((item) => !item.isDrawing)
+        maskList.push({
+            X: 0,
+            Y: 0,
+            width: 0,
+            height: 0,
+            isDrawing: true,
+            isSelect: true,
+        })
+
         const startX = e.offsetX
         const startY = e.offsetY
         const clientX = e.clientX
@@ -84,22 +135,16 @@ export const CanvasMask = (option: CanvasMaskOption = {}) => {
             height = Math.abs(endY - startY)
             finalX = Math.min(startX, endX)
             finalY = Math.min(startY, endY)
-            setArea(maskList)
+            mouseEventSetMask(finalX, finalY, width, height)
+            setMask(maskList)
             ctx.FillRect(finalX, finalY, width, height, fillStyle)
         }
 
         const onMouseUp = () => {
             if (!isInnerRect(finalX, finalY, width, height)) {
-                maskList.push(
-                    getRelativeItemByReal({
-                        X: finalX,
-                        Y: finalY,
-                        width: width,
-                        height: height,
-                    }),
-                )
+                mouseEventSetMask(finalX, finalY, width, height)
             }
-            setArea(maskList)
+            setMask(maskList)
             onchange && onchange(maskList)
             document.removeEventListener('mousemove', onMouseMove)
             document.removeEventListener('mouseup', onMouseUp)
@@ -211,7 +256,7 @@ export const CanvasMask = (option: CanvasMaskOption = {}) => {
      */
     const clear = () => {
         maskList = []
-        setArea(maskList)
+        setMask(maskList)
     }
 
     /**
@@ -221,11 +266,11 @@ export const CanvasMask = (option: CanvasMaskOption = {}) => {
         canvas.removeEventListener('mousedown', onMouseDown)
     }
 
-    setArea(maskList)
+    setMask(maskList)
     bindEvent()
 
     return {
-        setArea,
+        setMask,
         getArea,
         setEnable,
         clear,
