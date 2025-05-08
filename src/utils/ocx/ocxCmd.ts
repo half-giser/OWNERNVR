@@ -240,13 +240,13 @@ export const OCX_XML_P2PAuthentication = (config?: typeof DEFAULT_OCX_CONFIG) =>
     const userSession = useUserSessionStore()
     config = config || DEFAULT_OCX_CONFIG
     return wrapXml(rawXml`
-        <cmd type="Authentication"> 
-            <sn>${wrapCDATA(userSession.sn)}</sn> 
-            <p2pVer>2.0</p2pVer> 
-            <ip>${natIp_2_0}</ip> 
-            <port>${natPort_2_0}</port> 
-            <token>${userSession.token}</token> 
-            <sessionId>${userSession.sessionId}</sessionId> 
+        <cmd type="Authentication">
+            <sn>${wrapCDATA(userSession.sn)}</sn>
+            <p2pVer>2.0</p2pVer>
+            <ip>${natIp_2_0}</ip>
+            <port>${natPort_2_0}</port>
+            <token>${userSession.token}</token>
+            <sessionId>${userSession.sessionId}</sessionId>
             <config>
                 <viewType>${config.viewType}</viewType>
                 <setModel>${config.setModel}</setModel>
@@ -1613,9 +1613,9 @@ export const OCX_XML_SetOSD = (edit: string, osdList: OcxXmlSetOsdListDatum[] = 
     const osd = osdList
         .map(
             (item) => rawXml`
-                <item 
-                    winIndex="${item.winIndex}" 
-                    ${item.osd ? ` osd="${item.osd}"` : ` dateFormat="${item.dateFormat}" timeFormat="${item.timeFormat}" `} 
+                <item
+                    winIndex="${item.winIndex}"
+                    ${item.osd ? ` osd="${item.osd}"` : ` dateFormat="${item.dateFormat}" timeFormat="${item.timeFormat}" `}
                     x="${item.x}"
                     xMin="${item.xMin || 0}"
                     xMax="${item.xMax || 1920}"
@@ -1951,7 +1951,7 @@ export const OCX_XML_SetCpcAreaAction = (action: 'EDIT_ON' | 'EDIT_OFF' | 'NONE'
  * @param action
  * @returns {string}
  */
-export const OCX_XML_SetPeaAreaAction = (action: 'EDIT_ON' | 'EDIT_OFF' | 'NONE', pointCount: number) => {
+export const OCX_XML_SetPeaAreaAction = (action: 'EDIT_ON' | 'EDIT_OFF' | 'NONE', pointCount?: number) => {
     return wrapXml(`<cmd type="SetPeaAreaAction" ${pointCount && action === 'EDIT_ON' ? ` maxPointCount="${pointCount}"` : ''}>${action}</cmd>`)
 }
 
@@ -2273,7 +2273,7 @@ export const OCX_XML_AddRectangleArea = (rectangles: { ID: string; text?: string
  * 取消显示矩形区域（通用，传入区域ID进行删除区域）
  * IDs：要进行删除的区域ID列表
  */
-export const OCX_XML_DeleteRectangleArea = (IDs: string[]) => {
+export const OCX_XML_DeleteRectangleArea = (IDs: number[]) => {
     return wrapXml(rawXml`
         <cmd type="DeleteRectangleArea">${IDs.map((ID) => `<ID>${ID}</ID>`).join('')}</cmd>
     `)

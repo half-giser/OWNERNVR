@@ -127,7 +127,7 @@ export const getBrowserInfo = (): BrowserInfo => {
  * @param {string} path
  * @return {string}
  */
-export const getFileNameFromPath = (path: string) => {
+export const getFileNameFromPath = (path: string): string => {
     return path.substring(path.lastIndexOf('/') + 1)
 }
 
@@ -139,7 +139,7 @@ export const getFileNameFromPath = (path: string) => {
  * @param {string} path
  * @return {string}
  */
-export const getFileNameNoExtFromPath = (path: string) => {
+export const getFileNameNoExtFromPath = (path: string): string => {
     return path.substring(path.lastIndexOf('/') + 1, path.lastIndexOf('.'))
 }
 
@@ -147,7 +147,7 @@ export const getFileNameNoExtFromPath = (path: string) => {
  * @description 判断当前是否为https访问
  * @returns {boolean}
  */
-export const isHttpsLogin = () => {
+export const isHttpsLogin = (): boolean => {
     return window.location.protocol === 'https:'
 }
 
@@ -162,7 +162,7 @@ export const isBrowserSupportWasm = () => {
  * @param params 参数
  * @returns {string}
  */
-export const getURLSearchParams = (params: Record<string, string | number | boolean | null>) => {
+export const getURLSearchParams = (params: Record<string, string | number | boolean | null>): string => {
     const searchParams = new URLSearchParams()
     Object.entries(params).forEach(([key, value]) => {
         if (value !== null) searchParams.append(key, String(value))
@@ -175,7 +175,7 @@ export const getURLSearchParams = (params: Record<string, string | number | bool
  * @param {string} str
  * @return {Object}
  */
-export const matchRtspUrl = (str: string) => {
+export const matchRtspUrl = (str: string): object => {
     const rtspReg = /^rtsp:\/\/((?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]\d|[1-9])(?:\.(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}):(\d{1,5})\/([^&$|\\'<>]+)$/
     const result = str.match(rtspReg)
     if (!result) {
@@ -195,7 +195,7 @@ export const matchRtspUrl = (str: string) => {
  * @param rtspUrl
  * @returns {string}
  */
-export const getRtspUrl = (ip: string, port: string, rtspUrl: string) => {
+export const getRtspUrl = (ip: string, port: string, rtspUrl: string): string => {
     return `rtsp://${ip}:${port}/${rtspUrl}`
 }
 
@@ -203,7 +203,7 @@ export const getRtspUrl = (ip: string, port: string, rtspUrl: string) => {
  * @description XML注入securityVer属性
  * @returns {string}
  */
-export const getSecurityVer = () => {
+export const getSecurityVer = (): string => {
     const userSessionStore = useUserSessionStore()
     return userSessionStore.sesionKey ? " securityVer='" + userSessionStore.securityVer + "'" : ''
 }
@@ -213,7 +213,7 @@ export const getSecurityVer = () => {
  * @param str
  * @returns {string}
  */
-export const wrapCDATA = (str: string) => {
+export const wrapCDATA = (str: string): string => {
     return `<![CDATA[${str}]]>`
 }
 
@@ -221,7 +221,7 @@ export const wrapCDATA = (str: string) => {
  * @description XML包裹ENUM值
  * @returns {string}
  */
-export const wrapEnums = <T extends number | string | boolean, K>(array: string[] | SelectOption<T, K>[]) => {
+export const wrapEnums = <T extends number | string | boolean, K>(array: string[] | SelectOption<T, K>[]): string => {
     if (array.length && typeof array[0] === 'string') {
         return array.map((item) => `<enum>${item}</enum>`).join('')
     } else {
@@ -234,7 +234,7 @@ export const wrapEnums = <T extends number | string | boolean, K>(array: string[
  * @param {string} str
  * @returns {string}
  */
-export const wrapBase64Img = (str: string) => {
+export const wrapBase64Img = (str: string): string => {
     return 'data:image/png;base64,' + str
 }
 
@@ -243,7 +243,7 @@ export const wrapBase64Img = (str: string) => {
  * @param options（options为过滤条件）
  * @returns {promise}
  */
-export const getChlList = (options: Partial<ChannelQueryNodeListDto> = {}) => {
+export const getChlList = (options: Partial<ChannelQueryNodeListDto> = {}): Promise<any> => {
     const data = rawXml`
         <types>
             <nodeType>
@@ -315,7 +315,7 @@ export const getChlList = (options: Partial<ChannelQueryNodeListDto> = {}) => {
  * @param {string} route
  * @returns {Promise<Boolean>}
  */
-export const checkChlListCaps = async (route: string) => {
+export const checkChlListCaps = async (route: string): Promise<boolean> => {
     const systemCaps = useCababilityStore()
 
     if (route.includes('faceRecognition') || route.includes('vehicleRecognition') || route.includes('boundary') || route.includes('more') || route.includes('videoStructure')) {
@@ -739,7 +739,7 @@ export const getArrayDiffRows = (arr1: Record<string, any>[], arr2: Record<strin
  * @description 检测重启
  * @returns {NodeJS.Timeout}
  */
-export const reconnect = () => {
+export const reconnect = (): NodeJS.Timeout => {
     const pluginStore = usePluginStore()
     const userSession = useUserSessionStore()
 
@@ -781,7 +781,7 @@ type ScheduleListOption = {
  * @description 构建排程选择列表
  * @return {SelectOption<string, string>[]}
  */
-export const buildScheduleList = async (option: Partial<ScheduleListOption> = {}) => {
+export const buildScheduleList = async (option: Partial<ScheduleListOption> = {}): SelectOption<string, string>[] => {
     const options = {
         isManager: false,
         isDefault: true,
@@ -814,7 +814,7 @@ export const buildScheduleList = async (option: Partial<ScheduleListOption> = {}
  * @param {string} defaultScheduleId
  * @return {string}
  */
-export const getScheduleId = (scheduleList: SelectOption<string, string>[], scheduleId: string, defaultScheduleId = DEFAULT_EMPTY_ID) => {
+export const getScheduleId = (scheduleList: SelectOption<string, string>[], scheduleId: string, defaultScheduleId: string = DEFAULT_EMPTY_ID): string => {
     if (scheduleId === '') {
         return defaultScheduleId
     }
@@ -830,7 +830,7 @@ export const getScheduleId = (scheduleList: SelectOption<string, string>[], sche
  * @description 返回持续时间列表
  * @returns {SelectOption<string, string>[]}
  */
-export const getAlarmHoldTimeList = (holdTimeList: string, holdTime: number) => {
+export const getAlarmHoldTimeList = (holdTimeList: string, holdTime: number): SelectOption<string, string>[] => {
     const holdTimeArr = holdTimeList.array().map((item) => Number(item))
     if (!holdTimeArr.includes(holdTime)) {
         holdTimeArr.push(holdTime)
@@ -947,7 +947,7 @@ export const buildSnapChlList = async () => {
  * @param {number} value
  * @return {*}
  */
-export const getTranslateForMin = (value: number) => {
+export const getTranslateForMin = (value: number): any => {
     const Translate = useLangStore().Translate
     return getTranslateForTime(value, Translate('IDCS_HOUR'), Translate('IDCS_HOURS'), Translate('IDCS_MINUTE'), Translate('IDCS_MINUTES'))
 }
@@ -957,7 +957,7 @@ export const getTranslateForMin = (value: number) => {
  * @param {number} value
  * @return {*}
  */
-export const getTranslateForSecond = (value: number) => {
+export const getTranslateForSecond = (value: number): any => {
     const Translate = useLangStore().Translate
     return getTranslateForTime(value, Translate('IDCS_MINUTE'), Translate('IDCS_MINUTES'), Translate('IDCS_SECOND'), Translate('IDCS_SECONDS'))
 }
@@ -967,7 +967,7 @@ export const getTranslateForSecond = (value: number) => {
  * @param {number} value
  * @return {string}
  */
-const getTranslateForTime = (value: number, unit1: string, unit1s: string, unit2: string, unit2s: string) => {
+const getTranslateForTime = (value: number, unit1: string, unit1s: string, unit2: string, unit2s: string): string => {
     value = Math.round(value)
 
     if (value === 0) {
@@ -1012,7 +1012,7 @@ export const getTranslateForPasswordStrength = (key: keyof typeof DEFAULT_PASSWO
  * @description 获取通用的开关选项
  * @returns {SelectOption<boolean, string>[]}
  */
-export const getBoolSwitchOptions = () => {
+export const getBoolSwitchOptions = (): SelectOption<boolean, string>[] => {
     const Translate = useLangStore().Translate
     return DEFAULT_SWITCH_OPTIONS.map((item) => {
         return {
@@ -1171,7 +1171,7 @@ export const base64FileSize = (base64url: string) => {
  * @param {string} id
  * @returns {string} Pstring
  */
-export const getChlGuid16 = (id: string) => {
+export const getChlGuid16 = (id: string): string => {
     const arr = ['00000000', '0000', '0000', '0000', '000000000000']
     arr[0] = (arr[0] + id).slice(-8)
     const guid = '{' + arr.join('-') + '}'
@@ -1192,7 +1192,7 @@ export const getChlId16 = (guid: string) => {
  * @description 生成16进制字符随机guid, 格式: {00000000-0000-0000-0000-000000000000}
  * @returns {string} Pstring
  */
-export const getRandomGUID = () => {
+export const getRandomGUID = (): string => {
     const str = '0123456789abcdef'
     const temp = '00000000-0000-0000-0000-000000000000'
     let ret = ''
@@ -1228,7 +1228,7 @@ type MutexOptions = {
  * @param {string} str
  * @returns {string}
  */
-const joinSpaceForLang = (str: string) => {
+const joinSpaceForLang = (str: string): string => {
     if (!str) return ''
     const { langType } = useLangStore()
     const langTypeList = ['zh-cn', 'zh-tw']
@@ -1329,7 +1329,7 @@ export const checkMutexChl = async ({ isChange, mutexList, mutexListEx = [], chl
  * @param {Array} array
  * @returns {SelectOption[]}
  */
-export const arrayToOptions = <T>(array: T[]) => {
+export const arrayToOptions = <T>(array: T[]): SelectOption[] => {
     return array.map((value) => ({
         label: value,
         value,
@@ -1360,4 +1360,287 @@ export const objectToOptions = <T extends 'number' | 'string' | 'boolean', K ext
  */
 export const blurInput = (event: Event) => {
     ;(event.target as HTMLInputElement).blur()
+}
+
+/**
+ * @description:
+ * 根据AP返回的xml信息判断当前AI事件配置模式
+ * 模式0：4.2.1普通摄像机，不支持设置检测目标和目标大小
+ * 模式1：支持统一设置目标和大小；
+ * 模式2：支持每个区域单独设置目标大小，支持统一设置检测目标；
+ * 模式3：支持每个区域单独设置检测目标和目标大小
+ * 模式4：低配版IPC，越界/区域入侵目标类型只支持人
+ * 模式5：NTA1-3160，ONVIF：支持每个区域单独配置检测目标开关，不能配置灵敏度、目标大小;
+ *       NTA1-3733，ONVIF接入YCX的IPC，越界配置缺少单独开关、灵敏度、检测目标配置
+ * 模式6：支持每个区域单独设置目标大小，不支持设置检测目标；
+ * @param {String} nodeKey 解析的目标节点：越界、过线统计：line；其他AI事件：boundary
+ * @param {*} xmlDoc 目标xml
+ * @returns {String}
+ */
+export const getCurrentAICfgMode = (nodeKey: string, xmlDoc: any): string => {
+    const $param = xmlDoc
+    let objectMode = 'mode1' // IPC5.3以下普遍为模式1
+    if ($param('sensitivity').length > 0) {
+        objectMode = 'mode4'
+    } else if ($param('objectFilter').length === 0) {
+        if ($param(`${nodeKey}/item/objectFilter`).length > 0) {
+            // boundary或line的objectFilter节点下存在检测目标开关或灵敏度，则为模式5
+            const $itemNode = $param(`${nodeKey}/item`)
+            const supportPersonDetectTarget = $itemNode('objectFilter/person/switch').length > 0 || $itemNode('objectFilter/person/sensitivity').length > 0
+            const supportCarDetectTarget = $itemNode('objectFilter/car/switch').length > 0 || $itemNode('objectFilter/car/sensitivity').length > 0
+            const supportMotorDetectTarget = $itemNode('objectFilter/motor/switch').length > 0 || $itemNode('objectFilter/motor/sensitivity').length > 0
+            if (supportPersonDetectTarget || supportCarDetectTarget || supportMotorDetectTarget) {
+                objectMode = 'mode5'
+            } else {
+                objectMode = 'mode6'
+            }
+        } else {
+            objectMode = 'mode0'
+        }
+    } else {
+        $param(`${nodeKey}/item`).forEach((item: { element: XMLDocument | Element | null }) => {
+            const $item = queryXml(item.element)
+            if ($item('objectFilter').length > 0) {
+                const personSence = $item('objectFilter/person/sensitivity').length > 0
+                const carSence = $item('objectFilter/car/sensitivity').length > 0
+                const motorSence = $item('objectFilter/motor/sensitivity').length > 0
+                // 人、车、非只要有一个在line/boundary>item>objectFilter节点下有灵敏度字段，则为模式3
+                if (personSence || carSence || motorSence) {
+                    objectMode = 'mode3'
+                } else {
+                    objectMode = 'mode2'
+                }
+            }
+        })
+    }
+    return objectMode
+}
+
+/**
+ * @description 解析各个AI事件下的objectFilter节点数据
+ * @param {string} objectMode AI配置模式
+ * @param {Object} itemObjectFilter boundary(line)/item/objectFilter节点数据
+ * @param {Object} paramObjectFilter chl/param/objectFilter节点数据
+ * @returns {Object}
+ */
+export const getObjectFilterData = (objectMode: string, itemObjectFilter: { element: XMLDocument | Element | null }[], paramObjectFilter: { element: XMLDocument | Element | null }[]): object => {
+    const $itemNodeObj = queryXml(itemObjectFilter[0].element)
+    let $paramNodeObj = null
+    if (paramObjectFilter.length > 0) $paramNodeObj = queryXml(paramObjectFilter[0].element)
+
+    const objectFilter = ref(new AlarmObjectFilterCfgDto())
+    const supportPerson = $itemNodeObj('person').length > 0
+    const supportCar = $itemNodeObj('car').length > 0
+    const supportMotor = $itemNodeObj('motor').length > 0
+    const supportPersonMaxMin = $itemNodeObj('person/minDetectTarget').length > 0 ? true : false
+    const supportCarMaxMin = $itemNodeObj('car/minDetectTarget').length > 0 ? true : false
+    const supportMotorMaxMin = $itemNodeObj('motor/minDetectTarget').length > 0 ? true : false
+    const detectTargetList = []
+    if (supportPersonMaxMin) detectTargetList.push('person')
+    if (supportCarMaxMin) detectTargetList.push('car')
+    if (supportMotorMaxMin) detectTargetList.push('motor')
+
+    const supportMaxMinTarget =
+        $itemNodeObj('person/minDetectTarget').text() !== '' || $itemNodeObj('car/minDetectTarget').text() !== '' || $itemNodeObj('motor/minDetectTarget').text() !== '' ? true : false
+
+    if (objectMode === 'mode5') {
+        $itemNodeObj('person/minDetectTarget').text() !== '' ? true : false
+    }
+
+    let person = new AlarmTargetCfgDto(),
+        car = new AlarmTargetCfgDto(),
+        motor = new AlarmTargetCfgDto()
+    if (supportPerson) {
+        person = getDetectTargetData('person', objectMode, $itemNodeObj, $paramNodeObj)
+    }
+
+    if (supportCar) {
+        car = getDetectTargetData('car', objectMode, $itemNodeObj, $paramNodeObj)
+    }
+
+    if (supportMotor) {
+        motor = getDetectTargetData('motor', objectMode, $itemNodeObj, $paramNodeObj)
+    }
+    objectFilter.value = {
+        supportPerson: supportPerson,
+        supportCar: supportCar,
+        supportMotor: supportMotor,
+        supportMaxMinTarget: supportMaxMinTarget,
+        supportPersonMaxMin: supportPersonMaxMin,
+        supportCarMaxMin: supportCarMaxMin,
+        supportMotorMaxMin: supportMotorMaxMin,
+        detectTargetList: detectTargetList,
+        supportCommonEnable: false,
+        supportCommonSensitivity: false,
+        commonSensitivity: new AlarmSensitivityInfoDto(),
+        person: person,
+        car: car,
+        motor: motor,
+    }
+    return objectFilter
+}
+
+/**
+ * @description 获取对应的人、车、非节点数据
+ * @param {String} nodeType 节点类型：person、car、motor
+ * @param {String} objectMode 配置模式：mode1、2、3
+ * @param {Function} $itemNodeObj boundary(line)/item/objectFilter节点数据
+ * @param {any} $paramNodeObj chl/param/objectFilter节点数据
+ * @returns {Object}
+ */
+const getDetectTargetData = (nodeType: String, objectMode: String, $itemNodeObj: Function, $paramNodeObj: any): object => {
+    let resultObj = new AlarmTargetCfgDto()
+    // 模式2：灵敏度相关配置从chl/param/objectFilter节点获取
+    const $itemNode = objectMode === 'mode2' ? $paramNodeObj : $itemNodeObj
+    // 过线统计多一个配置项：滞留报警阈值
+    let stayAlarmThreshold = new AlarmStayThresholdDto()
+    const supportAlarmThreshold = $itemNode(`${nodeType}/stayAlarmThreshold`).text() !== ''
+    if (supportAlarmThreshold) {
+        const defaultValue = $itemNode(`${nodeType}/stayAlarmThreshold`).attr('default').num()
+        stayAlarmThreshold = {
+            value: $itemNode(`${nodeType}/stayAlarmThreshold`).text() === '' ? defaultValue : $itemNode(`${nodeType}/stayAlarmThreshold`).text().num(),
+            min: $itemNode(`${nodeType}/stayAlarmThreshold`).attr('min').num(),
+            max: $itemNode(`${nodeType}/stayAlarmThreshold`).attr('max').num(),
+            defaultValue: defaultValue,
+        }
+    }
+    // 默认值
+    const minDetectTargetWidthDefault = $itemNodeObj(`${nodeType}/minDetectTarget/width`).attr('default').num() / 100
+    const minDetectTargetHeightDefault = $itemNodeObj(`${nodeType}/minDetectTarget/height`).attr('default').num() / 100
+    const maxDetectTargetWidthDefault = $itemNodeObj(`${nodeType}/maxDetectTarget/width`).attr('default').num() / 100
+    const maxDetectTargetHeightDefault = $itemNodeObj(`${nodeType}/maxDetectTarget/height`).attr('default').num() / 100
+    const sensitivityDefault = $itemNode(`${nodeType}/sensitivity`).attr('default').num()
+    resultObj = {
+        supportAlarmThreshold: supportAlarmThreshold,
+        stayAlarmThreshold: stayAlarmThreshold,
+        supportSensitivity: $itemNode(`${nodeType}/sensitivity`).length > 0,
+        sensitivity: {
+            enable: $itemNode(`${nodeType}/switch`).text().bool(),
+            value: $itemNode(`${nodeType}/sensitivity`).text() === '' ? sensitivityDefault : $itemNode(`${nodeType}/sensitivity`).text().num(),
+            max: $itemNode(`${nodeType}/sensitivity`).attr('max').num(),
+            min: $itemNode(`${nodeType}/sensitivity`).attr('min').num(),
+            default: sensitivityDefault,
+        },
+        minRegionInfo: {
+            region: [],
+            width: $itemNodeObj(`${nodeType}/minDetectTarget/width`).text() === '' ? minDetectTargetWidthDefault : $itemNodeObj(`${nodeType}/minDetectTarget/width`).text().num() / 100,
+            height: $itemNodeObj(`${nodeType}/minDetectTarget/height`).text() === '' ? minDetectTargetHeightDefault : $itemNodeObj(`${nodeType}/minDetectTarget/height`).text().num() / 100,
+            min: $itemNodeObj(`${nodeType}/minDetectTarget/height`).attr('min').num() / 100 || 0,
+            max: $itemNodeObj(`${nodeType}/minDetectTarget/height`).attr('max').num() / 100 || 100,
+            default: $itemNodeObj(`${nodeType}/minDetectTarget/height`).attr('default').num() / 100,
+        },
+        maxRegionInfo: {
+            region: [],
+            width: $itemNodeObj(`${nodeType}/maxDetectTarget/width`).text() === '' ? maxDetectTargetWidthDefault : $itemNodeObj(`${nodeType}/maxDetectTarget/width`).text().num() / 100,
+            height: $itemNodeObj(`${nodeType}/maxDetectTarget/height`).text() === '' ? maxDetectTargetHeightDefault : $itemNodeObj(`${nodeType}/maxDetectTarget/height`).text().num() / 100,
+            min: $itemNodeObj(`${nodeType}/maxDetectTarget/height`).attr('min').num() / 100 || 0,
+            max: $itemNodeObj(`${nodeType}/maxDetectTarget/height`).attr('max').num() / 100 || 100,
+            default: $itemNodeObj(`${nodeType}/maxDetectTarget/height`).attr('default').num() / 100,
+        },
+    }
+    return resultObj
+}
+
+/**
+ * @description 组装AI配置》编辑协议的objectFilter节点XML
+ * @param {Boolean} isSentySolo 是否可以单独配置灵敏度相关参数
+ * @param {Object} objectFilterData 各个区域的检测目标数据
+ * @param {Object} chlData 通道信息
+ * @param {String} objectMode 配置模式
+ * @returns {String}
+ */
+export const setObjectFilterXmlData = (isSentySolo: boolean, objectFilterData: AlarmObjectFilterCfgDto, chlData: AlarmChlDto, objectMode: string): string => {
+    let paramXml = '<objectFilter>'
+    if (objectFilterData.supportPerson) {
+        // 检测目标--人
+        paramXml += '<person>'
+        paramXml += setSensitivityXmlData(objectMode, isSentySolo, objectFilterData.person)
+
+        if (objectFilterData.supportPersonMaxMin) {
+            paramXml += setMinMaxTargetXmlData(objectFilterData.person.minRegionInfo, objectFilterData.person.maxRegionInfo)
+        }
+        paramXml += '</person>'
+    }
+
+    if (objectFilterData.supportCar) {
+        // 检测目标--车
+        paramXml += '<car>'
+        paramXml += setSensitivityXmlData(objectMode, isSentySolo, objectFilterData.car)
+
+        if (objectFilterData.supportCarMaxMin) {
+            paramXml += setMinMaxTargetXmlData(objectFilterData.car.minRegionInfo, objectFilterData.car.maxRegionInfo)
+        }
+        paramXml += '</car>'
+    }
+
+    if (chlData.accessType === '0') {
+        if (objectFilterData.supportMotor) {
+            // 检测目标--非机动车
+            paramXml += '<motor>'
+            paramXml += setSensitivityXmlData(objectMode, isSentySolo, objectFilterData.motor)
+
+            if (objectFilterData.supportMotorMaxMin) {
+                paramXml += setMinMaxTargetXmlData(objectFilterData.car.minRegionInfo, objectFilterData.motor.maxRegionInfo)
+            }
+            paramXml += '</motor>'
+        }
+    }
+    paramXml += '</objectFilter>'
+    return paramXml
+}
+
+/**
+ * @description 组装灵敏度、滞留报警节点XML
+ * @param {string} objectMode 配置模式
+ * @param {boolean} isSentySolo 是否可以单独配置灵敏度相关参数
+ * @param {AlarmTargetCfgDto} objectData
+ * @returns {String}
+ */
+const setSensitivityXmlData = (objectMode: string, isSentySolo: boolean, objectData: AlarmTargetCfgDto): string => {
+    let sensitivityXml = ''
+    if (objectMode && objectMode === 'mode5') {
+        // 模式5可单独配置检测目标开关，不可单独配置检测目标灵敏度、大小
+        sensitivityXml += '<switch>' + objectData.sensitivity.enable + '</switch>'
+    } else {
+        if (isSentySolo) {
+            // 模式2不可单独配置检测目标
+            sensitivityXml += '<switch>' + objectData.sensitivity.enable + '</switch>'
+            if (objectData.sensitivity) {
+                sensitivityXml += '<sensitivity>' + objectData.sensitivity.value + '</sensitivity>'
+            }
+
+            // 滞留报警阈值
+            if (objectData.supportAlarmThreshold) {
+                sensitivityXml += '<stayAlarmThreshold>' + objectData.stayAlarmThreshold.value + '</stayAlarmThreshold>'
+            }
+        }
+    }
+    return sensitivityXml
+}
+
+/**
+ * @description 组装最大最小范围节点XML
+ * @param {Object} minRegionInfo
+ * @param {Object} maxRegionInfo
+ * @returns {String}
+ */
+const setMinMaxTargetXmlData = (minRegionInfo: AlarmMaxMinRegionInfoDto, maxRegionInfo: AlarmMaxMinRegionInfoDto): string => {
+    const minMaxXml =
+        '<minDetectTarget>' +
+        '<width>' +
+        minRegionInfo.width * 100 +
+        '</width>' +
+        '<height>' +
+        minRegionInfo.height * 100 +
+        '</height>' +
+        '</minDetectTarget>' +
+        '<maxDetectTarget>' +
+        '<width>' +
+        maxRegionInfo.width * 100 +
+        '</width>' +
+        '<height>' +
+        maxRegionInfo.height * 100 +
+        '</height>' +
+        '</maxDetectTarget>'
+    return minMaxXml
 }

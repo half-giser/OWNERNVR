@@ -6,12 +6,16 @@
 import AlarmBaseChannelSelector from './AlarmBaseChannelSelector.vue'
 import TripwirePanel from './TripwirePanel.vue'
 import PeaPanel from './PeaPanel.vue'
+import AreaEnterPanel from './AreaEnterPanel.vue'
+import AreaLeavePanel from './AreaLeavePanel.vue'
 
 export default defineComponent({
     components: {
         AlarmBaseChannelSelector,
         TripwirePanel,
         PeaPanel,
+        AreaEnterPanel,
+        AreaLeavePanel,
     },
     setup() {
         const systemCaps = useCababilityStore()
@@ -238,6 +242,10 @@ export default defineComponent({
                 pageData.value.tab = 'Tripwire'
             } else if (chlData.value.supportPea || chlData.value.supportBackPea || chlData.value.supportPeaTrigger) {
                 pageData.value.tab = 'Pea'
+            } else if (chlData.value.supportAOIEntry || chlData.value.supportBackAOIEntry) {
+                pageData.value.tab = 'AreaEnter'
+            } else if (chlData.value.supportAOILeave || chlData.value.supportBackAOILeave) {
+                pageData.value.tab = 'AreaLeave'
             } else {
                 pageData.value.notSupport = true
                 pageData.value.tab = ''

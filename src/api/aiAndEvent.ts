@@ -267,18 +267,53 @@ export const queryTripwire = (data: string) => fetch('queryTripwire', data)
 export const editTripwire = (data: string) => fetch('editTripwire', data)
 
 /**
- * @description 获取区域入侵侦测数据
+ * @description 获取组合报警配置中侦测状况
  * @param {string} data
  * @returns
  */
 export const queryIntelAreaConfig = (data: string) => fetch('queryIntelAreaConfig', data, {}, false)
 
 /**
+ * @description 获取区域入侵侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const queryPerimeter = (data: string) => fetch('queryPerimeter', data)
+
+/**
  * @description 修改区域入侵侦测数据
  * @param {string} data
  * @returns
  */
-export const editIntelAreaConfig = (data: string) => fetch('editIntelAreaConfig', data)
+export const editPerimeter = (data: string) => fetch('editPerimeter', data)
+
+/**
+ * @description 获取进入区域侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const querySmartAOIEntryConfig = (data: string) => fetch('querySmartAOIEntryConfig', data)
+
+/**
+ * @description 修改进入区域侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const editSmartAOIEntryConfig = (data: string) => fetch('editSmartAOIEntryConfig', data)
+
+/**
+ * @description 获取离开区域侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const querySmartAOILeaveConfig = (data: string) => fetch('querySmartAOILeaveConfig', data)
+
+/**
+ * @description 修改离开区域侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const editSmartAOILeaveConfig = (data: string) => fetch('editSmartAOILeaveConfig', data)
 
 /**
  * @description 获取组合报警数据
