@@ -50,6 +50,34 @@
                     :online-channel-list="pageData.onlineChannelList"
                 />
             </el-tab-pane>
+            <!-- areaEnter -->
+            <el-tab-pane
+                :disabled="!chlData.supportAOIEntry && !chlData.supportBackAOIEntry"
+                name="AreaEnter"
+                :label="Translate('IDCS_SMART_AOI_ENTRY_DETECTION')"
+            >
+                <AreaEnterPanel
+                    v-if="pageData.tab === 'AreaEnter'"
+                    :curr-chl-id="pageData.currChlId"
+                    :chl-data="chlData"
+                    :voice-list="pageData.voiceList"
+                    :online-channel-list="pageData.onlineChannelList"
+                />
+            </el-tab-pane>
+            <!-- areaLeave -->
+            <el-tab-pane
+                :disabled="!chlData.supportAOILeave && !chlData.supportBackAOILeave"
+                name="AreaLeave"
+                :label="Translate('IDCS_SMART_AOI_LEAVE_DETECTION')"
+            >
+                <AreaLeavePanel
+                    v-if="pageData.tab === 'AreaLeave'"
+                    :curr-chl-id="pageData.currChlId"
+                    :chl-data="chlData"
+                    :voice-list="pageData.voiceList"
+                    :online-channel-list="pageData.onlineChannelList"
+                />
+            </el-tab-pane>
         </el-tabs>
     </div>
 </template>
