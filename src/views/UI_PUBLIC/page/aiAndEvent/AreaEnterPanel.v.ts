@@ -1,7 +1,7 @@
 /*
- * @Author: gaoxuefeng gaoxuefeng@tvt.net.cn
- * @Date: 2024-09-19 13:36:26
- * @Description: 区域入侵
+ * @Author: liyanqi a11219@tvt.net.cn
+ * @Date: 2025-05-07 10:19:20
+ * @Description: 进入区域
  */
 import ChannelPtzCtrlPanel from '@/views/UI_PUBLIC/page/channel/ChannelPtzCtrlPanel.vue'
 import { type XMLQuery, type XmlElement } from '@/utils/xmlParse'
@@ -86,7 +86,7 @@ export default defineComponent({
             // 侦测类型
             detectionTypeText: Translate('IDCS_DETECTION_BY_DEVICE').formatForLang(props.chlData.supportTripwire ? 'IPC' : 'NVR'),
             // activityType 1:perimeter 2:entry 3:leave
-            activityType: 'perimeter',
+            activityType: 'entry',
             // 选择的警戒区域index
             warnAreaIndex: 0,
             warnAreaChecked: [] as number[],
@@ -115,7 +115,6 @@ export default defineComponent({
             direction: '',
             // 方向列表
             directionList: [] as SelectOption<string, string>[],
-            // 区域活动禁用
             // 控制显示最值区域
             isShowDisplayRange: false,
             // 画图相关
@@ -146,27 +145,6 @@ export default defineComponent({
 
         const areaType = computed(() => {
             return AREA_TYPE_MAPPING[pageData.value.activityType]
-        })
-
-        // 显示人的勾选框 + 灵敏度配置项
-        const showAllPersonTarget = computed(() => {
-            const warnAreaIndex = pageData.value.lastSelectWarnArea
-            const hasBoundaryInfo = formData.value.boundaryInfo.length > 0
-            return hasBoundaryInfo && formData.value.boundaryInfo[warnAreaIndex].objectFilter.supportPerson
-        })
-
-        // 显示车的勾选框 + 灵敏度配置项
-        const showAllCarTarget = computed(() => {
-            const warnAreaIndex = pageData.value.lastSelectWarnArea
-            const hasBoundaryInfo = formData.value.boundaryInfo.length > 0
-            return hasBoundaryInfo && formData.value.boundaryInfo[warnAreaIndex].objectFilter.supportCar
-        })
-
-        // 显示摩托车的勾选框 + 灵敏度配置项
-        const showAllMotorTarget = computed(() => {
-            const warnAreaIndex = pageData.value.lastSelectWarnArea
-            const hasBoundaryInfo = formData.value.boundaryInfo.length > 0
-            return hasBoundaryInfo && formData.value.boundaryInfo[warnAreaIndex].objectFilter.supportMotor
         })
 
         // 显示人的灵敏度配置项
@@ -202,7 +180,7 @@ export default defineComponent({
                 drawer = CanvasPolygon({
                     el: player.getDrawbordCanvas(),
                     regulation: pageData.value.currentRegulation,
-                    onchange: changePea,
+                    onchange: changeArea,
                     closePath: closePath,
                     forceClosePath: forceClosePath,
                     clearCurrentArea: clearCurrentArea,
@@ -270,7 +248,7 @@ export default defineComponent({
         /**
          * @description 获取区域入侵检测数据
          */
-        const getPeaData = async () => {
+        const getData = async () => {
             const sendXML = rawXml`
                 <condition>
                     <chlId>${props.currChlId}</chlId>
@@ -281,12 +259,12 @@ export default defineComponent({
                 </requireField>
             `
             openLoading()
-            const res = await queryPerimeter(sendXML)
+            const res = await querySmartAOIEntryConfig(sendXML)
             closeLoading()
             const $ = queryXml(res)
             if ($('status').text() === 'success') {
                 pageData.value.schedule = getScheduleId(pageData.value.scheduleList, $('content/chl').attr('scheduleGuid'))
-                getPeaActivityData(res)
+                getActivityData(res)
                 pageData.value.currentRegulation = formData.value.regulation
                 pageData.value.currAreaType = pageData.value.currentRegulation ? 'regionArea' : 'detectionArea'
                 watchEdit.listen()
@@ -300,7 +278,7 @@ export default defineComponent({
          * @description 获取区域检测数据
          * @param {XMLDocument | Element} res
          */
-        const getPeaActivityData = (res: XMLDocument | Element) => {
+        const getActivityData = (res: XMLDocument | Element) => {
             const $ = queryXml(res)
             const param = $('content/chl/param')
             if (!param.length) {
@@ -331,12 +309,6 @@ export default defineComponent({
 
             areaData.holdTime = $param('alarmHoldTime').text().num()
             areaData.holdTimeList = getAlarmHoldTimeList($param('holdTimeNote').text(), areaData.holdTime)
-
-            // 时间阈值（秒）
-            areaData.supportDuration = $param('duration').text() !== ''
-            areaData.duration = $param('duration').text().num()
-            areaData.durationMin = $param('duration').attr('min').num()
-            areaData.durationMax = $param('duration').attr('max').num()
 
             // 屏蔽区域
             areaData.supportMaskArea = $param('maskArea').text() !== ''
@@ -383,23 +355,6 @@ export default defineComponent({
                     objectFilter = getObjectFilterData(formData.value.objectFilterMode, $element('objectFilter'), $resultNode)
                 }
 
-                // ONVIF存在每个区域有公共灵敏度和开关
-                if (formData.value.objectFilterMode === 'mode5') {
-                    // NTA1-3733 存在只有开关的情况
-                    const supportCommonEnable = $element('switch').length > 0
-                    const supportCommonSensitivity = supportCommonEnable && $element('>sensitivity').length > 0
-                    if (supportCommonSensitivity) {
-                        objectFilter.value.supportCommonEnable = supportCommonEnable
-                        objectFilter.value.supportCommonSensitivity = supportCommonSensitivity
-                        objectFilter.value.commonSensitivity.enable = $element('switch').text().bool()
-                        objectFilter.value.commonSensitivity.value = $element('sensitivity').text().num()
-                        objectFilter.value.commonSensitivity.min = $element('sensitivity').attr('min').num()
-                        objectFilter.value.commonSensitivity.max = $element('sensitivity').attr('max').num()
-                    } else if (supportCommonEnable) {
-                        objectFilter.value.supportCommonEnable = supportCommonEnable
-                        objectFilter.value.commonSensitivity.enable = $element('switch').text().bool()
-                    }
-                }
                 const boundary = {
                     objectFilter: objectFilter.value,
                     point: [] as CanvasBasePoint[],
@@ -428,9 +383,6 @@ export default defineComponent({
             areaData.pictureAvailable = $param('saveTargetPicture').text() !== ''
             areaData.saveTargetPicture = $param('saveTargetPicture').text().bool()
             areaData.saveSourcePicture = $param('saveSourcePicture').text().bool()
-            areaData.onlyPerson = $param('sensitivity').text() !== ''
-            // NTA1-231：低配版IPC：4M S4L-C，越界/区域入侵目标类型只支持人
-            areaData.sensitivity = formData.value.onlyPerson ? $('sensitivity').text().num() : 0
 
             // 默认用boundaryInfo的第一个数据初始化检测目标
             if (formData.value.boundaryInfo[0].objectFilter.detectTargetList.length) {
@@ -520,18 +472,13 @@ export default defineComponent({
                 paramXml += setObjectFilterXmlData(needSentyFlg, item.objectFilter, props.chlData, objectFilterMode)
             }
 
-            // 模式5：ONVIF存在每个区域有公共灵敏度和开关
-            if (item.objectFilter.supportCommonSensitivity) {
-                paramXml += '<switch>' + item.objectFilter.commonSensitivity.enable + '</switch>'
-                paramXml += '<sensitivity>' + item.objectFilter.commonSensitivity.value + '</sensitivity>'
-            }
             return rawXml`${paramXml}`
         }
 
         /**
          * @description 保存配置
          */
-        const savePeaData = async () => {
+        const saveData = async () => {
             const data = formData.value
             const sendXml = rawXml`
                 <content>
@@ -594,7 +541,6 @@ export default defineComponent({
                             `
                                     : ''
                             }
-                            ${data.supportDuration ? `<duration>${data.duration}</duration>` : ''}
                             ${data.audioSuport && props.chlData.supportAudio ? `<triggerAudio>${data.trigger.includes('triggerAudio')}</triggerAudio>` : ''}
                             ${data.lightSuport && props.chlData.supportWhiteLight ? `<triggerWhiteLight>${data.trigger.includes('triggerWhiteLight')}</triggerWhiteLight>` : ''}
                             ${
@@ -606,7 +552,6 @@ export default defineComponent({
                                     : ''
                             }
                             ${data.hasAutoTrack ? `<autoTrack>${data.autoTrack}</autoTrack>` : ''}
-                            ${data.onlyPerson ? `<sensitivity>${data.sensitivity}</sensitivity>` : ''}
                         </param>
                         <trigger>
                             <sysRec>
@@ -644,7 +589,7 @@ export default defineComponent({
                 </content>
             `
             openLoading()
-            const result = await editPerimeter(sendXml)
+            const result = await editSmartAOIEntryConfig(sendXml)
             const $ = queryXml(result)
             closeLoading()
             if ($('status').text() === 'success') {
@@ -652,7 +597,7 @@ export default defineComponent({
                     formData.value.originalEnable = true
                 }
                 // 保存成功后刷新视频区域，四个点时区域没有闭合但保存后也可以闭合（四点已经可以画面）
-                // setPeaOcxData()
+                // setOcxData()
                 refreshInitPage()
                 watchEdit.update()
             } else {
@@ -680,7 +625,7 @@ export default defineComponent({
                 chlList: props.onlineChannelList,
                 tips: 'IDCS_SIMPLE_INVADE_DETECT_TIPS',
             }).then(() => {
-                savePeaData()
+                saveData()
             })
         }
 
@@ -759,7 +704,7 @@ export default defineComponent({
                 const boundaryInfo = formData.value.boundaryInfo
                 if (mode.value === 'h5') {
                     drawer.setEnable(true)
-                    setPeaOcxData()
+                    setOcxData()
                 }
 
                 if (mode.value === 'ocx') {
@@ -769,17 +714,16 @@ export default defineComponent({
                             plugin.ExecuteCmd(sendXML1)
                         }
 
-                        const maxCount = getMaxCount()
-                        const sendXML2 = OCX_XML_SetPeaAreaAction('EDIT_ON', maxCount)
+                        const sendXML2 = OCX_XML_SetPeaAreaAction('EDIT_ON')
                         plugin.ExecuteCmd(sendXML2)
                     }, 100)
                 }
 
                 if (pageData.value.isShowAllArea) {
-                    showAllPeaArea(true)
+                    showAllArea(true)
                 }
             } else if (pageData.value.tab === 'target') {
-                showAllPeaArea(false)
+                showAllArea(false)
                 if (mode.value === 'h5') {
                     drawer.clear()
                     drawer.setEnable(false)
@@ -853,8 +797,8 @@ export default defineComponent({
          */
         const initPageData = async () => {
             pageData.value.supportAlarmAudioConfig = systemCaps.supportAlarmAudioConfig
-            pageData.value.detectionTypeText = Translate('IDCS_DETECTION_BY_DEVICE').formatForLang(props.chlData.supportPea ? 'IPC' : 'NVR')
-            await getPeaData()
+            pageData.value.detectionTypeText = Translate('IDCS_DETECTION_BY_DEVICE').formatForLang(props.chlData.supportAOIEntry ? 'IPC' : 'NVR')
+            await getData()
             pageData.value.currentRegulation = formData.value.regulation
             pageData.value.currAreaType = pageData.value.currentRegulation ? 'regionArea' : 'detectionArea'
             refreshInitPage()
@@ -867,7 +811,7 @@ export default defineComponent({
          * @description 开启关闭显示全部区域
          */
         const toggleShowAllArea = () => {
-            showAllPeaArea(pageData.value.isShowAllArea)
+            showAllArea(pageData.value.isShowAllArea)
         }
 
         /**
@@ -882,12 +826,12 @@ export default defineComponent({
          */
         const changeWarnArea = () => {
             pageData.value.currAreaType = 'detectionArea'
-            setOtherAreaClosed()
-            setPeaOcxData()
-            showDisplayRange()
+            pageData.value.lastSelectWarnArea = pageData.value.warnAreaIndex
             // 取消选中屏蔽区域
             pageData.value.maskAreaIndex = -1
-            pageData.value.lastSelectWarnArea = pageData.value.warnAreaIndex
+            setOtherAreaClosed()
+            setOcxData()
+            showDisplayRange()
         }
 
         /**
@@ -895,11 +839,11 @@ export default defineComponent({
          */
         const changeMaskArea = () => {
             pageData.value.currAreaType = 'maskArea'
-            setOtherAreaClosed()
-            setPeaOcxData()
-            showDisplayRange()
             // 取消选中警戒区域
             pageData.value.warnAreaIndex = -1
+            setOtherAreaClosed()
+            setOcxData()
+            showDisplayRange()
         }
 
         /**
@@ -907,7 +851,7 @@ export default defineComponent({
          * @param {string} type
          */
         const checkMinMaxRange = (type: string) => {
-            const warnAreaIndex = pageData.value.lastSelectWarnArea
+            const warnAreaIndex = pageData.value.warnAreaIndex
             const detectTarget = formData.value.detectTarget
             // 最小区域宽
             const minTextW = formData.value.boundaryInfo[warnAreaIndex].objectFilter[detectTarget].minRegionInfo.width
@@ -934,21 +878,6 @@ export default defineComponent({
                 formData.value.boundaryInfo[warnAreaIndex].objectFilter[detectTarget].maxRegionInfo.height = minTextH + 1
             }
             shoeErrTip && openMessageBox(errorMsg)
-        }
-
-        /**
-         * @description 获取可绘制的最大点数
-         * @return {number} maxCount
-         */
-        const getMaxCount = (): number => {
-            const currAreaType = pageData.value.currAreaType
-            let maxCount = 6
-            if (currAreaType === 'maskArea' && formData.value.maskAreaInfo.length > 0) {
-                maxCount = formData.value.maskAreaInfo[0].maxCount
-            } else if (formData.value.boundaryInfo.length > 0) {
-                maxCount = formData.value.boundaryInfo[0].maxCount
-            }
-            return maxCount
         }
 
         /**
@@ -995,7 +924,7 @@ export default defineComponent({
          * @description 更新区域数据
          * @param {CanvasBaseArea | CanvasBasePoint[]} points
          */
-        const changePea = (points: CanvasBaseArea | CanvasBasePoint[]) => {
+        const changeArea = (points: CanvasBaseArea | CanvasBasePoint[]) => {
             const area = pageData.value.warnAreaIndex
             const currAreaType = pageData.value.currAreaType
             if (formData.value.regulation) {
@@ -1013,7 +942,7 @@ export default defineComponent({
             }
 
             if (pageData.value.isShowAllArea) {
-                showAllPeaArea(true)
+                showAllArea(true)
             }
             refreshInitPage()
         }
@@ -1022,7 +951,7 @@ export default defineComponent({
          * @description 绘制所有区域
          * @param {boolean} isShowAll
          */
-        const showAllPeaArea = (isShowAll: boolean) => {
+        const showAllArea = (isShowAll: boolean) => {
             if (mode.value === 'h5') {
                 drawer.setEnableShowAll(isShowAll)
             }
@@ -1078,7 +1007,7 @@ export default defineComponent({
                     }
 
                     if (mode.value === 'ocx') {
-                        const sendXML = OCX_XML_SetAllArea({ detectAreaInfo: boundaryInfo }, 'IrregularPolygon', OCX_AI_EVENT_TYPE_PEA_DETECTION, '', true)
+                        const sendXML = OCX_XML_SetAllArea({ detectAreaInfo: boundaryInfo, maskAreaInfo: maskAreaInfo }, 'IrregularPolygon', OCX_AI_EVENT_TYPE_PEA_DETECTION, '', true)
                         plugin.ExecuteCmd(sendXML)
                     }
                 }
@@ -1094,7 +1023,7 @@ export default defineComponent({
                         plugin.ExecuteCmd(sendXML)
                     }
                 }
-                setPeaOcxData()
+                setOcxData()
             }
         }
 
@@ -1176,7 +1105,7 @@ export default defineComponent({
         /**
          * @description 绘制区域
          */
-        const setPeaOcxData = () => {
+        const setOcxData = () => {
             const currAreaType = pageData.value.currAreaType
             const area = currAreaType === 'detectionArea' ? pageData.value.warnAreaIndex : pageData.value.maskAreaIndex
             const boundaryInfo = formData.value.boundaryInfo
@@ -1205,7 +1134,7 @@ export default defineComponent({
             }
 
             if (pageData.value.isShowAllArea) {
-                showAllPeaArea(true)
+                showAllArea(true)
             }
         }
 
@@ -1297,7 +1226,7 @@ export default defineComponent({
                 }
 
                 if (pageData.value.isShowAllArea) {
-                    showAllPeaArea(true)
+                    showAllArea(true)
                 }
             })
         }
@@ -1326,7 +1255,7 @@ export default defineComponent({
             }
 
             if (pageData.value.isShowAllArea) {
-                showAllPeaArea(true)
+                showAllArea(true)
             }
         }
 
@@ -1375,7 +1304,7 @@ export default defineComponent({
             }
 
             if (pageData.value.isShowAllArea) {
-                showAllPeaArea(true)
+                showAllArea(true)
             }
         }
 
@@ -1457,16 +1386,12 @@ export default defineComponent({
             closeSchedulePop,
             applyData,
             changeTab,
-            getMaxCount,
             toggleShowAllArea,
             toggleDisplayRange,
             showDisplayRange,
             changeWarnArea,
             changeMaskArea,
             checkMinMaxRange,
-            showAllPersonTarget,
-            showAllCarTarget,
-            showAllMotorTarget,
             showPersonSentity,
             showCarSentity,
             showMotorSentity,

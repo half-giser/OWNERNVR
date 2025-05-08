@@ -501,9 +501,27 @@ export class AlarmPeaDto {
     holdTime = 0
     // 持续时间列表
     holdTimeList: SelectOption<number, string>[] = []
+    // 检测目标列表
+    detectTargetList: SelectOption<string, string>[] = []
+    // 检测目标
+    detectTarget = 'person'
+    // 配置模式
+    objectFilterMode = 'mode1'
+    // 是否支持配置时间阈值
+    supportDuration = false
+    // 时间阈值
+    duration = 0
+    // 时间阈值最小值
+    durationMin = 10
+    // 时间阈值最大值
+    durationMax = 3600
     // 区别联咏ipc标志
     regulation = false
-    boundaryInfo: { point: CanvasBasePoint[]; maxCount: number }[] = []
+    // 是否支持配置屏蔽区域
+    supportMaskArea = false
+    // 屏蔽区域
+    maskAreaInfo: { point: CanvasBasePoint[]; maxCount: number }[] = []
+    boundaryInfo: { objectFilter: AlarmObjectFilterCfgDto; point: CanvasBasePoint[]; maxCount: number }[] = []
     regionInfo: CanvasBaseArea[] = []
     mutexList: AlarmMutexDto[] = []
     mutexListEx: AlarmMutexDto[] = []
@@ -511,15 +529,6 @@ export class AlarmPeaDto {
     onlyPerson = false
     // 只支持人的灵敏度
     sensitivity = 0
-    // 检测目标
-    hasObj = false
-    person = false
-    car = false
-    motorcycle = false
-    // 检测目标灵敏度
-    personSensitivity = 0
-    carSensitivity = 0
-    motorSensitivity = 0
     // 联动
     triggerSwitch = false
     // 音频联动
@@ -543,7 +552,18 @@ export type CanvasPasslineDirection = 'none' | 'rightortop' | 'leftorbotton'
  * @description 越界
  */
 export class AlarmTripwireDto {
-    lineInfo: { direction: CanvasPasslineDirection; startPoint: { X: number; Y: number }; endPoint: { X: number; Y: number } }[] = []
+    lineInfo: {
+        objectFilter: AlarmObjectFilterCfgDto
+        direction: CanvasPasslineDirection
+        startPoint: { X: number; Y: number }
+        endPoint: { X: number; Y: number }
+    }[] = []
+    // 配置模式
+    objectFilterMode = 'mode1'
+    // 检测目标列表
+    detectTargetList: SelectOption<string, string>[] = []
+    // 检测目标
+    detectTarget = 'person'
     // 方向
     direction: CanvasPasslineDirection = 'none'
     // 方向列表
@@ -569,20 +589,10 @@ export class AlarmTripwireDto {
     // 联动追踪
     hasAutoTrack = false
     autoTrack = false
-    // 检测目标
-    hasObj = false
     // 是否启用侦测
     detectionEnable = false
     // 用于对比
     originalEnable = false
-    objectFilter = {
-        person: false,
-        car: false,
-        motorcycle: false,
-        personSensitivity: 0,
-        carSensitivity: 0,
-        motorSensitivity: 0,
-    }
     triggerSwitch = false
     // 音频联动
     audioSuport = false
@@ -594,6 +604,71 @@ export class AlarmTripwireDto {
     triggerList = ['msgPushSwitch', 'buzzerSwitch', 'popVideoSwitch', 'emailSwitch', 'snapSwitch']
     alarmOut: SelectOption<string, string>[] = []
     preset: AlarmPresetItem[] = []
+}
+
+/**
+ * @description 检测目标、目标大小数据类型
+ */
+export class AlarmObjectFilterCfgDto {
+    supportPerson = false // 支持检测目标--人
+    supportCar = false // 支持检测目标--车
+    supportMotor = false // 支持检测目标--非机动车
+    supportMaxMinTarget = false // 支持配置目标大小--人、车、非任意一个
+    supportPersonMaxMin = false // 支持配置目标大小--人
+    supportCarMaxMin = false // 支持配置目标大小--车
+    supportMotorMaxMin = false // 支持配置目标大小--非机动车
+    supportCommonEnable = false
+    supportCommonSensitivity = false
+    detectTargetList: string[] = [] // 检测目标列表：person、car、motor
+    commonSensitivity = new AlarmSensitivityInfoDto()
+    person = new AlarmTargetCfgDto() // 检测目标为人的相关数据：开启检测、灵敏度、最小目标范围、最大目标范围
+    car = new AlarmTargetCfgDto() // 检测目标为车的相关数据：开启检测、灵敏度、最小目标范围、最大目标范围
+    motor = new AlarmTargetCfgDto() // 检测目标为车的相关数据：开启检测、灵敏度、最小目标范围、最大目标范围
+}
+
+/**
+ * @description 检测目标数据类型
+ */
+export class AlarmTargetCfgDto {
+    supportAlarmThreshold = false
+    stayAlarmThreshold = new AlarmStayThresholdDto()
+    supportSensitivity = false
+    sensitivity = new AlarmSensitivityInfoDto()
+    minRegionInfo = new AlarmMaxMinRegionInfoDto()
+    maxRegionInfo = new AlarmMaxMinRegionInfoDto()
+}
+
+/**
+ * @description 滞留预警数据类型
+ */
+export class AlarmStayThresholdDto {
+    value = 0
+    min = 0
+    max = 100
+    defaultValue = 50
+}
+
+/**
+ * @description 目标大小最值数据类型
+ */
+export class AlarmMaxMinRegionInfoDto {
+    region = []
+    width = 0
+    height = 0
+    min = 0
+    max = 100
+    default = 50
+}
+
+/**
+ * @description 目标灵敏度数据类型
+ */
+export class AlarmSensitivityInfoDto {
+    enable = false
+    value = 1
+    max = 100
+    min = 0
+    default = 50
 }
 
 /**
