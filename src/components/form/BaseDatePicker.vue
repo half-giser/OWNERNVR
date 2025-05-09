@@ -234,6 +234,7 @@ const props = withDefaults(
          * @property 日期可选范围(包含) YYYY-MM-DD
          */
         range?: [string, string]
+        validate?: () => Promise<void>
     }>(),
     {
         teleported: true,
@@ -560,9 +561,22 @@ const setToday = () => {
  * @description 点击确定
  */
 const confirm = () => {
-    changeValue()
-    emits('change', props.modelValue)
-    visible.value = false
+    if (props.validate) {
+        props
+            .validate()
+            .then(() => {
+                changeValue()
+                emits('change', props.modelValue)
+                visible.value = false
+            })
+            .catch(() => {
+                visible.value = false
+            })
+    } else {
+        changeValue()
+        emits('change', props.modelValue)
+        visible.value = false
+    }
 }
 
 /**

@@ -32,15 +32,25 @@
                         tabindex="1"
                     />
                 </el-form-item>
-                <el-form-item prop="password">
+                <el-form-item
+                    prop="password"
+                    class="no-padding"
+                >
                     <BasePasswordInput
                         v-model="formData.password"
                         :placeholder="Translate('IDCS_PASSWORD_TIP')"
                         tabindex="2"
-                        show-password
                         @keyup.enter="keyUp"
                     />
                 </el-form-item>
+                <div class="base-btn-box collapse">
+                    <el-button
+                        link
+                        @click="forgetPassword"
+                    >
+                        {{ Translate('IDCS_FORGOT_PASSWORD') }}
+                    </el-button>
+                </div>
                 <el-form-item>
                     <el-button
                         class="login-submit"
@@ -121,6 +131,10 @@
             font-size: 16px;
             padding: 0 0 28px;
 
+            &.no-padding {
+                padding-bottom: 0;
+            }
+
             &:last-child {
                 padding-bottom: 0;
             }
@@ -147,6 +161,17 @@
             &.is-disabled {
                 background-position: 0 -150px;
             }
+        }
+    }
+
+    .base-btn-box.collapse {
+        padding: 5px 0;
+        width: calc(100% - 10px);
+
+        #n9web & .el-button {
+            padding: 0;
+            text-decoration: underline;
+            min-width: unset;
         }
     }
 

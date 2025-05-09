@@ -12,7 +12,7 @@ import IntelBaseSnapItem from './IntelBaseSnapItem.vue'
 import IntelBaseFaceMatchPop from './IntelBaseFaceMatchPop.vue'
 import IntelFaceSearchChooseFacePop from './IntelFaceSearchChooseFacePop.vue'
 import IntelFaceSearchTrackMapPanel from './IntelFaceSearchTrackMapPanel.vue'
-import { type DownloadZipOptions } from '@/utils/tools'
+import { type DownloadZipOptions } from '@/utils/downloaders'
 import dayjs from 'dayjs'
 
 export default defineComponent({

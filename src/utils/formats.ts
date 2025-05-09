@@ -213,6 +213,34 @@ export const getBytesLength = (str: string) => {
     return totalLength
 }
 
+export const getLimitBytesStr = (str: string, len: number) => {
+    if (!str) return str
+
+    let num = 0
+    let j = 0
+
+    for (let i = 0, lens = str.length; i < lens; i++) {
+        const charCode = str.charCodeAt(i)
+        if (charCode < 0x007f) {
+            num += 1
+        } else if (0x0080 <= charCode && charCode <= 0x07ff) {
+            num += 2
+        } else if (0x0800 <= charCode && charCode <= 0xffff) {
+            num += 3
+        } else {
+            num += 4
+        }
+
+        if (num > len) {
+            break
+        } else {
+            j = i + 1
+        }
+    }
+
+    return str.substring(0, j + 1)
+}
+
 /**
  * @description https访问提示文案格式化，返回文案格式：`当前https访问，不支持${content}`
  * @param {string} content
@@ -239,7 +267,7 @@ export const formatInputMaxLength = (value: string) => {
  */
 export const formatInputUserName = (value: string) => {
     value = value.replace(/([`\^\[\]]|[^A-z\d!@#%(){}~_\\'./\-\s])/g, '')
-    return formatInputMaxLength(value)
+    return value
 }
 
 /**

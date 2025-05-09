@@ -17,7 +17,7 @@ import ParkLotPop from '../businessApplication/ParkLotPop.vue'
 import type { TableInstance, CheckboxValueType } from 'element-plus'
 import BackupPop from '../searchAndBackup/BackupPop.vue'
 import BackupLocalPop from '../searchAndBackup/BackupLocalPop.vue'
-import { type DownloadZipOptions } from '@/utils/tools'
+import { type DownloadZipOptions } from '@/utils/downloaders'
 import dayjs from 'dayjs'
 
 export default defineComponent({

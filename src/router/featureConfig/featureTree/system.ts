@@ -102,7 +102,7 @@ const systemRoutes: FeatureItem = {
                 group: 'basicConfig',
                 auth: 'remoteSysCfgAndMaintain',
                 hasCap(systemCaps) {
-                    return systemCaps.supportPoePowerManage
+                    return systemCaps.poeChlMaxCount > 0
                 },
             },
         },

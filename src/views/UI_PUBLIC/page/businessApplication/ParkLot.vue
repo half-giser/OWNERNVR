@@ -72,7 +72,7 @@
                         class="panel-top"
                     >
                         <div>
-                            <span class="panel-type">{{ Translate('IDCS_VEHICLE_OUT') }}</span>
+                            <span class="panel-type">{{ current.type === 'out-nonEnter-nonExit' ? ' ' : Translate('IDCS_VEHICLE_OUT') }}</span>
                             <span class="panel-door">{{ current.exitChl }}</span>
                         </div>
                         <div class="panel-time">{{ displayDateTime(current.exitTime) }}</div>
@@ -92,8 +92,34 @@
                                 v-model="formData.plateNum"
                                 maxlength="31"
                             />
-                            <el-button @click="commit">{{ Translate('IDCS_EDIT_SUBMIT') }}</el-button>
-                            <el-button @click="handleOpenGate">{{ Translate('IDCS_OPEN_GATE_RELEASE') }}</el-button>
+                            <el-button
+                                class="btn"
+                                @click="commit"
+                            >
+                                {{ Translate('IDCS_EDIT_SUBMIT_AND_OPEN') }}
+                            </el-button>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-input
+                                class="hide"
+                                disabled
+                            />
+                            <el-dropdown>
+                                <el-button class="btn">
+                                    {{ Translate('IDCS_MANUAL_OPEN_BARRIER') }}
+                                </el-button>
+                                <template #dropdown>
+                                    <el-dropdown-menu>
+                                        <el-dropdown-item
+                                            v-for="opt in pageData.entryLeaveOption"
+                                            :key="opt.value"
+                                            @click="handleManualOpen(opt.value)"
+                                        >
+                                            {{ opt.label }}
+                                        </el-dropdown-item>
+                                    </el-dropdown-menu>
+                                </template>
+                            </el-dropdown>
                         </el-form-item>
                     </el-form>
                     <div class="data-box">
@@ -120,6 +146,20 @@
                         <div class="data-item">
                             <label>{{ Translate('IDCS_VEHICLE_IN_OUT_RESULT') }}</label>
                             <span>{{ displayType(current.type) }}</span>
+                        </div>
+                    </div>
+                    <div class="data-box">
+                        <div class="data-item">
+                            <label>{{ Translate('IDCS_EFFECTIVE_ENTERING_TIM') }}</label>
+                            <span :class="{ 'text-error': getPlateStartTimeState() }">{{ displayDateTime(current.plateStartTime) }}</span>
+                        </div>
+                        <div class="data-item">
+                            <label>{{ Translate('IDCS_EFFECTIVE_EXITING_TIME') }}</label>
+                            <span :class="{ 'text-error': getPlateEndTimeState() }">{{ displayDateTime(current.plateEndTime) }}</span>
+                        </div>
+                        <!-- 超出有效出场时间的提示信息 -->
+                        <div class="data-item">
+                            <span class="text-error">{{ getTimeoutTip() }}</span>
                         </div>
                     </div>
                 </div>
@@ -197,8 +237,13 @@
             v-model="pageData.isDetailPop"
             :list="tableData"
             :index="pageData.detailIndex"
+            :remark-switch="pageData.remarkSwitch"
             @update-plate="handleUpdatePlate"
             @close="pageData.isDetailPop = false"
+        />
+        <ParkLotRemarkPop
+            v-model="pageData.isRemarkPop"
+            @confirm="confirmRemark"
         />
     </div>
 </template>
@@ -212,6 +257,14 @@
     min-height: var(--main-min-height);
     display: flex;
     flex-direction: column;
+}
+
+.hide {
+    opacity: 0;
+}
+
+.btn {
+    width: 140px;
 }
 
 .container {
@@ -350,7 +403,7 @@
     margin: 5px 0;
 
     &-box {
-        padding: 10px 0;
+        padding: 5px 0;
 
         &:not(:last-child) {
             border-bottom: 1px solid var(--content-border);
@@ -358,8 +411,8 @@
     }
 
     &-item {
-        line-height: 40px;
-        height: 40px;
+        line-height: 30px;
+        height: 30px;
         display: flex;
 
         label {

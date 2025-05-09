@@ -8,6 +8,7 @@ import { type FormRules } from 'element-plus'
 export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
+        const userSession = useUserSessionStore()
 
         const formData = ref(new BusinessParkBasicConfigForm())
         const formRef = useFormRef()
@@ -61,6 +62,27 @@ export default defineComponent({
                     trigger: 'manual',
                 },
             ],
+            startOfVehicle: [
+                {
+                    validator: (_rule, value: string, callback) => {
+                        if (formData.value.autoOpenBarrierSwitch && !value.trim()) {
+                            callback(new Error('IDCS_VEHICLE_START_EMPTY_TIPS'))
+                            return false
+                        }
+
+                        const inputPlateArr = value.split(',')
+                        const reg = /[`\s~!@#$%^&*()\-+=<>?:"{}|.\/;\\[\]·~！@#￥%……&*（）——\-+={}|《》？：“”【】、；'‘’，。、]/g
+                        const flag = inputPlateArr.some((item) => reg.test(item))
+                        if (flag) {
+                            callback(new Error('IDCS_INVALID_CHAR'))
+                            return false
+                        }
+
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
         })
 
         /**
@@ -78,11 +100,20 @@ export default defineComponent({
                 formData.value.parkName = $('content/basicInfo/name').text()
                 formData.value.totalNum = $('content/basicInfo/totalVehicleNum').text().num()
                 formData.value.remainTotalNum = $('content/basicInfo/remainSpaceNum').text().num()
+                formData.value.autoOpenBarrierSwitch = $('content/basicInfo/autoOpenBarrier/switch').text().bool()
+                formData.value.startOfVehicle = $('content/basicInfo/autoOpenBarrier/startOfVehicle').text()
+                formData.value.remarkSwitch = $('content/basicInfo/remarkSwitch').text().bool()
+
                 $('content/parkingSapce/item').forEach((item) => {
                     const $item = queryXml(item.element)
                     formData.value.groupTotalNum += $item('groupTotalNum').text().num()
                     formData.value.groupRemainTotalNum += $item('groupRemainNum').text().num()
                 })
+            } else {
+                const errorCode = $('errorCode').text().num()
+                if (errorCode === ErrorCode.USER_ERROR_NO_AUTH) {
+                    openMessageBox(Translate('IDCS_NO_PERMISSION'))
+                }
             }
         }
 
@@ -90,6 +121,11 @@ export default defineComponent({
          * @description 编辑-下发编辑协议
          */
         const apply = () => {
+            if (!userSession.hasAuth('businessCfg')) {
+                openMessageBox(Translate('IDCS_NO_PERMISSION'))
+                return
+            }
+
             formRef.value!.validate(async (valid) => {
                 if (valid) {
                     const sendXml = rawXml`
@@ -98,6 +134,11 @@ export default defineComponent({
                                 <name>${wrapCDATA(formData.value.parkName)}</name>
                                 <totalVehicleNum>${formData.value.totalNum}</totalVehicleNum>
                                 <remainSpaceNum>${formData.value.remainTotalNum}</remainSpaceNum>
+                                <autoOpenBarrier>
+                                    <switch>${formData.value.autoOpenBarrierSwitch}</switch>
+                                    <startOfVehicle>${wrapCDATA(formData.value.startOfVehicle)}</startOfVehicle>
+                                </autoOpenBarrier>
+                                <remarkSwitch>${formData.value.remarkSwitch}</remarkSwitch>
                             </basicInfo>
                         </content>
                     `

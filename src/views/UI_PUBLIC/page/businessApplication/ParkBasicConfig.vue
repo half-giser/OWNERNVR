@@ -48,6 +48,35 @@
                     :max="10000"
                 />
             </el-form-item>
+            <div class="base-business-subheading">
+                <span>{{ Translate('IDCS_AUTO_OPEN_BARRIER') }}</span>
+                <span class="base-business-subheading-tip">{{ Translate('IDCS_VEHICLE_START_TIPS') }}</span>
+            </div>
+            <el-form-item>
+                <el-checkbox
+                    v-model="formData.autoOpenBarrierSwitch"
+                    :label="Translate('IDCS_ENABLE')"
+                />
+            </el-form-item>
+            <el-form-item
+                :label="Translate('IDCS_VEHICLE_START')"
+                prop="startOfVehicle"
+            >
+                <el-input
+                    v-model="formData.startOfVehicle"
+                    :disabled="!formData.autoOpenBarrierSwitch"
+                    maxlength="256"
+                />
+            </el-form-item>
+            <div class="base-business-subheading">
+                {{ Translate('IDCS_MANUAL_OPEN_BARRIER') }}
+            </div>
+            <el-form-item>
+                <el-checkbox
+                    v-model="formData.remarkSwitch"
+                    :label="Translate('IDCS_OPEN_BARRIER_REMARK')"
+                />
+            </el-form-item>
             <div class="base-btn-box">
                 <el-button @click="apply">{{ Translate('IDCS_APPLY') }}</el-button>
             </div>

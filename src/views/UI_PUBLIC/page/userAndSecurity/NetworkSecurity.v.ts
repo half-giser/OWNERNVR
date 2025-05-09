@@ -35,12 +35,12 @@ export default defineComponent({
                     return {
                         id: item.attr('id'),
                         gateway: item.attr('gateway'),
-                        gatewayMac,
+                        gatewayMac, // 存放自动网关mac地址信息，不能被修改
                         arpSwitch: $item('arpSwitch').text().bool(),
                         autoGetGatewayMac,
                         manualInputGatewayMac,
                         preventDetection: $item('preventDetection').text().bool(),
-                        getGatewayMac: autoGetGatewayMac ? gatewayMac : manualInputGatewayMac,
+                        getGatewayMac: $item('manualInputGatewayMac').text(),
                     }
                 })
                 watchEdit.listen()
@@ -51,6 +51,10 @@ export default defineComponent({
          * @description 提交数据
          */
         const setData = async () => {
+            if (!verification()) {
+                return
+            }
+
             openLoading()
 
             const sendXml = rawXml`
@@ -80,6 +84,24 @@ export default defineComponent({
             watchEdit.update()
         }
 
+        const verification = () => {
+            const macReg = /([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})/
+            const isGatewayMacInvalid = tableData.value.some((item) => {
+                if (!item.arpSwitch) {
+                    return false
+                }
+
+                return item.getGatewayMac === DEFAULT_EMPTY_MAC || !macReg.test(item.getGatewayMac)
+            })
+
+            if (isGatewayMacInvalid) {
+                openMessageBox(Translate('IDCS_PROMPT_MACADDRESS_INVALID'))
+                return false
+            }
+
+            return true
+        }
+
         /**
          * @description 格式化网关名称
          * @param {string} value
@@ -94,9 +116,12 @@ export default defineComponent({
          */
         const changeAutoGetGatewayMac = (row: UserNetworkSecurityForm) => {
             if (row.autoGetGatewayMac) {
-                row.getGatewayMac = row.gatewayMac || DEFAULT_EMPTY_MAC
+                row.getGatewayMac = row.gatewayMac
+                if (!row.gatewayMac) {
+                    openMessageBox(Translate('IDCS_ERROR_GET_GATEWAY_MAC'))
+                }
             } else {
-                row.getGatewayMac = row.manualInputGatewayMac || DEFAULT_EMPTY_MAC
+                row.getGatewayMac = row.manualInputGatewayMac
             }
         }
 

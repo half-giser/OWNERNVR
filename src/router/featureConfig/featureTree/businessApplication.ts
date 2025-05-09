@@ -4,6 +4,23 @@
  * @Description: 业务应用-路由
  */
 
+/**
+ * @description 业务应用的路由守卫
+ * @param auth
+ * @returns {boolean}
+ */
+const checkTabAuth = (auth: string[]) => {
+    const userSession = useUserSessionStore()
+    const { Translate } = useLangStore()
+    const hasAuth = auth.some((item) => userSession.hasAuth(item))
+    if (!hasAuth) {
+        openMessageBox(Translate('IDCS_NO_PERMISSION'))
+        return false
+    } else {
+        return true
+    }
+}
+
 const businessApplicationRoutes: FeatureItem = {
     component: 'layout/L2T2Layout.vue',
     meta: {
@@ -20,7 +37,7 @@ const businessApplicationRoutes: FeatureItem = {
                 lk: 'IDCS_PARKING_LOT_MANAGEMENT',
                 auth: 'parkingLotMgr',
                 hasCap(systemCaps) {
-                    return !systemCaps.IntelAndFaceConfigHide
+                    return systemCaps.supportParkingLot
                 },
             },
             children: {
@@ -60,6 +77,17 @@ const businessApplicationRoutes: FeatureItem = {
                     },
                 },
             },
+            async beforeEnter(_to, from, next) {
+                if (!checkTabAuth(['businessCfg', 'businessMgr'])) {
+                    if (from.fullPath.includes('parkLotManage')) {
+                        next('/live')
+                    } else {
+                        next(from)
+                    }
+                } else {
+                    next()
+                }
+            },
         },
         // 门禁管理
         accessControl: {
@@ -83,6 +111,17 @@ const businessApplicationRoutes: FeatureItem = {
                     },
                 },
             },
+            async beforeEnter(_to, from, next) {
+                if (!checkTabAuth(['businessCfg'])) {
+                    if (from.fullPath.includes('accessControl')) {
+                        next('/live')
+                    } else {
+                        next(from)
+                    }
+                } else {
+                    next()
+                }
+            },
         },
         // 客流量 1.4.13
         passengerFlow: {
@@ -93,7 +132,7 @@ const businessApplicationRoutes: FeatureItem = {
             },
             children: {
                 passengerFlowCfg: {
-                    component: 'businessApplication/PassengerFlowCfg.vue',
+                    component: 'businessApplication/PassengerFlowConfig.vue',
                     meta: {
                         sort: 10,
                         lk: 'IDCS_CONFIG',
@@ -124,6 +163,17 @@ const businessApplicationRoutes: FeatureItem = {
                     },
                 },
             },
+            async beforeEnter(_to, from, next) {
+                if (!checkTabAuth(['businessCfg', 'businessMgr'])) {
+                    if (from.fullPath.includes('passengerFlow')) {
+                        next('/live')
+                    } else {
+                        next(from)
+                    }
+                } else {
+                    next()
+                }
+            },
         },
         // 人脸考勤
         faceAttendance: {
@@ -135,6 +185,17 @@ const businessApplicationRoutes: FeatureItem = {
                 hasCap(systemCaps) {
                     return systemCaps.supportFaceMatch
                 },
+            },
+            async beforeEnter(_to, from, next) {
+                if (!checkTabAuth(['businessMgr'])) {
+                    if (from.fullPath.includes('passengerFlow')) {
+                        next('/live')
+                    } else {
+                        next(from)
+                    }
+                } else {
+                    next()
+                }
             },
         },
         // 人脸签到
@@ -148,33 +209,44 @@ const businessApplicationRoutes: FeatureItem = {
                     return systemCaps.supportFaceMatch
                 },
             },
+            async beforeEnter(_to, from, next) {
+                if (!checkTabAuth(['businessMgr'])) {
+                    if (from.fullPath.includes('passengerFlow')) {
+                        next('/live')
+                    } else {
+                        next(from)
+                    }
+                } else {
+                    next()
+                }
+            },
         },
     },
-    async beforeEnter(_to, from, next) {
-        const { Translate } = useLangStore()
-        const userSession = useUserSessionStore()
-        const systemCaps = useCababilityStore()
-        // 非管理员账户
-        if (userSession.authGroupId) {
-            const supportFaceMatch = systemCaps.supportFaceMatch
-            const businessCfg = userSession.hasAuth('businessCfg')
-            const businessMgr = userSession.hasAuth('businessMgr')
-            if (!businessCfg && !businessMgr && !supportFaceMatch) {
-                openMessageBox(Translate('IDCS_NO_AUTH'))
-                if (from.fullPath.includes('business-application')) {
-                    next('/live')
-                } else {
-                    next(from)
-                }
-            } else {
-                next()
-            }
-        }
-        // 管理员账户
-        else {
-            next()
-        }
-    },
+    // async beforeEnter(_to, from, next) {
+    //     const { Translate } = useLangStore()
+    //     const userSession = useUserSessionStore()
+    //     const systemCaps = useCababilityStore()
+    //     // 非管理员账户
+    //     if (userSession.authGroupId) {
+    //         const supportFaceMatch = systemCaps.supportFaceMatch
+    //         const businessCfg = userSession.hasAuth('businessCfg')
+    //         const businessMgr = userSession.hasAuth('businessMgr')
+    //         if (!businessCfg && !businessMgr && !supportFaceMatch) {
+    //             openMessageBox(Translate('IDCS_NO_AUTH'))
+    //             if (from.fullPath.includes('business-application')) {
+    //                 next('/live')
+    //             } else {
+    //                 next(from)
+    //             }
+    //         } else {
+    //             next()
+    //         }
+    //     }
+    //     // 管理员账户
+    //     else {
+    //         next()
+    //     }
+    // },
 }
 
 export default businessApplicationRoutes

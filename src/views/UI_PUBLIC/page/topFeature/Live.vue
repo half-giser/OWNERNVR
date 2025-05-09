@@ -130,6 +130,7 @@
     height: 100%;
     border-left: 1px solid var(--live-border);
     border-right: 1px solid var(--live-border);
+    background-color: var(--main-bg);
 
     &-player {
         width: 100%;

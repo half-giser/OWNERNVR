@@ -20,7 +20,7 @@
             <el-form-item :label="Translate('IDCS_ENABLE')">
                 <el-checkbox
                     v-model="formData.enabled"
-                    :disabled="pageData.isEnableDisabled"
+                    :disabled="pageData.isEditAdmin"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_USERNAME')">
@@ -29,42 +29,82 @@
                     disabled
                 />
             </el-form-item>
+            <el-form-item
+                v-if="!pageData.isEditAdmin"
+                :label="Translate('IDCS_RIGHT_GROUP')"
+            >
+                <el-select-v2
+                    v-model="formData.authGroup"
+                    :options="authGroupOptions"
+                    :disabled="pageData.isEditAdmin"
+                />
+            </el-form-item>
             <el-form-item :label="Translate('IDCS_CLOSE_PERMISSION_CONTROL')">
                 <el-checkbox
                     v-model="formData.authEffective"
-                    :disabled="pageData.isAuthEffectiveDisabled"
+                    :disabled="pageData.isEditAdmin"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_ALLOW_CHANGE_PWD')">
                 <el-checkbox v-model="formData.allowModifyPassword" />
             </el-form-item>
             <el-form-item
-                prop="email"
-                :label="Translate('IDCS_EMAIL_ADDRESS')"
+                v-if="pageData.isAdmin"
+                :label="Translate('IDCS_REMOTE_LOGIN_ACCESS_CODE')"
             >
-                <BaseSensitiveEmailInput v-model="formData.email" />
+                <el-checkbox
+                    v-model="formData.accessCode"
+                    :label="Translate('IDCS_ENABLE')"
+                />
+                <BaseImgSprite
+                    file="question"
+                    :index="0"
+                    :hover-index="1"
+                    :chunk="2"
+                    :title="Translate('IDCS_REMOTE_LOGIN_ACCESS_CODE_TIP').formatForLang(1)"
+                />
             </el-form-item>
-            <el-form-item
-                v-show="pageData.isAuthGroup"
-                :label="Translate('IDCS_RIGHT_GROUP')"
-            >
-                <el-select-v2
-                    v-model="formData.authGroup"
-                    :options="authGroupOptions"
-                    :disabled="pageData.isAuthGroupDisabled"
+            <el-form-item :label="Translate('IDCS_REMARK')">
+                <BaseTextInput
+                    v-model="formData.email"
+                    :maxlength="formData.emailMaxByteLen"
+                />
+            </el-form-item>
+            <el-form-item v-if="!pageData.isEditAdmin && !pageData.isEditDebug">
+                <template #label>
+                    <el-checkbox
+                        v-model="formData.loginScheduleInfoEnabled"
+                        :label="Translate('IDCS_LOGIN_SECHDULE')"
+                    />
+                </template>
+                <BaseScheduleSelect
+                    v-model="formData.loginScheduleInfo"
+                    :options="pageData.scheduleList"
+                    :disabled="!formData.loginScheduleInfoEnabled"
+                    @edit="pageData.isSchedulePop = true"
                 />
             </el-form-item>
         </el-form>
         <div class="base-btn-box">
             <el-button
-                v-show="pageData.isChangePasswordBtn"
+                v-show="!pageData.isEditAdmin && !pageData.isEditSelf"
                 @click="changePassword"
             >
-                {{ Translate('IDCS_CHANGE_PWD') }}
+                {{ Translate('IDCS_RESET_PASSWORD') }}
             </el-button>
             <el-button @click="verify">{{ Translate('IDCS_OK') }}</el-button>
             <el-button @click="goBack">{{ Translate('IDCS_CANCEL') }}</el-button>
         </div>
+        <BaseScheduleManagePop
+            v-model="pageData.isSchedulePop"
+            @close="closeSchedulePop"
+        />
+        <BaseCheckAuthPop
+            v-model="pageData.isCheckAuthPop"
+            title="IDCS_CERTIFICATION_RIGHT"
+            @confirm="confirmEditUser"
+            @close="pageData.isCheckAuthPop = false"
+        />
     </el-dialog>
 </template>
 

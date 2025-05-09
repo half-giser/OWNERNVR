@@ -85,7 +85,7 @@
             <div class="authCodeLogin-lang">
                 <el-select-v2
                     v-model="pageData.langId"
-                    :options="lang.langTypes.value"
+                    :options="lang.langTypes"
                     :props="{
                         label: 'name',
                         value: 'id',

@@ -52,6 +52,8 @@
     /**
      * 主Layout
      */
+    --body-bg: var(--main-bg);
+
     --main-text: #000; // 界面文本默认色
     --main-text-light: #8d8d8d; // 界面文本默认浅色
     --main-text-active: #fff; // dropdown、options等被高亮选中时的文本颜色

@@ -75,6 +75,9 @@ export default defineComponent({
         const getData = async () => {
             const result = await queryEmailCfg()
             const $ = queryXml(result)
+
+            formData.value.addressMaxByteLen = $('content/receiver/itemType').attr('maxByteLen').num() || nameByteMaxLen
+
             pageData.value.list = $('content/receiver/item').map((item) => {
                 const $item = queryXml(item.element)
                 pageData.value.cacheAddress.push($item('address').text())

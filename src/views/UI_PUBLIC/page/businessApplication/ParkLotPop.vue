@@ -6,23 +6,51 @@
 <template>
     <el-dialog
         :title="Translate('IDCS_VEHICLE_IN_OUT_DETAIL')"
-        width="860"
+        width="1200"
         @open="open"
     >
+        <div>
+            <div class="tab">
+                <div
+                    class="tab-item"
+                    :class="{ active: pageData.tabIndex === 0 }"
+                    @click="pageData.tabIndex = 0"
+                >
+                    {{ current.type === 'nonEnter-nonExit' ? Translate('IDCS_NOT_HAVE_IN') : Translate('IDCS_VEHICLE_IN') }}
+                </div>
+                <div
+                    class="tab-item"
+                    :class="{ active: pageData.tabIndex === 1 }"
+                    @click="pageData.tabIndex = 1"
+                >
+                    {{ current.type === 'out-nonEnter-nonExit' ? Translate('IDCS_VEHICLE_NOT_OUT_TIPS') : Translate('IDCS_VEHICLE_OUT') }}
+                </div>
+            </div>
+        </div>
         <div class="dialog">
-            <div class="left">
-                <div class="panel">
-                    <div
-                        v-show="current.isEnter"
-                        class="panel-top"
-                    >
-                        <div>
-                            <span class="panel-type">{{ current.type === 'nonEnter-nonExit' ? '' : Translate('IDCS_VEHICLE_IN') }}</span>
-                            <span class="panel-door">{{ current.enterChl }}</span>
-                        </div>
-                        <div class="panel-time">{{ displayOpenGateType(current.enterType) }}</div>
-                    </div>
-                    <img :src="current.enterImg" />
+            <div
+                class="left"
+                @mouseenter="pageData.isBtnVisible = true"
+                @mouseleave="pageData.isBtnVisible = false"
+            >
+                <div
+                    v-show="pageData.tabIndex === 0"
+                    class="panel"
+                >
+                    <img
+                        :src="current.enterImg"
+                        class="pano-img"
+                    />
+                    <canvas
+                        ref="$enterCanvas"
+                        :width="pageData.canvasWidth"
+                        :height="pageData.canvasHeight"
+                    ></canvas>
+                    <img
+                        v-show="pageData.isBtnVisible && current.enterSnapImg"
+                        :src="current.enterSnapImg"
+                        class="snap-img"
+                    />
                     <div
                         v-show="!(current.isEnter && current.enterImg) && current.type === 'nonEnter-exit'"
                         class="panel-wrap"
@@ -30,23 +58,52 @@
                         {{ Translate('IDCS_NONE_VEHICLE_IN_TIPS') }}
                     </div>
                 </div>
-                <div class="panel">
-                    <div
-                        v-show="current.isExit"
-                        class="panel-top"
-                    >
-                        <div>
-                            <span class="panel-type">{{ Translate('IDCS_VEHICLE_OUT') }}</span>
-                            <span class="panel-door">{{ current.exitChl }}</span>
-                        </div>
-                        <div class="panel-time">{{ displayOpenGateType(current.exitType) }}</div>
-                    </div>
-                    <img :src="current.exitImg" />
+                <div
+                    v-show="pageData.tabIndex === 1"
+                    class="panel"
+                >
+                    <img
+                        :src="current.exitImg"
+                        class="pano-img"
+                    />
+                    <canvas
+                        ref="$exitCanvas"
+                        :width="pageData.canvasWidth"
+                        :height="pageData.canvasHeight"
+                    ></canvas>
+                    <img
+                        v-show="pageData.isBtnVisible && current.exitSnapImg"
+                        :src="current.exitSnapImg"
+                        class="snap-img"
+                    />
                     <div
                         v-show="!(current.isExit && current.exitImg) && current.type === 'enter-nonExit'"
                         class="panel-wrap"
                     >
                         {{ Translate('IDCS_NONE_VEHICLE_OUT_TIPS') }}
+                    </div>
+                </div>
+                <div
+                    v-show="pageData.isBtnVisible"
+                    class="btns"
+                >
+                    <div
+                        class="btn"
+                        :class="{
+                            disabled: pageData.index === 0,
+                        }"
+                        @click="handlePrev"
+                    >
+                        {{ Translate('IDCS_PREVIOUS') }}
+                    </div>
+                    <div
+                        class="btn"
+                        :class="{
+                            disabled: pageData.index === pageData.list.length - 1,
+                        }"
+                        @click="handleNext"
+                    >
+                        {{ Translate('IDCS_NEXT') }}
                     </div>
                 </div>
             </div>
@@ -95,13 +152,60 @@
                         <span>{{ displayType(current.type) }}</span>
                     </div>
                 </div>
+                <div class="data-box">
+                    <div class="data-item">
+                        <label>{{ Translate('IDCS_EFFECTIVE_ENTERING_TIM') }}</label>
+                        <span :class="{ 'text-error': getPlateStartTimeState() }">{{ displayDateTime(current.plateStartTime) }}</span>
+                    </div>
+                    <div class="data-item">
+                        <label>{{ Translate('IDCS_EFFECTIVE_EXITING_TIME') }}</label>
+                        <span :class="{ 'text-error': getPlateEndTimeState() }">{{ displayDateTime(current.plateEndTime) }}</span>
+                    </div>
+                </div>
+                <div class="data-box">
+                    <!-- 超出有效出场时间的提示信息 -->
+                    <div class="data-item">
+                        <label>{{ Translate('IDCS_REMARK') }}</label>
+                        <span>{{ current.remark }}</span>
+                    </div>
+                </div>
                 <div
                     v-if="type === 'edit'"
                     class="base-btn-box"
                 >
-                    <el-button @click="commit">{{ Translate('IDCS_EDIT_SUBMIT') }}</el-button>
-                    <el-button @click="handleOpenGate">{{ Translate('IDCS_OPEN_GATE_RELEASE') }}</el-button>
+                    <el-button @click="commit">{{ Translate('IDCS_EDIT_SUBMIT_AND_OPEN') }}</el-button>
                 </div>
+            </div>
+        </div>
+        <div class="base-btn-box space-between">
+            <div class="bottom-left">
+                <div
+                    v-show="pageData.tabIndex === 0"
+                    class="bottom-info"
+                >
+                    <div>{{ current.enterChl }}</div>
+                    <div>{{ displayOpenGateType(current.enterType) }}</div>
+                </div>
+                <div
+                    v-show="pageData.tabIndex === 1"
+                    class="bottom-info"
+                >
+                    <div>{{ current.exitChl }}</div>
+                    <div>{{ displayOpenGateType(current.exitType) }}</div>
+                </div>
+                <BaseImgSpriteBtn
+                    file="register"
+                    :disabled="!formData.plateNum"
+                    :title="Translate('IDCS_ENTRY')"
+                    @click="addPlate"
+                />
+            </div>
+            <div class="bottom-right">
+                <BaseImgSpriteBtn
+                    file="snap_exit"
+                    :title="Translate('IDCS_EXIT')"
+                    @click="close"
+                />
             </div>
         </div>
         <IntelLicencePlateDBAddPlatePop
@@ -114,31 +218,11 @@
             @close="pageData.isAddPlatePop = false"
             @confirm="pageData.isAddPlatePop = false"
         />
-        <div class="base-btn-box space-between">
-            <div>
-                <el-button
-                    :disabled="!formData.plateNum"
-                    @click="addPlate"
-                >
-                    {{ Translate('IDCS_ENTRY') }}
-                </el-button>
-            </div>
-            <div>
-                <el-button
-                    :disabled="pageData.index === 0"
-                    @click="handlePrev"
-                >
-                    {{ Translate('IDCS_PREVIOUS') }}
-                </el-button>
-                <el-button
-                    :disabled="pageData.index === pageData.list.length - 1"
-                    @click="handleNext"
-                >
-                    {{ Translate('IDCS_NEXT') }}
-                </el-button>
-                <el-button @click="close">{{ Translate('IDCS_EXIT') }}</el-button>
-            </div>
-        </div>
+        <ParkLotRemarkPop
+            v-model="pageData.isRemarkPop"
+            @confirm="commitOpenGate"
+            @close="pageData.isRemarkPop = false"
+        />
     </el-dialog>
 </template>
 
@@ -150,36 +234,41 @@
     display: flex;
 }
 
+.tab {
+    display: flex;
+    height: 32px;
+    margin-bottom: 5px;
+
+    &-item {
+        min-width: 130px;
+        border: 1px solid var(--table-border);
+        height: 100%;
+        margin-right: 5px;
+        line-height: 32px;
+        text-align: center;
+        cursor: pointer;
+
+        &:hover,
+        &.active {
+            color: var(--main-text-active);
+            background-color: var(--primary);
+        }
+    }
+}
+
 .left {
     display: flex;
     flex-direction: column;
-    width: 384px;
+    width: 796px;
     flex-shrink: 0;
+    position: relative;
 }
 
 .panel {
-    width: 380px;
-    height: 242px;
+    width: 100%;
+    height: 538px;
     border: 1px solid var(--subheading-bg);
-    margin: 5px;
-    background-color: var(--parklog-box-bg);
     position: relative;
-
-    &-top {
-        width: 100%;
-        height: 28px;
-        padding: 0 10px;
-        display: flex;
-        justify-content: space-between;
-        box-sizing: border-box;
-        font-size: 14px;
-        line-height: 28px;
-        background: var(--parklog-title-bg);
-    }
-
-    &-door {
-        padding-left: 20px;
-    }
 
     &-wrap {
         background-color: var(--parklog-box-bg);
@@ -193,13 +282,32 @@
         align-items: center;
     }
 
-    img {
+    .pano-img {
         width: 100%;
-        height: 214px;
+        height: 100%;
 
         &[src=''] {
             opacity: 0;
         }
+    }
+
+    .snap-img {
+        position: absolute;
+        width: 30%;
+        right: 0;
+        top: 0;
+
+        &[src=''] {
+            opacity: 0;
+        }
+    }
+
+    canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
     }
 }
 
@@ -207,11 +315,11 @@
     width: 100%;
     padding: 0 20px;
     box-sizing: border-box;
-    margin: 5px 0 5px 10px;
+    margin-left: 10px;
     background-color: var(--parklog-bg);
 
     &-box {
-        padding: 10px 0;
+        padding: 5px 0;
 
         &:not(:last-child) {
             border-bottom: 1px solid var(--content-border);
@@ -219,8 +327,8 @@
     }
 
     &-item {
-        line-height: 40px;
-        height: 40px;
+        line-height: 38px;
+        height: 38px;
         display: flex;
 
         label {
@@ -235,6 +343,55 @@
             &.bold {
                 font-weight: bolder;
             }
+        }
+    }
+}
+
+.bottom {
+    &-left {
+        width: 796px;
+        flex-shrink: 0;
+        justify-content: space-between;
+    }
+
+    &-info {
+        display: flex;
+        font-size: 20px;
+        width: 100%;
+
+        & > div {
+            width: 50%;
+        }
+    }
+
+    &-right {
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
+    }
+}
+
+.btns {
+    display: flex;
+    position: absolute;
+    left: 0;
+    bottom: 30px;
+    z-index: 5;
+
+    .btn {
+        min-width: 65px;
+        height: 48px;
+        line-height: 48px;
+        text-align: center;
+        cursor: pointer;
+
+        &:hover:not(.disabled) {
+            background-color: var(--primary-light);
+        }
+
+        &.disabled {
+            color: var(--main-text-light);
+            cursor: not-allowed;
         }
     }
 }

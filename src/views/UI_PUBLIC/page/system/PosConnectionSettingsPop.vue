@@ -6,7 +6,7 @@
 <template>
     <el-dialog
         :title="Translate('IDCS_CONNECTION_SETTINGS')"
-        width="550"
+        width="500"
         @open="open"
         @closed="formRef?.resetFields()"
     >
@@ -16,6 +16,9 @@
             class="stripe"
             :model="formData"
             :rules="rules"
+            :style="{
+                '--form-label-width': '200px',
+            }"
         >
             <el-form-item
                 :label="Translate('IDCS_POS_IP')"
@@ -30,10 +33,15 @@
                     @change="changeSwitch"
                 />
             </el-form-item>
-            <el-form-item
-                :label="Translate('IDCS_POS_PORT')"
-                prop="port"
-            >
+            <el-form-item prop="port">
+                <template #label>
+                    <span v-if="data.connectionType !== 'UDP'">{{ Translate('IDCS_POS_PORT') }}</span>
+                    <el-select-v2
+                        v-else
+                        v-model="formData.posPortType"
+                        :options="pageData.posPortOptions"
+                    />
+                </template>
                 <BaseNumberInput
                     v-model="formData.port"
                     :disabled="data.connectionType === 'TCP-Listen' && !formData.switch"

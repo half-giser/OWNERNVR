@@ -19,7 +19,7 @@
         >
             <BaseImgSprite
                 :file="moduleItem.meta.icon"
-                :index="getMenuDisabled(moduleItem) ? 1 : 0"
+                :index="getMenuDisabled(moduleItem) ? pageData.activeIconIndex : pageData.normalIconIndex"
                 :chunk="2"
                 class="icon"
             />

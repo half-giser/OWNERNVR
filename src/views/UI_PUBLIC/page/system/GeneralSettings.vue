@@ -16,11 +16,9 @@
                 prop="deviceName"
                 :label="Translate('IDCS_DEVICE_NAME')"
             >
-                <el-input
+                <BaseTextInput
                     v-model="formData.deviceName"
-                    type="text"
-                    :formatter="formatInputMaxLength"
-                    :parser="formatInputMaxLength"
+                    :maxlength="formData.deviceNameMaxByteLen"
                 />
             </el-form-item>
             <el-form-item
@@ -60,10 +58,17 @@
                         :options="getResolutionOptions(key, item)"
                     />
                 </el-form-item>
-                <el-form-item v-if="key === 0 && pageData.resolutionTip">{{ pageData.resolutionTip }}</el-form-item>
+                <el-form-item v-if="key === 0 && systemCaps.supportSuperResolution">
+                    <el-checkbox
+                        v-model="formData.superResolution"
+                        :title="Translate('IDCS_DISABLE_SUPER_RESOLUTION_TIP')"
+                        :label="Translate('IDCS_SUPER_RESOLUTION')"
+                        :disabled="!pageData.supportAI"
+                    />
+                </el-form-item>
             </template>
             <!-- 解码卡选项 -->
-            <template
+            <!-- <template
                 v-for="item in formData.decoderResolution"
                 :key="item.id"
             >
@@ -79,9 +84,9 @@
                         />
                     </el-form-item>
                 </template>
-            </template>
+            </template> -->
             <el-form-item
-                v-if="pageData.isOutputConfig"
+                v-if="systemCaps.supportHdmiVgaSeparate"
                 :label="Translate('IDCS_OUTPUT_CONFIG')"
             >
                 <el-select-v2
@@ -102,6 +107,12 @@
                     :label="Translate('IDCS_MOBILE_STREAM_ADAPTION')"
                 />
             </el-form-item>
+            <el-form-item v-if="systemCaps.supportZeroOprAdd">
+                <el-checkbox
+                    v-model="formData.zeroOrAddIpc"
+                    :label="Translate('IDCS_ENABLE_ZERO_CFG_ADD')"
+                />
+            </el-form-item>
             <el-form-item>
                 <el-checkbox
                     v-model="formData.enableAutoDwell"
@@ -115,12 +126,12 @@
                     :options="pageData.waitTimeOption"
                 />
             </el-form-item>
-            <el-form-item v-if="pageData.isZeroOrAddIpc">
+            <!-- <el-form-item v-if="pageData.isZeroOrAddIpc">
                 <el-checkbox
                     v-model="formData.zeroOrAddIpc"
                     :label="Translate('IDCS_ZERO_OP_ADD_IPC')"
                 />
-            </el-form-item>
+            </el-form-item> -->
             <div class="base-btn-box">
                 <el-button @click="verify">{{ Translate('IDCS_APPLY') }}</el-button>
             </div>

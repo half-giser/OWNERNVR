@@ -56,7 +56,7 @@
                     v-model="pageData.configSwitch"
                 />
             </div>
-            <div
+            <!-- <div
                 v-if="pageData.tabId !== -1"
                 class="top-hdmi"
             >
@@ -65,7 +65,7 @@
                     v-model="formData.decoder[pageData.tabId].ShowHdmiIn"
                     :options="hdmiInOptions"
                 />
-            </div>
+            </div> -->
         </div>
         <main class="main">
             <div class="left">
@@ -115,7 +115,7 @@
                             v-model="pageData.configSwitch"
                         />
                     </div>
-                    <div
+                    <!-- <div
                         v-if="pageData.tabId !== -1"
                         class="top-hdmi"
                     >
@@ -124,7 +124,7 @@
                             v-model="formData.decoder[pageData.tabId].ShowHdmiIn"
                             :options="hdmiInOptions"
                         />
-                    </div>
+                    </div> -->
                 </div>
                 <div class="panel">
                     <div class="panel-top">
@@ -296,7 +296,7 @@
                                 :index="pageData.activeChlGroup === groupItem.id ? 1 : 0"
                                 :chunk="2"
                             />
-                            <div class="text-ellipsis">{{ groupItem.value }}</div>
+                            <div class="text-ellipsis">{{ groupItem.name }}</div>
                         </BaseListBoxItem>
                     </BaseListBox>
                     <div class="chl-btns">

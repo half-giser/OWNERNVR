@@ -189,6 +189,7 @@
         <FaceDetailPop
             v-model="pageData.isDetailPop"
             :data="pageData.detail"
+            :face-group="pageData.faceGroupList"
             type="sign"
             destroy-on-close
             @close="pageData.isDetailPop = false"

@@ -377,7 +377,7 @@ export const queryLocalChlPtzGroup = (data: string) => fetch('queryLocalChlPtzGr
  * @param {string} data
  * @returns
  */
-export const editChlPtzGroup = (data: string) => fetch('editChlPtzGroup', data)
+export const editChlPtzGroup = (data: string, state = true) => fetch('editChlPtzGroup', data, {}, state)
 
 /**
  * @description 播放轨迹
@@ -426,7 +426,7 @@ export const goToPtzPreset = (data: string) => fetch('goToPtzPreset', data)
  * @param {string} data
  * @returns
  */
-export const delChlPreset = (data: string) => fetch('delChlPreset', data)
+export const delChlPreset = (data: string) => fetch('delChlPreset', data, {}, false)
 
 /**
  * @description 编辑预置点
@@ -572,3 +572,10 @@ export const queryIPChlORChlLogo = (data: string) => fetch('queryIPChlORChlLogo'
  * @returns
  */
 export const editIPChlORChlLogo = (data: string) => fetch('editIPChlORChlLogo', data)
+
+/**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const getTempLoginCert = (data: string) => fetch('getTempLoginCert', data)

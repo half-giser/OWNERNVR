@@ -31,7 +31,7 @@
                     class="base-user-auth"
                 >
                     <div class="base-user-auth-title">
-                        {{ Translate(auth.key) }}
+                        {{ auth.label }}
                     </div>
                     <ul class="base-user-auth-list">
                         <li
@@ -41,7 +41,7 @@
                         >
                             <el-checkbox
                                 v-model="authItem.value"
-                                :label="Translate(authItem.key)"
+                                :label="authItem.label"
                             />
                         </li>
                     </ul>

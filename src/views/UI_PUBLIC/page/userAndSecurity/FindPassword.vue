@@ -1,20 +1,14 @@
 <!--
- * @Date: 2025-04-28 14:50:55
+ * @Date: 2025-05-04 14:50:55
  * @Description: 找回密码设置
  * @Author: yejiahao yejiahao@tvt.net.cn
 -->
 <template>
     <div>
-        <el-radio-group v-model="pageData.tab">
-            <el-radio-button
-                :label="Translate('IDCS_EMAIL')"
-                value="email"
-            />
-            <el-radio-button
-                :label="Translate('IDCS_PASSWORD_PROTECT_QUESTION')"
-                value="question"
-            />
-        </el-radio-group>
+        <BaseTab
+            v-model="pageData.tab"
+            :options="pageData.tabOptions"
+        />
         <div v-show="pageData.tab === 'email'">
             <el-form
                 class="stripe"
@@ -33,7 +27,7 @@
                 >
                     <BaseSensitiveEmailInput
                         v-model="emailFormData.email"
-                        maxlength="256"
+                        :maxlength="256"
                         :placeholder="Translate('IDCS_EMAIL_ADDRESS_INPUT').formatForLang(Translate('IDCS_EMAIL_ADDRESS'))"
                     />
                 </el-form-item>
@@ -59,7 +53,7 @@
                     <el-select-v2
                         v-else
                         v-model="qaFormData.id"
-                        :options="questionOptions"
+                        :options="pageData.questionOptions"
                         :props="{
                             label: 'question',
                             value: 'id',
