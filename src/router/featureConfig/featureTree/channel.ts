@@ -27,7 +27,7 @@ const channelRoutes: FeatureItem = {
             //移动侦测
             motion: {
                 sort: 30,
-                lk: 'IDCS_SMART_SETTINGS',
+                lk: 'IDCS_MOTION_DETECTION',
                 icon: 'motion_s',
             },
             //云台
@@ -349,9 +349,9 @@ const channelRoutes: FeatureItem = {
                 lk: 'IDCS_PROTOCOL',
                 group: 'ptz',
                 minHeight: 850,
-                hasCap(systemCaps) {
-                    return !!systemCaps.analogChlCount
-                },
+                // hasCap(systemCaps) {
+                //     return !!systemCaps.analogChlCount
+                // },
             },
         },
         // 看守位 1.4.13
@@ -377,9 +377,9 @@ const channelRoutes: FeatureItem = {
                 lk: 'IDCS_ADD_IP_SPEARKER',
                 group: 'ipspeaker',
             },
-            beforeEnter() {
+            beforeEnter(_from, _to, next) {
                 history.state.fromAdd = 'true'
-                nextTick()
+                next()
             },
         },
         // 查看或更改IPSpeaker 1.4.13

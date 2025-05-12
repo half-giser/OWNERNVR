@@ -15,10 +15,9 @@
                 prop="name"
                 :label="Translate('IDCS_USER_RIGHT_GROUP_NAME')"
             >
-                <el-input
+                <BaseTextInput
                     v-model.trim="formData.name"
-                    :formatter="formatInputMaxLength"
-                    :parser="formatInputMaxLength"
+                    :maxlength="formData.nameMaxByteLen"
                 />
             </el-form-item>
         </el-form>
@@ -29,7 +28,7 @@
                 class="base-user-auth"
             >
                 <div class="base-user-auth-title">
-                    {{ Translate(auth.key) }}
+                    {{ auth.label }}
                 </div>
                 <ul class="base-user-auth-list">
                     <li
@@ -39,7 +38,7 @@
                     >
                         <el-checkbox
                             v-model="authItem.value"
-                            :label="Translate(authItem.key)"
+                            :label="authItem.label"
                         />
                     </li>
                 </ul>

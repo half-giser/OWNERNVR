@@ -37,6 +37,8 @@
                                         <el-input
                                             v-model="row.startChar"
                                             maxlength="63"
+                                            :formatter="formatChar"
+                                            :parser="formatChar"
                                             @blur="addStartEndCharRow(row, $index)"
                                         />
                                     </template>
@@ -46,6 +48,8 @@
                                         <el-input
                                             v-model="row.endChar"
                                             maxlength="63"
+                                            :formatter="formatChar"
+                                            :parser="formatChar"
                                             @blur="addStartEndCharRow(row, $index)"
                                         />
                                     </template>
@@ -73,6 +77,8 @@
                                         <el-input
                                             v-model="row.value"
                                             maxlength="63"
+                                            :formatter="formatChar"
+                                            :parser="formatChar"
                                             @blur="addLineBreakRow(row, $index)"
                                         />
                                     </template>
@@ -100,6 +106,8 @@
                                         <el-input
                                             v-model="row.value"
                                             maxlength="63"
+                                            :formatter="formatChar"
+                                            :parser="formatChar"
                                             @blur="addIgnoreCharRow(row, $index)"
                                         />
                                     </template>

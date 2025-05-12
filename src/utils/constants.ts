@@ -54,8 +54,8 @@ export const SYSTEM_AUTH_LIST = [
     'remoteSysCfgAndMaintain',
     'securityMgr',
     'facePersonnalInfoMgr',
-    'parkingLotMgr',
-    'AccessControlMgr',
+    'businessCfg',
+    'businessMgr',
 ]
 
 export const USER_TYPE_DEFAULT_ADMIN = 'default_admin'

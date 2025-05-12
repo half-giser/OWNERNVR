@@ -14,6 +14,10 @@ export default defineComponent({
             type: Object as PropType<SystemPosList>,
             default: () => new SystemPosList(),
         },
+        portList: {
+            type: Array as PropType<number[]>,
+            default: () => [],
+        },
     },
     emits: {
         confirm(e: SystemPosConnectionForm) {
@@ -28,6 +32,19 @@ export default defineComponent({
 
         const formRef = useFormRef()
         const formData = ref(new SystemPosConnectionForm())
+
+        const pageData = ref({
+            posPortOptions: [
+                {
+                    label: Translate('IDCS_POS_PORT'),
+                    value: 'remote',
+                },
+                {
+                    label: Translate('IDCS_POS_LOCAL_RECEIVE_PORT'),
+                    value: 'local',
+                },
+            ],
+        })
 
         const rules = ref<FormRules>({
             ip: [
@@ -63,6 +80,11 @@ export default defineComponent({
                             }
                         }
 
+                        if (prop.data.connectionType === 'UDP' && formData.value.posPortType) {
+                            callback(new Error(Translate('IDCS_NETWORK_PORT_CONFLICT')))
+                            return
+                        }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -87,6 +109,7 @@ export default defineComponent({
                         ip: formData.value.ip,
                         port: formData.value.port,
                         switch: prop.data.connectionType === 'TCP-Listen' ? formData.value.switch : true,
+                        posPortType: prop.data.connectionType === 'UDP' ? formData.value.posPortType : 'remote',
                     })
                 }
             })
@@ -99,9 +122,9 @@ export default defineComponent({
             formData.value.ip = prop.data.connectionSetting.posIp || DEFAULT_EMPTY_IP
             formData.value.switch = prop.data.connectionSetting.filterPostPortSwitch
             if (prop.data.connectionType === 'TCP-Listen') {
-                formData.value.port = formData.value.switch ? prop.data.connectionSetting.posPort : undefined
+                formData.value.port = formData.value.switch ? (prop.data.connectionSetting.posPort ? prop.data.connectionSetting.posPort : undefined) : undefined
             } else {
-                formData.value.port = prop.data.connectionSetting.posPort
+                formData.value.port = prop.data.connectionSetting.posPort ? prop.data.connectionSetting.posPort : undefined
             }
         }
 
@@ -119,6 +142,7 @@ export default defineComponent({
             close,
             rules,
             changeSwitch,
+            pageData,
         }
     },
 })

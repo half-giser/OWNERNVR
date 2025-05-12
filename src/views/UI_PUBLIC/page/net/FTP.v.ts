@@ -11,10 +11,6 @@ export default defineComponent({
         const userSession = useUserSessionStore()
 
         const pageData = ref({
-            // 最大文件长度 最小值
-            minFileSize: 0,
-            // 最大文件长度 最大值
-            maxFileSize: 4096,
             // 是否开启更改密码
             passwordSwitch: false,
             // 排程选项
@@ -188,16 +184,20 @@ export default defineComponent({
             commLoadResponseHandler(result, ($) => {
                 const $content = queryXml($('content')[0].element)
                 formData.value.switch = $content('switch').text().bool()
+                formData.value.serverAddrMaxLen = $content('serverAddr').attr('maxLen').num() || 64
                 formData.value.serverAddr = $content('serverAddr').text()
+                formData.value.portMin = $content('port').attr('min').num() || 10
+                formData.value.portMax = $content('port').attr('max').num() || 65535
                 formData.value.port = $content('port').text().num()
+                formData.value.userNameMaxByteLen = $content('userName').attr('maxByteLen').num() || 63
                 formData.value.userName = $content('userName').text()
                 formData.value.anonymousSwitch = $content('anonymousSwitch').text().bool()
                 formData.value.maxSize = $content('maxSize').text().num() || 64
+                formData.value.pathMaxLen = $content('path').attr('maxLen').num() || 64
                 formData.value.path = $content('path').text()
                 formData.value.disNetUpLoad = $content('disNetUpLoad').text().bool()
-
-                pageData.value.minFileSize = $content('maxSize').attr('min').num() || 0
-                pageData.value.maxFileSize = $content('maxSize').attr('max').num() || 4096
+                formData.value.maxSizeMin = $content('maxSize').attr('min').num() || 0
+                formData.value.maxSizeMax = $content('maxSize').attr('max').num() || 4096
 
                 tableData.value = $content('chls/item').map((item) => {
                     const $item = queryXml(item.element)
@@ -226,7 +226,6 @@ export default defineComponent({
                 .map((item) => {
                     return rawXml`
                         <item id="${item.id}">
-                            <name>${wrapCDATA(item.name)}</name>
                             <streamType>${item.streamType}</streamType>
                             <chlNum>${item.chlNum}</chlNum>
                             <ftpRecSwitch>
@@ -249,7 +248,7 @@ export default defineComponent({
                     <userName>${wrapCDATA(formData.value.userName)}</userName>
                     ${pageData.value.passwordSwitch ? `<password ${getSecurityVer()}>${wrapCDATA(AES_encrypt(formData.value.password, userSession.sesionKey))}</password>` : ''}
                     <anonymousSwitch>${formData.value.anonymousSwitch}</anonymousSwitch>
-                    <maxSize min="${pageData.value.minFileSize}" max="${pageData.value.maxFileSize}">${formData.value.maxSize}</maxSize>
+                    <maxSize min="${formData.value.maxSizeMin}" max="${formData.value.maxSizeMin}">${formData.value.maxSize}</maxSize>
                     <path>${formData.value.path}</path>
                     <disNetUpLoad>${formData.value.disNetUpLoad}</disNetUpLoad>
                     ${isTest ? '' : `<chls type='list'>${chlXml}</chls>`}

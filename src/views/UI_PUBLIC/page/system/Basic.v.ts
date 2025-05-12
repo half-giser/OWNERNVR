@@ -6,15 +6,22 @@
 import QRCode from 'qrcode'
 import { type QRCodeToDataURLOptions } from 'qrcode'
 import LoginPrivacyPop from '../LoginPrivacyPop.vue'
+import { type UserCheckAuthForm } from '@/types/apiType/user'
 
 export default defineComponent({
     components: {
         LoginPrivacyPop,
     },
     setup() {
+        const systemCaps = useCababilityStore()
+        const userSession = useUserSessionStore()
+        const { Translate } = useLangStore()
+
         const pageData = ref({
             // 是否打开隐私弹窗
             isShowPrivacy: false,
+            isShowOpenSourceLicence: systemCaps.showOpenSourceLicense,
+            isLicencePop: false,
             // 是否打开关于本机弹窗
             isShowAbout: false,
             // 二维码base64字符串
@@ -23,6 +30,8 @@ export default defineComponent({
             androidCode: '',
             // iOS二维码base64字符串
             iosCode: '',
+            isShowSecurityCode: false,
+            isCheckAuthPop: false,
         })
 
         const formData = ref(new SystemBaseInfoForm())
@@ -103,8 +112,68 @@ export default defineComponent({
             pageData.value.isShowAbout = true
         }
 
+        const getSecurityCode = async (e?: UserCheckAuthForm) => {
+            openLoading()
+
+            const sendXml = e
+                ? rawXml`
+                    <auth>
+                        <userName>${e.userName}</userName>
+                        <password>${e.hexHash}</password>
+                    <auth>
+                `
+                : ''
+            const result = await querySecurityCode(sendXml)
+            const $ = queryXml(result)
+
+            closeLoading()
+
+            if ($('status').text() === 'success') {
+                const securityVer = $('content/securityCode').attr('securityVer')
+                const ciphertextCode = $('content/securityCode').text()
+                if (securityVer === '1') {
+                    formData.value.securityCode = AES_decrypt(ciphertextCode, userSession.sesionKey)
+                } else {
+                    formData.value.securityCode = base64Decode(ciphertextCode)
+                }
+                pageData.value.isCheckAuthPop = false
+            } else {
+                const errorCode = $('errorCode').text().num()
+                switch (errorCode) {
+                    case ErrorCode.USER_ERROR_PWD_ERR:
+                    case ErrorCode.USER_ERROR_NO_USER:
+                        openMessageBox(Translate('IDCS_DEVICE_PWD_ERROR'))
+                        break
+                    case ErrorCode.USER_ERROR_NO_AUTH:
+                        openMessageBox(Translate('IDCS_NO_AUTH'))
+                        break
+                    default:
+                        if (e) {
+                            openMessageBox(Translate('IDCS_QUERY_DATA_FAIL'))
+                        }
+                        break
+                }
+            }
+        }
+
+        const toggleSecurityCode = async () => {
+            if (pageData.value.isShowSecurityCode) {
+                pageData.value.isShowSecurityCode = false
+            } else {
+                if (formData.value.securityCode) {
+                    pageData.value.isShowSecurityCode = true
+                } else {
+                    await getSecurityCode()
+                    if (formData.value.securityCode) {
+                        pageData.value.isShowSecurityCode = true
+                    }
+                }
+            }
+        }
+
         onMounted(() => {
             getData()
+            getSecurityCode()
         })
 
         return {
@@ -112,6 +181,8 @@ export default defineComponent({
             formData,
             showPrivacy,
             showAbout,
+            toggleSecurityCode,
+            getSecurityCode,
         }
     },
 })

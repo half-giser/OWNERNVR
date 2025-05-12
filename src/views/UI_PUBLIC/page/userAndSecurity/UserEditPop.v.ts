@@ -3,6 +3,7 @@
  * @Date: 2024-06-17 17:21:49
  * @Description: 编辑用户信息弹窗
  */
+import { type UserCheckAuthForm } from '@/types/apiType/user'
 import { type FormRules } from 'element-plus'
 
 export default defineComponent({
@@ -34,16 +35,13 @@ export default defineComponent({
         const formData = ref(new UserEditForm())
 
         const pageData = ref({
-            // 是否显示AuthGroup选项框
-            isAuthGroup: false,
-            // Enable选项框的disable
-            isEnableDisabled: false,
-            // AuthEffective选项框的disable
-            isAuthEffectiveDisabled: false,
-            // AuthGroup选项框的disable
-            isAuthGroupDisabled: false,
-            // 是否显示修改密码按钮
-            isChangePasswordBtn: false,
+            isEditAdmin: false,
+            isEditSelf: false,
+            isEditDebug: false,
+            isSchedulePop: false,
+            scheduleList: [] as SelectOption<string, string>[],
+            isAdmin: userSession.userType === USER_TYPE_DEFAULT_ADMIN,
+            isCheckAuthPop: false,
         })
 
         const rules = ref<FormRules>({
@@ -77,7 +75,9 @@ export default defineComponent({
             if ($('status').text() === 'success') {
                 formData.value.enabled = $('content/enabled').text().bool()
                 formData.value.userName = $('content/userName').text()
+                formData.value.userNameMaxByteLen = $('content/userName').attr('maxByteLen').num() || nameByteMaxLen
                 formData.value.email = $('content/email').text()
+                formData.value.emailMaxByteLen = $('content/email').attr('maxByteLen').num() || nameByteMaxLen
                 formData.value.authGroup = $('content/authGroup').attr('id')
                 formData.value.allowModifyPassword = $('content/modifyPassword').text().bool()
                 formData.value.authEffective = !$('content/authEffective').text().bool()
@@ -85,30 +85,18 @@ export default defineComponent({
                 const currentUserName = userSession.userName
                 const editUserName = formData.value.userName
                 const editUserType = $('content/userType').text()
-                pageData.value.isAuthGroup = USER_TYPE_DEFAULT_ADMIN !== editUserType
-                pageData.value.isEnableDisabled = false
 
-                if (currentUserName === editUserName) {
-                    pageData.value.isEnableDisabled = true
-                }
+                pageData.value.isEditAdmin = USER_TYPE_DEFAULT_ADMIN === editUserType
+                pageData.value.isEditSelf = currentUserName === editUserName
+                pageData.value.isEditDebug = 'debug' === editUserType
 
-                if (editUserType === USER_TYPE_DEFAULT_ADMIN) {
-                    pageData.value.isEnableDisabled = true
-                    pageData.value.isAuthEffectiveDisabled = true
-                    pageData.value.isAuthGroupDisabled = true
-                    pageData.value.isChangePasswordBtn = false
+                if (pageData.value.isEditAdmin) {
                     authGroupOptions.value = [
                         {
                             value: '',
                             label: displayAuthGroup('Administrator'),
                         },
                     ]
-                } else {
-                    pageData.value.isAuthEffectiveDisabled = false
-                    pageData.value.isAuthGroupDisabled = false
-                    if (currentUserName !== editUserName) {
-                        pageData.value.isChangePasswordBtn = true
-                    }
                 }
             } else {
                 const errorCode = $('errorCode').text().num()
@@ -147,9 +135,7 @@ export default defineComponent({
          */
         const getAuthGroup = async () => {
             const sendXml = rawXml`
-                <requireField>
-                    <name/>
-                </requireField>
+                <name/>
             `
             const result = await queryAuthGroupList(sendXml)
 
@@ -168,20 +154,30 @@ export default defineComponent({
          * @description 确认修改用户信息
          */
         const doEditUser = async () => {
+            pageData.value.isCheckAuthPop = true
+        }
+
+        const confirmEditUser = async (e: UserCheckAuthForm) => {
             openLoading()
 
             const sendXml = rawXml`
                 <content>
                     <userId>${prop.userId}</userId>
-                    <userName maxByteLen="63">${wrapCDATA(formData.value.userName)}</userName>
+                    <userName>${wrapCDATA(formData.value.userName)}</userName>
                     <authGroup id="${formData.value.authGroup}"></authGroup>
                     <bindMacSwitch>false</bindMacSwitch>
                     <modifyPassword>${formData.value.allowModifyPassword}</modifyPassword>
                     <mac>${wrapCDATA(DEFAULT_EMPTY_MAC)}</mac>
                     <email>${wrapCDATA(formData.value.email)}</email>
                     <enabled>${formData.value.enabled}</enabled>
+                    ${pageData.value.isAdmin ? `<accessCode>${formData.value.accessCode}</accessCode>` : ''}
+                    ${!pageData.value.isEditAdmin && !pageData.value.isEditDebug ? `<loginScheduleInfo enable="${formData.value.loginScheduleInfoEnabled}">${formData.value.loginScheduleInfo}</loginScheduleInfo>` : ''}
                     <authEffective>${!formData.value.authEffective}</authEffective>
                 </content>
+                <auth>
+                    <userName>${e.userName}</userName>
+                    <password>${e.hexHash}</password>
+                </auth>
             `
             const result = await editUser(sendXml)
             const $ = queryXml(result)
@@ -209,6 +205,7 @@ export default defineComponent({
          */
         const open = async () => {
             await getAuthGroup()
+            await getScheduleList()
             getUser()
         }
 
@@ -217,6 +214,16 @@ export default defineComponent({
          */
         const goBack = () => {
             ctx.emit('close')
+        }
+
+        const getScheduleList = async () => {
+            pageData.value.scheduleList = await buildScheduleList()
+        }
+
+        const closeSchedulePop = async () => {
+            pageData.value.isSchedulePop = false
+            await getScheduleList()
+            formData.value.loginScheduleInfo = getScheduleId(pageData.value.scheduleList, formData.value.loginScheduleInfo)
         }
 
         /**
@@ -239,6 +246,8 @@ export default defineComponent({
             verify,
             rules,
             goBack,
+            closeSchedulePop,
+            confirmEditUser,
         }
     },
 })

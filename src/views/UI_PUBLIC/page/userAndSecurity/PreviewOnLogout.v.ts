@@ -123,7 +123,6 @@ export default defineComponent({
                         .map((item) => {
                             return rawXml`
                                 <item id="${item.id}">
-                                    <name>${wrapCDATA(item.name)}</name>
                                     <switch>${item.switch}</switch>
                                 </item>
                             `

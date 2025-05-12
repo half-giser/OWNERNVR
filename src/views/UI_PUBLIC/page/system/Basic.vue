@@ -43,6 +43,27 @@
                     {{ Translate('IDCS_VIEW') }}
                 </el-button>
             </el-form-item>
+            <el-form-item
+                v-if="pageData.isShowOpenSourceLicence"
+                :label="Translate('IDCS_OPEN_SOURCE_STATEMENT')"
+            >
+                <el-button
+                    link
+                    @click="showPrivacy"
+                >
+                    {{ Translate('IDCS_VIEW') }}
+                </el-button>
+            </el-form-item>
+            <el-form-item :label="Translate('IDCS_SECURITY_CODE')">
+                <span class="security-code">{{ pageData.isShowSecurityCode ? formData.securityCode : '********' }}</span>
+                <BaseImgSprite
+                    file="icon_mask"
+                    :index="pageData.isShowSecurityCode ? 0 : 2"
+                    :hover-index="pageData.isShowSecurityCode ? 1 : 3"
+                    :chunk="4"
+                    @click="toggleSecurityCode"
+                />
+            </el-form-item>
             <el-form-item v-show="formData.showApp">
                 {{ Translate('IDCS_DEVICE_SCAN_QRCODE_TIP') }}
             </el-form-item>
@@ -147,12 +168,41 @@
                 <el-button @click="pageData.isShowAbout = false">{{ Translate('IDCS_OK') }}</el-button>
             </div>
         </el-dialog>
+        <!-- 开源信息弹窗 -->
+        <el-dialog
+            v-model="pageData.isLicencePop"
+            width="800"
+            :title="Translate('IDCS_OPEN_SOURCE_STATEMENT')"
+            :show-close="false"
+        >
+            <div>
+                <el-input
+                    type="textarea"
+                    :readonly="true"
+                    :model-value="Translate('IDCS_OPEN_SOURCE_LICENSE_TEXT')"
+                />
+            </div>
+            <div class="base-btn-box space-between">
+                <el-button @click="pageData.isLicencePop = false">
+                    {{ Translate('IDCS_OK') }}
+                </el-button>
+            </div>
+        </el-dialog>
+        <BaseCheckAuthPop
+            v-model="pageData.isCheckAuthPop"
+            @confirm="getSecurityCode"
+            @close="pageData.isCheckAuthPop = false"
+        />
     </div>
 </template>
 
 <script lang="ts" src="./Basic.v.ts"></script>
 
 <style lang="scss" scoped>
+.security-code {
+    margin-right: 10px;
+}
+
 .code {
     display: flex;
     flex-wrap: wrap;

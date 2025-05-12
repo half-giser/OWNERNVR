@@ -210,7 +210,7 @@ export default defineComponent({
          * @param {string} value
          */
         const formatChar = (value: string) => {
-            return value.replace(/[^A-z|\d!@#$%^&*(){}\|:"`<>?~_\\'./\-\s\[\];,=+]/g, '')
+            return value.replace(/[^\u4E00-\u9FA5A-Za-z0-9~!@#%^*()\-+=?:"\/{}\\,.·￥%……（）\-+={}：“”【】、；‘'，。、]/g, '')
         }
 
         const div = ref<HTMLDivElement>()

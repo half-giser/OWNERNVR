@@ -18,6 +18,15 @@
             class="stripe odd"
         >
             <el-form-item
+                prop="currentPassword"
+                :label="Translate('IDCS_CURRENT_PASSWORD')"
+            >
+                <BasePasswordInput
+                    v-model="formData.currentPassword"
+                    maxlength="16"
+                />
+            </el-form-item>
+            <el-form-item
                 prop="newPassword"
                 :label="Translate('IDCS_NEW_PASSWORD')"
             >
@@ -50,8 +59,9 @@
             <el-button @click="close()">{{ Translate('IDCS_CANCEL') }}</el-button>
         </div>
         <BaseCheckAuthPop
-            v-model="isAuthDialog"
-            @close="isAuthDialog = false"
+            v-model="pageData.isCheckAuthPop"
+            title="IDCS_CERTIFICATION_RIGHT"
+            @close="pageData.isCheckAuthPop = false"
             @confirm="doUpdateUserPassword"
         />
     </el-dialog>

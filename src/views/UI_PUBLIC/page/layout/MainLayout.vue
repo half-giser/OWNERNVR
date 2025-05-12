@@ -131,7 +131,7 @@
 
 #layoutMain {
     height: 100vh;
-    background-color: var(--main-bg);
+    background-color: var(--body-bg);
 }
 
 #layoutMainHeader {
@@ -207,6 +207,7 @@
 
     .nav-item {
         display: flex;
+        align-items: center;
 
         &:not(:first-child)::before {
             content: '|';
@@ -269,8 +270,13 @@
         &.is-active,
         &.is-active:hover {
             background-color: var(--header-menu-bg-active);
-            color: var(--header-menu-border-active);
+            color: var(--header-menu-text-active) !important;
             border-bottom-color: var(--header-menu-border-active);
+        }
+
+        @if $GLOBAL_UI_TYPE == UI1-Q {
+            margin: 0;
+            padding: 0 20px;
         }
     }
 }

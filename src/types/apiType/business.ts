@@ -13,6 +13,9 @@ export class BusinessParkBasicConfigForm {
     remainTotalNum = 0 // 剩余总车位
     groupTotalNum = 0 // 停车组总车位
     groupRemainTotalNum = 0 // 剩余停车组总车位
+    remarkSwitch = false
+    autoOpenBarrierSwitch = false
+    startOfVehicle = ''
 }
 
 /**
@@ -39,6 +42,8 @@ export class BusinessParkEnterExitManageList {
     enableLEDScreenValid = false // 启用LED屏-是否可操作
     LEDScreenType = '' // 关联LED屏
     LEDScreenTypeValid = false // 关联LED屏-是否可操作
+    relateAlarmOuts = ''
+    directionList: SelectOption<string, string>[] = []
 }
 
 /**
@@ -193,6 +198,13 @@ export class BusinessParkingLotList {
     enterVehicleId = ''
     enterType = ''
     enterImg = ''
+    enterTraceObj = {
+        X1: 0,
+        Y1: 0,
+        X2: 0,
+        Y2: 0,
+    }
+    enterSnapImg = ''
     isExit = false
     exitChlId = ''
     exitChl = ''
@@ -201,11 +213,21 @@ export class BusinessParkingLotList {
     exitVehicleId = ''
     exitType = ''
     exitImg = ''
+    exitSnapImg = ''
+    exitTraceObj = {
+        X1: 0,
+        Y1: 0,
+        X2: 0,
+        Y2: 0,
+    }
     direction = ''
     isHistory = false
     type = ''
+    remark = ''
     abnormal = false
     isRelative = false
+    plateStartTime = ''
+    plateEndTime = ''
 }
 
 /**
@@ -222,4 +244,15 @@ export class BusinessParkingLotRelevantList {
     isRelative = true
     direction = ''
     frameTime = ''
+    plateStartTime = ''
+    plateEndTime = ''
+    remark = ''
+}
+
+export class BusinessPassengerFlowConfigForm {
+    switch = false
+    resetMode = ''
+    resetDay = 1
+    resetTime = '00:00:00'
+    chlList: SelectOption<string, string>[] = []
 }

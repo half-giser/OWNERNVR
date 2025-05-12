@@ -234,6 +234,19 @@ export const queryPoePower = () => fetch('queryPoePower', '', {}, false)
 export const editPoePower = (data: string) => fetch('editPoePower', data, {}, false)
 
 /**
+ * @description
+ * @returns
+ */
+export const queryPoEPortExtendInfo = () => fetch('queryPoEPortExtendInfo', '', {}, false)
+
+/**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const editPoEPortExtendInfo = (data: string) => fetch('editPoEPortExtendInfo', data, {}, false)
+
+/**
  * @description 获取地标平台参数
  * @returns
  */
@@ -303,3 +316,51 @@ export const queryDebugMode = (data: string) => fetch('queryDebugMode', data)
  * @returns
  */
 export const getDebugInfo = (data: string) => fetch('getDebugInfo', data)
+
+/**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const removeCustomOperateList = (data: string) => fetch('removeCustomOperateList', data)
+
+/**
+ * @description
+ * @returns
+ */
+export const queryCustomOperateInfo = () => fetch('queryCustomOperateInfo', '')
+
+/**
+ * @description
+ * @param data
+ * @returns
+ */
+export const editCustomOperateInfo = (data: string) => fetch('editCustomOperateInfo', data)
+
+/**
+ * @description
+ * @param data
+ * @returns
+ */
+export const executeCustomOperate = (data: string) => fetch('executeCustomOperate', data)
+
+/**
+ * @description
+ * @param data
+ * @returns
+ */
+export const addCustomOperateList = (data: string) => fetch('addCustomOperateList', data)
+
+/**
+ * @description
+ * @param data
+ * @returns
+ */
+export const editCustomOperateList = (data: string) => fetch('editCustomOperateList', data)
+
+/**
+ * @description
+ * @param data
+ * @returns
+ */
+export const querySecurityCode = (data: string) => fetch('querySecurityCode', data)

@@ -176,6 +176,7 @@
         <PosConnectionSettingsPop
             v-model="pageData.isConnectionDialog"
             :data="tableData[pageData.connectionDialogIndex]"
+            :port-list="pageData.networkPortList"
             @confirm="confirmSetConnection"
             @close="pageData.isConnectionDialog = false"
         />

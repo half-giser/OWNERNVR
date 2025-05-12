@@ -3,6 +3,7 @@
  * @Date: 2024-07-12 09:40:19
  * @Description: Nat配置
  */
+import { type UserCheckAuthForm } from '@/types/apiType/user'
 import QRCode from 'qrcode'
 import { type QRCodeToDataURLOptions } from 'qrcode'
 
@@ -10,6 +11,7 @@ export default defineComponent({
     setup() {
         const { Translate } = useLangStore()
         const systemCaps = useCababilityStore()
+        const userSession = useUserSessionStore()
 
         // NAT状态与显示文本的映射
         const STATUS_MAPPING: Record<string, string> = {
@@ -21,7 +23,7 @@ export default defineComponent({
         const formData = ref(new NetNatForm())
         const pageData = ref({
             // NAT类型选项
-            natServerTypeOptions: [] as SelectOption<string, string>[],
+            natServerTypeOptions: [] as SelectOption<number, string>[],
             // 二维码base64字符串
             snCode: '',
             // 二维码文本
@@ -30,12 +32,18 @@ export default defineComponent({
             cloudSwitch: false,
             // 访问地址
             visitAddress: '',
-            // 是否用户模式
-            isBindUser: false,
             // NAT状态
             natServerState: '',
             // NAT开启
             natSwitch: false,
+            // 是否显示“安全访问”配置
+            showSecurityAccessCfg: false,
+            securityAccessSwitch: false,
+            editable: false,
+            isShowSecurityCode: false,
+            securityCode: '',
+            currentIndex: 1,
+            isCheckAuthPop: false,
         })
 
         // 定时获取NAT状态
@@ -99,18 +107,83 @@ export default defineComponent({
             const $ = queryXml(result)
             pageData.value.natServerTypeOptions = $('types/natServerType/enum').map((item) => {
                 pageData.value.visitAddress = item.attr('visitAddress')
-                const index = item.attr('index')
-                const defaultLabel = index === '0' ? Translate('IDCIDCS_NATS_TAG_P2P1') : Translate('IDCS_NAT')
+                const index = item.attr('index').num()
+                const defaultLabel = index === 0 ? Translate('IDCS_TAG_P2P1') : Translate('IDCS_TAG_P2P2')
                 return {
                     value: index,
-                    label: systemCaps.showNatServerAddress ? `${Translate('IDCS_NAT')}(${item.text()})` : defaultLabel,
+                    label: systemCaps.showNatServerAddress ? `${defaultLabel}(${item.text()})` : defaultLabel,
                 }
             })
             formData.value.natSwitch = $('content/switch').text().bool()
-            formData.value.index = $('content/switch').attr('index')
-            pageData.value.isBindUser = $('content/mode').text() === 'user'
+            formData.value.index = $('content/switch').attr('index').num()
+
+            pageData.value.editable = $('content/editable').text().bool()
             pageData.value.natServerState = STATUS_MAPPING[$('content/natServerState').text()]
             pageData.value.natSwitch = formData.value.natSwitch
+            pageData.value.showSecurityAccessCfg = formData.value.natSwitch && formData.value.index === 1
+            pageData.value.currentIndex = formData.value.index
+        }
+
+        const getSecurityAccess = async () => {
+            const result = await querySecurityAccess()
+            const $ = queryXml(result)
+
+            formData.value.securityAccessSwitch = $('content/switch').text().bool()
+            pageData.value.securityAccessSwitch = formData.value.securityAccessSwitch
+        }
+
+        const getSecurityCode = async (e?: UserCheckAuthForm) => {
+            const sendXml = e
+                ? rawXml`
+                    <auth>
+                        <userName>${e.userName}</userName>
+                        <password>${e.hexHash}</password>
+                    </auth>
+                `
+                : ''
+            const result = await querySecurityCode(sendXml)
+            const $ = queryXml(result)
+            if ($('status').text() === 'success') {
+                const securityVer = $('content/securityCode').attr('securityVer')
+                const ciphertextCode = $('content/securityCode').text()
+                if (securityVer === '1') {
+                    pageData.value.securityCode = AES_decrypt(ciphertextCode, userSession.sesionKey)
+                } else {
+                    pageData.value.securityCode = base64Decode(ciphertextCode)
+                }
+                pageData.value.isCheckAuthPop = false
+            } else {
+                const errorCode = $('errorCode').text().num()
+                switch (errorCode) {
+                    case ErrorCode.USER_ERROR_PWD_ERR:
+                    case ErrorCode.USER_ERROR_NO_USER:
+                        openMessageBox(Translate('IDCS_DEVICE_PWD_ERROR'))
+                        break
+                    case ErrorCode.USER_ERROR_NO_AUTH:
+                        openMessageBox(Translate('IDCS_NO_AUTH'))
+                        break
+                    default:
+                        if (e) {
+                            openMessageBox(Translate('IDCS_QUERY_DATA_FAIL'))
+                        }
+                        break
+                }
+            }
+        }
+
+        const toggleSecurityCode = async () => {
+            if (pageData.value.isShowSecurityCode) {
+                pageData.value.isShowSecurityCode = false
+            } else {
+                if (pageData.value.securityCode) {
+                    pageData.value.isShowSecurityCode = true
+                } else {
+                    await getSecurityCode()
+                    if (pageData.value.securityCode) {
+                        pageData.value.isShowSecurityCode = true
+                    }
+                }
+            }
         }
 
         /**
@@ -125,11 +198,24 @@ export default defineComponent({
                 </content>
             `
             const result = await editP2PCfg(sendXml)
-            commSaveResponseHandler(result)
+
+            if (pageData.value.showSecurityAccessCfg) {
+                const sendXml = rawXml`
+                    <content>
+                        <switch>${formData.value.securityAccessSwitch}</switch>
+                    </content>
+                `
+                const result2 = await editSecurityAccess(sendXml)
+                commMutiSaveResponseHandler([result, result2])
+            } else {
+                commSaveResponseHandler(result)
+            }
 
             closeLoading()
-            getData()
-            getBasicConfig()
+            await getData()
+            if (pageData.value.showSecurityAccessCfg) {
+                await getSecurityAccess()
+            }
         }
 
         /**
@@ -138,6 +224,12 @@ export default defineComponent({
         const openNat = () => {
             formData.value.natSwitch = true
             setData()
+        }
+
+        const changeSecurityAccessSwitch = () => {
+            if (formData.value.securityAccessSwitch) {
+                openMessageBox(Translate('IDCS_SECURITY_ACCESS_TIP'))
+            }
         }
 
         /**
@@ -159,7 +251,7 @@ export default defineComponent({
             }
 
             // 启用了云升级和nat2.0
-            if (formData.value.index === '0' && formData.value.natSwitch && pageData.value.cloudSwitch && systemCaps.showCloudUpgrade) {
+            if (formData.value.index === 0 && formData.value.natSwitch && pageData.value.cloudSwitch && systemCaps.showCloudUpgrade) {
                 openMessageBox({
                     type: 'question',
                     message: Translate('IDCS_NAT2_CLOSE_TIP'),
@@ -168,7 +260,7 @@ export default defineComponent({
                         setData()
                     })
                     .catch(() => {
-                        formData.value.index = '1'
+                        formData.value.index = 1
                     })
                 return
             }
@@ -181,6 +273,10 @@ export default defineComponent({
             await getBasicConfig()
             await getCloudUpgradeConfig()
             await getData()
+            if (pageData.value.showSecurityAccessCfg) {
+                await getSecurityAccess()
+            }
+            await getSecurityCode()
             timer.repeat()
 
             closeLoading()
@@ -192,6 +288,9 @@ export default defineComponent({
             formData,
             pageData,
             systemCaps,
+            toggleSecurityCode,
+            getSecurityCode,
+            changeSecurityAccessSwitch,
         }
     },
 })

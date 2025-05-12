@@ -4,6 +4,7 @@
  * @Description: 日期与时间
  */
 import dayjs from 'dayjs'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     setup() {
@@ -14,10 +15,29 @@ export default defineComponent({
 
         const formData = ref(new SystemDateTimeForm())
 
+        const formRef = useFormRef()
+
+        const formRules = ref<FormRules>({
+            ntpInterval: [
+                {
+                    validator(_, _value, callback) {
+                        if (pageData.value.isNtpIntervalOutOfRange) {
+                            callback(new Error(Translate('IDCS_NTP_INTERVAL') + Translate('IDCS_HEARTBEAT_RANGE_TIP').formatForLang(formData.value.ntpIntervalMin, formData.value.ntpIntervalMax)))
+                            pageData.value.isNtpIntervalOutOfRange = false
+                            return
+                        }
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
+        })
+
         // 同步方式与显示文本映射
         const SYNC_TYPE_MAPPING: Record<string, string> = {
             manually: Translate('IDCS_MANUAL'),
             NTP: Translate('IDCS_TIME_SERVER_SYNC'),
+            Gmouse: Translate('IDCS_TIME_GPS_SYNC'),
         }
 
         // 日期格式与显示文本映射
@@ -33,25 +53,27 @@ export default defineComponent({
             timeFormatOptions: [] as SelectOption<string, string>[],
             // 时间服务器选项
             timeServerOptions: [] as SelectOption<string, string>[],
+            gpsBaudRateOptions: arrayToOptions([1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200]),
             // 时区选项
-            timeZoneOption: DEFAULT_TIME_ZONE.map((item, index) => {
+            timeZoneOption: DEFAULT_TIME_ZONE.map((item) => {
                 return {
                     ...item,
-                    label: Translate('IDCS_TIME_ZONE_' + (index + 1)),
+                    label: Translate('IDCS_TIME_ZONE_' + item.langKey),
                 }
-            }),
+            }).sort((a, b) => a.sortKey - b.sortKey),
             // 从请求获取的系统时间，用于时钟的计算
             systemTime: '',
             // 请求结束的时间，用于时钟的计算
             startTime: 0,
+            isNtpIntervalOutOfRange: false,
         })
 
         // 系统时间改变标识 (同步本地时间或手动更改)
         let isSystemTimeChanged = false
         // 系统时间手动改变标识（仅手动更改）
         let isTimePickerChanged = false
-        let currentTimezone = ''
-        let currentDST = false
+        const currentTimezone = ''
+        const currentDST = false
 
         // 系统时间最小值
         const SERVER_START_TIME = dayjs('2010-01-01', { jalali: false, format: DEFAULT_YMD_FORMAT })
@@ -67,12 +89,12 @@ export default defineComponent({
          * @description 是否同步选项改变回调
          */
         const handleIsSyncChange = () => {
-            if (formData.value.isSync) {
-                isSystemTimeChanged = true
-                formData.value.systemTime = dayjs().calendar('gregory').format(DEFAULT_DATE_FORMAT)
-                pageData.value.systemTime = dayjs().calendar('gregory').format(DEFAULT_DATE_FORMAT)
-                pageData.value.startTime = performance.now()
-            }
+            // if (formData.value.isSync) {
+            isSystemTimeChanged = true
+            formData.value.systemTime = dayjs().calendar('gregory').format(DEFAULT_DATE_FORMAT)
+            pageData.value.systemTime = dayjs().calendar('gregory').format(DEFAULT_DATE_FORMAT)
+            pageData.value.startTime = performance.now()
+            // }
             isTimePickerChanged = false
             clock()
         }
@@ -147,8 +169,14 @@ export default defineComponent({
 
             formData.value.timeZone = $('content/timezoneInfo/timeZone').text()
             formData.value.enableDST = $('content/timezoneInfo/daylightSwitch').text().bool()
-            currentTimezone = formData.value.timeZone
-            currentDST = formData.value.enableDST
+
+            formData.value.gpsBaudRate = $('content/synchronizeInfo/gpsBaudRate').text().num()
+            formData.value.gpsBaudRateMin = $('content/synchronizeInfo/gpsBaudRate').attr('min').num()
+            formData.value.gpsBaudRateMax = $('content/synchronizeInfo/gpsBaudRate').attr('max').num()
+
+            formData.value.ntpInterval = $('content/synchronizeInfo/ntpInterval').text().num()
+            formData.value.ntpIntervalMin = $('content/synchronizeInfo/ntpInterval').attr('min').num()
+            formData.value.ntpIntervalMax = $('content/synchronizeInfo/ntpInterval').attr('max').num()
 
             let currentDate = dateTime.getSystemTime()
             if (currentDate.isBefore(SERVER_START_TIME)) {
@@ -193,6 +221,8 @@ export default defineComponent({
                     <synchronizeInfo>
                         <type type="synchronizeType">${formData.value.syncType}</type>
                         <ntpServer>${wrapCDATA(formData.value.timeServer)}</ntpServer>
+                        <gpsBaudRate>${wrapCDATA(formData.value.gpsBaudRate + '')}</gpsBaudRate>
+                        <ntpInterval>${wrapCDATA(formData.value.ntpInterval + '')}</ntpInterval>
                         ${isSystemTimeChanged ? `<currentTime>${wrapCDATA(formatGregoryDate(formData.value.systemTime, formatSystemTime.value, DEFAULT_DATE_FORMAT))}</currentTime>` : ''}
                     </synchronizeInfo>
                     <formatInfo>
@@ -207,7 +237,6 @@ export default defineComponent({
 
             isSystemTimeChanged = false
             isTimePickerChanged = false
-            formData.value.isSync = false
             getData()
             commSaveResponseHandler(result)
         }
@@ -218,6 +247,11 @@ export default defineComponent({
             if (findItem) return !findItem.enableDst
             return true
         })
+
+        const handleNtpIntervalOutOfRange = () => {
+            pageData.value.isNtpIntervalOutOfRange = true
+            formRef.value?.validateField('ntpInterval')
+        }
 
         /**
          * @description 日历组件选择时间
@@ -244,6 +278,13 @@ export default defineComponent({
             }
         }
 
+        const handleBeforeSystemTimeChange = () => {
+            return openMessageBox({
+                type: 'question',
+                message: Translate('IDCS_CHANGE_TIME_WARNING'),
+            })
+        }
+
         watch(isDSTDisabled, (val) => {
             if (val) {
                 formData.value.enableDST = false
@@ -266,6 +307,8 @@ export default defineComponent({
 
         return {
             formData,
+            formRef,
+            formRules,
             pageData,
             formatSystemTime,
             isDSTDisabled,
@@ -274,6 +317,8 @@ export default defineComponent({
             pendingSystemTimeChange,
             handleSystemTimeChange,
             handleSyncTypeChange,
+            handleNtpIntervalOutOfRange,
+            handleBeforeSystemTimeChange,
         }
     },
 })

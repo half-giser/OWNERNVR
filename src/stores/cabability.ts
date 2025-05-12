@@ -69,8 +69,20 @@ export const useCababilityStore = defineStore(
         const decoderOutputMaxWin = ref<Record<number, number>>({})
         const supportHttpPost = ref(false)
         const supportRS485 = ref(false)
+        const supportParkingLot = ref(false) // NSSR32-2 停车场功能显示
         // 是否支持设备基本信息界面展示开源协议
         const showCameraPreviewLock = ref(false)
+        const supportPIR = ref(false)
+        const switchIpChlRangeStart = ref('')
+        const switchIpChlRangeEnd = ref('')
+        const newDevice = ref(false)
+        const needP2pVersion1 = ref(false)
+        const supportHDHealth = ref(false)
+        const voiceDevMaxCount = ref(0)
+        const supportPlateColor = ref(false)
+        const showOpenSourceLicense = ref(false)
+        const supportSuperResolution = ref(false)
+        const supportREID = ref(false)
 
         const CustomerID = ref(0)
         const AISwitch = ref<boolean | undefined>()
@@ -150,12 +162,24 @@ export const useCababilityStore = defineStore(
             supportFishEye.value = $('supportFishEye').text().bool()
             supportHttpPost.value = $('supportHttpPost').text().bool()
             supportRS485.value = $('supportRS485').text().bool()
+            supportParkingLot.value = $('supportParkingLot').text().bool()
+            supportPIR.value = $('supportPIR').text().bool()
 
             chlSupSignalType.value = $('chlSupSignalType').text().split(':')
             switchIpChlRange.value.push($('switchIpChlRange/start').text().num())
             switchIpChlRange.value.push($('switchIpChlRange/end').text().num())
             mainStreamLimitFps.value = $('mainStreamLimitFps').text().num() || 1
             showCameraPreviewLock.value = $('showCameraPreviewLock').text().bool()
+            switchIpChlRangeStart.value = $('switchIpChlRange/start').text()
+            switchIpChlRangeEnd.value = $('switchIpChlRange/end').text()
+            newDevice.value = $('newDevice').text().bool()
+            needP2pVersion1.value = $('needP2pVersion1').text().bool()
+            supportHDHealth.value = $('supportHDHealth').text().bool()
+            voiceDevMaxCount.value = $('voiceDevMaxCount').text().num()
+            supportPlateColor.value = $('supportPlateColor').text().bool()
+            showOpenSourceLicense.value = $('showOpenSourceLicense').text().bool()
+            supportSuperResolution.value = $('supportSuperResolution').text().bool()
+            supportREID.value = $('supportREID').text().bool()
 
             $('FishEyeCaps/installType/enum').forEach((item) => {
                 const text = item.text()
@@ -253,6 +277,18 @@ export const useCababilityStore = defineStore(
             supportHttpPost,
             supportRS485,
             showCameraPreviewLock,
+            supportParkingLot,
+            supportPIR,
+            switchIpChlRangeStart,
+            switchIpChlRangeEnd,
+            newDevice,
+            needP2pVersion1,
+            supportHDHealth,
+            voiceDevMaxCount,
+            supportPlateColor,
+            showOpenSourceLicense,
+            supportSuperResolution,
+            supportREID,
         }
     },
     {

@@ -55,11 +55,13 @@ export default defineComponent({
             commLoadResponseHandler(result, ($) => {
                 authGroupList.value = $('content/item').map((item) => {
                     const $item = queryXml(item.element)
+                    // TSSR-2125 权限列表，不可另存为，不可删除，不可编辑；
                     return {
                         id: item.attr('id'),
                         name: $item('name').text(),
                         isDefault: $item('isDefault').text().bool(),
                         enableEdit: $item('enableEdit').text().bool(),
+                        groupType: $item('groupType').text(),
                         chlAuth: $item('chlAuth/item').map((chlItem) => {
                             const $chlItem = queryXml(chlItem.element)
                             return {
@@ -82,8 +84,8 @@ export default defineComponent({
                             facePersonnalInfoMgr: $item('systemAuth/facePersonnalInfoMgr').text().bool(),
                             remoteSysCfgAndMaintain: $item('systemAuth/remoteSysCfgAndMaintain').text().bool(),
                             securityMgr: $item('systemAuth/securityMgr').text().bool(),
-                            parkingLotMgr: $item('systemAuth/parkingLotMgr').text().bool(),
-                            AccessControlMgr: $item('systemAuth/AccessControlMgr').text().bool(),
+                            businessCfg: $item('systemAuth/businessCfg').text().bool(),
+                            businessMgr: $item('systemAuth/businessMgr').text().bool(),
                         },
                     }
                 })
@@ -112,8 +114,16 @@ export default defineComponent({
             if (!currentAuthGroup.value) return
             const currentItem = currentAuthGroup.value.systemAuth
             Object.keys(systemAuthList.value).forEach((classify) => {
+                systemAuthList.value[classify].label = Translate(systemAuthList.value[classify].key)
                 Object.keys(systemAuthList.value[classify].value).forEach((key) => {
                     systemAuthList.value[classify].value[key].value = currentItem[key] || false
+                    if (systemAuthList.value[classify].value[key].formatForLang?.length) {
+                        systemAuthList.value[classify].value[key].label = Translate(systemAuthList.value[classify].value[key].key).formatForLang(
+                            ...systemAuthList.value[classify].value[key].formatForLang.map((item) => Translate(item)),
+                        )
+                    } else {
+                        systemAuthList.value[classify].value[key].label = Translate(systemAuthList.value[classify].value[key].key)
+                    }
                 })
             })
         }
@@ -279,6 +289,18 @@ export default defineComponent({
             return name
         }
 
+        const isShowEdit = (row: UserAuthGroupList) => {
+            return row.enableEdit && row.groupType !== 'debug'
+        }
+
+        const isShowCopy = (row: UserAuthGroupList) => {
+            return row.groupType !== 'debug'
+        }
+
+        const isShowDelete = (row: UserAuthGroupList) => {
+            return !row.isDefault && row.groupType !== 'debug'
+        }
+
         onMounted(() => {
             if (!systemCaps.supportFaceMatch && !systemCaps.supportPlateMatch) {
                 systemAuthList.value.configurations.value.facePersonnalInfoMgr.hidden = true
@@ -300,6 +322,9 @@ export default defineComponent({
             deleteAuthGroup,
             confirmEditAuthGroup,
             copyAuthGroup,
+            isShowEdit,
+            isShowCopy,
+            isShowDelete,
         }
     },
 })

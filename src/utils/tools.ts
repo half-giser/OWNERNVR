@@ -148,7 +148,8 @@ export const getFileNameNoExtFromPath = (path: string): string => {
  * @returns {boolean}
  */
 export const isHttpsLogin = (): boolean => {
-    return window.location.protocol === 'https:'
+    const userSession = useUserSessionStore()
+    return window.location.protocol === 'https:' && userSession.appType === 'STANDARD'
 }
 
 // 判断浏览器是否支持webAssembly
@@ -175,7 +176,7 @@ export const getURLSearchParams = (params: Record<string, string | number | bool
  * @param {string} str
  * @return {Object}
  */
-export const matchRtspUrl = (str: string): object => {
+export const matchRtspUrl = (str: string) => {
     const rtspReg = /^rtsp:\/\/((?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]\d|[1-9])(?:\.(?:25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}):(\d{1,5})\/([^&$|\\'<>]+)$/
     const result = str.match(rtspReg)
     if (!result) {
@@ -781,7 +782,7 @@ type ScheduleListOption = {
  * @description 构建排程选择列表
  * @return {SelectOption<string, string>[]}
  */
-export const buildScheduleList = async (option: Partial<ScheduleListOption> = {}): SelectOption<string, string>[] => {
+export const buildScheduleList = async (option: Partial<ScheduleListOption> = {}) => {
     const options = {
         isManager: false,
         isDefault: true,
@@ -830,7 +831,7 @@ export const getScheduleId = (scheduleList: SelectOption<string, string>[], sche
  * @description 返回持续时间列表
  * @returns {SelectOption<string, string>[]}
  */
-export const getAlarmHoldTimeList = (holdTimeList: string, holdTime: number): SelectOption<string, string>[] => {
+export const getAlarmHoldTimeList = (holdTimeList: string, holdTime: number) => {
     const holdTimeArr = holdTimeList.array().map((item) => Number(item))
     if (!holdTimeArr.includes(holdTime)) {
         holdTimeArr.push(holdTime)
@@ -947,7 +948,7 @@ export const buildSnapChlList = async () => {
  * @param {number} value
  * @return {*}
  */
-export const getTranslateForMin = (value: number): any => {
+export const getTranslateForMin = (value: number) => {
     const Translate = useLangStore().Translate
     return getTranslateForTime(value, Translate('IDCS_HOUR'), Translate('IDCS_HOURS'), Translate('IDCS_MINUTE'), Translate('IDCS_MINUTES'))
 }
@@ -957,7 +958,7 @@ export const getTranslateForMin = (value: number): any => {
  * @param {number} value
  * @return {*}
  */
-export const getTranslateForSecond = (value: number): any => {
+export const getTranslateForSecond = (value: number) => {
     const Translate = useLangStore().Translate
     return getTranslateForTime(value, Translate('IDCS_MINUTE'), Translate('IDCS_MINUTES'), Translate('IDCS_SECOND'), Translate('IDCS_SECONDS'))
 }
@@ -1329,7 +1330,7 @@ export const checkMutexChl = async ({ isChange, mutexList, mutexListEx = [], chl
  * @param {Array} array
  * @returns {SelectOption[]}
  */
-export const arrayToOptions = <T>(array: T[]): SelectOption[] => {
+export const arrayToOptions = <T>(array: T[]) => {
     return array.map((value) => ({
         label: value,
         value,
@@ -1423,7 +1424,7 @@ export const getCurrentAICfgMode = (nodeKey: string, xmlDoc: any): string => {
  * @param {Object} paramObjectFilter chl/param/objectFilter节点数据
  * @returns {Object}
  */
-export const getObjectFilterData = (objectMode: string, itemObjectFilter: { element: XMLDocument | Element | null }[], paramObjectFilter: { element: XMLDocument | Element | null }[]): object => {
+export const getObjectFilterData = (objectMode: string, itemObjectFilter: { element: XMLDocument | Element | null }[], paramObjectFilter: { element: XMLDocument | Element | null }[]) => {
     const $itemNodeObj = queryXml(itemObjectFilter[0].element)
     let $paramNodeObj = null
     if (paramObjectFilter.length > 0) $paramNodeObj = queryXml(paramObjectFilter[0].element)
@@ -1488,7 +1489,7 @@ export const getObjectFilterData = (objectMode: string, itemObjectFilter: { elem
  * @param {any} $paramNodeObj chl/param/objectFilter节点数据
  * @returns {Object}
  */
-const getDetectTargetData = (nodeType: String, objectMode: String, $itemNodeObj: Function, $paramNodeObj: any): object => {
+const getDetectTargetData = (nodeType: String, objectMode: String, $itemNodeObj: Function, $paramNodeObj: any) => {
     let resultObj = new AlarmTargetCfgDto()
     // 模式2：灵敏度相关配置从chl/param/objectFilter节点获取
     const $itemNode = objectMode === 'mode2' ? $paramNodeObj : $itemNodeObj

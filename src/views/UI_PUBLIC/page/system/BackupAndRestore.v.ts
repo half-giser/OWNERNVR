@@ -4,12 +4,10 @@
  * @Description: 备份与恢复
  */
 import BaseCheckAuthPop from '../../components/auth/BaseCheckAuthPop.vue'
-import BaseInputEncryptPwdPop from '../../components/auth/BaseInputEncryptPwdPop.vue'
 
 export default defineComponent({
     components: {
         BaseCheckAuthPop,
-        BaseInputEncryptPwdPop,
     },
     setup() {
         const { Translate } = useLangStore()
@@ -27,10 +25,6 @@ export default defineComponent({
             importNote: '',
             exportNote: '',
             isCheckAuth: false,
-            checkAuthTip: '',
-            checkAuthType: 'import',
-            isEncryptPwd: false,
-            encryptPwdTitle: '',
             configSwitchOptions: [
                 {
                     label: Translate('IDCS_INCLUDE_NETWORK'),
@@ -68,8 +62,8 @@ export default defineComponent({
                     const progress = $('statenotify/progress').text()
                     switch ($('statenotify/action').text()) {
                         case 'Import':
+                            closeLoading()
                             pageData.value.isCheckAuth = false
-                            pageData.value.isEncryptPwd = false
                             if (progress === '100%') {
                                 pageData.value.importNote = TRANS_MAPPING.uploadReboot
                                 openLoading(LoadingTarget.FullScreen, TRANS_MAPPING.uploadReboot)
@@ -77,14 +71,10 @@ export default defineComponent({
                                 //延时检测重启
                                 importTimer = reconnect()
                             } else {
-                                closeLoading()
                                 pageData.value.importNote = `${TRANS_MAPPING.uploading}  ${progress}`
                             }
                             break
                         case 'Export':
-                            closeLoading()
-                            pageData.value.isCheckAuth = false
-                            pageData.value.isEncryptPwd = false
                             if (progress === '100%') {
                                 pageData.value.exportNote = TRANS_MAPPING.downloadComplete
                             } else {
@@ -101,10 +91,38 @@ export default defineComponent({
                 //网络断开
                 else if (stateType === 'FileNetTransport') {
                     closeLoading()
-                    pageData.value.isEncryptPwd = false
                     if ($('statenotify/errorCode').length) {
                         const errorCode = $('statenotify/errorCode').text().num()
-                        handleErrorMsg(errorCode)
+                        // handleErrorMsg(errorCode)
+                        switch (errorCode) {
+                            case ErrorCode.USER_ERROR_PWD_ERR:
+                            case ErrorCode.USER_ERROR_NO_USER:
+                                // 用户名/密码错误
+                                pageData.value.isCheckAuth = true
+                                openMessageBox(Translate('IDCS_DEVICE_PWD_ERROR'))
+                                break
+                            case ErrorCode.USER_ERROR_NO_AUTH:
+                                // 鉴权账号无相关权限
+                                openMessageBox(Translate('IDCS_NO_AUTH'))
+                                break
+                            case ErrorCode.USER_ERROR_NODE_NET_DISCONNECT:
+                                openMessageBox(Translate('IDCS_OCX_NET_DISCONNECT'))
+                                break
+                            case ErrorCode.USER_ERROR_DEVICE_BUSY:
+                                openMessageBox(Translate('IDCS_DEVICE_BUSY'))
+                                break
+                            case ErrorCode.USER_ERROR_SERVER_NO_EXISTS:
+                                openMessageBox(Translate('IDCS_LOGIN_OVERTIME')).finally(() => {
+                                    Logout()
+                                })
+                                break
+                            case ErrorCode.USER_ERROR_NO_PARENT_AREA_AUTH:
+                            case ErrorCode.USER_ERROR_FILE_TYPE_ERROR:
+                            case ErrorCode.USER_ERROR_FAIL:
+                            default:
+                                openMessageBox(Translate('IDCS_RESTORE_CONFIG_FAIL'))
+                                break
+                        }
                     }
                 }
             },
@@ -117,7 +135,7 @@ export default defineComponent({
         // 用户鉴权表单数据
         const userCheckAuthForm = new UserCheckAuthForm()
         // 用户密码加密表单数据
-        const userInputEncryptPwdForm = new UserInputEncryptPwdForm()
+        // const userInputEncryptPwdForm = new UserInputEncryptPwdForm()
 
         const TRANS_MAPPING = {
             uploading: Translate('IDCS_UPLOADING_FILE'),
@@ -169,8 +187,6 @@ export default defineComponent({
          */
         const handleImport = () => {
             pageData.value.isCheckAuth = true
-            pageData.value.checkAuthType = 'import'
-            pageData.value.checkAuthTip = Translate('IDCS_RESTORE_CONFIG_QUESTION')
         }
 
         /**
@@ -192,52 +208,9 @@ export default defineComponent({
         }
 
         /**
-         * @description 点击导出，打开鉴权弹窗
-         */
-        const handleExport = () => {
-            pageData.value.isCheckAuth = true
-            pageData.value.checkAuthType = 'export'
-            pageData.value.checkAuthTip = ''
-        }
-
-        /**
-         * @description 鉴权弹窗确认回调
-         * @param {UserCheckAuthForm} e
-         */
-        const confirmCheckAuth = (e: UserCheckAuthForm) => {
-            userCheckAuthForm.userName = e.userName
-            userCheckAuthForm.hexHash = e.hexHash
-            userCheckAuthForm.password = e.password
-            userInputEncryptPwdForm.password = ''
-
-            if (pageData.value.checkAuthType === 'import') {
-                pageData.value.isEncryptPwd = true
-                pageData.value.encryptPwdTitle = Translate('IDCS_IMPORT')
-            } else {
-                pageData.value.isEncryptPwd = true
-                pageData.value.encryptPwdTitle = Translate('IDCS_EXPORT')
-            }
-        }
-
-        /**
-         * @description 密码加密弹窗确认回调
-         * @param {UserInputEncryptPwdForm} e
-         */
-        const confirmInputEncryptPwd = (e: UserInputEncryptPwdForm) => {
-            userInputEncryptPwdForm.password = e.password
-
-            if (pageData.value.checkAuthType === 'import') {
-                pageData.value.isEncryptPwd = false
-                importFile()
-            } else {
-                exportFile()
-            }
-        }
-
-        /**
          * @description 导入
          */
-        const importFile = () => {
+        const importFile = (e: UserCheckAuthForm) => {
             if (isSupportH5.value) {
                 openLoading()
                 WebsocketUpload({
@@ -247,9 +220,8 @@ export default defineComponent({
                         size: file.size,
                         sign_method: 'MD5',
                         param: {
-                            user_name: userCheckAuthForm.userName, // 二次鉴权用户名
-                            password: userCheckAuthForm.hexHash, // 二次鉴权密码
-                            secPassword: userInputEncryptPwdForm.password, // 加密密码
+                            user_name: e.userName, // 二次鉴权用户名
+                            password: e.hexHash, // 二次鉴权密码
                             token: userSession.token,
                         },
                     },
@@ -267,7 +239,20 @@ export default defineComponent({
                     error: (errorCode) => {
                         closeLoading()
                         pageData.value.importNote = ''
-                        handleErrorMsg(errorCode)
+                        if (errorCode === 536870948 || errorCode === 536870947) {
+                            // 用户名/密码错误
+                            openMessageBox(Translate('IDCS_DEVICE_PWD_ERROR'))
+                        } else if (errorCode === 536870953) {
+                            // 鉴权账号无相关权限
+                            openMessageBox(Translate('IDCS_NO_AUTH'))
+                        } else if (errorCode === 536870931) {
+                            openMessageBox(Translate('IDCS_OCX_NET_DISCONNECT'))
+                        } else if (errorCode === 536870945) {
+                            // 设备忙
+                            openMessageBox(Translate('IDCS_DEVICE_BUSY'))
+                        } else {
+                            openMessageBox(Translate('IDCS_RESTORE_CONFIG_FAIL'))
+                        }
                     },
                 })
             } else {
@@ -275,9 +260,8 @@ export default defineComponent({
                 const param = {
                     filePath: importFormData.value.filePath,
                     version: '500',
-                    authName: userCheckAuthForm.userName,
-                    authPwd: userCheckAuthForm.password,
-                    secPassword: userInputEncryptPwdForm.password,
+                    authName: e.userName,
+                    authPwd: e.password,
                 }
                 const sendXML = OCX_XML_FileNetTransport('Import', param)
                 openLoading()
@@ -294,102 +278,39 @@ export default defineComponent({
             const sendXml = rawXml`
                 <networkConfigSwitch>${exportFormData.value.configSwitch.includes('network')}</networkConfigSwitch>
                 <encryptionConfigSwitch>${exportFormData.value.configSwitch.includes('encryption')}</encryptionConfigSwitch>
-                <auth>
-                    <userName>${userCheckAuthForm.userName}</userName>
-                    <password>${userCheckAuthForm.hexHash}</password>
-                    <secPassword>${userInputEncryptPwdForm.password}</secPassword>
-                </auth>
             `
-            const result = await exportConfig(sendXml)
-            const $ = queryXml(result)
+            await exportConfig(sendXml)
 
-            pageData.value.isEncryptPwd = false
+            closeLoading()
 
-            if ($('status').text() === 'success') {
-                if (isSupportH5.value) {
-                    WebsocketDownload({
-                        config: {
-                            file_id: 'config_file',
-                            param: {
-                                user_name: userCheckAuthForm.userName, // 二次鉴权用户名
-                                password: userCheckAuthForm.hexHash, // 二次鉴权密码
-                                secPassword: userInputEncryptPwdForm.password, // 加密密码
-                                token: userSession.token,
-                            },
+            if (isSupportH5.value) {
+                WebsocketDownload({
+                    config: {
+                        file_id: 'config_file',
+                        param: {
+                            user_name: userCheckAuthForm.userName, // 二次鉴权用户名
+                            password: userCheckAuthForm.hexHash, // 二次鉴权密码
+                            token: userSession.token,
                         },
-                        fileName: 'ConfigurationBackupFile',
-                        success: () => {
-                            closeLoading()
-                            pageData.value.isCheckAuth = false
-
-                            pageData.value.exportNote = TRANS_MAPPING.downloadComplete
-                            if (browserInfo.type === 'firefox') {
-                                // 兼容H5 火狐显示 NVR145-142
-                                pageData.value.exportNote = Translate('IDCS_UPGRADE_DOWN_FINISHED')
-                            }
-                        },
-                        error: (errorCode) => {
-                            closeLoading()
-                            handleErrorMsg(errorCode)
-                        },
-                    })
-                } else {
-                    // 插件密码使用明文交互
-                    const param = {
-                        filePath: exportFormData.value.filePath,
-                        version: '500',
-                        authName: userCheckAuthForm.userName,
-                        authPwd: userCheckAuthForm.password,
-                        secPassword: userInputEncryptPwdForm.password,
-                    }
-                    const sendXML = OCX_XML_FileNetTransport('Export', param)
-                    plugin.ExecuteCmd(sendXML)
-                }
+                    },
+                    fileName: 'ConfigurationBackupFile',
+                    success: () => {
+                        pageData.value.exportNote = TRANS_MAPPING.downloadComplete
+                        if (browserInfo.type === 'firefox') {
+                            // 兼容H5 火狐显示 NVR145-142
+                            pageData.value.exportNote = Translate('IDCS_UPGRADE_DOWN_FINISHED')
+                        }
+                    },
+                    error: () => {},
+                })
             } else {
-                closeLoading()
-                const errorCode = $('errorCode').text().num()
-                handleErrorMsg(errorCode)
-            }
-        }
-
-        /**
-         * @description 错误信息处理
-         * @param {number} errorCode
-         */
-        const handleErrorMsg = (errorCode: number) => {
-            // NT2-3236 导入配置文件提示用户无权限后，页面按钮被置灰
-            if (![ErrorCode.USER_ERROR_PWD_ERR, ErrorCode.USER_ERROR_NO_USER].includes(errorCode)) {
-                pageData.value.isCheckAuth = false
-            }
-
-            switch (errorCode) {
-                case ErrorCode.USER_ERROR_PWD_ERR:
-                case ErrorCode.USER_ERROR_NO_USER:
-                    // 用户名/密码错误
-                    pageData.value.isCheckAuth = true
-                    openMessageBox(Translate('IDCS_DEVICE_PWD_ERROR'))
-                    break
-                case ErrorCode.USER_ERROR_NO_AUTH:
-                    // 鉴权账号无相关权限
-                    openMessageBox(Translate('IDCS_NO_AUTH'))
-                    break
-                case ErrorCode.USER_ERROR_NODE_NET_DISCONNECT:
-                    openMessageBox(Translate('IDCS_OCX_NET_DISCONNECT'))
-                    break
-                case ErrorCode.USER_ERROR_DEVICE_BUSY:
-                    openMessageBox(Translate('IDCS_DEVICE_BUSY'))
-                    break
-                case ErrorCode.USER_ERROR_SERVER_NO_EXISTS:
-                    openMessageBox(Translate('IDCS_LOGIN_OVERTIME')).finally(() => {
-                        Logout()
-                    })
-                    break
-                case ErrorCode.USER_ERROR_NO_PARENT_AREA_AUTH:
-                case ErrorCode.USER_ERROR_FILE_TYPE_ERROR:
-                case ErrorCode.USER_ERROR_FAIL:
-                default:
-                    openMessageBox(Translate('IDCS_RESTORE_CONFIG_FAIL'))
-                    break
+                // 插件密码使用明文交互
+                const param = {
+                    filePath: exportFormData.value.filePath,
+                    version: '500',
+                }
+                const sendXML = OCX_XML_FileNetTransport('Export', param)
+                plugin.ExecuteCmd(sendXML)
             }
         }
 
@@ -405,10 +326,9 @@ export default defineComponent({
             handleH5Upload,
             handleOCXUpload,
             handleImport,
-            confirmCheckAuth,
-            confirmInputEncryptPwd,
+            importFile,
+            exportFile,
             handleBrowse,
-            handleExport,
         }
     },
 })

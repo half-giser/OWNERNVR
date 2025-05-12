@@ -229,10 +229,15 @@ export default defineComponent({
             ctx.emit('close')
         }
 
+        const formatUserName = (str: string) => {
+            return str.replace(/([`\^\[\]]|[^A-z\d!@#%(){}~_\\'./\-\s])/g, '')
+        }
+
         return {
             strength,
             formRef,
             formData,
+            formatUserName,
             formRule,
             pageData,
             open,

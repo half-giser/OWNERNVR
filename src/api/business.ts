@@ -70,3 +70,28 @@ export const openGate = (data: string) => fetch('openGate', data)
  * @returns
  */
 export const searchOpenGateEventRelevanceData = (data: string) => fetch('searchOpenGateEventRelevanceData', data)
+
+/**
+ * @description
+ * @returns
+ */
+export const queryPassengerFlowStatisticsConfig = () => fetch('queryPassengerFlowStatisticsConfig', '')
+
+/**
+ * @description
+ * @param {string} data
+ * @returns
+ */
+export const editPassengerFlowStatisticsConfig = (data: string) => fetch('editPassengerFlowStatisticsConfig', data)
+
+/**
+ * @description
+ * @returns
+ */
+export const resetPassengerFlowStatistics = () => fetch('resetPassengerFlowStatistics', '')
+
+/**
+ * @description
+ * @returns
+ */
+export const queryPassengerFlowStatisticsInfo = () => fetch('queryPassengerFlowStatisticsInfo', '')

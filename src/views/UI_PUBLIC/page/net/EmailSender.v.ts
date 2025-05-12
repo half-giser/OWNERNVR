@@ -114,6 +114,16 @@ export default defineComponent({
                     value: 2,
                 },
             ] as SelectOption<number, string>[],
+            imgTypeOptions: [
+                {
+                    label: Translate('IDCS_FACE_SNAP_IMAGE'),
+                    value: 'snapImgSwitch',
+                },
+                {
+                    label: Translate('IDCS_ORIGINAL'),
+                    value: 'orgImgSwitch',
+                },
+            ],
             // 图片数量选项
             imageNumberOptions: arrayToOptions([4, 5, 6, 7, 8, 9, 10]),
             // 加密选项
@@ -147,13 +157,28 @@ export default defineComponent({
             commLoadResponseHandler(result, ($) => {
                 const $sender = queryXml($('content/sender')[0].element)
                 formData.value.anonymousSwitch = $sender('anonymousSwitch').text().bool()
+                formData.value.nameMaxByteLen = $sender('name').attr('maxByteLen').num() || nameByteMaxLen
                 formData.value.name = $sender('name').text()
+                formData.value.addressMaxByteLen = $sender('address').attr('maxByteLen').num() || nameByteMaxLen
                 formData.value.address = $sender('address').text()
+                formData.value.userNameMaxByteLen = $sender('userName').attr('maxByteLen').num() || nameByteMaxLen
                 formData.value.userName = $sender('userName').text()
+                formData.value.serverMaxByteLen = $sender('smtp/server').attr('maxByteLen').num() || nameByteMaxLen
                 formData.value.server = $sender('smtp/server').text()
+                formData.value.portMin = $sender('smtp/port').attr('min').num() || 10
+                formData.value.portMax = $sender('smtp/port').attr('min').num() || 65535
                 formData.value.port = $sender('smtp/port').text().num()
                 formData.value.attachImg = $sender('attachImg').text().num()
                 formData.value.imageNumber = $sender('imageNumber').text().num()
+
+                if ($sender('snapImgSwitch').text().bool()) {
+                    formData.value.imgType.push('snapImgSwitch')
+                }
+
+                if ($sender('orgImgSwitch').text().bool()) {
+                    formData.value.imgType.push('orgImgSwitch')
+                }
+
                 let ssl = $sender('smtp/ssl').text()
                 if (ssl === 'true') {
                     ssl = 'SSL'
@@ -252,12 +277,14 @@ export default defineComponent({
                         <content>
                             <sender>
                                 <address>${wrapCDATA(formData.value.address)}</address>
-                                <name maxByteLen="63">${wrapCDATA(formData.value.name)}</name>
+                                <name>${wrapCDATA(formData.value.name)}</name>
                                 <userName>${wrapCDATA(formData.value.userName)}</userName>
                                 ${formData.value.anonymousSwitch ? `<password ${getSecurityVer()}>${password}</password>` : ''}
                                 <anonymousSwitch>${formData.value.anonymousSwitch}</anonymousSwitch>
                                 <attachImg>${formData.value.attachImg}</attachImg>
                                 <imageNumber>${formData.value.imageNumber}</imageNumber>
+                                <snapImgSwitch>${formData.value.imgType.includes('snapImgSwitch')}</snapImgSwitch>
+                                <orgImgSwitch>${formData.value.imgType.includes('orgImgSwitch')}</orgImgSwitch>
                                 <smtp>
                                     <server>${wrapCDATA(formData.value.server)}</server>
                                     <port>${formData.value.port}</port>

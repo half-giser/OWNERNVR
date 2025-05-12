@@ -22,11 +22,10 @@
                 :label="Translate('IDCS_ACCOUNT')"
                 prop="userName"
             >
-                <el-input
+                <BaseTextInput
                     v-model.trim="formData.userName"
                     :disabled="!formData.switch"
-                    :formatter="formatInputUserName"
-                    :parser="formatInputUserName"
+                    :maxlength="formData.userNameMaxByteLen"
                 />
             </el-form-item>
             <el-form-item prop="password">

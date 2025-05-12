@@ -11,6 +11,7 @@
         :disabled-hours="disabledHours"
         :disabled-minutes="disabledMinutes"
         :disabled-seconds="disabledSeconds"
+        :disabled
         :teleported
         @update:model-value="update"
         @change="change"

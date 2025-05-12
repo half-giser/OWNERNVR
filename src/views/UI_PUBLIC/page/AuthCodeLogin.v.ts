@@ -152,18 +152,9 @@ export default defineComponent({
                     errorMsg = unkownError
                     break
             }
-            clearAuInfo()
             progress.done()
             pageData.value.errorMsg = errorMsg
             pageData.value.btnDisabled = false
-        }
-
-        /**
-         * @description 清除用户信息
-         */
-        const clearAuInfo = () => {
-            userSession.auInfo_N9K = ''
-            delCookie(LocalCacheKey.KEY_AU_INFO_N9K)
         }
 
         /**
@@ -351,8 +342,12 @@ export default defineComponent({
             pluginStore.manuaClosePlugin = true
             pageData.value.errorMsg = ''
             userSession.p2pSessionId = null
-            plugin.DisposePlugin()
-            plugin.StartV2Process()
+            if (userSession.dualAuth_N9K) {
+                plugin.P2pDualAuthLogin() // 插件使用双重认证登录，获取授权码（插件不断链，不重新建链）
+            } else {
+                plugin.DisposePlugin()
+                plugin.StartV2Process() // 插件使用用户名密码登录，获取授权码（插件断链，重新建链）
+            }
             plugin.SetLoginTypeCallback((loginType, authCodeIndex) => {
                 closeLoading()
                 pageData.value.loginType = loginType

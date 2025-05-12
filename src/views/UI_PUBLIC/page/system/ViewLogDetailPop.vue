@@ -28,7 +28,7 @@
                     class="text-area"
                     height="100"
                 >
-                    {{ item.content }}
+                    {{ item.content }} {{ item.detailsExtra ? `/${item.detailsExtra}` : '' }}
                 </el-scrollbar>
             </el-form-item>
             <div
@@ -40,8 +40,12 @@
                         <div>{{ Translate('IDCS_SNAP_PICTURE') }}</div>
                         <div class="capture">
                             <img
-                                v-show="pageData.captureImg"
+                                v-if="pageData.captureImg"
                                 :src="pageData.captureImg"
+                            />
+                            <BaseImgSprite
+                                v-else
+                                file="empty"
                             />
                         </div>
                     </div>
@@ -49,24 +53,35 @@
                         <div>{{ Translate('IDCS_ORIGINAL') }}</div>
                         <div class="scenes">
                             <img
-                                v-show="pageData.scenesImg"
+                                v-if="pageData.scenesImg"
                                 :src="pageData.scenesImg"
+                            />
+                            <BaseImgSprite
+                                v-else
+                                file="empty"
                             />
                         </div>
                     </div>
                 </div>
-                <div>
-                    <span>{{ Translate('IDCS_NAME_PERSON') }} : </span>
+                <el-form-item :label="Translate('IDCS_NAME_PERSON')">
                     <span>{{ pageData.imgName || Translate('IDCS_NULL') }}</span>
-                </div>
-                <div>
+                </el-form-item>
+                <el-form-item>
+                    <el-scrollbar
+                        class="text-area"
+                        height="100"
+                    >
+                        {{ item.content }} {{ item.detailsExtra ? `/${item.detailsExtra}` : '' }}
+                    </el-scrollbar>
+                </el-form-item>
+                <!-- <div>
                     <span>{{ pageData.type1 || Translate('IDCS_FACE_MATCH') }} : </span>
                     <span>{{ pageData.name1 }}</span>
                 </div>
                 <div>
                     <span>{{ pageData.type2 || Translate('IDCS_SENSOR') }} : </span>
                     <span>{{ pageData.name2 }}</span>
-                </div>
+                </div> -->
             </div>
         </el-form>
         <div class="base-btn-box">
@@ -111,17 +126,27 @@
         width: 100px;
         height: 100px;
         background-color: var(--subheading-bg);
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
     .scenes {
         width: 210px;
         height: 140px;
         background-color: var(--subheading-bg);
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
     img {
         width: 100%;
         height: 100%;
+    }
+
+    .Sprite {
+        transform: scale(0.4);
     }
 }
 

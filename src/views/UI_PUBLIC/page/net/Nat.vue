@@ -12,18 +12,41 @@
             <el-form-item>
                 <el-checkbox
                     v-model="formData.natSwitch"
-                    :disabled="pageData.isBindUser"
+                    :disabled="!pageData.editable"
                     :label="Translate('IDCS_ENABLE')"
                 />
             </el-form-item>
+            <el-form-item v-if="pageData.showSecurityAccessCfg">
+                <el-checkbox
+                    v-model="formData.securityAccessSwitch"
+                    :label="Translate('IDCS_SECURITY_ACCESS')"
+                    :disabled="pageData.securityAccessSwitch"
+                    @change="changeSecurityAccessSwitch"
+                />
+                <BaseImgSprite
+                    file="question"
+                    :index="0"
+                    :hover-index="1"
+                    :chunk="2"
+                    :title="Translate('IDCS_SECURITY_ACCESS_TIP')"
+                />
+            </el-form-item>
             <!-- 1.5.0去除NAT选项, 默认NAT2.0 -->
-            <!-- <el-form-item :label="Translate('IDCS_ACCESS_TYPE')">
-            </el-form-item> -->
             <el-form-item
-                v-if="systemCaps.showNatServerAddress"
+                v-if="systemCaps.needP2pVersion1 && systemCaps.showNatServerAddress"
+                :label="Translate('IDCS_ACCESS_TYPE')"
+            >
+                <el-select-v2
+                    v-model="formData.index"
+                    :options="pageData.natServerTypeOptions"
+                    :disabled="!pageData.editable"
+                />
+            </el-form-item>
+            <el-form-item
+                v-if="systemCaps.showNatVisitAddress"
                 :label="Translate('IDCS_VISIT_ADDRESS')"
             >
-                {{ pageData.visitAddress }}
+                <span>{{ pageData.visitAddress }}</span>
             </el-form-item>
             <el-form-item :label="Translate('IDCS_NAT_STATUS')">
                 <el-input
@@ -56,7 +79,33 @@
                 </div>
                 <p class="code-text">{{ pageData.snText }}</p>
             </div>
+            <div v-show="pageData.currentIndex === 1">
+                <div class="code-h1">{{ Translate('IDCS_SECURITY_CODE') }}</div>
+                <div class="code-tips">{{ Translate('IDCS_SECURITY_CODE_TIP') }}</div>
+                <div class="code-num">
+                    <ul>
+                        <li
+                            v-for="(item, index) in pageData.securityCode.split('')"
+                            :key="index"
+                        >
+                            {{ pageData.isShowSecurityCode ? item : '*' }}
+                        </li>
+                    </ul>
+                    <BaseImgSprite
+                        file="icon_mask"
+                        :index="pageData.isShowSecurityCode ? 0 : 2"
+                        :hover-index="pageData.isShowSecurityCode ? 1 : 3"
+                        :chunk="4"
+                        @click="toggleSecurityCode"
+                    />
+                </div>
+            </div>
         </div>
+        <BaseCheckAuthPop
+            v-model="pageData.isCheckAuthPop"
+            @confirm="getSecurityCode"
+            @close="pageData.isCheckAuthPop = false"
+        />
     </div>
 </template>
 
@@ -70,13 +119,19 @@
 
 .code {
     display: flex;
-    flex-wrap: wrap;
+    align-items: flex-end;
+    // flex-wrap: wrap;
 
-    & > div {
+    & > div:first-child {
         width: 230px;
         height: 230px;
         flex-shrink: 0;
         margin-left: 15px;
+    }
+
+    & > div:last-child {
+        margin-left: 10px;
+        padding-bottom: 10px;
     }
 
     &-pic {
@@ -115,6 +170,39 @@
     &-text {
         margin-top: 10px;
         font-family: Consolas, Menlo, monospace;
+    }
+
+    &-h1 {
+        font-size: 15px;
+        margin-bottom: 5px;
+    }
+
+    &-tips {
+        color: var(--main-text-light);
+        font-size: 12px;
+        margin-bottom: 5px;
+    }
+
+    &-num {
+        display: flex;
+        align-items: center;
+
+        ul {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        li {
+            width: 30px;
+            height: 30px;
+            border-radius: 5px;
+            margin-right: 10px;
+            border: 1px solid var(--input-border);
+            text-align: center;
+            line-height: 30px;
+        }
     }
 }
 </style>
