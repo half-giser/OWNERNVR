@@ -40,15 +40,13 @@ export const useUserChlAuth = (immediate = true) => {
         }
 
         const sendXml = rawXml`
-            <condition>
-                <authGroupId>${userSession.authGroupId}</authGroupId>
-            </condition>
+            <authGroupId>${userSession.authGroupId}</authGroupId>
             <requireField>
                 <chlAuth/>
                 <systemAuth/>
             </requireField>
         `
-        const result = await queryAuthGroup(sendXml)
+        const result = await queryMyAuth(sendXml)
         const $ = queryXml(result)
 
         $('content/chlAuth/item').forEach((item) => {

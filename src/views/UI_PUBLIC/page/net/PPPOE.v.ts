@@ -53,6 +53,7 @@ export default defineComponent({
             const result = await queryPPPoECfg()
             commLoadResponseHandler(result, ($) => {
                 formData.value.switch = $('content/switch').text().bool()
+                formData.value.userNameMaxByteLen = $('content/userName').attr('maxByteLen').num() || nameByteMaxLen
                 formData.value.userName = $('content/userName').text().trim()
 
                 if (!formData.value.userName) {

@@ -16,6 +16,13 @@ export default defineComponent({
         const userSession = useUserSessionStore()
         const router = useRouter()
 
+        const pageData = ref({
+            isCheckAuthPop: false,
+            isSchedulePop: false,
+            scheduleList: [] as SelectOption<string, string>[],
+            isAdmin: userSession.userType === USER_TYPE_DEFAULT_ADMIN,
+        })
+
         const formData = ref(new UserAddForm())
         const formRef = useFormRef()
 
@@ -23,9 +30,6 @@ export default defineComponent({
         const passwordStrength = ref<keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING>('weak')
         // 当前密码强度
         const strength = computed(() => getPwdSaftyStrength(formData.value.password))
-
-        // 显示隐藏权限弹窗
-        const isAuthDialog = ref(false)
 
         const authGroupOptions = ref<SelectOption<string, string>[]>([])
 
@@ -56,18 +60,20 @@ export default defineComponent({
          */
         const getAuthGroup = async () => {
             const sendXml = rawXml`
-                <requireField>
-                    <name/>
-                </requireField>
+                <name/>
             `
             const result = await queryAuthGroupList(sendXml)
             commLoadResponseHandler(result, ($) => {
-                authGroupOptions.value = $('content/item').map((item) => {
+                $('content/item').forEach((item) => {
                     const $item = queryXml(item.element)
-                    return {
+                    // TSSR-2195 添加用户/编辑用户时，权限组列表不显示调试组；
+                    if ($item('groupType').text() === 'debug') {
+                        return
+                    }
+                    authGroupOptions.value.push({
                         value: item.attr('id'),
                         label: displayAuthGroup($item('name').text()),
-                    }
+                    })
                 })
                 if (authGroupOptions.value.length) {
                     formData.value.authGroup = authGroupOptions.value[0].value
@@ -141,19 +147,19 @@ export default defineComponent({
                     trigger: 'manual',
                 },
             ],
-            email: [
-                {
-                    validator: (_rule, value: string, callback) => {
-                        if (!!value && !checkEmail(value)) {
-                            callback(new Error(Translate('IDCS_PROMPT_INVALID_EMAIL')))
-                            return
-                        }
+            // email: [
+            //     {
+            //         validator: (_rule, value: string, callback) => {
+            //             if (!!value && !checkEmail(value)) {
+            //                 callback(new Error(Translate('IDCS_PROMPT_INVALID_EMAIL')))
+            //                 return
+            //             }
 
-                        callback()
-                    },
-                    trigger: 'manual',
-                },
-            ],
+            //             callback()
+            //         },
+            //         trigger: 'manual',
+            //     },
+            // ],
         })
 
         /**
@@ -162,7 +168,7 @@ export default defineComponent({
         const verify = () => {
             formRef.value!.validate((valid) => {
                 if (valid) {
-                    isAuthDialog.value = true
+                    pageData.value.isCheckAuthPop = true
                 }
             })
         }
@@ -180,11 +186,13 @@ export default defineComponent({
                     <password ${getSecurityVer()}>${wrapCDATA(AES_encrypt(MD5_encrypt(formData.value.password), userSession.sesionKey))}</password>
                     <email>${wrapCDATA(formData.value.email)}</email>
                     <modifyPassword>${formData.value.allowModifyPassword}</modifyPassword>
-                    <authGroupId>${formData.value.authGroup}</authGroupId>
+                    ${pageData.value.isAdmin ? `<accessCode>${formData.value.accessCode}</accessCode>` : ''}
+                    <authGroupId>${wrapCDATA(formData.value.authGroup)}</authGroupId>
                     <bindMacSwitch>false</bindMacSwitch>
                     <mac>${wrapCDATA(DEFAULT_EMPTY_MAC)}</mac>
                     <enabled>true</enabled>
                     <authEffective>true</authEffective>
+                    <loginScheduleInfo enable="${formData.value.loginScheduleInfoEnabled}">${formData.value.loginScheduleInfo}</loginScheduleInfo>
                 </content>
                 <auth>
                     <userName>${e.userName}</userName>
@@ -197,7 +205,7 @@ export default defineComponent({
             closeLoading()
 
             if ($('status').text() === 'success') {
-                isAuthDialog.value = false
+                pageData.value.isCheckAuthPop = false
                 goBack()
             } else {
                 let errorInfo = ''
@@ -236,10 +244,22 @@ export default defineComponent({
             router.push('/config/security/user/list')
         }
 
+        const getScheduleList = async () => {
+            pageData.value.scheduleList = await buildScheduleList()
+        }
+
+        const closeSchedulePop = async () => {
+            pageData.value.isSchedulePop = false
+            await getScheduleList()
+            formData.value.loginScheduleInfo = getScheduleId(pageData.value.scheduleList, formData.value.loginScheduleInfo)
+        }
+
         onMounted(async () => {
             openLoading()
+            await getScheduleList()
             await getPasswordSecurityStrength()
             await getAuthGroup()
+            formData.value.loginScheduleInfo = pageData.value.scheduleList[0].value
             closeLoading()
         })
 
@@ -249,11 +269,12 @@ export default defineComponent({
             rules,
             authGroupOptions,
             strength,
-            isAuthDialog,
+            pageData,
             doCreateUser,
             verify,
             goBack,
             noticeMsg,
+            closeSchedulePop,
         }
     },
 })

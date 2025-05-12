@@ -36,15 +36,41 @@ export default defineComponent({
         const userSession = useUserSessionStore()
         const systemCaps = useCababilityStore()
 
+        const pageData = ref({
+            isEditSelf: false,
+            passwordErrorMessage: '',
+            isCheckAuthPop: false,
+        })
+
         const formRef = useFormRef()
         const formData = ref(new UserEditPasswordForm())
         // 要求的密码强度
         const passwordStrength = ref<keyof typeof DEFAULT_PASSWORD_STREMGTH_MAPPING>('weak')
         // 当前密码强度
         const strength = computed(() => getPwdSaftyStrength(formData.value.newPassword))
-        const isAuthDialog = ref(false)
 
         const rules = ref<FormRules>({
+            currentPassword: [
+                {
+                    validator: (_rule, value: string, callback) => {
+                        if (pageData.value.isEditSelf) {
+                            if (!value.length) {
+                                callback(new Error(Translate('IDCS_PROMPT_PASSWORD_EMPTY')))
+                                return
+                            }
+
+                            if (pageData.value.passwordErrorMessage) {
+                                callback(new Error(pageData.value.passwordErrorMessage))
+                                pageData.value.passwordErrorMessage = ''
+                                return
+                            }
+                        }
+
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
             newPassword: [
                 {
                     validator: (_rule, value: string, callback) => {
@@ -113,10 +139,57 @@ export default defineComponent({
         const verify = () => {
             formRef.value!.validate((valid) => {
                 if (valid) {
-                    isAuthDialog.value = true
-                    // doUpdateUserPassword()
+                    if (pageData.value.isEditSelf) {
+                        updateCurrentUserPassword()
+                    } else {
+                        pageData.value.isCheckAuthPop = true
+                    }
                 }
             })
+        }
+
+        const updateCurrentUserPassword = async () => {
+            const oldPassword = AES_encrypt(base64Encode(MD5_encrypt(formData.value.currentPassword)), userSession.sesionKey)
+            const password = AES_encrypt(base64Encode(MD5_encrypt(formData.value.newPassword)), userSession.sesionKey)
+            const xml = rawXml`
+                <content>
+                    <oldPassword ${getSecurityVer()}>${wrapCDATA(oldPassword)}</oldPassword>
+                    <password ${getSecurityVer()}>${wrapCDATA(password)}</password>
+                </content>
+            `
+            const result = await editUserPassword(xml)
+            const $ = queryXml(result)
+            if ($('status').text() === 'success') {
+                userSession.defaultPwd = false
+                userSession.isChangedPwd = true
+                userSession.pwdExpired = false
+                openMessageBox({
+                    type: 'success',
+                    message: Translate('IDCS_SAVE_DATA_SUCCESS'),
+                }).then(() => {
+                    ctx.emit('close')
+                    Logout()
+                })
+            } else {
+                const errorCode = $('errorCode').text().num()
+                switch (errorCode) {
+                    case ErrorCode.USER_ERROR_PWD_ERR:
+                        pageData.value.passwordErrorMessage = Translate('IDCS_PASSWORD_NOT_CORRENT')
+                        formRef.value!.validate()
+                        break
+                    case ErrorCode.USER_ERROR_NO_AUTH:
+                        openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_NO_PERMISSION'))
+                        break
+                    case ErrorCode.USER_ERROR_NO_USER:
+                        openMessageBox(Translate('IDCS_DEVICE_USER_NOTEXIST')).then(() => {
+                            Logout()
+                        })
+                        break
+                    default:
+                        openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
+                        break
+                }
+            }
         }
 
         /**
@@ -144,7 +217,7 @@ export default defineComponent({
             closeLoading()
 
             if ($('status').text() === 'success') {
-                isAuthDialog.value = false
+                pageData.value.isCheckAuthPop = false
                 ctx.emit('close')
             } else {
                 const errorCode = $('errorCode').text().num()
@@ -173,6 +246,7 @@ export default defineComponent({
         }
 
         const open = () => {
+            pageData.value.isEditSelf = userSession.userName === prop.userName
             getPasswordSecurityStrength()
         }
 
@@ -181,11 +255,11 @@ export default defineComponent({
             formData,
             noticeMsg,
             strength,
+            pageData,
             open,
             close,
             rules,
             verify,
-            isAuthDialog,
             doUpdateUserPassword,
         }
     },

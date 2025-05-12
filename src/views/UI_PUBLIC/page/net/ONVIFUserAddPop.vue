@@ -24,6 +24,8 @@
                     v-model="formData.userName"
                     maxlength="32"
                     :placeholder="Translate('IDCS_ACCOUNT_TIP')"
+                    @formatter="formatUserName"
+                    @parser="formatUserName"
                 />
             </el-form-item>
             <el-form-item prop="password">

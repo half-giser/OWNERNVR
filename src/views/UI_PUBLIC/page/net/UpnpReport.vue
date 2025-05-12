@@ -20,11 +20,10 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_SERVER_ADDRESS')">
-                <el-input
+                <BaseTextInput
                     v-model="formData.serverAddr"
+                    :maxlength="formData.serverAddrMaxByteLen"
                     :disabled="!formData.switch"
-                    :formatter="formatInputMaxLength"
-                    :parser="formatInputMaxLength"
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_SERVER_ADDRESS')">
@@ -36,10 +35,10 @@
                 />
             </el-form-item>
             <el-form-item :label="Translate('IDCS_UPNP_REPORT_MANID')">
-                <el-input
+                <BaseTextInput
                     v-model="formData.manId"
+                    :maxlength="formData.manIdMaxByteLen"
                     :disabled="!formData.switch"
-                    maxlength="255"
                 />
             </el-form-item>
             <div class="base-btn-box">

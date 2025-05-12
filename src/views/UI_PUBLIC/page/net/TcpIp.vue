@@ -19,45 +19,45 @@
                 />
                 <el-text>{{ Translate('IDCS_WORK_PATTERN_TIP') }}</el-text>
             </el-form-item>
-            <!-- BONDS -->
-            <el-form-item
-                v-show="formData.netConfig.curWorkMode === 'network_fault_tolerance' && formData.bonds.length > 1"
-                :label="Translate('IDCS_BONDS')"
-            >
-                <el-select-v2
-                    v-model="pageData.bondIndex"
-                    :disabled="pageData.pppoeSwitch"
-                    :options="bondsOptions"
-                />
-            </el-form-item>
-            <!-- 网口 -->
             <div
-                v-show="formData.netConfig.curWorkMode === 'multiple_address_setting' && !pageData.toleranceAndPoe"
-                class="eth_list"
+                class="base-btn-box space-between"
+                :style="{ '--form-input-width': '100%' }"
             >
-                <div
-                    v-for="item in formData.nicConfigs"
-                    :key="item.id"
-                    class="eth_list_btn"
-                    :class="{
-                        disabled: pageData.pppoeSwitch,
-                        active: item.index === pageData.nicIndex,
-                    }"
-                    @click="pageData.nicIndex = item.index"
-                >
-                    {{ displayNicName(item) }} ({{ displayNicStatus(item) }})
+                <div class="eth_list">
+                    <div
+                        v-show="formData.netConfig.curWorkMode === 'network_fault_tolerance' && pageData.toleranceAndPoe"
+                        class="eth_list_btn"
+                    >
+                        {{ Translate('IDCS_FAULT_ETH_NAME') }}
+                    </div>
+                    <div
+                        v-for="item in formData.nicConfigs"
+                        v-show="formData.netConfig.curWorkMode !== 'network_fault_tolerance'"
+                        :key="item.id"
+                        class="eth_list_btn"
+                        :class="{
+                            disabled: pageData.pppoeSwitch,
+                            active: item.index === pageData.nicIndex,
+                        }"
+                        @click="pageData.nicIndex = item.index"
+                    >
+                        {{ displayNicName(item) }}
+                    </div>
                 </div>
-            </div>
-            <div class="config">
                 <el-button
-                    class="advance-btn"
-                    :disabled="pageData.pppoeSwitch"
+                    :disabled="pageData.pppoeSwitch || current.isPoe"
                     @click="setAdvanceData"
                 >
                     {{ Translate('IDCS_ADVANCED') }}
                 </el-button>
+            </div>
+
+            <div class="config">
                 <!-- DHCP -->
-                <div class="dhcp">
+                <div
+                    v-show="!current.isPoe"
+                    class="dhcp"
+                >
                     <el-form-item>
                         <el-checkbox
                             :model-value="current.dhcpSwitch"
@@ -74,7 +74,7 @@
                         <el-form-item :label="Translate('IDCS_IP_ADDRESS')">
                             <BaseIpInput
                                 :model-value="current.ip"
-                                :disabled="current.dhcpSwitch || !poeEnabled"
+                                :disabled="current.dhcpSwitch"
                                 @update:model-value="changeData($event, 'ip')"
                             />
                         </el-form-item>
@@ -82,18 +82,18 @@
                         <el-form-item :label="Translate('IDCS_SUBNET_MASK')">
                             <BaseIpInput
                                 :model-value="current.mask"
-                                :disabled="current.dhcpSwitch || !poeEnabled"
+                                :disabled="current.dhcpSwitch"
                                 @update:model-value="changeData($event, 'mask')"
                             />
                         </el-form-item>
                         <!-- IPv4网关 -->
                         <el-form-item
-                            v-show="!isPoe"
+                            v-show="!current.isPoe"
                             :label="Translate('IDCS_GATEWAY')"
                         >
                             <BaseIpInput
                                 :model-value="current.gateway"
-                                :disabled="current.dhcpSwitch || !poeEnabled"
+                                :disabled="current.dhcpSwitch"
                                 @update:model-value="changeData($event, 'gateway')"
                             />
                         </el-form-item>
@@ -104,43 +104,50 @@
                         >
                             <el-select-v2
                                 v-model="formData.netConfig.poeMode"
-                                :disabled="!poeEnabled"
                                 :options="pageData.poeModeOptions"
                                 @change="handleChangePoeMode"
                             />
                         </el-form-item>
                         <!-- IPv4 自动DNS -->
-                        <el-form-item>
+                        <el-form-item v-show="!current.isPoe">
                             <el-checkbox
                                 :model-value="current.ipv4DnsDhcpSwitch"
-                                :disabled="!current.dhcpSwitch || !poeEnabled"
+                                :disabled="!current.dhcpSwitch"
                                 :label="Translate('IDCS_AUTO_GET_DNS_ADDRESS')"
                                 @update:model-value="changeSwitch($event, 'ipv4DnsDhcpSwitch')"
                             />
                         </el-form-item>
                         <!-- IPv4首选DNS -->
-                        <el-form-item :label="Translate('IDCS_FIRST_DNS')">
+                        <el-form-item
+                            v-show="!current.isPoe"
+                            :label="Translate('IDCS_FIRST_DNS')"
+                        >
                             <BaseIpInput
                                 :model-value="current.dns1"
-                                :disabled="current.ipv4DnsDhcpSwitch || !poeEnabled"
+                                :disabled="current.ipv4DnsDhcpSwitch"
                                 @update:model-value="changeData($event, 'dns1')"
                             />
                         </el-form-item>
                         <!-- IPv4备选DNS -->
-                        <el-form-item :label="Translate('IDCS_SECOND_DNS')">
+                        <el-form-item
+                            v-show="!current.isPoe"
+                            :label="Translate('IDCS_SECOND_DNS')"
+                        >
                             <BaseIpInput
                                 :model-value="current.dns2"
-                                :disabled="current.ipv4DnsDhcpSwitch || !poeEnabled"
+                                :disabled="current.ipv4DnsDhcpSwitch"
                                 @update:model-value="changeData($event, 'dns2')"
                             />
                         </el-form-item>
                     </div>
-                    <div class="ipv6">
+                    <div
+                        v-show="!current.isPoe"
+                        class="ipv6"
+                    >
                         <!-- 开启IPv6 -->
                         <el-form-item label="IPv6">
                             <el-checkbox
                                 :model-value="current.ipV6Switch"
-                                :disabled="!poeEnabled"
                                 :label="Translate('IDCS_ENABLE')"
                                 @update:model-value="changeSwitch($event, 'ipV6Switch')"
                                 @change="handleChangeIpV6Switch"
@@ -150,14 +157,14 @@
                         <el-form-item :label="Translate('IDCS_IP_ADDRESS')">
                             <el-input
                                 :model-value="current.ipV6"
-                                :disabled="!current.ipV6Switch || current.dhcpSwitch || !poeEnabled"
+                                :disabled="!current.ipV6Switch || current.dhcpSwitch"
                                 @update:model-value="changeData($event, 'ipV6')"
                             />
                         </el-form-item>
                         <!-- IPv6子网前缀长度 -->
                         <el-form-item :label="Translate('IDCS_SUBNET_MASK_LENGTH')">
                             <el-input
-                                v-if="!current.ipV6Switch || current.dhcpSwitch || !poeEnabled"
+                                v-if="!current.ipV6Switch || current.dhcpSwitch"
                                 :model-value="current.subLengthV6"
                                 disabled
                             />
@@ -173,7 +180,7 @@
                         <el-form-item :label="Translate('IDCS_GATEWAY')">
                             <el-input
                                 :model-value="current.gatewayV6"
-                                :disabled="!current.ipV6Switch || current.dhcpSwitch || !poeEnabled"
+                                :disabled="!current.ipV6Switch || current.dhcpSwitch"
                                 @update:model-value="changeData($event, 'gatewayV6')"
                             />
                         </el-form-item>
@@ -181,7 +188,7 @@
                         <el-form-item>
                             <el-checkbox
                                 :model-value="current.ipv6DnsDhcpSwitch"
-                                :disabled="!current.ipV6Switch || !current.dhcpSwitch || !poeEnabled"
+                                :disabled="!current.ipV6Switch || !current.dhcpSwitch"
                                 :label="Translate('IDCS_AUTO_GET_DNS_IPV6_ADDRESS')"
                                 @update:model-value="changeSwitch($event, 'ipv6DnsDhcpSwitch')"
                             />
@@ -190,7 +197,7 @@
                         <el-form-item :label="Translate('IDCS_FIRST_DNS')">
                             <el-input
                                 :model-value="current.ipv6Dns1"
-                                :disabled="!current.ipV6Switch || current.ipv6DnsDhcpSwitch || !poeEnabled"
+                                :disabled="!current.ipV6Switch || current.ipv6DnsDhcpSwitch"
                                 @update:model-value="changeData($event, 'ipv6Dns1')"
                             />
                         </el-form-item>
@@ -198,7 +205,7 @@
                         <el-form-item :label="Translate('IDCS_SECOND_DNS')">
                             <el-input
                                 :model-value="current.ipv6Dns2"
-                                :disabled="!current.ipV6Switch || current.ipv6DnsDhcpSwitch || !poeEnabled"
+                                :disabled="!current.ipV6Switch || current.ipv6DnsDhcpSwitch"
                                 @update:model-value="changeData($event, 'ipv6Dns2')"
                             />
                         </el-form-item>
@@ -238,16 +245,6 @@
                 </div>
             </div>
             <el-form-item
-                v-show="formData.netConfig.curWorkMode === 'network_fault_tolerance'"
-                :label="Translate('IDCS_PROMPT_DEFAULT_NIC')"
-            >
-                <el-select-v2
-                    v-model="formData.ipDefaultBond"
-                    :disabled="pageData.pppoeSwitch"
-                    :options="bondsOptions"
-                />
-            </el-form-item>
-            <el-form-item
                 v-show="formData.netConfig.curWorkMode === 'multiple_address_setting'"
                 :label="Translate('IDCS_PROMPT_DEFAULT_NIC')"
             >
@@ -260,7 +257,7 @@
         </el-form>
         <div class="base-btn-box">
             <el-button
-                :disabled="!poeEnabled"
+                :disabled="pageData.pppoeSwitch"
                 @click="setData"
             >
                 {{ Translate('IDCS_APPLY') }}
@@ -280,29 +277,20 @@
 <style lang="scss" scoped>
 .eth_list {
     display: flex;
-    width: 100%;
-    background-color: var(--table-stripe);
     align-items: center;
-    border: 1px solid var(--table-border);
     box-sizing: border-box;
-    padding: 4px 10px;
 
     &_btn {
         padding: 4px 10px;
         border-bottom: 5px solid transparent;
         font-size: 15px;
         cursor: pointer;
+        margin-right: 10px;
 
         &.active {
             border-bottom-color: var(--primary);
         }
     }
-}
-
-.advance-btn {
-    position: absolute;
-    top: -32px;
-    right: 10px;
 }
 
 .config {

@@ -73,7 +73,7 @@ const diskRoutes: FeatureItem = {
                 group: 'diskManagement',
                 auth: 'diskMgr',
                 hasCap(systemCaps) {
-                    return systemCaps.isUseRaid
+                    return systemCaps.supportRaid && systemCaps.isUseRaid
                 },
             },
         },
@@ -87,7 +87,7 @@ const diskRoutes: FeatureItem = {
                 group: 'diskManagement',
                 auth: 'diskMgr',
                 hasCap(systemCaps) {
-                    return systemCaps.isUseRaid
+                    return systemCaps.supportRaid && systemCaps.isUseRaid
                 },
             },
         },
@@ -137,6 +137,9 @@ const diskRoutes: FeatureItem = {
                 sort: 30,
                 lk: 'IDCS_HEALTH_STATUS_CHECK',
                 group: 'diskInfo',
+                hasCap(systemCaps) {
+                    return systemCaps.supportHDHealth
+                },
             },
         },
     },

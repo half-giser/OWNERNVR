@@ -233,6 +233,7 @@
         <FaceDetailPop
             v-model="pageData.isDetailPop"
             :data="pageData.detail"
+            :face-group="pageData.faceGroupList"
             destroy-on-close
             @close="pageData.isDetailPop = false"
         />

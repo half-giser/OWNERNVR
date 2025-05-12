@@ -59,9 +59,20 @@
                     :disabled="pageData.wirelessSwitch"
                 />
             </el-form-item>
-            <el-form-item v-show="pageData.isVirtualPortEnabled">
-                <el-checkbox :label="Translate('IDCS_VIRTUAL_HOST')" />
+            <el-form-item
+                :label="Translate('IDCS_AUTO_REPORT_PORT')"
+                prop="autoReportPort"
+            >
+                <BaseNumberInput
+                    v-model="portFormData.autoReportPort"
+                    :min="10"
+                    :max="65535"
+                    :disabled="pageData.wirelessSwitch"
+                />
             </el-form-item>
+            <!-- <el-form-item v-show="pageData.isVirtualPortEnabled">
+                <el-checkbox :label="Translate('IDCS_VIRTUAL_HOST')" />
+            </el-form-item> -->
         </el-form>
         <!-- API SERVER -->
         <el-form
@@ -132,6 +143,12 @@
                     :label="Translate('IDCS_RTSP_ANONYMOUS_ACCESS')"
                     @change="changeAnonymous"
                 />
+            </el-form-item>
+            <el-form-item
+                prop="rtspPort"
+                :label="Translate('IDCS_RTSP_URLEXAMPLE')"
+            >
+                rtsp://IP:Port/chID=1&streamType=main
             </el-form-item>
             <div class="base-btn-box">
                 <el-button

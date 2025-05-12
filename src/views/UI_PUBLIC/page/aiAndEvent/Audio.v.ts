@@ -31,13 +31,12 @@ export default defineComponent({
 
         const pageTabs = [
             {
-                type: 'ipcAudio',
-                name: 'ipcAudio',
+                value: 'ipcAudio',
                 label: Translate('IDCS_CAMERA_AUDIO_ALARM'),
             },
             {
-                type: 'nvrAudio',
-                name: 'nvrAudio',
+                disabled: !systemCaps.supportAlarmAudioConfig,
+                value: 'nvrAudio',
                 label: Translate('IDCS_NVR_AUDIO_ALARM'),
             },
         ]

@@ -14,17 +14,15 @@ export default defineComponent({
         const formData = ref(new SystemGeneralSettingForm())
 
         const pageData = ref({
-            // 是否显示输出配置
-            isOutputConfig: systemCaps.supportHdmiVgaSeparate,
             // 输出配置选项
             outputConfigOption: [
                 {
                     label: Translate('IDCS_SAME_SOURCE'),
-                    value: 0,
+                    value: '0',
                 },
                 {
                     label: Translate('IDCS_DIFF_SOURCE'),
-                    value: 1,
+                    value: '1',
                 },
             ],
             // 等待时长选项
@@ -36,17 +34,18 @@ export default defineComponent({
             // 当前输入配置
             currentOutputConfig: '',
             // 是否显示零操作添加IPC选项
-            isZeroOrAddIpc: systemCaps.supportZeroOprAdd,
+            // isZeroOrAddIpc: systemCaps.supportZeroOprAdd,
             // 分辨率选项
             resolutionOptions: [] as string[][],
             // 分辨率提示
-            resolutionTip: '',
+            // resolutionTip: '',
             // 分辨率类型
             resolutionType: [] as string[],
             // 语言类型选项
             langType: [] as string[],
+            supportAI: false,
             // 解码器选项
-            decoderOptions: {} as Record<number, Record<number, SelectOption<string, string>[]>>,
+            // decoderOptions: {} as Record<number, Record<number, SelectOption<string, string>[]>>,
         })
 
         // 表单验证规则
@@ -58,6 +57,12 @@ export default defineComponent({
                             callback(new Error(Translate('IDCS_PROMPT_DEVICE_NAME_EMPTY')))
                             return
                         }
+
+                        if (!checkDevName(value)) {
+                            callback(new Error(Translate('IDCS_CAN_NOT_CONTAIN_SPECIAL_CHAR').formatForLang(CHANNEL_LIMIT_CHAR)))
+                            return
+                        }
+
                         callback()
                     },
                     trigger: 'manual',
@@ -197,6 +202,7 @@ export default defineComponent({
             const $ = queryXml(result)
 
             formData.value.deviceName = $('content/name').text()
+            formData.value.deviceNameMaxByteLen = $('content/name').attr('maxByteLen').num() || 32
             formData.value.deviceNumber = $('content/deviceNumber').text().num()
             formData.value.enableAutoDwell = $('content/autoDwell').text().bool()
             formData.value.mobileStreamAdaption = $('content/mobileStreamAdaption').text().bool()
@@ -220,10 +226,9 @@ export default defineComponent({
             })
 
             formData.value.enableGuide = $('content/bootWizardSwitch').text().bool()
-            if (formData.value.enableGuide) {
+
+            if (systemCaps.supportZeroOprAdd) {
                 formData.value.zeroOrAddIpc = $('content/bootZeroCfgAddSwitch').text().bool()
-            } else {
-                pageData.value.isZeroOrAddIpc = false
             }
 
             // NLYC-48：同源异源输出配置
@@ -242,12 +247,14 @@ export default defineComponent({
                     const mainOutputList = $('types/resolution/output[@index="0"]/enum').map((enumValue) => {
                         return enumValue.text()
                     })
-                    // 支持8k,则在主输出后拼接8k提示
-                    const findIndex = mainOutputList.findIndex((res) => RES_8K.includes(res))
-                    if (findIndex > -1) {
-                        pageData.value.resolutionTip = Translate('IDCS_RESOLUTION_8K').formatForLang(Translate('IDCS_MAIN_SCREEN'), '8K', Translate('IDCS_SECOND_SCREEN') + 1)
-                    }
                     pageData.value.resolutionOptions[index] = mainOutputList
+                    if (!formData.value.resolution[index]) {
+                        if (mainOutputList.includes('1920x1080')) {
+                            formData.value.resolution[index] = '1920x1080'
+                        } else {
+                            formData.value.resolution[index] = mainOutputList[0]
+                        }
+                    }
                 } else if (systemCaps.outputScreensCount > 1) {
                     pageData.value.resolutionOptions[index] = $(`types/resolution/output[@index="${index}"]/enum`).map((enumValue) => {
                         return enumValue.text()
@@ -255,35 +262,35 @@ export default defineComponent({
                 }
             })
 
-            const decoderEnum: Record<number, Record<number, SelectOption<string, string>[]>> = {}
-            $('types/DecoderResolution/decoder').forEach((item) => {
-                const $item = queryXml(item.element)
-                const id = item.attr('id').num()
-                decoderEnum[id] = {}
-                $item('output').forEach((output) => {
-                    const $output = queryXml(output.element)
-                    const index = output.attr('index').num()
-                    decoderEnum[id][index] = $output('enum').map((value) => ({
-                        label: value.text(),
-                        value: value.text(),
-                    }))
-                })
-            })
-            pageData.value.decoderOptions = decoderEnum
+            // const decoderEnum: Record<number, Record<number, SelectOption<string, string>[]>> = {}
+            // $('types/DecoderResolution/decoder').forEach((item) => {
+            //     const $item = queryXml(item.element)
+            //     const id = item.attr('id').num()
+            //     decoderEnum[id] = {}
+            //     $item('output').forEach((output) => {
+            //         const $output = queryXml(output.element)
+            //         const index = output.attr('index').num()
+            //         decoderEnum[id][index] = $output('enum').map((value) => ({
+            //             label: value.text(),
+            //             value: value.text(),
+            //         }))
+            //     })
+            // })
+            // pageData.value.decoderOptions = decoderEnum
 
-            formData.value.decoderResolution = $('content/decoderResolution/decoder').map((item) => {
-                const $item = queryXml(item.element)
-                return {
-                    id: item.attr('id').num(),
-                    onlineStatus: item.attr('onlineStatus').bool(),
-                    decoder: $item('item').map((decoder) => {
-                        return {
-                            index: decoder.attr('index').num(),
-                            value: decoder.text(),
-                        }
-                    }),
-                }
-            })
+            // formData.value.decoderResolution = $('content/decoderResolution/decoder').map((item) => {
+            //     const $item = queryXml(item.element)
+            //     return {
+            //         id: item.attr('id').num(),
+            //         onlineStatus: item.attr('onlineStatus').bool(),
+            //         decoder: $item('item').map((decoder) => {
+            //             return {
+            //                 index: decoder.attr('index').num(),
+            //                 value: decoder.text(),
+            //             }
+            //         }),
+            //     }
+            // })
 
             pageData.value.langType = $('types/langType/enum').map((item) => item.text())
             pageData.value.resolutionType = $('types/resolutionType/enum').map((item) => item.text())
@@ -317,26 +324,16 @@ export default defineComponent({
                     <name maxByteLen="63">${wrapCDATA(formData.value.deviceName)}</name>
                     <deviceNumber>${Number(formData.value.deviceNumber)}</deviceNumber>
                     <videoType type="videoType">${formData.value.videoFormat}</videoType>
-                    <hdmivgaParam type="hdmivgaParam">${formData.value.outputConfig}</hdmivgaParam>
+                    ${systemCaps.supportHdmiVgaSeparate ? `<hdmivgaParam type="hdmivgaParam">${formData.value.outputConfig}</hdmivgaParam>` : ''}
                     <resolution>
                         ${formData.value.resolution.map((item, index) => `<item index="${index}" set="${formData.value.outputAdapt}">${item}</item>`).join('')}
                     </resolution>
                     <bootWizardSwitch>${formData.value.enableGuide}</bootWizardSwitch>
                     <mobileStreamAdaption>${formData.value.mobileStreamAdaption}</mobileStreamAdaption>
-                    ${pageData.value.isZeroOrAddIpc ? `<bootZeroCfgAddSwitch>${formData.value.zeroOrAddIpc}</bootZeroCfgAddSwitch>` : ''}
-                    <decoderResolution>
-                        ${formData.value.decoderResolution
-                            .map((item) => {
-                                return rawXml`
-                                    <decoder id="${item.id}">
-                                        ${item.decoder.map((decoder) => (item.onlineStatus ? `<item index="${decoder.index}">${decoder.value}</item>` : '')).join('')}
-                                    </decoder>
-                                `
-                            })
-                            .join('')}
-                    </decoderResolution>
+                    ${systemCaps.supportZeroOprAdd ? `<bootZeroCfgAddSwitch>${formData.value.zeroOrAddIpc}</bootZeroCfgAddSwitch>` : ''}
                     <autoDwell>${formData.value.enableAutoDwell}</autoDwell>
                     <autoDwellWaitTime>${formData.value.waitTime}</autoDwellWaitTime>
+                    ${systemCaps.supportSuperResolution ? `<superResolution>${formData.value.superResolution}</superResolution>` : ''}
                 </content>
             `
             const result = await editBasicCfg(sendXml)
@@ -345,7 +342,14 @@ export default defineComponent({
             commSaveResponseHandler(result)
         }
 
-        onMounted(() => {
+        const getSystemWorkMode = async () => {
+            const result = await querySystemWorkMode()
+            const $ = queryXml(result)
+            pageData.value.supportAI = $('content/supportAI').text().bool()
+        }
+
+        onMounted(async () => {
+            await getSystemWorkMode()
             getData()
         })
 
@@ -364,6 +368,7 @@ export default defineComponent({
             displayDecoderLabel,
             verify,
             arrayToOptions,
+            systemCaps,
         }
     },
 })

@@ -18,6 +18,13 @@ export const queryNetStatus = () => fetch('queryNetStatus', '')
 export const queryNetCfgV2 = () => fetch('queryNetCfgV2', '')
 
 /**
+ * @description
+ * @param data
+ * @returns
+ */
+export const editNetCfgV2 = (data: string) => fetch('editNetCfgV2', data)
+
+/**
  * @description 获取网络配置
  * @returns
  */
@@ -198,6 +205,19 @@ export const queryP2PCfg = () => fetch('queryP2PCfg', '')
  * @returns
  */
 export const editP2PCfg = (data: string) => fetch('editP2PCfg', data)
+
+/**
+ * @description
+ * @returns
+ */
+export const querySecurityAccess = () => fetch('querySecurityAccess', '')
+
+/**
+ * @description
+ * @param data
+ * @returns
+ */
+export const editSecurityAccess = (data: string) => fetch('editSecurityAccess', data)
 
 /**
  * @description 获取证书配置

@@ -57,6 +57,7 @@ export default defineComponent({
             isHayleyTriggerChannleDialog: false,
             // 通道列表
             chlList: [] as SelectOption<string, string>[],
+            networkPortList: [] as number[],
         })
 
         // 表格数据
@@ -90,11 +91,10 @@ export default defineComponent({
             openLoading()
 
             const result = await queryPosList()
-            const $ = queryXml(result)
 
             closeLoading()
 
-            if ($('status').text() === 'success') {
+            commLoadResponseHandler(result, ($) => {
                 pageData.value.tillNumberMax = $('types/tillNumber').attr('max').num()
 
                 pageData.value.connectionTypeList = $('types/connectionType/enum').map((item) => {
@@ -134,6 +134,8 @@ export default defineComponent({
                     }
                 })
 
+                pageData.value.networkPortList = $('existedPortList/item').map((item) => item.text().num())
+
                 pageData.value.encodeList = $('types/encodeFormat/enum').map((item) => ({
                     value: item.text(),
                     label: item.text(),
@@ -156,6 +158,7 @@ export default defineComponent({
                             posPort: $item('param/connectionSetting/posPort').text().num(),
                             filterDstPortSwitch: $item('param/connectionSetting/filterDstPortSwitch').text().bool(),
                             dstPort: $item('param/connectionSetting/dstPort').text().num(),
+                            posPortType: $item('param/connectionSetting/posPortType').text(),
                         },
                         encodeFormat: $item('param/encodeFormat').text(),
                         displaySetting: {
@@ -197,14 +200,14 @@ export default defineComponent({
                 })
 
                 watchEdit.listen()
-            }
+            })
         }
 
         /**
          * @description 提交数据
          */
         const setData = async () => {
-            if (!verify) return
+            if (!verify()) return
 
             openLoading()
 
@@ -243,6 +246,7 @@ export default defineComponent({
                                             <filterPostPortSwitch>${item.connectionSetting.filterPostPortSwitch}</filterPostPortSwitch>
                                             <posPort>${item.connectionSetting.posPort}</posPort>
                                             <filterDstPortSwitch>${item.connectionSetting.filterDstPortSwitch}</filterDstPortSwitch>
+                                            <posPortType>${item.connectionSetting.posPortType}</posPortType>
                                         </connectionSetting>
                                         <displaySetting>
                                             <common>
@@ -303,82 +307,119 @@ export default defineComponent({
             `
 
             const result = await editPosList(sendXml)
+            const $ = queryXml(result)
 
             closeLoading()
-            commSaveResponseHandler(result, () => {
+            if ($('status').text() === 'success') {
+                openMessageBox({
+                    type: 'success',
+                    message: Translate('IDCS_SAVE_DATA_SUCCESS'),
+                })
                 watchEdit.update()
-            })
+            } else {
+                const errorCode = $('errorCode').text().num()
+                if (errorCode === 536870943) {
+                    openMessageBox(Translate('IDCS_USER_ERROR_INVALID_PARAM'))
+                } else {
+                    openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
+                }
+            }
         }
 
         /**
          * @description 表单校验
          */
         const verify = () => {
-            // pos开启时,IP组播的有效地址是 >=224 <=239
-            const isValidAddress = tableData.value.every((item) => {
+            let isEmptyIp = false // IP地址是否为空
+            let isEmptyPort = false // 端口是否为空
+            let isValidMulIp = false // 连接方式为组播时, 组播网段：IP >= 224 && IP <= 239
+            let isValidNonMulIp = false // 连接方式为非组播时, IP地址不能为组播网段
+            const hasUseLocalPort: number[] = []
+            let isSameLocalPort = false // 连接方式为UDP时, 多个POS配置的本地接收端口不可相同
+            const hasUseIPAndPort: string[] = []
+            let isSameIPAndPort = false // ip、端口是否指向同一个地址, 如10.10.1.1:9000
+
+            tableData.value.forEach((item) => {
+                const posSwitch = item.switch
                 const connectionType = item.connectionType
-                const connectionSettingIp = item.connectionSetting.posIp.split('.')
-                if (item.switch.bool() && connectionSettingIp.length) {
-                    const d1 = Number(connectionSettingIp[0])
-                    const d2 = Number(connectionSettingIp[1])
-                    const d3 = Number(connectionSettingIp[2])
-                    const d4 = Number(connectionSettingIp[3])
-                    const firstPart = connectionType === 'Multicast' ? d1 >= 224 && d1 <= 239 : d1 >= 1 && d1 <= 223
-                    if (!(firstPart && d2 >= 0 && d2 <= 255 && d3 >= 0 && d3 <= 255 && d4 >= 0 && d4 <= 255)) {
+                const connectionSetting = item.connectionSetting
+                const posIp = connectionSetting.posIp.split('.').map((item) => Number(item))
+                const isValidIp = posIp && posIp.length > 0 && posIp[0]
+                const posPort = connectionSetting.posPort
+                const isValidPort = posPort && posPort * 1 >= 10
+                const posPortType = connectionSetting.posPortType
+
+                // IP地址为空
+                if (posSwitch === 'true' && !isValidIp) {
+                    isEmptyIp = true
+                    return false
+                }
+                // 端口为空
+                else if (posSwitch === 'true' && connectionType !== 'TCP-Listen' && !isValidPort) {
+                    // TCP-Listen TCP服务器端
+                    isEmptyPort = true
+                    return false
+                }
+
+                // IP地址的有效性
+                if (isValidIp) {
+                    const d1 = posIp[0]
+                    const d2 = posIp[1]
+                    const d3 = posIp[2]
+                    const d4 = posIp[3]
+                    const firstPart = d1 >= 224 && d1 <= 239
+                    const otherPart = d2 >= 0 && d2 <= 255 && d3 >= 0 && d3 <= 255 && d4 >= 0 && d4 <= 255
+                    const isMulticast = connectionType === 'Multicast'
+                    if (isMulticast && !(firstPart && otherPart)) {
+                        // 组播的IP地址网段错误
+                        isValidMulIp = true
+                        return false
+                    } else if (!isMulticast && firstPart && otherPart) {
+                        // 非组播的IP地址不能包含组播网段
+                        isValidNonMulIp = true
                         return false
                     }
                 }
-                return true
-            })
-            if (!isValidAddress) {
-                openMessageBox(Translate('IDCS_PROMPT_IPADDRESS_INVALID'))
-                return false
-            }
 
-            // pos开启时,ip不能为空
-            const isNoEmptyIp = tableData.value.every((item) => {
-                const connectionSetting = item.connectionSetting
-                if (item.switch.bool() && connectionSetting.posIp === '') {
-                    return false
-                }
-                return true
-            })
-            if (!isNoEmptyIp) {
-                openMessageBox(Translate('IDCS_POS_IP_EMPTY'))
-                return false
-            }
-
-            // 连接方式为UDP/组播时端口号不能为空
-            const isNoEmptyPort = tableData.value.every((item) => {
-                const connectionSetting = item.connectionSetting
-                if (item.switch.bool() && item.connectionType !== 'TCP-Listen') {
-                    if (connectionSetting.posPort === 0 || connectionSetting.posPort < 10) {
+                // 多个配置, 本地接收端口不能相同
+                if (posSwitch === 'true' && posPortType === 'local' && isValidPort) {
+                    if (hasUseLocalPort.includes(posPort)) {
+                        isSameLocalPort = true
                         return false
+                    } else {
+                        hasUseLocalPort.push(posPort)
                     }
                 }
-                return true
+
+                // 多个配置, IP和端口不能相同
+                if (posSwitch === 'true' && connectionSetting.posIp) {
+                    const ipPort = connectionSetting.posIp + ':' + (posPort || 0)
+                    if (hasUseIPAndPort.includes(ipPort)) {
+                        isSameIPAndPort = true
+                        return false
+                    } else {
+                        hasUseIPAndPort.push(ipPort)
+                    }
+                }
             })
-            if (!isNoEmptyPort) {
-                openMessageBox(Translate('IDCS_POS_PORT_EMPTY'))
-                return false
+
+            let msg = ''
+            if (isEmptyIp) {
+                msg = Translate('IDCS_POS_IP_EMPTY')
+            } else if (isEmptyPort) {
+                msg = Translate('IDCS_POS_PORT_EMPTY')
+            } else if (isValidMulIp) {
+                msg = Translate('IDCS_PROMPT_MULTICAST_IPADDRESS_INVALID')
+            } else if (isValidNonMulIp) {
+                msg = Translate('IDCS_PROMPT_PROTOCOL_IPADDRESS_INVALID')
+            } else if (isSameLocalPort) {
+                msg = Translate('IDCS_NETWORK_PORT_CONFLICT')
+            } else if (isSameIPAndPort) {
+                msg = Translate('IDCS_POS_IP_SAME')
             }
 
-            // 启用pos时，ip+端口不能指向同一个地址 10.10.1.1:9000
-            const useIPAndPort = tableData.value
-                .filter((item) => {
-                    const connectionSetting = item.connectionSetting
-                    if (item.switch.bool() && connectionSetting.posIp) {
-                        return true
-                    }
-                    return false
-                })
-                .map((item) => {
-                    const connectionSetting = item.connectionSetting
-                    return `${connectionSetting.posIp}:${connectionSetting.posPort || 0}`
-                })
-            const isSameIPAndPort = useIPAndPort.length && useIPAndPort.length !== Array.from(new Set(useIPAndPort)).length
-            if (isSameIPAndPort) {
-                openMessageBox(Translate('IDCS_POS_IP_SAME'))
+            if (msg) {
+                openMessageBox(Translate(msg))
                 return false
             }
 

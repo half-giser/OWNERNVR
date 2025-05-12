@@ -24,6 +24,8 @@ export default defineComponent({
                 item.children.forEach((subItem) => {
                     if (subItem.meta.inHome === 'group') {
                         subItem.meta.lk = item.meta.groups![subItem.meta.group].lk as string
+                    } else if (subItem.meta.inHome && subItem.meta.inHome !== 'hidden' && subItem.meta.inHome !== 'self') {
+                        subItem.meta.lk = subItem.meta.inHome
                     }
                 })
                 item.children.sort((a, b) => {
@@ -81,7 +83,8 @@ export default defineComponent({
             // 选中的主菜单
             mainMenuIndex: 0,
             hoverMenuIndex: -1,
-            activeIconIndex: import.meta.env.VITE_UI_TYPE === 'UI1-D' ? 0 : 1,
+            activeIconIndex: import.meta.env.VITE_UI_TYPE === 'UI1-D' || import.meta.env.VITE_UI_TYPE === 'UI1-Q' || import.meta.env.VITE_UI_TYPE === 'UI1-N' ? 0 : 1,
+            normalIconIndex: import.meta.env.VITE_UI_TYPE === 'UI1-D' || import.meta.env.VITE_UI_TYPE === 'UI1-Q' || import.meta.env.VITE_UI_TYPE === 'UI1-N' ? 1 : 0,
         })
 
         /**

@@ -142,6 +142,19 @@ export default {
             },
             auth: 'parkingLotMgr',
         },
+        beforeEnter(from, _to, next) {
+            const userSession = useUserSessionStore()
+            if (!userSession.hasAuth('businessMgr')) {
+                openMessageBox('IDCS_NO_PERMISSION')
+                if (from.fullPath.includes('parkLotManage')) {
+                    next('/live')
+                } else {
+                    next(from)
+                }
+            } else {
+                next()
+            }
+        },
     },
     // 目标检索 1.4.13
     searchTarget: {

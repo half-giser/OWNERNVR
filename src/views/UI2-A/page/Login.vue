@@ -44,6 +44,14 @@
                             @keyup.enter="keyUp"
                         />
                     </el-form-item>
+                    <div class="base-btn-box">
+                        <el-button
+                            type="text"
+                            @click="forgetPassword"
+                        >
+                            {{ Translate('IDCS_FORGOT_PASSWORD') }}
+                        </el-button>
+                    </div>
                     <el-form-item>
                         <el-button
                             class="login-submit"
@@ -80,6 +88,17 @@
     align-items: center;
     justify-content: center;
     background-color: var(--login-bg, var(--main-bg));
+
+    .base-btn-box {
+        margin-top: -20px;
+        width: 685px;
+
+        #n9web & .el-button {
+            padding: 0;
+            min-width: unset;
+            text-decoration: underline;
+        }
+    }
 }
 
 .login-main {

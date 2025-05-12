@@ -66,7 +66,7 @@
                 </el-button>
                 <el-button
                     :disabled="pageData.isExportDisabled"
-                    @click="handleExport"
+                    @click="exportFile"
                 >
                     {{ Translate('IDCS_EXPORT') }}
                 </el-button>
@@ -88,15 +88,9 @@
         </el-form>
         <BaseCheckAuthPop
             v-model="pageData.isCheckAuth"
-            :tip="pageData.checkAuthTip"
-            @confirm="confirmCheckAuth"
+            :tip="Translate('IDCS_RESTORE_CONFIG_QUESTION')"
+            @confirm="importFile"
             @close="pageData.isCheckAuth = false"
-        />
-        <BaseInputEncryptPwdPop
-            v-model="pageData.isEncryptPwd"
-            :title="pageData.encryptPwdTitle"
-            @confirm="confirmInputEncryptPwd"
-            @close="pageData.isEncryptPwd = false"
         />
     </div>
 </template>

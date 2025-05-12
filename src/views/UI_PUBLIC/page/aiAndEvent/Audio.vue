@@ -4,15 +4,13 @@
  * @Date: 2024-08-13 09:23:15
 -->
 <template>
-    <el-tabs
-        v-model="pageData.audioTab"
-        class="audioTabs"
-    >
+    <div>
+        <BaseTab
+            v-model="pageData.audioTab"
+            :options="pageTabs"
+        />
         <!-- 摄像机声音 -->
-        <el-tab-pane
-            :name="pageTabs[0].name"
-            :label="pageTabs[0].label"
-        >
+        <div v-show="pageData.audioTab === 'ipcAudio'">
             <el-form>
                 <el-form-item>
                     <el-radio-group v-model="pageData.ipcAudioTab">
@@ -223,14 +221,10 @@
                     </el-button>
                 </div>
             </el-form>
-        </el-tab-pane>
+        </div>
         <!-- 本地声音报警 -->
-        <el-tab-pane
-            v-if="pageData.supportAlarmAudioConfig"
-            :name="pageTabs[1].name"
-            :label="pageTabs[1].label"
-        >
-            <div class="base-btn-box flex-start collapse">{{ Translate('IDCS_FILE_LIST') }}</div>
+        <div v-show="pageData.audioTab === 'nvrAudio'">
+            <div class="base-btn-box flex-start gap">{{ Translate('IDCS_FILE_LIST') }}</div>
             <div class="local">
                 <el-table
                     ref="localTableRef"
@@ -255,21 +249,22 @@
                     <el-button @click="deleteLocalAudio">{{ Translate('IDCS_DELETE') }}</el-button>
                 </div>
             </div>
-        </el-tab-pane>
-    </el-tabs>
-    <AudioUploadPop
-        v-model="pageData.isImportAudioDialog"
-        :type="pageData.audioTab"
-        :ipc-audio-chl="alarmOutList[pageData.alarmOutIndex].id"
-        :ipc-row-data="alarmOutList[pageData.alarmOutIndex]"
-        @apply="confirmAddAudio"
-        @close="closeAddAudio"
-    />
-    <!-- 排程管理弹窗 -->
-    <BaseScheduleManagePop
-        v-model="pageData.isSchedulePop"
-        @close="closeSchedulePop"
-    />
+        </div>
+        <!-- </el-tabs> -->
+        <AudioUploadPop
+            v-model="pageData.isImportAudioDialog"
+            :type="pageData.audioTab"
+            :ipc-audio-chl="alarmOutList[pageData.alarmOutIndex].id"
+            :ipc-row-data="alarmOutList[pageData.alarmOutIndex]"
+            @apply="confirmAddAudio"
+            @close="closeAddAudio"
+        />
+        <!-- 排程管理弹窗 -->
+        <BaseScheduleManagePop
+            v-model="pageData.isSchedulePop"
+            @close="closeSchedulePop"
+        />
+    </div>
 </template>
 
 <script lang="ts" src="./Audio.v.ts"></script>

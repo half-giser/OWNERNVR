@@ -1636,6 +1636,7 @@ const getSingletonPlugin = () => {
         SetVideoPluginStatus: setVideoPluginStatus,
         VideoPluginLogin: videoPluginLogin,
         P2pAuthCodeLogin: p2pAuthCodeLogin,
+        P2pDualAuthLogin: p2pDualAuthLogin,
         GetIsReconn: getIsReconn,
         SetIsReconn: setIsReconn,
         SetReconnCallBack: setReconnCallBack,

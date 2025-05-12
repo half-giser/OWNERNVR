@@ -7,8 +7,8 @@
 <template>
     <el-input
         v-model="value"
-        :formatter="formatInputMaxLength"
-        :parser="formatInputMaxLength"
+        :formatter="formatInput"
+        :parser="formatInput"
         @focus="handleFocus"
         @blur="handleBlur"
         @input="handleInput"
@@ -30,11 +30,17 @@ const prop = withDefaults(
          * @property 是否强制显示原值
          */
         showValue?: boolean
+        maxlength?: number
+        isByte?: boolean
+        formatter?: (str: string) => string
     }>(),
     {
         modelValue: '',
         level: 'medium',
         showValue: false,
+        maxlength: nameByteMaxLen,
+        isByte: true,
+        formatter: (str: string) => str,
     },
 )
 
@@ -42,6 +48,7 @@ const emits = defineEmits<{
     (e: 'update:modelValue', value: string): void
     (e: 'focus'): void
     (e: 'blur'): void
+    (e: 'outOfRange'): void
 }>()
 
 const value = ref('')
@@ -86,6 +93,23 @@ const handleShowSensitiveInfo = () => {
  */
 const handleInput = (e: string) => {
     emits('update:modelValue', e)
+}
+
+const formatInput = (str: string) => {
+    if (!prop.isByte) {
+        if (str.length > prop.maxlength) {
+            emits('outOfRange')
+            str = str.substring(0, prop.maxlength)
+        }
+        return prop.formatter(str)
+    }
+
+    if (getBytesLength(str) > prop.maxlength) {
+        emits('outOfRange')
+        str = getLimitBytesStr(str, prop.maxlength)
+    }
+
+    return prop.formatter(str)
 }
 
 watch(

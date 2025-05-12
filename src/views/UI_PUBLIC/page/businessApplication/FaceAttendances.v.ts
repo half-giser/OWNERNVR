@@ -457,11 +457,27 @@ export default defineComponent({
          * @description 导出数据
          */
         const exportData = () => {
-            const head = [Translate('IDCS_NAME_PERSON'), Translate('IDCS_DATE_TITLE'), Translate('IDCS_WEEK'), Translate('IDCS_TYPE'), Translate('IDCS_ATTENDANCE_DETAIL')]
+            const head = [
+                Translate('IDCS_NAME_PERSON'),
+                Translate('IDCS_DATE_TITLE'),
+                Translate('IDCS_WEEK'),
+                Translate('IDCS_TYPE'),
+                Translate('IDCS_FIRST'),
+                Translate('IDCS_LAST'),
+                Translate('IDCS_ATTENDANCE_DETAIL'),
+            ]
             const body: string[][] = tableData.value
                 .map((item) => {
                     return item.detail.map((detail) => {
-                        return [item.name, detail.date, detail.day, detail.type, detail.detail.map((item) => formatDate(item.timestamp, dateTime.timeFormat)).join('')]
+                        return [
+                            item.name,
+                            detail.date,
+                            detail.day,
+                            detail.type,
+                            detail.detail.length > 0 ? formatDate(detail.detail[0].timestamp, dateTime.timeFormat) : '--',
+                            detail.detail.length > 1 ? formatDate(detail.detail.at(-1)!.timestamp, dateTime.timeFormat) : '--',
+                            detail.detail.map((item) => formatDate(item.timestamp, dateTime.timeFormat)).join(''),
+                        ]
                     })
                 })
                 .flat()

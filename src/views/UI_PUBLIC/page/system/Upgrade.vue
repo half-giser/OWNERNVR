@@ -41,6 +41,7 @@
                     {{ Translate('IDCS_UPGRADE') }}
                 </el-button>
                 <el-button
+                    v-show="systemCaps.devSystemType === 1"
                     :disabled="pageData.isBackUpAndUpgradeDisabled"
                     @click="handleBackupAndUpgrade"
                 >
@@ -55,7 +56,7 @@
                     @change="handleH5Upload"
                 />
             </el-form-item>
-            <el-form-item>
+            <el-form-item v-show="systemCaps.devSystemType === 1">
                 <div class="system-info">
                     <div
                         v-for="item in pageData.systemList"
@@ -75,22 +76,21 @@
                     </div>
                 </div>
             </el-form-item>
-            <el-form-item>{{ Translate('IDCS_UPGRADE_NOTE') }}</el-form-item>
+            <el-form-item>
+                <div class="tips">
+                    <BaseImgSprite file="warnIcon" />
+                    <span>{{ Translate('IDCS_UPGRADE_NOTE') }}</span>
+                </div>
+            </el-form-item>
             <el-form-item>
                 <span class="note">{{ pageData.upgradeNote }}</span>
             </el-form-item>
         </el-form>
         <BaseCheckAuthPop
             v-model="pageData.isCheckAuth"
-            :tip="pageData.checkAuthTip"
+            :tip="Translate('IDCS_SYSTEM_UPGRADE_QUESTION')"
             @confirm="confirmUpgrade"
             @close="pageData.isCheckAuth = false"
-        />
-        <BaseInputEncryptPwdPop
-            v-model="pageData.isEncryptPwd"
-            :upgrade-flag="true"
-            @confirm="confirmBackUpAndUpgrade"
-            @close="closeBackUpAndUpgrade"
         />
         <UpgradeBackUpPop
             v-model="pageData.isUpgradeBackUp"
@@ -135,5 +135,14 @@
 
 .note {
     color: var(--primary);
+}
+
+.tips {
+    display: flex;
+    align-items: center;
+
+    span:last-child {
+        margin-left: 10px;
+    }
 }
 </style>

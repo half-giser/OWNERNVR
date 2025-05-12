@@ -85,9 +85,11 @@ export default defineComponent({
             } else if (systemCaps.supportPlateMatch) {
                 pageData.value.factoryResetTip = Translate('IDCS_RECOVERY_DEFAULT_SET_NOTE_WITHOUT_FACE')
                 pageData.value.recoverDefaultTip = Translate('IDCS_RECOVERY_DEFAULT_SET_WARNING_WITHOUT_FACE')
-            } else {
-                pageData.value.factoryResetTip = Translate('IDCS_RECOVERY_DEFAULT_SET_NOTE')
-                pageData.value.recoverDefaultTip = Translate('IDCS_RECOVERY_DEFAULT_SET_WARNING')
+            }
+            // NTA1-619 不支持人脸识别和车牌识别
+            else {
+                pageData.value.factoryResetTip = Translate('IDCS_RECOVERY_DEFAULT_SET_NOTE_WITHOUT_FACE_AND_PLATE')
+                pageData.value.recoverDefaultTip = Translate('IDCS_RECOVERY_DEFAULT_SET_WARNING_WITHOUT_FACE_AND_PLATE')
             }
         }
 

@@ -39,14 +39,25 @@
                         @keyup.enter="keyUp"
                     />
                 </el-form-item>
-                <el-radio-group v-model="pageData.quality">
-                    <el-radio
-                        v-for="item in qualityOptions"
-                        :key="item.value"
-                        :value="item.value"
-                        :label="item.label"
-                    />
-                </el-radio-group>
+                <div class="login-other">
+                    <el-radio-group
+                        v-model="pageData.quality"
+                        class="line-break"
+                    >
+                        <el-radio
+                            v-for="item in qualityOptions"
+                            :key="item.value"
+                            :value="item.value"
+                            :label="item.label"
+                        />
+                    </el-radio-group>
+                    <el-button
+                        link
+                        @click="forgetPassword"
+                    >
+                        {{ Translate('IDCS_FORGOT_PASSWORD') }}
+                    </el-button>
+                </div>
                 <div class="login-btns">
                     <el-button
                         class="login-submit"
@@ -121,10 +132,10 @@
         }
 
         :deep(.el-radio-group) {
-            padding-left: 367px;
-            width: 365px;
+            // padding-left: 367px;
+            // width: 365px;
             font-size: 18px;
-            padding-bottom: 22px;
+            // padding-bottom: 22px;
         }
 
         .login-submit {
@@ -173,5 +184,21 @@
     position: relative;
     margin: 50px 0 0 365px;
     color: var(--color-error);
+}
+
+.login-other {
+    width: 365px;
+    margin-left: 365px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-top: -10px;
+    margin-bottom: 10px;
+
+    #n9web & .el-button {
+        padding: 0;
+        min-width: unset;
+        text-decoration: underline;
+    }
 }
 </style>

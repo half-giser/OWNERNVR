@@ -171,7 +171,7 @@ export default defineComponent({
             const sendXml = rawXml`
                 <content>
                     <raidInfo>
-                        <name>${formData.value.name}</name>
+                        <name>${wrapCDATA(formData.value.name)}</name>
                         <raidType>${formData.value.type}</raidType>
                         <disks>${formData.value.diskId.map((id) => `<item>${id}</item>`).join('')}</disks>
                         <isNeedFormat>true</isNeedFormat>

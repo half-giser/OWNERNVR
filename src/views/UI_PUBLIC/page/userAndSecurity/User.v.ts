@@ -7,6 +7,7 @@ import UserEditPop from './UserEditPop.vue'
 import UserEditPasswordPop from './UserEditPasswordPop.vue'
 import type { XMLQuery } from '@/utils/xmlParse'
 import { type TableInstance } from 'element-plus'
+import { type UserCheckAuthForm } from '@/types/apiType/user'
 
 export default defineComponent({
     components: {
@@ -30,6 +31,7 @@ export default defineComponent({
         const channelAuthList = ref<UserPermissionChannelAuthList[]>([])
 
         const pageData = ref({
+            isCheckAuthPop: false,
             // 通道权限Tabs
             channelTabs: DEFAULT_CHANNEL_AUTH_TABS,
             // 当前选中的通道权限Tab
@@ -50,6 +52,8 @@ export default defineComponent({
             localChannelIds: getTranslateOptions(DEFAULT_LOCAL_CHANNEL_AUTH_LIST),
             // 远程通道权限列表
             remoteChannelIds: getTranslateOptions(DEFAULT_REMOTE_CHANNEL_AUTH_LIST),
+            deleteUserId: '',
+            deleteUserName: '',
         })
 
         /**
@@ -92,8 +96,16 @@ export default defineComponent({
         const getSystemAuth = ($doc: XMLQuery) => {
             const $ = queryXml($doc('content/systemAuth')[0].element)
             Object.keys(systemAuthList.value).forEach((classify) => {
+                systemAuthList.value[classify].label = Translate(systemAuthList.value[classify].key)
                 Object.keys(systemAuthList.value[classify].value).forEach((key) => {
                     systemAuthList.value[classify].value[key].value = $(key).text().bool()
+                    if (systemAuthList.value[classify].value[key].formatForLang?.length) {
+                        systemAuthList.value[classify].value[key].label = Translate(systemAuthList.value[classify].value[key].key).formatForLang(
+                            ...systemAuthList.value[classify].value[key].formatForLang.map((item) => Translate(item)),
+                        )
+                    } else {
+                        systemAuthList.value[classify].value[key].label = Translate(systemAuthList.value[classify].value[key].key)
+                    }
                 })
             })
         }
@@ -162,28 +174,36 @@ export default defineComponent({
                 const currentUserName = userSession.userName
                 const currentUserType = userSession.userType
 
-                userList.value = $('content/item').map((item) => {
-                    const $item = queryXml(item.element)
-                    const isAdmin = $item('userType').text() === USER_TYPE_DEFAULT_ADMIN
+                userList.value = $('content/item')
+                    .map((item) => {
+                        const $item = queryXml(item.element)
+                        const isAdmin = $item('userType').text() === USER_TYPE_DEFAULT_ADMIN
 
-                    return {
-                        id: item.attr('id'),
-                        userName: $item('userName').text(),
-                        password: $item('password').text(),
-                        bindMacSwitch: $item('bindMacSwitch').text(),
-                        userType: $item('userType').text(),
-                        mac: $item('mac').text(),
-                        email: $item('email').text(),
-                        comment: $item('comment').text(),
-                        enabled: $item('enabled').text(),
-                        authEffective: $item('authEffective').text().bool(),
+                        return {
+                            id: item.attr('id'),
+                            userName: $item('userName').text(),
+                            password: $item('password').text(),
+                            bindMacSwitch: $item('bindMacSwitch').text(),
+                            userType: $item('userType').text(),
+                            mac: $item('mac').text(),
+                            email: $item('email').text(),
+                            comment: $item('comment').text(),
+                            enabled: $item('enabled').text(),
+                            authEffective: $item('authEffective').text().bool(),
 
-                        authGroupId: isAdmin ? '' : $item('authGroup').attr('id'),
-                        authGroupName: isAdmin ? '' : $item('authGroup').text(),
-                        del: !(isAdmin || $item('userName').text() === currentUserName),
-                        edit: !(isAdmin && currentUserType !== USER_TYPE_DEFAULT_ADMIN),
-                    }
-                })
+                            authGroupId: isAdmin ? '' : $item('authGroup').attr('id'),
+                            authGroupName: isAdmin ? '' : $item('authGroup').text(),
+                            del: !(isAdmin || $item('userName').text() === currentUserName),
+                            edit: !(isAdmin && currentUserType !== USER_TYPE_DEFAULT_ADMIN) && currentUserType !== 'debug',
+                        }
+                    })
+                    .filter((item) => {
+                        // TSSR-2195 仅admin登录显示调式用户和调式用户权限组，其他用户登录不显示；
+                        if (item.userType === 'debug' && userSession.userType !== USER_TYPE_DEFAULT_ADMIN) {
+                            return false
+                        }
+                        return true
+                    })
 
                 changeUser(userList.value[0])
                 nextTick(() => {
@@ -236,42 +256,53 @@ export default defineComponent({
             openMessageBox({
                 type: 'question',
                 message: Translate('IDCS_USER_DELETE_USER_S').formatForLang(row.userName),
-            }).then(async () => {
-                openLoading()
-                const sendXml = rawXml`
-                    <condition>
-                        <userIds type="list">
-                           <item id="${row.id}">${wrapCDATA(row.userName)}</item> 
-                        </userIds>
-                    </condition>
-                `
-                const result = await delUser(sendXml)
-                const $ = queryXml(result)
-                closeLoading()
-                if ($('status').text() === 'success') {
-                    await getUserList(pageData.value.searchText)
-                } else {
-                    const errorCode = $('errorCode').text().num()
-                    let errorInfo = ''
-                    switch (errorCode) {
-                        // 用户不存在
-                        case ErrorCode.USER_ERROR_NO_USER:
-                        case ErrorCode.USER_ERROR_PWD_ERR:
-                            errorInfo = Translate('IDCS_USER_OR_PASSWORD_ERROR')
-                            break
-                        // 鉴权账号无相关权限
-                        case ErrorCode.USER_ERROR_NO_AUTH:
-                            errorInfo = Translate('IDCS_NO_AUTH')
-                            break
-                        default:
-                            errorInfo = Translate('IDCS_DELETE_FAIL')
-                            break
-                    }
-                    openMessageBox(errorInfo).then(() => {
-                        getUserList(pageData.value.searchText)
-                    })
-                }
+            }).then(() => {
+                pageData.value.isCheckAuthPop = true
+                pageData.value.deleteUserId = row.id
+                pageData.value.deleteUserName = row.userName
             })
+        }
+
+        const confirmDeleteUser = async (e: UserCheckAuthForm) => {
+            openLoading()
+            const sendXml = rawXml`
+                <condition>
+                    <userIds type="list">
+                        <item id="${pageData.value.deleteUserId}">${wrapCDATA(pageData.value.deleteUserName)}</item>
+                    </userIds>
+                </condition>
+                <auth>
+                    <userName>${e.userName}</userName>
+                    <password>${e.hexHash}</password>
+                </auth>
+            `
+            const result = await delUser(sendXml)
+            const $ = queryXml(result)
+            closeLoading()
+            if ($('status').text() === 'success') {
+                pageData.value.isCheckAuthPop = false
+                await getUserList(pageData.value.searchText)
+            } else {
+                const errorCode = $('errorCode').text().num()
+                let errorInfo = ''
+                switch (errorCode) {
+                    // 用户不存在
+                    case ErrorCode.USER_ERROR_NO_USER:
+                    case ErrorCode.USER_ERROR_PWD_ERR:
+                        errorInfo = Translate('IDCS_USER_OR_PASSWORD_ERROR')
+                        break
+                    // 鉴权账号无相关权限
+                    case ErrorCode.USER_ERROR_NO_AUTH:
+                        errorInfo = Translate('IDCS_NO_AUTH')
+                        break
+                    default:
+                        errorInfo = Translate('IDCS_DELETE_FAIL')
+                        break
+                }
+                openMessageBox(errorInfo).then(() => {
+                    getUserList(pageData.value.searchText)
+                })
+            }
         }
 
         /**
@@ -370,6 +401,7 @@ export default defineComponent({
             deleteUser,
             confirmEditUser,
             openEditUserPasswordPop,
+            confirmDeleteUser,
         }
     },
 })

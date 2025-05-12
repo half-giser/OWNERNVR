@@ -276,8 +276,10 @@
     a {
         font-size: 15px;
         text-decoration: none;
-        margin: 0 3px;
-        display: inline-block;
+        margin-right: 8px;
+        height: 100%;
+        display: inline-flex;
+        align-items: center;
         color: var(--breadcrumb-text);
 
         &:hover {
@@ -285,7 +287,7 @@
         }
 
         span {
-            margin-left: 5px;
+            margin-left: 8px;
         }
     }
 }

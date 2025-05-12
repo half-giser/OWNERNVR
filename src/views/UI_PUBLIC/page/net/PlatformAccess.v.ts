@@ -279,7 +279,9 @@ export default defineComponent({
                     if (item.attr('id') === 'NVMS5000') {
                         formData.value.nwms5000Switch = $item('switch').text().bool()
                         formData.value.serverAddr = $item('serverAddr').text()
+                        formData.value.serverAddrMaxByteLen = $item('serverAddr').attr('maxByteLen').num() || nameByteMaxLen
                         formData.value.reportId = $item('reportId').text().undef()?.num()
+                        formData.value.reportIdMax = Math.pow(10, $item('reportId').attr('maxByteLen').num() || 8) - 1
                         formData.value.port = $item('port').text().num()
                     } else if (item.attr('id') === 'GB28181') {
                         formData.value.gb28181Switch = $item('switch').text().bool()
