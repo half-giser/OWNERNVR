@@ -4,6 +4,7 @@
  * @Description: 开机向导
  */
 import dayjs from 'dayjs'
+import { type FormRules } from 'element-plus'
 
 export default defineComponent({
     setup() {
@@ -33,6 +34,8 @@ export default defineComponent({
             timeFormatOptions: [] as SelectOption<string, string>[],
             // 时间服务器选项
             timeServerOptions: [] as SelectOption<string, string>[],
+            gpsBaudRateOptions: arrayToOptions([1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200]),
+            isNtpIntervalOutOfRange: false,
             // 时区选项
             timeZoneOption: TIME_ZONE.map((item, index) => {
                 return {
@@ -54,6 +57,12 @@ export default defineComponent({
             passwordStrength: 'weak',
             // 密码强度提示
             passwordNoticeMsg: '',
+            // 通道配置tab项 - 通道预设密码/通道IP规划
+            chlConfigTab: 'pwd',
+            // 是否支持IPC激活功能（不支持IPC激活密码时, 隐藏“通道预设密码”tab, 默认选项改为“通道IP规划”）
+            supportsIPCActivation: true,
+            // Email和创建问题答案tab项 - Email/创建问题答案
+            emailAndQaTab: 'email',
         })
 
         // 开机向导步骤
@@ -62,8 +71,9 @@ export default defineComponent({
             privacy: true,
             dateAndTimezone: true,
             user: true,
-            questionAndAnswer: true,
-            disk: true,
+            chlConfig: true,
+            emailAndQa: true,
+            disk: false, // 将“激活向导”中的磁盘配置转移到“开机向导”中（web只有激活向导，没有开机向导，所以直接隐藏磁盘配置）
         }
 
         // 开机向导步骤
@@ -79,11 +89,34 @@ export default defineComponent({
         const privacyFormData = ref(new SysmteGuidePrivacyForm())
 
         const dateTimeFormData = ref(new SystemGuideDateTimeForm())
+        const dateTimeFormRef = useFormRef()
+        const dateTimeFormRules = ref<FormRules>({
+            ntpInterval: [
+                {
+                    validator(_, _value, callback) {
+                        if (pageData.value.isNtpIntervalOutOfRange) {
+                            callback(
+                                new Error(
+                                    Translate('IDCS_NTP_INTERVAL') + Translate('IDCS_HEARTBEAT_RANGE_TIP').formatForLang(dateTimeFormData.value.ntpIntervalMin, dateTimeFormData.value.ntpIntervalMax),
+                                ),
+                            )
+                            pageData.value.isNtpIntervalOutOfRange = false
+                            return
+                        }
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
+        })
 
         const userFormData = ref(new SystemGuideUserForm())
 
+        const chlConfigFormData = ref(new SystemGuideChlConfigForm())
+
         const qaFormData = ref(new SystemGuideQuestionForm())
         const qaTableData = ref<SystemGuideQuestionForm[]>([])
+        const qaEmailData = ref(new SystemGuideEmailForm())
 
         const langRef = ref<HTMLDivElement>()
         const regionRef = ref<HTMLDivElement>()
@@ -119,6 +152,20 @@ export default defineComponent({
                 }
             }
 
+            if (current === 'chlConfig') {
+                const flag = checkChlConfigForm()
+                if (!flag) {
+                    return
+                }
+            }
+
+            if (current === 'emailAndQa') {
+                const flag = checkEmailForm()
+                if (!flag) {
+                    return
+                }
+            }
+
             goNext()
         }
 
@@ -146,7 +193,7 @@ export default defineComponent({
                     closeLoading()
                 }
 
-                if (current === 'questionAndAnswer') {
+                if (current === 'emailAndQa') {
                     if (isDefeultQuestion.value) {
                         qaFormData.value.id = pageData.value.questionOptions[0]?.id || ''
                         qaTableData.value = cloneDeep(pageData.value.questionOptions)
@@ -187,7 +234,7 @@ export default defineComponent({
                 clock()
             }
 
-            if (current === 'questionAndAnswer') {
+            if (current === 'emailAndQa') {
                 if (isDefeultQuestion.value) {
                     qaFormData.value.id = pageData.value.questionOptions[0]?.id || ''
                     qaFormData.value.answer = ''
@@ -209,6 +256,7 @@ export default defineComponent({
 
             const psw = MD5_encrypt(userFormData.value.password)
             const encryptPsw = RSA_encrypt(pubkey, psw) + ''
+            const encryptDefaultProtoPwd = RSA_encrypt(pubkey, chlConfigFormData.value.password) + ''
 
             let dateTimeXml = ''
             if (steps.value.includes('dateAndTimezone')) {
@@ -221,6 +269,8 @@ export default defineComponent({
                         <synchronizeInfo>
                             <type>${dateTimeFormData.value.syncType}</type>
                             <ntpServer>${dateTimeFormData.value.timeServer}</ntpServer>
+                            <gpsBaudRate>${wrapCDATA(dateTimeFormData.value.gpsBaudRate + '')}</gpsBaudRate>
+                            <ntpInterval>${wrapCDATA(dateTimeFormData.value.ntpInterval + '')}</ntpInterval>
                             <currentTime>${formatGregoryDate(dateTimeFormData.value.systemTime, formatSystemTime.value, DEFAULT_DATE_FORMAT)}</currentTime>
                         </synchronizeInfo>
                         <formatInfo>
@@ -232,6 +282,12 @@ export default defineComponent({
                         <videoType>${dateTimeFormData.value.videoType}</videoType>
                         <localityCode>${langFormData.value.regionCode}</localityCode>
                         <languageType>${langStore.langId}</languageType>
+                        ${pageData.value.supportsIPCActivation ? '<ipcDefaultPwd>' + encryptDefaultProtoPwd + '</ipcDefaultPwd>' : ''}
+                        <channelIpPlanning>${chlConfigFormData.value.checked}</channelIpPlanning>
+                        <secureEMailCfg>
+                            <switch>${qaEmailData.value.checked}</switch>
+                            <email>${wrapCDATA(qaEmailData.value.email + '')}</email>
+                        </secureEMailCfg>
                     </basicCfg>
                 `
             }
@@ -311,7 +367,7 @@ export default defineComponent({
 
             // 检查设备是否已经激活
             const activated = $('content/activated').text().bool()
-            if (activated) {
+            if (!activated) {
                 // 设备已初始化完成,跳转登录页面
                 openMessageBox(Translate('IDCS_ACTIVATED')).finally(() => {
                     router.push('/login')
@@ -336,8 +392,13 @@ export default defineComponent({
             stepList.languageAndRegion = !$('content/showLanguage').text() || $('content/showLanguage').text().bool()
             stepList.privacy = !$('content/showPrivacyStatement').text() || $('content/showPrivacyStatement').text().bool()
             stepList.dateAndTimezone = !$('content/showDateTime').text() || $('content/showDateTime').text().bool()
-
             steps.value = Object.keys(stepList).filter((item) => stepList[item])
+
+            pageData.value.supportsIPCActivation = !$('content/supportsIPCActivation').text() || $('content/supportsIPCActivation').text().bool()
+            // TSSR-18907 去除IPC激活功能
+            if (!pageData.value.supportsIPCActivation) {
+                pageData.value.chlConfigTab = 'ip'
+            }
         }
 
         // 带翻译的问题
@@ -512,6 +573,12 @@ export default defineComponent({
                 dateTimeFormData.value.timeFormat = $('content/formatInfo/time').text()
                 dateTimeFormData.value.syncType = $('content/synchronizeInfo/type').text()
                 dateTimeFormData.value.timeServer = $('content/synchronizeInfo/ntpServer').text().trim()
+                dateTimeFormData.value.gpsBaudRate = $('content/synchronizeInfo/gpsBaudRate').text().num()
+                dateTimeFormData.value.gpsBaudRateMin = $('content/synchronizeInfo/gpsBaudRate').attr('min').num()
+                dateTimeFormData.value.gpsBaudRateMax = $('content/synchronizeInfo/gpsBaudRate').attr('max').num()
+                dateTimeFormData.value.ntpInterval = $('content/synchronizeInfo/ntpInterval').text().num()
+                dateTimeFormData.value.ntpIntervalMin = $('content/synchronizeInfo/ntpInterval').attr('min').num()
+                dateTimeFormData.value.ntpIntervalMax = $('content/synchronizeInfo/ntpInterval').attr('max').num()
                 dateTimeFormData.value.timeZone = $('content/timezoneInfo/timeZone').text()
                 dateTimeFormData.value.enableDST = $('content/timezoneInfo/daylightSwitch').text().bool()
 
@@ -566,6 +633,14 @@ export default defineComponent({
         }
 
         /**
+         * @description 限制时间间隔输入
+         */
+        const handleNtpIntervalOutOfRange = () => {
+            pageData.value.isNtpIntervalOutOfRange = true
+            dateTimeFormRef.value?.validateField('ntpInterval')
+        }
+
+        /**
          * @description 密码强度提示
          */
         const getPasswordNoticeMsg = () => {
@@ -589,8 +664,8 @@ export default defineComponent({
             }
         }
 
-        // 当前密码强度
-        const passwordStrength = computed(() => getPwdSaftyStrength(userFormData.value.password))
+        // 当前密码强度 - 账户
+        const passwordStrengthForUser = computed(() => getPwdSaftyStrength(userFormData.value.password))
 
         /**
          * @description 校验用户表单
@@ -606,10 +681,55 @@ export default defineComponent({
                 return false
             }
 
-            if (DEFAULT_PASSWORD_STREMGTH_MAPPING[pageData.value.passwordStrength] > passwordStrength.value) {
+            if (DEFAULT_PASSWORD_STREMGTH_MAPPING[pageData.value.passwordStrength] > passwordStrengthForUser.value) {
                 openMessageBox(Translate('IDCS_PWD_STRONG_ERROR'))
                 return false
             }
+
+            return true
+        }
+
+        // 当前密码强度 - 通道配置
+        const passwordStrengthForChlConfig = computed(() => getPwdSaftyStrength(chlConfigFormData.value.password))
+
+        /**
+         * @description 校验通道配置表单
+         */
+        const checkChlConfigForm = () => {
+            if (!chlConfigFormData.value.password.length) {
+                openMessageBox(Translate('IDCS_PROMPT_PASSWORD_EMPTY'))
+                return false
+            }
+
+            if (DEFAULT_PASSWORD_STREMGTH_MAPPING[pageData.value.passwordStrength] > passwordStrengthForChlConfig.value) {
+                openMessageBox(Translate('IDCS_PWD_STRONG_ERROR'))
+                return false
+            }
+
+            return true
+        }
+
+        /**
+         * @description 校验Email表单
+         */
+        const checkEmailForm = () => {
+            if (qaEmailData.value.checked) {
+                if (!qaEmailData.value.email) {
+                    openMessageBox(Translate('IDCS_PROMPT_EMAIL_ADDRESS_EMPTY'))
+                    return false
+                }
+
+                if (!checkEmail(qaEmailData.value.email)) {
+                    openMessageBox(Translate('IDCS_PROMPT_INVALID_EMAIL'))
+                    return false
+                }
+            } else {
+                if (qaEmailData.value.email && !checkEmail(qaEmailData.value.email)) {
+                    openMessageBox(Translate('IDCS_PROMPT_INVALID_EMAIL'))
+                    return false
+                }
+            }
+
             return true
         }
 
@@ -860,7 +980,7 @@ export default defineComponent({
                 })
             })
             pageData.value.current = steps.value[0]
-            // steps.value = ['languageAndRegion', 'user', 'questionAndAnswer', 'disk']
+            // steps.value = ['languageAndRegion', 'user', 'emailAndQa', 'disk']
             // pageData.value.current = steps.value[0]
             // handleNext()
         })
@@ -874,20 +994,26 @@ export default defineComponent({
             langFormData,
             privacyFormData,
             dateTimeFormData,
+            dateTimeFormRef,
+            dateTimeFormRules,
             userFormData,
+            chlConfigFormData,
             qaFormData,
             qaTableData,
+            qaEmailData,
             diskTableData,
             changeLangType,
             changeRegion,
             isDSTDisabled,
             handleSystemTimeChange,
             pendingSystemTimeChange,
+            handleNtpIntervalOutOfRange,
             formatSystemTime,
             handleNext,
             handlePrev,
             steps,
-            passwordStrength,
+            passwordStrengthForUser,
+            passwordStrengthForChlConfig,
             isDefeultQuestion,
             addQuestion,
             changeQuestion,

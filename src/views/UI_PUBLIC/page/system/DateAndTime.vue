@@ -63,7 +63,7 @@
                 :label="Translate('IDCS_BAUD_RATE')"
             >
                 <el-select-v2
-                    v-model="formData.timeServer"
+                    v-model="formData.gpsBaudRate"
                     :options="pageData.gpsBaudRateOptions"
                     filterable
                     allow-create

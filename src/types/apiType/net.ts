@@ -533,3 +533,21 @@ export class NetPlatformSipCodeList {
 export class NetDetectionForm {
     address = ''
 }
+
+/**
+ * @description 云升级ipc升级信息列表项
+ */
+export class NetIpcUpgradeInfoList {
+    [key: string]: any
+    ip = ''
+    chlId = ''
+    chlName = ''
+    state = ''
+    formatState = ''
+    version = ''
+    newVersion = ''
+    formatNewVersion = ''
+    newVersionNote = ''
+    newVersionGUID = ''
+    progress = ''
+}
