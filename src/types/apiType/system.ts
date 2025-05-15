@@ -440,9 +440,15 @@ export class SystemGuideDateTimeForm {
     timeFormat = '24' // 时间格式
     syncType = '' // 同步方式
     timeServer = '' // 时间服务器
+    gpsBaudRate = 0 // 波特率
+    gpsBaudRateMin = 0 // 波特率 最小值
+    gpsBaudRateMax = 0 // 波特率 最大值
+    ntpInterval = 0 // 时间间隔[分]
+    ntpIntervalMin = 0 // 时间间隔[分] 最小值
+    ntpIntervalMax = 0 // 时间间隔[分] 最大值
     timeZone = '' // 时区
     enableDST = false // 夏令时
-    videoType = ''
+    videoType = '' // 视频格式
 }
 
 /**
@@ -455,12 +461,28 @@ export class SystemGuideUserForm {
 }
 
 /**
- * @description 开机向导 密保问题表单
+ * @description 开机向导 通道配置（通道默认协议密码/通道IP规划）表单
+ */
+export class SystemGuideChlConfigForm {
+    password = ''
+    checked = false
+}
+
+/**
+ * @description 开机向导 Email和密保问题表单 - 密保问题表单
  */
 export class SystemGuideQuestionForm {
     id = ''
     question = ''
     answer = ''
+}
+
+/**
+ * @description 开机向导 Email和密保问题表单 - Email
+ */
+export class SystemGuideEmailForm {
+    checked = false // e-mail是否启用
+    email = ''
 }
 
 /**
