@@ -27,7 +27,10 @@
             </div>
 
             <!-- 只存在一个播放器，因此放于tab区域外 -->
-            <div class="base-ai-param-box-left fixed">
+            <div
+                v-show="pageData.tab !== 'trigger'"
+                class="base-ai-param-box-left fixed"
+            >
                 <div class="player">
                     <BaseVideoPlayer
                         ref="playerRef"
@@ -75,7 +78,7 @@
                 </div>
             </div>
             <div class="base-ai-form">
-                <!-- 两种功能 -->
+                <!-- 三种种功能：参数设置 、OSD叠加、联动方式 -->
                 <el-tabs
                     v-model="pageData.tab"
                     class="base-ai-tabs"
@@ -88,13 +91,8 @@
                     >
                         <div class="base-ai-param-box">
                             <div class="base-ai-param-box-left"></div>
-                            <!-- passLine -->
-                            <div
-                                v-if="chlData.supportPassLine"
-                                class="base-ai-param-right"
-                            >
+                            <div class="base-ai-param-box-right">
                                 <el-form v-title>
-                                    <div class="base-ai-subheading">{{ Translate('IDCS_SCHEDULE') }}</div>
                                     <!-- 排程 -->
                                     <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
                                         <BaseScheduleSelect
@@ -103,11 +101,50 @@
                                             @edit="pageData.isSchedulePop = true"
                                         />
                                     </el-form-item>
-                                    <div class="base-ai-subheading">
-                                        {{ Translate('IDCD_RULE') }}
-                                    </div>
+                                    <!-- 持续时间 -->
+                                    <el-form-item :label="Translate('IDCS_DURATION')">
+                                        <el-select-v2
+                                            v-model="formData.holdTime"
+                                            :options="formData.holdTimeList"
+                                        />
+                                    </el-form-item>
+                                    <!-- 侦测灵敏度 -->
+                                    <el-form-item
+                                        v-if="chlData.supportCpc"
+                                        :label="Translate('IDCS_SENSITIVITY')"
+                                    >
+                                        <el-select-v2
+                                            v-model="formData.detectSensitivity"
+                                            :options="formData.detectSensitivityList"
+                                        />
+                                    </el-form-item>
+                                    <!-- 侦测灵敏度 -->
+                                    <el-form-item
+                                        v-if="chlData.supportCpc"
+                                        :label="Translate('IDCS_STATISTICALCYCLE')"
+                                    >
+                                        <el-select-v2
+                                            v-model="formData.statisticalPeriod"
+                                            :options="formData.statisticalPeriodList"
+                                        />
+                                    </el-form-item>
+                                    <!-- 时间阈值 -->
+                                    <el-form-item
+                                        v-if="formData.supportDuration"
+                                        :label="Translate('IDCS_DURATION_THRESHOLD')"
+                                    >
+                                        <BaseNumberInput
+                                            v-model="formData.duration.value"
+                                            :min="formData.duration.min"
+                                            :max="formData.duration.max"
+                                            @out-of-range="blurDuration(formData.duration.min, formData.duration.max)"
+                                        />
+                                    </el-form-item>
                                     <!-- 警戒面 -->
-                                    <el-form-item :label="Translate('IDCS_ALARM_LINE')">
+                                    <el-form-item
+                                        v-if="chlData.supportPassLine"
+                                        :label="Translate('IDCS_ALARM_LINE')"
+                                    >
                                         <el-radio-group
                                             v-model="pageData.surfaceIndex"
                                             class="small-btn"
@@ -125,173 +162,197 @@
                                         </el-radio-group>
                                     </el-form-item>
                                     <!-- 方向 -->
-                                    <el-form-item :label="Translate('IDCS_DIRECTION')">
+                                    <el-form-item
+                                        v-if="chlData.supportPassLine"
+                                        :label="Translate('IDCS_DIRECTION')"
+                                    >
                                         <el-select-v2
                                             v-model="pageData.direction"
                                             :options="pageData.directionList"
                                             @change="changeDirection"
                                         />
                                     </el-form-item>
-                                    <div class="base-ai-subheading">
-                                        {{ Translate('IDCS_OSD') }}
-                                    </div>
-                                    <!-- OSD -->
-                                    <el-form-item>
-                                        <el-checkbox
-                                            v-model="formData.countOSD.switch"
-                                            :label="Translate('IDCS_STATIST_OSD')"
-                                            @change="changeOSD"
-                                        />
-                                    </el-form-item>
-                                    <div class="base-ai-subheading">
-                                        {{ Translate('IDCS_RESET_INFO') }}
-                                    </div>
-                                    <!-- 自动重置 -->
-                                    <el-form-item :label="Translate('IDCS_AUTO_RESET')">
-                                        <el-checkbox
-                                            v-model="formData.autoReset"
-                                            :label="Translate('IDCS_ENABLE')"
-                                        />
-                                    </el-form-item>
-                                    <!-- 模式 -->
-                                    <el-form-item :label="Translate('IDCS_MODE')">
-                                        <el-select-v2
-                                            v-model="formData.countTimeType"
-                                            :options="formData.countCycleTypeList"
-                                            :disabled="!formData.autoReset"
-                                        />
-                                    </el-form-item>
-                                    <!-- 时间 -->
-                                    <el-form-item
-                                        :label="Translate('IDCS_TIME')"
-                                        :style="{
-                                            '--form-input-width': '121px',
-                                        }"
+                                    <div
+                                        v-if="chlData.supportPassLine"
+                                        :class="pageData.objectFilterMode === 'mode3' ? 'rectangleBorder' : ''"
                                     >
-                                        <el-select-v2
-                                            v-if="formData.countTimeType === 'week'"
-                                            v-model="formData.countPeriod.week.date"
-                                            :options="pageData.weekOption"
-                                            :disabled="!formData.autoReset"
-                                        />
-                                        <el-select-v2
-                                            v-if="formData.countTimeType === 'month'"
-                                            v-model="formData.countPeriod.month.date"
-                                            :options="pageData.monthOption"
-                                            :disabled="!formData.autoReset"
-                                        />
-                                        <BaseTimePicker
-                                            v-if="formData.countTimeType === 'off'"
-                                            model-value=""
-                                            disabled
-                                        />
-                                        <BaseTimePicker
-                                            v-if="formData.countTimeType === 'day'"
-                                            v-model="formData.countPeriod.day.dateTime"
-                                            :disabled="!formData.autoReset"
-                                        />
-                                        <BaseTimePicker
-                                            v-if="formData.countTimeType === 'week'"
-                                            v-model="formData.countPeriod.week.dateTime"
-                                            :disabled="!formData.autoReset"
-                                        />
-                                        <BaseTimePicker
-                                            v-if="formData.countTimeType === 'month'"
-                                            v-model="formData.countPeriod.month.dateTime"
-                                            :disabled="!formData.autoReset"
-                                        />
-                                    </el-form-item>
-                                    <!-- 手动重置 -->
-                                    <el-form-item :label="Translate('IDCS_MANUAL_RESET')">
-                                        <el-button @click="resetData">
-                                            {{ Translate('IDCS_RESET') }}
-                                        </el-button>
-                                    </el-form-item>
-                                </el-form>
-                            </div>
-                            <!-- cpc -->
-                            <div
-                                v-if="chlData.supportCpc"
-                                class="base-ai-param-right"
-                            >
-                                <el-form v-title>
-                                    <div class="base-ai-subheading">
-                                        {{ Translate('IDCS_SCHEDULE') }}
+                                        <!-- 目标大小 -->
+                                        <div
+                                            v-if="formData.detectTargetList.length"
+                                            :class="pageData.objectFilterMode === 'mode2' ? 'rectangleBorder' : ''"
+                                        >
+                                            <div class="base-ai-subheading">
+                                                {{ Translate('IDCS_DETECT_TARGET_SIZE') }}
+                                            </div>
+                                            <!-- 目标 -->
+                                            <el-form-item :label="Translate('IDCS_TARGET')">
+                                                <el-select-v2
+                                                    v-model="formData.detectTarget"
+                                                    :options="formData.detectTargetList"
+                                                    @change="showDisplayRange"
+                                                />
+                                            </el-form-item>
+                                            <el-form-item :label="Translate('IDCS_MIN')">
+                                                <span class="spanWidth">{{ Translate('IDCS_WIDTH') }}</span>
+                                                <BaseNumberInput
+                                                    v-if="formData.line.length"
+                                                    v-model="formData.line[pageData.surfaceIndex].objectFilter[formData.detectTarget].minRegionInfo.width"
+                                                    :min="formData.line[pageData.surfaceIndex].objectFilter[formData.detectTarget].minRegionInfo.min"
+                                                    :max="formData.line[pageData.surfaceIndex].objectFilter[formData.detectTarget].minRegionInfo.max"
+                                                    class="targetInput"
+                                                    @change="showDisplayRange"
+                                                    @blur="checkMinMaxRange('minTextW')"
+                                                />
+                                                <span class="percentLabel">{{ Translate('%') }}</span>
+                                                <span class="spanWidth">{{ Translate('IDCS_HEIGHT') }}</span>
+                                                <BaseNumberInput
+                                                    v-if="formData.line.length"
+                                                    v-model="formData.line[pageData.surfaceIndex].objectFilter[formData.detectTarget].minRegionInfo.height"
+                                                    :min="formData.line[pageData.surfaceIndex].objectFilter[formData.detectTarget].minRegionInfo.min"
+                                                    :max="formData.line[pageData.surfaceIndex].objectFilter[formData.detectTarget].minRegionInfo.max"
+                                                    class="targetInput"
+                                                    @change="showDisplayRange"
+                                                    @blur="checkMinMaxRange('minTextH')"
+                                                />
+                                                <span class="percentLabel">{{ Translate('%') }}</span>
+                                            </el-form-item>
+                                            <el-form-item :label="Translate('IDCS_MAX')">
+                                                <span class="spanWidth">{{ Translate('IDCS_WIDTH') }}</span>
+                                                <BaseNumberInput
+                                                    v-if="formData.line.length"
+                                                    v-model="formData.line[pageData.surfaceIndex].objectFilter[formData.detectTarget].maxRegionInfo.width"
+                                                    :min="formData.line[pageData.surfaceIndex].objectFilter[formData.detectTarget].maxRegionInfo.min"
+                                                    :max="formData.line[pageData.surfaceIndex].objectFilter[formData.detectTarget].maxRegionInfo.max"
+                                                    class="targetInput"
+                                                    @change="showDisplayRange"
+                                                    @blur="checkMinMaxRange('maxTextW')"
+                                                />
+                                                <span class="percentLabel">{{ Translate('%') }}</span>
+                                                <span class="spanWidth">{{ Translate('IDCS_HEIGHT') }}</span>
+                                                <BaseNumberInput
+                                                    v-if="formData.line.length"
+                                                    v-model="formData.line[pageData.surfaceIndex].objectFilter[formData.detectTarget].maxRegionInfo.height"
+                                                    :min="formData.line[pageData.surfaceIndex].objectFilter[formData.detectTarget].maxRegionInfo.min"
+                                                    :max="formData.line[pageData.surfaceIndex].objectFilter[formData.detectTarget].maxRegionInfo.max"
+                                                    class="targetInput"
+                                                    @change="showDisplayRange"
+                                                    @blur="checkMinMaxRange('maxTextH')"
+                                                />
+                                                <span class="percentLabel">{{ Translate('%') }}</span>
+                                            </el-form-item>
+                                            <el-form-item>
+                                                <template #label>
+                                                    <el-checkbox
+                                                        v-model="pageData.isShowDisplayRange"
+                                                        :label="Translate('IDCS_DISPLAY_RANGE_BOX')"
+                                                        @change="toggleDisplayRange"
+                                                    />
+                                                </template>
+                                            </el-form-item>
+                                        </div>
+                                        <!-- 检测目标 -->
+                                        <div :class="pageData.objectFilterMode === 'mode5' ? 'rectangleBorder' : ''">
+                                            <div class="base-ai-subheading">
+                                                {{ Translate('IDCS_DETECTION_TARGET') }}
+                                            </div>
+                                            <!-- 人灵敏度 -->
+                                            <el-form-item v-if="showAllPersonTarget">
+                                                <template #label>
+                                                    <el-checkbox
+                                                        v-if="formData.line.length"
+                                                        v-model="formData.line[pageData.surfaceIndex].objectFilter.person.sensitivity.enable"
+                                                        :label="Translate('IDCS_DETECTION_PERSON')"
+                                                    />
+                                                </template>
+                                                <template #default>
+                                                    <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
+                                                    <BaseSliderInput
+                                                        v-if="formData.line.length"
+                                                        v-model="formData.line[pageData.surfaceIndex].objectFilter.person.sensitivity.value"
+                                                        :min="formData.line[pageData.surfaceIndex].objectFilter.person.sensitivity.min"
+                                                        :max="formData.line[pageData.surfaceIndex].objectFilter.person.sensitivity.max"
+                                                    />
+                                                    <div v-if="showPersonThreshold">
+                                                        <span class="base-ai-slider-label">{{ Translate('IDCS_STAY_ALARM_THRESHOLD') }}</span>
+                                                        <BaseNumberInput
+                                                            v-if="formData.line.length"
+                                                            v-model="formData.line[pageData.surfaceIndex].objectFilter.person.stayAlarmThreshold.value"
+                                                            :min="formData.line[pageData.surfaceIndex].objectFilter.person.stayAlarmThreshold.min"
+                                                            :max="formData.line[pageData.surfaceIndex].objectFilter.person.stayAlarmThreshold.max"
+                                                            class="targetInput"
+                                                        />
+                                                    </div>
+                                                </template>
+                                            </el-form-item>
+                                            <!-- 汽车灵敏度 -->
+                                            <el-form-item v-if="showAllCarTarget">
+                                                <template #label>
+                                                    <el-checkbox
+                                                        v-if="formData.line.length"
+                                                        v-model="formData.line[pageData.surfaceIndex].objectFilter.car.sensitivity.enable"
+                                                        :label="Translate('IDCS_DETECTION_VEHICLE')"
+                                                    />
+                                                </template>
+                                                <template #default>
+                                                    <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
+                                                    <BaseSliderInput
+                                                        v-if="formData.line.length"
+                                                        v-model="formData.line[pageData.surfaceIndex].objectFilter.car.sensitivity.value"
+                                                        :min="formData.line[pageData.surfaceIndex].objectFilter.car.sensitivity.min"
+                                                        :max="formData.line[pageData.surfaceIndex].objectFilter.car.sensitivity.max"
+                                                    />
+                                                    <div v-if="showCarThreshold">
+                                                        <span class="base-ai-slider-label">{{ Translate('IDCS_STAY_ALARM_THRESHOLD') }}</span>
+                                                        <BaseNumberInput
+                                                            v-if="formData.line.length"
+                                                            v-model="formData.line[pageData.surfaceIndex].objectFilter.car.stayAlarmThreshold.value"
+                                                            :min="formData.line[pageData.surfaceIndex].objectFilter.car.stayAlarmThreshold.min"
+                                                            :max="formData.line[pageData.surfaceIndex].objectFilter.car.stayAlarmThreshold.max"
+                                                            class="targetInput"
+                                                        />
+                                                    </div>
+                                                </template>
+                                            </el-form-item>
+                                            <!-- 摩托车灵敏度 -->
+                                            <el-form-item v-if="showAllMotorTarget">
+                                                <template #label>
+                                                    <el-checkbox
+                                                        v-if="formData.line.length"
+                                                        v-model="formData.line[pageData.surfaceIndex].objectFilter.motor.sensitivity.enable"
+                                                        :label="Translate('IDCS_NON_VEHICLE')"
+                                                    />
+                                                </template>
+                                                <template #default>
+                                                    <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
+                                                    <BaseSliderInput
+                                                        v-if="formData.line.length"
+                                                        v-model="formData.line[pageData.surfaceIndex].objectFilter.motor.sensitivity.value"
+                                                        :min="formData.line[pageData.surfaceIndex].objectFilter.motor.sensitivity.min"
+                                                        :max="formData.line[pageData.surfaceIndex].objectFilter.motor.sensitivity.max"
+                                                    />
+                                                    <div v-if="showMotorThreshold">
+                                                        <span class="base-ai-slider-label">{{ Translate('IDCS_STAY_ALARM_THRESHOLD') }}</span>
+                                                        <BaseNumberInput
+                                                            v-if="formData.line.length"
+                                                            v-model="formData.line[pageData.surfaceIndex].objectFilter.motor.stayAlarmThreshold.value"
+                                                            :min="formData.line[pageData.surfaceIndex].objectFilter.motor.stayAlarmThreshold.min"
+                                                            :max="formData.line[pageData.surfaceIndex].objectFilter.motor.stayAlarmThreshold.max"
+                                                            class="targetInput"
+                                                        />
+                                                    </div>
+                                                </template>
+                                            </el-form-item>
+                                        </div>
                                     </div>
-                                    <!-- 排程 -->
-                                    <el-form-item :label="Translate('IDCS_SCHEDULE_CONFIG')">
-                                        <BaseScheduleSelect
-                                            v-model="formData.schedule"
-                                            :options="pageData.scheduleList"
-                                            @edit="pageData.isSchedulePop = true"
-                                        />
-                                        <el-button @click="pageData.isSchedulePop = true">
-                                            {{ Translate('IDCS_MANAGE') }}
-                                        </el-button>
-                                    </el-form-item>
-                                    <div class="base-ai-subheading">
-                                        {{ Translate('IDCD_RULE') }}
-                                    </div>
-                                    <!-- 持续时间 -->
-                                    <el-form-item :label="Translate('IDCS_DURATION')">
-                                        <el-select-v2
-                                            v-model="formData.holdTime"
-                                            :options="formData.holdTimeList"
-                                        />
-                                    </el-form-item>
-                                    <!-- 灵敏度 -->
-                                    <el-form-item :label="Translate('IDCS_SENSITIVITY')">
-                                        <el-select-v2
-                                            v-model="formData.detectSensitivity"
-                                            :options="formData.detectSensitivityList"
-                                        />
-                                    </el-form-item>
-                                    <!-- 统计周期 -->
-                                    <el-form-item :label="Translate('IDCS_STATISTICALCYCLE')">
-                                        <el-select-v2
-                                            v-model="formData.statisticalPeriod"
-                                            :options="formData.statisticalPeriodList"
-                                        />
-                                    </el-form-item>
-                                    <!-- 进入阈值 -->
-                                    <el-form-item :label="Translate('IDCS_ENTER_NUMBER')">
-                                        <BaseNumberInput
-                                            v-model="formData.crossInAlarmNumValue"
-                                            :min="1"
-                                        />
-                                    </el-form-item>
-                                    <!-- 离开阈值 -->
-                                    <el-form-item :label="Translate('IDCS_LEAVE_NUMBER')">
-                                        <BaseNumberInput
-                                            v-model="formData.crossOutAlarmNumValue"
-                                            :min="1"
-                                        />
-                                    </el-form-item>
-                                    <!-- 滞留阈值 -->
-                                    <el-form-item :label="Translate('IDCS_STRANDED_NUMBER')">
-                                        <BaseNumberInput
-                                            v-model="formData.twoWayDiffAlarmNumValue"
-                                            :min="1"
-                                        />
-                                    </el-form-item>
-                                    <div class="base-ai-subheading">
-                                        {{ Translate('IDCS_RESET_INFO') }}
-                                    </div>
-                                    <!-- 手动重置 -->
-                                    <el-form-item :label="Translate('IDCS_MANUAL_RESET')">
-                                        <el-button @click="resetData">
-                                            {{ Translate('IDCS_RESET') }}
-                                        </el-button>
-                                    </el-form-item>
                                 </el-form>
                             </div>
                         </div>
                     </el-tab-pane>
-                    <!-- 检测目标 -->
+                    <!-- OSD叠加 -->
                     <el-tab-pane
                         v-if="chlData.supportPassLine"
-                        :label="Translate('IDCS_DETECTION_TARGET')"
-                        name="target"
+                        :label="Translate('IDCS_OSD')"
+                        name="imageOSD"
                     >
                         <div class="base-ai-param-box">
                             <div class="base-ai-param-box-left"></div>
@@ -300,56 +361,106 @@
                                     <div class="base-ai-subheading">
                                         {{ Translate('IDCS_DETECTION_TARGET') }}
                                     </div>
-                                    <!-- 人灵敏度 -->
+                                    <!-- OSD -->
                                     <el-form-item>
                                         <template #label>
                                             <el-checkbox
-                                                v-model="formData.objectFilter.person"
-                                                :label="Translate('IDCS_DETECTION_PERSON')"
-                                            />
-                                        </template>
-                                        <template #default>
-                                            <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
-                                            <BaseSliderInput
-                                                v-model="formData.objectFilter.personSensitivity"
-                                                :min="1"
+                                                v-model="formData.countOSD.switch"
+                                                :label="Translate('IDCS_OSD')"
+                                                @change="changeOSD"
                                             />
                                         </template>
                                     </el-form-item>
-                                    <!-- 汽车灵敏度 -->
-                                    <el-form-item>
+                                    <el-form-item v-if="formData.countOSD.supportOsdEntranceName">
                                         <template #label>
                                             <el-checkbox
-                                                v-model="formData.objectFilter.car"
-                                                :label="Translate('IDCS_DETECTION_VEHICLE')"
+                                                v-model="formData.countOSD.showEnterOsd"
+                                                :label="Translate('IDCS_ENTRY_DIRECT')"
                                             />
                                         </template>
                                         <template #default>
-                                            <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
-                                            <BaseSliderInput
-                                                v-model="formData.objectFilter.carSensitivity"
-                                                :min="1"
+                                            <input
+                                                v-model="formData.countOSD.osdEntranceName"
+                                                :maxlength="formData.countOSD.osdEntranceNameMaxLen"
                                             />
                                         </template>
                                     </el-form-item>
-                                    <!-- 摩托车灵敏度 -->
-                                    <el-form-item>
+                                    <el-form-item v-if="formData.countOSD.supportOsdExitName">
                                         <template #label>
                                             <el-checkbox
-                                                v-model="formData.objectFilter.motorcycle"
-                                                :label="Translate('IDCS_NON_VEHICLE')"
+                                                v-model="formData.countOSD.showExitOsd"
+                                                :label="Translate('IDCS_VEHICLE_EXIT')"
                                             />
                                         </template>
                                         <template #default>
-                                            <span class="base-ai-slider-label">{{ Translate('IDCS_SENSITIVITY') }}</span>
-                                            <BaseSliderInput
-                                                v-model="formData.objectFilter.motorSensitivity"
-                                                :min="1"
+                                            <input
+                                                v-model="formData.countOSD.osdExitName"
+                                                :maxlength="formData.countOSD.osdExitNameMaxLen"
+                                            />
+                                        </template>
+                                    </el-form-item>
+                                    <el-form-item v-if="formData.countOSD.supportOsdStayName">
+                                        <template #label>
+                                            <el-checkbox
+                                                v-model="formData.countOSD.showStayOsd"
+                                                :label="Translate('IDCS_STRAND')"
+                                            />
+                                        </template>
+                                        <template #default>
+                                            <input
+                                                v-model="formData.countOSD.osdStayName"
+                                                :maxlength="formData.countOSD.osdStayNameMaxLen"
+                                            />
+                                        </template>
+                                    </el-form-item>
+                                    <el-form-item v-if="formData.countOSD.supportOsdWelcomeName">
+                                        <template #label>{{ Translate('IDCS_BELOW_THRESHOLD') }}</template>
+                                        <template #default>
+                                            <input
+                                                v-model="formData.countOSD.osdWelcomeName"
+                                                :maxlength="formData.countOSD.osdWelcomeNameMaxLen"
+                                            />
+                                        </template>
+                                    </el-form-item>
+                                    <el-form-item v-if="formData.countOSD.supportOsdAlarmName">
+                                        <template #label>{{ Translate('IDCS_OVER_THRESHOLD') }}</template>
+                                        <template #default>
+                                            <input
+                                                v-model="formData.countOSD.osdAlarmName"
+                                                :maxlength="formData.countOSD.osdAlarmNameMaxLen"
                                             />
                                         </template>
                                     </el-form-item>
                                 </el-form>
                             </div>
+                        </div>
+                    </el-tab-pane>
+                    <!-- 联动方式 -->
+                    <el-tab-pane
+                        v-if="chlData.supportPassLine"
+                        :label="Translate('IDCS_LINKAGE_MODE')"
+                        name="trigger"
+                    >
+                        <el-form v-if="pageData.supportAlarmAudioConfig">
+                            <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">
+                                <el-select-v2
+                                    v-model="formData.sysAudio"
+                                    :options="voiceList"
+                                />
+                            </el-form-item>
+                        </el-form>
+                        <div class="base-ai-linkage-content">
+                            <!-- 常规联动 -->
+                            <AlarmBaseTriggerSelector
+                                v-model="formData.trigger"
+                                :include="formData.triggerList"
+                            />
+                            <!-- record -->
+                            <AlarmBaseRecordSelector v-model="formData.recordChls" />
+                            <!-- alarm -->
+                            <AlarmBaseAlarmOutSelector v-model="formData.alarmOutChls" />
+                            <!-- preset -->
+                            <AlarmBasePresetSelector v-model="formData.presets" />
                         </div>
                     </el-tab-pane>
                 </el-tabs>
@@ -390,3 +501,5 @@
 </template>
 
 <script lang="ts" src="./PassLinePanel.v.ts"></script>
+
+<style lang="scss" scoped></style>

@@ -74,9 +74,65 @@
                                     v-model="formData.holdTime"
                                     :options="formData.holdTimeList"
                                 />
-                                <div class="divTip">
-                                    <BaseFloatError v-model:message="pageData.errorMessage" />
-                                </div>
+                            </el-form-item>
+                            <!-- 温度单位 -->
+                            <el-form-item :label="Translate('IDCS_TEMPERATURE_UNIT')">
+                                <el-select-v2
+                                    v-model="formData.tempUnits"
+                                    :options="tempUnitsList"
+                                    @change="changeTempUnits"
+                                />
+                            </el-form-item>
+                            <!-- 距离单位 -->
+                            <el-form-item
+                                v-if="formData.isShowDistance"
+                                :label="Translate('IDCS_DISTANCE_UNIT')"
+                            >
+                                <el-select-v2
+                                    v-model="formData.distanceUnits"
+                                    :options="distanceUnitList"
+                                    @change="changeDistanceUnits"
+                                />
+                            </el-form-item>
+                            <!-- 屏蔽区域 -->
+                            <el-form-item
+                                v-if="formData.supportMaskArea"
+                                :label="Translate('IDCS_MASK_AREA')"
+                            >
+                                <el-radio-group
+                                    v-model="pageData.maskAreaIndex"
+                                    class="small-btn"
+                                    @change="changeMaskArea"
+                                >
+                                    <el-radio-button
+                                        v-for="(_item, index) in formData.maskAreaInfo"
+                                        :key="index"
+                                        :value="index"
+                                        :label="index + 1"
+                                        :class="{
+                                            checked: pageData.maskAreaChecked.includes(index),
+                                        }"
+                                    />
+                                </el-radio-group>
+                            </el-form-item>
+                            <!-- 碼流上疊加溫度訊息 -->
+                            <div
+                                v-if="formData.isShowThermal || formData.isShowOptical"
+                                class="base-ai-subheading"
+                            >
+                                {{ Translate('IDCS_BITSTREAM_OVERLAYS_TEMPERATURE_INFO') }}
+                            </div>
+                            <el-form-item>
+                                <el-checkbox
+                                    v-if="formData.isShowThermal"
+                                    v-model="formData.thermaldisplayen"
+                                    :label="Translate('IDCS_THERMAL_LIGHT')"
+                                />
+                                <el-checkbox
+                                    v-if="formData.isShowOptical"
+                                    v-model="formData.opticaldisplayen"
+                                    :label="Translate('IDCS_VISIBLE_LIGHT')"
+                                />
                             </el-form-item>
                         </el-form>
                         <div class="base-table-box">
@@ -84,9 +140,9 @@
                                 ref="boundaryTableRef"
                                 v-title
                                 :data="formData.boundaryData"
-                                highlight-current-row
+                                :highlight-current-row="pageData.isClickTable"
                                 width="100%"
-                                height="280"
+                                height="240"
                                 @row-click="changeBoundary"
                             >
                                 <!-- 序号 -->
@@ -138,43 +194,54 @@
                                 >
                                     <template #default="{ row }: TableColumn<AlarmTemperatureDetectionBoundryDto>">
                                         <BaseNumberInput
-                                            v-model="row.emissivity"
-                                            :min="0.01"
-                                            :max="1"
+                                            v-model="row.emissivity.value"
+                                            :min="row.emissivity.min"
+                                            :max="row.emissivity.max"
                                             :precision="2"
                                             :step="0.01"
-                                            @out-of-range="blurValue(0.01, 1)"
-                                            @keyup.enter="blurInput"
+                                            @out-of-range="blurValue(row.emissivity.min, row.emissivity.max)"
                                         />
                                     </template>
                                 </el-table-column>
                                 <!-- 距离（m） -->
                                 <el-table-column
                                     width="90"
-                                    :label="Translate('IDCS_DISTANCE')"
+                                    :label="distanceText"
                                 >
                                     <template #default="{ row }: TableColumn<AlarmTemperatureDetectionBoundryDto>">
                                         <BaseNumberInput
-                                            v-model="row.distance"
-                                            :min="0"
-                                            :max="10000"
-                                            @out-of-range="blurValue(0, 10000)"
-                                            @keyup.enter="blurInput"
+                                            v-model="row.distance.value"
+                                            :min="formData.distanceUnits === 'Meter' ? row.distance.min : row.distance.fmin"
+                                            :max="formData.distanceUnits === 'Meter' ? row.distance.max : row.distance.fmax"
+                                            :precision="2"
+                                            :step="0.01"
+                                            @out-of-range="
+                                                blurValue(
+                                                    formData.distanceUnits === 'Meter' ? row.distance.min : row.distance.fmin,
+                                                    formData.distanceUnits === 'Meter' ? row.distance.max : row.distance.fmax,
+                                                )
+                                            "
                                         />
                                     </template>
                                 </el-table-column>
                                 <!-- 反射温度（℃） -->
                                 <el-table-column
                                     width="120"
-                                    :label="Translate('IDCS_REFLECTED_TEMPERATURE')"
+                                    :label="reflectTemText"
                                 >
                                     <template #default="{ row }: TableColumn<AlarmTemperatureDetectionBoundryDto>">
                                         <BaseNumberInput
-                                            v-model="row.reflectTemper"
-                                            :min="-30"
-                                            :max="60"
-                                            @out-of-range="blurValue(-30, 60)"
-                                            @keyup.enter="blurInput"
+                                            v-model="row.reflectTemper.value"
+                                            :min="formData.tempUnits === 'centigrade' ? row.reflectTemper.min : row.reflectTemper.fmin"
+                                            :max="formData.tempUnits === 'centigrade' ? row.reflectTemper.max : row.reflectTemper.fmax"
+                                            :precision="2"
+                                            :step="0.01"
+                                            @out-of-range="
+                                                blurValue(
+                                                    formData.tempUnits === 'centigrade' ? row.reflectTemper.min : row.reflectTemper.fmin,
+                                                    formData.tempUnits === 'centigrade' ? row.reflectTemper.max : row.reflectTemper.fmax,
+                                                )
+                                            "
                                         />
                                     </template>
                                 </el-table-column>
@@ -193,19 +260,28 @@
                                 <!-- 报警温度（℃） -->
                                 <el-table-column
                                     width="150"
-                                    :label="Translate('IDCS_ALARM_TEMPERATURE')"
+                                    :label="alarmTemText"
                                 >
                                     <template #default="{ row }: TableColumn<AlarmTemperatureDetectionBoundryDto>">
                                         <BaseNumberInput
-                                            v-model="row.alarmTemper"
-                                            :min="-50"
-                                            :max="550"
-                                            @out-of-range="blurValue(-50, 550)"
-                                            @keyup.enter="blurInput"
+                                            v-model="row.alarmTemper.value"
+                                            :precision="2"
+                                            :step="0.01"
+                                            :min="formData.tempUnits === 'centigrade' ? row.alarmTemper.min : row.alarmTemper.fmin"
+                                            :max="formData.tempUnits === 'centigrade' ? row.alarmTemper.max : row.alarmTemper.fmax"
+                                            @out-of-range="
+                                                blurValue(
+                                                    formData.tempUnits === 'centigrade' ? row.alarmTemper.min : row.alarmTemper.fmin,
+                                                    formData.tempUnits === 'centigrade' ? row.alarmTemper.max : row.alarmTemper.fma,
+                                                )
+                                            "
                                         />
                                     </template>
                                 </el-table-column>
                             </el-table>
+                        </div>
+                        <div class="divTip">
+                            <BaseFloatError v-model:message="pageData.errorMessage" />
                         </div>
                     </div>
                 </el-tab-pane>
@@ -251,6 +327,95 @@
                 {{ Translate('IDCS_APPLY') }}
             </el-button>
         </div>
+        <!-- 更多按钮 -->
+        <el-popover
+            v-model:visible="pageData.moreDropDown"
+            width="400"
+            popper-class="no-padding"
+        >
+            <template #reference>
+                <div class="base-ai-advance-btn">
+                    <span>{{ Translate('IDCS_ADVANCED') }}</span>
+                    <BaseImgSprite
+                        file="arrow"
+                        :chunk="4"
+                    />
+                </div>
+            </template>
+            <div class="base-ai-advance-box">
+                <el-form>
+                    <div class="base-ai-subheading">
+                        {{ Translate('IDCS_TEMPERATURE_INFO') }}
+                    </div>
+                    <el-form-item v-if="formData.tempInfo.isShowSegcolor">
+                        <el-checkbox
+                            v-model="formData.tempInfo.segcolorTemperatureParam"
+                            :label="Translate('IDCS_DISPLAY_TEMPERATURE_BAR')"
+                        />
+                    </el-form-item>
+                    <el-form-item>
+                        <el-checkbox
+                            v-model="formData.tempInfo.dotTemperatureInfo"
+                            :label="Translate('IDCS_CLICK_TEMPERATURE_MEASUREMENT')"
+                        />
+                    </el-form-item>
+                    <el-form-item :label="Translate('IDCS_EMISSIVITY')">
+                        <BaseNumberInput
+                            v-model="formData.tempInfo.emissivity.value"
+                            :precision="2"
+                            :step="0.01"
+                            :min="formData.tempInfo.emissivity.min"
+                            :max="formData.tempInfo.emissivity.max"
+                            @out-of-range="blurValue(formData.tempInfo.emissivity.min, formData.tempInfo.emissivity.max)"
+                        />
+                    </el-form-item>
+                    <el-form-item :label="distanceText">
+                        <BaseNumberInput
+                            v-model="formData.tempInfo.distance.value"
+                            :precision="2"
+                            :step="0.01"
+                            :min="tempInfoDistanceMin"
+                            :max="tempInfoDistanceMax"
+                            @out-of-range="blurValue(tempInfoDistanceMin, tempInfoDistanceMax)"
+                        />
+                    </el-form-item>
+                    <el-form-item
+                        :label="reflectTemText"
+                        show-overflow-tooltip
+                    >
+                        <BaseNumberInput
+                            v-model="formData.tempInfo.reflectTemper.value"
+                            :precision="2"
+                            :step="0.01"
+                            :min="tempInfoReflectMin"
+                            :max="tempInfoReflectMax"
+                            @out-of-range="blurValue(tempInfoReflectMin, tempInfoReflectMax)"
+                        />
+                    </el-form-item>
+                    <el-form-item>
+                        <el-checkbox
+                            v-model="formData.tempInfo.maxtemperen"
+                            :label="Translate('IDCS_MAX_TEMPERATURE')"
+                        />
+                        <el-checkbox
+                            v-if="formData.tempInfo.isShowAvgtemperen"
+                            v-model="formData.tempInfo.avgtemperen"
+                            :label="Translate('IDCS_AVE_TEMPERATURE')"
+                        />
+                        <el-checkbox
+                            v-model="formData.tempInfo.mintemperen"
+                            :label="Translate('IDCS_MIN_TEMPERATURE')"
+                        />
+                        <div class="divTip">
+                            <BaseFloatError v-model:message="pageData.errorMessageTemp" />
+                        </div>
+                    </el-form-item>
+                    <div class="base-btn-box">
+                        <el-button @click="pageData.moreDropDown = false">{{ Translate('IDCS_CLOSE') }}</el-button>
+                    </div>
+                </el-form>
+            </div>
+        </el-popover>
         <!-- 排程管理弹窗 -->
         <BaseScheduleManagePop
             v-model="pageData.isSchedulePop"
@@ -264,6 +429,10 @@
 <style scoped>
 .divTip {
     line-height: normal;
+    width: 150px;
+    height: 20px;
+    position: relative;
+    top: 10px;
 }
 
 .base-table-box {

@@ -300,3 +300,34 @@
     margin-right: 15px;
     flex-shrink: 0;
 }
+
+#n9web .el-form > div > .el-form-item,
+#n9web .el-form > div > div > .el-form-item {
+    padding: 2px 15px;
+    margin-bottom: 0;
+    flex-wrap: nowrap;
+}
+
+.rectangleBorder {
+    border: solid 1px #d1d1d1;
+    padding: 12px;
+    margin: 10px 15px;
+}
+
+.spanWidth {
+    display: inline-block;
+    max-width: 75px;
+    margin-right: 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.targetInput {
+    width: 45px !important;
+}
+
+.percentLabel {
+    margin-right: 30px;
+}

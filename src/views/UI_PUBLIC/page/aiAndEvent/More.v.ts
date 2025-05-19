@@ -10,18 +10,26 @@ import ObjectLeftPanel from './ObjectLeftPanel.vue'
 import PassLinePanel from './PassLinePanel.vue'
 import AbnormalDisposePanel from './AbnormalDisposePanel.vue'
 import CddPanel from './CddPanel.vue'
-import VideoStructurePanel from './VideoStructurePanel.vue'
+import AreaStatisPanel from './AreaStatisPanel.vue'
+import AsdPanel from './AsdPanel.vue'
+import HeatMapPanel from './HeatMapPanel.vue'
+import CrowdGatherPanel from './CrowdGatherPanel.vue'
+import BinocularCountPanel from './BinocularCountPanel.vue'
 
 export default defineComponent({
     components: {
         AlarmBaseChannelSelector,
         FireDetectionPanel,
-        VideoStructurePanel,
+        AreaStatisPanel,
         PassLinePanel,
         TemperatureDetectionPanel,
         ObjectLeftPanel,
         AbnormalDisposePanel,
         CddPanel,
+        AsdPanel,
+        HeatMapPanel,
+        CrowdGatherPanel,
+        BinocularCountPanel,
     },
     setup() {
         const systemCaps = useCababilityStore()
@@ -48,13 +56,19 @@ export default defineComponent({
         // 切换通道
         const changeChannel = () => {
             const tabList: [string, boolean][] = [
+                ['loiter', chlData.value.supportLoitering],
+                ['pvd', chlData.value.supportPvd],
                 ['fireDetection', chlData.value.supportFire],
-                ['videoStructure', chlData.value.supportVideoMetadata],
+                ['areaStatis', chlData.value.supportRegionStatistics],
                 ['passLine', chlData.value.supportPassLine || chlData.value.supportCpc],
                 ['cdd', chlData.value.supportCdd],
                 ['temperatureDetection', chlData.value.supportTemperature],
                 ['objectLeft', chlData.value.supportOsc],
+                ['asd', chlData.value.supportASD],
+                ['heatMap', chlData.value.supportHeatMap],
+                ['sbc', chlData.value.supportBinocularCountConfig],
                 ['avd', chlData.value.supportAvd],
+                ['cgd', chlData.value.supportCrowdGathering],
             ]
 
             tabList.some((item) => {
@@ -112,6 +126,13 @@ export default defineComponent({
                     'supportTemperature',
                     'protocolType',
                     'supportVideoMetadata',
+                    'supportLoitering',
+                    'supportPvd',
+                    'supportRegionStatistics',
+                    'supportASD',
+                    'supportHeatMap',
+                    'supportCrowdGathering',
+                    'supportBinocularCountConfig',
                 ],
             })
             const $ = queryXml(result)
@@ -132,6 +153,7 @@ export default defineComponent({
                         const supportCdd = $item('supportCdd').text().bool()
                         const supportVfd = $item('supportVfd').text().bool()
                         const supportAvd = $item('supportAvd').text().bool()
+                        const supportPvd = $item('supportPvd').text().bool()
                         const supportPea = $item('supportPea').text().bool()
                         const supportPeaTrigger = $item('supportPeaTrigger').text().bool() // NT-9829
                         const supportIpd = $item('supportIpd').text().bool()
@@ -145,8 +167,14 @@ export default defineComponent({
                         const supportWhiteLight = $item('supportWhiteLightAlarmOut').text().bool()
                         const supportAutoTrack = $item('supportAutoTrack').text().bool()
                         const supportFire = $item('supportFire').text().bool()
+                        const supportLoitering = $item('supportLoitering').text().bool()
                         const supportTemperature = $item('supportTemperature').text().bool()
                         const supportVideoMetadata = $item('supportVideoMetadata').text().bool()
+                        const supportRegionStatistics = $item('supportRegionStatistics').text().bool()
+                        const supportASD = $item('supportASD').text().bool()
+                        const supportHeatMap = $item('supportHeatMap').text().bool()
+                        const supportCrowdGathering = $item('supportCrowdGathering').text().bool()
+                        const supportBinocularCountConfig = $item('supportBinocularCountConfig').text().bool()
                         let supportBackVfd = false
                         let supportBackTripwire = false
                         let supportBackPea = false
@@ -192,6 +220,13 @@ export default defineComponent({
                             supportTemperature,
                             supportBackVfd,
                             supportVideoMetadata,
+                            supportLoitering,
+                            supportPvd,
+                            supportRegionStatistics,
+                            supportASD,
+                            supportHeatMap,
+                            supportCrowdGathering,
+                            supportBinocularCountConfig,
                         ]
                         if (allCapsArr.includes(true)) {
                             pageData.value.onlineChannelList.push({
@@ -230,6 +265,13 @@ export default defineComponent({
                                 supportFire: supportFire,
                                 supportTemperature: supportTemperature,
                                 supportVideoMetadata: supportVideoMetadata,
+                                supportLoitering: supportLoitering,
+                                supportPvd: supportPvd,
+                                supportRegionStatistics: supportRegionStatistics,
+                                supportASD: supportASD,
+                                supportHeatMap: supportHeatMap,
+                                supportCrowdGathering: supportCrowdGathering,
+                                supportBinocularCountConfig: supportBinocularCountConfig,
                             }
                         }
                     }

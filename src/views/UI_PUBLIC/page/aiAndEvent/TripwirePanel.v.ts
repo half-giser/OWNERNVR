@@ -77,6 +77,8 @@ export default defineComponent({
             // 排程管理
             isSchedulePop: false,
             scheduleList: [] as SelectOption<string, string>[],
+            // 配置模式
+            objectFilterMode: 'mode1',
             // 选择的警戒面
             surfaceIndex: 0,
             surfaceChecked: [] as number[],
@@ -339,28 +341,29 @@ export default defineComponent({
                     formData.value.holdTimeList = getAlarmHoldTimeList($param('holdTimeNote').text(), formData.value.holdTime)
 
                     // 解析检测目标的数据
-                    formData.value.objectFilterMode = getCurrentAICfgMode('line', $param)
+                    const objectFilterMode = getCurrentAICfgMode('line', $param)
+                    pageData.value.objectFilterMode = objectFilterMode
                     const $paramObjectFilter = $('content/chl/param/objectFilter')
                     let objectFilter = ref(new AlarmObjectFilterCfgDto())
-                    if (formData.value.objectFilterMode === 'mode1') {
+                    if (objectFilterMode === 'mode1') {
                         // 模式一
                         if ($param('objectFilter').text() !== '') {
-                            objectFilter = getObjectFilterData(formData.value.objectFilterMode, $paramObjectFilter, [])
+                            objectFilter = getObjectFilterData(objectFilterMode, $paramObjectFilter, [])
                         }
                     }
                     $param('line/item').forEach((item) => {
                         const $item = queryXml(item.element)
                         // 下列模式需要获取从line/item/objectFilter获取检测目标配置数据
                         const needResetObjectList = ['mode2', 'mode3', 'mode5']
-                        const needResetObjectFilter = needResetObjectList.indexOf(formData.value.objectFilterMode) > -1
+                        const needResetObjectFilter = needResetObjectList.indexOf(objectFilterMode) > -1
                         if (needResetObjectFilter) {
                             // 模式2灵敏度相关数据从chl/param/objectFilter节点获取
-                            const $resultNode = formData.value.objectFilterMode === 'mode2' ? $paramObjectFilter : []
-                            objectFilter = getObjectFilterData(formData.value.objectFilterMode, $item('objectFilter'), $resultNode)
+                            const $resultNode = objectFilterMode === 'mode2' ? $paramObjectFilter : []
+                            objectFilter = getObjectFilterData(objectFilterMode, $item('objectFilter'), $resultNode)
                         }
 
                         // ONVIF存在每个区域有公共灵敏度和开关
-                        if (formData.value.objectFilterMode === 'mode5') {
+                        if (objectFilterMode === 'mode5') {
                             // NTA1-3733 存在只有开关的情况
                             const supportCommonEnable = $item('switch').length > 0
                             const supportCommonSensitivity = supportCommonEnable && $item('>sensitivity').length > 0
@@ -466,70 +469,87 @@ export default defineComponent({
         }
 
         /**
+         * @description 组装param根节点下的ObjectFilter数据
+         */
+        const setParamObjectFilterData = () => {
+            let paramXml = ''
+            const noParamObjectNodeList = ['mode0', 'mode4', 'mode5'] // 模式0,4,5不需要下发基础的objectFilter节点
+            if (noParamObjectNodeList.indexOf(pageData.value.objectFilterMode) === -1) {
+                // 模式1、2、3均要下发基础的objectFilter节点
+                paramXml = setObjectFilterXmlData(formData.value.lineInfo[0].objectFilter, props.chlData)
+            }
+            return paramXml
+        }
+
+        /**
+         * @description 组装各个区域下的ObjectFilter节点数据
+         */
+        const setItemObjectFilterData = (item: { objectFilter: globalThis.AlarmObjectFilterCfgDto }) => {
+            let paramXml = ''
+            const singleDetectCfgList = ['mode2', 'mode3', 'mode5'] // 上述模式每个区域可单独配置检测目标或目标大小
+            if (singleDetectCfgList.indexOf(pageData.value.objectFilterMode) !== -1) {
+                paramXml += setObjectFilterXmlData(item.objectFilter, props.chlData)
+            }
+
+            return paramXml
+        }
+
+        /**
          * @description 保存越界检测配置
          */
         const saveData = async () => {
             let paramXml = ''
-            const objectFilterMode = formData.value.objectFilterMode
+            const data = formData.value
             if (!supportPeaTrigger.value) {
-                paramXml += '<param>' + '<switch>' + formData.value.detectionEnable + '</switch>' + '<alarmHoldTime unit="s">' + formData.value.holdTime + '</alarmHoldTime>'
-                paramXml += formData.value.autoTrack ? '<autoTrack>' + formData.value.autoTrack + '</autoTrack>' : ''
-                const noBaseObjectNodeList = ['mode0', 'mode4', 'mode5'] // 模式0,4,5不需要下发基础的objectFilter节点
-                if (noBaseObjectNodeList.indexOf(objectFilterMode) === -1) {
-                    paramXml += setObjectFilterXmlData(true, formData.value.lineInfo[0].objectFilter, props.chlData, formData.value.objectFilterMode)
-                }
-                paramXml += '<line type="list" count="' + formData.value.lineInfo.length + '">' + '<itemType>' + '<direction type="direction"/>' + '</itemType>'
-                formData.value.lineInfo.forEach((item) => {
-                    paramXml +=
-                        '<item>' +
-                        '<direction type="direction">' +
-                        item.direction +
-                        '</direction>' +
-                        '<startPoint>' +
-                        '<X>' +
-                        item.startPoint.X +
-                        '</X>' +
-                        '<Y>' +
-                        item.startPoint.Y +
-                        '</Y>' +
-                        '</startPoint>' +
-                        '<endPoint>' +
-                        '<X>' +
-                        item.endPoint.X +
-                        '</X>' +
-                        '<Y>' +
-                        item.endPoint.Y +
-                        '</Y>' +
-                        '</endPoint>'
-                    const singleDetectCfgList = ['mode2', 'mode3', 'mode5'] // 上述模式每个区域可单独配置检测目标或目标大小
-                    if (singleDetectCfgList.indexOf(objectFilterMode) !== -1) {
-                        const needSentyFlg = objectFilterMode === 'mode3'
-                        paramXml += setObjectFilterXmlData(needSentyFlg, item.objectFilter, props.chlData, objectFilterMode)
+                paramXml = rawXml`<param>
+                    <switch>${data.detectionEnable}</switch>
+                    <alarmHoldTime unit="s">${data.holdTime}</alarmHoldTime>
+                    ${data.autoTrack ? `<autoTrack>${data.autoTrack}</autoTrack>` : ''}
+                    ${data.audioSuport && props.chlData.supportAudio ? `<triggerAudio>${data.trigger.includes('triggerAudio')}</triggerAudio>` : ''}
+                    ${data.lightSuport && props.chlData.supportWhiteLight ? `<triggerWhiteLight>${data.trigger.includes('triggerWhiteLight')}</triggerWhiteLight>` : ''}
+                    ${
+                        data.pictureAvailable
+                            ? rawXml`
+                            <saveSourcePicture>${data.saveSourcePicture}</saveSourcePicture>
+                            <saveTargetPicture>${data.saveTargetPicture}</saveTargetPicture>
+                        `
+                            : ''
                     }
-
-                    // 模式5：ONVIF存在每个区域有公共灵敏度和开关
-                    if (item.objectFilter.supportCommonSensitivity) {
-                        paramXml += '<switch>' + item.objectFilter.commonSensitivity.enable + '</switch>'
-                        paramXml += '<sensitivity>' + item.objectFilter.commonSensitivity.value + '</sensitivity>'
-                    } else if (item.objectFilter.supportCommonEnable) {
-                        paramXml += '<switch>' + item.objectFilter.commonSensitivity.enable + '</switch>'
-                    }
-                    paramXml += '</item>'
-                })
-                paramXml += '</line>'
-
-                if (props.chlData.supportAudio && formData.value.audioSuport) {
-                    paramXml += '<triggerAudio>' + formData.value.trigger.includes('triggerAudio') + '</triggerAudio>'
-                }
-
-                if (props.chlData.supportWhiteLight && formData.value.lightSuport) {
-                    paramXml += '<triggerWhiteLight>' + formData.value.trigger.includes('triggerWhiteLight') + '</triggerWhiteLight>'
-                }
-
-                if (formData.value.pictureAvailable) {
-                    paramXml += '<saveTargetPicture>' + formData.value.saveTargetPicture + '</saveTargetPicture>' + '<saveSourcePicture>' + formData.value.saveSourcePicture + '</saveSourcePicture>'
-                }
-                paramXml += '</param>'
+                    ${data.hasAutoTrack ? `<autoTrack>${data.autoTrack}</autoTrack>` : ''}
+                    ${data.onlyPreson ? `<sensitivity>${data.sensitivity}</sensitivity>` : ''}
+                    ${setParamObjectFilterData()}
+                    <line type="list" count="${data.lineInfo.length}">
+                        <itemType>
+                        <direction type="direction"/>
+                        </itemType>
+                        ${formData.value.lineInfo
+                            .map((element) => {
+                                return rawXml`
+                                    <item>
+                                        <direction type="direction">${element.direction}</direction>
+                                        <startPoint>
+                                            <X>${element.startPoint.X}</X>
+                                            <Y>${element.startPoint.Y}</Y>
+                                        </startPoint>
+                                        <endPoint>
+                                            <X>${element.endPoint.X}</X>
+                                            <Y>${element.endPoint.Y}</Y>
+                                        </endPoint>
+                                        ${setItemObjectFilterData(element)}
+                                        ${
+                                            element.objectFilter.supportCommonSensitivity
+                                                ? rawXml`
+                                                ${element.objectFilter.supportCommonEnable ? `<switch>${element.objectFilter.commonSensitivity.enable}</switch>` : ''}
+                                                <sensitivity>${element.objectFilter.commonSensitivity.value}</sensitivity>`
+                                                : ''
+                                        }
+                                        ${element.objectFilter.supportCommonEnable ? `<switch>${element.objectFilter.commonSensitivity.enable}</switch>` : ''}
+                                    </item>
+                                `
+                            })
+                            .join('')}
+                    </line>
+                </param>`
             }
             const sendXml = rawXml`
                 <content>
@@ -636,7 +656,7 @@ export default defineComponent({
                 if (pageData.value.isShowAllArea) {
                     showAllArea(true)
                 }
-            } else if (pageData.value.tab === 'target' || pageData.value.tab === 'trigger') {
+            } else if (pageData.value.tab === 'trigger') {
                 showAllArea(false)
 
                 if (mode.value === 'h5') {
@@ -726,22 +746,35 @@ export default defineComponent({
             // 最大区域高
             const maxTextH = formData.value.lineInfo[surfaceIndex].objectFilter[detectTarget].maxRegionInfo.height
 
-            let shoeErrTip = false
             const errorMsg = Translate('IDCS_MIN_LESS_THAN_MAX')
-            if (type === 'minTextW' && minTextW >= maxTextW) {
-                shoeErrTip = true
-                formData.value.lineInfo[surfaceIndex].objectFilter[detectTarget].minRegionInfo.width = maxTextW - 1
-            } else if (type === 'minTextH' && minTextH >= maxTextH) {
-                shoeErrTip = true
-                formData.value.lineInfo[surfaceIndex].objectFilter[detectTarget].minRegionInfo.height = maxTextH - 1
-            } else if (type === 'maxTextW' && maxTextW <= minTextW) {
-                shoeErrTip = true
-                formData.value.lineInfo[surfaceIndex].objectFilter[detectTarget].maxRegionInfo.width = minTextW + 1
-            } else if (type === 'maxTextH' && maxTextH <= minTextH) {
-                shoeErrTip = true
-                formData.value.lineInfo[surfaceIndex].objectFilter[detectTarget].maxRegionInfo.height = minTextH + 1
+            switch (type) {
+                case 'minTextW':
+                    if (minTextW >= maxTextW) {
+                        openMessageBox(errorMsg)
+                        formData.value.lineInfo[surfaceIndex].objectFilter[detectTarget].minRegionInfo.width = maxTextW - 1
+                    }
+                    break
+                case 'minTextH':
+                    if (minTextH >= maxTextH) {
+                        openMessageBox(errorMsg)
+                        formData.value.lineInfo[surfaceIndex].objectFilter[detectTarget].minRegionInfo.height = maxTextH - 1
+                    }
+                    break
+                case 'maxTextW':
+                    if (maxTextW <= minTextW) {
+                        openMessageBox(errorMsg)
+                        formData.value.lineInfo[surfaceIndex].objectFilter[detectTarget].maxRegionInfo.width = minTextW + 1
+                    }
+                    break
+                case 'maxTextH':
+                    if (maxTextH <= minTextH) {
+                        openMessageBox(errorMsg)
+                        formData.value.lineInfo[surfaceIndex].objectFilter[detectTarget].maxRegionInfo.height = minTextH + 1
+                    }
+                    break
+                default:
+                    break
             }
-            shoeErrTip && openMessageBox(errorMsg)
         }
 
         /**
@@ -866,11 +899,11 @@ export default defineComponent({
                     const areaList = [1, 2]
                     const sendXMLClear = OCX_XML_DeleteRectangleArea(areaList)
                     plugin.ExecuteCmd(sendXMLClear)
-                    const minRegionForPlugin = JSON.parse(JSON.stringify(minRegionInfo.region[0]))
+                    const minRegionForPlugin = cloneDeep(minRegionInfo.region[0])
                     minRegionForPlugin.ID = 1
                     minRegionForPlugin.text = 'Min'
                     minRegionForPlugin.LineColor = 'yellow'
-                    const maxRegionForPlugin = JSON.parse(JSON.stringify(maxRegionInfo.region[0]))
+                    const maxRegionForPlugin = cloneDeep(maxRegionInfo.region[0])
                     maxRegionForPlugin.ID = 2
                     maxRegionForPlugin.text = 'Max'
                     maxRegionForPlugin.LineColor = 'yellow'
@@ -1047,8 +1080,15 @@ export default defineComponent({
             playerRef,
             pageData,
             formData,
-            notify,
             watchEdit,
+            showAllPersonTarget,
+            showAllCarTarget,
+            showAllMotorTarget,
+            showPersonSentity,
+            showCarSentity,
+            showMotorSentity,
+            supportPeaTrigger,
+            notify,
             handlePlayerReady,
             setSpeed,
             closeSchedulePop,
@@ -1063,13 +1103,6 @@ export default defineComponent({
             editLockStatus,
             clearArea,
             clearAllArea,
-            showAllPersonTarget,
-            showAllCarTarget,
-            showAllMotorTarget,
-            showPersonSentity,
-            showCarSentity,
-            showMotorSentity,
-            supportPeaTrigger,
         }
     },
 })
