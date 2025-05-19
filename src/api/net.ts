@@ -166,10 +166,10 @@ export const edit802xCfg = (data: string) => fetch('edit802xCfg', data)
 export const queryCloudUpgradeCfg = () => fetch('queryCloudUpgradeCfg', '')
 
 /**
- * @description 获取云更新下载状态
+ * @description 获取云升级设备信息和通道信息
  * @returns
  */
-export const getPackageDownloadStatus = () => fetch('getPackageDownloadStatus', '')
+export const getCloudUpgradeInfo = () => fetch('getCloudUpgradeInfo', '')
 
 /**
  * @description 编辑云更新配置
@@ -186,11 +186,18 @@ export const editCloudUpgradeCfg = (data: string) => fetch('editCloudUpgradeCfg'
 export const checkVersion = (data: string) => fetch('checkVersion', data)
 
 /**
- * @description 检查版本
+ * @description 设备云升级
  * @param {string} data
  * @returns
  */
 export const cloudUpgrade = (data: string) => fetch('cloudUpgrade', data)
+
+/**
+ * @description IPC云升级
+ * @param {string} data
+ * @returns
+ */
+export const cloudUpgradeNode = (data: string) => fetch('cloudUpgradeNode', data)
 
 /**
  * @description 获取P2P配置
