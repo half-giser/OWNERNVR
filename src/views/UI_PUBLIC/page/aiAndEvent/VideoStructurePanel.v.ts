@@ -42,11 +42,6 @@ export default defineComponent({
 
         let currAreaType: CanvasAreaType = 'detectionArea' // detectionArea侦测区域 maskArea屏蔽区域 regionArea矩形区域
 
-        const algoChkType: Record<string, string> = {
-            instant_model: Translate('IDCS_INSTANT_MODEL'),
-            inter_model: Translate('IDCS_INTERVAL_MODEL'),
-        }
-
         const countCycleTypeTip: Record<string, string> = {
             day: Translate('IDCS_TIME_DAY'),
             week: Translate('IDCS_TIME_WEEK'),
@@ -79,6 +74,12 @@ export default defineComponent({
             bikeTypeSwitch: Translate('IDCS_TYPE'),
         }
 
+        const detectTargetTypeTip: Record<string, string> = {
+            person: Translate('IDCS_DETECTION_PERSON'),
+            car: Translate('IDCS_DETECTION_VEHICLE'),
+            motor: Translate('IDCS_NON_VEHICLE'),
+        }
+
         const noneOSD = {
             switch: false,
             X: 0,
@@ -94,20 +95,27 @@ export default defineComponent({
             tab: 'param',
             // 存储是否可用
             isSavePicDisabled: false,
-            // 高级-识别模式
-            algoModelList: [] as SelectOption<string, string>[],
             // 是否显示全部区域
             isShowAllArea: false,
+            // 控制显示展示全部区域的checkbox
+            showAllAreaVisible: true,
+            // 控制显示清除全部区域按钮 >=2才显示
+            clearAllVisible: true,
+            // 控制显示最值区域
+            isShowDisplayRange: false,
             // 排程
             scheduleList: [] as SelectOption<string, string>[],
             isSchedulePop: false,
+            // 配置模式
+            objectFilterMode: 'mode1',
             // 检测区域，屏蔽区域
             detectArea: 0,
             detectAreaChecked: [] as number[],
+            // 记住最新选择的警戒区域，后面选择屏蔽区域时，用此index去舒初始化页面
+            lastDetectArea: 0,
             maskArea: -1,
             // 初始是否有数据（添加样式）
             maskAreaChecked: [] as number[],
-
             // 是否启用自动重置
             autoReset: true,
             timeType: 'day',
@@ -180,9 +188,9 @@ export default defineComponent({
         const changeArea = (area: CanvasBaseArea | CanvasBasePoint[], osdInfo?: CanvasPolygonOSDInfo) => {
             // 检测区域/屏蔽区域
             if (currAreaType === 'detectionArea') {
-                formData.value.detectAreaInfo[pageData.value.detectArea] = area as CanvasBasePoint[]
+                formData.value.detectAreaInfo[pageData.value.detectArea].point = area as CanvasBasePoint[]
             } else if (currAreaType === 'maskArea') {
-                formData.value.maskAreaInfo[pageData.value.maskArea] = area as CanvasBasePoint[]
+                formData.value.maskAreaInfo[pageData.value.maskArea].point = area as CanvasBasePoint[]
             }
 
             if (osdInfo) {
@@ -193,7 +201,6 @@ export default defineComponent({
             if (pageData.value.isShowAllArea) {
                 showAllArea(pageData.value.isShowAllArea)
             }
-            // showAllArea(pageData.value.isShowAllArea)
         }
 
         /**
@@ -203,9 +210,15 @@ export default defineComponent({
         const closePath = (area: CanvasBasePoint[]) => {
             area.forEach((item) => (item.isClosed = true))
             if (currAreaType === 'detectionArea') {
-                formData.value.detectAreaInfo[pageData.value.detectArea] = area
+                formData.value.detectAreaInfo[pageData.value.detectArea].point = area
+                formData.value.detectAreaInfo[pageData.value.detectArea].point.forEach((ele) => {
+                    ele.isClosed = true
+                })
             } else if (currAreaType === 'maskArea') {
-                formData.value.maskAreaInfo[pageData.value.maskArea] = area
+                formData.value.maskAreaInfo[pageData.value.maskArea].point = area
+                formData.value.maskAreaInfo[pageData.value.maskArea].point.forEach((ele) => {
+                    ele.isClosed = true
+                })
             }
         }
 
@@ -228,9 +241,9 @@ export default defineComponent({
                 message: Translate('IDCS_DRAW_CLEAR_TIP'),
             }).then(() => {
                 if (currAreaType === 'detectionArea') {
-                    formData.value.detectAreaInfo[pageData.value.detectArea] = []
+                    formData.value.detectAreaInfo[pageData.value.detectArea].point = []
                 } else if (currAreaType === 'maskArea') {
-                    formData.value.maskAreaInfo[pageData.value.maskArea] = []
+                    formData.value.maskAreaInfo[pageData.value.maskArea].point = []
                 }
 
                 if (mode.value === 'h5') {
@@ -294,13 +307,6 @@ export default defineComponent({
                 const param = $('content/chl/param')
                 const $param = queryXml(param[0].element)
                 const enabledSwitch = $param('switch').text().bool()
-                // 识别模式选项
-                pageData.value.algoModelList = $('types/algoChkType/enum').map((item) => {
-                    return {
-                        value: item.text(),
-                        label: algoChkType[item.text()],
-                    }
-                })
 
                 // 重置信息（循环模式列表）
                 $('types/countCycleType/enum').forEach((item) => {
@@ -311,6 +317,83 @@ export default defineComponent({
                         })
                     }
                 })
+
+                formData.value.mutexList = $param('mutexList/item').map((item) => {
+                    const $item = queryXml(item.element)
+                    return {
+                        object: $item('object').text(),
+                        status: $item('status').text().bool(),
+                    }
+                })
+                formData.value.mutexListEx = $param('mutexListEx/item').map((item) => {
+                    const $item = queryXml(item.element)
+                    return {
+                        object: $item('object').text(),
+                        status: $item('status').text().bool(),
+                    }
+                })
+                // 解析检测目标的数据
+                const objectFilterMode = getCurrentAICfgMode('boundary', $param)
+                pageData.value.objectFilterMode = objectFilterMode
+                const $paramObjectFilter = $('content/chl/param/objectFilter')
+                let objectFilter = ref(new AlarmObjectFilterCfgDto())
+                if (objectFilterMode === 'mode1') {
+                    // 模式一
+                    if ($param('objectFilter').text() !== '') {
+                        objectFilter = getObjectFilterData(objectFilterMode, $paramObjectFilter, [])
+                    }
+                }
+                const detectAreaInfo: {
+                    objectFilter: AlarmObjectFilterCfgDto
+                    point: CanvasBasePoint[]
+                    maxCount: number
+                }[] = []
+                $param('boundary/item').forEach((element) => {
+                    const $element = queryXml(element.element)
+                    const needResetObjectList = ['mode2', 'mode3', 'mode5']
+                    const needResetObjectFilter = needResetObjectList.indexOf(objectFilterMode) !== -1
+                    if (needResetObjectFilter) {
+                        const $resultNode = objectFilterMode === 'mode2' ? $paramObjectFilter : []
+                        objectFilter = getObjectFilterData(objectFilterMode, $element('objectFilter'), $resultNode)
+                    }
+                    const boundary = {
+                        objectFilter: objectFilter.value,
+                        point: [] as CanvasBasePoint[],
+                        maxCount: $element('point').attr('maxCount').num(),
+                    }
+                    $element('point/item').forEach((point) => {
+                        const $item = queryXml(point.element)
+                        boundary.point.push({
+                            X: $item('X').text().num(),
+                            Y: $item('Y').text().num(),
+                            isClosed: true,
+                        })
+                    })
+                    detectAreaInfo.push(boundary)
+                })
+
+                // 屏蔽区域
+                const maskAreaInfo: {
+                    point: CanvasBasePoint[]
+                    maxCount: number
+                }[] = []
+                $param('maskArea/item').forEach((element) => {
+                    const $element = queryXml(element.element)
+                    const maskArea = {
+                        point: [] as CanvasBasePoint[],
+                        maxCount: $element('point').attr('maxCount').num(),
+                    }
+                    $element('point/item').forEach((point) => {
+                        const $item = queryXml(point.element)
+                        maskArea.point.push({
+                            X: $item('X').text().num(),
+                            Y: $item('Y').text().num(),
+                            isClosed: true,
+                        })
+                    })
+                    maskAreaInfo.push(maskArea)
+                })
+
                 // OSD
                 const countOSD = {
                     switch: $param('countOSD/switch').text().bool(),
@@ -378,39 +461,31 @@ export default defineComponent({
                     }
                 })
 
+                let detectTargetList: { value: string; label: string }[] = []
+                // 默认用detectAreaInfo的第一个数据初始化检测目标
+                if (detectAreaInfo[0].objectFilter.detectTargetList.length) {
+                    detectTargetList = detectAreaInfo[0].objectFilter.detectTargetList.map((item) => {
+                        return {
+                            value: item,
+                            label: detectTargetTypeTip[item],
+                        }
+                    })
+                }
+
                 formData.value = {
                     enabledSwitch,
                     originalSwitch: enabledSwitch,
                     schedule: getScheduleId(pageData.value.scheduleList, $('content/chl').attr('scheduleGuid')),
                     saveSourcePicture: $param('saveSourcePicture').text().bool(),
                     saveTargetPicture: $param('saveTargetPicture').text().bool(),
-                    algoChkModel: $param('algoModel/algoChkModel').text(),
-                    intervalCheck: $param('algoModel/intervalCheck').text().num(),
-                    intervalCheckMin: $param('algoModel/intervalCheck').attr('min').num(),
-                    intervalCheckMax: $param('algoModel/intervalCheck').attr('max').num(),
-                    detectAreaInfo: $param('boundary/item').map((item) => {
+                    mutexList: $param('mutexList/item').map((item) => {
                         const $item = queryXml(item.element)
-                        return $item('point/item').map((ele) => {
-                            const $ele = queryXml(ele.element)
-                            return {
-                                X: $ele('X').text().num(),
-                                Y: $ele('Y').text().num(),
-                                isClosed: true,
-                            }
-                        })
+                        return {
+                            object: $item('object').text(),
+                            status: $item('status').text().bool(),
+                        }
                     }),
-                    maskAreaInfo: $param('maskArea/item').map((item) => {
-                        const $item = queryXml(item.element)
-                        return $item('point/item').map((ele) => {
-                            const $ele = queryXml(ele.element)
-                            return {
-                                X: $ele('X').text().num(),
-                                Y: $ele('Y').text().num(),
-                                isClosed: true,
-                            }
-                        })
-                    }),
-                    mutexList: $('mutexList/item').map((item) => {
+                    mutexListEx: $param('mutexListEx/item').map((item) => {
                         const $item = queryXml(item.element)
                         return {
                             object: $item('object').text(),
@@ -433,14 +508,10 @@ export default defineComponent({
                             dateTime: $param('countPeriod/monthly/dateTimeSpan').text() || '00:00:00',
                         },
                     },
-                    objectFilter: {
-                        car: $param('objectFilter/car/switch').text().bool(),
-                        person: $param('objectFilter/person/switch').text().bool(),
-                        motorcycle: $param('objectFilter/motor/switch').text().bool(),
-                        carSensitivity: $param('objectFilter/car/sensitivity').text().num(),
-                        personSensitivity: $param('objectFilter/person/sensitivity').text().num(),
-                        motorSensitivity: $param('objectFilter/motor/sensitivity').text().num(),
-                    },
+                    detectAreaInfo,
+                    maskAreaInfo,
+                    detectTargetList,
+                    detectTarget: detectTargetList[0].value,
                     osdType: $param('osdConfig/osdType').text(),
                     osdPersonCfgList,
                     osdCarCfgList,
@@ -471,18 +542,27 @@ export default defineComponent({
         const refreshInitPage = () => {
             // 区域状态
             pageData.value.detectAreaChecked = formData.value.detectAreaInfo.map((item, index) => {
-                if (item.length > 0) {
+                if (item.point.length > 0) {
                     return index
                 }
                 return -1
             })
 
             pageData.value.maskAreaChecked = formData.value.maskAreaInfo.map((item, index) => {
-                if (item.length > 0) {
+                if (item.point.length > 0) {
                     return index
                 }
                 return -1
             })
+
+            // 是否显示全部区域切换按钮和清除全部按钮（区域数量大于等于2时才显示）
+            if (formData.value.detectAreaInfo && formData.value.detectAreaInfo.length > 1) {
+                pageData.value.showAllAreaVisible = true
+                pageData.value.clearAllVisible = true
+            } else {
+                pageData.value.showAllAreaVisible = false
+                pageData.value.clearAllVisible = false
+            }
 
             // OSD状态
             if (formData.value.countOSD) {
@@ -586,8 +666,30 @@ export default defineComponent({
             }
 
             if (value) {
-                const detectAreaInfo = formData.value.detectAreaInfo
-                const maskAreaInfo = formData.value.maskAreaInfo
+                const detectAreaInfo: CanvasBasePoint[][] = []
+                const detectAreaInfoList = formData.value.detectAreaInfo
+                const maskAreaInfo: CanvasBasePoint[][] = []
+                const maskAreaInfoList = formData.value.maskAreaInfo
+                detectAreaInfoList.forEach((ele, idx) => {
+                    detectAreaInfo[idx] = ele.point.map((item) => {
+                        return {
+                            X: item.X,
+                            Y: item.Y,
+                            isClosed: item.isClosed,
+                        }
+                    })
+                })
+
+                maskAreaInfoList.forEach((ele, idx) => {
+                    maskAreaInfo[idx] = ele.point.map((item) => {
+                        return {
+                            X: item.X,
+                            Y: item.Y,
+                            isClosed: item.isClosed,
+                        }
+                    })
+                })
+
                 if (mode.value === 'h5') {
                     let index = -1
                     if (currAreaType === 'detectionArea') {
@@ -622,9 +724,9 @@ export default defineComponent({
          */
         const clearArea = () => {
             if (currAreaType === 'detectionArea') {
-                formData.value.detectAreaInfo[pageData.value.detectArea] = []
+                formData.value.detectAreaInfo[pageData.value.detectArea].point = []
             } else if (currAreaType === 'maskArea') {
-                formData.value.maskAreaInfo[pageData.value.maskArea] = []
+                formData.value.maskAreaInfo[pageData.value.maskArea].point = []
             }
 
             if (mode.value === 'h5') {
@@ -646,11 +748,11 @@ export default defineComponent({
          */
         const clearAllArea = () => {
             for (const key in formData.value.detectAreaInfo) {
-                formData.value.detectAreaInfo[key] = []
+                formData.value.detectAreaInfo[key].point = []
             }
 
             for (const key in formData.value.maskAreaInfo) {
-                formData.value.maskAreaInfo[key] = []
+                formData.value.maskAreaInfo[key].point = []
             }
 
             if (mode.value === 'h5') {
@@ -658,9 +760,6 @@ export default defineComponent({
             }
 
             if (mode.value === 'ocx') {
-                // const sendXML = OCX_XML_SetVsdAreaAction("CLEARALL");
-                // plugin.ExecuteCmd(sendXML, sendXML.length);
-
                 const sendXML1 = OCX_XML_SetAllArea({}, 'IrregularPolygon', OCX_AI_EVENT_TYPE_VSD, '', pageData.value.isShowAllArea)
                 plugin.ExecuteCmd(sendXML1)
 
@@ -678,8 +777,10 @@ export default defineComponent({
          */
         const changeDetectArea = () => {
             currAreaType = 'detectionArea'
+            pageData.value.lastDetectArea = pageData.value.detectArea
             pageData.value.maskArea = -1
             changeAreaType()
+            showDisplayRange()
         }
 
         /**
@@ -689,6 +790,7 @@ export default defineComponent({
             currAreaType = 'maskArea'
             pageData.value.detectArea = -1
             changeAreaType()
+            showDisplayRange()
         }
 
         /**
@@ -708,6 +810,142 @@ export default defineComponent({
         }
 
         /**
+         * @description 开启关闭显示全部区域
+         */
+        const toggleShowAllArea = () => {
+            showAllArea(pageData.value.isShowAllArea)
+        }
+
+        /**
+         * @description 开关显示大小范围区域
+         */
+        const toggleDisplayRange = () => {
+            showDisplayRange()
+        }
+
+        /**
+         * @description 校验目标范围最大值
+         * @param {string} type
+         */
+        const checkMinMaxRange = (type: string) => {
+            const warnAreaIndex = pageData.value.lastDetectArea
+            const detectTarget = formData.value.detectTarget
+            // 最小区域宽
+            const minTextW = formData.value.detectAreaInfo[warnAreaIndex].objectFilter[detectTarget].minRegionInfo.width
+            // 最小区域高
+            const minTextH = formData.value.detectAreaInfo[warnAreaIndex].objectFilter[detectTarget].minRegionInfo.height
+            // 最大区域宽
+            const maxTextW = formData.value.detectAreaInfo[warnAreaIndex].objectFilter[detectTarget].maxRegionInfo.width
+            // 最大区域高
+            const maxTextH = formData.value.detectAreaInfo[warnAreaIndex].objectFilter[detectTarget].maxRegionInfo.height
+
+            const errorMsg = Translate('IDCS_MIN_LESS_THAN_MAX')
+            switch (type) {
+                case 'minTextW':
+                    if (minTextW >= maxTextW) {
+                        openMessageBox(errorMsg)
+                        formData.value.detectAreaInfo[warnAreaIndex].objectFilter[detectTarget].minRegionInfo.width = maxTextW - 1
+                    }
+                    break
+                case 'minTextH':
+                    if (minTextH >= maxTextH) {
+                        openMessageBox(errorMsg)
+                        formData.value.detectAreaInfo[warnAreaIndex].objectFilter[detectTarget].minRegionInfo.height = maxTextH - 1
+                    }
+                    break
+                case 'maxTextW':
+                    if (maxTextW <= minTextW) {
+                        openMessageBox(errorMsg)
+                        formData.value.detectAreaInfo[warnAreaIndex].objectFilter[detectTarget].maxRegionInfo.width = minTextW + 1
+                    }
+                    break
+                case 'maxTextH':
+                    if (maxTextH <= minTextH) {
+                        openMessageBox(errorMsg)
+                        formData.value.detectAreaInfo[warnAreaIndex].objectFilter[detectTarget].maxRegionInfo.height = minTextH + 1
+                    }
+                    break
+                default:
+                    break
+            }
+        }
+
+        /**
+         * @description 是否显示大小范围区域
+         */
+        const showDisplayRange = () => {
+            if (pageData.value.isShowDisplayRange) {
+                const currentSurface = pageData.value.lastDetectArea
+                const currTargetType = formData.value.detectTarget // 人/车/非
+                const minRegionInfo = formData.value.detectAreaInfo[currentSurface].objectFilter[currTargetType].minRegionInfo // 最小区域
+                const maxRegionInfo = formData.value.detectAreaInfo[currentSurface].objectFilter[currTargetType].maxRegionInfo // 最大区域
+                const minPercentW = minRegionInfo.width
+                const minPercentH = minRegionInfo.height
+                const maxPercentW = maxRegionInfo.width
+                const maxPercentH = maxRegionInfo.height
+                minRegionInfo.region = []
+                maxRegionInfo.region = []
+                minRegionInfo.region.push(calcRegionInfo(minPercentW, minPercentH))
+                maxRegionInfo.region.push(calcRegionInfo(maxPercentW, maxPercentH))
+
+                if (mode.value === 'h5') {
+                    drawer.setRangeMin(minRegionInfo.region[0])
+                    drawer.setRangeMax(maxRegionInfo.region[0])
+                    drawer.toggleRange(true)
+                }
+
+                if (mode.value === 'ocx') {
+                    // 插件需要先删除区域 再重新添加区域进行显示
+                    const areaList = [1, 2]
+                    const sendXMLClear = OCX_XML_DeleteRectangleArea(areaList)
+                    plugin.ExecuteCmd(sendXMLClear)
+                    const minRegionForPlugin = cloneDeep(minRegionInfo.region[0])
+                    minRegionForPlugin.ID = 1
+                    minRegionForPlugin.text = 'Min'
+                    minRegionForPlugin.LineColor = 'yellow'
+                    const maxRegionForPlugin = cloneDeep(maxRegionInfo.region[0])
+                    maxRegionForPlugin.ID = 2
+                    maxRegionForPlugin.text = 'Max'
+                    maxRegionForPlugin.LineColor = 'yellow'
+                    const rectangles = []
+                    rectangles.push(minRegionForPlugin)
+                    rectangles.push(maxRegionForPlugin)
+                    const sendXML = OCX_XML_AddRectangleArea(rectangles)
+                    plugin.ExecuteCmd(sendXML)
+                }
+            } else {
+                if (mode.value === 'h5') {
+                    drawer.toggleRange(false)
+                }
+
+                if (mode.value === 'ocx') {
+                    const areaList = [1, 2]
+                    const sendXMLClear = OCX_XML_DeleteRectangleArea(areaList)
+                    plugin.ExecuteCmd(sendXMLClear)
+                }
+            }
+        }
+
+        /**
+         * @description  计算最大值最小值区域 画布分割为 10000 * 10000
+         * @param {number} widthPercent
+         * @param {number} heightPercent
+         */
+        const calcRegionInfo = (widthPercent: number, heightPercent: number) => {
+            const X1 = ((100 - widthPercent) * 10000) / 100 / 2
+            const X2 = ((100 - widthPercent) * 10000) / 100 / 2 + (widthPercent * 10000) / 100
+            const Y1 = ((100 - heightPercent) * 10000) / 100 / 2
+            const Y2 = ((100 - heightPercent) * 10000) / 100 / 2 + (heightPercent * 10000) / 100
+            const regionInfo = {
+                X1: X1,
+                Y1: Y1,
+                X2: X2,
+                Y2: Y2,
+            }
+            return regionInfo
+        }
+
+        /**
          * @description 设置区域图形
          * @param {string} type
          */
@@ -717,14 +955,14 @@ export default defineComponent({
                 if (formData.value.detectAreaInfo[index]) {
                     if (mode.value === 'h5') {
                         drawer.setCurrAreaIndex(index, type)
-                        drawer.setPointList(formData.value.detectAreaInfo[index], true)
+                        drawer.setPointList(formData.value.detectAreaInfo[index].point, true)
                     }
 
                     if (mode.value === 'ocx') {
                         // 从侦测区域切换到屏蔽区域时（反之同理），会先执行侦测区域的清空、不可编辑，再执行屏蔽区域的是否可编辑三个命令
                         // 最后执行渲染画线的命令，加延时的目的是这个过程执行命令过多，插件响应不过来
                         setTimeout(() => {
-                            const sendXML = OCX_XML_SetVsdArea(formData.value.detectAreaInfo[index], false, index, 'green')
+                            const sendXML = OCX_XML_SetVsdArea(formData.value.detectAreaInfo[index].point, false, index, 'green')
                             plugin.ExecuteCmd(sendXML)
                         }, 100)
                     }
@@ -734,12 +972,12 @@ export default defineComponent({
                 if (formData.value.maskAreaInfo[index]) {
                     if (mode.value === 'h5') {
                         drawer.setCurrAreaIndex(index, type)
-                        drawer.setPointList(formData.value.maskAreaInfo[index], true)
+                        drawer.setPointList(formData.value.maskAreaInfo[index].point, true)
                     }
 
                     if (mode.value === 'ocx') {
                         setTimeout(() => {
-                            const sendXML = OCX_XML_SetVsdArea(formData.value.maskAreaInfo[index], false, index, 'red')
+                            const sendXML = OCX_XML_SetVsdArea(formData.value.maskAreaInfo[index].point, false, index, 'red')
                             plugin.ExecuteCmd(sendXML)
                         }, 100)
                     }
@@ -783,15 +1021,15 @@ export default defineComponent({
         const setOtherAreaClosed = () => {
             if (mode.value === 'h5') {
                 // 画点-区域
-                formData.value.detectAreaInfo.forEach((points) => {
-                    if (points.length >= 3 && drawer.judgeAreaCanBeClosed(points)) {
-                        setClosed(points)
+                formData.value.detectAreaInfo.forEach((ele) => {
+                    if (ele.point.length >= 3 && drawer.judgeAreaCanBeClosed(ele.point)) {
+                        setClosed(ele.point)
                     }
                 })
 
-                formData.value.maskAreaInfo.forEach((points) => {
-                    if (points.length >= 3 && drawer.judgeAreaCanBeClosed(points)) {
-                        setClosed(points)
+                formData.value.maskAreaInfo.forEach((ele) => {
+                    if (ele.point.length >= 3 && drawer.judgeAreaCanBeClosed(ele.point)) {
+                        setClosed(ele.point)
                     }
                 })
             }
@@ -813,6 +1051,11 @@ export default defineComponent({
             // 自动重置选中时formData.value.countPeriod.countTimeType被置为off，不方便直接绑定元素
             // 用pageData.value.timeType绑定页面元素
             formData.value.countPeriod.countTimeType = value
+            // advancedVisible.value = true
+        }
+
+        const handleClick = (event: Event) => {
+            event.stopPropagation()
         }
 
         /**
@@ -936,11 +1179,11 @@ export default defineComponent({
             const allRegionList = [...formData.value.detectAreaInfo, ...formData.value.maskAreaInfo]
 
             for (const i in allRegionList) {
-                const count = allRegionList[i].length
+                const count = allRegionList[i].point.length
                 if (count > 0 && count < 4) {
                     openMessageBox(Translate('IDCS_SAVE_DATA_FAIL') + Translate('IDCS_INPUT_LIMIT_FOUR_POIONT'))
                     return false
-                } else if (count > 0 && !drawer.judgeAreaCanBeClosed(allRegionList[i])) {
+                } else if (count > 0 && !drawer.judgeAreaCanBeClosed(allRegionList[i].point)) {
                     openMessageBox(Translate('IDCS_INTERSECT'))
                     return false
                 }
@@ -957,10 +1200,36 @@ export default defineComponent({
         }
 
         /**
+         * @description 组装param根节点下的ObjectFilter数据
+         */
+        const setParamObjectFilterData = () => {
+            let paramXml = ''
+            const noParamObjectNodeList = ['mode0', 'mode4', 'mode5'] // 模式0,4,5不需要下发基础的objectFilter节点
+            if (noParamObjectNodeList.indexOf(pageData.value.objectFilterMode) === -1) {
+                // 模式1、2、3均要下发基础的objectFilter节点
+                paramXml = setObjectFilterXmlData(formData.value.detectAreaInfo[0].objectFilter, prop.chlData)
+            }
+            return paramXml
+        }
+
+        /**
+         * @description 组装各个区域下的ObjectFilter节点数据
+         */
+        const setItemObjectFilterData = (item: { objectFilter: globalThis.AlarmObjectFilterCfgDto }) => {
+            let paramXml = ''
+            const singleDetectCfgList = ['mode2', 'mode3'] // 上述模式每个区域可单独配置检测目标或目标大小
+            if (singleDetectCfgList.indexOf(pageData.value.objectFilterMode) !== -1) {
+                paramXml += setObjectFilterXmlData(item.objectFilter, prop.chlData)
+            }
+
+            return paramXml
+        }
+
+        /**
          * @description
          * @returns {string}
          */
-        const getSaveData = () => {
+        const getSaveData = (): string => {
             const sendXml = rawXml`
                 <content>
                     <chl id='${prop.currChlId}' scheduleGuid='${formData.value.schedule}'>
@@ -968,17 +1237,13 @@ export default defineComponent({
                             <switch>${formData.value.enabledSwitch}</switch>
                             <saveTargetPicture>${formData.value.saveTargetPicture}</saveTargetPicture>
                             <saveSourcePicture>${formData.value.saveSourcePicture}</saveSourcePicture>
-                            <algoModel>
-                                <algoChkModel type='algoChkType'>${formData.value.algoChkModel}</algoChkModel>
-                                <intervalCheck type='int' min='${formData.value.intervalCheckMin}' max='${formData.value.intervalCheckMax}'>${formData.value.intervalCheck}</intervalCheck>
-                            </algoModel>
                             <boundary type='list' count='4'>
                                 ${formData.value.detectAreaInfo
-                                    .map((points) => {
+                                    .map((element) => {
                                         return rawXml`
                                             <item>
-                                                <point type='list' maxCount='8' count='${points.length}'>
-                                                    ${points
+                                                <point type='list' maxCount='${element.maxCount}' count='${element.point.length}'>
+                                                    ${element.point
                                                         .map((item) => {
                                                             return rawXml`
                                                                 <item>
@@ -989,6 +1254,7 @@ export default defineComponent({
                                                         })
                                                         .join('')}
                                                 </point>
+                                                    ${setItemObjectFilterData(element)}
                                             </item>
                                     `
                                     })
@@ -996,11 +1262,11 @@ export default defineComponent({
                             </boundary>
                             <maskArea type='list' count='4'>
                                 ${formData.value.maskAreaInfo
-                                    .map((points) => {
+                                    .map((element) => {
                                         return rawXml`
                                         <item>
-                                            <point type='list' maxCount='8' count='${points.length}'>
-                                                ${points
+                                            <point type='list' maxCount='${element.maxCount}' count='${element.point.length}'>
+                                                ${element.point
                                                     .map((item) => {
                                                         return rawXml`
                                                             <item>
@@ -1016,26 +1282,7 @@ export default defineComponent({
                                     })
                                     .join('')}
                             </maskArea>
-                            <objectFilter>
-                                <car>
-                                    <switch>${formData.value.objectFilter.car}</switch>
-                                    <sensitivity>${formData.value.objectFilter.carSensitivity}</sensitivity>
-                                </car>
-                                <person>
-                                    <switch>${formData.value.objectFilter.person}</switch>
-                                    <sensitivity>${formData.value.objectFilter.personSensitivity}</sensitivity>
-                                </person>
-                                ${
-                                    prop.chlData.accessType === '0'
-                                        ? rawXml`
-                                            <motor>
-                                                <switch>${formData.value.objectFilter.motorcycle}</switch>
-                                                <sensitivity>${formData.value.objectFilter.motorSensitivity}</sensitivity>
-                                            </motor>
-                                        `
-                                        : ''
-                                }
-                            </objectFilter>
+                            ${setParamObjectFilterData()}
                             <countPeriod>
                                 <countTimeType>${formData.value.countPeriod.countTimeType}</countTimeType>
                                 <daily>
@@ -1092,7 +1339,7 @@ export default defineComponent({
                         </param>
                         <trigger></trigger>
                     </chl>
-                </content>   
+                </content>
             `
 
             return sendXml
@@ -1152,9 +1399,9 @@ export default defineComponent({
                         }
                     })
                     if (currAreaType === 'detectionArea') {
-                        formData.value.detectAreaInfo[pageData.value.detectArea] = point
+                        formData.value.detectAreaInfo[pageData.value.detectArea].point = point
                     } else if (currAreaType === 'maskArea') {
-                        formData.value.maskAreaInfo[pageData.value.maskArea] = point
+                        formData.value.maskAreaInfo[pageData.value.maskArea].point = point
                     }
                 }
 
@@ -1222,11 +1469,15 @@ export default defineComponent({
         return {
             advancedVisible,
             playerRef,
-            notify,
             formData,
             watchEdit,
             pageData,
             mode,
+            osdCfgList,
+            osdCheckedList,
+            isOsdCheckedAll,
+            osdShowList,
+            notify,
             handlePlayerReady,
             changeTab,
             showAllArea,
@@ -1237,12 +1488,13 @@ export default defineComponent({
             setEnableOSD,
             changeAutoReset,
             changeTimeType,
+            handleClick,
             resetData,
             changeOsdCfg,
-            osdCfgList,
-            osdCheckedList,
-            isOsdCheckedAll,
-            osdShowList,
+            toggleShowAllArea,
+            toggleDisplayRange,
+            showDisplayRange,
+            checkMinMaxRange,
             toggleAllOsd,
             applyData,
             closeSchedulePop,
