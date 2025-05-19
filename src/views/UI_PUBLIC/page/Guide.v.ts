@@ -34,7 +34,7 @@ export default defineComponent({
             timeFormatOptions: [] as SelectOption<string, string>[],
             // 时间服务器选项
             timeServerOptions: [] as SelectOption<string, string>[],
-            gpsBaudRateOptions: arrayToOptions([1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200]),
+            gpsBaudRateOptions: arrayToOptions(['1200', '2400', '4800', '9600', '19200', '38400', '57600', '115200']),
             isNtpIntervalOutOfRange: false,
             // 时区选项
             timeZoneOption: TIME_ZONE.map((item, index) => {
@@ -573,7 +573,7 @@ export default defineComponent({
                 dateTimeFormData.value.timeFormat = $('content/formatInfo/time').text()
                 dateTimeFormData.value.syncType = $('content/synchronizeInfo/type').text()
                 dateTimeFormData.value.timeServer = $('content/synchronizeInfo/ntpServer').text().trim()
-                dateTimeFormData.value.gpsBaudRate = $('content/synchronizeInfo/gpsBaudRate').text().num()
+                dateTimeFormData.value.gpsBaudRate = $('content/synchronizeInfo/gpsBaudRate').text()
                 dateTimeFormData.value.gpsBaudRateMin = $('content/synchronizeInfo/gpsBaudRate').attr('min').num()
                 dateTimeFormData.value.gpsBaudRateMax = $('content/synchronizeInfo/gpsBaudRate').attr('max').num()
                 dateTimeFormData.value.ntpInterval = $('content/synchronizeInfo/ntpInterval').text().num()
@@ -594,6 +594,14 @@ export default defineComponent({
                     getActivationStatus()
                 }
             }
+        }
+
+        const checkTimeServer = (str: string) => {
+            return /^\w(-?\w+)*(\.\w(-?\w+)*)*$/.test(str)
+        }
+
+        const checkGPSBaudRate = (str: string) => {
+            return Number(str) >= dateTimeFormData.value.gpsBaudRateMin && Number(str) <= dateTimeFormData.value.gpsBaudRateMax
         }
 
         // 显示时间格式
@@ -972,12 +980,10 @@ export default defineComponent({
             await getRegionList()
             await changeLangType(langStore.devLandId)
             nextTick(() => {
-                langRef.value?.querySelector('li.active')?.scrollIntoView({
-                    block: 'center',
-                })
-                regionRef.value?.querySelector('li.active')?.scrollIntoView({
-                    block: 'center',
-                })
+                if (langRef.value && regionRef.value) {
+                    scrollIntoView(langRef.value.querySelector('li.active')!)
+                    scrollIntoView(regionRef.value.querySelector('li.active')!)
+                }
             })
             pageData.value.current = steps.value[0]
             // steps.value = ['languageAndRegion', 'user', 'emailAndQa', 'disk']
@@ -1022,6 +1028,8 @@ export default defineComponent({
             langRef,
             regionRef,
             questionOptions,
+            checkTimeServer,
+            checkGPSBaudRate,
         }
     },
 })

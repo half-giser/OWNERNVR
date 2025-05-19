@@ -180,8 +180,10 @@ export default defineComponent({
         const prev = () => {
             pageData.value.currentIndex--
             current.value = prop.data.detail[pageData.value.currentIndex]
-            tableRef.value?.setCurrentRow(current.value)
-            tableRef.value?.$el.querySelector(`.el-table__row:nth-child(${pageData.value.currentIndex + 1})`)?.scrollIntoViewIfNeeded()
+            if (tableRef.value) {
+                tableRef.value.setCurrentRow(current.value)
+                scrollIntoView(tableRef.value.$el.querySelector(`.el-table__row:nth-child(${pageData.value.currentIndex + 1})`))
+            }
         }
 
         /**
@@ -190,8 +192,10 @@ export default defineComponent({
         const next = () => {
             pageData.value.currentIndex++
             current.value = prop.data.detail[pageData.value.currentIndex]
-            tableRef.value?.setCurrentRow(current.value)
-            tableRef.value?.$el.querySelector(`.el-table__row:nth-child(${pageData.value.currentIndex + 1})`)?.scrollIntoViewIfNeeded()
+            if (tableRef.value) {
+                tableRef.value.setCurrentRow(current.value)
+                scrollIntoView(tableRef.value.$el.querySelector(`.el-table__row:nth-child(${pageData.value.currentIndex + 1})`))
+            }
         }
 
         /**

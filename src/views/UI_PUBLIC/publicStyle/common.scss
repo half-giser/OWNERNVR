@@ -401,11 +401,7 @@ input[type='number'] {
                 display: block;
                 margin-bottom: 0;
 
-                &:has(.el-checkbox) {
-                    display: inline-flex;
-                }
-
-                .el-checkbox {
+                .el-checkbox:not(:first-child) {
                     margin-left: 5px;
                 }
             }
@@ -426,16 +422,12 @@ input[type='number'] {
             margin-bottom: 0;
             flex-wrap: nowrap;
 
-            &:has(.el-form-item .el-form-item__content) {
-                justify-content: space-between;
-            }
-
             & > .el-form-item__content > .el-form-item {
-                width: 49%;
+                width: 50%;
                 padding: 0;
 
                 & > .el-form-item__content > .el-form-item {
-                    width: 49%;
+                    width: 50%;
                     padding: 0;
                 }
             }
@@ -923,4 +915,9 @@ input[type='number'] {
     to {
         opacity: 0;
     }
+}
+
+.base-label-box {
+    display: flex;
+    align-items: center;
 }

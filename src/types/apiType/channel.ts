@@ -23,12 +23,13 @@ export class ChannelInfoDto {
     accessType = ''
     poeIndex = 0
     manufacturer = ''
+    autoReportID = ''
     productModel = {
         factoryName: '',
         innerText: '',
     }
     index = 0
-    chlIndex = ''
+    chlIndex = 0
     isOnline = false
     chlType = ''
     version = ''
@@ -36,6 +37,26 @@ export class ChannelInfoDto {
     showSetting = true
     upgradeStatus: 'normal' | 'notActive' | 'progress' | 'error' | 'success' = 'normal' // normal：初始状态， notActive：未激活， progress：正在升级， error：升级失败/校验头文件失败, success：升级成功
     upgradeProgressText = '' // 升级进度
+    supportJump = false
+    supportSetting = false
+}
+
+export class ChannelEditForm {
+    chlNum = ''
+    name = ''
+    nameMaxByteLen = 63
+    port = 0
+    manufacturer = ''
+    productModel = {
+        factoryName: '',
+        innerText: '',
+    }
+    userName = ''
+    userNameMaxByteLen = 63
+    autoReportID = ''
+    chlIndex = 0
+    ip = ''
+    password = ''
 }
 
 export interface ChannelIPCUpgradeExpose {
@@ -53,6 +74,15 @@ export class ChannelDefaultPwdDto {
     displayName = ''
     protocolType = ''
     showInput = false
+    port = 0
+}
+
+export class ChannelAddMultiChlList {
+    chlType: string | number = ''
+    chlLabel = ''
+    type: string | number = ''
+    disabled = true
+    checked = false
 }
 
 /**
@@ -60,8 +90,10 @@ export class ChannelDefaultPwdDto {
  */
 export class ChannelQuickAddDto {
     ip = ''
-    port = ''
-    httpPort = ''
+    chlNum = 0
+    port = 0
+    httpPort = 0
+    httpType = ''
     mask = ''
     gateway = ''
     manufacturer = ''
@@ -77,6 +109,11 @@ export class ChannelQuickAddDto {
     industryProductType = ''
     protocolType = ''
     activateStatus = ''
+    localEthName = ''
+    subIp = ''
+    subIpNetMask = ''
+    channelNumber = 0
+    multiChlList: ChannelAddMultiChlList[] = []
 }
 
 /**
@@ -85,6 +122,7 @@ export class ChannelQuickAddDto {
 export class ChannelManualAddDto {
     name = ''
     ip = ''
+    chlNum = 0
     domain = ''
     port = 10
     userName = ''
@@ -93,6 +131,11 @@ export class ChannelManualAddDto {
     protocolType = ''
     addrType = ''
     portDisabled = false
+    industryProductType = ''
+    channelNumber = 0
+    multiChlList: ChannelAddMultiChlList[] = []
+    fisheyeStreamType = ''
+    errorMsg = ''
 }
 
 /**
@@ -109,6 +152,20 @@ export class ChannelAddRecorderDto {
     chlAddedCount = 0
     productModel = ''
     displayName = ''
+}
+
+/**
+ * @description
+ */
+export class ChannelAddReportDto {
+    autoReportID = ''
+    ip = ''
+    port = 0
+    manufacturer = ''
+    protocolType = ''
+    username = ''
+    password = ''
+    chlNum = 0
 }
 
 /**
@@ -249,6 +306,7 @@ export class ChannelMultiChlIPCAddDto extends ChannelManualAddDto {
  */
 export class ChannelGroupDto {
     id = ''
+    nameMaxByteLen = 63
     name = ''
     dwellTime = 0
     chlCount = 0
@@ -316,10 +374,33 @@ export class ChannelImageDto extends TableRowStatus {
     id = ''
     name = ''
     chlType = ''
+    AccessType = ''
+
+    isSupportImageFusion = false
+
+    imageFusion = {
+        switch: false,
+        distance: 0,
+        distanceUnit: '',
+        distanceMin: 0,
+        distanceMax: 0,
+        distanceFmin: 0,
+        distanceFmax: 0,
+        distanceDefault: 0,
+        distanceFdefault: 0,
+        poolid: 0,
+        poolidDefault: 0,
+        poolidMin: 0,
+        poolidMax: 0,
+        fusespeed: 0,
+        fusespeedDefault: 0,
+        fusespeedMin: 0,
+        fusespeedMax: 0,
+    }
 
     isSupportHallway = false //是否支持走廊模式
     isSupportIRCutMode = false //是否支持日夜模式
-    isSupportThermal = false // 是否热成像通道
+    // isSupportThermal = false // 是否热成像通道
     isSpeco = false
 
     bright: number | undefined = undefined
@@ -352,19 +433,25 @@ export class ChannelImageDto extends TableRowStatus {
     denoiseDefault: number | undefined = undefined
     denoiseMin = 0
     denoiseMax = 100
-    denoiseSwitch = false
+    denoiseSwitch: boolean | undefined = false
+    denoiseSwitchDefault: boolean | undefined = false
 
-    ShowGainMode: boolean | undefined = false
+    // ShowGainMode: boolean | undefined = false
 
     WDR: number | undefined = undefined
     WDRDefault: number | undefined = undefined
     WDRMin = 0
     WDRMax = 100
-    WDRSwitch = false
+    WDRSwitch: boolean | undefined = false
+    WDRSwitchDefault: boolean | undefined = false
+
+    dZoom: string | undefined = undefined
+    dZoomDefault: string | undefined = undefined
 
     HFR: boolean | undefined = undefined
 
     whiteBalanceMode: string | undefined = undefined
+    whiteBalanceModeDefault: string | undefined = undefined
 
     red: number | undefined = undefined
     redDefault: number | undefined = undefined
@@ -388,10 +475,14 @@ export class ChannelImageDto extends TableRowStatus {
     sharpenDefault: number | undefined = undefined
     sharpenMin = 0
     sharpenMax = 100
-    sharpenSwitch = false
+    sharpenSwitch: boolean | undefined = undefined
+    sharpenSwitchDefault: boolean | undefined = undefined
     sharpenSwitchEnable: boolean | undefined = undefined
 
+    mirrorSwitchDefault: boolean | undefined = undefined
     mirrorSwitch: boolean | undefined = undefined
+
+    flipSwitchDefault: boolean | undefined = undefined
     flipSwitch: boolean | undefined = undefined
 
     imageRotate: string | undefined = undefined
@@ -407,6 +498,7 @@ export class ChannelImageDto extends TableRowStatus {
 
     HWDRLevel: string | undefined = undefined
     HWDRLevelDefault: string | undefined = undefined
+    HWDRMutexRotao = false
 
     smartIrMode: string | undefined = undefined
     smartIrModeDefault: string | undefined = undefined
@@ -427,7 +519,8 @@ export class ChannelImageDto extends TableRowStatus {
     defogDefault: number | undefined = undefined
     defogMin = 0
     defogMax = 100
-    defogSwitch = false
+    defogSwitchDefault: boolean | undefined = undefined
+    defogSwitch: boolean | undefined = undefined
 
     // 抗闪
     antiflicker: string | undefined = undefined
@@ -451,11 +544,20 @@ export class ChannelImageDto extends TableRowStatus {
     InfraredMode: string | undefined = undefined
     InfraredModeDefault: string | undefined = undefined
 
+    // 红外灯的亮度
+    irLightBright: number | undefined = undefined
+    irLightBrightDefault: number | undefined = undefined
+    irLightBrightMin = 0
+    irLightBrightMax = 100
+
     // 增益限制
+    noGainMode = false
     gainMode: string | undefined = undefined
     gainModeDefault: string | undefined = undefined
     gainAGC: number | undefined = undefined
     gainAGCDefault: number | undefined = undefined
+    gainAGCMin = 0
+    gainAGCMax = 100
     gain: number | undefined = undefined
     gainDefault: number | undefined = undefined
     gainMin = 0
@@ -488,6 +590,10 @@ export class ChannelImageDto extends TableRowStatus {
     whitelightOffTime: string | undefined = undefined
     whitelightOffTimeDefault: string | undefined = undefined
 
+    antiShakeDsp: boolean | undefined = undefined
+    illumination: string | undefined = undefined
+    ImageOverExposure: string | undefined = undefined
+
     cfgFileList: SelectOption<string, string>[] = []
     shutterModeList: SelectOption<string, string>[] = []
     shutterList: SelectOption<string, string>[] = []
@@ -503,7 +609,9 @@ export class ChannelImageDto extends TableRowStatus {
     exposureList: SelectOption<number, string>[] = []
     gainModeList: SelectOption<string, string>[] = []
     paletteList: SelectOption<string, string>[] = []
-
+    DigitalZoomList: SelectOption<string, string>[] = []
+    illuminationModeList: SelectOption<string, string>[] = []
+    ImageOverExposureModeList: SelectOption<string, string>[] = []
     activeTab = 'imageAdjust'
 }
 
@@ -541,21 +649,31 @@ export class ChannelMaskDto extends TableRowStatus {
     name = ''
     chlIndex = ''
     chlType = ''
-    switch = 'false'
+    switch = false
     color = 'black'
-    isSpeco = false
+    protocolType = ''
+    // isSpeco = false
     mask: ChannelPrivacyMaskDto[] = []
+    maxCount = 0
+    isPtz = false
+    presetList: SelectOption<string, string>[] = []
+    preset = ''
 }
 
 /**
  * @description
  */
 export class ChannelPrivacyMaskDto {
+    areaIndex = 0
+    id: number | string = ''
     switch = false
     X = 0
     Y = 0
     width = 0
     height = 0
+    color = ''
+    isDrawing = false
+    isSelect = false
 }
 
 /**
@@ -573,6 +691,7 @@ export class ChannelFisheyeDto extends TableRowStatus {
     HIKVISION = false
     isPrivateProtocol = false
     reqCfgFail = false
+    fishEyeModeList: SelectOption<string, string>[] = []
 }
 
 /**
@@ -585,8 +704,8 @@ export class ChannelMotionDto extends TableRowStatus {
     chlType = ''
     switch = false
     sensitivity = 1
-    sensitivityMinValue = 1
-    sensitivityMaxValue = 1
+    sensitivityMin = 1
+    sensitivityMax = 1
     holdTime = 0
     holdTimeList: SelectOption<number, string>[] = []
     supportSMD = false
@@ -607,8 +726,16 @@ export class ChannelPtzPresetChlDto {
     chlId = ''
     chlName = ''
     presetCount = 0
-    maxCount = Infinity
+    maxCount = 128
     presets: ChannelPtzPresetDto[] = []
+    nameMaxByteLen = 63
+    disabled = false
+    supportPtz = false
+    supportAZ = false
+    supportIris = false
+    minSpeed = 1
+    maxSpeed = 8
+    supportIntegratedPtz = false
 }
 
 /**
@@ -628,6 +755,10 @@ export class ChannelPtzTraceChlDto {
     traceCount = 0
     maxCount = Infinity
     trace: ChannelPtzTraceDto[] = []
+    traceMaxHoldTime = 180
+    nameMaxLen = 10
+    minSpeed = 1
+    maxSpeed = 8
 }
 
 /**
@@ -642,14 +773,24 @@ export class ChannelPtzCruiseChlDto {
     chlId = ''
     chlName = ''
     cruiseCount = 0
-    maxCount = Infinity
+    maxCount = 8
     cruise: ChannelPtzCruiseDto[] = []
+    cruisePresetMinSpeed = 1
+    cruisePresetMaxSpeed = 8
+    cruisePresetMinHoldTime = 5
+    cruisePresetMaxHoldTime = 100
+    cruisePresetDefaultHoldTime = 5
+    cruisePresetMaxCount = 16
+    cruisePresetHoldTimeList: SelectOption<number, string>[] = []
+    cruiseNameMaxLen = 64
 }
 
 /**
  * @description 巡航线 列表项
  */
-export class ChannelPtzCruiseDto extends ChannelPtzPresetDto {}
+export class ChannelPtzCruiseDto extends ChannelPtzPresetDto {
+    number = 0
+}
 
 /**
  * @description 巡航线-预置点
@@ -684,7 +825,7 @@ export class ChannelPtzCruiseGroupChlDto {
  * @description 巡航线组 新增轨迹 列表项
  */
 export class ChannelPtzCruiseGroupCruiseDto extends ChannelPtzPresetDto {
-    id = 0
+    number = 0
 }
 
 /**
@@ -694,29 +835,28 @@ export class ChannelPtzTaskChlDto {
     chlId = ''
     chlName = ''
     taskItemCount = 0
+    presetList: SelectOption<number, string>[] = []
+    traceList: SelectOption<number, string>[] = []
+    cruiseList: SelectOption<number, string>[] = []
+    preMin = 0
+    preMax = 1
+    cruMin = 0
+    cruMax = 1
+    traMin = 0
+    traMax = 1
+    tasks: ChannelPtzTaskDto[] = []
+    maxCount = 8
+    status = false
 }
 
 /**
  * @description 云台 任务列表项
  */
 export class ChannelPtzTaskDto {
-    index = 0
-    enable = ''
-    startTime = ''
-    endTime = ''
-    type = ''
-    name = ''
-    editIndex = ''
-}
-
-/**
- * @description 云台 任务 表单
- */
-export class ChannelPtzTaskForm {
     startTime = '00:00'
     endTime = '00:00'
-    name = 'No'
-    type = 'NON'
+    type = 'PRE'
+    editIndex = 0
 }
 
 /**
@@ -734,7 +874,6 @@ export class ChannelPtzSmartTrackDto extends TableRowStatus {
  * @description 云台协议 通道列表项
  */
 export class ChannelPtzProtocolDto extends TableRowStatus {
-    [key: string]: any
     chlId = ''
     chlName = ''
     baudRate = ''
@@ -745,7 +884,36 @@ export class ChannelPtzProtocolDto extends TableRowStatus {
     address = 1
     addressMin = 1
     addressMax = 1
-    ptz = false
+}
+
+/**
+ * @description 云台-看守位
+ */
+export class ChannelPtzGuardDto extends TableRowStatus {
+    chlId = ''
+    chlName = ''
+    chlIndex = 0
+    chlType = ''
+    locationArr: string[] = []
+    type_number: number[] = []
+    minSpeed = 0
+    maxSpeed = 8
+    enable = false
+    location = ''
+    number = 0
+    waitTime = 0
+    name = ''
+    preMin = 0
+    preMax = 1
+    cruMin = 0
+    cruMax = 1
+    traMin = 0
+    traMax = 1
+    waitTimeMin = 0
+    waitTimeMax = 1
+    presetList: SelectOption<number, string>[] = []
+    traceList: SelectOption<number, string>[] = []
+    cruiseList: SelectOption<number, string>[] = []
 }
 
 /**
@@ -777,4 +945,76 @@ export class ChannelLogoSetDto extends TableRowStatus {
     maxY = 10000
     X = 0
     Y = 0
+}
+
+export class ChannelIpSpeakerDto {
+    id = ''
+    index = 0
+    name = ''
+    ip = ''
+    port = 0
+    status = false
+    protocolType = ''
+    associatedDeviceID = ''
+    associatedDeviceName = ''
+    associatedType = ''
+    username = ''
+}
+
+export class ChannelIpSpeakerDevDto {
+    ip = ''
+    port = 0
+    httpPort = 0
+    productModel = ''
+    protocolType = ''
+    devName = ''
+}
+
+export class ChannelIpSpeakerAddDto {
+    ip = '0.0.0.0'
+    protocolType = 'OVNIF'
+    port = 80
+    userName = 'admin'
+    password = ''
+    association = ''
+    defaultPwd = false
+    associatedDeviceID = ''
+    devName = ''
+}
+
+export class ChannelSplicingDto {
+    spliceTypeList: SelectOption<string, string>[] = []
+    spliceType = ''
+    spliceDistance = 0
+    spliceDistanceMin = 0
+    spliceDistanceMax = 100
+    spliceDistanceDefault = 0
+}
+
+export class ChannelFillLightDto {
+    duration = 0
+    durationList: SelectOption<number, string>[] = []
+    boundary: { area: number; maxCount: number; LineColor?: string; point: CanvasBasePoint[] }[] = []
+    objectFilter = {
+        supportPerson: false,
+        supportPersonSwitch: false,
+        personSwitch: false,
+        personSensitivity: 0,
+        personSensitivityMin: 0,
+        personSensitivityMax: 100,
+
+        supportCar: false,
+        supportCarSwitch: false,
+        carSwitch: false,
+        carSensitivity: 0,
+        carSensitivityMin: 0,
+        carSensitivityMax: 100,
+
+        supportMotor: false,
+        supportMotorSwitch: false,
+        motorSwitch: false,
+        motorSensitivity: 0,
+        motorSensitivityMin: 0,
+        motorSensitivityMax: 100,
+    }
 }

@@ -21,7 +21,7 @@
                 />
             </el-form-item>
             <el-form-item
-                v-if="pageData.showAdditionalServerSetting || pageData.deviceIdShow"
+                v-if="(pageData.supportAdditionalServerSetting && formData.protocol === 'ARISAN') || formData.protocol === 'JSON'"
                 prop="deviceId"
                 :label="Translate('IDCS_ID')"
             >
@@ -33,7 +33,7 @@
             </el-form-item>
             <!-- Token  -->
             <el-form-item
-                v-if="pageData.showAdditionalServerSetting"
+                v-if="pageData.supportAdditionalServerSetting && formData.protocol === 'ARISAN'"
                 prop="token"
                 :label="Translate('Token')"
             >
@@ -52,16 +52,17 @@
                     v-model="formData.address"
                     :disabled="!formData.enable"
                     maxlength="60"
-                    @input="checkAddress"
+                    :formatter="formatUrl"
+                    :parser="formatUrl"
                 />
             </el-form-item>
             <!-- url -->
             <el-form-item :label="Translate('IDCS_SERVER_URL')">
                 <el-input
                     v-model="formData.url"
-                    :disabled="!(formData.enable && !pageData.urlDisabled)"
-                    maxlength="60"
-                    @input="checkUrl"
+                    :disabled="!formData.enable || formData.protocol !== 'XML'"
+                    :formatter="formatUrl"
+                    :parser="formatUrl"
                 />
             </el-form-item>
             <!-- port -->
@@ -79,14 +80,13 @@
                     v-model="formData.protocol"
                     :disabled="!formData.enable"
                     :options="pageData.protocolOptions"
-                    @change="changeProtocol()"
                 />
             </el-form-item>
             <!-- heartEnable -->
             <el-form-item prop="heartEnable">
                 <el-checkbox
                     v-model="formData.heartEnable"
-                    :disabled="!(formData.enable && !pageData.heartEnableDisabled)"
+                    :disabled="!formData.enable"
                     :label="Translate('IDCS_SEND_HEARTBEAT')"
                 />
             </el-form-item>
@@ -118,7 +118,7 @@
         <!-- 表格 -->
         <div class="base-table-box">
             <el-table
-                v-show="pageData.showAlarmTypeCfg"
+                v-show="formData.protocol === 'XML'"
                 :data="tableData"
                 class="table"
             >
@@ -165,7 +165,7 @@
             source-title="IDCS_ALARM"
             target-title="IDCS_SEND_ALARM"
             :source-data="pageData.alarmList"
-            :linked-list="pageData.linkedAlarmList"
+            :linked-list="linkedAlarmList"
             :limit="10000"
             @confirm="setAlarmTypes"
             @close="pageData.showAlarmTransfer = false"

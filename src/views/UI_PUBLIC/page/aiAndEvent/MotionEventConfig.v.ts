@@ -61,7 +61,6 @@ export default defineComponent({
             getChlList({
                 pageIndex: pageData.value.pageIndex,
                 pageSize: pageData.value.pageSize,
-                isSupportMotion: true,
             }).then((result) => {
                 const $chl = queryXml(result)
                 pageData.value.totalCount = $chl('content').attr('total').num()
@@ -147,6 +146,7 @@ export default defineComponent({
                                 },
                             }
                         })
+                        row.popMsgSwitch = $trigger('popMsgSwitch').text()
 
                         editRows.listen(row)
                     } else {
@@ -336,6 +336,14 @@ export default defineComponent({
             })
         }
 
+        const changeAllPopMsgSwitch = (popMsgSwitch: string) => {
+            tableData.value.forEach((item) => {
+                if (!item.disabled) {
+                    item.popMsgSwitch = popMsgSwitch
+                }
+            })
+        }
+
         const handleMotionSetting = () => {
             // 跳转到移动侦测设置页面
             // router.push('/config/channel/settings/motion')
@@ -354,13 +362,13 @@ export default defineComponent({
                             <sysRec>
                                 <switch>${rowData.record.switch}</switch>
                                 <chls type="list">
-                                    ${rowData.record.chls.map((item) => `<item id="${item.value}">${wrapCDATA(item.label)}</item>`).join('')}
+                                    ${rowData.record.chls.map((item) => `<item id="${item.value}" />`).join('')}
                                 </chls>
                             </sysRec>
                             <alarmOut>
                                 <switch>${rowData.alarmOut.switch}</switch>
                                 <alarmOuts type="list">
-                                    ${rowData.alarmOut.alarmOuts.map((item) => `<item id="${item.value}">${wrapCDATA(item.label)}</item>`).join('')}
+                                    ${rowData.alarmOut.alarmOuts.map((item) => `<item id="${item.value}" />`).join('')}
                                 </alarmOuts>
                             </alarmOut>
                             <preset>
@@ -372,8 +380,7 @@ export default defineComponent({
                                                 return rawXml`
                                                     <item>
                                                         <index>${item.index}</index>
-                                                        <name>${wrapCDATA(item.name)}</name>
-                                                        <chl id="${item.chl.value}">${wrapCDATA(item.chl.label)}</chl>
+                                                        <chl id="${item.chl.value}" />
                                                     </item>`
                                             }
                                             return ''
@@ -384,7 +391,7 @@ export default defineComponent({
                             <sysSnap>
                                 <switch>${rowData.snap.switch}</switch>
                                 <chls type="list">
-                                    ${rowData.snap.chls.map((item) => `<item id="${item.value}">${wrapCDATA(item.label)}</item>`).join('')}
+                                    ${rowData.snap.chls.map((item) => `<item id="${item.value}" />`).join('')}
                                 </chls>
                             </sysSnap>
                             <buzzerSwitch>${rowData.beeper}</buzzerSwitch>
@@ -396,6 +403,7 @@ export default defineComponent({
                             </triggerSchedule>
                             <popVideoSwitch>${rowData.videoPopup}</popVideoSwitch>
                             <emailSwitch>${rowData.email}</emailSwitch>
+                            <popMsgSwitch>${rowData.popMsgSwitch}</popMsgSwitch>
                         </trigger>
                     </chl>
                 </content>
@@ -465,6 +473,7 @@ export default defineComponent({
             changeAllBeeper,
             changeAllVideoPopUp,
             changeAllEmail,
+            changeAllPopMsgSwitch,
             handleMotionSetting,
             setData,
         }

@@ -62,18 +62,6 @@ export default defineComponent({
         }
 
         /**
-         * @description 修改所有行云台选项
-         * @param {boolean} bool
-         */
-        const changeAllPtz = (bool: boolean) => {
-            tableData.value.forEach((item) => {
-                if (!item.disabled) {
-                    item.ptz = bool
-                }
-            })
-        }
-
-        /**
          * @description 播放视频
          */
         const play = () => {
@@ -109,8 +97,7 @@ export default defineComponent({
                         <chl id="${item.chlId}">
                             <baudRate type="baudRate">${item.baudRate}</baudRate>
                             <protocol type="protocol">${item.protocol}</protocol>
-                            <address min="${item.addressMin}" max="${item.addressMax}">${item.address}</address>
-                            <ptz>${item.ptz}</ptz>
+                            <address>${item.address}</address>
                         </chl>
                     </content>
                 `
@@ -162,10 +149,7 @@ export default defineComponent({
             openLoading()
 
             const result = await getChlList({
-                pageIndex: pageData.value.pageIndex,
-                pageSize: pageData.value.pageSize,
-                chlName: pageData.value.keyword,
-                chlType: 'analog',
+                isSupportRS485Ptz: true,
             })
             const $ = queryXml(result)
 
@@ -205,9 +189,8 @@ export default defineComponent({
                     item.baudRate = $('content/chl/baudRate').text()
                     item.protocol = $('content/chl/protocol').text()
                     item.address = $('content/chl/address').text().num()
-                    item.addressMin = $('content/chl/address').attr('min').num()
-                    item.addressMax = $('content/chl/address').attr('max').num()
-                    item.ptz = $('content/chl/ptz').text().bool()
+                    item.addressMin = $('content/chl/address').attr('min').num() || 1
+                    item.addressMax = $('content/chl/address').attr('max').num() || 255
                     item.baudRateOptions = $('types/baudRate/enum').map((item) => {
                         return {
                             value: item.text(),
@@ -299,7 +282,6 @@ export default defineComponent({
             setData,
             getData,
             handleRowClick,
-            changeAllPtz,
             editRows,
         }
     },

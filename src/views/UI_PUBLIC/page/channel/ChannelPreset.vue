@@ -15,11 +15,21 @@
             <ChannelPtzCtrlPanel
                 :chl-id="tableData[pageData.tableIndex]?.chlId || ''"
                 :disabled="!tableData.length"
+                :enable-ctrl="tableData[pageData.tableIndex]?.supportPtz || tableData[pageData.tableIndex]?.supportIntegratedPtz || false"
+                :enable-zoom="tableData[pageData.tableIndex]?.supportAZ || tableData[pageData.tableIndex]?.supportPtz || tableData[pageData.tableIndex]?.supportIntegratedPtz || false"
+                :enable-focus="tableData[pageData.tableIndex]?.supportAZ || tableData[pageData.tableIndex]?.supportIntegratedPtz || false"
+                :enable-iris="tableData[pageData.tableIndex]?.supportIris || tableData[pageData.tableIndex]?.supportIntegratedPtz || false"
+                :enable-speed="tableData[pageData.tableIndex]?.supportPtz || tableData[pageData.tableIndex]?.supportIntegratedPtz || false"
+                :min-speed="tableData[pageData.tableIndex]?.minSpeed || 1"
+                :max-speed="tableData[pageData.tableIndex]?.maxSpeed || 1"
                 @speed="setSpeed"
             />
             <el-form
+                ref="formRef"
                 v-title
                 class="stripe"
+                :rules
+                :model="formData"
             >
                 <el-form-item :label="Translate('IDCS_CHANNEL_SELECT')">
                     <el-select-v2
@@ -45,15 +55,20 @@
                         :height="170"
                     />
                 </el-form-item>
-                <el-form-item :label="Translate('IDCS_PRESET_NAME')">
-                    <el-input
+                <el-form-item
+                    :label="Translate('IDCS_PRESET_NAME')"
+                    prop="name"
+                >
+                    <BaseTextInput
                         v-model="formData.name"
                         :disabled="!presetOptions.length"
-                        :formatter="formatInputMaxLength"
-                        :parser="formatInputMaxLength"
+                        :maxlength="tableData[pageData.tableIndex]?.nameMaxByteLen || 63"
                     />
                     <el-tooltip :content="Translate('IDCS_SAVE_CHANGE')">
-                        <div class="base-chl-icon-btn">
+                        <div
+                            class="base-chl-icon-btn"
+                            :class="{ disabled: !formData.name.trim() || !presetOptions.length }"
+                        >
                             <BaseImgSpriteBtn
                                 file="save"
                                 :disabled="!formData.name.trim() || !presetOptions.length"
@@ -119,9 +134,7 @@
         </div>
         <ChannelPresetAddPop
             v-model="pageData.isAddPop"
-            :max="pageData.addPresetMax"
-            :presets="pageData.addPresets"
-            :chl-id="pageData.addChlId"
+            :data="pageData.addData"
             @confirm="confirmAddPreset"
             @close="pageData.isAddPop = false"
         />

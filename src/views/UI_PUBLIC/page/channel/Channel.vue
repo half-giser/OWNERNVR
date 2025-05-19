@@ -38,11 +38,27 @@
                     </template>
                 </el-table-column>
                 <el-table-column
+                    :label="Translate('IDCS_SUB_DEVICE_ID')"
+                    width="150"
+                >
+                    <template #default="{ $index }: TableColumn<number>">
+                        {{ tableData[$index].autoReportID || '--' }}
+                    </template>
+                </el-table-column>
+                <el-table-column
+                    :label="Translate('IDCS_REMOTE_CHANNEL_NUMBER')"
+                    width="100"
+                >
+                    <template #default="{ $index }: TableColumn<number>">
+                        {{ tableData[$index].chlIndex + 1 }}
+                    </template>
+                </el-table-column>
+                <el-table-column
                     :label="Translate('IDCS_PORT')"
                     width="80"
                 >
                     <template #default="{ $index }: TableColumn<number>">
-                        {{ tableData[$index].ip === '' ? '' : tableData[$index].port || '' }}
+                        {{ tableData[$index].protocolType === 'RTSP' ? '' : tableData[$index].autoReportID !== '' ? '--' : tableData[$index].port }}
                     </template>
                 </el-table-column>
                 <el-table-column
@@ -133,7 +149,6 @@
                     </template>
                 </el-table-column>
                 <el-table-column
-                    v-if="userSession.appType !== 'P2P'"
                     :label="Translate('IDCS_CONFIGURATION')"
                     width="80"
                 >
@@ -141,6 +156,7 @@
                         <BaseImgSpriteBtn
                             v-show="tableData[$index].showSetting"
                             file="localCfg"
+                            :disabled="!tableData[$index].supportSetting"
                             @click="setChannel(tableData[$index])"
                         />
                     </template>

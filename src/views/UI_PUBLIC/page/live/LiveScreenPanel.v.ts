@@ -4,10 +4,12 @@
  * @Description: 现场预览-底部菜单栏视图
  */
 import LiveScreenAlarmOutPop from './LiveScreenAlarmOutPop.vue'
+import LiveScreenRS485Pop from './LiveScreenRS485Pop.vue'
 
 export default defineComponent({
     components: {
         LiveScreenAlarmOutPop,
+        LiveScreenRS485Pop,
     },
     props: {
         /**
@@ -206,6 +208,7 @@ export default defineComponent({
             changeStreamType,
             mainStreamDisabled,
             changeSplit,
+            systemCaps,
         }
     },
 })

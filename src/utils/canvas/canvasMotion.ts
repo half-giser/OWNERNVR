@@ -72,7 +72,7 @@ export const CanvasMotion = (option: CanvasMotionOption = {}) => {
     }
 
     // 设置参数 { column, row, areaInfo } areaInfo: ['00000000', '11111111', ...]
-    const setMotion = (option: { motion_infos: { grids: string }[] }) => {
+    const setMotion = (option: WebsocketMotionDto) => {
         const motionInfo = option.motion_infos
         if (!motionInfo.length) return
         const grids = motionInfo[0].grids // 具体的位置参数"000011111"

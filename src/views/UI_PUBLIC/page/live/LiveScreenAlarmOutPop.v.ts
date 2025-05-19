@@ -93,7 +93,7 @@ export default defineComponent({
             if (time === 0) {
                 return Translate('IDCS_MANUAL')
             }
-            return getTranslateForSecond(time)
+            return displaySecondWithUnit(time)
         }
 
         /**

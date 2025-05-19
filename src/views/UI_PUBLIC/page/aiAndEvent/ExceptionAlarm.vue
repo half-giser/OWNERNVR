@@ -187,7 +187,7 @@
         </div>
         <div class="base-btn-box space-between">
             <div class="tips_text">
-                {{ Translate('IDCS_DISK_FAILURE_TIPS').formatForLang(Translate('IDCS_DISK_FAILURE')) }}
+                <span v-show="systemCaps.supportHDHealth">{{ Translate('IDCS_DISK_FAILURE_TIPS').formatForLang(Translate('IDCS_DISK_FAILURE')) }}</span>
             </div>
             <el-button
                 :disabled="watchEdit.disabled.value"

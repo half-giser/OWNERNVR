@@ -196,7 +196,7 @@ export default defineComponent({
                 const sendXml = rawXml`
                     <content>
                         <chl id="${item.chlId}">
-                            <name>${item.chlName}</name>
+                            <name>${wrapCDATA(item.chlName)}</name>
                             <logo>
                                 <switch>${item.switch}</switch>
                                 <opacity min="${item.minOpacity}" max="${item.maxOpacity}">${item.opacity}</opacity>

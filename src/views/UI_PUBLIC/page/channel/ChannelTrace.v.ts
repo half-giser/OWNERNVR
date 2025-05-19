@@ -3,7 +3,7 @@
  * @Date: 2024-08-20 19:43:51
  * @Description: 云台-轨迹
  */
-import { type TableInstance } from 'element-plus'
+import { type FormRules, type TableInstance } from 'element-plus'
 import ChannelPtzCtrlPanel from './ChannelPtzCtrlPanel.vue'
 import ChannelTraceAddPop from './ChannelTraceAddPop.vue'
 import ChannelPtzTableExpandPanel from './ChannelPtzTableExpandPanel.vue'
@@ -23,9 +23,7 @@ export default defineComponent({
         const playerRef = ref<PlayerInstance>()
 
         // 最大的巡航线数量
-        const TRACE_MAX_COUNT = 4
-        // 录像时间
-        const DEFAULT_RECORD_TIME = 180
+        // const TRACE_MAX_COUNT = 4
 
         const pageData = ref({
             // 当前表格选中索引
@@ -34,18 +32,13 @@ export default defineComponent({
             expandRowKey: [] as string[],
             // 是否显示新增弹窗
             isAddPop: false,
-            // 新增弹窗轨迹最大值
-            addTraceMax: TRACE_MAX_COUNT,
-            // 新增弹窗轨迹列表
-            addTrace: [] as ChannelPtzTraceDto[],
+            addData: new ChannelPtzTraceChlDto(),
             // 通道ID
             addChlId: '',
             // 录像剩余时间
-            recordTime: DEFAULT_RECORD_TIME,
+            recordTime: 180,
             // 是否录像状态
             recordStatus: false, // 0:未录制， 1:录制中
-            // 最大录像时间
-            maxRecordTime: DEFAULT_RECORD_TIME,
             // 正在录像的通道ID
             recordChlId: '',
             // 正在录像的轨迹Index
@@ -69,6 +62,24 @@ export default defineComponent({
             name: '',
             // 轨迹索引
             traceIndex: '' as string | number,
+        })
+
+        const formRef = useFormRef()
+
+        const rules = ref<FormRules>({
+            name: [
+                {
+                    validator(_rule, value: string, callback) {
+                        if (!value.trim()) {
+                            callback(new Error(Translate('IDCS_PROMPT_NAME_EMPTY')))
+                            return
+                        }
+
+                        callback()
+                    },
+                    trigger: 'manual',
+                },
+            ],
         })
 
         const ready = computed(() => {
@@ -136,14 +147,17 @@ export default defineComponent({
             closeLoading()
 
             if ($('status').text() === 'success') {
-                tableData.value[index].trace = $('content/traces/item').map((item) => {
+                const row = tableData.value[index]
+                row.trace = $('content/traces/item').map((item) => {
                     return {
                         index: item.attr('index').num(),
                         name: item.text(),
                     }
                 })
-                tableData.value[index].maxCount = $('content/traces').attr('maxCount').num()
-                tableData.value[index].traceCount = tableData.value[index].trace.length
+                row.maxCount = $('content/traces').attr('maxCount').num()
+                row.traceCount = tableData.value[index].trace.length
+                row.traceMaxHoldTime = $('content/traceMaxHoldTime').text().num() || 180
+                row.nameMaxLen = $('content/traces/itemType').attr('maxLen').num() || 10
             }
         }
 
@@ -156,8 +170,7 @@ export default defineComponent({
             const result = await getChlList({
                 pageIndex: 1,
                 pageSize: 999,
-                requireField: ['traceCount'],
-                isSupportPtzGroupTraceTask: true,
+                requireField: ['supportPtz', 'supportIntegratedPtz'],
             })
             const $ = queryXml(result)
 
@@ -167,7 +180,7 @@ export default defineComponent({
                 tableData.value = $('content/item')
                     .filter((item) => {
                         const $item = queryXml(item.element)
-                        return (auth.value.hasAll || auth.value.ptz[item.attr('id')]) && $item('chlType').text() !== 'recorder'
+                        return (auth.value.hasAll || auth.value.ptz[item.attr('id')]) && $item('chlType').text() !== 'recorder' && $item('supportIntegratedPtz').text().bool()
                     })
                     .map((item) => {
                         const $item = queryXml(item.element)
@@ -177,6 +190,10 @@ export default defineComponent({
                             traceCount: $item('traceCount').text().num(),
                             trace: [],
                             maxCount: Infinity,
+                            nameMaxLen: 10,
+                            traceMaxHoldTime: 180,
+                            minSpeed: $('supportPtz').attr('MinPtzCtrlSpeed').num(),
+                            maxSpeed: $('supportPtz').attr('MaxPtzCtrlSpeed').num(),
                         }
                     })
             }
@@ -290,8 +307,7 @@ export default defineComponent({
                 openMessageBox(Translate('IDCS_OVER_MAX_NUMBER_LIMIT'))
                 return
             }
-            pageData.value.addTraceMax = current.maxCount
-            pageData.value.addTrace = current.trace
+            pageData.value.addData = current
             pageData.value.addChlId = current.chlId
             pageData.value.isAddPop = true
         }
@@ -362,36 +378,40 @@ export default defineComponent({
         /**
          * @description 修改轨迹名称
          */
-        const saveName = async () => {
-            openLoading()
+        const saveName = () => {
+            formRef.value?.validate(async (valid) => {
+                if (valid) {
+                    openLoading()
 
-            const sendXml = rawXml`
+                    const sendXml = rawXml`
                 <content>
                     <chlId>${tableData.value[pageData.value.tableIndex].chlId}</chlId>
                     <index>${currentTrace.value.index}</index>
-                    <name maxByteLen="63">${wrapCDATA(formData.value.name)}</name>
+                    <name>${wrapCDATA(formData.value.name)}</name>
                 </content>
             `
-            const result = await editChlPtzTrace(sendXml)
-            const $ = queryXml(result)
+                    const result = await editChlPtzTrace(sendXml)
+                    const $ = queryXml(result)
 
-            closeLoading()
+                    closeLoading()
 
-            if ($('status').text() === 'success') {
-                openMessageBox({
-                    type: 'success',
-                    message: Translate('IDCS_SAVE_DATA_SUCCESS'),
-                }).finally(() => {
-                    tableData.value[pageData.value.tableIndex].trace[formData.value.traceIndex as number].name = formData.value.name
-                })
-            } else {
-                const errorCode = $('errorCode').text().num()
-                if (errorCode === ErrorCode.USER_ERROR_NAME_EXISTED) {
-                    openMessageBox(Translate('IDCS_PROMPT_PRESET_NAME_EXIST'))
-                } else {
-                    openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
+                    if ($('status').text() === 'success') {
+                        openMessageBox({
+                            type: 'success',
+                            message: Translate('IDCS_SAVE_DATA_SUCCESS'),
+                        }).finally(() => {
+                            tableData.value[pageData.value.tableIndex].trace[formData.value.traceIndex as number].name = formData.value.name
+                        })
+                    } else {
+                        const errorCode = $('errorCode').text().num()
+                        if (errorCode === ErrorCode.USER_ERROR_NAME_EXISTED) {
+                            openMessageBox(Translate('IDCS_PROMPT_PRESET_NAME_EXIST'))
+                        } else {
+                            openMessageBox(Translate('IDCS_SAVE_DATA_FAIL'))
+                        }
+                    }
                 }
-            }
+            })
         }
 
         const timer = useClock(() => {
@@ -406,7 +426,7 @@ export default defineComponent({
          */
         const resetRecord = () => {
             pageData.value.recordStatus = false
-            pageData.value.recordTime = DEFAULT_RECORD_TIME
+            pageData.value.recordTime = tableData.value[pageData.value.tableIndex]?.traceMaxHoldTime || 180
             timer.stop()
         }
 
@@ -430,7 +450,7 @@ export default defineComponent({
             `
             await startChlPtzTrace(sendXml)
 
-            pageData.value.recordTime = DEFAULT_RECORD_TIME - 1
+            pageData.value.recordTime = tableData.value[pageData.value.tableIndex].traceMaxHoldTime - 1
             timer.repeat()
         }
 
@@ -530,6 +550,8 @@ export default defineComponent({
             stopRecord,
             playTrace,
             stopTrace,
+            formRef,
+            rules,
         }
     },
 })

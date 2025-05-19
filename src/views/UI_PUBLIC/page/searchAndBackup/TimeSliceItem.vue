@@ -9,10 +9,10 @@
         :class="[`mode_${mode}`, active && 'active', size]"
     >
         <div
-            v-if="mode === 'thumbnail' && time"
+            v-if="mode === 'thumbnail'"
             class="item-time"
         >
-            {{ time }}
+            {{ time || '--:--:--' }}
         </div>
         <div
             v-show="mode === 'thumbnail'"

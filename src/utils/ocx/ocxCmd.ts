@@ -1230,7 +1230,7 @@ export const OCX_XML_MaskAreaSetSwitch = (action: 'EDIT_ON' | 'EDIT_OFF' | 'NONE
  * @param masks
  * @returns {string}
  */
-export const OCX_XML_SetMaskArea = (masks: { X: number; Y: number; width: number; height: number; isSelect?: boolean; color: string }[]) => {
+export const OCX_XML_SetMaskArea = (masks: { X: number; Y: number; width: number; height: number; isSelect?: boolean; color?: string }[]) => {
     return wrapXml(rawXml`
         <cmd type="SetMaskAreaV2">
             ${masks
@@ -1241,7 +1241,7 @@ export const OCX_XML_SetMaskArea = (masks: { X: number; Y: number; width: number
                             <Y>${item.Y}</Y>
                             <width>${item.width}</width>
                             <height>${item.height}</height>
-                            <maskColor>${item.isSelect ? 'green' : item.color}</maskColor>
+                            <maskColor>${item.isSelect ? 'green' : item.color || 'black'}</maskColor>
                         </rectangle>
                     </item>`
                 })
@@ -2287,8 +2287,8 @@ export const OCX_XML_DeleteRectangleArea = (IDs: number[]) => {
  * curSubArea：当前绘制的绘制区域，双目计数特有
  */
 export const OCX_XML_AddPolygonArea = (
-    polygonAreas: { point: CanvasBasePoint[]; LineColor?: string; area: string }[] | CanvasBasePoint[][][],
-    currentArea: string,
+    polygonAreas: { point: CanvasBasePoint[]; LineColor?: string; area: number }[] | CanvasBasePoint[][][],
+    currentArea: number,
     showAll: boolean,
     curSubArea?: string,
 ) => {
@@ -2316,7 +2316,7 @@ export const OCX_XML_AddPolygonArea = (
                             `
                           })
                           .join('') // 绘制其他AI事件的多边形区域
-                    : (polygonAreas as { point: CanvasBasePoint[]; LineColor?: string; area: string }[])
+                    : (polygonAreas as { point: CanvasBasePoint[]; LineColor?: string; area: number }[])
                           .map((polygonItem) => {
                               return polygonItem.point.length
                                   ? rawXml`

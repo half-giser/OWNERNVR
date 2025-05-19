@@ -187,21 +187,45 @@ export default defineComponent({
         }
 
         const test = () => {
-            formRef.value!.validate((valid) => {
+            formRef.value!.validate(async (valid) => {
                 if (valid) {
                     openLoading()
-                    testRecorder(getTestData()).then((res) => {
-                        closeLoading()
-                        const $ = queryXml(res)
-                        if ($('status').text() === 'success') {
-                            getData(true)
-                        } else {
-                            const errorCode = $('errorCode').text().num()
-                            openMessageBox(errorMap[errorCode] || Translate('IDCS_LOGIN_OVERTIME')).then(() => {
-                                loadNoRecoderData(formData.value.channelCount)
-                            })
+                    const res = await testRecorder(getTestData())
+                    closeLoading()
+                    const $ = queryXml(res)
+                    if ($('status').text() === 'success') {
+                        getData(true)
+                    } else {
+                        const errorCode = $('errorCode').text().num()
+                        let errorMsg = ''
+                        switch (errorCode) {
+                            case 536870947:
+                                errorMsg = Translate('IDCS_DEVICE_PWD_ERROR')
+                                break
+                            case 536870948:
+                                errorMsg = Translate('IDCS_DEVICE_PWD_ERROR')
+                                break
+                            case 536870951:
+                                errorMsg = Translate('IDCS_REMOTE_USER_LOCKED')
+                                break
+                            case 536870953:
+                                errorMsg = Translate('IDCS_NO_PERMISSION')
+                                break
+                            case 536871009:
+                                errorMsg = Translate('IDCS_RECORDER_HTTPPORT_ERR')
+                                break
+                            case 536871090:
+                                errorMsg = Translate('IDCS_TEST_FAIL_WITHOUT_AUTH')
+                                break
+                            default:
+                                errorMsg = Translate('IDCS_LOGIN_OVERTIME')
+                                break
                         }
-                    })
+
+                        openMessageBox(errorMsg).then(() => {
+                            loadNoRecoderData(formData.value.channelCount)
+                        })
+                    }
                 }
             })
         }
@@ -311,7 +335,7 @@ export default defineComponent({
                         .map((ele) => {
                             return rawXml`
                                 <item>
-                                    <name maxByteLen="63">${wrapCDATA(ele.name || defalutNamePrefix + ele.index)}</name>
+                                    <name>${ele.name || defalutNamePrefix + ele.index}</name>
                                     ${formData.value.chkDomain ? `<domain>${wrapCDATA(formData.value.domain)}</domain>` : `<ip>${formData.value.ip}</ip>`}
                                     <port>${formData.value.servePort}</port>
                                     <userName>${formData.value.userName}</userName>

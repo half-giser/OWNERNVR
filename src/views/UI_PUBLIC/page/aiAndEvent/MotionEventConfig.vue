@@ -259,6 +259,33 @@
                         />
                     </template>
                 </el-table-column>
+                <el-table-column width="160">
+                    <template #header>
+                        <el-dropdown>
+                            <BaseTableDropdownLink>
+                                {{ Translate('IDCS_MESSAGEBOX_POPUP') }}
+                            </BaseTableDropdownLink>
+                            <template #dropdown>
+                                <el-dropdown-menu>
+                                    <el-dropdown-item
+                                        v-for="item in pageData.enableList"
+                                        :key="item.value"
+                                        @click="changeAllPopMsgSwitch(item.value)"
+                                    >
+                                        {{ item.label }}
+                                    </el-dropdown-item>
+                                </el-dropdown-menu>
+                            </template>
+                        </el-dropdown>
+                    </template>
+                    <template #default="{ row }: TableColumn<AlarmEventDto>">
+                        <el-select-v2
+                            v-model="row.popMsgSwitch"
+                            :disabled="row.disabled"
+                            :options="pageData.enableList"
+                        />
+                    </template>
+                </el-table-column>
                 <!-- email   -->
                 <el-table-column width="110">
                     <template #header>

@@ -12,10 +12,16 @@ export class LiveChannelList {
     value = ''
     chlType = ''
     protocolType = ''
+    supportAZ = false
+    supportIris = false
+    MinPtzCtrlSpeed = 1
+    MaxPtzCtrlSpeed = 8
+    supportIntegratedPtz = false
     supportPtz = false
     supportPTZGroupTraceTask = false
     supportAccessControl = false
     supportTalkback = false
+    supportWiper = false
     chlIp = ''
     poeSwitch = false
 }
@@ -27,6 +33,7 @@ export class LiveChannelGroupList {
     id = ''
     value = ''
     dwellTime = 0
+    nameMaxByteLen = 63
 }
 
 /**
@@ -122,8 +129,14 @@ export class LiveSharedWinData {
     showPos = false
     chlID = ''
     supportPtz = false
+    supportAZ = false
+    supportIris = false
+    supportIntegratedPtz = false
     chlName = ''
     streamType = 2
     talk = false
     supportAudio = true
+    canShowAudioError = false
+    MinPtzCtrlSpeed = 1
+    MaxPtzCtrlSpeed = 8
 }

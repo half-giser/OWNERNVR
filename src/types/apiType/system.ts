@@ -171,9 +171,10 @@ export class SystemDateTimeForm {
     timeFormat = '24' // 时间格式
     syncType = '' // 同步方式
     timeServer = '' // 时间服务器
+    timeServerMaxByteLen = 63
     timeZone = '' // 时区
     enableDST = false // 夏令时
-    gpsBaudRate = 0
+    gpsBaudRate = ''
     gpsBaudRateMin = 0
     gpsBaudRateMax = 0
     ntpInterval = 0
@@ -440,7 +441,7 @@ export class SystemGuideDateTimeForm {
     timeFormat = '24' // 时间格式
     syncType = '' // 同步方式
     timeServer = '' // 时间服务器
-    gpsBaudRate = 0 // 波特率
+    gpsBaudRate = '' // 波特率
     gpsBaudRateMin = 0 // 波特率 最小值
     gpsBaudRateMax = 0 // 波特率 最大值
     ntpInterval = 0 // 时间间隔[分]

@@ -3,11 +3,12 @@
  * @Description: 基于wasm的单帧图片渲染(串行处理，即一次只处理一张渲染)
  * @Author: yejiahao yejiahao@tvt.net.cn
  */
+import { type WebsocketMotionDto } from '../websocket/websocketMotion'
 
 interface WasmMotionRenderOption {
     ready?: () => void
     // 待完善类型信息
-    onmotion?: (data: { motion_infos: { grids: string }[] }) => void
+    onmotion?: (data: WebsocketMotionDto) => void
     onerror?: (code?: number, url?: string) => void
 }
 
@@ -58,7 +59,7 @@ export const WasmMotionRender = (option: WasmMotionRenderOption) => {
     /**
      * 解码后的motion数据
      */
-    const onparam = (type: string, data: { motion_infos: { grids: string }[] }) => {
+    const onparam = (type: string, data: WebsocketMotionDto) => {
         // motion
         if (type === 'motion_info') {
             onmotion && onmotion(data)

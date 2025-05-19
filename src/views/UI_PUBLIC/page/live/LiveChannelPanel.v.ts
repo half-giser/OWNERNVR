@@ -152,7 +152,7 @@ export default defineComponent({
          */
         const getChlsList = async () => {
             const result = await getChlList({
-                requireField: ['protocolType', 'supportPtz', 'supportPTZGroupTraceTask', 'supportAccessControl'],
+                requireField: ['protocolType', 'supportPtz', 'supportIntegratedPtz', 'supportAZ', 'supportIris', 'supportPTZGroupTraceTask', 'supportAccessControl', 'supportWiper'],
             })
             const $ = queryXml(result)
             if ($('status').text() === 'success') {
@@ -167,6 +167,13 @@ export default defineComponent({
                         supportPTZGroupTraceTask: $item('supportPTZGroupTraceTask').text().bool(),
                         supportAccessControl: $item('supportAccessControl').text().bool(),
                         supportTalkback: false, // $item('supportTalkback').text().bool(),
+                        supportAZ: $item('supportAZ').text().bool(),
+                        supportIris: $item('supportIris').text().bool(),
+                        // supportPtz: $("supportPtz").text().bool(),
+                        MinPtzCtrlSpeed: $item('supportPtz').attr('MinPtzCtrlSpeed').num(),
+                        MaxPtzCtrlSpeed: $item('supportPtz').attr('MaxPtzCtrlSpeed').num(),
+                        supportIntegratedPtz: $item('supportIntegratedPtz').text().bool(),
+                        supportWiper: $item('supportWiper').text().bool(),
                         chlIp: '',
                         poeSwitch: false,
                     }
@@ -303,6 +310,7 @@ export default defineComponent({
                     return {
                         id: item.attr('id'),
                         value: $item('name').text(),
+                        nameMaxByteLen: $('content/itemType/name').attr('maxByteLen').num() || nameByteMaxLen,
                         dwellTime: $item('dwellTime').text().num(),
                     }
                 })
@@ -394,6 +402,7 @@ export default defineComponent({
                 pageData.value.editChlGroup.id = find.id
                 pageData.value.editChlGroup.name = find.value
                 pageData.value.editChlGroup.dwellTime = find.dwellTime
+                pageData.value.editChlGroup.nameMaxByteLen = find.nameMaxByteLen
 
                 pageData.value.isEditChlGroup = true
             }
