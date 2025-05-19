@@ -8,6 +8,7 @@ import BackupPop from '../searchAndBackup/BackupPop.vue'
 import BackupLocalPop from '../searchAndBackup/BackupLocalPop.vue'
 import { type TableInstance } from 'element-plus'
 import BackupPosInfoPop from './BackupPosInfoPop.vue'
+import { type EventTypeItem } from '@/utils/const/record'
 
 export default defineComponent({
     components: {
@@ -148,12 +149,12 @@ export default defineComponent({
             isPosInfoPop: false,
             // POS信息
             posInfo: new PlaybackRecLogList(),
-            // POS关键字
-            posKeyword: '',
             // 回放列表
             playbackList: [] as PlaybackPopList[],
             // 最大通道数
             maxChl: 36,
+            // 已选择的事件类型列表
+            events: [] as EventTypeItem[],
         })
 
         // 最大通道数
@@ -169,11 +170,6 @@ export default defineComponent({
             return tableData.value.slice((pageData.value.currentPage - 1) * pageData.value.pageSize, pageData.value.currentPage * pageData.value.pageSize)
         })
 
-        // 可显示的事件选项
-        const filterEvents = computed(() => {
-            return pageData.value.eventOptions.filter((item) => !item.hidden)
-        })
-
         const formData = ref({
             // 开始时间
             startTime: '',
@@ -181,22 +177,13 @@ export default defineComponent({
             endTime: '',
             // 选中的通道
             chls: [] as string[],
-            // 选中的事件
-            events: filterEvents.value.map((item) => item.value),
             // POS关键字
             pos: '',
-            // 选中的目标
-            targets: pageData.value.targetOptions.map((item) => item.value),
         })
 
         // 通道全选
         const isChlAll = computed(() => {
             return !!formData.value.chls.length && formData.value.chls.length >= maxChl.value
-        })
-
-        // 事件全选
-        const isEventAll = computed(() => {
-            return formData.value.events.length >= filterEvents.value.length
         })
 
         /**
@@ -331,31 +318,6 @@ export default defineComponent({
         }
 
         /**
-         * @description 事件全选或取消全选
-         * @param {boolean} bool
-         */
-        const toggleAllEvent = (bool: string | number | boolean) => {
-            if (bool === false) {
-                formData.value.events = []
-            } else {
-                formData.value.events = filterEvents.value.map((item) => item.value)
-            }
-        }
-
-        /**
-         * @description 勾选事件或取消勾选
-         * @param {String} value
-         */
-        const changeEvent = (value: string) => {
-            const index = formData.value.events.indexOf(value)
-            if (index === -1) {
-                formData.value.events.push(value)
-            } else {
-                formData.value.events.splice(index, 1)
-            }
-        }
-
-        /**
          * @description 搜索
          */
         const search = async () => {
@@ -366,34 +328,15 @@ export default defineComponent({
                 return
             }
 
-            formData.value.pos = pageData.value.posKeyword
-
             openLoading()
 
             const chls = formData.value.chls.map((chl) => `<item id="${chl}"></item>`).join('')
-            const events = formData.value.events
-                .map((event) => {
-                    if (!formData.value.targets.length || formData.value.targets.length >= pageData.value.targetOptions.length) {
-                        if (event === 'MOTION') {
-                            return ['MOTION', 'SMDHUMAN', 'SMDVEHICLE'].map((item) => `<item>${item}</item>`).join('')
-                        } else {
-                            return `<item>${event}</item>`
-                        }
-                    } else if (formData.value.targets.includes('NONE')) {
-                        if (event === 'MOTION') {
-                            return ['MOTION', ...formData.value.targets]
-                                .filter((item) => item !== 'NONE')
-                                .map((item) => `<item>${item}</item>`)
-                                .join('')
-                        } else {
-                            return `<item>${event}</item>`
-                        }
+            const eventsXML = pageData.value.events
+                .map((item1) => {
+                    if (item1.value === 'motion') {
+                        return ['motion', 'smdPerson', 'smdCar'].map((item2) => `<item>${item2}</item>`).join('')
                     } else {
-                        if (event === 'MOTION') {
-                            return formData.value.targets.map((item) => `<item>${item}</item>`).join('')
-                        } else {
-                            return ''
-                        }
+                        return `<item>${item1.value}</item>`
                     }
                 })
                 .join('')
@@ -401,36 +344,18 @@ export default defineComponent({
             tableData.value = []
 
             const sendXml = rawXml`
-                <types>
-                    <recType>
-                        ${wrapEnums(['MOTION', 'SMDHUMAN', 'SMDVEHICLE', 'SCHEDULE', 'SENSOR', 'MANUAL', 'INTELLIGENT', 'POS', 'NORMALALL', 'FACEDETECTION', 'FACEMATCH', 'VEHICLE', 'TRIPWIRE', 'INVADE', 'AOIENTRY', 'AOILEAVE', 'ITEMCARE', 'CROWDDENSITY', 'EXCEPTION'])}
-                    </recType>
-                </types>
-                <requireField>
-                    <chl />
-                    <recList>
-                        <item>
-                            <recType />
-                            <startTime />
-                            <endTime />
-                            <size />
-                        </item>
-                    </recList>
-                </requireField>
                 <condition>
                     <startTime>${formatGregoryDate(startTime, DEFAULT_DATE_FORMAT)}</startTime>
                     <endTime>${formatGregoryDate(endTime, DEFAULT_DATE_FORMAT)}</endTime>
-                    <startTimeEx>${localToUtc(startTime)}</startTimeEx>
-                    <endTimeEx>${localToUtc(endTime)}</endTimeEx>
                     <recType type='list'>
                         <itemType type='recType'/>
-                        ${events}
+                        ${eventsXML}
                     </recType>
-                    ${formData.value.events.includes('POS') ? `<keyword>${formData.value.pos}</keyword>` : ''}
+                    ${enablePos ? `<keyword>${formData.value.pos}</keyword>` : ''}
                     ${formData.value.chls.length ? `<chl type='list'>${chls}</chl>` : ''}
                 </condition>
             `
-            const result = await queryChlRecLog(sendXml)
+            const result = await queryRecLog(sendXml)
             const $ = queryXml(result)
 
             closeLoading()
@@ -513,6 +438,34 @@ export default defineComponent({
             tableRef.value!.clearSelection()
         })
 
+        /**
+         * @description 打开事件类型筛选框
+         */
+        interface EventSelectorInstance {
+            open(): void
+        }
+        const baseEventSelectorRef = ref<EventSelectorInstance>()
+        const openEventSelector = () => {
+            console.log(pageData.value.events)
+            baseEventSelectorRef.value?.open()
+        }
+
+        // 选择的事件类型列表 - 拼接为字符串
+        const eventsStr = computed(() => {
+            const events = pageData.value.events.map((item) => {
+                return Translate(EVENT_TYPE_NAME_MAPPING[item.value])
+            })
+            return events.length === 0 ? Translate('IDCS_FULL') : events.join(', ')
+        })
+
+        // 是否支持POS
+        const enablePos = computed(() => {
+            const events = pageData.value.events.map((item) => {
+                return item.value
+            })
+            return events.length === 0 || events.includes('POS')
+        })
+
         onMounted(() => {
             getChlsList()
 
@@ -530,13 +483,9 @@ export default defineComponent({
             backUp,
             toggleAllChl,
             isChlAll,
-            filterEvents,
-            isEventAll,
             displayIndex,
             displayDateTime,
             displayEvent,
-            toggleAllEvent,
-            changeEvent,
             search,
             tableRef,
             tableData,
@@ -546,6 +495,11 @@ export default defineComponent({
             filterTableData,
             handleRecChange,
             showPosInfo,
+
+            baseEventSelectorRef,
+            openEventSelector,
+            eventsStr,
+            enablePos,
         }
     },
 })

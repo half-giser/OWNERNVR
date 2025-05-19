@@ -367,7 +367,7 @@ export default defineComponent({
 
             // 检查设备是否已经激活
             const activated = $('content/activated').text().bool()
-            if (!activated) {
+            if (activated) {
                 // 设备已初始化完成,跳转登录页面
                 openMessageBox(Translate('IDCS_ACTIVATED')).finally(() => {
                     router.push('/login')

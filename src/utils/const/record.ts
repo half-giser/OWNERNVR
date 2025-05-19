@@ -29,3 +29,49 @@ export const DEFAULT_STREAM_TYPE_MAPPING: Record<string, string> = {
     h265s: 'IDCS_VIDEO_ENCT_TYPE_H265_SMART',
     h265p: 'IDCS_VIDEO_ENCT_TYPE_H265_PLUS',
 }
+
+// 所有的录像事件类型与名称翻译的映射（全集）
+export const EVENT_TYPE_NAME_MAPPING: Record<string, string> = {
+    // 通用事件
+    motion: 'IDCS_MOTION_DETECTION',
+    smdPerson: 'IDCS_MOTION_DETECTION',
+    smdCar: 'IDCS_MOTION_DETECTION',
+    manual: 'IDCS_MANUAL',
+    pos: 'IDCS_POS',
+    sensor: 'IDCS_SENSOR',
+    // 周界防范
+    intrusion: 'IDCS_INVADE_DETECTION',
+    smartEntry: 'IDCS_SMART_AOI_ENTRY_DETECTION',
+    smartLeave: 'IDCS_SMART_AOI_LEAVE_DETECTION',
+    tripwire: 'IDCS_BEYOND_DETECTION',
+    // 目标事件
+    vfd: 'IDCS_FACE_DETECTION',
+    faceMatch: 'IDCS_FACE_MATCH',
+    plateMatch: 'IDCS_VEHICLE_DETECTION',
+    // 异常行为
+    loitering: 'IDCS_LOITERING_DETECTION',
+    pvd: 'IDCS_PARKING_DETECTION',
+    threshold: 'IDCS_SMART_STATISTIC_THRESHOLD_ALARM',
+    cdd: 'IDCS_CROWD_DENSITY_DETECTION',
+    osc: 'IDCS_WATCH_DETECTION',
+    asd: 'IDCS_AUDIO_EXCEPTION_DETECTION',
+    avd: 'IDCS_ABNORMAL_DETECTION',
+    smartCroedGather: 'IDCS_CROWD_GATHERING',
+    // 热成像
+    firePoint: 'IDCS_FIRE_POINT_DETECTION',
+    temperatureAlarm: 'IDCS_TEMPERATURE_DETECTION',
+    // 排程
+    schedule: 'IDCS_SCHEDULE',
+    // 其他
+    cpc: 'IDCS_PASS_LINE_COUNT_DETECTION',
+    human: 'IDCS_DETECTION_PERSON',
+    vehicle: 'IDCS_DETECTION_VEHICLE',
+    nonMotorizedVehicle: 'IDCS_DETECTION_MOTORCYCLE',
+}
+
+export type EventTypeItem = {
+    value: string
+    label: string
+    belongTo?: string
+    children?: string[]
+}
