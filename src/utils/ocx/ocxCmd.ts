@@ -2202,7 +2202,7 @@ export const OCX_XML_SetAllArea = (
  * @param data
  * @returns {string}
  */
-export const OCX_XML_SetTripwireLineInfo = (data: { switch: boolean; osdFormat: string; X: number; Y: number }, onlyOSD: boolean) => {
+export const OCX_XML_SetTripwireLineInfo = (data: { switch: boolean; osdFormat: string; X: number; Y: number }, onlyOSD?: boolean) => {
     return wrapXml(rawXml`
         <cmd type="SetTripwireLineInfo">
             <switch>${data.switch}</switch>
@@ -2342,7 +2342,7 @@ export const OCX_XML_AddPolygonArea = (
  * area：要进行删除的区域ID
  * subArea：当前绘制的绘制区域，双目计数特有
  */
-export const OCX_XML_DeletePolygonArea = (area: string, subArea?: string) => {
+export const OCX_XML_DeletePolygonArea = (area: string | number, subArea?: string) => {
     return wrapXml(rawXml`
         <cmd type="DeletePolygonArea">
             ${area === 'clearAll' ? '<clearAll>true</clearAll>' : `<clearCurrent>${area}</clearCurrent>`}
@@ -2356,7 +2356,7 @@ export const OCX_XML_DeletePolygonArea = (area: string, subArea?: string) => {
  * data：OSD数据
  * type：当前绘制的AI事件类型（vsd、areaStatis等）
  */
-export const OCX_XML_SetAiOSDInfo = (data: { switch: boolean; osdFormat: string; type: string; X: number; Y: number }, type: string) => {
+export const OCX_XML_SetAiOSDInfo = (data: { switch: boolean; osdFormat: string; X: number; Y: number }, type: string) => {
     return wrapXml(rawXml`
         <cmd type="SetTripwireLineInfo">
             <switch>${data.switch}</switch>

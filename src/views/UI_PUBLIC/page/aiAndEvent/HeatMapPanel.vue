@@ -1,7 +1,7 @@
 <!--
  * @Author: liyanqi a11219@tvt.net.cn
- * @Date: 2025-05-07 11:15:20
- * @Description: 离开区域
+ * @Date: 2025-05-08 17:49:20
+ * @Description: 徘徊检测
 -->
 <template>
     <div>
@@ -16,18 +16,12 @@
             <div class="base-btn-box space-between padding collapse">
                 <el-checkbox
                     v-model="formData.detectionEnable"
-                    :label="pageData.detectionTypeText"
-                />
-                <AlarmBaseResourceData
-                    :event="areaType"
-                    :chl-id="currChlId"
-                    :enable="formData.detectionEnable && !chlData.supportTripwire"
-                    @error="formData.detectionEnable = false"
+                    :label="Translate('IDCS_ENABLE')"
                 />
             </div>
             <!-- 只存在一个播放器，因此放于tab区域外 -->
             <div
-                v-show="pageData.tab !== 'trigger'"
+                v-show="pageData.tab === 'param'"
                 class="base-ai-param-box-left fixed"
             >
                 <div class="player">
@@ -57,7 +51,7 @@
                             </el-button>
                         </div>
                     </div>
-                    <div class="base-ai-tip">{{ formData.regulation ? Translate('IDCS_DRAW_RECT_TIP') : Translate('IDCS_DRAW_AREA_TIP').formatForLang(maxCount) }}</div>
+                    <div class="base-ai-tip">{{ Translate('IDCS_DRAW_AREA_TIP').formatForLang(maxCount) }}</div>
                 </div>
             </div>
             <div class="base-ai-form">
@@ -85,19 +79,12 @@
                                             @change="watchEdit.disabled.value = false"
                                         />
                                     </el-form-item>
-                                    <!-- 持续时间 -->
-                                    <el-form-item :label="Translate('IDCS_DURATION')">
-                                        <el-select-v2
-                                            v-model="formData.holdTime"
-                                            :options="formData.holdTimeList"
-                                        />
-                                    </el-form-item>
                                     <!-- 警戒区域 -->
                                     <el-form-item :label="Translate('IDCS_WARN_AREA')">
                                         <el-radio-group
                                             v-model="pageData.warnAreaIndex"
                                             class="small-btn"
-                                            @change="changeWarnArea()"
+                                            @change="changeWarnArea"
                                         >
                                             <el-radio-button
                                                 v-for="(_item, index) in formData.boundaryInfo"
@@ -249,57 +236,108 @@
                                             </el-form-item>
                                         </div>
                                     </div>
-                                    <!-- 云台 -->
-                                    <template v-if="chlData.supportAutoTrack">
-                                        <div class="base-ai-subheading">
-                                            {{ Translate('IDCS_PTZ') }}
-                                        </div>
-                                        <ChannelPtzCtrlPanel
-                                            :chl-id="currChlId || ''"
-                                            @speed="setSpeed"
-                                        />
-                                        <el-form-item>
-                                            <el-button @click="editLockStatus">
-                                                {{ pageData.lockStatus ? Translate('IDCS_UNLOCK') : Translate('IDCS_LOCKED') }}
-                                            </el-button>
-                                            <span>{{ Translate('IDCS_LOCK_PTZ_TIP') }}</span>
-                                        </el-form-item>
-                                        <el-form-item>
-                                            <el-checkbox
-                                                v-model="formData.autoTrack"
-                                                :label="Translate('IDCS_TRIGGER_TRACK')"
-                                            />
-                                        </el-form-item>
-                                    </template>
                                 </el-form>
                             </div>
                         </div>
                     </el-tab-pane>
-                    <!-- 联动方式 -->
+                    <!-- 图表 -->
                     <el-tab-pane
-                        :label="Translate('IDCS_LINKAGE_MODE')"
-                        name="trigger"
+                        :label="Translate('IDCS_CHART')"
+                        name="chart"
                     >
-                        <el-form v-if="pageData.supportAlarmAudioConfig">
-                            <el-form-item :label="Translate('IDCS_VOICE_PROMPT')">
-                                <el-select-v2
-                                    v-model="formData.sysAudio"
-                                    :options="voiceList"
-                                />
-                            </el-form-item>
-                        </el-form>
-                        <div class="base-ai-linkage-content">
-                            <!-- 常规联动 -->
-                            <AlarmBaseTriggerSelector
-                                v-model="formData.trigger"
-                                :include="formData.triggerList"
-                            />
-                            <!-- record -->
-                            <AlarmBaseRecordSelector v-model="formData.recordChls" />
-                            <!-- alarm -->
-                            <AlarmBaseAlarmOutSelector v-model="formData.alarmOutChls" />
-                            <!-- preset -->
-                            <AlarmBasePresetSelector v-model="formData.presets" />
+                        <div class="base-ai-param-box">
+                            <div class="heatMapChart_left">
+                                <div class="heatMapContent">
+                                    <div v-if="pageData.hasNoChartData">
+                                        <BaseImgSprite
+                                            file="heatMap_chart"
+                                            :index="0"
+                                            :chunk="1"
+                                        />
+                                    </div>
+                                    <div
+                                        v-else
+                                        class="heatMapArea"
+                                    >
+                                        <canvas
+                                            id="originCanvas"
+                                            width="700"
+                                            height="450"
+                                        >
+                                        </canvas>
+                                        <Heatmap
+                                            :data="pageData.heatMapChartData"
+                                            @update-legend="updateLegend"
+                                        />
+                                    </div>
+                                </div>
+                                <div class="heatMap_legendArea">
+                                    <div id="heatMap_slideRange">
+                                        <BaseSliderInput
+                                            v-model="pageData.renderLevel"
+                                            :min="1"
+                                            :max="10000"
+                                        />
+                                    </div>
+                                    <div class="heatMap_legend_container">
+                                        <span id="heatMap_min">{{ pageData.legendMin }}</span>
+                                        <img
+                                            id="heatMap_gradient"
+                                            :src="pageData.legendSrc"
+                                        />
+                                        <span id="heatMap_max">{{ pageData.legendMax }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="heatMapChart_right">
+                                <!-- 搜索条件 -->
+                                <div class="base-ai-subheading">{{ Translate('IDCS_SEARCH') }}</div>
+                                <el-form-item :label="Translate('IDCS_START_TIME')">
+                                    <BaseDatePicker
+                                        v-model="pageData.startTime"
+                                        type="datetime"
+                                        :placeholder="Translate('IDCS_START_TIME')"
+                                    />
+                                </el-form-item>
+                                <el-form-item :label="Translate('IDCS_END_TIME')">
+                                    <BaseDatePicker
+                                        v-model="pageData.endTime"
+                                        type="datetime"
+                                        :placeholder="Translate('IDCS_END_TIME')"
+                                    />
+                                </el-form-item>
+                                <el-form-item>
+                                    <el-radio-group
+                                        v-model="pageData.searchTarget"
+                                        class="radio-group"
+                                    >
+                                        <el-radio
+                                            v-if="showPersonSentity"
+                                            value="person"
+                                            :label="Translate('IDCS_DETECTION_PERSON')"
+                                        />
+                                        <el-radio
+                                            v-if="showCarSentity"
+                                            value="car"
+                                            :label="Translate('IDCS_DETECTION_VEHICLE')"
+                                        />
+                                        <el-radio
+                                            v-if="showMotorSentity"
+                                            value="bike"
+                                            :label="Translate('IDCS_NON_VEHICLE')"
+                                        />
+                                    </el-radio-group>
+                                </el-form-item>
+                                <el-form-item>
+                                    <el-button @click="handleStatics">{{ Translate('IDCS_STATISTICS') }}</el-button>
+                                    <el-button
+                                        :disabled="!pageData.imgOrigBase64"
+                                        @click="handleExport"
+                                    >
+                                        {{ Translate('IDCS_EXPORT') }}
+                                    </el-button>
+                                </el-form-item>
+                            </div>
                         </div>
                     </el-tab-pane>
                 </el-tabs>
@@ -361,6 +399,33 @@
     </div>
 </template>
 
-<script lang="ts" src="./AreaLeavePanel.v.ts"></script>
+<script lang="ts" src="./HeatMapPanel.v.ts"></script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.heatMapChart_left {
+    width: 700px;
+    padding: 0 100px 10px 20px;
+
+    .heatMapContent {
+        height: 450px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 1px solid var(--content-border);
+    }
+
+    .heatMap_legendArea {
+        width: 223px;
+        height: auto;
+        padding: 10px;
+        outline: 2px solid var(--upload-bg);
+        margin-top: 30px;
+
+        .heatMap_legend_container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    }
+}
+</style>

@@ -158,6 +158,13 @@ export const isBrowserSupportWasm = () => {
     return 'WebAssembly' in window && userSession.appType === 'STANDARD'
 }
 
+// 判断浏览器是否不支持Websocket
+export const isNotSupportWebsocket = () => {
+    const plugin = usePlugin()
+    const userSession = useUserSessionStore()
+    return plugin.IsSupportH5() && isHttpsLogin() && userSession.appType === 'STANDARD'
+}
+
 /**
  * @description 串化URL参数
  * @param params 参数
@@ -347,7 +354,12 @@ export const checkChlListCaps = async (route: string): Promise<boolean> => {
             'supportCdd',
             'supportOsc',
             'supportPassLine',
-            'supportPassLine',
+            'supportLoitering',
+            'supportPvd',
+            'supportRegionStatistics',
+            'supportCrowdGathering',
+            'supportASD',
+            'supportHeatMap',
             'protocolType',
         ],
     })
@@ -1222,6 +1234,7 @@ type MutexOptions = {
     chlIp?: string
     chlName: string
     tips: string
+    isShowCommonMsg?: boolean
 }
 
 /**
@@ -1263,7 +1276,7 @@ const getMutexChlNameObj = (onlineChannelList: MutexChlDto[], chlIp: string, chl
 /**
  * @description 查询是否有互斥通道
  */
-export const checkMutexChl = async ({ isChange, mutexList, mutexListEx = [], chlList = [], chlIp = '', chlName, tips }: MutexOptions) => {
+export const checkMutexChl = async ({ isChange, mutexList, mutexListEx = [], chlList = [], chlIp = '', chlName, tips, isShowCommonMsg }: MutexOptions) => {
     if (!isChange) {
         return Promise.resolve()
     }
@@ -1278,12 +1291,19 @@ export const checkMutexChl = async ({ isChange, mutexList, mutexListEx = [], chl
         avd: Translate('IDCS_ABNORMAL_DETECTION'),
         perimeter: Translate('IDCS_INVADE_DETECTION'),
         vfd: Translate('IDCS_FACE_DETECTION'),
-        aoientry: Translate('IDCS_INVADE_DETECTION'),
-        aoileave: Translate('IDCS_INVADE_DETECTION'),
+        aoientry: Translate('IDCS_SMART_AOI_ENTRY_DETECTION'),
+        aoileave: Translate('IDCS_SMART_AOI_LEAVE_DETECTION'),
         passlinecount: Translate('IDCS_PASS_LINE_COUNT_DETECTION'),
+        traffic: Translate('IDCS_REGION_STATISTICS'),
         vehicle: Translate('IDCS_PLATE_DETECTION'),
         fire: Translate('IDCS_FIRE_POINT_DETECTION'),
         vsd: Translate('IDCS_VSD_DETECTION'),
+        asd: Translate('IDCS_AUDIO_EXCEPTION_DETECTION'),
+        pvd: Translate('IDCS_PARKING_DETECTION'),
+        loitering: Translate('IDCS_LOITERING_DETECTION'),
+        heatmap: Translate('IDCS_HEAT_MAP'),
+        motion: Translate('IDCS_MOTION_DETECTION'),
+        areaStatis: Translate('IDCS_REGION_STATISTICS_DETECT_TIPS'),
     }
 
     const switchChangeTypeArr: string[] = []
@@ -1316,9 +1336,12 @@ export const checkMutexChl = async ({ isChange, mutexList, mutexListEx = [], chl
 
     if (switchChangeTypeArr.length) {
         const switchChangeType = switchChangeTypeArr.join(',')
+        const msg = isShowCommonMsg
+            ? Translate('IDCS_MUTEX_DETECT_TIPS').formatForLang(Translate('IDCS_CHANNEL') + ':' + chlName, Translate(tips), switchChangeType)
+            : Translate(tips).formatForLang(Translate('IDCS_CHANNEL') + ':' + chlName, switchChangeType)
         return openMessageBox({
             type: 'question',
-            message: Translate(tips).formatForLang(Translate('IDCS_CHANNEL') + ':' + chlName, switchChangeType),
+            message: msg,
         })
     } else {
         return Promise.resolve()
@@ -1494,7 +1517,7 @@ const getDetectTargetData = (nodeType: String, objectMode: String, $itemNodeObj:
     // 模式2：灵敏度相关配置从chl/param/objectFilter节点获取
     const $itemNode = objectMode === 'mode2' ? $paramNodeObj : $itemNodeObj
     // 过线统计多一个配置项：滞留报警阈值
-    let stayAlarmThreshold = new AlarmStayThresholdDto()
+    let stayAlarmThreshold = new AlarmNumberInputDto()
     const supportAlarmThreshold = $itemNode(`${nodeType}/stayAlarmThreshold`).text() !== ''
     if (supportAlarmThreshold) {
         const defaultValue = $itemNode(`${nodeType}/stayAlarmThreshold`).attr('default').num()
@@ -1515,6 +1538,7 @@ const getDetectTargetData = (nodeType: String, objectMode: String, $itemNodeObj:
         supportAlarmThreshold: supportAlarmThreshold,
         stayAlarmThreshold: stayAlarmThreshold,
         supportSensitivity: $itemNode(`${nodeType}/sensitivity`).length > 0,
+        supportSensityEnable: $itemNode(`${nodeType}/switch`).length > 0,
         sensitivity: {
             enable: $itemNode(`${nodeType}/switch`).text().bool(),
             value: $itemNode(`${nodeType}/sensitivity`).text() === '' ? sensitivityDefault : $itemNode(`${nodeType}/sensitivity`).text().num(),
@@ -1544,50 +1568,40 @@ const getDetectTargetData = (nodeType: String, objectMode: String, $itemNodeObj:
 
 /**
  * @description 组装AI配置》编辑协议的objectFilter节点XML
- * @param {Boolean} isSentySolo 是否可以单独配置灵敏度相关参数
  * @param {Object} objectFilterData 各个区域的检测目标数据
  * @param {Object} chlData 通道信息
- * @param {String} objectMode 配置模式
  * @returns {String}
  */
-export const setObjectFilterXmlData = (isSentySolo: boolean, objectFilterData: AlarmObjectFilterCfgDto, chlData: AlarmChlDto, objectMode: string): string => {
-    let paramXml = '<objectFilter>'
-    if (objectFilterData.supportPerson) {
-        // 检测目标--人
-        paramXml += '<person>'
-        paramXml += setSensitivityXmlData(objectMode, isSentySolo, objectFilterData.person)
-
-        if (objectFilterData.supportPersonMaxMin) {
-            paramXml += setMinMaxTargetXmlData(objectFilterData.person.minRegionInfo, objectFilterData.person.maxRegionInfo)
-        }
-        paramXml += '</person>'
-    }
-
-    if (objectFilterData.supportCar) {
-        // 检测目标--车
-        paramXml += '<car>'
-        paramXml += setSensitivityXmlData(objectMode, isSentySolo, objectFilterData.car)
-
-        if (objectFilterData.supportCarMaxMin) {
-            paramXml += setMinMaxTargetXmlData(objectFilterData.car.minRegionInfo, objectFilterData.car.maxRegionInfo)
-        }
-        paramXml += '</car>'
-    }
-
-    if (chlData.accessType === '0') {
-        if (objectFilterData.supportMotor) {
-            // 检测目标--非机动车
-            paramXml += '<motor>'
-            paramXml += setSensitivityXmlData(objectMode, isSentySolo, objectFilterData.motor)
-
-            if (objectFilterData.supportMotorMaxMin) {
-                paramXml += setMinMaxTargetXmlData(objectFilterData.car.minRegionInfo, objectFilterData.motor.maxRegionInfo)
+export const setObjectFilterXmlData = (objectFilterData: AlarmObjectFilterCfgDto, chlData: AlarmChlDto): string => {
+    return rawXml`
+        <objectFilter>
+            ${
+                objectFilterData.supportPerson
+                    ? ` <person>
+                            ${setSensitivityXmlData(objectFilterData.person)}
+                            ${objectFilterData.supportPersonMaxMin ? setMinMaxTargetXmlData(objectFilterData.person.minRegionInfo, objectFilterData.person.maxRegionInfo) : ''}
+                        </person>`
+                    : ''
             }
-            paramXml += '</motor>'
-        }
-    }
-    paramXml += '</objectFilter>'
-    return paramXml
+           
+             ${
+                 objectFilterData.supportCar
+                     ? ` <car>
+                            ${setSensitivityXmlData(objectFilterData.car)}
+                            ${objectFilterData.supportCarMaxMin ? setMinMaxTargetXmlData(objectFilterData.car.minRegionInfo, objectFilterData.car.maxRegionInfo) : ''}
+                        </car>`
+                     : ''
+             }
+             ${
+                 chlData.accessType === '0' && objectFilterData.supportMotor
+                     ? ` <motor>
+                            ${setSensitivityXmlData(objectFilterData.motor)}
+                            ${objectFilterData.supportMotorMaxMin ? setMinMaxTargetXmlData(objectFilterData.motor.minRegionInfo, objectFilterData.motor.maxRegionInfo) : ''}
+                        </motor>`
+                     : ''
+             }
+        </objectFilter>
+    `
 }
 
 /**
@@ -1597,26 +1611,12 @@ export const setObjectFilterXmlData = (isSentySolo: boolean, objectFilterData: A
  * @param {AlarmTargetCfgDto} objectData
  * @returns {String}
  */
-const setSensitivityXmlData = (objectMode: string, isSentySolo: boolean, objectData: AlarmTargetCfgDto): string => {
-    let sensitivityXml = ''
-    if (objectMode && objectMode === 'mode5') {
-        // 模式5可单独配置检测目标开关，不可单独配置检测目标灵敏度、大小
-        sensitivityXml += '<switch>' + objectData.sensitivity.enable + '</switch>'
-    } else {
-        if (isSentySolo) {
-            // 模式2不可单独配置检测目标
-            sensitivityXml += '<switch>' + objectData.sensitivity.enable + '</switch>'
-            if (objectData.sensitivity) {
-                sensitivityXml += '<sensitivity>' + objectData.sensitivity.value + '</sensitivity>'
-            }
-
-            // 滞留报警阈值
-            if (objectData.supportAlarmThreshold) {
-                sensitivityXml += '<stayAlarmThreshold>' + objectData.stayAlarmThreshold.value + '</stayAlarmThreshold>'
-            }
-        }
-    }
-    return sensitivityXml
+const setSensitivityXmlData = (objectData: AlarmTargetCfgDto): string => {
+    return rawXml`
+        ${objectData.supportSensityEnable ? `<switch>${objectData.sensitivity.enable}</switch>` : ''}
+        ${objectData.supportSensitivity ? `<sensitivity>${objectData.sensitivity.value}</sensitivity>` : ''}
+        ${objectData.supportAlarmThreshold ? `<stayAlarmThreshold>${objectData.stayAlarmThreshold?.value}</stayAlarmThreshold>` : ''}
+    `
 }
 
 /**
@@ -1626,22 +1626,14 @@ const setSensitivityXmlData = (objectMode: string, isSentySolo: boolean, objectD
  * @returns {String}
  */
 const setMinMaxTargetXmlData = (minRegionInfo: AlarmMaxMinRegionInfoDto, maxRegionInfo: AlarmMaxMinRegionInfoDto): string => {
-    const minMaxXml =
-        '<minDetectTarget>' +
-        '<width>' +
-        minRegionInfo.width * 100 +
-        '</width>' +
-        '<height>' +
-        minRegionInfo.height * 100 +
-        '</height>' +
-        '</minDetectTarget>' +
-        '<maxDetectTarget>' +
-        '<width>' +
-        maxRegionInfo.width * 100 +
-        '</width>' +
-        '<height>' +
-        maxRegionInfo.height * 100 +
-        '</height>' +
-        '</maxDetectTarget>'
-    return minMaxXml
+    return rawXml`
+        <minDetectTarget>
+            <width>${minRegionInfo.width * 100}</width>
+            <height>${minRegionInfo.height * 100}</height>
+        </minDetectTarget>
+        <maxDetectTarget>
+            <width>${maxRegionInfo.width * 100}</width>
+            <height>${maxRegionInfo.height * 100}</height>
+        </maxDetectTarget>
+    `
 }
