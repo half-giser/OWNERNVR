@@ -98,9 +98,10 @@
                                         :label="Translate('IDCS_DURATION_THRESHOLD')"
                                     >
                                         <BaseNumberInput
-                                            v-model="formData.duration"
-                                            :min="formData.durationMin"
-                                            :max="formData.durationMax"
+                                            v-model="formData.duration.value"
+                                            :min="formData.duration.min"
+                                            :max="formData.duration.max"
+                                            @out-of-range="blurDuration(formData.duration.min, formData.duration.max)"
                                         />
                                     </el-form-item>
                                     <!-- 屏蔽区域 -->
@@ -111,7 +112,7 @@
                                         <el-radio-group
                                             v-model="pageData.maskAreaIndex"
                                             class="small-btn"
-                                            @change="changeMaskArea()"
+                                            @change="changeMaskArea"
                                         >
                                             <el-radio-button
                                                 v-for="(_item, index) in formData.maskAreaInfo"
@@ -129,7 +130,7 @@
                                         <el-radio-group
                                             v-model="pageData.warnAreaIndex"
                                             class="small-btn"
-                                            @change="changeWarnArea()"
+                                            @change="changeWarnArea"
                                         >
                                             <el-radio-button
                                                 v-for="(_item, index) in formData.boundaryInfo"
@@ -155,11 +156,11 @@
                                     <el-form-item v-if="formData.onlyPerson">
                                         {{ Translate('IDCS_DETECTION_ONLY_ONE_OBJECT').formatForLang(Translate('IDCS_BEYOND_DETECTION'), Translate('IDCS_DETECTION_PERSON')) }}
                                     </el-form-item>
-                                    <div :class="formData.objectFilterMode === 'mode3' ? 'rectangleBorder' : ''">
+                                    <div :class="pageData.objectFilterMode === 'mode3' ? 'rectangleBorder' : ''">
                                         <!-- 目标大小 -->
                                         <div
                                             v-if="formData.detectTargetList.length"
-                                            :class="formData.objectFilterMode === 'mode2' ? 'rectangleBorder' : ''"
+                                            :class="pageData.objectFilterMode === 'mode2' ? 'rectangleBorder' : ''"
                                         >
                                             <div class="base-ai-subheading">
                                                 {{ Translate('IDCS_DETECT_TARGET_SIZE') }}
@@ -232,7 +233,7 @@
                                             </el-form-item>
                                         </div>
                                         <!-- 检测目标 -->
-                                        <div :class="formData.objectFilterMode === 'mode5' ? 'rectangleBorder' : ''">
+                                        <div :class="pageData.objectFilterMode === 'mode5' ? 'rectangleBorder' : ''">
                                             <el-form-item v-if="formData.boundaryInfo.length && formData.boundaryInfo[pageData.lastSelectWarnArea].objectFilter.supportCommonSensitivity">
                                                 <template #label>
                                                     <el-checkbox
@@ -436,32 +437,4 @@
 
 <script lang="ts" src="./PeaPanel.v.ts"></script>
 
-<style lang="scss" scoped>
-#n9web .el-form > div > .el-form-item,
-#n9web .el-form > div > div > .el-form-item {
-    padding: 2px 15px;
-    margin-bottom: 0;
-    flex-wrap: nowrap;
-}
-.rectangleBorder {
-    border: solid 1px #d1d1d1;
-    padding: 12px;
-    margin: 10px 15px;
-}
-.spanWidth {
-    display: inline-block;
-    max-width: 75px;
-    margin-right: 5px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    vertical-align: middle;
-}
-.targetInput {
-    width: 40px !important;
-}
-
-.percentLabel {
-    margin-right: 30px;
-}
-</style>
+<style lang="scss" scoped></style>

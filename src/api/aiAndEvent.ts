@@ -349,6 +349,111 @@ export const editCombinedAlarm = (data: string) => fetch('editCombinedAlarm', da
 export const editCombinedAlarmFaceMatch = (data: string) => fetch('editCombinedAlarmFaceMatch', data)
 
 /**
+ * @description 获取徘徊检测数据
+ * @param {string} data
+ * @returns
+ */
+export const querySmartLoiteringConfig = (data: string) => fetch('querySmartLoiteringConfig', data)
+
+/**
+ * @description 修改徘徊检测数据
+ * @param {string} data
+ * @returns
+ */
+export const editSmartLoiteringConfig = (data: string) => fetch('editSmartLoiteringConfig', data)
+
+/**
+ * @description 获取违停检测数据
+ * @param {string} data
+ * @returns
+ */
+export const querySmartPvdConfig = (data: string) => fetch('querySmartPvdConfig', data)
+
+/**
+ * @description 修改违停检测数据
+ * @param {string} data
+ * @returns
+ */
+export const editSmartPvdConfig = (data: string) => fetch('editSmartPvdConfig', data)
+
+/**
+ * @description 获取区域统计侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const queryRegionStatisticsConfig = (data: string) => fetch('queryRegionStatisticsConfig', data)
+
+/**
+ * @description 修改区域统计侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const editRegionStatisticsConfig = (data: string) => fetch('editRegionStatisticsConfig', data)
+
+/**
+ * @description 获取声音异常侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const queryAsd = (data: string) => fetch('queryAsd', data)
+
+/**
+ * @description 修改声音异常侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const editAsd = (data: string) => fetch('editAsd', data)
+
+/**
+ * @description 获取人员聚集侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const queryCgd = (data: string) => fetch('queryCgd', data)
+
+/**
+ * @description 修改人员聚集侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const editCgd = (data: string) => fetch('editCgd', data)
+
+/**
+ * @description 获取热力图侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const queryHeatMapConfig = (data: string) => fetch('queryHeatMapConfig', data)
+
+/**
+ * @description 修改热力图侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const editHeatMapConfig = (data: string) => fetch('editHeatMapConfig', data)
+
+/**
+ * @description 获取热力图统计数据
+ * @param {string} data
+ * @returns
+ */
+export const queryHeatMapStatistics = (data: string) => fetch('queryHeatMapStatistics', data)
+
+/**
+ * @description 获取客流统计侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const querySmartBinocularCountConfig = (data: string) => fetch('querySmartBinocularCountConfig', data)
+
+/**
+ * @description 修改客流统计侦测数据
+ * @param {string} data
+ * @returns
+ */
+export const editSmartBinocularCountConfig = (data: string) => fetch('editSmartBinocularCountConfig', data)
+
+/**
  * @description 获取火点检测数据
  * @param {string} data
  * @returns
